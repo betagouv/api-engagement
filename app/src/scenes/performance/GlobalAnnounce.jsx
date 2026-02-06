@@ -424,7 +424,7 @@ const Announcers = ({ filters, defaultType = "print" }) => {
             ) : (
               <div className="flex justify-between gap-4">
                 <div className="w-2/3">
-                  <table className="w-full table-fixed">
+                  <table className="w-full table-auto">
                     <thead className="text-left">
                       <tr className="text-text-mention text-xs uppercase">
                         <th colSpan={3} className="px-4">

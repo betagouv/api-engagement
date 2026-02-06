@@ -199,10 +199,10 @@ body {
 }
 
 @utility input {
-  @apply placeholder:text-gray-425 h-10 rounded-t border-0 border-b border-b-black bg-gray-950 px-4 py-2 text-sm text-black outline-[#0a76f6] focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60;
+  @apply placeholder:text-gray-425 min-h-10 rounded-t border-0 border-b border-b-black bg-gray-950 px-4 py-2 text-sm text-black outline-[#0a76f6] focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60;
 }
 @utility select {
-  @apply placeholder:text-gray-425 outline-outline-blue h-10 appearance-none rounded-none rounded-t border-0 border-b border-b-black bg-gray-950 py-2 pr-10 pl-4 text-sm text-black focus:outline-2 focus:outline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60;
+  @apply placeholder:text-gray-425 outline-outline-blue min-h-10 appearance-none rounded-none rounded-t border-0 border-b border-b-black bg-gray-950 py-2 pr-10 pl-4 text-sm text-black focus:outline-2 focus:outline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60;
 }
 @utility textarea {
   @apply input h-auto min-h-10;
@@ -218,10 +218,10 @@ body {
   @apply checked:bg-blue-france checked:hover:bg-blue-france checked:focus:bg-blue-france active:bg-blue-france h-4 w-4 rounded border border-black;
 }
 @utility table-header {
-  @apply bg-gray-1000-active h-12 border-b border-b-black px-4 text-left text-sm font-medium text-black;
+  @apply bg-gray-1000-active min-h-12 border-b border-b-black px-4 text-left text-sm font-medium text-black;
 }
 @utility table-item {
-  @apply shadow-border-b-gray h-16 text-left text-sm text-black;
+  @apply shadow-border-b-gray min-h-16 text-left text-sm text-black;
 }
 
 @utility table-cell {
@@ -307,24 +307,24 @@ select {
   margin-bottom: -8px;
 }
 .react-datepicker__day-name {
-  width: 40px;
+  min-width: 2.5rem;
   text-transform: uppercase !important;
-  font-size: 12px !important;
+  font-size: 0.75rem !important;
   font-weight: 700 !important;
   color: #666666 !important;
   margin: 0 !important;
 }
 .react-datepicker__day {
-  width: 40px;
-  height: 40px;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
   display: inline-flex;
-  font-size: 14px;
+  font-size: 0.875rem;
   margin: 0;
   justify-content: center;
+  align-items: center;
   text-align: center;
   border-radius: 0 !important;
   border: none;
-  padding-top: 6px;
   color: #000091;
 }
 .react-datepicker__day:not(.react-datepicker__day--disabled):hover {

@@ -348,7 +348,7 @@ const SourcePerformance = ({ data, source }) => {
   return (
     <div className="border-grey-border space-y-4 border p-6">
       <h3 className="text-2xl font-semibold">Performance par {source === "widget" ? "widget" : "campagne"}</h3>
-      <Table header={TABLE_HEADER(source)} total={data.length} sortBy={sortBy} onSort={setSortBy} page={page} onPageChange={setPage} pageSize={pageSize}>
+      <Table header={TABLE_HEADER(source)} total={data.length} sortBy={sortBy} onSort={setSortBy} page={page} onPageChange={setPage} pageSize={pageSize} auto>
         {paginated.map((item, i) => (
           <tr key={`${item.name || "source"}-${(page - 1) * pageSize + i}`} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
             <td colSpan={2} className="px-4">
