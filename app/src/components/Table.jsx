@@ -33,7 +33,7 @@ const Table = ({
   return (
     <>
       <div className={`no-scrollbar w-full overflow-x-auto overflow-y-visible ${className}`}>
-        <table className={`w-full border-collapse ${auto ? "table-auto" : "table-fixed"}`}>
+        <table className={`w-full min-w-[600px] border-collapse ${auto ? "table-auto" : "table-fixed"}`}>
           <thead className={`text-left ${sticky ? "sticky top-0 z-10 shadow-sm" : ""}`}>
             <tr className="table-header">
               {header.map((item, index) => {
