@@ -3,7 +3,7 @@ import passport from "passport";
 import zod from "zod";
 
 import { JobBoardId } from "../db/core";
-import { captureMessage, INVALID_BODY, NOT_FOUND } from "../error";
+import { INVALID_BODY, NOT_FOUND } from "../error";
 import missionService from "../services/mission";
 import missionJobBoardService from "../services/mission-jobboard";
 import { PublisherRequest } from "../types/passport";
@@ -38,14 +38,12 @@ router.post("/feedback", passport.authenticate(["leboncoin"], { session: false }
       .safeParse(req.body);
 
     if (!body.success) {
-      captureMessage("Invalid body", JSON.stringify(body.error, null, 2));
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
     }
 
     const mission = await missionService.findOneMission(body.data.partner_unique_reference);
 
     if (!mission) {
-      captureMessage("Mission not found", JSON.stringify(body.data, null, 2));
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Mission not found" });
     }
 

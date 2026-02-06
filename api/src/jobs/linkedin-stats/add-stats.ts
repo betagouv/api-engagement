@@ -1,5 +1,5 @@
 import { PUBLISHER_IDS } from "../../config";
-import { captureException, captureMessage } from "../../error";
+import { captureException } from "../../error";
 import { missionService } from "../../services/mission";
 import { statEventService } from "../../services/stat-event";
 import { StatEventRecord } from "../../types";
@@ -50,33 +50,10 @@ const getDate = (date: string, full: boolean = false) => {
   }
 };
 
-// Temporary fix for missing missions
-const MISSION_NOT_FOUND = {
-  "650c884e161246d96b53be2e": "6703bbb473fbd982c10127e7",
-  "63922907f6c879268f834d8b": "6703bbb573fbd982c1012b26",
-  "651c0605c2543ccde2ebe526": "6703bbb473fbd982c10126a5",
-  "6526e65a2805290904c6f5a6": "6703bbb473fbd982c10128e1",
-  "63d3c010311743b0e0d2cfb8": "6703bbb473fbd982c1012628",
-  "633d5f02c5e3d005ebd9c27b": "6703bb4273fbd982c1011811",
-  " 606d20efeea0d9070b9ab67f": "6703bbb573fbd982c1012b7a",
-  "b30a0fd8-2a29-471c-8667-a0def87352ca": "",
-  "6509e557480f32a674f90d9b": "6703bad373fbd982c100f8cd",
-  "65034dcd6d92368ab3e62b2e": "6703bad173fbd982c100ec8b",
-  "650b36ce161246d96b4dec94": "6703bb3c73fbd982c101003a",
-  "645699282e85e7d7b1a8b805": "6703bb4273fbd982c1011a59",
-  "64092877f563558c4ff64a5b": "6703bb4173fbd982c10113f7",
-  "63add8a958b361a136463939": "6703bb4173fbd982c1011308",
-  "64092877f563558c4ff64be6": "6703bb4173fbd982c10113f6",
-  "6215b7b5ffecb707a0fb2a0d": "6703bb4173fbd982c10113f2",
-  "62283732285e0d07a06a1c2b": "6703bb4173fbd982c101139c",
-  "63e2408e50f05c74605803f0": "6703bb3f73fbd982c1010d44",
-  "640a21e45c6aa53a9169a6ec": "6703bb4173fbd982c1011403",
-} as { [key: string]: string };
-
 const parseRow = async (row: (string | number)[], from: Date, to: Date, sourceId: string) => {
   const missionId = row[ROWS.indexOf("Employer Job ID")];
   if (!missionId) {
-    captureMessage(`[Linkedin Stats] No Mission ID found in row`, row.toString());
+    console.info(`[Linkedin Stats] No Mission ID found in row`, row.toString());
     return;
   }
 
@@ -91,29 +68,13 @@ const parseRow = async (row: (string | number)[], from: Date, to: Date, sourceId
     if (!mission) {
       const existingStat = await statEventService.findOneStatEventByMissionId(missionId.toString());
       if (!existingStat) {
-        if (MISSION_NOT_FOUND[missionId.toString()]) {
-          mission = await missionService.findOneMission(MISSION_NOT_FOUND[missionId.toString()]);
-          if (!mission) {
-            captureMessage(`[Linkedin Stats] Mission ${missionId} not found`);
-            return;
-          }
-        } else {
-          captureMessage(`[Linkedin Stats] Mission ${missionId} not found`);
-          return;
-        }
+        console.info(`[Linkedin Stats] Mission ${missionId} not found`);
+        return;
       } else {
         mission = existingStat.missionClientId ? await missionService.findMissionByClientAndPublisher(existingStat.missionClientId.toString(), existingStat.toPublisherId) : null;
         if (!mission) {
-          if (MISSION_NOT_FOUND[missionId.toString()]) {
-            mission = await missionService.findOneMission(MISSION_NOT_FOUND[missionId.toString()]);
-            if (!mission) {
-              captureMessage(`[Linkedin Stats] Mission ${missionId} not found`);
-              return;
-            }
-          } else {
-            captureMessage(`[Linkedin Stats] Mission ${missionId} not found`);
-            return;
-          }
+          console.info(`[Linkedin Stats] Mission ${missionId} not found`);
+          return;
         }
       }
     }
