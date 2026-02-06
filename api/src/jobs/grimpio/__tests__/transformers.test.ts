@@ -38,7 +38,7 @@ const baseMission: Partial<MissionRecord> = {
   startAt: new Date("2025-01-15"),
   endAt: new Date("2025-06-30"),
   domain: "environnement",
-  activity: "informatique",
+  activities: ["informatique"],
   remote: "no",
   schedule: "24h par semaine",
   openToMinors: false,

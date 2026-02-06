@@ -94,7 +94,11 @@ const View = () => {
             </div>
             <div className="mb-4 flex items-center">
               <p className="text-text-mention text-xs font-semibold uppercase">Activités</p>
-              <span className="ml-3 rounded bg-purple-300 px-3 py-1 text-xs font-semibold text-purple-950 uppercase">{mission.activity}</span>
+              {(mission.activities || []).map((activity, index) => (
+                <span key={index} className="ml-3 rounded bg-purple-300 px-3 py-1 text-xs font-semibold text-purple-950 uppercase">
+                  {activity}
+                </span>
+              ))}
             </div>
             <div className="flex flex-wrap items-center">
               <p className="text-text-mention text-xs font-semibold uppercase">Compétences</p>

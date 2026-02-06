@@ -107,7 +107,7 @@ const Flux = ({ moderated }) => {
         val["Organisation"] = mission.organizationName;
         val["Ville"] = `${mission.city} - ${mission.country}`;
         val["Domaine"] = mission.domain;
-        val["Activité"] = mission.activity;
+        val["Activité"] = (mission.activities || []).join(", ");
         val["Statut"] = mission.statusCode;
         csv.push(val);
       });

@@ -31,6 +31,15 @@ activities as (
     id as activity_id,
     name as activity_name
   from {{ ref('stg_activity') }}
+),
+
+mission_activities as (
+  select
+    ma.mission_id,
+    string_agg(a.activity_name, ', ' order by a.activity_name) as activity_names
+  from {{ ref('stg_mission_activity') }} as ma
+  left join activities as a on ma.activity_id = a.activity_id
+  group by ma.mission_id
 )
 
 select
@@ -41,7 +50,6 @@ select
   m.organization_client_id,
   m.domain_id,
   m.activity_id,
-  a.activity_name as activity,
   m.title,
   m.description,
   m.domain_original,
@@ -72,8 +80,9 @@ select
   m.deleted_at,
   m.created_at,
   m.updated_at,
+  ma.activity_names as activity,
   coalesce(d.domain_name, m.domain_original) as domain,
   (m.deleted_at is not null) as is_deleted
 from missions as m
 left join domains as d on m.domain_id = d.domain_id
-left join activities as a on m.activity_id = a.activity_id
+left join mission_activities as ma on m.id = ma.mission_id

@@ -11,8 +11,12 @@ describe("String Utils", () => {
       expect(slugify("héllo wörld")).toBe("hello-world");
     });
 
-    it("should replace ampersands", () => {
-      expect(slugify("apples & oranges")).toBe("apples-and-oranges");
+    it("should remove ampersands", () => {
+      expect(slugify("apples & oranges")).toBe("apples-oranges");
+    });
+
+    it("should replace apostrophes with hyphens", () => {
+      expect(slugify("encadrement d'équipes")).toBe("encadrement-d-equipes");
     });
 
     it("should remove non-word characters except hyphens", () => {

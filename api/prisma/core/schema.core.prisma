@@ -612,6 +612,7 @@ model Mission {
   addresses             MissionAddress[]
   moderationStatuses    MissionModerationStatus[]
   jobBoards             MissionJobBoard[]
+  activities            MissionActivity[]
 
   // Organization fields (legacy, kept during backfill)
   organizationUrl                    String?
@@ -729,9 +730,24 @@ model Activity {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  missions Mission[]
+  missions          Mission[]
+  missionActivities MissionActivity[]
 
   @@map("activity")
+}
+
+model MissionActivity {
+  missionId  String   @map("mission_id")
+  activityId String   @map("activity_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  mission  Mission  @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+
+  @@id([missionId, activityId])
+  @@index([missionId], map: "mission_activity_mission_id_idx")
+  @@index([activityId], map: "mission_activity_activity_id_idx")
+  @@map("mission_activity")
 }
 
 model MissionAddress {

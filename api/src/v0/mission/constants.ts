@@ -3,7 +3,6 @@ export const NO_PARTNER_MESSAGE = "Vous n'avez pas encore accès à des missions
 export const MISSION_FIELDS = [
   "_id",
   "clientId",
-  "activity",
   "addresses",
   "associationLogo",
   "associationAddress",

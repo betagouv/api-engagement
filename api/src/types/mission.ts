@@ -82,7 +82,7 @@ export type MissionRecord = {
   domain: string | null;
   domainOriginal: string | null;
   domainLogo: string | null;
-  activity: string | null;
+  activities: string[];
   type: string | null;
   snu: boolean;
   snuPlaces: number | null;

@@ -27,7 +27,7 @@ const baseMission: Partial<MissionRecord> = {
   publisherName: "Mon asso",
   postedAt: new Date("2025-01-01"),
   endAt: new Date("2025-06-30"),
-  activity: "informatique",
+  activities: ["informatique"],
   remote: "no",
   organizationLogo: "https://example.com/logo.png",
   addresses: [
@@ -152,7 +152,7 @@ describe("missionToTalentJob", () => {
   });
 
   it("should use getActivityCategory for category mapping", () => {
-    const mission = { ...baseMission, activity: "art" } as MissionRecord;
+    const mission = { ...baseMission, activities: ["art"] } as MissionRecord;
     const jobs = missionToTalentJob(mission);
     expect(jobs[0].category).toBe("Category art");
   });

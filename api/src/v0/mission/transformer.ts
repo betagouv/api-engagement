@@ -21,6 +21,7 @@ export const buildData = (data: MissionRecord, publisherId: string, moderator: b
     obj[field] = (data as any)[field];
   }
 
+  obj.activity = data.activities.join(", ") || null;
   obj.applicationUrl = getMissionTrackedApplicationUrl(data as any, publisherId);
 
   // Add fields to legacy support
