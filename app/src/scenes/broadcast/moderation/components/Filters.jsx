@@ -65,7 +65,7 @@ const Filters = ({ filters, onChange, reload }) => {
       <div className="mb-4 flex w-full justify-start">
         <SearchInput value={filters.search} onChange={(e) => onChange({ ...filters, search: e })} placeholder="Rechercher" className="w-[40%]" />
       </div>
-      <div className="flex items-center gap-4 pb-4">
+      <div className="flex flex-wrap items-center gap-4 pb-4">
         <Select
           options={options.status.map((e) => ({ value: e.key, label: STATUS_PLR[e.key], count: e.doc_count }))}
           value={filters.status}
@@ -98,7 +98,7 @@ const Filters = ({ filters, onChange, reload }) => {
           className="w-96"
         />
       </div>
-      <div className="flex items-center gap-4 pb-6">
+      <div className="flex flex-wrap items-center gap-4 pb-6">
         <Select
           options={options.comments.map((e) => ({ value: e.key, label: JVA_MODERATION_COMMENTS_LABELS[e.key] || e.key, count: e.doc_count }))}
           value={filters.comment}
