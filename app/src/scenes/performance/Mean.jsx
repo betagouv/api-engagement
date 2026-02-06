@@ -171,15 +171,15 @@ const Mean = ({ filters, onFiltersChange }) => {
   return (
     <div className="space-y-12 p-12">
       <title>API Engagement - Moyens de diffusion - Performance</title>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center gap-6">
         <div className="space-y-2">
           <label className="text-text-mention text-sm font-semibold uppercase">Période</label>
           <DateRangePicker value={filters} onChange={(value) => onFiltersChange({ ...filters, ...value })} />
         </div>
         {options.length > 1 && (
           <>
-            <div className="mx-10 h-16 w-px bg-gray-900" />
-            <div className="flex-1 space-y-2">
+            <div className="mx-4 hidden h-16 w-px bg-gray-900 lg:block" />
+            <div className="min-w-[200px] flex-1 space-y-2">
               <label htmlFor="mean-of-diffusion" className="text-text-mention text-sm font-semibold uppercase">
                 Moyen de diffusion
               </label>
