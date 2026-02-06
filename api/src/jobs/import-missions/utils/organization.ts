@@ -1,6 +1,8 @@
+import { PUBLISHER_IDS } from "../../../config";
 import { captureException } from "../../../error";
 import type { PublisherRecord } from "../../../types/publisher";
 import { isValidSiren, isValidSiret } from "../../../utils/organization";
+import { slugify } from "../../../utils/string";
 import { ImportedOrganization, MissionXML } from "../types";
 
 const parseString = (value: string | undefined) => {
@@ -58,20 +60,39 @@ const parseSiren = (value: string | undefined) => {
 
 const normalizeRNA = (value?: string | null) => (value || "").replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
 
+export const parseOrganizationClientId = (missionXML: MissionXML) => {
+  // Before organizationClientId the id was asked into organizationId field, which has been changed
+  if (missionXML.organizationClientId || missionXML.organizationId) {
+    return parseString(missionXML.organizationClientId) || parseString(missionXML.organizationId);
+  }
+  if (missionXML.organizationRNA || missionXML.organizationRna) {
+    return normalizeRNA(parseString(missionXML.organizationRNA) || parseString(missionXML.organizationRna));
+  }
+  const { siret, siren } = parseSiren(missionXML.organizationSiren);
+  if (siret || siren) {
+    return siret || siren;
+  }
+  if (missionXML.organizationName) {
+    return slugify(missionXML.organizationName);
+  }
+  return null;
+};
+
 export const parseOrganization = (publisher: PublisherRecord, missionXML: MissionXML): ImportedOrganization | null => {
   try {
+    const organizationClientId = parseOrganizationClientId(missionXML);
+    if (!organizationClientId) {
+      return null;
+    }
     const organizationLogo = parseString(missionXML.organizationLogo);
     const { siret, siren } = parseSiren(missionXML.organizationSiren);
     const organization = {
       publisherId: publisher.id,
-      organizationClientId: parseString(missionXML.organizationClientId) || parseString(missionXML.organizationId),
+      clientId: organizationClientId,
       name: parseString(missionXML.organizationName),
       rna: normalizeRNA(parseString(missionXML.organizationRNA) || parseString(missionXML.organizationRna)),
-      rnaVerified: null,
       siren: siren,
-      sirenVerified: null,
       siret: siret,
-      siretVerified: null,
       url: parseString(missionXML.organizationUrl),
       logo: organizationLogo || publisher.defaultMissionLogo,
       description: parseString(missionXML.organizationDescription),
@@ -91,6 +112,14 @@ export const parseOrganization = (publisher: PublisherRecord, missionXML: Missio
       verifiedAt: null,
       organizationIdVerified: null,
     } as ImportedOrganization;
+
+    if (publisher.id === PUBLISHER_IDS.SERVICE_CIVIQUE) {
+      if (missionXML.parentOrganizationName) {
+        organization.parentOrganizations = Array.isArray(missionXML.parentOrganizationName) ? missionXML.parentOrganizationName : [missionXML.parentOrganizationName];
+      } else {
+        organization.parentOrganizations = [missionXML.organizationName];
+      }
+    }
 
     return organization;
   } catch (error) {

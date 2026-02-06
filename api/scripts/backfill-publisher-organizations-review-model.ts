@@ -30,13 +30,9 @@ const DRY_RUN = process.argv.includes("--dry-run");
 
 type CountResult = { count: bigint }[];
 
-const run = async () => {
+const reviewPublisherOrganizationModel = async () => {
   const startedAt = new Date();
   console.log(`[PublisherOrganizationReviewModelBackfill] Started at ${startedAt.toISOString()}`);
-
-  if (DRY_RUN) {
-    console.log("[PublisherOrganizationReviewModelBackfill] Running in dry run mode - no data will be written");
-  }
 
   await prismaCore.$connect();
   console.log("[PublisherOrganizationReviewModelBackfill] Connected to PostgreSQL");
@@ -55,40 +51,6 @@ const run = async () => {
 
   if (totalCount === 0) {
     console.log("[PublisherOrganizationReviewModelBackfill] Aucune organisation à migrer.");
-    return;
-  }
-
-  if (DRY_RUN) {
-    // Afficher un aperçu des premières organisations
-    const preview = await prismaCore.$queryRaw<
-      {
-        id: string;
-        organization_client_id: string;
-        organization_name: string | null;
-        organization_rna: string | null;
-        organization_siren: string | null;
-        organization_status_juridique: string | null;
-        organization_reseaux: string[];
-      }[]
-    >`
-      SELECT 
-        "id",
-        "organization_client_id",
-        "organization_name",
-        "organization_rna",
-        "organization_siren",
-        "organization_status_juridique",
-        "organization_reseaux"
-      FROM "publisher_organization"
-      WHERE "name" IS NULL
-        AND "organization_name" IS NOT NULL
-      LIMIT 5
-    `;
-
-    console.log("[PublisherOrganizationReviewModelBackfill] Aperçu des organisations à migrer :");
-    for (const org of preview) {
-      console.log(`  - ${org.id}: ${org.organization_name} (RNA: ${org.organization_rna}, Siren: ${org.organization_siren})`);
-    }
     return;
   }
 
@@ -117,6 +79,57 @@ const run = async () => {
 
   const durationMs = Date.now() - startedAt.getTime();
   console.log(`[PublisherOrganizationReviewModelBackfill] Migration terminée : ${migratedCount} organisations migrées en ${(durationMs / 1000).toFixed(1)}s.`);
+
+  // Migrate missions
+};
+
+const migrateMissions = async () => {
+  const publisherOrganizations = await prismaCore.publisherOrganization.findMany({
+    where: {},
+    select: {
+      id: true,
+      clientId: true,
+    },
+  });
+  console.log(`[PublisherOrganizationReviewModelBackfill] ${publisherOrganizations.length} publisher organizations found`);
+
+  let updatedMissionsCount = 0;
+  let processedPublisherOrganizationsCount = 0;
+  for (const publisherOrganization of publisherOrganizations) {
+    const missionsCount = await prismaCore.mission.count({
+      where: {
+        organizationClientId: publisherOrganization.clientId,
+        publisherOrganizationId: null,
+      },
+    });
+
+    if (missionsCount === 0 && DRY_RUN) {
+      continue;
+    }
+    const updatedMissions = await prismaCore.mission.updateMany({
+      where: {
+        organizationClientId: publisherOrganization.clientId,
+        publisherOrganizationId: null,
+      },
+      data: {
+        publisherOrganizationId: publisherOrganization.id,
+      },
+    });
+    processedPublisherOrganizationsCount++;
+    updatedMissionsCount += updatedMissions.count ?? 0;
+
+    if (processedPublisherOrganizationsCount % 100 === 0) {
+      console.log(
+        `[PublisherOrganizationReviewModelBackfill] Processed ${processedPublisherOrganizationsCount} publisher organizations and updated ${updatedMissionsCount} missions`
+      );
+    }
+
+    if (processedPublisherOrganizationsCount % 100 === 0) {
+      console.log(
+        `[PublisherOrganizationReviewModelBackfill] Processed ${processedPublisherOrganizationsCount} publisher organizations and updated ${updatedMissionsCount} missions`
+      );
+    }
+  }
 };
 
 const shutdown = async (exitCode: number) => {
@@ -124,7 +137,12 @@ const shutdown = async (exitCode: number) => {
   process.exit(exitCode);
 };
 
-run()
+const main = async () => {
+  await reviewPublisherOrganizationModel();
+  await migrateMissions();
+};
+
+main()
   .then(async () => {
     console.log("[PublisherOrganizationReviewModelBackfill] Completed successfully");
     await shutdown(0);

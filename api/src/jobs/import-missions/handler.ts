@@ -169,12 +169,6 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
       const chunk = missionsXML.slice(i, i + CHUNK_SIZE);
       console.log(`[${publisher.name}] Processing chunk ${i / CHUNK_SIZE + 1} of ${Math.ceil(missionsXML.length / CHUNK_SIZE)} (${chunk.length} missions)`);
 
-      const existingOrganizations = await publisherOrganizationService.findMany({
-        publisherId: publisher.id,
-        organizationClientIds: chunk.map((m) => m.organizationClientId.toString()),
-      });
-      const existingOrganizationsMap = new Map(existingOrganizations.map((o) => [o.organizationClientId, o]));
-
       const existingMissions = await missionService.findMissionsBy({ publisherId: publisher.id, clientId: { in: chunk.map((m) => m.clientId.toString()) } });
       const existingMap = new Map(existingMissions.map((m) => [m.clientId, m]));
 
@@ -189,18 +183,19 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
           continue;
         }
 
-        const existing = existingMap.get(clientId);
-        const mission = parseMission(publisher, { ...missionXML, clientId }, (existing as any) || null, startTime);
-        if (!mission) {
-          continue;
-        }
-        missions.push(mission);
-
         const organization = parseOrganization(publisher, missionXML);
         if (!organization) {
           continue;
         }
         organizations.push(organization);
+
+        const existing = existingMap.get(clientId);
+        const mission = parseMission(publisher, { ...missionXML, clientId }, (existing as any) || null, startTime);
+        if (!mission) {
+          continue;
+        }
+        mission.organizationClientId = organization.clientId || null;
+        missions.push(mission);
       }
 
       allMissionsClientIds.push(...missions.map((m) => m.clientId.toString()));
@@ -227,21 +222,24 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
 
       // UPSERT ORGANIZATIONS
       console.log(`[${publisher.name}] Upserting ${organizations.length} organizations`);
+      const existingOrganizations = await publisherOrganizationService.findMany({
+        publisherId: publisher.id,
+        clientIds: organizations.map((o) => o.clientId?.toString() || "").filter((c) => c.length > 0),
+      });
+      const existingOrganizationsMap = new Map(existingOrganizations.map((o) => [o.clientId, o]));
+      console.log(`[${publisher.name}] Found ${existingOrganizations.length} existing organizations`);
       let createdOrganizationsCount = 0;
       let updatedOrganizationsCount = 0;
       let unchangedOrganizationsCount = 0;
       for (const organization of organizations) {
-        const existing = existingOrganizationsMap.get(organization.organizationClientId) || null;
+        const existing = existingOrganizationsMap.get(organization.clientId) || null;
         const result = await upsertOrganization(organization, existing);
-        if (result.action === "created") {
-          existingOrganizationsMap.set(organization.organizationClientId, result.organization);
-          createdOrganizationsCount += 1;
-        } else if (result.action === "updated") {
-          existingOrganizationsMap.set(organization.organizationClientId, result.organization);
-          updatedOrganizationsCount += 1;
-        } else if (result.action === "unchanged") {
+        if (result.action === "unchanged") {
           unchangedOrganizationsCount += 1;
         }
+        existingOrganizationsMap.set(organization.clientId, result.organization);
+        createdOrganizationsCount += result.action === "created" ? 1 : 0;
+        updatedOrganizationsCount += result.action === "updated" ? 1 : 0;
       }
       console.log(`[${publisher.name}] ${createdOrganizationsCount} created, ${updatedOrganizationsCount} updated and ${unchangedOrganizationsCount} unchanged organizations`);
 
@@ -252,6 +250,17 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
       let unchangedMissionsCount = 0;
       const missionEvents: MissionEventCreateParams[] = [];
       for (const mission of missions) {
+        if (mission.organizationClientId) {
+          const publisherOrganization = existingOrganizationsMap.get(mission.organizationClientId) || null;
+          if (!publisherOrganization) {
+            console.error(`[${publisher.name}] Missing publisher organization ${mission.organizationClientId} for mission ${mission.clientId}`);
+          } else {
+            mission.publisherOrganizationId = publisherOrganization.id;
+          }
+        } else {
+          console.info(`[${publisher.name}] Missing without organization clientId ${mission.clientId}`);
+        }
+
         const existing = existingMap.get(mission.clientId) || null;
         const result = await upsertMission(mission, existing);
         existingMap.set(mission.clientId, result.mission);

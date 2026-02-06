@@ -108,7 +108,7 @@ export const IMPORT_FIELDS_TO_COMPARE = [
   "endAt",
   "metadata",
   "openToMinors",
-  "organizationId",
+  "publisherOrganizationId",
   "places",
   "postedAt",
   "priority",
@@ -278,8 +278,6 @@ const mapAddressesForCityChange = (addresses: MissionRecord["addresses"]) =>
   })) ?? [];
 
 const normalizeAddressesByCity = (address: MissionRecord["addresses"]) => {
-  const data = address.map((item) =>
-    slugify(`${normalizeAddressValue(item.city)}`)
-  );
+  const data = address.map((item) => slugify(`${normalizeAddressValue(item.city)}`));
   return data.sort();
 };

@@ -1,7 +1,9 @@
+import { OrganizationRecord } from "./organization";
+
 export interface PublisherOrganizationFindParams {
   publisherId?: string;
-  organizationClientId?: string;
-  organizationClientIds?: string[];
+  clientId?: string;
+  clientIds?: string[];
   name?: string;
   rna?: string;
   siren?: string;
@@ -17,14 +19,11 @@ export interface PublisherOrganizationFindManyOptions {
 export interface PublisherOrganizationRecord {
   id: string;
   publisherId: string;
-  organizationClientId: string;
+  clientId: string | null;
   name: string | null;
   rna: string | null;
-  rnaVerified: string | null;
   siren: string | null;
-  sirenVerified: string | null;
   siret: string | null;
-  siretVerified: string | null;
   url: string | null;
   logo: string | null;
   description: string | null;
@@ -44,5 +43,9 @@ export interface PublisherOrganizationRecord {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export type PublisherOrganizationWithRelations = PublisherOrganizationRecord & {
+  organizationVerified: Partial<OrganizationRecord> | null;
+};
 
 export type PublisherOrganizationUpdateInput = Partial<Omit<PublisherOrganizationRecord, "id" | "createdAt" | "updatedAt">>;

@@ -11,11 +11,11 @@ const buildWhere = (params: PublisherOrganizationFindParams): Prisma.PublisherOr
   const where: Prisma.PublisherOrganizationWhereInput = {
     publisherId: params.publisherId,
   };
-  if (params.organizationClientId) {
-    where.organizationClientId = params.organizationClientId;
+  if (params.clientId) {
+    where.clientId = params.clientId;
   }
-  if (params.organizationClientIds) {
-    where.organizationClientId = { in: params.organizationClientIds };
+  if (params.clientIds) {
+    where.clientId = { in: params.clientIds };
   }
   if (params.name) {
     where.name = params.name;
@@ -52,11 +52,8 @@ const publisherOrganizationService = {
     const data: Prisma.PublisherOrganizationCreateInput = {
       name: params.name,
       rna: params.rna,
-      rnaVerified: params.rnaVerified,
       siren: params.siren,
-      sirenVerified: params.sirenVerified,
       siret: params.siret,
-      siretVerified: params.siretVerified,
       url: params.url,
       logo: params.logo,
       description: params.description,
@@ -70,7 +67,7 @@ const publisherOrganizationService = {
       parentOrganizations: params.parentOrganizations,
       verifiedAt: params.verifiedAt,
       publisher: { connect: { id: params.publisherId } },
-      organizationClientId: params.organizationClientId,
+      clientId: params.clientId,
     };
     if (params.organizationIdVerified) {
       data.organizationVerified = { connect: { id: params.organizationIdVerified } };
@@ -81,11 +78,8 @@ const publisherOrganizationService = {
     const data: Prisma.PublisherOrganizationUpdateInput = {
       name: params.name,
       rna: params.rna,
-      rnaVerified: params.rnaVerified,
       siren: params.siren,
-      sirenVerified: params.sirenVerified,
       siret: params.siret,
-      siretVerified: params.siretVerified,
       url: params.url,
       logo: params.logo,
       description: params.description,

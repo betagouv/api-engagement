@@ -14,6 +14,7 @@ import type {
   MissionSelect,
   MissionUpdatePatch,
 } from "../types/mission";
+import { PublisherOrganizationWithRelations } from "../types/publisher-organization";
 import { calculateBoundingBox } from "../utils";
 import { buildJobBoardMap, deriveMissionLocation, normalizeMissionAddresses } from "../utils/mission";
 import { normalizeOptionalString, normalizeStringList } from "../utils/normalize";
@@ -23,39 +24,7 @@ type MissionWithRelations = Mission & {
   publisher?: { name: string | null; url: string | null; logo: string | null } | null;
   domain?: { name: string } | null;
   activity?: { name: string } | null;
-  publisherOrganization?: {
-    organizationClientId: string;
-    organizationName: string | null;
-    organizationUrl: string | null;
-    organizationType: string | null;
-    organizationLogo: string | null;
-    organizationDescription: string | null;
-    organizationFullAddress: string | null;
-    organizationRNA: string | null;
-    organizationSiren: string | null;
-    organizationSiret: string | null;
-    organizationDepartment: string | null;
-    organizationDepartmentCode: string | null;
-    organizationDepartmentName: string | null;
-    organizationPostCode: string | null;
-    organizationCity: string | null;
-    organizationStatusJuridique: string | null;
-    organizationBeneficiaries: string[];
-    organizationActions: string[];
-    organizationReseaux: string[];
-    organizationNameVerified: string | null;
-    organizationRNAVerified: string | null;
-    organizationSirenVerified: string | null;
-    organizationSiretVerified: string | null;
-    organizationAddressVerified: string | null;
-    organizationCityVerified: string | null;
-    organizationPostalCodeVerified: string | null;
-    organizationDepartmentCodeVerified: string | null;
-    organizationDepartmentNameVerified: string | null;
-    organizationRegionVerified: string | null;
-    organizationVerificationStatus: string | null;
-    organisationIsRUP: boolean | null;
-  } | null;
+  publisherOrganization?: PublisherOrganizationWithRelations | null;
   addresses: Array<{
     id: string;
     street: string | null;
@@ -176,38 +145,28 @@ const toMissionRecord = (mission: MissionWithRelations, moderatedBy: string | nu
     country: primaryAddress.country ?? null,
     location,
     addresses,
-    organizationId: mission.organizationId ?? null,
-    organizationClientId: mission.organizationClientId ?? null,
-    organizationUrl: publisherOrganization?.organizationUrl ?? null,
-    organizationName: publisherOrganization?.organizationName ?? null,
-    organizationReseaux: publisherOrganization?.organizationReseaux ?? [],
-    organizationType: publisherOrganization?.organizationType ?? null,
-    organizationLogo: publisherOrganization?.organizationLogo ?? null,
-    organizationDescription: publisherOrganization?.organizationDescription ?? null,
-    organizationFullAddress: publisherOrganization?.organizationFullAddress ?? null,
-    organizationRNA: publisherOrganization?.organizationRNA ?? null,
-    organizationSiren: publisherOrganization?.organizationSiren ?? null,
-    organizationSiret: publisherOrganization?.organizationSiret ?? null,
-    organizationDepartment: publisherOrganization?.organizationDepartment ?? null,
-    organizationDepartmentCode: publisherOrganization?.organizationDepartmentCode ?? null,
-    organizationDepartmentName: publisherOrganization?.organizationDepartmentName ?? null,
-    organizationPostCode: publisherOrganization?.organizationPostCode ?? null,
-    organizationCity: publisherOrganization?.organizationCity ?? null,
-    organizationStatusJuridique: publisherOrganization?.organizationStatusJuridique ?? null,
-    organizationBeneficiaries: publisherOrganization?.organizationBeneficiaries ?? [],
-    organizationActions: publisherOrganization?.organizationActions ?? [],
-    organizationNameVerified: publisherOrganization?.organizationNameVerified ?? null,
-    organizationRNAVerified: publisherOrganization?.organizationRNAVerified ?? null,
-    organizationSirenVerified: publisherOrganization?.organizationSirenVerified ?? null,
-    organizationSiretVerified: publisherOrganization?.organizationSiretVerified ?? null,
-    organizationAddressVerified: publisherOrganization?.organizationAddressVerified ?? null,
-    organizationCityVerified: publisherOrganization?.organizationCityVerified ?? null,
-    organizationPostalCodeVerified: publisherOrganization?.organizationPostalCodeVerified ?? null,
-    organizationDepartmentCodeVerified: publisherOrganization?.organizationDepartmentCodeVerified ?? null,
-    organizationDepartmentNameVerified: publisherOrganization?.organizationDepartmentNameVerified ?? null,
-    organizationRegionVerified: publisherOrganization?.organizationRegionVerified ?? null,
-    organizationVerificationStatus: publisherOrganization?.organizationVerificationStatus ?? null,
-    organisationIsRUP: publisherOrganization?.organisationIsRUP ?? null,
+    publisherOrganizationId: publisherOrganization?.id ?? null,
+    organizationClientId: publisherOrganization?.clientId ?? null,
+    organizationId: publisherOrganization?.organizationIdVerified ?? null,
+    organizationUrl: publisherOrganization?.url ?? null,
+    organizationName: publisherOrganization?.name ?? null,
+    organizationReseaux: publisherOrganization?.parentOrganizations ?? [],
+    organizationType: publisherOrganization?.type ?? null,
+    organizationLogo: publisherOrganization?.logo ?? null,
+    organizationDescription: publisherOrganization?.description ?? null,
+    organizationFullAddress: publisherOrganization?.fullAddress ?? null,
+    organizationRNA: publisherOrganization?.rna ?? null,
+    organizationSiren: publisherOrganization?.siren ?? null,
+    organizationSiret: publisherOrganization?.siret ?? null,
+    organizationPostCode: publisherOrganization?.postalCode ?? null,
+    organizationCity: publisherOrganization?.city ?? null,
+    organizationStatusJuridique: publisherOrganization?.legalStatus ?? null,
+    organizationBeneficiaries: publisherOrganization?.beneficiaries ?? [],
+    organizationActions: publisherOrganization?.actions ?? [],
+    organizationNameVerified: publisherOrganization?.organizationVerified?.title ?? null,
+    organizationRNAVerified: publisherOrganization?.organizationVerified?.rna ?? null,
+    organizationSirenVerified: publisherOrganization?.organizationVerified?.siren ?? null,
+    organizationSiretVerified: publisherOrganization?.organizationVerified?.siret ?? null,
     lastSyncAt: mission.lastSyncAt ?? null,
     applicationUrl: mission.applicationUrl ?? null,
     statusCode: (mission.statusCode as MissionRecord["statusCode"]) ?? "ACCEPTED",
@@ -278,7 +237,7 @@ export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereIn
     where.NOT = [
       ...existingNot,
       {
-        organizationClientId: { in: filters.excludeOrganizationClientIds },
+        publisherOrganization: { is: { clientId: { in: filters.excludeOrganizationClientIds } } },
       },
     ];
   }
@@ -296,7 +255,7 @@ export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereIn
     where.clientId = { in: filters.clientId };
   }
   if (filters.organizationClientId?.length) {
-    where.organizationClientId = { in: filters.organizationClientId };
+    where.publisherOrganization = { is: { clientId: { in: filters.organizationClientId } } };
   }
   if (filters.domain?.length && !filters.domainIncludeMissing) {
     where.domain = { is: { name: { in: filters.domain } } };
@@ -377,9 +336,9 @@ export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereIn
   if (filters.organizationRNA?.length || filters.organizationStatusJuridique?.length || filters.organizationName?.length) {
     where.publisherOrganization = {
       is: {
-        ...(filters.organizationRNA?.length ? { organizationRNA: { in: filters.organizationRNA } } : {}),
-        ...(filters.organizationStatusJuridique?.length ? { organizationStatusJuridique: { in: filters.organizationStatusJuridique } } : {}),
-        ...(filters.organizationName?.length ? { organizationName: { in: filters.organizationName } } : {}),
+        ...(filters.organizationRNA?.length ? { rna: { in: filters.organizationRNA } } : {}),
+        ...(filters.organizationStatusJuridique?.length ? { legalStatus: { in: filters.organizationStatusJuridique } } : {}),
+        ...(filters.organizationName?.length ? { name: { in: filters.organizationName } } : {}),
       },
     };
   }
@@ -529,13 +488,14 @@ const buildAggregations = async (where: Prisma.MissionWhereInput): Promise<Missi
     aggregateMissionDomain(),
     aggregateMissionActivity(),
     aggregateMissionField("publisherId"),
-    aggregateMissionField("organizationId"),
+    aggregateMissionField("organizationClientId"),
     aggregateAddressField("city"),
     aggregateAddressField("departmentName"),
   ]);
 
-  const organizationIds = organizationsRaw.map((row) => row.key).filter(isNonEmpty) as string[];
-  const organizations = organizationIds.length > 0 ? await organizationRepository.findMany({ where: { id: { in: organizationIds } }, select: { id: true, title: true } }) : [];
+  const organizationClientIds = organizationsRaw.map((row) => row.key).filter(isNonEmpty) as string[];
+  const organizations =
+    organizationClientIds.length > 0 ? await organizationRepository.findMany({ where: { id: { in: organizationClientIds } }, select: { id: true, title: true } }) : [];
   const orgById = new Map(organizations.map((org) => [org.id, org.title ?? ""]));
   const organizationsAgg = organizationsRaw
     .map((row) => ({ key: orgById.get(row.key) ?? "", doc_count: row.doc_count }))
@@ -585,7 +545,15 @@ const mapAddressesForCreate = (addresses?: MissionRecord["addresses"]) => {
   }));
 };
 
-const baseInclude: MissionInclude = { publisher: true, domain: true, activity: true, publisherOrganization: true, addresses: true, moderationStatuses: true, jobBoards: true };
+const baseInclude: MissionInclude = {
+  publisher: true,
+  domain: true,
+  activity: true,
+  publisherOrganization: { include: { organizationVerified: { select: { title: true, rna: true, siren: true, siret: true } } } },
+  addresses: true,
+  moderationStatuses: true,
+  jobBoards: true,
+};
 
 export const missionService = {
   async findOneMission(id: string, moderatedBy: string | null = null): Promise<MissionRecord | null> {
@@ -703,7 +671,7 @@ export const missionService = {
   async create(input: MissionCreateInput): Promise<MissionRecord> {
     const id = input.id ?? randomUUID();
     const addresses = mapAddressesForCreate(input.addresses);
-    const organizationClientId = normalizeOptionalString(input.organizationClientId ?? undefined);
+    const publisherOrganizationId = normalizeOptionalString(input.publisherOrganizationId ?? undefined);
 
     const domainName = input.domain?.trim();
     const activityName = input.activity?.trim();
@@ -746,14 +714,13 @@ export const missionService = {
       compensationAmount: input.compensationAmount ?? undefined,
       compensationUnit: input.compensationUnit ?? undefined,
       compensationType: input.compensationType ?? undefined,
-      organizationClientId: organizationClientId ?? undefined,
-      organizationId: input.organizationId ?? undefined,
       lastSyncAt: input.lastSyncAt ?? undefined,
       applicationUrl: input.applicationUrl ?? undefined,
       statusComment: input.statusComment ?? undefined,
       deletedAt: input.deletedAt ?? undefined,
       lastExportedToPgAt: input.lastExportedToPgAt ?? undefined,
       addresses: addresses.length ? { create: addresses } : undefined,
+      publisherOrganizationId: publisherOrganizationId ?? undefined,
     };
 
     await missionRepository.createUnchecked(data);
@@ -885,12 +852,8 @@ export const missionService = {
     if ("compensationType" in patch) {
       data.compensationType = patch.compensationType ?? undefined;
     }
-    if ("organizationClientId" in patch) {
-      const normalized = normalizeOptionalString(patch.organizationClientId ?? undefined);
-      data.organizationClientId = normalized ?? null;
-    }
-    if ("organizationId" in patch) {
-      data.organizationId = patch.organizationId ?? null;
+    if ("publisherOrganizationId" in patch) {
+      data.publisherOrganizationId = patch.publisherOrganizationId ?? undefined;
     }
     if ("lastSyncAt" in patch) {
       data.lastSyncAt = patch.lastSyncAt ?? undefined;

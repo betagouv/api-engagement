@@ -275,11 +275,6 @@ export const parseMission = (publisher: PublisherRecord, missionXML: MissionXML,
 
     // Dirty dirty hack for service civique
     if (publisher.id === PUBLISHER_IDS.SERVICE_CIVIQUE) {
-      if (missionXML.parentOrganizationName) {
-        mission.organizationReseaux = Array.isArray(missionXML.parentOrganizationName) ? missionXML.parentOrganizationName : [missionXML.parentOrganizationName];
-      } else {
-        mission.organizationReseaux = [missionXML.organizationName];
-      }
       let domainOriginal = "";
       if (missionXML.domain === "solidarite-insertion") {
         domainOriginal = "Solidarité";

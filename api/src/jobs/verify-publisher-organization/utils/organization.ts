@@ -36,9 +36,6 @@ export const updatePublisherOrganization = async (id: string, organization: Orga
     verificationStatus: status,
   };
   if (organization) {
-    updates.rnaVerified = organization.rna || undefined;
-    updates.sirenVerified = organization.siren || undefined;
-    updates.siretVerified = organization.siret || undefined;
     updates.organizationIdVerified = organization.id;
   }
 

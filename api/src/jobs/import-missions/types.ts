@@ -107,6 +107,7 @@ export interface MissionXML {
 }
 
 export type ImportedMission = MissionRecord & {
+  organizationClientId: string | null;
   geolocStatus?: string | null;
   deleted?: boolean;
 };
