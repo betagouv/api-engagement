@@ -4,14 +4,13 @@ import zod from "zod";
 
 import { PUBLISHER_IDS } from "../config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
-import publisherOrganizationRepository from "../repositories/publisher-organization";
 import { missionModerationStatusService } from "../services/mission-moderation-status";
 import { moderationEventService } from "../services/moderation-event";
 import { publisherService } from "../services/publisher";
+import publisherOrganizationService from "../services/publisher-organization";
 import { UserRecord } from "../types";
 import { MissionModerationRecord, ModerationFilters } from "../types/mission-moderation-status";
 import type { UserRequest } from "../types/passport";
-import { PublisherOrganizationWithRelations } from "../types/publisher-organization";
 import { getModerationEvents, getModerationUpdates, getOrganizationUpdates } from "../utils/mission-moderation-status";
 
 const router = Router();
@@ -331,9 +330,7 @@ router.put("/:id", passport.authenticate("user", { session: false }), async (req
     // Update mission fields (organization verification)
     const organizationUpdates = getOrganizationUpdates(body.data, previous);
     if (organizationUpdates && previous.missionPublisherOrganizationId) {
-      const organizationUpdated = (await publisherOrganizationRepository.update(previous.missionPublisherOrganizationId, organizationUpdates, {
-        include: { organizationVerified: true },
-      })) as PublisherOrganizationWithRelations;
+      const organizationUpdated = await publisherOrganizationService.update(previous.missionPublisherOrganizationId, organizationUpdates);
       updated.missionOrganizationRNA = organizationUpdated.rna ?? null;
       updated.missionOrganizationSiren = organizationUpdated.siren ?? null;
       updated.missionOrganizationRNAVerified = organizationUpdated.organizationVerified?.rna ?? null;

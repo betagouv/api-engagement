@@ -67,14 +67,6 @@ const OrganizationTab = ({ data, onChange }) => {
       );
     }
   };
-
-  console.log("data", {
-    organizationVerifiedId: data.missionOrganizationVerifiedId,
-    siren: data.missionOrganizationSirenVerified,
-    rna: data.missionOrganizationRNAVerified,
-  });
-  console.log("values", values);
-
   return (
     <>
       <form className="flex h-full divide-x" onSubmit={handleSubmit}>

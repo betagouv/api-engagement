@@ -1,64 +1,10 @@
 import { PUBLISHER_IDS } from "../../../config";
 import { captureException } from "../../../error";
 import type { PublisherRecord } from "../../../types/publisher";
-import { isValidSiren, isValidSiret } from "../../../utils/organization";
+import { normalizeRNA } from "../../../utils";
 import { slugify } from "../../../utils/string";
 import { ImportedOrganization, MissionXML } from "../types";
-
-const parseString = (value: string | undefined) => {
-  if (!value) {
-    return "";
-  }
-  return String(value);
-};
-
-const parseStringArray = (value: unknown): string[] | undefined => {
-  if (value === undefined || value === null || value === "") {
-    return undefined;
-  }
-
-  if (Array.isArray(value)) {
-    const normalized = value.map((v) => String(v ?? "").trim()).filter((v) => v.length > 0);
-    return normalized.length ? normalized : undefined;
-  }
-
-  if (typeof value === "object") {
-    const obj = value as any;
-    if ("value" in obj) {
-      return parseStringArray(obj.value);
-    }
-    if ("item" in obj) {
-      return parseStringArray(obj.item);
-    }
-    return undefined;
-  }
-
-  const str = String(value).trim();
-  if (!str) {
-    return undefined;
-  }
-  const split = str
-    .split(",")
-    .map((i) => i.trim())
-    .filter((i) => i.length > 0);
-  return split.length ? split : undefined;
-};
-
-const parseSiren = (value: string | undefined) => {
-  const parsed = parseString(value);
-  if (!parsed) {
-    return { siret: null, siren: null };
-  }
-  if (isValidSiret(parsed)) {
-    return { siret: parsed, siren: parsed.slice(0, 9) };
-  }
-  if (isValidSiren(parsed)) {
-    return { siren: parsed, siret: null };
-  }
-  return { siret: null, siren: null };
-};
-
-const normalizeRNA = (value?: string | null) => (value || "").replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+import { parseSiren, parseString, parseStringArray } from "./helpers";
 
 export const parseOrganizationClientId = (missionXML: MissionXML) => {
   // Before organizationClientId the id was asked into organizationId field, which has been changed
@@ -90,7 +36,7 @@ export const parseOrganization = (publisher: PublisherRecord, missionXML: Missio
       publisherId: publisher.id,
       clientId: organizationClientId,
       name: parseString(missionXML.organizationName),
-      rna: normalizeRNA(parseString(missionXML.organizationRNA) || parseString(missionXML.organizationRna)),
+      rna: normalizeRNA(missionXML.organizationRNA || missionXML.organizationRna),
       siren: siren,
       siret: siret,
       url: parseString(missionXML.organizationUrl),

@@ -5,6 +5,7 @@ import {
   PublisherOrganizationFindParams,
   PublisherOrganizationRecord,
   PublisherOrganizationUpdateInput,
+  PublisherOrganizationWithRelations,
 } from "../types/publisher-organization";
 
 const buildWhere = (params: PublisherOrganizationFindParams): Prisma.PublisherOrganizationWhereInput => {
@@ -74,7 +75,7 @@ const publisherOrganizationService = {
     }
     return publisherOrganizationRepository.create(data);
   },
-  update: async (id: string, params: PublisherOrganizationUpdateInput): Promise<PublisherOrganizationRecord> => {
+  update: async (id: string, params: PublisherOrganizationUpdateInput): Promise<PublisherOrganizationWithRelations> => {
     const data: Prisma.PublisherOrganizationUpdateInput = {
       name: params.name,
       rna: params.rna,
@@ -100,7 +101,9 @@ const publisherOrganizationService = {
     if (params.publisherId) {
       data.publisher = { connect: { id: params.publisherId } };
     }
-    return publisherOrganizationRepository.update(id, data);
+    return publisherOrganizationRepository.update(id, data, {
+      include: { organizationVerified: { select: { id: true, rna: true, siren: true } } },
+    }) as Promise<PublisherOrganizationWithRelations>;
   },
 };
 

@@ -1,303 +1,17 @@
 import { describe, expect, it, vi } from "vitest";
 
 import type { MissionRecord } from "../../../../types/mission";
-import { PublisherMissionType, type PublisherRecord } from "../../../../types/publisher";
-import type { MissionXML } from "../../types";
-import { parseBool, parseCompensationUnit, parseDate, parseMission, parseNumber, parseRemote, parseStringArray } from "../mission";
+import { PublisherMissionType } from "../../../../types/publisher";
+import { parseCompensationUnit, parseMission, parseRemote } from "../mission";
+import { buildMissionXML, buildPublisher } from "./factories";
 
 vi.mock("../../../../error", () => ({
   captureException: vi.fn(),
 }));
 
-const createPublisher = (overrides: Partial<PublisherRecord> = {}): PublisherRecord => ({
-  _id: "publisher-id",
-  id: "publisher-id",
-  name: "Test Publisher",
-  category: null,
-  url: "https://publisher.example.com",
-  moderator: false,
-  moderatorLink: null,
-  email: null,
-  documentation: null,
-  logo: "https://publisher.example.com/logo.png",
-  defaultMissionLogo: "https://default-logo.com/logo.png",
-  lead: null,
-  feed: null,
-  feedUsername: null,
-  feedPassword: null,
-  apikey: null,
-  description: "",
-  missionType: PublisherMissionType.BENEVOLAT,
-  isAnnonceur: true,
-  hasApiRights: false,
-  hasWidgetRights: false,
-  hasCampaignRights: false,
-  sendReport: false,
-  sendReportTo: [],
-  deletedAt: null,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  publishers: [],
-  ...overrides,
-});
-
-const createMissionXML = (overrides: Partial<MissionXML> = {}): MissionXML =>
-  ({
-    id: "mission-1",
-    title: "Test Mission",
-    description: "A test mission description",
-    image: "",
-    clientId: "client-1",
-    applicationUrl: "https://example.com/apply",
-    postedAt: "2024-01-01",
-    startAt: "2024-01-15",
-    endAt: "2024-12-31",
-    country: "FR",
-    countryCode: "FR",
-    address: "123 Main St",
-    adresse: "",
-    city: "Paris",
-    postalCode: "75001",
-    departmentCode: "75",
-    departmentName: "Paris",
-    region: "Île-de-France",
-    lonlat: undefined,
-    lonLat: undefined,
-    location: undefined,
-    addresses: [],
-    activity: "Social",
-    tags: "",
-    domain: "solidarite-insertion",
-    schedule: "Flexible",
-    audience: "",
-    soft_skills: "",
-    softSkills: "",
-    romeSkills: "",
-    requirements: "",
-    remote: "no",
-    reducedMobilityAccessible: "no",
-    closeToTransport: "no",
-    openToMinors: "no",
-    priority: "normal",
-    metadata: "",
-    places: 5,
-    organizationName: "Test Organization",
-    organizationRNA: "",
-    organizationRna: "",
-    organizationSiren: "",
-    organizationUrl: "https://org.example.com",
-    organizationLogo: "https://org.example.com/logo.png",
-    organizationDescription: "Organization description",
-    organizationClientId: "org-client-1",
-    organizationStatusJuridique: "Association",
-    organizationType: "Association loi 1901",
-    organizationActions: [],
-    organizationId: "org-1",
-    organizationFullAddress: "123 Rue de Paris, 75001 Paris",
-    organizationPostCode: "75001",
-    organizationCity: "Paris",
-    organizationBeneficiaires: "",
-    organizationBeneficiaries: "",
-    organizationReseaux: "",
-    publicsBeneficiaires: "",
-    publicBeneficiaries: "",
-    snu: "no",
-    snuPlaces: undefined,
-    keyActions: undefined,
-    isAutonomy: undefined,
-    autonomyZips: undefined,
-    parentOrganizationName: "",
-    ...overrides,
-  }) as MissionXML;
-
 // ---------------------------------------------------------------------------
-// Helpers unitaires
+// Helpers spécifiques à mission.ts (non extraits dans helpers.ts)
 // ---------------------------------------------------------------------------
-
-describe("parseStringArray", () => {
-  it("returns undefined for undefined", () => {
-    expect(parseStringArray(undefined)).toBeUndefined();
-  });
-
-  it("returns undefined for null", () => {
-    expect(parseStringArray(null)).toBeUndefined();
-  });
-
-  it("returns undefined for empty string", () => {
-    expect(parseStringArray("")).toBeUndefined();
-  });
-
-  it("normalizes array values and filters empty/null entries", () => {
-    expect(parseStringArray([" a ", "", null, "b"])).toEqual(["a", "b"]);
-  });
-
-  it("returns undefined for an array of only empty values", () => {
-    expect(parseStringArray(["", " ", null])).toBeUndefined();
-  });
-
-  it("splits comma-separated strings", () => {
-    expect(parseStringArray("a, b ,c")).toEqual(["a", "b", "c"]);
-  });
-
-  it("does not split strings without commas", () => {
-    expect(parseStringArray("Affinite pour la technique")).toEqual(["Affinite pour la technique"]);
-  });
-
-  it("filters empty values from comma-separated strings", () => {
-    expect(parseStringArray("a, , b, ")).toEqual(["a", "b"]);
-  });
-
-  it("returns undefined for a blank string after trim", () => {
-    expect(parseStringArray("   ")).toBeUndefined();
-  });
-
-  it("handles object with value property (array)", () => {
-    expect(parseStringArray({ value: ["x", "y"] })).toEqual(["x", "y"]);
-  });
-
-  it("handles object with value property (string)", () => {
-    expect(parseStringArray({ value: "a, b" })).toEqual(["a", "b"]);
-  });
-
-  it("handles object with item property", () => {
-    expect(parseStringArray({ item: ["i1", "i2"] })).toEqual(["i1", "i2"]);
-  });
-
-  it("returns undefined for an unknown object shape", () => {
-    expect(parseStringArray({ other: "stuff" })).toBeUndefined();
-  });
-});
-
-describe("parseDate", () => {
-  it("returns null for undefined", () => {
-    expect(parseDate(undefined)).toBeNull();
-  });
-
-  it("returns null for empty string", () => {
-    expect(parseDate("")).toBeNull();
-  });
-
-  it("returns null for invalid date string", () => {
-    expect(parseDate("not-a-date")).toBeNull();
-  });
-
-  it("parses date string without timezone as UTC", () => {
-    const parsed = parseDate("2024-01-02T03:04:05");
-    expect(parsed?.toISOString()).toBe("2024-01-02T03:04:05.000Z");
-  });
-
-  it("parses date string with Z timezone designator", () => {
-    const parsed = parseDate("2024-06-15T12:00:00Z");
-    expect(parsed?.toISOString()).toBe("2024-06-15T12:00:00.000Z");
-  });
-
-  it("parses date string with offset timezone", () => {
-    const parsed = parseDate("2024-06-15T12:00:00+02:00");
-    expect(parsed?.toISOString()).toBe("2024-06-15T10:00:00.000Z");
-  });
-
-  it("parses a Date object directly", () => {
-    const date = new Date("2024-03-01T00:00:00Z");
-    expect(parseDate(date)).toBe(date);
-  });
-
-  it("parses a simple date string (YYYY-MM-DD) as UTC", () => {
-    const parsed = parseDate("2024-07-20");
-    expect(parsed).not.toBeNull();
-    expect(parsed?.getUTCFullYear()).toBe(2024);
-    expect(parsed?.getUTCMonth()).toBe(6); // July = 6
-    expect(parsed?.getUTCDate()).toBe(20);
-  });
-});
-
-describe("parseNumber", () => {
-  it("parses numeric string", () => {
-    expect(parseNumber("10")).toBe(10);
-  });
-
-  it("parses a number directly", () => {
-    expect(parseNumber(42)).toBe(42);
-  });
-
-  it("parses zero", () => {
-    expect(parseNumber(0)).toBe(0);
-  });
-
-  it("parses string zero", () => {
-    expect(parseNumber("0")).toBe(0);
-  });
-
-  it("parses float string", () => {
-    expect(parseNumber("3.14")).toBeCloseTo(3.14);
-  });
-
-  it("returns null for non-numeric string", () => {
-    expect(parseNumber("foo")).toBeNull();
-  });
-
-  it("returns null for empty string", () => {
-    expect(parseNumber("")).toBeNull();
-  });
-
-  it("returns null for undefined", () => {
-    expect(parseNumber(undefined)).toBeNull();
-  });
-
-  it("returns null for null", () => {
-    expect(parseNumber(null as unknown as undefined)).toBeNull();
-  });
-});
-
-describe("parseBool", () => {
-  it("returns true for 'yes'", () => {
-    expect(parseBool("yes")).toBe(true);
-  });
-
-  it("returns true for 'true'", () => {
-    expect(parseBool("true")).toBe(true);
-  });
-
-  it("returns true for '1'", () => {
-    expect(parseBool("1")).toBe(true);
-  });
-
-  it("returns false for 'false'", () => {
-    expect(parseBool("false")).toBe(false);
-  });
-
-  it("returns false for '0'", () => {
-    expect(parseBool("0")).toBe(false);
-  });
-
-  it("returns false for 'no'", () => {
-    expect(parseBool("no")).toBe(false);
-  });
-
-  it("returns false for an unrecognized string", () => {
-    expect(parseBool("maybe")).toBe(false);
-  });
-
-  it("returns true for boolean true", () => {
-    expect(parseBool(true)).toBe(true);
-  });
-
-  it("returns false for boolean false", () => {
-    expect(parseBool(false)).toBe(false);
-  });
-
-  it("returns null for null", () => {
-    expect(parseBool(null)).toBeNull();
-  });
-
-  it("returns null for undefined", () => {
-    expect(parseBool(undefined)).toBeNull();
-  });
-
-  it("trims and lowercases input", () => {
-    expect(parseBool("  YES  ")).toBe(true);
-    expect(parseBool("  True  ")).toBe(true);
-  });
-});
 
 describe("parseRemote", () => {
   it("returns 'no' for empty/null/undefined", () => {
@@ -397,8 +111,8 @@ describe("parseMission", () => {
 
   describe("basic fields", () => {
     it("should parse basic mission fields", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML();
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML();
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -413,8 +127,8 @@ describe("parseMission", () => {
     });
 
     it("should decode HTML entities in title", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({ title: "Mission &amp; B&eacute;n&eacute;volat" });
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({ title: "Mission &amp; B&eacute;n&eacute;volat" });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -422,8 +136,8 @@ describe("parseMission", () => {
     });
 
     it("should convert HTML description to text", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({ description: "<p>Hello <strong>World</strong></p>" });
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({ description: "<p>Hello <strong>World</strong></p>" });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -433,8 +147,8 @@ describe("parseMission", () => {
     });
 
     it("should set type from publisher missionType", () => {
-      const publisher = createPublisher({ missionType: PublisherMissionType.VOLONTARIAT_SAPEURS_POMPIERS });
-      const missionXML = createMissionXML();
+      const publisher = buildPublisher({ missionType: PublisherMissionType.VOLONTARIAT_SAPEURS_POMPIERS });
+      const missionXML = buildMissionXML();
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -442,9 +156,9 @@ describe("parseMission", () => {
     });
 
     it("should return null when parseMission encounters an error", () => {
-      const publisher = createPublisher();
+      const publisher = buildPublisher();
       // Triggering an error with null title (he.decode will throw)
-      const missionXML = createMissionXML({ title: null as unknown as string });
+      const missionXML = buildMissionXML({ title: null as unknown as string });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -454,8 +168,8 @@ describe("parseMission", () => {
 
   describe("dates", () => {
     it("should parse postedAt, startAt, endAt", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         postedAt: "2024-03-01T10:00:00Z",
         startAt: "2024-03-15T10:00:00Z",
         endAt: "2024-09-30T10:00:00Z",
@@ -469,8 +183,8 @@ describe("parseMission", () => {
     });
 
     it("should fallback postedAt to missionDB.postedAt then startTime", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({ postedAt: "" });
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({ postedAt: "" });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -478,8 +192,8 @@ describe("parseMission", () => {
     });
 
     it("should fallback postedAt to missionDB.postedAt when available", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({ postedAt: "" });
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({ postedAt: "" });
       const dbDate = new Date("2024-02-01T00:00:00Z");
       const missionDB = { postedAt: dbDate } as MissionRecord;
 
@@ -489,8 +203,8 @@ describe("parseMission", () => {
     });
 
     it("should set endAt to null when not provided", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({ endAt: "" });
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({ endAt: "" });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -498,8 +212,8 @@ describe("parseMission", () => {
     });
 
     it("should compute duration in months between startAt and endAt", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         startAt: "2024-01-01",
         endAt: "2024-07-01",
       });
@@ -510,8 +224,8 @@ describe("parseMission", () => {
     });
 
     it("should set duration to null when endAt is missing", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({ endAt: "" });
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({ endAt: "" });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -521,8 +235,8 @@ describe("parseMission", () => {
 
   describe("arrays (audience, softSkills, tags, etc.)", () => {
     it("should parse audience from audience field", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({ audience: "Jeunes, Adultes" });
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({ audience: "Jeunes, Adultes" });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -530,8 +244,8 @@ describe("parseMission", () => {
     });
 
     it("should fallback audience to publicBeneficiaries", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         audience: "",
         publicBeneficiaries: "Seniors",
         publicsBeneficiaires: "",
@@ -543,8 +257,8 @@ describe("parseMission", () => {
     });
 
     it("should fallback audience to publicsBeneficiaires", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         audience: "",
         publicBeneficiaries: "",
         publicsBeneficiaires: "Étudiants",
@@ -556,8 +270,8 @@ describe("parseMission", () => {
     });
 
     it("should return empty array for audience when none provided", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         audience: "",
         publicBeneficiaries: "",
         publicsBeneficiaires: "",
@@ -569,8 +283,8 @@ describe("parseMission", () => {
     });
 
     it("should parse softSkills with fallback to soft_skills", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         softSkills: "",
         soft_skills: "Empathie, Communication",
       });
@@ -581,8 +295,8 @@ describe("parseMission", () => {
     });
 
     it("should parse tags", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({ tags: "tag1, tag2, tag3" });
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({ tags: "tag1, tag2, tag3" });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -590,8 +304,8 @@ describe("parseMission", () => {
     });
 
     it("should return empty array for tags when not provided", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({ tags: "" });
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({ tags: "" });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -599,8 +313,8 @@ describe("parseMission", () => {
     });
 
     it("should parse romeSkills", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({ romeSkills: "Skill A, Skill B" });
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({ romeSkills: "Skill A, Skill B" });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -608,8 +322,8 @@ describe("parseMission", () => {
     });
 
     it("should parse requirements", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({ requirements: "Req 1, Req 2" });
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({ requirements: "Req 1, Req 2" });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -619,8 +333,8 @@ describe("parseMission", () => {
 
   describe("remote / booleans", () => {
     it("should parse remote value", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({ remote: "full" as any });
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({ remote: "full" as any });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -628,8 +342,8 @@ describe("parseMission", () => {
     });
 
     it("should parse reducedMobilityAccessible", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({ reducedMobilityAccessible: "yes" });
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({ reducedMobilityAccessible: "yes" });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -637,8 +351,8 @@ describe("parseMission", () => {
     });
 
     it("should parse closeToTransport", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({ closeToTransport: "true" });
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({ closeToTransport: "true" });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -646,8 +360,8 @@ describe("parseMission", () => {
     });
 
     it("should parse openToMinors", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({ openToMinors: "yes" });
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({ openToMinors: "yes" });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -657,8 +371,8 @@ describe("parseMission", () => {
 
   describe("places", () => {
     it("should parse places as number", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({ places: 10 });
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({ places: 10 });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -667,8 +381,8 @@ describe("parseMission", () => {
     });
 
     it("should parse places as string number", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({ places: "3" as unknown as number });
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({ places: "3" as unknown as number });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -676,8 +390,8 @@ describe("parseMission", () => {
     });
 
     it("should default places to 1 when not provided", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({ places: undefined as unknown as number });
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({ places: undefined as unknown as number });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -688,8 +402,8 @@ describe("parseMission", () => {
 
   describe("snu", () => {
     it("should set snu to true when value is 'yes'", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({ snu: "yes" });
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({ snu: "yes" });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -697,8 +411,8 @@ describe("parseMission", () => {
     });
 
     it("should set snu to false when value is 'no'", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({ snu: "no" });
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({ snu: "no" });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -706,8 +420,8 @@ describe("parseMission", () => {
     });
 
     it("should parse snuPlaces", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({ snuPlaces: 5 });
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({ snuPlaces: 5 });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -717,8 +431,8 @@ describe("parseMission", () => {
 
   describe("compensation", () => {
     it("should parse compensationAmount", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({ compensationAmount: 500 });
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({ compensationAmount: 500 });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -726,8 +440,8 @@ describe("parseMission", () => {
     });
 
     it("should parse compensationUnit", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({ compensationUnit: "month" });
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({ compensationUnit: "month" });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -735,8 +449,8 @@ describe("parseMission", () => {
     });
 
     it("should parse compensationType as lowercase", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({ compensationType: "Gross" as any });
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({ compensationType: "Gross" as any });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -746,8 +460,8 @@ describe("parseMission", () => {
 
   describe("moderation", () => {
     it("should set statusCode to ACCEPTED for valid mission", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML();
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML();
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -755,8 +469,8 @@ describe("parseMission", () => {
     });
 
     it("should set statusCode to REFUSED when title is missing", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({ title: " " });
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({ title: " " });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -765,9 +479,9 @@ describe("parseMission", () => {
     });
 
     it("should set statusCode to REFUSED when title has encoding issues (double-encoded)", () => {
-      const publisher = createPublisher();
+      const publisher = buildPublisher();
       // he.decode("&amp;#224;") → "&#224;" which still contains "&#" after decoding
-      const missionXML = createMissionXML({ title: "Mission &amp;#224; faire ensemble" });
+      const missionXML = buildMissionXML({ title: "Mission &amp;#224; faire ensemble" });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -776,8 +490,8 @@ describe("parseMission", () => {
     });
 
     it("should set statusCode to REFUSED when title is too short (1 word)", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({ title: "Mission" });
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({ title: "Mission" });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -786,8 +500,8 @@ describe("parseMission", () => {
     });
 
     it("should set statusCode to REFUSED when clientId is missing", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({ clientId: "" });
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({ clientId: "" });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -796,8 +510,8 @@ describe("parseMission", () => {
     });
 
     it("should set statusCode to REFUSED when description is missing", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({ description: "" });
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({ description: "" });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -806,8 +520,8 @@ describe("parseMission", () => {
     });
 
     it("should set statusCode to REFUSED when applicationUrl is missing", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({ applicationUrl: "" });
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({ applicationUrl: "" });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -816,8 +530,8 @@ describe("parseMission", () => {
     });
 
     it("should set statusCode to REFUSED for invalid domain", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({ domain: "invalid-domain" });
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({ domain: "invalid-domain" });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -826,8 +540,8 @@ describe("parseMission", () => {
     });
 
     it("should skip moderation for Service Civique publisher", () => {
-      const publisher = createPublisher({ id: "5f99dbe75eb1ad767733b206" });
-      const missionXML = createMissionXML({ title: " " }); // Would normally be refused
+      const publisher = buildPublisher({ id: "5f99dbe75eb1ad767733b206" });
+      const missionXML = buildMissionXML({ title: " " }); // Would normally be refused
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -838,8 +552,8 @@ describe("parseMission", () => {
 
   describe("domain special cases", () => {
     it("should normalize 'mémoire et citoyenneté' domain", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({ domain: "mémoire et citoyenneté" });
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({ domain: "mémoire et citoyenneté" });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -847,8 +561,8 @@ describe("parseMission", () => {
     });
 
     it("should override domain for Prévention Routière publisher", () => {
-      const publisher = createPublisher({ id: "619fab857d373e07aea8be1e" });
-      const missionXML = createMissionXML({ domain: "solidarite-insertion" });
+      const publisher = buildPublisher({ id: "619fab857d373e07aea8be1e" });
+      const missionXML = buildMissionXML({ domain: "solidarite-insertion" });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -857,7 +571,7 @@ describe("parseMission", () => {
   });
 
   describe("Service Civique domainOriginal mapping", () => {
-    const scPublisher = createPublisher({ id: "5f99dbe75eb1ad767733b206" });
+    const scPublisher = buildPublisher({ id: "5f99dbe75eb1ad767733b206" });
 
     const domainMappings: [string, string][] = [
       ["solidarite-insertion", "Solidarité"],
@@ -872,7 +586,7 @@ describe("parseMission", () => {
     ];
 
     it.each(domainMappings)("should map domain '%s' to domainOriginal '%s'", (domain, expectedOriginal) => {
-      const missionXML = createMissionXML({ domain });
+      const missionXML = buildMissionXML({ domain });
 
       const result = parseMission(scPublisher, missionXML, null, startTime);
 
@@ -880,9 +594,9 @@ describe("parseMission", () => {
     });
 
     it("should set domainOriginal to empty string for unknown domain", () => {
-      const missionXML = createMissionXML({ domain: "solidarite-insertion" });
+      const missionXML = buildMissionXML({ domain: "solidarite-insertion" });
       // Use a non-SC publisher so domainOriginal is not set
-      const publisher = createPublisher();
+      const publisher = buildPublisher();
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -892,8 +606,8 @@ describe("parseMission", () => {
 
   describe("domainLogo", () => {
     it("should use missionXML.image when provided", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({ image: "https://example.com/image.png" });
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({ image: "https://example.com/image.png" });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -901,8 +615,8 @@ describe("parseMission", () => {
     });
 
     it("should fallback to missionDB.domainLogo when image is empty", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({ image: "" });
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({ image: "" });
       const missionDB = { domainLogo: "https://db.com/logo.png" } as MissionRecord;
 
       const result = parseMission(publisher, missionXML, missionDB, startTime);
@@ -911,8 +625,8 @@ describe("parseMission", () => {
     });
 
     it("should fallback to domain image when no image and no DB logo", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({ image: "", domain: "sport" });
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({ image: "", domain: "sport" });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -922,8 +636,8 @@ describe("parseMission", () => {
 
   describe("metadata and timestamps", () => {
     it("should set lastSyncAt and updatedAt to startTime", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML();
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML();
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -932,8 +646,8 @@ describe("parseMission", () => {
     });
 
     it("should set deletedAt to null", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML();
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML();
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -941,8 +655,8 @@ describe("parseMission", () => {
     });
 
     it("should parse metadata", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({ metadata: "some-metadata" });
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({ metadata: "some-metadata" });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
@@ -952,8 +666,8 @@ describe("parseMission", () => {
 
   describe("existing mission (missionDB)", () => {
     it("should keep _id and createdAt from existing mission", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML();
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML();
       const createdAt = new Date("2023-06-01T00:00:00Z");
       const missionDB = { _id: "existing-id", createdAt } as MissionRecord;
 
@@ -964,8 +678,8 @@ describe("parseMission", () => {
     });
 
     it("should use missionDB.id when _id is not present", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML();
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML();
       const missionDB = { id: "db-uuid-id", createdAt: new Date() } as MissionRecord;
 
       const result = parseMission(publisher, missionXML, missionDB, startTime);

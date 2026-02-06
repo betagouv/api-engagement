@@ -206,7 +206,6 @@ export const createTestMission = async (data: Partial<MissionCreateInput & { del
       },
       create: {
         publisherId: missionInput.publisherId,
-        // New model fields
         clientId: missionInput.organizationClientId,
         name: missionInput.organizationName ?? null,
         rna: missionInput.organizationRNA ?? null,

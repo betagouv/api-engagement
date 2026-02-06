@@ -5,19 +5,7 @@ import { organizationService } from "../../../services/organization";
 import publisherOrganizationService from "../../../services/publisher-organization";
 import { OrganizationCreateInput, OrganizationRecord, OrganizationUpdatePatch } from "../../../types/organization";
 import { PublisherOrganizationUpdateInput } from "../../../types/publisher-organization";
-
-export const ORGANIZATION_VERIFICATION_STATUS = {
-  RNA_MATCHED_WITH_DATA_DB: "RNA_MATCHED_WITH_DATA_DB",
-  RNA_MATCHED_WITH_DATA_SUBVENTION: "RNA_MATCHED_WITH_DATA_SUBVENTION",
-  RNA_NOT_MATCHED: "RNA_NOT_MATCHED",
-  SIRET_MATCHED_WITH_DATA_DB: "SIRET_MATCHED_WITH_DATA_DB",
-  SIRET_MATCHED_WITH_DATA_SUBVENTION: "SIRET_MATCHED_WITH_DATA_SUBVENTION",
-  SIRET_NOT_MATCHED: "SIRET_NOT_MATCHED",
-  NAME_EXACT_MATCHED_WITH_DB: "NAME_EXACT_MATCHED_WITH_DB",
-  NAME_APPROXIMATE_MATCHED_WITH_DB: "NAME_APPROXIMATE_MATCHED_WITH_DB",
-  NAME_NOT_MATCHED: "NAME_NOT_MATCHED",
-  NO_DATA: "NO_DATA",
-};
+import { isBlank } from "../../../utils";
 
 export const getDepartement = (postalCode: string): { code: string; name: string; region: string } | null => {
   if (!postalCode) {
@@ -41,8 +29,6 @@ export const updatePublisherOrganization = async (id: string, organization: Orga
 
   return publisherOrganizationService.update(id, updates);
 };
-
-const isBlank = (value?: string | null) => value === null || value === undefined || value === "";
 
 const mergeOrganizationData = async (existing: OrganizationRecord, incoming: OrganizationCreateInput): Promise<OrganizationRecord> => {
   const patch: OrganizationUpdatePatch = {};

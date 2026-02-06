@@ -2,6 +2,7 @@ import { Prisma } from "../db/core";
 import { MissionModerationStatusUpdatePatch } from "../services/mission-moderation-status";
 import { MissionModerationRecord, ModerationFilters } from "../types/mission-moderation-status";
 import { ModerationEventCreateInput, ModerationEventStatus } from "../types/moderation-event";
+import { PublisherOrganizationUpdateInput } from "../types/publisher-organization";
 
 type ModerationUpdateBody = {
   status?: string;
@@ -129,8 +130,8 @@ export const getModerationUpdates = (body: ModerationUpdateBody): MissionModerat
   return null;
 };
 
-export const getOrganizationUpdates = (body: ModerationUpdateBody, mission: MissionModerationRecord): Prisma.PublisherOrganizationUncheckedUpdateInput | null => {
-  const updates: Partial<Prisma.PublisherOrganizationUncheckedUpdateInput> = {};
+export const getOrganizationUpdates = (body: ModerationUpdateBody, mission: MissionModerationRecord): PublisherOrganizationUpdateInput | null => {
+  const updates: Partial<PublisherOrganizationUpdateInput> = {};
   if (body.rna !== undefined && body.rna !== mission.missionOrganizationRNAVerified) {
     updates.rna = body.rna;
   }
@@ -141,7 +142,7 @@ export const getOrganizationUpdates = (body: ModerationUpdateBody, mission: Miss
     updates.organizationIdVerified = body.organizationVerifiedId;
   }
   if (Object.keys(updates).length) {
-    return updates as Prisma.PublisherOrganizationUncheckedUpdateInput;
+    return updates as PublisherOrganizationUpdateInput;
   }
   return null;
 };

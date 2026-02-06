@@ -1,117 +1,15 @@
 import { describe, expect, it, vi } from "vitest";
-import type { PublisherRecord } from "../../../../types/publisher";
-import type { MissionXML } from "../../types";
 import { parseOrganization, parseOrganizationClientId } from "../organization";
+import { buildMissionXML, buildPublisher } from "./factories";
 
 vi.mock("../../../error", () => ({
   captureException: vi.fn(),
 }));
 
-const createPublisher = (overrides: Partial<PublisherRecord> = {}): PublisherRecord => ({
-  _id: "publisher-id",
-  id: "publisher-id",
-  name: "Test Publisher",
-  category: null,
-  url: null,
-  moderator: false,
-  moderatorLink: null,
-  email: null,
-  documentation: null,
-  logo: null,
-  defaultMissionLogo: "https://default-logo.com/logo.png",
-  lead: null,
-  feed: null,
-  feedUsername: null,
-  feedPassword: null,
-  apikey: null,
-  description: "",
-  missionType: null,
-  isAnnonceur: true,
-  hasApiRights: false,
-  hasWidgetRights: false,
-  hasCampaignRights: false,
-  sendReport: false,
-  sendReportTo: [],
-  deletedAt: null,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  publishers: [],
-  ...overrides,
-});
-
-const createMissionXML = (overrides: Partial<MissionXML> = {}): MissionXML =>
-  ({
-    id: "mission-1",
-    title: "Test Mission",
-    description: "Description",
-    image: "",
-    clientId: "client-1",
-    applicationUrl: "https://example.com",
-    postedAt: "2024-01-01",
-    startAt: "2024-01-15",
-    endAt: "2024-12-31",
-    country: "France",
-    countryCode: "FR",
-    address: "123 Main St",
-    adresse: "",
-    city: "Paris",
-    postalCode: "75001",
-    departmentCode: "75",
-    departmentName: "Paris",
-    region: "Île-de-France",
-    lonlat: undefined,
-    lonLat: undefined,
-    location: undefined,
-    addresses: [],
-    activity: "Social",
-    tags: "",
-    domain: "Solidarité",
-    schedule: "Flexible",
-    audience: "",
-    soft_skills: "",
-    softSkills: "",
-    romeSkills: "",
-    requirements: "",
-    remote: "no",
-    reducedMobilityAccessible: "no",
-    closeToTransport: "no",
-    openToMinors: "no",
-    priority: "normal",
-    metadata: "",
-    places: 5,
-    organizationName: "Test Organization",
-    organizationRNA: "",
-    organizationRna: "",
-    organizationSiren: "",
-    organizationUrl: "https://org.example.com",
-    organizationLogo: "https://org.example.com/logo.png",
-    organizationDescription: "Organization description",
-    organizationClientId: "org-client-1",
-    organizationStatusJuridique: "Association",
-    organizationType: "Association loi 1901",
-    organizationActions: [],
-    organizationId: "org-1",
-    organizationFullAddress: "123 Rue de Paris, 75001 Paris",
-    organizationPostCode: "75001",
-    organizationCity: "Paris",
-    organizationBeneficiaires: "",
-    organizationBeneficiaries: "",
-    organizationReseaux: "",
-    publicsBeneficiaires: "",
-    publicBeneficiaries: "",
-    snu: "no",
-    snuPlaces: undefined,
-    keyActions: undefined,
-    isAutonomy: undefined,
-    autonomyZips: undefined,
-    parentOrganizationName: "",
-    ...overrides,
-  }) as MissionXML;
-
 describe("parseOrganizationClientId", () => {
   describe("organizationClientId / organizationId", () => {
     it("should return organizationClientId when provided", () => {
-      const missionXML = createMissionXML({
+      const missionXML = buildMissionXML({
         organizationClientId: "client-org-id",
         organizationId: "fallback-org-id",
       });
@@ -120,7 +18,7 @@ describe("parseOrganizationClientId", () => {
     });
 
     it("should fallback to organizationId when organizationClientId is empty", () => {
-      const missionXML = createMissionXML({
+      const missionXML = buildMissionXML({
         organizationClientId: "",
         organizationId: "fallback-org-id",
       });
@@ -129,7 +27,7 @@ describe("parseOrganizationClientId", () => {
     });
 
     it("should prefer organizationClientId over organizationId", () => {
-      const missionXML = createMissionXML({
+      const missionXML = buildMissionXML({
         organizationClientId: "preferred-id",
         organizationId: "other-id",
       });
@@ -140,7 +38,7 @@ describe("parseOrganizationClientId", () => {
 
   describe("RNA fallback", () => {
     it("should fallback to normalized organizationRNA when no clientId/organizationId", () => {
-      const missionXML = createMissionXML({
+      const missionXML = buildMissionXML({
         organizationClientId: "",
         organizationId: "",
         organizationRNA: "w123456789",
@@ -153,7 +51,7 @@ describe("parseOrganizationClientId", () => {
     });
 
     it("should fallback to organizationRna when organizationRNA is empty", () => {
-      const missionXML = createMissionXML({
+      const missionXML = buildMissionXML({
         organizationClientId: "",
         organizationId: "",
         organizationRNA: "",
@@ -166,7 +64,7 @@ describe("parseOrganizationClientId", () => {
     });
 
     it("should remove special characters and uppercase RNA", () => {
-      const missionXML = createMissionXML({
+      const missionXML = buildMissionXML({
         organizationClientId: "",
         organizationId: "",
         organizationRNA: "W-123-456-789",
@@ -181,7 +79,7 @@ describe("parseOrganizationClientId", () => {
 
   describe("SIREN/SIRET fallback", () => {
     it("should fallback to SIRET when no clientId, organizationId, or RNA", () => {
-      const missionXML = createMissionXML({
+      const missionXML = buildMissionXML({
         organizationClientId: "",
         organizationId: "",
         organizationRNA: "",
@@ -194,7 +92,7 @@ describe("parseOrganizationClientId", () => {
     });
 
     it("should fallback to SIREN when SIRET is not valid but SIREN is", () => {
-      const missionXML = createMissionXML({
+      const missionXML = buildMissionXML({
         organizationClientId: "",
         organizationId: "",
         organizationRNA: "",
@@ -207,7 +105,7 @@ describe("parseOrganizationClientId", () => {
     });
 
     it("should skip invalid SIREN/SIRET", () => {
-      const missionXML = createMissionXML({
+      const missionXML = buildMissionXML({
         organizationClientId: "",
         organizationId: "",
         organizationRNA: "",
@@ -223,7 +121,7 @@ describe("parseOrganizationClientId", () => {
 
   describe("organizationName fallback", () => {
     it("should fallback to slugified organizationName when no other identifier", () => {
-      const missionXML = createMissionXML({
+      const missionXML = buildMissionXML({
         organizationClientId: "",
         organizationId: "",
         organizationRNA: "",
@@ -236,7 +134,7 @@ describe("parseOrganizationClientId", () => {
     });
 
     it("should slugify special characters in organizationName", () => {
-      const missionXML = createMissionXML({
+      const missionXML = buildMissionXML({
         organizationClientId: "",
         organizationId: "",
         organizationRNA: "",
@@ -251,7 +149,7 @@ describe("parseOrganizationClientId", () => {
 
   describe("null case", () => {
     it("should return null when no identifier is available", () => {
-      const missionXML = createMissionXML({
+      const missionXML = buildMissionXML({
         organizationClientId: "",
         organizationId: "",
         organizationRNA: "",
@@ -264,7 +162,7 @@ describe("parseOrganizationClientId", () => {
     });
 
     it("should return null when all identifiers are undefined", () => {
-      const missionXML = createMissionXML({
+      const missionXML = buildMissionXML({
         organizationClientId: undefined as unknown as string,
         organizationId: undefined as unknown as string,
         organizationRNA: undefined as unknown as string,
@@ -279,7 +177,7 @@ describe("parseOrganizationClientId", () => {
 
   describe("priority order", () => {
     it("should prefer organizationClientId over RNA, SIREN and name", () => {
-      const missionXML = createMissionXML({
+      const missionXML = buildMissionXML({
         organizationClientId: "client-id",
         organizationRNA: "W123456789",
         organizationSiren: "123456789",
@@ -290,7 +188,7 @@ describe("parseOrganizationClientId", () => {
     });
 
     it("should prefer RNA over SIREN and name when no clientId/organizationId", () => {
-      const missionXML = createMissionXML({
+      const missionXML = buildMissionXML({
         organizationClientId: "",
         organizationId: "",
         organizationRNA: "W123456789",
@@ -302,7 +200,7 @@ describe("parseOrganizationClientId", () => {
     });
 
     it("should prefer SIREN over name when no clientId/organizationId or RNA", () => {
-      const missionXML = createMissionXML({
+      const missionXML = buildMissionXML({
         organizationClientId: "",
         organizationId: "",
         organizationRNA: "",
@@ -319,8 +217,8 @@ describe("parseOrganizationClientId", () => {
 describe("parseOrganization", () => {
   describe("basic parsing", () => {
     it("should parse organization with all basic fields", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         organizationName: "Mon Association",
         organizationDescription: "Description de l'association",
         organizationUrl: "https://mon-asso.fr",
@@ -348,8 +246,8 @@ describe("parseOrganization", () => {
     });
 
     it("should use publisher default logo when organization logo is not provided", () => {
-      const publisher = createPublisher({ defaultMissionLogo: "https://default.com/logo.png" });
-      const missionXML = createMissionXML({ organizationLogo: "" });
+      const publisher = buildPublisher({ defaultMissionLogo: "https://default.com/logo.png" });
+      const missionXML = buildMissionXML({ organizationLogo: "" });
 
       const result = parseOrganization(publisher, missionXML);
 
@@ -357,8 +255,8 @@ describe("parseOrganization", () => {
     });
 
     it("should use organization logo over publisher default when provided", () => {
-      const publisher = createPublisher({ defaultMissionLogo: "https://default.com/logo.png" });
-      const missionXML = createMissionXML({ organizationLogo: "https://org.com/logo.png" });
+      const publisher = buildPublisher({ defaultMissionLogo: "https://default.com/logo.png" });
+      const missionXML = buildMissionXML({ organizationLogo: "https://org.com/logo.png" });
 
       const result = parseOrganization(publisher, missionXML);
 
@@ -366,8 +264,8 @@ describe("parseOrganization", () => {
     });
 
     it("should return null when no organization identifier can be resolved", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         organizationClientId: "",
         organizationId: "",
         organizationRNA: "",
@@ -384,8 +282,8 @@ describe("parseOrganization", () => {
 
   describe("clientId delegation to parseOrganizationClientId", () => {
     it("should use organizationClientId as clientId", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         organizationClientId: "client-org-id",
         organizationId: "fallback-org-id",
       });
@@ -396,8 +294,8 @@ describe("parseOrganization", () => {
     });
 
     it("should fallback to organizationId when organizationClientId is empty", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         organizationClientId: "",
         organizationId: "fallback-org-id",
       });
@@ -408,8 +306,8 @@ describe("parseOrganization", () => {
     });
 
     it("should fallback to RNA as clientId", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         organizationClientId: "",
         organizationId: "",
         organizationRNA: "w123456789",
@@ -423,8 +321,8 @@ describe("parseOrganization", () => {
     });
 
     it("should fallback to SIRET as clientId", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         organizationClientId: "",
         organizationId: "",
         organizationRNA: "",
@@ -439,8 +337,8 @@ describe("parseOrganization", () => {
     });
 
     it("should fallback to slugified name as clientId", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         organizationClientId: "",
         organizationId: "",
         organizationRNA: "",
@@ -457,8 +355,8 @@ describe("parseOrganization", () => {
 
   describe("RNA parsing", () => {
     it("should normalize RNA from organizationRNA", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         organizationRNA: "w123456789",
         organizationRna: "",
       });
@@ -469,8 +367,8 @@ describe("parseOrganization", () => {
     });
 
     it("should fallback to organizationRna when organizationRNA is empty", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         organizationRNA: "",
         organizationRna: "w987654321",
       });
@@ -481,8 +379,8 @@ describe("parseOrganization", () => {
     });
 
     it("should remove special characters from RNA", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         organizationRNA: "W-123-456-789",
       });
 
@@ -492,8 +390,8 @@ describe("parseOrganization", () => {
     });
 
     it("should uppercase RNA", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         organizationRNA: "w123abc456",
       });
 
@@ -505,8 +403,8 @@ describe("parseOrganization", () => {
 
   describe("SIREN/SIRET parsing", () => {
     it("should parse valid SIRET and extract SIREN", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         organizationSiren: "12345678901234",
       });
 
@@ -517,8 +415,8 @@ describe("parseOrganization", () => {
     });
 
     it("should parse valid SIREN without SIRET", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         organizationSiren: "123456789",
       });
 
@@ -529,8 +427,8 @@ describe("parseOrganization", () => {
     });
 
     it("should return null for invalid SIREN/SIRET", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         organizationSiren: "invalid",
       });
 
@@ -541,8 +439,8 @@ describe("parseOrganization", () => {
     });
 
     it("should return null for empty SIREN", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         organizationSiren: "",
       });
 
@@ -553,8 +451,8 @@ describe("parseOrganization", () => {
     });
 
     it("should return null for SIREN with non-numeric characters", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         organizationSiren: "12345678A",
       });
 
@@ -567,8 +465,8 @@ describe("parseOrganization", () => {
 
   describe("beneficiaries parsing", () => {
     it("should parse beneficiaries from organizationBeneficiaries as comma-separated string", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         organizationBeneficiaries: "Jeunes, Seniors, Familles",
         organizationBeneficiaires: "",
         publicBeneficiaries: "",
@@ -581,8 +479,8 @@ describe("parseOrganization", () => {
     });
 
     it("should fallback to organizationBeneficiaires", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         organizationBeneficiaries: "",
         organizationBeneficiaires: "Personnes âgées, Enfants",
         publicBeneficiaries: "",
@@ -595,8 +493,8 @@ describe("parseOrganization", () => {
     });
 
     it("should fallback to publicBeneficiaries", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         organizationBeneficiaries: "",
         organizationBeneficiaires: "",
         publicBeneficiaries: "Étudiants, Demandeurs d'emploi",
@@ -609,8 +507,8 @@ describe("parseOrganization", () => {
     });
 
     it("should fallback to publicsBeneficiaires", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         organizationBeneficiaries: "",
         organizationBeneficiaires: "",
         publicBeneficiaries: "",
@@ -623,8 +521,8 @@ describe("parseOrganization", () => {
     });
 
     it("should return empty array when no beneficiaries", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         organizationBeneficiaries: "",
         organizationBeneficiaires: "",
         publicBeneficiaries: "",
@@ -637,8 +535,8 @@ describe("parseOrganization", () => {
     });
 
     it("should parse beneficiaries from object with value array", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         organizationBeneficiaries: { value: ["Jeunes", "Seniors"] } as unknown as string,
       });
 
@@ -650,8 +548,8 @@ describe("parseOrganization", () => {
 
   describe("parentOrganizations parsing", () => {
     it("should parse organizationReseaux as comma-separated string", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         organizationReseaux: "Réseau 1, Réseau 2",
       });
 
@@ -661,8 +559,8 @@ describe("parseOrganization", () => {
     });
 
     it("should parse organizationReseaux from object with value array", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         organizationReseaux: { value: ["Réseau A", "Réseau B"] },
       });
 
@@ -672,8 +570,8 @@ describe("parseOrganization", () => {
     });
 
     it("should return empty array when no reseaux", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         organizationReseaux: "",
       });
 
@@ -685,8 +583,8 @@ describe("parseOrganization", () => {
 
   describe("actions parsing", () => {
     it("should parse keyActions as comma-separated string", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         keyActions: "Action 1, Action 2, Action 3",
       });
 
@@ -696,8 +594,8 @@ describe("parseOrganization", () => {
     });
 
     it("should return empty array when no keyActions", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         keyActions: undefined,
       });
 
@@ -709,8 +607,8 @@ describe("parseOrganization", () => {
 
   describe("verified fields", () => {
     it("should set verified fields to null", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML();
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML();
 
       const result = parseOrganization(publisher, missionXML);
 
@@ -721,8 +619,8 @@ describe("parseOrganization", () => {
 
   describe("Service Civique parentOrganizations", () => {
     it("should use parentOrganizationName when publisher is Service Civique", () => {
-      const publisher = createPublisher({ id: "5f99dbe75eb1ad767733b206" });
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher({ id: "5f99dbe75eb1ad767733b206" });
+      const missionXML = buildMissionXML({
         parentOrganizationName: "Parent Réseau SC",
       });
 
@@ -732,8 +630,8 @@ describe("parseOrganization", () => {
     });
 
     it("should handle parentOrganizationName as array for Service Civique", () => {
-      const publisher = createPublisher({ id: "5f99dbe75eb1ad767733b206" });
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher({ id: "5f99dbe75eb1ad767733b206" });
+      const missionXML = buildMissionXML({
         parentOrganizationName: ["Réseau A", "Réseau B"] as unknown as string,
       });
 
@@ -743,8 +641,8 @@ describe("parseOrganization", () => {
     });
 
     it("should fallback to organizationName when parentOrganizationName is empty for Service Civique", () => {
-      const publisher = createPublisher({ id: "5f99dbe75eb1ad767733b206" });
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher({ id: "5f99dbe75eb1ad767733b206" });
+      const missionXML = buildMissionXML({
         parentOrganizationName: "",
         organizationName: "Asso SC",
       });
@@ -757,8 +655,8 @@ describe("parseOrganization", () => {
 
   describe("edge cases", () => {
     it("should handle undefined values gracefully", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         organizationName: undefined as unknown as string,
         organizationDescription: undefined as unknown as string,
       });
@@ -770,8 +668,8 @@ describe("parseOrganization", () => {
     });
 
     it("should trim whitespace from array values", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         organizationBeneficiaries: "  Jeunes  ,  Seniors  ",
       });
 
@@ -781,8 +679,8 @@ describe("parseOrganization", () => {
     });
 
     it("should filter empty values from arrays", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         organizationBeneficiaries: "Jeunes, , Seniors, ",
       });
 
@@ -792,8 +690,8 @@ describe("parseOrganization", () => {
     });
 
     it("should handle object with item property for arrays", () => {
-      const publisher = createPublisher();
-      const missionXML = createMissionXML({
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({
         publicsBeneficiaires: { item: ["Item1", "Item2"] } as unknown as string,
       });
 

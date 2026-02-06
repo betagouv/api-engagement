@@ -1,9 +1,10 @@
+import { ORGANIZATION_VERIFICATION_STATUS } from "../../constants/organization-verification";
 import { captureException } from "../../error";
 import publisherOrganizationService from "../../services/publisher-organization";
-import { isValidRNA, isValidSiret } from "../../utils/organization";
+import { normalizeName, normalizeRNA, normalizeSiret } from "../../utils";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
-import { findByName, findByRNA, findBySiret, ORGANIZATION_VERIFICATION_STATUS, updatePublisherOrganization } from "./utils/organization";
+import { findByName, findByRNA, findBySiret, updatePublisherOrganization } from "./utils/organization";
 
 const CHUNK_SIZE = 500;
 
@@ -30,30 +31,6 @@ export interface VerifyPublisherOrganizationJobResult extends JobResult {
   end: Date;
   result: VerificationResult;
 }
-
-const normalizeString = (value?: string | null) => (value || "").replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
-const normalizeRNA = (value?: string | null) => {
-  const normalized = normalizeString(value);
-  if (normalized && isValidRNA(normalized)) {
-    return normalized;
-  }
-  return null;
-};
-
-const normalizeSiret = (value?: string | null) => {
-  const normalized = normalizeString(value);
-  if (normalized && isValidSiret(normalized)) {
-    return normalized;
-  }
-  return null;
-};
-const normalizeName = (value?: string | null) => {
-  const normalized = normalizeString(value);
-  if (normalized) {
-    return normalized;
-  }
-  return null;
-};
 
 export class VerifyPublisherOrganizationHandler implements BaseHandler<VerifyPublisherOrganizationJobPayload, VerifyPublisherOrganizationJobResult> {
   name = "Vérification des organisations des éditeurs";
