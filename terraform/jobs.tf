@@ -216,20 +216,3 @@ resource "scaleway_job_definition" "import-missions" {
 
   env = local.all_env_vars
 }
-
-resource "scaleway_job_definition" "update-stats-views" {
-  name         = "${terraform.workspace}-update-stats-views"
-  project_id   = var.project_id
-  cpu_limit    = 1000
-  memory_limit = 2048
-  image_uri    = local.image_uri
-  command      = "node --max-old-space-size=1800 dist/jobs/run-job.js update-stats-views"
-  timeout      = "120m"
-
-  cron {
-    schedule = "0 5 * * *" # Every day at 5:00 AM
-    timezone = "Europe/Paris"
-  }
-
-  env = local.all_env_vars
-}

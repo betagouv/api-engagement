@@ -35,9 +35,7 @@ import PublisherController from "./controllers/publisher";
 import RedirectController from "./controllers/redirect";
 import ReportController from "./controllers/report";
 import StatsController from "./controllers/stats";
-import StatsGlobalController from "./controllers/stats-global/controller";
 import StatsMeanController from "./controllers/stats-mean/controller";
-import PublicStatsController from "./controllers/stats-public/controller";
 import UserController from "./controllers/user";
 import WarningController from "./controllers/warning";
 import WarningBotController from "./controllers/warning-bot";
@@ -73,7 +71,6 @@ const main = async () => {
 
   // Opened routes
   app.use("/iframe", IframeController);
-  app.use("/stats-public", PublicStatsController);
   app.use("/r", cors({ origin: "*" }), RedirectController);
   app.use("/report", cors({ origin: "*" }), ReportController);
   app.use("/v0/mymission", cors({ origin: "*" }), MyMissionV0Controller);
@@ -101,7 +98,6 @@ const main = async () => {
   app.use("/publisher", PublisherController);
   app.use("/organization", OrganizationController);
   app.use("/stats", StatsController);
-  app.use("/stats-global", StatsGlobalController);
   app.use("/stats-mean", StatsMeanController);
   app.use("/user", UserController);
   app.use("/warning", WarningController);
