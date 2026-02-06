@@ -157,6 +157,12 @@ export const getModerationEvents = (previous: MissionModerationRecord, updated: 
       initialComment: previous.comment ?? null,
       newComment: updated.comment,
     });
+  } else if (previous.comment !== updated.comment) {
+    events.push({
+      missionId: previous.missionId,
+      initialComment: previous.comment ?? null,
+      newComment: updated.comment ?? null,
+    });
   }
 
   if (previous.title !== updated.title) {

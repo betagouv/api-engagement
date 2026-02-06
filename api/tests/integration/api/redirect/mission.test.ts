@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { randomUUID } from "node:crypto";
 import request from "supertest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -18,7 +18,8 @@ describe("RedirectController /:missionId/:publisherId", () => {
   });
 
   it("redirects to Service Civique when params are invalid", async () => {
-    const response = await request(app).get(`/r/${new Types.ObjectId().toString()}/invalid`);
+    const uuid = randomUUID();
+    const response = await request(app).get(`/r/${uuid}/invalid`);
 
     expect(response.status).toBe(302);
     expect(response.headers.location).toBe("https://www.service-civique.gouv.fr/");
@@ -28,8 +29,8 @@ describe("RedirectController /:missionId/:publisherId", () => {
   it("redirects to Service Civique when mission is not found and identity is missing", async () => {
     vi.spyOn(utils, "identify").mockReturnValue(null);
 
-    const missionId = new Types.ObjectId().toString();
-    const publisherId = new Types.ObjectId().toString();
+    const missionId = randomUUID();
+    const publisherId = randomUUID();
     const response = await request(app).get(`/r/${missionId}/${publisherId}`);
 
     expect(response.status).toBe(302);
@@ -38,6 +39,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
   });
 
   it("redirects to mission application URL when identity is missing but mission exists", async () => {
+    const uuid = randomUUID();
     const mission = await createTestMission({
       addresses: [
         {
@@ -49,13 +51,13 @@ describe("RedirectController /:missionId/:publisherId", () => {
       applicationUrl: "https://mission.example.com/apply",
       clientId: "mission-client-id",
       lastSyncAt: new Date(),
-      publisherId: new Types.ObjectId().toString(),
+      publisherId: randomUUID(),
       title: "Mission Title",
     });
 
     vi.spyOn(utils, "identify").mockReturnValue(null);
 
-    const response = await request(app).get(`/r/${mission._id.toString()}/${new Types.ObjectId().toString()}`);
+    const response = await request(app).get(`/r/${mission.id}/${uuid}`);
 
     expect(response.status).toBe(302);
     expect(response.headers.location).toBe("https://mission.example.com/apply");
@@ -66,7 +68,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
     const fromPublisher = await publisherService.createPublisher({ name: "From Publisher" });
     const missionPublisher = await prismaCore.publisher.create({
       data: {
-        id: new Types.ObjectId().toString(),
+        id: randomUUID(),
         name: "Mission Publisher",
       },
     });
@@ -99,7 +101,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
     const statsBotFindOneSpy = vi.spyOn(statBotService, "findStatBotByUser").mockResolvedValue({ user: identity.user } as any);
 
     const response = await request(app)
-      .get(`/r/${mission._id.toString()}/${fromPublisher.id}`)
+      .get(`/r/${mission.id}/${fromPublisher.id}`)
       .set("Host", "redirect.test")
       .set("Origin", "https://app.example.com")
       .query({ tags: "foo,bar" });
@@ -123,7 +125,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
       origin: "https://app.example.com",
       source: "publisher",
       sourceName: fromPublisher.name,
-      missionId: mission._id.toString(),
+      missionId: mission.id,
       missionClientId: mission.clientId,
       missionDomain: mission.domain,
       missionTitle: mission.title,
@@ -175,7 +177,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
     vi.spyOn(utils, "identify").mockReturnValue(identity);
     vi.spyOn(statBotService, "findStatBotByUser").mockResolvedValue(null);
 
-    const response = await request(app).get(`/r/${mission._id.toString()}/${fromPublisher.id}`).query({ tags: "foo" });
+    const response = await request(app).get(`/r/${mission.id}/${fromPublisher.id}`).query({ tags: "foo" });
 
     expect(response.status).toBe(302);
     const redirectUrl = new URL(response.headers.location);

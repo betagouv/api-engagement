@@ -45,6 +45,15 @@ describe("String Utils", () => {
       expect(capitalizeFirstLetter("Hello World")).toBe("Hello World");
     });
 
+    it("should normalize mixed casing", () => {
+      expect(capitalizeFirstLetter("Chambon-La-ForêT")).toBe("Chambon-La-Forêt");
+    });
+
+    it("should handle hyphens and apostrophes with accents", () => {
+      expect(capitalizeFirstLetter("l'isle-d'abeau")).toBe("L'Isle-d'Abeau");
+      expect(capitalizeFirstLetter("saint-étienne")).toBe("Saint-Étienne");
+    });
+
     it("should handle empty string", () => {
       expect(capitalizeFirstLetter("")).toBe("");
     });

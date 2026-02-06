@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { randomUUID } from "node:crypto";
 import request from "supertest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -20,7 +20,7 @@ describe("RedirectController /widget/:id", () => {
   it("redirects to JVA when mission is not found and identity is missing", async () => {
     vi.spyOn(utils, "identify").mockReturnValue(null);
 
-    const missionId = new Types.ObjectId().toString();
+    const missionId = randomUUID();
     const response = await request(app).get(`/r/widget/${missionId}`);
 
     expect(response.status).toBe(302);
@@ -39,13 +39,13 @@ describe("RedirectController /widget/:id", () => {
       applicationUrl: "https://mission.example.com/apply",
       clientId: "mission-client-id",
       lastSyncAt: new Date(),
-      publisherId: new Types.ObjectId().toString(),
+      publisherId: randomUUID(),
       title: "Mission Title",
     });
 
     vi.spyOn(utils, "identify").mockReturnValue(null);
 
-    const response = await request(app).get(`/r/widget/${mission._id.toString()}`);
+    const response = await request(app).get(`/r/widget/${mission.id}`);
 
     expect(response.status).toBe(302);
     expect(response.headers.location).toBe("https://mission.example.com/apply");
@@ -53,8 +53,8 @@ describe("RedirectController /widget/:id", () => {
   });
 
   it("records click stats and appends tracking parameters when widget and identity are present", async () => {
-    const missionPublisherId = new Types.ObjectId().toString();
-    const widgetPublisherId = new Types.ObjectId().toString();
+    const missionPublisherId = randomUUID();
+    const widgetPublisherId = randomUUID();
     await prismaCore.publisher.create({ data: { id: missionPublisherId, name: "Mission Publisher" } });
     await prismaCore.publisher.create({ data: { id: widgetPublisherId, name: "From Publisher" } });
 
@@ -87,9 +87,9 @@ describe("RedirectController /widget/:id", () => {
     vi.spyOn(utils, "identify").mockReturnValue(identity);
     const statsBotFindOneSpy = vi.spyOn(statBotService, "findStatBotByUser").mockResolvedValue({ user: identity.user } as any);
 
-    const requestId = new Types.ObjectId().toString();
+    const requestId = randomUUID();
     const response = await request(app)
-      .get(`/r/widget/${mission._id.toString()}`)
+      .get(`/r/widget/${mission.id}`)
       .set("Host", "redirect.test")
       .set("Origin", "https://app.example.com")
       .query({ widgetId: widget.id, requestId });
@@ -115,7 +115,7 @@ describe("RedirectController /widget/:id", () => {
       source: "widget",
       sourceId: widget.id,
       sourceName: widget.name,
-      missionId: mission._id.toString(),
+      missionId: mission.id,
       missionClientId: mission.clientId,
       missionDomain: mission.domain,
       missionTitle: mission.title,
@@ -134,12 +134,12 @@ describe("RedirectController /widget/:id", () => {
 
   it("uses mtm tracking parameters when mission publisher is Service Civique", async () => {
     const originalServicePublisherId = PUBLISHER_IDS.SERVICE_CIVIQUE;
-    const servicePublisherId = originalServicePublisherId || new Types.ObjectId().toString();
+    const servicePublisherId = originalServicePublisherId || randomUUID();
     if (!originalServicePublisherId) {
       PUBLISHER_IDS.SERVICE_CIVIQUE = servicePublisherId;
     }
     await prismaCore.publisher.create({ data: { id: servicePublisherId, name: "Service Civique" } });
-    const widgetPublisherId = new Types.ObjectId().toString();
+    const widgetPublisherId = randomUUID();
     await prismaCore.publisher.create({ data: { id: widgetPublisherId, name: "From Publisher" } });
 
     try {
@@ -170,7 +170,7 @@ describe("RedirectController /widget/:id", () => {
       vi.spyOn(utils, "identify").mockReturnValue(identity);
       vi.spyOn(statBotService, "findStatBotByUser").mockResolvedValue(null);
 
-      const response = await request(app).get(`/r/widget/${mission._id.toString()}`).query({ widgetId: widget.id });
+      const response = await request(app).get(`/r/widget/${mission.id}`).query({ widgetId: widget.id });
 
       expect(response.status).toBe(302);
       const redirectUrl = new URL(response.headers.location);

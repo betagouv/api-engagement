@@ -60,7 +60,7 @@ const LocationFilter = ({ selected, onChange, className = "w-80", disabled = fal
 
     if (search?.length > 3) {
       try {
-        const res: AddressApiResponse = await fetch(`https://api-adresse.data.gouv.fr/search?q=${search}&type=municipality&autocomplete=1&limit=6`).then((r) => r.json());
+        const res: AddressApiResponse = await fetch(`https://data.geopf.fr/geocodage/search?q=${search}&type=municipality&autocomplete=1&limit=6`).then((r) => r.json());
         if (!res.features) {
           return;
         }

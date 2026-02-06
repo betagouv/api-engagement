@@ -99,7 +99,7 @@ describe("RedirectController /account", () => {
       sourceName: clickStat.sourceName,
       fromPublisherId: clickStat.fromPublisherId,
       toPublisherId: mission.publisherId,
-      missionId: mission._id.toString(),
+      missionId: mission.id,
       isBot: true,
     });
   });
@@ -167,9 +167,7 @@ describe("RedirectController /account", () => {
       toPublisherId: "to-publisher-id",
     });
 
-    const response = await request(app)
-      .get("/r/account")
-      .query({ view: "click-account-client-event", clientEventId: "client-event-account-1" });
+    const response = await request(app).get("/r/account").query({ view: "click-account-client-event", clientEventId: "client-event-account-1" });
 
     expect(response.status).toBe(200);
     const storedAccount = await prismaCore.statEvent.findUnique({ where: { id: response.body.id } });

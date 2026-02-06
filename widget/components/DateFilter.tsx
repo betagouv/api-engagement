@@ -31,11 +31,11 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" }:
   }, []);
 
   return (
-    <div className="relative w-full min-w-[6rem]" ref={ref}>
+    <div className="relative w-full min-w-24" ref={ref}>
       <label htmlFor="date" className="sr-only">
         Date
       </label>
-      <button id="date" aria-label="date" className={`select relative truncate text-left ${!selected ? "!text-[#666666]" : ""}`} onClick={() => setShow(!show)}>
+      <button id="date" aria-label="date" className={`select relative truncate text-left ${!selected ? "text-[#666666]!" : ""}`} onClick={() => setShow(!show)}>
         {selected ? selected.label : "Date"}
         {show ? (
           <RiArrowDownSLine className="text-base transform rotate-180 absolute right-4 top-1/2 -translate-y-1/2" />
@@ -67,7 +67,7 @@ const DateFilter = ({ selected, onChange, position = "left-0", width = "w-80" }:
             chooseDayAriaLabelPrefix="Choisir le"
             disabledDayAriaLabelPrefix="Non disponible le"
             minDate={new Date()}
-            onChange={(date) => {
+            onChange={(date: Date | null) => {
               if (date instanceof Date && !isNaN(date.getTime())) {
                 onChange({ label: date.toLocaleDateString("fr"), value: date });
                 setShow(false);

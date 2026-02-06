@@ -195,6 +195,8 @@ models:
         description: Nombre total d’événements sur la journée.
       - name: conversion_rate
         description: Taux de conversion (candidatures / redirections).
+      - name: max_updated_at
+        description: Dernière date de mise à jour observée sur l’agrégat.
 
   - name: mean_from_publisher_sources_enriched
     description: >

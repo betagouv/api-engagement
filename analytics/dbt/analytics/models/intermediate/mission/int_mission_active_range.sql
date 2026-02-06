@@ -23,8 +23,22 @@ base as (
     m.id as mission_id,
     date_trunc('day', m.created_at)::date as start_date,
     m.domain as mission_domain,
+    m.start_at,
+    m.end_at,
+    m.tags,
+    m.audience,
+    m.activity,
+    m.close_to_transport,
     m.publisher_id,
     m.updated_at,
+    m.created_at,
+    length(m.description) as description_length,
+    case
+      when m.start_at is null or m.end_at is null then null
+      else greatest((m.end_at::date - m.start_at::date), 0)
+    end as duration_days,
+    greatest(extract(epoch from (m.created_at - m.posted_at))::bigint, 0)
+      as time_to_import_secs,
     case
       when m.deleted_at is not null
         then date_trunc('day', m.deleted_at)::date
@@ -52,7 +66,15 @@ select
   start_date,
   end_date,
   mission_domain,
+  description_length,
+  close_to_transport,
+  time_to_import_secs,
+  duration_days,
+  tags,
+  audience,
+  activity,
   publisher_id,
   publisher_category,
-  updated_at
+  updated_at,
+  created_at
 from base
