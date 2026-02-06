@@ -155,7 +155,6 @@ const getCompanyPilotyId = async (pilotyClient: PilotyClient, mission: MissionRe
       const pilotyCompany = await pilotyClient.createCompany(companyPayload);
       console.log(`[LetudiantHandler] Company ${organization.title} created (${pilotyCompany.public_id})`);
       pilotyCompanyPublicId = pilotyCompany.public_id;
-      await rateLimit();
     } catch (error) {
       if (error instanceof PilotyError && error.status === 409) {
         console.log(`[LetudiantHandler] Company ${organization.title} already exists (409)`);
@@ -172,7 +171,7 @@ const getCompanyPilotyId = async (pilotyClient: PilotyClient, mission: MissionRe
       console.log(`[LetudiantHandler] Organization ${organization.title} updated with letudiantPublicId ${pilotyCompanyPublicId}`);
     }
   }
-
+  await rateLimit();
   return pilotyCompanyPublicId;
 };
 
