@@ -89,17 +89,17 @@ const Nav = () => {
 
   return (
     <nav role="navigation" aria-label="Navigation principale" className="flex w-full justify-center bg-white shadow-lg">
-      <div className="flex h-14 w-full max-w-312 items-center justify-between pl-4">
-        <ul className="m-0 flex h-full w-full list-none items-center justify-between p-0" role="list" aria-label="Menu principal">
-          <li className="flex h-full items-center gap-6">
+      <div className="flex w-full max-w-312 flex-wrap items-center justify-between pl-4">
+        <ul className="m-0 flex w-full list-none flex-wrap items-center justify-between p-0" role="list" aria-label="Menu principal">
+          <li className="flex items-center gap-4 lg:gap-6">
             {publisher.isAnnonceur && (publisher.hasApiRights || publisher.hasWidgetRights || publisher.hasCampaignRights) && <FluxMenu value={flux} onChange={handleFluxChange} />}
-            <ul className="m-0 flex h-full list-none items-center gap-6 p-0">
+            <ul className="m-0 flex list-none flex-wrap items-center gap-4 p-0 lg:gap-6">
               {menuItems.map((item) => (
-                <li key={item.key} className="h-full">
+                <li key={item.key}>
                   <Link
                     to={item.to}
                     aria-current={item.isActive ? "page" : undefined}
-                    className={`hover:bg-gray-975 flex h-full items-center px-6 text-sm ${
+                    className={`hover:bg-gray-975 flex items-center px-4 py-3 text-sm lg:px-6 ${
                       item.isActive ? "border-b-blue-france text-blue-france border-b-2" : "border-none text-black"
                     }`}
                   >
@@ -110,7 +110,7 @@ const Nav = () => {
             </ul>
           </li>
 
-          <li className="flex h-full items-center gap-6">
+          <li className="flex items-center gap-4 lg:gap-6">
             {publishers.length > 1 && <PublisherMenu options={publishers} value={publisher} onChange={handleChangePublisher} />}
             {user.role === "admin" && <AdminMenu />}
           </li>
