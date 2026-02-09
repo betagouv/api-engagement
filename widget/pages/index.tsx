@@ -280,31 +280,31 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (context:
     return { props: { widget: null, missions: [], total: 0, apiUrl: API_URL, request: null, environment: ENV } };
   }
 
+  const emptyProps: PageProps = { widget: null, missions: [], total: 0, apiUrl: API_URL, request: null, environment: ENV };
+
   let widget: Widget | null = null;
   try {
     const q = context.query.widget ? `id=${context.query.widget}` : `name=${context.query.widgetName}`;
-    const res = await fetch(`${API_URL}/iframe/widget?${q}`).then((e) => e.json());
+    const rawRes = await fetch(`${API_URL}/iframe/widget?${q}`);
+    if (!rawRes.ok) {
+      Sentry.captureMessage(`Widget API error: ${rawRes.status}`, { extra: { query: context.query, queryString: q } });
+      return { props: emptyProps };
+    }
+    const res = await rawRes.json();
     if (!res.ok) {
-      if (res.code === "NOT_FOUND") {
-        Sentry.captureMessage("Widget not found", { extra: { context: context, query: q } });
-        return { props: { widget: null, missions: [], total: 0, apiUrl: API_URL, request: null, environment: ENV } };
-      }
-      if (res.code === "INVALID_QUERY") {
-        Sentry.captureMessage(res.message, { extra: { context: context, query: q } });
-        return { props: { widget: null, missions: [], total: 0, apiUrl: API_URL, request: null, environment: ENV } };
-      }
-      throw res;
+      Sentry.captureMessage(`Widget error: ${res.code}`, { extra: { query: context.query, queryString: q, code: res.code } });
+      return { props: emptyProps };
     }
     widget = res.data;
   } catch (error) {
     console.error(error);
-    Sentry.captureException(error, { extra: { context: context } });
-    return { props: { widget: null, missions: [], total: 0, apiUrl: API_URL, request: null, environment: ENV } };
+    Sentry.captureException(error, { extra: { query: context.query } });
+    return { props: emptyProps };
   }
 
   if (!widget) {
-    Sentry.captureMessage("Widget not found", { extra: { context: context } });
-    return { props: { widget: null, missions: [], total: 0, apiUrl: API_URL, request: null, environment: ENV } };
+    Sentry.captureMessage("Widget not found", { extra: { query: context.query } });
+    return { props: emptyProps };
   }
 
   const searchParams = new URLSearchParams();
@@ -367,10 +367,14 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (context:
       searchParams.append("city", context.query.city || "");
     }
 
-    const response = await fetch(`${API_URL}/iframe/${widget!.id}/search?${searchParams.toString()}`).then((res) => res.json());
+    const rawResponse = await fetch(`${API_URL}/iframe/${widget!.id}/search?${searchParams.toString()}`);
+    if (!rawResponse.ok) {
+      throw new Error(`Search API error: ${rawResponse.status}`);
+    }
+    const response = await rawResponse.json();
 
     if (!response.ok) {
-      throw response;
+      throw new Error(`Search error: ${response.code || "UNKNOWN"}`);
     }
     const query = new URLSearchParams({
       widgetId: widget!.id,
@@ -405,7 +409,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (context:
     return { props: { widget, missions, total: response.total, apiUrl: API_URL, request: response.request || null, environment: ENV } };
   } catch (error) {
     console.error(error);
-    Sentry.captureException(error, { extra: { context: context, searchParams: searchParams.toString(), widgetId: widget!.id } });
+    Sentry.captureException(error, { extra: { query: context.query, searchParams: searchParams.toString(), widgetId: widget!.id } });
   }
   return { props: { widget, missions: [], total: 0, apiUrl: API_URL, request: null, environment: ENV } };
 };
