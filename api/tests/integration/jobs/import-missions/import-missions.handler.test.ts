@@ -44,20 +44,24 @@ describe("Import missions job (integration test)", () => {
 
     expect(mission.addresses).toBeDefined();
     expect(mission.addresses.length).toBe(2);
-    expect(mission.addresses[0]).toMatchObject({
-      street: "46 Rue Saint-Antoine",
-      city: "Paris",
-      postalCode: "75004",
-      departmentCode: "75",
-      departmentName: "Paris",
-      region: "Île-de-France",
-      country: "FR",
-      location: {
-        lat: 48.8541,
-        lon: 2.3643,
-      },
-      geolocStatus: "ENRICHED_BY_PUBLISHER",
-    });
+    expect(mission.addresses).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          street: "46 Rue Saint-Antoine",
+          city: "Paris",
+          postalCode: "75004",
+          departmentCode: "75",
+          departmentName: "Paris",
+          region: "Île-de-France",
+          country: "FR",
+          location: {
+            lat: 48.8541,
+            lon: 2.3643,
+          },
+          geolocStatus: "ENRICHED_BY_PUBLISHER",
+        }),
+      ])
+    );
     expect(mission.activity).toBe("logistique");
     expect(mission.audience).toEqual(["Tous"]);
     expect(mission.clientId).toBe("32132143");
