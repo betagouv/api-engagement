@@ -2,6 +2,62 @@
 Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
 
 
+## 02/02/2026
+
+
+### Bug Fixes
+
+- (**widget**) Default domainLogo image ([`4035667`](https://github.com/betagouv/api-engagement/commit/403566792454966432ee067df4231327b58a2487))
+
+- (**app**) Update mission on batch moderation ([`97d28d2`](https://github.com/betagouv/api-engagement/commit/97d28d22dc6e70183c14d69e72edb45cbb30d6c9))
+
+- (**api**) Missing variable d'env for metabase proxy api (#708) ([`ef52748`](https://github.com/betagouv/api-engagement/commit/ef527488885ae35eaddc109e985d77ba31046be1))
+
+- (**api**) Add stat-event index to speed up v0/mymision endpoint (#705) ([`f857262`](https://github.com/betagouv/api-engagement/commit/f85726292bdca77ef3b0027573547644d7ae7542))
+
+- (**app**) Review batch moderation states management and red color ([`50fcf63`](https://github.com/betagouv/api-engagement/commit/50fcf6323d4e3160162385ce44cb7b4d1bc1ace2))
+
+- (**app**) Batch organization moderation fixed ([`6024ffb`](https://github.com/betagouv/api-engagement/commit/6024ffbe071df17b47d0dfa04b58efd647f89e92))
+
+- (**app**) Moderation history missmatch ([`72931c9`](https://github.com/betagouv/api-engagement/commit/72931c9ad2235109c2838d308ed2bed5735cea11))
+
+- (**api**) Feedback moderation review some bugs ([`bdaa9c6`](https://github.com/betagouv/api-engagement/commit/bdaa9c639caf12b47b51dc9393451cb722b9aefa))
+
+- (**jobs**) Remove title set to comment ([`acc8f5a`](https://github.com/betagouv/api-engagement/commit/acc8f5a9a3a3844d5194d01ab0ef4a75b27f7ffa))
+
+
+### Features
+
+- (**app**) Add custom attributes in real time screen (#704) ([`18c43c6`](https://github.com/betagouv/api-engagement/commit/18c43c69ebfbee5a2f931a2356c4f891365b18cf))
+
+
+### Miscellaneous Tasks
+
+- (**changelog**) Update CHANGELOG.md ([`13ab4dd`](https://github.com/betagouv/api-engagement/commit/13ab4dd0144c48aa9018a062bcbb5e1b847f065f))
+
+- (**changelog**) Update CHANGELOG.md ([`ac71d27`](https://github.com/betagouv/api-engagement/commit/ac71d2749dcc76a671a543c1c51da68f8bcb01cb))
+
+- (**changelog**) Update CHANGELOG.md ([`111ac46`](https://github.com/betagouv/api-engagement/commit/111ac46cf6fadf87ae3dd6f635a01f25260da1d3))
+
+- (**deps-dev**) Bump @types/node from 24.10.1 to 25.0.3 in /widget (#653) ([`e2ffd6f`](https://github.com/betagouv/api-engagement/commit/e2ffd6fb121974035ea0aa8b27c73ab84c3d23e6))
+
+- (**deps-dev**) Bump the dev-dependencies group (#652) ([`cdf9712`](https://github.com/betagouv/api-engagement/commit/cdf971275aa7c2e213344d7005a1b20b4c4bac08))
+
+
+### Refactoring
+
+- (**jobs**) Mission job board unicity (#709) ([`56289d9`](https://github.com/betagouv/api-engagement/commit/56289d964d266e0c1f139d038fdb0f116c3c5411))
+
+- (**jobs**) Remove metabase job (#681) ([`ae085a2`](https://github.com/betagouv/api-engagement/commit/ae085a21040391c9d2121ed3e0e6d722cc5296a4))
+
+- (**app**) Revamp analytics visualization with metabase card (#685) ([`5c9d017`](https://github.com/betagouv/api-engagement/commit/5c9d0173457979ca49dde0bfd227ad83123ad425))
+
+- (**app**) Review jva moderation to new mission data model (#674) ([`d33b4de`](https://github.com/betagouv/api-engagement/commit/d33b4de4ea9d2d2cf54808b51a52de662621804f))
+
+# API Engagement - Changelog
+Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
+
+
 ## 26/01/2026
 
 
