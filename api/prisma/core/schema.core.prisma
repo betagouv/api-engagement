@@ -777,6 +777,7 @@ model MissionAddress {
   @@index([departmentName], map: "mission_address_department_name_idx")
   @@index([locationLat], map: "mission_address_lat_idx")
   @@index([locationLon], map: "mission_address_lon_idx")
+  @@index([missionId, locationLat, locationLon], map: "mission_address_mission_lat_lon_idx")
   @@map("mission_address")
 }
 
