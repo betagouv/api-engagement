@@ -48,7 +48,6 @@ import MyOrganizationV0Controller from "./v0/myorganization/controller";
 import OrganizationV0Controller from "./v0/organization";
 import PublisherV0Controller from "./v0/publisher";
 import ViewV0Controller from "./v0/view";
-import AssociationV1Controller from "./v1/association";
 import ActivityV2Controller from "./v2/activity";
 import JobTeaserV2Controller from "./v2/jobteaser";
 import LeboncoinV2Controller from "./v2/leboncoin";
@@ -82,7 +81,6 @@ const main = async () => {
   app.use("/v0/publisher", cors({ origin: "*" }), PublisherV0Controller);
   app.use("/v0/view", cors({ origin: "*" }), ViewV0Controller);
   app.use("/v0/organization", OrganizationV0Controller);
-  app.use("/v1/association", AssociationV1Controller);
   // /v2/mission redirects to /v0/mission
   app.use("/v2/mission", cors({ origin: "*" }), MissionV0Controller);
   app.use("/v2/activity", cors({ origin: "*" }), ActivityV2Controller);
