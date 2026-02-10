@@ -77,9 +77,9 @@ mission_range_dept as (
     d.department_name,
     mdr.mission_id,
     im.organization_id,
-    mdr.mission_domain,
     mdr.publisher_category,
-    coalesce(mdr.updated_at, mdr.start_date)::timestamp as updated_at
+    coalesce(mdr.updated_at, mdr.start_date)::timestamp as updated_at,
+    coalesce(mdr.mission_domain, 'unknown') as mission_domain
   from {{ ref('int_mission_active_department_range') }} as mdr
   left join {{ ref('int_mission') }} as im
     on mdr.mission_id = im.id
@@ -95,9 +95,9 @@ mission_range_all as (
     mar.end_date,
     mar.mission_id,
     im.organization_id,
-    mar.mission_domain,
     mar.publisher_category,
-    coalesce(mar.updated_at, mar.start_date)::timestamp as updated_at
+    coalesce(mar.updated_at, mar.start_date)::timestamp as updated_at,
+    coalesce(mar.mission_domain, 'unknown') as mission_domain
   from {{ ref('int_mission_active_range') }} as mar
   left join {{ ref('int_mission') }} as im
     on mar.mission_id = im.id
@@ -190,7 +190,7 @@ missions_all_dept as (
   select
     year,
     true as is_all_department,
-    null as department,
+    'all' as department,
     null as department_name,
     mission_domain,
     publisher_category,
@@ -205,7 +205,7 @@ missions_all_dept_all_type as (
   select
     year,
     true as is_all_department,
-    null as department,
+    'all' as department,
     null as department_name,
     mission_domain,
     'all' as publisher_category,
@@ -303,7 +303,7 @@ events_all_dept as (
   select
     year,
     true as is_all_department,
-    null as department,
+    'all' as department,
     null as department_name,
     mission_domain,
     publisher_category,
@@ -318,7 +318,7 @@ events_all_dept_all_type as (
   select
     year,
     true as is_all_department,
-    null as department,
+    'all' as department,
     null as department_name,
     mission_domain,
     'all' as publisher_category,
