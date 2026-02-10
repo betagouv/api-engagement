@@ -1,6 +1,7 @@
 const ENV = process.env.ENV || "development";
 const API_URL = process.env.API_URL || "http://localhost:4000";
 const SENTRY_DSN = process.env.SENTRY_DSN || "";
+const SSR_API_TIMEOUT_MS = 30000;
 
 interface DomainConfig {
   label: string;
@@ -122,4 +123,4 @@ const MINORS: Record<string, string> = {
   no: "Majeur uniquement",
 };
 
-export { ACCESSIBILITIES, ACTIONS, API_URL, BENEFICIARIES, DOMAINS, ENV, MINORS, SCHEDULES, SENTRY_DSN };
+export { ACCESSIBILITIES, ACTIONS, API_URL, BENEFICIARIES, DOMAINS, ENV, MINORS, SCHEDULES, SENTRY_DSN, SSR_API_TIMEOUT_MS };

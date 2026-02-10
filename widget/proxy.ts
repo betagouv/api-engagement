@@ -1,11 +1,16 @@
 import type { NextFetchEvent, NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { REQUEST_ID_HEADER } from "./utils/requestId";
 
 export function proxy(request: NextRequest, event: NextFetchEvent) {
   if (process.env.NODE_ENV !== "production") return NextResponse.next();
 
   const start = Date.now();
-  const response = NextResponse.next();
+  const requestId = request.headers.get(REQUEST_ID_HEADER) ?? crypto.randomUUID();
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set(REQUEST_ID_HEADER, requestId);
+  const response = NextResponse.next({ request: { headers: requestHeaders } });
+  response.headers.set(REQUEST_ID_HEADER, requestId);
 
   event.waitUntil(
     Promise.resolve().then(() => {
@@ -13,6 +18,7 @@ export function proxy(request: NextRequest, event: NextFetchEvent) {
         method: request.method,
         path: request.nextUrl.pathname,
         query: Object.fromEntries(request.nextUrl.searchParams),
+        request_id: requestId,
         status: response.status,
         "response-time": Date.now() - start,
       };

@@ -1,7 +1,6 @@
-import * as Sentry from "@sentry/nextjs";
 import iso from "i18n-iso-countries";
 import isoFR from "i18n-iso-countries/langs/fr.json";
-import { GetServerSideProps } from "next";
+import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import Script from "next/script";
@@ -14,8 +13,12 @@ import Filters from "../components/Filters";
 import Grid from "../components/Grid";
 import { API_URL, ENV } from "../config";
 import LogoSC from "../public/images/logo-sc.svg";
-import { Filters as FilterTypes, Location, Mission, PageProps, ServerSideContext, Widget } from "../types";
+import { Filters as FilterTypes, Location, Mission, PageProps, Widget } from "../types";
+import { fetchWithTimeout } from "../utils/fetchWithTimeout";
+import { getQueryValue, getQueryValues } from "../utils/queryParams";
+import { generateRequestId, REQUEST_ID_HEADER } from "../utils/requestId";
 import resizeHelper from "../utils/resizeHelper";
+import { captureExceptionWithRequestId, captureMessageWithRequestId } from "../utils/sentry";
 import useStore from "../utils/store";
 import { calculateDistance } from "../utils/utils";
 
@@ -275,35 +278,40 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }: PagePro
   );
 };
 
-export const getServerSideProps: GetServerSideProps<PageProps> = async (context: ServerSideContext) => {
+export const getServerSideProps: GetServerSideProps<PageProps> = async (context: GetServerSidePropsContext) => {
   if (!context.query.widgetName && !context.query.widget) {
     return { props: { widget: null, missions: [], total: 0, apiUrl: API_URL, request: null, environment: ENV } };
   }
 
   const emptyProps: PageProps = { widget: null, missions: [], total: 0, apiUrl: API_URL, request: null, environment: ENV };
+  const rawRequestId = context.req?.headers?.[REQUEST_ID_HEADER];
+  const requestId = (Array.isArray(rawRequestId) ? rawRequestId[0] : rawRequestId) ?? generateRequestId();
 
   let widget: Widget | null = null;
   try {
-    const q = context.query.widget ? `id=${context.query.widget}` : `name=${context.query.widgetName}`;
-    const rawRes = await fetch(`${API_URL}/iframe/widget?${q}`);
+    const widgetId = getQueryValue(context.query.widget);
+    const widgetName = getQueryValue(context.query.widgetName);
+    const q = widgetId ? `id=${widgetId}` : `name=${widgetName}`;
+
+    const rawRes = await fetchWithTimeout(`${API_URL}/iframe/widget?${q}`, { label: "iframe-widget", requestId }, { headers: { [REQUEST_ID_HEADER]: requestId } });
     if (!rawRes.ok) {
-      Sentry.captureMessage(`Widget API error: ${rawRes.status}`, { extra: { query: context.query, queryString: q } });
+      captureMessageWithRequestId(requestId, `Widget API error: ${rawRes.status}`, { query: context.query, queryString: q });
       return { props: emptyProps };
     }
     const res = await rawRes.json();
     if (!res.ok) {
-      Sentry.captureMessage(`Widget error: ${res.code}`, { extra: { query: context.query, queryString: q, code: res.code } });
+      captureMessageWithRequestId(requestId, `Widget error: ${res.code}`, { query: context.query, queryString: q, code: res.code });
       return { props: emptyProps };
     }
     widget = res.data;
   } catch (error) {
     console.error(error);
-    Sentry.captureException(error, { extra: { query: context.query } });
+    captureExceptionWithRequestId(requestId, error, { query: context.query });
     return { props: emptyProps };
   }
 
   if (!widget) {
-    Sentry.captureMessage("Widget not found", { extra: { query: context.query } });
+    captureMessageWithRequestId(requestId, "Widget not found", { query: context.query });
     return { props: emptyProps };
   }
 
@@ -311,63 +319,44 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (context:
   const isBenevolat = widget.type === "benevolat";
   try {
     if (isBenevolat) {
-      if (context.query.domain) {
-        context.query.domain.split(",").forEach((item) => searchParams.append("domain", item));
-      }
-      if (context.query.organization) {
-        context.query.organization.split(",").forEach((item) => searchParams.append("organization", item));
-      }
-      if (context.query.department) {
-        context.query.department.split(",").forEach((item) => {
-          searchParams.append("department", item === "" ? "none" : item);
-        });
-      }
-      if (context.query.remote) {
-        context.query.remote.split(",").forEach((item) => searchParams.append("remote", item));
-      }
+      getQueryValues(context.query.domain).forEach((item) => searchParams.append("domain", item));
+      getQueryValues(context.query.organization).forEach((item) => searchParams.append("organization", item));
+      getQueryValues(context.query.department).forEach((item) => searchParams.append("department", item === "" ? "none" : item));
+      getQueryValues(context.query.remote).forEach((item) => searchParams.append("remote", item));
     } else {
-      if (context.query.domain) {
-        context.query.domain.split(",").forEach((item) => searchParams.append("domain", item));
-      }
-      if (context.query.schedule) {
-        context.query.schedule.split(",").forEach((item) => searchParams.append("schedule", item));
-      }
-      if (context.query.accessibility) {
-        context.query.accessibility.split(",").forEach((item) => searchParams.append("accessibility", item));
-      }
-      if (context.query.minor) {
-        context.query.minor.split(",").forEach((item) => searchParams.append("minor", item));
-      }
-      if (context.query.action) {
-        context.query.action.split(",").forEach((item) => searchParams.append("action", item));
-      }
-      if (context.query.beneficiary) {
-        context.query.beneficiary.split(",").forEach((item) => searchParams.append("beneficiary", item));
-      }
-      if (context.query.country) {
-        context.query.country.split(",").forEach((item) => searchParams.append("country", item));
-      }
-      if (context.query.start) {
-        searchParams.append("start", context.query.start);
-      }
-      if (context.query.duration) {
-        searchParams.append("duration", context.query.duration);
-      }
+      getQueryValues(context.query.domain).forEach((item) => searchParams.append("domain", item));
+      getQueryValues(context.query.schedule).forEach((item) => searchParams.append("schedule", item));
+      getQueryValues(context.query.accessibility).forEach((item) => searchParams.append("accessibility", item));
+      getQueryValues(context.query.minor).forEach((item) => searchParams.append("minor", item));
+      getQueryValues(context.query.action).forEach((item) => searchParams.append("action", item));
+      getQueryValues(context.query.beneficiary).forEach((item) => searchParams.append("beneficiary", item));
+      getQueryValues(context.query.country).forEach((item) => searchParams.append("country", item));
+
+      const start = getQueryValue(context.query.start);
+      if (start) searchParams.append("start", start);
+      const duration = getQueryValue(context.query.duration);
+      if (duration) searchParams.append("duration", duration);
     }
 
-    if (context.query.size) {
-      searchParams.append("size", parseInt(context.query.size, 10).toString());
-    }
-    if (context.query.from) {
-      searchParams.append("from", parseInt(context.query.from, 10).toString());
-    }
-    if (context.query.lat && context.query.lon) {
-      searchParams.append("lat", parseFloat(context.query.lat).toString());
-      searchParams.append("lon", parseFloat(context.query.lon).toString());
-      searchParams.append("city", context.query.city || "");
+    const size = getQueryValue(context.query.size);
+    if (size) searchParams.append("size", parseInt(size, 10).toString());
+
+    const from = getQueryValue(context.query.from);
+    if (from) searchParams.append("from", parseInt(from, 10).toString());
+
+    const lat = getQueryValue(context.query.lat);
+    const lon = getQueryValue(context.query.lon);
+    if (lat && lon) {
+      searchParams.append("lat", parseFloat(lat).toString());
+      searchParams.append("lon", parseFloat(lon).toString());
+      searchParams.append("city", getQueryValue(context.query.city) || "");
     }
 
-    const rawResponse = await fetch(`${API_URL}/iframe/${widget!.id}/search?${searchParams.toString()}`);
+    const rawResponse = await fetchWithTimeout(
+      `${API_URL}/iframe/${widget!.id}/search?${searchParams.toString()}`,
+      { label: "iframe-search", requestId },
+      { headers: { [REQUEST_ID_HEADER]: requestId } },
+    );
     if (!rawResponse.ok) {
       throw new Error(`Search API error: ${rawResponse.status}`);
     }
@@ -386,9 +375,11 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (context:
       url: `${API_URL}/r/${context.query.notrack ? "notrack" : "widget"}/${h._id}?${query.toString()}`,
     }));
 
-    if (context.query.lat && context.query.lon) {
-      const lat = parseFloat(context.query.lat);
-      const lon = parseFloat(context.query.lon);
+    const latParam = getQueryValue(context.query.lat);
+    const lonParam = getQueryValue(context.query.lon);
+    if (latParam && lonParam) {
+      const lat = parseFloat(latParam);
+      const lon = parseFloat(lonParam);
 
       missions.forEach((mission) => {
         if (mission.addresses && mission.addresses.length > 1) {
@@ -409,7 +400,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (context:
     return { props: { widget, missions, total: response.total, apiUrl: API_URL, request: response.request || null, environment: ENV } };
   } catch (error) {
     console.error(error);
-    Sentry.captureException(error, { extra: { query: context.query, searchParams: searchParams.toString(), widgetId: widget!.id } });
+    captureExceptionWithRequestId(requestId, error, { query: context.query, searchParams: searchParams.toString(), widgetId: widget!.id });
   }
   return { props: { widget, missions: [], total: 0, apiUrl: API_URL, request: null, environment: ENV } };
 };
