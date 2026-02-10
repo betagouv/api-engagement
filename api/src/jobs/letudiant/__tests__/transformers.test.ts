@@ -121,12 +121,11 @@ describe("L'Etudiant Transformers", () => {
         ...baseMission,
         remote: "full",
         organizationCity: "Lyon",
-        organizationDepartment: "Rhône",
       } as MissionRecord;
 
       const results = missionToPilotyJobs(mission, mockCompanyId, mockMandatoryData);
       const result = results[0].payload;
-      expect(result.localisation).toBe("Lyon, Rhône, France");
+      expect(result.localisation).toBe("Lyon, France");
     });
 
     it("should set localisation to 'France' for full remote missions with no address and no organization city", () => {

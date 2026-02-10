@@ -2,10 +2,10 @@ import { PUBLISHER_IDS } from "../config";
 import { Prisma } from "../db/core";
 import { prismaCore } from "../db/postgres";
 import { missionRepository } from "../repositories/mission";
-import { organizationRepository } from "../repositories/organization";
 import type { WidgetRecord } from "../types";
 import type { MissionRecord, MissionSearchFilters, MissionSelect } from "../types/mission";
 import { buildWhere, missionService } from "./mission";
+import publisherOrganizationService from "./publisher-organization";
 
 type Bucket = { key: string; doc_count: number };
 
@@ -136,10 +136,10 @@ const aggregateWidgetAggs = async (
     result.domains = await aggregateDomainField();
   }
   if (should("organization")) {
-    const orgRows = await aggregateMissionField("organizationId");
+    const orgRows = await aggregateMissionField("publisherOrganizationId");
     const orgIds = orgRows.map((row) => row.key);
-    const orgs = orgIds.length ? await organizationRepository.findMany({ where: { id: { in: orgIds } }, select: { id: true, title: true } }) : [];
-    const orgById = new Map(orgs.map((org) => [org.id, org.title ?? ""]));
+    const orgs = orgIds.length ? await publisherOrganizationService.findMany({ ids: orgIds }, { select: { id: true, name: true } }) : [];
+    const orgById = new Map(orgs.map((org) => [org.id, org.name ?? ""]));
     result.organizations = orgRows.map((row) => ({ key: orgById.get(row.key) ?? "", doc_count: row.doc_count })).filter((row) => row.key);
   }
   if (should("department")) {

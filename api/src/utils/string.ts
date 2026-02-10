@@ -86,3 +86,5 @@ export const cleanIdParam = (param: string): string => {
   // Delete everything non alphanumeric and non-hyphen (UUID or MongoDB ObjectId)
   return param.replace(/[^a-zA-Z0-9-].*$/, "");
 };
+
+export const isBlank = (value?: string | null) => value === null || value === undefined || value === "";

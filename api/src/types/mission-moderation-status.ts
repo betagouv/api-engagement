@@ -1,5 +1,6 @@
 import { ModerationEventStatus } from "../db/core";
 import { MissionRecord } from "./mission";
+import { OrganizationRecord } from "./organization";
 import { PublisherRecord } from "./publisher";
 import { PublisherOrganizationRecord } from "./publisher-organization";
 
@@ -35,12 +36,13 @@ export type MissionModerationRecord = {
   missionPublisherName: MissionRecord["publisherName"];
 
   missionPublisherOrganizationId: PublisherOrganizationRecord["id"] | null;
-  missionOrganizationName: PublisherOrganizationRecord["organizationName"] | null;
-  missionOrganizationClientId: PublisherOrganizationRecord["organizationClientId"] | null;
-  missionOrganizationSiren: PublisherOrganizationRecord["organizationSiren"] | null;
-  missionOrganizationRNA: PublisherOrganizationRecord["organizationRNA"] | null;
-  missionOrganizationSirenVerified: PublisherOrganizationRecord["organizationSirenVerified"] | null;
-  missionOrganizationRNAVerified: PublisherOrganizationRecord["organizationRNAVerified"] | null;
+  missionOrganizationName: PublisherOrganizationRecord["name"] | null;
+  missionOrganizationClientId: PublisherOrganizationRecord["clientId"] | null;
+  missionOrganizationSiren: PublisherOrganizationRecord["siren"] | null;
+  missionOrganizationRNA: PublisherOrganizationRecord["rna"] | null;
+  missionOrganizationSirenVerified: OrganizationRecord["siren"] | null;
+  missionOrganizationRNAVerified: OrganizationRecord["rna"] | null;
+  missionOrganizationVerifiedId: PublisherOrganizationRecord["organizationIdVerified"] | null;
 };
 
 export type ModerationFilters = {
