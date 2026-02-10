@@ -15,7 +15,10 @@ import Grid from "../components/Grid";
 import { API_URL, ENV } from "../config";
 import LogoSC from "../public/images/logo-sc.svg";
 import { Filters as FilterTypes, Location, Mission, PageProps, ServerSideContext, Widget } from "../types";
+import { fetchWithTimeout } from "../utils/fetchWithTimeout";
+import { generateRequestId, REQUEST_ID_HEADER } from "../utils/requestId";
 import resizeHelper from "../utils/resizeHelper";
+import { captureExceptionWithRequestId, captureMessageWithRequestId } from "../utils/sentry";
 import useStore from "../utils/store";
 import { calculateDistance } from "../utils/utils";
 
@@ -281,29 +284,34 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (context:
   }
 
   const emptyProps: PageProps = { widget: null, missions: [], total: 0, apiUrl: API_URL, request: null, environment: ENV };
+  const requestId = context.req?.headers?.[REQUEST_ID_HEADER] ?? generateRequestId();
 
   let widget: Widget | null = null;
   try {
     const q = context.query.widget ? `id=${context.query.widget}` : `name=${context.query.widgetName}`;
-    const rawRes = await fetch(`${API_URL}/iframe/widget?${q}`);
+    const rawRes = await fetchWithTimeout(
+      `${API_URL}/iframe/widget?${q}`,
+      { label: "iframe-widget", requestId },
+      { headers: { [REQUEST_ID_HEADER]: requestId } },
+    );
     if (!rawRes.ok) {
-      Sentry.captureMessage(`Widget API error: ${rawRes.status}`, { extra: { query: context.query, queryString: q } });
+      captureMessageWithRequestId(requestId, `Widget API error: ${rawRes.status}`, { query: context.query, queryString: q });
       return { props: emptyProps };
     }
     const res = await rawRes.json();
     if (!res.ok) {
-      Sentry.captureMessage(`Widget error: ${res.code}`, { extra: { query: context.query, queryString: q, code: res.code } });
+      captureMessageWithRequestId(requestId, `Widget error: ${res.code}`, { query: context.query, queryString: q, code: res.code });
       return { props: emptyProps };
     }
     widget = res.data;
   } catch (error) {
     console.error(error);
-    Sentry.captureException(error, { extra: { query: context.query } });
+    captureExceptionWithRequestId(requestId, error, { query: context.query });
     return { props: emptyProps };
   }
 
   if (!widget) {
-    Sentry.captureMessage("Widget not found", { extra: { query: context.query } });
+    captureMessageWithRequestId(requestId, "Widget not found", { query: context.query });
     return { props: emptyProps };
   }
 
@@ -367,7 +375,11 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (context:
       searchParams.append("city", context.query.city || "");
     }
 
-    const rawResponse = await fetch(`${API_URL}/iframe/${widget!.id}/search?${searchParams.toString()}`);
+    const rawResponse = await fetchWithTimeout(
+      `${API_URL}/iframe/${widget!.id}/search?${searchParams.toString()}`,
+      { label: "iframe-search", requestId },
+      { headers: { [REQUEST_ID_HEADER]: requestId } },
+    );
     if (!rawResponse.ok) {
       throw new Error(`Search API error: ${rawResponse.status}`);
     }
@@ -409,7 +421,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (context:
     return { props: { widget, missions, total: response.total, apiUrl: API_URL, request: response.request || null, environment: ENV } };
   } catch (error) {
     console.error(error);
-    Sentry.captureException(error, { extra: { query: context.query, searchParams: searchParams.toString(), widgetId: widget!.id } });
+    captureExceptionWithRequestId(requestId, error, { query: context.query, searchParams: searchParams.toString(), widgetId: widget!.id });
   }
   return { props: { widget, missions: [], total: 0, apiUrl: API_URL, request: null, environment: ENV } };
 };

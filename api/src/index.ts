@@ -16,7 +16,7 @@ import cors from "cors";
 import express, { NextFunction, Request, Response } from "express";
 import path from "path";
 
-import { SERVER_ERROR, captureException } from "./error";
+import errorHandler from "./middlewares/error-handler";
 
 import { pgConnectedCore, pgDisconnect } from "./db/postgres";
 import middlewares from "./middlewares";
@@ -102,25 +102,7 @@ const main = async () => {
   app.use("/warning-bot", WarningBotController);
   app.use("/widget", WidgetController);
 
-  app.use(async (err: any, req: Request, res: Response, _: NextFunction) => {
-    try {
-      console.log(`Error on request ${req.method} ${req.url}`);
-      console.error(err);
-
-      // Filter out socket hang up errors from Sentry reporting
-      const isSocketHangUp = err.code === "ECONNRESET" || (err.message && err.message.includes("socket hang up"));
-
-      if (ENV !== "development" && !isSocketHangUp) {
-        captureException(err);
-      } else {
-        console.error(err);
-      }
-
-      res.status(500).send({ ok: false, code: SERVER_ERROR });
-    } catch (error) {
-      captureException(error);
-    }
-  });
+  app.use(errorHandler);
 
   const server = app.listen(PORT, () => console.log(`[API] Running on port ${PORT} at ${new Date().toISOString()}`));
 

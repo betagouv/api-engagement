@@ -104,6 +104,8 @@ export interface ServerSideContext {
   req?: {
     headers?: {
       host?: string;
+      "x-request-id"?: string;
+      [key: string]: string | undefined;
     };
   };
 }
