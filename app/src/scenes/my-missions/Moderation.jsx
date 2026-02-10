@@ -254,15 +254,15 @@ const Moderation = () => {
       <div className="border-grey-border border p-6">
         <Table header={MISSIONS_TABLE_HEADER} total={total} loading={!data} page={filters.page} pageSize={pageSize} onPageChange={(page) => setFilters({ ...filters, page })} auto>
           {(data || []).map((item, i) => (
-            <tr key={item._id} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
+            <tr key={item.id} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
               <td className="table-cell" colSpan={2}>
-                <Link to={`/mission/${item._id}`} className="text-blue-france">
-                  <p className="line-clamp-3">{item.title}</p>
+                <Link to={`/mission/${item.missionId}`} className="text-blue-france">
+                  <p className="line-clamp-3">{item.missionTitle}</p>
                 </Link>
               </td>
-              <td className="table-cell">{item.organizationName}</td>
-              <td className="table-cell">{`${item.city} ${item.country ? "- " + item.country : ""}`}</td>
-              <td className="table-cell">{new Date(item.postedAt).toLocaleDateString("fr")}</td>
+              <td className="table-cell">{item.missionOrganizationName}</td>
+              <td className="table-cell">{`${item.missionCity || ""} ${item.missionDepartmentCode ? `(${item.missionDepartmentCode})` : ""}`}</td>
+              <td className="table-cell">{item.missionPostedAt ? new Date(item.missionPostedAt).toLocaleDateString("fr") : ""}</td>
               <td className="table-cell">
                 <div className="flex items-center text-lg">
                   <Tooltip
