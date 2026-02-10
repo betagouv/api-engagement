@@ -42,6 +42,7 @@ describe("Import missions job (integration test)", () => {
 
     const mission = missions[0];
 
+    expect(mission.activities).toEqual(["Logistique"]);
     expect(mission.addresses).toBeDefined();
     expect(mission.addresses.length).toBe(2);
     expect(mission.addresses).toEqual(
@@ -62,7 +63,6 @@ describe("Import missions job (integration test)", () => {
         }),
       ])
     );
-    expect(mission.activity).toBe("logistique");
     expect(mission.audience).toEqual(["Tous"]);
     expect(mission.clientId).toBe("32132143");
     expect(mission.description).toBe("Description de la mission");
