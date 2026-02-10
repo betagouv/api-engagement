@@ -213,6 +213,7 @@ const Flux = ({ moderated }) => {
           loading={loading}
           sortBy={filters.sortBy}
           onSort={(sortBy) => setFilters({ ...filters, sortBy })}
+          auto
         >
           {data.map((item, i) => (
             <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>

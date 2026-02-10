@@ -49,10 +49,10 @@ const List = () => {
   return (
     <div className="space-y-12 bg-white p-12 shadow-lg">
       <title>API Engagement - RNA - Administration</title>
-      <div className="flex items-center justify-between">
-        <h2 className="flex-1 text-2xl font-semibold">{total.toLocaleString("fr")} d'associations référencées</h2>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <h2 className="text-2xl font-semibold">{total.toLocaleString("fr")} d'associations référencées</h2>
 
-        <SearchInput value={filters.search} onChange={(search) => setFilters({ ...filters, search })} className="w-1/4" placeholder="Rechercher par mot-clé" />
+        <SearchInput value={filters.search} onChange={(search) => setFilters({ ...filters, search })} className="min-w-[250px] flex-1 lg:max-w-[25%]" placeholder="Rechercher par mot-clé" />
       </div>
 
       <div className="border-grey-border border p-6">
