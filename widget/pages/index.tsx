@@ -1,7 +1,7 @@
 import * as Sentry from "@sentry/nextjs";
 import iso from "i18n-iso-countries";
 import isoFR from "i18n-iso-countries/langs/fr.json";
-import { GetServerSideProps } from "next";
+import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import Script from "next/script";
@@ -14,7 +14,7 @@ import Filters from "../components/Filters";
 import Grid from "../components/Grid";
 import { API_URL, ENV } from "../config";
 import LogoSC from "../public/images/logo-sc.svg";
-import { Filters as FilterTypes, Location, Mission, PageProps, ServerSideContext, Widget } from "../types";
+import { Filters as FilterTypes, Location, Mission, PageProps, Widget } from "../types";
 import { fetchWithTimeout } from "../utils/fetchWithTimeout";
 import { generateRequestId, REQUEST_ID_HEADER } from "../utils/requestId";
 import resizeHelper from "../utils/resizeHelper";
@@ -278,13 +278,14 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }: PagePro
   );
 };
 
-export const getServerSideProps: GetServerSideProps<PageProps> = async (context: ServerSideContext) => {
+export const getServerSideProps: GetServerSideProps<PageProps> = async (context: GetServerSidePropsContext) => {
   if (!context.query.widgetName && !context.query.widget) {
     return { props: { widget: null, missions: [], total: 0, apiUrl: API_URL, request: null, environment: ENV } };
   }
 
   const emptyProps: PageProps = { widget: null, missions: [], total: 0, apiUrl: API_URL, request: null, environment: ENV };
-  const requestId = context.req?.headers?.[REQUEST_ID_HEADER] ?? generateRequestId();
+  const rawRequestId = context.req?.headers?.[REQUEST_ID_HEADER];
+  const requestId = (Array.isArray(rawRequestId) ? rawRequestId[0] : rawRequestId) ?? generateRequestId();
 
   let widget: Widget | null = null;
   try {
