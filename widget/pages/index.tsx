@@ -20,6 +20,7 @@ import { generateRequestId, REQUEST_ID_HEADER } from "../utils/requestId";
 import resizeHelper from "../utils/resizeHelper";
 import { captureExceptionWithRequestId, captureMessageWithRequestId } from "../utils/sentry";
 import useStore from "../utils/store";
+import useSyncWidgetQuery from "../hooks/useSyncWidgetQuery";
 import { calculateDistance } from "../utils/utils";
 
 const getContainerHeight = (widget: Widget): string => {
@@ -165,75 +166,7 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }: PagePro
     };
   }, []);
 
-  useEffect(() => {
-    if (!widget) {
-      return;
-    }
-
-    const timeoutId = setTimeout(() => {
-      const query: Record<string, any> = {
-        widget: widget.id,
-        size: filters.size,
-        ...(router.query.notrack && { notrack: router.query.notrack }),
-      };
-
-      if (isBenevolat) {
-        if (filters.domain?.length) {
-          query.domain = filters.domain.map((item) => item.value).join(",");
-        }
-        if (filters.organization?.length) {
-          query.organization = filters.organization.map((item) => item.value).join(",");
-        }
-        if (filters.department?.length) {
-          query.department = filters.department.map((item) => (item.value === "" ? "none" : item.value)).join(",");
-        }
-        if (filters.remote && filters.remote.value) {
-          query.remote = filters.remote.value;
-        }
-      } else {
-        if (filters.accessibility && filters.accessibility.value) {
-          query.accessibility = filters.accessibility.value;
-        }
-        if (filters.minor && filters.minor.value) {
-          query.minor = filters.minor.value;
-        }
-        if (filters.schedule && filters.schedule.value) {
-          query.schedule = filters.schedule.value;
-        }
-        if (filters.duration && filters.duration.value) {
-          query.duration = filters.duration.value;
-        }
-        if (filters.start && filters.start.value) {
-          query.start = filters.start.value.toISOString();
-        }
-        if (filters.action && filters.action.length) {
-          query.action = filters.action.map((item) => item.value).join(",");
-        }
-        if (filters.beneficiary && filters.beneficiary.length) {
-          query.beneficiary = filters.beneficiary.map((item) => item.value).join(",");
-        }
-        if (filters.country && filters.country.length) {
-          query.country = filters.country.map((item) => item.value).join(",");
-        }
-        if (filters.domain && filters.domain.length) {
-          query.domain = filters.domain.map((item) => item.value).join(",");
-        }
-      }
-
-      if (filters.page > 1) {
-        query.from = (filters.page - 1) * filters.size;
-      }
-      if (filters.location?.lat && filters.location?.lon) {
-        query.lat = filters.location.lat;
-        query.lon = filters.location.lon;
-        query.city = filters.location.label;
-      }
-
-      router.push({ pathname: "/", query }, undefined);
-    }, 100);
-
-    return () => clearTimeout(timeoutId);
-  }, [filters, widget?.id]);
+  useSyncWidgetQuery({ widget, filters, router, isBenevolat });
 
   if (!widget) {
     return <div className="flex h-full w-full items-center justify-center">Erreur lors du chargement du widget</div>;
