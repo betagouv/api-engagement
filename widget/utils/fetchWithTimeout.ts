@@ -1,3 +1,5 @@
+import { SSR_API_TIMEOUT_MS } from "../config";
+
 type FetchWithTimeoutOptions = {
   timeoutMs?: number;
   label?: string;
@@ -9,7 +11,7 @@ export const fetchWithTimeout = async (
   options: FetchWithTimeoutOptions = {},
   init?: RequestInit,
 ) => {
-  const timeoutMs = options.timeoutMs ?? 15000;
+  const timeoutMs = options.timeoutMs ?? SSR_API_TIMEOUT_MS;
   const label = options.label ?? "request";
   const requestId = options.requestId;
   const controller = new AbortController();
