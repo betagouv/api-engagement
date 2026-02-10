@@ -233,7 +233,7 @@ models:
       - name: publisher_category
         description: Catégorie de mission (benevolat / volontariat).
       - name: mission_domain
-        description: Domaine de la mission.
+        description: Domaine de la mission (`unknown` si non renseigné).
       - name: mission_activity
         description: Activité de la mission.
       - name: mission_audience
@@ -363,14 +363,16 @@ models:
       - name: is_all_department
         description: TRUE pour l’agrégat national (tous départements + missions sans département), FALSE pour l’agrégat départemental.
       - name: department
-        description: Code département (null pour l’agrégat national ou les missions sans département).
+        description: Code département (`all` pour l’agrégat national ou les missions sans département).
       - name: publisher_id
-        description: Identifiant du publisher de la mission (nullable).
+        description: Identifiant du publisher de la mission (null si agrégat tous diffuseurs).
         tests:
           - relationships:
               arguments:
                 to: ref('publisher')
                 field: id
+      - name: publisher_key
+        description: Clé technique du diffuseur (`publisher_id` en texte, `all` pour l’agrégat, `unknown` si publisher_id manquant).
       - name: publisher_category
         description: Type de mission (normalisé).
       - name: mission_domain
@@ -393,9 +395,9 @@ models:
       - name: is_all_department
         description: TRUE pour l’agrégat national, FALSE pour l’agrégat départemental.
       - name: department
-        description: Code département (null si national).
+        description: Code département (`all` si national).
       - name: mission_domain
-        description: Domaine de la mission.
+        description: Domaine de la mission (`unknown` si non renseigné).
       - name: publisher_category
         description: Catégorie de mission (benevolat / volontariat / all).
       - name: mission_count

@@ -103,9 +103,9 @@ models:
         tests:
           - not_null
       - name: department
-        description: Code départemental (NULL pour les agrégats nationaux).
+        description: Code départemental (`all` pour les agrégats nationaux).
       - name: mission_domain
-        description: Domaine de mission associé (peut être NULL si non rattaché).
+        description: Domaine de mission associé (`unknown` si non rattaché).
       - name: mission_type
         description: Catégorie de mission (`benevolat`, `volontariat`, `all`).
       - name: type

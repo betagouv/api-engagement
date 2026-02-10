@@ -80,7 +80,7 @@ all_dept as (
     month,
     month_start,
     true as is_all_department,
-    null as department,
+    'all' as department,
     publisher_category,
     count(distinct organization_id) as organization_count
   from active_months
@@ -93,7 +93,7 @@ all_dept_all_category as (
     month,
     month_start,
     true as is_all_department,
-    null as department,
+    'all' as department,
     'all' as publisher_category,
     count(distinct organization_id) as organization_count
   from active_months
