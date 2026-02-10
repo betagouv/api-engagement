@@ -44,7 +44,7 @@ describe("Mission API Integration Tests", () => {
       title: "Mission in Paris",
       city: "Paris",
       domain: "culture",
-      activity: "arts",
+      activities: ["arts"],
       type: "benevolat",
       organizationRNA: "W123456789",
       organizationStatusJuridique: "Association",
@@ -222,7 +222,7 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should filter by activity", async () => {
-      await createTestMission({ organizationClientId: "org-4", publisherId: publisher.publishers[0].diffuseurPublisherId, activity: "education" });
+      await createTestMission({ organizationClientId: "org-4", publisherId: publisher.publishers[0].diffuseurPublisherId, activities: ["education"] });
       const response = await request(app).get("/v0/mission?activity=education").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
@@ -513,6 +513,66 @@ describe("Mission API Integration Tests", () => {
       expect(response.status).toBe(404);
       expect(response.body.ok).toBe(false);
       expect(response.body.code).toBe("NOT_FOUND");
+    });
+  });
+
+  describe("activities", () => {
+    let multiActivityMission: MissionRecord;
+
+    beforeEach(async () => {
+      multiActivityMission = await createTestMission({
+        organizationClientId: "org-multi-activity",
+        publisherId: publisher.publishers[0].diffuseurPublisherId,
+        title: "Mission multi-activités",
+        activities: ["sport", "arts", "education"],
+      });
+    });
+
+    it("GET /v0/mission — joins multiple activities sorted alphabetically", async () => {
+      const response = await request(app).get(`/v0/mission?clientId=${multiActivityMission.clientId}`).set("x-api-key", apiKey);
+
+      expect(response.status).toBe(200);
+      expect(response.body.total).toBe(1);
+      expect(response.body.data[0].activity).toBe("arts, education, sport");
+    });
+
+    it("GET /v0/mission/search — joins multiple activities sorted alphabetically", async () => {
+      const response = await request(app).get(`/v0/mission/search?clientId=${multiActivityMission.clientId}`).set("x-api-key", apiKey);
+
+      expect(response.status).toBe(200);
+      expect(response.body.total).toBe(1);
+      expect(response.body.hits[0].activity).toBe("arts, education, sport");
+    });
+
+    it("GET /v0/mission/:id — joins multiple activities sorted alphabetically", async () => {
+      const response = await request(app).get(`/v0/mission/${multiActivityMission.id}`).set("x-api-key", apiKey);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.activity).toBe("arts, education, sport");
+    });
+
+    it("mission with no activities returns activity null", async () => {
+      const noActivityMission = await createTestMission({
+        organizationClientId: "org-no-activity",
+        publisherId: publisher.publishers[0].diffuseurPublisherId,
+        title: "Mission sans activité",
+        activities: [],
+      });
+
+      const response = await request(app).get(`/v0/mission/${noActivityMission.id}`).set("x-api-key", apiKey);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.activity).toBeNull();
+    });
+
+    it("search facets list each activity individually from a multi-activity mission", async () => {
+      const response = await request(app).get(`/v0/mission/search?clientId=${multiActivityMission.clientId}`).set("x-api-key", apiKey);
+
+      expect(response.status).toBe(200);
+      const activityKeys = response.body.facets.activities.map((f: any) => f.key);
+      expect(activityKeys).toContain("arts");
+      expect(activityKeys).toContain("education");
+      expect(activityKeys).toContain("sport");
     });
   });
 });
