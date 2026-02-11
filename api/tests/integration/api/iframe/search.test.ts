@@ -28,6 +28,7 @@ describe("GET /iframe/:id/search", () => {
       domain: "Environnement",
       organizationClientId: "green-org-1",
       organizationName: "Green Org",
+      organizationReseaux: ["Network A"],
       city: "Paris",
       postalCode: "75001",
       departmentCode: "75",
@@ -57,6 +58,7 @@ describe("GET /iframe/:id/search", () => {
       domain: "Éducation",
       organizationClientId: "edu-org-1",
       organizationName: "Edu Org",
+      organizationReseaux: ["Network B"],
       city: "Lyon",
       postalCode: "69001",
       departmentCode: "69",
@@ -370,6 +372,25 @@ describe("GET /iframe/:id/search", () => {
 
       expect(response.body.total).toBe(1);
       expect(response.body.data[0].domain).toBe("Environnement");
+    });
+
+    it("should apply multiple organization rules with OR combinator", async () => {
+      const widgetWithOrganizationRules = await createTestWidget({
+        fromPublisher: publisher,
+        publishers: [publisher.id],
+        rules: [
+          createTestWidgetRule("organizationName", "contains", "Green", { combinator: "or" }),
+          createTestWidgetRule("organizationName", "contains", "Edu", { combinator: "or" }),
+          createTestWidgetRule("organizationReseaux", "is", "Network A", { combinator: "or" }),
+        ],
+      });
+
+      const response = await request(app).get(`/iframe/${widgetWithOrganizationRules.id}/search`).expect(200);
+
+      expect(response.body.total).toBe(2);
+      const titles = response.body.data.map((mission: MissionRecord) => mission.title);
+      expect(titles).toEqual(expect.arrayContaining(["Mission Environnement Paris", "Mission Éducation Lyon"]));
+      expect(titles).not.toContain("Mission Santé Marseille");
     });
   });
 
