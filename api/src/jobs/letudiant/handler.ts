@@ -72,14 +72,19 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
           continue;
         }
 
+        processedJobBoards = [];
+
         const pilotyCompanyPublicId = await getCompanyPilotyId(pilotyClient, mission, organization);
 
-        if (!pilotyCompanyPublicId) {
-          throw new Error("Unable to get company public ID for mission");
-        }
+        const jobPayloads = missionToPilotyJobs(mission, pilotyCompanyPublicId ?? "not-found", mandatoryData);
 
-        const jobPayloads = missionToPilotyJobs(mission, pilotyCompanyPublicId, mandatoryData);
-        processedJobBoards = [];
+        if (!pilotyCompanyPublicId) {
+          console.log(`[LetudiantHandler] Unable to get company public ID for mission ${mission.id}`);
+          for (const jobPayload of jobPayloads) {
+            processedJobBoards.push({ missionAddressId: jobPayload.missionAddressId ?? null, publicId: "", syncStatus: "ERROR", comment: "Cannot create company" });
+          }
+          continue;
+        }
 
         // Create / update jobs related to each address
         for (const jobPayload of jobPayloads) {
