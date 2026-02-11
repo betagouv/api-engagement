@@ -11,7 +11,7 @@ if (SENTRY_DSN) {
   Sentry.init({
     dsn: SENTRY_DSN,
     environment: ENV,
-
+    tracesSampleRate: 0.1,
     // Enable logs to be sent to Sentry
     enableLogs: true,
 
