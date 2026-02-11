@@ -891,7 +891,7 @@ export const missionService = {
       data.statusComment = patch.statusComment ?? undefined;
     }
     if ("deletedAt" in patch) {
-      data.deletedAt = patch.deletedAt ?? undefined;
+      data.deletedAt = patch.deletedAt === undefined ? undefined : patch.deletedAt;
     }
     if ("lastExportedToPgAt" in patch) {
       data.lastExportedToPgAt = patch.lastExportedToPgAt ?? undefined;
