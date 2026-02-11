@@ -216,6 +216,27 @@ describe("Import missions job (integration test)", () => {
     expect(mission.description).toBe("Description de la mission");
   });
 
+  it("If mission exists but was deleted, it is restored on import", async () => {
+    const xml = await readFile(path.join(__dirname, "data/correct-feed.xml"), "utf-8");
+    const publisher = await createTestPublisher({ feed: "https://fixture-feed", isAnnonceur: true });
+    const deletedAt = new Date("2024-01-01T00:00:00.000Z");
+
+    await createTestMission({
+      publisherId: publisher.id,
+      clientId: "32132143",
+      deleted: true,
+      deletedAt,
+    });
+
+    (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => xml });
+    const result = await handler.handle({ publisherId: publisher.id });
+    expect(result.imports[0].status).toBe("SUCCESS");
+
+    const mission = await missionService.findOneMissionBy({ publisherId: publisher.id, clientId: "32132143" });
+    expect(mission).toBeDefined();
+    expect(mission?.deletedAt).toBeNull();
+  });
+
   it("If mission already exists and has no new data, it is not updated", async () => {
     const xml = await readFile(path.join(__dirname, "data/correct-feed.xml"), "utf-8");
     const publisher = await createTestPublisher({ feed: "https://fixture-feed", isAnnonceur: true });
