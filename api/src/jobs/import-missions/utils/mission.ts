@@ -4,6 +4,7 @@ import { convert } from "html-to-text";
 import { PUBLISHER_IDS } from "../../../config";
 import { AUTRE_IMAGE, DOMAIN_IMAGES } from "../../../constants/domains";
 import { captureException } from "../../../error";
+import { activityService } from "../../../services/activity";
 import { missionService } from "../../../services/mission";
 import type { MissionRecord } from "../../../types/mission";
 import type { PublisherRecord } from "../../../types/publisher";
@@ -211,7 +212,7 @@ const parseMission = (publisher: PublisherRecord, missionXML: MissionXML, missio
     startAt: parseDate(missionXML.startAt) || parseDate(missionDB?.startAt || "") || new Date(),
     endAt: parseDate(missionXML.endAt) || null,
 
-    activity: parseString(missionXML.activity) || "",
+    activities: activityService.resolveImportedActivities(parseString(missionXML.activity)),
     domain: parseString(missionXML.domain) || "",
     schedule: parseString(missionXML.schedule),
     audience:

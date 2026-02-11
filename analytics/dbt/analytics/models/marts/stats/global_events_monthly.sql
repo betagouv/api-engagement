@@ -59,8 +59,8 @@ base as (
     date_trunc('month', ge.created_at)::date as month_start,
     mad.department,
     ge.type,
-    mad.mission_domain,
     mad.publisher_category as mission_type,
+    coalesce(mad.mission_domain, 'unknown') as mission_domain,
     greatest(
       coalesce(ge.updated_at, ge.created_at),
       coalesce(mad.updated_at, ge.created_at)
@@ -122,7 +122,7 @@ all_dept as (
     month,
     month_start,
     true as is_all_department,
-    null as department,
+    'all' as department,
     mission_domain,
     mission_type,
     type,
@@ -138,7 +138,7 @@ all_dept_all_mission as (
     month,
     month_start,
     true as is_all_department,
-    null as department,
+    'all' as department,
     mission_domain,
     'all' as mission_type,
     type,

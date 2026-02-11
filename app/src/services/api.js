@@ -1,4 +1,5 @@
 import { API_URL } from "./config";
+import { generateRequestId, REQUEST_ID_HEADER } from "./requestId";
 
 class APIHandler {
   constructor() {
@@ -30,12 +31,14 @@ class APIHandler {
   }
 
   async post(endpoint, data, options = {}) {
+    const requestId = generateRequestId();
     try {
       const response = await fetch(`${this.baseUrl}${endpoint}`, {
         method: "POST",
         headers: {
           ...this.headers,
           ...options.headers,
+          [REQUEST_ID_HEADER]: requestId,
         },
         signal: options.signal,
         body: JSON.stringify(data),
@@ -47,6 +50,7 @@ class APIHandler {
       const res = await response.json();
       return { ...res, status: response.status };
     } catch (error) {
+      error.requestId = requestId;
       if (error.message.includes("NetworkError")) {
         return this.logout();
       }
@@ -55,11 +59,13 @@ class APIHandler {
   }
 
   async postFormData(endpoint, data) {
+    const requestId = generateRequestId();
     try {
       const response = await fetch(`${this.baseUrl}${endpoint}`, {
         method: "POST",
         headers: {
           Authorization: this.headers.Authorization,
+          [REQUEST_ID_HEADER]: requestId,
         },
         body: data,
         credentials: "include",
@@ -70,6 +76,7 @@ class APIHandler {
       const res = await response.json();
       return { ...res, status: response.status };
     } catch (error) {
+      error.requestId = requestId;
       if (error.message.includes("NetworkError")) {
         return this.logout();
       }
@@ -78,12 +85,14 @@ class APIHandler {
   }
 
   async get(endpoint, options = {}) {
+    const requestId = generateRequestId();
     try {
       const response = await fetch(`${this.baseUrl}${endpoint}`, {
         method: "GET",
         headers: {
           ...this.headers,
           ...options.headers,
+          [REQUEST_ID_HEADER]: requestId,
         },
         credentials: "include",
       });
@@ -93,6 +102,7 @@ class APIHandler {
       const res = await response.json();
       return { ...res, status: response.status };
     } catch (error) {
+      error.requestId = requestId;
       if (error.message.includes("NetworkError")) {
         return this.logout();
       }
@@ -101,12 +111,14 @@ class APIHandler {
   }
 
   async put(endpoint, data, options = {}) {
+    const requestId = generateRequestId();
     try {
       const response = await fetch(`${this.baseUrl}${endpoint}`, {
         method: "PUT",
         headers: {
           ...this.headers,
           ...options.headers,
+          [REQUEST_ID_HEADER]: requestId,
         },
         body: JSON.stringify(data),
         credentials: "include",
@@ -117,6 +129,7 @@ class APIHandler {
       const res = await response.json();
       return { ...res, status: response.status };
     } catch (error) {
+      error.requestId = requestId;
       if (error.message.includes("NetworkError")) {
         return this.logout();
       }
@@ -125,12 +138,14 @@ class APIHandler {
   }
 
   async delete(endpoint, options = {}) {
+    const requestId = generateRequestId();
     try {
       const response = await fetch(`${this.baseUrl}${endpoint}`, {
         method: "DELETE",
         headers: {
           ...this.headers,
           ...options.headers,
+          [REQUEST_ID_HEADER]: requestId,
         },
         credentials: "include",
       });
@@ -140,6 +155,7 @@ class APIHandler {
       const res = await response.json();
       return { ...res, status: response.status };
     } catch (error) {
+      error.requestId = requestId;
       if (error.message.includes("NetworkError")) {
         return this.logout();
       }

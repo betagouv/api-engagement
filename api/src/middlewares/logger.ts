@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import morgan from "morgan";
+import { REQUEST_ID_HEADER } from "../utils/request-id";
 
 const SENSITIVE_FIELDS = ["password", "apikey"];
 
@@ -13,6 +14,7 @@ const logger = morgan<Request, Response>(
       path: req.originalUrl.split("?")[0],
       endpoint: req.route ? req.baseUrl + req.route.path : undefined,
       query: req.query,
+      request_id: (req as any).requestId ?? req.header(REQUEST_ID_HEADER),
       status: tokens.status(req, res),
       "response-time": Math.round(parseFloat(tokens["response-time"](req, res) || "0")),
     };

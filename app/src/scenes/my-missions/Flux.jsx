@@ -107,7 +107,7 @@ const Flux = ({ moderated }) => {
         val["Organisation"] = mission.organizationName;
         val["Ville"] = `${mission.city} - ${mission.country}`;
         val["Domaine"] = mission.domain;
-        val["Activité"] = mission.activity;
+        val["Activité"] = (mission.activities || []).join(", ");
         val["Statut"] = mission.statusCode;
         csv.push(val);
       });
@@ -213,6 +213,7 @@ const Flux = ({ moderated }) => {
           loading={loading}
           sortBy={filters.sortBy}
           onSort={(sortBy) => setFilters({ ...filters, sortBy })}
+          auto
         >
           {data.map((item, i) => (
             <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>

@@ -34,15 +34,26 @@ export const captureError = (error, context = { message: "Une erreur est survenu
     context.extra = extra;
   }
 
+  const captureWithRequestId = (fn) => {
+    if (error?.requestId) {
+      Sentry.withScope((scope) => {
+        scope.setTag("request_id", error.requestId);
+        fn();
+      });
+      return;
+    }
+    fn();
+  };
+
   if (error && error.status === 400) {
-    Sentry.captureException(new Error("Bad Request"), { ...context, extra: { ...context.extra, error } });
+    captureWithRequestId(() => Sentry.captureException(new Error("Bad Request"), { ...context, extra: { ...context.extra, error } }));
     return;
   }
 
   if (error && error.status === 403) {
-    Sentry.captureMessage(new Error("Forbidden"), { ...context, extra: { ...context.extra, error } });
+    captureWithRequestId(() => Sentry.captureMessage(new Error("Forbidden"), { ...context, extra: { ...context.extra, error } }));
     return;
   }
 
-  Sentry.captureException(new Error("Unknown Error"), { ...context, extra: { ...context.extra, error } });
+  captureWithRequestId(() => Sentry.captureException(new Error("Unknown Error"), { ...context, extra: { ...context.extra, error } }));
 };

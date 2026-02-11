@@ -29,7 +29,7 @@ const ARRAY_FIELDS = new Set(["associationReseaux", "organizationActions", "orga
  */
 const FIELD_TO_PRISMA_PATH: Record<string, (condition: any) => Prisma.MissionWhereInput> = {
   domain: (condition) => ({ domain: { is: { name: condition } } }),
-  activity: (condition) => ({ activity: { is: { name: condition } } }),
+  activity: (condition) => ({ activities: { some: { activity: { name: condition } } } }),
   postalCode: (condition) => ({ addresses: { some: { postalCode: condition } } }),
   departmentName: (condition) => ({ addresses: { some: { departmentName: condition } } }),
   regionName: (condition) => ({ addresses: { some: { region: condition } } }),
