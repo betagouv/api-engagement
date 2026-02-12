@@ -53,13 +53,13 @@ const buildSearchWhere = (params: OrganizationSearchParams): Prisma.Organization
         and.push({ OR: [{ siret: query }, { sirets: { has: query } }] });
       } else {
         const slug = slugify(query);
-        const textConditions: Prisma.OrganizationWhereInput[] = [
-          { title: { contains: query, mode: "insensitive" } },
-          { shortTitle: { contains: query, mode: "insensitive" } },
-          { rna: { contains: query, mode: "insensitive" } },
-          { siret: { contains: query, mode: "insensitive" } },
-          { siren: { contains: query, mode: "insensitive" } },
-        ];
+        const isTextQuery = /[A-Za-zÀ-ÖØ-öø-ÿ]/.test(query);
+        const textConditions: Prisma.OrganizationWhereInput[] = [{ title: { contains: query, mode: "insensitive" } }, { shortTitle: { contains: query, mode: "insensitive" } }];
+        if (!isTextQuery) {
+          textConditions.push({ rna: { contains: query, mode: "insensitive" } });
+          textConditions.push({ siret: { contains: query, mode: "insensitive" } });
+          textConditions.push({ siren: { contains: query, mode: "insensitive" } });
+        }
         if (slug) {
           textConditions.push({ names: { has: slug } });
         }
