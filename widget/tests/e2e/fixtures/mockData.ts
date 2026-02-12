@@ -40,6 +40,8 @@ export const mockWidgetResponse = (widgetId: string) => {
 // Mock /iframe/search
 export const mockMissionsResponse = {
   ok: true,
+  total: 7,
+  request: "mock-request-id",
   data: [
     {
       _id: "681c2d791e3eb537c7283581",
