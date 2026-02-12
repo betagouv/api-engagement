@@ -583,7 +583,6 @@ model Mission {
   placesStatus              MissionPlacesStatus?     @map("places_status")
   metadata                  String?
   domainId                  String?                  @map("domain_id")
-  activityId                String?                  @map("activity_id")
   domainOriginal            String?                  @map("domain_original")
   domainLogo                String?                  @map("domain_logo")
   type                      MissionType?             @map("type")
@@ -606,7 +605,6 @@ model Mission {
 
   publisher             Publisher                 @relation("MissionPublisher", fields: [publisherId], references: [id])
   domain                Domain?                   @relation(fields: [domainId], references: [id], onDelete: SetNull)
-  activity              Activity?                 @relation(fields: [activityId], references: [id], onDelete: SetNull)
   organization          Organization?             @relation("MissionOrganization", fields: [organizationId], references: [id])
   publisherOrganization PublisherOrganization?    @relation("MissionPublisherOrganization", fields: [publisherId, organizationClientId], references: [publisherId, organizationClientId])
   addresses             MissionAddress[]
@@ -661,7 +659,6 @@ model Mission {
   @@index([clientId], map: "mission_client_id_idx")
   @@index([organizationClientId], map: "mission_organization_client_id_idx")
   @@index([domainId], map: "mission_domain_id_idx")
-  @@index([activityId], map: "mission_activity_id_idx")
   @@index([deletedAt], map: "mission_deleted_at_idx")
   @@index([statusCode], map: "mission_status_code_idx")
   @@map("mission")
@@ -730,7 +727,6 @@ model Activity {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  missions          Mission[]
   missionActivities MissionActivity[]
 
   @@map("activity")
