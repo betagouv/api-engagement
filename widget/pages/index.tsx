@@ -1,92 +1,73 @@
-import iso from "i18n-iso-countries";
-import isoFR from "i18n-iso-countries/langs/fr.json";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import Script from "next/script";
 import { useEffect, useState } from "react";
-iso.registerLocale(isoFR);
 
 import { usePlausible } from "next-plausible";
-import Carousel from "../components/Carousel";
 import Filters from "../components/Filters";
-import Grid from "../components/Grid";
+import MissionContainer from "../components/MissionContainer";
 import { API_URL, ENV } from "../config";
+import useMissions from "../hooks/useMissions";
+import useSyncWidgetQuery from "../hooks/useSyncWidgetQuery";
 import LogoSC from "../public/images/logo-sc.svg";
-import { Filters as FilterTypes, Location, Mission, PageProps, Widget } from "../types";
+import { Filters as FilterTypes, PageProps, Widget } from "../types";
+import { fetchLocation } from "../utils/fetchLocation";
 import { fetchWithTimeout } from "../utils/fetchWithTimeout";
-import { getQueryValue, getQueryValues } from "../utils/queryParams";
 import { generateRequestId, REQUEST_ID_HEADER } from "../utils/requestId";
 import resizeHelper from "../utils/resizeHelper";
 import { captureExceptionWithRequestId, captureMessageWithRequestId } from "../utils/sentry";
 import useStore from "../utils/store";
-import useSyncWidgetQuery from "../hooks/useSyncWidgetQuery";
-import { calculateDistance } from "../utils/utils";
 
-const getContainerHeight = (widget: Widget): string => {
+const getInitialFilters = (widget: Widget, query: Record<string, string | string[] | undefined>): FilterTypes => {
   const isBenevolat = widget?.type === "benevolat";
-  const isCarousel = widget?.style === "carousel";
+  const size = widget?.style === "carousel" ? (isBenevolat ? 25 : 40) : 6;
 
-  if (isCarousel) {
-    if (isBenevolat) {
-      // BENEVOLAT - CAROUSEL
-      // --> mobile (0->767px) height = 780px
-      // --> tablet + desktop (768px->+) height = 686px
-      return "h-[780px] md:h-[686px]";
-    }
-    // VOLONTARIAT - CAROUSEL
-    // --> mobile (0->767px) height = 670px
-    // --> tablet (768->1023px) height = 600px
-    // --> desktop (1024px->) height = 600px
-    return "h-[670px] md:h-[620px]";
-  }
+  const parseList = (value?: string | string[]): string[] => {
+    const raw = Array.isArray(value) ? value : value ? [value] : [];
+    return raw.flatMap((item) => item.split(","));
+  };
 
-  // GRID
+  const toFilterOptions = (values: string[]) => values.map((v) => ({ label: v, value: v }));
+
+  const domain = toFilterOptions(parseList(query.domain));
+  const lat = query.lat ? parseFloat(String(query.lat)) : undefined;
+  const lon = query.lon ? parseFloat(String(query.lon)) : undefined;
+  const city = query.city ? String(query.city) : undefined;
+  const location = lat && lon ? { label: city || "", value: "", lat, lon, city: city || "", postcode: "" } : null;
+
+  const from = query.from ? parseInt(String(query.from), 10) : 0;
+  const page = Math.floor(from / size) + 1;
+
   if (isBenevolat) {
-    // BENEVOLAT - GRID
-    // --> mobile (0->639px) height = 3424px
-    // --> tablet (640->1023px) height = 1812px
-    // --> desktop (1024px->+) height = 1264px
-    return "h-[3324px] sm:h-[1812px] lg:h-[1264px]";
+    return {
+      domain,
+      location,
+      page,
+      size,
+      organization: toFilterOptions(parseList(query.organization)),
+      department: toFilterOptions(parseList(query.department)),
+      remote: query.remote ? { label: String(query.remote), value: String(query.remote) } : null,
+    };
   }
-
-  // VOLONTARIAT - GRID
-  // --> mobile (0->639px) height = 2200px
-  // --> tablet (640->1350px) height = 1350px
-  // --> desktop (1024px->) height = 1050px
-  return "h-[2200px] sm:h-[1350px] lg:h-[1050px]";
-};
-
-const getInitialFilters = (widget: Widget): FilterTypes => {
-  const isBenevolat = widget?.type === "benevolat";
 
   return {
-    domain: [],
-    location: null,
-    page: 1,
-    size: widget?.style === "carousel" ? (isBenevolat ? 25 : 40) : 6,
-    ...(isBenevolat
-      ? {
-          // Benevolat filters
-          organization: [],
-          department: [],
-          remote: null,
-        }
-      : {
-          // Volontariat filters
-          start: null,
-          duration: null,
-          schedule: null,
-          minor: null,
-          accessibility: null,
-          action: [],
-          beneficiary: [],
-          country: [],
-        }),
+    domain,
+    location,
+    page,
+    size,
+    start: null,
+    duration: query.duration ? { label: `${query.duration} mois`, value: String(query.duration) } : null,
+    schedule: query.schedule ? { label: String(query.schedule), value: String(query.schedule) } : null,
+    minor: query.minor ? { label: String(query.minor), value: String(query.minor) } : null,
+    accessibility: query.accessibility ? { label: String(query.accessibility), value: String(query.accessibility) } : null,
+    action: toFilterOptions(parseList(query.action)),
+    beneficiary: toFilterOptions(parseList(query.beneficiary)),
+    country: toFilterOptions(parseList(query.country)),
   };
 };
 
-const Home = ({ widget, apiUrl, missions, total, request, environment }: PageProps) => {
+const Home = ({ widget, apiUrl, environment }: PageProps) => {
   const isBenevolat = widget?.type === "benevolat";
   const color = widget?.color ? widget.color : "#71A246";
 
@@ -94,35 +75,14 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }: PagePro
   const plausible = usePlausible();
 
   const { setUrl, setColor, setMobile } = useStore();
-  const [filters, setFilters] = useState<FilterTypes>(() => getInitialFilters(widget!));
+  const [filters, setFilters] = useState<FilterTypes>(() => getInitialFilters(widget!, router.query));
   const [showFilters, setShowFilters] = useState(false);
 
-  const fetchLocation = async (lat: number, lon: number): Promise<Location | null> => {
-    try {
-      const url = `https://data.geopf.fr/geocodage/reverse?lon=${lon}&lat=${lat}&limit=1`;
-      const result = await fetch(url).then((response) => response.json());
-      if (result.features?.length) {
-        const feature = result.features[0];
-        return {
-          label: `${feature.properties.city} (${feature.properties.postcode})`,
-          value: feature.properties.id,
-          lat: feature.geometry.coordinates[1],
-          lon: feature.geometry.coordinates[0],
-          city: feature.properties.city,
-          postcode: feature.properties.postcode,
-        };
-      }
-      return null;
-    } catch (e) {
-      console.error("Error fetching location:", e);
-      return null;
-    }
-  };
+  const notrack = !!router.query.notrack;
+  const { missions, total, request, isLoading } = useMissions({ widget, filters, apiUrl, notrack });
 
   useEffect(() => {
-    if (!widget) {
-      return;
-    }
+    if (!widget) return;
 
     const url = new URL(location.href);
     const u = `${url.protocol}//${url.hostname}/${widget.style === "page" ? "catalogue" : "carousel"}`;
@@ -138,17 +98,15 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }: PagePro
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
-          const location = await fetchLocation(position.coords.latitude, position.coords.longitude);
-          if (location) {
-            setFilters((f) => ({ ...f, location }));
+          const loc = await fetchLocation(position.coords.latitude, position.coords.longitude);
+          if (loc) {
+            setFilters((f) => ({ ...f, location: loc }));
           }
         },
         (error) => {
           console.error("Error getting location:", error);
         },
       );
-    } else {
-      console.log("Geolocation is not supported by this browser.");
     }
   }, [widget?.id]);
 
@@ -166,15 +124,15 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }: PagePro
     };
   }, []);
 
-  useSyncWidgetQuery({ widget, filters, router, isBenevolat });
+  useSyncWidgetQuery({ widget, filters, router, isBenevolat: !!isBenevolat });
 
   if (!widget) {
     return <div className="flex h-full w-full items-center justify-center">Erreur lors du chargement du widget</div>;
   }
 
   return (
-    <div className={`p-4 xl:px-0 ${getContainerHeight(widget)} md:max-w-[1200px] flex flex-col justify-start items-center mx-auto`}>
-      <header role="banner" className={`w-full space-y-4 md:space-y-8 ${widget?.style === "carousel" ? "md:max-w-[1168px] md:px-14" : ""}`}>
+    <div className="p-4 xl:px-0 md:max-w-[1200px] flex flex-col justify-start items-center mx-auto">
+      <header role="banner" className={`w-full space-y-4 md:space-y-8 ${widget.style === "carousel" ? "md:max-w-[1168px] md:px-14" : ""}`}>
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <h1 className="text-[28px] font-bold leading-[36px] md:p-0">{isBenevolat ? "Trouver une mission de bénévolat" : "Trouver une mission de Service Civique"}</h1>
         </div>
@@ -188,19 +146,23 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }: PagePro
           onShow={setShowFilters}
         />
       </header>
-      <div className={`w-full ${showFilters ? (widget?.style === "carousel" ? "hidden" : "opacity-40 pointer-events-none") : "h-auto"}`}>
-        {widget?.style === "carousel" ? (
-          <Carousel widget={widget} missions={missions} request={request} />
-        ) : (
-          <Grid widget={widget} missions={missions} total={total} request={request} page={filters.page} handlePageChange={(page) => setFilters({ ...filters, page })} />
-        )}
+      <div className={`w-full ${showFilters ? (widget.style === "carousel" ? "hidden" : "opacity-40 pointer-events-none") : "h-auto"}`}>
+        <MissionContainer
+          widget={widget}
+          missions={missions}
+          total={total}
+          request={request}
+          isLoading={isLoading}
+          page={filters.page}
+          onPageChange={(page) => setFilters({ ...filters, page })}
+        />
       </div>
-      {environment === "production" && !router.query.notrack && <Script src="https://app.api-engagement.beta.gouv.fr/jstag.js" />}
+      {environment === "production" && !notrack && <Script src="https://app.api-engagement.beta.gouv.fr/jstag.js" />}
       {!isBenevolat && (
         <footer role="contentinfo" className={`mt-6 flex w-full justify-center items-center gap-4 px-4 ${showFilters ? "opacity-40 pointer-events-none" : ""}`}>
           <Image src={LogoSC} width="100" height="0" style={{ width: "53px", height: "auto" }} alt="Service Civique" />
-          <p className=" text-xs text-[#666]">
-            Proposé par l'Agence du Service Civique{" "}
+          <p className="text-xs text-[#666]">
+            Proposé par l&apos;Agence du Service Civique{" "}
             <a href="https://www.service-civique.gouv.fr/" target="_blank" rel="noopener noreferrer" className="underline text-[#000091] text-center">
               service-civique.gouv.fr
             </a>
@@ -212,18 +174,18 @@ const Home = ({ widget, apiUrl, missions, total, request, environment }: PagePro
 };
 
 export const getServerSideProps: GetServerSideProps<PageProps> = async (context: GetServerSidePropsContext) => {
+  const emptyProps: PageProps = { widget: null, apiUrl: API_URL, environment: ENV };
+
   if (!context.query.widgetName && !context.query.widget) {
-    return { props: { widget: null, missions: [], total: 0, apiUrl: API_URL, request: null, environment: ENV } };
+    return { props: emptyProps };
   }
 
-  const emptyProps: PageProps = { widget: null, missions: [], total: 0, apiUrl: API_URL, request: null, environment: ENV };
   const rawRequestId = context.req?.headers?.[REQUEST_ID_HEADER];
   const requestId = (Array.isArray(rawRequestId) ? rawRequestId[0] : rawRequestId) ?? generateRequestId();
 
-  let widget: Widget | null = null;
   try {
-    const widgetId = getQueryValue(context.query.widget);
-    const widgetName = getQueryValue(context.query.widgetName);
+    const widgetId = Array.isArray(context.query.widget) ? context.query.widget[0] : context.query.widget;
+    const widgetName = Array.isArray(context.query.widgetName) ? context.query.widgetName[0] : context.query.widgetName;
     const q = widgetId ? `id=${widgetId}` : `name=${widgetName}`;
 
     const rawRes = await fetchWithTimeout(`${API_URL}/iframe/widget?${q}`, { label: "iframe-widget", requestId }, { headers: { [REQUEST_ID_HEADER]: requestId } });
@@ -236,106 +198,18 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (context:
       captureMessageWithRequestId(requestId, `Widget error: ${res.code}`, { query: context.query, queryString: q, code: res.code });
       return { props: emptyProps };
     }
-    widget = res.data;
+
+    if (!res.data) {
+      captureMessageWithRequestId(requestId, "Widget not found", { query: context.query });
+      return { props: emptyProps };
+    }
+
+    return { props: { widget: res.data, apiUrl: API_URL, environment: ENV } };
   } catch (error) {
     console.error(error);
     captureExceptionWithRequestId(requestId, error, { query: context.query });
     return { props: emptyProps };
   }
-
-  if (!widget) {
-    captureMessageWithRequestId(requestId, "Widget not found", { query: context.query });
-    return { props: emptyProps };
-  }
-
-  const searchParams = new URLSearchParams();
-  const isBenevolat = widget.type === "benevolat";
-  try {
-    if (isBenevolat) {
-      getQueryValues(context.query.domain).forEach((item) => searchParams.append("domain", item));
-      getQueryValues(context.query.organization).forEach((item) => searchParams.append("organization", item));
-      getQueryValues(context.query.department).forEach((item) => searchParams.append("department", item === "" ? "none" : item));
-      getQueryValues(context.query.remote).forEach((item) => searchParams.append("remote", item));
-    } else {
-      getQueryValues(context.query.domain).forEach((item) => searchParams.append("domain", item));
-      getQueryValues(context.query.schedule).forEach((item) => searchParams.append("schedule", item));
-      getQueryValues(context.query.accessibility).forEach((item) => searchParams.append("accessibility", item));
-      getQueryValues(context.query.minor).forEach((item) => searchParams.append("minor", item));
-      getQueryValues(context.query.action).forEach((item) => searchParams.append("action", item));
-      getQueryValues(context.query.beneficiary).forEach((item) => searchParams.append("beneficiary", item));
-      getQueryValues(context.query.country).forEach((item) => searchParams.append("country", item));
-
-      const start = getQueryValue(context.query.start);
-      if (start) searchParams.append("start", start);
-      const duration = getQueryValue(context.query.duration);
-      if (duration) searchParams.append("duration", duration);
-    }
-
-    const size = getQueryValue(context.query.size);
-    if (size) searchParams.append("size", parseInt(size, 10).toString());
-
-    const from = getQueryValue(context.query.from);
-    if (from) searchParams.append("from", parseInt(from, 10).toString());
-
-    const lat = getQueryValue(context.query.lat);
-    const lon = getQueryValue(context.query.lon);
-    if (lat && lon) {
-      searchParams.append("lat", parseFloat(lat).toString());
-      searchParams.append("lon", parseFloat(lon).toString());
-      searchParams.append("city", getQueryValue(context.query.city) || "");
-    }
-
-    const rawResponse = await fetchWithTimeout(
-      `${API_URL}/iframe/${widget!.id}/search?${searchParams.toString()}`,
-      { label: "iframe-search", requestId },
-      { headers: { [REQUEST_ID_HEADER]: requestId } },
-    );
-    if (!rawResponse.ok) {
-      throw new Error(`Search API error: ${rawResponse.status}`);
-    }
-    const response = await rawResponse.json();
-
-    if (!response.ok) {
-      throw new Error(`Search error: ${response.code || "UNKNOWN"}`);
-    }
-    const query = new URLSearchParams({
-      widgetId: widget!.id,
-      requestId: response.request,
-    });
-
-    const missions: Mission[] = response.data.map((h: any) => ({
-      ...h,
-      url: `${API_URL}/r/${context.query.notrack ? "notrack" : "widget"}/${h._id}?${query.toString()}`,
-    }));
-
-    const latParam = getQueryValue(context.query.lat);
-    const lonParam = getQueryValue(context.query.lon);
-    if (latParam && lonParam) {
-      const lat = parseFloat(latParam);
-      const lon = parseFloat(lonParam);
-
-      missions.forEach((mission) => {
-        if (mission.addresses && mission.addresses.length > 1) {
-          mission.addresses.sort((a, b) => {
-            if (!a.location || !b.location) {
-              return 0;
-            }
-
-            const distA = calculateDistance(lat, lon, a.location.lat, a.location.lon);
-            const distB = calculateDistance(lat, lon, b.location.lat, b.location.lon);
-
-            return distA - distB;
-          });
-        }
-      });
-    }
-
-    return { props: { widget, missions, total: response.total, apiUrl: API_URL, request: response.request || null, environment: ENV } };
-  } catch (error) {
-    console.error(error);
-    captureExceptionWithRequestId(requestId, error, { query: context.query, searchParams: searchParams.toString(), widgetId: widget!.id });
-  }
-  return { props: { widget, missions: [], total: 0, apiUrl: API_URL, request: null, environment: ENV } };
 };
 
 export default Home;
