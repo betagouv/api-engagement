@@ -63,7 +63,7 @@ router.get("/widget", async (req: Request, res: Response, next: NextFunction) =>
   }
 });
 
-router.get("/:id/search", async (req: Request, res: Response, next: NextFunction) => {
+router.get("/:id/search", cors({ origin: "*" }), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const params = zod
       .object({

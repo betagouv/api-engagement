@@ -70,12 +70,8 @@ export interface Filters {
 
 export interface PageProps {
   widget: Widget | null;
-  missions: Mission[];
-  total: number;
   apiUrl: string;
-  request: string | null;
   environment: string;
-  domain?: string;
 }
 
 export interface ServerSideContext {
