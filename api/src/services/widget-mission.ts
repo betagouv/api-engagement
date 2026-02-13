@@ -9,6 +9,11 @@ import { buildWhere, missionService } from "./mission";
 
 type Bucket = { key: string; doc_count: number };
 
+type PublisherOrganizationTuple = {
+  publisherId: string;
+  organizationClientId: string;
+};
+
 const buildWidgetWhere = (widget: WidgetRecord, filters: MissionSearchFilters): Prisma.MissionWhereInput => {
   if (!widget.jvaModeration) {
     return buildWhere(filters);
@@ -30,6 +35,76 @@ const buildWidgetWhere = (widget: WidgetRecord, filters: MissionSearchFilters): 
   }
 
   return orConditions.length ? { AND: [baseWhere, { OR: orConditions }] } : baseWhere;
+};
+
+const isPlainObject = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value) && !(value instanceof Date);
+
+const buildMissionConditionFromPublisherOrganizationTuples = (tuples: PublisherOrganizationTuple[]): Prisma.MissionWhereInput => {
+  if (!tuples.length) {
+    return { publisherId: { in: [] } };
+  }
+
+  const byPublisher = new Map<string, Set<string>>();
+  tuples.forEach(({ publisherId, organizationClientId }) => {
+    if (!byPublisher.has(publisherId)) {
+      byPublisher.set(publisherId, new Set());
+    }
+    byPublisher.get(publisherId)?.add(organizationClientId);
+  });
+
+  const conditions = Array.from(byPublisher.entries()).map(([publisherId, organizationClientIds]) => ({
+    publisherId,
+    organizationClientId: { in: Array.from(organizationClientIds) },
+  }));
+
+  return conditions.length === 1 ? conditions[0] : { OR: conditions };
+};
+
+const inlinePublisherOrganizationFilters = async (where: Prisma.MissionWhereInput): Promise<Prisma.MissionWhereInput> => {
+  const cache = new Map<string, Prisma.MissionWhereInput>();
+
+  const resolvePublisherOrganizationCondition = async (condition: Prisma.PublisherOrganizationWhereInput): Promise<Prisma.MissionWhereInput> => {
+    const cacheKey = JSON.stringify(condition);
+    const cached = cache.get(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
+    const tuples = await prismaCore.publisherOrganization.findMany({
+      where: condition,
+      select: { publisherId: true, organizationClientId: true },
+    });
+    const missionCondition = buildMissionConditionFromPublisherOrganizationTuples(tuples);
+    cache.set(cacheKey, missionCondition);
+    return missionCondition;
+  };
+
+  const transform = async (node: unknown): Promise<unknown> => {
+    if (Array.isArray(node)) {
+      return await Promise.all(node.map((item) => transform(item)));
+    }
+    if (!isPlainObject(node)) {
+      return node;
+    }
+
+    const maybePublisherOrganization = node.publisherOrganization;
+    if (isPlainObject(maybePublisherOrganization) && isPlainObject(maybePublisherOrganization.is)) {
+      const missionCondition = await resolvePublisherOrganizationCondition(maybePublisherOrganization.is as Prisma.PublisherOrganizationWhereInput);
+      const restEntries = Object.entries(node).filter(([key]) => key !== "publisherOrganization");
+
+      if (!restEntries.length) {
+        return missionCondition;
+      }
+
+      const transformedRest = Object.fromEntries(await Promise.all(restEntries.map(async ([key, value]) => [key, await transform(value)] as const)));
+
+      return { AND: [transformedRest, missionCondition] };
+    }
+
+    return Object.fromEntries(await Promise.all(Object.entries(node).map(async ([key, value]) => [key, await transform(value)] as const)));
+  };
+
+  return (await transform(where)) as Prisma.MissionWhereInput;
 };
 
 const aggregateWidgetAggs = async (
@@ -130,38 +205,44 @@ const aggregateWidgetAggs = async (
     }));
   };
 
-  const result: any = {};
-
-  if (should("domain")) {
-    result.domains = await aggregateDomainField();
-  }
-  if (should("organization")) {
+  const formatOrganization = async () => {
     const orgRows = await aggregateMissionField("organizationId");
     const orgIds = orgRows.map((row) => row.key);
     const orgs = orgIds.length ? await organizationRepository.findMany({ where: { id: { in: orgIds } }, select: { id: true, title: true } }) : [];
     const orgById = new Map(orgs.map((org) => [org.id, org.title ?? ""]));
-    result.organizations = orgRows.map((row) => ({ key: orgById.get(row.key) ?? "", doc_count: row.doc_count })).filter((row) => row.key);
+
+    return orgRows.map((row) => ({ key: orgById.get(row.key) ?? "", doc_count: row.doc_count })).filter((row) => row.key);
+  };
+
+  const result: any = {};
+  const promises = new Map<string, Promise<Bucket[]>>();
+
+  if (should("domain")) {
+    promises.set("domains", aggregateDomainField());
+  }
+  if (should("organization")) {
+    promises.set("organizations", formatOrganization());
   }
   if (should("department")) {
-    result.departments = await aggregateAddressField("departmentName");
+    promises.set("departments", aggregateAddressField("departmentName"));
   }
   if (should("remote")) {
-    result.remote = await aggregateMissionField("remote");
+    promises.set("remote", aggregateMissionField("remote"));
   }
   if (should("country")) {
-    result.countries = await aggregateAddressField("country");
+    promises.set("countries", aggregateAddressField("country"));
   }
   if (should("minor")) {
-    result.minor = await aggregateMissionField("openToMinors");
+    promises.set("minor", aggregateMissionField("openToMinors"));
   }
   if (should("schedule")) {
-    result.schedule = await aggregateMissionField("schedule");
+    promises.set("schedule", aggregateMissionField("schedule"));
   }
   if (should("action")) {
-    result.actions = await aggregateMissionListField("tasks");
+    promises.set("actions", aggregateMissionListField("tasks"));
   }
   if (should("beneficiary")) {
-    result.beneficiaries = await aggregateMissionListField("audience");
+    promises.set("beneficiaries", aggregateMissionListField("audience"));
   }
   if (should("accessibility")) {
     const reduced = await prismaCore.mission.count({ where: { ...where, reducedMobilityAccessible: true } });
@@ -172,6 +253,12 @@ const aggregateWidgetAggs = async (
     ];
   }
 
+  const entries = Array.from(promises.entries());
+  const values = await Promise.all(entries.map(([, promise]) => promise));
+  entries.forEach(([key], index) => {
+    result[key] = values[index];
+  });
+
   return result;
 };
 
@@ -179,7 +266,8 @@ const sortBuckets = (buckets?: Bucket[]) => (buckets ?? []).sort((a, b) => b.doc
 
 export const widgetMissionService = {
   async fetchWidgetMissions(widget: WidgetRecord, filters: MissionSearchFilters, select: MissionSelect | null = null): Promise<{ data: MissionRecord[]; total: number }> {
-    const where = buildWidgetWhere(widget, filters);
+    const rawWhere = buildWidgetWhere(widget, filters);
+    const where = await inlinePublisherOrganizationFilters(rawWhere);
     const [data, total] = await Promise.all([
       missionService.findMissionsBy(where, {
         select,
@@ -195,7 +283,8 @@ export const widgetMissionService = {
   },
 
   async fetchWidgetAggregations(widget: WidgetRecord, filters: MissionSearchFilters, requestedAggs: string[]) {
-    const where = buildWidgetWhere(widget, { ...filters, skip: 0, limit: 0 });
+    const rawWhere = buildWidgetWhere(widget, { ...filters, skip: 0, limit: 0 });
+    const where = await inlinePublisherOrganizationFilters(rawWhere);
     const result = await aggregateWidgetAggs(where, requestedAggs);
 
     const payload: any = {};
