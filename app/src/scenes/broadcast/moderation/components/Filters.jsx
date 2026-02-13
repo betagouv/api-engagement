@@ -155,13 +155,11 @@ const Filters = ({ filters, onChange, reload }) => {
 const Badge = ({ label, value, onDelete }) => {
   if (!value) return null;
   return (
-    <div className="bg-blue-france-975 flex items-center gap-2 rounded p-2">
-      <p className="text-sm">{label}:</p>
-      <p className="text-sm">{value}</p>
-      <button className="text-sm text-black" onClick={onDelete}>
-        <RiCloseFill />
-      </button>
-    </div>
+    <button type="button" className="bg-blue-france-975 flex items-center gap-2 rounded p-2" title={`${label} : ${value} - Supprimer`} onClick={onDelete}>
+      <span className="text-sm">{label} :</span>
+      <span className="text-sm">{value}</span>
+      <RiCloseFill className="text-sm text-black" aria-hidden="true" />
+    </button>
   );
 };
 

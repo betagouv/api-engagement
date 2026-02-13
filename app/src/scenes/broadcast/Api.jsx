@@ -68,8 +68,9 @@ const Api = () => {
           </label>
           <div className="flex min-w-[200px] flex-1 items-center gap-4">
             <input id="apikey" className="input flex-1" name="apikey" readOnly value={publisher.apikey || ""} />
-            <button className="secondary-btn flex h-10 w-10 shrink-0 items-center justify-center p-0" onClick={handleCopy}>
-              <RiFileCopyFill />
+            <button className="secondary-btn flex h-10 w-10 items-center justify-center p-0" onClick={handleCopy}>
+              <RiFileCopyFill aria-hidden="true" />
+              <span className="sr-only">Copier la clé API</span>
             </button>
           </div>
           <div className="flex flex-wrap gap-4">
