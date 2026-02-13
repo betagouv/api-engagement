@@ -39,6 +39,10 @@ const buildWidgetWhere = (widget: WidgetRecord, filters: MissionSearchFilters): 
 
 const isPlainObject = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value) && !(value instanceof Date);
 
+/**
+ * Builds a mission condition from `(publisherId, organizationClientId)` tuples.
+ * Returns either one condition or an `OR` of conditions; empty input matches nothing.
+ */
 const buildMissionConditionFromPublisherOrganizationTuples = (tuples: PublisherOrganizationTuple[]): Prisma.MissionWhereInput => {
   if (!tuples.length) {
     return { publisherId: { in: [] } };
@@ -60,7 +64,13 @@ const buildMissionConditionFromPublisherOrganizationTuples = (tuples: PublisherO
   return conditions.length === 1 ? conditions[0] : { OR: conditions };
 };
 
+/**
+ * Replaces `publisherOrganization.is` filters with equivalent mission predicates.
+ * This avoids replaying expensive relational OR/ILIKE branches on every query.
+ */
 const inlinePublisherOrganizationFilters = async (where: Prisma.MissionWhereInput): Promise<Prisma.MissionWhereInput> => {
+  // Request-scoped memoization: identical `publisherOrganization.is` conditions
+  // are resolved once, then reused during the same where-tree traversal.
   const cache = new Map<string, Prisma.MissionWhereInput>();
 
   const resolvePublisherOrganizationCondition = async (condition: Prisma.PublisherOrganizationWhereInput): Promise<Prisma.MissionWhereInput> => {
@@ -74,6 +84,7 @@ const inlinePublisherOrganizationFilters = async (where: Prisma.MissionWhereInpu
       where: condition,
       select: { publisherId: true, organizationClientId: true },
     });
+    // Convert relational matches into mission-level tuple filters.
     const missionCondition = buildMissionConditionFromPublisherOrganizationTuples(tuples);
     cache.set(cacheKey, missionCondition);
     return missionCondition;
@@ -180,7 +191,7 @@ const aggregateWidgetAggs = async (
   };
 
   const aggregateMissionListField = async (field: "tasks" | "audience") => {
-    // Step 1: Get filtered mission IDs (only IDs, not full missions)
+    // Resolve filtered mission ids once, then aggregate on that fixed id set.
     const missions = await prismaCore.mission.findMany({
       where,
       select: { id: true },
@@ -196,7 +207,7 @@ const aggregateWidgetAggs = async (
 
     const missionIds = missions.map((m) => m.id);
 
-    // Step 2: Use repository method to aggregate array fields efficiently with UNNEST
+    // Aggregate with UNNEST from ids instead of rebuilding full text conditions.
     const rows = await missionRepository.aggregateArrayField(missionIds, field);
 
     return rows.map((row) => ({
