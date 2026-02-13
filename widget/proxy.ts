@@ -15,11 +15,12 @@ export function proxy(request: NextRequest, event: NextFetchEvent) {
   event.waitUntil(
     Promise.resolve().then(() => {
       const log: Record<string, unknown> = {
+        level: "info",
         method: request.method,
         path: request.nextUrl.pathname,
-        query: Object.fromEntries(request.nextUrl.searchParams),
+        route_type: "middleware",
         request_id: requestId,
-        status: response.status,
+        query: Object.fromEntries(request.nextUrl.searchParams),
         "response-time": Date.now() - start,
       };
 
