@@ -9,6 +9,7 @@ test.describe("Card component (bénévolat) - Visual regression", () => {
     await page.waitForSelector('[data-testid="mission-card"]', { timeout: 10000 });
 
     const cardElement = await page.locator('[data-testid="mission-card"]').first();
+    await page.waitForTimeout(1000);
     await expect(cardElement).toBeVisible();
     await expect(cardElement).toHaveScreenshot("card-benevolat-desktop.png");
 
@@ -24,6 +25,7 @@ test.describe("Card component (bénévolat) - Visual regression", () => {
     await page.waitForSelector('[data-testid="mission-card"]', { timeout: 10000 });
 
     const cardElement = await page.locator('[data-testid="mission-card"]').first();
+    await page.waitForTimeout(1000);
     await expect(cardElement).toBeVisible();
     await expect(cardElement).toHaveScreenshot("card-benevolat-mobile.png");
   });
