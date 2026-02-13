@@ -30,20 +30,11 @@ const captureLifecycleError = (event, value, extra = {}) => {
   });
 };
 
-const registerLifecycleHooks = () => {
-  process.on("uncaughtExceptionMonitor", (error, origin) => {
-    captureLifecycleError("uncaught_exception", error, { origin });
-  });
-
-  process.on("unhandledRejection", (reason) => {
-    captureLifecycleError("unhandled_rejection", reason);
-  });
-};
-
 export async function register() {
   if (process.env.NEXT_RUNTIME === "nodejs") {
     await import("./sentry.server.config");
-    registerLifecycleHooks();
+    const { registerLifecycleHooks } = await import("./instrumentation-node");
+    registerLifecycleHooks(captureLifecycleError);
   }
 
   if (process.env.NEXT_RUNTIME === "edge") {
