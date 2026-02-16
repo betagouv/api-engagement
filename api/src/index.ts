@@ -12,6 +12,37 @@ if (ENV !== "development") {
   });
 }
 
+const logProcessCrash = (event: "uncaught_exception" | "unhandled_rejection", error: unknown, extra?: Record<string, unknown>) => {
+  const normalized = error instanceof Error ? error : new Error(typeof error === "string" ? error : JSON.stringify(error));
+  const log = {
+    level: "error",
+    event,
+    error: normalized.message,
+    stack: normalized.stack,
+    ...extra,
+  };
+
+  console.error(JSON.stringify(log));
+
+  if (ENV !== "development") {
+    Sentry.withScope((scope) => {
+      scope.setTag("event", event);
+      if (extra) {
+        Object.entries(extra).forEach(([key, value]) => scope.setExtra(key, value));
+      }
+      Sentry.captureException(normalized);
+    });
+  }
+};
+
+process.on("uncaughtExceptionMonitor", (error, origin) => {
+  logProcessCrash("uncaught_exception", error, { origin });
+});
+
+process.on("unhandledRejection", (reason) => {
+  logProcessCrash("unhandled_rejection", reason);
+});
+
 import cors from "cors";
 import express, { NextFunction, Request, Response } from "express";
 import path from "path";
