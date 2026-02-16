@@ -107,8 +107,6 @@ models:
         description: Identifiant métier de la mission côté client/source.
       - name: domain_id
         description: Référence au domaine (`analytics_raw.domain.id`).
-      - name: activity_id
-        description: Référence à l'activité (`analytics_raw.activity.id`).
       - name: publisher_id
         description: Partenaire/publisher propriétaire de la mission.
       - name: organization_id
