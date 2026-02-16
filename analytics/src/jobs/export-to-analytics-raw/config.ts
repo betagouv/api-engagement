@@ -534,7 +534,6 @@ export const exportDefinitions: ExportDefinition[] = [
         "id",
         "client_id",
         "domain_id",
-        "activity_id",
         "title",
         "description",
         "tags",
