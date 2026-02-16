@@ -2,6 +2,97 @@
 Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
 
 
+## 09/02/2026
+
+
+### Bug Fixes
+
+- (**api**) Resolve UUID type casting in aggregateArrayField ([`28d8b5c`](https://github.com/betagouv/api-engagement/commit/28d8b5cce23ba681de989d2adfe7d4d98e4275ef))
+
+- (**app**) Show error on duplicate issue with campaign ([`1ac2c62`](https://github.com/betagouv/api-engagement/commit/1ac2c62332c4da0f24b0ba3c14b64ce03a4b0dbc))
+
+- (**jobs**) Improve sentry management (#730) ([`9e3a277`](https://github.com/betagouv/api-engagement/commit/9e3a277597c4350eb9492473cecb31c611fca745))
+
+- (**api**) Resolve Prisma connection pool and memory issues (#726) ([`feeda21`](https://github.com/betagouv/api-engagement/commit/feeda2156fb88671b96bde3f4a56a95e0e32ffef))
+
+- (**api**) Improve monitoring linkedin stats report ([`06970a0`](https://github.com/betagouv/api-engagement/commit/06970a008af0bd92cfddaf3c66f8cbc1d85e1916))
+
+- (**api**) Handle duplicate campaign creation (#727) ([`e7ddf96`](https://github.com/betagouv/api-engagement/commit/e7ddf9696a111ffe44999fff0ef7e61bd38f9c06))
+
+- (**app**) Color missmatch ([`574f1f5`](https://github.com/betagouv/api-engagement/commit/574f1f55f89354b48a25f8e72ff11c35a080a9bb))
+
+- (**app**) Performace dashboard StackedBarchart (#723) ([`3f54c58`](https://github.com/betagouv/api-engagement/commit/3f54c58727ffe24e7382b327f5e54b9446798d0f))
+
+- (**app**) A11y - better outline on focus (#712) ([`1ef4e40`](https://github.com/betagouv/api-engagement/commit/1ef4e40e456462431230142e9a2061d8273e6e55))
+
+
+### Features
+
+- (**app**) Migrate select components to RGAA-compliant Headless UI (#721) ([`5108741`](https://github.com/betagouv/api-engagement/commit/51087419dcbd199ebb0f1ba09676b9b8b38953e2))
+
+- (**app**) A11y move to unordered list the different navs (#725) ([`6e14770`](https://github.com/betagouv/api-engagement/commit/6e147706a167d3271e06be68eebfc2fe3a55cf42))
+
+- (**app**) A11y - new tooltip component RGAA proof (#720) ([`9dd5dcc`](https://github.com/betagouv/api-engagement/commit/9dd5dcc10ad0fd4a093c90e2f9fbf001bdcd149e))
+
+- (**app**) Add RGAA-compliant accessible toast service (#719) ([`241c08d`](https://github.com/betagouv/api-engagement/commit/241c08d1ceda0b5590af4f385af8d69cb207f0e7))
+
+- (**app**) A11y - new tabs component with aria properties (#699) ([`8b4b5cd`](https://github.com/betagouv/api-engagement/commit/8b4b5cde6a335b397b084272e5292e9aed2446df))
+
+- (**ci**) Add Claude skills for monorepo workflows (#717) ([`dcbc387`](https://github.com/betagouv/api-engagement/commit/dcbc387d1d89b493a6adb9a26284964ab5ddcd5d))
+
+- (**api**) Add event client id support (#714) ([`329c70a`](https://github.com/betagouv/api-engagement/commit/329c70aeac0eaaeff55a889d75daf0e6095341e0))
+
+- (**analytics**) Active organization models (#713) ([`ba5aeee`](https://github.com/betagouv/api-engagement/commit/ba5aeee683347523007a78ded6bbf5780f071978))
+
+- (**analytics**) Active mission models (#710) ([`4e6d1c2`](https://github.com/betagouv/api-engagement/commit/4e6d1c29722c505b06eaf4427f1e905dd4c15460))
+
+
+### Miscellaneous Tasks
+
+- (**changelog**) Update CHANGELOG.md ([`7883730`](https://github.com/betagouv/api-engagement/commit/7883730bb79207ae8346afd3dae6e979d8505bf7))
+
+- (**changelog**) Update CHANGELOG.md ([`4165298`](https://github.com/betagouv/api-engagement/commit/4165298e65b7ac19b80ebca56c44126e3bbde1e1))
+
+- (**changelog**) Update CHANGELOG.md ([`438aefa`](https://github.com/betagouv/api-engagement/commit/438aefaaf3b6acdab25660d9a8d123db235f4639))
+
+- (**changelog**) Update CHANGELOG.md ([`acd3520`](https://github.com/betagouv/api-engagement/commit/acd352094dc450c528ad00e8be77b7f598bb1999))
+
+- (**api**) Update vitest to 4.0.8 (#749) ([`230769c`](https://github.com/betagouv/api-engagement/commit/230769c805eb58545c92c4c87fe61b3370ae8cc3))
+
+- (**deps**) Bump actions/checkout from 4 to 6 (#718) ([`8f479dd`](https://github.com/betagouv/api-engagement/commit/8f479dd351a6f59cd28338a738c3610fa7207640))
+
+- (**ci**) Disable claude code review workflow ([`c17e2b6`](https://github.com/betagouv/api-engagement/commit/c17e2b645ba6aba7de2f32e3b9374d6b48a72199))
+
+- (**api**) Add Claude workflows (#716) ([`9d1ba65`](https://github.com/betagouv/api-engagement/commit/9d1ba658377b05ff86fd8cabaf78551e03e48c94))
+
+- (**deps-dev**) Bump @next/eslint-plugin-next in /widget (#654) ([`d1c3d61`](https://github.com/betagouv/api-engagement/commit/d1c3d618b32694286e77e53456a6f78f11396f3f))
+
+- (**deps**) Bump the production-dependencies group across 1 directory with 10 updates (#655) ([`dd83c24`](https://github.com/betagouv/api-engagement/commit/dd83c24bd4fe1d0b01035f35958fc246098443be))
+
+- (**deps-dev**) Bump the dev-dependencies group across 1 directory with 6 updates (#695) ([`6f8c638`](https://github.com/betagouv/api-engagement/commit/6f8c6386c39efb5c04775c60bac8755aad030dc5))
+
+- (**deps**) Bump the production-dependencies group across 1 directory with 6 updates (#696) ([`5cc3bd9`](https://github.com/betagouv/api-engagement/commit/5cc3bd9e74493c0a0906e7e875247a58e6563599))
+
+
+### Refactoring
+
+- (**analytics**) Mission models (#722) ([`383569a`](https://github.com/betagouv/api-engagement/commit/383569a762529e9ec89ce96768af235c74c86759))
+
+- (**jobs**) Remove legacy pipeline (#706) ([`3a65aca`](https://github.com/betagouv/api-engagement/commit/3a65acaef6b2611b22acb1d063e74da061b8f6cf))
+
+- (**app**) Migrate mean publisher tab to metabase card (#707) ([`8a9342c`](https://github.com/betagouv/api-engagement/commit/8a9342c72dd349860a84ac9daf58a95eeae1592a))
+
+- (**api**) Delete legacy job board status field (#711) ([`e2c97ae`](https://github.com/betagouv/api-engagement/commit/e2c97aebfbe583bf4940541ba8bab26ec73921ec))
+
+
+### Testing
+
+- (**app**) Add E2E tests for jstag.js SDK  (#715) ([`c259a8f`](https://github.com/betagouv/api-engagement/commit/c259a8fd284f18b552f770e34d4a0d4a054e74fb))
+
+# API Engagement - Changelog
+Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
+
+
 ## 02/02/2026
 
 
