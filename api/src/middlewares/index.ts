@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import { Express } from "express";
 
+import bodyParserErrorHandler from "./body-parser-error-handler";
 import corsOptions from "./cors";
 import helmet from "./helmet";
 import logger from "./logger";
@@ -13,6 +14,7 @@ import requestId from "./request-id";
 const middlewares = (app: Express) => {
   app.use(cors(corsOptions));
   app.use(bodyParser.json({ limit: "50mb" }));
+  app.use(bodyParserErrorHandler);
   app.use(bodyParser.text({ type: "application/x-ndjson" }));
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(cookieParser());
