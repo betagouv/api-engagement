@@ -287,20 +287,6 @@ const Evolution = ({ filters, defaultType = "print" }) => {
             </div>
           )}
         </div>
-        {loading ? (
-          <div className="flex h-[248px] items-center justify-center">
-            <Loader />
-          </div>
-        ) : !histogram.length ? (
-          <div className="border-grey-border bg-background-grey-hover flex h-[248px] w-full flex-col items-center justify-center border border-dashed">
-            <img src={EmptySVG} alt="empty" className="h-16 w-16" />
-            <p className="text-color-gray-425 text-base">Aucune donnée disponible pour la période</p>
-          </div>
-        ) : (
-          <div className="h-[424px] w-full">
-            <StackedBarchart data={histogram} dataKey={keys} />
-          </div>
-        )}
       </div>
     </div>
   );
