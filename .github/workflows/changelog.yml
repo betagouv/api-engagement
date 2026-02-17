@@ -3,13 +3,14 @@
 name: Generate Changelog
 
 on:
-  workflow_dispatch: # Allows manual triggering
-  schedule:
-    - cron: "0 8 * * 1" # At 08:00 on every Monday
+  workflow_dispatch:
+  push:
+    branches: [main]
 
 jobs:
   changelog:
     runs-on: ubuntu-latest
+    if: github.actor != 'github-actions[bot]'
     permissions:
       contents: write # Needed to push commits and tags
 
@@ -28,37 +29,61 @@ jobs:
       - name: Switch to main branch
         run: git checkout main
 
-      - name: Ensure CHANGELOG.md exists
-        run: touch CHANGELOG.md
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: "package-lock.json"
 
-      - name: Generate Changelog
+      - name: Compute version bump (Conventional Commits)
+        run: |
+          LAST_TAG=$(git describe --tags --abbrev=0 --match "v[0-9]*" --match "changelog-*" 2>/dev/null || true)
+          if [ -n "$LAST_TAG" ]; then
+            RANGE="$LAST_TAG..HEAD"
+          else
+            RANGE=""
+          fi
+
+          COMMITS=$(git log --format=%s%n%b $RANGE)
+
+          if echo "$COMMITS" | grep -Eq "BREAKING CHANGE|^([a-zA-Z]+)(\\(.+\\))?!:"; then
+            BUMP="major"
+          elif echo "$COMMITS" | grep -Eq "^feat(\\(.+\\))?:";
+          then
+            BUMP="minor"
+          else
+            BUMP="patch"
+          fi
+
+          echo "RELEASE_BUMP=$BUMP" >> $GITHUB_ENV
+
+      - name: Bump version
+        run: npm version "$RELEASE_BUMP" --no-git-tag-version
+
+      - name: Capture release version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "RELEASE_VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Generate Release Notes
         uses: orhun/git-cliff-action@v4
         with:
           config: cliff.toml
-          args: --latest --prepend CHANGELOG.md
-        continue-on-error: true
+          args: --latest --strip header --output /tmp/release-notes.md
 
       - name: Commit changes to main
         id: commit
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
-          commit_message: "chore(changelog): update CHANGELOG.md"
-          file_pattern: CHANGELOG.md
+          commit_message: "chore(release): v${{ env.RELEASE_VERSION }}"
+          file_pattern: package.json package-lock.json
           branch: main
 
       - name: Create and push new tag to main
         if: steps.commit.outputs.changes_detected == 'true'
         run: |
-          TAG_NAME="changelog-$(date +'%Y-%m-%d-%H%M%S')"
+          TAG_NAME="v${RELEASE_VERSION}"
           echo "Creating and pushing tag: $TAG_NAME"
-          git tag $TAG_NAME
+          git tag -a "$TAG_NAME" -F /tmp/release-notes.md
           git push origin $TAG_NAME
-
-      - name: Update staging branch
-        if: steps.commit.outputs.changes_detected == 'true'
-        run: |
-          echo "Updating staging branch..."
-          git checkout staging
-          git pull origin staging
-          git merge main --no-ff --allow-unrelated-histories -m "chore: merge changelog from main"
-          git push origin staging
