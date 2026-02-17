@@ -6,7 +6,7 @@ Ce répertoire contient le service API pour la plateforme API Engagement.
 
 ### Prérequis
 
-- Node.js 18.x ou supérieur
+- Node.js 24.x
 - MongoDB (instance locale via docker-compose ou distante)
 - Postgres (instance locale via docker-compose ou distante)
 - npm
