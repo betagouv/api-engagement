@@ -9,7 +9,7 @@ import Moderation from "./Moderation";
 
 const MyMissions = () => {
   const { publisher } = useStore();
-  const publisherId = publisher?.id || publisher?._id;
+  const publisherId = publisher?.id;
   const [moderated, setModerated] = useState(false);
 
   useEffect(() => {

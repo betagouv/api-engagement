@@ -233,13 +233,7 @@ const ProtectedLayout = () => {
       <Header />
       <Nav />
 
-      <main
-        id="main-content"
-        role="main"
-        tabIndex={-1}
-        aria-labelledby={hasActiveTab ? activeTabId : undefined}
-        className="mx-auto mb-14 pt-14 w-4/5 max-w-[1200px] flex-1"
-      >
+      <main id="main-content" role="main" tabIndex={-1} aria-labelledby={hasActiveTab ? activeTabId : undefined} className="mx-auto mb-14 w-4/5 max-w-[1200px] flex-1 pt-14">
         <Outlet />
       </main>
       <Footer />
@@ -265,7 +259,7 @@ const PublisherSyncLayout = () => {
   const { publisher, setPublisher } = useStore();
 
   useEffect(() => {
-    const currentId = publisher?.id || publisher?._id;
+    const currentId = publisher?.id;
     if (publisherId && publisherId !== currentId) {
       api.post("/publisher/search", {}).then((res) => {
         if (!res.ok) return;
@@ -294,12 +288,7 @@ const PublicLayout = () => {
     <div className="bg-beige-gris-galet-975 flex min-h-screen w-screen flex-col">
       <Header />
       {user ? <Nav /> : ""}
-      <main
-        id="main-content"
-        role="main"
-        tabIndex={-1}
-        aria-labelledby={user && hasActiveTab ? activeTabId : undefined}
-      >
+      <main id="main-content" role="main" tabIndex={-1} aria-labelledby={user && hasActiveTab ? activeTabId : undefined}>
         <Outlet />
       </main>
       <Footer />

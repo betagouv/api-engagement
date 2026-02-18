@@ -35,7 +35,7 @@ const Nav = () => {
     fetchData();
   }, []);
 
-  const publisherId = publisher?.id || publisher?._id;
+  const publisherId = publisher?.id;
 
   const handleFluxChange = (flux) => {
     setFlux(flux);

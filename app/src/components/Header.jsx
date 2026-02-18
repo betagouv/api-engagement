@@ -57,7 +57,7 @@ const NotificationMenu = () => {
   const [warnings, setWarnings] = useState([]);
   const [state, setState] = useState({});
   const { publisher } = useStore();
-  const publisherId = publisher?.id || publisher?._id;
+  const publisherId = publisher?.id;
   const warningPath = `/${publisherId}/warning`;
 
   useEffect(() => {
@@ -291,7 +291,7 @@ const AdminNotificationMenu = () => {
 
 const AccountMenu = () => {
   const { user, publisher, setAuth } = useStore();
-  const publisherId = publisher?.id || publisher?._id;
+  const publisherId = publisher?.id;
 
   const handleLogout = async () => {
     api.removeToken();

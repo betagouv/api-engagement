@@ -13,7 +13,7 @@ const Index = () => {
   const { publisher } = useStore();
   const navigate = useNavigate();
   const location = useLocation();
-  const publisherId = publisher?.id || publisher?._id;
+  const publisherId = publisher?.id;
   const currentRoute = location.pathname.split("/broadcast")[1].split("/")[1] || "";
   const tabs = [
     publisher.hasApiRights && {
