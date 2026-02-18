@@ -13,6 +13,7 @@ const Index = () => {
   const { publisher } = useStore();
   const navigate = useNavigate();
   const location = useLocation();
+  const publisherId = publisher?.id || publisher?._id;
   const currentRoute = location.pathname.split("/broadcast")[1].split("/")[1] || "";
   const tabs = [
     publisher.hasApiRights && {
@@ -44,7 +45,7 @@ const Index = () => {
     .map((tab) => ({
       ...tab,
       id: `broadcast-tab-${tab.key}`,
-      to: `/broadcast/${tab.route}`,
+      to: `/${publisherId}/broadcast/${tab.route}`,
     }));
   const activeTab = tabs.find((tab) => tab.isActive) || tabs[0];
   const activeTabId = activeTab ? activeTab.id : null;
@@ -57,7 +58,7 @@ const Index = () => {
     if (route === "campaigns" && !publisher.hasCampaignRights) route = "moderation";
     if (route === "moderation" && !publisher.moderator) route = "";
 
-    navigate(`/broadcast/${route}`); // If route didn't change, it will not trigger a re-render, so no infinite loop
+    navigate(`/${publisherId}/broadcast/${route}`); // If route didn't change, it will not trigger a re-render, so no infinite loop
   }, [location.pathname]);
 
   return (

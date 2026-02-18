@@ -35,21 +35,24 @@ const Nav = () => {
     fetchData();
   }, []);
 
+  const publisherId = publisher?.id || publisher?._id;
+
   const handleFluxChange = (flux) => {
     setFlux(flux);
-    navigate("/performance");
+    navigate(`/${publisherId}/performance`);
   };
 
-  const handleChangePublisher = (publisher) => {
-    setPublisher(publisher);
-    navigate("/performance");
+  const handleChangePublisher = (newPublisher) => {
+    const id = newPublisher.id || newPublisher._id;
+    setPublisher(newPublisher);
+    navigate(`/${id}/performance`);
   };
 
   const menuItems = [
     {
       key: "performance",
       label: "Performance",
-      to: "/performance",
+      to: `/${publisherId}/performance`,
       isActive: location.pathname.includes("performance"),
     },
     ...(flux === "from"
@@ -57,7 +60,7 @@ const Nav = () => {
           {
             key: "broadcast",
             label: "Diffuser des missions",
-            to: "/broadcast",
+            to: `/${publisherId}/broadcast`,
             isActive: location.pathname.includes("broadcast"),
           },
           ...(publisher.hasApiRights || publisher.hasCampaignRights
@@ -65,7 +68,7 @@ const Nav = () => {
                 {
                   key: "settings",
                   label: "Paramètres",
-                  to: "/settings",
+                  to: `/${publisherId}/settings`,
                   isActive: location.pathname.includes("settings"),
                 },
               ]
@@ -75,13 +78,13 @@ const Nav = () => {
           {
             key: "my-missions",
             label: "Vos missions",
-            to: "/my-missions",
+            to: `/${publisherId}/my-missions`,
             isActive: location.pathname.includes("my-missions"),
           },
           {
             key: "settings",
             label: "Paramètres",
-            to: "/settings",
+            to: `/${publisherId}/settings`,
             isActive: location.pathname.includes("settings"),
           },
         ]),

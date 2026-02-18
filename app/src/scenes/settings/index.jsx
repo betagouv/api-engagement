@@ -8,7 +8,8 @@ import TrackingAnnounce from "./TrackingAnnounce";
 import TrackingBroadcast from "./TrackingBroadcast";
 
 const Settings = () => {
-  const { flux } = useStore();
+  const { flux, publisher } = useStore();
+  const publisherId = publisher?.id || publisher?._id;
   const location = useLocation();
   const currentRoute = location.pathname.split("/settings")[1].replace("/", "");
   const tabs = [
@@ -33,7 +34,7 @@ const Settings = () => {
   ].map((tab) => ({
     ...tab,
     id: `settings-tab-${tab.key}`,
-    to: `/settings/${tab.route}`,
+    to: `/${publisherId}/settings/${tab.route}`,
   }));
   const activeTab = tabs.find((tab) => tab.isActive) || tabs[0];
   const activeTabId = activeTab ? activeTab.id : null;
