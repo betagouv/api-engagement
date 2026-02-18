@@ -3,9 +3,18 @@
 name: Release
 
 on:
+  workflow_call:
+    inputs:
+      branch:
+        required: false
+        type: string
   workflow_dispatch:
-  push:
-    branches: [main]
+    inputs:
+      branch:
+        description: Branch to release
+        required: false
+        type: string
+        default: ""
 
 jobs:
   release:
@@ -26,10 +35,24 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+      - name: Determine if release should run
+        id: release_mode
+        env:
+          HEAD_BRANCH: ${{ inputs.branch || github.ref_name }}
+        run: |
+          if [[ "$HEAD_BRANCH" == "main" ]]; then
+            echo "should_release=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_release=false" >> "$GITHUB_OUTPUT"
+            echo "Skip release on branch: $HEAD_BRANCH"
+          fi
+
       - name: Switch to main branch
+        if: steps.release_mode.outputs.should_release == 'true'
         run: git checkout main
 
       - name: Setup Node.js
+        if: steps.release_mode.outputs.should_release == 'true'
         uses: actions/setup-node@v6
         with:
           node-version: "24"
@@ -37,6 +60,7 @@ jobs:
           cache-dependency-path: "package-lock.json"
 
       - name: Compute version bump (Conventional Commits)
+        if: steps.release_mode.outputs.should_release == 'true'
         run: |
           LAST_TAG=$(git describe --tags --abbrev=0 --match "v[0-9]*" --match "changelog-*" 2>/dev/null || true)
           if [ -n "$LAST_TAG" ]; then
@@ -59,14 +83,17 @@ jobs:
           echo "RELEASE_BUMP=$BUMP" >> $GITHUB_ENV
 
       - name: Bump version
+        if: steps.release_mode.outputs.should_release == 'true'
         run: npm version "$RELEASE_BUMP" --no-git-tag-version
 
       - name: Capture release version
+        if: steps.release_mode.outputs.should_release == 'true'
         run: |
           VERSION=$(node -p "require('./package.json').version")
           echo "RELEASE_VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Generate Release Notes
+        if: steps.release_mode.outputs.should_release == 'true'
         uses: orhun/git-cliff-action@v4
         with:
           config: cliff.toml
@@ -74,6 +101,7 @@ jobs:
 
       - name: Commit changes to main
         id: commit
+        if: steps.release_mode.outputs.should_release == 'true'
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "chore(release): v${{ env.RELEASE_VERSION }}"
