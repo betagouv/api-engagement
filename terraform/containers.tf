@@ -28,6 +28,7 @@ resource "scaleway_container" "api" {
 
   environment_variables = {
     "ENV"                        = var.env
+    "IMAGE_VERSION"              = var.image_tag
     "API_URL"                    = "https://${var.api_hostname}"
     "APP_URL"                    = "https://${var.app_hostname}"
     "BENEVOLAT_URL"              = var.benevolat_hostname != "" ? "https://${var.benevolat_hostname}" : ""
