@@ -242,8 +242,10 @@ models:
         description: Tags associés à la mission.
       - name: close_to_transport
         description: Indique si la mission est proche des transports.
-      - name: description_length
-        description: Nombre de caractères dans la description.
+      - name: description_length_bucket
+        description: Borne de longueur de description (`0-300`, `300-700`, `700+`).
+      - name: avg_description_length
+        description: Longueur moyenne (arrondie) des descriptions dans la borne.
       - name: mission_duration_days
         description: Durée de mission en jours (start_at/end_at).
       - name: mission_count
@@ -306,8 +308,10 @@ models:
         description: Tags associés à la mission.
       - name: close_to_transport
         description: Indique si la mission est proche des transports.
-      - name: description_length
-        description: Nombre de caractères dans la description.
+      - name: description_length_bucket
+        description: Borne de longueur de description (`0-300`, `300-700`, `700+`).
+      - name: avg_description_length
+        description: Longueur moyenne (arrondie) des descriptions dans la borne.
       - name: mission_duration_days
         description: Durée de mission en jours (start_at/end_at).
       - name: mission_count
