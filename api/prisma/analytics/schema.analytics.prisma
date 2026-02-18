@@ -1,6 +1,7 @@
 generator client_analytics {
-  provider = "prisma-client-js"
-  output   = "../../src/db/analytics"
+  provider      = "prisma-client-js"
+  output        = "../../src/db/analytics"
+  binaryTargets = ["native", "debian-openssl-1.1.x", "debian-openssl-3.0.x"]
 }
 
 datasource db_analytics {
