@@ -448,8 +448,6 @@ sources:
             description: Identifiant métier de la mission côté client/source.
           - name: domain_id
             description: Identifiant du domaine associé (référence `analytics_raw.domain.id`).
-          - name: activity_id
-            description: Identifiant de l'activité associée (référence `analytics_raw.activity.id`).
           - name: tags
             description: Tags libres associés à la mission.
           - name: tasks

@@ -3,20 +3,13 @@ import { useEffect, useState } from "react";
 import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
 
 import { DOMAINS } from "../config";
-import { AggregationData, ApiResponse, FilterOptions, Filters, Widget } from "../types";
+import { FilterOptions, Filters, Widget } from "../types";
+import { fetchAggs } from "../utils/api";
+import { buildSearchParams } from "../utils/buildSearchParams";
 import useStore from "../utils/store";
 import ComboboxFilter from "./ComboxFilter";
 import LocationFilter from "./LocationFilter";
 import SelectFilter from "./SelectFilter";
-
-const getAPI = async (path: string): Promise<ApiResponse<AggregationData>> => {
-  const response = await fetch(path, { method: "GET" });
-
-  if (!response.ok) {
-    throw response;
-  }
-  return response.json();
-};
 
 const hasFilters = (filters: Filters, disabledLocation: boolean) => {
   return filters.domain?.length || filters.organization?.length || filters.department?.length || filters.remote?.value || (filters.location && !disabledLocation);
@@ -45,28 +38,10 @@ const FiltersBenevolat = ({ widget, apiUrl, values, total, onChange, show, onSho
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const searchParams = new URLSearchParams();
-
-        if (values.domain && values.domain.length) {
-          values.domain.forEach((item) => searchParams.append("domain", item.value.toString()));
-        }
-        if (values.organization && values.organization.length) {
-          values.organization.forEach((item) => searchParams.append("organization", item.value.toString()));
-        }
-        if (values.department && values.department.length) {
-          values.department.forEach((item) => searchParams.append("department", item.value === "" ? "none" : item.value.toString()));
-        }
-        if (values.remote && values.remote.value) {
-          searchParams.append("remote", values.remote.value.toString());
-        }
-
-        if (values.location && values.location.lat && values.location.lon) {
-          searchParams.append("lat", values.location.lat.toString());
-          searchParams.append("lon", values.location.lon.toString());
-        }
+        const searchParams = buildSearchParams(values, true);
         ["domain", "organization", "department", "remote"].forEach((key) => searchParams.append("aggs", key));
 
-        const { ok, data } = await getAPI(`${apiUrl}/iframe/${widget.id}/aggs?${searchParams.toString()}`);
+        const { ok, data } = await fetchAggs(apiUrl, widget.id, searchParams);
 
         if (!ok) {
           throw Error("Error fetching aggs");

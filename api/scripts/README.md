@@ -4,7 +4,7 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
 
 ## Prérequis généraux
 
-- Node.js 18+
+- Node.js 24+
 - Accès aux bases et services nécessaires (MongoDB, PostgreSQL, APIs externes)
 - Variables d’environnement chargées (fichiers `.env*` ou flags `--env` lorsque disponible)
 - Prisma généré quand Postgres est utilisé: `npm run prisma:generate` (dans `api/`)

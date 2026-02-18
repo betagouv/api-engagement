@@ -2,6 +2,7 @@ import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
+import bodyParserErrorHandler from "../src/middlewares/body-parser-error-handler";
 import passport from "../src/middlewares/passport";
 import IframeController from "../src/controllers/iframe";
 import RedirectController from "../src/controllers/redirect";
@@ -20,6 +21,7 @@ export const createTestApp = () => {
   // Configure middleware
   app.use(cors({ credentials: true, origin: "*" }));
   app.use(bodyParser.json());
+  app.use(bodyParserErrorHandler);
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(cookieParser());
   app.use(passport.initialize());

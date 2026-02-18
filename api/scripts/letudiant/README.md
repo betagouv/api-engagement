@@ -4,7 +4,7 @@ Scripts utilitaires liés à l’intégration Piloty.
 
 ## Prérequis
 
-- Node.js 18+
+- Node.js 24+
 - Variables d’environnement: `LETUDIANT_PILOTY_TOKEN` (token API Piloty)
 - Accès MongoDB si nécessaire
 - Chargement d’un fichier `.env` possible via `--env <nom|chemin>` (ex: `.env.local`, `.env.production`)

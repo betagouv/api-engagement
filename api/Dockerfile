@@ -1,5 +1,4 @@
-# Use bullseye (Debian 11) for Mongo compatibility
-FROM node:18-bullseye-slim AS builder
+FROM node:24-bookworm-slim AS builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libcurl4 \

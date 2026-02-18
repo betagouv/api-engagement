@@ -1,5 +1,5 @@
 # Build
-FROM node:24-bullseye-slim AS builder
+FROM node:24-bookworm-slim AS builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
@@ -21,13 +21,13 @@ RUN --mount=type=secret,id=sentry_auth_token,env=SENTRY_AUTH_TOKEN \
     NODE_TLS_REJECT_UNAUTHORIZED=0 npm run build
 
 # Run
-FROM node:24-bullseye-slim
+FROM node:24-bookworm-slim
 
 WORKDIR /app
 
 ENV NODE_ENV=production
 ENV PORT=8080
-ENV NODE_OPTIONS=--dns-result-order=ipv4first
+ENV NODE_OPTIONS="--dns-result-order=ipv4first --max-old-space-size=700"
 
 COPY package*.json ./
 

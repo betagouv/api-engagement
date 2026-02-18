@@ -26,19 +26,12 @@ domains as (
   from {{ ref('stg_domain') }}
 ),
 
-activities as (
-  select
-    id as activity_id,
-    name as activity_name
-  from {{ ref('stg_activity') }}
-),
-
 mission_activities as (
   select
     ma.mission_id,
-    string_agg(a.activity_name, ', ' order by a.activity_name) as activity_names
+    string_agg(a.name, ', ' order by a.name) as activity_names
   from {{ ref('stg_mission_activity') }} as ma
-  left join activities as a on ma.activity_id = a.activity_id
+  left join {{ ref('stg_activity') }} as a on ma.activity_id = a.id
   group by ma.mission_id
 )
 
@@ -49,7 +42,6 @@ select
   m.organization_id,
   m.organization_client_id,
   m.domain_id,
-  m.activity_id,
   m.title,
   m.description,
   m.domain_original,

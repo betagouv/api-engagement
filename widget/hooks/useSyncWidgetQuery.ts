@@ -1,5 +1,5 @@
-import { useEffect } from "react";
 import type { NextRouter } from "next/router";
+import { useEffect } from "react";
 
 import type { Filters, Widget } from "../types";
 import { getCurrentQuery, normalizeQuery } from "../utils/routerQuery";

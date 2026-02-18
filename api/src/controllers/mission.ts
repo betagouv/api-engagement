@@ -146,7 +146,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
   }
 });
 
-router.get("/autocomplete", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+router.get("/autocomplete", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
     const query = autocompleteSchema.safeParse(req.query);
     if (!query.success) {

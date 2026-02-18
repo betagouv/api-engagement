@@ -86,12 +86,20 @@ resource "scaleway_container" "widget" {
   cpu_limit       = terraform.workspace == "production" ? 500 : 250
   memory_limit    = terraform.workspace == "production" ? 1024 : 512
   min_scale       = terraform.workspace == "production" ? 1 : 0
-  max_scale       = terraform.workspace == "production" ? 1 : 1
+  max_scale       = terraform.workspace == "production" ? 2 : 1
   timeout         = 60
   privacy         = "public"
   protocol        = "http1"
   http_option     = "redirected" # https only
   deploy          = true
+
+  health_check {
+    http {
+      path = "/api/healthz"
+    }
+    interval          = "30s"
+    failure_threshold = 3
+  }
 
   environment_variables = {
     "ENV"     = terraform.workspace
