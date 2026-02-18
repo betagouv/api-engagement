@@ -82,6 +82,23 @@ jobs:
           echo "Environment: ${{ needs.set-env.outputs.environment_name }}"
           echo "Will use images tagged as: ${{ needs.set-env.outputs.environment_name }}-${GITHUB_SHA::7}"
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: "api/package-lock.json"
+
+      - name: Install API dependencies
+        run: cd api && npm ci
+
+      - name: Run Prisma migrations (API)
+        working-directory: api
+        env:
+          DATABASE_URL_CORE: ${{ secrets.DATABASE_URL_CORE }}
+          DATABASE_URL_ANALYTICS: ${{ secrets.DATABASE_URL_ANALYTICS }}
+        run: npm run prisma:migrate:deploy
+
       - name: Terraform Init
         working-directory: ./terraform
         run: |
