@@ -31,7 +31,7 @@ export class PilotyClient {
     };
   }
 
-  private async request<T = any>(input: RequestInfo, init: RequestInit = {}): Promise<T> {
+  private async request<T = any>(input: RequestInfo, init: RequestInit = {}, retries = 0): Promise<T> {
     const headers = { ...this.getHeaders(), ...(init.headers || {}) };
     const finalInit = { ...init, headers };
     let res: Response;
@@ -47,7 +47,16 @@ export class PilotyClient {
       // Ignore JSON parse error if body is empty
     }
     if (!res.ok) {
-      throw new PilotyError(`HTTP ${res.status} – ${body?.message || res.statusText}`, res.status, body);
+      if (res.status === 429) {
+        if (retries < 3) {
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          return this.request<T>(input, init, retries + 1);
+        } else {
+          throw new PilotyError(`Rate limit exceeded after 3 retries`, 429, body);
+        }
+      } else {
+        throw new PilotyError(`HTTP ${res.status} – ${body?.message || res.statusText}`, res.status, body);
+      }
     }
     return body;
   }

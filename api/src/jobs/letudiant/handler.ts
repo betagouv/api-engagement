@@ -72,14 +72,19 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
           continue;
         }
 
+        processedJobBoards = [];
+
         const pilotyCompanyPublicId = await getCompanyPilotyId(pilotyClient, mission, organization);
 
-        if (!pilotyCompanyPublicId) {
-          throw new Error("Unable to get company public ID for mission");
-        }
+        const jobPayloads = missionToPilotyJobs(mission, pilotyCompanyPublicId ?? "not-found", mandatoryData);
 
-        const jobPayloads = missionToPilotyJobs(mission, pilotyCompanyPublicId, mandatoryData);
-        processedJobBoards = [];
+        if (!pilotyCompanyPublicId) {
+          console.log(`[LetudiantHandler] Unable to get company public ID for mission ${mission.id}`);
+          for (const jobPayload of jobPayloads) {
+            processedJobBoards.push({ missionAddressId: jobPayload.missionAddressId ?? null, publicId: "", syncStatus: "ERROR", comment: "Cannot create company" });
+          }
+          continue;
+        }
 
         // Create / update jobs related to each address
         for (const jobPayload of jobPayloads) {
@@ -107,11 +112,15 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
             processedJobBoards.push({ missionAddressId: jobPayload.missionAddressId ?? null, publicId: pilotyJob.public_id, syncStatus });
 
             await rateLimit();
-          } catch (error) {
-            captureException(error, { extra: { missionId: mission.id, jobPayload } });
+          } catch (error: any) {
             counter.error++;
             const errorMessage = error instanceof Error ? error.message : "Unknown error";
             processedJobBoards.push({ missionAddressId: jobPayload.missionAddressId ?? null, publicId: letudiantPublicId ?? "", syncStatus: "ERROR", comment: errorMessage });
+            if (error instanceof PilotyError && error.status === 422) {
+              console.log(`[LetudiantHandler] Job ${mission.id} - ${jobPayload.payload.localisation} is invalid: ${errorMessage}`);
+            } else {
+              captureException(error, { extra: { missionId: mission.id, jobPayload } });
+            }
           }
         }
 
@@ -167,7 +176,7 @@ const getCompanyPilotyId = async (pilotyClient: PilotyClient, mission: MissionRe
       console.log(`[LetudiantHandler] Organization ${organization.title} updated with letudiantPublicId ${pilotyCompanyPublicId}`);
     }
   }
-
+  await rateLimit();
   return pilotyCompanyPublicId;
 };
 
