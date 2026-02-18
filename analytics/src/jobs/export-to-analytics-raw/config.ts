@@ -474,6 +474,22 @@ export const exportDefinitions: ExportDefinition[] = [
     },
   },
   {
+    key: "mission_activity",
+    batchSize: 2000,
+    source: {
+      table: "mission_activity",
+      cursor: {
+        field: "created_at",
+        idField: "mission_id",
+      },
+      columns: ["mission_id", "activity_id", "created_at"],
+    },
+    destination: {
+      table: "mission_activity",
+      conflictColumns: ["mission_id", "activity_id"],
+    },
+  },
+  {
     key: "domain",
     batchSize: 2000,
     source: {
@@ -518,7 +534,6 @@ export const exportDefinitions: ExportDefinition[] = [
         "id",
         "client_id",
         "domain_id",
-        "activity_id",
         "title",
         "description",
         "tags",

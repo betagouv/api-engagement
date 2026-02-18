@@ -1,6 +1,7 @@
 generator client_core {
-  provider = "prisma-client-js"
-  output   = "../../src/db/core"
+  provider      = "prisma-client-js"
+  output        = "../../src/db/core"
+  binaryTargets = ["native", "debian-openssl-1.1.x", "debian-openssl-3.0.x"]
 }
 
 datasource db_core {
@@ -583,7 +584,6 @@ model Mission {
   placesStatus              MissionPlacesStatus?     @map("places_status")
   metadata                  String?
   domainId                  String?                  @map("domain_id")
-  activityId                String?                  @map("activity_id")
   domainOriginal            String?                  @map("domain_original")
   domainLogo                String?                  @map("domain_logo")
   type                      MissionType?             @map("type")
@@ -603,14 +603,13 @@ model Mission {
   createdAt                 DateTime                 @default(now()) @map("created_at")
   updatedAt                 DateTime                 @updatedAt @map("updated_at")
 
-  publisher Publisher @relation("MissionPublisher", fields: [publisherId], references: [id])
-  domain    Domain?   @relation(fields: [domainId], references: [id], onDelete: SetNull)
-  activity  Activity? @relation(fields: [activityId], references: [id], onDelete: SetNull)
-
+  publisher             Publisher                 @relation("MissionPublisher", fields: [publisherId], references: [id])
+  domain                Domain?                   @relation(fields: [domainId], references: [id], onDelete: SetNull)
   publisherOrganization PublisherOrganization?    @relation("MissionPublisherOrganization", fields: [publisherOrganizationId], references: [id], onDelete: SetNull)
   addresses             MissionAddress[]
   moderationStatuses    MissionModerationStatus[]
   jobBoards             MissionJobBoard[]
+  activities            MissionActivity[]
 
   // TODO after migration: remove Legacy fields, kept during backfill
   organizationClientId               String?  @map("organization_client_id")
@@ -660,9 +659,11 @@ model Mission {
   @@index([clientId], map: "mission_client_id_idx")
   @@index([organizationClientId], map: "mission_organization_client_id_idx")
   @@index([domainId], map: "mission_domain_id_idx")
-  @@index([activityId], map: "mission_activity_id_idx")
   @@index([deletedAt], map: "mission_deleted_at_idx")
   @@index([statusCode], map: "mission_status_code_idx")
+  // Partial index managed manually in migration (Prisma doesn't support WHERE clause on indexes)
+  // CREATE INDEX "mission_publisher_active_idx" ON "mission" (publisher_id, id)
+  // WHERE deleted_at IS NULL AND status_code = 'ACCEPTED'
   @@map("mission")
 }
 
@@ -755,9 +756,23 @@ model Activity {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  missions Mission[]
+  missionActivities MissionActivity[]
 
   @@map("activity")
+}
+
+model MissionActivity {
+  missionId  String   @map("mission_id")
+  activityId String   @map("activity_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  mission  Mission  @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+
+  @@id([missionId, activityId])
+  @@index([missionId], map: "mission_activity_mission_id_idx")
+  @@index([activityId], map: "mission_activity_activity_id_idx")
+  @@map("mission_activity")
 }
 
 model MissionAddress {
@@ -787,6 +802,7 @@ model MissionAddress {
   @@index([departmentName], map: "mission_address_department_name_idx")
   @@index([locationLat], map: "mission_address_lat_idx")
   @@index([locationLon], map: "mission_address_lon_idx")
+  @@index([locationLat, locationLon, missionId], map: "mission_address_lat_lon_mission_idx")
   @@map("mission_address")
 }
 

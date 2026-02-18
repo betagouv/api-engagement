@@ -425,6 +425,17 @@ sources:
             description: Timestamp de création de la ligne.
           - name: updated_at
             description: Timestamp de dernière mise à jour (curseur d'export).
+      - name: mission_activity
+        description: >-
+          Table de liaison N-à-N entre missions et activités. Chaque ligne associe une mission
+          à une de ses activités après migration vers le modèle multi-activités.
+        columns:
+          - name: mission_id
+            description: Identifiant de la mission associée.
+          - name: activity_id
+            description: Identifiant de l'activité associée.
+          - name: created_at
+            description: Timestamp de création de la liaison.
       - name: mission
         description: >-
           Missions synchronisées depuis la base opérationnelle. Chaque ligne correspond à une mission avec ses
@@ -437,8 +448,6 @@ sources:
             description: Identifiant métier de la mission côté client/source.
           - name: domain_id
             description: Identifiant du domaine associé (référence `analytics_raw.domain.id`).
-          - name: activity_id
-            description: Identifiant de l'activité associée (référence `analytics_raw.activity.id`).
           - name: tags
             description: Tags libres associés à la mission.
           - name: tasks

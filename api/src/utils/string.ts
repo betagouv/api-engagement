@@ -13,7 +13,8 @@ export const slugify = (value: string) => {
     .toLowerCase()
     .replace(/\s+/g, "-") // Replace spaces with -
     .replace(p, (c) => b.charAt(a.indexOf(c))) // Replace special characters
-    .replace(/&/g, "-and-") // Replace & with 'and'
+    .replace(/&/g, "") // Remove &
+    .replace(/'/g, "-") // Replace ' with -
     .replace(/[^\w\-]+/g, "") // Remove all non-word characters
     .replace(/\-\-+/g, "-") // Replace multiple - with single -
     .replace(/^-+/, "") // Trim - from start of text

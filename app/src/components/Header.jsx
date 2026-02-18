@@ -14,7 +14,7 @@ const Header = () => {
   const { user } = useStore();
   return (
     <header role="banner" className="border-b-grey-border flex w-full justify-center border-b bg-white">
-      <div className="flex w-full max-w-7xl items-center justify-between py-3">
+      <div className="flex w-full max-w-7xl flex-wrap items-center justify-between gap-4 py-3">
         <Link className="hover:bg-gray-975 flex items-center gap-4 p-4" to={user ? "/" : "/login"}>
           <div className="flex h-24 items-center justify-center">
             <p className="gouv-logo text-xs leading-3 font-bold text-black uppercase">

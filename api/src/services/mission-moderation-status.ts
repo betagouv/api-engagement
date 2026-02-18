@@ -1,8 +1,8 @@
 import { Mission, MissionModerationStatus, ModerationEventStatus, Prisma } from "../db/core";
-import { prismaCore } from "../db/postgres";
 import { activityRepository } from "../repositories/activity";
 import { domainRepository } from "../repositories/domain";
 import { missionRepository } from "../repositories/mission";
+import { missionActivityRepository } from "../repositories/mission-activity";
 import { missionAddressRepository } from "../repositories/mission-address";
 import { missionModerationStatusRepository } from "../repositories/mission-moderation-status";
 import { publisherRepository } from "../repositories/publisher";
@@ -141,7 +141,7 @@ export const missionModerationStatusService = {
       // Mission aggregations
       missionRepository.groupBy(["publisherId"], missionWhere as Prisma.MissionWhereInput),
       missionRepository.groupBy(["domainId"], missionWhere as Prisma.MissionWhereInput),
-      missionRepository.groupBy(["activityId"], missionWhere as Prisma.MissionWhereInput),
+      missionActivityRepository.groupBy(["activityId"], { mission: missionWhere as Prisma.MissionWhereInput }),
     ]);
 
     const [orgResults, deptResults, cityResults] = await Promise.all([
@@ -154,7 +154,7 @@ export const missionModerationStatusService = {
       // Labels
       publisherRepository.findMany({ where: { missions: { some: missionWhere } } as Prisma.PublisherWhereInput, select: { id: true, name: true } }),
       domainRepository.findMany({ where: { missions: { some: missionWhere } } as Prisma.DomainWhereInput, select: { id: true, name: true } }),
-      activityRepository.findMany({ where: { missions: { some: missionWhere } } as Prisma.ActivityWhereInput, select: { id: true, name: true } }),
+      activityRepository.findMany({ where: { missionActivities: { some: { mission: missionWhere } } } as Prisma.ActivityWhereInput, select: { id: true, name: true } }),
     ]);
 
     const publisherMap = new Map(publishers.map((p) => [p.id, p.name]));
@@ -309,26 +309,24 @@ export const missionModerationStatusService = {
     if (!inputs.length) {
       return [];
     }
-    return prismaCore.$transaction(
-      inputs.map((input) =>
-        prismaCore.missionModerationStatus.upsert({
-          where: { missionId_publisherId: { missionId: input.missionId, publisherId: input.publisherId } },
-          update: {
-            status: (input.status as ModerationEventStatus) ?? "PENDING",
-            comment: input.comment ?? null,
-            note: input.note ?? null,
-            title: input.title ?? null,
-          },
-          create: {
-            mission: { connect: { id: input.missionId } },
-            publisherId: input.publisherId,
-            status: (input.status as ModerationEventStatus) ?? "PENDING",
-            comment: input.comment ?? null,
-            note: input.note ?? null,
-            title: input.title ?? null,
-          },
-        })
-      )
+    return missionModerationStatusRepository.upsertMany(
+      inputs.map((input) => ({
+        where: { missionId_publisherId: { missionId: input.missionId, publisherId: input.publisherId } },
+        update: {
+          status: (input.status as ModerationEventStatus) ?? "PENDING",
+          comment: input.comment ?? null,
+          note: input.note ?? null,
+          title: input.title ?? null,
+        },
+        create: {
+          mission: { connect: { id: input.missionId } },
+          publisherId: input.publisherId,
+          status: (input.status as ModerationEventStatus) ?? "PENDING",
+          comment: input.comment ?? null,
+          note: input.note ?? null,
+          title: input.title ?? null,
+        },
+      }))
     );
   },
 };

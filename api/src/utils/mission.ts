@@ -94,7 +94,7 @@ export const EVENT_TYPES = {
 const IMPORT_DATE_FIELDS_IGNORE_TIME = new Set<keyof MissionRecord>(["postedAt", "startAt", "endAt"]);
 
 export const IMPORT_FIELDS_TO_COMPARE = [
-  "activity",
+  "activities",
   "applicationUrl",
   "audience",
   "clientId",

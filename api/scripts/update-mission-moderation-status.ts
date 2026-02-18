@@ -3,55 +3,37 @@
  */
 import { PUBLISHER_IDS } from "../src/config";
 import { prismaCore } from "../src/db/postgres";
+import { publisherService } from "../src/services/publisher";
 
-async function deleteJeVeuxAiderModerationStatuses() {
+const DRY_RUN = process.argv.includes("--dry-run");
+
+async function deleteWrongPartnerModerationStatuses() {
+  const jva = await publisherService.findOnePublisherById(PUBLISHER_IDS.JEVEUXAIDER);
+
+  if (!jva) {
+    throw new Error("JVA not found");
+  }
+
+  const partners = jva.publishers.map((p) => p.diffuseurPublisherId);
+  console.log(`Found ${partners.length} partners`);
+
+  const where = { mission: { publisherId: { notIn: partners } } };
   // Delete all mission moderation statuses with JeVeuxAider.gouv.fr as publisherId
-  const count = await prismaCore.missionModerationStatus.count({
-    where: { mission: { publisherId: PUBLISHER_IDS.JEVEUXAIDER } },
-  });
+  const count = await prismaCore.missionModerationStatus.count({ where });
   console.log(`Found ${count} mission moderation statuses with JeVeuxAider.gouv.fr as publisherId`);
 
-  const res = await prismaCore.missionModerationStatus.deleteMany({
-    where: { mission: { publisherId: PUBLISHER_IDS.JEVEUXAIDER } },
-  });
-
-  console.log(`Deleted ${res.count} mission moderation statuses with JeVeuxAider.gouv.fr as publisherId`);
-}
-async function updateNullModerationStatusesToPending() {
-  // Update all mission moderation statuses with status null to PENDING
-  const count = await prismaCore.missionModerationStatus.count({
-    where: { status: null },
-  });
-  console.log(`Found ${count} mission moderation statuses with status null`);
-
-  const res = await prismaCore.missionModerationStatus.updateMany({
-    where: { status: null },
-    data: { status: "PENDING" },
-  });
-
-  console.log(`Updated ${res.count} mission moderation statuses with status null`);
-}
-
-const moderationComments = ["MISSION_CREATION_DATE_TOO_OLD", "MISSION_DATE_NOT_COMPATIBLE", "CONTENT_INSUFFICIENT"];
-
-async function cleanModerationStatusesTitles() {
-  // Find all the missions where title === comment
-  const count = await prismaCore.missionModerationStatus.count({
-    where: { title: { in: moderationComments } },
-  });
-  console.log(`Found ${count} mission moderation statuses with title === comment`);
-
-  const res = await prismaCore.missionModerationStatus.updateMany({
-    where: { title: { in: moderationComments } },
-    data: { title: null },
-  });
-  console.log(`Updated ${res.count} mission moderation statuses with title === comment`);
+  if (!DRY_RUN) {
+    const res = await prismaCore.missionModerationStatus.deleteMany({
+      where,
+    });
+    console.log(`Deleted ${res.count} mission moderation statuses with JeVeuxAider.gouv.fr as publisherId`);
+  } else {
+    console.log("Dry run, skipping deletion");
+  }
 }
 
 async function run() {
-  await deleteJeVeuxAiderModerationStatuses();
-  await updateNullModerationStatusesToPending();
-  await cleanModerationStatusesTitles();
+  await deleteWrongPartnerModerationStatuses();
 }
 
 run().catch((err) => {

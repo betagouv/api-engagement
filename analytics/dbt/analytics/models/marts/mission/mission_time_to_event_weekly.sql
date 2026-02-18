@@ -12,7 +12,7 @@
     'mission_audience',
     'mission_tags',
     'close_to_transport',
-    'description_length',
+    'description_length_bucket',
     'mission_duration_days'
   ],
   incremental_strategy = 'delete+insert',
@@ -59,7 +59,12 @@ base as (
     time_to_apply_secs,
     first_click_at,
     first_apply_at,
-    updated_at
+    updated_at,
+    case
+      when description_length < 300 then '0-300'
+      when description_length < 700 then '300-700'
+      else '700+'
+    end as description_length_bucket
   from {{ ref('int_mission_first_events') }}
   {% if is_incremental() %}
     where date_trunc('week', mission_created_at)::date in (
@@ -83,7 +88,8 @@ aggregated as (
     mission_audience,
     mission_tags,
     close_to_transport,
-    description_length,
+    description_length_bucket,
+    round(avg(description_length))::int as avg_description_length,
     mission_duration_days,
     count(distinct mission_id) as mission_count,
     count(*) filter (where first_click_at is not null)
@@ -109,7 +115,7 @@ aggregated as (
     mission_audience,
     mission_tags,
     close_to_transport,
-    description_length,
+    description_length_bucket,
     mission_duration_days
 )
 

@@ -88,11 +88,11 @@ export const buildWhere = (filters: ModerationFilters): { where: Prisma.MissionM
 
   if (filters.activity) {
     if (filters.activity === "none") {
-      where.mission!.activity = null;
-      missionWhere.activity = null;
+      where.mission!.activities = { none: {} };
+      missionWhere.activities = { none: {} };
     } else {
-      where.mission!.activity = { name: filters.activity };
-      missionWhere.activity = { name: filters.activity };
+      where.mission!.activities = { some: { activity: { name: filters.activity } } };
+      missionWhere.activities = { some: { activity: { name: filters.activity } } };
     }
   }
 

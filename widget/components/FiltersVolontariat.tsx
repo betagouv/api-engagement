@@ -3,21 +3,14 @@ import { useEffect, useRef, useState } from "react";
 import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
 
 import { ACCESSIBILITIES, ACTIONS, BENEFICIARIES, DOMAINS, MINORS, SCHEDULES } from "../config";
-import { AggregationData, ApiResponse, FilterOptions, Filters, Widget } from "../types";
+import { FilterOptions, Filters, Widget } from "../types";
+import { fetchAggs } from "../utils/api";
+import { buildSearchParams } from "../utils/buildSearchParams";
 import useStore from "../utils/store";
 import ComboboxFilter from "./ComboxFilter";
 import DateFilter from "./DateFilter";
 import LocationFilter from "./LocationFilter";
 import SelectFilter from "./SelectFilter";
-
-const getAPI = async (path: string): Promise<ApiResponse<AggregationData>> => {
-  const response = await fetch(path, { method: "GET" });
-
-  if (!response.ok) {
-    throw response;
-  }
-  return response.json();
-};
 
 interface FiltersVolontariatProps {
   widget: Widget;
@@ -60,44 +53,10 @@ const FiltersVolontariat = ({ widget, apiUrl, values, total, onChange, show, onS
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const searchParams = new URLSearchParams();
-
-        if (values.accessibility && values.accessibility.value) {
-          searchParams.append("accessibility", values.accessibility.value.toString());
-        }
-        if (values.duration && values.duration.value) {
-          searchParams.append("duration", values.duration.value.toString());
-        }
-        if (values.minor && values.minor.value) {
-          searchParams.append("minor", values.minor.value.toString());
-        }
-        if (values.schedule && values.schedule.value) {
-          searchParams.append("schedule", values.schedule.value.toString());
-        }
-        if (values.start && values.start.value) {
-          searchParams.append("start", values.start.value.toISOString());
-        }
-
-        if (values.action && values.action.length) {
-          values.action.filter((o) => o.value).forEach((o) => searchParams.append("action", o.value.toString() || ""));
-        }
-        if (values.beneficiary && values.beneficiary.length) {
-          values.beneficiary.forEach((o) => searchParams.append("beneficiary", o.value.toString() || ""));
-        }
-        if (values.country && values.country.length) {
-          values.country.forEach((o) => searchParams.append("country", o.value.toString() || ""));
-        }
-        if (values.domain && values.domain.length) {
-          values.domain.forEach((o) => searchParams.append("domain", o.value.toString() || ""));
-        }
-
-        if (values.location && values.location.lat && values.location.lon) {
-          searchParams.append("lat", values.location.lat.toString());
-          searchParams.append("lon", values.location.lon.toString());
-        }
+        const searchParams = buildSearchParams(values, false);
         ["accessibility", "action", "beneficiary", "country", "domain", "minor", "schedule"].forEach((key) => searchParams.append("aggs", key));
 
-        const { ok, data } = await getAPI(`${apiUrl}/iframe/${widget.id}/aggs?${searchParams.toString()}`);
+        const { ok, data } = await fetchAggs(apiUrl, widget.id, searchParams);
 
         if (!ok) {
           throw Error("Error fetching aggs");

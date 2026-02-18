@@ -115,6 +115,7 @@ const Flux = () => {
           onPageChange={(page) => setFilters({ ...filters, page })}
           total={total}
           loading={loading}
+          auto
         >
           {imports.map((item, i) => (
             <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>

@@ -23,7 +23,7 @@ const Select = ({ options, value, onChange, className, placeholder = "Sélection
   return (
     <Listbox as="div" className="w-full" value={selected} onChange={handleChange}>
       <div className="relative w-full">
-        <ListboxButton className={`select relative w-full px-4 py-2 ${selected ? "pr-16" : ""} truncate text-left`} aria-label={placeholder}>
+        <ListboxButton className={`select relative w-full px-4 py-2 ${selected ? "pr-16" : ""} overflow-hidden text-ellipsis text-left`} aria-label={placeholder}>
           {selected ? selected.label : placeholder}
           <RiArrowDownSLine className="absolute top-1/2 right-4 -translate-y-1/2 transform text-lg" />
         </ListboxButton>

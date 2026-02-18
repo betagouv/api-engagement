@@ -161,7 +161,7 @@ export const createTestMission = async (data: Partial<MissionCreateInput & { del
     domain: data.domain ?? "bricolage",
     domainOriginal: data.domainOriginal,
     domainLogo: data.domainLogo ?? "https://example.com/logo.png",
-    activity: data.activity ?? "environnement",
+    activities: data.activities ?? ["environnement"],
     type: data.type ?? MissionType.BENEVOLAT,
     snu: data.snu ?? false,
     snuPlaces: data.snuPlaces ?? 0,
@@ -190,9 +190,11 @@ export const createTestMission = async (data: Partial<MissionCreateInput & { del
   };
 
   const domainName = missionInput.domain?.trim();
-  const activityName = missionInput.activity?.trim();
   const domainId = domainName ? await resolveDomainId(domainName) : null;
-  const activityId = activityName ? await resolveActivityId(activityName) : null;
+  const activityIds: string[] = [];
+  for (const name of missionInput.activities ?? []) {
+    activityIds.push(await resolveActivityId(name.trim()));
+  }
   const addressesForCreate = mapAddressesForCreate(addresses);
 
   let publisherOrganizationId: string | null = null;
@@ -223,12 +225,12 @@ export const createTestMission = async (data: Partial<MissionCreateInput & { del
     publisherOrganizationId = pubOrg.id;
   }
 
+  const missionId = missionInput.id ?? randomUUID();
   await missionRepository.createUnchecked({
-    id: missionInput.id ?? randomUUID(),
+    id: missionId,
     clientId: missionInput.clientId,
     publisherId: missionInput.publisherId,
     domainId,
-    activityId,
     title: missionInput.title,
     statusCode: missionInput.statusCode ?? "ACCEPTED",
     description: missionInput.description ?? "",
@@ -270,7 +272,14 @@ export const createTestMission = async (data: Partial<MissionCreateInput & { del
     addresses: addressesForCreate.length ? { create: addressesForCreate } : undefined,
   });
 
-  const mission = await missionService.findOneMission(missionInput.id ?? "");
+  if (activityIds.length) {
+    await prismaCore.missionActivity.createMany({
+      data: activityIds.map((activityId) => ({ missionId, activityId })),
+      skipDuplicates: true,
+    });
+  }
+
+  const mission = await missionService.findOneMission(missionId);
   if (!mission) {
     throw new Error("[fixtures] Mission introuvable après création.");
   }

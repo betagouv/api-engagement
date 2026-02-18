@@ -110,7 +110,7 @@ const AdminMission = () => {
         d["Organisation"] = mission.organizationName;
         d["Ville"] = `${mission.city} - ${mission.country}`;
         d["Domaine"] = mission.domain;
-        d["Activité"] = mission.activity;
+        d["Activité"] = (mission.activities || []).join(", ");
         d["Statut"] = mission.statusCode;
         d["Commentaire statut"] = mission.statusComment;
         d["Créée le"] = new Date(mission.createdAt).toLocaleDateString("fr");

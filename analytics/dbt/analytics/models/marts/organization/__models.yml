@@ -79,7 +79,7 @@ models:
       - name: is_all_department
         description: TRUE pour l’agrégat national, FALSE pour l’agrégat départemental.
       - name: department
-        description: Code département (null si national).
+        description: Code département (`all` si national).
       - name: publisher_category
         description: Catégorie (benevolat / volontariat / all).
       - name: organization_count

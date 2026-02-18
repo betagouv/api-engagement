@@ -47,6 +47,10 @@ export const missionModerationStatusRepository = {
       _count: true,
     });
   },
+
+  async upsertMany(inputs: Prisma.MissionModerationStatusUpsertArgs[]): Promise<MissionModerationStatus[]> {
+    return prismaCore.$transaction(inputs.map((input) => prismaCore.missionModerationStatus.upsert(input)));
+  },
 };
 
 export default missionModerationStatusRepository;
