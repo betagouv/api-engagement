@@ -13,6 +13,7 @@ const MISSION_SELECT: MissionSelect = {
   startAt: true,
   endAt: true,
   description: true,
+  addresses: { select: { city: true } },
   moderationStatuses: { select: { status: true, comment: true, note: true, publisherId: true } },
 };
 
