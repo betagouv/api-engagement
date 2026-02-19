@@ -670,8 +670,7 @@ model Mission {
 model PublisherOrganization {
   id                  String   @id @default(uuid())
   publisherId         String   @map("publisher_id")
-  // TODO after migration: make clientId required
-  clientId            String?  @map("client_id")
+  clientId            String   @map("client_id")
   name                String?  @map("name")
   rna                 String?  @map("rna")
   siren               String?  @map("siren")
@@ -693,7 +692,7 @@ model PublisherOrganization {
   organizationDepartmentCode         String?  @map("organization_department_code")
   organizationDepartmentName         String?  @map("organization_department_name")
   organizationNameVerified           String?  @map("organization_name_verified")
-  organizationRNAVerified           String?  @map("organization_rna_verified")
+  organizationRNAVerified            String?  @map("organization_rna_verified")
   organizationSirenVerified          String?  @map("organization_siren_verified")
   organizationSiretVerified          String?  @map("organization_siret_verified")
   organizationAddressVerified        String?  @map("organization_address_verified")
@@ -714,7 +713,7 @@ model PublisherOrganization {
   missions             Mission[]     @relation("MissionPublisherOrganization")
   organizationVerified Organization? @relation(fields: [organizationIdVerified], references: [id])
 
-  @@unique([publisherId, clientId], map: "publisher_organization_publisher_id_organization_client_id_key")
+  @@unique([publisherId, clientId], map: "publisher_organization_publisher_id_client_id_key")
   @@index([publisherId], map: "publisher_organization_publisher_id_idx")
   @@index([name], map: "publisher_organization_name_idx")
   @@map("publisher_organization")

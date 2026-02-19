@@ -49,4 +49,4 @@ ALTER TABLE "mission" ADD CONSTRAINT "mission_publisher_organization_id_fkey" FO
 ALTER TABLE "publisher_organization" ADD CONSTRAINT "publisher_organization_organization_id_verified_fkey" FOREIGN KEY ("organization_id_verified") REFERENCES "organization"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- RenameIndex
-ALTER INDEX "publisher_organization_publisher_id_org_client_id_key" RENAME TO "publisher_organization_publisher_id_organization_client_id_key";
+ALTER INDEX "publisher_organization_publisher_id_org_client_id_key" RENAME TO "publisher_organization_publisher_id_client_id_key";

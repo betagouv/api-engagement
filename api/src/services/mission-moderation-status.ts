@@ -146,7 +146,7 @@ export const missionModerationStatusService = {
 
     const [orgResults, deptResults, cityResults] = await Promise.all([
       // MissionAddress aggregations
-      publisherOrganizationRepository.groupBy(["organizationName"], { missions: { some: missionWhere } } as Prisma.PublisherOrganizationWhereInput),
+      publisherOrganizationRepository.groupBy(["name"], { missions: { some: missionWhere } } as Prisma.PublisherOrganizationWhereInput),
       missionAddressRepository.groupBy(["departmentCode"], { mission: missionWhere as Prisma.MissionWhereInput } as Prisma.MissionAddressWhereInput),
       missionAddressRepository.groupBy(["city"], { mission: missionWhere as Prisma.MissionWhereInput } as Prisma.MissionAddressWhereInput),
     ]);
@@ -177,7 +177,7 @@ export const missionModerationStatusService = {
         .sort((a, b) => b.doc_count - a.doc_count),
       organizations: toAggItems(
         orgResults,
-        (r) => r.organizationName,
+        (r) => r.name,
         (r) => r._count
       ),
       domains: domainResults.map((r) => ({ key: r.domainId ? (domainMap.get(r.domainId) ?? "") : "", doc_count: r._count })).sort((a, b) => b.doc_count - a.doc_count),
@@ -271,21 +271,21 @@ export const missionModerationStatusService = {
     };
 
     if (filters.organizationName) {
-      where.mission.publisherOrganization = { is: { organizationName: { contains: filters.organizationName, mode: "insensitive" } } } as Prisma.PublisherOrganizationWhereInput;
+      where.mission.publisherOrganization = { is: { name: { contains: filters.organizationName, mode: "insensitive" } } } as Prisma.PublisherOrganizationWhereInput;
     }
 
     const results = await missionModerationStatusRepository.findMany({
       where,
       select: {
         status: true,
-        mission: { select: { publisherOrganization: { select: { organizationName: true } } } },
+        mission: { select: { publisherOrganization: { select: { name: true } } } },
       },
     });
 
     const aggregation: Record<string, { total: number; ACCEPTED: number; REFUSED: number }> = {};
 
     for (const item of results) {
-      const orgName = (item as any).mission?.publisherOrganization?.organizationName;
+      const orgName = (item as any).mission?.publisherOrganization?.name;
       if (!orgName) {
         continue;
       }

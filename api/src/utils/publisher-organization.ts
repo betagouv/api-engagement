@@ -1,4 +1,5 @@
 import { PublisherOrganizationRecord } from "../types/publisher-organization";
+import { parseDate } from "./string";
 
 export const IMPORT_FIELDS_TO_COMPARE = [
   "name",
@@ -72,13 +73,6 @@ export const getPublisherOrganizationChanges = (
   }
 
   return Object.keys(changes).length > 0 ? changes : null;
-};
-
-const parseDate = (value: string | Date | undefined) => {
-  if (!value) {
-    return null;
-  }
-  return isNaN(new Date(value).getTime()) ? null : new Date(value);
 };
 
 const areDatesEqual = (previousDate: Date | string | undefined, currentDate: Date | string | undefined) => {

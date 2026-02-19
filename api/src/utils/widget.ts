@@ -33,12 +33,12 @@ const FIELD_TO_PRISMA_PATH: Record<string, (condition: any) => Prisma.MissionWhe
   postalCode: (condition) => ({ addresses: { some: { postalCode: condition } } }),
   departmentName: (condition) => ({ addresses: { some: { departmentName: condition } } }),
   regionName: (condition) => ({ addresses: { some: { region: condition } } }),
-  associationName: (condition) => ({ publisherOrganization: { is: { organizationName: condition } } }),
-  associationReseaux: (condition) => ({ publisherOrganization: { is: { organizationReseaux: condition } } }),
-  organizationName: (condition) => ({ publisherOrganization: { is: { organizationName: condition } } }),
-  organizationNetwork: (condition) => ({ publisherOrganization: { is: { organizationReseaux: condition } } }),
-  organizationReseaux: (condition) => ({ publisherOrganization: { is: { organizationReseaux: condition } } }),
-  organizationActions: (condition) => ({ publisherOrganization: { is: { organizationActions: condition } } }),
+  associationName: (condition) => ({ publisherOrganization: { is: { name: condition } } }),
+  associationReseaux: (condition) => ({ publisherOrganization: { is: { parentOrganizations: condition } } }),
+  organizationName: (condition) => ({ publisherOrganization: { is: { name: condition } } }),
+  organizationNetwork: (condition) => ({ publisherOrganization: { is: { parentOrganizations: condition } } }),
+  organizationReseaux: (condition) => ({ publisherOrganization: { is: { parentOrganizations: condition } } }),
+  organizationActions: (condition) => ({ publisherOrganization: { is: { actions: condition } } }),
 };
 
 /**
@@ -139,9 +139,7 @@ export const applyWidgetRules = (rules: WidgetRule[]): Prisma.MissionWhereInput 
   const publisherOrganizationAnd: Prisma.PublisherOrganizationWhereInput[] = [];
   const publisherOrganizationOr: Prisma.PublisherOrganizationWhereInput[] = [];
 
-  const extractPublisherOrganizationCondition = (
-    condition: Prisma.MissionWhereInput
-  ): Prisma.PublisherOrganizationWhereInput | null => {
+  const extractPublisherOrganizationCondition = (condition: Prisma.MissionWhereInput): Prisma.PublisherOrganizationWhereInput | null => {
     const keys = Object.keys(condition);
     if (keys.length !== 1 || keys[0] !== "publisherOrganization") {
       return null;

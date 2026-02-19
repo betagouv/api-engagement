@@ -99,11 +99,11 @@ export const buildWhere = (filters: ModerationFilters): { where: Prisma.MissionM
   if (filters.search) {
     where.mission!.OR = [
       { title: { contains: filters.search, mode: "insensitive" } },
-      { publisherOrganization: { is: { organizationName: { contains: filters.search, mode: "insensitive" } } } },
+      { publisherOrganization: { is: { name: { contains: filters.search, mode: "insensitive" } } } },
     ];
     missionWhere.OR = [
       { title: { contains: filters.search, mode: "insensitive" } },
-      { publisherOrganization: { is: { organizationName: { contains: filters.search, mode: "insensitive" } } } },
+      { publisherOrganization: { is: { name: { contains: filters.search, mode: "insensitive" } } } },
     ];
   }
 

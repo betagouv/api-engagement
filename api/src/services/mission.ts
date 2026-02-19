@@ -353,7 +353,7 @@ export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereIn
       {
         OR: [
           { title: { contains: keywords, mode: "insensitive" } },
-          { publisherOrganization: { is: { organizationName: { contains: keywords, mode: "insensitive" } } } },
+          { publisherOrganization: { is: { name: { contains: keywords, mode: "insensitive" } } } },
           { addresses: { some: { city: { contains: keywords, mode: "insensitive" } } } },
           { domain: { is: { name: { contains: keywords, mode: "insensitive" } } } },
         ],
@@ -363,8 +363,8 @@ export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereIn
 
   if (filters.excludeOrganizationName) {
     const organizationWhere = (where.publisherOrganization?.is as Prisma.PublisherOrganizationWhereInput | undefined) ?? {};
-    const nameFilter = (organizationWhere.organizationName as Prisma.StringFilter | undefined) ?? {};
-    organizationWhere.organizationName = { ...nameFilter, not: filters.excludeOrganizationName };
+    const nameFilter = (organizationWhere.name as Prisma.StringFilter | undefined) ?? {};
+    organizationWhere.name = { ...nameFilter, not: filters.excludeOrganizationName };
     where.publisherOrganization = { is: organizationWhere };
   }
 

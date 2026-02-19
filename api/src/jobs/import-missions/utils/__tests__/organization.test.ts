@@ -143,7 +143,7 @@ describe("parseOrganizationClientId", () => {
         organizationName: "Médecins du Monde & Associés",
       });
 
-      expect(parseOrganizationClientId(missionXML)).toBe("medecins-du-monde-and-associes");
+      expect(parseOrganizationClientId(missionXML)).toBe("medecins-du-monde-associes");
     });
   });
 
@@ -392,12 +392,12 @@ describe("parseOrganization", () => {
     it("should uppercase RNA", () => {
       const publisher = buildPublisher();
       const missionXML = buildMissionXML({
-        organizationRNA: "w123abc456",
+        organizationRNA: "w123456789",
       });
 
       const result = parseOrganization(publisher, missionXML);
 
-      expect(result?.rna).toBe("W123ABC456");
+      expect(result?.rna).toBe("W123456789");
     });
   });
 

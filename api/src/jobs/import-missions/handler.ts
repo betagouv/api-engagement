@@ -173,7 +173,7 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
       const existingMap = new Map(existingMissions.map((m) => [m.clientId, m]));
 
       const missions = [] as ImportedMission[];
-      const organizations = [] as ImportedOrganization[];
+      const organizations = new Map<string, ImportedOrganization>();
 
       for (let j = 0; j < chunk.length; j++) {
         const missionXML = chunk[j];
@@ -187,7 +187,7 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
         if (!organization) {
           continue;
         }
-        organizations.push(organization);
+        organizations.set(organization.clientId, organization);
 
         const existing = existingMap.get(clientId);
         const mission = parseMission(publisher, { ...missionXML, clientId }, (existing as any) || null, startTime);
@@ -221,17 +221,17 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
       });
 
       // UPSERT ORGANIZATIONS
-      console.log(`[${publisher.name}] Upserting ${organizations.length} organizations`);
+      console.log(`[${publisher.name}] Upserting ${organizations.size} organizations`);
       const existingOrganizations = await publisherOrganizationService.findMany({
         publisherId: publisher.id,
-        clientIds: organizations.map((o) => o.clientId?.toString() || "").filter((c) => c.length > 0),
+        clientIds: Array.from(organizations.keys()),
       });
       const existingOrganizationsMap = new Map(existingOrganizations.map((o) => [o.clientId, o]));
       console.log(`[${publisher.name}] Found ${existingOrganizations.length} existing organizations`);
       let createdOrganizationsCount = 0;
       let updatedOrganizationsCount = 0;
       let unchangedOrganizationsCount = 0;
-      for (const organization of organizations) {
+      for (const organization of organizations.values()) {
         const existing = existingOrganizationsMap.get(organization.clientId) || null;
         const result = await upsertOrganization(organization, existing);
         if (result.action === "unchanged") {

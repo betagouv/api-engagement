@@ -23,7 +23,7 @@ export interface PublisherOrganizationFindManyOptions {
 export interface PublisherOrganizationRecord {
   id: string;
   publisherId: string;
-  clientId: string | null;
+  clientId: string;
   name: string | null;
   rna: string | null;
   siren: string | null;

@@ -201,9 +201,9 @@ export const createTestMission = async (data: Partial<MissionCreateInput & { del
   if (missionInput.organizationClientId) {
     const pubOrg = await prismaCore.publisherOrganization.upsert({
       where: {
-        publisherId_organizationClientId: {
+        publisherId_clientId: {
           publisherId: missionInput.publisherId,
-          organizationClientId: missionInput.organizationClientId,
+          clientId: missionInput.organizationClientId,
         },
       },
       create: {

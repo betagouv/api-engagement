@@ -89,3 +89,10 @@ export const cleanIdParam = (param: string): string => {
 };
 
 export const isBlank = (value?: string | null) => value === null || value === undefined || value === "";
+
+export const parseDate = (value: string | Date | undefined) => {
+  if (!value) {
+    return null;
+  }
+  return isNaN(new Date(value).getTime()) ? null : new Date(value);
+};
