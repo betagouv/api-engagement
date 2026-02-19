@@ -2,13 +2,13 @@ import { useEffect, useState } from "react";
 import { RiAddFill, RiEditFill, RiEyeFill, RiSearchLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
 
-import Loader from "../../components/Loader";
-import Table from "../../components/Table";
-import Toggle from "../../components/Toggle";
-import api from "../../services/api";
-import { BENEVOLAT_URL, VOLONTARIAT_URL } from "../../services/config";
-import { captureError } from "../../services/error";
-import useStore from "../../services/store";
+import Loader from "@/components/Loader";
+import Table from "@/components/Table";
+import Toggle from "@/components/Toggle";
+import api from "@/services/api";
+import { BENEVOLAT_URL, VOLONTARIAT_URL } from "@/services/config";
+import { captureError } from "@/services/error";
+import useStore from "@/services/store";
 
 const TABLE_HEADER = [{ title: "Nom", colSpan: 3 }, { title: "Diffuse des missions de", colSpan: 2 }, { title: "Crée le" }, { title: "Actions" }, { title: "Actif" }];
 

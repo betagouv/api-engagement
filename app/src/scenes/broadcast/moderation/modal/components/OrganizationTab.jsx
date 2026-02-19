@@ -5,7 +5,7 @@ import Combobox from "@/components/combobox";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
-import { DOMAINS } from "../../components/Constants";
+import { DOMAINS } from "@/scenes/broadcast/moderation/components/Constants";
 
 const OrganizationTab = ({ data, onChange }) => {
   const { publisher } = useStore();

@@ -1,6 +1,6 @@
 import * as Sentry from "@sentry/react";
-import { toast } from "./toast";
-import { ENV } from "./config";
+import { toast } from "@/services/toast";
+import { ENV } from "@/services/config";
 
 export const captureError = (error, context = { message: "Une erreur est survenue" }, toastOptions = {}) => {
   // Ignore AbortError - these are expected when requests are cancelled

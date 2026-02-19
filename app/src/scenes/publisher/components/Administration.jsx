@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import Toggle from "../../../components/Toggle";
-import api from "../../../services/api";
-import { captureError } from "../../../services/error";
+import Toggle from "@/components/Toggle";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
 
 const Administration = ({ values, onChange }) => {
   const [excludedOrganizations, setExcludedOrganizations] = useState([]);

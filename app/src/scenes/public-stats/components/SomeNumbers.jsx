@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { RiQuestionLine } from "react-icons/ri";
 
-import Loader from "../../../components/Loader";
-import Tooltip from "../../../components/Tooltip";
-import { DEPARTMENT_NAMES, METABASE_CARD_ID, MONTHS } from "../../../constants";
-import { useAnalyticsProvider } from "../../../services/analytics/provider";
-import { captureError } from "../../../services/error";
-import AnalyticsCard from "../../performance/AnalyticsCard";
+import Loader from "@/components/Loader";
+import Tooltip from "@/components/Tooltip";
+import { DEPARTMENT_NAMES, METABASE_CARD_ID, MONTHS } from "@/constants";
+import { useAnalyticsProvider } from "@/services/analytics/provider";
+import { captureError } from "@/services/error";
+import AnalyticsCard from "@/scenes/performance/AnalyticsCard";
 
 const SomeNumbers = ({ filters, onFiltersChange }) => {
   const CHART_COLOR = "#000091";

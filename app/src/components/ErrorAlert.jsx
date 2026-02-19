@@ -1,6 +1,6 @@
 import { RiCloseFill } from "react-icons/ri";
 
-import ErrorIconSvg from "../assets/svg/error-icon.svg?react";
+import ErrorIconSvg from "@/assets/svg/error-icon.svg?react";
 
 const ErrorAlert = ({ children, onClose }) => {
   return (

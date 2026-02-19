@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import { RiCheckboxCircleFill, RiCloseFill } from "react-icons/ri";
 
-import APILogo from "../../assets/svg/logo.svg";
-import Loader from "../../components/Loader";
-import Select from "../../components/Select";
-import { DAYS, MONTHS, WARNINGS, YEARS } from "../../constants";
-import api from "../../services/api";
-import { captureError } from "../../services/error";
-import { slugify } from "../../services/utils";
-import { withLegacyPublishers } from "../../utils/publisher";
-import Bots from "./components/Bots";
+import APILogo from "@/assets/svg/logo.svg";
+import Loader from "@/components/Loader";
+import Select from "@/components/Select";
+import { DAYS, MONTHS, WARNINGS, YEARS } from "@/constants";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import { slugify } from "@/services/utils";
+import { withLegacyPublishers } from "@/utils/publisher";
+import Bots from "@/scenes/admin-warning/components/Bots";
 
 const Index = () => {
   const [currentWarnings, setCurrentWarnings] = useState([]);

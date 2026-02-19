@@ -3,10 +3,10 @@ import { useEffect, useRef, useState } from "react";
 import { RiArrowDownSFill, RiArrowDownSLine, RiArrowLeftRightLine, RiCheckLine, RiSearchLine } from "react-icons/ri";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
-import api from "../services/api";
-import { captureError } from "../services/error";
-import useStore from "../services/store";
-import { withLegacyPublishers } from "../utils/publisher";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import useStore from "@/services/store";
+import { withLegacyPublishers } from "@/utils/publisher";
 
 const Nav = () => {
   const { user, publisher, flux, setPublisher, setFlux } = useStore();

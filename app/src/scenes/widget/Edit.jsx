@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { RiArrowLeftLine, RiCodeSSlashFill } from "react-icons/ri";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { toast } from "../../services/toast";
+import { toast } from "@/services/toast";
 
 import Toggle from "@/components/Toggle";
 import api from "@/services/api";
 import { BENEVOLAT_URL, VOLONTARIAT_URL } from "@/services/config";
 import { captureError } from "@/services/error";
-import Settings from "./components/Settings";
+import Settings from "@/scenes/widget/components/Settings";
 
 const Edit = () => {
   const navigate = useNavigate();

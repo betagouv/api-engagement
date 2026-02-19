@@ -1,13 +1,13 @@
 import { useEffect } from "react";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 
-import Api from "./Api";
-import Campaigns from "./Campaigns";
-import Widgets from "./Widgets";
+import Api from "@/scenes/broadcast/Api";
+import Campaigns from "@/scenes/broadcast/Campaigns";
+import Widgets from "@/scenes/broadcast/Widgets";
 
-import Tabs from "../../components/Tabs";
-import useStore from "../../services/store";
-import Moderation from "./moderation";
+import Tabs from "@/components/Tabs";
+import useStore from "@/services/store";
+import Moderation from "@/scenes/broadcast/moderation";
 
 const Index = () => {
   const { publisher } = useStore();

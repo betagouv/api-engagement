@@ -1,4 +1,4 @@
-import metabaseProvider from "./providers/metabase/provider";
+import metabaseProvider from "@/services/analytics/providers/metabase/provider";
 
 const defaultAnalyticsProvider = metabaseProvider;
 

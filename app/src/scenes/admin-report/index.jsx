@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
 import { RiDownload2Line } from "react-icons/ri";
-import Combobox from "../../components/combobox";
-import Select from "../../components/Select";
-import Table from "../../components/Table";
-import { MONTHS, REPORT_STATUS, YEARS } from "../../constants";
-import api from "../../services/api";
-import { captureError } from "../../services/error";
+import Combobox from "@/components/combobox";
+import Select from "@/components/Select";
+import Table from "@/components/Table";
+import { MONTHS, REPORT_STATUS, YEARS } from "@/constants";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
 
 const TABLE_HEADER = [{ title: "Partenaire", key: "publisherName" }, { title: "Statut", key: "status" }, { title: "Stat" }];
 

@@ -1,4 +1,4 @@
-import api from "../../../api";
+import api from "@/services/api";
 
 export const queryCard = async (cardId, { parameters = [], variables = {}, body = {}, signal } = {}) => {
   const payload = { ...body };

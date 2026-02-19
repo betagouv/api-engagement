@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { RiCheckboxCircleFill } from "react-icons/ri";
-import Loader from "../../../components/Loader";
-import api from "../../../services/api";
-import { captureError } from "../../../services/error";
+import Loader from "@/components/Loader";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
 
 const Bots = () => {
   const [bots, setBots] = useState([]);

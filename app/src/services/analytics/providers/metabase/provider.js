@@ -1,5 +1,5 @@
-import { adaptBarFromMetabase, adaptKpiFromMetabase, adaptPieFromMetabase, adaptStackedBarFromMetabase, adaptTableFromMetabase } from "./adapters";
-import { queryCard } from "./client";
+import { adaptBarFromMetabase, adaptKpiFromMetabase, adaptPieFromMetabase, adaptStackedBarFromMetabase, adaptTableFromMetabase } from "@/services/analytics/providers/metabase/adapters";
+import { queryCard } from "@/services/analytics/providers/metabase/client";
 
 const DEFAULT_ADAPTERS = {
   pie: adaptPieFromMetabase,

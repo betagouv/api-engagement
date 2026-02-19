@@ -1,6 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 
-import View from "./View";
+import View from "@/scenes/mission/View";
 
 const Mission = () => {
   return (

@@ -1,7 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 
-import Edit from "./Edit";
-import New from "./New";
+import Edit from "@/scenes/widget/Edit";
+import New from "@/scenes/widget/New";
 
 const Widget = () => {
   return (

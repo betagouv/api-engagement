@@ -1,5 +1,5 @@
-import { captureError } from "../../services/error";
-import Combobox from "./index";
+import { captureError } from "@/services/error";
+import Combobox from "@/components/combobox/index";
 
 const LocationCombobox = ({ id, selected, onSelect, placeholder, className }) => {
   const fetchLocasions = async (search) => {

@@ -1,6 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 
-import Apercu from "./Apercu";
+import Apercu from "@/scenes/admin-stats/Apercu";
 
 const Index = () => (
   <div className="space-y-12">

@@ -2,12 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { RiCheckboxFill, RiCheckboxIndeterminateFill } from "react-icons/ri";
 import { toast } from "@/services/toast";
 
-import Loader from "../../../../components/Loader";
-import Modal from "../../../../components/Modal";
-import api from "../../../../services/api";
-import { captureError } from "../../../../services/error";
-import useStore from "../../../../services/store";
-import { JVA_MODERATION_COMMENTS_LABELS, STATUS, STATUS_CLASSES } from "./Constants";
+import Loader from "@/components/Loader";
+import Modal from "@/components/Modal";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import useStore from "@/services/store";
+import { JVA_MODERATION_COMMENTS_LABELS, STATUS, STATUS_CLASSES } from "@/scenes/broadcast/moderation/components/Constants";
 
 const Header = ({ total, data, size, sort, selected, onSize, onSort, onSelect, onChangeMany }) => {
   const headerRef = useRef(null);

@@ -1,8 +1,8 @@
 import { Route, Routes, useLocation } from "react-router-dom";
 
-import Publishers from "./Publishers";
-import Users from "./Users";
-import Tabs from "../../components/Tabs";
+import Publishers from "@/scenes/admin-account/Publishers";
+import Users from "@/scenes/admin-account/Users";
+import Tabs from "@/components/Tabs";
 
 const Index = () => {
   const location = useLocation();

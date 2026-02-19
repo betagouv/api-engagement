@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 
 import { useSearchParams } from "react-router-dom";
-import dataViz from "../../assets/svg/data-visualization.svg";
-import APILogo from "../../assets/svg/logo.svg";
-import Distribution from "./components/Distribution";
-import SomeNumbers from "./components/SomeNumbers";
+import dataViz from "@/assets/svg/data-visualization.svg";
+import APILogo from "@/assets/svg/logo.svg";
+import Distribution from "@/scenes/public-stats/components/Distribution";
+import SomeNumbers from "@/scenes/public-stats/components/SomeNumbers";
 
 const PublicStats = () => {
   const [searchParams, setSearchParams] = useSearchParams();

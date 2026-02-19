@@ -1,14 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { RiInformationFill } from "react-icons/ri";
 
-import Tooltip from "./Tooltip";
+import Tooltip from "@/components/Tooltip";
 
-import EmptySVG from "../assets/svg/empty-info.svg";
-import { useAnalyticsProvider } from "../services/analytics/provider";
-import { captureError } from "../services/error";
-import { COLORS as CHART_COLORS, Pie, BarChart as SimpleBarChart, StackedBarchart } from "./Chart";
-import Loader from "./Loader";
-import Table from "./Table";
+import EmptySVG from "@/assets/svg/empty-info.svg";
+import { useAnalyticsProvider } from "@/services/analytics/provider";
+import { captureError } from "@/services/error";
+import { COLORS as CHART_COLORS, Pie, BarChart as SimpleBarChart, StackedBarchart } from "@/components/Chart";
+import Loader from "@/components/Loader";
+import Table from "@/components/Table";
 
 const AnalyticsViz = ({
   cardId,

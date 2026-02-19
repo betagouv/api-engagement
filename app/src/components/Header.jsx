@@ -3,12 +3,12 @@ import { useEffect, useState } from "react";
 import { RiArrowDownSLine, RiArrowDropRightLine, RiBookletLine, RiDashboard3Line, RiUserLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
 
-import LogoSvg from "../assets/svg/logo.svg?react";
-import { WARNINGS } from "../constants";
-import api from "../services/api";
-import { captureError } from "../services/error";
-import useStore from "../services/store";
-import { slugify } from "../services/utils";
+import LogoSvg from "@/assets/svg/logo.svg?react";
+import { WARNINGS } from "@/constants";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import useStore from "@/services/store";
+import { slugify } from "@/services/utils";
 
 const Header = () => {
   const { user } = useStore();
