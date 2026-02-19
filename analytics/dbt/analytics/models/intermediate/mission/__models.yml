@@ -241,3 +241,35 @@ models:
         description: Timestamp de dernière mise à jour propagé mission/événements.
         tests:
           - not_null
+  - name: int_mission_click_apply_stats
+    description: >
+      Vue intermédiaire au grain mission + diffuseur + source qui calcule, à partir
+      des candidatures, le nombre de clics ayant au moins une candidature et ceux
+      ayant plusieurs candidatures.
+    columns:
+      - name: mission_id
+        description: Identifiant de la mission.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('mission')
+                field: id
+      - name: from_publisher_id
+        description: Identifiant du diffuseur à l'origine de la candidature (nullable).
+      - name: source
+        description: Source normalisée de l'événement (api, widget, campaign).
+      - name: source_id
+        description: Identifiant de la source (nullable).
+      - name: click_with_apply_count
+        description: Nombre de clics avec au moins une candidature.
+        tests:
+          - not_null
+      - name: click_with_multi_apply_count
+        description: Nombre de clics avec plusieurs candidatures (>=2).
+        tests:
+          - not_null
+      - name: updated_at
+        description: Timestamp de dernière mise à jour propagé depuis les candidatures.
+        tests:
+          - not_null
