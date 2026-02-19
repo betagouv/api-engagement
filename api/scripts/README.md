@@ -54,6 +54,19 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
   - Usage: Supprime les organisations en doublon qui n'ont plus de mission rattachée. Par defaut, suppression directe.
   - Options: `--dry-run` pour simuler, `--title` pour cibler un nom précis.
 
+- **fix-mission-event-undelete-type.ts**
+
+  - Exécution:
+    - Exécution réelle (par défaut): `npx ts-node scripts/fix-mission-event-undelete-type.ts`
+    - Preview: `npx ts-node scripts/fix-mission-event-undelete-type.ts --dry-run`
+    - Exécution réelle avec batch: `npx ts-node scripts/fix-mission-event-undelete-type.ts --batch 1000`
+  - Usage: Corrige les lignes `mission_event` incohérentes où `type='delete'` alors que `changes.deletedAt.current = null` et `changes.deletedAt.previous` est non nul. Ces lignes sont passées en `type='update'`.
+  - Options:
+    - `--dry-run` : simule uniquement, sans mise à jour en base.
+    - `--sample <taille>` : taille de l'échantillon affiché avant traitement (défaut: 20).
+    - `--batch <taille>` : taille de lot pour le traitement par pagination/cursor sur `id` (défaut: 1000).
+  - Prérequis: Nécessite l'accès à Postgres `core`.
+
 - **fixtures/**
 
   - Scripts d’initialisation/d’échantillonnage de données (voir `scripts/fixtures/README.md`), dont:

@@ -114,9 +114,10 @@ export const bulkDB = async (
       if (changes) {
         const updated = await missionService.update(current.id, missionInput as MissionUpdatePatch);
         existingMap.set(missionInput.clientId, updated);
+        const isDeletion = changes.deletedAt ? changes.deletedAt.current !== null : false;
         missionEvents.push({
           missionId: current.id,
-          type: changes.deletedAt?.current === null ? EVENT_TYPES.DELETE : EVENT_TYPES.UPDATE,
+          type: isDeletion ? EVENT_TYPES.DELETE : EVENT_TYPES.UPDATE,
           changes,
         });
         importDoc.updatedCount += 1;
