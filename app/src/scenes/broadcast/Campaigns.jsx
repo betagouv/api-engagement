@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { RiAddFill, RiEditFill, RiFileCopyLine, RiLink } from "react-icons/ri";
+import { RiAddFill, RiEditFill, RiFileCopyLine, RiLink, RiPulseLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
 import { toast } from "../../services/toast";
 
@@ -11,10 +11,10 @@ import { captureError } from "../../services/error";
 import useStore from "../../services/store";
 
 const TABLE_HEADER = [
-  { title: "Nom", colSpan: 3 },
+  { title: "Nom", colSpan: 2 },
   { title: "Diffuse des missions de", colSpan: 2 },
   { title: "Crée le", colSpan: 1 },
-  { title: "Actions", colSpan: 2 },
+  { title: "Actions", colSpan: 3 },
   { title: "Actif", colSpan: 1 },
 ];
 
@@ -145,16 +145,16 @@ const Campaigns = () => {
         <Table header={TABLE_HEADER} pagination page={filters.page} pageSize={filters.pageSize} onPageChange={(page) => setFilters({ ...filters, page })} total={data.length} auto>
           {data.slice((filters.page - 1) * filters.pageSize, filters.page * filters.pageSize).map((item, i) => (
             <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
-              <td className="truncate px-4" colSpan={3}>
-                <Link to={`/broadcast/campaign/${item.id}`} className="text-blue-france">
+              <td className="px-4 py-3" colSpan={2}>
+                <Link to={`/broadcast/campaign/${item.id}`} className="text-blue-france break-words">
                   {item.name}
                 </Link>
               </td>
-              <td className={`px-4 ${!item.active ? "opacity-50" : "opacity-100"}`} colSpan={2}>
+              <td className={`px-4 py-3 ${!item.active ? "opacity-50" : "opacity-100"}`} colSpan={2}>
                 {item.toPublisherName}
               </td>
-              <td className={`px-4 ${!item.active ? "opacity-50" : "opacity-100"}`}>{new Date(item.createdAt).toLocaleDateString("fr")}</td>
-              <td colSpan={2} className="px-4">
+              <td className={`px-4 py-3 ${!item.active ? "opacity-50" : "opacity-100"}`}>{new Date(item.createdAt).toLocaleDateString("fr")}</td>
+              <td colSpan={3} className="px-4 py-3">
                 <div className="flex gap-2 text-lg">
                   <Link className="secondary-btn flex items-center" to={`/broadcast/campaign/${item.id}`}>
                     <RiEditFill className="text-lg" role="img" aria-label="Modifier la campagne" />
@@ -165,10 +165,13 @@ const Campaigns = () => {
                   <button className="secondary-btn flex items-center" onClick={() => handleDuplicate(item.id)}>
                     <RiFileCopyLine className="text-lg" role="img" aria-label="Dupliquer la campagne" />
                   </button>
+                  <Link className="secondary-btn flex items-center" to={`/settings/real-time?sourceId=${item.id}&sourceType=campaign`}>
+                    <RiPulseLine className="text-lg" role="img" aria-label={`Voir les événements en direct de la campagne ${item.name || ""}`.trim()} />
+                  </Link>
                 </div>
               </td>
               {user.role === "admin" && (
-                <td className="px-4">
+                <td className="px-4 py-3">
                   <Toggle
                     aria-label={`${item.active ? "Désactiver" : "Activer"} la campagne ${item.name || ""}`.trim()}
                     value={item.active}
