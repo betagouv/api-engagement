@@ -75,9 +75,9 @@ const MissionModal = ({ onChange }) => {
       <DialogBackdrop className="fixed inset-0 bg-black/30" />
       <div className="fixed inset-0 flex w-screen items-center justify-center">
         <DialogPanel transition className="bg-beige-gris-galet-975 h-full w-full backdrop-blur-2xl duration-300 ease-out data-closed:transform-[scale(95%)] data-closed:opacity-0">
-          <div className="absolute top-5 right-5 cursor-pointer p-3">
-            <HiX className="text-blue-france text-lg" onClick={handleClose} />
-          </div>
+          <button type="button" className="absolute top-5 right-5 cursor-pointer p-3" onClick={handleClose} aria-label="Fermer">
+            <HiX className="text-blue-france text-lg" aria-hidden="true" />
+          </button>
           <div className="max-h-full overflow-y-auto px-20">
             <Header
               data={data}
@@ -92,11 +92,11 @@ const MissionModal = ({ onChange }) => {
             />
 
             <div className="mt-8 flex w-full flex-1 flex-col">
-              <nav role="navigation" aria-label="Onglets de modération" className="flex items-center space-x-2 pl-4 font-semibold text-black">
+              <div role="tablist" aria-label="Onglets de modération" className="flex items-center space-x-2 pl-4 font-semibold text-black">
                 <Tab name="mission" title="Mission" tab={tab} setTab={setTab} />
                 <Tab name="organization" title="Organisation" tab={tab} setTab={setTab} />
                 <Tab name="history" title="Historique" tab={tab} setTab={setTab} />
-              </nav>
+              </div>
               <div className="mb-12 grid w-full grid-cols-3 gap-6">
                 <div className="border-grey-border col-span-2 border bg-white">
                   {
@@ -153,15 +153,17 @@ const Tab = ({ name, title, tab, setTab, actives }) => {
   }, [tab]);
 
   return (
-    <div onClick={() => setTab(name)}>
-      <div
-        className={`${
-          active ? "border-blue-france text-blue-france hover:bg-gray-975 border-t-2 bg-white" : "bg-blue-france-925 hover:bg-blue-france-925-hover border-0"
-        } border-x-grey-border flex translate-y-px cursor-pointer items-center border-x px-4 py-2`}
-      >
-        <p>{title}</p>
-      </div>
-    </div>
+    <button
+      type="button"
+      role="tab"
+      aria-selected={active}
+      onClick={() => setTab(name)}
+      className={`${
+        active ? "border-blue-france text-blue-france hover:bg-gray-975 border-t-2 bg-white" : "bg-blue-france-925 hover:bg-blue-france-925-hover border-0"
+      } border-x-grey-border flex translate-y-px cursor-pointer items-center border-x px-4 py-2`}
+    >
+      {title}
+    </button>
   );
 };
 

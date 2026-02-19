@@ -26,8 +26,8 @@ const Header = ({ total, data, size, sort, selected, onSize, onSort, onSelect, o
         <div className="flex items-center justify-between gap-4 py-4">
           {isSticky ? (
             <div>
-              <button className="button" onClick={() => (selected.length === data.length ? onSelect([]) : onSelect(data.map((d) => d.id)))}>
-                {selected.length === data.length ? <RiCheckboxFill className="text-blue-france text-2xl" /> : <RiCheckboxIndeterminateFill className="text-blue-france text-2xl" />}
+              <button className="button" onClick={() => (selected.length === data.length ? onSelect([]) : onSelect(data.map((d) => d.id)))} aria-label={selected.length === data.length ? "Tout désélectionner" : "Tout sélectionner"}>
+                {selected.length === data.length ? <RiCheckboxFill className="text-blue-france text-2xl" aria-hidden="true" /> : <RiCheckboxIndeterminateFill className="text-blue-france text-2xl" aria-hidden="true" />}
               </button>
             </div>
           ) : (
@@ -35,9 +35,9 @@ const Header = ({ total, data, size, sort, selected, onSize, onSort, onSelect, o
           )}
           <div className="flex items-center gap-4">
             <span className="text-text-mention text-sm">{selected.length === 1 ? `1 sélectionnée` : `${selected.length} sélectionnées`}</span>
-            <span className="text-blue-france cursor-pointer text-sm underline" onClick={() => onSelect([])}>
+            <button type="button" className="text-blue-france cursor-pointer text-sm underline" onClick={() => onSelect([])}>
               Désélectionner
-            </span>
+            </button>
             <ManyUpdateModal onClose={() => onSelect([])} selected={selected} onChange={onChangeMany} />
           </div>
         </div>
