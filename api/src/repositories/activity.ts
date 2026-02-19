@@ -1,16 +1,16 @@
 import { Activity, Prisma } from "../db/core";
-import { prismaCore } from "../db/postgres";
+import { prisma } from "../db/postgres";
 
 export const activityRepository = {
   async findMany(params: Prisma.ActivityFindManyArgs = {}): Promise<Activity[]> {
-    return prismaCore.activity.findMany(params);
+    return prisma.activity.findMany(params);
   },
 
   async findUnique(params: Prisma.ActivityFindUniqueArgs): Promise<Activity | null> {
-    return prismaCore.activity.findUnique(params);
+    return prisma.activity.findUnique(params);
   },
 
   async create(data: Prisma.ActivityCreateInput): Promise<Activity> {
-    return prismaCore.activity.create({ data });
+    return prisma.activity.create({ data });
   },
 };

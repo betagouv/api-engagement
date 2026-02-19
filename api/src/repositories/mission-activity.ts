@@ -1,17 +1,17 @@
 import { MissionActivity, Prisma } from "../db/core";
-import { prismaCore } from "../db/postgres";
+import { prisma } from "../db/postgres";
 
 export const missionActivityRepository = {
   async createMany(data: Prisma.MissionActivityCreateManyInput[]): Promise<void> {
-    await prismaCore.missionActivity.createMany({ data });
+    await prisma.missionActivity.createMany({ data });
   },
 
   async deleteByMissionId(missionId: string): Promise<void> {
-    await prismaCore.missionActivity.deleteMany({ where: { missionId } });
+    await prisma.missionActivity.deleteMany({ where: { missionId } });
   },
 
   groupBy<K extends keyof MissionActivity>(by: K[], where: Prisma.MissionActivityWhereInput) {
-    return prismaCore.missionActivity.groupBy({
+    return prisma.missionActivity.groupBy({
       by: by as any,
       where,
       _count: true,

@@ -1,5 +1,5 @@
 import { JobBoardId, MissionJobBoard, Prisma } from "../db/core";
-import { prismaCore } from "../db/postgres";
+import { prisma } from "../db/postgres";
 import type { MissionJobBoardSyncStatus } from "../types/mission-job-board";
 
 export const missionJobBoardRepository = {
@@ -7,13 +7,13 @@ export const missionJobBoardRepository = {
     if (!missionIds.length) {
       return [];
     }
-    return prismaCore.missionJobBoard.findMany({
+    return prisma.missionJobBoard.findMany({
       where: { jobBoardId, missionId: { in: missionIds } },
     });
   },
 
   async findByJobBoard(jobBoardId: JobBoardId, syncStatus?: MissionJobBoardSyncStatus | null): Promise<MissionJobBoard[]> {
-    return prismaCore.missionJobBoard.findMany({
+    return prisma.missionJobBoard.findMany({
       where: {
         jobBoardId,
         ...(syncStatus ? { syncStatus } : {}),
@@ -32,16 +32,16 @@ export const missionJobBoardRepository = {
     const missionAddressId = entry.missionAddressId ?? null;
     // Manually manage upsert when missionAddressId is null to avoid duplicate
     if (missionAddressId === null) {
-      const existing = await prismaCore.missionJobBoard.findFirst({
+      const existing = await prisma.missionJobBoard.findFirst({
         where: { jobBoardId: entry.jobBoardId, missionId: entry.missionId, missionAddressId: null },
       });
       if (existing) {
-        return prismaCore.missionJobBoard.update({
+        return prisma.missionJobBoard.update({
           where: { id: existing.id },
           data: { publicId: entry.publicId, syncStatus: entry.syncStatus ?? null, comment: entry.comment ?? null },
         });
       }
-      return prismaCore.missionJobBoard.create({
+      return prisma.missionJobBoard.create({
         data: {
           jobBoardId: entry.jobBoardId,
           missionId: entry.missionId,
@@ -53,7 +53,7 @@ export const missionJobBoardRepository = {
       });
     }
 
-    return prismaCore.missionJobBoard.upsert({
+    return prisma.missionJobBoard.upsert({
       where: {
         jobBoardId_missionId_missionAddressId: {
           jobBoardId: entry.jobBoardId,
@@ -77,11 +77,11 @@ export const missionJobBoardRepository = {
     if (!data.length) {
       return { count: 0 };
     }
-    return prismaCore.missionJobBoard.createMany({ data });
+    return prisma.missionJobBoard.createMany({ data });
   },
 
   async deleteForMission(jobBoardId: JobBoardId, missionId: string): Promise<Prisma.BatchPayload> {
-    return prismaCore.missionJobBoard.deleteMany({
+    return prisma.missionJobBoard.deleteMany({
       where: { jobBoardId, missionId },
     });
   },

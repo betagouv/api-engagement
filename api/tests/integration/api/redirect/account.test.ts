@@ -1,7 +1,7 @@
 import request from "supertest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { prismaCore } from "../../../../src/db/postgres";
+import { prisma } from "../../../../src/db/postgres";
 import { statBotService } from "../../../../src/services/stat-bot";
 import * as utils from "../../../../src/utils";
 import { createTestMission, createTestPublisher } from "../../../fixtures";
@@ -22,7 +22,7 @@ describe("RedirectController /account", () => {
 
     expect(response.status).toBe(204);
     expect(identifySpy).toHaveBeenCalled();
-    expect(await prismaCore.statEvent.count()).toBe(0);
+    expect(await prisma.statEvent.count()).toBe(0);
   });
 
   it("returns 204 when query params are invalid", async () => {
@@ -35,7 +35,7 @@ describe("RedirectController /account", () => {
     const response = await request(app).get("/r/account?view[foo]=bar");
 
     expect(response.status).toBe(204);
-    expect(await prismaCore.statEvent.count()).toBe(0);
+    expect(await prisma.statEvent.count()).toBe(0);
   });
 
   it("records account stats with mission details when available", async () => {
@@ -91,7 +91,7 @@ describe("RedirectController /account", () => {
     expect(response.body).toEqual({ ok: true, id: expect.any(String) });
     expect(statsBotFindOneSpy).toHaveBeenCalledWith(identity.user);
 
-    const createdAccount = await prismaCore.statEvent.findUnique({ where: { id: response.body.id } });
+    const createdAccount = await prisma.statEvent.findUnique({ where: { id: response.body.id } });
     expect(createdAccount).toMatchObject({
       type: "account",
       source: clickStat.source,
@@ -134,7 +134,7 @@ describe("RedirectController /account", () => {
     expect(response.body).toEqual({ ok: true, id: expect.any(String) });
     expect(statsBotFindOneSpy).toHaveBeenCalledWith(identity.user);
 
-    const storedAccount = await prismaCore.statEvent.findUnique({ where: { id: response.body.id } });
+    const storedAccount = await prisma.statEvent.findUnique({ where: { id: response.body.id } });
     expect(storedAccount).toMatchObject({
       type: "account",
       source: clickStat.source,
@@ -170,7 +170,7 @@ describe("RedirectController /account", () => {
     const response = await request(app).get("/r/account").query({ view: "click-account-client-event", clientEventId: "client-event-account-1" });
 
     expect(response.status).toBe(200);
-    const storedAccount = await prismaCore.statEvent.findUnique({ where: { id: response.body.id } });
+    const storedAccount = await prisma.statEvent.findUnique({ where: { id: response.body.id } });
     expect(storedAccount?.clientEventId).toBe("client-event-account-1");
   });
 });

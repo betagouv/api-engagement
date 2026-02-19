@@ -1,7 +1,7 @@
 import request from "supertest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { prismaCore } from "../../../../src/db/postgres";
+import { prisma } from "../../../../src/db/postgres";
 import { statBotService } from "../../../../src/services/stat-bot";
 import * as utils from "../../../../src/utils";
 import { createTestMission, createTestPublisher } from "../../../fixtures";
@@ -22,7 +22,7 @@ describe("RedirectController /apply", () => {
 
     expect(response.status).toBe(204);
     expect(identifySpy).toHaveBeenCalled();
-    expect(await prismaCore.statEvent.count()).toBe(0);
+    expect(await prisma.statEvent.count()).toBe(0);
   });
 
   it("returns 204 when query params are invalid", async () => {
@@ -35,7 +35,7 @@ describe("RedirectController /apply", () => {
     const response = await request(app).get("/r/apply?view[foo]=bar");
 
     expect(response.status).toBe(204);
-    expect(await prismaCore.statEvent.count()).toBe(0);
+    expect(await prisma.statEvent.count()).toBe(0);
   });
 
   it("records apply stats with mission details when available", async () => {
@@ -87,7 +87,7 @@ describe("RedirectController /apply", () => {
     expect(response.body).toEqual({ ok: true, id: expect.any(String) });
 
     expect(statsBotFindOneSpy).toHaveBeenCalledWith(identity.user);
-    const createdApply = await prismaCore.statEvent.findUnique({ where: { id: response.body.id } });
+    const createdApply = await prisma.statEvent.findUnique({ where: { id: response.body.id } });
     expect(createdApply).toMatchObject({
       type: "apply",
       user: identity.user,
@@ -135,7 +135,7 @@ describe("RedirectController /apply", () => {
     expect(response.body).toEqual({ ok: true, id: expect.any(String) });
 
     expect(statsBotFindOneSpy).toHaveBeenCalledWith(identity.user);
-    const storedApply = await prismaCore.statEvent.findUnique({ where: { id: response.body.id } });
+    const storedApply = await prisma.statEvent.findUnique({ where: { id: response.body.id } });
     expect(storedApply).toMatchObject({
       type: "apply",
       user: identity.user,
@@ -182,7 +182,7 @@ describe("RedirectController /apply", () => {
       .query({ view: "click-789", customAttributes: JSON.stringify(customAttributes) });
 
     expect(response.status).toBe(200);
-    const storedApply = await prismaCore.statEvent.findUnique({ where: { id: response.body.id } });
+    const storedApply = await prisma.statEvent.findUnique({ where: { id: response.body.id } });
     expect(storedApply?.customAttributes).toEqual(customAttributes);
   });
 
@@ -208,7 +208,7 @@ describe("RedirectController /apply", () => {
     const response = await request(app).get("/r/apply").query({ view: "click-client-event", clientEventId: "client-event-apply-1" });
 
     expect(response.status).toBe(200);
-    const storedApply = await prismaCore.statEvent.findUnique({ where: { id: response.body.id } });
+    const storedApply = await prisma.statEvent.findUnique({ where: { id: response.body.id } });
     expect(storedApply?.clientEventId).toBe("client-event-apply-1");
   });
 
@@ -222,6 +222,6 @@ describe("RedirectController /apply", () => {
     const response = await request(app).get("/r/apply").query({ view: "click-invalid", customAttributes: "{invalid" });
 
     expect(response.status).toBe(204);
-    expect(await prismaCore.statEvent.count()).toBe(0);
+    expect(await prisma.statEvent.count()).toBe(0);
   });
 });

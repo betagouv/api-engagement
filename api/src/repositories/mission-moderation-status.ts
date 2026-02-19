@@ -1,47 +1,47 @@
 import { MissionModerationStatus, Prisma } from "../db/core";
-import { prismaCore } from "../db/postgres";
+import { prisma } from "../db/postgres";
 
 export const missionModerationStatusRepository = {
   create(params: Prisma.MissionModerationStatusCreateArgs): Promise<MissionModerationStatus> {
-    return prismaCore.missionModerationStatus.create({
+    return prisma.missionModerationStatus.create({
       ...params,
       include: params.include ?? undefined,
     });
   },
 
   findUnique(params: Prisma.MissionModerationStatusFindUniqueArgs): Promise<MissionModerationStatus | null> {
-    return prismaCore.missionModerationStatus.findUnique({
+    return prisma.missionModerationStatus.findUnique({
       ...params,
       include: params.include ?? undefined,
     });
   },
 
   findMany(params: Prisma.MissionModerationStatusFindManyArgs = {}): Promise<MissionModerationStatus[]> {
-    return prismaCore.missionModerationStatus.findMany({
+    return prisma.missionModerationStatus.findMany({
       ...params,
       include: params.include ?? undefined,
     });
   },
 
   update(params: Prisma.MissionModerationStatusUpdateArgs): Promise<MissionModerationStatus> {
-    return prismaCore.missionModerationStatus.update({
+    return prisma.missionModerationStatus.update({
       ...params,
       include: params.include ?? undefined,
     });
   },
 
   updateMany(params: Prisma.MissionModerationStatusUpdateManyArgs): Promise<Prisma.BatchPayload> {
-    return prismaCore.missionModerationStatus.updateMany({
+    return prisma.missionModerationStatus.updateMany({
       ...params,
     });
   },
 
   count(where: Prisma.MissionModerationStatusWhereInput = {}): Promise<number> {
-    return prismaCore.missionModerationStatus.count({ where });
+    return prisma.missionModerationStatus.count({ where });
   },
 
   groupBy<K extends keyof MissionModerationStatus>(by: K[], where: Prisma.MissionModerationStatusWhereInput) {
-    return prismaCore.missionModerationStatus.groupBy({
+    return prisma.missionModerationStatus.groupBy({
       by: by as any,
       where,
       _count: true,
@@ -49,7 +49,7 @@ export const missionModerationStatusRepository = {
   },
 
   async upsertMany(inputs: Prisma.MissionModerationStatusUpsertArgs[]): Promise<MissionModerationStatus[]> {
-    return prismaCore.$transaction(inputs.map((input) => prismaCore.missionModerationStatus.upsert(input)));
+    return prisma.$transaction(inputs.map((input) => prisma.missionModerationStatus.upsert(input)));
   },
 };
 

@@ -1,6 +1,6 @@
 import { Prisma } from "../../../db/core";
 
-import { prismaCore } from "../../../db/postgres";
+import { prisma } from "../../../db/postgres";
 
 export type ReportFlux = "from" | "to";
 
@@ -123,7 +123,7 @@ async function getCounts(
   columns: ReportColumnDefinitions,
   { startMonth, endMonth, startLastMonth, endLastMonth }: { startMonth: Date; endMonth: Date; startLastMonth: Date; endLastMonth: Date }
 ) {
-  const rows = await prismaCore.$queryRaw<
+  const rows = await prisma.$queryRaw<
     Array<{
       print_month: bigint;
       print_last_month: bigint;
@@ -179,7 +179,7 @@ async function getMonthlyBuckets(
   columns: ReportColumnDefinitions,
   { startYear, endYear, startLastYear, endLastYear }: { startYear: Date; endYear: Date; startLastYear: Date; endLastYear: Date }
 ) {
-  const rows = await prismaCore.$queryRaw<Array<{ period: "year" | "lastYear"; type: "click" | "apply"; month: Date; doc_count: bigint }>>(
+  const rows = await prisma.$queryRaw<Array<{ period: "year" | "lastYear"; type: "click" | "apply"; month: Date; doc_count: bigint }>>(
     Prisma.sql`
       WITH bounds AS (
         SELECT ${startLastYear}::timestamptz AS sly,
@@ -222,7 +222,7 @@ async function getMonthlyBuckets(
 }
 
 async function getTopPublishers(publisherId: string, columns: ReportColumnDefinitions, start: Date, end: Date) {
-  const rows = await prismaCore.$queryRaw<{ key: string | null; doc_count: bigint }[]>(
+  const rows = await prisma.$queryRaw<{ key: string | null; doc_count: bigint }[]>(
     Prisma.sql`
       SELECT ${columns.publisherNameColumnSql} AS key,
              COUNT(*)::bigint AS doc_count
@@ -244,7 +244,7 @@ async function getTopPublishers(publisherId: string, columns: ReportColumnDefini
 }
 
 async function getTopOrganizations(publisherId: string, columns: ReportColumnDefinitions, start: Date, end: Date) {
-  const rows = await prismaCore.$queryRaw<{ key: string | null; doc_count: bigint }[]>(
+  const rows = await prisma.$queryRaw<{ key: string | null; doc_count: bigint }[]>(
     Prisma.sql`
       SELECT "mission_organization_name" AS key,
              COUNT(*)::bigint AS doc_count
@@ -279,7 +279,7 @@ async function getLastSixMonthsBuckets({
   topOrganizations: TermsBucket[];
 }) {
   // Totals per month
-  const totals = await prismaCore.$queryRaw<{ month: Date; doc_count: bigint }[]>(
+  const totals = await prisma.$queryRaw<{ month: Date; doc_count: bigint }[]>(
     Prisma.sql`
       SELECT date_trunc('month', created_at) AS month,
              COUNT(*)::bigint AS doc_count
@@ -297,7 +297,7 @@ async function getLastSixMonthsBuckets({
   // Per-top-org per month only
   const topKeys = topOrganizations.map((o) => o.key).filter((k) => !!k);
   const perOrg = topKeys.length
-    ? await prismaCore.$queryRaw<{ month: Date; key: string | null; doc_count: bigint }[]>(
+    ? await prisma.$queryRaw<{ month: Date; key: string | null; doc_count: bigint }[]>(
         Prisma.sql`
           SELECT date_trunc('month', created_at) AS month,
                  mission_organization_name AS key,

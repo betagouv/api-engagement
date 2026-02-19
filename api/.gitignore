@@ -10,5 +10,4 @@ talent.xml
 grimpio.xml
 
 # Prisma
-src/db/analytics
 src/db/core

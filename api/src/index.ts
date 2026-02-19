@@ -44,12 +44,12 @@ process.on("unhandledRejection", (reason) => {
 });
 
 import cors from "cors";
-import express, { NextFunction, Request, Response } from "express";
+import express from "express";
 import path from "path";
 
 import errorHandler from "./middlewares/error-handler";
 
-import { pgConnectedCore, pgDisconnect } from "./db/postgres";
+import { pgConnected, pgDisconnect } from "./db/postgres";
 import middlewares from "./middlewares";
 
 import AdminReportController from "./controllers/admin-report";
@@ -83,7 +83,7 @@ import LeboncoinV2Controller from "./v2/leboncoin";
 
 const main = async () => {
   console.log("[API] Waiting for database connections...");
-  await pgConnectedCore();
+  await pgConnected();
 
   console.log("[API] Starting API server...");
 

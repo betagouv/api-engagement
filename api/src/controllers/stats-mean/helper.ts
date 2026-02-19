@@ -1,5 +1,5 @@
 import { Prisma } from "../../db/core";
-import { prismaCore } from "../../db/postgres";
+import { prisma } from "../../db/postgres";
 
 export interface StatsMeanFilters {
   publisherId?: string;
@@ -54,7 +54,7 @@ export async function getStatsMean(filters: StatsMeanFilters): Promise<StatsMean
 
   const whereClause = joinFilters(whereClauses);
 
-  const graphRows = await prismaCore.$queryRaw<Array<{ type: "click" | "print" | "apply" | "account"; count: bigint }>>(
+  const graphRows = await prisma.$queryRaw<Array<{ type: "click" | "print" | "apply" | "account"; count: bigint }>>(
     Prisma.sql`
       SELECT "type", COUNT(*)::bigint AS count
       FROM "stat_event"
@@ -89,7 +89,7 @@ export async function getStatsMean(filters: StatsMeanFilters): Promise<StatsMean
 
   graph.rate = graph.clickCount ? graph.applyCount / graph.clickCount : 0;
 
-  const sourceRows = await prismaCore.$queryRaw<
+  const sourceRows = await prisma.$queryRaw<
     Array<{
       source_id: string | null;
       source_name: string | null;

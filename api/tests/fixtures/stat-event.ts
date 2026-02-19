@@ -1,19 +1,19 @@
 import { randomUUID } from "crypto";
 
-import { prismaCore } from "../../src/db/postgres";
-import { statEventService } from "../../src/services/stat-event";
+import { prisma } from "../../src/db/postgres";
 import { missionService } from "../../src/services/mission";
+import { statEventService } from "../../src/services/stat-event";
 import { StatEventRecord } from "../../src/types";
 import { createTestPublisher } from "./index";
 
 export async function createStatEventFixture(overrides: Partial<StatEventRecord> = {}) {
   const ensurePublisherExists = async (id: string, name?: string) => {
-    const existing = await prismaCore.publisher.findUnique({ where: { id } });
+    const existing = await prisma.publisher.findUnique({ where: { id } });
     if (existing) {
       return existing.id;
     }
 
-    const created = await prismaCore.publisher.create({
+    const created = await prisma.publisher.create({
       data: {
         id,
         name: name ?? `Test Publisher ${id.slice(0, 8)}`,
@@ -22,8 +22,7 @@ export async function createStatEventFixture(overrides: Partial<StatEventRecord>
     return created.id;
   };
 
-  const fromPublisherId =
-    overrides.fromPublisherId ?? (await createTestPublisher({ name: overrides.fromPublisherName })).id;
+  const fromPublisherId = overrides.fromPublisherId ?? (await createTestPublisher({ name: overrides.fromPublisherName })).id;
   const toPublisherId = overrides.toPublisherId ?? (await createTestPublisher({ name: overrides.toPublisherName })).id;
 
   if (overrides.fromPublisherId) {

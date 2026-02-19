@@ -1,13 +1,13 @@
 import { MissionEvent, Prisma } from "../db/core";
-import { prismaCore } from "../db/postgres";
+import { prisma } from "../db/postgres";
 
 export const missionEventRepository = {
   async create(data: Prisma.MissionEventUncheckedCreateInput): Promise<MissionEvent> {
-    return prismaCore.missionEvent.create({ data });
+    return prisma.missionEvent.create({ data });
   },
 
   async createMany(data: Prisma.MissionEventCreateManyInput[]): Promise<Prisma.BatchPayload> {
-    return prismaCore.missionEvent.createMany({ data });
+    return prisma.missionEvent.createMany({ data });
   },
 };
 

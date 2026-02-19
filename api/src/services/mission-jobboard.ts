@@ -1,5 +1,5 @@
 import { JobBoardId, Prisma } from "../db/core";
-import { prismaCore } from "../db/postgres";
+import { prisma } from "../db/postgres";
 import { missionJobBoardRepository } from "../repositories/mission-job-board";
 import { MissionJobBoardRecord, MissionJobBoardSyncStatus, MissionJobBoardUpsertInput } from "../types/mission-job-board";
 
@@ -32,7 +32,7 @@ export const missionJobBoardService = {
       return { total: 0, ids: [] };
     }
 
-    const rows = await prismaCore.$queryRaw<Array<{ id: string; total: bigint }>>(
+    const rows = await prisma.$queryRaw<Array<{ id: string; total: bigint }>>(
       Prisma.sql`
         SELECT m.id, COUNT(*) OVER()::bigint AS total
         FROM mission m

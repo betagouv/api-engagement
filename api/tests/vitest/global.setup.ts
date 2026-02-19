@@ -12,14 +12,14 @@ const POSTGRES_IMAGE = process.env.TESTCONTAINERS_POSTGRES_IMAGE || "postgres:16
 
 let container: StartedPostgreSqlContainer | null = null;
 
-async function runPrismaMigrate(schemaPath: string, env: NodeJS.ProcessEnv) {
+async function runPrismaMigrate(env: NodeJS.ProcessEnv) {
   try {
-    await execFileAsync("npx", ["prisma", "migrate", "deploy", "--schema", schemaPath], {
+    await execFileAsync("npx", ["prisma", "migrate", "deploy"], {
       cwd: API_ROOT,
       env,
     });
   } catch (error) {
-    console.error(`[GlobalSetup] Prisma migrate failed for ${schemaPath}`, error);
+    console.error("[GlobalSetup] Prisma migrate failed", error);
     throw error;
   }
 }
@@ -32,21 +32,16 @@ export default async function globalSetup() {
     throw error;
   }
 
-  const username = container.getUsername();
-  const password = container.getPassword();
-
   const coreUrl = container.getConnectionUri();
 
   process.env.DATABASE_URL_CORE = coreUrl;
-  process.env.DATABASE_URL_ANALYTICS = coreUrl;
 
   const envForPrisma = {
     ...process.env,
     DATABASE_URL_CORE: coreUrl,
-    DATABASE_URL_ANALYTICS: coreUrl,
   };
 
-  await runPrismaMigrate("./prisma/core/schema.core.prisma", envForPrisma);
+  await runPrismaMigrate(envForPrisma);
 
   return async () => {
     if (container) {
