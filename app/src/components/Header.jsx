@@ -57,6 +57,8 @@ const NotificationMenu = () => {
   const [warnings, setWarnings] = useState([]);
   const [state, setState] = useState({});
   const { publisher } = useStore();
+  const publisherId = publisher?.id;
+  const warningPath = `/${publisherId}/warning`;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -90,7 +92,7 @@ const NotificationMenu = () => {
         <MenuItem>
           <div className="flex items-center justify-between p-6">
             <h3 className="m-0 text-lg font-bold text-black">État du service</h3>
-            <Link to="/warning" className="text-blue-france flex items-center">
+            <Link to={warningPath} className="text-blue-france flex items-center">
               <span>Détails</span>
               <RiArrowDropRightLine className="mt-1 text-lg" />
             </Link>
@@ -98,7 +100,7 @@ const NotificationMenu = () => {
         </MenuItem>
         {state && (
           <MenuItem>
-            <Link to="/warning" className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950">
+            <Link to={warningPath} className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950">
               <div className="flex w-6 items-center">
                 <LogoSvg alt="API Engagement" />
               </div>
@@ -117,7 +119,7 @@ const NotificationMenu = () => {
         {warnings.length ? (
           <>
             <MenuItem>
-              <Link to="/warning" className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950">
+              <Link to={warningPath} className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950">
                 <div className="flex w-6 items-center">
                   <span aria-hidden="true">❌</span>
                 </div>
@@ -130,7 +132,7 @@ const NotificationMenu = () => {
               const label = WARNINGS[w.type] || WARNINGS.OTHER_WARNING;
               return (
                 <MenuItem key={index}>
-                  <Link to="/warning" className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950">
+                  <Link to={warningPath} className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950">
                     <div className="flex w-6 items-center">{label.emoji}</div>
                     <div className="flex flex-1 flex-col gap-2">
                       <div>
@@ -148,7 +150,7 @@ const NotificationMenu = () => {
             })}
             {warnings.length > 2 && (
               <MenuItem>
-                <Link to="/warning" className={`border-grey-border flex items-center justify-end gap-6 border-t p-6 hover:bg-gray-950`}>
+                <Link to={warningPath} className={`border-grey-border flex items-center justify-end gap-6 border-t p-6 hover:bg-gray-950`}>
                   <div className="text-blue-france flex">
                     <span>Voir toutes les alertes</span>
                     <RiArrowDropRightLine className="mt-1 text-lg" />
@@ -159,7 +161,7 @@ const NotificationMenu = () => {
           </>
         ) : (
           <MenuItem>
-            <Link to="/warning" className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950">
+            <Link to={warningPath} className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950">
               <div className="flex w-6 items-center">
                 <span aria-hidden="true">✅</span>
               </div>
@@ -289,6 +291,7 @@ const AdminNotificationMenu = () => {
 
 const AccountMenu = () => {
   const { user, publisher, setAuth } = useStore();
+  const publisherId = publisher?.id;
 
   const handleLogout = async () => {
     api.removeToken();
@@ -314,7 +317,7 @@ const AccountMenu = () => {
         className="w-52 origin-top-right bg-white shadow-lg transition duration-200 ease-out focus:outline-none data-closed:scale-95 data-closed:opacity-0"
       >
         <MenuItem>
-          <Link to="my-account" className="data-[focus]:bg-gray-975 block w-full p-4 text-sm">
+          <Link to={`/${publisherId}/my-account`} className="data-[focus]:bg-gray-975 block w-full p-4 text-sm">
             Mon compte
           </Link>
         </MenuItem>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 
 import Footer from "./components/Footer";
@@ -38,6 +38,8 @@ import { ENV } from "./services/config";
 import { captureError } from "./services/error";
 import useStore from "./services/store";
 
+const LEGACY_PATHS = ["/performance", "/broadcast", "/my-missions", "/settings", "/mission", "/warning", "/my-account"];
+
 const TOAST_STYLES = {
   success: "bg-success text-white",
   error: "bg-error text-white",
@@ -75,13 +77,22 @@ const App = () => {
             <Route path="/cgu" element={<CGU />} />
           </Route>
           <Route element={<ProtectedLayout />}>
-            <Route path="/performance/*" element={<Performance />} />
-            <Route path="/broadcast/*" element={<Broadcast />} />
-            <Route path="/my-missions/*" element={<MyMissions />} />
-            <Route path="/settings/*" element={<Settings />} />
-            <Route path="/mission/*" element={<Mission />} />
-            <Route path="/warning/*" element={<Warnings />} />
-            <Route path="/my-account" element={<Account />} />
+            <Route element={<PublisherSyncLayout />}>
+              <Route path="/:publisherId/performance/*" element={<Performance />} />
+              <Route path="/:publisherId/broadcast/*" element={<Broadcast />} />
+              <Route path="/:publisherId/my-missions/*" element={<MyMissions />} />
+              <Route path="/:publisherId/settings/*" element={<Settings />} />
+              <Route path="/:publisherId/mission/*" element={<Mission />} />
+              <Route path="/:publisherId/warning/*" element={<Warnings />} />
+              <Route path="/:publisherId/my-account" element={<Account />} />
+            </Route>
+
+            {LEGACY_PATHS.map((path) => (
+              <Route key={path} path={`${path}/*`} element={<LegacyRedirect />} />
+            ))}
+            {LEGACY_PATHS.map((path) => (
+              <Route key={`exact-${path}`} path={path} element={<LegacyRedirect />} />
+            ))}
 
             <Route element={<AdminLayout />}>
               <Route path="/broadcast/campaign/*" element={<Campaign />} />
@@ -172,7 +183,9 @@ const ProtectedLayout = () => {
         return;
       }
 
-      const path = PATH.find((path) => location.pathname.startsWith(path));
+      // Strip optional /:publisherId prefix before matching paths
+      const strippedPathname = location.pathname.replace(/^\/[^/]+(?=\/)/, "");
+      const path = PATH.find((p) => strippedPathname.startsWith(p));
       if (path) {
         window.plausible(`${user.role} - ${path}`);
       }
@@ -220,13 +233,7 @@ const ProtectedLayout = () => {
       <Header />
       <Nav />
 
-      <main
-        id="main-content"
-        role="main"
-        tabIndex={-1}
-        aria-labelledby={hasActiveTab ? activeTabId : undefined}
-        className="mx-auto mb-14 pt-14 w-4/5 max-w-[1200px] flex-1"
-      >
+      <main id="main-content" role="main" tabIndex={-1} aria-labelledby={hasActiveTab ? activeTabId : undefined} className="mx-auto mb-14 w-4/5 max-w-[1200px] flex-1 pt-14">
         <Outlet />
       </main>
       <Footer />
@@ -237,6 +244,32 @@ const ProtectedLayout = () => {
 const AdminLayout = () => {
   const { user } = useStore();
   return !user || user.role !== "admin" ? <Navigate to="/login" /> : <Outlet />;
+};
+
+const LegacyRedirect = () => {
+  const { publisher } = useStore();
+  const location = useLocation();
+  if (!publisher) return <Navigate to="/login" replace />;
+  const id = publisher.id || publisher._id;
+  return <Navigate to={`/${id}${location.pathname}${location.search}`} replace />;
+};
+
+const PublisherSyncLayout = () => {
+  const { publisherId } = useParams();
+  const { publisher, setPublisher } = useStore();
+
+  useEffect(() => {
+    const currentId = publisher?.id;
+    if (publisherId && publisherId !== currentId) {
+      api.post("/publisher/search", {}).then((res) => {
+        if (!res.ok) return;
+        const found = res.data.find((p) => (p.id || p._id) === publisherId);
+        if (found) setPublisher(found);
+      });
+    }
+  }, [publisherId]);
+
+  return <Outlet />;
 };
 
 const PublicLayout = () => {
@@ -255,12 +288,7 @@ const PublicLayout = () => {
     <div className="bg-beige-gris-galet-975 flex min-h-screen w-screen flex-col">
       <Header />
       {user ? <Nav /> : ""}
-      <main
-        id="main-content"
-        role="main"
-        tabIndex={-1}
-        aria-labelledby={user && hasActiveTab ? activeTabId : undefined}
-      >
+      <main id="main-content" role="main" tabIndex={-1} aria-labelledby={user && hasActiveTab ? activeTabId : undefined}>
         <Outlet />
       </main>
       <Footer />
