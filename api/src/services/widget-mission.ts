@@ -11,7 +11,7 @@ type Bucket = { key: string; doc_count: number };
 
 type PublisherOrganizationTuple = {
   publisherId: string;
-  organizationClientId: string;
+  clientId: string;
 };
 
 const buildWidgetWhere = (widget: WidgetRecord, filters: MissionSearchFilters): Prisma.MissionWhereInput => {
@@ -49,16 +49,16 @@ const buildMissionConditionFromPublisherOrganizationTuples = (tuples: PublisherO
   }
 
   const byPublisher = new Map<string, Set<string>>();
-  tuples.forEach(({ publisherId, organizationClientId }) => {
+  tuples.forEach(({ publisherId, clientId }) => {
     if (!byPublisher.has(publisherId)) {
       byPublisher.set(publisherId, new Set());
     }
-    byPublisher.get(publisherId)?.add(organizationClientId);
+    byPublisher.get(publisherId)?.add(clientId);
   });
 
-  const conditions = Array.from(byPublisher.entries()).map(([publisherId, organizationClientIds]) => ({
+  const conditions = Array.from(byPublisher.entries()).map(([publisherId, clientIds]) => ({
     publisherId,
-    organizationClientId: { in: Array.from(organizationClientIds) },
+    organizationClientId: { in: Array.from(clientIds) },
   }));
 
   return conditions.length === 1 ? conditions[0] : { OR: conditions };
@@ -80,11 +80,13 @@ const inlinePublisherOrganizationFilters = async (where: Prisma.MissionWhereInpu
       return cached;
     }
 
-    const tuples = await prismaCore.publisherOrganization.findMany({
+    const rows = await prismaCore.publisherOrganization.findMany({
       where: condition,
-      select: { publisherId: true, organizationClientId: true },
+      select: { publisherId: true, clientId: true },
     });
-    // Convert relational matches into mission-level tuple filters.
+    const tuples: PublisherOrganizationTuple[] = rows
+      .filter((r): r is typeof r & { clientId: string } => r.clientId != null)
+      .map((r) => ({ publisherId: r.publisherId, clientId: r.clientId }));
     const missionCondition = buildMissionConditionFromPublisherOrganizationTuples(tuples);
     cache.set(cacheKey, missionCondition);
     return missionCondition;

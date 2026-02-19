@@ -14,27 +14,33 @@ ALTER TABLE "mission" DROP CONSTRAINT "mission_publisher_id_organization_client_
 ALTER TABLE "mission" DROP COLUMN "organization_id",
 ADD COLUMN     "publisher_organization_id" TEXT;
 
--- AlterTable
-ALTER TABLE "publisher_organization" ADD COLUMN     "actions" TEXT[] DEFAULT ARRAY[]::TEXT[],
-ADD COLUMN     "beneficiaries" TEXT[] DEFAULT ARRAY[]::TEXT[],
-ADD COLUMN     "city" TEXT,
-ADD COLUMN     "client_id" TEXT,
-ADD COLUMN     "description" TEXT,
-ADD COLUMN     "full_address" TEXT,
-ADD COLUMN     "legal_status" TEXT,
-ADD COLUMN     "logo" TEXT,
-ADD COLUMN     "name" TEXT,
-ADD COLUMN     "organization_id_verified" TEXT,
-ADD COLUMN     "parent_organizations" TEXT[] DEFAULT ARRAY[]::TEXT[],
-ADD COLUMN     "postal_code" TEXT,
-ADD COLUMN     "rna" TEXT,
-ADD COLUMN     "siren" TEXT,
-ADD COLUMN     "siret" TEXT,
-ADD COLUMN     "type" TEXT,
-ADD COLUMN     "url" TEXT,
-ADD COLUMN     "verification_status" TEXT,
-ADD COLUMN     "verified_at" TIMESTAMP(3),
-ALTER COLUMN "organization_client_id" DROP NOT NULL;
+-- AlterTable: rename legacy columns to new names (instead of ADD + backfill)
+ALTER TABLE "publisher_organization" RENAME COLUMN "organization_client_id" TO "client_id";
+ALTER TABLE "publisher_organization" RENAME COLUMN "organization_name" TO "name";
+ALTER TABLE "publisher_organization" RENAME COLUMN "organization_rna" TO "rna";
+ALTER TABLE "publisher_organization" RENAME COLUMN "organization_siren" TO "siren";
+ALTER TABLE "publisher_organization" RENAME COLUMN "organization_siret" TO "siret";
+ALTER TABLE "publisher_organization" RENAME COLUMN "organization_url" TO "url";
+ALTER TABLE "publisher_organization" RENAME COLUMN "organization_logo" TO "logo";
+ALTER TABLE "publisher_organization" RENAME COLUMN "organization_description" TO "description";
+ALTER TABLE "publisher_organization" RENAME COLUMN "organization_status_juridique" TO "legal_status";
+ALTER TABLE "publisher_organization" RENAME COLUMN "organization_type" TO "type";
+ALTER TABLE "publisher_organization" RENAME COLUMN "organization_actions" TO "actions";
+ALTER TABLE "publisher_organization" RENAME COLUMN "organization_full_address" TO "full_address";
+ALTER TABLE "publisher_organization" RENAME COLUMN "organization_post_code" TO "postal_code";
+ALTER TABLE "publisher_organization" RENAME COLUMN "organization_city" TO "city";
+ALTER TABLE "publisher_organization" RENAME COLUMN "organization_beneficiaries" TO "beneficiaries";
+ALTER TABLE "publisher_organization" RENAME COLUMN "organization_reseaux" TO "parent_organizations";
+ALTER TABLE "publisher_organization" RENAME COLUMN "organization_verification_status" TO "verification_status";
+
+ALTER TABLE "publisher_organization" ALTER COLUMN "client_id" DROP NOT NULL;
+
+-- AlterTable: add new columns (not renames)
+ALTER TABLE "publisher_organization" ADD COLUMN "organization_id_verified" TEXT;
+ALTER TABLE "publisher_organization" ADD COLUMN "verified_at" TIMESTAMP(3);
+
+-- RenameIndex: update index name for renamed column
+ALTER INDEX "publisher_organization_organization_name_idx" RENAME TO "publisher_organization_name_idx";
 
 -- AddForeignKey
 ALTER TABLE "mission" ADD CONSTRAINT "mission_publisher_organization_id_fkey" FOREIGN KEY ("publisher_organization_id") REFERENCES "publisher_organization"("id") ON DELETE SET NULL ON UPDATE CASCADE;
