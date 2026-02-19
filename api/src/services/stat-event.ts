@@ -15,22 +15,16 @@ import {
   ScrollStatEventsParams,
   ScrollStatEventsResult,
   SearchStatEventsParams,
-  SearchViewStatsParams,
-  SearchViewStatsResult,
   StatEventMissionStatsSummary,
   StatEventRecord,
   StatEventSource,
   StatEventType,
-  ViewStatsFacet,
-  ViewStatsFacetField,
   WarningBotAggregationBucket,
   WarningBotAggregations,
   WarningBotCandidate,
 } from "../types/stat-event";
 
 const DEFAULT_TYPES: StatEventType[] = ["click", "print", "apply", "account"];
-
-const VIEW_STATS_FACET_FIELDS = ["type", "source", "missionDomain", "missionDepartmentName", "missionOrganizationId", "fromPublisherId", "toPublisherId", "tag"] as const;
 
 type PrismaStatEventWithPublishers = Prisma.StatEventGetPayload<{
   include: {
@@ -305,116 +299,6 @@ async function findStatEvents({ fromPublisherId, toPublisherId, type, sourceId, 
   })) as PrismaStatEventWithPublishers[];
 
   return rows.map(toStatEventRecord);
-}
-
-async function findStatEventViews({ publisherId, size = 10, filters = {}, facets = [] }: SearchViewStatsParams): Promise<SearchViewStatsResult> {
-  const where: Prisma.StatEventWhereInput = {
-    NOT: { isBot: true },
-    OR: [{ toPublisherId: publisherId }, { fromPublisherId: publisherId }],
-  };
-
-  const andFilters: Prisma.StatEventWhereInput[] = [];
-
-  if (filters.fromPublisherName) {
-    andFilters.push({ fromPublisher: { is: { name: filters.fromPublisherName } } });
-  }
-  if (filters.toPublisherName) {
-    andFilters.push({ toPublisher: { is: { name: filters.toPublisherName } } });
-  }
-  if (filters.fromPublisherId) {
-    andFilters.push({ fromPublisherId: filters.fromPublisherId });
-  }
-  if (filters.toPublisherId) {
-    andFilters.push({ toPublisherId: filters.toPublisherId });
-  }
-  if (filters.missionDomain) {
-    andFilters.push({ missionDomain: filters.missionDomain });
-  }
-  if (filters.missionDepartmentName) {
-    andFilters.push({ missionDepartmentName: filters.missionDepartmentName });
-  }
-  if (filters.missionOrganizationId) {
-    andFilters.push({ missionOrganizationId: filters.missionOrganizationId });
-  }
-  if (filters.type) {
-    andFilters.push({ type: filters.type as StatEventType });
-  }
-  if (filters.source) {
-    andFilters.push({ source: filters.source as StatEventSource });
-  }
-
-  if (filters.createdAt?.length) {
-    const createdAtFilter: Prisma.DateTimeFilter = {};
-    filters.createdAt.forEach(({ operator, date }) => {
-      if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
-        return;
-      }
-      if (operator === "gt") {
-        createdAtFilter.gt = date;
-      }
-      if (operator === "lt") {
-        createdAtFilter.lt = date;
-      }
-    });
-    if (Object.keys(createdAtFilter).length) {
-      andFilters.push({ createdAt: createdAtFilter });
-    }
-  }
-
-  if (andFilters.length) {
-    where.AND = andFilters;
-  }
-
-  const total = await statEventRepository.count({ where });
-
-  const facetsResult: Record<string, ViewStatsFacet[]> = {};
-  await Promise.all(
-    facets.map(async (facet) => {
-      if (!VIEW_STATS_FACET_FIELDS.includes(facet as ViewStatsFacetField)) {
-        return;
-      }
-
-      const column = facet as ViewStatsFacetField;
-      try {
-        if (column === "missionDomain" || column === "missionDepartmentName" || column === "missionOrganizationId") {
-          const events = await statEventRepository.findMany({
-            where,
-            orderBy: { createdAt: "desc" },
-            take: 5000,
-          });
-          const mapped = (events as PrismaStatEventWithPublishers[]).map(toStatEventRecord);
-          const counter = new Map<string, number>();
-          mapped.forEach((event) => {
-            const key = column === "missionDomain" ? event.missionDomain : column === "missionDepartmentName" ? event.missionDepartmentName : event.missionOrganizationId;
-            if (!key) {
-              return;
-            }
-            counter.set(key, (counter.get(key) ?? 0) + 1);
-          });
-          const sorted = Array.from(counter.entries())
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, size);
-          facetsResult[facet] = sorted.map(([key, count]) => ({ key, doc_count: count }));
-        } else {
-          const rows = (await statEventRepository.groupBy({
-            by: [column],
-            where,
-            _count: { _all: true },
-          } as any)) as { [key: string]: any; _count: { _all: number } }[];
-          rows.sort((a, b) => (b._count._all ?? 0) - (a._count._all ?? 0));
-          const limited = rows.slice(0, size);
-
-          facetsResult[facet] = limited
-            .filter((row) => row[column] !== null && row[column] !== undefined && row[column] !== "")
-            .map((row) => ({ key: row[column], doc_count: row._count._all }));
-        }
-      } catch (error) {
-        console.error(`[StatEvent] Error aggregating facet ${facet}:`, error);
-      }
-    })
-  );
-
-  return { total, facets: facetsResult };
 }
 
 async function findStatEventWarningBotCandidatesSince({ from, minClicks }: FindWarningBotCandidatesParams): Promise<WarningBotCandidate[]> {
@@ -727,7 +611,6 @@ export const statEventService = {
   findOneStatEventById,
   findOneStatEventByMissionId,
   findStatEvents,
-  findStatEventViews,
   countStatEvents,
   countStatEventsByTypeSince,
   countStatEventsByCriteria,
