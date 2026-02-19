@@ -11,3 +11,4 @@ grimpio.xml
 
 # Prisma
 src/db/core
+src/db/analytics

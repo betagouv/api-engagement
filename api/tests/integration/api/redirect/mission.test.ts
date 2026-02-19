@@ -145,7 +145,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
 
   it("uses mtm tracking parameters for Service Civique missions", async () => {
     const fromPublisher = await publisherService.createPublisher({ name: "From Publisher" });
-    const serviceCiviquePublisherId = PUBLISHER_IDS.SERVICE_CIVIQUE || new Types.ObjectId().toString();
+    const serviceCiviquePublisherId = PUBLISHER_IDS.SERVICE_CIVIQUE || "service-civique-publisher-id";
     if (!PUBLISHER_IDS.SERVICE_CIVIQUE) {
       PUBLISHER_IDS.SERVICE_CIVIQUE = serviceCiviquePublisherId;
     }
