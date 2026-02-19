@@ -10,7 +10,6 @@ import { captureError } from "../../services/error";
 import useStore from "../../services/store";
 import { timeSince } from "../../services/utils";
 
-const TABLE_HEADER = [{ title: "Mission" }, { title: "Type" }, { title: "Source" }, { title: "Activité", position: "right" }];
 const MAX_EVENTS = 25;
 
 const RealTime = () => {
@@ -20,6 +19,16 @@ const RealTime = () => {
   const sourceType = searchParams.get("sourceType") || "";
   const [type, setType] = useState(searchParams.get("type") || (sourceType === "campaign" ? "" : "print"));
   const [sourceName, setSourceName] = useState("");
+
+  const tableHeader = useMemo(
+    () => [
+      { title: sourceType === "widget" ? "Widget" : sourceType === "campaign" ? "Campagne" : "Mission" },
+      { title: "Type" },
+      { title: "Source" },
+      { title: "Activité", position: "right" },
+    ],
+    [sourceType],
+  );
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -126,7 +135,7 @@ const RealTime = () => {
           </div>
         </div>
 
-        <Table header={TABLE_HEADER} total={events.length} loading={loading} auto>
+        <Table header={tableHeader} total={events.length} loading={loading} auto>
           {events.map((item, i) => {
             const entries = getCustomAttributesEntries(item.customAttributes);
             const hasClientEventId = Boolean(item.clientEventId);
@@ -140,11 +149,11 @@ const RealTime = () => {
                       {item.missionTitle}
                     </Link>
                   ) : (
-                    <span className="block max-w-prose">Campagne: {item.sourceName}</span>
+                    <span className="block max-w-prose">{item.sourceName}</span>
                   )}
                 </td>
                 <td className="px-4 py-3 align-middle">
-                  <div className="inline-flex items-center gap-1 flex-wrap">
+                  <div className="inline-flex flex-wrap items-center gap-1">
                     <span>{item.type === "apply" ? "Candidature" : item.type === "click" ? "Redirection" : "Impression"}</span>
                     {tooltipId ? (
                       <Tooltip

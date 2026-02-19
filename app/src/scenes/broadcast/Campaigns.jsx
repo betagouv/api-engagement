@@ -155,7 +155,7 @@ const Campaigns = () => {
               </td>
               <td className={`px-4 py-3 ${!item.active ? "opacity-50" : "opacity-100"}`}>{new Date(item.createdAt).toLocaleDateString("fr")}</td>
               <td colSpan={3} className="px-4 py-3">
-                <div className="flex gap-2 text-lg">
+                <div className="flex w-fit gap-2 text-lg">
                   <Link className="secondary-btn flex items-center" to={`/broadcast/campaign/${item.id}`}>
                     <RiEditFill className="text-lg" role="img" aria-label="Modifier la campagne" />
                   </Link>

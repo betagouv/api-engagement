@@ -56,7 +56,7 @@ const Settings = () => {
     ].map((tab) => ({
       ...tab,
       id: `settings-tab-${tab.key}`,
-      to: `/settings/${tab.route}`,
+      to: `/${publisherId}/settings/${tab.route}`,
     }));
     const activeFromTab = fromTabs.find((tab) => tab.isActive) || fromTabs[0];
 
@@ -65,13 +65,7 @@ const Settings = () => {
         <title>API Engagement - Paramètres de tracking</title>
         <h1 className="text-4xl font-bold">Paramètres</h1>
         <div>
-          <Tabs
-            tabs={fromTabs}
-            ariaLabel="Paramètres"
-            panelId="settings-panel"
-            className="flex items-center gap-4 pl-4 font-semibold text-black"
-            variant="primary"
-          />
+          <Tabs tabs={fromTabs} ariaLabel="Paramètres" panelId="settings-panel" className="flex items-center gap-4 pl-4 font-semibold text-black" variant="primary" />
           <section id="settings-panel" role="tabpanel" aria-labelledby={activeFromTab?.id} className="bg-white shadow-lg">
             <Routes>
               <Route path="/" element={<TrackingBroadcast />} />
