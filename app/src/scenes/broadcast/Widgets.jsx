@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { RiAddFill, RiEditFill, RiEyeFill, RiSearchLine } from "react-icons/ri";
+import { RiAddFill, RiEditFill, RiEyeFill, RiPulseLine, RiSearchLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
 
 import Loader from "@/components/Loader";
@@ -123,6 +123,9 @@ const Widgets = () => {
                   >
                     <RiEyeFill className="text-lg" role="img" aria-label="Voir le widget" />
                   </a>
+                  <Link className="secondary-btn flex items-center" to={`/settings/real-time?sourceId=${item.id}&sourceType=widget`}>
+                    <RiPulseLine className="text-lg" role="img" aria-label={`Voir les événements en direct du widget ${item.name || ""}`.trim()} />
+                  </Link>
                 </td>
                 {user.role === "admin" && (
                   <td className="px-4">

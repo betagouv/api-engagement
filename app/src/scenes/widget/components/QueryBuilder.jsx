@@ -38,15 +38,15 @@ const QueryBuilder = ({ values, onChange }) => {
       {values.rules.map((r, i) => (
         <div key={i} className="my-3 flex w-full items-center gap-4">
           <Rule index={i} fields={FIELDS} rule={r} onChange={(r) => handleRuleChange(r, i)} filters={values.publishers.map((p) => `publishers[]=${p}`).join("&")} />
-          <span className="border-error text-error flex h-8 w-8 cursor-pointer items-center justify-center border" onClick={() => handleDeleteRule(i)}>
-            <RiDeleteBin6Line />
-          </span>
+          <button type="button" className="border-error text-error flex h-8 w-8 cursor-pointer items-center justify-center border" onClick={() => handleDeleteRule(i)} aria-label="Supprimer le filtre">
+            <RiDeleteBin6Line aria-hidden="true" />
+          </button>
         </div>
       ))}
-      <span className="secondary-btn flex w-fit items-center" onClick={handleAddRule}>
+      <button type="button" className="secondary-btn flex w-fit items-center" onClick={handleAddRule}>
         Ajouter un filtre
-        <RiAddFill className="ml-2" />
-      </span>
+        <RiAddFill className="ml-2" aria-hidden="true" />
+      </button>
     </div>
   );
 };

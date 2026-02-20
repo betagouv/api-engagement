@@ -1,4 +1,4 @@
-import { ENV, SENDINBLUE_APIKEY } from "@/config";
+import { SENDINBLUE_APIKEY } from "@/config";
 import { captureException } from "@/error";
 
 interface EmailOptions {
@@ -71,7 +71,7 @@ export const sendTemplate = async (templateId: number, options: EmailOptions): P
       body.tags = options.tags;
     }
 
-    if (ENV === "development") {
+    if (!SENDINBLUE_APIKEY) {
       console.log(`---- EMAIL ----`);
       console.log(`[to]: ${JSON.stringify(body.to, null, 2)}`);
       console.log(`[template]: ${body.templateId}`);
@@ -79,11 +79,15 @@ export const sendTemplate = async (templateId: number, options: EmailOptions): P
       console.log(`[params]: ${JSON.stringify(body.params, null, 2)}`);
       console.log(`---- EMAIL ----`);
       return { ok: true, data: { dev: true } };
-    } else {
-      return await api("/smtp/email", body);
     }
-  } catch (e) {
-    captureException(e, "sendTemplate");
+    const res = await api("/smtp/email", body);
+    if (!res.ok) {
+      captureException(res.data, { extra: { templateId, options } });
+      return { ok: false, data: res.data };
+    }
+    return { ok: true, data: res.data };
+  } catch (error) {
+    captureException(error, { extra: { templateId, options } });
     return { ok: false };
   }
 };

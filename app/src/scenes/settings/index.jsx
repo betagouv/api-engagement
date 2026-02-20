@@ -39,19 +39,43 @@ const Settings = () => {
   const activeTab = tabs.find((tab) => tab.isActive) || tabs[0];
   const activeTabId = activeTab ? activeTab.id : null;
 
-  if (flux === "from")
+  if (flux === "from") {
+    const fromTabs = [
+      {
+        key: "tracking",
+        label: "Paramètres de tracking",
+        route: "",
+        isActive: currentRoute !== "real-time",
+      },
+      {
+        key: "real-time",
+        label: "Événements en temps réel",
+        route: "real-time",
+        isActive: currentRoute === "real-time",
+      },
+    ].map((tab) => ({
+      ...tab,
+      id: `settings-tab-${tab.key}`,
+      to: `/${publisherId}/settings/${tab.route}`,
+    }));
+    const activeFromTab = fromTabs.find((tab) => tab.isActive) || fromTabs[0];
+
     return (
       <div className="space-y-12">
         <title>API Engagement - Paramètres de tracking</title>
-        <div className="space-y-4">
-          <h1 className="text-4xl font-bold">Paramètres de tracking</h1>
-          <p className="text-text-mention text-base">
-            Suivez les instructions ci-dessous pour que les impressions de vos liens de campagnes et des missions que vous diffusez par API soient comptabilisées.
-          </p>
+        <h1 className="text-4xl font-bold">Paramètres</h1>
+        <div>
+          <Tabs tabs={fromTabs} ariaLabel="Paramètres" panelId="settings-panel" className="flex items-center gap-4 pl-4 font-semibold text-black" variant="primary" />
+          <section id="settings-panel" role="tabpanel" aria-labelledby={activeFromTab?.id} className="bg-white shadow-lg">
+            <Routes>
+              <Route path="/" element={<TrackingBroadcast />} />
+              <Route path="/real-time" element={<RealTime />} />
+            </Routes>
+          </section>
         </div>
-        <TrackingBroadcast />
       </div>
     );
+  }
 
   return (
     <div className="space-y-12">
