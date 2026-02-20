@@ -612,6 +612,7 @@ model Mission {
   activities            MissionActivity[]
 
   // TODO after migration: remove Legacy fields, kept during backfill
+  organizationId                     String?  @map("organization_id")
   organizationClientId               String?  @map("organization_client_id")
   organizationUrl                    String?
   organizationName                   String?

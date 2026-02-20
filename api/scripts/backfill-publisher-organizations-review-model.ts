@@ -22,6 +22,7 @@ const migrateMissions = async () => {
     select: {
       id: true,
       clientId: true,
+      publisherId: true,
     },
   });
   console.log(`[PublisherOrganizationReviewModelBackfill] ${publisherOrganizations.length} publisher organizations found`);
@@ -43,6 +44,7 @@ const migrateMissions = async () => {
     if (!DRY_RUN) {
       const updatedMissions = await prismaCore.mission.updateMany({
         where: {
+          publisherId: publisherOrganization.publisherId,
           organizationClientId: publisherOrganization.clientId,
           publisherOrganizationId: null,
         },

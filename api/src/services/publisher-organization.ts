@@ -12,6 +12,12 @@ const buildWhere = (params: PublisherOrganizationFindParams): Prisma.PublisherOr
   const where: Prisma.PublisherOrganizationWhereInput = {
     publisherId: params.publisherId,
   };
+  if (params.id) {
+    where.id = params.id;
+  }
+  if (params.ids) {
+    where.id = { in: params.ids };
+  }
   if (params.clientId) {
     where.clientId = params.clientId;
   }

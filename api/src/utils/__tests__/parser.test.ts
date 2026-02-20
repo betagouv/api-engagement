@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { hasEncodageIssue, parseBool, parseDate, parseLowercase, parseNumber, parseSiren, parseString, parseStringArray } from "../helpers";
+import { hasEncodageIssue, parseBool, parseDate, parseLowercase, parseNumber, parseSiren, parseString, parseStringArray } from "../parser";
 
 // ---------------------------------------------------------------------------
 // parseString

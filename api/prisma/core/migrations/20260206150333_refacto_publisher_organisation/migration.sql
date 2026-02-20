@@ -11,8 +11,7 @@ ALTER TABLE "mission" DROP CONSTRAINT "mission_organization_id_fkey";
 ALTER TABLE "mission" DROP CONSTRAINT "mission_publisher_id_organization_client_id_fkey";
 
 -- AlterTable
-ALTER TABLE "mission" DROP COLUMN "organization_id",
-ADD COLUMN     "publisher_organization_id" TEXT;
+ALTER TABLE "mission" ADD COLUMN "publisher_organization_id" TEXT;
 
 -- AlterTable: rename legacy columns to new names (instead of ADD + backfill)
 ALTER TABLE "publisher_organization" RENAME COLUMN "organization_client_id" TO "client_id";
@@ -50,3 +49,6 @@ ALTER TABLE "publisher_organization" ADD CONSTRAINT "publisher_organization_orga
 
 -- RenameIndex
 ALTER INDEX "publisher_organization_publisher_id_org_client_id_key" RENAME TO "publisher_organization_publisher_id_client_id_key";
+
+-- AlterTable
+ALTER TABLE "publisher_organization" ALTER COLUMN "client_id" SET NOT NULL;

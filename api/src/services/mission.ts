@@ -3,7 +3,6 @@ import { randomUUID } from "crypto";
 import { Mission, Prisma } from "../db/core";
 import { prismaCore } from "../db/postgres";
 import { missionRepository } from "../repositories/mission";
-import { organizationRepository } from "../repositories/organization";
 import type {
   MissionCreateInput,
   MissionFacets,
@@ -20,6 +19,7 @@ import { buildJobBoardMap, deriveMissionLocation, normalizeMissionAddresses } fr
 import { normalizeOptionalString, normalizeStringList } from "../utils/normalize";
 import { activityService } from "./activity";
 import { publisherService } from "./publisher";
+import publisherOrganizationService from "./publisher-organization";
 
 type MissionWithRelations = Mission & {
   publisher?: { name: string | null; url: string | null; logo: string | null } | null;
@@ -480,10 +480,10 @@ const buildAggregations = async (where: Prisma.MissionWhereInput): Promise<Missi
 
   const organizationClientIds = organizationsRaw.map((row) => row.key).filter(isNonEmpty) as string[];
   const organizations =
-    organizationClientIds.length > 0 ? await organizationRepository.findMany({ where: { id: { in: organizationClientIds } }, select: { id: true, title: true } }) : [];
-  const orgById = new Map(organizations.map((org) => [org.id, org.title ?? ""]));
+    organizationClientIds.length > 0 ? await publisherOrganizationService.findMany({ clientIds: organizationClientIds }, { select: { clientId: true, name: true } }) : [];
+  const orgByClientId = new Map(organizations.map((org) => [org.clientId ?? "", org.name ?? ""]));
   const organizationsAgg = organizationsRaw
-    .map((row) => ({ key: orgById.get(row.key) ?? "", doc_count: row.doc_count }))
+    .map((row) => ({ key: orgByClientId.get(row.key ?? "") ?? "", doc_count: row.doc_count }))
     .filter((row) => isNonEmpty(row.key))
     .sort((a, b) => b.doc_count - a.doc_count);
 
