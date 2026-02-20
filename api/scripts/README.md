@@ -61,9 +61,9 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
     - Preview: `npx ts-node scripts/fix-mission-event-undelete-type.ts --dry-run`
     - Exécution réelle avec batch: `npx ts-node scripts/fix-mission-event-undelete-type.ts --batch 1000`
   - Usage: Corrige les lignes `mission_event` incohérentes où `type='delete'` alors que `changes.deletedAt.current = null` et `changes.deletedAt.previous` est non nul. Ces lignes sont passées en `type='update'`.
+    Le script affiche toutes les lignes candidates (dry-run) ou corrigées (mode exécution).
   - Options:
     - `--dry-run` : simule uniquement, sans mise à jour en base.
-    - `--sample <taille>` : taille de l'échantillon affiché avant traitement (défaut: 20).
     - `--batch <taille>` : taille de lot pour le traitement par pagination/cursor sur `id` (défaut: 1000).
   - Prérequis: Nécessite l'accès à Postgres `core`.
 
