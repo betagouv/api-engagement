@@ -1,5 +1,5 @@
-import { Prisma, StatBot } from "../db/core";
-import { prismaCore } from "../db/postgres";
+import { Prisma, StatBot } from "@/db/core";
+import { prismaCore } from "@/db/postgres";
 
 export const statBotRepository = {
   async findMany(params: Prisma.StatBotFindManyArgs = {}): Promise<StatBot[]> {

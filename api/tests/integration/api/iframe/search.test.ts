@@ -1,8 +1,8 @@
 import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
-import type { MissionRecord } from "../../../../src/types/mission";
-import type { PublisherRecord } from "../../../../src/types/publisher";
-import type { WidgetRecord } from "../../../../src/types/widget";
+import type { MissionRecord } from "@/types/mission";
+import type { PublisherRecord } from "@/types/publisher";
+import type { WidgetRecord } from "@/types/widget";
 import { createTestMission, createTestPublisher, createTestWidget, createTestWidgetRule } from "../../../fixtures";
 import { createTestApp } from "../../../testApp";
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { ACTIVITIES } from "../../constants/activity";
-import { isWhitelistedActivity, splitActivityString } from "../activity";
+import { ACTIVITIES } from "@/constants/activity";
+import { isWhitelistedActivity, splitActivityString } from "@/utils/activity";
 
 describe("splitActivityString", () => {
   it("returns [] for empty, whitespace, nullish and bare commas", () => {

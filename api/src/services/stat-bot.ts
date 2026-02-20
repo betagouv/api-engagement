@@ -1,7 +1,7 @@
-import { Prisma } from "../db/core";
-import { statBotRepository } from "../repositories/stat-bot";
-import { StatBotCreateInput, StatBotRecord, StatBotSearchParams } from "../types/stat-bot";
-import { normalizeOptionalString } from "../utils/normalize";
+import { Prisma } from "@/db/core";
+import { statBotRepository } from "@/repositories/stat-bot";
+import { StatBotCreateInput, StatBotRecord, StatBotSearchParams } from "@/types/stat-bot";
+import { normalizeOptionalString } from "@/utils/normalize";
 
 const DEFAULT_LIMIT = 25;
 const MAX_LIMIT = 100;

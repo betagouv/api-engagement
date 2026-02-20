@@ -1,12 +1,12 @@
 import request from "supertest";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { JVA_URL } from "../../../../src/config";
-import { prismaCore } from "../../../../src/db/postgres";
-import { campaignService } from "../../../../src/services/campaign";
-import { statBotService } from "../../../../src/services/stat-bot";
-import { PublisherRecord } from "../../../../src/types/publisher";
-import * as utils from "../../../../src/utils";
+import { JVA_URL } from "@/config";
+import { prismaCore } from "@/db/postgres";
+import { campaignService } from "@/services/campaign";
+import { statBotService } from "@/services/stat-bot";
+import { PublisherRecord } from "@/types/publisher";
+import * as utils from "@/utils";
 import { createTestPublisher } from "../../../fixtures";
 import { createTestApp } from "../../../testApp";
 

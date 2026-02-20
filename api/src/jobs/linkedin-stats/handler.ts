@@ -1,13 +1,13 @@
 import * as XLSX from "xlsx";
 
-import { downloadFile } from "../../controllers/brevo-webhook/helpers/download-file";
-import { Email } from "../../db/core";
-import { captureException } from "../../error";
-import { emailService } from "../../services/email";
-import { getObject } from "../../services/s3";
-import { BaseHandler } from "../base/handler";
-import { JobResult } from "../types";
-import { processData } from "./add-stats";
+import { downloadFile } from "@/controllers/brevo-webhook/helpers/download-file";
+import { Email } from "@/db/core";
+import { captureException } from "@/error";
+import { emailService } from "@/services/email";
+import { getObject } from "@/services/s3";
+import { BaseHandler } from "@/jobs/base/handler";
+import { JobResult } from "@/jobs/types";
+import { processData } from "@/jobs/linkedin-stats/add-stats";
 
 const downloadXlsx = async (url: string) => {
   try {

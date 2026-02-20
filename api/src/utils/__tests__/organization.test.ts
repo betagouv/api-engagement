@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isValidRNA, isValidSiret } from "../organization";
+import { isValidRNA, isValidSiret } from "@/utils/organization";
 
 describe("isValidRNA", () => {
   it("should return true for valid RNAs", () => {

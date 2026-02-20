@@ -2,10 +2,10 @@ import { readFile } from "fs/promises";
 import path from "path";
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { prismaCore } from "../../../../src/db/postgres";
-import { ImportMissionsHandler } from "../../../../src/jobs/import-missions/handler";
-import { importService } from "../../../../src/services/import";
-import { missionService } from "../../../../src/services/mission";
+import { prismaCore } from "@/db/postgres";
+import { ImportMissionsHandler } from "@/jobs/import-missions/handler";
+import { importService } from "@/services/import";
+import { missionService } from "@/services/mission";
 import { createTestImport, createTestMission, createTestPublisher } from "../../../fixtures";
 
 const originalFetch = global.fetch;

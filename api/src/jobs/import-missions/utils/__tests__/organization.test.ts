@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getDepartement, isVerified } from "../organization";
+import { getDepartement, isVerified } from "@/jobs/import-missions/utils/organization";
 
 describe("isVerified", () => {
   it("should return true for verified status missions", () => {

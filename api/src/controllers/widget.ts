@@ -2,11 +2,11 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "../error";
-import { publisherService } from "../services/publisher";
-import { widgetService } from "../services/widget";
-import { UserRequest } from "../types/passport";
-import type { WidgetCreateInput, WidgetSearchParams } from "../types/widget";
+import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "@/error";
+import { publisherService } from "@/services/publisher";
+import { widgetService } from "@/services/widget";
+import { UserRequest } from "@/types/passport";
+import type { WidgetCreateInput, WidgetSearchParams } from "@/types/widget";
 
 const router = Router();
 

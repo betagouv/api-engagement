@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
-import type { Prisma } from "../../src/db/core";
-import type { ImportRecord } from "../../src/types/import";
+import type { Prisma } from "@/db/core";
+import type { ImportRecord } from "@/types/import";
 import { normalizeDate, normalizeNumber, toJsonValue } from "./utils/normalize";
 import { loadEnvironment, parseScriptOptions, type ScriptOptions } from "./utils/options";
 
@@ -112,10 +112,10 @@ const formatRecordForLog = (record: ImportRecord) => ({
 
 const migrateImports = async () => {
   const [{ mongoConnected }, { pgConnected }, { importRepository }, { publisherRepository }] = await Promise.all([
-    import("../../src/db/mongo"),
-    import("../../src/db/postgres"),
-    import("../../src/repositories/import"),
-    import("../../src/repositories/publisher"),
+    import("@/db/mongo"),
+    import("@/db/postgres"),
+    import("@/repositories/import"),
+    import("@/repositories/publisher"),
   ]);
 
   await mongoConnected;
@@ -206,7 +206,7 @@ const migrateImports = async () => {
 
 const cleanup = async () => {
   try {
-    const { prismaCore } = await import("../../src/db/postgres");
+    const { prismaCore } = await import("@/db/postgres");
     await Promise.allSettled([prismaCore.$disconnect(), mongoose.connection.close()]);
   } catch {
     await Promise.allSettled([mongoose.connection.close()]);

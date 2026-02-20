@@ -1,5 +1,5 @@
-import { MissionAddress, Prisma } from "../db/core";
-import { prismaCore } from "../db/postgres";
+import { MissionAddress, Prisma } from "@/db/core";
+import { prismaCore } from "@/db/postgres";
 
 export const missionAddressRepository = {
   async findMany(params: Prisma.MissionAddressFindManyArgs = {}): Promise<MissionAddress[]> {

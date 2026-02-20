@@ -1,5 +1,5 @@
-import { ENV, SENDINBLUE_APIKEY } from "../config";
-import { captureException } from "../error";
+import { ENV, SENDINBLUE_APIKEY } from "@/config";
+import { captureException } from "@/error";
 
 interface EmailOptions {
   params: Record<string, any>;

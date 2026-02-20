@@ -1,13 +1,13 @@
-import { Prisma, PublisherOrganization } from "../../../db/core";
-import { DEPARTMENTS } from "../../../constants/departments";
-import { captureException } from "../../../error";
-import apiDatasubvention from "../../../services/api-datasubvention";
-import { organizationService } from "../../../services/organization";
-import { publisherOrganizationRepository } from "../../../repositories/publisher-organization";
-import { OrganizationCreateInput, OrganizationRecord, OrganizationUpdatePatch } from "../../../types/organization";
-import { normalizeOptionalString, normalizeStringList } from "../../../utils/normalize";
-import { isValidRNA, isValidSiret } from "../../../utils/organization";
-import type { ImportedMission } from "../types";
+import { Prisma, PublisherOrganization } from "@/db/core";
+import { DEPARTMENTS } from "@/constants/departments";
+import { captureException } from "@/error";
+import apiDatasubvention from "@/services/api-datasubvention";
+import { organizationService } from "@/services/organization";
+import { publisherOrganizationRepository } from "@/repositories/publisher-organization";
+import { OrganizationCreateInput, OrganizationRecord, OrganizationUpdatePatch } from "@/types/organization";
+import { normalizeOptionalString, normalizeStringList } from "@/utils/normalize";
+import { isValidRNA, isValidSiret } from "@/utils/organization";
+import type { ImportedMission } from "@/jobs/import-missions/types";
 
 export const ORGANIZATION_VERIFICATION_STATUS = {
   RNA_MATCHED_WITH_DATA_DB: "RNA_MATCHED_WITH_DATA_DB",

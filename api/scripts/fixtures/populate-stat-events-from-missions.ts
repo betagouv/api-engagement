@@ -2,8 +2,8 @@ import { randomUUID } from "crypto";
 
 import { loadEnvironment } from "../mongo-backfill/utils/options";
 
-import type { MissionRecord } from "../../src/types/mission";
-import type { StatEventRecord, StatEventSource, StatEventStatus, StatEventType } from "../../src/types/stat-event";
+import type { MissionRecord } from "@/types/mission";
+import type { StatEventRecord, StatEventSource, StatEventStatus, StatEventType } from "@/types/stat-event";
 
 type PublisherInfo = {
   id: string;
@@ -28,11 +28,11 @@ type ScriptOptions = {
   publisherId?: string;
 };
 
-type ConfigModule = typeof import("../../src/config");
-type PostgresModule = typeof import("../../src/db/postgres");
-type MissionServiceModule = typeof import("../../src/services/mission");
-type PublisherRepositoryModule = typeof import("../../src/repositories/publisher");
-type StatEventServiceModule = typeof import("../../src/services/stat-event");
+type ConfigModule = typeof import("@/config");
+type PostgresModule = typeof import("@/db/postgres");
+type MissionServiceModule = typeof import("@/services/mission");
+type PublisherRepositoryModule = typeof import("@/repositories/publisher");
+type StatEventServiceModule = typeof import("@/services/stat-event");
 
 let publisherIdsMap: ConfigModule["PUBLISHER_IDS"] | null = null;
 let prismaCore: PostgresModule["prismaCore"] | null = null;
@@ -124,11 +124,11 @@ async function ensureDependenciesLoaded() {
   }
 
   const [configModule, postgresModule, missionModule, publisherModule, statEventModule] = await Promise.all([
-    import("../../src/config"),
-    import("../../src/db/postgres"),
-    import("../../src/services/mission"),
-    import("../../src/repositories/publisher"),
-    import("../../src/services/stat-event"),
+    import("@/config"),
+    import("@/db/postgres"),
+    import("@/services/mission"),
+    import("@/repositories/publisher"),
+    import("@/services/stat-event"),
   ]);
 
   publisherIdsMap = configModule.PUBLISHER_IDS;

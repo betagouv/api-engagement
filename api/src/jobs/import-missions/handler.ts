@@ -1,19 +1,19 @@
-import { captureException } from "../../error";
-import { importService } from "../../services/import";
+import { captureException } from "@/error";
+import { importService } from "@/services/import";
 
-import { Prisma, Import as PrismaImport } from "../../db/core";
-import { missionService } from "../../services/mission";
-import { publisherService } from "../../services/publisher";
-import type { PublisherRecord } from "../../types/publisher";
-import { BaseHandler } from "../base/handler";
-import { JobResult } from "../types";
-import type { ImportedMission } from "./types";
-import { bulkDB, cleanDB } from "./utils/db";
-import { enrichWithGeoloc } from "./utils/geoloc";
-import { buildData } from "./utils/mission";
-import { verifyOrganization } from "./utils/organization";
-import { shouldCleanMissionsForPublisher } from "./utils/publisher";
-import { fetchXML, parseXML } from "./utils/xml";
+import { Prisma, Import as PrismaImport } from "@/db/core";
+import { missionService } from "@/services/mission";
+import { publisherService } from "@/services/publisher";
+import type { PublisherRecord } from "@/types/publisher";
+import { BaseHandler } from "@/jobs/base/handler";
+import { JobResult } from "@/jobs/types";
+import type { ImportedMission } from "@/jobs/import-missions/types";
+import { bulkDB, cleanDB } from "@/jobs/import-missions/utils/db";
+import { enrichWithGeoloc } from "@/jobs/import-missions/utils/geoloc";
+import { buildData } from "@/jobs/import-missions/utils/mission";
+import { verifyOrganization } from "@/jobs/import-missions/utils/organization";
+import { shouldCleanMissionsForPublisher } from "@/jobs/import-missions/utils/publisher";
+import { fetchXML, parseXML } from "@/jobs/import-missions/utils/xml";
 
 const CHUNK_SIZE = 2000;
 

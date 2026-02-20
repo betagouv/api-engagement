@@ -1,12 +1,12 @@
 import { randomUUID } from "node:crypto";
 
-import { prismaCore } from "../../src/db/postgres";
-import { missionRepository } from "../../src/repositories/mission";
-import { missionService } from "../../src/services/mission";
-import { missionModerationStatusService } from "../../src/services/mission-moderation-status";
-import { organizationService } from "../../src/services/organization";
-import { MissionType, type MissionCreateInput, type MissionRecord } from "../../src/types";
-import type { MissionAddress } from "../../src/types/mission";
+import { prismaCore } from "@/db/postgres";
+import { missionRepository } from "@/repositories/mission";
+import { missionService } from "@/services/mission";
+import { missionModerationStatusService } from "@/services/mission-moderation-status";
+import { organizationService } from "@/services/organization";
+import { MissionType, type MissionCreateInput, type MissionRecord } from "@/types";
+import type { MissionAddress } from "@/types/mission";
 import { createTestPublisher } from "./publisher";
 
 const ensurePublisherExists = async (publisherId: string) => {

@@ -2,13 +2,13 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { JVA_MODERATION_COMMENTS_LABELS } from "../../constants/moderation";
-import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../../error";
-import { missionService } from "../../services/mission";
-import { statEventService } from "../../services/stat-event";
-import { PublisherRecord } from "../../types";
-import { MissionRecord } from "../../types/mission";
-import { PublisherRequest } from "../../types/passport";
+import { JVA_MODERATION_COMMENTS_LABELS } from "@/constants/moderation";
+import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
+import { missionService } from "@/services/mission";
+import { statEventService } from "@/services/stat-event";
+import { PublisherRecord } from "@/types";
+import { MissionRecord } from "@/types/mission";
+import { PublisherRequest } from "@/types/passport";
 
 const router = Router();
 

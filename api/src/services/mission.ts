@@ -1,9 +1,9 @@
 import { randomUUID } from "crypto";
 
-import { Mission, Prisma } from "../db/core";
-import { prismaCore } from "../db/postgres";
-import { missionRepository } from "../repositories/mission";
-import { organizationRepository } from "../repositories/organization";
+import { Mission, Prisma } from "@/db/core";
+import { prismaCore } from "@/db/postgres";
+import { missionRepository } from "@/repositories/mission";
+import { organizationRepository } from "@/repositories/organization";
 import type {
   MissionCreateInput,
   MissionFacets,
@@ -13,12 +13,12 @@ import type {
   MissionSearchFilters,
   MissionSelect,
   MissionUpdatePatch,
-} from "../types/mission";
-import { calculateBoundingBox } from "../utils";
-import { activityService } from "./activity";
-import { buildJobBoardMap, deriveMissionLocation, normalizeMissionAddresses } from "../utils/mission";
-import { normalizeOptionalString, normalizeStringList } from "../utils/normalize";
-import { publisherService } from "./publisher";
+} from "@/types/mission";
+import { calculateBoundingBox } from "@/utils";
+import { activityService } from "@/services/activity";
+import { buildJobBoardMap, deriveMissionLocation, normalizeMissionAddresses } from "@/utils/mission";
+import { normalizeOptionalString, normalizeStringList } from "@/utils/normalize";
+import { publisherService } from "@/services/publisher";
 
 type MissionWithRelations = Mission & {
   publisher?: { name: string | null; url: string | null; logo: string | null } | null;

@@ -1,13 +1,13 @@
 import { XMLBuilder } from "fast-xml-parser";
 
-import { JVA_LOGO_URL } from "../../config";
-import { Prisma } from "../../db/core";
-import { buildWhere, missionService } from "../../services/mission";
-import { OBJECT_ACL, putObject } from "../../services/s3";
-import { MissionRecord, MissionSearchFilters } from "../../types/mission";
-import { CATEGORY_MAPPING, TALENT_XML_URL } from "./config";
-import { missionToTalentJob } from "./transformers";
-import { TalentJob } from "./types";
+import { JVA_LOGO_URL } from "@/config";
+import { Prisma } from "@/db/core";
+import { buildWhere, missionService } from "@/services/mission";
+import { OBJECT_ACL, putObject } from "@/services/s3";
+import { MissionRecord, MissionSearchFilters } from "@/types/mission";
+import { CATEGORY_MAPPING, TALENT_XML_URL } from "@/jobs/talent/config";
+import { missionToTalentJob } from "@/jobs/talent/transformers";
+import { TalentJob } from "@/jobs/talent/types";
 
 const DEFAULT_BATCH_SIZE = 500;
 

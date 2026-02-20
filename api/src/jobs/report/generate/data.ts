@@ -1,7 +1,7 @@
-import type { PublisherRecord } from "../../../types/publisher";
-import { StatsReport } from "../../../types/report";
+import type { PublisherRecord } from "@/types/publisher";
+import { StatsReport } from "@/types/report";
 
-import { getReportAggregations, HistogramBucket } from "./report-stats-source";
+import { getReportAggregations, HistogramBucket } from "@/jobs/report/generate/report-stats-source";
 
 export const MONTHS = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
 

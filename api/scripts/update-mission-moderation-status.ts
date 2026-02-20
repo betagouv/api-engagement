@@ -1,9 +1,9 @@
 /**
  * Script that updates remove all the moderation status on JVA missions, and set to PENDING all the moderation with no status
  */
-import { PUBLISHER_IDS } from "../src/config";
-import { prismaCore } from "../src/db/postgres";
-import { publisherService } from "../src/services/publisher";
+import { PUBLISHER_IDS } from "@/config";
+import { prismaCore } from "@/db/postgres";
+import { publisherService } from "@/services/publisher";
 
 const DRY_RUN = process.argv.includes("--dry-run");
 

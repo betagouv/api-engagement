@@ -1,9 +1,9 @@
-import { PUBLISHER_IDS } from "../../config";
-import { captureException } from "../../error";
-import { publisherService } from "../../services/publisher";
-import { BaseHandler } from "../base/handler";
-import { JobResult } from "../types";
-import { createModerations, findMissions } from "./utils";
+import { PUBLISHER_IDS } from "@/config";
+import { captureException } from "@/error";
+import { publisherService } from "@/services/publisher";
+import { BaseHandler } from "@/jobs/base/handler";
+import { JobResult } from "@/jobs/types";
+import { createModerations, findMissions } from "@/jobs/moderation/utils";
 
 export interface ModerationJobPayload {}
 

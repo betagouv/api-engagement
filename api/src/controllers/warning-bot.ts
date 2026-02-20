@@ -1,11 +1,11 @@
 import { Router } from "express";
 import passport from "passport";
 
-import { NOT_FOUND } from "../error";
-import { publisherService } from "../services/publisher";
-import { statBotService } from "../services/stat-bot";
-import { statEventService } from "../services/stat-event";
-import { warningBotService } from "../services/warning-bot";
+import { NOT_FOUND } from "@/error";
+import { publisherService } from "@/services/publisher";
+import { statBotService } from "@/services/stat-bot";
+import { statEventService } from "@/services/stat-event";
+import { warningBotService } from "@/services/warning-bot";
 
 const router = Router();
 

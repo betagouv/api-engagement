@@ -2,11 +2,11 @@ import { randomUUID } from "node:crypto";
 import request from "supertest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { PUBLISHER_IDS } from "../../../../src/config";
-import { prismaCore } from "../../../../src/db/postgres";
-import { publisherService } from "../../../../src/services/publisher";
-import { statBotService } from "../../../../src/services/stat-bot";
-import * as utils from "../../../../src/utils";
+import { PUBLISHER_IDS } from "@/config";
+import { prismaCore } from "@/db/postgres";
+import { publisherService } from "@/services/publisher";
+import { statBotService } from "@/services/stat-bot";
+import * as utils from "@/utils";
 import { createTestMission } from "../../../fixtures";
 import { createTestApp } from "../../../testApp";
 

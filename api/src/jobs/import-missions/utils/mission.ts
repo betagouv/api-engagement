@@ -1,16 +1,16 @@
 import he from "he";
 import { convert } from "html-to-text";
 
-import { PUBLISHER_IDS } from "../../../config";
-import { AUTRE_IMAGE, DOMAIN_IMAGES } from "../../../constants/domains";
-import { captureException } from "../../../error";
-import { activityService } from "../../../services/activity";
-import { missionService } from "../../../services/mission";
-import type { MissionRecord } from "../../../types/mission";
-import type { PublisherRecord } from "../../../types/publisher";
-import { ImportedMission, MissionXML } from "../types";
-import { getAddress, getAddresses } from "./address";
-import { getModeration } from "./moderation";
+import { PUBLISHER_IDS } from "@/config";
+import { AUTRE_IMAGE, DOMAIN_IMAGES } from "@/constants/domains";
+import { captureException } from "@/error";
+import { activityService } from "@/services/activity";
+import { missionService } from "@/services/mission";
+import type { MissionRecord } from "@/types/mission";
+import type { PublisherRecord } from "@/types/publisher";
+import { ImportedMission, MissionXML } from "@/jobs/import-missions/types";
+import { getAddress, getAddresses } from "@/jobs/import-missions/utils/address";
+import { getModeration } from "@/jobs/import-missions/utils/moderation";
 
 const getImageDomain = (domain: string) => {
   const number = Number(new Date().getTime().toString().slice(-1)) % 3;

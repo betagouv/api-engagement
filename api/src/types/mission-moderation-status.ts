@@ -1,7 +1,7 @@
-import { ModerationEventStatus } from "../db/core";
-import { MissionRecord } from "./mission";
-import { PublisherRecord } from "./publisher";
-import { PublisherOrganizationRecord } from "./publisher-organization";
+import { ModerationEventStatus } from "@/db/core";
+import { MissionRecord } from "@/types/mission";
+import { PublisherRecord } from "@/types/publisher";
+import { PublisherOrganizationRecord } from "@/types/publisher-organization";
 
 export type MissionModerationSearchFilters = {
   publisherId: PublisherRecord["id"];

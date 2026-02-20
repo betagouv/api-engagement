@@ -2,16 +2,16 @@ import cors from "cors";
 import { Request, Response, Router } from "express";
 import zod from "zod";
 
-import { JVA_URL, PUBLISHER_IDS } from "../config";
-import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, SERVER_ERROR, captureException } from "../error";
-import { campaignService } from "../services/campaign";
-import { missionService } from "../services/mission";
-import { publisherService } from "../services/publisher";
-import { statBotService } from "../services/stat-bot";
-import { statEventService } from "../services/stat-event";
-import { widgetService } from "../services/widget";
-import { MissionRecord, StatEventRecord } from "../types";
-import { cleanIdParam, identify, slugify } from "../utils";
+import { JVA_URL, PUBLISHER_IDS } from "@/config";
+import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, SERVER_ERROR, captureException } from "@/error";
+import { campaignService } from "@/services/campaign";
+import { missionService } from "@/services/mission";
+import { publisherService } from "@/services/publisher";
+import { statBotService } from "@/services/stat-bot";
+import { statEventService } from "@/services/stat-event";
+import { widgetService } from "@/services/widget";
+import { MissionRecord, StatEventRecord } from "@/types";
+import { cleanIdParam, identify, slugify } from "@/utils";
 
 const router = Router();
 

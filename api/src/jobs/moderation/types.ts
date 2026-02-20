@@ -1,4 +1,4 @@
-import { ModerationEventStatus } from "../../types/moderation-event";
+import { ModerationEventStatus } from "@/types/moderation-event";
 
 export interface ModerationUpdate {
   status: ModerationEventStatus | null;

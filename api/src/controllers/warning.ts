@@ -2,10 +2,10 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { FORBIDDEN, INVALID_BODY, INVALID_QUERY } from "../error";
-import { importService } from "../services/import";
-import { warningService } from "../services/warning";
-import { UserRequest } from "../types/passport";
+import { FORBIDDEN, INVALID_BODY, INVALID_QUERY } from "@/error";
+import { importService } from "@/services/import";
+import { warningService } from "@/services/warning";
+import { UserRequest } from "@/types/passport";
 
 const router = Router();
 

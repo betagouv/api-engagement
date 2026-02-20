@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { parseBool, parseCompensationUnit, parseDate, parseNumber, parseRemote, parseStringArray } from "../mission";
+import { parseBool, parseCompensationUnit, parseDate, parseNumber, parseRemote, parseStringArray } from "@/jobs/import-missions/utils/mission";
 
 describe("import-missions parsing helpers", () => {
   describe("parseStringArray", () => {

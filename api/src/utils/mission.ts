@@ -1,7 +1,7 @@
-import { API_URL } from "../config";
-import { MissionRecord } from "../types/mission";
-import { JobBoardId, MissionJobBoardSyncStatus } from "../types/mission-job-board";
-import { slugify } from "./string";
+import { API_URL } from "@/config";
+import { MissionRecord } from "@/types/mission";
+import { JobBoardId, MissionJobBoardSyncStatus } from "@/types/mission-job-board";
+import { slugify } from "@/utils/string";
 
 /**
  * Format the tracked application URL for a mission and a given publisher

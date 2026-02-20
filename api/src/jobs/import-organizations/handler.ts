@@ -5,12 +5,12 @@ import { Readable } from "stream";
 import { pipeline } from "stream/promises";
 import { ReadableStream } from "stream/web";
 
-import apiDataGouv from "../../services/data-gouv/api";
-import { DataGouvResource } from "../../services/data-gouv/types";
-import { importRnaService } from "../../services/import-rna";
-import { BaseHandler } from "../base/handler";
-import { JobResult } from "../types";
-import { readZip } from "./zip";
+import apiDataGouv from "@/services/data-gouv/api";
+import { DataGouvResource } from "@/services/data-gouv/types";
+import { importRnaService } from "@/services/import-rna";
+import { BaseHandler } from "@/jobs/base/handler";
+import { JobResult } from "@/jobs/types";
+import { readZip } from "@/jobs/import-organizations/zip";
 
 const RNA_DATASETS_ID = "58e53811c751df03df38f42d";
 

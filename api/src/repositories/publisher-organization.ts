@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 
-import { Prisma, PublisherOrganization } from "../db/core";
-import { prismaCore } from "../db/postgres";
+import { Prisma, PublisherOrganization } from "@/db/core";
+import { prismaCore } from "@/db/postgres";
 
 export const publisherOrganizationRepository = {
   async findMany(params: Prisma.PublisherOrganizationFindManyArgs = {}): Promise<PublisherOrganization[]> {

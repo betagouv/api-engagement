@@ -1,5 +1,5 @@
-import { importService } from "../../../services/import";
-import { NUMBER_OF_DAYS_TO_CLEAN } from "../config";
+import { importService } from "@/services/import";
+import { NUMBER_OF_DAYS_TO_CLEAN } from "@/jobs/import-missions/config";
 
 /**
  * Check if publisher missions should be cleaned

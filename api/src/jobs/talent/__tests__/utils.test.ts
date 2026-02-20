@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { JVA_LOGO_URL } from "../../../config";
+import { JVA_LOGO_URL } from "@/config";
 
 // Mock S3 service before import to avoid credentials error on launch
 vi.mock("../../../services/s3", () => ({
@@ -14,8 +14,8 @@ vi.mock("../transformers", () => ({
   missionToTalentJob: vi.fn(),
 }));
 
-import { TalentJob } from "../types";
-import { generateXML, getActivityCategory, getImageUrl, storeXML } from "../utils";
+import { TalentJob } from "@/jobs/talent/types";
+import { generateXML, getActivityCategory, getImageUrl, storeXML } from "@/jobs/talent/utils";
 
 describe("getActivityCategory", () => {
   it("should return the correct category for known activities", () => {
@@ -121,7 +121,7 @@ describe("generateXML", () => {
 
 describe("storeXML", () => {
   it("should store XML with correct file names and return URL", async () => {
-    const mockPutObject = vi.mocked(await import("../../../services/s3")).putObject;
+    const mockPutObject = vi.mocked(await import("@/services/s3")).putObject;
     vi.setSystemTime(new Date("2025-01-15"));
 
     const xml = "<source><publisher>test</publisher></source>";

@@ -1,6 +1,6 @@
 import { jsPDF } from "jspdf";
-import { StatsReport } from "../../../types/report";
-import { drawBoxText, drawSVG, drawText, formatNumber, PAGE_WIDTH } from "./utils";
+import { StatsReport } from "@/types/report";
+import { drawBoxText, drawSVG, drawText, formatNumber, PAGE_WIDTH } from "@/jobs/report/generate/utils";
 
 const CONTAINER_PADDING = 32;
 const BOX_STATS_HEIGHT = 82;

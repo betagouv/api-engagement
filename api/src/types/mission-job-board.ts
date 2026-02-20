@@ -1,4 +1,4 @@
-import { JobBoardId as PrismaJobBoardId } from "../db/core";
+import { JobBoardId as PrismaJobBoardId } from "@/db/core";
 
 export type JobBoardId = PrismaJobBoardId;
 export const JOB_BOARD_IDS = PrismaJobBoardId;

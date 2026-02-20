@@ -1,7 +1,7 @@
-import { captureException } from "../../../error";
-import { putObject } from "../../../services/s3";
-import { EmailRecord } from "../../../types/email";
-import { ExtractLinkedinReportLinkParams, extractLinkedinReportLink } from "./link-extractor";
+import { captureException } from "@/error";
+import { putObject } from "@/services/s3";
+import { EmailRecord } from "@/types/email";
+import { ExtractLinkedinReportLinkParams, extractLinkedinReportLink } from "@/controllers/brevo-webhook/helpers/link-extractor";
 
 export const downloadFile = async (email: EmailRecord) => {
   try {

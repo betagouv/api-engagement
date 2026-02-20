@@ -2,11 +2,11 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
-import { organizationService } from "../services/organization";
-import { OrganizationUpdatePatch } from "../types/organization";
-import { UserRequest } from "../types/passport";
-import { slugify } from "../utils/string";
+import { INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
+import { organizationService } from "@/services/organization";
+import { OrganizationUpdatePatch } from "@/types/organization";
+import { UserRequest } from "@/types/passport";
+import { slugify } from "@/utils/string";
 
 const router = Router();
 

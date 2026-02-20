@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
-import type { Prisma } from "../../src/db/core";
-import type { UserRecord } from "../../src/types/user";
+import type { Prisma } from "@/db/core";
+import type { UserRecord } from "@/types/user";
 import { compareDates, compareNumbers, compareStringArrays, compareStrings } from "./utils/compare";
 import { normalizeDate, normalizeNumber } from "./utils/normalize";
 import { loadEnvironment, parseScriptOptions } from "./utils/options";
@@ -211,7 +211,7 @@ const formatRecordForLog = (record: UserRecord) => ({
 
 const cleanup = async () => {
   try {
-    const { prismaCore } = await import("../../src/db/postgres");
+    const { prismaCore } = await import("@/db/postgres");
     await Promise.allSettled([prismaCore.$disconnect(), mongoose.connection.close()]);
   } catch {
     await Promise.allSettled([mongoose.connection.close()]);
@@ -221,10 +221,10 @@ const cleanup = async () => {
 const main = async () => {
   console.log(`[MigrateUsers] Starting${options.dryRun ? " (dry-run)" : ""}`);
   const [{ mongoConnected }, { pgConnected }, { userRepository }, { userService }] = await Promise.all([
-    import("../../src/db/mongo"),
-    import("../../src/db/postgres"),
-    import("../../src/repositories/user"),
-    import("../../src/services/user"),
+    import("@/db/mongo"),
+    import("@/db/postgres"),
+    import("@/repositories/user"),
+    import("@/services/user"),
   ]);
 
   await Promise.all([mongoConnected, pgConnected]);

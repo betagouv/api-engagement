@@ -1,7 +1,7 @@
-import { JobBoardId, Prisma } from "../db/core";
-import { prismaCore } from "../db/postgres";
-import { missionJobBoardRepository } from "../repositories/mission-job-board";
-import { MissionJobBoardRecord, MissionJobBoardSyncStatus, MissionJobBoardUpsertInput } from "../types/mission-job-board";
+import { JobBoardId, Prisma } from "@/db/core";
+import { prismaCore } from "@/db/postgres";
+import { missionJobBoardRepository } from "@/repositories/mission-job-board";
+import { MissionJobBoardRecord, MissionJobBoardSyncStatus, MissionJobBoardUpsertInput } from "@/types/mission-job-board";
 
 const mapRecord = (entry: any): MissionJobBoardRecord => ({
   id: entry.id,

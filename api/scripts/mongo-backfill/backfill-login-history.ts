@@ -1,5 +1,5 @@
-import { loginHistoryRepository } from "../../src/repositories/login-history";
-import { pgConnected, prismaCore } from "../../src/db/postgres";
+import { loginHistoryRepository } from "@/repositories/login-history";
+import { pgConnected, prismaCore } from "@/db/postgres";
 import { compareDates } from "./utils/compare";
 import { normalizeDate } from "./utils/normalize";
 import { loadEnvironment, parseScriptOptions } from "./utils/options";

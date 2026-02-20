@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
-import type { Prisma, Report } from "../../src/db/core";
-import type { ReportDataTemplate } from "../../src/types/report";
+import type { Prisma, Report } from "@/db/core";
+import type { ReportDataTemplate } from "@/types/report";
 import { asString, asStringArray } from "./utils/cast";
 import { compareDates, compareJsons, compareNumbers, compareStringArrays, compareStrings } from "./utils/compare";
 import { normalizeDate, normalizeNumber, toJsonValue } from "./utils/normalize";
@@ -226,7 +226,7 @@ const formatRecordForLog = (record: NormalizedReportRecord) => ({
 
 const cleanup = async () => {
   try {
-    const { prismaCore } = await import("../../src/db/postgres");
+    const { prismaCore } = await import("@/db/postgres");
     await Promise.allSettled([prismaCore.$disconnect(), mongoose.connection.close()]);
   } catch {
     await Promise.allSettled([mongoose.connection.close()]);
@@ -236,9 +236,9 @@ const cleanup = async () => {
 const main = async () => {
   console.log(`[BackfillReports] Starting${options.dryRun ? " (dry-run)" : ""}`);
   const [{ mongoConnected }, postgresModule, { reportRepository }] = await Promise.all([
-    import("../../src/db/mongo"),
-    import("../../src/db/postgres"),
-    import("../../src/repositories/report"),
+    import("@/db/mongo"),
+    import("@/db/postgres"),
+    import("@/repositories/report"),
   ]);
   const { pgConnected } = postgresModule;
 

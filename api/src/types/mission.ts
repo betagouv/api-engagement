@@ -1,5 +1,5 @@
-import { Prisma } from "../db/core";
-import { JobBoardId, MissionJobBoardSyncStatus } from "./mission-job-board";
+import { Prisma } from "@/db/core";
+import { JobBoardId, MissionJobBoardSyncStatus } from "@/types/mission-job-board";
 
 export type MissionStatusCode = "ACCEPTED" | "REFUSED";
 export type MissionRemote = "no" | "possible" | "full";
