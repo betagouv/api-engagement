@@ -285,6 +285,7 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
 
 router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
   let href: string | null = null;
+  let redirected = false;
   try {
     const params = zod
       .object({
@@ -336,6 +337,7 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
     const clickId = await statEventService.createStatEvent(obj);
     href = href.includes("?") ? `${href}&apiengagement_id=${clickId}` : `${href}?apiengagement_id=${clickId}`;
     res.redirect(302, href);
+    redirected = true;
 
     // Update stats just created to add isBot (do it after redirect to avoid delay)
     const statBot = await statBotService.findStatBotByUser(identity.user);
@@ -344,6 +346,9 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
     }
   } catch (error) {
     captureException(error);
+    if (redirected) {
+      return;
+    }
     if (href) {
       return res.redirect(302, href);
     } else {
@@ -354,6 +359,7 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
 
 router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Response) => {
   let href: string | null = null;
+  let redirected = false;
   try {
     const params = zod
       .object({
@@ -442,7 +448,7 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
     }
 
     res.redirect(302, url.href);
-
+    redirected = true;
     // Update stats just created to add isBot (do it after redirect to avoid delay)
     const statBot = await statBotService.findStatBotByUser(identity.user);
     if (statBot) {
@@ -450,6 +456,9 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
     }
   } catch (error: any) {
     captureException(error);
+    if (redirected) {
+      return;
+    }
     if (href) {
       res.redirect(302, href);
     } else {
