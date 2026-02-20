@@ -3,6 +3,7 @@ process.env.TZ = "Europe/Paris";
 export const PORT = process.env.PORT || 4000;
 export const ENV = process.env.ENV || "development";
 export const SECRET = process.env.SECRET || "not-so-secret";
+export const IMAGE_VERSION = process.env.IMAGE_VERSION || "unknown";
 
 export const APP_URL = process.env.APP_URL || "http://localhost:3000";
 export const API_URL = process.env.API_URL || "http://localhost:4000";

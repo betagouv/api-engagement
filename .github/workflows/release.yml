@@ -1,0 +1,117 @@
+# .github/workflows/release.yml
+
+name: Release
+
+on:
+  workflow_call:
+    inputs:
+      branch:
+        required: false
+        type: string
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: Branch to release
+        required: false
+        type: string
+        default: ""
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-actions[bot]'
+    permissions:
+      contents: write # Needed to push commits and tags
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          # Fetch all history and tags for git-cliff to work correctly
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Determine if release should run
+        id: release_mode
+        env:
+          HEAD_BRANCH: ${{ inputs.branch || github.ref_name }}
+        run: |
+          if [[ "$HEAD_BRANCH" == "main" ]]; then
+            echo "should_release=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_release=false" >> "$GITHUB_OUTPUT"
+            echo "Skip release on branch: $HEAD_BRANCH"
+          fi
+
+      - name: Switch to main branch
+        if: steps.release_mode.outputs.should_release == 'true'
+        run: git checkout main
+
+      - name: Setup Node.js
+        if: steps.release_mode.outputs.should_release == 'true'
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: "package-lock.json"
+
+      - name: Compute version bump (Conventional Commits)
+        if: steps.release_mode.outputs.should_release == 'true'
+        run: |
+          LAST_TAG=$(git describe --tags --abbrev=0 --match "v[0-9]*" --match "changelog-*" 2>/dev/null || true)
+          if [ -n "$LAST_TAG" ]; then
+            RANGE="$LAST_TAG..HEAD"
+          else
+            RANGE=""
+          fi
+
+          COMMITS=$(git log --format=%s%n%b $RANGE)
+
+          if echo "$COMMITS" | grep -Eq "BREAKING CHANGE|^([a-zA-Z]+)(\\(.+\\))?!:"; then
+            BUMP="major"
+          elif echo "$COMMITS" | grep -Eq "^feat(\\(.+\\))?:";
+          then
+            BUMP="minor"
+          else
+            BUMP="patch"
+          fi
+
+          echo "RELEASE_BUMP=$BUMP" >> $GITHUB_ENV
+
+      - name: Bump version
+        if: steps.release_mode.outputs.should_release == 'true'
+        run: npm version "$RELEASE_BUMP" --no-git-tag-version
+
+      - name: Capture release version
+        if: steps.release_mode.outputs.should_release == 'true'
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "RELEASE_VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Generate Release Notes
+        if: steps.release_mode.outputs.should_release == 'true'
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --latest --strip header --output /tmp/release-notes.md
+
+      - name: Commit changes to main
+        id: commit
+        if: steps.release_mode.outputs.should_release == 'true'
+        uses: stefanzweifel/git-auto-commit-action@v7
+        with:
+          commit_message: "chore(release): v${{ env.RELEASE_VERSION }}"
+          file_pattern: package.json package-lock.json
+          branch: main
+
+      - name: Create and push new tag to main
+        if: steps.commit.outputs.changes_detected == 'true'
+        run: |
+          TAG_NAME="v${RELEASE_VERSION}"
+          echo "Creating and pushing tag: $TAG_NAME"
+          git tag -a "$TAG_NAME" -F /tmp/release-notes.md
+          git push origin $TAG_NAME

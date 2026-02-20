@@ -27,18 +27,19 @@ resource "scaleway_container" "api" {
   }
 
   environment_variables = {
-    "ENV"           = terraform.workspace
-    "API_URL"       = "https://${local.api_hostname}"
-    "APP_URL"       = "https://${local.app_hostname}"
-    "BENEVOLAT_URL" = "https://${local.benevolat_hostname}"
+    "ENV"             = terraform.workspace
+    "IMAGE_VERSION"   = var.image_tag
+    "API_URL"         = "https://${local.api_hostname}"
+    "APP_URL"         = "https://${local.app_hostname}"
+    "BENEVOLAT_URL"   = "https://${local.benevolat_hostname}"
     "VOLONTARIAT_URL" = "https://${local.volontariat_hostname}"
     "PILOTY_BASE_URL" = local.piloty_hostname
-    "BUCKET_NAME"   = local.bucket_name
+    "BUCKET_NAME"     = local.bucket_name
     "SLACK_JOBTEASER_CHANNEL_ID" = terraform.workspace == "production" ? "C080H9MH56W" : ""
 
     # Feature flags ES migration
     "WRITE_STATS_DUAL" = "true"
-    "READ_STATS_FROM" = "pg"
+    "READ_STATS_FROM"  = "pg"
   }
 
   secret_environment_variables = {

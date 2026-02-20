@@ -12,6 +12,7 @@ on:
     paths:
       - ".github/workflows/main-pipeline.yml"
       - ".github/workflows/docker-build-push.yml"
+      - ".github/workflows/release.yml"
       - ".github/workflows/terraform-deploy.yml"
       - ".github/workflows/tests.yml"
       - "api/**"
@@ -36,8 +37,17 @@ jobs:
     with:
       branch: ${{ github.ref_name }}
 
-  build:
+  release:
     needs: test
+    uses: ./.github/workflows/release.yml
+    permissions:
+      contents: write
+    secrets: inherit
+    with:
+      branch: ${{ github.ref_name }}
+
+  build:
+    needs: release
     uses: ./.github/workflows/docker-build-push.yml
     secrets: inherit
     with:

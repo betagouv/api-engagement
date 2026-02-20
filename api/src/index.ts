@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import * as Sentry from "@sentry/node";
-import { ENV, PORT, SENTRY_DSN_API } from "./config";
+import { ENV, IMAGE_VERSION, PORT, SENTRY_DSN_API } from "./config";
 
 if (ENV !== "development") {
   Sentry.init({
@@ -93,7 +93,7 @@ const main = async () => {
   middlewares(app);
 
   app.get("/", async (req, res) => {
-    res.status(200).send(`API Engagement is running since ${start}`);
+    res.status(200).send(`API Engagement is running since ${start} (image version: ${IMAGE_VERSION})`);
   });
   app.get("/impression.js", async (req, res) => {
     res.sendFile(path.join(__dirname, "static/impression.js"));
@@ -135,7 +135,9 @@ const main = async () => {
 
   app.use(errorHandler);
 
-  const server = app.listen(PORT, () => console.log(`[API] Running on port ${PORT} at ${new Date().toISOString()}`));
+  const server = app.listen(PORT, () => {
+    console.log(`[API] Running on port ${PORT} at ${new Date().toISOString()} (image version: ${IMAGE_VERSION})`);
+  });
 
   let isShuttingDown = false;
   const shutdown = async (signal: NodeJS.Signals) => {
