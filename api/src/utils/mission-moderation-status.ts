@@ -1,15 +1,17 @@
-import { Prisma, PublisherOrganization } from "../db/core";
+import { Prisma } from "../db/core";
 import { MissionModerationStatusUpdatePatch } from "../services/mission-moderation-status";
 import { MissionModerationRecord, ModerationFilters } from "../types/mission-moderation-status";
 import { ModerationEventCreateInput, ModerationEventStatus } from "../types/moderation-event";
+import { PublisherOrganizationUpdateInput } from "../types/publisher-organization";
 
 type ModerationUpdateBody = {
   status?: string;
   comment?: string | null;
   note?: string | null;
   title?: string | null;
-  missionOrganizationRNAVerified?: string | null;
-  missionOrganizationSirenVerified?: string | null;
+  rna?: string | null;
+  siren?: string | null;
+  organizationVerifiedId?: string | null;
 };
 
 export const buildWhere = (filters: ModerationFilters): { where: Prisma.MissionModerationStatusWhereInput; missionWhere: Prisma.MissionWhereInput } => {
@@ -97,11 +99,11 @@ export const buildWhere = (filters: ModerationFilters): { where: Prisma.MissionM
   if (filters.search) {
     where.mission!.OR = [
       { title: { contains: filters.search, mode: "insensitive" } },
-      { publisherOrganization: { is: { organizationName: { contains: filters.search, mode: "insensitive" } } } },
+      { publisherOrganization: { is: { name: { contains: filters.search, mode: "insensitive" } } } },
     ];
     missionWhere.OR = [
       { title: { contains: filters.search, mode: "insensitive" } },
-      { publisherOrganization: { is: { organizationName: { contains: filters.search, mode: "insensitive" } } } },
+      { publisherOrganization: { is: { name: { contains: filters.search, mode: "insensitive" } } } },
     ];
   }
 
@@ -128,25 +130,24 @@ export const getModerationUpdates = (body: ModerationUpdateBody): MissionModerat
   return null;
 };
 
-export const getOrganizationUpdates = (body: ModerationUpdateBody, previous: MissionModerationRecord): Prisma.PublisherOrganizationUpdateInput | null => {
-  const updates: Partial<Prisma.PublisherOrganizationUpdateInput> = {};
-  if (body.missionOrganizationRNAVerified !== undefined && body.missionOrganizationRNAVerified !== previous.missionOrganizationRNAVerified) {
-    updates.organizationRNAVerified = body.missionOrganizationRNAVerified;
+export const getOrganizationUpdates = (body: ModerationUpdateBody, mission: MissionModerationRecord): PublisherOrganizationUpdateInput | null => {
+  const updates: Partial<PublisherOrganizationUpdateInput> = {};
+  if (body.rna !== undefined && body.rna !== mission.missionOrganizationRNAVerified) {
+    updates.rna = body.rna;
   }
-  if (body.missionOrganizationSirenVerified !== undefined && body.missionOrganizationSirenVerified !== previous.missionOrganizationSirenVerified) {
-    updates.organizationSirenVerified = body.missionOrganizationSirenVerified;
+  if (body.siren !== undefined && body.siren !== mission.missionOrganizationSirenVerified) {
+    updates.siren = body.siren;
+  }
+  if (body.organizationVerifiedId !== undefined && body.organizationVerifiedId !== mission.missionOrganizationVerifiedId) {
+    updates.organizationIdVerified = body.organizationVerifiedId;
   }
   if (Object.keys(updates).length) {
-    return updates as Prisma.PublisherOrganizationUpdateInput;
+    return updates as PublisherOrganizationUpdateInput;
   }
   return null;
 };
 
-export const getModerationEvents = (
-  previous: MissionModerationRecord,
-  updated: MissionModerationRecord,
-  organizationUpdated: PublisherOrganization | null
-): Omit<ModerationEventCreateInput, "moderatorId">[] => {
+export const getModerationEvents = (previous: MissionModerationRecord, updated: MissionModerationRecord): Omit<ModerationEventCreateInput, "moderatorId">[] => {
   const events: Omit<ModerationEventCreateInput, "moderatorId">[] = [];
 
   if (previous.status !== updated.status) {
@@ -181,19 +182,19 @@ export const getModerationEvents = (
     });
   }
 
-  if (organizationUpdated && previous.missionOrganizationSirenVerified !== organizationUpdated.organizationSirenVerified) {
+  if (previous.missionOrganizationSiren !== updated.missionOrganizationSiren) {
     events.push({
-      missionId: organizationUpdated.id,
-      initialSiren: previous.missionOrganizationSirenVerified ?? null,
-      newSiren: organizationUpdated.organizationSirenVerified ?? null,
+      missionId: updated.missionId,
+      initialSiren: previous.missionOrganizationSiren ?? null,
+      newSiren: updated.missionOrganizationSiren ?? null,
     });
   }
 
-  if (organizationUpdated && previous.missionOrganizationRNAVerified !== organizationUpdated.organizationRNAVerified) {
+  if (previous.missionOrganizationRNA !== updated.missionOrganizationRNA) {
     events.push({
-      missionId: organizationUpdated.id,
-      initialRNA: previous.missionOrganizationRNAVerified ?? null,
-      newRNA: organizationUpdated.organizationRNAVerified ?? null,
+      missionId: updated.missionId,
+      initialRNA: previous.missionOrganizationRNA ?? null,
+      newRNA: updated.missionOrganizationRNA ?? null,
     });
   }
 

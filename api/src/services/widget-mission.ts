@@ -2,16 +2,16 @@ import { PUBLISHER_IDS } from "../config";
 import { Prisma } from "../db/core";
 import { prismaCore } from "../db/postgres";
 import { missionRepository } from "../repositories/mission";
-import { organizationRepository } from "../repositories/organization";
 import type { WidgetRecord } from "../types";
 import type { MissionRecord, MissionSearchFilters, MissionSelect } from "../types/mission";
 import { buildWhere, missionService } from "./mission";
+import publisherOrganizationService from "./publisher-organization";
 
 type Bucket = { key: string; doc_count: number };
 
 type PublisherOrganizationTuple = {
   publisherId: string;
-  organizationClientId: string;
+  clientId: string;
 };
 
 const buildWidgetWhere = (widget: WidgetRecord, filters: MissionSearchFilters): Prisma.MissionWhereInput => {
@@ -49,16 +49,16 @@ const buildMissionConditionFromPublisherOrganizationTuples = (tuples: PublisherO
   }
 
   const byPublisher = new Map<string, Set<string>>();
-  tuples.forEach(({ publisherId, organizationClientId }) => {
+  tuples.forEach(({ publisherId, clientId }) => {
     if (!byPublisher.has(publisherId)) {
       byPublisher.set(publisherId, new Set());
     }
-    byPublisher.get(publisherId)?.add(organizationClientId);
+    byPublisher.get(publisherId)?.add(clientId);
   });
 
-  const conditions = Array.from(byPublisher.entries()).map(([publisherId, organizationClientIds]) => ({
+  const conditions = Array.from(byPublisher.entries()).map(([publisherId, clientIds]) => ({
     publisherId,
-    organizationClientId: { in: Array.from(organizationClientIds) },
+    organizationClientId: { in: Array.from(clientIds) },
   }));
 
   return conditions.length === 1 ? conditions[0] : { OR: conditions };
@@ -80,11 +80,13 @@ const inlinePublisherOrganizationFilters = async (where: Prisma.MissionWhereInpu
       return cached;
     }
 
-    const tuples = await prismaCore.publisherOrganization.findMany({
+    const rows = await prismaCore.publisherOrganization.findMany({
       where: condition,
-      select: { publisherId: true, organizationClientId: true },
+      select: { publisherId: true, clientId: true },
     });
-    // Convert relational matches into mission-level tuple filters.
+    const tuples: PublisherOrganizationTuple[] = rows
+      .filter((r): r is typeof r & { clientId: string } => r.clientId != null)
+      .map((r) => ({ publisherId: r.publisherId, clientId: r.clientId }));
     const missionCondition = buildMissionConditionFromPublisherOrganizationTuples(tuples);
     cache.set(cacheKey, missionCondition);
     return missionCondition;
@@ -217,11 +219,10 @@ const aggregateWidgetAggs = async (
   };
 
   const formatOrganization = async () => {
-    const orgRows = await aggregateMissionField("organizationId");
+    const orgRows = await aggregateMissionField("publisherOrganizationId");
     const orgIds = orgRows.map((row) => row.key);
-    const orgs = orgIds.length ? await organizationRepository.findMany({ where: { id: { in: orgIds } }, select: { id: true, title: true } }) : [];
-    const orgById = new Map(orgs.map((org) => [org.id, org.title ?? ""]));
-
+    const orgs = orgIds.length ? await publisherOrganizationService.findMany({ ids: orgIds }, { select: { id: true, name: true } }) : [];
+    const orgById = new Map(orgs.map((org) => [org.id, org.name ?? ""]));
     return orgRows.map((row) => ({ key: orgById.get(row.key) ?? "", doc_count: row.doc_count })).filter((row) => row.key);
   };
 

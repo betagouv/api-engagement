@@ -3,15 +3,18 @@ import { importService } from "../../services/import";
 
 import { Prisma, Import as PrismaImport } from "../../db/core";
 import { missionService } from "../../services/mission";
+import { missionEventService } from "../../services/mission-event";
 import { publisherService } from "../../services/publisher";
+import publisherOrganizationService from "../../services/publisher-organization";
+import { MissionEventCreateParams } from "../../types/mission-event";
 import type { PublisherRecord } from "../../types/publisher";
 import { BaseHandler } from "../base/handler";
 import { JobResult } from "../types";
-import type { ImportedMission } from "./types";
-import { bulkDB, cleanDB } from "./utils/db";
+import type { ImportedMission, ImportedOrganization } from "./types";
+import { cleanDB, upsertMission, upsertOrganization } from "./utils/db";
 import { enrichWithGeoloc } from "./utils/geoloc";
-import { buildData } from "./utils/mission";
-import { verifyOrganization } from "./utils/organization";
+import { parseMission } from "./utils/mission";
+import { parseOrganization } from "./utils/organization";
 import { shouldCleanMissionsForPublisher } from "./utils/publisher";
 import { fetchXML, parseXML } from "./utils/xml";
 
@@ -101,11 +104,7 @@ export class ImportMissionsHandler implements BaseHandler<ImportMissionsJobPaylo
   }
 }
 
-async function importMissionssForPublisher(
-  publisher: PublisherRecord,
-  start: Date,
-  options: { recordMissionEvents: boolean }
-): Promise<PrismaImport | undefined> {
+async function importMissionssForPublisher(publisher: PublisherRecord, start: Date, options: { recordMissionEvents: boolean }): Promise<PrismaImport | undefined> {
   if (!publisher) {
     return;
   }
@@ -165,27 +164,40 @@ async function importMissionssForPublisher(
 
     let hasFailed: boolean = false;
     const allMissionsClientIds = [] as string[];
+    const startTime = obj.startedAt ?? new Date();
     for (let i = 0; i < missionsXML.length; i += CHUNK_SIZE) {
       const chunk = missionsXML.slice(i, i + CHUNK_SIZE);
       console.log(`[${publisher.name}] Processing chunk ${i / CHUNK_SIZE + 1} of ${Math.ceil(missionsXML.length / CHUNK_SIZE)} (${chunk.length} missions)`);
 
-      // BUILD NEW MISSIONS
+      const existingMissions = await missionService.findMissionsBy({ publisherId: publisher.id, clientId: { in: chunk.map((m) => m.clientId.toString()) } });
+      const existingMap = new Map(existingMissions.map((m) => [m.clientId, m]));
+
       const missions = [] as ImportedMission[];
-      const promises = [] as Promise<ImportedMission | undefined>[];
+      const organizations = new Map<string, ImportedOrganization>();
+
       for (let j = 0; j < chunk.length; j++) {
         const missionXML = chunk[j];
-        promises.push(buildData(obj.startedAt ?? new Date(), publisher, missionXML));
-
-        if (j % 50 === 0) {
-          const res = await Promise.all(promises);
-          res.forEach((e: ImportedMission | undefined) => e && missions.push(e));
-          promises.length = 0;
+        const clientId = missionXML.clientId?.toString();
+        if (!clientId) {
+          console.error(`[${publisher.name}] Missing clientId for mission ${JSON.stringify(missionXML)}`);
+          continue;
         }
+
+        const organization = parseOrganization(publisher, missionXML);
+        if (!organization) {
+          continue;
+        }
+        organizations.set(organization.clientId, organization);
+
+        const existing = existingMap.get(clientId);
+        const mission = parseMission(publisher, { ...missionXML, clientId }, (existing as any) || null, startTime);
+        if (!mission) {
+          continue;
+        }
+        mission.organizationClientId = organization.clientId || null;
+        missions.push(mission);
       }
-      if (promises.length > 0) {
-        const res = await Promise.all(promises);
-        res.forEach((e: ImportedMission | undefined) => e && missions.push(e));
-      }
+
       allMissionsClientIds.push(...missions.map((m) => m.clientId.toString()));
 
       // GEOLOC
@@ -208,14 +220,75 @@ async function importMissionssForPublisher(
         }
       });
 
-      // RNA
-      await verifyOrganization(missions);
-
-      // BULK WRITE
-      const res = await bulkDB(missions, publisher, obj, options);
-      if (!res) {
-        hasFailed = true;
+      // UPSERT ORGANIZATIONS
+      console.log(`[${publisher.name}] Upserting ${organizations.size} organizations`);
+      const existingOrganizations = await publisherOrganizationService.findMany({
+        publisherId: publisher.id,
+        clientIds: Array.from(organizations.keys()),
+      });
+      const existingOrganizationsMap = new Map(existingOrganizations.map((o) => [o.clientId, o]));
+      console.log(`[${publisher.name}] Found ${existingOrganizations.length} existing organizations`);
+      let createdOrganizationsCount = 0;
+      let updatedOrganizationsCount = 0;
+      let unchangedOrganizationsCount = 0;
+      for (const organization of organizations.values()) {
+        const existing = existingOrganizationsMap.get(organization.clientId) || null;
+        const result = await upsertOrganization(organization, existing);
+        if (result.action === "unchanged") {
+          unchangedOrganizationsCount += 1;
+        }
+        existingOrganizationsMap.set(organization.clientId, result.organization);
+        createdOrganizationsCount += result.action === "created" ? 1 : 0;
+        updatedOrganizationsCount += result.action === "updated" ? 1 : 0;
       }
+      console.log(`[${publisher.name}] ${createdOrganizationsCount} created, ${updatedOrganizationsCount} updated and ${unchangedOrganizationsCount} unchanged organizations`);
+
+      // UPSERT MISSIONS
+      console.log(`[${publisher.name}] Upserting ${missions.length} missions`);
+      let createdMissionsCount = 0;
+      let updatedMissionsCount = 0;
+      let unchangedMissionsCount = 0;
+      const missionEvents: MissionEventCreateParams[] = [];
+      for (const mission of missions) {
+        if (mission.organizationClientId) {
+          const publisherOrganization = existingOrganizationsMap.get(mission.organizationClientId) || null;
+          if (!publisherOrganization) {
+            console.error(`[${publisher.name}] Missing publisher organization ${mission.organizationClientId} for mission ${mission.clientId}`);
+          } else {
+            mission.publisherOrganizationId = publisherOrganization.id;
+          }
+        } else {
+          console.info(`[${publisher.name}] Missing without organization clientId ${mission.clientId}`);
+        }
+
+        const existing = existingMap.get(mission.clientId) || null;
+        const result = await upsertMission(mission, existing);
+        existingMap.set(mission.clientId, result.mission);
+
+        if (result.action === "created") {
+          existingMap.set(mission.clientId, result.mission);
+          createdMissionsCount += 1;
+        } else if (result.action === "updated") {
+          existingMap.set(mission.clientId, result.mission);
+          updatedMissionsCount += 1;
+        } else if (result.action === "unchanged") {
+          unchangedMissionsCount += 1;
+        }
+
+        if (result.event) {
+          missionEvents.push(result.event);
+        }
+      }
+      console.log(`[${publisher.name}] ${createdMissionsCount} created, ${updatedMissionsCount} updated and ${unchangedMissionsCount} unchanged missions`);
+      obj.createdCount += createdMissionsCount;
+      obj.updatedCount += updatedMissionsCount;
+
+      // CREATE MISSION EVENTS
+      console.log(`[${publisher.name}] Creating ${missionEvents.length} mission events`);
+      if (options.recordMissionEvents && missionEvents.length > 0) {
+        await missionEventService.createMissionEvents(missionEvents);
+      }
+      console.log(`[${publisher.name}] ${missionEvents.length} mission events created`);
     }
 
     // CLEAN DB
