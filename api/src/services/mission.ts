@@ -16,7 +16,7 @@ import type {
 } from "@/types/mission";
 import { calculateBoundingBox } from "@/utils";
 import { activityService } from "@/services/activity";
-import { buildJobBoardMap, deriveMissionLocation, normalizeMissionAddresses } from "@/utils/mission";
+import { buildJobBoardMap, computeAddressHash, deriveMissionLocation, normalizeMissionAddresses } from "@/utils/mission";
 import { normalizeOptionalString, normalizeStringList } from "@/utils/normalize";
 import { publisherService } from "@/services/publisher";
 
@@ -552,22 +552,31 @@ const mapAddressesForCreate = (addresses?: MissionRecord["addresses"]) => {
   if (!addresses || !addresses.length) {
     return [];
   }
-  return addresses.map((address) => ({
-    street: normalizeOptionalString(address.street !== undefined && address.street !== null ? String(address.street) : (address.street as any)),
-    postalCode: normalizeOptionalString(address.postalCode !== undefined && address.postalCode !== null ? String(address.postalCode) : (address.postalCode as any)),
-    departmentName: normalizeOptionalString(
-      address.departmentName !== undefined && address.departmentName !== null ? String(address.departmentName) : (address.departmentName as any)
-    ),
-    departmentCode: normalizeOptionalString(
-      address.departmentCode !== undefined && address.departmentCode !== null ? String(address.departmentCode) : (address.departmentCode as any)
-    ),
-    city: normalizeOptionalString(address.city !== undefined && address.city !== null ? String(address.city) : (address.city as any)),
-    region: normalizeOptionalString(address.region !== undefined && address.region !== null ? String(address.region) : (address.region as any)),
-    country: normalizeOptionalString(address.country !== undefined && address.country !== null ? String(address.country) : (address.country as any)),
-    locationLat: address.location?.lat ?? null,
-    locationLon: address.location?.lon ?? null,
-    geolocStatus: (address as any).geolocStatus ?? null,
-  }));
+  return addresses.map((address) => {
+    const street = normalizeOptionalString(address.street !== undefined && address.street !== null ? String(address.street) : (address.street as any));
+    const postalCode = normalizeOptionalString(address.postalCode !== undefined && address.postalCode !== null ? String(address.postalCode) : (address.postalCode as any));
+    const city = normalizeOptionalString(address.city !== undefined && address.city !== null ? String(address.city) : (address.city as any));
+    const country = normalizeOptionalString(address.country !== undefined && address.country !== null ? String(address.country) : (address.country as any));
+    const locationLat = address.location?.lat ?? null;
+    const locationLon = address.location?.lon ?? null;
+    return {
+      addressHash: computeAddressHash({ street, city, postalCode, country, location: locationLat != null && locationLon != null ? { lat: locationLat, lon: locationLon } : null }),
+      street,
+      postalCode,
+      departmentName: normalizeOptionalString(
+        address.departmentName !== undefined && address.departmentName !== null ? String(address.departmentName) : (address.departmentName as any)
+      ),
+      departmentCode: normalizeOptionalString(
+        address.departmentCode !== undefined && address.departmentCode !== null ? String(address.departmentCode) : (address.departmentCode as any)
+      ),
+      city,
+      region: normalizeOptionalString(address.region !== undefined && address.region !== null ? String(address.region) : (address.region as any)),
+      country,
+      locationLat,
+      locationLon,
+      geolocStatus: (address as any).geolocStatus ?? null,
+    };
+  });
 };
 
 const baseInclude: MissionInclude = {
@@ -898,10 +907,16 @@ export const missionService = {
     }
 
     if ("addresses" in patch) {
-      data.addresses = {
-        deleteMany: {},
-        ...(addresses.length ? { createMany: { data: addresses } } : {}),
-      };
+      const addressesUpdate: Prisma.MissionAddressUncheckedUpdateManyWithoutMissionNestedInput = { deleteMany: {} };
+      if (addresses.length) {
+        addressesUpdate.upsert = addresses.map((addr) => ({
+          where: { missionId_addressHash: { missionId: id, addressHash: addr.addressHash } },
+          create: addr,
+          update: addr,
+        }));
+        addressesUpdate.deleteMany = { addressHash: { notIn: addresses.map((a) => a.addressHash) } };
+      }
+      data.addresses = addressesUpdate;
     }
 
     await missionRepository.updateUnchecked(id, data);
