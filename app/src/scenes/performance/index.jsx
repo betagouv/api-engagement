@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
 import { Route, Routes, useLocation, useSearchParams } from "react-router-dom";
 
-import useStore from "../../services/store";
 import Tabs from "../../components/Tabs";
+import useStore from "../../services/store";
 
 import GlobalAnnounce from "./GlobalAnnounce";
 import GlobalBroadcast from "./GlobalBroadcast";
 import Means from "./Mean";
 
 const Performance = () => {
-  const { flux } = useStore();
+  const { flux, publisher } = useStore();
+  const publisherId = publisher?.id;
   const [searchParams, setSearchParams] = useSearchParams();
   const [filters, setFilters] = useState({
     from: searchParams.has("from") ? new Date(searchParams.get("from")) : new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - 30),
@@ -35,7 +36,7 @@ const Performance = () => {
     ...tab,
     id: `performance-tab-${tab.key}`,
     label: tab.title,
-    to: `/performance/${tab.route}`,
+    to: `/${publisherId}/performance/${tab.route}`,
   }));
   const activeTab = tabs.find((tab) => tab.isActive) || tabs[0];
   const activeTabId = activeTab ? activeTab.id : null;
@@ -54,22 +55,11 @@ const Performance = () => {
 
       {flux === "from" && (
         <>
-          <Tabs
-            tabs={tabs}
-            ariaLabel="Performance"
-            panelId="performance-panel"
-            className="flex items-center gap-4 pl-4 font-semibold text-black"
-            variant="primary"
-          />
+          <Tabs tabs={tabs} ariaLabel="Performance" panelId="performance-panel" className="flex items-center gap-4 pl-4 font-semibold text-black" variant="primary" />
         </>
       )}
 
-      <section
-        id="performance-panel"
-        role={isTabbed ? "tabpanel" : undefined}
-        aria-labelledby={isTabbed && activeTabId ? activeTabId : undefined}
-        className="bg-white shadow-lg"
-      >
+      <section id="performance-panel" role={isTabbed ? "tabpanel" : undefined} aria-labelledby={isTabbed && activeTabId ? activeTabId : undefined} className="bg-white shadow-lg">
         <Routes>
           <Route
             path="/"

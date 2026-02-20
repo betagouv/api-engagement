@@ -175,9 +175,9 @@ const MissionActionsMenu = ({ data, onFilter, onChange }) => {
   return (
     <>
       <Menu as="div" className="relative h-full text-left">
-        <Menu.Button as="div" className="secondary-btn shadow-border-black text-black">
+        <Menu.Button className="secondary-btn shadow-border-black text-black" aria-label="Plus d'actions">
           <span className="font-semibold">
-            <RiMoreFill />
+            <RiMoreFill aria-hidden="true" />
           </span>
         </Menu.Button>
         <Transition

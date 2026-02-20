@@ -10,13 +10,25 @@ import { captureError } from "../../services/error";
 import useStore from "../../services/store";
 import { timeSince } from "../../services/utils";
 
-const TABLE_HEADER = [{ title: "Mission" }, { title: "Type" }, { title: "Source" }, { title: "Activité", position: "right" }];
 const MAX_EVENTS = 25;
 
 const RealTime = () => {
   const { publisher, flux } = useStore();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [type, setType] = useState(searchParams.get("type") || "print");
+  const sourceId = searchParams.get("sourceId") || "";
+  const sourceType = searchParams.get("sourceType") || "";
+  const [type, setType] = useState(searchParams.get("type") || (sourceType === "campaign" ? "" : "print"));
+  const [sourceName, setSourceName] = useState("");
+
+  const tableHeader = useMemo(
+    () => [
+      { title: sourceType === "widget" ? "Widget" : sourceType === "campaign" ? "Campagne" : "Mission" },
+      { title: "Type" },
+      { title: "Source" },
+      { title: "Activité", position: "right" },
+    ],
+    [sourceType],
+  );
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -60,21 +72,30 @@ const RealTime = () => {
   };
 
   useEffect(() => {
+    if (!sourceId || !sourceType) return;
+    const endpoint = sourceType === "campaign" ? `/campaign/${sourceId}` : `/widget/${sourceId}`;
+    api.get(endpoint).then((res) => {
+      if (res.ok) setSourceName(res.data?.name || "");
+    });
+  }, [sourceId, sourceType]);
+
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const query = {
-          type,
+          ...(type ? { type } : {}),
           size: MAX_EVENTS,
         };
 
         if (flux === "from") query.fromPublisherId = publisher.id;
         if (flux === "to") query.toPublisherId = publisher.id;
+        if (sourceId) query.sourceId = sourceId;
 
         const res = await api.post("/stats/search", query);
 
         if (!res.ok) throw res;
         setEvents((res.data || []).slice(0, MAX_EVENTS));
-        setSearchParams(type ? { type } : {});
+        setSearchParams({ ...(type ? { type } : {}), ...(sourceId ? { sourceId, sourceType } : {}) });
       } catch (error) {
         captureError(error, { extra: { publisherId: publisher.id, type } });
       }
@@ -87,7 +108,7 @@ const RealTime = () => {
 
     setLoading(true);
     fetchData();
-  }, [flux, publisher, setSearchParams, type]);
+  }, [flux, publisher, setSearchParams, type, sourceId, sourceType]);
 
   return (
     <div className="space-y-12 p-12">
@@ -97,16 +118,24 @@ const RealTime = () => {
           <div className="w-full space-y-2 lg:w-[40%]">
             <h2 className="text-3xl font-bold">Activité {titleSuffix} en temps réel</h2>
             <p className="text-text-mention mb-4 text-xs">L'historique{descriptionSuffix}</p>
+            {sourceName && (
+              <p className="text-sm">
+                Filtré sur {sourceType === "campaign" ? "la campagne" : "le widget"} : <strong>{sourceName}</strong>
+              </p>
+            )}
           </div>
           <div className="flex flex-wrap items-center gap-3 lg:justify-end lg:gap-4">
-            <RadioInput id="type-print" name="type" value="print" label="Impressions" checked={type === "print"} onChange={(e) => setType(e.target.value)} />
+            <RadioInput id="type-all" name="type" value="" label="Tous" checked={type === ""} onChange={(e) => setType(e.target.value)} />
+            {sourceType !== "campaign" && (
+              <RadioInput id="type-print" name="type" value="print" label="Impressions" checked={type === "print"} onChange={(e) => setType(e.target.value)} />
+            )}
             <RadioInput id="type-click" name="type" value="click" label="Redirections" checked={type === "click"} onChange={(e) => setType(e.target.value)} />
             <RadioInput id="type-apply" name="type" value="apply" label="Candidatures" checked={type === "apply"} onChange={(e) => setType(e.target.value)} />
             <RadioInput id="type-account" name="type" value="account" label="Créations de compte" checked={type === "account"} onChange={(e) => setType(e.target.value)} />
           </div>
         </div>
 
-        <Table header={TABLE_HEADER} total={events.length} loading={loading} auto>
+        <Table header={tableHeader} total={events.length} loading={loading} auto>
           {events.map((item, i) => {
             const entries = getCustomAttributesEntries(item.customAttributes);
             const hasClientEventId = Boolean(item.clientEventId);
@@ -120,11 +149,11 @@ const RealTime = () => {
                       {item.missionTitle}
                     </Link>
                   ) : (
-                    <span className="block max-w-prose">Campagne: {item.sourceName}</span>
+                    <span className="block max-w-prose">{item.sourceName}</span>
                   )}
                 </td>
                 <td className="px-4 py-3 align-middle">
-                  <div className="inline-flex items-center gap-1 flex-wrap">
+                  <div className="inline-flex flex-wrap items-center gap-1">
                     <span>{item.type === "apply" ? "Candidature" : item.type === "click" ? "Redirection" : "Impression"}</span>
                     {tooltipId ? (
                       <Tooltip
