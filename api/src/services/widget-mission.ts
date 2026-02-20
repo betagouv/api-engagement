@@ -1,6 +1,6 @@
 import { PUBLISHER_IDS } from "../config";
 import { Prisma } from "../db/core";
-import { prismaCore } from "../db/postgres";
+import { prisma } from "../db/postgres";
 import { missionRepository } from "../repositories/mission";
 import { organizationRepository } from "../repositories/organization";
 import type { WidgetRecord } from "../types";
@@ -80,7 +80,7 @@ const inlinePublisherOrganizationFilters = async (where: Prisma.MissionWhereInpu
       return cached;
     }
 
-    const tuples = await prismaCore.publisherOrganization.findMany({
+    const tuples = await prisma.publisherOrganization.findMany({
       where: condition,
       select: { publisherId: true, organizationClientId: true },
     });
@@ -136,7 +136,7 @@ const aggregateWidgetAggs = async (
   const should = (key: string) => requestedAggs.includes(key);
 
   const aggregateMissionField = async (field: Prisma.MissionScalarFieldEnum) => {
-    const rows = await prismaCore.mission.groupBy({
+    const rows = await prisma.mission.groupBy({
       by: [field],
       where,
       _count: { _all: true },
@@ -150,7 +150,7 @@ const aggregateWidgetAggs = async (
   };
 
   const aggregateAddressField = async (field: "city" | "departmentName" | "country") => {
-    const rows = await prismaCore.missionAddress.groupBy({
+    const rows = await prisma.missionAddress.groupBy({
       by: [field, "missionId"],
       where: { mission: where },
       _count: { _all: true },
@@ -169,14 +169,14 @@ const aggregateWidgetAggs = async (
   };
 
   const aggregateDomainField = async () => {
-    const rows = await prismaCore.mission.groupBy({
+    const rows = await prisma.mission.groupBy({
       by: ["domainId"],
       where,
       _count: { _all: true },
     });
 
     const domainIds = rows.map((row) => (row as any).domainId).filter((id): id is string => typeof id === "string" && id.length > 0);
-    const domains = domainIds.length ? await prismaCore.domain.findMany({ where: { id: { in: domainIds } }, select: { id: true, name: true } }) : [];
+    const domains = domainIds.length ? await prisma.domain.findMany({ where: { id: { in: domainIds } }, select: { id: true, name: true } }) : [];
     const nameById = new Map(domains.map((domain) => [domain.id, domain.name ?? ""]));
 
     return rows
@@ -192,7 +192,7 @@ const aggregateWidgetAggs = async (
 
   const aggregateMissionListField = async (field: "tasks" | "audience") => {
     // Resolve filtered mission ids once, then aggregate on that fixed id set.
-    const missions = await prismaCore.mission.findMany({
+    const missions = await prisma.mission.findMany({
       where,
       select: { id: true },
       // Limit to prevent memory issues on extremely large datasets
@@ -256,8 +256,8 @@ const aggregateWidgetAggs = async (
     promises.set("beneficiaries", aggregateMissionListField("audience"));
   }
   if (should("accessibility")) {
-    const reduced = await prismaCore.mission.count({ where: { ...where, reducedMobilityAccessible: true } });
-    const transport = await prismaCore.mission.count({ where: { ...where, closeToTransport: true } });
+    const reduced = await prisma.mission.count({ where: { ...where, reducedMobilityAccessible: true } });
+    const transport = await prisma.mission.count({ where: { ...where, closeToTransport: true } });
     result.accessibility = [
       { key: "reducedMobilityAccessible", doc_count: reduced },
       { key: "closeToTransport", doc_count: transport },

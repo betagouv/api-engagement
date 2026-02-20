@@ -1,31 +1,25 @@
 import { Prisma } from "../db/core";
-import { prismaCore } from "../db/postgres";
+import { prisma } from "../db/postgres";
 
 export const reportRepository = {
-  async find<T extends Prisma.ReportFindManyArgs>(
-    params: Prisma.SelectSubset<T, Prisma.ReportFindManyArgs>
-  ): Promise<Prisma.ReportGetPayload<T>[]> {
-    return prismaCore.report.findMany(params);
+  async find<T extends Prisma.ReportFindManyArgs>(params: Prisma.SelectSubset<T, Prisma.ReportFindManyArgs>): Promise<Prisma.ReportGetPayload<T>[]> {
+    return prisma.report.findMany(params);
   },
 
-  async findFirst<T extends Prisma.ReportFindFirstArgs>(
-    params: Prisma.SelectSubset<T, Prisma.ReportFindFirstArgs>
-  ): Promise<Prisma.ReportGetPayload<T> | null> {
-    return prismaCore.report.findFirst(params);
+  async findFirst<T extends Prisma.ReportFindFirstArgs>(params: Prisma.SelectSubset<T, Prisma.ReportFindFirstArgs>): Promise<Prisma.ReportGetPayload<T> | null> {
+    return prisma.report.findFirst(params);
   },
 
-  async findById<T extends Prisma.ReportFindUniqueArgs>(
-    params: Prisma.SelectSubset<T, Prisma.ReportFindUniqueArgs>
-  ): Promise<Prisma.ReportGetPayload<T> | null> {
-    return prismaCore.report.findUnique(params);
+  async findById<T extends Prisma.ReportFindUniqueArgs>(params: Prisma.SelectSubset<T, Prisma.ReportFindUniqueArgs>): Promise<Prisma.ReportGetPayload<T> | null> {
+    return prisma.report.findUnique(params);
   },
 
   async count(where: Prisma.ReportWhereInput = {}): Promise<number> {
-    return prismaCore.report.count({ where });
+    return prisma.report.count({ where });
   },
 
   async groupByPublisher(where: Prisma.ReportWhereInput = {}): Promise<Array<{ publisherId: string; publisherName: string; count: number }>> {
-    const rows = await prismaCore.report.groupBy({
+    const rows = await prisma.report.groupBy({
       by: ["publisherId"],
       where,
       _count: { _all: true },
@@ -35,7 +29,7 @@ export const reportRepository = {
       return [];
     }
 
-    const publishers = await prismaCore.publisher.findMany({
+    const publishers = await prisma.publisher.findMany({
       where: {
         id: {
           in: rows.map((row) => row.publisherId),
@@ -57,7 +51,7 @@ export const reportRepository = {
   },
 
   async groupByStatus(where: Prisma.ReportWhereInput = {}): Promise<Array<{ status: string | null; count: number }>> {
-    const rows = await prismaCore.report.groupBy({
+    const rows = await prisma.report.groupBy({
       by: ["status"],
       where,
       _count: { _all: true },
@@ -69,15 +63,11 @@ export const reportRepository = {
     }));
   },
 
-  async create<T extends Prisma.ReportCreateArgs>(
-    params: Prisma.SelectSubset<T, Prisma.ReportCreateArgs>
-  ): Promise<Prisma.ReportGetPayload<T>> {
-    return prismaCore.report.create(params);
+  async create<T extends Prisma.ReportCreateArgs>(params: Prisma.SelectSubset<T, Prisma.ReportCreateArgs>): Promise<Prisma.ReportGetPayload<T>> {
+    return prisma.report.create(params);
   },
 
-  async update<T extends Prisma.ReportUpdateArgs>(
-    params: Prisma.SelectSubset<T, Prisma.ReportUpdateArgs>
-  ): Promise<Prisma.ReportGetPayload<T>> {
-    return prismaCore.report.update(params);
+  async update<T extends Prisma.ReportUpdateArgs>(params: Prisma.SelectSubset<T, Prisma.ReportUpdateArgs>): Promise<Prisma.ReportGetPayload<T>> {
+    return prisma.report.update(params);
   },
 };

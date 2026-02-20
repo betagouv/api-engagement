@@ -3,7 +3,7 @@ import request from "supertest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { PUBLISHER_IDS } from "../../../../src/config";
-import { prismaCore } from "../../../../src/db/postgres";
+import { prisma } from "../../../../src/db/postgres";
 import { publisherService } from "../../../../src/services/publisher";
 import { statBotService } from "../../../../src/services/stat-bot";
 import * as utils from "../../../../src/utils";
@@ -23,7 +23,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
 
     expect(response.status).toBe(302);
     expect(response.headers.location).toBe("https://www.service-civique.gouv.fr/");
-    expect(await prismaCore.statEvent.count()).toBe(0);
+    expect(await prisma.statEvent.count()).toBe(0);
   });
 
   it("redirects to Service Civique when mission is not found and identity is missing", async () => {
@@ -35,7 +35,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
 
     expect(response.status).toBe(302);
     expect(response.headers.location).toBe("https://www.service-civique.gouv.fr/");
-    expect(await prismaCore.statEvent.count()).toBe(0);
+    expect(await prisma.statEvent.count()).toBe(0);
   });
 
   it("redirects to mission application URL when identity is missing but mission exists", async () => {
@@ -61,12 +61,12 @@ describe("RedirectController /:missionId/:publisherId", () => {
 
     expect(response.status).toBe(302);
     expect(response.headers.location).toBe("https://mission.example.com/apply");
-    expect(await prismaCore.statEvent.count()).toBe(0);
+    expect(await prisma.statEvent.count()).toBe(0);
   });
 
   it("records click stats and appends tracking parameters when identity and publisher exist", async () => {
     const fromPublisher = await publisherService.createPublisher({ name: "From Publisher" });
-    const missionPublisher = await prismaCore.publisher.create({
+    const missionPublisher = await prisma.publisher.create({
       data: {
         id: randomUUID(),
         name: "Mission Publisher",
@@ -115,7 +115,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
     expect(redirectUrl.searchParams.get("utm_medium")).toBe("api");
     expect(redirectUrl.searchParams.get("utm_campaign")).toBe("from-publisher");
 
-    const storedClick = await prismaCore.statEvent.findUnique({ where: { id: clickId! } });
+    const storedClick = await prisma.statEvent.findUnique({ where: { id: clickId! } });
     expect(storedClick).toMatchObject({
       type: "click",
       user: identity.user,
@@ -145,11 +145,11 @@ describe("RedirectController /:missionId/:publisherId", () => {
 
   it("uses mtm tracking parameters for Service Civique missions", async () => {
     const fromPublisher = await publisherService.createPublisher({ name: "From Publisher" });
-    const serviceCiviquePublisherId = PUBLISHER_IDS.SERVICE_CIVIQUE || new Types.ObjectId().toString();
+    const serviceCiviquePublisherId = PUBLISHER_IDS.SERVICE_CIVIQUE || "service-civique-publisher-id";
     if (!PUBLISHER_IDS.SERVICE_CIVIQUE) {
       PUBLISHER_IDS.SERVICE_CIVIQUE = serviceCiviquePublisherId;
     }
-    const serviceCiviquePublisher = await prismaCore.publisher.create({
+    const serviceCiviquePublisher = await prisma.publisher.create({
       data: { id: serviceCiviquePublisherId, name: "Service Civique" },
     });
 

@@ -2,7 +2,7 @@ import { readFile } from "fs/promises";
 import path from "path";
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { prismaCore } from "../../../../src/db/postgres";
+import { prisma } from "../../../../src/db/postgres";
 import { ImportMissionsHandler } from "../../../../src/jobs/import-missions/handler";
 import { importService } from "../../../../src/services/import";
 import { missionService } from "../../../../src/services/mission";
@@ -251,7 +251,7 @@ describe("Import missions job (integration test)", () => {
     if (!existingMission) {
       throw new Error("Mission not found");
     }
-    await prismaCore.$executeRaw`UPDATE "mission" SET "updated_at" = ${new Date("2025-01-01")} WHERE "id" = ${existingMission.id}`;
+    await prisma.$executeRaw`UPDATE "mission" SET "updated_at" = ${new Date("2025-01-01")} WHERE "id" = ${existingMission.id}`;
 
     // Import feed again to update mission (no change)
     (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => xml });

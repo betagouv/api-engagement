@@ -1,7 +1,7 @@
 import { randomBytes } from "crypto";
 
 import { Prisma } from "../db/core";
-import { prismaCore } from "../db/postgres";
+import { prisma } from "../db/postgres";
 import { organizationRepository } from "../repositories/organization";
 import {
   OrganizationCreateInput,
@@ -429,7 +429,7 @@ export const organizationService = (() => {
     for (const chunkRecords of chunkedRecords) {
       for (const record of chunkRecords) {
         try {
-          await prismaCore.organization.upsert({
+          await prisma.organization.upsert({
             where: { rna: record.rna as string },
             create: mapCreateInput(record),
             update: mapUpdateInput(record),

@@ -1,28 +1,28 @@
 import { Prisma, User } from "../db/core";
-import { prismaCore } from "../db/postgres";
+import { prisma } from "../db/postgres";
 
 export const userRepository = {
   async findMany(params: Prisma.UserFindManyArgs = {}): Promise<User[]> {
-    return prismaCore.user.findMany(params);
+    return prisma.user.findMany(params);
   },
 
   async findUnique(params: Prisma.UserFindUniqueArgs): Promise<User | null> {
-    return prismaCore.user.findUnique(params);
+    return prisma.user.findUnique(params);
   },
 
   async findFirst(params: Prisma.UserFindFirstArgs): Promise<User | null> {
-    return prismaCore.user.findFirst(params);
+    return prisma.user.findFirst(params);
   },
 
   async create(params: Prisma.UserCreateArgs): Promise<User> {
-    return prismaCore.user.create(params);
+    return prisma.user.create(params);
   },
 
   async update(params: Prisma.UserUpdateArgs): Promise<User> {
-    return prismaCore.user.update(params);
+    return prisma.user.update(params);
   },
 
   async updateMany(params: Prisma.UserUpdateManyArgs): Promise<Prisma.BatchPayload> {
-    return prismaCore.user.updateMany(params);
+    return prisma.user.updateMany(params);
   },
 };

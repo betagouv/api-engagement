@@ -1,58 +1,55 @@
 import { Mission, Prisma } from "../db/core";
-import { prismaCore } from "../db/postgres";
+import { prisma } from "../db/postgres";
 
 export const missionRepository = {
   async findMany(params: Prisma.MissionFindManyArgs = {}): Promise<Mission[]> {
-    return prismaCore.mission.findMany(params);
+    return prisma.mission.findMany(params);
   },
 
   async count(where: Prisma.MissionWhereInput = {}): Promise<number> {
-    return prismaCore.mission.count({ where });
+    return prisma.mission.count({ where });
   },
 
   async findById(id: string): Promise<Mission | null> {
-    return prismaCore.mission.findUnique({ where: { id } });
+    return prisma.mission.findUnique({ where: { id } });
   },
 
   async findFirst(params: Prisma.MissionFindFirstArgs): Promise<Mission | null> {
-    return prismaCore.mission.findFirst(params);
+    return prisma.mission.findFirst(params);
   },
 
   async create(data: Prisma.MissionCreateInput): Promise<Mission> {
-    return prismaCore.mission.create({ data });
+    return prisma.mission.create({ data });
   },
 
   async createUnchecked(data: Prisma.MissionUncheckedCreateInput): Promise<Mission> {
-    return prismaCore.mission.create({ data });
+    return prisma.mission.create({ data });
   },
 
   async update(id: string, data: Prisma.MissionUpdateInput): Promise<Mission> {
-    return prismaCore.mission.update({ where: { id }, data });
+    return prisma.mission.update({ where: { id }, data });
   },
 
   async updateUnchecked(id: string, data: Prisma.MissionUncheckedUpdateInput): Promise<Mission> {
-    return prismaCore.mission.update({ where: { id }, data });
+    return prisma.mission.update({ where: { id }, data });
   },
 
   groupBy<K extends keyof Mission>(by: K[], where: Prisma.MissionWhereInput) {
-    return prismaCore.mission.groupBy({
+    return prisma.mission.groupBy({
       by: by as any,
       where,
       _count: true,
     });
   },
 
-  async aggregateArrayField(
-    missionIds: string[],
-    field: "tasks" | "audience"
-  ): Promise<Array<{ value: string; count: number }>> {
+  async aggregateArrayField(missionIds: string[], field: "tasks" | "audience"): Promise<Array<{ value: string; count: number }>> {
     if (missionIds.length === 0) {
       return [];
     }
 
     // Use PostgreSQL UNNEST to efficiently aggregate array fields
     // This prevents "could not resize shared memory segment" errors on large datasets
-    const rows = await prismaCore.$queryRaw<Array<{ value: string; doc_count: bigint }>>(
+    const rows = await prisma.$queryRaw<Array<{ value: string; doc_count: bigint }>>(
       Prisma.sql`
         SELECT value, COUNT(DISTINCT mission_id) as doc_count
         FROM (

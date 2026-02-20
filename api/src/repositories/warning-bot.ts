@@ -1,24 +1,24 @@
 import { Prisma, WarningBot } from "../db/core";
-import { prismaCore } from "../db/postgres";
+import { prisma } from "../db/postgres";
 
 export const warningBotRepository = {
   async findMany(params: Prisma.WarningBotFindManyArgs = {}): Promise<WarningBot[]> {
-    return prismaCore.warningBot.findMany(params);
+    return prisma.warningBot.findMany(params);
   },
 
   async findFirst(params: Prisma.WarningBotFindFirstArgs): Promise<WarningBot | null> {
-    return prismaCore.warningBot.findFirst(params);
+    return prisma.warningBot.findFirst(params);
   },
 
   async findUnique(params: Prisma.WarningBotFindUniqueArgs): Promise<WarningBot | null> {
-    return prismaCore.warningBot.findUnique(params);
+    return prisma.warningBot.findUnique(params);
   },
 
   async create(params: Prisma.WarningBotCreateArgs): Promise<WarningBot> {
-    return prismaCore.warningBot.create(params);
+    return prisma.warningBot.create(params);
   },
 
   async update(params: Prisma.WarningBotUpdateArgs): Promise<WarningBot> {
-    return prismaCore.warningBot.update(params);
+    return prisma.warningBot.update(params);
   },
 };

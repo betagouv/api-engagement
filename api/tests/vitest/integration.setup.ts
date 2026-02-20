@@ -1,19 +1,17 @@
 import "./shared";
 
 import { afterAll, beforeAll, beforeEach } from "vitest";
-import { pgConnectedAll } from "../../src/db/postgres";
+import { pgConnected } from "../../src/db/postgres";
 
 type PostgresModule = typeof import("../../src/db/postgres");
-let prismaCore: PostgresModule["prismaCore"] | null = null;
-let prismaAnalytics: PostgresModule["prismaAnalytics"] | null = null;
+let prismaCore: PostgresModule["prisma"] | null = null;
 
 beforeAll(async () => {
   const postgresModule = await import("../../src/db/postgres");
-  prismaCore = postgresModule.prismaCore;
-  prismaAnalytics = postgresModule.prismaAnalytics;
+  prismaCore = postgresModule.prisma;
 
   try {
-    await pgConnectedAll();
+    await pgConnected();
   } catch (error) {
     console.error("[Tests] Failed to connect Prisma clients:", error);
     throw error;
@@ -44,8 +42,5 @@ beforeEach(async () => {
 afterAll(async () => {
   if (prismaCore) {
     await prismaCore.$disconnect();
-  }
-  if (prismaAnalytics) {
-    await prismaAnalytics.$disconnect();
   }
 });

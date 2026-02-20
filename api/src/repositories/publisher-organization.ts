@@ -1,15 +1,15 @@
 import { randomUUID } from "node:crypto";
 
 import { Prisma, PublisherOrganization } from "../db/core";
-import { prismaCore } from "../db/postgres";
+import { prisma } from "../db/postgres";
 
 export const publisherOrganizationRepository = {
   async findMany(params: Prisma.PublisherOrganizationFindManyArgs = {}): Promise<PublisherOrganization[]> {
-    return prismaCore.publisherOrganization.findMany(params);
+    return prisma.publisherOrganization.findMany(params);
   },
 
   async findFirst(params: Prisma.PublisherOrganizationFindFirstArgs): Promise<PublisherOrganization | null> {
-    return prismaCore.publisherOrganization.findFirst(params);
+    return prisma.publisherOrganization.findFirst(params);
   },
 
   async upsertByPublisherAndClientId(params: {
@@ -19,7 +19,7 @@ export const publisherOrganizationRepository = {
     update: Prisma.PublisherOrganizationUpdateInput;
   }): Promise<PublisherOrganization> {
     const createInput = params.create.id ? params.create : { ...params.create, id: randomUUID() };
-    return prismaCore.publisherOrganization.upsert({
+    return prisma.publisherOrganization.upsert({
       where: {
         publisherId_organizationClientId: {
           publisherId: params.publisherId,
@@ -35,7 +35,7 @@ export const publisherOrganizationRepository = {
     organizationClientId: string;
     update: Prisma.PublisherOrganizationUpdateInput;
   }): Promise<PublisherOrganization> {
-    return prismaCore.publisherOrganization.update({
+    return prisma.publisherOrganization.update({
       where: {
         publisherId_organizationClientId: {
           publisherId: params.publisherId,
@@ -46,7 +46,7 @@ export const publisherOrganizationRepository = {
     });
   },
   groupBy<K extends keyof PublisherOrganization>(by: K[], where: Prisma.PublisherOrganizationWhereInput) {
-    return prismaCore.publisherOrganization.groupBy({
+    return prisma.publisherOrganization.groupBy({
       by: by as any,
       where,
       _count: true,

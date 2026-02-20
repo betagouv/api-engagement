@@ -1,49 +1,49 @@
-import { Prisma, Organization } from "../db/core";
-import { prismaCore } from "../db/postgres";
+import { Organization, Prisma } from "../db/core";
+import { prisma } from "../db/postgres";
 
 export const organizationRepository = {
   async findMany(params: Prisma.OrganizationFindManyArgs = {}): Promise<Organization[]> {
-    return prismaCore.organization.findMany(params);
+    return prisma.organization.findMany(params);
   },
 
   async findFirst(params: Prisma.OrganizationFindFirstArgs): Promise<Organization | null> {
-    return prismaCore.organization.findFirst(params);
+    return prisma.organization.findFirst(params);
   },
 
   async findUnique(params: Prisma.OrganizationFindUniqueArgs): Promise<Organization | null> {
-    return prismaCore.organization.findUnique(params);
+    return prisma.organization.findUnique(params);
   },
 
   async count(params: Prisma.OrganizationCountArgs = {}): Promise<number> {
-    return prismaCore.organization.count(params);
+    return prisma.organization.count(params);
   },
 
   async create(params: Prisma.OrganizationCreateArgs): Promise<Organization> {
-    return prismaCore.organization.create(params);
+    return prisma.organization.create(params);
   },
 
   async createMany(params: Prisma.OrganizationCreateManyArgs): Promise<Prisma.BatchPayload> {
-    return prismaCore.organization.createMany(params);
+    return prisma.organization.createMany(params);
   },
 
   async upsert(params: Prisma.OrganizationUpsertArgs): Promise<Organization> {
-    return prismaCore.organization.upsert(params);
+    return prisma.organization.upsert(params);
   },
 
   async update(params: Prisma.OrganizationUpdateArgs): Promise<Organization> {
-    return prismaCore.organization.update(params);
+    return prisma.organization.update(params);
   },
 
   async updateMany(params: Prisma.OrganizationUpdateManyArgs): Promise<Prisma.BatchPayload> {
-    return prismaCore.organization.updateMany(params);
+    return prisma.organization.updateMany(params);
   },
 
   async deleteMany(params: Prisma.OrganizationDeleteManyArgs): Promise<Prisma.BatchPayload> {
-    return prismaCore.organization.deleteMany(params);
+    return prisma.organization.deleteMany(params);
   },
 
   async countExportCandidates(): Promise<number> {
-    const rows = await prismaCore.$queryRaw<Array<{ count: bigint }>>`
+    const rows = await prisma.$queryRaw<Array<{ count: bigint }>>`
       SELECT COUNT(*)::bigint AS count
       FROM "organization"
       WHERE "last_exported_to_pg_at" IS NULL
@@ -53,7 +53,7 @@ export const organizationRepository = {
   },
 
   async findExportCandidateIds(limit: number, afterId?: string | null): Promise<Array<{ id: string; updatedAt: Date }>> {
-    return prismaCore.$queryRaw<Array<{ id: string; updated_at: Date }>>`
+    return prisma.$queryRaw<Array<{ id: string; updated_at: Date }>>`
       SELECT "id", "updated_at"
       FROM "organization"
       WHERE ("last_exported_to_pg_at" IS NULL OR "last_exported_to_pg_at" < "updated_at")
@@ -67,7 +67,7 @@ export const organizationRepository = {
     if (!ids.length) {
       return 0;
     }
-    const result = await prismaCore.$executeRaw`
+    const result = await prisma.$executeRaw`
       UPDATE "organization"
       SET "last_exported_to_pg_at" = ${exportedAt}
       WHERE "id" IN (${Prisma.join(ids)})

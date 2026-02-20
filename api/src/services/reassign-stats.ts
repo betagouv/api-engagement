@@ -1,18 +1,6 @@
-import { prismaCore } from "../db/postgres";
+import { prisma } from "../db/postgres";
 
-type ReassignStatsField =
-  | "id"
-  | "sourceId"
-  | "sourceName"
-  | "fromPublisherId"
-  | "toPublisherId"
-  | "missionId"
-  | "source"
-  | "tag"
-  | "tags"
-  | "type"
-  | "status"
-  | "user";
+type ReassignStatsField = "id" | "sourceId" | "sourceName" | "fromPublisherId" | "toPublisherId" | "missionId" | "source" | "tag" | "tags" | "type" | "status" | "user";
 
 export type ReassignStatsWhere = Partial<Record<ReassignStatsField, string | string[]>>;
 export type ReassignStatsUpdate = Partial<Record<ReassignStatsField, string>>;
@@ -58,7 +46,7 @@ export const reassignStats = async (where: ReassignStatsWhere, update: ReassignS
     }
 
     if (Object.keys(pgUpdate).length) {
-      await prismaCore.statEvent.updateMany({ where: pgWhere, data: pgUpdate });
+      await prisma.statEvent.updateMany({ where: pgWhere, data: pgUpdate });
     }
 
     return processed;

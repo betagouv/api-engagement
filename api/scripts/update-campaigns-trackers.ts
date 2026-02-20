@@ -127,8 +127,8 @@ const run = async () => {
 };
 
 const shutdown = async (exitCode: number) => {
-  const { prismaCore, prismaAnalytics } = await import("../src/db/postgres");
-  await Promise.allSettled([prismaCore.$disconnect(), prismaAnalytics.$disconnect()]);
+  const { prisma } = await import("../src/db/postgres");
+  await Promise.allSettled([prisma.$disconnect()]);
   process.exit(exitCode);
 };
 
