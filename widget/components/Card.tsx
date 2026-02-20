@@ -1,4 +1,4 @@
-import { Mission, Widget } from "../types";
+import { Mission, Widget } from "@/types";
 import CardBenevolat from "./CardBenevolat";
 import CardVolontariat from "./CardVolontariat";
 

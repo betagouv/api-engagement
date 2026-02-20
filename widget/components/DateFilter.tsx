@@ -5,7 +5,7 @@ import ReactDatePicker from "react-datepicker";
 import { RiArrowDownSLine, RiArrowLeftSLine, RiArrowRightSLine } from "react-icons/ri";
 
 import "react-datepicker/dist/react-datepicker.css";
-import useStore from "../utils/store";
+import useStore from "@/utils/store";
 
 interface DateFilterProps {
   selected: { label: string; value: Date } | null;

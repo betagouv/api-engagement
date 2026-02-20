@@ -2,8 +2,8 @@ import { usePlausible } from "next-plausible";
 import { useEffect, useRef, useState } from "react";
 import { RiArrowLeftLine, RiArrowRightLine } from "react-icons/ri";
 
-import { Mission, Widget } from "../types";
-import useStore from "../utils/store";
+import { Mission, Widget } from "@/types";
+import useStore from "@/utils/store";
 import Card from "./Card";
 
 interface CarouselProps {

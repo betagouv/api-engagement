@@ -1,4 +1,4 @@
-import { FilterOption } from "../types";
+import { FilterOption } from "@/types";
 
 interface SelectFilterProps {
   options: FilterOption[];

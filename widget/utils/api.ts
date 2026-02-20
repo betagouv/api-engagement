@@ -1,4 +1,4 @@
-import { AggregationData } from "../types";
+import { AggregationData } from "@/types";
 import { fetchWithTimeout } from "./fetchWithTimeout";
 import { generateRequestId, REQUEST_ID_HEADER } from "./requestId";
 
