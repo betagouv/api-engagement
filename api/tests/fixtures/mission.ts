@@ -1,7 +1,6 @@
 import { randomUUID } from "node:crypto";
 
 import { prismaCore } from "@/db/postgres";
-import { missionRepository } from "@/repositories/mission";
 import { missionService } from "@/services/mission";
 import { missionModerationStatusService } from "@/services/mission-moderation-status";
 import { organizationService } from "@/services/organization";
@@ -37,40 +36,6 @@ const buildDefaultAddress = (override: MissionAddress = {}): MissionAddress => (
   geolocStatus: "NOT_FOUND",
   ...override,
 });
-
-const resolveDomainId = async (domainName: string): Promise<string> => {
-  const name = domainName.trim();
-  const existing = await prismaCore.domain.findUnique({ where: { name }, select: { id: true } });
-  if (existing) {
-    return existing.id;
-  }
-  const created = await prismaCore.domain.create({ data: { name } });
-  return created.id;
-};
-
-const resolveActivityId = async (activityName: string): Promise<string> => {
-  const name = activityName.trim();
-  const existing = await prismaCore.activity.findUnique({ where: { name }, select: { id: true } });
-  if (existing) {
-    return existing.id;
-  }
-  const created = await prismaCore.activity.create({ data: { name } });
-  return created.id;
-};
-
-const mapAddressesForCreate = (addresses: MissionAddress[]) =>
-  addresses.map((address) => ({
-    street: address.street ?? null,
-    postalCode: address.postalCode ?? null,
-    departmentName: address.departmentName ?? null,
-    departmentCode: address.departmentCode ?? null,
-    city: address.city ?? null,
-    region: address.region ?? null,
-    country: address.country ?? null,
-    locationLat: address.location?.lat ?? null,
-    locationLon: address.location?.lon ?? null,
-    geolocStatus: (address as any).geolocStatus ?? null,
-  }));
 
 export const createTestMission = async (data: Partial<MissionCreateInput & { deleted?: boolean }> = {}): Promise<MissionRecord> => {
   const normalizeAddress = (address: MissionAddress): MissionAddress => {
@@ -195,14 +160,6 @@ export const createTestMission = async (data: Partial<MissionCreateInput & { del
     addresses,
   };
 
-  const domainName = missionInput.domain?.trim();
-  const domainId = domainName ? await resolveDomainId(domainName) : null;
-  const activityIds: string[] = [];
-  for (const name of missionInput.activities ?? []) {
-    activityIds.push(await resolveActivityId(name.trim()));
-  }
-  const addressesForCreate = mapAddressesForCreate(addresses);
-
   if (missionInput.organizationClientId) {
     await prismaCore.publisherOrganization.upsert({
       where: {
@@ -231,64 +188,7 @@ export const createTestMission = async (data: Partial<MissionCreateInput & { del
     });
   }
 
-  const missionId = missionInput.id ?? randomUUID();
-  await missionRepository.createUnchecked({
-    id: missionId,
-    clientId: missionInput.clientId,
-    publisherId: missionInput.publisherId,
-    domainId,
-    title: missionInput.title,
-    statusCode: missionInput.statusCode ?? "ACCEPTED",
-    description: missionInput.description ?? "",
-    descriptionHtml: missionInput.descriptionHtml ?? undefined,
-    tags: missionInput.tags ?? [],
-    tasks: missionInput.tasks ?? [],
-    audience: missionInput.audience ?? [],
-    softSkills: missionInput.softSkills ?? missionInput.soft_skills ?? [],
-    requirements: missionInput.requirements ?? [],
-    romeSkills: missionInput.romeSkills ?? [],
-    reducedMobilityAccessible: missionInput.reducedMobilityAccessible ?? undefined,
-    closeToTransport: missionInput.closeToTransport ?? undefined,
-    openToMinors: missionInput.openToMinors ?? undefined,
-    remote: missionInput.remote ?? undefined,
-    schedule: missionInput.schedule ?? undefined,
-    duration: missionInput.duration ?? undefined,
-    postedAt: missionInput.postedAt ?? undefined,
-    startAt: missionInput.startAt ?? undefined,
-    endAt: missionInput.endAt ?? undefined,
-    priority: missionInput.priority ?? undefined,
-    places: missionInput.places ?? undefined,
-    placesStatus: missionInput.placesStatus ?? undefined,
-    metadata: missionInput.metadata ?? undefined,
-    domainOriginal: missionInput.domainOriginal ?? undefined,
-    domainLogo: missionInput.domainLogo ?? undefined,
-    type: (missionInput.type as any) ?? undefined,
-    snu: missionInput.snu ?? undefined,
-    snuPlaces: missionInput.snuPlaces ?? undefined,
-    compensationAmount: missionInput.compensationAmount ?? undefined,
-    compensationUnit: missionInput.compensationUnit ?? undefined,
-    compensationType: missionInput.compensationType ?? undefined,
-    organizationClientId: missionInput.organizationClientId ?? undefined,
-    organizationId: missionInput.organizationId ?? undefined,
-    lastSyncAt: missionInput.lastSyncAt ?? undefined,
-    applicationUrl: missionInput.applicationUrl ?? undefined,
-    statusComment: missionInput.statusComment ?? undefined,
-    deletedAt: missionInput.deletedAt ?? undefined,
-    lastExportedToPgAt: missionInput.lastExportedToPgAt ?? undefined,
-    addresses: addressesForCreate.length ? { create: addressesForCreate } : undefined,
-  });
-
-  if (activityIds.length) {
-    await prismaCore.missionActivity.createMany({
-      data: activityIds.map((activityId) => ({ missionId, activityId })),
-      skipDuplicates: true,
-    });
-  }
-
-  const mission = await missionService.findOneMission(missionId);
-  if (!mission) {
-    throw new Error("[fixtures] Mission introuvable après création.");
-  }
+  const mission = await missionService.create(missionInput);
 
   const defaultModerationPublisherId = "5f5931496c7ea514150a818f";
   await missionModerationStatusService.create({

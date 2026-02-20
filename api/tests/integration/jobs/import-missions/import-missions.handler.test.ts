@@ -237,6 +237,31 @@ describe("Import missions job (integration test)", () => {
     expect(mission?.deletedAt).toBeNull();
   });
 
+  it("Re-importing a mission with the same address preserves the MissionAddress UUID", async () => {
+    const xml = await readFile(path.join(__dirname, "data/correct-feed.xml"), "utf-8");
+    const publisher = await createTestPublisher({ feed: "https://fixture-feed-uuid", isAnnonceur: true });
+
+    // First import — creates the mission and its addresses
+    (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => xml });
+    await handler.handle({ publisherId: publisher.id });
+
+    const missionAfterFirstImport = await missionService.findOneMissionBy({ publisherId: publisher.id, clientId: "32132143" });
+    expect(missionAfterFirstImport).toBeDefined();
+    const addressIdsBefore = missionAfterFirstImport!.addresses.map((a) => a.id).sort();
+    expect(addressIdsBefore.length).toBe(2);
+
+    // Second import — same XML, same addresses
+    (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => xml });
+    await handler.handle({ publisherId: publisher.id });
+
+    const missionAfterSecondImport = await missionService.findOneMissionBy({ publisherId: publisher.id, clientId: "32132143" });
+    expect(missionAfterSecondImport).toBeDefined();
+    const addressIdsAfter = missionAfterSecondImport!.addresses.map((a) => a.id).sort();
+
+    // UUIDs must be identical — no deleteMany + createMany
+    expect(addressIdsAfter).toEqual(addressIdsBefore);
+  });
+
   it("If mission already exists and has no new data, it is not updated", async () => {
     const xml = await readFile(path.join(__dirname, "data/correct-feed.xml"), "utf-8");
     const publisher = await createTestPublisher({ feed: "https://fixture-feed", isAnnonceur: true });
