@@ -37,6 +37,9 @@ beforeEach(async () => {
       prismaCore.publisher.deleteMany({}),
       prismaCore.domain.deleteMany({}),
       prismaCore.activity.deleteMany({}),
+      prismaCore.moderationEvent.deleteMany({}),
+      prismaCore.userPublisher.deleteMany({}),
+      prismaCore.user.deleteMany({}),
     ]);
   }
 });
