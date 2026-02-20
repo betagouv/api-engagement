@@ -23,6 +23,12 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
   - Usage: Crée/met à jour les `PublisherOrganization` à partir des champs `organization*` encore présents sur `Mission`.
   - Notes: À exécuter avant la suppression des colonnes `organization*` côté `mission`.
 
+- **backfill-organization-search-text.ts**
+
+  - Exécution: `npx ts-node scripts/backfill-organization-search-text.ts [--batch <taille>] [--last-id <id>]`
+  - Usage: Remplit `organization.search_text` pour accélérer la recherche.
+  - Options: `--batch <taille>` (défaut: 500), `--last-id <id>` pour reprendre à un identifiant donné.
+
 - **mongo-backfill/**
 
   - Sous-dossier dédié à la migration des modèles MongoDB vers PostgreSQL.
