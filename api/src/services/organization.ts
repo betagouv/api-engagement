@@ -14,7 +14,7 @@ import {
 } from "../types/organization";
 import { chunk } from "../utils/array";
 import { normalizeOptionalString, normalizeSlug, normalizeStringArray } from "../utils/normalize";
-import { isValidRNA, isValidSiret } from "../utils/organization";
+import { buildOrganizationSearchText, isValidRNA, isValidSiret } from "../utils/organization";
 import { slugify } from "../utils/string";
 
 const DEFAULT_LIMIT = 25;
@@ -54,7 +54,7 @@ const buildSearchWhere = (params: OrganizationSearchParams): Prisma.Organization
       } else {
         const slug = slugify(query);
         const isTextQuery = /[A-Za-zÀ-ÖØ-öø-ÿ]/.test(query);
-        const textConditions: Prisma.OrganizationWhereInput[] = [{ title: { contains: query, mode: "insensitive" } }, { shortTitle: { contains: query, mode: "insensitive" } }];
+        const textConditions: Prisma.OrganizationWhereInput[] = [{ searchText: { contains: query, mode: "insensitive" } }];
         if (!isTextQuery) {
           textConditions.push({ rna: { contains: query, mode: "insensitive" } });
           textConditions.push({ siret: { contains: query, mode: "insensitive" } });
@@ -86,6 +86,8 @@ const mapCreateInput = (input: OrganizationCreateInput): Prisma.OrganizationCrea
   }
   const sirets = normalizeStringArray(input.sirets);
   const id = (input.id && input.id.trim()) || generateOrganizationId();
+  const shortTitle = normalizeOptionalString(input.shortTitle);
+  const searchText = buildOrganizationSearchText(title, shortTitle);
 
   return {
     id,
@@ -105,7 +107,8 @@ const mapCreateInput = (input: OrganizationCreateInput): Prisma.OrganizationCrea
     nature: normalizeOptionalString(input.nature),
     groupement: normalizeOptionalString(input.groupement),
     names,
-    shortTitle: normalizeOptionalString(input.shortTitle),
+    shortTitle,
+    searchText,
     titleSlug: normalizeSlug(title, input.titleSlug ?? null) ?? undefined,
     shortTitleSlug: normalizeSlug(input.shortTitle ?? null, input.shortTitleSlug ?? null) ?? undefined,
     object: normalizeOptionalString(input.object),
@@ -144,13 +147,12 @@ const mapCreateInput = (input: OrganizationCreateInput): Prisma.OrganizationCrea
 
 const mapUpdateInput = (patch: OrganizationUpdatePatch): Prisma.OrganizationUpdateInput => {
   const data: Prisma.OrganizationUpdateInput = {};
+  const titlePatch = patch.title !== undefined ? normalizeOptionalString(patch.title) : undefined;
+  const shortTitlePatch = patch.shortTitle !== undefined ? normalizeOptionalString(patch.shortTitle) : undefined;
 
-  if (patch.title !== undefined) {
-    const title = normalizeOptionalString(patch.title);
-    if (title) {
-      data.title = title;
-      data.titleSlug = normalizeSlug(title, patch.titleSlug ?? null);
-    }
+  if (patch.title !== undefined && titlePatch) {
+    data.title = titlePatch;
+    data.titleSlug = normalizeSlug(titlePatch, patch.titleSlug ?? null);
   }
 
   if (patch.names !== undefined) {
@@ -163,11 +165,14 @@ const mapUpdateInput = (patch: OrganizationUpdatePatch): Prisma.OrganizationUpda
   }
 
   if (patch.shortTitle !== undefined) {
-    const shortTitle = normalizeOptionalString(patch.shortTitle);
-    data.shortTitle = shortTitle ?? null;
-    data.shortTitleSlug = normalizeSlug(shortTitle ?? null, patch.shortTitleSlug ?? null);
+    data.shortTitle = shortTitlePatch ?? null;
+    data.shortTitleSlug = normalizeSlug(shortTitlePatch ?? null, patch.shortTitleSlug ?? null);
   } else if (patch.shortTitleSlug !== undefined) {
     data.shortTitleSlug = normalizeOptionalString(patch.shortTitleSlug);
+  }
+
+  if (patch.title !== undefined || patch.shortTitle !== undefined) {
+    data.searchText = buildOrganizationSearchText(titlePatch ?? null, shortTitlePatch ?? null);
   }
 
   if (patch.rna !== undefined) {
@@ -356,9 +361,22 @@ export const organizationService = (() => {
 
   const updateOrganization = async (id: string, patch: OrganizationUpdatePatch): Promise<OrganizationRecord> => {
     try {
+      const data = mapUpdateInput(patch);
+      if (patch.title !== undefined || patch.shortTitle !== undefined) {
+        const existing = await organizationRepository.findUnique({
+          where: { id },
+          select: { title: true, shortTitle: true },
+        });
+        if (!existing) {
+          throw new Error("Organization not found");
+        }
+        const nextTitle = patch.title !== undefined ? normalizeOptionalString(patch.title) ?? existing.title : existing.title;
+        const nextShortTitle = patch.shortTitle !== undefined ? normalizeOptionalString(patch.shortTitle) ?? null : existing.shortTitle;
+        data.searchText = buildOrganizationSearchText(nextTitle, nextShortTitle);
+      }
       return await organizationRepository.update({
         where: { id },
-        data: mapUpdateInput(patch),
+        data,
       });
     } catch (error: unknown) {
       if (error instanceof Error && "code" in error && (error as { code?: string }).code === "P2025") {
