@@ -72,7 +72,9 @@ const mapAddressesForCreate = (addresses: MissionAddress[]) =>
     geolocStatus: (address as any).geolocStatus ?? null,
   }));
 
-export const createTestMission = async (data: Partial<MissionCreateInput & { deleted?: boolean }> = {}): Promise<MissionRecord> => {
+export const createTestMission = async (
+  data: Partial<MissionCreateInput & { deleted?: boolean; moderationStatus?: string; moderationComment?: string | null; moderationNote?: string | null; moderationTitle?: string | null }> = {}
+): Promise<MissionRecord> => {
   const normalizeAddress = (address: MissionAddress): MissionAddress => {
     const departmentCode = (address as any).departmentCode;
     const postalCode = (address as any).postalCode;

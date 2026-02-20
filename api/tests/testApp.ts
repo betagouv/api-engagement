@@ -4,6 +4,7 @@ import cors from "cors";
 import express from "express";
 import bodyParserErrorHandler from "../src/middlewares/body-parser-error-handler";
 import passport from "../src/middlewares/passport";
+import ModerationController from "../src/controllers/moderation";
 import IframeController from "../src/controllers/iframe";
 import RedirectController from "../src/controllers/redirect";
 import ActivityV2Controller from "../src/v2/activity";
@@ -27,6 +28,7 @@ export const createTestApp = () => {
   app.use(passport.initialize());
 
   // Mount the controllers
+  app.use("/moderation", ModerationController);
   app.use("/v0/myorganization", MyOrganizationV0Controller);
   app.use("/v0/mymission", MyMissionV0Controller);
   app.use("/v0/mission", MissionV0Controller);
