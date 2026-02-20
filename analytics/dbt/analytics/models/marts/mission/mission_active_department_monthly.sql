@@ -5,7 +5,7 @@
     'month',
     'is_all_department',
     'department',
-    'publisher_id',
+    'publisher_key',
     'publisher_category',
     'mission_domain'
   ],
@@ -44,9 +44,9 @@ active_months as (
     b.department,
     b.publisher_id,
     b.publisher_category,
-    b.mission_domain,
     b.mission_id,
-    b.updated_at
+    b.updated_at,
+    coalesce(b.mission_domain, 'unknown') as mission_domain
   from base as b
   inner join lateral (
     select generate_series(
@@ -68,6 +68,7 @@ dept as (
     false as is_all_department,
     department,
     publisher_id,
+    coalesce(publisher_id::text, 'unknown') as publisher_key,
     publisher_category,
     mission_domain,
     count(distinct mission_id) as mission_count,
@@ -91,6 +92,7 @@ dept_all_category as (
     false as is_all_department,
     department,
     null as publisher_id,
+    'all' as publisher_key,
     'all' as publisher_category,
     mission_domain,
     count(distinct mission_id) as mission_count,
@@ -110,8 +112,9 @@ all_dept as (
     month,
     month_start,
     true as is_all_department,
-    null as department,
+    'all' as department,
     publisher_id,
+    coalesce(publisher_id::text, 'unknown') as publisher_key,
     publisher_category,
     mission_domain,
     count(distinct mission_id) as mission_count,
@@ -132,8 +135,9 @@ all_dept_all_category as (
     month,
     month_start,
     true as is_all_department,
-    null as department,
+    'all' as department,
     null as publisher_id,
+    'all' as publisher_key,
     'all' as publisher_category,
     mission_domain,
     count(distinct mission_id) as mission_count,

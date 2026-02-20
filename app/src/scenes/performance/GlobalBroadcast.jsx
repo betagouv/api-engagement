@@ -198,7 +198,7 @@ const DistributionMean = ({ filters, defaultType = "print" }) => {
           ) : (
             <div className="flex h-64 justify-between gap-4 p-2">
               <div className="w-2/3">
-                <table className="w-full table-fixed">
+                <table className="w-full table-auto">
                   <thead className="text-left">
                     <tr className="text-text-mention text-xs uppercase">
                       <th colSpan={3} className="px-4">
@@ -395,20 +395,6 @@ const Evolution = ({ filters, defaultType = "print" }) => {
             </div>
           )}
         </div>
-        {loading ? (
-          <div className="flex h-[420px] items-center justify-center">
-            <Loader />
-          </div>
-        ) : !histogram.length ? (
-          <div className="border-grey-border bg-background-grey-hover flex h-[248px] w-full flex-col items-center justify-center border border-dashed">
-            <img src={EmptySVG} alt="empty" className="h-16 w-16" />
-            <p className="text-color-gray-425 text-base">Aucune donnée disponible pour la période</p>
-          </div>
-        ) : (
-          <div className="h-[420px] w-full">
-            <StackedBarchart data={histogram} dataKey={keys} />
-          </div>
-        )}
       </div>
     </div>
   );
@@ -592,7 +578,7 @@ const Announcers = ({ filters }) => {
             ) : (
               <div className="flex justify-between gap-4">
                 <div className="w-2/3">
-                  <table className="w-full table-fixed">
+                  <table className="w-full table-auto">
                     <thead className="text-left">
                       <tr className="text-text-mention text-xs uppercase">
                         <th colSpan={3} className="px-4">

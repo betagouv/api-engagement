@@ -1,14 +1,15 @@
 import { Route, Routes, useLocation } from "react-router-dom";
 
-import useStore from "../../services/store";
 import Tabs from "../../components/Tabs";
+import useStore from "../../services/store";
 import Flux from "./Flux";
 import RealTime from "./RealTime";
 import TrackingAnnounce from "./TrackingAnnounce";
 import TrackingBroadcast from "./TrackingBroadcast";
 
 const Settings = () => {
-  const { flux } = useStore();
+  const { flux, publisher } = useStore();
+  const publisherId = publisher?.id;
   const location = useLocation();
   const currentRoute = location.pathname.split("/settings")[1].replace("/", "");
   const tabs = [
@@ -33,7 +34,7 @@ const Settings = () => {
   ].map((tab) => ({
     ...tab,
     id: `settings-tab-${tab.key}`,
-    to: `/settings/${tab.route}`,
+    to: `/${publisherId}/settings/${tab.route}`,
   }));
   const activeTab = tabs.find((tab) => tab.isActive) || tabs[0];
   const activeTabId = activeTab ? activeTab.id : null;
@@ -56,13 +57,7 @@ const Settings = () => {
     <div className="space-y-12">
       <h1 className="text-4xl font-bold">Paramètres</h1>
       <div>
-        <Tabs
-          tabs={tabs}
-          ariaLabel="Paramètres"
-          panelId="settings-panel"
-          className="flex items-center gap-4 pl-4 font-semibold text-black"
-          variant="primary"
-        />
+        <Tabs tabs={tabs} ariaLabel="Paramètres" panelId="settings-panel" className="flex items-center gap-4 pl-4 font-semibold text-black" variant="primary" />
         <section id="settings-panel" role="tabpanel" aria-labelledby={activeTabId || undefined} className="bg-white shadow-lg">
           <Routes>
             <Route path="/" element={<Flux />} />

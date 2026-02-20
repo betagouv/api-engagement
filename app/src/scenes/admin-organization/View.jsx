@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { HiLocationMarker } from "react-icons/hi";
-import { RiCheckboxCircleFill } from "react-icons/ri";
+import { RiCheckboxCircleFill, RiCloseCircleFill } from "react-icons/ri";
 import { useParams } from "react-router-dom";
 
 import Loader from "../../components/Loader";

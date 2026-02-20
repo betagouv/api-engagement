@@ -46,7 +46,7 @@ export default defineConfig({
   webServer: {
     command: "NEXT_PUBLIC_API_URL=http://localhost:3099/api-mock API_URL=http://localhost:3099/api-mock NEXT_DEVTOOLS='false' npm run dev",
     url: "http://localhost:3003",
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
     timeout: 120 * 1000,
   },
   globalSetup: "./tests/e2e/setup.ts",

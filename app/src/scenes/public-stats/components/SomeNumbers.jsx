@@ -1,29 +1,31 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { RiQuestionLine } from "react-icons/ri";
 
-import { BarChart } from "../../../components/Chart";
 import Loader from "../../../components/Loader";
 import Tooltip from "../../../components/Tooltip";
-import { DEPARTMENT_NAMES, MONTHS } from "../../../constants";
-import api from "../../../services/api";
+import { DEPARTMENT_NAMES, METABASE_CARD_ID, MONTHS } from "../../../constants";
+import { useAnalyticsProvider } from "../../../services/analytics/provider";
 import { captureError } from "../../../services/error";
-
-const buildGraphData = (data, dataKey = "Redirections") => {
-  const graphData = data.map((item) => ({
-    [dataKey]: item.doc_count,
-    name: MONTHS[new Date(item.key).getMonth()],
-  }));
-  return graphData;
-};
+import AnalyticsCard from "../../performance/AnalyticsCard";
 
 const SomeNumbers = ({ filters, onFiltersChange }) => {
-  const [graphData, setGraphData] = useState({
-    clicks: [],
-    applies: [],
-    organizations: [],
-    missions: [],
-  });
+  const CHART_COLOR = "#000091";
+  const formatMonthLabel = (value) => {
+    if (!value) return value;
+    const date = new Date(value);
+    if (!Number.isNaN(date.getTime())) {
+      const monthIdx = date.getMonth();
+      return MONTHS[monthIdx] || value;
+    }
+    const monthNumber = Number(value);
+    if (!Number.isNaN(monthNumber) && monthNumber >= 1 && monthNumber <= 12) {
+      return MONTHS[monthNumber - 1];
+    }
+    return value;
+  };
+  const formatTooltipValue = (val) => (Number(val) || 0).toLocaleString("fr");
 
+  const analyticsProvider = useAnalyticsProvider();
   const [graphTotal, setGraphTotal] = useState({
     clicks: 0,
     applies: 0,
@@ -32,31 +34,54 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
   });
   const [loading, setLoading] = useState(true);
 
+  const metabaseVariables = useMemo(
+    () => ({
+      year: filters.year ? String(filters.year) : "",
+      department: filters.department || "all",
+      mission_type: filters.type || "all",
+    }),
+    [filters],
+  );
+
   useEffect(() => {
+    if (!analyticsProvider?.query) return;
+    const controller = new AbortController();
     const fetchData = async () => {
       setLoading(true);
       try {
-        const query = new URLSearchParams();
-
-        if (filters.department) query.append("department", filters.department);
-        if (filters.type) query.append("type", filters.type);
-        if (filters.year) query.append("year", filters.year);
-
-        const promises = [api.get(`/stats-public/graph-stats?${query.toString()}`), api.get(`/stats-public/graph-missions?${query.toString()}`)];
-        const [resGraphStats, resGraphMissions] = await Promise.all(promises);
-        if (!resGraphStats.ok || !resGraphMissions.ok) throw new Error("Erreur lors de la récupération des statistiques");
-
-        setGraphData({
-          clicks: buildGraphData(resGraphStats.data.clicks),
-          applies: buildGraphData(resGraphStats.data.applies, "Candidatures"),
-          organizations: buildGraphData(resGraphStats.data.organizations, "Organisations"),
-          missions: buildGraphData(resGraphMissions.data, "Missions"),
+        const globalResult = await analyticsProvider.query({
+          cardId: METABASE_CARD_ID.PUBLIC_STATS_GLOBAL,
+          variables: metabaseVariables,
+          signal: controller.signal,
         });
+
+        const getRowsAndCols = (result) => ({
+          rows: result?.data?.rows || result?.rows || [],
+          cols: result?.data?.cols || result?.cols || [],
+        });
+
+        const findIndex = (cols, names, fallback) => {
+          if (!cols || !cols.length) return fallback;
+          const candidates = Array.isArray(names) ? names : [names];
+          for (const candidate of candidates) {
+            const idx = cols.findIndex((c) => c.name === candidate || c.display_name === candidate);
+            if (idx >= 0) return idx;
+          }
+          return fallback;
+        };
+
+        const sumByIndex = (rows, idx) => {
+          if (idx === undefined || idx < 0) return 0;
+          return rows.reduce((acc, row) => acc + (Number(row[idx]) || 0), 0);
+        };
+
+        const { rows: globalRows, cols: globalCols } = getRowsAndCols(globalResult);
+
         setGraphTotal({
-          clicks: resGraphStats.data.totalClicks,
-          applies: resGraphStats.data.totalApplies,
-          organizations: resGraphStats.data.totalOrganizations,
-          missions: resGraphMissions.total,
+          clicks: sumByIndex(globalRows, findIndex(globalCols, ["clicks", "redirection_count", "redirections", "event_count"], 1)),
+          applies: sumByIndex(globalRows, findIndex(globalCols, ["applies", "candidature_count", "applications", "event_count"], 2)),
+          organizations: sumByIndex(globalRows, findIndex(globalCols, ["organizations", "organization_count"], 3)),
+          missions: sumByIndex(globalRows, findIndex(globalCols, ["missions", "mission_count"], 4)),
         });
       } catch (error) {
         captureError(error, { extra: { filters } });
@@ -64,7 +89,8 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
       setLoading(false);
     };
     fetchData();
-  }, [filters]);
+    return () => controller.abort();
+  }, [analyticsProvider, metabaseVariables, filters]);
 
   return (
     <div className="border-grey-border mx-auto my-14 w-4/5 max-w-[1200px] flex-1 border bg-white p-12">
@@ -85,6 +111,7 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
               <option value={2023}>2023</option>
               <option value={2024}>2024</option>
               <option value={2025}>2025</option>
+              <option value={2026}>2026</option>
             </select>
             <label htmlFor="department" className="sr-only">
               Département
@@ -94,7 +121,7 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
               {Object.entries(DEPARTMENT_NAMES)
                 .sort((a, b) => a[0].localeCompare(b[0], "fr", { numeric: true }))
                 .map(([code, value]) => (
-                  <option key={value[0]} value={value[0]}>
+                  <option key={value[0]} value={code}>
                     {code} - {value[0]}
                   </option>
                 ))}
@@ -132,9 +159,21 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
             </div>
             <p className="text-text-mention text-lg font-semibold">Evolution {filters.year}</p>
             <div className="mt-4 mb-1 h-px bg-gray-900" />
-            <div className="mb-2 h-60">
-              <BarChart data={graphData.organizations} dataKey="Organisations" />
-            </div>
+            <AnalyticsCard
+              cardId={METABASE_CARD_ID.PUBLIC_STATS_ACTIVE_ORGANIZATIONS}
+              filters={filters}
+              variables={metabaseVariables}
+              type="bar"
+              adapterOptions={{ labelColumn: "month_start", valueColumn: "organizations" }}
+              chartProps={{
+                dataKey: "value",
+                color: CHART_COLOR,
+                nameFormatter: formatMonthLabel,
+                tooltipName: "Organisations",
+                tooltipValueFormatter: formatTooltipValue,
+              }}
+              loaderHeight="15rem"
+            />
           </div>
 
           <div className="border-grey-border border p-8">
@@ -152,9 +191,21 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
             </div>
             <p className="text-text-mention text-lg font-semibold">Evolution {filters.year}</p>
             <div className="mt-4 mb-1 h-px bg-gray-900" />
-            <div className="mb-2 h-60">
-              <BarChart data={graphData.missions} dataKey="Missions" />
-            </div>
+            <AnalyticsCard
+              cardId={METABASE_CARD_ID.PUBLIC_STATS_ACTIVE_MISSIONS}
+              filters={filters}
+              variables={metabaseVariables}
+              type="bar"
+              adapterOptions={{ labelColumn: "month_start", valueColumn: "missions" }}
+              chartProps={{
+                dataKey: "value",
+                color: CHART_COLOR,
+                nameFormatter: formatMonthLabel,
+                tooltipName: "Missions",
+                tooltipValueFormatter: formatTooltipValue,
+              }}
+              loaderHeight="15rem"
+            />
           </div>
 
           <div className="border-grey-border border p-8">
@@ -162,18 +213,42 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
 
             <p className="text-text-mention text-lg font-semibold">Evolution {filters.year}</p>
             <div className="mt-4 mb-1 h-px bg-gray-900" />
-            <div className="mb-2 h-60">
-              <BarChart data={graphData.clicks} dataKey="Redirections" />
-            </div>
+            <AnalyticsCard
+              cardId={METABASE_CARD_ID.PUBLIC_STATS_GLOBAL_MONTHLY}
+              filters={filters}
+              variables={metabaseVariables}
+              type="bar"
+              adapterOptions={{ labelColumn: "month_start", valueColumn: "redirection_count" }}
+              chartProps={{
+                dataKey: "value",
+                color: CHART_COLOR,
+                nameFormatter: formatMonthLabel,
+                tooltipName: "Redirections",
+                tooltipValueFormatter: formatTooltipValue,
+              }}
+              loaderHeight="15rem"
+            />
           </div>
 
           <div className="border-grey-border border p-8">
             <h2 className="mb-2 text-2xl font-semibold">{graphTotal.applies ? `${graphTotal.applies.toLocaleString("fr")} candidatures` : "Pas de données"}</h2>
             <p className="text-text-mention text-lg font-semibold">Evolution {filters.year}</p>
             <div className="mt-4 mb-1 h-px bg-gray-900" />
-            <div className="mb-2 h-60">
-              <BarChart data={graphData.applies} dataKey="Candidatures" />
-            </div>
+            <AnalyticsCard
+              cardId={METABASE_CARD_ID.PUBLIC_STATS_GLOBAL_MONTHLY}
+              filters={filters}
+              variables={metabaseVariables}
+              type="bar"
+              adapterOptions={{ labelColumn: "month_start", valueColumn: "candidature_count" }}
+              chartProps={{
+                dataKey: "value",
+                color: CHART_COLOR,
+                nameFormatter: formatMonthLabel,
+                tooltipName: "Candidatures",
+                tooltipValueFormatter: formatTooltipValue,
+              }}
+              loaderHeight="15rem"
+            />
           </div>
         </div>
       )}

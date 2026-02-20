@@ -9,6 +9,7 @@ import Moderation from "./Moderation";
 
 const MyMissions = () => {
   const { publisher } = useStore();
+  const publisherId = publisher?.id;
   const [moderated, setModerated] = useState(false);
 
   useEffect(() => {
@@ -30,8 +31,8 @@ const MyMissions = () => {
 
       <div>
         <div className="flex items-center space-x-4 pl-4 font-semibold text-black">
-          <Tab route="" title="Mission partagées" />
-          {moderated && <Tab route="moderated-mission" title="Modération" />}
+          <Tab route="" title="Mission partagées" publisherId={publisherId} />
+          {moderated && <Tab route="moderated-mission" title="Modération" publisherId={publisherId} />}
         </div>
         <section className="bg-white shadow-lg">
           <Routes>
@@ -44,7 +45,7 @@ const MyMissions = () => {
   );
 };
 
-const Tab = ({ title, route = "", actives = [route] }) => {
+const Tab = ({ title, route = "", actives = [route], publisherId }) => {
   const [active, setActive] = useState(false);
   const location = useLocation();
 
@@ -54,7 +55,7 @@ const Tab = ({ title, route = "", actives = [route] }) => {
   }, [location]);
 
   return (
-    <Link to={`/my-missions/${route}`}>
+    <Link to={`/${publisherId}/my-missions/${route}`}>
       <div
         className={`${
           active ? "border-blue-france text-blue-france hover:bg-gray-975 border-t-2 bg-white" : "bg-blue-france-925 hover:bg-blue-france-925-hover border-0"

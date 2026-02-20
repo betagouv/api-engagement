@@ -1,9 +1,9 @@
+import { toast } from "@/services/toast";
 import { Menu, Transition } from "@headlessui/react";
 import { Fragment, useEffect, useState } from "react";
 import { BsDot } from "react-icons/bs";
 import { RiCalendarEventFill, RiCheckboxCircleFill, RiCloseCircleFill, RiMapPin2Fill, RiMoreFill, RiPencilFill, RiTimeLine } from "react-icons/ri";
 import { useSearchParams } from "react-router-dom";
-import { toast } from "@/services/toast";
 
 import Modal from "../../../../components/Modal";
 import api from "../../../../services/api";
@@ -106,10 +106,10 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
 
           <div className="border-grey-border my-2 inline-flex flex-wrap items-center gap-1 rounded border p-1">
             <span>Missions</span>
-            <RiCheckboxCircleFill className="text-success" />
+            <RiCheckboxCircleFill role="img" aria-label="Acceptées" className="text-success" />
             <span className="text-success">{history["ACCEPTED"] || "0"}</span>
             <BsDot className="text-text-mention" />
-            <RiCloseCircleFill className="text-error" />
+            <RiCloseCircleFill role="img" aria-label="Refusées" className="text-error" />
             <span className="text-error">{history["REFUSED"] || "0"}</span>
           </div>
 
@@ -175,9 +175,9 @@ const MissionActionsMenu = ({ data, onFilter, onChange }) => {
   return (
     <>
       <Menu as="div" className="relative h-full text-left">
-        <Menu.Button as="div" className="secondary-btn shadow-border-black text-black">
+        <Menu.Button className="secondary-btn shadow-border-black text-black" aria-label="Plus d'actions">
           <span className="font-semibold">
-            <RiMoreFill />
+            <RiMoreFill aria-hidden="true" />
           </span>
         </Menu.Button>
         <Transition

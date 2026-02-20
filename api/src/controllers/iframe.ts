@@ -3,7 +3,7 @@ import { NextFunction, Request, Response, Router } from "express";
 import zod from "zod";
 
 import { PUBLISHER_IDS } from "../config";
-import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, captureMessage } from "../error";
+import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
 import { widgetService } from "../services/widget";
 import { widgetMissionService } from "../services/widget-mission";
 import { WidgetRecord } from "../types";
@@ -20,6 +20,7 @@ const MISSION_FIELDS: MissionSelect = {
   moderationStatuses: { select: { title: true } },
   domain: { select: { name: true } },
   domainLogo: true,
+  publisherOrganization: { select: { organizationName: true } },
   organizationName: true,
   remote: true,
   addresses: { select: { city: true, country: true, postalCode: true } },
@@ -62,7 +63,7 @@ router.get("/widget", async (req: Request, res: Response, next: NextFunction) =>
   }
 });
 
-router.get("/:id/search", async (req: Request, res: Response, next: NextFunction) => {
+router.get("/:id/search", cors({ origin: "*" }), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const params = zod
       .object({
@@ -95,17 +96,14 @@ router.get("/:id/search", async (req: Request, res: Response, next: NextFunction
       .safeParse(req.query);
 
     if (!params.success) {
-      captureMessage(`[Iframe Widget] Invalid params`, JSON.stringify(params.error, null, 2));
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
     if (!query.success) {
-      captureMessage(`[Iframe Widget] Invalid query`, JSON.stringify(query.error, null, 2));
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
 
     const widget = await widgetService.findOneWidgetById(params.data.id);
     if (!widget) {
-      captureMessage(`[Iframe Widget] Widget not found`, JSON.stringify(params.data, null, 2));
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
@@ -123,7 +121,7 @@ router.get("/:id/aggs", cors({ origin: "*" }), async (req: Request, res: Respons
   try {
     const params = zod
       .object({
-        id: zod.string().regex(/^[0-9a-fA-F]{24}$/),
+        id: zod.string(),
       })
       .safeParse(req.params);
 
@@ -154,17 +152,14 @@ router.get("/:id/aggs", cors({ origin: "*" }), async (req: Request, res: Respons
       .safeParse(req.query);
 
     if (!params.success) {
-      captureMessage(`[Iframe Widget] Invalid params`, JSON.stringify(params.error, null, 2));
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
     if (!query.success) {
-      captureMessage(`[Iframe Widget] Invalid query`, JSON.stringify(query.error, null, 2));
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
 
     const widget = await widgetService.findOneWidgetById(params.data.id);
     if (!widget) {
-      captureMessage(`[Iframe Widget] Widget not found`, JSON.stringify(params.data, null, 2));
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 

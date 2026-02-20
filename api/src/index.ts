@@ -12,11 +12,42 @@ if (ENV !== "development") {
   });
 }
 
+const logProcessCrash = (event: "uncaught_exception" | "unhandled_rejection", error: unknown, extra?: Record<string, unknown>) => {
+  const normalized = error instanceof Error ? error : new Error(typeof error === "string" ? error : JSON.stringify(error));
+  const log = {
+    level: "error",
+    event,
+    error: normalized.message,
+    stack: normalized.stack,
+    ...extra,
+  };
+
+  console.error(JSON.stringify(log));
+
+  if (ENV !== "development") {
+    Sentry.withScope((scope) => {
+      scope.setTag("event", event);
+      if (extra) {
+        Object.entries(extra).forEach(([key, value]) => scope.setExtra(key, value));
+      }
+      Sentry.captureException(normalized);
+    });
+  }
+};
+
+process.on("uncaughtExceptionMonitor", (error, origin) => {
+  logProcessCrash("uncaught_exception", error, { origin });
+});
+
+process.on("unhandledRejection", (reason) => {
+  logProcessCrash("unhandled_rejection", reason);
+});
+
 import cors from "cors";
 import express, { NextFunction, Request, Response } from "express";
 import path from "path";
 
-import { SERVER_ERROR, captureException, captureMessage } from "./error";
+import errorHandler from "./middlewares/error-handler";
 
 import { pgConnectedCore, pgDisconnect } from "./db/postgres";
 import middlewares from "./middlewares";
@@ -26,18 +57,16 @@ import BrevoWebhookController from "./controllers/brevo-webhook/controller";
 import CampaignController from "./controllers/campaign";
 import IframeController from "./controllers/iframe";
 import ImportController from "./controllers/import";
+import MetabaseController from "./controllers/metabase";
 import MissionController from "./controllers/mission";
 import ModerationController from "./controllers/moderation";
 import ModerationEventController from "./controllers/moderation-event";
-import MetabaseController from "./controllers/metabase";
 import OrganizationController from "./controllers/organization";
 import PublisherController from "./controllers/publisher";
 import RedirectController from "./controllers/redirect";
 import ReportController from "./controllers/report";
 import StatsController from "./controllers/stats";
-import StatsGlobalController from "./controllers/stats-global/controller";
 import StatsMeanController from "./controllers/stats-mean/controller";
-import PublicStatsController from "./controllers/stats-public/controller";
 import UserController from "./controllers/user";
 import WarningController from "./controllers/warning";
 import WarningBotController from "./controllers/warning-bot";
@@ -48,7 +77,6 @@ import MyOrganizationV0Controller from "./v0/myorganization/controller";
 import OrganizationV0Controller from "./v0/organization";
 import PublisherV0Controller from "./v0/publisher";
 import ViewV0Controller from "./v0/view";
-import AssociationV1Controller from "./v1/association";
 import ActivityV2Controller from "./v2/activity";
 import JobTeaserV2Controller from "./v2/jobteaser";
 import LeboncoinV2Controller from "./v2/leboncoin";
@@ -73,7 +101,6 @@ const main = async () => {
 
   // Opened routes
   app.use("/iframe", IframeController);
-  app.use("/stats-public", PublicStatsController);
   app.use("/r", cors({ origin: "*" }), RedirectController);
   app.use("/report", cors({ origin: "*" }), ReportController);
   app.use("/v0/mymission", cors({ origin: "*" }), MyMissionV0Controller);
@@ -82,7 +109,6 @@ const main = async () => {
   app.use("/v0/publisher", cors({ origin: "*" }), PublisherV0Controller);
   app.use("/v0/view", cors({ origin: "*" }), ViewV0Controller);
   app.use("/v0/organization", OrganizationV0Controller);
-  app.use("/v1/association", AssociationV1Controller);
   // /v2/mission redirects to /v0/mission
   app.use("/v2/mission", cors({ origin: "*" }), MissionV0Controller);
   app.use("/v2/activity", cors({ origin: "*" }), ActivityV2Controller);
@@ -101,43 +127,13 @@ const main = async () => {
   app.use("/publisher", PublisherController);
   app.use("/organization", OrganizationController);
   app.use("/stats", StatsController);
-  app.use("/stats-global", StatsGlobalController);
   app.use("/stats-mean", StatsMeanController);
   app.use("/user", UserController);
   app.use("/warning", WarningController);
   app.use("/warning-bot", WarningBotController);
   app.use("/widget", WidgetController);
 
-  app.get("/geo", async (req: Request, res: Response, next) => {
-    try {
-      captureMessage(`Fetching geo is still used`);
-      const url = encodeURI(`https://api-adresse.data.gouv.fr/search/?q=${req.query.postcode}&type=municipality`);
-      const r = await fetch(url).then((response) => response.json());
-      res.status(200).send(r);
-    } catch (error) {
-      next(error);
-    }
-  });
-
-  app.use(async (err: any, req: Request, res: Response, _: NextFunction) => {
-    try {
-      console.log(`Error on request ${req.method} ${req.url}`);
-      console.error(err);
-
-      // Filter out socket hang up errors from Sentry reporting
-      const isSocketHangUp = err.code === "ECONNRESET" || (err.message && err.message.includes("socket hang up"));
-
-      if (ENV !== "development" && !isSocketHangUp) {
-        captureException(err);
-      } else {
-        console.error(err);
-      }
-
-      res.status(500).send({ ok: false, code: SERVER_ERROR });
-    } catch (error) {
-      captureException(error);
-    }
-  });
+  app.use(errorHandler);
 
   const server = app.listen(PORT, () => console.log(`[API] Running on port ${PORT} at ${new Date().toISOString()}`));
 

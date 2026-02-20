@@ -13,7 +13,8 @@ export const slugify = (value: string) => {
     .toLowerCase()
     .replace(/\s+/g, "-") // Replace spaces with -
     .replace(p, (c) => b.charAt(a.indexOf(c))) // Replace special characters
-    .replace(/&/g, "-and-") // Replace & with 'and'
+    .replace(/&/g, "") // Remove &
+    .replace(/'/g, "-") // Replace ' with -
     .replace(/[^\w\-]+/g, "") // Remove all non-word characters
     .replace(/\-\-+/g, "-") // Replace multiple - with single -
     .replace(/^-+/, "") // Trim - from start of text
@@ -22,6 +23,11 @@ export const slugify = (value: string) => {
 
 /**
  * Capitalize the first letter of each word in a string
+ *  Use Unicode letters to avoid treating accented chars as non-word boundaries.
+ *  Uses cases in french city names: 
+ *  - Saint-Étienne
+ *  - L'Isle-d'Abeau
+ *  - Chambon-La-Forêt
  
  * @param string The string to capitalize
  * @returns The capitalized string 
@@ -30,7 +36,17 @@ export const capitalizeFirstLetter = (string: string): string => {
   if (!string) {
     return string;
   }
-  return string.replace(/\b\w/g, (l) => l.toUpperCase());
+
+  const lower = string.toLocaleLowerCase("fr-FR");
+  return lower.replace(/(^|[\s'’\-])(\p{L})/gu, (match, boundary, letter, offset, full) => {
+    if (boundary === "-") {
+      const nextTwo = full.slice(offset + 1, offset + 3);
+      if (nextTwo === "d'" || nextTwo === "l'" || nextTwo === "d’" || nextTwo === "l’") {
+        return boundary + letter;
+      }
+    }
+    return boundary + letter.toLocaleUpperCase("fr-FR");
+  });
 };
 
 /**

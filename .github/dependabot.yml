@@ -15,9 +15,6 @@ updates:
       prefix: "chore"
       include: "scope"
     ignore:
-      - dependency-name: "mongoose"
-        versions: [">=8.0.0"]
-      - dependency-name: "@elastic/elasticsearch"
       - dependency-name: "bcryptjs"
     groups:
       dev-dependencies:

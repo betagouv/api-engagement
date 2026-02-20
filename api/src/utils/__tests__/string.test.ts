@@ -11,8 +11,12 @@ describe("String Utils", () => {
       expect(slugify("héllo wörld")).toBe("hello-world");
     });
 
-    it("should replace ampersands", () => {
-      expect(slugify("apples & oranges")).toBe("apples-and-oranges");
+    it("should remove ampersands", () => {
+      expect(slugify("apples & oranges")).toBe("apples-oranges");
+    });
+
+    it("should replace apostrophes with hyphens", () => {
+      expect(slugify("encadrement d'équipes")).toBe("encadrement-d-equipes");
     });
 
     it("should remove non-word characters except hyphens", () => {
@@ -43,6 +47,15 @@ describe("String Utils", () => {
 
     it("should handle already capitalized string", () => {
       expect(capitalizeFirstLetter("Hello World")).toBe("Hello World");
+    });
+
+    it("should normalize mixed casing", () => {
+      expect(capitalizeFirstLetter("Chambon-La-ForêT")).toBe("Chambon-La-Forêt");
+    });
+
+    it("should handle hyphens and apostrophes with accents", () => {
+      expect(capitalizeFirstLetter("l'isle-d'abeau")).toBe("L'Isle-d'Abeau");
+      expect(capitalizeFirstLetter("saint-étienne")).toBe("Saint-Étienne");
     });
 
     it("should handle empty string", () => {

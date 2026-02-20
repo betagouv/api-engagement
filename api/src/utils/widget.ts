@@ -29,7 +29,7 @@ const ARRAY_FIELDS = new Set(["associationReseaux", "organizationActions", "orga
  */
 const FIELD_TO_PRISMA_PATH: Record<string, (condition: any) => Prisma.MissionWhereInput> = {
   domain: (condition) => ({ domain: { is: { name: condition } } }),
-  activity: (condition) => ({ activity: { is: { name: condition } } }),
+  activity: (condition) => ({ activities: { some: { activity: { name: condition } } } }),
   postalCode: (condition) => ({ addresses: { some: { postalCode: condition } } }),
   departmentName: (condition) => ({ addresses: { some: { departmentName: condition } } }),
   regionName: (condition) => ({ addresses: { some: { region: condition } } }),
@@ -136,6 +136,26 @@ export const applyWidgetRules = (rules: WidgetRule[]): Prisma.MissionWhereInput 
 
   const andConditions: Prisma.MissionWhereInput[] = [];
   const orConditions: Prisma.MissionWhereInput[] = [];
+  const publisherOrganizationAnd: Prisma.PublisherOrganizationWhereInput[] = [];
+  const publisherOrganizationOr: Prisma.PublisherOrganizationWhereInput[] = [];
+
+  const extractPublisherOrganizationCondition = (
+    condition: Prisma.MissionWhereInput
+  ): Prisma.PublisherOrganizationWhereInput | null => {
+    const keys = Object.keys(condition);
+    if (keys.length !== 1 || keys[0] !== "publisherOrganization") {
+      return null;
+    }
+    const publisherOrganization = (condition as { publisherOrganization?: { is?: unknown } }).publisherOrganization;
+    if (!publisherOrganization || typeof publisherOrganization !== "object" || !("is" in publisherOrganization)) {
+      return null;
+    }
+    const inner = publisherOrganization.is;
+    if (!inner || typeof inner !== "object") {
+      return null;
+    }
+    return inner as Prisma.PublisherOrganizationWhereInput;
+  };
 
   rules.forEach((rule, index) => {
     const condition = buildRuleCondition(rule);
@@ -149,12 +169,40 @@ export const applyWidgetRules = (rules: WidgetRule[]): Prisma.MissionWhereInput 
       combinator = rules[1].combinator;
     }
 
+    const publisherOrganizationCondition = extractPublisherOrganizationCondition(condition);
+    if (publisherOrganizationCondition) {
+      if (combinator === "and") {
+        publisherOrganizationAnd.push(publisherOrganizationCondition);
+      } else if (combinator === "or") {
+        publisherOrganizationOr.push(publisherOrganizationCondition);
+      }
+      return;
+    }
+
     if (combinator === "and") {
       andConditions.push(condition);
-    } else if (combinator === "or") {
+      return;
+    }
+    if (combinator === "or") {
       orConditions.push(condition);
     }
   });
+
+  if (publisherOrganizationAnd.length) {
+    andConditions.push({
+      publisherOrganization: {
+        is: publisherOrganizationAnd.length === 1 ? publisherOrganizationAnd[0] : { AND: publisherOrganizationAnd },
+      },
+    });
+  }
+
+  if (publisherOrganizationOr.length) {
+    orConditions.push({
+      publisherOrganization: {
+        is: publisherOrganizationOr.length === 1 ? publisherOrganizationOr[0] : { OR: publisherOrganizationOr },
+      },
+    });
+  }
 
   const result: Prisma.MissionWhereInput = {};
 

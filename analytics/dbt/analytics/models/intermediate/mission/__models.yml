@@ -194,3 +194,40 @@ models:
         description: Timestamp de dernière mise à jour propagé depuis la mission/adresse.
         tests:
           - not_null
+  - name: int_mission_first_events
+    description: >
+      Vue intermédiaire au grain mission + diffuseur + source, qui expose les premières
+      dates de click/apply et les délais depuis la création de la mission.
+    columns:
+      - name: mission_id
+        description: Identifiant de la mission.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('mission')
+                field: id
+      - name: mission_created_at
+        description: Timestamp de création de la mission (base des délais).
+        tests:
+          - not_null
+      - name: from_publisher_id
+        description: Identifiant du diffuseur à l'origine de l'événement (nullable).
+      - name: source
+        description: Source normalisée de l'événement (api, widget, campaign).
+      - name: source_id
+        description: Identifiant de la source (widget/campaign/publisher selon source).
+      - name: first_click_at
+        description: Timestamp du premier click observé sur la mission.
+      - name: first_apply_at
+        description: Timestamp de la première candidature observée sur la mission.
+      - name: time_to_click_secs
+        description: Délai en secondes entre création de mission et premier click.
+      - name: time_to_apply_secs
+        description: Délai en secondes entre création de mission et première candidature.
+      - name: mission_duration_days
+        description: Durée de mission en jours (différence entre start_at et end_at).
+      - name: updated_at
+        description: Timestamp de dernière mise à jour propagé mission/événements.
+        tests:
+          - not_null

@@ -63,7 +63,7 @@ const Note = ({ data, onChange }) => {
 
       {editing && (
         <>
-          <textarea id="note" className="input mb-2 border-b-black" name="note" value={note} onChange={(e) => setNote(e.target.value)} rows={4} placeholder="Ajouter une note" />
+          <textarea id="note" className="textarea mb-2 border-b-black" name="note" value={note} onChange={(e) => setNote(e.target.value)} rows={4} placeholder="Ajouter une note" />
           <button className="primary-btn w-1/2" onClick={handleSave}>
             Enregistrer
           </button>

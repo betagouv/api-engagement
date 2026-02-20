@@ -50,7 +50,7 @@ const Api = () => {
   return (
     <div className="space-y-12 p-12">
       <title>API Engagement - Flux par API - Diffuser des missions</title>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="space-y-2">
           <h2 className="text-3xl font-bold">Diffuser des missions partenaires par API</h2>
           <p>Je deviens diffuseur pour mes partenaires en partageant leurs missions</p>
@@ -62,21 +62,22 @@ const Api = () => {
         </a>
       </div>
       <div className="border-grey-border border p-6">
-        <div className="border-b-gray-925 flex items-center justify-between gap-4 border-b pb-6">
-          <label htmlFor="apikey" className="w-1/4 font-semibold">
+        <div className="border-b-gray-925 flex flex-wrap items-center gap-4 border-b pb-6">
+          <label htmlFor="apikey" className="font-semibold">
             Votre clé API
           </label>
-          <input id="apikey" className="input flex-1" name="apikey" readOnly value={publisher.apikey || ""} />
-          <button className="secondary-btn flex h-10 w-10 items-center justify-center p-0" onClick={handleCopy}>
-            <RiFileCopyFill />
-          </button>
-          <div className="">
-            <button className="secondary-btn h-10 truncate" onClick={handleNewApiKey}>
-              Générer une nouvelle clé
+          <div className="flex min-w-[200px] flex-1 items-center gap-4">
+            <input id="apikey" className="input flex-1" name="apikey" readOnly value={publisher.apikey || ""} />
+            <button className="secondary-btn flex h-10 w-10 items-center justify-center p-0" onClick={handleCopy}>
+              <RiFileCopyFill aria-hidden="true" />
+              <span className="sr-only">Copier la clé API</span>
             </button>
           </div>
-          <div className="">
-            <button className="secondary-btn h-10 truncate" onClick={handleDelete}>
+          <div className="flex flex-wrap gap-4">
+            <button className="secondary-btn" onClick={handleNewApiKey}>
+              Générer une nouvelle clé
+            </button>
+            <button className="secondary-btn" onClick={handleDelete}>
               Supprimer la clé
             </button>
           </div>

@@ -4,7 +4,7 @@ import zod from "zod";
 
 import { SLACK_JOBTEASER_CHANNEL_ID } from "../config";
 import { JobBoardId } from "../db/core";
-import { captureMessage, INVALID_BODY, NOT_FOUND } from "../error";
+import { INVALID_BODY, NOT_FOUND } from "../error";
 import { missionService } from "../services/mission";
 import missionJobBoardService from "../services/mission-jobboard";
 import { postMessage } from "../services/slack";
@@ -38,13 +38,11 @@ router.post("/feedback", passport.authenticate(["jobteaser"], { session: false }
       .safeParse(req.body);
 
     if (!body.success) {
-      captureMessage("Invalid body", JSON.stringify(body.error, null, 2));
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
     }
 
     const mission = await missionService.findOneMission(body.data.missionId);
     if (!mission) {
-      captureMessage("Mission not found", JSON.stringify(body.data, null, 2));
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Mission not found" });
     }
 

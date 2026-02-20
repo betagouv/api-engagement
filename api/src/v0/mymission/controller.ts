@@ -112,7 +112,7 @@ const buildData = (data: MissionRecord) => {
     id: data._id,
     clientId: data.clientId,
     publisherId: data.publisherId,
-    activity: data.activity,
+    activity: data.activities.join(", ") || null,
     address: address ? address.street : undefined,
     city: address ? address.city : undefined,
     country: address ? address.country : undefined,

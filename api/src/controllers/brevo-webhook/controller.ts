@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { captureMessage, INVALID_BODY } from "../../error";
+import { INVALID_BODY } from "../../error";
 import { emailService } from "../../services/email";
 import { BrevoInboundEmail } from "../../types/brevo";
 import { EmailCreateInput } from "../../types/email";
@@ -18,7 +18,6 @@ router.post("/", async (req, res, next) => {
     const body = req.body as { items: BrevoInboundEmail[] };
 
     if (!body.items || !Array.isArray(body.items)) {
-      captureMessage("Invalid body", JSON.stringify(body, null, 2));
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: "Invalid body" });
     }
 
@@ -26,7 +25,6 @@ router.post("/", async (req, res, next) => {
       const item = body.items[i];
 
       if (!item["Subject"].includes("Rapport LinkedIn")) {
-        captureMessage("Email not a LinkedIn report", JSON.stringify(item, null, 2));
         continue;
       }
 

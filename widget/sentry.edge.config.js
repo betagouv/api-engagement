@@ -5,12 +5,17 @@
 
 import * as Sentry from "@sentry/nextjs";
 
-Sentry.init({
-  dsn: "https://02d82167bede50a61cac46350d48c507@sentry.api-engagement.beta.gouv.fr/6",
+import { ENV, SENTRY_DSN } from "./config";
 
-  // Enable logs to be sent to Sentry
-  enableLogs: true,
+if (SENTRY_DSN) {
+  Sentry.init({
+    dsn: SENTRY_DSN,
+    environment: ENV,
+    tracesSampleRate: 0.1,
+    // Enable logs to be sent to Sentry
+    enableLogs: true,
 
-  // Setting this option to true will print useful information to the console while you're setting up Sentry.
-  debug: false,
-});
+    // Setting this option to true will print useful information to the console while you're setting up Sentry.
+    debug: false,
+  });
+}

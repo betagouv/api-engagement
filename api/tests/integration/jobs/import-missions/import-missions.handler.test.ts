@@ -42,23 +42,27 @@ describe("Import missions job (integration test)", () => {
 
     const mission = missions[0];
 
+    expect(mission.activities).toEqual(["Logistique"]);
     expect(mission.addresses).toBeDefined();
     expect(mission.addresses.length).toBe(2);
-    expect(mission.addresses[0]).toMatchObject({
-      street: "46 Rue Saint-Antoine",
-      city: "Paris",
-      postalCode: "75004",
-      departmentCode: "75",
-      departmentName: "Paris",
-      region: "Île-de-France",
-      country: "FR",
-      location: {
-        lat: 48.8541,
-        lon: 2.3643,
-      },
-      geolocStatus: "ENRICHED_BY_PUBLISHER",
-    });
-    expect(mission.activity).toBe("logistique");
+    expect(mission.addresses).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          street: "46 Rue Saint-Antoine",
+          city: "Paris",
+          postalCode: "75004",
+          departmentCode: "75",
+          departmentName: "Paris",
+          region: "Île-de-France",
+          country: "FR",
+          location: {
+            lat: 48.8541,
+            lon: 2.3643,
+          },
+          geolocStatus: "ENRICHED_BY_PUBLISHER",
+        }),
+      ])
+    );
     expect(mission.audience).toEqual(["Tous"]);
     expect(mission.clientId).toBe("32132143");
     expect(mission.description).toBe("Description de la mission");
@@ -212,6 +216,27 @@ describe("Import missions job (integration test)", () => {
     expect(mission.description).toBe("Description de la mission");
   });
 
+  it("If mission exists but was deleted, it is restored on import", async () => {
+    const xml = await readFile(path.join(__dirname, "data/correct-feed.xml"), "utf-8");
+    const publisher = await createTestPublisher({ feed: "https://fixture-feed", isAnnonceur: true });
+    const deletedAt = new Date("2024-01-01T00:00:00.000Z");
+
+    await createTestMission({
+      publisherId: publisher.id,
+      clientId: "32132143",
+      deleted: true,
+      deletedAt,
+    });
+
+    (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => xml });
+    const result = await handler.handle({ publisherId: publisher.id });
+    expect(result.imports[0].status).toBe("SUCCESS");
+
+    const mission = await missionService.findOneMissionBy({ publisherId: publisher.id, clientId: "32132143" });
+    expect(mission).toBeDefined();
+    expect(mission?.deletedAt).toBeNull();
+  });
+
   it("If mission already exists and has no new data, it is not updated", async () => {
     const xml = await readFile(path.join(__dirname, "data/correct-feed.xml"), "utf-8");
     const publisher = await createTestPublisher({ feed: "https://fixture-feed", isAnnonceur: true });
@@ -235,6 +260,85 @@ describe("Import missions job (integration test)", () => {
     const missions = await missionService.findMissionsBy({ publisherId: publisher.id, clientId: "32132143" });
 
     expect(missions.length).toBe(1);
+  });
+
+  describe("activities", () => {
+    const activityFeed = (clientId: string, activity: string) => `<?xml version="1.0" encoding="UTF-8"?>
+<source>
+  <mission>
+    <title><![CDATA[Mission activités]]></title>
+    <clientId><![CDATA[${clientId}]]></clientId>
+    <description><![CDATA[Test activités]]></description>
+    <applicationUrl><![CDATA[https://www.example.org]]></applicationUrl>
+    <startAt><![CDATA[01/01/2025]]></startAt>
+    <endAt><![CDATA[11/01/2025]]></endAt>
+    <addresses>
+      <address>
+        <street><![CDATA[Rue de Test]]></street>
+        <postalCode><![CDATA[75001]]></postalCode>
+        <city><![CDATA[Paris]]></city>
+        <departmentCode><![CDATA[75]]></departmentCode>
+        <departmentName><![CDATA[Paris]]></departmentName>
+        <region><![CDATA[Île-de-France]]></region>
+        <country><![CDATA[France]]></country>
+      </address>
+    </addresses>
+    <places><![CDATA[1]]></places>
+    <activity><![CDATA[${activity}]]></activity>
+    <remote><![CDATA[no]]></remote>
+    <domain><![CDATA[environnement]]></domain>
+    <organizationName><![CDATA[Test Org]]></organizationName>
+    <organizationType><![CDATA[1901]]></organizationType>
+  </mission>
+</source>`;
+
+    it("normalises multiple slugs to their labels", async () => {
+      const publisher = await createTestPublisher({ feed: "https://activity-multi", isAnnonceur: true });
+      (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => activityFeed("ACTIVITY_MULTI", "logistique, animation") });
+
+      await handler.handle({ publisherId: publisher.id });
+
+      const mission = await missionService.findOneMissionBy({ publisherId: publisher.id, clientId: "ACTIVITY_MULTI" });
+      expect(mission?.activities).toEqual(["Animation", "Logistique"]);
+    });
+
+    it("maps unknown activities to Autre and deduplicates", async () => {
+      const publisher = await createTestPublisher({ feed: "https://activity-unknown", isAnnonceur: true });
+      (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => activityFeed("ACTIVITY_UNKNOWN", "logistique, inconnu1, inconnu2") });
+
+      await handler.handle({ publisherId: publisher.id });
+
+      const mission = await missionService.findOneMissionBy({ publisherId: publisher.id, clientId: "ACTIVITY_UNKNOWN" });
+      expect(mission?.activities).toEqual(["Autre", "Logistique"]);
+    });
+
+    it("preserves compound activities via longest-match", async () => {
+      const publisher = await createTestPublisher({ feed: "https://activity-compound", isAnnonceur: true });
+      (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => activityFeed("ACTIVITY_COMPOUND", "Soutien, Accompagnement, animation") });
+
+      await handler.handle({ publisherId: publisher.id });
+
+      const mission = await missionService.findOneMissionBy({ publisherId: publisher.id, clientId: "ACTIVITY_COMPOUND" });
+      expect(mission?.activities).toEqual(["Animation", "Soutien, Accompagnement"]);
+    });
+
+    it("replaces activities on re-import", async () => {
+      const publisher = await createTestPublisher({ feed: "https://activity-replace", isAnnonceur: true });
+
+      // First import: logistique
+      (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => activityFeed("ACTIVITY_REPLACE", "logistique") });
+      await handler.handle({ publisherId: publisher.id });
+
+      const before = await missionService.findOneMissionBy({ publisherId: publisher.id, clientId: "ACTIVITY_REPLACE" });
+      expect(before?.activities).toEqual(["Logistique"]);
+
+      // Second import: same clientId, different activity
+      (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => activityFeed("ACTIVITY_REPLACE", "animation, sport") });
+      await handler.handle({ publisherId: publisher.id });
+
+      const after = await missionService.findOneMissionBy({ publisherId: publisher.id, clientId: "ACTIVITY_REPLACE" });
+      expect(after?.activities).toEqual(["Animation", "Sport"]);
+    });
   });
 
   it("If startAt is not defined in XML, uses default on first import", async () => {

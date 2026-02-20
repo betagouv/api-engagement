@@ -23,7 +23,7 @@ Si une modification nécessite ces fichiers, demander explicitement une validati
 
 ## Vue d’ensemble (architecture)
 
-Stack principale : Node.js (>= 18), TypeScript, Express, MongoDB (Mongoose), PostgreSQL (Prisma), Vitest (unit + integration).
+Stack principale : Node.js (>= 18), TypeScript, Express, PostgreSQL (Prisma), Vitest (unit + integration).
 
 Structure notable :
 
@@ -31,7 +31,6 @@ Structure notable :
 - `src/controllers/` : endpoints HTTP utilisés par l'app et le widget (validation `zod`, auth `passport`, orchestration).
 - `src/services/` : logique métier, orchestration, mapping, appels externes.
 - `src/repositories/` : accès aux données PostgreSQL via Prisma (clients `prismaCore` / `prismaAnalytics`).
-- `src/models/` : modèles Mongoose (Mongo) — **héritage voué à disparaître** (voir section MongoDB).
 - `src/db/` : connexions DB (Mongo + Postgres) ; les clients Prisma générés sont importés depuis `src/db/{core,analytics}`.
 - `src/jobs/` : jobs exécutables via `npm run job` (batch/import/export/maintenance).
 - `src/utils/` : helpers génériques (parse/sanitize/cast/format, etc.) à réutiliser en priorité.
@@ -63,12 +62,6 @@ Chaîne à privilégier : **controller → service → repository**.
 - `repositories` : accès DB (Prisma) sans logique métier (pas de règles business).
 
 ## Base de données
-
-### MongoDB
-
-- Connexion via `src/db/mongo.ts` (Mongoose).
-- Les modèles Mongoose sous `src/models/` sont **legacy** et **voués à disparaître** : éviter d’ajouter de nouveaux modèles/collections ou d’étendre le schéma Mongo, sauf demande explicite.
-- Les tests d’intégration utilisent `mongodb-memory-server` et nettoient les collections entre tests.
 
 ### PostgreSQL / Prisma (règles importantes)
 

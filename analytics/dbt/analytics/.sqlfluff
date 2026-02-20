@@ -16,4 +16,4 @@ spacing_before = touch
 line_position = trailing
 
 [sqlfluff:rules:references.keywords]
-ignore_words = type,domain,day,year,month
+ignore_words = type,domain,day,year,month,week

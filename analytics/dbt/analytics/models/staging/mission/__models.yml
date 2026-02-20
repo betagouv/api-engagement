@@ -57,6 +57,21 @@ models:
         description: Timestamp de dernière mise à jour.
         tests:
           - not_null
+  - name: stg_mission_activity
+    description: >
+      Staging de la table de liaison mission ↔ activité (`analytics_raw.mission_activity`).
+      Expose les couples mission_id / activity_id avec conversion du timestamp de création.
+    columns:
+      - name: mission_id
+        description: Identifiant de la mission associée.
+        tests:
+          - not_null
+      - name: activity_id
+        description: Identifiant de l'activité associée.
+        tests:
+          - not_null
+      - name: created_at
+        description: Timestamp de création de la liaison.
   - name: stg_activity
     description: >
       Staging du référentiel des activités (`analytics_raw.activity`) avec conversions
@@ -92,8 +107,6 @@ models:
         description: Identifiant métier de la mission côté client/source.
       - name: domain_id
         description: Référence au domaine (`analytics_raw.domain.id`).
-      - name: activity_id
-        description: Référence à l'activité (`analytics_raw.activity.id`).
       - name: publisher_id
         description: Partenaire/publisher propriétaire de la mission.
       - name: organization_id
