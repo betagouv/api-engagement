@@ -221,6 +221,16 @@ models:
         description: Timestamp du premier click observé sur la mission.
       - name: first_apply_at
         description: Timestamp de la première candidature observée sur la mission.
+      - name: click_count
+        description: Nombre total de redirections (click) observées pour la mission.
+        tests:
+          - not_null
+      - name: apply_count
+        description: Nombre total de candidatures (apply) observées pour la mission.
+        tests:
+          - not_null
+      - name: conversion_rate
+        description: Ratio candidatures/redirections (`apply_count / click_count`).
       - name: time_to_click_secs
         description: Délai en secondes entre création de mission et premier click.
       - name: time_to_apply_secs
