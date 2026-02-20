@@ -63,7 +63,7 @@ const Nav = () => {
             to: `/${publisherId}/broadcast`,
             isActive: location.pathname.includes("broadcast"),
           },
-          ...(publisher.hasApiRights || publisher.hasCampaignRights
+          ...(publisher.hasApiRights || publisher.hasCampaignRights || publisher.hasWidgetRights
             ? [
                 {
                   key: "settings",
