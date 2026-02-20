@@ -1,11 +1,11 @@
 import request from "supertest";
-import { describe, expect, it, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 import { PUBLISHER_IDS } from "../../../src/config";
 import { prismaCore } from "../../../src/db/postgres";
-import { createTestApp } from "../../testApp";
 import { createTestMission, createTestPublisher } from "../../fixtures";
 import { createTestUser } from "../../fixtures/user";
+import { createTestApp } from "../../testApp";
 
 const app = createTestApp();
 
@@ -48,7 +48,9 @@ describe("Moderation API endpoints (integration test)", () => {
     const moderation = await prismaCore.missionModerationStatus.findFirst({
       where: { missionId: mission.id, publisherId: PUBLISHER_IDS.JEVEUXAIDER },
     });
-    if (!moderation) throw new Error("Moderation record not found after createTestMission");
+    if (!moderation) {
+      throw new Error("Moderation record not found after createTestMission");
+    }
 
     return { mission, moderation };
   };
@@ -62,20 +64,14 @@ describe("Moderation API endpoints (integration test)", () => {
     });
 
     it("should return 400 for an invalid status value", async () => {
-      const res = await request(app)
-        .post("/moderation/search")
-        .set("Authorization", `jwt ${adminToken}`)
-        .send({ status: "INVALID_STATUS" });
+      const res = await request(app).post("/moderation/search").set("Authorization", `jwt ${adminToken}`).send({ status: "INVALID_STATUS" });
       expect(res.status).toBe(400);
     });
 
     it("should return empty results when there are no moderation records for this moderator", async () => {
       const otherPublisher = await createTestPublisher({ moderator: true });
 
-      const res = await request(app)
-        .post("/moderation/search")
-        .set("Authorization", `jwt ${adminToken}`)
-        .send({ moderatorId: otherPublisher.id });
+      const res = await request(app).post("/moderation/search").set("Authorization", `jwt ${adminToken}`).send({ moderatorId: otherPublisher.id });
 
       expect(res.status).toBe(200);
       expect(res.body.ok).toBe(true);
@@ -87,10 +83,7 @@ describe("Moderation API endpoints (integration test)", () => {
       await createMissionWithModeration();
       await createMissionWithModeration();
 
-      const res = await request(app)
-        .post("/moderation/search")
-        .set("Authorization", `jwt ${adminToken}`)
-        .send({ moderatorId: jva.id });
+      const res = await request(app).post("/moderation/search").set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id });
 
       expect(res.status).toBe(200);
       expect(res.body.data).toHaveLength(2);
@@ -101,10 +94,7 @@ describe("Moderation API endpoints (integration test)", () => {
       await createMissionWithModeration({ status: "REFUSED", comment: "CONTENT_INSUFFICIENT" });
       await createMissionWithModeration({ status: "PENDING" });
 
-      const res = await request(app)
-        .post("/moderation/search")
-        .set("Authorization", `jwt ${adminToken}`)
-        .send({ moderatorId: jva.id, status: "REFUSED" });
+      const res = await request(app).post("/moderation/search").set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id, status: "REFUSED" });
 
       expect(res.status).toBe(200);
       expect(res.body.data).toHaveLength(1);
@@ -115,10 +105,7 @@ describe("Moderation API endpoints (integration test)", () => {
       await createMissionWithModeration({ status: "REFUSED", comment: "CONTENT_INSUFFICIENT" });
       await createMissionWithModeration({ status: "REFUSED", comment: "MISSION_CREATION_DATE_TOO_OLD" });
 
-      const res = await request(app)
-        .post("/moderation/search")
-        .set("Authorization", `jwt ${adminToken}`)
-        .send({ moderatorId: jva.id, comment: "CONTENT_INSUFFICIENT" });
+      const res = await request(app).post("/moderation/search").set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id, comment: "CONTENT_INSUFFICIENT" });
 
       expect(res.status).toBe(200);
       expect(res.body.data).toHaveLength(1);
@@ -139,10 +126,7 @@ describe("Moderation API endpoints (integration test)", () => {
         moderationStatus: "PENDING" as any,
       });
 
-      const res = await request(app)
-        .post("/moderation/search")
-        .set("Authorization", `jwt ${adminToken}`)
-        .send({ moderatorId: jva.id, search: "Paris" });
+      const res = await request(app).post("/moderation/search").set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id, search: "Paris" });
 
       expect(res.status).toBe(200);
       expect(res.body.data).toHaveLength(1);
@@ -153,10 +137,7 @@ describe("Moderation API endpoints (integration test)", () => {
         await createMissionWithModeration();
       }
 
-      const res = await request(app)
-        .post("/moderation/search")
-        .set("Authorization", `jwt ${adminToken}`)
-        .send({ moderatorId: jva.id, size: 2, from: 0 });
+      const res = await request(app).post("/moderation/search").set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id, size: 2, from: 0 });
 
       expect(res.status).toBe(200);
       expect(res.body.data).toHaveLength(2);
@@ -166,10 +147,7 @@ describe("Moderation API endpoints (integration test)", () => {
     it("should include mission fields in response (flattened record)", async () => {
       await createMissionWithModeration();
 
-      const res = await request(app)
-        .post("/moderation/search")
-        .set("Authorization", `jwt ${adminToken}`)
-        .send({ moderatorId: jva.id });
+      const res = await request(app).post("/moderation/search").set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id });
 
       expect(res.status).toBe(200);
       const record = res.body.data[0];
@@ -193,10 +171,7 @@ describe("Moderation API endpoints (integration test)", () => {
       await createMissionWithModeration({ status: "REFUSED", comment: "CONTENT_INSUFFICIENT" });
       await createMissionWithModeration({ status: "PENDING" });
 
-      const res = await request(app)
-        .post("/moderation/aggs")
-        .set("Authorization", `jwt ${adminToken}`)
-        .send({ moderatorId: jva.id });
+      const res = await request(app).post("/moderation/aggs").set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id });
 
       expect(res.status).toBe(200);
       expect(res.body.ok).toBe(true);
@@ -212,10 +187,7 @@ describe("Moderation API endpoints (integration test)", () => {
       await createMissionWithModeration({ status: "PENDING" });
       await createMissionWithModeration({ status: "PENDING" });
 
-      const res = await request(app)
-        .post("/moderation/aggs")
-        .set("Authorization", `jwt ${adminToken}`)
-        .send({ moderatorId: jva.id });
+      const res = await request(app).post("/moderation/aggs").set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id });
 
       const statusAgg = res.body.data.status;
       const refused = statusAgg.find((s: any) => s.key === "REFUSED");
@@ -228,10 +200,7 @@ describe("Moderation API endpoints (integration test)", () => {
       await createMissionWithModeration({ status: "REFUSED", comment: "CONTENT_INSUFFICIENT" });
       await createMissionWithModeration({ status: "PENDING" });
 
-      const res = await request(app)
-        .post("/moderation/aggs")
-        .set("Authorization", `jwt ${adminToken}`)
-        .send({ moderatorId: jva.id, status: "REFUSED" });
+      const res = await request(app).post("/moderation/aggs").set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id, status: "REFUSED" });
 
       expect(res.status).toBe(200);
       const commentsAgg = res.body.data.comments;
@@ -249,10 +218,7 @@ describe("Moderation API endpoints (integration test)", () => {
     });
 
     it("should return 404 for a non-existent moderation id", async () => {
-      const res = await request(app)
-        .get("/moderation/00000000-0000-0000-0000-000000000000")
-        .set("Authorization", `jwt ${adminToken}`)
-        .query({ moderatorId: jva.id });
+      const res = await request(app).get("/moderation/00000000-0000-0000-0000-000000000000").set("Authorization", `jwt ${adminToken}`).query({ moderatorId: jva.id });
 
       expect(res.status).toBe(404);
     });
@@ -261,10 +227,7 @@ describe("Moderation API endpoints (integration test)", () => {
       const { moderation } = await createMissionWithModeration();
       const nonModerator = await createTestPublisher({ moderator: false });
 
-      const res = await request(app)
-        .get(`/moderation/${moderation.id}`)
-        .set("Authorization", `jwt ${adminToken}`)
-        .query({ moderatorId: nonModerator.id });
+      const res = await request(app).get(`/moderation/${moderation.id}`).set("Authorization", `jwt ${adminToken}`).query({ moderatorId: nonModerator.id });
 
       expect(res.status).toBe(403);
     });
@@ -273,10 +236,7 @@ describe("Moderation API endpoints (integration test)", () => {
       const { moderation } = await createMissionWithModeration();
       const { token } = await createTestUser({ role: "user", publishers: [partner.id] });
 
-      const res = await request(app)
-        .get(`/moderation/${moderation.id}`)
-        .set("Authorization", `jwt ${token}`)
-        .query({ moderatorId: jva.id });
+      const res = await request(app).get(`/moderation/${moderation.id}`).set("Authorization", `jwt ${token}`).query({ moderatorId: jva.id });
 
       expect(res.status).toBe(403);
     });
@@ -284,10 +244,7 @@ describe("Moderation API endpoints (integration test)", () => {
     it("should return the moderation record with flattened mission fields", async () => {
       const { moderation, mission } = await createMissionWithModeration();
 
-      const res = await request(app)
-        .get(`/moderation/${moderation.id}`)
-        .set("Authorization", `jwt ${adminToken}`)
-        .query({ moderatorId: jva.id });
+      const res = await request(app).get(`/moderation/${moderation.id}`).set("Authorization", `jwt ${adminToken}`).query({ moderatorId: jva.id });
 
       expect(res.status).toBe(200);
       expect(res.body.ok).toBe(true);
@@ -308,10 +265,7 @@ describe("Moderation API endpoints (integration test)", () => {
     it("should return 400 for invalid body (invalid status)", async () => {
       const { moderation } = await createMissionWithModeration();
 
-      const res = await request(app)
-        .put(`/moderation/${moderation.id}`)
-        .set("Authorization", `jwt ${adminToken}`)
-        .send({ moderatorId: jva.id, status: "NOT_A_STATUS" });
+      const res = await request(app).put(`/moderation/${moderation.id}`).set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id, status: "NOT_A_STATUS" });
 
       expect(res.status).toBe(400);
     });
@@ -320,10 +274,7 @@ describe("Moderation API endpoints (integration test)", () => {
       const { moderation } = await createMissionWithModeration();
       const { token } = await createTestUser({ role: "user", publishers: [partner.id] });
 
-      const res = await request(app)
-        .put(`/moderation/${moderation.id}`)
-        .set("Authorization", `jwt ${token}`)
-        .send({ moderatorId: jva.id, status: "ACCEPTED" });
+      const res = await request(app).put(`/moderation/${moderation.id}`).set("Authorization", `jwt ${token}`).send({ moderatorId: jva.id, status: "ACCEPTED" });
 
       expect(res.status).toBe(403);
     });
@@ -331,10 +282,7 @@ describe("Moderation API endpoints (integration test)", () => {
     it("should update the status and persist it in the database", async () => {
       const { moderation } = await createMissionWithModeration();
 
-      const res = await request(app)
-        .put(`/moderation/${moderation.id}`)
-        .set("Authorization", `jwt ${adminToken}`)
-        .send({ moderatorId: jva.id, status: "ACCEPTED" });
+      const res = await request(app).put(`/moderation/${moderation.id}`).set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id, status: "ACCEPTED" });
 
       expect(res.status).toBe(200);
       expect(res.body.data.status).toBe("ACCEPTED");
@@ -346,10 +294,7 @@ describe("Moderation API endpoints (integration test)", () => {
     it("should create a ModerationEvent when status changes", async () => {
       const { moderation } = await createMissionWithModeration();
 
-      await request(app)
-        .put(`/moderation/${moderation.id}`)
-        .set("Authorization", `jwt ${adminToken}`)
-        .send({ moderatorId: jva.id, status: "ACCEPTED" });
+      await request(app).put(`/moderation/${moderation.id}`).set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id, status: "ACCEPTED" });
 
       const events = await prismaCore.moderationEvent.findMany({ where: { missionId: moderation.missionId } });
       expect(events).toHaveLength(1);
@@ -361,10 +306,7 @@ describe("Moderation API endpoints (integration test)", () => {
     it("should clear the comment when changing from REFUSED to ACCEPTED", async () => {
       const { moderation } = await createMissionWithModeration({ status: "REFUSED", comment: "CONTENT_INSUFFICIENT" });
 
-      const res = await request(app)
-        .put(`/moderation/${moderation.id}`)
-        .set("Authorization", `jwt ${adminToken}`)
-        .send({ moderatorId: jva.id, status: "ACCEPTED" });
+      const res = await request(app).put(`/moderation/${moderation.id}`).set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id, status: "ACCEPTED" });
 
       expect(res.status).toBe(200);
       expect(res.body.data.comment).toBeNull();
@@ -376,10 +318,7 @@ describe("Moderation API endpoints (integration test)", () => {
     it("should update note without changing status", async () => {
       const { moderation } = await createMissionWithModeration();
 
-      const res = await request(app)
-        .put(`/moderation/${moderation.id}`)
-        .set("Authorization", `jwt ${adminToken}`)
-        .send({ moderatorId: jva.id, note: "Note interne" });
+      const res = await request(app).put(`/moderation/${moderation.id}`).set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id, note: "Note interne" });
 
       expect(res.status).toBe(200);
       const inDb = await prismaCore.missionModerationStatus.findUnique({ where: { id: moderation.id } });
