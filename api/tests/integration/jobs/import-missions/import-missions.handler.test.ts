@@ -235,6 +235,25 @@ describe("Import missions job (integration test)", () => {
     const mission = await missionService.findOneMissionBy({ publisherId: publisher.id, clientId: "32132143" });
     expect(mission).toBeDefined();
     expect(mission?.deletedAt).toBeNull();
+    if (!mission) {
+      throw new Error("Mission not found");
+    }
+
+    const missionEvents = await prismaCore.missionEvent.findMany({
+      where: { missionId: mission.id },
+      orderBy: { createdAt: "asc" },
+    });
+
+    expect(missionEvents.length).toBe(1);
+    expect(missionEvents[0].type).toBe("update");
+
+    const changes = missionEvents[0].changes as
+      | {
+          deletedAt?: { previous: string | null; current: string | null };
+        }
+      | null;
+    expect(changes?.deletedAt?.current).toBeNull();
+    expect(changes?.deletedAt?.previous).toBeTruthy();
   });
 
   it("If mission already exists and has no new data, it is not updated", async () => {
