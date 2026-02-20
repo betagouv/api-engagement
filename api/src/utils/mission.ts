@@ -1,7 +1,8 @@
 import { API_URL } from "../config";
 import { MissionRecord } from "../types/mission";
 import { JobBoardId, MissionJobBoardSyncStatus } from "../types/mission-job-board";
-import { parseDate, slugify } from "./string";
+import { parseDate } from "./parser";
+import { slugify } from "./string";
 
 /**
  * Format the tracked application URL for a mission and a given publisher
