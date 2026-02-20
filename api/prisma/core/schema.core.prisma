@@ -857,6 +857,7 @@ model Organization {
   title                  String
   names                  String[]  @default([])
   shortTitle             String?   @map("short_title")
+  searchText             String?   @map("search_text")
   titleSlug              String?   @map("title_slug")
   shortTitleSlug         String?   @map("short_title_slug")
   object                 String?
@@ -897,6 +898,7 @@ model Organization {
   @@index([rna(ops: raw("gin_trgm_ops"))], type: Gin, map: "organization_rna_idx")
   @@index([title(ops: raw("gin_trgm_ops"))], type: Gin, map: "organization_title_idx")
   @@index([shortTitle(ops: raw("gin_trgm_ops"))], type: Gin, map: "organization_short_title_idx")
+  @@index([searchText(ops: raw("gin_trgm_ops"))], type: Gin, map: "organization_search_text_idx")
   @@index([object(ops: raw("gin_trgm_ops"))], type: Gin, map: "organization_object_idx")
   @@index([titleSlug], map: "organization_title_slug_idx")
   @@index([siret(ops: raw("gin_trgm_ops"))], type: Gin, map: "organization_siret_idx")
