@@ -1,9 +1,9 @@
-import { captureException } from "../../error";
-import { sendTemplate } from "../../services/brevo";
-import { publisherService } from "../../services/publisher";
-import { reportService } from "../../services/report";
-import { userService } from "../../services/user";
-import type { ReportRecord, StatsReport } from "../../types/report";
+import { captureException } from "@/error";
+import { sendTemplate } from "@/services/brevo";
+import { publisherService } from "@/services/publisher";
+import { reportService } from "@/services/report";
+import { userService } from "@/services/user";
+import type { ReportRecord, StatsReport } from "@/types/report";
 
 const ANNOUNCE_TEMPLATE_ID = 20;
 const BROADCAST_TEMPLATE_ID = 9;

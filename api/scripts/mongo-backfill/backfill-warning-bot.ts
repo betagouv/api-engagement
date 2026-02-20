@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-import type { Prisma } from "../../src/db/core";
+import type { Prisma } from "@/db/core";
 import { asDate, asNumber, asString, toMongoObjectIdString } from "./utils/cast";
 import { compareDates, compareNumbers, compareStrings } from "./utils/compare";
 import { loadEnvironment, parseScriptOptions, type ScriptOptions } from "./utils/options";
@@ -159,7 +159,7 @@ const formatRecordForLog = (record: WarningBotRecord) => ({
 
 const cleanup = async () => {
   try {
-    const { prismaCore } = await import("../../src/db/postgres");
+    const { prismaCore } = await import("@/db/postgres");
     await Promise.allSettled([prismaCore.$disconnect(), mongoose.connection.close()]);
   } catch {
     await Promise.allSettled([mongoose.connection.close()]);
@@ -168,7 +168,7 @@ const cleanup = async () => {
 
 const main = async () => {
   console.log(`[MigrateWarningBots] Starting${options.dryRun ? " (dry-run)" : ""}`);
-  const [{ mongoConnected }, { pgConnected, prismaCore }] = await Promise.all([import("../../src/db/mongo"), import("../../src/db/postgres")]);
+  const [{ mongoConnected }, { pgConnected, prismaCore }] = await Promise.all([import("@/db/mongo"), import("@/db/postgres")]);
 
   await Promise.all([mongoConnected, pgConnected]);
 

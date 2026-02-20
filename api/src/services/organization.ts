@@ -1,8 +1,8 @@
 import { randomBytes } from "crypto";
 
-import { Prisma } from "../db/core";
-import { prismaCore } from "../db/postgres";
-import { organizationRepository } from "../repositories/organization";
+import { Prisma } from "@/db/core";
+import { prismaCore } from "@/db/postgres";
+import { organizationRepository } from "@/repositories/organization";
 import {
   OrganizationCreateInput,
   OrganizationExportCandidate,
@@ -11,11 +11,11 @@ import {
   OrganizationSearchResult,
   OrganizationUpdatePatch,
   OrganizationUpsertInput,
-} from "../types/organization";
-import { chunk } from "../utils/array";
-import { normalizeOptionalString, normalizeSlug, normalizeStringArray } from "../utils/normalize";
-import { isValidRNA, isValidSiret } from "../utils/organization";
-import { slugify } from "../utils/string";
+} from "@/types/organization";
+import { chunk } from "@/utils/array";
+import { normalizeOptionalString, normalizeSlug, normalizeStringArray } from "@/utils/normalize";
+import { isValidRNA, isValidSiret } from "@/utils/organization";
+import { slugify } from "@/utils/string";
 
 const DEFAULT_LIMIT = 25;
 const MAX_LIMIT = 100;

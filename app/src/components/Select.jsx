@@ -1,7 +1,7 @@
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from "@headlessui/react";
 import { Fragment, useEffect, useState } from "react";
 import { RiArrowDownSLine, RiCheckFill, RiCloseFill } from "react-icons/ri";
-import Loader from "./Loader";
+import Loader from "@/components/Loader";
 
 const Select = ({ options, value, onChange, className, placeholder = "Sélectionner une option", loading = false }) => {
   const [selected, setSelected] = useState(null);

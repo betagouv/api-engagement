@@ -2,10 +2,10 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "../error";
-import { campaignService, InvalidUrlError } from "../services/campaign";
-import { CampaignCreateInput, CampaignSearchParams, CampaignUpdatePatch } from "../types/campaign";
-import { UserRequest } from "../types/passport";
+import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "@/error";
+import { campaignService, InvalidUrlError } from "@/services/campaign";
+import { CampaignCreateInput, CampaignSearchParams, CampaignUpdatePatch } from "@/types/campaign";
+import { UserRequest } from "@/types/passport";
 
 const router = Router();
 

@@ -2,8 +2,8 @@ import { usePlausible } from "next-plausible";
 import { useEffect, useState } from "react";
 import { RiArrowLeftSLine, RiArrowRightSLine, RiSkipLeftLine, RiSkipRightLine } from "react-icons/ri";
 
-import { Mission, Widget } from "../types";
-import useStore from "../utils/store";
+import { Mission, Widget } from "@/types";
+import useStore from "@/utils/store";
 import Card from "./Card";
 
 interface GridProps {

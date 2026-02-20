@@ -1,9 +1,9 @@
 import PlausibleProvider from "next-plausible";
 import { AppProps } from "next/app";
-import { isPreventionRoutieres } from "../utils/utils";
+import { isPreventionRoutieres } from "@/utils/utils";
 import "./global.css";
 
-import { font, icomoon } from "../utils/fonts";
+import { font, icomoon } from "@/utils/fonts";
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
   const domain = pageProps.domain as string;

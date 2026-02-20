@@ -1,6 +1,6 @@
 import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
-import type { PublisherRecord, WidgetRecord } from "../../../../src/types";
+import type { PublisherRecord, WidgetRecord } from "@/types";
 import { createTestPublisher, createTestWidget } from "../../../fixtures";
 import { createTestApp } from "../../../testApp";
 

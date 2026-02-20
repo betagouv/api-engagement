@@ -1,4 +1,4 @@
-import { ENV, PUBLISHER_IDS } from "../../config";
+import { ENV, PUBLISHER_IDS } from "@/config";
 
 export const DEFAULT_LIMIT = ENV === "production" ? 1000 : 1;
 // Don't want to republish missions in staging

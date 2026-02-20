@@ -1,5 +1,5 @@
-import { Prisma } from "../db/core";
-import { WidgetRuleRecord } from "../types/widget";
+import { Prisma } from "@/db/core";
+import { WidgetRuleRecord } from "@/types/widget";
 
 export const WIDGET_RULE_FIELDS = [
   { label: "Nom de l'organisation", value: "organizationName", type: "text" },

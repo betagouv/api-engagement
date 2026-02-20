@@ -1,6 +1,6 @@
 import AWS from "aws-sdk";
 
-import { BUCKET_NAME, REGION, SCW_ACCESS_KEY, SCW_HOST, SCW_SECRET_KEY } from "../config";
+import { BUCKET_NAME, REGION, SCW_ACCESS_KEY, SCW_HOST, SCW_SECRET_KEY } from "@/config";
 
 if (!SCW_HOST || !BUCKET_NAME || !REGION || !SCW_ACCESS_KEY || !SCW_SECRET_KEY) {
   throw new Error("Missing Scaleway credentials");

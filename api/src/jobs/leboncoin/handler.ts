@@ -1,8 +1,8 @@
-import { SLACK_LBC_CHANNEL_ID } from "../../config";
-import missionJobBoardService from "../../services/mission-jobboard";
-import { postMessage } from "../../services/slack";
-import { BaseHandler } from "../base/handler";
-import { JobResult } from "../types";
+import { SLACK_LBC_CHANNEL_ID } from "@/config";
+import missionJobBoardService from "@/services/mission-jobboard";
+import { postMessage } from "@/services/slack";
+import { BaseHandler } from "@/jobs/base/handler";
+import { JobResult } from "@/jobs/types";
 
 export interface LeboncoinJobPayload {}
 

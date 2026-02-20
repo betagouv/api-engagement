@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { RiArrowDownSLine, RiCheckFill, RiSearchLine } from "react-icons/ri";
 
 import useStore from "@/utils/store";
-import { FilterOption } from "../types";
+import { FilterOption } from "@/types";
 
 interface ComboboxFilterProps {
   options: FilterOption[];

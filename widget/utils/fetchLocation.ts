@@ -1,4 +1,4 @@
-import { Location } from "../types";
+import { Location } from "@/types";
 
 export const fetchLocation = async (lat: number, lon: number): Promise<Location | null> => {
   try {

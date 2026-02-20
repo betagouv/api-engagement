@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 
-import { Filters, Mission, Widget } from "../types";
-import { searchMissions } from "../utils/api";
-import { buildSearchParams } from "../utils/buildSearchParams";
-import { calculateDistance } from "../utils/utils";
+import { Filters, Mission, Widget } from "@/types";
+import { searchMissions } from "@/utils/api";
+import { buildSearchParams } from "@/utils/buildSearchParams";
+import { calculateDistance } from "@/utils/utils";
 
 interface UseMissionsParams {
   widget: Widget | null;

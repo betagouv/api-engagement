@@ -2,11 +2,11 @@ import { BiSolidInfoSquare } from "react-icons/bi";
 import { RiErrorWarningFill } from "react-icons/ri";
 
 import { useEffect, useState } from "react";
-import Combobox from "../../../components/combobox";
-import api from "../../../services/api";
-import { captureError } from "../../../services/error";
-import { slugify } from "../../../services/utils";
-import { withLegacyPublishers } from "../../../utils/publisher";
+import Combobox from "@/components/combobox";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import { slugify } from "@/services/utils";
+import { withLegacyPublishers } from "@/utils/publisher";
 
 const buildDefaultUtm = (name) => [
   { key: "utm_source", value: "api_engagement" },

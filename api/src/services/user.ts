@@ -1,8 +1,8 @@
 import bcrypt from "bcryptjs";
 
-import { Prisma } from "../db/core";
-import { userRepository } from "../repositories/user";
-import type { UserCreateInput, UserFindParams, UserRecord, UserUpdatePatch } from "../types/user";
+import { Prisma } from "@/db/core";
+import { userRepository } from "@/repositories/user";
+import type { UserCreateInput, UserFindParams, UserRecord, UserUpdatePatch } from "@/types/user";
 
 const SALT_ROUNDS = 10;
 

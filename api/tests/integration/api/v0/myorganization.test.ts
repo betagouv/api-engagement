@@ -1,7 +1,7 @@
 import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
-import { publisherDiffusionExclusionService } from "../../../../src/services/publisher-diffusion-exclusion";
-import { MissionRecord, PublisherMissionType, PublisherRecord } from "../../../../src/types";
+import { publisherDiffusionExclusionService } from "@/services/publisher-diffusion-exclusion";
+import { MissionRecord, PublisherMissionType, PublisherRecord } from "@/types";
 import { createTestMission, createTestPublisher } from "../../../fixtures";
 import { createStatEventFixture } from "../../../fixtures/stat-event";
 import { createTestApp } from "../../../testApp";

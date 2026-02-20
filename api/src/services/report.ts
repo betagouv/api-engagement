@@ -1,5 +1,5 @@
-import { Prisma } from "../db/core";
-import { reportRepository } from "../repositories/report";
+import { Prisma } from "@/db/core";
+import { reportRepository } from "@/repositories/report";
 import type {
   ReportAggregations,
   ReportCreateInput,
@@ -10,7 +10,7 @@ import type {
   ReportSearchResult,
   ReportSortField,
   ReportUpdatePatch,
-} from "../types/report";
+} from "@/types/report";
 
 const buildWhere = (filters: ReportSearchFilters = {}): Prisma.ReportWhereInput => {
   const where: Prisma.ReportWhereInput = {};

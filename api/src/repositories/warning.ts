@@ -1,5 +1,5 @@
-import { Prisma, Warning } from "../db/core";
-import { prismaCore } from "../db/postgres";
+import { Prisma, Warning } from "@/db/core";
+import { prismaCore } from "@/db/postgres";
 
 export const warningRepository = {
   async findMany(params: Prisma.WarningFindManyArgs = {}): Promise<Warning[]> {

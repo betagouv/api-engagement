@@ -2,9 +2,9 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { INVALID_BODY } from "../error";
-import { UserRequest } from "../types/passport";
-import { statEventService } from "../services/stat-event";
+import { INVALID_BODY } from "@/error";
+import { UserRequest } from "@/types/passport";
+import { statEventService } from "@/services/stat-event";
 
 const router = Router();
 

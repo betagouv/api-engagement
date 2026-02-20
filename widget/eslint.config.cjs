@@ -52,6 +52,19 @@ module.exports = [
       "no-control-regex": "off",
       curly: ["error", "all"],
 
+      // Enforce @/ alias instead of relative parent imports
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["../*"],
+              message: "Use @/ alias instead of relative parent imports (e.g. @/components/Foo).",
+            },
+          ],
+        },
+      ],
+
       // Relax rules (code should be fixed and rules activated)
       "import/no-extraneous-dependencies": "off",
       "no-unused-vars": "off",

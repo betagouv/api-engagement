@@ -1,4 +1,4 @@
-import { Filters as FilterTypes, Widget } from "../types";
+import { Filters as FilterTypes, Widget } from "@/types";
 import FiltersBenevolat from "./FiltersBenevolat";
 import FiltersVolontariat from "./FiltersVolontariat";
 

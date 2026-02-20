@@ -1,21 +1,21 @@
 import { jsPDF } from "jspdf";
 
-import { publisherService } from "../../../services/publisher";
-import { reportService } from "../../../services/report";
-import { BUCKET_URL, OBJECT_ACL, putObject } from "../../../services/s3";
-import type { PublisherRecord } from "../../../types/publisher";
-import type { ReportCreateInput, ReportDataTemplate, ReportUpdatePatch } from "../../../types/report";
-import { StatsReport } from "../../../types/report";
+import { publisherService } from "@/services/publisher";
+import { reportService } from "@/services/report";
+import { BUCKET_URL, OBJECT_ACL, putObject } from "@/services/s3";
+import type { PublisherRecord } from "@/types/publisher";
+import type { ReportCreateInput, ReportDataTemplate, ReportUpdatePatch } from "@/types/report";
+import { StatsReport } from "@/types/report";
 
-import Marianne from "../fonts/Marianne";
-import MarianneBold from "../fonts/MarianneBold";
+import Marianne from "@/jobs/report/fonts/Marianne";
+import MarianneBold from "@/jobs/report/fonts/MarianneBold";
 
-import { generateAnnounce } from "./announce";
-import { generateBroadcast } from "./broadcast";
-import { getData, MONTHS } from "./data";
-import { generateHeader } from "./header";
-import { generateOverview } from "./overview";
-import { PAGE_HEIGHT, PAGE_WIDTH } from "./utils";
+import { generateAnnounce } from "@/jobs/report/generate/announce";
+import { generateBroadcast } from "@/jobs/report/generate/broadcast";
+import { getData, MONTHS } from "@/jobs/report/generate/data";
+import { generateHeader } from "@/jobs/report/generate/header";
+import { generateOverview } from "@/jobs/report/generate/overview";
+import { PAGE_HEIGHT, PAGE_WIDTH } from "@/jobs/report/generate/utils";
 
 export interface GeneratedReportPreview {
   publisherId: string;

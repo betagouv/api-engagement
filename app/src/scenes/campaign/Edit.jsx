@@ -3,20 +3,20 @@ import { AiFillWarning } from "react-icons/ai";
 import { RiArrowLeftLine, RiDeleteBin6Line, RiFileTransferLine, RiMoreLine } from "react-icons/ri";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
-import { toast } from "../../services/toast";
+import { toast } from "@/services/toast";
 
-import Combobox from "../../components/combobox";
-import Dropdown from "../../components/Dropdown";
-import Loader from "../../components/Loader";
-import Modal from "../../components/New-Modal";
-import Toggle from "../../components/Toggle";
-import api from "../../services/api";
-import { API_URL } from "../../services/config";
-import { captureError } from "../../services/error";
-import { isValidUrl } from "../../services/utils";
-import { withLegacyPublishers } from "../../utils/publisher";
-import Information from "./components/Information";
-import Trackers from "./components/Trackers";
+import Combobox from "@/components/combobox";
+import Dropdown from "@/components/Dropdown";
+import Loader from "@/components/Loader";
+import Modal from "@/components/New-Modal";
+import Toggle from "@/components/Toggle";
+import api from "@/services/api";
+import { API_URL } from "@/services/config";
+import { captureError } from "@/services/error";
+import { isValidUrl } from "@/services/utils";
+import { withLegacyPublishers } from "@/utils/publisher";
+import Information from "@/scenes/campaign/components/Information";
+import Trackers from "@/scenes/campaign/components/Trackers";
 
 const Edit = () => {
   const { id } = useParams();

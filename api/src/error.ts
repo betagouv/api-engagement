@@ -1,5 +1,5 @@
 import * as Sentry from "@sentry/node";
-import { ENV } from "./config";
+import { ENV } from "@/config";
 
 export const INVALID_ID = "INVALID_ID";
 export const INVALID_PARAMS = "INVALID_PARAMS";

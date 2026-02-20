@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { toast } from "@/services/toast";
 
-import Loader from "../../../../components/Loader";
-import Modal from "../../../../components/Modal";
-import api from "../../../../services/api";
-import { captureError } from "../../../../services/error";
-import useStore from "../../../../services/store";
-import { JVA_MODERATION_COMMENTS_LABELS } from "./Constants";
+import Loader from "@/components/Loader";
+import Modal from "@/components/Modal";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import useStore from "@/services/store";
+import { JVA_MODERATION_COMMENTS_LABELS } from "@/scenes/broadcast/moderation/components/Constants";
 
 const OrganizationRefusedModal = ({ isOpen, onClose, data, update, onChange, total = 0 }) => {
   const { publisher } = useStore();

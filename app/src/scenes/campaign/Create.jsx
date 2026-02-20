@@ -2,16 +2,16 @@ import { useState } from "react";
 import { AiFillWarning } from "react-icons/ai";
 import { RiArrowLeftLine } from "react-icons/ri";
 import { Link, useNavigate } from "react-router-dom";
-import { toast } from "../../services/toast";
+import { toast } from "@/services/toast";
 
-import Modal from "../../components/New-Modal";
-import api from "../../services/api";
-import { API_URL } from "../../services/config";
-import { captureError } from "../../services/error";
-import useStore from "../../services/store";
-import { isValidUrl } from "../../services/utils";
-import Information from "./components/Information";
-import Trackers from "./components/Trackers";
+import Modal from "@/components/New-Modal";
+import api from "@/services/api";
+import { API_URL } from "@/services/config";
+import { captureError } from "@/services/error";
+import useStore from "@/services/store";
+import { isValidUrl } from "@/services/utils";
+import Information from "@/scenes/campaign/components/Information";
+import Trackers from "@/scenes/campaign/components/Trackers";
 
 const Create = () => {
   const { publisher } = useStore();

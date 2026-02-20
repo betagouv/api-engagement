@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import type { MissionRecord, UserRecord } from "../../types";
-import { moderationEventService } from "../moderation-event";
+import type { MissionRecord, UserRecord } from "@/types";
+import { moderationEventService } from "@/services/moderation-event";
 
 const buildId = (value: string) =>
   ({

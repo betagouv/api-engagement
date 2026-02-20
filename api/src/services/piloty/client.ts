@@ -1,6 +1,6 @@
-import { PILOTY_BASE_URL } from "../../config";
-import { PilotyError } from "./exceptions";
-import { PilotyCompany, PilotyCompanyField, PilotyCompanyPayload, PilotyJob, PilotyJobCategory, PilotyJobField, PilotyJobPayload } from "./types";
+import { PILOTY_BASE_URL } from "@/config";
+import { PilotyError } from "@/services/piloty/exceptions";
+import { PilotyCompany, PilotyCompanyField, PilotyCompanyPayload, PilotyJob, PilotyJobCategory, PilotyJobField, PilotyJobPayload } from "@/services/piloty/types";
 
 /**
  * Piloty API wrapper

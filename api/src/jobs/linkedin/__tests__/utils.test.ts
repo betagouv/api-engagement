@@ -5,7 +5,7 @@ vi.mock("../../../services/s3", () => ({
   default: {},
 }));
 
-import { getAudienceLabel, getDomainLabel } from "../utils";
+import { getAudienceLabel, getDomainLabel } from "@/jobs/linkedin/utils";
 
 describe("getDomainLabel", () => {
   it("should return the domain label", () => {

@@ -1,17 +1,17 @@
-import { LETUDIANT_PILOTY_TOKEN } from "../../config";
-import { captureException } from "../../error";
-import missionJobBoardService from "../../services/mission-jobboard";
-import { organizationService } from "../../services/organization";
-import { PilotyClient, PilotyError } from "../../services/piloty/";
-import { PilotyJob } from "../../services/piloty/types";
-import { MissionRecord } from "../../types/mission";
-import type { MissionJobBoardRecord, MissionJobBoardSyncStatus } from "../../types/mission-job-board";
-import { OrganizationRecord } from "../../types/organization";
-import { BaseHandler } from "../base/handler";
-import { JobResult } from "../types";
-import { DEFAULT_LIMIT, MEDIA_PUBLIC_ID } from "./config";
-import { missionToPilotyCompany, missionToPilotyJobs } from "./transformers";
-import { LETUDIANT_JOB_BOARD_ID, getMandatoryData, getMissionsToSync, rateLimit } from "./utils";
+import { LETUDIANT_PILOTY_TOKEN } from "@/config";
+import { captureException } from "@/error";
+import missionJobBoardService from "@/services/mission-jobboard";
+import { organizationService } from "@/services/organization";
+import { PilotyClient, PilotyError } from "@/services/piloty";
+import { PilotyJob } from "@/services/piloty/types";
+import { MissionRecord } from "@/types/mission";
+import type { MissionJobBoardRecord, MissionJobBoardSyncStatus } from "@/types/mission-job-board";
+import { OrganizationRecord } from "@/types/organization";
+import { BaseHandler } from "@/jobs/base/handler";
+import { JobResult } from "@/jobs/types";
+import { DEFAULT_LIMIT, MEDIA_PUBLIC_ID } from "@/jobs/letudiant/config";
+import { missionToPilotyCompany, missionToPilotyJobs } from "@/jobs/letudiant/transformers";
+import { LETUDIANT_JOB_BOARD_ID, getMandatoryData, getMissionsToSync, rateLimit } from "@/jobs/letudiant/utils";
 
 export interface LetudiantJobPayload {
   id?: string;

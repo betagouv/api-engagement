@@ -1,5 +1,5 @@
-import { Email, Prisma } from "../db/core";
-import { prismaCore } from "../db/postgres";
+import { Email, Prisma } from "@/db/core";
+import { prismaCore } from "@/db/postgres";
 
 export const emailRepository = {
   async find(params: Prisma.EmailFindManyArgs = {}): Promise<Email[]> {

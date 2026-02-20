@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import { RiCloseFill } from "react-icons/ri";
 
-import ModerationManualIcon from "../../../../assets/svg/moderation-manual.svg";
-import MissionCombobox from "../../../../components/combobox/MissionCombobox";
-import SearchInput from "../../../../components/SearchInput";
-import Select from "../../../../components/Select";
-import api from "../../../../services/api";
-import { captureError } from "../../../../services/error";
-import useStore from "../../../../services/store";
-import STATUS, { DEPARTMENT_LABELS, JVA_MODERATION_COMMENTS_LABELS, STATUS_PLR } from "./Constants";
+import ModerationManualIcon from "@/assets/svg/moderation-manual.svg";
+import MissionCombobox from "@/components/combobox/MissionCombobox";
+import SearchInput from "@/components/SearchInput";
+import Select from "@/components/Select";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import useStore from "@/services/store";
+import STATUS, { DEPARTMENT_LABELS, JVA_MODERATION_COMMENTS_LABELS, STATUS_PLR } from "@/scenes/broadcast/moderation/components/Constants";
 
 const Filters = ({ filters, onChange, reload }) => {
   const { publisher } = useStore();

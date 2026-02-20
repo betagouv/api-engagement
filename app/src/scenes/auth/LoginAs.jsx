@@ -1,10 +1,10 @@
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
-import { toast } from "../../services/toast";
-import api from "../../services/api";
-import { captureError } from "../../services/error";
-import useStore from "../../services/store";
+import { toast } from "@/services/toast";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import useStore from "@/services/store";
 
 const LoginAs = () => {
   const [searchParams] = useSearchParams();

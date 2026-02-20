@@ -1,9 +1,9 @@
-import { captureException } from "../../error";
-import Brevo from "../../services/brevo";
-import { publisherService } from "../../services/publisher";
-import { userService } from "../../services/user";
-import { slugify } from "../../utils";
-import { BrevoContact } from "./types";
+import { captureException } from "@/error";
+import Brevo from "@/services/brevo";
+import { publisherService } from "@/services/publisher";
+import { userService } from "@/services/user";
+import { slugify } from "@/utils";
+import { BrevoContact } from "@/jobs/brevo/types";
 
 const BREVO_CONTACTS_LIMIT = 1000;
 

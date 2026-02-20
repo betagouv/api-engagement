@@ -1,12 +1,12 @@
 import { XMLBuilder } from "fast-xml-parser";
 
-import { Prisma } from "../../db/core";
-import { buildWhere, missionService } from "../../services/mission";
-import { OBJECT_ACL, putObject } from "../../services/s3";
-import { MissionRecord, MissionSearchFilters } from "../../types/mission";
-import { GRIMPIO_XML_URL } from "./config";
-import { missionToGrimpioJob } from "./transformers";
-import { GrimpioJob } from "./types";
+import { Prisma } from "@/db/core";
+import { buildWhere, missionService } from "@/services/mission";
+import { OBJECT_ACL, putObject } from "@/services/s3";
+import { MissionRecord, MissionSearchFilters } from "@/types/mission";
+import { GRIMPIO_XML_URL } from "@/jobs/grimpio/config";
+import { missionToGrimpioJob } from "@/jobs/grimpio/transformers";
+import { GrimpioJob } from "@/jobs/grimpio/types";
 
 const DEFAULT_BATCH_SIZE = 500;
 

@@ -9,8 +9,8 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { Prisma } from "../src/db/core";
-import { prismaCore } from "../src/db/postgres";
+import { Prisma } from "@/db/core";
+import { prismaCore } from "@/db/postgres";
 
 type OrganizationRow = {
   id: string;

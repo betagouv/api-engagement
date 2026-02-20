@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { RiErrorWarningFill, RiExternalLinkLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
 import { toast } from "@/services/toast";
-import api from "../../../../../services/api";
-import { captureError } from "../../../../../services/error";
-import useStore from "../../../../../services/store";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import useStore from "@/services/store";
 
 const MissionTab = ({ data, onChange }) => {
   const { publisher } = useStore();

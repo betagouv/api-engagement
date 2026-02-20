@@ -1,6 +1,6 @@
-import { Import as PrismaImport } from "../../src/db/core";
-import { importService } from "../../src/services/import";
-import type { ImportCreateInput } from "../../src/types/import";
+import { Import as PrismaImport } from "@/db/core";
+import { importService } from "@/services/import";
+import type { ImportCreateInput } from "@/types/import";
 
 export { createTestMission } from "./mission";
 export { createTestPublisher } from "./publisher";

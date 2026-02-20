@@ -4,9 +4,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { prismaCore } from "../src/db/postgres";
-
-const dryRun = process.argv.includes("--dry-run");
+import { prismaCore } from "@/db/postgres";
 
 async function cleanModerationRefusedCities() {
   const moderations = await prismaCore.missionModerationStatus.findMany({

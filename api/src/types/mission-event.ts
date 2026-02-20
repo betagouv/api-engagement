@@ -1,4 +1,4 @@
-import { MissionEventType, Prisma } from "../db/core";
+import { MissionEventType, Prisma } from "@/db/core";
 
 export type MissionEventCreateParams = {
   missionId: string;

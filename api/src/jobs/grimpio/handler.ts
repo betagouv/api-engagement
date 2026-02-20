@@ -1,13 +1,13 @@
 import fs from "fs";
 
-import { ENV, PUBLISHER_IDS } from "../../config";
-import { captureException } from "../../error";
-import { importService } from "../../services/import";
-import { publisherService } from "../../services/publisher";
-import { BaseHandler } from "../base/handler";
-import { JobResult } from "../types";
-import { GRIMPIO_PUBLISHER_ID } from "./config";
-import { generateJobs, generateXML, getMissionsCursor, storeXML } from "./utils";
+import { ENV, PUBLISHER_IDS } from "@/config";
+import { captureException } from "@/error";
+import { importService } from "@/services/import";
+import { publisherService } from "@/services/publisher";
+import { BaseHandler } from "@/jobs/base/handler";
+import { JobResult } from "@/jobs/types";
+import { GRIMPIO_PUBLISHER_ID } from "@/jobs/grimpio/config";
+import { generateJobs, generateXML, getMissionsCursor, storeXML } from "@/jobs/grimpio/utils";
 
 export interface GrimpioJobPayload {}
 

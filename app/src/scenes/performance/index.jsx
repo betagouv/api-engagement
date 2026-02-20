@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { Route, Routes, useLocation, useSearchParams } from "react-router-dom";
 
-import Tabs from "../../components/Tabs";
-import useStore from "../../services/store";
+import Tabs from "@/components/Tabs";
+import useStore from "@/services/store";
 
-import GlobalAnnounce from "./GlobalAnnounce";
-import GlobalBroadcast from "./GlobalBroadcast";
-import Means from "./Mean";
+import GlobalAnnounce from "@/scenes/performance/GlobalAnnounce";
+import GlobalBroadcast from "@/scenes/performance/GlobalBroadcast";
+import Means from "@/scenes/performance/Mean";
 
 const Performance = () => {
   const { flux, publisher } = useStore();

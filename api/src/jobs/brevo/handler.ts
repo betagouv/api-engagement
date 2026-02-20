@@ -1,6 +1,6 @@
-import { BaseHandler } from "../base/handler";
-import { JobResult } from "../types";
-import { syncContact } from "./utils";
+import { BaseHandler } from "@/jobs/base/handler";
+import { JobResult } from "@/jobs/types";
+import { syncContact } from "@/jobs/brevo/utils";
 
 export interface BrevoJobPayload {}
 

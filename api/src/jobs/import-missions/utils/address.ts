@@ -1,6 +1,6 @@
-import { DEPARTMENTS } from "../../../constants/departments";
-import { MissionAddress } from "../../../types/mission";
-import { ImportedMission, MissionXML } from "../types";
+import { DEPARTMENTS } from "@/constants/departments";
+import { MissionAddress } from "@/types/mission";
+import { ImportedMission, MissionXML } from "@/jobs/import-missions/types";
 
 const parseString = (value: string | undefined) => {
   if (!value) {

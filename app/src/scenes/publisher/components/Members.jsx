@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 
-import Table from "../../../components/Table";
-import api from "../../../services/api";
-import { captureError } from "../../../services/error";
+import Table from "@/components/Table";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
 
 const Members = ({ values, onChange }) => {
   const [members, setMembers] = useState([]);

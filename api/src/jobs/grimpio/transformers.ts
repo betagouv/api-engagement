@@ -1,8 +1,8 @@
-import { ASC_100_LOGO_URL, JVA_100_LOGO_URL, PUBLISHER_IDS } from "../../config";
-import { MissionAddress, MissionRecord } from "../../types/mission";
-import { getMissionTrackedApplicationUrl } from "../../utils";
-import { ASC_CONTRACT_TYPE, AUDIENCE_MAPPING, DOMAIN_MAPPING, GRIMPIO_PUBLISHER_ID, JVA_CONTRACT_TYPE } from "./config";
-import { GrimpioJob, GrimpioPlace } from "./types";
+import { ASC_100_LOGO_URL, JVA_100_LOGO_URL, PUBLISHER_IDS } from "@/config";
+import { MissionAddress, MissionRecord } from "@/types/mission";
+import { getMissionTrackedApplicationUrl } from "@/utils";
+import { ASC_CONTRACT_TYPE, AUDIENCE_MAPPING, DOMAIN_MAPPING, GRIMPIO_PUBLISHER_ID, JVA_CONTRACT_TYPE } from "@/jobs/grimpio/config";
+import { GrimpioJob, GrimpioPlace } from "@/jobs/grimpio/types";
 
 function getDomainLabel(domain: string): string {
   return DOMAIN_MAPPING[domain] || DOMAIN_MAPPING.autre;

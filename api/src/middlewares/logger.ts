@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import morgan from "morgan";
-import { REQUEST_ID_HEADER } from "../utils/request-id";
+import { REQUEST_ID_HEADER } from "@/utils/request-id";
 
 const SENSITIVE_FIELDS = ["password", "apikey"];
 

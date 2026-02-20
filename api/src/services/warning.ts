@@ -1,6 +1,6 @@
-import { Prisma, Warning as PrismaWarning } from "../db/core";
-import { warningRepository } from "../repositories/warning";
-import { WarningCreateInput, WarningFindParams, WarningRecord, WarningUpdatePatch } from "../types/warning";
+import { Prisma, Warning as PrismaWarning } from "@/db/core";
+import { warningRepository } from "@/repositories/warning";
+import { WarningCreateInput, WarningFindParams, WarningRecord, WarningUpdatePatch } from "@/types/warning";
 
 type WarningWithPublisher = PrismaWarning & {
   publisher: {

@@ -1,6 +1,6 @@
-import { Prisma } from "../../../db/core";
+import { Prisma } from "@/db/core";
 
-import { prismaCore } from "../../../db/postgres";
+import { prismaCore } from "@/db/postgres";
 
 export type ReportFlux = "from" | "to";
 

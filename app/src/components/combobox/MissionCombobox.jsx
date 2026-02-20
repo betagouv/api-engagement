@@ -1,6 +1,6 @@
-import api from "../../services/api";
-import { captureError } from "../../services/error";
-import Combobox from "./index";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import Combobox from "@/components/combobox/index";
 
 const MissionCombobox = ({ id, value, onSelect, onChange, placeholder, className, filters }) => {
   const fetchOptions = async (search) => {

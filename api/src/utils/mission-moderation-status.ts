@@ -1,7 +1,7 @@
-import { Prisma, PublisherOrganization } from "../db/core";
-import { MissionModerationStatusUpdatePatch } from "../services/mission-moderation-status";
-import { MissionModerationRecord, ModerationFilters } from "../types/mission-moderation-status";
-import { ModerationEventCreateInput, ModerationEventStatus } from "../types/moderation-event";
+import { Prisma, PublisherOrganization } from "@/db/core";
+import { MissionModerationStatusUpdatePatch } from "@/services/mission-moderation-status";
+import { MissionModerationRecord, ModerationFilters } from "@/types/mission-moderation-status";
+import { ModerationEventCreateInput, ModerationEventStatus } from "@/types/moderation-event";
 
 type ModerationUpdateBody = {
   status?: string;

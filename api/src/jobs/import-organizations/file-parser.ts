@@ -1,11 +1,11 @@
 import { parse } from "csv-parse";
 import { Readable } from "stream";
 
-import { DEPARTMENTS } from "../../constants/departments";
-import { DataGouvRnaRecord } from "../../services/data-gouv/types";
-import { organizationService } from "../../services/organization";
-import { OrganizationUpsertInput } from "../../types/organization";
-import { slugify } from "../../utils";
+import { DEPARTMENTS } from "@/constants/departments";
+import { DataGouvRnaRecord } from "@/services/data-gouv/types";
+import { organizationService } from "@/services/organization";
+import { OrganizationUpsertInput } from "@/types/organization";
+import { slugify } from "@/utils";
 
 const findStatus = (position: string) => {
   if (position === "A") {

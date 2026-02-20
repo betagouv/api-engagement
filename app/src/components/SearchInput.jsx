@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import MagnifyIconSvg from "../assets/svg/magnify-icon.svg";
+import MagnifyIconSvg from "@/assets/svg/magnify-icon.svg";
 
 const SearchInput = ({ value, onChange, className, placeholder, timeout = 400, ...props }) => {
   const [input, setInput] = useState(value);

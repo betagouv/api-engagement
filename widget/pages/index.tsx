@@ -5,19 +5,19 @@ import Script from "next/script";
 import { useEffect, useState } from "react";
 
 import { usePlausible } from "next-plausible";
-import Filters from "../components/Filters";
-import MissionContainer from "../components/MissionContainer";
-import { API_URL, ENV } from "../config";
-import useMissions from "../hooks/useMissions";
-import useSyncWidgetQuery from "../hooks/useSyncWidgetQuery";
-import LogoSC from "../public/images/logo-sc.svg";
-import { Filters as FilterTypes, PageProps, Widget } from "../types";
-import { fetchLocation } from "../utils/fetchLocation";
-import { fetchWithTimeout } from "../utils/fetchWithTimeout";
-import { generateRequestId, REQUEST_ID_HEADER } from "../utils/requestId";
-import resizeHelper from "../utils/resizeHelper";
-import { captureExceptionWithRequestId, captureMessageWithRequestId } from "../utils/sentry";
-import useStore from "../utils/store";
+import Filters from "@/components/Filters";
+import MissionContainer from "@/components/MissionContainer";
+import { API_URL, ENV } from "@/config";
+import useMissions from "@/hooks/useMissions";
+import useSyncWidgetQuery from "@/hooks/useSyncWidgetQuery";
+import LogoSC from "@/public/images/logo-sc.svg";
+import { Filters as FilterTypes, PageProps, Widget } from "@/types";
+import { fetchLocation } from "@/utils/fetchLocation";
+import { fetchWithTimeout } from "@/utils/fetchWithTimeout";
+import { generateRequestId, REQUEST_ID_HEADER } from "@/utils/requestId";
+import resizeHelper from "@/utils/resizeHelper";
+import { captureExceptionWithRequestId, captureMessageWithRequestId } from "@/utils/sentry";
+import useStore from "@/utils/store";
 
 const getInitialFilters = (widget: Widget, query: Record<string, string | string[] | undefined>): FilterTypes => {
   const isBenevolat = widget?.type === "benevolat";

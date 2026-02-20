@@ -16,7 +16,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { pgConnectedCore, prismaCore } from "../src/db/postgres";
+import { pgConnectedCore, prismaCore } from "@/db/postgres";
 
 type CoreApplyRow = {
   id: string;

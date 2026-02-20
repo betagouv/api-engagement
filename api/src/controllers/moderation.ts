@@ -2,17 +2,17 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { PUBLISHER_IDS } from "../config";
-import { PublisherOrganization } from "../db/core";
-import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
-import publisherOrganizationRepository from "../repositories/publisher-organization";
-import { missionModerationStatusService } from "../services/mission-moderation-status";
-import { moderationEventService } from "../services/moderation-event";
-import { publisherService } from "../services/publisher";
-import { UserRecord } from "../types";
-import { MissionModerationRecord, ModerationFilters } from "../types/mission-moderation-status";
-import type { UserRequest } from "../types/passport";
-import { getModerationEvents, getModerationUpdates, getOrganizationUpdates } from "../utils/mission-moderation-status";
+import { PUBLISHER_IDS } from "@/config";
+import { PublisherOrganization } from "@/db/core";
+import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
+import publisherOrganizationRepository from "@/repositories/publisher-organization";
+import { missionModerationStatusService } from "@/services/mission-moderation-status";
+import { moderationEventService } from "@/services/moderation-event";
+import { publisherService } from "@/services/publisher";
+import { UserRecord } from "@/types";
+import { MissionModerationRecord, ModerationFilters } from "@/types/mission-moderation-status";
+import type { UserRequest } from "@/types/passport";
+import { getModerationEvents, getModerationUpdates, getOrganizationUpdates } from "@/utils/mission-moderation-status";
 
 const router = Router();
 

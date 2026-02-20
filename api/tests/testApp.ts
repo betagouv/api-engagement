@@ -2,15 +2,15 @@ import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
-import bodyParserErrorHandler from "../src/middlewares/body-parser-error-handler";
-import passport from "../src/middlewares/passport";
-import IframeController from "../src/controllers/iframe";
-import RedirectController from "../src/controllers/redirect";
-import ActivityV2Controller from "../src/v2/activity";
-import MissionV0Controller from "../src/v0/mission/controller";
-import MyMissionV0Controller from "../src/v0/mymission/controller";
-import MyOrganizationV0Controller from "../src/v0/myorganization/controller";
-import ViewV0Controller from "../src/v0/view";
+import bodyParserErrorHandler from "@/middlewares/body-parser-error-handler";
+import passport from "@/middlewares/passport";
+import IframeController from "@/controllers/iframe";
+import RedirectController from "@/controllers/redirect";
+import ActivityV2Controller from "@/v2/activity";
+import MissionV0Controller from "@/v0/mission/controller";
+import MyMissionV0Controller from "@/v0/mymission/controller";
+import MyOrganizationV0Controller from "@/v0/myorganization/controller";
+import ViewV0Controller from "@/v0/view";
 
 // Create a test Express app with minimal configuration
 export const createTestApp = () => {

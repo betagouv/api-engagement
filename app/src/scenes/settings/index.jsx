@@ -1,11 +1,11 @@
 import { Route, Routes, useLocation } from "react-router-dom";
 
-import Tabs from "../../components/Tabs";
-import useStore from "../../services/store";
-import Flux from "./Flux";
-import RealTime from "./RealTime";
-import TrackingAnnounce from "./TrackingAnnounce";
-import TrackingBroadcast from "./TrackingBroadcast";
+import Tabs from "@/components/Tabs";
+import useStore from "@/services/store";
+import Flux from "@/scenes/settings/Flux";
+import RealTime from "@/scenes/settings/RealTime";
+import TrackingAnnounce from "@/scenes/settings/TrackingAnnounce";
+import TrackingBroadcast from "@/scenes/settings/TrackingBroadcast";
 
 const Settings = () => {
   const { flux, publisher } = useStore();

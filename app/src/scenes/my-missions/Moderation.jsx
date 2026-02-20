@@ -1,19 +1,19 @@
 import { useEffect, useState } from "react";
 import { RiCloseFill, RiInformationLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
-import Tooltip from "../../components/Tooltip";
+import Tooltip from "@/components/Tooltip";
 
-import JvaLogoPng from "../../assets/img/jva-logo.png";
-import Loader from "../../components/Loader";
-import Select from "../../components/Select";
-import Pie, { colors } from "../../components/Pie";
-import SearchInput from "../../components/SearchInput";
-import Table from "../../components/Table";
-import { DOMAINS } from "../../constants";
-import api from "../../services/api";
-import { captureError } from "../../services/error";
-import useStore from "../../services/store";
-import { DEPARTMENT_LABELS, JVA_MODERATION_COMMENTS_LABELS, STATUS, STATUS_GRAPH_COLORS, STATUS_ICONS, STATUS_PLR } from "../broadcast/moderation/components/Constants";
+import JvaLogoPng from "@/assets/img/jva-logo.png";
+import Loader from "@/components/Loader";
+import Select from "@/components/Select";
+import Pie, { colors } from "@/components/Pie";
+import SearchInput from "@/components/SearchInput";
+import Table from "@/components/Table";
+import { DOMAINS } from "@/constants";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import useStore from "@/services/store";
+import { DEPARTMENT_LABELS, JVA_MODERATION_COMMENTS_LABELS, STATUS, STATUS_GRAPH_COLORS, STATUS_ICONS, STATUS_PLR } from "@/scenes/broadcast/moderation/components/Constants";
 
 const COMMENTS_TABLE_HEADER = [{ title: "Motif de refus" }, { title: "Nombre", position: "center" }, { title: "Pourcentage", position: "center" }];
 

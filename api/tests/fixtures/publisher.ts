@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto";
 
-import { publisherService } from "../../src/services/publisher";
-import type { PublisherCreateInput, PublisherRecord } from "../../src/types/publisher";
-import { PublisherMissionType } from "../../src/types/publisher"; // add this
+import { publisherService } from "@/services/publisher";
+import type { PublisherCreateInput, PublisherRecord } from "@/types/publisher";
+import { PublisherMissionType } from "@/types/publisher";
 
 export const createTestPublisher = async (data: Partial<PublisherCreateInput> = {}): Promise<PublisherRecord> => {
   const uniqueSuffix = randomUUID();

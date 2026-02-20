@@ -2,9 +2,9 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { INVALID_QUERY } from "../../error";
-import { UserRequest } from "../../types/passport";
-import { getStatsMean } from "./helper";
+import { INVALID_QUERY } from "@/error";
+import { UserRequest } from "@/types/passport";
+import { getStatsMean } from "@/controllers/stats-mean/helper";
 
 const router = Router();
 

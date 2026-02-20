@@ -1,5 +1,5 @@
-import { CompensationType, CompensationUnit } from "../../constants/compensation";
-import type { MissionRecord } from "../../types/mission";
+import { CompensationType, CompensationUnit } from "@/constants/compensation";
+import type { MissionRecord } from "@/types/mission";
 
 export interface MissionXML {
   id: string;

@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
-import { PublisherRecord } from "../../src/types";
-import type { CampaignCreateInput, CampaignType } from "../../src/types/campaign";
+import { PublisherRecord } from "@/types";
+import type { CampaignCreateInput, CampaignType } from "@/types/campaign";
 import { asBoolean, asDate, asString, toMongoObjectIdString } from "./utils/cast";
 import { loadEnvironment, parseScriptOptions, type ScriptOptions } from "./utils/options";
 
@@ -113,9 +113,9 @@ const normalizeCampaign = (doc: MongoCampaignDocument, publishers: PublisherReco
 
 const migrateCampaigns = async () => {
   const [{ mongoConnected }, { pgConnected, prismaCore }, { campaignService }] = await Promise.all([
-    import("../../src/db/mongo"),
-    import("../../src/db/postgres"),
-    import("../../src/services/campaign"),
+    import("@/db/mongo"),
+    import("@/db/postgres"),
+    import("@/services/campaign"),
   ]);
 
   await mongoConnected;
@@ -247,7 +247,7 @@ migrateCampaigns()
   .catch(async (error) => {
     console.error("[MigrateCampaigns] Unexpected error:", error);
     try {
-      const { prismaCore } = await import("../../src/db/postgres");
+      const { prismaCore } = await import("@/db/postgres");
       await Promise.allSettled([mongoose.connection.close(), prismaCore.$disconnect()]);
     } catch {
       await Promise.allSettled([mongoose.connection.close()]);

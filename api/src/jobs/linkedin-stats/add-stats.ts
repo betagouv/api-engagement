@@ -1,8 +1,8 @@
-import { PUBLISHER_IDS } from "../../config";
-import { captureException } from "../../error";
-import { missionService } from "../../services/mission";
-import { statEventService } from "../../services/stat-event";
-import { StatEventRecord } from "../../types";
+import { PUBLISHER_IDS } from "@/config";
+import { captureException } from "@/error";
+import { missionService } from "@/services/mission";
+import { statEventService } from "@/services/stat-event";
+import { StatEventRecord } from "@/types";
 
 const ROWS = [
   "LinkedIn Job ID",

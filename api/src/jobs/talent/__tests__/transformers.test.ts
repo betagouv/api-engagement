@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { MissionRecord } from "../../../types/mission";
-import { missionToTalentJob } from "../transformers";
+import { MissionRecord } from "@/types/mission";
+import { missionToTalentJob } from "@/jobs/talent/transformers";
 
 // Mock constants with IDs but keep the rest of the config
 vi.mock("../config", async () => {
-  const config = await vi.importActual<typeof import("../config")>("../config");
+  const config = await vi.importActual<typeof import("@/jobs/talent/config")>("../config");
   return {
     ...config,
     TALENT_PUBLISHER_ID: "test-talent-id",

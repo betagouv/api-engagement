@@ -1,6 +1,6 @@
-import { Prisma, Import as PrismaImport } from "../db/core";
-import { importRepository } from "../repositories/import";
-import { ImportCreateInput, ImportFindParams, ImportRecord, ImportStateSummary, ImportUpdatePatch } from "../types";
+import { Prisma, Import as PrismaImport } from "@/db/core";
+import { importRepository } from "@/repositories/import";
+import { ImportCreateInput, ImportFindParams, ImportRecord, ImportStateSummary, ImportUpdatePatch } from "@/types";
 
 export const importService = (() => {
   const toImportRecord = (data: PrismaImport & { publisher?: { name: string; logo: string } }): ImportRecord => {

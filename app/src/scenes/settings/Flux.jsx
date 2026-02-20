@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import { RiCheckboxCircleFill, RiCloseCircleFill } from "react-icons/ri";
-import { toast } from "../../services/toast";
+import { toast } from "@/services/toast";
 
-import Loader from "../../components/Loader";
-import Modal from "../../components/New-Modal";
+import Loader from "@/components/Loader";
+import Modal from "@/components/New-Modal";
 
-import Table from "../../components/Table";
-import api from "../../services/api";
-import { captureError } from "../../services/error";
-import useStore from "../../services/store";
+import Table from "@/components/Table";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import useStore from "@/services/store";
 
 const TABLE_HEADER = [
   { title: "Date", key: "endedAt", position: "left" },

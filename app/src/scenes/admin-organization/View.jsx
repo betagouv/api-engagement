@@ -3,9 +3,9 @@ import { HiLocationMarker } from "react-icons/hi";
 import { RiCheckboxCircleFill, RiCloseCircleFill } from "react-icons/ri";
 import { useParams } from "react-router-dom";
 
-import Loader from "../../components/Loader";
-import api from "../../services/api";
-import { captureError } from "../../services/error";
+import Loader from "@/components/Loader";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
 
 const View = () => {
   const { id } = useParams();

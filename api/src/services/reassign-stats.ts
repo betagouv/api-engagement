@@ -1,4 +1,4 @@
-import { prismaCore } from "../db/postgres";
+import { prismaCore } from "@/db/postgres";
 
 type ReassignStatsField =
   | "id"

@@ -47,11 +47,11 @@ if (options.envPath) {
 
 import mongoose from "mongoose";
 
-import type { Prisma, ModerationEvent as PrismaModerationEvent } from "../../src/db/core";
-import { mongoConnected } from "../../src/db/mongo";
-import { pgConnected, prismaCore } from "../../src/db/postgres";
-import { moderationEventRepository } from "../../src/repositories/moderation-event";
-import type { ModerationEventRecord, ModerationEventStatus } from "../../src/types/moderation-event";
+import type { Prisma, ModerationEvent as PrismaModerationEvent } from "@/db/core";
+import { mongoConnected } from "@/db/mongo";
+import { pgConnected, prismaCore } from "@/db/postgres";
+import { moderationEventRepository } from "@/repositories/moderation-event";
+import type { ModerationEventRecord, ModerationEventStatus } from "@/types/moderation-event";
 
 type MongoModerationEventDocument = {
   _id?: { toString(): string } | string;

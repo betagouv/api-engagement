@@ -1,7 +1,7 @@
-import { COMPENSATION_TYPES, COMPENSATION_UNITS } from "../../../constants/compensation";
-import { COUNTRIES } from "../../../constants/countries";
-import { DOMAINS } from "../../../constants/domains";
-import type { MissionRecord } from "../../../types/mission";
+import { COMPENSATION_TYPES, COMPENSATION_UNITS } from "@/constants/compensation";
+import { COUNTRIES } from "@/constants/countries";
+import { DOMAINS } from "@/constants/domains";
+import type { MissionRecord } from "@/types/mission";
 
 export const getModeration = (mission: Partial<MissionRecord> & Record<string, any>) => {
   let statusComment: string | undefined;

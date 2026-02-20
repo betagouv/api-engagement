@@ -2,11 +2,11 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { PUBLISHER_IDS } from "../config";
-import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
-import { missionService } from "../services/mission";
-import type { UserRequest } from "../types/passport";
-import { getDistanceKm } from "../utils";
+import { PUBLISHER_IDS } from "@/config";
+import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
+import { missionService } from "@/services/mission";
+import type { UserRequest } from "@/types/passport";
+import { getDistanceKm } from "@/utils";
 
 const router = Router();
 
