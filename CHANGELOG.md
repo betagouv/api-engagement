@@ -2,6 +2,139 @@
 Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
 
 
+## 16/02/2026
+
+
+### Bug Fixes
+
+- (**widget**) Deactivate optimized images (#793) ([`08a2ac1`](https://github.com/betagouv/api-engagement/commit/08a2ac16f2bbe334dea81a5b5441c4d6640fcac3))
+
+- (**widget**) Lifecycle widget hooks (#791) ([`7620e7e`](https://github.com/betagouv/api-engagement/commit/7620e7e4c859ddd0bdf92cd7beda75844bddf56a))
+
+- (**jobs**) Import missions for reactivated deleted missions (#783) ([`ab995e0`](https://github.com/betagouv/api-engagement/commit/ab995e0b6fdc7ea969a227d156f0d2cadb8fb51a))
+
+- (**widget**) Avoid double API call (#781) ([`550e2f3`](https://github.com/betagouv/api-engagement/commit/550e2f3dd4d81c47aea51b35b645c6aa74cc278d))
+
+- (**widget**) Correct DSN project for widget (#779) ([`e19ea8c`](https://github.com/betagouv/api-engagement/commit/e19ea8cbcd69ba2a45711244ac67e97f16091361))
+
+- (**app**) Moderation in my missions screen (#778) ([`7735dbc`](https://github.com/betagouv/api-engagement/commit/7735dbc45e9e296136e01ce4e0f94d84846d1944))
+
+- (**analytics**) Increment stategy error on null fields (#777) ([`d3b9b25`](https://github.com/betagouv/api-engagement/commit/d3b9b25a9c2bd672980acfb4745527010035e6b5))
+
+- (**app**) A11y - zoom compatibility (#770) ([`12249d7`](https://github.com/betagouv/api-engagement/commit/12249d708fe70a7cb7f999885906711684274377))
+
+- (**api**) Remove sentry message useless spaming (#729) ([`e7cb81d`](https://github.com/betagouv/api-engagement/commit/e7cb81d5d33ceb696d579d439571b1f5b0f0c61e))
+
+- (**analytics**) Better handle incremental logic (#760) ([`01fd47b`](https://github.com/betagouv/api-engagement/commit/01fd47b049b91960d29ed257d901fd1e85664ed0))
+
+- (**widget**) City name case + organization name (#759) ([`ada1f78`](https://github.com/betagouv/api-engagement/commit/ada1f783a8de964ac931c5cc8712459271913aca))
+
+- (**app**) Moderation record event on comment change (#755) ([`657ae50`](https://github.com/betagouv/api-engagement/commit/657ae50952c67cbedeebfb10b460cd1570e18795))
+
+- (**api**) Reconcile click_id for apply events (#753) ([`94bbf25`](https://github.com/betagouv/api-engagement/commit/94bbf25ec1d48450d361358fb35ac46df7fc38b0))
+
+- (**app**) A11y - aria-label on some icons (#752) ([`635a3a7`](https://github.com/betagouv/api-engagement/commit/635a3a790b69eea5f0a1c66e22fe5ebbf0a20776))
+
+- (**app**) Review combobox width ([`19a9bce`](https://github.com/betagouv/api-engagement/commit/19a9bceb151382742315d9b6c6175a086dace1c7))
+
+- (**app**) Missing Tooltip import (#754) ([`34d9f41`](https://github.com/betagouv/api-engagement/commit/34d9f41f04c12d5d7cfca1a0c267ec0da4c381cb))
+
+
+### Features
+
+- (**widget**) Add tracing to widget in sentry ([`5eee13e`](https://github.com/betagouv/api-engagement/commit/5eee13e5f5f6f29dfd14543d11d9c8ae227f8c40))
+
+- (**api**) Add request-id header with Sentry support (#780) ([`87e1c8e`](https://github.com/betagouv/api-engagement/commit/87e1c8e80ebb43479df8c39393f25ad35a4f7eae))
+
+- (**widget**) Add logger (#775) ([`755fa77`](https://github.com/betagouv/api-engagement/commit/755fa779aaadf6ef25a63df5406ac0a7172d9d47))
+
+- (**app,widget**) Update react-datepicker (#728) ([`2f12744`](https://github.com/betagouv/api-engagement/commit/2f1274492501d677118bb9188666d2aa6078b40d))
+
+- (**analytics**) Time to events dbt models (#751) ([`3d7b7ba`](https://github.com/betagouv/api-engagement/commit/3d7b7ba25ca08b55df5c607e2f4c4f4fd36f442b))
+
+
+### Miscellaneous Tasks
+
+- (**changelog**) Update CHANGELOG.md ([`5cacb60`](https://github.com/betagouv/api-engagement/commit/5cacb60345f7e57f0ad80b3314f6cdb6c82e0a64))
+
+- (**changelog**) Update CHANGELOG.md ([`6fd3253`](https://github.com/betagouv/api-engagement/commit/6fd32538b02e3cca47d450131f1ac0e2a0d6aee7))
+
+- (**changelog**) Update CHANGELOG.md ([`461ef16`](https://github.com/betagouv/api-engagement/commit/461ef167695be40cddd2ea3945df8e97e7d5ae31))
+
+- (**changelog**) Update CHANGELOG.md ([`3dbe975`](https://github.com/betagouv/api-engagement/commit/3dbe975942b6ccf559e96fb5020a1854f40a6071))
+
+- (**changelog**) Update CHANGELOG.md ([`3175950`](https://github.com/betagouv/api-engagement/commit/31759502294f530b743170c0d5ae1ba3cc55c0a2))
+
+- (**widget**) Better logs using instrumentation (#792) ([`d862e77`](https://github.com/betagouv/api-engagement/commit/d862e778f82d075de8e669f38bcda45bc9131f32))
+
+- (**api**) Add address composite geo index (#774) ([`d070009`](https://github.com/betagouv/api-engagement/commit/d070009330ecdbb7b2dea7ecc2e2c8bbb566a43a))
+
+- (**deps**) Bump express and @types/express in /api (#745) ([`f4d74f6`](https://github.com/betagouv/api-engagement/commit/f4d74f6a0f5dcef68b3ae772e927a8addfc066df))
+
+- (**deps**) Bump next from 15.5.7 to 16.1.6 in /widget (#767) ([`aa1147c`](https://github.com/betagouv/api-engagement/commit/aa1147cf40bc07d6506800d4e01289f481614d01))
+
+- (**deps-dev**) Bump @types/node from 24.10.9 to 25.1.0 in /widget (#768) ([`83a4737`](https://github.com/betagouv/api-engagement/commit/83a47373ed41b7d6d0efb5e3594cca503dcf21bb))
+
+- (**deps**) Bump @sentry/cli from 2.57.0 to 3.1.0 in /widget (#742) ([`7e74391`](https://github.com/betagouv/api-engagement/commit/7e7439194bb7b9bc14d441a99780a6f376b3e91a))
+
+- (**deps-dev**) Bump globals from 16.5.0 to 17.2.0 in /widget (#769) ([`8a2b07a`](https://github.com/betagouv/api-engagement/commit/8a2b07ae6a59f453478b4d5b331f3a288bc33964))
+
+- (**deps**) Bump the production-dependencies group (#765) ([`a4150e6`](https://github.com/betagouv/api-engagement/commit/a4150e65c2f4cd17d575ba74d7332ca279af2c62))
+
+- (**deps-dev**) Bump the dev-dependencies group (#763) ([`bdb0a78`](https://github.com/betagouv/api-engagement/commit/bdb0a78197df47b44b27fb356a47c1463c66fae1))
+
+- (**deps**) Bump the production-dependencies group (#766) ([`4850efb`](https://github.com/betagouv/api-engagement/commit/4850efb311b2898d68980e9fca5da33efb0dccd9))
+
+- (**deps-dev**) Bump the dev-dependencies group in /api with 3 updates (#764) ([`f1ae1b4`](https://github.com/betagouv/api-engagement/commit/f1ae1b40515df722b745958b2fad85d3c1a615bc))
+
+- (**deps**) Bump the production-dependencies group (#762) ([`a0a00ae`](https://github.com/betagouv/api-engagement/commit/a0a00aede06f85f0da77219ae7841b123476314c))
+
+- (**api**) Delete mongo forever (#761) ([`bf6e24d`](https://github.com/betagouv/api-engagement/commit/bf6e24d99429c2487cc8bfa85edafdc43feeccad))
+
+- (**deps**) Bump @sentry/nextjs (#737) ([`150d9b4`](https://github.com/betagouv/api-engagement/commit/150d9b49e520874ca00349ea9b9e026f0bc6546f))
+
+- (**deps-dev**) Bump the dev-dependencies group in /app with 2 updates (#731) ([`6de07f6`](https://github.com/betagouv/api-engagement/commit/6de07f62e286ab876553db621d9f090061efe0c5))
+
+- (**deps-dev**) Bump the dev-dependencies group in /api with 2 updates (#732) ([`127bb48`](https://github.com/betagouv/api-engagement/commit/127bb4812f0261d0f3fa572b41a1a3d6d0a69a6a))
+
+- (**deps**) Bump the production-dependencies group (#733) ([`b59af7f`](https://github.com/betagouv/api-engagement/commit/b59af7f66da7328d5a6dd98e16fad9dfa5dbdb1a))
+
+- (**deps-dev**) Bump the dev-dependencies group (#734) ([`13fc895`](https://github.com/betagouv/api-engagement/commit/13fc8958fe677aed91ae413f65607daef9a59413))
+
+- (**deps**) Bump the production-dependencies group (#735) ([`55b1d11`](https://github.com/betagouv/api-engagement/commit/55b1d1104fad046a25aeb164f07dd23747052241))
+
+
+### Refactoring
+
+- (**widget**) Unhandle exception to sentry (#789) ([`8d98331`](https://github.com/betagouv/api-engagement/commit/8d983312c17c8ce112840df4b47989a7055459e3))
+
+- (**widget**) Widget containers configuration (#786) ([`11dfd71`](https://github.com/betagouv/api-engagement/commit/11dfd71592bd0284edda36dfa26b779fcdc056f2))
+
+- (**widget**) Fetch missions in frontend (#785) ([`22d8920`](https://github.com/betagouv/api-engagement/commit/22d8920f0a8ca68cad3181e6d15917c44e64dc8e))
+
+- (**api**) Optimized search widget rules (#782) ([`8338906`](https://github.com/betagouv/api-engagement/commit/83389066f10276ae3148fa351d8686d29bcba864))
+
+- (**api**) Move mission activities to N-N junction table (#757) ([`4e5aa68`](https://github.com/betagouv/api-engagement/commit/4e5aa68b8350a98f6e69b82e5ac35254067548af))
+
+- (**api**) Mission address index update (#776) ([`a39be1a`](https://github.com/betagouv/api-engagement/commit/a39be1a87b1f2f926d414e52adcfd8b28ce17beb))
+
+- (**api**) Remove old matarial views with stats path (#772) ([`981d1e9`](https://github.com/betagouv/api-engagement/commit/981d1e94563119e98a34656d7d89a492127e64c7))
+
+- (**api**) Change script moderation cleaning ([`b5a19ba`](https://github.com/betagouv/api-engagement/commit/b5a19baeb08c4ba155ce04f5a2be88477d5d53a5))
+
+- (**jobs,app,widget**) Change api adresse dns (#756) ([`cfe4f6c`](https://github.com/betagouv/api-engagement/commit/cfe4f6c11f03cb7140d915cbfc1dc8488ddcead0))
+
+- (**app**) Revamp public-stats with metabase cards (#748) ([`8f71e32`](https://github.com/betagouv/api-engagement/commit/8f71e3256a8978b6947ca93b9eb1385ba8b456c0))
+
+
+### Testing
+
+- (**api**) Add widget endpoints integration tests (#750) ([`fa43baf`](https://github.com/betagouv/api-engagement/commit/fa43bafe845853eb71390c920ef497d3fc04305f))
+
+# API Engagement - Changelog
+Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
+
+
 ## 09/02/2026
 
 
