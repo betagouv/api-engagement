@@ -112,11 +112,7 @@ const normalizeCampaign = (doc: MongoCampaignDocument, publishers: PublisherReco
 };
 
 const migrateCampaigns = async () => {
-  const [{ mongoConnected }, { pgConnected, prismaCore }, { campaignService }] = await Promise.all([
-    import("@/db/mongo"),
-    import("@/db/postgres"),
-    import("@/services/campaign"),
-  ]);
+  const [{ mongoConnected }, { pgConnected, prismaCore }, { campaignService }] = await Promise.all([import("@/db/mongo"), import("@/db/postgres"), import("@/services/campaign")]);
 
   await mongoConnected;
   await pgConnected;
@@ -135,7 +131,7 @@ const migrateCampaigns = async () => {
   let skipped = 0;
   let errors = 0;
 
-  const publishers = (await prismaCore.publisher.findMany()) as PublisherRecord[];
+  const publishers = (await prisma.publisher.findMany()) as PublisherRecord[];
 
   while (await cursor.hasNext()) {
     const doc = (await cursor.next()) as MongoCampaignDocument;
@@ -237,7 +233,7 @@ const migrateCampaigns = async () => {
     `[MigrateCampaigns] Completed. Processed: ${processed}, created: ${created}, updated: ${updated}, skipped: ${skipped}, errors: ${errors}, dry-run: ${options.dryRun}`
   );
 
-  await Promise.allSettled([mongoose.connection.close(), prismaCore.$disconnect()]);
+  await Promise.allSettled([mongoose.connection.close(), prisma.$disconnect()]);
 };
 
 migrateCampaigns()
@@ -248,7 +244,7 @@ migrateCampaigns()
     console.error("[MigrateCampaigns] Unexpected error:", error);
     try {
       const { prismaCore } = await import("@/db/postgres");
-      await Promise.allSettled([mongoose.connection.close(), prismaCore.$disconnect()]);
+      await Promise.allSettled([mongoose.connection.close(), prisma.$disconnect()]);
     } catch {
       await Promise.allSettled([mongoose.connection.close()]);
     }

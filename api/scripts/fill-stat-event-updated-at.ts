@@ -1,4 +1,4 @@
-import { prismaCore } from "@/db/postgres";
+import { prisma } from "@/db/postgres";
 
 const parseBatchSize = () => {
   const argIndex = process.argv.indexOf("--batch");
@@ -27,7 +27,7 @@ async function backfill() {
   while (true) {
     const where = lastId ? { id: { gt: lastId } } : undefined;
 
-    const batch = await prismaCore.statEvent.findMany({
+    const batch = await prisma.statEvent.findMany({
       where,
       select: { id: true, createdAt: true, updatedAt: true },
       orderBy: { id: "asc" },
@@ -43,7 +43,7 @@ async function backfill() {
     if (ids.length > 0) {
       const placeholders = ids.map((_, index) => `$${index + 1}`).join(", ");
       const sql = `UPDATE "stat_event" SET updated_at = created_at WHERE id IN (${placeholders})`;
-      await prismaCore.$executeRawUnsafe(sql, ...ids);
+      await prisma.$executeRawUnsafe(sql, ...ids);
 
       total += ids.length;
       console.log(`Set updated_at for ${total} rows [cursor: ${lastId}]`);
@@ -62,5 +62,5 @@ backfill()
     process.exit(1);
   })
   .finally(async () => {
-    await prismaCore.$disconnect();
+    await prisma.$disconnect();
   });

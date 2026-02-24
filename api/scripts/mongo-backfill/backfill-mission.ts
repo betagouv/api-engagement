@@ -2,7 +2,7 @@ import { randomUUID } from "crypto";
 import mongoose from "mongoose";
 
 import type { JobBoardId, Prisma, PrismaClient } from "@/db/core";
-import { asString, asStringArray, toMongoObjectIdString } from "./utils/cast";
+import { asString, toMongoObjectIdString } from "./utils/cast";
 import { compareBooleans, compareDates, compareJsons, compareNumbers, compareStringArrays, compareStrings } from "./utils/compare";
 import { normalizeDate, normalizeNumber } from "./utils/normalize";
 import { loadEnvironment, parseScriptOptions, type ScriptOptions } from "./utils/options";
@@ -313,9 +313,13 @@ const normalizeAddresses = (
 
 const formatLocalisation = (parts: Array<string | null | undefined>) => parts.filter(Boolean).join(", ") || "France";
 
-const computeLetudiantLocalisations = (
-  mission: { remote: Prisma.MissionRemote | null; addresses: NormalizedMissionData["addresses"]; organizationCity?: string | null; organizationDepartment?: string | null; organizationCountry?: string | null }
-): Array<{ missionAddressId: string | null; localisationKey: string }> => {
+const computeLetudiantLocalisations = (mission: {
+  remote: Prisma.MissionRemote | null;
+  addresses: NormalizedMissionData["addresses"];
+  organizationCity?: string | null;
+  organizationDepartment?: string | null;
+  organizationCountry?: string | null;
+}): Array<{ missionAddressId: string | null; localisationKey: string }> => {
   if (mission.remote === "full" || mission.addresses.length === 0) {
     const formatted = formatLocalisation([mission.organizationCity, mission.organizationDepartment, mission.organizationCountry ?? "France"]);
     return [{ missionAddressId: null, localisationKey: mission.remote === "full" ? "A distance" : formatted }];
@@ -725,8 +729,7 @@ const sortAddresses = (addresses: ComparableMission["addresses"]) =>
     return (a.street ?? "").localeCompare(b.street ?? "");
   });
 
-const sortModerationStatuses = (statuses: ComparableMission["moderationStatuses"]) =>
-  [...statuses].sort((a, b) => a.publisherId.localeCompare(b.publisherId));
+const sortModerationStatuses = (statuses: ComparableMission["moderationStatuses"]) => [...statuses].sort((a, b) => a.publisherId.localeCompare(b.publisherId));
 
 const sortJobBoards = (jobBoards: ComparableMission["jobBoards"]) =>
   [...jobBoards].sort((a, b) => {
@@ -812,14 +815,14 @@ const persistBatch = async (
     const cached = domainCache.get(trimmed);
     if (cached) return cached;
 
-    const existing = await prismaCore.domain.findUnique({ where: { name: trimmed }, select: { id: true } });
+    const existing = await prisma.domain.findUnique({ where: { name: trimmed }, select: { id: true } });
     if (existing) {
       const value = { id: existing.id };
       domainCache.set(trimmed, value);
       return value;
     }
 
-    const created = await prismaCore.domain.create({ data: { name: trimmed } });
+    const created = await prisma.domain.create({ data: { name: trimmed } });
     const value = { id: created.id };
     domainCache.set(trimmed, value);
     return value;
@@ -844,13 +847,13 @@ const persistBatch = async (
     const cached = activityCache.get(trimmed);
     if (cached) return cached;
 
-    const existing = await prismaCore.activity.findUnique({ where: { name: trimmed }, select: { id: true } });
+    const existing = await prisma.activity.findUnique({ where: { name: trimmed }, select: { id: true } });
     if (existing) {
       activityCache.set(trimmed, existing);
       return existing;
     }
 
-    const created = await prismaCore.activity.create({ data: { name: trimmed } });
+    const created = await prisma.activity.create({ data: { name: trimmed } });
     const value = { id: created.id };
     activityCache.set(trimmed, value);
     return value;
@@ -868,7 +871,7 @@ const persistBatch = async (
   }
 
   const organizationIds = Array.from(new Set(batch.map(({ mission }) => mission.organizationId).filter((id): id is string => typeof id === "string" && id.length > 0)));
-  const existingOrganizations = organizationIds.length ? await prismaCore.organization.findMany({ where: { id: { in: organizationIds } }, select: { id: true } }) : [];
+  const existingOrganizations = organizationIds.length ? await prisma.organization.findMany({ where: { id: { in: organizationIds } }, select: { id: true } }) : [];
   const validOrganizationIds = new Set(existingOrganizations.map((org) => org.id));
 
   const normalizeOrganizationId = <T extends { organizationId?: any }>(input: T): T => {
@@ -895,7 +898,7 @@ const persistBatch = async (
       const missionData = batch.map((entry) => normalizeOrganizationId(entry.mission)) as Prisma.MissionCreateManyInput[];
       const missionIds = missionData.map((entry) => entry.id).filter((id): id is string => typeof id === "string" && id.length > 0);
 
-      const { insertedMissionIds, insertedMissionCount } = await prismaCore.$transaction(async (tx) => {
+      const { insertedMissionIds, insertedMissionCount } = await prisma.$transaction(async (tx) => {
         const createdMissions = await tx.mission.createMany({ data: missionData, skipDuplicates: true });
         const persisted = missionIds.length ? await tx.mission.findMany({ where: { id: { in: missionIds } }, select: { id: true } }) : [];
         const insertedMissionIds = new Set(persisted.map((entry) => entry.id));
@@ -924,9 +927,7 @@ const persistBatch = async (
         stats.skipped += missing.length;
         console.warn(`[${SCRIPT_NAME}] Bulk insert skipped ${missing.length} mission(s) (likely duplicates)`);
         for (const entry of missing.slice(0, 3)) {
-          console.warn(
-            `[${SCRIPT_NAME}] Bulk insert skipped mission: ${entry.log.id} (clientId=${entry.log.clientId}, publisherId=${entry.log.publisherId})`
-          );
+          console.warn(`[${SCRIPT_NAME}] Bulk insert skipped mission: ${entry.log.id} (clientId=${entry.log.clientId}, publisherId=${entry.log.publisherId})`);
         }
       }
 
@@ -937,7 +938,7 @@ const persistBatch = async (
   }
 
   const ids = batch.map(({ mission }) => mission.id as string);
-  const existingRecords = await prismaCore.mission.findMany({
+  const existingRecords = await prisma.mission.findMany({
     where: { id: { in: ids } },
     include: { domain: true, activity: true, addresses: true, moderationStatuses: true, jobBoards: true },
   });
@@ -954,7 +955,7 @@ const persistBatch = async (
         }
       } else {
         try {
-          await prismaCore.$transaction(async (tx) => {
+          await prisma.$transaction(async (tx) => {
             const data = normalizeOrganizationId(entry.mission);
             await tx.mission.create({ data });
             if (entry.addresses.length) {
@@ -994,7 +995,7 @@ const persistBatch = async (
       }
     } else {
       try {
-        await prismaCore.$transaction(async (tx) => {
+        await prisma.$transaction(async (tx) => {
           const updateData = normalizeOrganizationId(entry.update);
           await tx.mission.update({ where: { id: entry.mission.id as string }, data: updateData });
           await tx.missionAddress.deleteMany({ where: { missionId: entry.mission.id as string } });
@@ -1024,7 +1025,7 @@ const persistBatch = async (
 const cleanup = async () => {
   try {
     const { prismaCore } = await import("@/db/postgres");
-    await Promise.allSettled([prismaCore.$disconnect(), mongoose.connection.close()]);
+    await Promise.allSettled([prisma.$disconnect(), mongoose.connection.close()]);
   } catch {
     await Promise.allSettled([mongoose.connection.close()]);
   }
@@ -1037,7 +1038,7 @@ const main = async () => {
   await Promise.all([mongoConnected, pgConnected]);
 
   if (options.bulkInsert && !options.dryRun) {
-    const existingCount = await prismaCore.mission.count();
+    const existingCount = await prisma.mission.count();
     if (existingCount > 0) {
       throw new Error(`[${SCRIPT_NAME}] Refusing bulk insert: destination mission table is not empty (count=${existingCount})`);
     }
@@ -1089,7 +1090,10 @@ const main = async () => {
 
   if (options.dryRun) {
     console.log(`[${SCRIPT_NAME}] Sample creates`, sampleCreates.slice(0, 3).map(formatForLog));
-    console.log(`[${SCRIPT_NAME}] Sample updates`, sampleUpdates.slice(0, 3).map(({ before, after }) => ({ before: before.mission, after: after.mission })));
+    console.log(
+      `[${SCRIPT_NAME}] Sample updates`,
+      sampleUpdates.slice(0, 3).map(({ before, after }) => ({ before: before.mission, after: after.mission }))
+    );
   }
 };
 

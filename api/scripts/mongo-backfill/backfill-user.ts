@@ -212,7 +212,7 @@ const formatRecordForLog = (record: UserRecord) => ({
 const cleanup = async () => {
   try {
     const { prismaCore } = await import("@/db/postgres");
-    await Promise.allSettled([prismaCore.$disconnect(), mongoose.connection.close()]);
+    await Promise.allSettled([prisma.$disconnect(), mongoose.connection.close()]);
   } catch {
     await Promise.allSettled([mongoose.connection.close()]);
   }

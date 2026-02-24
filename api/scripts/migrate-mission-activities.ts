@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import { ACTIVITIES } from "@/constants/activity";
-import { prismaCore } from "@/db/postgres";
+import { prisma } from "@/db/postgres";
 import { activityService } from "@/services/activity";
 
 const DRY_RUN = process.argv.includes("--dry-run");
@@ -14,19 +14,19 @@ const DRY_RUN = process.argv.includes("--dry-run");
  * No activity will be deleted: activity_id legacy field will be keeped for now
  */
 const run = async () => {
-  await prismaCore.$connect();
+  await prisma.$connect();
   console.log(`[MigrateActivities] Connected (DRY_RUN=${DRY_RUN})`);
 
   // Upsert existing activities
   const activityIdMap = new Map<string, string>();
   for (const label of Object.values(ACTIVITIES)) {
-    const existing = await prismaCore.activity.findUnique({ where: { name: label }, select: { id: true } });
+    const existing = await prisma.activity.findUnique({ where: { name: label }, select: { id: true } });
     if (existing) {
       activityIdMap.set(label, existing.id);
     } else if (DRY_RUN) {
       console.log(`  [DryRun] Would create activity: "${label}"`);
     } else {
-      const created = await prismaCore.activity.create({ data: { name: label } });
+      const created = await prisma.activity.create({ data: { name: label } });
       activityIdMap.set(label, created.id);
       console.log(`  Created activity: "${label}" (${created.id})`);
     }
@@ -34,13 +34,13 @@ const run = async () => {
   console.log(`[MigrateActivities] Activity table ready (${activityIdMap.size} whitelisted)`);
 
   // Find missions with legacy field
-  const missions = await prismaCore.mission.findMany({
+  const missions = await prisma.mission.findMany({
     where: { activityId: { not: null } },
     select: { id: true, activityId: true },
   });
   console.log(`[MigrateActivities] ${missions.length} missions avec activityId`);
 
-  const legacyActivities = await prismaCore.activity.findMany({ select: { id: true, name: true } });
+  const legacyActivities = await prisma.activity.findMany({ select: { id: true, name: true } });
   const nameById = new Map(legacyActivities.map((a) => [a.id, a.name]));
 
   // Migrate data
@@ -66,7 +66,7 @@ const run = async () => {
     } else {
       const targetIds = resolved.map((label) => activityIdMap.get(label)).filter((id): id is string => !!id);
       try {
-        await prismaCore.missionActivity.createMany({
+        await prisma.missionActivity.createMany({
           data: targetIds.map((activityId) => ({ missionId, activityId })),
           skipDuplicates: true,
         });
@@ -89,7 +89,7 @@ const run = async () => {
 };
 
 const shutdown = async (exitCode: number) => {
-  await prismaCore.$disconnect().catch(() => undefined);
+  await prisma.$disconnect().catch(() => undefined);
   process.exit(exitCode);
 };
 

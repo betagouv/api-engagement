@@ -199,7 +199,7 @@ const migrateOrganizations = async () => {
 
   console.log(`[MigrateOrganizations] Completed. Processed: ${processed}, created: ${created}, updated: ${updated}, errors: ${errors}, dry-run: ${options.dryRun}`);
 
-  await Promise.allSettled([mongoose.connection.close(), prismaCore.$disconnect()]);
+  await Promise.allSettled([mongoose.connection.close(), prisma.$disconnect()]);
 };
 
 migrateOrganizations()
@@ -210,7 +210,7 @@ migrateOrganizations()
     console.error("[MigrateOrganizations] Unexpected error:", error);
     try {
       const { prismaCore } = await import("@/db/postgres");
-      await Promise.allSettled([mongoose.connection.close(), prismaCore.$disconnect()]);
+      await Promise.allSettled([mongoose.connection.close(), prisma.$disconnect()]);
     } catch {
       await Promise.allSettled([mongoose.connection.close()]);
     }
