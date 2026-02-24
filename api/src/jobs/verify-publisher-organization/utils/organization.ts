@@ -1,11 +1,11 @@
-import { DEPARTMENTS } from "../../../constants/departments";
-import { captureException } from "../../../error";
-import apiDatasubvention from "../../../services/api-datasubvention";
-import { organizationService } from "../../../services/organization";
-import publisherOrganizationService from "../../../services/publisher-organization";
-import { OrganizationCreateInput, OrganizationRecord, OrganizationUpdatePatch } from "../../../types/organization";
-import { PublisherOrganizationUpdateInput } from "../../../types/publisher-organization";
-import { isBlank } from "../../../utils";
+import { DEPARTMENTS } from "@/constants/departments";
+import { captureException } from "@/error";
+import apiDatasubvention from "@/services/api-datasubvention";
+import { organizationService } from "@/services/organization";
+import publisherOrganizationService from "@/services/publisher-organization";
+import { OrganizationCreateInput, OrganizationRecord, OrganizationUpdatePatch } from "@/types/organization";
+import { PublisherOrganizationUpdateInput } from "@/types/publisher-organization";
+import { isBlank } from "@/utils";
 
 export const getDepartement = (postalCode: string): { code: string; name: string; region: string } | null => {
   if (!postalCode) {

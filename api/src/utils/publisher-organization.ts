@@ -1,5 +1,5 @@
-import { PublisherOrganizationRecord } from "../types/publisher-organization";
-import { parseDate } from "./string";
+import { PublisherOrganizationRecord } from "@/types/publisher-organization";
+import { parseDate } from "@/utils/parser";
 
 export const IMPORT_FIELDS_TO_COMPARE = [
   "name",

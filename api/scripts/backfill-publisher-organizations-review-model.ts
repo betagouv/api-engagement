@@ -12,7 +12,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { prismaCore } from "../src/db/postgres";
+import { prismaCore } from "@/db/postgres";
 
 const DRY_RUN = process.argv.includes("--dry-run");
 

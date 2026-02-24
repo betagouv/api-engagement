@@ -1,12 +1,12 @@
-import { Prisma } from "../db/core";
-import { publisherOrganizationRepository } from "../repositories/publisher-organization";
+import { Prisma, PublisherOrganization } from "@/db/core";
+import { publisherOrganizationRepository } from "@/repositories/publisher-organization";
 import {
   PublisherOrganizationFindManyOptions,
   PublisherOrganizationFindParams,
   PublisherOrganizationRecord,
   PublisherOrganizationUpdateInput,
   PublisherOrganizationWithRelations,
-} from "../types/publisher-organization";
+} from "@/types/publisher-organization";
 
 const buildWhere = (params: PublisherOrganizationFindParams): Prisma.PublisherOrganizationWhereInput => {
   const where: Prisma.PublisherOrganizationWhereInput = {
@@ -110,6 +110,9 @@ const publisherOrganizationService = {
     return publisherOrganizationRepository.update(id, data, {
       include: { organizationVerified: { select: { id: true, rna: true, siren: true } } },
     }) as Promise<PublisherOrganizationWithRelations>;
+  },
+  groupBy: async (by: (keyof PublisherOrganization)[], where: Prisma.PublisherOrganizationWhereInput) => {
+    return publisherOrganizationRepository.groupBy(by, where);
   },
 };
 

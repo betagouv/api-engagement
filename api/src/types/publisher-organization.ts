@@ -1,5 +1,5 @@
-import { Prisma } from "../db/core";
-import { OrganizationRecord } from "./organization";
+import { Prisma } from "@/db/core";
+import { OrganizationRecord } from "@/types/organization";
 
 export interface PublisherOrganizationFindParams {
   id?: string;

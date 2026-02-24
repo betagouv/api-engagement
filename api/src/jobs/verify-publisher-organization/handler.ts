@@ -1,9 +1,9 @@
-import { ORGANIZATION_VERIFICATION_STATUS } from "../../constants/organization-verification";
-import { captureException } from "../../error";
-import publisherOrganizationService from "../../services/publisher-organization";
-import { normalizeName, normalizeRNA, normalizeSiret } from "../../utils";
-import { BaseHandler } from "../base/handler";
-import { JobResult } from "../types";
+import { ORGANIZATION_VERIFICATION_STATUS } from "@/constants/organization-verification";
+import { captureException } from "@/error";
+import { BaseHandler } from "@/jobs/base/handler";
+import { JobResult } from "@/jobs/types";
+import publisherOrganizationService from "@/services/publisher-organization";
+import { normalizeName, normalizeRNA, normalizeSiret } from "@/utils";
 import { findByName, findByRNA, findBySiret, updatePublisherOrganization } from "./utils/organization";
 
 const CHUNK_SIZE = 500;

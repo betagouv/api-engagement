@@ -4,8 +4,8 @@
  * Ces builders créent des objets typés SANS insertion en base.
  * Pour les tests d'intégration (insertion Prisma), voir `tests/fixtures/`.
  */
-import { PublisherMissionType, type PublisherRecord } from "../../../../types/publisher";
-import type { MissionXML } from "../../types";
+import type { MissionXML } from "@/jobs/import-missions/types";
+import { PublisherMissionType, type PublisherRecord } from "@/types/publisher";
 
 export const buildPublisher = (overrides: Partial<PublisherRecord> = {}): PublisherRecord => ({
   _id: "publisher-id",
