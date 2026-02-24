@@ -99,6 +99,7 @@ export type MissionRecord = {
   country: string | null;
   location: MissionLocation | null;
   addresses: MissionAddress[];
+  publisherOrganizationId: string | null;
   organizationId: string | null;
   organizationClientId: string | null;
   organizationUrl: string | null;
@@ -110,9 +111,6 @@ export type MissionRecord = {
   organizationRNA: string | null;
   organizationSiren: string | null;
   organizationSiret: string | null;
-  organizationDepartment: string | null;
-  organizationDepartmentCode: string | null;
-  organizationDepartmentName: string | null;
   organizationPostCode: string | null;
   organizationCity: string | null;
   organizationStatusJuridique: string | null;
@@ -123,14 +121,6 @@ export type MissionRecord = {
   organizationRNAVerified: string | null;
   organizationSirenVerified: string | null;
   organizationSiretVerified: string | null;
-  organizationAddressVerified: string | null;
-  organizationCityVerified: string | null;
-  organizationPostalCodeVerified: string | null;
-  organizationDepartmentCodeVerified: string | null;
-  organizationDepartmentNameVerified: string | null;
-  organizationRegionVerified: string | null;
-  organizationVerificationStatus: string | null;
-  organisationIsRUP: boolean | null;
   lastSyncAt: Date | null;
   applicationUrl: string | null;
   statusCode: MissionStatusCode;
@@ -168,6 +158,7 @@ export type MissionSearchFilters = {
   departmentName?: string[];
   domain?: string[];
   keywords?: string;
+  organizationName?: string[];
   organizationRNA?: string[];
   organizationStatusJuridique?: string[];
   openToMinors?: boolean;
@@ -181,7 +172,6 @@ export type MissionSearchFilters = {
   deletedAt?: { gt?: Date; lt?: Date };
   includeDeleted?: boolean;
   schedule?: string[];
-  organizationName?: string[];
   countryNot?: string[];
   type?: string[];
   lat?: number;
