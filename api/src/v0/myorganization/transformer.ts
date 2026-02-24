@@ -1,4 +1,4 @@
-import type { PublisherRecord } from "../../types/publisher";
+import type { PublisherRecord } from "@/types/publisher";
 
 export const buildPublisherData = (publisher: PublisherRecord, clicks: number, isExcluded: boolean) => {
   return {

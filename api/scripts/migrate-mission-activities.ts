@@ -1,9 +1,9 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { ACTIVITIES } from "../src/constants/activity";
-import { prismaCore } from "../src/db/postgres";
-import { activityService } from "../src/services/activity";
+import { ACTIVITIES } from "@/constants/activity";
+import { prismaCore } from "@/db/postgres";
+import { activityService } from "@/services/activity";
 
 const DRY_RUN = process.argv.includes("--dry-run");
 

@@ -1,6 +1,6 @@
-import { API_URL } from "../config";
-import { MissionRecord } from "../types/mission";
-import { JobBoardId, MissionJobBoardSyncStatus } from "../types/mission-job-board";
+import { API_URL } from "@/config";
+import { MissionRecord } from "@/types/mission";
+import { JobBoardId, MissionJobBoardSyncStatus } from "@/types/mission-job-board";
 import { parseDate } from "./parser";
 import { slugify } from "./string";
 

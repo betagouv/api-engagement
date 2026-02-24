@@ -2,15 +2,15 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { INVALID_BODY, INVALID_PARAMS } from "../../error";
-import { missionService } from "../../services/mission";
-import { publisherService } from "../../services/publisher";
-import { publisherDiffusionExclusionService } from "../../services/publisher-diffusion-exclusion";
-import { statEventService } from "../../services/stat-event";
-import { PublisherRequest } from "../../types/passport";
-import type { PublisherRecord } from "../../types/publisher";
-import { PublisherDiffusionExclusionCreateManyInput } from "../../types/publisher-diffusion-exclusion";
-import { buildPublisherData } from "./transformer";
+import { INVALID_BODY, INVALID_PARAMS } from "@/error";
+import { missionService } from "@/services/mission";
+import { publisherService } from "@/services/publisher";
+import { publisherDiffusionExclusionService } from "@/services/publisher-diffusion-exclusion";
+import { statEventService } from "@/services/stat-event";
+import { PublisherRequest } from "@/types/passport";
+import type { PublisherRecord } from "@/types/publisher";
+import { PublisherDiffusionExclusionCreateManyInput } from "@/types/publisher-diffusion-exclusion";
+import { buildPublisherData } from "@/v0/myorganization/transformer";
 const router = Router();
 
 router.get("/:organizationClientId", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {

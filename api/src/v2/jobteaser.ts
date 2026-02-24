@@ -2,13 +2,13 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { SLACK_JOBTEASER_CHANNEL_ID } from "../config";
-import { JobBoardId } from "../db/core";
-import { INVALID_BODY, NOT_FOUND } from "../error";
-import { missionService } from "../services/mission";
-import missionJobBoardService from "../services/mission-jobboard";
-import { postMessage } from "../services/slack";
-import { PublisherRequest } from "../types/passport";
+import { SLACK_JOBTEASER_CHANNEL_ID } from "@/config";
+import { JobBoardId } from "@/db/core";
+import { INVALID_BODY, NOT_FOUND } from "@/error";
+import { missionService } from "@/services/mission";
+import missionJobBoardService from "@/services/mission-jobboard";
+import { postMessage } from "@/services/slack";
+import { PublisherRequest } from "@/types/passport";
 
 const router = Router();
 

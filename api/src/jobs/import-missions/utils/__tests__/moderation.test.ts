@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { COUNTRIES } from "../../../../constants/countries";
-import { DOMAINS } from "../../../../constants/domains";
-import { MissionRecord } from "../../../../types/mission";
-import { getModeration } from "../moderation";
+import { COUNTRIES } from "@/constants/countries";
+import { DOMAINS } from "@/constants/domains";
+import { MissionRecord } from "@/types/mission";
+import { getModeration } from "@/jobs/import-missions/utils/moderation";
 
 describe("getModeration", () => {
   let mission: Partial<MissionRecord>;

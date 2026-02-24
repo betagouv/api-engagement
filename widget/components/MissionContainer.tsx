@@ -1,4 +1,4 @@
-import { Mission, Widget } from "../types";
+import { Mission, Widget } from "@/types";
 import Carousel from "./Carousel";
 import Grid from "./Grid";
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { RiSettings3Fill } from "react-icons/ri";
-import Modal from "../../../../components/New-Modal";
+import Modal from "@/components/New-Modal";
 
 const SettingsModal = () => {
   const [isOpen, setIsOpen] = useState(false);

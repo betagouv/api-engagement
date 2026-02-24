@@ -1,5 +1,5 @@
-import { Prisma, Widget } from "../db/core";
-import { prismaCore } from "../db/postgres";
+import { Prisma, Widget } from "@/db/core";
+import { prismaCore } from "@/db/postgres";
 
 const defaultInclude = Prisma.validator<Prisma.WidgetInclude>()({
   fromPublisher: { select: { id: true, name: true } },

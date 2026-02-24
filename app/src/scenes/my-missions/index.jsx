@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, Route, Routes, useLocation } from "react-router-dom";
 
-import api from "../../services/api";
-import { captureError } from "../../services/error";
-import useStore from "../../services/store";
-import Flux from "./Flux";
-import Moderation from "./Moderation";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import useStore from "@/services/store";
+import Flux from "@/scenes/my-missions/Flux";
+import Moderation from "@/scenes/my-missions/Moderation";
 
 const MyMissions = () => {
   const { publisher } = useStore();

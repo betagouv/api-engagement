@@ -1,6 +1,6 @@
-import { Prisma, WarningBot as PrismaWarningBot } from "../db/core";
-import { warningBotRepository } from "../repositories/warning-bot";
-import type { WarningBotCreateInput, WarningBotRecord, WarningBotUpdatePatch } from "../types/warning-bot";
+import { Prisma, WarningBot as PrismaWarningBot } from "@/db/core";
+import { warningBotRepository } from "@/repositories/warning-bot";
+import type { WarningBotCreateInput, WarningBotRecord, WarningBotUpdatePatch } from "@/types/warning-bot";
 
 type WarningBotWithPublisher = PrismaWarningBot & {
   publisher: {

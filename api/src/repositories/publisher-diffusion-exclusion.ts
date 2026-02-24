@@ -1,5 +1,5 @@
-import { Prisma, PublisherDiffusionExclusion } from "../db/core";
-import { prismaCore } from "../db/postgres";
+import { Prisma, PublisherDiffusionExclusion } from "@/db/core";
+import { prismaCore } from "@/db/postgres";
 
 export const publisherDiffusionExclusionRepository = {
   async findMany(params: Prisma.PublisherDiffusionExclusionFindManyArgs = {}): Promise<PublisherDiffusionExclusion[]> {

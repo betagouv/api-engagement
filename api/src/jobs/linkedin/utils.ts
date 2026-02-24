@@ -1,12 +1,12 @@
 import { XMLBuilder } from "fast-xml-parser";
 
-import { Prisma } from "../../db/core";
-import { buildWhere, missionService } from "../../services/mission";
-import { OBJECT_ACL, putObject } from "../../services/s3";
-import { MissionRecord, MissionSearchFilters } from "../../types/mission";
-import { AUDIENCE_MAPPING, DOMAIN_MAPPING, LINKEDIN_XML_URL } from "./config";
-import { missionToLinkedinJob } from "./transformers";
-import { LinkedInJob } from "./types";
+import { Prisma } from "@/db/core";
+import { buildWhere, missionService } from "@/services/mission";
+import { OBJECT_ACL, putObject } from "@/services/s3";
+import { MissionRecord, MissionSearchFilters } from "@/types/mission";
+import { AUDIENCE_MAPPING, DOMAIN_MAPPING, LINKEDIN_XML_URL } from "@/jobs/linkedin/config";
+import { missionToLinkedinJob } from "@/jobs/linkedin/transformers";
+import { LinkedInJob } from "@/jobs/linkedin/types";
 
 const DEFAULT_BATCH_SIZE = 500;
 

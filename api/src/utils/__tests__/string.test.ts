@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { capitalizeFirstLetter, hasLetter, hasNumber, hasSpecialChar, slugify } from "../string";
+import { capitalizeFirstLetter, hasLetter, hasNumber, hasSpecialChar, slugify } from "@/utils/string";
 
 describe("String Utils", () => {
   describe("slugify", () => {

@@ -1,9 +1,9 @@
 import request from "supertest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { prismaCore } from "../../../../src/db/postgres";
-import { statBotService } from "../../../../src/services/stat-bot";
-import * as utils from "../../../../src/utils";
+import { prismaCore } from "@/db/postgres";
+import { statBotService } from "@/services/stat-bot";
+import * as utils from "@/utils";
 import { createTestMission, createTestPublisher } from "../../../fixtures";
 import { createClickStat } from "../../../fixtures/stat-event";
 import { createTestApp } from "../../../testApp";

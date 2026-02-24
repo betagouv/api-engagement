@@ -1,5 +1,5 @@
-import { Prisma, StatEvent } from "../db/core";
-import { prismaCore } from "../db/postgres";
+import { Prisma, StatEvent } from "@/db/core";
+import { prismaCore } from "@/db/postgres";
 
 const defaultInclude = Prisma.validator<Prisma.StatEventInclude>()({
   fromPublisher: {

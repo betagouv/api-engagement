@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
 
-import EmptySVG from "../../assets/svg/empty-info.svg";
-import { Pie, StackedBarchart } from "../../components/Chart";
-import DateRangePicker from "../../components/DateRangePicker";
-import Loader from "../../components/Loader";
-import Table from "../../components/Table";
-import Tabs from "../../components/Tabs";
-import { METABASE_CARD_ID, MONTHS } from "../../constants";
-import { useAnalyticsProvider } from "../../services/analytics/provider";
-import { captureError } from "../../services/error";
-import useStore from "../../services/store";
-import AnalyticsCard from "./AnalyticsCard";
+import EmptySVG from "@/assets/svg/empty-info.svg";
+import { Pie, StackedBarchart } from "@/components/Chart";
+import DateRangePicker from "@/components/DateRangePicker";
+import Loader from "@/components/Loader";
+import Table from "@/components/Table";
+import Tabs from "@/components/Tabs";
+import { METABASE_CARD_ID, MONTHS } from "@/constants";
+import { useAnalyticsProvider } from "@/services/analytics/provider";
+import { captureError } from "@/services/error";
+import useStore from "@/services/store";
+import AnalyticsCard from "@/scenes/performance/AnalyticsCard";
 
 const KEYS = {
   api: "API",

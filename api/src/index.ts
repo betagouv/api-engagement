@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import * as Sentry from "@sentry/node";
-import { ENV, PORT, SENTRY_DSN_API } from "./config";
+import { ENV, PORT, SENTRY_DSN_API } from "@/config";
 
 if (ENV !== "development") {
   Sentry.init({
@@ -47,39 +47,39 @@ import cors from "cors";
 import express, { NextFunction, Request, Response } from "express";
 import path from "path";
 
-import errorHandler from "./middlewares/error-handler";
+import errorHandler from "@/middlewares/error-handler";
 
-import { pgConnectedCore, pgDisconnect } from "./db/postgres";
-import middlewares from "./middlewares";
+import { pgConnectedCore, pgDisconnect } from "@/db/postgres";
+import middlewares from "@/middlewares";
 
-import AdminReportController from "./controllers/admin-report";
-import BrevoWebhookController from "./controllers/brevo-webhook/controller";
-import CampaignController from "./controllers/campaign";
-import IframeController from "./controllers/iframe";
-import ImportController from "./controllers/import";
-import MetabaseController from "./controllers/metabase";
-import MissionController from "./controllers/mission";
-import ModerationController from "./controllers/moderation";
-import ModerationEventController from "./controllers/moderation-event";
-import OrganizationController from "./controllers/organization";
-import PublisherController from "./controllers/publisher";
-import RedirectController from "./controllers/redirect";
-import ReportController from "./controllers/report";
-import StatsController from "./controllers/stats";
-import StatsMeanController from "./controllers/stats-mean/controller";
-import UserController from "./controllers/user";
-import WarningController from "./controllers/warning";
-import WarningBotController from "./controllers/warning-bot";
-import WidgetController from "./controllers/widget";
-import MissionV0Controller from "./v0/mission/controller";
-import MyMissionV0Controller from "./v0/mymission/controller";
-import MyOrganizationV0Controller from "./v0/myorganization/controller";
-import OrganizationV0Controller from "./v0/organization";
-import PublisherV0Controller from "./v0/publisher";
-import ViewV0Controller from "./v0/view";
-import ActivityV2Controller from "./v2/activity";
-import JobTeaserV2Controller from "./v2/jobteaser";
-import LeboncoinV2Controller from "./v2/leboncoin";
+import AdminReportController from "@/controllers/admin-report";
+import BrevoWebhookController from "@/controllers/brevo-webhook/controller";
+import CampaignController from "@/controllers/campaign";
+import IframeController from "@/controllers/iframe";
+import ImportController from "@/controllers/import";
+import MetabaseController from "@/controllers/metabase";
+import MissionController from "@/controllers/mission";
+import ModerationController from "@/controllers/moderation";
+import ModerationEventController from "@/controllers/moderation-event";
+import OrganizationController from "@/controllers/organization";
+import PublisherController from "@/controllers/publisher";
+import RedirectController from "@/controllers/redirect";
+import ReportController from "@/controllers/report";
+import StatsController from "@/controllers/stats";
+import StatsMeanController from "@/controllers/stats-mean/controller";
+import UserController from "@/controllers/user";
+import WarningController from "@/controllers/warning";
+import WarningBotController from "@/controllers/warning-bot";
+import WidgetController from "@/controllers/widget";
+import MissionV0Controller from "@/v0/mission/controller";
+import MyMissionV0Controller from "@/v0/mymission/controller";
+import MyOrganizationV0Controller from "@/v0/myorganization/controller";
+import OrganizationV0Controller from "@/v0/organization";
+import PublisherV0Controller from "@/v0/publisher";
+import ViewV0Controller from "@/v0/view";
+import ActivityV2Controller from "@/v2/activity";
+import JobTeaserV2Controller from "@/v2/jobteaser";
+import LeboncoinV2Controller from "@/v2/leboncoin";
 
 const main = async () => {
   console.log("[API] Waiting for database connections...");

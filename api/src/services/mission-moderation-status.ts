@@ -1,15 +1,15 @@
-import { Mission, MissionModerationStatus, ModerationEventStatus, Prisma } from "../db/core";
-import { activityRepository } from "../repositories/activity";
-import { domainRepository } from "../repositories/domain";
-import { missionRepository } from "../repositories/mission";
-import { missionActivityRepository } from "../repositories/mission-activity";
-import { missionAddressRepository } from "../repositories/mission-address";
-import { missionModerationStatusRepository } from "../repositories/mission-moderation-status";
-import { publisherRepository } from "../repositories/publisher";
-import publisherOrganizationRepository from "../repositories/publisher-organization";
-import { MissionModerationRecord, ModerationFilters } from "../types/mission-moderation-status";
-import { PublisherOrganizationWithRelations } from "../types/publisher-organization";
-import { buildWhere } from "../utils/mission-moderation-status";
+import { Mission, MissionModerationStatus, ModerationEventStatus, Prisma } from "@/db/core";
+import { activityRepository } from "@/repositories/activity";
+import { domainRepository } from "@/repositories/domain";
+import { missionRepository } from "@/repositories/mission";
+import { missionActivityRepository } from "@/repositories/mission-activity";
+import { missionAddressRepository } from "@/repositories/mission-address";
+import { missionModerationStatusRepository } from "@/repositories/mission-moderation-status";
+import { publisherRepository } from "@/repositories/publisher";
+import { MissionModerationRecord, ModerationFilters } from "@/types/mission-moderation-status";
+import { PublisherOrganizationWithRelations } from "@/types/publisher-organization";
+import { buildWhere } from "@/utils/mission-moderation-status";
+import publisherOrganizationService from "./publisher-organization";
 
 export type MissionModerationStatusUpdatePatch = Pick<Prisma.MissionModerationStatusCreateInput, "status" | "comment" | "note" | "title">;
 
@@ -146,7 +146,7 @@ export const missionModerationStatusService = {
 
     const [orgResults, deptResults, cityResults] = await Promise.all([
       // MissionAddress aggregations
-      publisherOrganizationRepository.groupBy(["name"], { missions: { some: missionWhere } } as Prisma.PublisherOrganizationWhereInput),
+      publisherOrganizationService.groupBy(["name"], { missions: { some: missionWhere } } as Prisma.PublisherOrganizationWhereInput),
       missionAddressRepository.groupBy(["departmentCode"], { mission: missionWhere as Prisma.MissionWhereInput } as Prisma.MissionAddressWhereInput),
       missionAddressRepository.groupBy(["city"], { mission: missionWhere as Prisma.MissionWhereInput } as Prisma.MissionAddressWhereInput),
     ]);

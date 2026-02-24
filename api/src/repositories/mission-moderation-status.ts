@@ -1,5 +1,5 @@
-import { MissionModerationStatus, Prisma } from "../db/core";
-import { prismaCore } from "../db/postgres";
+import { MissionModerationStatus, Prisma } from "@/db/core";
+import { prismaCore } from "@/db/postgres";
 
 export const missionModerationStatusRepository = {
   create(params: Prisma.MissionModerationStatusCreateArgs): Promise<MissionModerationStatus> {

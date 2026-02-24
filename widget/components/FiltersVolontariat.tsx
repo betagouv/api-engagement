@@ -2,11 +2,11 @@ import { usePlausible } from "next-plausible";
 import { useEffect, useRef, useState } from "react";
 import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
 
-import { ACCESSIBILITIES, ACTIONS, BENEFICIARIES, DOMAINS, MINORS, SCHEDULES } from "../config";
-import { FilterOptions, Filters, Widget } from "../types";
-import { fetchAggs } from "../utils/api";
-import { buildSearchParams } from "../utils/buildSearchParams";
-import useStore from "../utils/store";
+import { ACCESSIBILITIES, ACTIONS, BENEFICIARIES, DOMAINS, MINORS, SCHEDULES } from "@/config";
+import { FilterOptions, Filters, Widget } from "@/types";
+import { fetchAggs } from "@/utils/api";
+import { buildSearchParams } from "@/utils/buildSearchParams";
+import useStore from "@/utils/store";
 import ComboboxFilter from "./ComboxFilter";
 import DateFilter from "./DateFilter";
 import LocationFilter from "./LocationFilter";

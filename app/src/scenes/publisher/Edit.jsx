@@ -1,20 +1,20 @@
 import _ from "lodash";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { toast } from "../../services/toast";
+import { toast } from "@/services/toast";
 
 import { RiArrowLeftLine } from "react-icons/ri";
-import TrashSvg from "../../assets/svg/trash-icon.svg?react";
-import Loader from "../../components/Loader";
-import api from "../../services/api";
-import { captureError } from "../../services/error";
-import useStore from "../../services/store";
-import { buildPublisherPayload, withLegacyPublisher } from "../../utils/publisher";
-import Administration from "./components/Administration";
-import Annonceur from "./components/Annonceur";
-import Diffuseur from "./components/Diffuseur";
-import Informations from "./components/Informations";
-import Members from "./components/Members";
+import TrashSvg from "@/assets/svg/trash-icon.svg?react";
+import Loader from "@/components/Loader";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import useStore from "@/services/store";
+import { buildPublisherPayload, withLegacyPublisher } from "@/utils/publisher";
+import Administration from "@/scenes/publisher/components/Administration";
+import Annonceur from "@/scenes/publisher/components/Annonceur";
+import Diffuseur from "@/scenes/publisher/components/Diffuseur";
+import Informations from "@/scenes/publisher/components/Informations";
+import Members from "@/scenes/publisher/components/Members";
 
 const Edit = () => {
   const { id } = useParams();

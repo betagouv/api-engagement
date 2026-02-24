@@ -1,9 +1,9 @@
-import { PUBLISHER_IDS } from "../../../config";
-import { captureException } from "../../../error";
-import type { PublisherRecord } from "../../../types/publisher";
-import { normalizeRNA, parseSiren, parseString, parseStringArray } from "../../../utils";
-import { slugify } from "../../../utils/string";
-import { ImportedOrganization, MissionXML } from "../types";
+import { PUBLISHER_IDS } from "@/config";
+import { captureException } from "@/error";
+import { ImportedOrganization, MissionXML } from "@/jobs/import-missions/types";
+import type { PublisherRecord } from "@/types/publisher";
+import { normalizeRNA, parseSiren, parseString, parseStringArray } from "@/utils";
+import { slugify } from "@/utils/string";
 
 export const parseOrganizationClientId = (missionXML: MissionXML) => {
   // Before organizationClientId the id was asked into organizationId field, which has been changed

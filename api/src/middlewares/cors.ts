@@ -1,6 +1,6 @@
-import { ADMIN_SNU_URL, ASSOCIATION_URL, BENEVOLAT_URL, JVA_URL, VOLONTARIAT_URL } from "../config";
+import { ADMIN_SNU_URL, ASSOCIATION_URL, BENEVOLAT_URL, JVA_URL, VOLONTARIAT_URL } from "@/config";
 
-import { APP_URL } from "../config";
+import { APP_URL } from "@/config";
 
 const origin = [
   APP_URL,

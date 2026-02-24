@@ -1,5 +1,5 @@
-import { LoginHistory, Prisma } from "../db/core";
-import { prismaCore } from "../db/postgres";
+import { LoginHistory, Prisma } from "@/db/core";
+import { prismaCore } from "@/db/postgres";
 
 export const loginHistoryRepository = {
   async findMany(params: Prisma.LoginHistoryFindManyArgs = {}): Promise<LoginHistory[]> {

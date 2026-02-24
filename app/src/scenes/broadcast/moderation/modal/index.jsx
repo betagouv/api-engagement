@@ -8,12 +8,12 @@ import Modal from "@/components/Modal";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
-import Header from "./components/Header";
-import HistoryTab from "./components/HistoryTab";
-import MissionTab from "./components/MissionTab";
-import Note from "./components/Note";
-import Organization from "./components/Organization";
-import OrganizationTab from "./components/OrganizationTab";
+import Header from "@/scenes/broadcast/moderation/modal/components/Header";
+import HistoryTab from "@/scenes/broadcast/moderation/modal/components/HistoryTab";
+import MissionTab from "@/scenes/broadcast/moderation/modal/components/MissionTab";
+import Note from "@/scenes/broadcast/moderation/modal/components/Note";
+import Organization from "@/scenes/broadcast/moderation/modal/components/Organization";
+import OrganizationTab from "@/scenes/broadcast/moderation/modal/components/OrganizationTab";
 
 const MissionModal = ({ onChange }) => {
   const { publisher } = useStore();

@@ -1,10 +1,10 @@
-import { SLACK_CRON_CHANNEL_ID } from "../../config";
-import { captureException } from "../../error";
-import { postMessage } from "../../services/slack";
-import { BaseHandler } from "../base/handler";
-import { JobResult } from "../types";
-import { generateReports } from "./generate";
-import { sendReports } from "./send";
+import { SLACK_CRON_CHANNEL_ID } from "@/config";
+import { captureException } from "@/error";
+import { postMessage } from "@/services/slack";
+import { BaseHandler } from "@/jobs/base/handler";
+import { JobResult } from "@/jobs/types";
+import { generateReports } from "@/jobs/report/generate";
+import { sendReports } from "@/jobs/report/send";
 
 export interface ReportJobPayload {
   dryRun?: boolean;

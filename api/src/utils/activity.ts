@@ -1,5 +1,5 @@
-import { ACTIVITIES } from "../constants/activity";
-import { slugify } from "./string";
+import { ACTIVITIES } from "@/constants/activity";
+import { slugify } from "@/utils/string";
 
 // Both slugs and labels are matchable; output always normalises to the label.
 const LABEL_BY_NAME = new Map<string, string>(

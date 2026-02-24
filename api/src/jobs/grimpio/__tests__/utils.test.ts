@@ -13,8 +13,8 @@ vi.mock("../transformers", () => ({
   missionToGrimpioJob: vi.fn(),
 }));
 
-import { GrimpioJob } from "../types";
-import { generateXML, storeXML } from "../utils";
+import { GrimpioJob } from "@/jobs/grimpio/types";
+import { generateXML, storeXML } from "@/jobs/grimpio/utils";
 
 describe("generateXML", () => {
   it("should generate valid XML structure with CDATA wrapping", () => {
@@ -72,7 +72,7 @@ describe("generateXML", () => {
 
 describe("storeXML", () => {
   it("should store XML with correct file names and return URL", async () => {
-    const { putObject } = await import("../../../services/s3");
+    const { putObject } = await import("@/services/s3");
     const mockPutObject = vi.mocked(putObject);
     vi.setSystemTime(new Date("2025-01-15"));
 

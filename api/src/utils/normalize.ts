@@ -1,4 +1,4 @@
-import { slugify } from "./string";
+import { slugify } from "@/utils/string";
 
 export const normalizeOptionalString = (value: string | null | undefined): string | null | undefined => {
   if (value === undefined) {

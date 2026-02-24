@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ExtractLinkedinReportLinkParams, extractLinkedinReportLink } from "../link-extractor";
+import { ExtractLinkedinReportLinkParams, extractLinkedinReportLink } from "@/controllers/brevo-webhook/helpers/link-extractor";
 
 const email: ExtractLinkedinReportLinkParams = {
   mdTextBody: "",

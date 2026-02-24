@@ -1,6 +1,6 @@
 import { RiAddFill, RiDeleteBin6Line } from "react-icons/ri";
 
-import MissionCombobox from "../../../components/combobox/MissionCombobox";
+import MissionCombobox from "@/components/combobox/MissionCombobox";
 
 const FIELDS = [
   { label: "Nom de l'organisation", value: "organizationName", type: "text" },

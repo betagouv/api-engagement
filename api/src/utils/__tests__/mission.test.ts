@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { MissionAddress, MissionRecord } from "../../types";
-import { getMissionChanges } from "../mission";
+import { MissionAddress, MissionRecord } from "@/types";
+import { getMissionChanges } from "@/utils/mission";
 
 describe("getMissionChanges", () => {
   const createBaseMission = (): MissionRecord =>

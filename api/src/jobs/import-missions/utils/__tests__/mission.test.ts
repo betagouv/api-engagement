@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 
-import type { MissionRecord } from "../../../../types/mission";
-import { PublisherMissionType } from "../../../../types/publisher";
-import { parseCompensationUnit, parseMission, parseRemote } from "../mission";
+import { parseCompensationUnit, parseMission, parseRemote } from "@/jobs/import-missions/utils/mission";
+import type { MissionRecord } from "@/types/mission";
+import { PublisherMissionType } from "@/types/publisher";
 import { buildMissionXML, buildPublisher } from "./factories";
 
 vi.mock("../../../../error", () => ({

@@ -1,5 +1,5 @@
-import { API_URL } from "./config";
-import { generateRequestId, REQUEST_ID_HEADER } from "./requestId";
+import { API_URL } from "@/services/config";
+import { generateRequestId, REQUEST_ID_HEADER } from "@/services/requestId";
 
 class APIHandler {
   constructor() {

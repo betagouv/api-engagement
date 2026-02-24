@@ -3,13 +3,13 @@ import { HiOutlinePlus } from "react-icons/hi";
 import { RiFileDownloadLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
 
-import Loader from "../../components/Loader";
-import Table from "../../components/Table";
-import { MISSION_TYPES } from "../../constants";
-import api from "../../services/api";
-import { captureError } from "../../services/error";
-import exportCSV from "../../services/utils";
-import { withLegacyPublishers } from "../../utils/publisher";
+import Loader from "@/components/Loader";
+import Table from "@/components/Table";
+import { MISSION_TYPES } from "@/constants";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import exportCSV from "@/services/utils";
+import { withLegacyPublishers } from "@/utils/publisher";
 
 const TABLE_HEADER = [
   { title: "Nom", key: "name" },

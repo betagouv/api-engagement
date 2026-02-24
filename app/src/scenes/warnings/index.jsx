@@ -2,14 +2,14 @@ import { useEffect, useState } from "react";
 import { RiArrowRightLine, RiCheckboxCircleFill, RiCloseFill, RiMessage2Line } from "react-icons/ri";
 
 import { Link } from "react-router-dom";
-import APILogo from "../../assets/svg/logo.svg";
-import Loader from "../../components/Loader";
-import Select from "../../components/Select";
-import { DAYS, MONTHS, WARNINGS, YEARS } from "../../constants";
-import api from "../../services/api";
-import { captureError } from "../../services/error";
-import useStore from "../../services/store";
-import { slugify } from "../../services/utils";
+import APILogo from "@/assets/svg/logo.svg";
+import Loader from "@/components/Loader";
+import Select from "@/components/Select";
+import { DAYS, MONTHS, WARNINGS, YEARS } from "@/constants";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import useStore from "@/services/store";
+import { slugify } from "@/services/utils";
 
 const LINKS = {
   EMPTY_WARNING: "/announce?tab=settings",

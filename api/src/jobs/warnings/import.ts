@@ -1,9 +1,9 @@
-import { SLACK_WARNING_CHANNEL_ID } from "../../config";
+import { SLACK_WARNING_CHANNEL_ID } from "@/config";
 
-import { importService } from "../../services/import";
-import { postMessage } from "../../services/slack";
-import { warningService } from "../../services/warning";
-import type { PublisherRecord } from "../../types/publisher";
+import { importService } from "@/services/import";
+import { postMessage } from "@/services/slack";
+import { warningService } from "@/services/warning";
+import type { PublisherRecord } from "@/types/publisher";
 
 const ERROR_WARNING = "ERROR_WARNING";
 const EMPTY_WARNING = "EMPTY_WARNING";

@@ -2,13 +2,13 @@ import { randomUUID } from "node:crypto";
 import request from "supertest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { prismaCore } from "../../../../src/db/postgres";
-import { NOT_FOUND } from "../../../../src/error";
-import { publisherService } from "../../../../src/services/publisher";
-import { statBotService } from "../../../../src/services/stat-bot";
-import { widgetService } from "../../../../src/services/widget";
-import { StatEventRecord } from "../../../../src/types";
-import * as utils from "../../../../src/utils";
+import { prismaCore } from "@/db/postgres";
+import { NOT_FOUND } from "@/error";
+import { publisherService } from "@/services/publisher";
+import { statBotService } from "@/services/stat-bot";
+import { widgetService } from "@/services/widget";
+import { StatEventRecord } from "@/types";
+import * as utils from "@/utils";
 import { createTestMission } from "../../../fixtures";
 import { createTestApp } from "../../../testApp";
 

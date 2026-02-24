@@ -1,4 +1,4 @@
-import { JobResult } from "../types";
+import { JobResult } from "@/jobs/types";
 
 /**
  * Base interface for all job handlers.

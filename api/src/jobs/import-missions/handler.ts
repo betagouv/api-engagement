@@ -1,15 +1,15 @@
-import { captureException } from "../../error";
-import { importService } from "../../services/import";
+import { captureException } from "@/error";
+import { importService } from "@/services/import";
 
-import { Prisma, Import as PrismaImport } from "../../db/core";
-import { missionService } from "../../services/mission";
-import { missionEventService } from "../../services/mission-event";
-import { publisherService } from "../../services/publisher";
-import publisherOrganizationService from "../../services/publisher-organization";
-import { MissionEventCreateParams } from "../../types/mission-event";
-import type { PublisherRecord } from "../../types/publisher";
-import { BaseHandler } from "../base/handler";
-import { JobResult } from "../types";
+import { Prisma, Import as PrismaImport } from "@/db/core";
+import { BaseHandler } from "@/jobs/base/handler";
+import { JobResult } from "@/jobs/types";
+import { missionService } from "@/services/mission";
+import { missionEventService } from "@/services/mission-event";
+import { publisherService } from "@/services/publisher";
+import publisherOrganizationService from "@/services/publisher-organization";
+import { MissionEventCreateParams } from "@/types/mission-event";
+import type { PublisherRecord } from "@/types/publisher";
 import type { ImportedMission, ImportedOrganization } from "./types";
 import { cleanDB, upsertMission, upsertOrganization } from "./utils/db";
 import { enrichWithGeoloc } from "./utils/geoloc";

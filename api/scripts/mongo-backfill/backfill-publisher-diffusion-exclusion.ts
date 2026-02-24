@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
-import { PublisherRecord } from "../../src/types";
-import type { PublisherDiffusionExclusionCreateInput } from "../../src/types/publisher-diffusion-exclusion";
+import { PublisherRecord } from "@/types";
+import type { PublisherDiffusionExclusionCreateInput } from "@/types/publisher-diffusion-exclusion";
 import { asString } from "./utils/cast";
 import { loadEnvironment, parseScriptOptions, type ScriptOptions } from "./utils/options";
 
@@ -45,10 +45,10 @@ const normalizeOrganizationExclusion = (doc: MongoOrganizationExclusionDocument,
 
 const migrateOrganizationExclusions = async () => {
   const [{ mongoConnected }, { pgConnected, prismaCore }, { publisherDiffusionExclusionService }, { publisherService }] = await Promise.all([
-    import("../../src/db/mongo"),
-    import("../../src/db/postgres"),
-    import("../../src/services/publisher-diffusion-exclusion"),
-    import("../../src/services/publisher"),
+    import("@/db/mongo"),
+    import("@/db/postgres"),
+    import("@/services/publisher-diffusion-exclusion"),
+    import("@/services/publisher"),
   ]);
 
   await mongoConnected;
@@ -150,7 +150,7 @@ migrateOrganizationExclusions()
   .catch(async (error) => {
     console.error("[MigrateOrganizationExclusions] Unexpected error:", error);
     try {
-      const { prismaCore } = await import("../../src/db/postgres");
+      const { prismaCore } = await import("@/db/postgres");
       await Promise.allSettled([mongoose.connection.close(), prismaCore.$disconnect()]);
     } catch {
       await Promise.allSettled([mongoose.connection.close()]);

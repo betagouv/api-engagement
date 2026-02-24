@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import { RiAddFill, RiEditFill, RiFileCopyLine, RiLink, RiPulseLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
-import { toast } from "../../services/toast";
+import { toast } from "@/services/toast";
 
-import Table from "../../components/Table";
-import Toggle from "../../components/Toggle";
-import api from "../../services/api";
-import { API_URL } from "../../services/config";
-import { captureError } from "../../services/error";
-import useStore from "../../services/store";
+import Table from "@/components/Table";
+import Toggle from "@/components/Toggle";
+import api from "@/services/api";
+import { API_URL } from "@/services/config";
+import { captureError } from "@/services/error";
+import useStore from "@/services/store";
 
 const TABLE_HEADER = [
   { title: "Nom", colSpan: 2 },

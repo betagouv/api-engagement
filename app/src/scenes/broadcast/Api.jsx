@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { RiBookletFill, RiFileCopyFill } from "react-icons/ri";
-import { toast } from "../../services/toast";
+import { toast } from "@/services/toast";
 
-import api from "../../services/api";
-import { captureError } from "../../services/error";
-import useStore from "../../services/store";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import useStore from "@/services/store";
 
 const Api = () => {
   const { publisher, setPublisher } = useStore();

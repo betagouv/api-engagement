@@ -1,6 +1,6 @@
 import yauzl from "yauzl";
 
-import { parseFile } from "./file-parser";
+import { parseFile } from "@/jobs/import-organizations/file-parser";
 
 // Process a single file from the zip
 const processZipEntry = async (zipfile: any, entry: any): Promise<number> => {

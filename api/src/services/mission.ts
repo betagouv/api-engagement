@@ -1,8 +1,8 @@
 import { randomUUID } from "crypto";
 
-import { Mission, Prisma } from "../db/core";
-import { prismaCore } from "../db/postgres";
-import { missionRepository } from "../repositories/mission";
+import { Mission, Prisma } from "@/db/core";
+import { prismaCore } from "@/db/postgres";
+import { missionRepository } from "@/repositories/mission";
 import type {
   MissionCreateInput,
   MissionFacets,
@@ -12,11 +12,11 @@ import type {
   MissionSearchFilters,
   MissionSelect,
   MissionUpdatePatch,
-} from "../types/mission";
-import { PublisherOrganizationWithRelations } from "../types/publisher-organization";
-import { calculateBoundingBox } from "../utils";
-import { buildJobBoardMap, deriveMissionLocation, normalizeMissionAddresses } from "../utils/mission";
-import { normalizeOptionalString, normalizeStringList } from "../utils/normalize";
+} from "@/types/mission";
+import { PublisherOrganizationWithRelations } from "@/types/publisher-organization";
+import { calculateBoundingBox } from "@/utils";
+import { buildJobBoardMap, deriveMissionLocation, normalizeMissionAddresses } from "@/utils/mission";
+import { normalizeOptionalString, normalizeStringList } from "@/utils/normalize";
 import { activityService } from "./activity";
 import { publisherService } from "./publisher";
 import publisherOrganizationService from "./publisher-organization";

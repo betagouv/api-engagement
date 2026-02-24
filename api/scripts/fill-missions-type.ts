@@ -1,8 +1,8 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { prismaCore } from "../src/db/postgres";
-import { MissionType } from "../src/db/core";
+import { prismaCore } from "@/db/postgres";
+import { MissionType } from "@/db/core";
 
 const DRY_RUN = process.argv.includes("--dry-run");
 

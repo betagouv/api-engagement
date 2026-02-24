@@ -1,11 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { ASC_100_LOGO_URL, JVA_100_LOGO_URL, PUBLISHER_IDS } from "../../../config";
-import { MissionRecord } from "../../../types/mission";
-import { missionToGrimpioJob, missionToGrimpioJobASC, missionToGrimpioJobJVA } from "../transformers";
+import { ASC_100_LOGO_URL, JVA_100_LOGO_URL, PUBLISHER_IDS } from "@/config";
+import { MissionRecord } from "@/types/mission";
+import { missionToGrimpioJob, missionToGrimpioJobASC, missionToGrimpioJobJVA } from "@/jobs/grimpio/transformers";
 
 // Mock constants with IDs but keep the rest of the config
 vi.mock("../config", async () => {
-  const config = await vi.importActual<typeof import("../config")>("../config");
+  const config = await vi.importActual<typeof import("@/jobs/grimpio/config")>("../config");
   return {
     ...config,
     GRIMPIO_PUBLISHER_ID: "test-grimpio-id",

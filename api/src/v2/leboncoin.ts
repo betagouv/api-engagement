@@ -2,11 +2,11 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { JobBoardId } from "../db/core";
-import { INVALID_BODY, NOT_FOUND } from "../error";
-import missionService from "../services/mission";
-import missionJobBoardService from "../services/mission-jobboard";
-import { PublisherRequest } from "../types/passport";
+import { JobBoardId } from "@/db/core";
+import { INVALID_BODY, NOT_FOUND } from "@/error";
+import missionService from "@/services/mission";
+import missionJobBoardService from "@/services/mission-jobboard";
+import { PublisherRequest } from "@/types/passport";
 
 const router = Router();
 

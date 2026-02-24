@@ -1,7 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 
-import Create from "./Create";
-import Edit from "./Edit";
+import Create from "@/scenes/publisher/Create";
+import Edit from "@/scenes/publisher/Edit";
 
 const Publisher = () => {
   return (

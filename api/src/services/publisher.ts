@@ -1,8 +1,8 @@
 import { randomBytes } from "crypto";
 import { v4 as uuid } from "uuid";
 
-import { MissionType, Prisma, Publisher, PublisherDiffusion } from "../db/core";
-import { publisherRepository } from "../repositories/publisher";
+import { MissionType, Prisma, Publisher, PublisherDiffusion } from "@/db/core";
+import { publisherRepository } from "@/repositories/publisher";
 import {
   PublisherCreateInput,
   PublisherDiffusionInput,
@@ -11,8 +11,8 @@ import {
   PublisherRecord,
   PublisherSearchParams,
   PublisherUpdatePatch,
-} from "../types/publisher";
-import { normalizeCollection, normalizeOptionalString } from "../utils";
+} from "@/types/publisher";
+import { normalizeCollection, normalizeOptionalString } from "@/utils";
 
 type PublisherWithDiffusion = Publisher & { diffuseurs?: PublisherDiffusion[] };
 

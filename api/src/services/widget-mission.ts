@@ -1,9 +1,9 @@
-import { PUBLISHER_IDS } from "../config";
-import { Prisma } from "../db/core";
-import { prismaCore } from "../db/postgres";
-import { missionRepository } from "../repositories/mission";
-import type { WidgetRecord } from "../types";
-import type { MissionRecord, MissionSearchFilters, MissionSelect } from "../types/mission";
+import { PUBLISHER_IDS } from "@/config";
+import { Prisma } from "@/db/core";
+import { prismaCore } from "@/db/postgres";
+import { missionRepository } from "@/repositories/mission";
+import type { WidgetRecord } from "@/types";
+import type { MissionRecord, MissionSearchFilters, MissionSelect } from "@/types/mission";
 import { buildWhere, missionService } from "./mission";
 import publisherOrganizationService from "./publisher-organization";
 

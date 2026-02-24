@@ -1,5 +1,5 @@
+import { parseOrganization, parseOrganizationClientId } from "@/jobs/import-missions/utils/organization";
 import { describe, expect, it, vi } from "vitest";
-import { parseOrganization, parseOrganizationClientId } from "../organization";
 import { buildMissionXML, buildPublisher } from "./factories";
 
 vi.mock("../../../error", () => ({

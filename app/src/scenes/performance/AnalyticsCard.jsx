@@ -1,4 +1,4 @@
-import AnalyticsViz from "../../components/AnalyticsViz";
+import AnalyticsViz from "@/components/AnalyticsViz";
 
 const AnalyticsCard = ({
   cardId,

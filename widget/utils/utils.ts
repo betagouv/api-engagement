@@ -1,4 +1,4 @@
-import { ServerSideContext } from "../types";
+import { ServerSideContext } from "@/types";
 
 /**
  * Calculate the distance between two points using the Haversine formula

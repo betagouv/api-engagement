@@ -3,12 +3,12 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import { Express } from "express";
 
-import bodyParserErrorHandler from "./body-parser-error-handler";
-import corsOptions from "./cors";
-import helmet from "./helmet";
-import logger from "./logger";
-import passport from "./passport";
-import requestId from "./request-id";
+import bodyParserErrorHandler from "@/middlewares/body-parser-error-handler";
+import corsOptions from "@/middlewares/cors";
+import helmet from "@/middlewares/helmet";
+import logger from "@/middlewares/logger";
+import passport from "@/middlewares/passport";
+import requestId from "@/middlewares/request-id";
 // import limiter from "./rate-limite";
 
 const middlewares = (app: Express) => {

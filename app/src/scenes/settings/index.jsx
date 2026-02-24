@@ -1,7 +1,7 @@
 import { Route, Routes, useLocation } from "react-router-dom";
 
-import Tabs from "../../components/Tabs";
-import useStore from "../../services/store";
+import Tabs from "@/components/Tabs";
+import useStore from "@/services/store";
 import Flux from "./Flux";
 import RealTime from "./RealTime";
 import TrackingAnnounce from "./TrackingAnnounce";

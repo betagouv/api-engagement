@@ -4,11 +4,11 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { PUBLISHER_IDS } from "../src/config";
-import { pgConnected } from "../src/db/postgres";
-import { campaignService } from "../src/services/campaign";
-import { CampaignRecord } from "../src/types/campaign";
-import { slugify } from "../src/utils/string";
+import { PUBLISHER_IDS } from "@/config";
+import { pgConnected } from "@/db/postgres";
+import { campaignService } from "@/services/campaign";
+import { CampaignRecord } from "@/types/campaign";
+import { slugify } from "@/utils/string";
 
 /**
  * Décode les valeurs URL-encodées dans les trackers.
@@ -127,7 +127,7 @@ const run = async () => {
 };
 
 const shutdown = async (exitCode: number) => {
-  const { prismaCore, prismaAnalytics } = await import("../src/db/postgres");
+  const { prismaCore, prismaAnalytics } = await import("@/db/postgres");
   await Promise.allSettled([prismaCore.$disconnect(), prismaAnalytics.$disconnect()]);
   process.exit(exitCode);
 };

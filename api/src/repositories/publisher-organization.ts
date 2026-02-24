@@ -1,6 +1,6 @@
-import { Prisma, PublisherOrganization } from "../db/core";
-import { prismaCore } from "../db/postgres";
-import { PublisherOrganizationWithRelations } from "../types/publisher-organization";
+import { Prisma, PublisherOrganization } from "@/db/core";
+import { prismaCore } from "@/db/postgres";
+import { PublisherOrganizationWithRelations } from "@/types/publisher-organization";
 
 export const publisherOrganizationRepository = {
   async findMany(params: Prisma.PublisherOrganizationFindManyArgs = {}): Promise<PublisherOrganization[]> {

@@ -1,10 +1,10 @@
-import { PUBLISHER_IDS } from "../../config";
-import { PilotyCompanyPayload, PilotyJobPayload, PilotyMandatoryData } from "../../services/piloty/types";
-import { MissionType } from "../../types";
-import { MissionRecord } from "../../types/mission";
-import { getMissionTrackedApplicationUrl } from "../../utils/mission";
-import { MEDIA_PUBLIC_ID } from "./config";
-import { decodeHtml, getAudienceLabel, getDomainLabel } from "./utils";
+import { PUBLISHER_IDS } from "@/config";
+import { PilotyCompanyPayload, PilotyJobPayload, PilotyMandatoryData } from "@/services/piloty/types";
+import { MissionType } from "@/types";
+import { MissionRecord } from "@/types/mission";
+import { getMissionTrackedApplicationUrl } from "@/utils/mission";
+import { MEDIA_PUBLIC_ID } from "@/jobs/letudiant/config";
+import { decodeHtml, getAudienceLabel, getDomainLabel } from "@/jobs/letudiant/utils";
 
 export type PilotyJobWithAddress = {
   payload: PilotyJobPayload;

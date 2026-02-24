@@ -1,5 +1,5 @@
-import { Prisma } from "../db/core";
-import { prismaCore } from "../db/postgres";
+import { Prisma } from "@/db/core";
+import { prismaCore } from "@/db/postgres";
 
 export const reportRepository = {
   async find<T extends Prisma.ReportFindManyArgs>(

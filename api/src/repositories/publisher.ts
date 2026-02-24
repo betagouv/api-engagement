@@ -1,5 +1,5 @@
-import { Prisma, Publisher } from "../db/core";
-import { prismaCore } from "../db/postgres";
+import { Prisma, Publisher } from "@/db/core";
+import { prismaCore } from "@/db/postgres";
 
 export const publisherRepository = {
   async findMany(params: Prisma.PublisherFindManyArgs = {}): Promise<Publisher[]> {

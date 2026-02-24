@@ -1,5 +1,5 @@
-import { MissionActivity, Prisma } from "../db/core";
-import { prismaCore } from "../db/postgres";
+import { MissionActivity, Prisma } from "@/db/core";
+import { prismaCore } from "@/db/postgres";
 
 export const missionActivityRepository = {
   async createMany(data: Prisma.MissionActivityCreateManyInput[]): Promise<void> {

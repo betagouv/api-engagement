@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
-import { PUBLISHER_IDS } from "../../../config";
-import { PilotyMandatoryData } from "../../../services/piloty/types";
-import { MissionType } from "../../../types";
-import { MissionRecord } from "../../../types/mission";
-import { MEDIA_PUBLIC_ID } from "../config";
-import { missionToPilotyCompany, missionToPilotyJobs } from "../transformers";
+import { PUBLISHER_IDS } from "@/config";
+import { PilotyMandatoryData } from "@/services/piloty/types";
+import { MissionType } from "@/types";
+import { MissionRecord } from "@/types/mission";
+import { MEDIA_PUBLIC_ID } from "@/jobs/letudiant/config";
+import { missionToPilotyCompany, missionToPilotyJobs } from "@/jobs/letudiant/transformers";
 
 vi.mock("../../../utils/mission", () => ({
   getMissionTrackedApplicationUrl: vi.fn((mission, publisherId) => `https://api-engagement.beta.gouv.fr/r/${mission._id}/${publisherId}`),

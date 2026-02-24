@@ -3,13 +3,13 @@ import { AiFillCloseCircle } from "react-icons/ai";
 import { IoMdEye, IoMdEyeOff } from "react-icons/io";
 import { RiErrorWarningFill } from "react-icons/ri";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { toast } from "../../services/toast";
+import { toast } from "@/services/toast";
 
-import ErrorAlert from "../../components/ErrorAlert";
-import WarningAlert from "../../components/WarningAlert";
-import api from "../../services/api";
-import { captureError } from "../../services/error";
-import { hasLetter, hasNumber, hasSpecialChar } from "../../services/utils";
+import ErrorAlert from "@/components/ErrorAlert";
+import WarningAlert from "@/components/WarningAlert";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import { hasLetter, hasNumber, hasSpecialChar } from "@/services/utils";
 
 const Signup = () => {
   const [searchParams] = useSearchParams();

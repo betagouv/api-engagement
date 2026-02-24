@@ -1,4 +1,4 @@
-import { Filters } from "../types";
+import { Filters } from "@/types";
 
 export const buildSearchParams = (filters: Filters, isBenevolat: boolean): URLSearchParams => {
   const params = new URLSearchParams();

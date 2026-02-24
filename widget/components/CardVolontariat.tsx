@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { RiBuildingFill, RiCalendarEventFill } from "react-icons/ri";
 
 import { Mission, Widget } from "types";
-import { DOMAINS } from "../config";
-import LogoSCE from "../public/images/logo-sce.svg";
+import { DOMAINS } from "@/config";
+import LogoSCE from "@/public/images/logo-sce.svg";
 
 interface CardProps {
   widget: Widget;

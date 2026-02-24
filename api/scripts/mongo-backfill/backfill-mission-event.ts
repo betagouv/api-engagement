@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 
-import { Prisma } from "../../src/db/core";
-import type { PrismaClient } from "../../src/db/core";
-import type { MissionEventRecord } from "../../src/types/mission-event";
+import { Prisma } from "@/db/core";
+import type { PrismaClient } from "@/db/core";
+import type { MissionEventRecord } from "@/types/mission-event";
 import { asDate, asString, toMongoObjectIdString } from "./utils/cast";
 import { compareDates, compareJsons, compareStrings } from "./utils/compare";
 import { toJsonValue } from "./utils/normalize";
@@ -171,7 +171,7 @@ const persistBatch = async (
 
 const cleanup = async () => {
   try {
-    const { prismaCore } = await import("../../src/db/postgres");
+    const { prismaCore } = await import("@/db/postgres");
     await Promise.allSettled([prismaCore.$disconnect(), mongoose.connection.close()]);
   } catch {
     await Promise.allSettled([mongoose.connection.close()]);
@@ -180,7 +180,7 @@ const cleanup = async () => {
 
 const main = async () => {
   console.log(`[${SCRIPT_NAME}] Starting${options.dryRun ? " (dry-run)" : ""}`);
-  const [{ mongoConnected }, { pgConnected, prismaCore }] = await Promise.all([import("../../src/db/mongo"), import("../../src/db/postgres")]);
+  const [{ mongoConnected }, { pgConnected, prismaCore }] = await Promise.all([import("@/db/mongo"), import("@/db/postgres")]);
 
   await Promise.all([mongoConnected, pgConnected]);
 

@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 
-import ExportSvg from "../../../assets/svg/export-icon.svg?react";
-import Modal from "../../../components/New-Modal";
-import RadioInput from "../../../components/RadioInput";
-import Table from "../../../components/Table";
-import Toggle from "../../../components/Toggle";
-import { MISSION_TYPES } from "../../../constants";
-import api from "../../../services/api";
-import { captureError } from "../../../services/error";
-import { withLegacyPublishers } from "../../../utils/publisher";
+import ExportSvg from "@/assets/svg/export-icon.svg?react";
+import Modal from "@/components/New-Modal";
+import RadioInput from "@/components/RadioInput";
+import Table from "@/components/Table";
+import Toggle from "@/components/Toggle";
+import { MISSION_TYPES } from "@/constants";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import { withLegacyPublishers } from "@/utils/publisher";
 
 const Annonceur = ({ values, onChange, errors, setErrors }) => {
   const [data, setData] = useState([]);

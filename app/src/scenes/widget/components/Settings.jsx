@@ -7,8 +7,8 @@ import Toggle from "@/components/Toggle";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
-import LocationCombobox from "../../../components/combobox/LocationCombobox";
-import QueryBuilder from "./QueryBuilder";
+import LocationCombobox from "@/components/combobox/LocationCombobox";
+import QueryBuilder from "@/scenes/widget/components/QueryBuilder";
 
 const JVA_ID = "5f5931496c7ea514150a818f";
 const SC_ID = "5f99dbe75eb1ad767733b206";

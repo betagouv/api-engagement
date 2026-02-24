@@ -1,7 +1,7 @@
-import { Prisma } from "../db/core";
+import { Prisma } from "@/db/core";
 
-import { statEventRepository } from "../repositories/stat-event";
-import { publisherService } from "../services/publisher";
+import { statEventRepository } from "@/repositories/stat-event";
+import { publisherService } from "@/services/publisher";
 import {
   AggregateMissionStatsParams,
   CountByTypeParams,
@@ -22,7 +22,7 @@ import {
   WarningBotAggregationBucket,
   WarningBotAggregations,
   WarningBotCandidate,
-} from "../types/stat-event";
+} from "@/types/stat-event";
 
 const DEFAULT_TYPES: StatEventType[] = ["click", "print", "apply", "account"];
 
