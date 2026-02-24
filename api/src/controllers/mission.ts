@@ -15,9 +15,9 @@ const searchSchema = zod.object({
   comment: zod.string().optional(),
   publisherId: zod.string().optional(),
   domain: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-  organization: zod.string().optional(),
+  organizations: zod.array(zod.string()).optional(),
   activity: zod.string().optional(),
-  city: zod.string().optional(),
+  cities: zod.array(zod.string()).optional(),
   department: zod.string().optional(),
   search: zod.string().optional(),
   availableFrom: zod.coerce.date().optional(),
@@ -86,9 +86,9 @@ const findFilters = (user: UserRequest["user"], body: zod.infer<typeof searchSch
     skip: body.from,
     domain: asArray(body.domain),
     activity: asArray(body.activity),
-    city: asArray(body.city),
+    city: asArray(body.cities),
     departmentName: asArray(body.department),
-    organizationName: asArray(body.organization),
+    organizationName: asArray(body.organizations),
   };
 
   if (body.status) {

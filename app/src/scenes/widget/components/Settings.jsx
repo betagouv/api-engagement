@@ -2,13 +2,13 @@ import { useEffect, useState } from "react";
 import { BiSolidInfoSquare } from "react-icons/bi";
 
 import JvaLogoSvg from "@/assets/svg/jva-logo.svg";
+import LocationCombobox from "@/components/combobox/LocationCombobox";
 import RadioInput from "@/components/RadioInput";
 import Toggle from "@/components/Toggle";
+import QueryBuilder from "@/scenes/widget/components/QueryBuilder";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
-import LocationCombobox from "@/components/combobox/LocationCombobox";
-import QueryBuilder from "@/scenes/widget/components/QueryBuilder";
 
 const JVA_ID = "5f5931496c7ea514150a818f";
 const SC_ID = "5f99dbe75eb1ad767733b206";
@@ -21,11 +21,15 @@ const Settings = ({ widget, values, onChange, loading }) => {
   const [selectAll, setSelectAll] = useState(false);
 
   useEffect(() => {
-    if (loading) return;
+    if (loading) {
+      return;
+    }
     const fetchMissions = async () => {
       try {
         const publishers = publisher.publishers.map((p) => p.diffuseurPublisherId);
-        if (publisher.isAnnonceur) publishers.push(publisher.id);
+        if (publisher.isAnnonceur) {
+          publishers.push(publisher.id);
+        }
         const query = {
           publishers,
           lat: values.location?.lat,
@@ -37,9 +41,13 @@ const Settings = ({ widget, values, onChange, loading }) => {
         };
 
         const res = await api.post("/mission/search", query);
-        if (!res.ok) throw res;
+        if (!res.ok) {
+          throw res;
+        }
         const newPublishers = res.aggs.partners;
-        if (publisher.isAnnonceur && !newPublishers.some((p) => p._id === publisher.id)) newPublishers.push({ _id: publisher.id, name: publisher.name, count: 0 });
+        if (publisher.isAnnonceur && !newPublishers.some((p) => p._id === publisher.id)) {
+          newPublishers.push({ _id: publisher.id, name: publisher.name, count: 0 });
+        }
         setPublishers(newPublishers);
       } catch (error) {
         captureError(error, { extra: { publisherId: publisher.id } });
@@ -49,7 +57,9 @@ const Settings = ({ widget, values, onChange, loading }) => {
   }, [loading, publisher, values.location, values.distance, values.jvaModeration]);
 
   useEffect(() => {
-    if (loading) return;
+    if (loading) {
+      return;
+    }
     const timeout = setTimeout(() => {
       const fetchFilteredMissions = async () => {
         try {
@@ -65,7 +75,9 @@ const Settings = ({ widget, values, onChange, loading }) => {
           };
 
           const res = await api.post("/mission/search", query);
-          if (!res.ok) throw res;
+          if (!res.ok) {
+            throw res;
+          }
           setTotal(res.total);
         } catch (error) {
           captureError(error, { extra: { publisherId: publisher.id } });

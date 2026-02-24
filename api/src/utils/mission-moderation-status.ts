@@ -66,24 +66,14 @@ export const buildWhere = (filters: ModerationFilters): { where: Prisma.MissionM
     }
   }
 
-  if (filters.organizationName) {
-    if (filters.organizationName === "none") {
-      where.mission!.publisherOrganization = null;
-      missionWhere.publisherOrganization = null;
-    } else {
-      where.mission!.publisherOrganization = { is: { organizationName: filters.organizationName } } as Prisma.PublisherOrganizationWhereInput;
-      missionWhere.publisherOrganization = { is: { organizationName: filters.organizationName } } as Prisma.PublisherOrganizationWhereInput;
-    }
+  if (filters.organizationNames && filters.organizationNames.length) {
+    where.mission!.publisherOrganization = { is: { name: { in: filters.organizationNames } } };
+    missionWhere.publisherOrganization = { is: { name: { in: filters.organizationNames } } };
   }
 
-  if (filters.city) {
-    if (filters.city === "none") {
-      where.mission!.addresses = { ...missionWhere.addresses, some: { ...((missionWhere.addresses as any)?.some || {}), city: null } };
-      missionWhere.addresses = { ...missionWhere.addresses, some: { ...((missionWhere.addresses as any)?.some || {}), city: null } };
-    } else {
-      where.mission!.addresses = { ...missionWhere.addresses, some: { ...((missionWhere.addresses as any)?.some || {}), city: filters.city } };
-      missionWhere.addresses = { ...missionWhere.addresses, some: { ...((missionWhere.addresses as any)?.some || {}), city: filters.city } };
-    }
+  if (filters.cities && filters.cities.length) {
+    where.mission!.addresses = { some: { city: { in: filters.cities } } };
+    missionWhere.addresses = { some: { city: { in: filters.cities } } };
   }
 
   if (filters.activity) {

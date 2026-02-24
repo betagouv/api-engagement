@@ -21,9 +21,9 @@ const searchSchema = zod.object({
   moderatorId: zod.string().default(PUBLISHER_IDS.JEVEUXAIDER),
   comment: zod.string().nullable().optional(),
   domain: zod.string().nullable().optional(),
-  city: zod.string().nullable().optional(),
+  cities: zod.array(zod.string()).nullable().optional(),
   department: zod.string().nullable().optional(),
-  organizationName: zod.string().nullable().optional(),
+  organizationNames: zod.array(zod.string()).nullable().optional(),
   organizationClientId: zod.string().nullable().optional(),
   search: zod.string().nullable().optional(),
   activity: zod.string().nullable().optional(),
@@ -40,9 +40,9 @@ const aggsSchema = zod.object({
   moderatorId: zod.string().default(PUBLISHER_IDS.JEVEUXAIDER),
   comment: zod.string().nullable().optional(),
   domain: zod.string().nullable().optional(),
-  city: zod.string().nullable().optional(),
+  cities: zod.array(zod.string()).nullable().optional(),
   department: zod.string().nullable().optional(),
-  organizationName: zod.string().nullable().optional(),
+  organizationNames: zod.array(zod.string()).nullable().optional(),
   search: zod.string().nullable().optional(),
   activity: zod.string().nullable().optional(),
 });
@@ -71,19 +71,19 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    const filters: any = {
+    const filters: ModerationFilters = {
       moderatorId: moderator.id,
       limit: body.data.size,
       skip: body.data.from,
-      sort: body.data.sort,
+      sort: body.data.sort || undefined,
       publisherId: body.data.publisherId || undefined,
       status: body.data.status || undefined,
       comment: body.data.comment || undefined,
       domain: body.data.domain || undefined,
       department: body.data.department || undefined,
-      organizationName: body.data.organizationName || undefined,
+      organizationNames: body.data.organizationNames || undefined,
       organizationClientId: body.data.organizationClientId || undefined,
-      city: body.data.city || undefined,
+      cities: body.data.cities || undefined,
       search: body.data.search || undefined,
       activity: body.data.activity || undefined,
     };
@@ -119,8 +119,8 @@ router.post("/aggs", passport.authenticate("user", { session: false }), async (r
       comment: body.data.comment || undefined,
       domain: body.data.domain || undefined,
       department: body.data.department || undefined,
-      organizationName: body.data.organizationName || undefined,
-      city: body.data.city || undefined,
+      organizationNames: body.data.organizationNames || undefined,
+      cities: body.data.cities || undefined,
       activity: body.data.activity || undefined,
       search: body.data.search || undefined,
     };

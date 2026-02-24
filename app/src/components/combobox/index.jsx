@@ -1,8 +1,8 @@
 import { ComboboxButton, ComboboxInput, ComboboxOption, ComboboxOptions, Combobox as HLCombobox } from "@headlessui/react";
 import { Fragment, useEffect, useState } from "react";
 
-import { RiArrowDownSLine, RiCheckFill } from "react-icons/ri";
 import Loader from "@/components/Loader";
+import { RiArrowDownSLine, RiCheckFill } from "react-icons/ri";
 
 const Combobox = ({
   value,
@@ -24,7 +24,9 @@ const Combobox = ({
   const selected = selectedIndex !== -1 ? filteredOptions[selectedIndex] : null;
 
   useEffect(() => {
-    if (!options) return;
+    if (!options) {
+      return;
+    }
     setFilteredOptions(options);
   }, [options]);
 

@@ -36,8 +36,8 @@ const Flux = ({ moderated }) => {
     comment: searchParams.get("comment") || null,
     domain: searchParams.get("domain") || null,
     activity: searchParams.get("activity") || null,
-    city: searchParams.get("city") || null,
-    organization: searchParams.get("organization") || null,
+    cities: searchParams.has("cities") ? searchParams.getAll("cities") : [],
+    organizations: searchParams.has("organizations") ? searchParams.getAll("organizations") : [],
     search: searchParams.get("search") || "",
   });
   const [options, setOptions] = useState({
@@ -57,7 +57,9 @@ const Flux = ({ moderated }) => {
     const fetchData = async () => {
       try {
         const res = await api.post("/import/search", { publisherId: publisher.id, size: 1 });
-        if (!res.ok) throw res;
+        if (!res.ok) {
+          throw res;
+        }
         setLastImport(res.data.length ? res.data[0] : null);
       } catch (error) {
         captureError(error, { extra: { publisherId: publisher.id } });
@@ -73,7 +75,9 @@ const Flux = ({ moderated }) => {
       try {
         const res = await searchMissions({ ...filters, publisherId: publisher.id }, { signal: controller.signal });
 
-        if (!res.ok) throw res;
+        if (!res.ok) {
+          throw res;
+        }
         setData(res.data);
         setOptions(res.aggs);
         setTotal(res.total);
@@ -96,7 +100,9 @@ const Flux = ({ moderated }) => {
     try {
       const res = await searchMissions({ ...filters, publisherId: publisher.id, size: 10000, page: 1 });
 
-      if (!res.ok) throw res;
+      if (!res.ok) {
+        throw res;
+      }
       const csv = [];
       res.data.forEach((mission) => {
         const val = {};
@@ -117,6 +123,8 @@ const Flux = ({ moderated }) => {
     }
     setExporting(false);
   };
+
+  console.log("filters", filters.organizations);
 
   return (
     <div className="space-y-12 p-12">
@@ -164,15 +172,15 @@ const Flux = ({ moderated }) => {
           />
           <MissionCombobox
             id="city"
-            value={filters.city}
-            onSelect={(city) => setFilters({ ...filters, city: city ? city.value : null })}
+            values={filters.cities}
+            onChange={(cities) => setFilters({ ...filters, cities })}
             placeholder="Villes"
             filters={`publishers[]=${publisher.id}&field=city`}
           />
           <MissionCombobox
             id="organization"
-            value={filters.organization}
-            onSelect={(organization) => setFilters({ ...filters, organization: organization ? organization.value : null })}
+            values={filters.organizations}
+            onChange={(organizations) => setFilters({ ...filters, organizations })}
             placeholder="Organisations"
             filters={`publishers[]=${publisher.id}&field=organizationName`}
             className="w-96"

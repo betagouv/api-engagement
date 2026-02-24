@@ -199,7 +199,7 @@ body {
 }
 
 @utility input {
-  @apply placeholder:text-gray-425 min-h-10 rounded-t border-0 border-b border-b-black bg-gray-950 px-4 py-2 text-sm text-black outline-[#0a76f6] focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60;
+  @apply placeholder:text-gray-425 outline-outline-blue min-h-10 rounded-t border-0 border-b border-b-black bg-gray-950 px-4 py-2 text-sm text-black focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60;
 }
 @utility select {
   @apply placeholder:text-gray-425 outline-outline-blue min-h-10 appearance-none rounded-none rounded-t border-0 border-b border-b-black bg-gray-950 py-2 pr-10 pl-4 text-sm text-black focus:outline-2 focus:outline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60;
@@ -223,9 +223,12 @@ body {
 @utility table-item {
   @apply shadow-border-b-gray min-h-16 text-left text-sm text-black;
 }
-
 @utility table-cell {
   @apply px-3 py-1 text-sm;
+}
+
+@utility list-item {
+  @apply mx-2 flex cursor-pointer items-center justify-between gap-2 px-4 py-2 text-sm;
 }
 
 select {
@@ -373,21 +376,23 @@ select {
 [role="combobox"]:focus-visible,
 [role="listbox"]:focus-visible,
 input[aria-expanded]:focus-visible {
-  outline: 2px solid #000091;
+  background-color: var(--color-background-grey-hover);
+  outline: 2px solid var(--color-outline-blue);
   outline-offset: 2px;
 }
 
 /* Active option in dropdown lists */
 [data-headlessui-state~="active"][role="option"],
 [data-headlessui-state~="focus"][role="option"] {
-  background-color: #f6f6f6;
-  outline: 2px solid #000091;
+  background-color: var(--color-background-grey-hover);
+  outline: 2px solid var(--color-outline-blue);
   outline-offset: -2px;
 }
 
 /* Focus on listbox button */
 button[aria-haspopup="listbox"]:focus-visible,
 button[aria-controls]:focus-visible {
-  outline: 2px solid #000091;
+  background-color: var(--color-background-grey-hover);
+  outline: 2px solid var(--color-outline-blue);
   outline-offset: 2px;
 }

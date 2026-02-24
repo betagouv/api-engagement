@@ -1,6 +1,9 @@
 import { RiAddFill, RiDeleteBin6Line } from "react-icons/ri";
 
-import MissionCombobox from "@/components/combobox/MissionCombobox";
+import Autocomplete from "@/components/Autocomplete";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import { useEffect, useState } from "react";
 
 const FIELDS = [
   { label: "Nom de l'organisation", value: "organizationName", type: "text" },
@@ -38,7 +41,12 @@ const QueryBuilder = ({ values, onChange }) => {
       {values.rules.map((r, i) => (
         <div key={i} className="my-3 flex w-full items-center gap-4">
           <Rule index={i} fields={FIELDS} rule={r} onChange={(r) => handleRuleChange(r, i)} filters={values.publishers.map((p) => `publishers[]=${p}`).join("&")} />
-          <button type="button" className="border-error text-error flex h-8 w-8 cursor-pointer items-center justify-center border" onClick={() => handleDeleteRule(i)} aria-label="Supprimer le filtre">
+          <button
+            type="button"
+            className="border-error text-error flex h-8 w-8 cursor-pointer items-center justify-center border"
+            onClick={() => handleDeleteRule(i)}
+            aria-label="Supprimer le filtre"
+          >
             <RiDeleteBin6Line aria-hidden="true" />
           </button>
         </div>
@@ -52,11 +60,50 @@ const QueryBuilder = ({ values, onChange }) => {
 };
 
 const Rule = ({ fields, rule, onChange, index, filters }) => {
+  const [options, setOptions] = useState([]);
+
+  const handleSearch = async (field, search) => {
+    try {
+      const res = await api.get(`/mission/autocomplete?field=${field}&search=${search}&${filters}`);
+      if (!res.ok) {
+        throw res;
+      }
+      return res.data;
+    } catch (error) {
+      captureError(error, { extra: { field, search, filters } });
+    }
+    return [];
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await handleSearch(rule.field, rule.value);
+      setOptions(res.map((option) => ({ label: option.key, value: option.key })));
+    };
+    fetchData();
+  }, []);
+
+  const handleSelect = (option) => {
+    onChange({ ...rule, value: option ? option.value : "" });
+    setOptions([]);
+  };
+
+  const handleChange = async (value) => {
+    onChange({ ...rule, value });
+    const res = await handleSearch(rule.field, value);
+    setOptions(res.map((option) => ({ label: option.key, value: option.key })));
+  };
+
   const handleSelectField = (e) => {
     const f = fields.find((f) => f.value === e.target.value);
-    if (!f) return;
-    if (f.type === "boolean") onChange({ ...rule, field: f.value, fieldType: f.type, operator: "is", value: "yes" });
-    else onChange({ ...rule, field: f.value, fieldType: f.type });
+    if (!f) {
+      return;
+    }
+    if (f.type === "boolean") {
+      onChange({ ...rule, field: f.value, fieldType: f.type, operator: "is", value: "yes" });
+    } else {
+      onChange({ ...rule, field: f.value, fieldType: f.type });
+    }
   };
 
   return (
@@ -100,15 +147,16 @@ const Rule = ({ fields, rule, onChange, index, filters }) => {
               <option value="does_not_exist">n'existe pas</option>
               <option value="starts_with">commence par</option>
             </select>
+
             {rule.operator !== "exists" && rule.operator !== "does_not_exist" && (
               <div className="flex-1">
-                <MissionCombobox
-                  id={`rule-${index}-value`}
+                <Autocomplete
+                  id={`rule-${index}-autocomplete`}
+                  options={options}
                   value={rule.value}
-                  onChange={(value) => onChange({ ...rule, value })}
-                  onSelect={(option) => onChange({ ...rule, value: option ? option.value : "" })}
+                  onChange={handleChange}
+                  onSelect={handleSelect}
                   placeholder="Choisissez une option"
-                  filters={`${filters}&field=${rule.field}`}
                 />
               </div>
             )}

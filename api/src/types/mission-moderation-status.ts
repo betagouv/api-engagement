@@ -46,6 +46,7 @@ export type MissionModerationRecord = {
 };
 
 export type ModerationFilters = {
+  ids?: string[];
   moderatorId?: string;
   publisherId?: string;
   missionId?: string;
@@ -53,8 +54,9 @@ export type ModerationFilters = {
   comment?: string;
   domain?: string;
   department?: string;
-  organizationName?: string;
-  city?: string;
+  organizationNames?: string[];
+  organizationClientId?: string;
+  cities?: string[];
   activity?: string;
   search?: string;
   limit?: number;

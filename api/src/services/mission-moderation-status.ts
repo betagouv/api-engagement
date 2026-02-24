@@ -101,7 +101,7 @@ export const missionModerationStatusService = {
     return toRecord(status as MissionModerationWithRelations);
   },
 
-  async findModerationStatuses(filters: ModerationFilters & { skip?: number; limit?: number; ids?: string[] }) {
+  async findModerationStatuses(filters: ModerationFilters) {
     // If ids are provided, use them directly instead of building where clause from filters
     if (filters.ids && filters.ids.length > 0) {
       const data = await missionModerationStatusRepository.findMany({
