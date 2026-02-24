@@ -1,8 +1,8 @@
-import { MissionRecord } from "../../types/mission";
-import { getMissionTrackedApplicationUrl } from "../../utils";
-import { TALENT_PUBLISHER_ID } from "./config";
-import { TalentJob } from "./types";
-import { getActivityCategory, getImageUrl } from "./utils";
+import { MissionRecord } from "@/types/mission";
+import { getMissionTrackedApplicationUrl } from "@/utils";
+import { TALENT_PUBLISHER_ID } from "@/jobs/talent/config";
+import { TalentJob } from "@/jobs/talent/types";
+import { getActivityCategory, getImageUrl } from "@/jobs/talent/utils";
 
 /**
  * Format mission to Talent Job

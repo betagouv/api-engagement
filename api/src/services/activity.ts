@@ -1,7 +1,7 @@
-import { Prisma } from "../db/core";
-import { activityRepository } from "../repositories/activity";
-import { missionActivityRepository } from "../repositories/mission-activity";
-import { isWhitelistedActivity, splitActivityString } from "../utils/activity";
+import { Prisma } from "@/db/core";
+import { activityRepository } from "@/repositories/activity";
+import { missionActivityRepository } from "@/repositories/mission-activity";
+import { isWhitelistedActivity, splitActivityString } from "@/utils/activity";
 
 const DEFAULT_ACTIVITY_NAME = "Autre";
 

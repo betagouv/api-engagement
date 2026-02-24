@@ -2,12 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { RiCheckboxFill, RiCheckboxIndeterminateFill } from "react-icons/ri";
 import { toast } from "@/services/toast";
 
-import Loader from "../../../../components/Loader";
-import Modal from "../../../../components/Modal";
-import api from "../../../../services/api";
-import { captureError } from "../../../../services/error";
-import useStore from "../../../../services/store";
-import { JVA_MODERATION_COMMENTS_LABELS, STATUS, STATUS_CLASSES } from "./Constants";
+import Loader from "@/components/Loader";
+import Modal from "@/components/Modal";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import useStore from "@/services/store";
+import { JVA_MODERATION_COMMENTS_LABELS, STATUS, STATUS_CLASSES } from "@/scenes/broadcast/moderation/components/Constants";
 
 const Header = ({ total, data, size, sort, selected, onSize, onSort, onSelect, onChangeMany }) => {
   const headerRef = useRef(null);
@@ -26,8 +26,8 @@ const Header = ({ total, data, size, sort, selected, onSize, onSort, onSelect, o
         <div className="flex items-center justify-between gap-4 py-4">
           {isSticky ? (
             <div>
-              <button className="button" onClick={() => (selected.length === data.length ? onSelect([]) : onSelect(data.map((d) => d.id)))}>
-                {selected.length === data.length ? <RiCheckboxFill className="text-blue-france text-2xl" /> : <RiCheckboxIndeterminateFill className="text-blue-france text-2xl" />}
+              <button className="button" onClick={() => (selected.length === data.length ? onSelect([]) : onSelect(data.map((d) => d.id)))} aria-label={selected.length === data.length ? "Tout désélectionner" : "Tout sélectionner"}>
+                {selected.length === data.length ? <RiCheckboxFill className="text-blue-france text-2xl" aria-hidden="true" /> : <RiCheckboxIndeterminateFill className="text-blue-france text-2xl" aria-hidden="true" />}
               </button>
             </div>
           ) : (
@@ -35,9 +35,9 @@ const Header = ({ total, data, size, sort, selected, onSize, onSort, onSelect, o
           )}
           <div className="flex items-center gap-4">
             <span className="text-text-mention text-sm">{selected.length === 1 ? `1 sélectionnée` : `${selected.length} sélectionnées`}</span>
-            <span className="text-blue-france cursor-pointer text-sm underline" onClick={() => onSelect([])}>
+            <button type="button" className="text-blue-france cursor-pointer text-sm underline" onClick={() => onSelect([])}>
               Désélectionner
-            </span>
+            </button>
             <ManyUpdateModal onClose={() => onSelect([])} selected={selected} onChange={onChangeMany} />
           </div>
         </div>

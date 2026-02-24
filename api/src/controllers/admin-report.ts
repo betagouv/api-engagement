@@ -2,8 +2,8 @@ import { Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { INVALID_BODY } from "../error";
-import { reportService } from "../services/report";
+import { INVALID_BODY } from "@/error";
+import { reportService } from "@/services/report";
 
 const router = Router();
 

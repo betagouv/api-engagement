@@ -1,5 +1,5 @@
-import { Campaign, Prisma } from "../db/core";
-import { prisma } from "../db/postgres";
+import { Campaign, Prisma } from "@/db/core";
+import { prisma } from "@/db/postgres";
 
 export const campaignRepository = {
   async findMany(params: Prisma.CampaignFindManyArgs = {}): Promise<Campaign[]> {

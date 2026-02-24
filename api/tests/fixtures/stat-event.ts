@@ -1,9 +1,9 @@
 import { randomUUID } from "crypto";
 
-import { prisma } from "../../src/db/postgres";
-import { missionService } from "../../src/services/mission";
-import { statEventService } from "../../src/services/stat-event";
-import { StatEventRecord } from "../../src/types";
+import { prisma } from "@/db/postgres";
+import { missionService } from "@/services/mission";
+import { statEventService } from "@/services/stat-event";
+import { StatEventRecord } from "@/types";
 import { createTestPublisher } from "./index";
 
 export async function createStatEventFixture(overrides: Partial<StatEventRecord> = {}) {

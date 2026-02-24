@@ -1,9 +1,9 @@
-import { SLACK_WARNING_CHANNEL_ID } from "../../config";
-import { statEventService } from "../../services/stat-event";
-import { publisherService } from "../../services/publisher";
-import { postMessage } from "../../services/slack";
-import { warningBotService } from "../../services/warning-bot";
-import type { WarningBotRecord } from "../../types/warning-bot";
+import { SLACK_WARNING_CHANNEL_ID } from "@/config";
+import { statEventService } from "@/services/stat-event";
+import { publisherService } from "@/services/publisher";
+import { postMessage } from "@/services/slack";
+import { warningBotService } from "@/services/warning-bot";
+import type { WarningBotRecord } from "@/types/warning-bot";
 
 const countClick = (user: string) => statEventService.countStatEventsByCriteria({ type: "click", user });
 

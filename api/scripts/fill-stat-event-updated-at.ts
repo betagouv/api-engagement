@@ -1,4 +1,4 @@
-import { prismaCore } from "../src/db/postgres";
+import { prismaCore } from "@/db/postgres";
 
 const parseBatchSize = () => {
   const argIndex = process.argv.indexOf("--batch");

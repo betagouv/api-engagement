@@ -1,6 +1,6 @@
-import RadioInput from "../../../components/RadioInput";
-import Toggle from "../../../components/Toggle";
-import { MISSION_TYPES } from "../../../constants";
+import RadioInput from "@/components/RadioInput";
+import Toggle from "@/components/Toggle";
+import { MISSION_TYPES } from "@/constants";
 
 const AnnonceurCreation = ({ values, onChange }) => {
   const { isAnnonceur } = values;

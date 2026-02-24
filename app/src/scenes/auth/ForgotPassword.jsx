@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { RiCheckboxCircleFill, RiErrorWarningFill } from "react-icons/ri";
 
-import api from "../../services/api";
-import { captureError } from "../../services/error";
-import { isValidEmail } from "../../services/utils";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import { isValidEmail } from "@/services/utils";
 
 const Forgot = () => {
   const [values, setValues] = useState({ email: "" });

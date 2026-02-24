@@ -1,5 +1,5 @@
-import { Prisma } from "../../db/core";
-import { prisma } from "../../db/postgres";
+import { Prisma } from "@/db/core";
+import { prisma } from "@/db/postgres";
 
 export interface StatsMeanFilters {
   publisherId?: string;

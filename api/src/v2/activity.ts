@@ -2,12 +2,12 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { INVALID_BODY, INVALID_PARAMS, NOT_FOUND } from "../error";
-import missionService from "../services/mission";
-import { statEventService } from "../services/stat-event";
-import { StatEventRecord } from "../types";
-import { PublisherRequest } from "../types/passport";
-import type { PublisherRecord } from "../types/publisher";
+import { INVALID_BODY, INVALID_PARAMS, NOT_FOUND } from "@/error";
+import missionService from "@/services/mission";
+import { statEventService } from "@/services/stat-event";
+import { StatEventRecord } from "@/types";
+import { PublisherRequest } from "@/types/passport";
+import type { PublisherRecord } from "@/types/publisher";
 
 const router = Router();
 

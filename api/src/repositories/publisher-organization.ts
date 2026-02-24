@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 
-import { Prisma, PublisherOrganization } from "../db/core";
-import { prisma } from "../db/postgres";
+import { Prisma, PublisherOrganization } from "@/db/core";
+import { prisma } from "@/db/postgres";
 
 export const publisherOrganizationRepository = {
   async findMany(params: Prisma.PublisherOrganizationFindManyArgs = {}): Promise<PublisherOrganization[]> {
@@ -45,12 +45,17 @@ export const publisherOrganizationRepository = {
       data: params.update,
     });
   },
+
   groupBy<K extends keyof PublisherOrganization>(by: K[], where: Prisma.PublisherOrganizationWhereInput) {
     return prisma.publisherOrganization.groupBy({
       by: by as any,
       where,
       _count: true,
     });
+  },
+
+  async count(params: Prisma.PublisherOrganizationCountArgs = {}): Promise<number> {
+    return prismaCore.publisherOrganization.count(params);
   },
 };
 export default publisherOrganizationRepository;

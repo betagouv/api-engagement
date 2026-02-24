@@ -2,41 +2,41 @@ import { useEffect, useState } from "react";
 import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 
-import Footer from "./components/Footer";
-import Header from "./components/Header";
-import Loader from "./components/Loader";
-import Nav from "./components/Nav";
-import Account from "./scenes/account";
-import AdminAccounts from "./scenes/admin-account";
-import AdminMissions from "./scenes/admin-mission";
-import AdminStats from "./scenes/admin-stats";
-import AdminWarnings from "./scenes/admin-warning";
-import ForgotPassword from "./scenes/auth/ForgotPassword";
-import Login from "./scenes/auth/Login";
-import LoginAs from "./scenes/auth/LoginAs";
-import ResetPassword from "./scenes/auth/ResetPassword";
-import Signup from "./scenes/auth/Signup";
-import Broadcast from "./scenes/broadcast";
-import Campaign from "./scenes/campaign";
-import CGU from "./scenes/cgu";
-import Mission from "./scenes/mission";
-import MyMissions from "./scenes/my-missions";
-import Performance from "./scenes/performance";
+import Footer from "@/components/Footer";
+import Header from "@/components/Header";
+import Loader from "@/components/Loader";
+import Nav from "@/components/Nav";
+import Account from "@/scenes/account";
+import AdminAccounts from "@/scenes/admin-account";
+import AdminMissions from "@/scenes/admin-mission";
+import AdminStats from "@/scenes/admin-stats";
+import AdminWarnings from "@/scenes/admin-warning";
+import ForgotPassword from "@/scenes/auth/ForgotPassword";
+import Login from "@/scenes/auth/Login";
+import LoginAs from "@/scenes/auth/LoginAs";
+import ResetPassword from "@/scenes/auth/ResetPassword";
+import Signup from "@/scenes/auth/Signup";
+import Broadcast from "@/scenes/broadcast";
+import Campaign from "@/scenes/campaign";
+import CGU from "@/scenes/cgu";
+import Mission from "@/scenes/mission";
+import MyMissions from "@/scenes/my-missions";
+import Performance from "@/scenes/performance";
 
-import Settings from "./scenes/settings";
-import Warnings from "./scenes/warnings";
-import Widget from "./scenes/widget";
+import Settings from "@/scenes/settings";
+import Warnings from "@/scenes/warnings";
+import Widget from "@/scenes/widget";
 
-import image from "./assets/img/background-connexion.jpg";
-import AdminOrganization from "./scenes/admin-organization";
-import AdminReport from "./scenes/admin-report";
-import PublicStats from "./scenes/public-stats";
-import Publisher from "./scenes/publisher";
-import User from "./scenes/user";
-import api from "./services/api";
-import { ENV } from "./services/config";
-import { captureError } from "./services/error";
-import useStore from "./services/store";
+import image from "@/assets/img/background-connexion.jpg";
+import AdminOrganization from "@/scenes/admin-organization";
+import AdminReport from "@/scenes/admin-report";
+import PublicStats from "@/scenes/public-stats";
+import Publisher from "@/scenes/publisher";
+import User from "@/scenes/user";
+import api from "@/services/api";
+import { ENV } from "@/services/config";
+import { captureError } from "@/services/error";
+import useStore from "@/services/store";
 
 const LEGACY_PATHS = ["/performance", "/broadcast", "/my-missions", "/settings", "/mission", "/warning", "/my-account"];
 
@@ -117,7 +117,9 @@ const App = () => {
 const AuthLayout = () => {
   const { user } = useStore();
 
-  if (user) return <Navigate to="/performance" replace={true} />;
+  if (user) {
+    return <Navigate to="/performance" replace={true} />;
+  }
 
   return (
     <div className="bg-beige-gris-galet-975 flex min-h-screen w-screen flex-col">
@@ -158,10 +160,18 @@ const PATH = [
 
 const ADMIN_PATH = ["/admin-mission", "/admin-organization", "/admin-account", "/admin-stats", "/admin-warning", "/admin-report", "/user/", "/publisher/"];
 const getActiveTabId = (pathname) => {
-  if (pathname.includes("performance")) return "tab-performance";
-  if (pathname.includes("broadcast")) return "tab-broadcast";
-  if (pathname.includes("my-missions")) return "tab-my-missions";
-  if (pathname.includes("settings")) return "tab-settings";
+  if (pathname.includes("performance")) {
+    return "tab-performance";
+  }
+  if (pathname.includes("broadcast")) {
+    return "tab-broadcast";
+  }
+  if (pathname.includes("my-missions")) {
+    return "tab-my-missions";
+  }
+  if (pathname.includes("settings")) {
+    return "tab-settings";
+  }
   return null;
 };
 
@@ -199,7 +209,9 @@ const ProtectedLayout = () => {
         const publisher = localStorage.getItem("publisher");
         const res = await api.get(`/user/refresh${publisher ? `?publisherId=${publisher}` : ""}`);
 
-        if (!res.ok) throw res;
+        if (!res.ok) {
+          throw res;
+        }
         // Don't capture error here, it can be a 401
         setAuth(res.data.user, res.data.publisher);
         api.setToken(res.data.token);
@@ -215,13 +227,16 @@ const ProtectedLayout = () => {
     fetchData();
   }, []);
 
-  if (loading)
+  if (loading) {
     return (
       <main id="main-content" role="main" tabIndex={-1} className="flex h-screen w-full items-center justify-center">
         <Loader />
       </main>
     );
-  if (!user) return <Navigate to="/login" />;
+  }
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
 
   return (
     <div className="bg-beige-gris-galet-975 flex min-h-screen w-screen flex-col">
@@ -249,7 +264,9 @@ const AdminLayout = () => {
 const LegacyRedirect = () => {
   const { publisher } = useStore();
   const location = useLocation();
-  if (!publisher) return <Navigate to="/login" replace />;
+  if (!publisher) {
+    return <Navigate to="/login" replace />;
+  }
   const id = publisher.id || publisher._id;
   return <Navigate to={`/${id}${location.pathname}${location.search}`} replace />;
 };
@@ -262,9 +279,13 @@ const PublisherSyncLayout = () => {
     const currentId = publisher?.id;
     if (publisherId && publisherId !== currentId) {
       api.post("/publisher/search", {}).then((res) => {
-        if (!res.ok) return;
+        if (!res.ok) {
+          return;
+        }
         const found = res.data.find((p) => (p.id || p._id) === publisherId);
-        if (found) setPublisher(found);
+        if (found) {
+          setPublisher(found);
+        }
       });
     }
   }, [publisherId]);

@@ -1,5 +1,5 @@
-import { Prisma, StatEvent } from "../db/core";
-import { prisma } from "../db/postgres";
+import { Prisma, StatEvent } from "@/db/core";
+import { prisma } from "@/db/postgres";
 
 const defaultInclude = {
   fromPublisher: {

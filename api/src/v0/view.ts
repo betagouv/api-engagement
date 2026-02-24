@@ -1,7 +1,7 @@
 import { Response, Router } from "express";
 import passport from "passport";
 
-import { DEPRECATED } from "../error";
+import { DEPRECATED } from "@/error";
 
 const router = Router();
 

@@ -1,4 +1,4 @@
-import { prisma } from "../db/postgres";
+import { prisma } from "@/db/postgres";
 
 type ReassignStatsField = "id" | "sourceId" | "sourceName" | "fromPublisherId" | "toPublisherId" | "missionId" | "source" | "tag" | "tags" | "type" | "status" | "user";
 

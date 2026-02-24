@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { toast } from "../../services/toast";
+import { toast } from "@/services/toast";
 
 import { RiArrowLeftLine } from "react-icons/ri";
-import api from "../../services/api";
-import { captureError } from "../../services/error";
-import { buildPublisherPayload } from "../../utils/publisher";
-import AnnonceurCreation from "./components/AnnonceurCreation";
-import DiffuseurCreation from "./components/DiffuseurCreation";
-import Informations from "./components/Informations";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import { buildPublisherPayload } from "@/utils/publisher";
+import AnnonceurCreation from "@/scenes/publisher/components/AnnonceurCreation";
+import DiffuseurCreation from "@/scenes/publisher/components/DiffuseurCreation";
+import Informations from "@/scenes/publisher/components/Informations";
 
 const canSubmit = (values) => {
   if (values.name === "") return false;

@@ -2,20 +2,20 @@ import { useEffect, useState } from "react";
 import { RiCheckboxCircleFill, RiFileDownloadLine, RiInformationLine } from "react-icons/ri";
 import { Link, useSearchParams } from "react-router-dom";
 
-import ErrorIconSvg from "../../assets/svg/error-icon.svg?react";
-import MissionCombobox from "../../components/combobox/MissionCombobox";
-import InfoAlert from "../../components/InfoAlert";
-import Loader from "../../components/Loader";
-import SearchInput from "../../components/SearchInput";
-import Select from "../../components/Select";
-import Table from "../../components/Table";
-import Tooltip from "../../components/Tooltip";
-import { STATUS_PLR } from "../../constants";
-import api from "../../services/api";
-import { captureError } from "../../services/error";
-import { compactMissionFilters, searchMissions } from "../../services/mission";
-import useStore from "../../services/store";
-import exportCSV from "../../services/utils";
+import ErrorIconSvg from "@/assets/svg/error-icon.svg?react";
+import MissionCombobox from "@/components/combobox/MissionCombobox";
+import InfoAlert from "@/components/InfoAlert";
+import Loader from "@/components/Loader";
+import SearchInput from "@/components/SearchInput";
+import Select from "@/components/Select";
+import Table from "@/components/Table";
+import Tooltip from "@/components/Tooltip";
+import { STATUS_PLR } from "@/constants";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import { compactMissionFilters, searchMissions } from "@/services/mission";
+import useStore from "@/services/store";
+import exportCSV from "@/services/utils";
 
 const TABLE_HEADER = [
   { title: "Mission", key: "title.keyword", colSpan: 4 },

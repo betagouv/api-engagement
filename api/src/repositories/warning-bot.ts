@@ -1,5 +1,5 @@
-import { Prisma, WarningBot } from "../db/core";
-import { prisma } from "../db/postgres";
+import { Prisma, WarningBot } from "@/db/core";
+import { prisma } from "@/db/postgres";
 
 export const warningBotRepository = {
   async findMany(params: Prisma.WarningBotFindManyArgs = {}): Promise<WarningBot[]> {

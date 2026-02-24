@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
-import EmptySVG from "../../assets/svg/empty-info.svg";
-import { Pie, StackedBarchart } from "../../components/Chart";
-import DateRangePicker from "../../components/DateRangePicker";
-import Loader from "../../components/Loader";
-import Tabs from "../../components/Tabs";
-import { METABASE_CARD_ID, MONTHS } from "../../constants";
-import { useAnalyticsProvider } from "../../services/analytics/provider";
-import api from "../../services/api";
-import { captureError } from "../../services/error";
-import useStore from "../../services/store";
-import AnalyticsCard from "./AnalyticsCard";
+import EmptySVG from "@/assets/svg/empty-info.svg";
+import { Pie, StackedBarchart } from "@/components/Chart";
+import DateRangePicker from "@/components/DateRangePicker";
+import Loader from "@/components/Loader";
+import Tabs from "@/components/Tabs";
+import { METABASE_CARD_ID, MONTHS } from "@/constants";
+import { useAnalyticsProvider } from "@/services/analytics/provider";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import useStore from "@/services/store";
+import AnalyticsCard from "@/scenes/performance/AnalyticsCard";
 
 const COLORS = ["rgba(250,117,117,255)", "rgba(252,205,109,255)", "rgba(251,146,107,255)", "rgba(110,213,197,255)", "rgba(114,183,122,255)", "rgba(146,146,146,255)"];
 const TYPE = {

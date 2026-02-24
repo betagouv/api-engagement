@@ -1,7 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 
-import Create from "./Create";
-import Edit from "./Edit";
+import Create from "@/scenes/campaign/Create";
+import Edit from "@/scenes/campaign/Edit";
 
 const Index = () => {
   return (

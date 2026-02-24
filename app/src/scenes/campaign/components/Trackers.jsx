@@ -1,6 +1,6 @@
 import { RiDeleteBin6Line } from "react-icons/ri";
-import Toggle from "../../../components/Toggle";
-import { buildSearchParams } from "../../../utils/url";
+import Toggle from "@/components/Toggle";
+import { buildSearchParams } from "@/utils/url";
 
 const Trackers = ({ values, onChange }) => {
   const handleTrackerKeyChange = (e, i) => {

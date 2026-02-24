@@ -4,8 +4,8 @@ import { toast } from "@/services/toast";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
-import STATUS, { DOMAINS, JVA_MODERATION_COMMENTS_LABELS, STATUS_COLORS } from "../../components/Constants";
-import OrganizationRefusedModal from "../../components/OrganizationRefusedModal";
+import STATUS, { DOMAINS, JVA_MODERATION_COMMENTS_LABELS, STATUS_COLORS } from "@/scenes/broadcast/moderation/components/Constants";
+import OrganizationRefusedModal from "@/scenes/broadcast/moderation/components/OrganizationRefusedModal";
 
 const Header = ({ data, onChange }) => {
   const { publisher } = useStore();

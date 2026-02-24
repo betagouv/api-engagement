@@ -2,11 +2,11 @@ import { randomUUID } from "node:crypto";
 import request from "supertest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { PUBLISHER_IDS } from "../../../../src/config";
-import { prisma } from "../../../../src/db/postgres";
-import { publisherService } from "../../../../src/services/publisher";
-import { statBotService } from "../../../../src/services/stat-bot";
-import * as utils from "../../../../src/utils";
+import { PUBLISHER_IDS } from "@/config";
+import { prisma } from "@/db/postgres";
+import { publisherService } from "@/services/publisher";
+import { statBotService } from "@/services/stat-bot";
+import * as utils from "@/utils";
 import { createTestMission } from "../../../fixtures";
 import { createTestApp } from "../../../testApp";
 
@@ -132,7 +132,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
       missionPostalCode: mission.postalCode,
       missionDepartmentName: mission.departmentName,
       missionOrganizationName: mission.organizationName ?? "",
-      missionOrganizationId: mission.organizationId,
+      missionOrganizationId: mission.organizationId ?? "",
       missionOrganizationClientId: mission.organizationClientId,
       toPublisherId: mission.publisherId,
       fromPublisherId: fromPublisher.id,
@@ -145,7 +145,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
 
   it("uses mtm tracking parameters for Service Civique missions", async () => {
     const fromPublisher = await publisherService.createPublisher({ name: "From Publisher" });
-    const serviceCiviquePublisherId = PUBLISHER_IDS.SERVICE_CIVIQUE || "service-civique-publisher-id";
+    const serviceCiviquePublisherId = PUBLISHER_IDS.SERVICE_CIVIQUE || randomUUID();
     if (!PUBLISHER_IDS.SERVICE_CIVIQUE) {
       PUBLISHER_IDS.SERVICE_CIVIQUE = serviceCiviquePublisherId;
     }

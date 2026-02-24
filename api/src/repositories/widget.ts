@@ -1,5 +1,5 @@
-import { Prisma, Widget } from "../db/core";
-import { prisma } from "../db/postgres";
+import { Prisma, Widget } from "@/db/core";
+import { prisma } from "@/db/postgres";
 
 const defaultInclude = {
   fromPublisher: { select: { id: true, name: true } },

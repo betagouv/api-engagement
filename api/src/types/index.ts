@@ -5,15 +5,15 @@ export enum MissionType {
   VOLONTARIAT = "volontariat_service_civique",
 }
 
-export * from "./campaign";
-export * from "./email";
-export * from "./import";
-export * from "./mission";
-export * from "./mission-job-board";
-export * from "./moderation-event";
-export * from "./organization";
-export * from "./publisher";
-export * from "./report";
-export * from "./stat-event";
-export * from "./user";
-export * from "./widget";
+export * from "@/types/campaign";
+export * from "@/types/email";
+export * from "@/types/import";
+export * from "@/types/mission";
+export * from "@/types/mission-job-board";
+export * from "@/types/moderation-event";
+export * from "@/types/organization";
+export * from "@/types/publisher";
+export * from "@/types/report";
+export * from "@/types/stat-event";
+export * from "@/types/user";
+export * from "@/types/widget";

@@ -1,18 +1,18 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
-import ModerationAutoIcon from "../../../assets/svg/moderation-auto.svg";
-import Loader from "../../../components/Loader";
-import Table from "../../../components/Table";
-import Toggle from "../../../components/Toggle";
-import api from "../../../services/api";
-import { captureError } from "../../../services/error";
-import useStore from "../../../services/store";
-import Filters from "./components/Filters";
-import Header from "./components/Header";
-import MissionItem from "./components/MissionItem";
-import SettingsModal from "./components/SettingsModal";
-import MissionModal from "./modal";
+import ModerationAutoIcon from "@/assets/svg/moderation-auto.svg";
+import Loader from "@/components/Loader";
+import Table from "@/components/Table";
+import Toggle from "@/components/Toggle";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import useStore from "@/services/store";
+import Filters from "@/scenes/broadcast/moderation/components/Filters";
+import Header from "@/scenes/broadcast/moderation/components/Header";
+import MissionItem from "@/scenes/broadcast/moderation/components/MissionItem";
+import SettingsModal from "@/scenes/broadcast/moderation/components/SettingsModal";
+import MissionModal from "@/scenes/broadcast/moderation/modal";
 
 const Moderation = () => {
   const { publisher } = useStore();

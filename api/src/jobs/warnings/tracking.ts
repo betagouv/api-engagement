@@ -1,8 +1,8 @@
-import { SLACK_WARNING_CHANNEL_ID } from "../../config";
-import { postMessage } from "../../services/slack";
-import { statEventService } from "../../services/stat-event";
-import { warningService } from "../../services/warning";
-import type { PublisherRecord } from "../../types/publisher";
+import { SLACK_WARNING_CHANNEL_ID } from "@/config";
+import { postMessage } from "@/services/slack";
+import { statEventService } from "@/services/stat-event";
+import { warningService } from "@/services/warning";
+import type { PublisherRecord } from "@/types/publisher";
 
 const TRACKING_WARNING = "TRACKING_WARNING";
 

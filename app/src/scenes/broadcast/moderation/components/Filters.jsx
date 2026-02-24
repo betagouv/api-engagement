@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import { RiCloseFill } from "react-icons/ri";
 
-import ModerationManualIcon from "../../../../assets/svg/moderation-manual.svg";
-import MissionCombobox from "../../../../components/combobox/MissionCombobox";
-import SearchInput from "../../../../components/SearchInput";
-import Select from "../../../../components/Select";
-import api from "../../../../services/api";
-import { captureError } from "../../../../services/error";
-import useStore from "../../../../services/store";
-import STATUS, { DEPARTMENT_LABELS, JVA_MODERATION_COMMENTS_LABELS, STATUS_PLR } from "./Constants";
+import ModerationManualIcon from "@/assets/svg/moderation-manual.svg";
+import MissionCombobox from "@/components/combobox/MissionCombobox";
+import SearchInput from "@/components/SearchInput";
+import Select from "@/components/Select";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import useStore from "@/services/store";
+import STATUS, { DEPARTMENT_LABELS, JVA_MODERATION_COMMENTS_LABELS, STATUS_PLR } from "@/scenes/broadcast/moderation/components/Constants";
 
 const Filters = ({ filters, onChange, reload }) => {
   const { publisher } = useStore();
@@ -155,13 +155,11 @@ const Filters = ({ filters, onChange, reload }) => {
 const Badge = ({ label, value, onDelete }) => {
   if (!value) return null;
   return (
-    <div className="bg-blue-france-975 flex items-center gap-2 rounded p-2">
-      <p className="text-sm">{label}:</p>
-      <p className="text-sm">{value}</p>
-      <button className="text-sm text-black" onClick={onDelete}>
-        <RiCloseFill />
-      </button>
-    </div>
+    <button type="button" className="bg-blue-france-975 flex items-center gap-2 rounded p-2" title={`${label} : ${value} - Supprimer`} onClick={onDelete}>
+      <span className="text-sm">{label} :</span>
+      <span className="text-sm">{value}</span>
+      <RiCloseFill className="text-sm text-black" aria-hidden="true" />
+    </button>
   );
 };
 

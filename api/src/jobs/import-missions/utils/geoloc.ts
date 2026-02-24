@@ -1,12 +1,12 @@
 //https://api.gouv.fr/documentation/api_carto_codes_postaux
 
-import { DEPARTMENTS } from "../../../constants/departments";
+import { DEPARTMENTS } from "@/constants/departments";
 
-import { captureException } from "../../../error";
-import geopfService from "../../../services/geopf";
-import { GeolocStatus } from "../../../types";
-import type { PublisherRecord } from "../../../types/publisher";
-import type { ImportedMission } from "../types";
+import { captureException } from "@/error";
+import geopfService from "@/services/geopf";
+import { GeolocStatus } from "@/types";
+import type { PublisherRecord } from "@/types/publisher";
+import type { ImportedMission } from "@/jobs/import-missions/types";
 
 export interface GeolocResult {
   clientId: string;

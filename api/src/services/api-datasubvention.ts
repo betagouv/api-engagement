@@ -1,5 +1,5 @@
-import { DATA_SUBVENTION_TOKEN } from "../config";
-import { captureException, captureMessage } from "../error";
+import { DATA_SUBVENTION_TOKEN } from "@/config";
+import { captureException, captureMessage } from "@/error";
 
 const get = async (path: string, body?: BodyInit, options?: RequestInit, retries = 0) => {
   try {

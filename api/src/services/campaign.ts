@@ -1,8 +1,8 @@
-import { Campaign, CampaignTracker, Prisma, Publisher, User } from "../db/core";
-import { campaignRepository } from "../repositories/campaign";
-import { CampaignCreateInput, CampaignRecord, CampaignSearchParams, CampaignSearchResult, CampaignUpdatePatch } from "../types/campaign";
-import { buildSearchParams, toUrl } from "../utils/url";
-import statEventService from "./stat-event";
+import { Campaign, CampaignTracker, Prisma, Publisher, User } from "@/db/core";
+import { campaignRepository } from "@/repositories/campaign";
+import { CampaignCreateInput, CampaignRecord, CampaignSearchParams, CampaignSearchResult, CampaignUpdatePatch } from "@/types/campaign";
+import { buildSearchParams, toUrl } from "@/utils/url";
+import statEventService from "@/services/stat-event";
 
 // Map MongoDB campaign type to Prisma enum
 

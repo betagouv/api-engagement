@@ -3,8 +3,8 @@ import { HiLocationMarker } from "react-icons/hi";
 import { RiCursorFill } from "react-icons/ri";
 import { useParams } from "react-router-dom";
 
-import api from "../../services/api";
-import { captureError } from "../../services/error";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
 
 const View = () => {
   const { id } = useParams();

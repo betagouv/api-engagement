@@ -1,5 +1,5 @@
-import { Organization, Prisma } from "../db/core";
-import { prisma } from "../db/postgres";
+import { Organization, Prisma } from "@/db/core";
+import { prisma } from "@/db/postgres";
 
 export const organizationRepository = {
   async findMany(params: Prisma.OrganizationFindManyArgs = {}): Promise<Organization[]> {

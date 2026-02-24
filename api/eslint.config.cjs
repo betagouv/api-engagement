@@ -53,6 +53,19 @@ module.exports = [
       "no-useless-escape": "off",
       "no-unused-vars": "off",
 
+      // Enforce @/ alias instead of relative parent imports
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["../*"],
+              message: "Use @/ alias instead of relative parent imports (e.g. @/services/foo).",
+            },
+          ],
+        },
+      ],
+
       // Import plugin adjustments
       "import/extensions": "off",
       "import/no-extraneous-dependencies": "off",
@@ -63,6 +76,24 @@ module.exports = [
           extensions: [".js", ".jsx", ".ts", ".tsx"],
         },
       },
+    },
+  },
+
+  // Allow relative imports within tests/ (for intra-test imports like fixtures, mocks, testApp)
+  {
+    files: ["tests/**/*.ts"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["../src/*", "../../src/*", "../../../src/*"],
+              message: "Use @/ alias instead of relative imports to src/ (e.g. @/services/foo).",
+            },
+          ],
+        },
+      ],
     },
   },
 ];

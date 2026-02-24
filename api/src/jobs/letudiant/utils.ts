@@ -1,13 +1,13 @@
 // Utility functions for letudiant job sync
 import he from "he";
 import { setTimeout as sleep } from "timers/promises";
-import { missionService } from "../../services/mission";
-import missionJobBoardService from "../../services/mission-jobboard";
-import { PilotyClient } from "../../services/piloty/client";
-import { PilotyJobCategory, PilotyMandatoryData } from "../../services/piloty/types";
-import { MissionRecord } from "../../types/mission";
-import { JobBoardId, MissionJobBoardRecord } from "../../types/mission-job-board";
-import { AUDIENCE_MAPPING, CONTRACT_MAPPING, DAYS_AFTER_REPUBLISH, DOMAIN_MAPPING, JOB_CATEGORY_MAPPING, REMOTE_POLICY_MAPPING, WHITELISTED_PUBLISHERS_IDS } from "./config";
+import { missionService } from "@/services/mission";
+import missionJobBoardService from "@/services/mission-jobboard";
+import { PilotyClient } from "@/services/piloty/client";
+import { PilotyJobCategory, PilotyMandatoryData } from "@/services/piloty/types";
+import { MissionRecord } from "@/types/mission";
+import { JobBoardId, MissionJobBoardRecord } from "@/types/mission-job-board";
+import { AUDIENCE_MAPPING, CONTRACT_MAPPING, DAYS_AFTER_REPUBLISH, DOMAIN_MAPPING, JOB_CATEGORY_MAPPING, REMOTE_POLICY_MAPPING, WHITELISTED_PUBLISHERS_IDS } from "@/jobs/letudiant/config";
 
 export const LETUDIANT_JOB_BOARD_ID: JobBoardId = "LETUDIANT";
 export type MissionWithJobBoards = { mission: MissionRecord; jobBoards: MissionJobBoardRecord[] };

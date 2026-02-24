@@ -1,5 +1,5 @@
-import { ModerationEvent, Prisma } from "../db/core";
-import { prisma } from "../db/postgres";
+import { ModerationEvent, Prisma } from "@/db/core";
+import { prisma } from "@/db/postgres";
 
 export const moderationEventRepository = {
   async find(params: Prisma.ModerationEventFindManyArgs = {}): Promise<ModerationEvent[]> {

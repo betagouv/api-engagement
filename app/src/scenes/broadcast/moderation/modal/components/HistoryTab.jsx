@@ -5,7 +5,7 @@ import Loader from "@/components/Loader";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
-import { JVA_MODERATION_COMMENTS_LABELS, STATUS } from "../../components/Constants";
+import { JVA_MODERATION_COMMENTS_LABELS, STATUS } from "@/scenes/broadcast/moderation/components/Constants";
 
 const HistoryTab = ({ data }) => {
   const { publisher } = useStore();

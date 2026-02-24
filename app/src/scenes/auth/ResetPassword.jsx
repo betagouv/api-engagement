@@ -4,11 +4,11 @@ import { IoMdEye, IoMdEyeOff } from "react-icons/io";
 import { RiCheckboxCircleFill, RiErrorWarningFill } from "react-icons/ri";
 import { Link, useSearchParams } from "react-router-dom";
 
-import ErrorAlert from "../../components/ErrorAlert";
-import WarningAlert from "../../components/WarningAlert";
-import api from "../../services/api";
-import { captureError } from "../../services/error";
-import { hasLetter, hasNumber, hasSpecialChar } from "../../services/utils";
+import ErrorAlert from "@/components/ErrorAlert";
+import WarningAlert from "@/components/WarningAlert";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import { hasLetter, hasNumber, hasSpecialChar } from "@/services/utils";
 
 const ResetPassword = () => {
   const [searchParams] = useSearchParams();

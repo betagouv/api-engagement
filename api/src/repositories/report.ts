@@ -1,5 +1,5 @@
-import { Prisma } from "../db/core";
-import { prisma } from "../db/postgres";
+import { Prisma } from "@/db/core";
+import { prisma } from "@/db/postgres";
 
 export const reportRepository = {
   async find<T extends Prisma.ReportFindManyArgs>(params: Prisma.SelectSubset<T, Prisma.ReportFindManyArgs>): Promise<Prisma.ReportGetPayload<T>[]> {

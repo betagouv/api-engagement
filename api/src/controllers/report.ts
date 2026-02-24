@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response, Router } from "express";
 import zod from "zod";
 
-import { captureException, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
-import { reportService } from "../services/report";
+import { captureException, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
+import { reportService } from "@/services/report";
 
 const router = Router();
 

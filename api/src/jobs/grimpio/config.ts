@@ -1,4 +1,4 @@
-import { BUCKET_NAME, PUBLISHER_IDS } from "../../config";
+import { BUCKET_NAME, PUBLISHER_IDS } from "@/config";
 
 export const GRIMPIO_XML_URL = `https://${BUCKET_NAME}.s3.fr-par.scw.cloud/xml/grimpio`;
 

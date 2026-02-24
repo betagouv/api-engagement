@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getDistanceFromLatLonInKm, getDistanceKm } from "../geo";
+import { getDistanceFromLatLonInKm, getDistanceKm } from "@/utils/geo";
 
 describe("Geo Utils", () => {
   describe("getDistanceKm", () => {

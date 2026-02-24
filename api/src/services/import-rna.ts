@@ -1,8 +1,8 @@
 import { randomUUID } from "crypto";
 
-import { Prisma } from "../db/core";
-import { importRnaRepository } from "../repositories/import-rna";
-import type { ImportRnaCreateInput, ImportRnaFindParams, ImportRnaRecord, ImportRnaUpdatePatch } from "../types/import-rna";
+import { Prisma } from "@/db/core";
+import { importRnaRepository } from "@/repositories/import-rna";
+import type { ImportRnaCreateInput, ImportRnaFindParams, ImportRnaRecord, ImportRnaUpdatePatch } from "@/types/import-rna";
 
 export const importRnaService = {
   async findOneImportRna(id: string): Promise<ImportRnaRecord | null> {

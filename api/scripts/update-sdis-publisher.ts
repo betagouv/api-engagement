@@ -1,8 +1,8 @@
 /**
  * Script that updates the publisher with "SDIS" in the name to have the mission type "volontariat_sapeurs_pompiers".
  */
-import { prismaCore } from "../src/db/postgres";
-import { PublisherMissionType } from "../src/types/publisher";
+import { prismaCore } from "@/db/postgres";
+import { PublisherMissionType } from "@/types/publisher";
 
 async function run() {
   const count = await prismaCore.publisher.count({

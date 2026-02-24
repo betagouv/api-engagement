@@ -1,6 +1,6 @@
-import { Email, Prisma } from "../db/core";
-import { emailRepository } from "../repositories/email";
-import type { EmailCreateInput, EmailFindParams, EmailRecord, EmailUpdatePatch } from "../types/email";
+import { Email, Prisma } from "@/db/core";
+import { emailRepository } from "@/repositories/email";
+import type { EmailCreateInput, EmailFindParams, EmailRecord, EmailUpdatePatch } from "@/types/email";
 
 const toEmailRecord = (email: Email): EmailRecord => ({
   id: email.id,

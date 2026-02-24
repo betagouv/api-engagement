@@ -1,8 +1,8 @@
-import { MissionAddress, MissionRecord } from "../../types/mission";
-import { getMissionTrackedApplicationUrl } from "../../utils";
-import { LINKEDIN_COMPANY_ID, LINKEDIN_INDUSTRY_CODE, LINKEDIN_PUBLISHER_ID } from "./config";
-import { LinkedInJob } from "./types";
-import { getAudienceLabel, getDomainLabel } from "./utils";
+import { MissionAddress, MissionRecord } from "@/types/mission";
+import { getMissionTrackedApplicationUrl } from "@/utils";
+import { LINKEDIN_COMPANY_ID, LINKEDIN_INDUSTRY_CODE, LINKEDIN_PUBLISHER_ID } from "@/jobs/linkedin/config";
+import { LinkedInJob } from "@/jobs/linkedin/types";
+import { getAudienceLabel, getDomainLabel } from "@/jobs/linkedin/utils";
 
 /**
  * Format mission to Linkedin Job

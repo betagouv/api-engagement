@@ -4,15 +4,15 @@ import jwt from "jsonwebtoken";
 import passport from "passport";
 import zod from "zod";
 
-import { APP_URL, SECRET } from "../config";
-import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, REQUEST_EXPIRED, RESSOURCE_ALREADY_EXIST } from "../error";
-import { sendTemplate } from "../services/brevo";
-import { loginHistoryService } from "../services/login-history";
-import { publisherService } from "../services/publisher";
-import { userService } from "../services/user";
-import { UserRequest } from "../types/passport";
-import type { UserUpdatePatch } from "../types/user";
-import { hasLetter, hasNumber, hasSpecialChar } from "../utils";
+import { APP_URL, SECRET } from "@/config";
+import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, REQUEST_EXPIRED, RESSOURCE_ALREADY_EXIST } from "@/error";
+import { sendTemplate } from "@/services/brevo";
+import { loginHistoryService } from "@/services/login-history";
+import { publisherService } from "@/services/publisher";
+import { userService } from "@/services/user";
+import { UserRequest } from "@/types/passport";
+import type { UserUpdatePatch } from "@/types/user";
+import { hasLetter, hasNumber, hasSpecialChar } from "@/utils";
 
 const FORGET_PASSWORD_EXPIRATION = 1000 * 60 * 60 * 2; // 2 hours
 const AUTH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7; // 7 day

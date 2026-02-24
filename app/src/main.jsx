@@ -7,9 +7,9 @@ import ReactDOM from "react-dom/client";
 import "react-toastify/dist/ReactToastify.css";
 import "react-tooltip/dist/react-tooltip.css";
 
-import App from "./App";
+import App from "@/App";
 import "./index.css";
-import { ENV, SENTRY_DSN } from "./services/config";
+import { ENV, SENTRY_DSN } from "@/services/config";
 
 if (ENV !== "development") {
   Sentry.init({

@@ -1,12 +1,12 @@
 import { randomUUID } from "node:crypto";
 
-import { prisma } from "../../src/db/postgres";
-import { missionRepository } from "../../src/repositories/mission";
-import { missionService } from "../../src/services/mission";
-import { missionModerationStatusService } from "../../src/services/mission-moderation-status";
-import { organizationService } from "../../src/services/organization";
-import { MissionType, type MissionCreateInput, type MissionRecord } from "../../src/types";
-import type { MissionAddress } from "../../src/types/mission";
+import { prisma } from "@/db/postgres";
+import { missionRepository } from "@/repositories/mission";
+import { missionService } from "@/services/mission";
+import { missionModerationStatusService } from "@/services/mission-moderation-status";
+import { organizationService } from "@/services/organization";
+import { MissionType, type MissionCreateInput, type MissionRecord } from "@/types";
+import type { MissionAddress } from "@/types/mission";
 import { createTestPublisher } from "./publisher";
 
 const ensurePublisherExists = async (publisherId: string) => {
@@ -98,8 +98,6 @@ export const createTestMission = async (data: Partial<MissionCreateInput & { del
         status: data.organizationStatusJuridique ?? (data as any).organizationType ?? undefined,
         addressCity: data.organizationCity ?? undefined,
         addressPostalCode: data.organizationPostCode ?? undefined,
-        addressDepartmentName: data.organizationDepartmentName ?? undefined,
-        addressDepartmentCode: data.organizationDepartmentCode ?? undefined,
       });
       organizationId = created.id;
     }
@@ -114,8 +112,6 @@ export const createTestMission = async (data: Partial<MissionCreateInput & { del
       status: data.organizationStatusJuridique ?? (data as any).organizationType ?? undefined,
       addressCity: data.organizationCity ?? undefined,
       addressPostalCode: data.organizationPostCode ?? undefined,
-      addressDepartmentName: data.organizationDepartmentName ?? undefined,
-      addressDepartmentCode: data.organizationDepartmentCode ?? undefined,
     });
     organizationId = organization.id;
   }
@@ -181,8 +177,6 @@ export const createTestMission = async (data: Partial<MissionCreateInput & { del
     organizationStatusJuridique: data.organizationStatusJuridique,
     organizationCity: data.organizationCity,
     organizationPostCode: data.organizationPostCode,
-    organizationDepartmentName: data.organizationDepartmentName,
-    organizationDepartmentCode: data.organizationDepartmentCode,
     organizationReseaux: data.organizationReseaux,
     organizationActions: data.organizationActions,
     organizationBeneficiaries: data.organizationBeneficiaries,
@@ -203,32 +197,32 @@ export const createTestMission = async (data: Partial<MissionCreateInput & { del
   }
   const addressesForCreate = mapAddressesForCreate(addresses);
 
+  let publisherOrganizationId: string | null = null;
   if (missionInput.organizationClientId) {
-    await prisma.publisherOrganization.upsert({
+    const pubOrg = await prisma.publisherOrganization.upsert({
       where: {
-        publisherId_organizationClientId: {
+        publisherId_clientId: {
           publisherId: missionInput.publisherId,
-          organizationClientId: missionInput.organizationClientId,
+          clientId: missionInput.organizationClientId,
         },
       },
       create: {
         publisherId: missionInput.publisherId,
-        organizationClientId: missionInput.organizationClientId,
-        organizationName: missionInput.organizationName ?? null,
-        organizationRNA: missionInput.organizationRNA ?? null,
-        organizationSiren: missionInput.organizationSiren ?? null,
-        organizationSiret: missionInput.organizationSiret ?? null,
-        organizationStatusJuridique: missionInput.organizationStatusJuridique ?? null,
-        organizationCity: missionInput.organizationCity ?? null,
-        organizationPostCode: missionInput.organizationPostCode ?? null,
-        organizationDepartmentName: missionInput.organizationDepartmentName ?? null,
-        organizationDepartmentCode: missionInput.organizationDepartmentCode ?? null,
-        organizationReseaux: missionInput.organizationReseaux ?? [],
-        organizationActions: missionInput.organizationActions ?? [],
-        organizationBeneficiaries: missionInput.organizationBeneficiaries ?? [],
+        clientId: missionInput.organizationClientId,
+        name: missionInput.organizationName ?? null,
+        rna: missionInput.organizationRNA ?? null,
+        siren: missionInput.organizationSiren ?? null,
+        siret: missionInput.organizationSiret ?? null,
+        legalStatus: missionInput.organizationStatusJuridique ?? null,
+        city: missionInput.organizationCity ?? null,
+        postalCode: missionInput.organizationPostCode ?? null,
+        beneficiaries: missionInput.organizationBeneficiaries ?? [],
+        actions: missionInput.organizationActions ?? [],
+        parentOrganizations: missionInput.organizationReseaux ?? [],
       },
       update: {},
     });
+    publisherOrganizationId = pubOrg.id;
   }
 
   const missionId = missionInput.id ?? randomUUID();
@@ -269,7 +263,7 @@ export const createTestMission = async (data: Partial<MissionCreateInput & { del
     compensationUnit: missionInput.compensationUnit ?? undefined,
     compensationType: missionInput.compensationType ?? undefined,
     organizationClientId: missionInput.organizationClientId ?? undefined,
-    organizationId: missionInput.organizationId ?? undefined,
+    publisherOrganizationId: publisherOrganizationId ?? undefined,
     lastSyncAt: missionInput.lastSyncAt ?? undefined,
     applicationUrl: missionInput.applicationUrl ?? undefined,
     statusComment: missionInput.statusComment ?? undefined,

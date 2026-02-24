@@ -1,6 +1,6 @@
 import { createContext, useContext } from "react";
 
-import defaultAnalyticsProvider from "./defaultProvider";
+import defaultAnalyticsProvider from "@/services/analytics/defaultProvider";
 
 const AnalyticsProviderContext = createContext(defaultAnalyticsProvider);
 

@@ -1,8 +1,8 @@
 import * as Sentry from "@sentry/node";
 import { NextFunction, Request, Response } from "express";
-import { ENV } from "../config";
-import { SERVER_ERROR, captureException } from "../error";
-import { REQUEST_ID_HEADER } from "../utils/request-id";
+import { ENV } from "@/config";
+import { SERVER_ERROR, captureException } from "@/error";
+import { REQUEST_ID_HEADER } from "@/utils/request-id";
 
 const errorHandler = (err: any, req: Request, res: Response, _: NextFunction) => {
   try {

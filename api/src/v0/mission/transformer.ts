@@ -1,7 +1,7 @@
-import { PUBLISHER_IDS } from "../../config";
-import { MissionRecord } from "../../types/mission";
-import { getMissionTrackedApplicationUrl } from "../../utils";
-import { MISSION_FIELDS } from "./constants";
+import { PUBLISHER_IDS } from "@/config";
+import { MissionRecord } from "@/types/mission";
+import { getMissionTrackedApplicationUrl } from "@/utils";
+import { MISSION_FIELDS } from "@/v0/mission/constants";
 
 const toYesNo = (value: unknown) => {
   if (value === true) {

@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto";
 
-import { widgetService } from "../../src/services/widget";
-import type { PublisherRecord } from "../../src/types/publisher";
-import type { WidgetCreateInput, WidgetRecord, WidgetRuleInput } from "../../src/types/widget";
+import { widgetService } from "@/services/widget";
+import type { PublisherRecord } from "@/types/publisher";
+import type { WidgetCreateInput, WidgetRecord, WidgetRuleInput } from "@/types/widget";
 import { createTestPublisher } from "./publisher";
 
 type WidgetFixtureInput = Omit<Partial<WidgetCreateInput>, "fromPublisherId"> & {

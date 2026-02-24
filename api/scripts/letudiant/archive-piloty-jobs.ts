@@ -21,12 +21,12 @@ if (envName) {
   dotenv.config();
 }
 
-import { LETUDIANT_PILOTY_TOKEN } from "../../src/config";
-import { JobBoardId } from "../../src/db/core";
-import { prismaCore } from "../../src/db/postgres";
-import { MEDIA_PUBLIC_ID } from "../../src/jobs/letudiant/config";
-import { rateLimit } from "../../src/jobs/letudiant/utils";
-import { PilotyClient } from "../../src/services/piloty";
+import { LETUDIANT_PILOTY_TOKEN } from "@/config";
+import { JobBoardId } from "@/db/core";
+import { prismaCore } from "@/db/postgres";
+import { MEDIA_PUBLIC_ID } from "@/jobs/letudiant/config";
+import { rateLimit } from "@/jobs/letudiant/utils";
+import { PilotyClient } from "@/services/piloty";
 
 async function main() {
   if (!LETUDIANT_PILOTY_TOKEN) {

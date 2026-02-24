@@ -2,15 +2,15 @@ import cors from "cors";
 import { NextFunction, Request, Response, Router } from "express";
 import zod from "zod";
 
-import { PUBLISHER_IDS } from "../config";
-import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "../error";
-import { widgetService } from "../services/widget";
-import { widgetMissionService } from "../services/widget-mission";
-import { WidgetRecord } from "../types";
-import type { MissionRecord, MissionSearchFilters, MissionSelect } from "../types/mission";
-import { capitalizeFirstLetter, getDistanceKm } from "../utils";
-import { normalizeToArray } from "../utils/array";
-import { applyWidgetRules } from "../utils/widget";
+import { PUBLISHER_IDS } from "@/config";
+import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
+import { widgetService } from "@/services/widget";
+import { widgetMissionService } from "@/services/widget-mission";
+import { WidgetRecord } from "@/types";
+import type { MissionRecord, MissionSearchFilters, MissionSelect } from "@/types/mission";
+import { capitalizeFirstLetter, getDistanceKm } from "@/utils";
+import { normalizeToArray } from "@/utils/array";
+import { applyWidgetRules } from "@/utils/widget";
 
 const router = Router();
 
@@ -20,8 +20,7 @@ const MISSION_FIELDS: MissionSelect = {
   moderationStatuses: { select: { title: true } },
   domain: { select: { name: true } },
   domainLogo: true,
-  publisherOrganization: { select: { organizationName: true } },
-  organizationName: true,
+  publisherOrganization: { select: { name: true } },
   remote: true,
   addresses: { select: { city: true, country: true, postalCode: true } },
   places: true,

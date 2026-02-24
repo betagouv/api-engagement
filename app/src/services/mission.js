@@ -1,4 +1,4 @@
-import api from "./api";
+import api from "@/services/api";
 
 const isEmpty = (value) => value === "" || value === null || value === undefined;
 

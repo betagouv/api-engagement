@@ -2,11 +2,11 @@ import { randomUUID } from "node:crypto";
 import request from "supertest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { JVA_URL, PUBLISHER_IDS } from "../../../../src/config";
-import { prisma } from "../../../../src/db/postgres";
-import { statBotService } from "../../../../src/services/stat-bot";
-import { widgetService } from "../../../../src/services/widget";
-import * as utils from "../../../../src/utils";
+import { JVA_URL, PUBLISHER_IDS } from "@/config";
+import { prisma } from "@/db/postgres";
+import { statBotService } from "@/services/stat-bot";
+import { widgetService } from "@/services/widget";
+import * as utils from "@/utils";
 import { createTestMission } from "../../../fixtures";
 import { createTestApp } from "../../../testApp";
 
@@ -122,7 +122,7 @@ describe("RedirectController /widget/:id", () => {
       missionPostalCode: mission.postalCode,
       missionDepartmentName: mission.departmentName,
       missionOrganizationName: mission.organizationName ?? "",
-      missionOrganizationId: mission.organizationId,
+      missionOrganizationId: mission.organizationId ?? "",
       missionOrganizationClientId: mission.organizationClientId,
       toPublisherId: mission.publisherId,
       fromPublisherId: widget.fromPublisherId,

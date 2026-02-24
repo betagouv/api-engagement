@@ -1,7 +1,7 @@
 import { rateLimit } from "express-rate-limit";
 
-import { APP_URL, BENEVOLAT_URL, VOLONTARIAT_URL } from "../config";
-import { captureMessage } from "../error";
+import { APP_URL, BENEVOLAT_URL, VOLONTARIAT_URL } from "@/config";
+import { captureMessage } from "@/error";
 
 const limiter = rateLimit({
   windowMs: 5000, // 5 second

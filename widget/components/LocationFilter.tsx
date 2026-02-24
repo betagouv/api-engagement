@@ -2,8 +2,8 @@ import { usePlausible } from "next-plausible";
 import { useEffect, useRef, useState } from "react";
 import { RiCloseFill, RiMapPin2Fill } from "react-icons/ri";
 
-import { Location } from "../types";
-import useStore from "../utils/store";
+import { Location } from "@/types";
+import useStore from "@/utils/store";
 
 interface AddressFeature {
   properties: {

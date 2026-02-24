@@ -1,5 +1,5 @@
-import { Activity, Prisma } from "../db/core";
-import { prisma } from "../db/postgres";
+import { Activity, Prisma } from "@/db/core";
+import { prisma } from "@/db/postgres";
 
 export const activityRepository = {
   async findMany(params: Prisma.ActivityFindManyArgs = {}): Promise<Activity[]> {

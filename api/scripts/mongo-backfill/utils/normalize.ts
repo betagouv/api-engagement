@@ -1,4 +1,4 @@
-import type { Prisma } from "../../../src/db/core";
+import type { Prisma } from "@/db/core";
 
 export const normalizeDate = (value: Date | string | null | undefined): Date | null => {
   if (value == null) {

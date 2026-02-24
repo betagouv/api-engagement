@@ -2,7 +2,7 @@ import { randomUUID } from "crypto";
 import request from "supertest";
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { MissionRecord, PublisherRecord } from "../../../../src/types";
+import type { MissionRecord, PublisherRecord } from "@/types";
 import { createTestMission, createTestPublisher } from "../../../fixtures";
 import { createTestApp } from "../../../testApp";
 

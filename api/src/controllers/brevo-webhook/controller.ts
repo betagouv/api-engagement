@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { INVALID_BODY } from "../../error";
-import { emailService } from "../../services/email";
-import { BrevoInboundEmail } from "../../types/brevo";
-import { EmailCreateInput } from "../../types/email";
-import { downloadFile } from "./helpers/download-file";
+import { INVALID_BODY } from "@/error";
+import { emailService } from "@/services/email";
+import { BrevoInboundEmail } from "@/types/brevo";
+import { EmailCreateInput } from "@/types/email";
+import { downloadFile } from "@/controllers/brevo-webhook/helpers/download-file";
 
 const router = Router();
 

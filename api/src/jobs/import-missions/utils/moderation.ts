@@ -1,7 +1,8 @@
-import { COMPENSATION_TYPES, COMPENSATION_UNITS } from "../../../constants/compensation";
-import { COUNTRIES } from "../../../constants/countries";
-import { DOMAINS } from "../../../constants/domains";
-import type { MissionRecord } from "../../../types/mission";
+import { COMPENSATION_TYPES, COMPENSATION_UNITS } from "@/constants/compensation";
+import { COUNTRIES } from "@/constants/countries";
+import { DOMAINS } from "@/constants/domains";
+import type { MissionRecord } from "@/types/mission";
+import { hasEncodageIssue } from "@/utils";
 
 export const getModeration = (mission: Partial<MissionRecord> & Record<string, any>) => {
   let statusComment: string | undefined;
@@ -42,8 +43,4 @@ export const getModeration = (mission: Partial<MissionRecord> & Record<string, a
 
   mission.statusCode = statusComment ? "REFUSED" : "ACCEPTED";
   mission.statusComment = statusComment || "";
-};
-
-const hasEncodageIssue = (str = "") => {
-  return str.indexOf("&#") !== -1;
 };

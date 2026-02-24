@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { IoIosArrowDown } from "react-icons/io";
 import { RiArrowLeftSLine, RiArrowRightSLine, RiSkipLeftLine, RiSkipRightLine } from "react-icons/ri";
 
-import Loader from "./Loader";
+import Loader from "@/components/Loader";
 
 const Table = ({
   header,

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { findLetudiantPublicId } from "../handler";
-import { MissionJobBoardRecord } from "../../../types/mission-job-board";
+import { findLetudiantPublicId } from "@/jobs/letudiant/handler";
+import { MissionJobBoardRecord } from "@/types/mission-job-board";
 
 describe("Letudiant handler utils", () => {
   it("should return existing id for matching address", () => {

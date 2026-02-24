@@ -5,12 +5,12 @@ import { BsDot } from "react-icons/bs";
 import { RiCalendarEventFill, RiCheckboxCircleFill, RiCloseCircleFill, RiMapPin2Fill, RiMoreFill, RiPencilFill, RiTimeLine } from "react-icons/ri";
 import { useSearchParams } from "react-router-dom";
 
-import Modal from "../../../../components/Modal";
-import api from "../../../../services/api";
-import { captureError } from "../../../../services/error";
-import useStore from "../../../../services/store";
-import { JVA_MODERATION_COMMENTS_LABELS, STATUS, STATUS_COLORS } from "./Constants";
-import OrganizationRefusedModal from "./OrganizationRefusedModal";
+import Modal from "@/components/Modal";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import useStore from "@/services/store";
+import { JVA_MODERATION_COMMENTS_LABELS, STATUS, STATUS_COLORS } from "@/scenes/broadcast/moderation/components/Constants";
+import OrganizationRefusedModal from "@/scenes/broadcast/moderation/components/OrganizationRefusedModal";
 
 const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, onChangeMany }) => {
   const { publisher } = useStore();
@@ -175,9 +175,9 @@ const MissionActionsMenu = ({ data, onFilter, onChange }) => {
   return (
     <>
       <Menu as="div" className="relative h-full text-left">
-        <Menu.Button as="div" className="secondary-btn shadow-border-black text-black">
+        <Menu.Button className="secondary-btn shadow-border-black text-black" aria-label="Plus d'actions">
           <span className="font-semibold">
-            <RiMoreFill />
+            <RiMoreFill aria-hidden="true" />
           </span>
         </Menu.Button>
         <Transition

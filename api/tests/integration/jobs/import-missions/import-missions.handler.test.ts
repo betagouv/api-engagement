@@ -2,10 +2,10 @@ import { readFile } from "fs/promises";
 import path from "path";
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { prisma } from "../../../../src/db/postgres";
-import { ImportMissionsHandler } from "../../../../src/jobs/import-missions/handler";
-import { importService } from "../../../../src/services/import";
-import { missionService } from "../../../../src/services/mission";
+import { prisma } from "@/db/postgres";
+import { ImportMissionsHandler } from "@/jobs/import-missions/handler";
+import { importService } from "@/services/import";
+import { missionService } from "@/services/mission";
 import { createTestImport, createTestMission, createTestPublisher } from "../../../fixtures";
 
 const originalFetch = global.fetch;
@@ -402,7 +402,6 @@ describe("Import missions job (integration test)", () => {
     await new Promise((resolve) => setTimeout(resolve, 10));
 
     // Second import with same XML (no startAt) - should preserve the existing startAt from DB
-    const secondImportDate = new Date();
     (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => xmlWithoutStartAt });
 
     const result2 = await handler.handle({ publisherId: publisher.id });

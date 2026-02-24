@@ -1,13 +1,13 @@
 import "./shared";
 
+import { pgConnected } from "@/db/postgres";
 import { afterAll, beforeAll, beforeEach } from "vitest";
-import { pgConnected } from "../../src/db/postgres";
 
-type PostgresModule = typeof import("../../src/db/postgres");
+type PostgresModule = typeof import("@/db/postgres");
 let prismaCore: PostgresModule["prisma"] | null = null;
 
 beforeAll(async () => {
-  const postgresModule = await import("../../src/db/postgres");
+  const postgresModule = await import("@/db/postgres");
   prismaCore = postgresModule.prisma;
 
   try {
