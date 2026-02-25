@@ -305,18 +305,13 @@ const AdminNotificationMenu = () => {
   );
 };
 
-const ACCOUNT_MENU_ITEMS = [
-  { key: "my-account", label: "Mon compte", getHref: (publisherId) => `/${publisherId}/my-account` },
-  { key: "logout", label: "Se déconnecter", action: true },
-];
-
 const AccountMenu = () => {
-  const { user, publisher } = useStore();
+  const { user, publisher, setAuth } = useStore();
   const publisherId = publisher?.id;
   const location = useLocation();
   const ref = useRef(null);
   const buttonRef = useRef(null);
-  const [listRef] = useState(() => ACCOUNT_MENU_ITEMS.map(() => undefined));
+
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -341,6 +336,11 @@ const AccountMenu = () => {
     }
   };
 
+  const handleLogout = async () => {
+    api.removeToken();
+    setAuth(null, null);
+  };
+
   return (
     <div className="relative" ref={ref} onBlur={handleFocusOut} onKeyDown={handleKeyDown}>
       <button ref={buttonRef} className="btn hover:bg-gray-975 focus" type="button" onClick={() => setShow(!show)}>
@@ -359,22 +359,16 @@ const AccountMenu = () => {
         className={`border-grey-border absolute right-0 z-10 w-56 border bg-white shadow-lg transition-[max-height,opacity] duration-200 ease-in-out ${show ? "max-h-96 opacity-100" : "pointer-events-none max-h-0 opacity-0"}`}
       >
         <ul className="m-0 flex list-none flex-col p-0">
-          {ACCOUNT_MENU_ITEMS.map((item, index) => {
-            const href = item.getHref ? item.getHref(publisherId) : null;
-            const isCurrent = href && location.pathname.startsWith(href);
-            return (
-              <li
-                ref={(el) => {
-                  listRef[index] = el || undefined;
-                }}
-                key={index}
-              >
-                <Link to={item.href} className="nav-link" aria-current={isCurrent ? "page" : undefined}>
-                  {item.label}
-                </Link>
-              </li>
-            );
-          })}
+          <li>
+            <Link to={`/${publisherId}/my-account`} className="nav-link" aria-current={location.pathname.startsWith(`/${publisherId}/my-account`) ? "page" : undefined}>
+              Mon compte
+            </Link>
+          </li>
+          <li>
+            <button type="button" className="nav-link" onClick={handleLogout}>
+              Se déconnecter
+            </button>
+          </li>
         </ul>
       </div>
     </div>
