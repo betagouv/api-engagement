@@ -6,11 +6,11 @@ import { RiCalendarEventFill, RiCheckboxCircleFill, RiCloseCircleFill, RiMapPin2
 import { useSearchParams } from "react-router-dom";
 
 import Modal from "@/components/Modal";
+import { JVA_MODERATION_COMMENTS_LABELS, STATUS, STATUS_COLORS } from "@/scenes/broadcast/moderation/components/Constants";
+import OrganizationRefusedModal from "@/scenes/broadcast/moderation/components/OrganizationRefusedModal";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
-import { JVA_MODERATION_COMMENTS_LABELS, STATUS, STATUS_COLORS } from "@/scenes/broadcast/moderation/components/Constants";
-import OrganizationRefusedModal from "@/scenes/broadcast/moderation/components/OrganizationRefusedModal";
 
 const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, onChangeMany }) => {
   const { publisher } = useStore();
@@ -31,7 +31,9 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
     try {
       setValues({ ...values, ...v });
 
-      if (v.status === "REFUSED" && !v.comment) return;
+      if (v.status === "REFUSED" && !v.comment) {
+        return;
+      }
 
       const res = await api.put(`/moderation/${data.id}`, { ...v, moderatorId: publisher.id });
       if (!res.ok) {
@@ -45,7 +47,9 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
       onChange(res.data);
       if (v.status === "REFUSED" && ["ORGANIZATION_NOT_COMPLIANT", "ORGANIZATION_ALREADY_PUBLISHED"].includes(v.comment)) {
         const resO = await api.post("/moderation/search", { moderatorId: publisher.id, organizationName: data.missionOrganizationName, status: "PENDING", size: 0 });
-        if (!resO.ok) throw resO;
+        if (!resO.ok) {
+          throw resO;
+        }
         setIsOrganizationToRefuse(resO.total);
       }
     } catch (error) {
@@ -69,7 +73,7 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
         onChange={onChangeMany}
         total={isOrganizationToRefuse}
       />
-      <td className="table-cell align-middle" colSpan={3}>
+      <td className="table-cell align-middle">
         <div className="flex items-center">
           <label className="flex w-14 items-center">
             <span className="sr-only">Sélectionner la mission</span>
@@ -100,18 +104,9 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
           </div>
         </div>
       </td>
-      <td className="table-cell align-middle">
-        <div className="flex flex-col justify-between py-2 text-xs">
-          <span className="max-h-12 truncate">{data.missionOrganizationName}</span>
-
-          <div className="border-grey-border my-2 inline-flex flex-wrap items-center gap-1 rounded border p-1">
-            <span>Missions</span>
-            <RiCheckboxCircleFill role="img" aria-label="Acceptées" className="text-success" />
-            <span className="text-success">{history["ACCEPTED"] || "0"}</span>
-            <BsDot className="text-text-mention" />
-            <RiCloseCircleFill role="img" aria-label="Refusées" className="text-error" />
-            <span className="text-error">{history["REFUSED"] || "0"}</span>
-          </div>
+      <td className="table-cell">
+        <div className="flex flex-1 flex-col justify-between gap-2 text-xs">
+          <p className="w-full text-ellipsis">{data.missionOrganizationName}</p>
 
           {data.associationSources?.length ? (
             <span className="text-text-mention">
@@ -120,9 +115,18 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
           ) : (
             <span className="text-text-mention">Pas d'inscription retrouvée</span>
           )}
+
+          <div className="border-grey-border my-2 inline-flex w-fit flex-wrap items-center gap-1 rounded border p-1">
+            <span>Missions</span>
+            <RiCheckboxCircleFill role="img" aria-label="Acceptées" className="text-success" />
+            <span className="text-success">{history["ACCEPTED"] || "0"}</span>
+            <BsDot className="text-text-mention" />
+            <RiCloseCircleFill role="img" aria-label="Refusées" className="text-error" />
+            <span className="text-error">{history["REFUSED"] || "0"}</span>
+          </div>
         </div>
       </td>
-      <td className="table-cell align-middle" colSpan={2}>
+      <td className="table-cell align-middle">
         <div className="flex flex-col justify-center gap-3">
           <div className="flex items-center gap-3">
             <select
@@ -250,7 +254,9 @@ const UpdateNoteModal = ({ isOpen, onChange, onClose, data }) => {
     e.preventDefault();
     try {
       const res = await api.put(`/moderation/${data.id}`, { note, moderatorId: publisher.id });
-      if (!res.ok) throw res;
+      if (!res.ok) {
+        throw res;
+      }
       toast.success("La note a été mise à jour avec succès");
       onChange({ note });
       onClose();

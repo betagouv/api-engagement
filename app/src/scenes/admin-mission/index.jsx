@@ -16,9 +16,9 @@ import { compactMissionFilters, searchMissions } from "@/services/mission";
 import exportCSV from "@/services/utils";
 
 const TABLE_HEADER = [
-  { title: "Mission", key: "title.keyword", colSpan: 4 },
+  { title: "Mission", key: "title.keyword", width: "35%" },
   { title: "Places disponibles", key: "places" },
-  { title: "Ville", key: "city.keyword", colSpan: 2 },
+  { title: "Ville", key: "city.keyword", width: "20%" },
   { title: "Créée le", key: "createdAt" },
   { title: "Statut", key: "statusCode.keyword" },
 ];
@@ -200,6 +200,7 @@ const AdminMission = () => {
         </div>
 
         <Table
+          caption="Liste des missions"
           header={TABLE_HEADER}
           pagination
           page={filters.page}
@@ -211,8 +212,8 @@ const AdminMission = () => {
           onSort={(sortBy) => setFilters({ ...filters, sortBy })}
         >
           {data.map((item, i) => (
-            <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
-              <td className="p-4" colSpan={4}>
+            <tr key={i} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
+              <td className="p-4">
                 <Link to={`/mission/${item._id}`} className="text-blue-france line-clamp-3">
                   {item.title}
                 </Link>
@@ -220,7 +221,7 @@ const AdminMission = () => {
                 {item.organizationName && <p className="text-sm">{item.organizationName}</p>}
               </td>
               <td className="px-4">{item.places}</td>
-              <td className="px-4" colSpan={2}>
+              <td className="px-4">
                 {item.city}
               </td>
               <td className="px-4">{new Date(item.createdAt).toLocaleDateString("fr")}</td>

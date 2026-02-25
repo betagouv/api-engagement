@@ -435,7 +435,7 @@ const Evolution = ({ filters, defaultType = "print" }) => {
 };
 
 const TABLE_HEADER = [
-  { title: "Annonceurs", key: "publisherId", position: "left", colSpan: 2 },
+  { title: "Annonceurs", key: "publisherId", position: "left", width: "30%" },
   { title: "Impressions", key: "printCount", position: "right" },
   { title: "Redirections", key: "clickCount", position: "right" },
   { title: "Créations de compte", key: "accountCount", position: "right" },
@@ -587,6 +587,7 @@ const Announcers = ({ filters }) => {
             <div className="flex flex-col gap-4">
               <h3 className="text-2xl font-semibold">Performance des annonceurs</h3>
               <Table
+                caption="Performance des annonceurs"
                 header={TABLE_HEADER}
                 pagination
                 page={tableSettings.page}
@@ -600,8 +601,8 @@ const Announcers = ({ filters }) => {
                   .sort((a, b) => (tableSettings.sortBy === "publisherId" ? a.publisherId.localeCompare(b.publisherId) : b[tableSettings.sortBy] - a[tableSettings.sortBy]))
                   .slice((tableSettings.page - 1) * 5, tableSettings.page * 5)
                   .map((item, i) => (
-                    <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
-                      <td colSpan={2} className="px-4">
+                    <tr key={i} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
+                      <td className="px-4">
                         {item.publisherId}
                       </td>
                       <td className="px-4 text-right">{item.printCount.toLocaleString("fr")}</td>

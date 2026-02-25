@@ -135,14 +135,20 @@ const RealTime = () => {
           </div>
         </div>
 
-        <Table header={tableHeader} total={events.length} loading={loading} auto>
+        <Table
+          caption={`Événements en temps réel${type === "print" ? " — Impressions" : type === "click" ? " — Redirections" : type === "apply" ? " — Candidatures" : type === "account" ? " — Créations de compte" : ""}`}
+          header={tableHeader}
+          total={events.length}
+          loading={loading}
+          auto
+        >
           {events.map((item, i) => {
             const entries = getCustomAttributesEntries(item.customAttributes);
             const hasClientEventId = Boolean(item.clientEventId);
             const tooltipId = entries.length || hasClientEventId ? `custom-attributes-${item.id || i}` : null;
 
             return (
-              <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item h-auto md:h-16`}>
+              <tr key={i} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row h-auto md:h-16`}>
                 <td className="px-4 py-3 align-middle">
                   {item.missionId && item.missionTitle ? (
                     <Link to={`/mission/${item.missionId}`} className="line-clamp-3 block max-w-prose hover:underline">

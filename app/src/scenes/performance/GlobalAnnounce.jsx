@@ -449,6 +449,7 @@ const Announcers = ({ filters, defaultType = "print" }) => {
               <div className="flex flex-col justify-between gap-4 lg:flex-row">
                 <div className="w-2/3">
                   <table className="w-full table-auto">
+                    <caption className="sr-only">Top partenaires diffuseurs en {TYPE[type]}</caption>
                     <thead className="text-left">
                       <tr className="text-text-mention text-xs uppercase">
                         <th colSpan={3} className="px-4">

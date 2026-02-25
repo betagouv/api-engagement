@@ -46,6 +46,8 @@
   --color-grey-default: var(--color-grey-200);
   --color-text: var(--color-black);
   --color-text-mention: var(--color-gray-425);
+  --color-table-even: var(--color-gray-975);
+  --color-table-odd: var(--color-gray-1000-active);
 
   --shadow-border-blue: inset 0 0 0 1px var(--color-blue-france);
   --shadow-border-black: inset 0 0 0 1px var(--color-black);
@@ -227,8 +229,8 @@ body {
 @utility table-header {
   @apply bg-gray-1000-active min-h-12 border-b border-b-black px-4 text-left text-sm font-medium text-black;
 }
-@utility table-item {
-  @apply shadow-border-b-gray min-h-16 text-left text-sm text-black;
+@utility table-row {
+  @apply shadow-border-b-gray h-16 text-left text-sm text-black;
 }
 @utility table-cell {
   @apply px-3 py-1 text-sm;

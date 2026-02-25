@@ -95,7 +95,7 @@ const Diffuseur = ({ values, onChange, errors, setErrors }) => {
             {values.name} diffuse les missions de {selectedPublisherIds.size} annonceurs
           </p>
           <SearchInput value={search} onChange={setSearch} placeholder="Rechercher un annonceur" timeout={0} />
-          <Table header={[{ title: "Annonceurs" }]} className="h-full max-h-96">
+          <Table caption="Liste des annonceurs" header={[{ title: "Annonceurs" }]} className="h-full max-h-96">
             {publishers
               .filter((item) => {
                 if (!item?.name) {
@@ -108,7 +108,7 @@ const Diffuseur = ({ values, onChange, errors, setErrors }) => {
                 return item.name.toLowerCase().includes(search.toLowerCase());
               })
               .map((item, index) => (
-                <tr key={index} className={`${index % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
+                <tr key={index} className={`${index % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-row`}>
                   <td className="p-4">
                     <div className="flex items-center gap-2">
                       {editing && (
