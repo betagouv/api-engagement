@@ -40,9 +40,9 @@ const OrganizationRefusedModal = ({ isOpen, onClose, data, update, onChange, tot
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} className="w-2/3">
+    <Modal isOpen={isOpen} onClose={onClose} className="w-2/3" ariaLabelledBy="org-refused-modal-title">
       <div className="space-y-8 p-12">
-        <h1 className="text-xl font-semibold">Refuser les {total} autres missions de cette organisation ?</h1>
+        <h1 id="org-refused-modal-title" className="text-xl font-semibold">Refuser les {total} autres missions de cette organisation ?</h1>
         <p className="text-sm text-black">
           Vous venez de refuser une mission de l’organisation <b>{data.missionOrganizationName}</b> avec le motif <b>{JVA_MODERATION_COMMENTS_LABELS[update.comment]}</b>.
         </p>

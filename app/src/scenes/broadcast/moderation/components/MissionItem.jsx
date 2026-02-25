@@ -260,9 +260,9 @@ const UpdateNoteModal = ({ isOpen, onChange, onClose, data }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={() => onClose()}>
+    <Modal isOpen={isOpen} onClose={() => onClose()} ariaLabelledBy="update-note-modal-title">
       <form className="px-32 py-16" onSubmit={handleSubmit}>
-        <h1 className="mb-10">Modifier la note</h1>
+        <h1 id="update-note-modal-title" className="mb-10">Modifier la note</h1>
         <div className="flex items-center justify-center">
           <div className="flex w-full flex-col justify-center gap-4">
             <div className="flex flex-col gap-1">

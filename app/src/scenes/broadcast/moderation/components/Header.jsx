@@ -104,9 +104,9 @@ const ManyUpdateModal = ({ onClose, selected, onChange }) => {
         Modérer
       </button>
 
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
+      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} ariaLabelledBy="many-update-modal-title">
         <form className="px-32 py-16" onSubmit={handleSubmit}>
-          <h1 className="mb-10">Modérer {selected.length > 1 ? `${selected.length} missions` : `la mission`}</h1>
+          <h1 id="many-update-modal-title" className="mb-10">Modérer {selected.length > 1 ? `${selected.length} missions` : `la mission`}</h1>
           <div className="flex items-center justify-center">
             <div className="flex w-full flex-col justify-center gap-4">
               <div className="flex flex-col gap-2">

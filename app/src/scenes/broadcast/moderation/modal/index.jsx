@@ -1,6 +1,4 @@
-import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import { useEffect, useState } from "react";
-import { HiX } from "react-icons/hi";
 import { useSearchParams } from "react-router-dom";
 
 import Loader from "@/components/Loader";
@@ -71,8 +69,9 @@ const MissionModal = ({ onChange }) => {
 
   if (!data) {
     return (
-      <Modal isOpen={searchParams.has("mission")} onClose={handleClose} className="bg-global-background w-3/4">
+      <Modal isOpen={searchParams.has("mission")} onClose={handleClose} className="bg-global-background w-3/4" ariaLabelledBy="mission-modal-loading-title">
         <div className="flex justify-center py-10">
+          <p id="mission-modal-loading-title" className="sr-only">Chargement de la mission</p>
           <Loader />
         </div>
       </Modal>
@@ -80,75 +79,74 @@ const MissionModal = ({ onChange }) => {
   }
 
   return (
-    <Dialog open={searchParams.has("mission")} as="div" className="relative z-10 focus:outline-none" onClose={handleClose}>
-      <DialogBackdrop className="fixed inset-0 bg-black/30" />
-      <div className="fixed inset-0 flex w-screen items-center justify-center">
-        <DialogPanel transition className="bg-global-background h-full w-full backdrop-blur-2xl duration-300 ease-out data-closed:transform-[scale(95%)] data-closed:opacity-0">
-          <button type="button" className="absolute top-5 right-5 cursor-pointer p-3" onClick={handleClose} aria-label="Fermer">
-            <HiX className="text-blue-france text-lg" aria-hidden="true" />
-          </button>
-          <div className="max-h-full overflow-y-auto px-20">
-            <Header
-              data={data}
-              onChange={(v) => {
-                if (Array.isArray(v)) {
-                  onChange(v);
-                  return;
-                }
-                setData({ ...data, ...v });
-                onChange({ ...data, ...v });
-              }}
-            />
+    <Modal
+      isOpen={searchParams.has("mission")}
+      onClose={handleClose}
+      className="bg-global-background h-full w-full"
+      wapperClassName="h-full w-full"
+      ariaLabelledBy="mission-modal-title"
+    >
+      <div className="max-h-full overflow-y-auto px-20">
+        <p id="mission-modal-title" className="sr-only">Détails de la mission</p>
+        <Header
+          data={data}
+          onChange={(v) => {
+            if (Array.isArray(v)) {
+              onChange(v);
+              return;
+            }
+            setData({ ...data, ...v });
+            onChange({ ...data, ...v });
+          }}
+        />
 
-            <div className="mt-8 flex w-full flex-1 flex-col">
-              <div role="tablist" aria-label="Onglets de modération" className="flex items-center space-x-2 pl-4 font-semibold text-black">
-                <Tab name="mission" title="Mission" tab={tab} setTab={setTab} />
-                <Tab name="organization" title="Organisation" tab={tab} setTab={setTab} />
-                <Tab name="history" title="Historique" tab={tab} setTab={setTab} />
-              </div>
-              <div className="mb-12 grid w-full grid-cols-3 gap-6">
-                <div className="border-grey-border col-span-2 border bg-white">
-                  {
-                    {
-                      mission: (
-                        <MissionTab
-                          data={data}
-                          onChange={(v) => {
-                            setData({ ...data, ...v });
-                            onChange({ ...data, ...v });
-                          }}
-                        />
-                      ),
-                      organization: (
-                        <OrganizationTab
-                          data={data}
-                          onChange={(v) => {
-                            setData({ ...data, ...v });
-                            onChange({ ...data, ...v });
-                          }}
-                        />
-                      ),
-                      history: <HistoryTab data={data} />,
-                    }[tab]
-                  }
-                </div>
-                <div className="col-span-1 flex flex-col gap-4">
-                  <Note
-                    data={data}
-                    onChange={(v) => {
-                      setData({ ...data, ...v });
-                      onChange({ ...data, ...v });
-                    }}
-                  />
+        <div className="mt-8 flex w-full flex-1 flex-col">
+          <div role="tablist" aria-label="Onglets de modération" className="flex items-center space-x-2 pl-4 font-semibold text-black">
+            <Tab name="mission" title="Mission" tab={tab} setTab={setTab} />
+            <Tab name="organization" title="Organisation" tab={tab} setTab={setTab} />
+            <Tab name="history" title="Historique" tab={tab} setTab={setTab} />
+          </div>
+          <div className="mb-12 grid w-full grid-cols-3 gap-6">
+            <div className="border-grey-border col-span-2 border bg-white">
+              {
+                {
+                  mission: (
+                    <MissionTab
+                      data={data}
+                      onChange={(v) => {
+                        setData({ ...data, ...v });
+                        onChange({ ...data, ...v });
+                      }}
+                    />
+                  ),
+                  organization: (
+                    <OrganizationTab
+                      data={data}
+                      onChange={(v) => {
+                        setData({ ...data, ...v });
+                        onChange({ ...data, ...v });
+                      }}
+                    />
+                  ),
+                  history: <HistoryTab data={data} />,
+                }[tab]
+              }
+            </div>
+            <div className="col-span-1 flex flex-col gap-4">
+              <Note
+                data={data}
+                onChange={(v) => {
+                  setData({ ...data, ...v });
+                  onChange({ ...data, ...v });
+                }}
+              />
 
-                  <Organization data={data} history={history} />
-                </div>
-              </div>
+              <Organization data={data} history={history} />
             </div>
           </div>
-        </DialogPanel>
+        </div>
       </div>
-    </Dialog>
+    </Modal>
   );
 };
 

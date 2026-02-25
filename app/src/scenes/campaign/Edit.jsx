@@ -7,7 +7,7 @@ import { toast } from "@/services/toast";
 
 import Combobox from "@/components/combobox";
 import Loader from "@/components/Loader";
-import Modal from "@/components/New-Modal";
+import Modal from "@/components/Modal";
 import Toggle from "@/components/Toggle";
 import Dropdown from "@/scenes/campaign/components/Dropdown";
 import Information from "@/scenes/campaign/components/Information";
@@ -309,11 +309,11 @@ const ReassignModal = ({ isOpen, onClose, campaign, values, setValues, setCampai
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} innerClassName="w-full">
+    <Modal isOpen={isOpen} onClose={onClose} innerClassName="w-full" ariaLabelledBy="reassign-modal-title">
       <div className="p-10">
         <div className="mb-8 flex items-center gap-3">
-          <RiFileTransferLine className="text-3xl" />
-          <h2 className="text-3xl font-bold">Déplacer une campagne</h2>
+          <RiFileTransferLine className="text-3xl" aria-hidden="true" />
+          <h2 id="reassign-modal-title" className="text-3xl font-bold">Déplacer une campagne</h2>
         </div>
         <span className="text-text-mention">
           Vers quel compte voulez-vous déplacer la campagne <span className="font-bold">{campaign.name}</span> ?

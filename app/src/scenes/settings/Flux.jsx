@@ -3,7 +3,7 @@ import { RiCheckboxCircleFill, RiCloseCircleFill } from "react-icons/ri";
 import { toast } from "@/services/toast";
 
 import Loader from "@/components/Loader";
-import Modal from "@/components/New-Modal";
+import Modal from "@/components/Modal";
 
 import Table from "@/components/Table";
 import api from "@/services/api";
@@ -165,9 +165,9 @@ const ModifyModal = () => {
       <button className="primary-btn" onClick={() => setIsOpen(!isOpen)}>
         Modifier
       </button>
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
+      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} ariaLabelledBy="modify-flux-title">
         <div className="p-10">
-          <h2 className="mb-8 text-lg font-bold">
+          <h2 id="modify-flux-title" className="mb-8 text-lg font-bold">
             <span aria-hidden="true">⚙️</span> Modifier votre flux de missions
           </h2>
           <div className="flex flex-col items-start justify-between gap-4">

@@ -5,7 +5,7 @@ import { TiDeleteOutline } from "react-icons/ti";
 import { Navigate } from "react-router-dom";
 import { toast } from "@/services/toast";
 
-import Modal from "@/components/New-Modal";
+import Modal from "@/components/Modal";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
@@ -176,9 +176,9 @@ const ResetPasswordModal = () => {
         Réinitialiser le mot de passe
       </button>
 
-      <Modal isOpen={open} onClose={onClose}>
+      <Modal isOpen={open} onClose={onClose} ariaLabelledBy="reset-password-title">
         <div className="p-12">
-          <h2 className="mb-12 text-lg font-bold">Changement du mot de passe</h2>
+          <h2 id="reset-password-title" className="mb-12 text-lg font-bold">Changement du mot de passe</h2>
           <div className="flex flex-col">
             <div className="flex flex-col">
               <label className="mb-2 text-sm" htmlFor="old-password">

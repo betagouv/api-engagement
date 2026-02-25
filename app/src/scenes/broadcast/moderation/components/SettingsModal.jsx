@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { RiSettings3Fill } from "react-icons/ri";
-import Modal from "@/components/New-Modal";
+import Modal from "@/components/Modal";
 
 const SettingsModal = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,10 +12,10 @@ const SettingsModal = () => {
         <span>Paramétrage</span>
       </button>
 
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} className="h-[90%] w-[75%]">
+      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} className="h-[90%] w-[75%]" ariaLabelledBy="settings-modal-title">
         <div className="h-full bg-white p-16">
           <div className="mb-10 flex items-center justify-between">
-            <h1 className="text-2xl font-bold">Paramétrages de la modération automatique</h1>
+            <h1 id="settings-modal-title" className="text-2xl font-bold">Paramétrages de la modération automatique</h1>
           </div>
           <div className="border-grey-border mb-10 flex flex-col border p-4">
             <div className="flex items-start gap-3">

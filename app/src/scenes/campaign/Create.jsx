@@ -4,7 +4,7 @@ import { RiArrowLeftLine } from "react-icons/ri";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "@/services/toast";
 
-import Modal from "@/components/New-Modal";
+import Modal from "@/components/Modal";
 import api from "@/services/api";
 import { API_URL } from "@/services/config";
 import { captureError } from "@/services/error";
@@ -114,9 +114,10 @@ const CopyModal = ({ isOpen, campaignId, onClose }) => {
         navigate(`/broadcast/campaign/${campaignId}`);
       }}
       className="min-w-4xl"
+      ariaLabelledBy="copy-modal-title"
     >
       <div className="flex flex-col gap-6 p-10 pt-16">
-        <h2 className="text-2xl font-bold">
+        <h2 id="copy-modal-title" className="text-2xl font-bold">
           <span aria-hidden="true">🥳</span> Votre campagne est créée !
         </h2>
         <p className="text-base">Pour commencer à diffuser des missions et suivre les statistiques, insérez ce lien dans le contenu de votre campagne.</p>

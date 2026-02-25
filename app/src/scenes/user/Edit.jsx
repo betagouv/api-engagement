@@ -277,39 +277,41 @@ const ResetPasswordModal = ({ user }) => {
       <button type="button" className="tertiary-btn" onClick={() => setOpen(true)}>
         Réinitialiser le mot de passe
       </button>
-      <Modal className="w-full max-w-3xl" isOpen={open} onClose={() => setOpen(false)}>
-        <h2 className="mb-4 text-center text-2xl font-bold">Réinitialisation du mot de passe de {user.firstname}</h2>
-        {isConfirm ? (
-          <div>
-            {newPassword ? (
-              <>
-                <h4 className="mb-6 text-center">Voici le mot de passe temporaire</h4>
-                <div className="mb-12 flex items-center justify-center px-20">
-                  <span className="input w-1/2">{newPassword}</span>
-                  <button type="button" className="secondary-btn ml-2" onClick={() => handleCopy(newPassword)}>
-                    <RiFileCopyFill className="text-lg" />
-                  </button>
-                </div>
-                <div className="w-full pr-6 text-right">
-                  <button className="primary-btn" onClick={() => setOpen(false)}>
-                    Fermer
-                  </button>
-                </div>
-              </>
-            ) : (
-              <h4>Chargement...</h4>
-            )}
-          </div>
-        ) : (
-          <>
-            <h4 className="mb-6 text-center">Êtes-vous sûr de réinitialiser le mot de passe ?</h4>
-            <div className="w-full pr-6 text-right">
-              <button className="primary-btn" onClick={handleConfirm}>
-                Confirmer
-              </button>
+      <Modal className="w-full max-w-3xl" isOpen={open} onClose={() => setOpen(false)} ariaLabelledBy="admin-reset-password-title">
+        <div className="p-6">
+          <h2 id="admin-reset-password-title" className="mb-4 text-center text-2xl font-bold">Réinitialisation du mot de passe de {user.firstname}</h2>
+          {isConfirm ? (
+            <div>
+              {newPassword ? (
+                <>
+                  <h4 className="mb-6 text-center">Voici le mot de passe temporaire</h4>
+                  <div className="mb-12 flex items-center justify-center px-20">
+                    <span className="input w-1/2">{newPassword}</span>
+                    <button type="button" className="secondary-btn ml-2" onClick={() => handleCopy(newPassword)}>
+                      <RiFileCopyFill className="text-lg" />
+                    </button>
+                  </div>
+                  <div className="w-full pr-6 text-right">
+                    <button className="primary-btn" onClick={() => setOpen(false)}>
+                      Fermer
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <h4>Chargement...</h4>
+              )}
             </div>
-          </>
-        )}
+          ) : (
+            <>
+              <h4 className="mb-6 text-center">Êtes-vous sûr de réinitialiser le mot de passe ?</h4>
+              <div className="w-full pr-6 text-right">
+                <button className="primary-btn" onClick={handleConfirm}>
+                  Confirmer
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </Modal>
     </>
   );
