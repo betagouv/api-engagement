@@ -1,6 +1,6 @@
 import { JobBoardId, MissionJobBoard, Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
-import type { MissionJobBoardSyncStatus } from "../types/mission-job-board";
+import type { MissionJobBoardSyncStatus } from "@/types/mission-job-board";
 
 export const missionJobBoardRepository = {
   async findByJobBoardAndMissionIds(jobBoardId: JobBoardId, missionIds: string[]): Promise<MissionJobBoard[]> {
