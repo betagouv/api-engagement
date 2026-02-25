@@ -66,12 +66,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
 
   it("records click stats and appends tracking parameters when identity and publisher exist", async () => {
     const fromPublisher = await publisherService.createPublisher({ name: "From Publisher" });
-    const missionPublisher = await prisma.publisher.create({
-      data: {
-        id: randomUUID(),
-        name: "Mission Publisher",
-      },
-    });
+    const missionPublisher = await publisherService.createPublisher({ name: "Mission Publisher" });
 
     const mission = await createTestMission({
       addresses: [
@@ -149,9 +144,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
     if (!PUBLISHER_IDS.SERVICE_CIVIQUE) {
       PUBLISHER_IDS.SERVICE_CIVIQUE = serviceCiviquePublisherId;
     }
-    const serviceCiviquePublisher = await prisma.publisher.create({
-      data: { id: serviceCiviquePublisherId, name: "Service Civique" },
-    });
+    const serviceCiviquePublisher = await publisherService.createPublisher({ name: "Service Civique", id: serviceCiviquePublisherId });
 
     const mission = await createTestMission({
       addresses: [
