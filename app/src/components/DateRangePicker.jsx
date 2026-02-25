@@ -23,7 +23,7 @@ const DateRangePicker = ({ value, onChange }) => {
         {RANGES.map((range, i) => (
           <button
             key={i}
-            className={`focus cursor-pointer rounded-sm px-4 py-2 text-sm ${value.from.toLocaleDateString() === range.from.toLocaleDateString() ? "border-blue-france text-blue-france -my-px border" : ""} hover:bg-gray-100`}
+            className={`focus h-full cursor-pointer rounded-sm px-4 py-2 text-sm ${value.from.toLocaleDateString() === range.from.toLocaleDateString() ? "border-blue-france text-blue-france -my-px border" : ""} hover:bg-gray-100`}
             onClick={() => onChange(range)}
           >
             {range.label}

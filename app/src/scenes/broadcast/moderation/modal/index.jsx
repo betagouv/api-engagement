@@ -5,15 +5,15 @@ import { useSearchParams } from "react-router-dom";
 
 import Loader from "@/components/Loader";
 import Modal from "@/components/Modal";
-import api from "@/services/api";
-import { captureError } from "@/services/error";
-import useStore from "@/services/store";
 import Header from "@/scenes/broadcast/moderation/modal/components/Header";
 import HistoryTab from "@/scenes/broadcast/moderation/modal/components/HistoryTab";
 import MissionTab from "@/scenes/broadcast/moderation/modal/components/MissionTab";
 import Note from "@/scenes/broadcast/moderation/modal/components/Note";
 import Organization from "@/scenes/broadcast/moderation/modal/components/Organization";
 import OrganizationTab from "@/scenes/broadcast/moderation/modal/components/OrganizationTab";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import useStore from "@/services/store";
 
 const MissionModal = ({ onChange }) => {
   const { publisher } = useStore();
@@ -23,11 +23,15 @@ const MissionModal = ({ onChange }) => {
   const [history, setHistory] = useState({ ACCEPTED: 0, REFUSED: 0, PENDING: 0 });
 
   useEffect(() => {
-    if (!data || !data.missionOrganizationName) return;
+    if (!data || !data.missionOrganizationName) {
+      return;
+    }
     const fetchData = async () => {
       try {
         const res = await api.post("/moderation/search-history", { organizationName: data.missionOrganizationName, moderatorId: publisher.id });
-        if (!res.ok) throw res;
+        if (!res.ok) {
+          throw res;
+        }
         setHistory(res.data.organization[data.missionOrganizationName] || { ACCEPTED: 0, REFUSED: 0, PENDING: 0 });
       } catch (error) {
         captureError(error, { extra: { data, publisherId: publisher.id } });
@@ -37,11 +41,15 @@ const MissionModal = ({ onChange }) => {
   }, [data?.missionOrganizationName]);
 
   useEffect(() => {
-    if (!searchParams.has("mission")) return;
+    if (!searchParams.has("mission")) {
+      return;
+    }
     const fetchData = async () => {
       try {
         const res = await api.get(`/moderation/${searchParams.get("mission")}?moderatorId=${publisher.id}`);
-        if (!res.ok) throw res;
+        if (!res.ok) {
+          throw res;
+        }
 
         setData(res.data);
       } catch (error) {
@@ -61,20 +69,21 @@ const MissionModal = ({ onChange }) => {
     setSearchParams(newSearchParams);
   };
 
-  if (!data)
+  if (!data) {
     return (
-      <Modal isOpen={searchParams.has("mission")} onClose={handleClose} className="bg-beige-gris-galet-975 w-3/4">
+      <Modal isOpen={searchParams.has("mission")} onClose={handleClose} className="bg-global-background w-3/4">
         <div className="flex justify-center py-10">
           <Loader />
         </div>
       </Modal>
     );
+  }
 
   return (
     <Dialog open={searchParams.has("mission")} as="div" className="relative z-10 focus:outline-none" onClose={handleClose}>
       <DialogBackdrop className="fixed inset-0 bg-black/30" />
       <div className="fixed inset-0 flex w-screen items-center justify-center">
-        <DialogPanel transition className="bg-beige-gris-galet-975 h-full w-full backdrop-blur-2xl duration-300 ease-out data-closed:transform-[scale(95%)] data-closed:opacity-0">
+        <DialogPanel transition className="bg-global-background h-full w-full backdrop-blur-2xl duration-300 ease-out data-closed:transform-[scale(95%)] data-closed:opacity-0">
           <button type="button" className="absolute top-5 right-5 cursor-pointer p-3" onClick={handleClose} aria-label="Fermer">
             <HiX className="text-blue-france text-lg" aria-hidden="true" />
           </button>
@@ -147,9 +156,13 @@ const Tab = ({ name, title, tab, setTab, actives }) => {
   const [active, setActive] = useState(false);
 
   useEffect(() => {
-    if (actives && actives.includes(tab)) setActive(true);
-    else if (tab === name) setActive(true);
-    else setActive(false);
+    if (actives && actives.includes(tab)) {
+      setActive(true);
+    } else if (tab === name) {
+      setActive(true);
+    } else {
+      setActive(false);
+    }
   }, [tab]);
 
   return (

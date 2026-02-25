@@ -1,14 +1,18 @@
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RiArrowDownSLine, RiArrowDropRightLine, RiBookletLine, RiDashboard3Line, RiUserLine } from "react-icons/ri";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import LogoSvg from "@/assets/svg/logo.svg?react";
+
 import { WARNINGS } from "@/constants";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
 import { slugify } from "@/services/utils";
+
+import deviseSrc from "@/assets/svg/gouv-devise.svg";
+import marianneBanner from "@/assets/svg/marianne-banner.svg";
 
 const Header = () => {
   const { user } = useStore();
@@ -17,11 +21,15 @@ const Header = () => {
       <div className="flex w-full max-w-7xl flex-wrap items-center justify-between gap-4 py-3">
         <Link className="hover:bg-gray-975 flex items-center gap-4 p-4" to={user ? "/" : "/login"}>
           <div className="flex h-24 items-center justify-center">
-            <p className="gouv-logo text-xs leading-3 font-bold text-black uppercase">
-              République
-              <br />
-              française
-            </p>
+            <div className="flex flex-col items-start">
+              <img src={marianneBanner} alt="" aria-hidden="true" className="mb-1 w-10" />
+              <p className="text-xs leading-3 font-bold text-black uppercase">
+                République
+                <br />
+                française
+              </p>
+              <img src={deviseSrc} alt="" aria-hidden="true" className="mt-1 h-7" />
+            </div>
           </div>
           <LogoSvg alt="API Engagement" className="w-8" />
           <div>
@@ -64,11 +72,15 @@ const NotificationMenu = () => {
     const fetchData = async () => {
       try {
         const resW = await api.post("/warning/search", { publisherId: publisher.id, fixed: false });
-        if (!resW.ok) throw resW;
+        if (!resW.ok) {
+          throw resW;
+        }
         setWarnings(resW.data);
 
         const resS = await api.get("/warning/state");
-        if (!resS.ok) throw resS;
+        if (!resS.ok) {
+          throw resS;
+        }
         setState(resS.data);
       } catch (error) {
         captureError(error, { extra: { publisherId: publisher.id } });
@@ -184,11 +196,15 @@ const AdminNotificationMenu = () => {
     const fetchData = async () => {
       try {
         const resW = await api.post("/warning/search", { fixed: false });
-        if (!resW.ok) throw resW;
+        if (!resW.ok) {
+          throw resW;
+        }
         setWarnings(resW.data);
 
         const resS = await api.get("/warning/admin-state");
-        if (!resS.ok) throw resS;
+        if (!resS.ok) {
+          throw resS;
+        }
         setState(resS.data);
       } catch (error) {
         captureError(error);
@@ -289,45 +305,79 @@ const AdminNotificationMenu = () => {
   );
 };
 
-const AccountMenu = () => {
-  const { user, publisher, setAuth } = useStore();
-  const publisherId = publisher?.id;
+const ACCOUNT_MENU_ITEMS = [
+  { key: "my-account", label: "Mon compte", getHref: (publisherId) => `/${publisherId}/my-account` },
+  { key: "logout", label: "Se déconnecter", action: true },
+];
 
-  const handleLogout = async () => {
-    api.removeToken();
-    setAuth(null, null);
+const AccountMenu = () => {
+  const { user, publisher } = useStore();
+  const publisherId = publisher?.id;
+  const location = useLocation();
+  const ref = useRef(null);
+  const buttonRef = useRef(null);
+  const [listRef] = useState(() => ACCOUNT_MENU_ITEMS.map(() => undefined));
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) {
+        setShow(false);
+      }
+    };
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
+  }, []);
+
+  const handleFocusOut = (e) => {
+    if (ref.current && !ref.current.contains(e.relatedTarget)) {
+      setShow(false);
+    }
+  };
+  const handleKeyDown = (e) => {
+    if (e.key === "Escape") {
+      setShow(false);
+      buttonRef.current?.focus();
+    }
   };
 
   return (
-    <Menu>
-      <MenuButton className="btn data-[focus]:bg-gray-975 hover:bg-gray-975 flex cursor-pointer items-center gap-4">
+    <div className="relative" ref={ref} onBlur={handleFocusOut} onKeyDown={handleKeyDown}>
+      <button ref={buttonRef} className="btn hover:bg-gray-975 focus" type="button" onClick={() => setShow(!show)}>
         <div className="bg-blue-france flex h-8 w-8 items-center justify-center rounded-full">
-          <RiUserLine className="text-white" />
+          <RiUserLine className="text-white" aria-hidden="true" />
         </div>
-        <div className="space-y-0 text-left">
+        <div className="mx-4 text-left">
           <p className="text-blue-france">{user.firstname}</p>
           <p className="text-text-mention text-sm">{user.publishers.length ? (user.role === "admin" ? "Administrateur" : "Utilisateur") : publisher.name}</p>
         </div>
-        <RiArrowDownSLine className="text-base" />
-      </MenuButton>
+        <RiArrowDownSLine className={`text-base transition-transform duration-200 ${show ? "rotate-180" : ""}`} aria-hidden="true" />
+      </button>
 
-      <MenuItems
-        transition
-        anchor="bottom end"
-        className="w-52 origin-top-right bg-white shadow-lg transition duration-200 ease-out focus:outline-none data-closed:scale-95 data-closed:opacity-0"
+      <div
+        inert={!show ? true : undefined}
+        className={`border-grey-border absolute right-0 z-10 w-56 border bg-white shadow-lg transition-[max-height,opacity] duration-200 ease-in-out ${show ? "max-h-96 opacity-100" : "pointer-events-none max-h-0 opacity-0"}`}
       >
-        <MenuItem>
-          <Link to={`/${publisherId}/my-account`} className="data-[focus]:bg-gray-975 block w-full p-4 text-sm">
-            Mon compte
-          </Link>
-        </MenuItem>
-        <MenuItem>
-          <button className="data-[focus]:bg-gray-975 w-full p-4 text-left text-sm" onClick={handleLogout}>
-            Se déconnecter
-          </button>
-        </MenuItem>
-      </MenuItems>
-    </Menu>
+        <ul className="m-0 flex list-none flex-col p-0">
+          {ACCOUNT_MENU_ITEMS.map((item, index) => {
+            const href = item.getHref ? item.getHref(publisherId) : null;
+            const isCurrent = href && location.pathname.startsWith(href);
+            return (
+              <li
+                ref={(el) => {
+                  listRef[index] = el || undefined;
+                }}
+                key={index}
+              >
+                <Link to={item.href} className="nav-link" aria-current={isCurrent ? "page" : undefined}>
+                  {item.label}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </div>
   );
 };
 

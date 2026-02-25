@@ -17,7 +17,9 @@ const AnalyticsCard = ({
   chartProps,
   loaderHeight,
 }) => {
-  if (!cardId) return null;
+  if (!cardId) {
+    return null;
+  }
 
   const variables = { ...(extraVariables || {}) };
   if (filters?.from && variables.from === undefined) {
@@ -49,7 +51,9 @@ const AnalyticsCard = ({
     />
   );
 
-  if (type === "kpi") return content;
+  if (type === "kpi") {
+    return content;
+  }
 
   return <div className="space-y-4 p-6">{content}</div>;
 };
