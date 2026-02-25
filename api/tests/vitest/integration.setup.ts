@@ -4,11 +4,11 @@ import { pgConnected } from "@/db/postgres";
 import { afterAll, beforeAll, beforeEach } from "vitest";
 
 type PostgresModule = typeof import("@/db/postgres");
-let prismaCore: PostgresModule["prisma"] | null = null;
+let prisma: PostgresModule["prisma"] | null = null;
 
 beforeAll(async () => {
   const postgresModule = await import("@/db/postgres");
-  prismaCore = postgresModule.prisma;
+  prisma = postgresModule.prisma;
 
   try {
     await pgConnected();
@@ -19,28 +19,28 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
-  if (prismaCore) {
-    await prismaCore.$transaction([
-      prismaCore.statEvent.deleteMany({}),
-      prismaCore.widgetPublisher.deleteMany({}),
-      prismaCore.widgetRule.deleteMany({}),
-      prismaCore.widget.deleteMany({}),
-      prismaCore.missionModerationStatus.deleteMany({}),
-      prismaCore.missionAddress.deleteMany({}),
-      prismaCore.missionEvent.deleteMany({}),
-      prismaCore.mission.deleteMany({}),
-      prismaCore.publisherOrganization.deleteMany({}),
-      prismaCore.organization.deleteMany({}),
-      prismaCore.publisherDiffusion.deleteMany({}),
-      prismaCore.publisher.deleteMany({}),
-      prismaCore.domain.deleteMany({}),
-      prismaCore.activity.deleteMany({}),
+  if (prisma) {
+    await prisma.$transaction([
+      prisma.statEvent.deleteMany({}),
+      prisma.widgetPublisher.deleteMany({}),
+      prisma.widgetRule.deleteMany({}),
+      prisma.widget.deleteMany({}),
+      prisma.missionModerationStatus.deleteMany({}),
+      prisma.missionAddress.deleteMany({}),
+      prisma.missionEvent.deleteMany({}),
+      prisma.mission.deleteMany({}),
+      prisma.publisherOrganization.deleteMany({}),
+      prisma.organization.deleteMany({}),
+      prisma.publisherDiffusion.deleteMany({}),
+      prisma.publisher.deleteMany({}),
+      prisma.domain.deleteMany({}),
+      prisma.activity.deleteMany({}),
     ]);
   }
 });
 
 afterAll(async () => {
-  if (prismaCore) {
-    await prismaCore.$disconnect();
+  if (prisma) {
+    await prisma.$disconnect();
   }
 });
