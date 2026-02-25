@@ -1,9 +1,9 @@
+import Tooltip from "@/components/Tooltip";
 import { useEffect, useMemo, useState } from "react";
 import { RiInformationLine } from "react-icons/ri";
 import { Link, useSearchParams } from "react-router-dom";
-import Tooltip from "@/components/Tooltip";
 
-import RadioInput from "@/components/RadioInput";
+import RadioInput from "@/components/form/RadioInput";
 import Table from "@/components/Table";
 import api from "@/services/api";
 import { captureError } from "@/services/error";

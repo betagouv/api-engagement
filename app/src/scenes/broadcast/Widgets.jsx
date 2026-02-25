@@ -32,7 +32,9 @@ const Widgets = () => {
     setLoading(true);
     try {
       const res = await api.post(`/widget/search`, filters);
-      if (!res.ok) throw res;
+      if (!res.ok) {
+        throw res;
+      }
       setData(res.data || []);
     } catch (error) {
       captureError(error, { extra: { filters } });
@@ -47,7 +49,9 @@ const Widgets = () => {
   const handleActivate = async (value, item) => {
     try {
       const res = await api.put(`/widget/${item.id}`, { active: value });
-      if (!res.ok) throw res;
+      if (!res.ok) {
+        throw res;
+      }
       setData((widgets) => widgets.map((w) => (w.id === res.data.id ? res.data : w)));
     } catch (error) {
       captureError(error, { extra: { item } });
@@ -57,8 +61,8 @@ const Widgets = () => {
   return (
     <div className="space-y-6 p-12">
       <title>API Engagement - Widgets - Diffuser des missions</title>
-      <div className="mb-10 flex items-center justify-between gap-4">
-        <div role="search" className="relative flex-1">
+      <div className="mb-10 flex flex-col items-center justify-between gap-4 lg:flex-row lg:gap-4">
+        <div role="search" className="flex flex-1 flex-col items-center gap-4 lg:flex-row lg:gap-4">
           <label htmlFor="widget-search" className="sr-only">
             Chercher par nom
           </label>
@@ -78,24 +82,27 @@ const Widgets = () => {
         </div>
       ) : (
         <>
-          <div className="flex justify-between">
-            <p
-              className="text-lg font-semibold"
-              role="status"
-              aria-live="polite"
-              aria-atomic="true"
-            >
+          <div className="flex flex-col items-center justify-between lg:flex-row">
+            <p className="text-lg font-semibold" role="status" aria-live="polite" aria-atomic="true">
               {data.length > 1 ? `${data.length} widgets` : `${data.length} widget`}
             </p>
             {user.role === "admin" && (
-              <div className="relative flex items-center">
+              <div className="flex items-center">
                 <Toggle aria-label="Afficher les widgets désactivés" value={!filters.active} onChange={(checked) => setFilters({ ...filters, active: !checked, page: 1 })} />
                 <label className="ml-2">Afficher les widgets désactivés</label>
               </div>
             )}
           </div>
 
-          <Table header={TABLE_HEADER} pagination page={filters.page} pageSize={filters.pageSize} onPageChange={(page) => setFilters({ ...filters, page })} total={data.length} auto>
+          <Table
+            header={TABLE_HEADER}
+            pagination
+            page={filters.page}
+            pageSize={filters.pageSize}
+            onPageChange={(page) => setFilters({ ...filters, page })}
+            total={data.length}
+            auto
+          >
             {data.slice((filters.page - 1) * filters.pageSize, filters.page * filters.pageSize).map((item, i) => (
               <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
                 <td className="px-4" colSpan={3}>

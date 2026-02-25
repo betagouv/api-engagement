@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 
 import ExportSvg from "@/assets/svg/export-icon.svg?react";
+import RadioInput from "@/components/form/RadioInput";
 import Modal from "@/components/New-Modal";
-import RadioInput from "@/components/RadioInput";
 import Table from "@/components/Table";
 import Toggle from "@/components/Toggle";
 import { MISSION_TYPES } from "@/constants";
@@ -20,7 +20,9 @@ const Annonceur = ({ values, onChange, errors, setErrors }) => {
         const res = await api.post("/publisher/search", {
           diffuseursOf: values.id,
         });
-        if (!res.ok) throw res;
+        if (!res.ok) {
+          throw res;
+        }
         setData(withLegacyPublishers(res.data));
       } catch (error) {
         captureError(error, { extra: { publisherId: values.id } });
@@ -30,7 +32,7 @@ const Annonceur = ({ values, onChange, errors, setErrors }) => {
   }, [values.id]);
 
   return (
-    <div className="border-grey-border space-y-6 border p-6">
+    <div className="border-grey-border flex flex-1 flex-col gap-6 border p-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold">Annonceur</h3>
         <Toggle
@@ -86,7 +88,7 @@ const DiffuseurModal = ({ data }) => {
 
   return (
     <>
-      <button onClick={() => setOpen(true)} className="text-blue-france border-blue-france flex items-center gap-2 border-b">
+      <button onClick={() => setOpen(true)} className="text-blue-france border-blue-france flex w-fit items-center gap-2 border-b">
         <span>Tous les diffuseurs</span>
         <ExportSvg className="h-4 w-4" />
       </button>

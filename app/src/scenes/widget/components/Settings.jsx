@@ -3,7 +3,7 @@ import { BiSolidInfoSquare } from "react-icons/bi";
 
 import JvaLogoSvg from "@/assets/svg/jva-logo.svg";
 import LocationCombobox from "@/components/combobox/LocationCombobox";
-import RadioInput from "@/components/RadioInput";
+import RadioInput from "@/components/form/RadioInput";
 import Toggle from "@/components/Toggle";
 import QueryBuilder from "@/scenes/widget/components/QueryBuilder";
 import api from "@/services/api";

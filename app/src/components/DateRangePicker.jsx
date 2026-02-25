@@ -18,12 +18,12 @@ const RANGES = [
 
 const DateRangePicker = ({ value, onChange }) => {
   return (
-    <div className="flex gap-4">
-      <div className="border-grey-border flex items-center rounded-sm border">
+    <div className="flex flex-col gap-4 lg:flex-row">
+      <div className="border-grey-border flex w-fit items-center gap-x-2 rounded-sm border">
         {RANGES.map((range, i) => (
           <button
             key={i}
-            className={`cursor-pointer px-4 py-2 text-sm ${value.from.toLocaleDateString() === range.from.toLocaleDateString() ? "border-blue-france text-blue-france -my-px rounded-sm border" : ""} hover:bg-gray-100`}
+            className={`focus cursor-pointer rounded-sm px-4 py-2 text-sm ${value.from.toLocaleDateString() === range.from.toLocaleDateString() ? "border-blue-france text-blue-france -my-px border" : ""} hover:bg-gray-100`}
             onClick={() => onChange(range)}
           >
             {range.label}
@@ -41,7 +41,9 @@ export const DateInput = ({ value, onChange }) => {
   const [to, setTo] = useState(value.to);
 
   useEffect(() => {
-    if (value.from === from && value.to === to) return;
+    if (value.from === from && value.to === to) {
+      return;
+    }
     setFrom(value.from);
     setTo(value.to);
   }, [value]);

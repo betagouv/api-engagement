@@ -137,9 +137,9 @@ const Flux = ({ moderated }) => {
           </Link>
         </InfoAlert>
       )}
-      <div className="space-y-4">
+      <div className="flex flex-col gap-6">
         <SearchInput className="w-96" value={filters.search} onChange={(search) => setFilters({ ...filters, search })} placeholder="Rechercher par mot-clé" />
-        <div className="flex items-center gap-4">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <Select
             options={options.status.map((e) => ({ value: e.key, label: STATUS_PLR[e.key], count: e.doc_count }))}
             value={filters.status}
@@ -161,8 +161,7 @@ const Flux = ({ moderated }) => {
             placeholder="Domaines"
             loading={loading}
           />
-        </div>
-        <div className="flex items-center gap-4">
+
           <Select
             options={options.activities.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}
             value={filters.activity}
@@ -188,7 +187,7 @@ const Flux = ({ moderated }) => {
         </div>
       </div>
 
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         <div className="flex items-center justify-between gap-4">
           <div className="max-w-[60%] flex-1 space-y-2">
             <h2 className="text-2xl font-bold">{total.toLocaleString("fr")} missions partagées</h2>
