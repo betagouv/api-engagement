@@ -1,7 +1,8 @@
 import { RiExternalLinkLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
 
-import GouvLogo from "@/components/GouvLogo";
+import deviseSrc from "@/assets/svg/gouv-devise.svg";
+import marianneBanner from "@/assets/svg/marianne-banner.svg";
 
 const Footer = () => {
   return (
@@ -10,7 +11,15 @@ const Footer = () => {
         <div className="mt-10 flex items-center justify-between">
           <Link className="hover:bg-gray-975 flex items-center p-2" to="/">
             <div className="my-2 h-full w-24">
-              <GouvLogo />
+              <div className="flex flex-col items-start">
+                <img src={marianneBanner} alt="" aria-hidden="true" className="mb-1 w-10" />
+                <p className="text-xs leading-3 font-bold text-black uppercase">
+                  République
+                  <br />
+                  française
+                </p>
+                <img src={deviseSrc} alt="" aria-hidden="true" className="mt-1 h-7" />
+              </div>
             </div>
             <div>
               <h2 className="m-0 text-xl leading-7 font-bold text-black">API Engagement</h2>
