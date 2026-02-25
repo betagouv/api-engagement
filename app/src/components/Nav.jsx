@@ -203,7 +203,7 @@ const FluxMenu = ({ value, onChange }) => {
     <div className="relative" ref={ref} onBlur={handleFocusOut}>
       <button
         ref={buttonRef}
-        className="bg-blue-france focus-visible:outline-outline-blue flex w-44 cursor-pointer items-center justify-between rounded-full px-4 py-2 text-sm text-white focus-visible:outline-2 focus-visible:outline-offset-2"
+        className="bg-blue-france hover:bg-blue-france-hover active:bg-blue-france-hover focus flex w-44 cursor-pointer items-center justify-between rounded-full px-4 py-2 text-sm text-white"
         aria-expanded={isOpen}
         aria-haspopup="true"
         type="button"
