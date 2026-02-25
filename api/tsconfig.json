@@ -27,6 +27,6 @@
     "skipLibCheck": true /* Skip type checking all .d.ts files. */,
     "allowJs": true
   },
-  "include": ["src/**/*", "vitest.config.ts", "tests", "scripts", "**/*.test.ts"],
+  "include": ["src/**/*", "vitest.config.ts", "prisma.config.ts", "tests", "scripts", "**/*.test.ts"],
   "exclude": ["node_modules", "dist"]
 }
