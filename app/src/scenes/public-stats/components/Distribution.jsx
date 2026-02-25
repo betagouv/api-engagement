@@ -9,8 +9,12 @@ const Distribution = ({ filters, onFiltersChange }) => {
   const [departmentPage, setDepartmentPage] = useState(1);
   const [domainPage, setDomainPage] = useState(1);
   const departmentCode = useMemo(() => {
-    if (!filters.department) return "";
-    if (DEPARTMENT_NAMES[filters.department]) return filters.department;
+    if (!filters.department) {
+      return "";
+    }
+    if (DEPARTMENT_NAMES[filters.department]) {
+      return filters.department;
+    }
     const found = Object.entries(DEPARTMENT_NAMES).find(([, value]) => value[0] === filters.department);
     return found ? found[0] : filters.department;
   }, [filters.department]);
@@ -87,7 +91,7 @@ const Distribution = ({ filters, onFiltersChange }) => {
         </div>
       </div>
 
-      <div className="mt-8 gap-4 border p-8">
+      <div className="border-grey-border mt-8 gap-4 border p-8">
         <div className="mb-4 flex justify-between">
           <h2 className="mb-6 text-2xl font-bold">Domaine d'action des missions</h2>
           <Tooltip
@@ -125,8 +129,12 @@ const Distribution = ({ filters, onFiltersChange }) => {
                 { key: "candidature_count", title: "Candidatures" },
               ]}
               formatCell={(value) => {
-                if (typeof value === "number") return value.toLocaleString("fr");
-                if (typeof value === "string" && value.length > 0) return `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
+                if (typeof value === "number") {
+                  return value.toLocaleString("fr");
+                }
+                if (typeof value === "string" && value.length > 0) {
+                  return `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
+                }
                 return value;
               }}
             />
@@ -134,7 +142,7 @@ const Distribution = ({ filters, onFiltersChange }) => {
         </div>
       </div>
 
-      <div className="mt-8 gap-4 border p-8">
+      <div className="border-grey-border mt-8 gap-4 border p-8">
         <div className="mb-4 flex justify-between">
           <h2 className="mb-6 text-2xl font-bold">Département des missions</h2>
           <Tooltip
@@ -175,7 +183,9 @@ const Distribution = ({ filters, onFiltersChange }) => {
                 { key: "candidature_count", title: "Candidatures" },
               ]}
               formatCell={(value, column) => {
-                if (typeof value === "number") return value.toLocaleString("fr");
+                if (typeof value === "number") {
+                  return value.toLocaleString("fr");
+                }
                 if ((column?.key === "department_name" || column?.key === "department") && typeof value === "string" && value.length > 0) {
                   return `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
                 }

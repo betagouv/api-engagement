@@ -36,6 +36,7 @@
   --color-beige-gris-galet-975: #f9f6f2;
 
   /* usage */
+  --color-global-background: var(--color-beige-gris-galet-975);
   --color-warning: var(--color-orange-warning-425);
   --color-success: var(--color-green-success-425);
   --color-error: var(--color-red-marianne-425);

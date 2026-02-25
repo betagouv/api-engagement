@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 
-import { useSearchParams } from "react-router-dom";
 import dataViz from "@/assets/svg/data-visualization.svg";
 import APILogo from "@/assets/svg/logo.svg";
 import Distribution from "@/scenes/public-stats/components/Distribution";
 import SomeNumbers from "@/scenes/public-stats/components/SomeNumbers";
+import { useSearchParams } from "react-router-dom";
 
 const PublicStats = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -20,9 +20,15 @@ const PublicStats = () => {
 
   useEffect(() => {
     const query = new URLSearchParams();
-    if (filters.department) query.append("department", filters.department);
-    if (filters.type) query.append("type", filters.type);
-    if (filters.year) query.append("year", filters.year);
+    if (filters.department) {
+      query.append("department", filters.department);
+    }
+    if (filters.type) {
+      query.append("type", filters.type);
+    }
+    if (filters.year) {
+      query.append("year", filters.year);
+    }
     setSearchParams(query);
   }, [filters]);
 
@@ -39,7 +45,7 @@ const PublicStats = () => {
           <img className="h-18 w-18" src={APILogo} alt="API Engagement" />
         </div>
       </div>
-      <div className="bg-beige-gris-galet-975">
+      <div className="bg-global-background">
         <div className="mx-auto my-14 w-4/5 max-w-[1200px] flex-1">
           <div className="flex">
             <img className="h-18 w-18" src={dataViz} alt="API Engagement" />
@@ -52,7 +58,7 @@ const PublicStats = () => {
             </div>
           </div>
         </div>
-        <div className="mx-auto my-14 w-4/5 max-w-[1200px] border bg-white p-12">
+        <div className="border-grey-border mx-auto my-14 w-4/5 max-w-[1200px] border bg-white p-12">
           <h2 className="text-3xl font-bold">En quelques mots</h2>
           <div className="flex-start flex gap-6">
             <div className="text-text-mention mt-8 flex-1 text-lg leading-loose">
