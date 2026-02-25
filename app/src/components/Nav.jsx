@@ -491,12 +491,12 @@ const AdminMenu = () => {
         inert={!show ? true : undefined}
         className={`border-grey-border absolute right-0 z-10 w-80 border bg-white shadow-lg transition-[max-height,opacity] duration-200 ease-in-out ${show ? "max-h-96 opacity-100" : "pointer-events-none max-h-0 opacity-0"}`}
       >
-        <ul className="m-0 flex list-none flex-col p-0" role="menu">
+        <ul className="m-0 flex list-none flex-col p-0">
           {ADMIN_MENU_ITEMS.map((item, index) => {
             const isCurrent = location.pathname.startsWith(item.href);
             return (
-              <li key={index} role="none">
-                <Link to={item.href} className="nav-link" role="menuitem" aria-current={isCurrent ? "page" : undefined}>
+              <li key={index}>
+                <Link to={item.href} className="nav-link" aria-current={isCurrent ? "page" : undefined}>
                   {item.label}
                 </Link>
               </li>
