@@ -180,7 +180,7 @@ const Combobox = ({
                   ref={(el) => {
                     listRef[index] = el || undefined;
                   }}
-                  key={getValue(item)}
+                  key={index}
                   id={`${id}-option-${index}`}
                   role="option"
                   aria-label={getLabel(item)}

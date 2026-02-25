@@ -51,6 +51,7 @@
   --shadow-border-black: inset 0 0 0 1px var(--color-black);
   --shadow-border-gray: inset 0 0 0 1px var(--color-gray-925);
   --shadow-border-b-gray: inset 0 -1px 0 0 var(--color-gray-925);
+  --shadow-border-link: 0 calc(-1rem - 1px) 0 -1rem var(--color-gray-925);
   --shadow-border-b-black: inset 0 -1px 0 0 var(--color-black);
   --shadow-border-b-2-black: inset 0 -2px 0 0 var(--color-black);
 
@@ -164,6 +165,12 @@ body {
   transform: translateY(0);
 }
 
+@custom-variant aria-current (&[aria-current="true"]);
+
+@utility focus {
+  @apply focus-visible:outline-outline-blue focus:outline-2 focus:outline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2;
+}
+
 @utility btn {
   @apply inline-flex min-h-10 w-fit cursor-pointer items-center justify-center px-4 py-2 text-sm font-medium transition-all disabled:cursor-not-allowed;
 }
@@ -199,10 +206,10 @@ body {
 }
 
 @utility input {
-  @apply placeholder:text-gray-425 outline-outline-blue min-h-10 rounded-t border-0 border-b border-b-black bg-gray-950 px-4 py-2 text-sm text-black focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60;
+  @apply placeholder:text-gray-425 focus min-h-10 rounded-t border-0 border-b border-b-black bg-gray-950 px-4 py-2 text-sm text-black disabled:opacity-60;
 }
 @utility select {
-  @apply placeholder:text-gray-425 outline-outline-blue min-h-10 appearance-none rounded-none rounded-t border-0 border-b border-b-black bg-gray-950 py-2 pr-10 pl-4 text-sm text-black focus:outline-2 focus:outline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60;
+  @apply placeholder:text-gray-425 focus min-h-10 appearance-none rounded-none rounded-t border-0 border-b border-b-black bg-gray-950 py-2 pr-10 pl-4 text-sm text-black disabled:opacity-60;
 }
 @utility textarea {
   @apply input h-auto min-h-10;
@@ -225,6 +232,13 @@ body {
 }
 @utility table-cell {
   @apply px-3 py-1 text-sm;
+}
+
+@utility nav-item {
+  @apply hover:bg-background-grey-hover aria-current:border-b-blue-france aria-current:text-blue-france focus flex h-14 items-center p-4 text-sm aria-current:border-b-2;
+}
+@utility nav-link {
+  @apply hover:bg-background-grey-hover aria-selected:text-blue-france aria-current:text-blue-france focus shadow-border-link focus-visible:text-blue-france flex h-auto w-full px-4 py-3 text-sm aria-current:border-b-2;
 }
 
 @utility list-item {

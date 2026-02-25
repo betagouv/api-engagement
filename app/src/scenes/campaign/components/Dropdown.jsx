@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-const Dropdown = ({ renderTrigger, children, position = "bottom", align = "end", className = "min-w-40" }) => {
+const Dropdown = ({ trigger, renderTrigger, children, position = "bottom", align = "end", className = "min-w-40" }) => {
   const ref = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
 
