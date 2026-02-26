@@ -144,7 +144,7 @@ const SignupForm = ({ user }) => {
         />
         {submitted && errors.firstname && (
           <div className="text-error flex items-center text-sm">
-            <RiErrorWarningFill className="mr-2" />
+            <RiErrorWarningFill className="mr-2" aria-hidden="true" />
             {errors.firstname}
           </div>
         )}
@@ -162,7 +162,7 @@ const SignupForm = ({ user }) => {
         />
         {submitted && errors.lastname && (
           <div className="text-error flex items-center text-sm">
-            <RiErrorWarningFill className="mr-2" />
+            <RiErrorWarningFill className="mr-2" aria-hidden="true" />
             {errors.lastname}
           </div>
         )}
@@ -173,7 +173,7 @@ const SignupForm = ({ user }) => {
             Mot de passe
           </label>
           <div className="flex cursor-pointer items-center gap-1" onClick={() => setShow(!show)}>
-            {show ? <IoMdEyeOff className="text-blue-france" /> : <IoMdEye className="text-blue-france" />}
+            {show ? <IoMdEyeOff className="text-blue-france" aria-hidden="true" /> : <IoMdEye className="text-blue-france" aria-hidden="true" />}
             <span className="text-blue-france text-xs font-bold">{show ? "CACHER" : "AFFICHER"}</span>
           </div>
         </div>
@@ -187,27 +187,27 @@ const SignupForm = ({ user }) => {
         />
         {submitted && errors.password && (
           <div className="text-error flex items-center text-sm">
-            <RiErrorWarningFill className="mr-2" />
+            <RiErrorWarningFill className="mr-2" aria-hidden="true" />
             {errors.password}
           </div>
         )}
       </div>
       <div className="mt-1 flex flex-col gap-2">
         <div className="flex items-center gap-2">
-          {values.password.length >= 12 ? <AiFillCloseCircle className="text-success" /> : <AiFillCloseCircle className="text-text-mention" />}
+          {values.password.length >= 12 ? <AiFillCloseCircle className="text-success" aria-hidden="true" /> : <AiFillCloseCircle className="text-text-mention" aria-hidden="true" />}
           <span className={`align-middle text-sm ${values.password.length >= 12 ? "text-success" : "text-text-mention"}`}>Au moins 12 caractères</span>
         </div>
         <div className="flex items-center gap-2">
-          {hasLetter(values.password) ? <AiFillCloseCircle className="text-success" /> : <AiFillCloseCircle className="text-text-mention" />}
+          {hasLetter(values.password) ? <AiFillCloseCircle className="text-success" aria-hidden="true" /> : <AiFillCloseCircle className="text-text-mention" aria-hidden="true" />}
           <span className={`align-middle text-sm ${hasLetter(values.password) ? "text-success" : "text-text-mention"}`}>Au moins une lettre</span>
         </div>
         <div className="flex items-center gap-2">
-          {hasNumber(values.password) ? <AiFillCloseCircle className="text-success" /> : <AiFillCloseCircle className="text-text-mention" />}
+          {hasNumber(values.password) ? <AiFillCloseCircle className="text-success" aria-hidden="true" /> : <AiFillCloseCircle className="text-text-mention" aria-hidden="true" />}
           <span className={`align-middle text-sm ${hasNumber(values.password) ? "text-success" : "text-text-mention"}`}>Au moins un chiffre</span>
         </div>
 
         <div className="flex items-center gap-2">
-          {hasSpecialChar(values.password) ? <AiFillCloseCircle className="text-success" /> : <AiFillCloseCircle className="text-text-mention" />}
+          {hasSpecialChar(values.password) ? <AiFillCloseCircle className="text-success" aria-hidden="true" /> : <AiFillCloseCircle className="text-text-mention" aria-hidden="true" />}
           <span className={`align-middle text-sm ${hasSpecialChar(values.password) ? "text-success" : "text-text-mention"}`}>Au moins un caractère spécial</span>
         </div>
       </div>
@@ -217,7 +217,7 @@ const SignupForm = ({ user }) => {
             Confirmation du mot de passe
           </label>
           <div className="flex cursor-pointer items-center gap-1" onClick={() => setShowConfirm(!showConfirm)}>
-            {showConfirm ? <IoMdEyeOff className="text-blue-france" /> : <IoMdEye className="text-blue-france" />}
+            {showConfirm ? <IoMdEyeOff className="text-blue-france" aria-hidden="true" /> : <IoMdEye className="text-blue-france" aria-hidden="true" />}
             <span className="text-blue-france text-xs font-bold">{showConfirm ? "CACHER" : "AFFICHER"}</span>
           </div>
         </div>
@@ -231,7 +231,7 @@ const SignupForm = ({ user }) => {
         />
         {submitted && errors.confirmPassword && (
           <div className="text-error flex items-center text-sm">
-            <RiErrorWarningFill className="mr-2" />
+            <RiErrorWarningFill className="mr-2" aria-hidden="true" />
             {errors.confirmPassword}
           </div>
         )}

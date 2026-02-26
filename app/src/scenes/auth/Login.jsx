@@ -66,7 +66,7 @@ const Login = () => {
       <input className={`input mb-2 ${errors.email ? "border-b-error" : "border-b-black"}`} name="email" id="email" type="email" />
       {errors.email && (
         <div className="text-error flex items-center text-sm">
-          <RiErrorWarningFill className="mr-2" />
+          <RiErrorWarningFill className="mr-2" aria-hidden="true" />
           {errors.email}
         </div>
       )}
@@ -77,7 +77,7 @@ const Login = () => {
       <input className={`input mb-2 ${errors.password ? "border-b-error" : "border-b-black"}`} name="password" type="password" id="password" />
       {errors.password && (
         <div className="text-error flex items-center text-sm">
-          <RiErrorWarningFill className="mr-2" />
+          <RiErrorWarningFill className="mr-2" aria-hidden="true" />
           {errors.password}
         </div>
       )}
@@ -92,7 +92,7 @@ const Login = () => {
       </button>
       {errors.login && (
         <div className="text-error mt-4 flex items-center text-sm">
-          <RiErrorWarningFill className="mr-2" />
+          <RiErrorWarningFill className="mr-2" aria-hidden="true" />
           {errors.login}
         </div>
       )}

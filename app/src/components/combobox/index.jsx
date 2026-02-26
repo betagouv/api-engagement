@@ -64,7 +64,7 @@ const Combobox = ({
           aria-activedescendant={selectedIndex !== -1 ? `${id}-option-${selectedIndex}` : undefined}
         />
         <ComboboxButton className="absolute inset-y-2 right-0 flex items-center pr-4" aria-label="Ouvrir les options">
-          {({ open }) => <RiArrowDownSLine className={`text-lg ${open ? "rotate-180 transform" : ""}`} />}
+          {({ open }) => <RiArrowDownSLine className={`text-lg ${open ? "rotate-180 transform" : ""}`} aria-hidden="true" />}
         </ComboboxButton>
       </div>
 
@@ -95,7 +95,7 @@ const Combobox = ({
                   }`
                 }
               >
-                <RiCheckFill className="invisible text-sm group-data-selected:visible" />
+                <RiCheckFill className="invisible text-sm group-data-selected:visible" aria-hidden="true" />
                 <p className="flex-1 truncate">{option.label}</p>
                 {option.doc_count && <span>{option.doc_count}</span>}
               </ComboboxOption>

@@ -6,11 +6,11 @@ import { RiCalendarEventFill, RiCheckboxCircleFill, RiCloseCircleFill, RiMapPin2
 import { useSearchParams } from "react-router-dom";
 
 import Modal from "@/components/Modal";
+import { JVA_MODERATION_COMMENTS_LABELS, STATUS, STATUS_COLORS } from "@/scenes/broadcast/moderation/components/Constants";
+import OrganizationRefusedModal from "@/scenes/broadcast/moderation/components/OrganizationRefusedModal";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
-import { JVA_MODERATION_COMMENTS_LABELS, STATUS, STATUS_COLORS } from "@/scenes/broadcast/moderation/components/Constants";
-import OrganizationRefusedModal from "@/scenes/broadcast/moderation/components/OrganizationRefusedModal";
 
 const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, onChangeMany }) => {
   const { publisher } = useStore();
@@ -31,7 +31,9 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
     try {
       setValues({ ...values, ...v });
 
-      if (v.status === "REFUSED" && !v.comment) return;
+      if (v.status === "REFUSED" && !v.comment) {
+        return;
+      }
 
       const res = await api.put(`/moderation/${data.id}`, { ...v, moderatorId: publisher.id });
       if (!res.ok) {
@@ -45,7 +47,9 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
       onChange(res.data);
       if (v.status === "REFUSED" && ["ORGANIZATION_NOT_COMPLIANT", "ORGANIZATION_ALREADY_PUBLISHED"].includes(v.comment)) {
         const resO = await api.post("/moderation/search", { moderatorId: publisher.id, organizationName: data.missionOrganizationName, status: "PENDING", size: 0 });
-        if (!resO.ok) throw resO;
+        if (!resO.ok) {
+          throw resO;
+        }
         setIsOrganizationToRefuse(resO.total);
       }
     } catch (error) {
@@ -83,18 +87,18 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
             <div className="text-text-mention mb-2 flex items-center gap-4 text-xs">
               {data.missionCity && (
                 <span className="flex items-center">
-                  <RiMapPin2Fill className="mr-2" />
+                  <RiMapPin2Fill className="mr-2" aria-hidden="true" />
                   {`${data.missionCity} ${data.missionDepartmentCode ? `(${data.missionDepartmentCode})` : ""}`}
                 </span>
               )}
               <span className="flex items-center text-xs">
-                <RiCalendarEventFill className="mr-2" />
+                <RiCalendarEventFill className="mr-2" aria-hidden="true" />
                 {data.missionStartAt && `Du ${new Date(data.missionStartAt).toLocaleDateString("fr")}`}
                 {data.missionEndAt && ` au ${new Date(data.missionEndAt).toLocaleDateString("fr")}`}
               </span>
             </div>
             <div className="text-text-mention flex items-center text-xs">
-              <RiTimeLine className="mr-2 text-xs" />
+              <RiTimeLine className="mr-2 text-xs" aria-hidden="true" />
               Postée le {new Date(data.missionPostedAt).toLocaleDateString("fr")} sur {data.missionPublisherName}
             </div>
           </div>
@@ -108,7 +112,7 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
             <span>Missions</span>
             <RiCheckboxCircleFill role="img" aria-label="Acceptées" className="text-success" />
             <span className="text-success">{history["ACCEPTED"] || "0"}</span>
-            <BsDot className="text-text-mention" />
+            <BsDot className="text-text-mention" aria-hidden="true" />
             <RiCloseCircleFill role="img" aria-label="Refusées" className="text-error" />
             <span className="text-error">{history["REFUSED"] || "0"}</span>
           </div>
@@ -152,7 +156,7 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
           )}
           {values.note && (
             <div className="mt-1 flex items-center gap-2 text-xs">
-              <RiPencilFill />
+              <RiPencilFill aria-hidden="true" />
               <div className="italic">{values.note}</div>
             </div>
           )}
@@ -250,7 +254,9 @@ const UpdateNoteModal = ({ isOpen, onChange, onClose, data }) => {
     e.preventDefault();
     try {
       const res = await api.put(`/moderation/${data.id}`, { note, moderatorId: publisher.id });
-      if (!res.ok) throw res;
+      if (!res.ok) {
+        throw res;
+      }
       toast.success("La note a été mise à jour avec succès");
       onChange({ note });
       onClose();

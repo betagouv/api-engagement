@@ -5,7 +5,7 @@ const Organization = ({ data, history }) => {
   return (
     <div className="border-grey-border flex flex-col gap-2 border bg-white p-6">
       <div className="mb-2 flex items-center gap-2">
-        <RiPencilFill className="text-text-mention" />
+        <RiPencilFill className="text-text-mention" aria-hidden="true" />
         <label className="text-text-mention text-xs font-semibold" htmlFor="note">
           ORGANISATION
         </label>
@@ -20,10 +20,10 @@ const Organization = ({ data, history }) => {
       <div>
         <div className="border-grey-border my-2 inline-flex flex-wrap items-center gap-1 rounded border p-2">
           <span className="text-text-mention text-xs">Missions</span>
-          <RiCheckboxCircleFill className="text-success text-xs" />
+          <RiCheckboxCircleFill className="text-success text-xs" aria-hidden="true" />
           <span className="text-success text-xs">{history["ACCEPTED"] || "0"}</span>
           <div className="bg-gray-425 mx-1 h-[2px] w-[2px] rounded-full" />
-          <RiCloseCircleFill className="text-error text-xs" />
+          <RiCloseCircleFill className="text-error text-xs" aria-hidden="true" />
           <span className="text-error text-xs">{history["REFUSED"] || "0"}</span>
         </div>
       </div>
@@ -33,6 +33,7 @@ const Organization = ({ data, history }) => {
           <span className="text-text-mention text-xs">{data.missionOrganizationSirenVerified || "/"}</span>
           <RiFileCopyLine
             className="text-text-mention text-xs hover:cursor-pointer"
+            aria-hidden="true"
             onClick={() => {
               if (!data.missionOrganizationSirenVerified) return;
               navigator.clipboard.writeText(data.missionOrganizationSirenVerified);
@@ -45,6 +46,7 @@ const Organization = ({ data, history }) => {
           <span className="text-text-mention text-xs">{data.missionOrganizationRNAVerified || "/"}</span>
           <RiFileCopyLine
             className="text-text-mention text-xs hover:cursor-pointer"
+            aria-hidden="true"
             onClick={() => {
               if (!data.missionOrganizationRNAVerified) return;
               navigator.clipboard.writeText(data.missionOrganizationRNAVerified);

@@ -2,7 +2,9 @@ import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import { HiX } from "react-icons/hi";
 
 const Modal = ({ isOpen, children, onClose, className = "w-1/2" }) => {
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <Dialog open={isOpen} as="div" className="relative z-10 focus:outline-none" onClose={onClose}>

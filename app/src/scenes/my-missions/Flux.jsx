@@ -205,7 +205,7 @@ const Flux = ({ moderated }) => {
           </div>
 
           <button className="tertiary-btn" onClick={handleExport}>
-            {exporting ? <Loader /> : <RiFileDownloadLine className="mr-2" />}
+            {exporting ? <Loader /> : <RiFileDownloadLine className="mr-2" aria-hidden="true" />}
             Exporter
           </button>
         </div>

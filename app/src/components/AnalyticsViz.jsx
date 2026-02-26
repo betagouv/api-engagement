@@ -115,7 +115,7 @@ const AnalyticsViz = ({
     if (!tableRows.length) {
       return (
         <div className={`flex h-[200px] w-full flex-col items-center justify-center border border-dashed border-gray-900 bg-[#f6f6f6] ${className}`}>
-          <img src={EmptySVG} alt="empty" className="h-16 w-16" />
+          <img src={EmptySVG} alt="" aria-hidden="true" className="h-16 w-16" />
           <p className="text-base text-[#666]">Aucune donnée disponible</p>
         </div>
       );
@@ -151,7 +151,7 @@ const AnalyticsViz = ({
     if (kpiValue === null) {
       return (
         <div className={`flex h-[120px] w-full flex-col items-center justify-center border border-dashed border-gray-900 bg-[#f6f6f6] ${className}`}>
-          <img src={EmptySVG} alt="empty" className="h-12 w-12" />
+          <img src={EmptySVG} alt="" aria-hidden="true" className="h-12 w-12" />
           <p className="text-base text-[#666]">Aucune donnée disponible</p>
         </div>
       );
@@ -188,7 +188,7 @@ const AnalyticsViz = ({
   if (!data.length) {
     return (
       <div className={`flex h-[200px] w-full flex-col items-center justify-center border border-dashed border-gray-900 bg-[#f6f6f6] ${className}`}>
-        <img src={EmptySVG} alt="empty" className="h-16 w-16" />
+        <img src={EmptySVG} alt="" aria-hidden="true" className="h-16 w-16" />
         <p className="text-base text-[#666]">Aucune donnée disponible</p>
       </div>
     );

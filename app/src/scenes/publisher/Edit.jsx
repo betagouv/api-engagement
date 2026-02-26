@@ -168,7 +168,7 @@ const Edit = () => {
     <div className="flex flex-col gap-8">
       <title>{`API Engagement - Compte partenaire - ${values.name}`}</title>
       <Link to="/admin-account/publishers" className="border-blue-france text-blue-france flex w-fit items-center gap-2 border-b text-[16px]">
-        <RiArrowLeftLine />
+        <RiArrowLeftLine aria-hidden="true" />
         Retour
       </Link>
       <div className="flex items-center">
@@ -176,7 +176,7 @@ const Edit = () => {
           htmlFor="logo"
           className="flex h-24 w-32 cursor-pointer flex-col items-center justify-center bg-white p-2 shadow-lg transition-all duration-500 hover:bg-gray-900/10"
         >
-          <img src={`${[publisher.logo]}?${Date.now()}`} className="object-scale-down" />
+          <img src={`${[publisher.logo]}?${Date.now()}`} className="object-scale-down" alt="" aria-hidden="true" />
         </label>
         <input id="logo" accept=".gif,.jpg,.jpeg,.png" type="file" hidden onChange={handleFileChange} />
 
@@ -202,7 +202,7 @@ const Edit = () => {
 
         <div className="flex items-center justify-end gap-2">
           <button className="red-btn flex items-center" onClick={handleDelete}>
-            <TrashSvg className="mr-2" />
+            <TrashSvg className="mr-2" aria-hidden="true" />
             <span>Supprimer</span>
           </button>
 

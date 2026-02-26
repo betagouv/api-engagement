@@ -141,7 +141,7 @@ const Create = () => {
                       setValues({ ...values, publishers: values.publishers.filter((pub) => pub !== p) });
                     }}
                   >
-                    <RiCloseFill className="text-xs" />
+                    <RiCloseFill className="text-xs" aria-hidden="true" />
                   </button>
                 </div>
               ))}
@@ -149,7 +149,7 @@ const Create = () => {
           )}
           {errors.publishers && (
             <div className="text-error mb-2 flex items-center text-sm">
-              <RiErrorWarningFill className="mr-2" />
+              <RiErrorWarningFill className="mr-2" aria-hidden="true" />
               {errors.publishers}
             </div>
           )}

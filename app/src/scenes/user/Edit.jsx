@@ -137,7 +137,7 @@ const Edit = () => {
         <div className="flex justify-between">
           <h2 className="text-3xl font-bold">Les informations</h2>
           <button type="button" className="text-error flex cursor-pointer items-center text-sm" onClick={handleDelete}>
-            <TiDeleteOutline className="mr-2" />
+            <TiDeleteOutline className="mr-2" aria-hidden="true" />
             <span>Supprimer</span>
           </button>
         </div>
@@ -184,7 +184,7 @@ const Edit = () => {
                 <div key={i} className="bg-blue-france-975 flex items-center rounded p-2">
                   <span className="text-xs">{publishers.find((pub) => pub.id === p || pub._id === p)?.name}</span>
                   <button type="button" className="ml-2" onClick={() => setValues({ ...values, publishers: values.publishers.filter((pub) => pub !== p) })}>
-                    <RiCloseFill className="text-xs" />
+                    <RiCloseFill className="text-xs" aria-hidden="true" />
                   </button>
                 </div>
               ))}
@@ -287,7 +287,7 @@ const ResetPasswordModal = ({ user }) => {
                 <div className="mb-12 flex items-center justify-center px-20">
                   <span className="input w-1/2">{newPassword}</span>
                   <button type="button" className="secondary-btn ml-2" onClick={() => handleCopy(newPassword)}>
-                    <RiFileCopyFill className="text-lg" />
+                    <RiFileCopyFill className="text-lg" aria-hidden="true" />
                   </button>
                 </div>
                 <div className="w-full pr-6 text-right">

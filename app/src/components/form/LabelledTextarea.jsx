@@ -7,7 +7,7 @@ const LabelledTextarea = ({ id, label, error, value, onChange, className, ...pro
       <textarea id={id} className={`textarea ${error ? "border-b-error" : "border-b-black"} ${className}`} name={id} value={value} onChange={onChange} {...props} />
       {error && (
         <div className="text-error flex items-center text-sm">
-          <RiErrorWarningFill className="mr-2" />
+          <RiErrorWarningFill className="mr-2" aria-hidden="true" />
           {error}
         </div>
       )}

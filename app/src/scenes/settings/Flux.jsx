@@ -1,6 +1,6 @@
+import { toast } from "@/services/toast";
 import { useEffect, useState } from "react";
 import { RiCheckboxCircleFill, RiCloseCircleFill } from "react-icons/ri";
-import { toast } from "@/services/toast";
 
 import Loader from "@/components/Loader";
 import Modal from "@/components/New-Modal";
@@ -42,7 +42,9 @@ const Flux = () => {
 
         const res = await api.post(`/import/search`, query);
 
-        if (!res.ok) throw res;
+        if (!res.ok) {
+          throw res;
+        }
         setImports(res.data);
         setTotal(res.total);
         if (res.data.length > 0) {
@@ -64,8 +66,12 @@ const Flux = () => {
     const hours = Math.floor(diff / 3600000);
     const minutes = Math.floor((diff % 3600000) / 60000);
     const seconds = Math.floor(((diff % 360000) % 60000) / 1000);
-    if (hours === 0 && minutes === 0) return `${seconds}s`;
-    if (hours === 0) return `${minutes}min ${seconds}s`;
+    if (hours === 0 && minutes === 0) {
+      return `${seconds}s`;
+    }
+    if (hours === 0) {
+      return `${minutes}min ${seconds}s`;
+    }
     return `${hours}h ${minutes}min ${seconds}s`;
   };
 
@@ -148,7 +154,9 @@ const ModifyModal = () => {
       setLoading(true);
       const res = await api.put(`/publisher/${publisher.id}`, { feed });
 
-      if (!res.ok) throw res;
+      if (!res.ok) {
+        throw res;
+      }
 
       toast.success("Flux mis à jour");
       setPublisher(res.data);

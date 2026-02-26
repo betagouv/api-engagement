@@ -117,7 +117,7 @@ const Edit = () => {
       <StickyBar onEdit={handleSubmit} visible={stickyVisible} widget={widget} handleActivate={handleActivate} canSubmit={canSubmit} />
       <div className="flex">
         <Link to={`/broadcast/widgets`} className="text-blue-france flex items-center space-x-1">
-          <RiArrowLeftLine />
+          <RiArrowLeftLine aria-hidden="true" />
           <span>Retour</span>
         </Link>
       </div>
@@ -230,7 +230,7 @@ const Code = ({ widget }) => {
       <div className="flex items-center justify-between">
         <p>Vous n’avez plus qu’à intégrer ce code pour afficher le widget sur votre site</p>
         <button className="secondary-btn flex items-center" onClick={handleCopy}>
-          <RiCodeSSlashFill className="mr-2" />
+          <RiCodeSSlashFill className="mr-2" aria-hidden="true" />
           Copier le code
         </button>
       </div>

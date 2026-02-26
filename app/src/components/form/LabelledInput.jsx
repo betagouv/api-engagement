@@ -7,7 +7,7 @@ const LabelledInput = ({ id, label, error, value, onChange, className, ...props 
       <input id={id} className={`input ${error ? "border-b-error" : "border-b-black"} ${className}`} name={id} value={value} onChange={onChange} {...props} />
       {error && (
         <div className="text-error flex items-center text-sm">
-          <RiErrorWarningFill className="mr-2" />
+          <RiErrorWarningFill className="mr-2" aria-hidden="true" />
           {error}
         </div>
       )}

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { RiArrowRightLine, RiCheckboxCircleFill, RiCloseFill, RiMessage2Line } from "react-icons/ri";
 
-import { Link } from "react-router-dom";
 import APILogo from "@/assets/svg/logo.svg";
 import Loader from "@/components/Loader";
 import Select from "@/components/Select";
@@ -10,6 +9,7 @@ import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
 import { slugify } from "@/services/utils";
+import { Link } from "react-router-dom";
 
 const LINKS = {
   EMPTY_WARNING: "/announce?tab=settings",
@@ -35,17 +35,24 @@ const List = () => {
     const fetchData = async () => {
       try {
         const resS = await api.get(`/warning/state`);
-        if (!resS.ok) throw resS;
+        if (!resS.ok) {
+          throw resS;
+        }
         setState(resS.data);
         const resP = await api.post("/warning/search", { publisherId: publisher.id });
-        if (!resP.ok) throw resP;
+        if (!resP.ok) {
+          throw resP;
+        }
         setCurrentWarnings(resP.data);
         setCurrentByDays(
           resP.data.reduce((acc, w) => {
             const date = new Date(w.createdAt);
             const day = `${DAYS[date.getDay()]} ${date.getDate()} ${MONTHS[date.getMonth()].toLowerCase()} ${date.getFullYear()}`;
-            if (!acc[day]) acc[day] = [w];
-            else acc[day].push(w);
+            if (!acc[day]) {
+              acc[day] = [w];
+            } else {
+              acc[day].push(w);
+            }
             return acc;
           }, {}),
         );
@@ -67,13 +74,18 @@ const List = () => {
           year: archivedFilters.year,
         };
         const res = await api.post("/warning/search", query);
-        if (!res.ok) throw res;
+        if (!res.ok) {
+          throw res;
+        }
         setArchivedByDays(
           res.data.reduce((acc, w) => {
             const date = new Date(w.createdAt);
             const day = `${DAYS[date.getDay()]} ${date.getDate()} ${MONTHS[date.getMonth()].toLowerCase()} ${date.getFullYear()}`;
-            if (!acc[day]) acc[day] = [w];
-            else acc[day].push(w);
+            if (!acc[day]) {
+              acc[day] = [w];
+            } else {
+              acc[day].push(w);
+            }
             return acc;
           }, {}),
         );
@@ -90,7 +102,9 @@ const List = () => {
     return `${d.getDate()} ${MONTHS[d.getMonth()].toLowerCase()} ${d.getFullYear()} à ${d.getHours()}h${minutes}`;
   };
 
-  if (!state) return <Loader />;
+  if (!state) {
+    return <Loader />;
+  }
   return (
     <div className="flex flex-col">
       <title>API Engagement - Alertes</title>
@@ -98,7 +112,7 @@ const List = () => {
         <h1 className="text-3xl font-bold">État du service</h1>
 
         <div className="flex items-center gap-8 bg-white p-6 shadow-sm">
-          <img className="h-18 w-18" src={APILogo} alt="API Engagement" />
+          <img className="h-18 w-18" src={APILogo} alt="" aria-hidden="true" />
           <div>
             {!state.up ? (
               <p className="text-xl">
@@ -155,7 +169,7 @@ const List = () => {
           <h2 className="text-2xl font-bold">Alertes en cours</h2>
           <a href="mailto:apiengagement@beta.gouv.fr" className="text-blue-france border-grey-border flex items-center border py-2 pr-3 pl-4 text-sm">
             Contacter le support
-            <RiMessage2Line className="ml-2" />
+            <RiMessage2Line className="ml-2" aria-hidden="true" />
           </a>
         </div>
       </div>
@@ -180,7 +194,7 @@ const List = () => {
                       </div>
                     </div>
                     <div className="flex h-full flex-col">
-                      <RiArrowRightLine className="text-blue-france text-2xl" />
+                      <RiArrowRightLine className="text-blue-france text-2xl" aria-hidden="true" />
                     </div>
                   </Link>
                 );
@@ -241,7 +255,7 @@ const List = () => {
                         <p className="mb-3 text-base">{label.advice}</p>
                         {w.fixed && (
                           <div className="mt-3 flex items-center">
-                            <RiCheckboxCircleFill className="text-success mr-2 w-4" />
+                            <RiCheckboxCircleFill className="text-success mr-2 w-4" aria-hidden="true" />
                             <p className="text-gray-dar text-sm">
                               Corrigée le {new Date(w.fixedAt || w.updatedAt).getDate()} {MONTHS[new Date(w.fixedAt || w.updatedAt).getMonth()].toLowerCase()}
                             </p>
@@ -265,13 +279,15 @@ const List = () => {
 };
 
 const Badge = ({ label, value, onDelete }) => {
-  if (!value) return null;
+  if (!value) {
+    return null;
+  }
   return (
     <div className="bg-blue-france-975 flex items-center gap-2 rounded p-2">
       <p className="text-sm">{label}:</p>
       <p className="text-sm">{value}</p>
       <button className="text-sm text-black" onClick={onDelete}>
-        <RiCloseFill />
+        <RiCloseFill aria-hidden="true" />
       </button>
     </div>
   );

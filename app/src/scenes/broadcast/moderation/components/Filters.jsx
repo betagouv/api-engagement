@@ -58,7 +58,7 @@ const Filters = ({ filters, onChange, reload }) => {
     <div className="mx-12">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <img src={ModerationManualIcon} className="h-14 w-14" allt="Modération automatique" />
+          <img src={ModerationManualIcon} className="h-14 w-14" alt="" aria-hidden="true" />
           <h2 className="text-xl font-semibold text-black">Modération manuelle</h2>
         </div>
       </div>

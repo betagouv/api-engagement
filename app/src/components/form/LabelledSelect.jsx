@@ -18,7 +18,7 @@ const LabelledSelect = ({ id, label, options, placeholder = null, error, value, 
       </select>
       {error && (
         <div className="text-error flex items-center text-sm">
-          <RiErrorWarningFill className="mr-2" />
+          <RiErrorWarningFill className="mr-2" aria-hidden="true" />
           {error}
         </div>
       )}

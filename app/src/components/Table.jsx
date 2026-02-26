@@ -33,7 +33,10 @@ const Table = ({ header, sortBy, total, onSort, loading, children, auto = false,
                         <h3 className={`text-sm font-semibold ${item.position === "right" ? "text-right" : item.position === "center" ? "text-center" : "text-left"}`}>
                           {item.title}
                           {item.key && onSort && (
-                            <IoIosArrowDown className={`${sortBy === item.key ? "block" : "hidden group-hover:block"} absolute top-1/2 -right-4 -translate-y-1/2`} />
+                            <IoIosArrowDown
+                              className={`${sortBy === item.key ? "block" : "hidden group-hover:block"} absolute top-1/2 -right-4 -translate-y-1/2`}
+                              aria-hidden="true"
+                            />
                           )}
                         </h3>
                       </div>

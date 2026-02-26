@@ -1,7 +1,9 @@
 import { RiCloseFill } from "react-icons/ri";
 
 const Modal = ({ isOpen, children, onClose, className = "w-full max-w-3xl", wapperClassName = "w-full h-full" }) => {
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <div className="fixed top-0 left-0 z-50 flex h-full w-full items-center justify-center">
@@ -11,7 +13,7 @@ const Modal = ({ isOpen, children, onClose, className = "w-full max-w-3xl", wapp
           <div className="relative h-full w-full">
             <button type="button" className="text-blue-france absolute top-2 right-2 flex cursor-pointer items-center p-3 text-sm" onClick={onClose}>
               <p className="leading-none">Fermer</p>
-              <RiCloseFill className="ml-2 inline text-sm" />
+              <RiCloseFill className="ml-2 inline text-sm" aria-hidden="true" />
             </button>
             {children}
           </div>

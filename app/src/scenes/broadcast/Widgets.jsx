@@ -67,11 +67,11 @@ const Widgets = () => {
             Chercher par nom
           </label>
           <input id="widget-search" className="input w-full pr-10 pl-4 italic" name="widget-search" placeholder="Chercher par nom" onChange={handleSearch} />
-          <RiSearchLine className="absolute top-1/2 right-3 -translate-y-1/2 transform" />
+          <RiSearchLine className="absolute top-1/2 right-3 -translate-y-1/2 transform" aria-hidden="true" />
         </div>
         {user.role === "admin" && (
           <Link to="/broadcast/widget/new" className="primary-btn flex items-center">
-            Créer un widget <RiAddFill className="ml-2" />
+            Créer un widget <RiAddFill className="ml-2" aria-hidden="true" />
           </Link>
         )}
       </div>

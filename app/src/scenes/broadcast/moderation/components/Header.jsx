@@ -1,13 +1,13 @@
+import { toast } from "@/services/toast";
 import { useEffect, useRef, useState } from "react";
 import { RiCheckboxFill, RiCheckboxIndeterminateFill } from "react-icons/ri";
-import { toast } from "@/services/toast";
 
 import Loader from "@/components/Loader";
 import Modal from "@/components/Modal";
+import { JVA_MODERATION_COMMENTS_LABELS, STATUS, STATUS_CLASSES } from "@/scenes/broadcast/moderation/components/Constants";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
-import { JVA_MODERATION_COMMENTS_LABELS, STATUS, STATUS_CLASSES } from "@/scenes/broadcast/moderation/components/Constants";
 
 const Header = ({ total, data, size, sort, selected, onSize, onSort, onSelect, onChangeMany }) => {
   const headerRef = useRef(null);
@@ -20,14 +20,22 @@ const Header = ({ total, data, size, sort, selected, onSize, onSort, onSelect, o
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  if (selected.length > 0)
+  if (selected.length > 0) {
     return (
       <div ref={headerRef} className={`sticky top-0 z-10 bg-white ${isSticky ? "px-12 shadow-md" : "mx-12"}`}>
         <div className="flex items-center justify-between gap-4 py-4">
           {isSticky ? (
             <div>
-              <button className="button" onClick={() => (selected.length === data.length ? onSelect([]) : onSelect(data.map((d) => d.id)))} aria-label={selected.length === data.length ? "Tout désélectionner" : "Tout sélectionner"}>
-                {selected.length === data.length ? <RiCheckboxFill className="text-blue-france text-2xl" aria-hidden="true" /> : <RiCheckboxIndeterminateFill className="text-blue-france text-2xl" aria-hidden="true" />}
+              <button
+                className="button"
+                onClick={() => (selected.length === data.length ? onSelect([]) : onSelect(data.map((d) => d.id)))}
+                aria-label={selected.length === data.length ? "Tout désélectionner" : "Tout sélectionner"}
+              >
+                {selected.length === data.length ? (
+                  <RiCheckboxFill className="text-blue-france text-2xl" aria-hidden="true" />
+                ) : (
+                  <RiCheckboxIndeterminateFill className="text-blue-france text-2xl" aria-hidden="true" />
+                )}
               </button>
             </div>
           ) : (
@@ -43,6 +51,7 @@ const Header = ({ total, data, size, sort, selected, onSize, onSort, onSelect, o
         </div>
       </div>
     );
+  }
 
   return (
     <div className="mx-12 flex items-center justify-between gap-4 py-4">
@@ -83,12 +92,16 @@ const ManyUpdateModal = ({ onClose, selected, onChange }) => {
     e.preventDefault();
     setLoading(true);
     try {
-      if (status === "REFUSED" && !comment) return;
+      if (status === "REFUSED" && !comment) {
+        return;
+      }
       const res = await api.put(`/moderation/many`, {
         where: { ids: selected, moderatorId: publisher.id },
         update: { status, comment, note },
       });
-      if (!res.ok) throw res;
+      if (!res.ok) {
+        throw res;
+      }
       toast.success(selected.length > 1 ? "Les missions ont été modérées avec succès" : "La mission a été modérée avec succès");
       onChange(selected.map((id) => ({ id, status, comment, note })));
       onClose();

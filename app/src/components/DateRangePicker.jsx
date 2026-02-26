@@ -64,7 +64,7 @@ export const DateInput = ({ value, onChange }) => {
         <span className="mx-3 font-semibold">{value.from ? value.from.toLocaleDateString("fr") : "-"}</span>
         <span>au</span>
         <span className="mx-3 font-semibold">{value.to ? value.to.toLocaleDateString("fr") : "-"}</span>
-        <RiArrowDownSLine />
+        <RiArrowDownSLine aria-hidden="true" />
       </PopoverButton>
       <PopoverPanel
         transition
@@ -160,7 +160,7 @@ const DatePickerContainer = ({ children }) => (
 const DatePickerHeader = ({ monthDate, customHeaderCount, decreaseMonth, increaseMonth }) => (
   <div className="flex items-center justify-between gap-8 pb-4">
     <button aria-label="Previous Month" className="hover:bg-gray-975" style={customHeaderCount === 1 ? { visibility: "hidden" } : null} onClick={decreaseMonth}>
-      <RiArrowLeftSLine className="text-blue-france text-[32px]" />
+      <RiArrowLeftSLine className="text-blue-france text-[32px]" aria-hidden="true" />
     </button>
     <span className="text-base font-bold">
       {monthDate.toLocaleString("fr-Fr", {
@@ -169,7 +169,7 @@ const DatePickerHeader = ({ monthDate, customHeaderCount, decreaseMonth, increas
       })}
     </span>
     <button aria-label="Next Month" className="hover:bg-gray-975" style={customHeaderCount === 0 ? { visibility: "hidden" } : null} onClick={increaseMonth}>
-      <RiArrowRightSLine className="text-blue-france text-[32px]" />
+      <RiArrowRightSLine className="text-blue-france text-[32px]" aria-hidden="true" />
     </button>
   </div>
 );

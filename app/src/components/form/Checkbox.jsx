@@ -4,7 +4,7 @@ const Checkbox = ({ id, label, error, value = false, onChange, className, ...pro
   return (
     <div className="fr-checkbox-group relative flex items-center gap-2">
       <div className={`absolute flex h-6 w-6 items-center justify-center rounded-sm border border-black ${value ? "bg-blue-france" : "bg-white"}`}>
-        {value && <RiCheckFill className="text-sm text-white" />}
+        {value && <RiCheckFill className="text-sm text-white" aria-hidden="true" />}
       </div>
       <input
         name={id}

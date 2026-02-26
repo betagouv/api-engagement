@@ -31,7 +31,7 @@ const Header = () => {
               <img src={deviseSrc} alt="" aria-hidden="true" className="mt-1 h-7" />
             </div>
           </div>
-          <LogoSvg alt="API Engagement" className="w-8" />
+          <LogoSvg alt="" className="w-8" />
           <div>
             <h1 className="text-xl font-bold">API Engagement</h1>
             <p className="text-sm">Plateforme de partage de missions de bénévolat et de volontariat</p>
@@ -39,14 +39,14 @@ const Header = () => {
         </Link>
         <nav role="navigation" aria-label="Navigation d'en-tête" className="text-blue-france flex items-center gap-3 text-sm">
           <div className="tertiary-bis-btn flex items-center">
-            <RiBookletLine className="mr-2" />
+            <RiBookletLine className="mr-2" aria-hidden="true" />
             <a href="https://doc.api-engagement.beta.gouv.fr/" target="_blank">
               Documentation
             </a>
           </div>
           {!user ? (
             <Link to="/login" className="tertiary-btn flex items-center">
-              <RiUserLine className="mr-2" />
+              <RiUserLine className="mr-2" aria-hidden="true" />
               Connexion
             </Link>
           ) : (
@@ -92,7 +92,7 @@ const NotificationMenu = () => {
   return (
     <Menu>
       <MenuButton as="div" className="data-[focus]:bg-gray-975 hover:bg-gray-975 relative p-2 text-lg">
-        <RiDashboard3Line />
+        <RiDashboard3Line aria-hidden="true" />
         {warnings.length > 0 && <div className="bg-error absolute top-2 right-1.5 h-[9px] w-[9px] rounded-full border border-white" />}
       </MenuButton>
 
@@ -106,7 +106,7 @@ const NotificationMenu = () => {
             <h3 className="m-0 text-lg font-bold text-black">État du service</h3>
             <Link to={warningPath} className="text-blue-france flex items-center">
               <span>Détails</span>
-              <RiArrowDropRightLine className="mt-1 text-lg" />
+              <RiArrowDropRightLine className="mt-1 text-lg" aria-hidden="true" />
             </Link>
           </div>
         </MenuItem>
@@ -114,7 +114,7 @@ const NotificationMenu = () => {
           <MenuItem>
             <Link to={warningPath} className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950">
               <div className="flex w-6 items-center">
-                <LogoSvg alt="API Engagement" />
+                <LogoSvg alt="" />
               </div>
               <div className="flex flex-1 flex-col gap-2">
                 <p className="text-base font-bold text-black">
@@ -165,7 +165,7 @@ const NotificationMenu = () => {
                 <Link to={warningPath} className={`border-grey-border flex items-center justify-end gap-6 border-t p-6 hover:bg-gray-950`}>
                   <div className="text-blue-france flex">
                     <span>Voir toutes les alertes</span>
-                    <RiArrowDropRightLine className="mt-1 text-lg" />
+                    <RiArrowDropRightLine className="mt-1 text-lg" aria-hidden="true" />
                   </div>
                 </Link>
               </MenuItem>
@@ -216,7 +216,7 @@ const AdminNotificationMenu = () => {
   return (
     <Menu>
       <MenuButton className="data-[focus]:bg-gray-975 hover:bg-gray-975 relative p-2 text-lg">
-        <RiDashboard3Line />
+        <RiDashboard3Line aria-hidden="true" />
         {warnings.length > 0 && <div className="bg-error absolute top-2 right-1.5 h-[9px] w-[9px] rounded-full border border-white" />}
       </MenuButton>
       <MenuItems
@@ -229,7 +229,7 @@ const AdminNotificationMenu = () => {
             <h3 className="m-0 text-lg font-bold text-black">État du service</h3>
             <Link to="/admin-warning" className="text-blue-france flex items-center">
               <span>Détails</span>
-              <RiArrowDropRightLine className="mt-1 text-lg" />
+              <RiArrowDropRightLine className="mt-1 text-lg" aria-hidden="true" />
             </Link>
           </div>
         </MenuItem>
@@ -237,7 +237,7 @@ const AdminNotificationMenu = () => {
           <MenuItem>
             <Link to="/admin-warning" className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950">
               <div className="flex w-6 items-center">
-                <LogoSvg alt="API Engagement" />
+                <LogoSvg alt="" />
               </div>
               <div className="flex flex-1 flex-col gap-2">
                 <p className="text-base font-bold text-black">
@@ -282,7 +282,7 @@ const AdminNotificationMenu = () => {
                 <Link to={`/admin-warning`} className={`border-grey-border flex items-center justify-end gap-6 border-t p-6 hover:bg-gray-950`}>
                   <div className="text-blue-france flex">
                     <span>Voir toutes les alertes</span>
-                    <RiArrowDropRightLine className="mt-1 text-lg" />
+                    <RiArrowDropRightLine className="mt-1 text-lg" aria-hidden="true" />
                   </div>
                 </Link>
               </MenuItem>
