@@ -335,7 +335,7 @@ export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereIn
   }
 
   if (filters.moderationAcceptedFor) {
-    const moderationWhere: Prisma.MissionModerationStatusWhereInput = { publisherId: filters.moderationAcceptedFor };
+    const moderationWhere: Prisma.MissionModerationStatusWhereInput = { publisherId: filters.moderationAcceptedFor, status: "ACCEPTED" };
     if (filters.moderationStatus) {
       moderationWhere.status = filters.moderationStatus as any;
     }
