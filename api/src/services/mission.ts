@@ -15,9 +15,9 @@ import type {
   MissionUpdatePatch,
 } from "../types/mission";
 import { calculateBoundingBox } from "../utils";
-import { activityService } from "./activity";
 import { buildJobBoardMap, deriveMissionLocation, normalizeMissionAddresses } from "../utils/mission";
 import { normalizeOptionalString, normalizeStringList } from "../utils/normalize";
+import { activityService } from "./activity";
 import { publisherService } from "./publisher";
 
 type MissionWithRelations = Mission & {
@@ -376,7 +376,7 @@ export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereIn
   }
 
   if (filters.moderationAcceptedFor) {
-    const moderationWhere: Prisma.MissionModerationStatusWhereInput = { publisherId: filters.moderationAcceptedFor };
+    const moderationWhere: Prisma.MissionModerationStatusWhereInput = { publisherId: filters.moderationAcceptedFor, status: "ACCEPTED" };
     if (filters.moderationStatus) {
       moderationWhere.status = filters.moderationStatus as any;
     }
