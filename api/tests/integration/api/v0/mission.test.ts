@@ -2,6 +2,7 @@ import { randomUUID } from "crypto";
 import request from "supertest";
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { missionModerationStatusService } from "@/services/mission-moderation-status";
 import type { MissionRecord, PublisherRecord } from "@/types";
 import { createTestMission, createTestPublisher } from "../../../fixtures";
 import { createTestApp } from "../../../testApp";
@@ -513,6 +514,126 @@ describe("Mission API Integration Tests", () => {
       expect(response.status).toBe(404);
       expect(response.body.ok).toBe(false);
       expect(response.body.code).toBe("NOT_FOUND");
+    });
+  });
+
+  describe("moderationAcceptedFor filter", () => {
+    it("GET /v0/mission — should only return missions with ACCEPTED moderation status for a moderator publisher", async () => {
+      const publisher1Id = publisher.publishers[0].diffuseurPublisherId;
+
+      const moderatorPublisher = await createTestPublisher({
+        name: "Moderator Publisher",
+        moderator: true,
+        publishers: [
+          {
+            publisherId: publisher1Id,
+            publisherName: "Publisher A",
+            moderator: true,
+          },
+        ],
+      });
+
+      const acceptedMission = await createTestMission({
+        publisherId: publisher1Id,
+        title: "Accepted mission",
+      });
+      await missionModerationStatusService.create({
+        mission: { connect: { id: acceptedMission.id } },
+        publisherId: moderatorPublisher.id,
+        status: "ACCEPTED",
+        comment: null,
+        note: null,
+        title: null,
+      });
+
+      const pendingMission = await createTestMission({
+        publisherId: publisher1Id,
+        title: "Pending mission",
+      });
+      await missionModerationStatusService.create({
+        mission: { connect: { id: pendingMission.id } },
+        publisherId: moderatorPublisher.id,
+        status: "PENDING",
+        comment: null,
+        note: null,
+        title: null,
+      });
+
+      const refusedMission = await createTestMission({
+        publisherId: publisher1Id,
+        title: "Refused mission",
+      });
+      await missionModerationStatusService.create({
+        mission: { connect: { id: refusedMission.id } },
+        publisherId: moderatorPublisher.id,
+        status: "REFUSED",
+        comment: "Not suitable",
+        note: null,
+        title: null,
+      });
+
+      const noModerationMission = await createTestMission({
+        publisherId: publisher1Id,
+        title: "No moderation for this publisher",
+      });
+
+      const response = await request(app).get("/v0/mission").set("x-api-key", moderatorPublisher.apikey!);
+
+      expect(response.status).toBe(200);
+      const ids = response.body.data.map((m: any) => m._id);
+      expect(ids).toContain(acceptedMission.id);
+      expect(ids).not.toContain(pendingMission.id);
+      expect(ids).not.toContain(refusedMission.id);
+      expect(ids).not.toContain(noModerationMission.id);
+    });
+
+    it("GET /v0/mission/search — should only return missions with ACCEPTED moderation status for a moderator publisher", async () => {
+      const publisher1Id = publisher.publishers[0].diffuseurPublisherId;
+
+      const moderatorPublisher = await createTestPublisher({
+        name: "Moderator Publisher Search",
+        moderator: true,
+        publishers: [
+          {
+            publisherId: publisher1Id,
+            publisherName: "Publisher A",
+            moderator: true,
+          },
+        ],
+      });
+
+      const acceptedMission = await createTestMission({
+        publisherId: publisher1Id,
+        title: "Search accepted mission",
+      });
+      await missionModerationStatusService.create({
+        mission: { connect: { id: acceptedMission.id } },
+        publisherId: moderatorPublisher.id,
+        status: "ACCEPTED",
+        comment: null,
+        note: null,
+        title: null,
+      });
+
+      const pendingMission = await createTestMission({
+        publisherId: publisher1Id,
+        title: "Search pending mission",
+      });
+      await missionModerationStatusService.create({
+        mission: { connect: { id: pendingMission.id } },
+        publisherId: moderatorPublisher.id,
+        status: "PENDING",
+        comment: null,
+        note: null,
+        title: null,
+      });
+
+      const response = await request(app).get("/v0/mission/search").set("x-api-key", moderatorPublisher.apikey!);
+
+      expect(response.status).toBe(200);
+      const ids = response.body.hits.map((m: any) => m._id);
+      expect(ids).toContain(acceptedMission.id);
+      expect(ids).not.toContain(pendingMission.id);
     });
   });
 
