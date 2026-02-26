@@ -6,11 +6,11 @@ import { RiCalendarEventFill, RiCheckboxCircleFill, RiCloseCircleFill, RiMapPin2
 import { useSearchParams } from "react-router-dom";
 
 import Modal from "@/components/Modal";
+import { JVA_MODERATION_COMMENTS_LABELS, STATUS, STATUS_COLORS } from "@/scenes/broadcast/moderation/components/Constants";
+import OrganizationRefusedModal from "@/scenes/broadcast/moderation/components/OrganizationRefusedModal";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
-import { JVA_MODERATION_COMMENTS_LABELS, STATUS, STATUS_COLORS } from "@/scenes/broadcast/moderation/components/Constants";
-import OrganizationRefusedModal from "@/scenes/broadcast/moderation/components/OrganizationRefusedModal";
 
 const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, onChangeMany }) => {
   const { publisher } = useStore();
@@ -31,7 +31,9 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
     try {
       setValues({ ...values, ...v });
 
-      if (v.status === "REFUSED" && !v.comment) return;
+      if (v.status === "REFUSED" && !v.comment) {
+        return;
+      }
 
       const res = await api.put(`/moderation/${data.id}`, { ...v, moderatorId: publisher.id });
       if (!res.ok) {
@@ -45,7 +47,9 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
       onChange(res.data);
       if (v.status === "REFUSED" && ["ORGANIZATION_NOT_COMPLIANT", "ORGANIZATION_ALREADY_PUBLISHED"].includes(v.comment)) {
         const resO = await api.post("/moderation/search", { moderatorId: publisher.id, organizationName: data.missionOrganizationName, status: "PENDING", size: 0 });
-        if (!resO.ok) throw resO;
+        if (!resO.ok) {
+          throw resO;
+        }
         setIsOrganizationToRefuse(resO.total);
       }
     } catch (error) {
@@ -62,7 +66,7 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
   return (
     <>
       <OrganizationRefusedModal
-        isOpen={isOrganizationToRefuse > 0}
+        open={isOrganizationToRefuse > 0}
         onClose={() => setIsOrganizationToRefuse(0)}
         data={data}
         update={values}
@@ -233,12 +237,12 @@ const MissionActionsMenu = ({ data, onFilter, onChange }) => {
           </Menu.Items>
         </Transition>
       </Menu>
-      <UpdateNoteModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onChange={onChange} data={data} />
+      <UpdateNoteModal open={isModalOpen} onClose={() => setIsModalOpen(false)} onChange={onChange} data={data} />
     </>
   );
 };
 
-const UpdateNoteModal = ({ isOpen, onChange, onClose, data }) => {
+const UpdateNoteModal = ({ open, onChange, onClose, data }) => {
   const { publisher } = useStore();
   const [note, setNote] = useState(data.note || "");
 
@@ -250,7 +254,9 @@ const UpdateNoteModal = ({ isOpen, onChange, onClose, data }) => {
     e.preventDefault();
     try {
       const res = await api.put(`/moderation/${data.id}`, { note, moderatorId: publisher.id });
-      if (!res.ok) throw res;
+      if (!res.ok) {
+        throw res;
+      }
       toast.success("La note a été mise à jour avec succès");
       onChange({ note });
       onClose();
@@ -260,9 +266,8 @@ const UpdateNoteModal = ({ isOpen, onChange, onClose, data }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={() => onClose()} ariaLabelledBy="update-note-modal-title">
-      <form className="px-32 py-16" onSubmit={handleSubmit}>
-        <h1 id="update-note-modal-title" className="mb-10">Modifier la note</h1>
+    <Modal open={open} onClose={onClose} title="Modifier la note" className="min-w-3xl">
+      <form onSubmit={handleSubmit}>
         <div className="flex items-center justify-center">
           <div className="flex w-full flex-col justify-center gap-4">
             <div className="flex flex-col gap-1">

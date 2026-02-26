@@ -92,18 +92,16 @@ const DiffuseurModal = ({ data }) => {
         <span>Tous les diffuseurs</span>
         <ExportSvg className="h-4 w-4" />
       </button>
-      <Modal isOpen={open} onClose={() => setOpen(false)} ariaLabelledBy="diffuseur-modal-title">
-        <div className="space-y-6 p-12">
-          <h1 id="diffuseur-modal-title" className="text-2xl font-bold">{data.length} diffuseurs</h1>
+      <Modal open={open} onClose={() => setOpen(false)} title="Diffuseurs">
+        <p className="text-lg font-semibold">{data.length} diffuseurs</p>
 
-          <Table header={[{ title: "Partenaires" }]} className="h-96">
-            {data.map((item, index) => (
-              <tr key={index} className={`${index % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
-                <td className="p-4">{item.name}</td>
-              </tr>
-            ))}
-          </Table>
-        </div>
+        <Table header={[{ title: "Partenaires" }]} className="max-h-96">
+          {data.map((item, index) => (
+            <tr key={index} className={`${index % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
+              <td className="p-4">{item.name}</td>
+            </tr>
+          ))}
+        </Table>
       </Modal>
     </>
   );

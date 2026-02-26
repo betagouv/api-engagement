@@ -2,12 +2,12 @@ import { useEffect, useRef, useState } from "react";
 
 const Dropdown = ({ trigger, renderTrigger, children, position = "bottom", align = "end", className = "min-w-40" }) => {
   const ref = useRef(null);
-  const [isOpen, setIsOpen] = useState(false);
+  const [show, setShow] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (ref.current && !ref.current.contains(event.target)) {
-        setIsOpen(false);
+        setShow(false);
       }
     };
 
@@ -39,7 +39,7 @@ const Dropdown = ({ trigger, renderTrigger, children, position = "bottom", align
   };
 
   const handleTriggerClick = () => {
-    setIsOpen(!isOpen);
+    setShow(!show);
   };
 
   // Transform origin based on position
@@ -55,10 +55,10 @@ const Dropdown = ({ trigger, renderTrigger, children, position = "bottom", align
       {renderTrigger({ onClick: handleTriggerClick })}
       <div
         className={`absolute ${positionClasses[position]} ${alignClasses[align]} ${spacingClasses[position]} ${transformOriginClasses[position]} z-10 overflow-y-auto bg-white shadow-lg transition-all duration-200 ease-out ${className} ${
-          isOpen ? "pointer-events-auto scale-100 opacity-100" : "pointer-events-none scale-95 opacity-0"
+          show ? "pointer-events-auto scale-100 opacity-100" : "pointer-events-none scale-95 opacity-0"
         }`}
         style={{
-          visibility: isOpen ? "visible" : "hidden",
+          visibility: show ? "visible" : "hidden",
         }}
       >
         {children}

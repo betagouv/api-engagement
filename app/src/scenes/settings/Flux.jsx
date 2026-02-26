@@ -1,6 +1,6 @@
+import { toast } from "@/services/toast";
 import { useEffect, useState } from "react";
 import { RiCheckboxCircleFill, RiCloseCircleFill } from "react-icons/ri";
-import { toast } from "@/services/toast";
 
 import Loader from "@/components/Loader";
 import Modal from "@/components/Modal";
@@ -42,7 +42,9 @@ const Flux = () => {
 
         const res = await api.post(`/import/search`, query);
 
-        if (!res.ok) throw res;
+        if (!res.ok) {
+          throw res;
+        }
         setImports(res.data);
         setTotal(res.total);
         if (res.data.length > 0) {
@@ -64,8 +66,12 @@ const Flux = () => {
     const hours = Math.floor(diff / 3600000);
     const minutes = Math.floor((diff % 3600000) / 60000);
     const seconds = Math.floor(((diff % 360000) % 60000) / 1000);
-    if (hours === 0 && minutes === 0) return `${seconds}s`;
-    if (hours === 0) return `${minutes}min ${seconds}s`;
+    if (hours === 0 && minutes === 0) {
+      return `${seconds}s`;
+    }
+    if (hours === 0) {
+      return `${minutes}min ${seconds}s`;
+    }
     return `${hours}h ${minutes}min ${seconds}s`;
   };
 
@@ -135,7 +141,7 @@ const Flux = () => {
 
 const ModifyModal = () => {
   const { publisher, setPublisher } = useStore();
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [feed, setFeed] = useState(publisher.feed);
   const [loading, setLoading] = useState(false);
 
@@ -148,11 +154,13 @@ const ModifyModal = () => {
       setLoading(true);
       const res = await api.put(`/publisher/${publisher.id}`, { feed });
 
-      if (!res.ok) throw res;
+      if (!res.ok) {
+        throw res;
+      }
 
       toast.success("Flux mis à jour");
       setPublisher(res.data);
-      setIsOpen(false);
+      setOpen(false);
     } catch (error) {
       captureError(error, { extra: { publisherId: publisher.id, feed } });
     } finally {
@@ -162,26 +170,21 @@ const ModifyModal = () => {
 
   return (
     <>
-      <button className="primary-btn" onClick={() => setIsOpen(!isOpen)}>
+      <button className="primary-btn" onClick={() => setOpen(!open)}>
         Modifier
       </button>
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} ariaLabelledBy="modify-flux-title">
-        <div className="p-10">
-          <h2 id="modify-flux-title" className="mb-8 text-lg font-bold">
-            <span aria-hidden="true">⚙️</span> Modifier votre flux de missions
-          </h2>
-          <div className="flex flex-col items-start justify-between gap-4">
-            <div>Lien du fichier XML à synchroniser</div>
-            <input className="input w-full border-b-0 bg-gray-100 p-4 focus:ring-2" value={feed} onChange={(e) => setFeed(e.target.value)} />
-          </div>
-          <div className="col-span-2 mt-8 flex justify-end gap-6">
-            <button type="button" className="tertiary-btn" onClick={() => setIsOpen(false)}>
-              Annuler
-            </button>
-            <button type="button" className="primary-btn" onClick={handleFeedSubmit} disabled={loading}>
-              {loading ? <Loader className="mr-2" /> : "Enregister"}
-            </button>
-          </div>
+      <Modal open={open} onClose={() => setOpen(false)} title="Modifier votre flux de missions" className="min-w-3xl">
+        <div className="flex flex-col items-start justify-between gap-4">
+          <div>Lien du fichier XML à synchroniser</div>
+          <input className="input focus w-full" value={feed} onChange={(e) => setFeed(e.target.value)} />
+        </div>
+        <div className="flex justify-end gap-6">
+          <button type="button" className="tertiary-btn" onClick={() => setOpen(false)}>
+            Annuler
+          </button>
+          <button type="button" className="primary-btn" onClick={handleFeedSubmit} disabled={loading}>
+            {loading ? <Loader className="mr-2" /> : "Enregister"}
+          </button>
         </div>
       </Modal>
     </>

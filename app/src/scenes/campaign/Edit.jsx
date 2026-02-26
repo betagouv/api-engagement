@@ -161,14 +161,7 @@ const Edit = () => {
   return (
     <>
       <title>API Engagement - Modifier une campagne de diffusion</title>
-      <ReassignModal
-        isOpen={isReassignModalOpen}
-        onClose={() => setIsReassignModalOpen(false)}
-        campaign={campaign}
-        values={values}
-        setValues={setValues}
-        setCampaign={setCampaign}
-      />
+      <ReassignModal open={isReassignModalOpen} onClose={() => setIsReassignModalOpen(false)} campaign={campaign} values={values} setValues={setValues} setCampaign={setCampaign} />
       <div className="flex flex-col gap-8">
         <Link to="/broadcast/campaigns" className="border-blue-france text-blue-france flex w-fit items-center gap-2 border-b text-[16px]">
           <RiArrowLeftLine />
@@ -258,7 +251,7 @@ const CampaignMenu = ({ setIsReassignModalOpen, handleDelete }) => {
   );
 };
 
-const ReassignModal = ({ isOpen, onClose, campaign, values, setValues, setCampaign }) => {
+const ReassignModal = ({ open, onClose, campaign, values, setValues, setCampaign }) => {
   const navigate = useNavigate();
   const [publishers, setPublishers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -309,37 +302,31 @@ const ReassignModal = ({ isOpen, onClose, campaign, values, setValues, setCampai
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} innerClassName="w-full" ariaLabelledBy="reassign-modal-title">
-      <div className="p-10">
-        <div className="mb-8 flex items-center gap-3">
-          <RiFileTransferLine className="text-3xl" aria-hidden="true" />
-          <h2 id="reassign-modal-title" className="text-3xl font-bold">Déplacer une campagne</h2>
-        </div>
-        <span className="text-text-mention">
-          Vers quel compte voulez-vous déplacer la campagne <span className="font-bold">{campaign.name}</span> ?
-        </span>
-        <div className="mt-8 flex flex-1 gap-2">
-          <Combobox
-            id="from-publisher-id"
-            options={publishers.map((p) => ({ value: p.id, label: p.name }))}
-            placeholder="Sélectionner un compte"
-            value={values.fromPublisherId}
-            onSelect={(e) => (e ? setValues({ ...values, fromPublisherId: e.value }) : null)}
-          />
-        </div>
-        <div className="mt-10 flex justify-end gap-2">
-          <button className="tertiary-btn" type="button" onClick={onClose}>
-            Annuler
-          </button>
-          <button
-            className="primary-btn"
-            type="submit"
-            onClick={handleReassignSubmit}
-            disabled={!values.fromPublisherId || values.fromPublisherId === campaign.fromPublisherId || loading}
-          >
-            {loading ? <Loader className="h-6 w-6" /> : "Valider"}
-          </button>
-        </div>
+    <Modal open={open} onClose={onClose} title="Déplacer une campagne">
+      <span className="text-text-mention">
+        Vers quel compte voulez-vous déplacer la campagne <span className="font-bold">{campaign.name}</span> ?
+      </span>
+      <div className="flex flex-1 gap-2">
+        <Combobox
+          id="from-publisher-id"
+          options={publishers.map((p) => ({ value: p.id, label: p.name }))}
+          placeholder="Sélectionner un compte"
+          value={values.fromPublisherId}
+          onSelect={(e) => (e ? setValues({ ...values, fromPublisherId: e.value }) : null)}
+        />
+      </div>
+      <div className="flex justify-end gap-2">
+        <button className="tertiary-btn" type="button" onClick={onClose}>
+          Annuler
+        </button>
+        <button
+          className="primary-btn"
+          type="submit"
+          onClick={handleReassignSubmit}
+          disabled={!values.fromPublisherId || values.fromPublisherId === campaign.fromPublisherId || loading}
+        >
+          {loading ? <Loader className="h-6 w-6" /> : "Valider"}
+        </button>
       </div>
     </Modal>
   );

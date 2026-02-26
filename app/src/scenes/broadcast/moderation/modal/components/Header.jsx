@@ -25,7 +25,9 @@ const Header = ({ data, onChange }) => {
   const handleChange = async (v) => {
     try {
       setValues({ ...values, ...v });
-      if (v.status === "REFUSED" && !v.comment) return;
+      if (v.status === "REFUSED" && !v.comment) {
+        return;
+      }
       const resM = await api.put(`/moderation/${data.id}`, { ...values, ...v, moderatorId: publisher.id });
       if (!resM.ok) {
         if (resM.error === "COMMENT_REQUIRED") {
@@ -41,7 +43,9 @@ const Header = ({ data, onChange }) => {
 
       if (v.status === "REFUSED" && ["ORGANIZATION_NOT_COMPLIANT", "ORGANIZATION_ALREADY_PUBLISHED"].includes(v.comment)) {
         const resO = await api.post("/moderation/search", { moderatorId: publisher.id, organizationName: data.missionOrganizationName, status: "PENDING", size: 0 });
-        if (!resO.ok) throw resO;
+        if (!resO.ok) {
+          throw resO;
+        }
         setIsOrganizationToRefuse(resO.total);
       }
     } catch (error) {
@@ -61,14 +65,14 @@ const Header = ({ data, onChange }) => {
   return (
     <>
       <OrganizationRefusedModal
-        isOpen={isOrganizationToRefuse > 0}
+        open={isOrganizationToRefuse > 0}
         onClose={() => setIsOrganizationToRefuse(0)}
         data={data}
         update={values}
         onChange={onChange}
         total={isOrganizationToRefuse}
       />
-      <div className="bg-global-background border-grey-border sticky top-0 z-50 flex items-center justify-between gap-8 border-b py-8">
+      <div className="bg-global-background border-grey-border sticky top-0 z-50 flex items-center justify-between gap-8 border-b pt-4 pb-8">
         <div className="max-w-[50%] space-y-2">
           <h1 className="mb-1">{DOMAINS[data.missionDomain]}</h1>
           <h2 className="text-xl font-semibold">{data.title || data.missionTitle}</h2>
