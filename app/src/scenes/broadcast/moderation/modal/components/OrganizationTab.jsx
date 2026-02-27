@@ -1,11 +1,11 @@
 import { toast } from "@/services/toast";
 import { useEffect, useState } from "react";
 
-import Combobox from "@/components/combobox";
+import Autocomplete from "@/components/Autocomplete";
+import { DOMAINS } from "@/scenes/broadcast/moderation/components/Constants";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
-import { DOMAINS } from "@/scenes/broadcast/moderation/components/Constants";
 
 const OrganizationTab = ({ data, onChange }) => {
   const { publisher } = useStore();
@@ -24,10 +24,13 @@ const OrganizationTab = ({ data, onChange }) => {
     });
   }, [data]);
 
-  const fetchOrganizations = async (search) => {
+  const handleChange = async (field, value) => {
+    setValues({ ...values, [field]: value });
     try {
-      const res = await api.post(`/organization/search`, { search });
-      if (!res.ok) throw res;
+      const res = await api.post(`/organization/search`, { search: value });
+      if (!res.ok) {
+        throw res;
+      }
       setOrganizations(
         res.data.map((org) => ({
           label: `${org.title}${org.rna ? ` - ${org.rna}` : ""}${org.siren ? ` - ${org.siren}` : ""}`,
@@ -37,9 +40,8 @@ const OrganizationTab = ({ data, onChange }) => {
         })),
       );
     } catch (error) {
-      captureError(error, { extra: { search } });
+      captureError(error, { extra: { field, value } });
     }
-    return null;
   };
 
   const handleSubmit = async (e) => {
@@ -51,7 +53,9 @@ const OrganizationTab = ({ data, onChange }) => {
         organizationVerifiedId: values.organizationVerifiedId ?? null,
         moderatorId: publisher.id,
       });
-      if (!resU.ok) throw resU;
+      if (!resU.ok) {
+        throw resU;
+      }
       toast.success("Les données de l'organisation ont été modifiées avec succès", {
         position: "bottom-right",
       });
@@ -67,6 +71,7 @@ const OrganizationTab = ({ data, onChange }) => {
       );
     }
   };
+
   return (
     <>
       <form className="flex h-full divide-x" onSubmit={handleSubmit}>
@@ -81,14 +86,18 @@ const OrganizationTab = ({ data, onChange }) => {
             <label className="text-sm" htmlFor="organization-siren">
               SIREN
             </label>
-            <Combobox
+
+            <Autocomplete
+              id="organization-siren"
               options={organizations}
               value={values.siren}
-              onSearch={fetchOrganizations}
-              onChange={(e) => setValues({ ...values, siren: e })}
-              onSelect={(e) => setValues({ ...values, siren: e?.siren || null, rna: e?.rna || null, organizationVerifiedId: e?.id })}
-              by="siren"
-              getLabel={(o) => o?.siren || ""}
+              onChange={(e) => handleChange("siren", e)}
+              onSelect={(e) => {
+                const org = organizations.find((o) => o.siren === e);
+                setValues({ ...values, siren: org?.siren || null, rna: org?.rna || null, organizationVerifiedId: org?.id });
+              }}
+              getLabel={(o) => o?.label || ""}
+              getValue={(o) => o?.siren || null}
               placeholder="SIREN"
             />
             <p className="text-text-mention text-xs">
@@ -100,14 +109,17 @@ const OrganizationTab = ({ data, onChange }) => {
             <label className="text-sm" htmlFor="organization-rna">
               RNA
             </label>
-            <Combobox
+            <Autocomplete
+              id="organization-rna"
               options={organizations}
               value={values.rna}
-              onSearch={fetchOrganizations}
-              onChange={(e) => setValues({ ...values, rna: e })}
-              onSelect={(e) => setValues({ ...values, rna: e?.rna || null, siren: e?.siren || null, organizationVerifiedId: e?.id })}
-              by="rna"
-              getLabel={(o) => o?.rna || ""}
+              onChange={(e) => handleChange("rna", e)}
+              onSelect={(e) => {
+                const org = organizations.find((o) => o.rna === e);
+                setValues({ ...values, rna: org?.rna || null, siren: org?.siren || null, organizationVerifiedId: org?.id });
+              }}
+              getLabel={(o) => o?.label || ""}
+              getValue={(o) => o?.rna || null}
               placeholder="RNA"
             />
             <p className="text-text-mention text-xs">

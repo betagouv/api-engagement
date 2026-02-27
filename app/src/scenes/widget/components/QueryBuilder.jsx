@@ -83,8 +83,8 @@ const Rule = ({ fields, rule, onChange, index, filters }) => {
     fetchData();
   }, []);
 
-  const handleSelect = (option) => {
-    onChange({ ...rule, value: option ? option.value : "" });
+  const handleSelect = (value) => {
+    onChange({ ...rule, value: value || "" });
     setOptions([]);
   };
 
@@ -155,8 +155,14 @@ const Rule = ({ fields, rule, onChange, index, filters }) => {
                   options={options}
                   value={rule.value}
                   onChange={handleChange}
-                  onSelect={handleSelect}
+                  onSelect={(v) => {
+                    console.log("v", v);
+                    handleSelect(v);
+                  }}
                   placeholder="Choisissez une option"
+                  getLabel={(o) => o.label}
+                  getValue={(o) => o.value}
+                  getCount={(o) => o.doc_count}
                 />
               </div>
             )}
