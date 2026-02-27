@@ -169,11 +169,11 @@ body {
 @custom-variant aria-current (&[aria-current="true"]);
 
 @utility focus {
-  @apply focus-visible:outline-outline-blue focus:outline-2 focus:outline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2;
+  @apply focus-visible:outline-outline-blue focus-visible:outline-2 focus-visible:outline-offset-2;
 }
 
 @utility btn {
-  @apply inline-flex min-h-10 w-fit cursor-pointer items-center justify-center px-4 py-2 text-sm font-medium transition-all disabled:cursor-not-allowed;
+  @apply focus inline-flex min-h-10 w-fit cursor-pointer items-center justify-center px-4 py-2 text-sm font-medium transition-all disabled:cursor-not-allowed;
 }
 @utility primary-btn {
   @apply btn bg-blue-france hover:bg-blue-france-hover active:bg-blue-france-hover disabled:bg-gray-925 disabled:text-gray-625 text-white;

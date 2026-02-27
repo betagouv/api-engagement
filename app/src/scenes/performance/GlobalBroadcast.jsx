@@ -104,19 +104,19 @@ const GlobalDiffuseur = ({ filters, onFiltersChange }) => {
       </div>
 
       <>
-        {(publisher.hasApiRights && 1) + (publisher.hasCampaignRights && 1) + (publisher.hasWidgetRights && 1) > 1 && <DistributionMean filters={filters} defaultType="print" />}
-        <Evolution filters={filters} defaultType="print" />
+        {(publisher.hasApiRights && 1) + (publisher.hasCampaignRights && 1) + (publisher.hasWidgetRights && 1) > 1 && <DistributionMean filters={filters} />}
+        <Evolution filters={filters} />
         <Announcers filters={filters} />
       </>
     </div>
   );
 };
 
-const DistributionMean = ({ filters, defaultType = "print" }) => {
+const DistributionMean = ({ filters }) => {
   const { publisher } = useStore();
   const analyticsProvider = useAnalyticsProvider();
   const [data, setData] = useState([]);
-  const [type, setType] = useState(defaultType);
+  const [type, setType] = useState("apply");
   const [loading, setLoading] = useState(true);
   const tabs = [
     {
@@ -251,12 +251,12 @@ const DistributionMean = ({ filters, defaultType = "print" }) => {
   );
 };
 
-const Evolution = ({ filters, defaultType = "print" }) => {
+const Evolution = ({ filters }) => {
   const { publisher } = useStore();
   const analyticsProvider = useAnalyticsProvider();
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [type, setType] = useState(defaultType);
+  const [type, setType] = useState("apply");
   const tabs = [
     {
       key: "print",
