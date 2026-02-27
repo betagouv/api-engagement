@@ -25,10 +25,10 @@ const Moderation = () => {
     size: 25,
     status: searchParams.get("status") || null,
     comment: searchParams.get("comment") || null,
-    publisherId: searchParams.get("publisher") || null,
-    organizationNames: searchParams.has("organizationNames") ? searchParams.getAll("organizationNames") : [],
+    publisherIds: searchParams.has("publisherIds") ? searchParams.get("publisherIds").split(",") : [],
+    organizationNames: searchParams.has("organizationNames") ? searchParams.get("organizationNames").split(",") : [],
     department: searchParams.get("department") || null,
-    cities: searchParams.has("cities") ? searchParams.getAll("cities") : [],
+    cities: searchParams.has("cities") ? searchParams.get("cities").split(",") : [],
     activity: searchParams.get("activity") || null,
     domain: searchParams.get("domain") || null,
     search: searchParams.get("search") || null,
@@ -56,10 +56,10 @@ const Moderation = () => {
       setLoading(true);
       try {
         const query = {
+          publisherIds: filters.publisherIds || undefined,
           moderatorId: publisher.id || undefined,
           status: filters.status || undefined,
           comment: filters.comment || undefined,
-          publisherId: filters.publisherId || undefined,
           cities: filters.cities || undefined,
           domain: filters.domain || undefined,
           department: filters.department || undefined,

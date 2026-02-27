@@ -4,7 +4,7 @@ import api from "@/services/api";
 import { captureError } from "@/services/error";
 import { useEffect, useState } from "react";
 
-const MissionCombobox = ({ id, values, onChange, placeholder, className, filters }) => {
+const MissionCombobox = ({ id, values, onChange, placeholder, className = "w-full min-w-80", filters }) => {
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -35,7 +35,7 @@ const MissionCombobox = ({ id, values, onChange, placeholder, className, filters
       onChange={onChange}
       onSearch={(search) => fetchOptions(search)}
       placeholder={placeholder}
-      className="w-full min-w-80"
+      className={className}
       loading={loading}
     />
   );

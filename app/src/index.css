@@ -207,10 +207,10 @@ body {
 }
 
 @utility input {
-  @apply placeholder:text-gray-425 focus min-h-10 cursor-pointer rounded-t border-0 border-b border-b-black bg-gray-950 px-4 py-2 text-sm text-black disabled:opacity-60;
+  @apply focus placeholder:text-text-mention min-h-10 cursor-pointer rounded-t border-0 border-b border-b-black bg-gray-950 px-4 py-2 text-sm text-black disabled:opacity-60;
 }
 @utility select {
-  @apply placeholder:text-gray-425 focus min-h-10 cursor-pointer appearance-none rounded-none rounded-t border-0 border-b border-b-black bg-gray-950 py-2 pr-10 pl-4 text-sm text-black disabled:opacity-60;
+  @apply focus min-h-10 cursor-pointer appearance-none rounded-none rounded-t border-0 border-b border-b-black bg-gray-950 py-2 pr-10 pl-4 text-sm text-black placeholder:text-black disabled:opacity-60;
 }
 @utility textarea {
   @apply input h-auto min-h-10;

@@ -494,14 +494,14 @@ const buildAggregations = async (where: Prisma.MissionWhereInput): Promise<Missi
     .map((row) => {
       const publisher = publisherById.get(row.key);
       return {
-        _id: row.key,
-        count: row.doc_count,
-        name: publisher?.name,
+        key: row.key,
+        doc_count: row.doc_count,
+        label: publisher?.name,
         mission_type: publisher?.missionType === "volontariat_service_civique" ? "volontariat" : "benevolat",
       };
     })
-    .filter((row) => isNonEmpty(row._id))
-    .sort((a, b) => b.count - a.count);
+    .filter((row) => isNonEmpty(row.key))
+    .sort((a, b) => b.doc_count - a.doc_count);
 
   return { status, comments, domains, organizations: organizationsAgg, activities, cities, departments, partners };
 };

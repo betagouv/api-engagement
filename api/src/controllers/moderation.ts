@@ -17,7 +17,7 @@ const router = Router();
 
 const searchSchema = zod.object({
   status: zod.enum(["ACCEPTED", "REFUSED", "PENDING", "ONGOING", ""]).optional(),
-  publisherId: zod.string().optional(),
+  publisherIds: zod.array(zod.string()).nullable().optional(),
   moderatorId: zod.string().default(PUBLISHER_IDS.JEVEUXAIDER),
   comment: zod.string().nullable().optional(),
   domain: zod.string().nullable().optional(),
@@ -36,7 +36,7 @@ const searchSchema = zod.object({
 
 const aggsSchema = zod.object({
   status: zod.enum(["ACCEPTED", "REFUSED", "PENDING", "ONGOING", ""]).optional(),
-  publisherId: zod.string().optional(),
+  publisherIds: zod.array(zod.string()).nullable().optional(),
   moderatorId: zod.string().default(PUBLISHER_IDS.JEVEUXAIDER),
   comment: zod.string().nullable().optional(),
   domain: zod.string().nullable().optional(),
@@ -76,7 +76,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       limit: body.data.size,
       skip: body.data.from,
       sort: body.data.sort || undefined,
-      publisherId: body.data.publisherId || undefined,
+      publisherIds: body.data.publisherIds || undefined,
       status: body.data.status || undefined,
       comment: body.data.comment || undefined,
       domain: body.data.domain || undefined,
@@ -114,7 +114,7 @@ router.post("/aggs", passport.authenticate("user", { session: false }), async (r
 
     const filters: ModerationFilters = {
       moderatorId: moderator.id,
-      publisherId: body.data.publisherId || undefined,
+      publisherIds: body.data.publisherIds || undefined,
       status: body.data.status || undefined,
       comment: body.data.comment || undefined,
       domain: body.data.domain || undefined,
