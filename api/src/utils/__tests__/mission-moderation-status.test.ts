@@ -1,7 +1,6 @@
+import type { MissionModerationRecord } from "@/types/mission-moderation-status";
+import { getModerationEvents } from "@/utils/mission-moderation-status";
 import { describe, expect, it } from "vitest";
-import { getModerationEvents } from "../mission-moderation-status";
-import type { MissionModerationRecord } from "../../types/mission-moderation-status";
-import type { PublisherOrganization } from "../../db/core";
 
 const baseMission = (): MissionModerationRecord => ({
   id: "mod-1",
@@ -41,7 +40,7 @@ describe("getModerationEvents", () => {
       const previous = baseMission();
       const updated = { ...previous, status: "ACCEPTED" as const };
 
-      const events = getModerationEvents(previous, updated, null);
+      const events = getModerationEvents(previous, updated);
 
       expect(events).toHaveLength(1);
       expect(events[0].initialStatus).toBe("PENDING");
@@ -53,7 +52,7 @@ describe("getModerationEvents", () => {
       const previous = baseMission();
       const updated = { ...previous, status: "REFUSED" as const, comment: "CONTENT_INSUFFICIENT" };
 
-      const events = getModerationEvents(previous, updated, null);
+      const events = getModerationEvents(previous, updated);
 
       expect(events).toHaveLength(1);
       expect(events[0].newStatus).toBe("REFUSED");
@@ -65,7 +64,7 @@ describe("getModerationEvents", () => {
       const previous = { ...baseMission(), status: "REFUSED" as const, comment: "MISSION_DATE_NOT_COMPATIBLE" };
       const updated = { ...previous, comment: "CONTENT_INSUFFICIENT" };
 
-      const events = getModerationEvents(previous, updated, null);
+      const events = getModerationEvents(previous, updated);
 
       expect(events).toHaveLength(1);
       expect(events[0].initialComment).toBe("MISSION_DATE_NOT_COMPATIBLE");
@@ -76,7 +75,7 @@ describe("getModerationEvents", () => {
 
     it("should return no event when nothing changes", () => {
       const mission = baseMission();
-      const events = getModerationEvents(mission, { ...mission }, null);
+      const events = getModerationEvents(mission, { ...mission });
       expect(events).toHaveLength(0);
     });
   });
@@ -86,7 +85,7 @@ describe("getModerationEvents", () => {
       const previous = baseMission();
       const updated = { ...previous, title: "Nouveau titre" };
 
-      const events = getModerationEvents(previous, updated, null);
+      const events = getModerationEvents(previous, updated);
 
       expect(events).toHaveLength(1);
       expect(events[0].initialTitle).toBeNull();
@@ -99,7 +98,7 @@ describe("getModerationEvents", () => {
       const previous = baseMission();
       const updated = { ...previous, note: "Note interne" };
 
-      const events = getModerationEvents(previous, updated, null);
+      const events = getModerationEvents(previous, updated);
 
       expect(events).toHaveLength(1);
       expect(events[0].initialNote).toBeNull();
@@ -112,7 +111,7 @@ describe("getModerationEvents", () => {
       const previous = baseMission();
       const updated = { ...previous, status: "ACCEPTED" as const, title: "Nouveau titre" };
 
-      const events = getModerationEvents(previous, updated, null);
+      const events = getModerationEvents(previous, updated);
 
       expect(events).toHaveLength(2);
       const statusEvent = events.find((e) => e.newStatus !== null);
@@ -125,7 +124,7 @@ describe("getModerationEvents", () => {
       const previous = baseMission();
       const updated = { ...previous, status: "REFUSED" as const, title: "Nouveau titre", note: "Note" };
 
-      const events = getModerationEvents(previous, updated, null);
+      const events = getModerationEvents(previous, updated);
 
       expect(events).toHaveLength(3);
     });
@@ -134,14 +133,9 @@ describe("getModerationEvents", () => {
   describe("organization changes", () => {
     it("should create one event for SIREN verification change", () => {
       const previous = baseMission();
-      const updated = { ...previous };
-      const organizationUpdated = {
-        id: "org-1",
-        organizationSirenVerified: "123456789",
-        organizationRNAVerified: null,
-      } as unknown as PublisherOrganization;
+      const updated = { ...previous, missionOrganizationSiren: "123456789" };
 
-      const events = getModerationEvents(previous, updated, organizationUpdated);
+      const events = getModerationEvents(previous, updated);
 
       expect(events).toHaveLength(1);
       expect(events[0].initialSiren).toBeNull();
@@ -150,14 +144,9 @@ describe("getModerationEvents", () => {
 
     it("should create one event for RNA verification change", () => {
       const previous = baseMission();
-      const updated = { ...previous };
-      const organizationUpdated = {
-        id: "org-1",
-        organizationSirenVerified: null,
-        organizationRNAVerified: "W123456789",
-      } as unknown as PublisherOrganization;
+      const updated = { ...previous, missionOrganizationRNA: "W123456789" };
 
-      const events = getModerationEvents(previous, updated, organizationUpdated);
+      const events = getModerationEvents(previous, updated);
 
       expect(events).toHaveLength(1);
       expect(events[0].initialRNA).toBeNull();
@@ -166,28 +155,18 @@ describe("getModerationEvents", () => {
 
     it("should create two events when both SIREN and RNA change", () => {
       const previous = baseMission();
-      const updated = { ...previous };
-      const organizationUpdated = {
-        id: "org-1",
-        organizationSirenVerified: "123456789",
-        organizationRNAVerified: "W123456789",
-      } as unknown as PublisherOrganization;
+      const updated = { ...previous, missionOrganizationSiren: "123456789", missionOrganizationRNA: "W123456789" };
 
-      const events = getModerationEvents(previous, updated, organizationUpdated);
+      const events = getModerationEvents(previous, updated);
 
       expect(events).toHaveLength(2);
     });
 
     it("should not create an event when org values are unchanged", () => {
-      const previous = { ...baseMission(), missionOrganizationSirenVerified: "123456789", missionOrganizationRNAVerified: "W123456789" };
+      const previous = { ...baseMission(), missionOrganizationSiren: "123456789", missionOrganizationRNA: "W123456789" };
       const updated = { ...previous };
-      const organizationUpdated = {
-        id: "org-1",
-        organizationSirenVerified: "123456789",
-        organizationRNAVerified: "W123456789",
-      } as unknown as PublisherOrganization;
 
-      const events = getModerationEvents(previous, updated, organizationUpdated);
+      const events = getModerationEvents(previous, updated);
 
       expect(events).toHaveLength(0);
     });
@@ -198,7 +177,7 @@ describe("getModerationEvents", () => {
       const previous = baseMission();
       const updated = { ...previous, status: "ACCEPTED" as const };
 
-      const events = getModerationEvents(previous, updated, null);
+      const events = getModerationEvents(previous, updated);
 
       expect(events[0]).toEqual(
         expect.objectContaining({

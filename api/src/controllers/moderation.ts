@@ -228,7 +228,12 @@ router.put("/many", passport.authenticate("user", { session: false }), async (re
     }
 
     // Fetch all previous states at once (either by IDs or by where filter)
-    const { data: previousStatuses, total } = await missionModerationStatusService.findModerationStatuses(body.data.where);
+    const { data: previousStatuses, total } = await missionModerationStatusService.findModerationStatuses({
+      moderatorId: body.data.where.moderatorId,
+      ids: body.data.where.ids,
+      status: body.data.where.status,
+      organizationNames: body.data.where.organizationName ? [body.data.where.organizationName] : undefined,
+    });
 
     if (total === 0) {
       return res.status(200).send({ ok: true, data: { updated: 0, events: 0 } });
@@ -251,14 +256,12 @@ router.put("/many", passport.authenticate("user", { session: false }), async (re
       if (!previous) {
         continue;
       }
-      const obj = {
-        id: updated.id,
+      const obj: MissionModerationRecord = {
+        ...previous,
+        ...moderationUpdates,
         status: updated.status ?? null,
         comment: updated.comment ?? null,
-        missionId: updated.missionId,
-        note: null,
-        title: null,
-      } as MissionModerationRecord;
+      };
       const events = getModerationEvents(previous, obj);
       allModerationEvents.push(...events);
     }

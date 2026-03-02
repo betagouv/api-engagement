@@ -1,8 +1,8 @@
 import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
 
-import { PUBLISHER_IDS } from "../../../src/config";
-import { prismaCore } from "../../../src/db/postgres";
+import { PUBLISHER_IDS } from "@/config";
+import { prismaCore } from "@/db/postgres";
 import { createTestMission, createTestPublisher } from "../../fixtures";
 import { createTestUser } from "../../fixtures/user";
 import { createTestApp } from "../../testApp";

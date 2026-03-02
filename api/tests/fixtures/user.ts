@@ -1,9 +1,9 @@
-import { randomUUID } from "node:crypto";
 import jwt from "jsonwebtoken";
+import { randomUUID } from "node:crypto";
 
-import { SECRET } from "../../src/config";
-import { userService } from "../../src/services/user";
-import type { UserCreateInput, UserRecord } from "../../src/types/user";
+import { SECRET } from "@/config";
+import { userService } from "@/services/user";
+import type { UserCreateInput, UserRecord } from "@/types/user";
 
 export const createTestUser = async (data: Partial<UserCreateInput> = {}): Promise<{ user: UserRecord; token: string }> => {
   const uniqueSuffix = randomUUID();
