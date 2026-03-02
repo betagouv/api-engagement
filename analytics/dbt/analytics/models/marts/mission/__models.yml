@@ -261,11 +261,11 @@ models:
       - name: click_with_apply_count
         description: Nombre de clics avec au moins une candidature.
       - name: click_with_multi_apply_count
-        description: Nombre de clics avec plusieurs candidatures (>=2).
+        description: Nombre de clics associés à des candidatures sur plusieurs missions.
       - name: conversion_rate
         description: Ratio candidatures/redirections (`apply_count / click_count`).
       - name: multi_apply_click_ratio
-        description: Ratio des clics multi-candidatures (`click_with_multi_apply_count / click_with_apply_count`).
+        description: Ratio des clics multi-missions (`click_with_multi_apply_count / click_with_apply_count`).
       - name: avg_time_to_click_secs
         description: Délai moyen (en secondes) avant premier click.
       - name: avg_time_to_apply_secs

@@ -38,7 +38,10 @@ affected_months as (
   union
 
   select distinct
-    date_trunc('month', mfe.mission_created_at)::date as month_start
+    date_trunc(
+      'month',
+      mfe.mission_created_at
+    )::date as month_start
   from {{ ref('int_mission_first_events') }} as mfe
   inner join {{ ref('int_mission_click_apply_stats') }} as mca
     on

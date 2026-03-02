@@ -45,17 +45,29 @@ apply_events as (
     {% endif %}
 ),
 
+click_mission_counts as (
+  select
+    click_id,
+    count(distinct mission_id) as mission_count
+  from apply_events
+  group by click_id
+),
+
 apply_per_click as (
   select
-    mission_id,
-    from_publisher_id,
-    source,
-    source_id,
-    click_id,
+    ae.mission_id,
+    ae.from_publisher_id,
+    ae.source,
+    ae.source_id,
+    ae.click_id,
     count(*) as apply_count,
-    max(coalesce(updated_at, created_at)) as updated_at
-  from apply_events
-  group by mission_id, from_publisher_id, source, source_id, click_id
+    max(cmc.mission_count) as mission_count,
+    max(coalesce(ae.updated_at, ae.created_at)) as updated_at
+  from apply_events as ae
+  inner join click_mission_counts as cmc
+    on ae.click_id = cmc.click_id
+  group by
+    ae.mission_id, ae.from_publisher_id, ae.source, ae.source_id, ae.click_id
 ),
 
 aggregated as (
@@ -65,7 +77,7 @@ aggregated as (
     source,
     source_id,
     count(*) as click_with_apply_count,
-    count(*) filter (where apply_count >= 2) as click_with_multi_apply_count,
+    count(*) filter (where mission_count >= 2) as click_with_multi_apply_count,
     max(updated_at) as updated_at
   from apply_per_click
   group by mission_id, from_publisher_id, source, source_id

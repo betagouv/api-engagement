@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: int_apply_shared_click
+    description: >
+      Vue intermédiaire au grain candidature (apply_id) qui expose le nombre de
+      candidatures associées au même click_id et indique si le clic est partagé.
+    columns:
+      - name: apply_id
+        description: Identifiant de la candidature (stat_event_id).
+        tests:
+          - not_null
+          - unique
+      - name: click_id
+        description: Identifiant du clic associé.
+        tests:
+          - not_null
+      - name: mission_id
+        description: Identifiant de la mission associée.
+      - name: apply_count
+        description: Nombre total de candidatures partageant ce click_id.
+        tests:
+          - not_null
+      - name: other_apply_count
+        description: Nombre d'autres candidatures partageant ce click_id.
+        tests:
+          - not_null
+      - name: is_shared_click
+        description: Vrai si le click_id est partagé par au moins 2 candidatures.
+        tests:
+          - not_null
+      - name: updated_at
+        description: Timestamp de mise à jour issu de la candidature.
+        tests:
+          - not_null

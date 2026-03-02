@@ -245,7 +245,7 @@ models:
     description: >
       Vue intermédiaire au grain mission + diffuseur + source qui calcule, à partir
       des candidatures, le nombre de clics ayant au moins une candidature et ceux
-      ayant plusieurs candidatures.
+      associés à des candidatures sur plusieurs missions.
     columns:
       - name: mission_id
         description: Identifiant de la mission.
@@ -266,7 +266,7 @@ models:
         tests:
           - not_null
       - name: click_with_multi_apply_count
-        description: Nombre de clics avec plusieurs candidatures (>=2).
+        description: Nombre de clics associés à des candidatures sur plusieurs missions.
         tests:
           - not_null
       - name: updated_at
