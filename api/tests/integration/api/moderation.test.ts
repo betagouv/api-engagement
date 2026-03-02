@@ -325,6 +325,69 @@ describe("Moderation API endpoints (integration test)", () => {
       expect(inDb?.note).toBe("Note interne");
       expect(inDb?.status).toBe("PENDING");
     });
+
+    it("should create a ModerationEvent when only the comment changes within the same REFUSED status", async () => {
+      const { moderation } = await createMissionWithModeration({ status: "REFUSED", comment: "CONTENT_INSUFFICIENT" });
+
+      await request(app)
+        .put(`/moderation/${moderation.id}`)
+        .set("Authorization", `jwt ${adminToken}`)
+        .send({ moderatorId: jva.id, status: "REFUSED", comment: "MISSION_DATE_NOT_COMPATIBLE" });
+
+      const events = await prismaCore.moderationEvent.findMany({ where: { missionId: moderation.missionId } });
+      expect(events).toHaveLength(1);
+      expect(events[0].initialStatus).toBeNull();
+      expect(events[0].newStatus).toBeNull();
+      expect(events[0].initialComment).toBe("CONTENT_INSUFFICIENT");
+      expect(events[0].newComment).toBe("MISSION_DATE_NOT_COMPATIBLE");
+    });
+
+    it("should create a ModerationEvent with RNA fields when RNA is set on the publisher organization", async () => {
+      const { moderation, mission } = await createMissionWithModeration();
+
+      const res = await request(app)
+        .put(`/moderation/${moderation.id}`)
+        .set("Authorization", `jwt ${adminToken}`)
+        .send({ moderatorId: jva.id, rna: "W123456789" });
+
+      expect(res.status).toBe(200);
+      const events = await prismaCore.moderationEvent.findMany({ where: { missionId: mission.id } });
+      expect(events).toHaveLength(1);
+      expect(events[0].initialRNA).toBeNull();
+      expect(events[0].newRNA).toBe("W123456789");
+    });
+
+    it("should create a ModerationEvent with SIREN fields when SIREN is set on the publisher organization", async () => {
+      const { moderation, mission } = await createMissionWithModeration();
+
+      const res = await request(app)
+        .put(`/moderation/${moderation.id}`)
+        .set("Authorization", `jwt ${adminToken}`)
+        .send({ moderatorId: jva.id, siren: "123456789" });
+
+      expect(res.status).toBe(200);
+      const events = await prismaCore.moderationEvent.findMany({ where: { missionId: mission.id } });
+      expect(events).toHaveLength(1);
+      expect(events[0].initialSiren).toBeNull();
+      expect(events[0].newSiren).toBe("123456789");
+    });
+
+    it("should propagate RNA change to all missions sharing the same publisherOrganization", async () => {
+      // Both calls use the same partner.id + default organizationClientId ("6789"), so they share the same PublisherOrganization
+      const { moderation: mod1 } = await createMissionWithModeration();
+      const { mission: mission2 } = await createMissionWithModeration();
+
+      await request(app)
+        .put(`/moderation/${mod1.id}`)
+        .set("Authorization", `jwt ${adminToken}`)
+        .send({ moderatorId: jva.id, rna: "W123456789" });
+
+      // The shared PublisherOrganization should now have the updated RNA
+      const pubOrg = await prismaCore.publisherOrganization.findFirst({
+        where: { missions: { some: { id: mission2.id } } },
+      });
+      expect(pubOrg?.rna).toBe("W123456789");
+    });
   });
 
   // ─── PUT /moderation/many ─────────────────────────────────────────────────
