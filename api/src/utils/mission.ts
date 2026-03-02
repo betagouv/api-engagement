@@ -1,10 +1,10 @@
-import { createHash } from "crypto";
-
 import { API_URL } from "@/config";
 import { MissionAddress, MissionRecord } from "@/types/mission";
 import { JobBoardId, MissionJobBoardSyncStatus } from "@/types/mission-job-board";
 import { parseDate } from "./parser";
 import { slugify } from "./string";
+
+export { computeAddressHash } from "./address";
 
 /**
  * Format the tracked application URL for a mission and a given publisher
@@ -15,15 +15,6 @@ import { slugify } from "./string";
  */
 export const getMissionTrackedApplicationUrl = (mission: MissionRecord, publisherId: string) => {
   return `${API_URL}/r/${mission.id}/${publisherId}`;
-};
-
-/**
- * Compute a deterministic MD5 hash for a mission address based on its content.
- * Used to upsert addresses while preserving their UUIDs across re-imports.
- */
-export const computeAddressHash = (address: Pick<MissionAddress, "street" | "city" | "postalCode" | "country" | "location">): string => {
-  const parts = [address.street ?? "", address.city ?? "", address.postalCode ?? "", address.country ?? "", address.location?.lat?.toString() ?? "", address.location?.lon?.toString() ?? ""];
-  return createHash("md5").update(parts.join("|")).digest("hex");
 };
 
 export type MissionAddressWithLocation = {
