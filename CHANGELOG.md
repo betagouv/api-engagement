@@ -2,6 +2,54 @@
 
 Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
 
+## 23/02/2026
+
+### Bug Fixes
+
+- (**jobs**) Moderation job automatic refuse error (#813) ([`68c9c6f`](https://github.com/betagouv/api-engagement/commit/68c9c6fedc7cf76151e1ed9d379ba341cef3d452))
+
+- (**app**) Logout for user my-missions (#799) ([`e3c47c8`](https://github.com/betagouv/api-engagement/commit/e3c47c8b07cabd2590ee6226e2a07080eb8b2096))
+
+- (**analytics**) Remove mission activity_id field (#796) ([`2287078`](https://github.com/betagouv/api-engagement/commit/22870783eaec271e374745f9dab71c475e88df7a))
+
+- (**widget**) Define container max old space size (#794) ([`ece0583`](https://github.com/betagouv/api-engagement/commit/ece05833d0842a47f09d12bffe957c10daa7f964))
+
+- (**widget**) Deactivate optimized images (#793) ([`16c7e49`](https://github.com/betagouv/api-engagement/commit/16c7e4937d086f31eaa3b5fe772857dddc73a59d))
+
+- (**api**) Avoid ilike on id fields for text search (#788) ([`691b739`](https://github.com/betagouv/api-engagement/commit/691b739de265a9ab12ca10b2bacdf6fc485321d8))
+
+- (**app**) Fix disabled organization page ([`18512e0`](https://github.com/betagouv/api-engagement/commit/18512e05c236849de0155903b109d34cd431817e))
+
+### Miscellaneous Tasks
+
+- (**changelog**) Update CHANGELOG.md ([`d835835`](https://github.com/betagouv/api-engagement/commit/d8358355d3a50eaabb5126a77ab3dde189d53a7c))
+
+- (**jobs**) Disable letudiant ([`1e76a81`](https://github.com/betagouv/api-engagement/commit/1e76a8170772fed6c6b55e3bcc5dc0c6e61d065d))
+
+- (**changelog**) Update CHANGELOG.md ([`fcb7ef4`](https://github.com/betagouv/api-engagement/commit/fcb7ef43e68e8703028ca269018e1030fe165317))
+
+- (**changelog**) Update CHANGELOG.md ([`5007942`](https://github.com/betagouv/api-engagement/commit/5007942bffe100e4f177266b28c456b3cdf64978))
+
+- (**changelog**) Update CHANGELOG.md ([`561a380`](https://github.com/betagouv/api-engagement/commit/561a380172c945fda3cca4d8b1b831729a8b299f))
+
+- (**changelog**) Update CHANGELOG.md ([`5fcbaec`](https://github.com/betagouv/api-engagement/commit/5fcbaec241e0868879d33fcfbd1b59bd4a37008f))
+
+- (**changelog**) Update CHANGELOG.md ([`e0fa657`](https://github.com/betagouv/api-engagement/commit/e0fa657b4cf1743d0237ce91e474167cdf189470))
+
+- (**widget**) Add WAF proxy (#795) ([`7a69f94`](https://github.com/betagouv/api-engagement/commit/7a69f9468735d23d0532adf167f7a976c085ba4c))
+
+- (**api**) Remove mission activity-id relationship (#787) ([`214c119`](https://github.com/betagouv/api-engagement/commit/214c119082b35878b43ebc4a8c7e6ee5b8c4c1e9))
+
+### Refactoring
+
+- (**api**) Unhandled \& Uncaught to sentry (#797) ([`62bc0f4`](https://github.com/betagouv/api-engagement/commit/62bc0f4378d110d18447b40a95a7fb38816098cd))
+
+- (**api**) Improve widget aggregation logic (#790) ([`6633278`](https://github.com/betagouv/api-engagement/commit/66332783a11944f1a4e76290a1a679a244bb4d50))
+
+# API Engagement - Changelog
+
+Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
+
 ## 16/02/2026
 
 ### Bug Fixes
