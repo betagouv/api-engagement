@@ -49,16 +49,24 @@ const Tabs = ({ tabs, ariaLabel, panelId, className = "", variant = "primary", t
   const activeTabIndex = tabs.findIndex((tab) => tab.isActive);
   const focusableTabIndex = activeTabIndex === -1 ? 0 : activeTabIndex;
 
-  if (!tabs?.length) return null;
+  if (!tabs?.length) {
+    return null;
+  }
 
   const focusTab = (index) => {
     const tab = tabRefs.current[index];
-    if (tab) tab.focus();
+    if (tab) {
+      tab.focus();
+    }
   };
 
   const activateTab = (tab) => {
-    if (tab.onSelect) tab.onSelect();
-    if (tab.to) navigate(tab.to);
+    if (tab.onSelect) {
+      tab.onSelect();
+    }
+    if (tab.to) {
+      navigate(tab.to);
+    }
   };
 
   const handleTabKeyDown = (event, index, tab) => {

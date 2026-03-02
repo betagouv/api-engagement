@@ -3,7 +3,8 @@ import { createHash } from "crypto";
 import { API_URL } from "@/config";
 import { MissionAddress, MissionRecord } from "@/types/mission";
 import { JobBoardId, MissionJobBoardSyncStatus } from "@/types/mission-job-board";
-import { slugify } from "@/utils/string";
+import { parseDate } from "./parser";
+import { slugify } from "./string";
 
 /**
  * Format the tracked application URL for a mission and a given publisher
@@ -119,7 +120,7 @@ export const IMPORT_FIELDS_TO_COMPARE = [
   "endAt",
   "metadata",
   "openToMinors",
-  "organizationId",
+  "publisherOrganizationId",
   "places",
   "postedAt",
   "priority",
@@ -229,13 +230,6 @@ export const getMissionChanges = (
   return Object.keys(changes).length > 0 ? changes : null;
 };
 
-const parseDate = (value: string | Date | undefined) => {
-  if (!value) {
-    return null;
-  }
-  return isNaN(new Date(value).getTime()) ? null : new Date(value);
-};
-
 const toUtcDayKey = (value: Date | string | undefined): number | null => {
   const date = parseDate(value);
   if (!date) {
@@ -289,8 +283,6 @@ const mapAddressesForCityChange = (addresses: MissionRecord["addresses"]) =>
   })) ?? [];
 
 const normalizeAddressesByCity = (address: MissionRecord["addresses"]) => {
-  const data = address.map((item) =>
-    slugify(`${normalizeAddressValue(item.city)}`)
-  );
+  const data = address.map((item) => slugify(`${normalizeAddressValue(item.city)}`));
   return data.sort();
 };

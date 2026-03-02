@@ -117,10 +117,12 @@ const App = () => {
 const AuthLayout = () => {
   const { user } = useStore();
 
-  if (user) return <Navigate to="/performance" replace={true} />;
+  if (user) {
+    return <Navigate to="/performance" replace={true} />;
+  }
 
   return (
-    <div className="bg-beige-gris-galet-975 flex min-h-screen w-screen flex-col">
+    <div className="bg-global-background flex min-h-screen w-screen flex-col">
       <Header />
       <main id="main-content" role="main" tabIndex={-1} className="flex flex-1">
         <div className="flex-1">
@@ -158,10 +160,18 @@ const PATH = [
 
 const ADMIN_PATH = ["/admin-mission", "/admin-organization", "/admin-account", "/admin-stats", "/admin-warning", "/admin-report", "/user/", "/publisher/"];
 const getActiveTabId = (pathname) => {
-  if (pathname.includes("performance")) return "tab-performance";
-  if (pathname.includes("broadcast")) return "tab-broadcast";
-  if (pathname.includes("my-missions")) return "tab-my-missions";
-  if (pathname.includes("settings")) return "tab-settings";
+  if (pathname.includes("performance")) {
+    return "tab-performance";
+  }
+  if (pathname.includes("broadcast")) {
+    return "tab-broadcast";
+  }
+  if (pathname.includes("my-missions")) {
+    return "tab-my-missions";
+  }
+  if (pathname.includes("settings")) {
+    return "tab-settings";
+  }
   return null;
 };
 
@@ -199,7 +209,9 @@ const ProtectedLayout = () => {
         const publisher = localStorage.getItem("publisher");
         const res = await api.get(`/user/refresh${publisher ? `?publisherId=${publisher}` : ""}`);
 
-        if (!res.ok) throw res;
+        if (!res.ok) {
+          throw res;
+        }
         // Don't capture error here, it can be a 401
         setAuth(res.data.user, res.data.publisher);
         api.setToken(res.data.token);
@@ -215,16 +227,19 @@ const ProtectedLayout = () => {
     fetchData();
   }, []);
 
-  if (loading)
+  if (loading) {
     return (
       <main id="main-content" role="main" tabIndex={-1} className="flex h-screen w-full items-center justify-center">
         <Loader />
       </main>
     );
-  if (!user) return <Navigate to="/login" />;
+  }
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
 
   return (
-    <div className="bg-beige-gris-galet-975 flex min-h-screen w-screen flex-col">
+    <div className="bg-global-background flex min-h-screen w-screen flex-col">
       {ENV === "staging" && (
         <div className="bg-error w-full p-2 text-center text-white">
           <span>Environnement de pré-prod</span>
@@ -249,7 +264,9 @@ const AdminLayout = () => {
 const LegacyRedirect = () => {
   const { publisher } = useStore();
   const location = useLocation();
-  if (!publisher) return <Navigate to="/login" replace />;
+  if (!publisher) {
+    return <Navigate to="/login" replace />;
+  }
   const id = publisher.id || publisher._id;
   return <Navigate to={`/${id}${location.pathname}${location.search}`} replace />;
 };
@@ -262,9 +279,13 @@ const PublisherSyncLayout = () => {
     const currentId = publisher?.id;
     if (publisherId && publisherId !== currentId) {
       api.post("/publisher/search", {}).then((res) => {
-        if (!res.ok) return;
+        if (!res.ok) {
+          return;
+        }
         const found = res.data.find((p) => (p.id || p._id) === publisherId);
-        if (found) setPublisher(found);
+        if (found) {
+          setPublisher(found);
+        }
       });
     }
   }, [publisherId]);
@@ -285,7 +306,7 @@ const PublicLayout = () => {
   }, [location.pathname]);
 
   return (
-    <div className="bg-beige-gris-galet-975 flex min-h-screen w-screen flex-col">
+    <div className="bg-global-background flex min-h-screen w-screen flex-col">
       <Header />
       {user ? <Nav /> : ""}
       <main id="main-content" role="main" tabIndex={-1} aria-labelledby={user && hasActiveTab ? activeTabId : undefined}>

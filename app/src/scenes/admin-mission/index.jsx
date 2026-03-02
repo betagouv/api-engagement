@@ -4,6 +4,7 @@ import { Link, useSearchParams } from "react-router-dom";
 
 import ErrorIconSvg from "@/assets/svg/error-icon.svg?react";
 import Combobox from "@/components/combobox";
+import PublisherCombobox from "@/components/combobox/PublisherCombobox";
 import Loader from "@/components/Loader";
 import SearchInput from "@/components/SearchInput";
 import Select from "@/components/Select";
@@ -29,7 +30,7 @@ const AdminMission = () => {
     size: 25,
     page: Number(searchParams.get("page")) || 1,
     sortBy: "createdAt",
-    publisherId: searchParams.get("publisherId") || null,
+    publisherIds: searchParams.get("publisherIds") ? searchParams.get("publisherIds").split(",") : [],
     status: searchParams.get("status") || null,
     domain: searchParams.get("domain") || null,
     activity: searchParams.get("activity") || null,
@@ -58,7 +59,9 @@ const AdminMission = () => {
     const fetchData = async () => {
       try {
         const res = await api.post("/import/search", { size: 1 });
-        if (!res.ok) throw res;
+        if (!res.ok) {
+          throw res;
+        }
         setLastImport(res.data.length ? res.data[0] : null);
       } catch (error) {
         captureError(error);
@@ -77,7 +80,9 @@ const AdminMission = () => {
 
         const res = await searchMissions(filters);
 
-        if (!res.ok) throw res;
+        if (!res.ok) {
+          throw res;
+        }
         setData(res.data);
         setOptions(res.aggs);
         setTotal(res.total);
@@ -95,7 +100,9 @@ const AdminMission = () => {
     try {
       const res = await searchMissions({ ...filters, size: total, page: 1 });
 
-      if (!res.ok) throw res;
+      if (!res.ok) {
+        throw res;
+      }
 
       const data = [];
       res.data.forEach((mission) => {
@@ -149,12 +156,19 @@ const AdminMission = () => {
             onChange={(e) => setFilters({ ...filters, activity: e.value })}
             placeholder="Activité"
           />
-          <Combobox
+          {/* <Combobox
             id="publisher"
             options={options.partners.map((e) => ({ value: e.id, label: e.name, count: e.count }))}
             value={filters.publisherId}
             onSelect={(e) => (e ? setFilters({ ...filters, publisherId: e.value }) : null)}
             placeholder="Partenaire"
+          /> */}
+          <PublisherCombobox
+            id="publisherIds"
+            values={filters.publisherIds}
+            onChange={(publisherIds) => setFilters({ ...filters, publisherIds })}
+            placeholder="Partenaire"
+            options={options.partners}
           />
         </div>
         <div className="flex items-center gap-4">

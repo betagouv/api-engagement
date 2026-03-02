@@ -6,17 +6,17 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "@/services/toast";
 
 import Combobox from "@/components/combobox";
-import Dropdown from "@/components/Dropdown";
 import Loader from "@/components/Loader";
 import Modal from "@/components/New-Modal";
 import Toggle from "@/components/Toggle";
+import Dropdown from "@/scenes/campaign/components/Dropdown";
+import Information from "@/scenes/campaign/components/Information";
+import Trackers from "@/scenes/campaign/components/Trackers";
 import api from "@/services/api";
 import { API_URL } from "@/services/config";
 import { captureError } from "@/services/error";
 import { isValidUrl } from "@/services/utils";
 import { withLegacyPublishers } from "@/utils/publisher";
-import Information from "@/scenes/campaign/components/Information";
-import Trackers from "@/scenes/campaign/components/Trackers";
 
 const Edit = () => {
   const { id } = useParams();
@@ -58,11 +58,21 @@ const Edit = () => {
   const handleSubmit = async () => {
     const errors = {};
 
-    if (!values.name) errors.name = "Le nom est requis";
-    if (!values.type) errors.type = "Le type de campagne est requis";
-    if (!values.toPublisherId) errors.toPublisherId = "Le partenaire est requis";
-    if (!values.url) errors.url = "L'url est requis";
-    if (!isValidUrl(values.url)) errors.url = "L'url n'est pas valide";
+    if (!values.name) {
+      errors.name = "Le nom est requis";
+    }
+    if (!values.type) {
+      errors.type = "Le type de campagne est requis";
+    }
+    if (!values.toPublisherId) {
+      errors.toPublisherId = "Le partenaire est requis";
+    }
+    if (!values.url) {
+      errors.url = "L'url est requis";
+    }
+    if (!isValidUrl(values.url)) {
+      errors.url = "L'url n'est pas valide";
+    }
 
     if (errors.name || errors.type || errors.toPublisherId || errors.url) {
       setErrors(errors);
@@ -82,8 +92,11 @@ const Edit = () => {
 
       const res = await api.put(`/campaign/${id}`, payload);
       if (!res.ok) {
-        if (res.status === 409) return toast.error("Une campagne avec ce nom existe déjà");
-        else throw res;
+        if (res.status === 409) {
+          return toast.error("Une campagne avec ce nom existe déjà");
+        } else {
+          throw res;
+        }
       }
       toast.success("Campagne mise à jour");
       setCampaign(res.data);
@@ -112,11 +125,15 @@ const Edit = () => {
 
   const handleDelete = async () => {
     const res = window.confirm("Êtes-vous sûr de vouloir supprimer cette campagne ?");
-    if (!res) return;
+    if (!res) {
+      return;
+    }
 
     try {
       const res = await api.delete(`/campaign/${id}`);
-      if (!res.ok) throw res;
+      if (!res.ok) {
+        throw res;
+      }
       toast.success("Campagne supprimée");
       navigate("/broadcast/campaigns");
     } catch (error) {
@@ -133,12 +150,13 @@ const Edit = () => {
     v.name !== campaign.name || v.type !== campaign.type || v.toPublisherId !== campaign.toPublisherId || v.url !== campaign.url || v.urlSource !== campaign.urlSource;
   const isErrors = (e) => e.name || e.toPublisherId || e.url;
 
-  if (!campaign)
+  if (!campaign) {
     return (
       <div className="flex h-full items-center justify-center">
         <Loader />
       </div>
     );
+  }
 
   return (
     <>
@@ -249,7 +267,9 @@ const ReassignModal = ({ isOpen, onClose, campaign, values, setValues, setCampai
     const fetchData = async () => {
       try {
         const res = await api.post(`/publisher/search`, { role: "campaign" });
-        if (!res.ok) throw res;
+        if (!res.ok) {
+          throw res;
+        }
         setPublishers(
           withLegacyPublishers(res.data)
             .sort((a, b) => a.name.localeCompare(b.name))
@@ -274,7 +294,9 @@ const ReassignModal = ({ isOpen, onClose, campaign, values, setValues, setCampai
         fromPublisherId: values.fromPublisherId,
       });
 
-      if (!res.ok) throw res;
+      if (!res.ok) {
+        throw res;
+      }
       toast.success("Campagne déplacée avec succès");
       setCampaign({ ...campaign, toPublisherId: values.toPublisherId });
       onClose();

@@ -100,9 +100,10 @@ export const statEventRepository = {
         SELECT se.from_publisher_id, COUNT(*)::bigint AS count
         FROM "stat_event" se
         JOIN "mission" m ON m.id = se.mission_id
+        JOIN "publisher_organization" po ON po.id = m.publisher_organization_id
         WHERE se.type = 'click'::"StatEventType"
           AND se.is_bot IS NOT TRUE
-          AND m.organization_client_id = ${organizationClientId}
+          AND po.client_id = ${organizationClientId}
           AND se.from_publisher_id IN (${Prisma.join(publisherIds)})
           AND se.created_at >= ${from}
         GROUP BY se.from_publisher_id

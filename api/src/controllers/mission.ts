@@ -14,10 +14,11 @@ const searchSchema = zod.object({
   status: zod.union([zod.string(), zod.array(zod.string())]).optional(),
   comment: zod.string().optional(),
   publisherId: zod.string().optional(),
+  publisherIds: zod.array(zod.string()).optional(),
   domain: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-  organization: zod.string().optional(),
+  organizations: zod.array(zod.string()).optional(),
   activity: zod.string().optional(),
-  city: zod.string().optional(),
+  cities: zod.array(zod.string()).optional(),
   department: zod.string().optional(),
   search: zod.string().optional(),
   availableFrom: zod.coerce.date().optional(),
@@ -25,7 +26,6 @@ const searchSchema = zod.object({
   size: zod.coerce.number().int().min(0).default(25),
   from: zod.coerce.number().int().min(0).default(0),
   sort: zod.string().optional(),
-  publishers: zod.array(zod.string()).optional(),
   jvaModeration: zod.boolean().optional(),
   lat: zod.coerce.number().min(-90).max(90).optional(),
   lon: zod.coerce.number().min(-180).max(180).optional(),
@@ -57,16 +57,17 @@ const findFilters = (user: UserRequest["user"], body: zod.infer<typeof searchSch
       }
       return [body.publisherId];
     }
-    if (body.publishers?.length) {
+    if (body.publisherIds?.length) {
       if (user.role !== "admin") {
-        const allowed = body.publishers.filter((id) => user.publishers.includes(id));
+        const allowed = body.publisherIds.filter((id) => user.publishers.includes(id));
         if (!allowed.length) {
           throw new Error("FORBIDDEN");
         }
         return allowed;
       }
-      return body.publishers;
+      return body.publisherIds;
     }
+
     if (user.role !== "admin") {
       return user.publishers;
     }
@@ -86,9 +87,9 @@ const findFilters = (user: UserRequest["user"], body: zod.infer<typeof searchSch
     skip: body.from,
     domain: asArray(body.domain),
     activity: asArray(body.activity),
-    city: asArray(body.city),
+    city: asArray(body.cities),
     departmentName: asArray(body.department),
-    organizationName: asArray(body.organization),
+    organizationName: asArray(body.organizations),
   };
 
   if (body.status) {

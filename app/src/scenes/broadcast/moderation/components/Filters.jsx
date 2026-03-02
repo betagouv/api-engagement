@@ -3,12 +3,13 @@ import { RiCloseFill } from "react-icons/ri";
 
 import ModerationManualIcon from "@/assets/svg/moderation-manual.svg";
 import MissionCombobox from "@/components/combobox/MissionCombobox";
+import PublisherCombobox from "@/components/combobox/PublisherCombobox";
 import SearchInput from "@/components/SearchInput";
 import Select from "@/components/Select";
+import STATUS, { DEPARTMENT_LABELS, JVA_MODERATION_COMMENTS_LABELS, STATUS_PLR } from "@/scenes/broadcast/moderation/components/Constants";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
-import STATUS, { DEPARTMENT_LABELS, JVA_MODERATION_COMMENTS_LABELS, STATUS_PLR } from "@/scenes/broadcast/moderation/components/Constants";
 
 const Filters = ({ filters, onChange, reload }) => {
   const { publisher } = useStore();
@@ -19,8 +20,6 @@ const Filters = ({ filters, onChange, reload }) => {
     activities: [],
     domains: [],
     departments: [],
-    organizations: [],
-    cities: [],
   });
   const [loading, setLoading] = useState(false);
 
@@ -32,18 +31,21 @@ const Filters = ({ filters, onChange, reload }) => {
           moderatorId: publisher.id || undefined,
           status: filters.status || undefined,
           comment: filters.comment || undefined,
-          publisherId: filters.publisherId || undefined,
-          city: filters.city || undefined,
+          publisherIds: filters.publisherIds || undefined,
+          cities: filters.cities || undefined,
           domain: filters.domain || undefined,
           department: filters.department || undefined,
-          organizationName: filters.organizationName || undefined,
+          organizationNames: filters.organizationNames || undefined,
           activity: filters.activity || undefined,
           search: filters.search || undefined,
         };
 
         const res = await api.post("/moderation/aggs", query);
 
-        if (!res.ok) throw res;
+        if (!res.ok) {
+          throw res;
+        }
+
         setOptions(res.data);
       } catch (error) {
         captureError(error, { extra: { filters } });
@@ -52,7 +54,7 @@ const Filters = ({ filters, onChange, reload }) => {
       }
     };
     fetchOptions();
-  }, [filters, reload]);
+  }, [reload]);
 
   return (
     <div className="mx-12">
@@ -74,12 +76,15 @@ const Filters = ({ filters, onChange, reload }) => {
           loading={loading}
         />
 
-        <Select
-          options={options.publishers.map((e) => ({ value: e.key, label: e.label, count: e.doc_count }))}
-          value={filters.publisherId}
-          onChange={(e) => onChange({ ...filters, publisherId: e.value })}
+        <PublisherCombobox
+          id="publisherIds"
+          values={filters.publisherIds}
+          onChange={(publisherIds) => {
+            console.log("publisherIds", publisherIds);
+            onChange({ ...filters, publisherIds });
+          }}
           placeholder="Annonceur"
-          loading={loading}
+          options={options.publishers}
         />
         <Select
           options={options.domains.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}
@@ -91,8 +96,8 @@ const Filters = ({ filters, onChange, reload }) => {
 
         <MissionCombobox
           id="organization"
-          value={filters.organization}
-          onSelect={(organization) => onChange({ ...filters, organization: organization ? organization.value : null })}
+          values={filters.organizations}
+          onChange={(organizations) => onChange({ ...filters, organizations })}
           placeholder="Organisations"
           filters={`${options.publishers.map((p) => `publishers[]=${p.key}`).join("&")}&field=organizationName`}
         />
@@ -119,8 +124,8 @@ const Filters = ({ filters, onChange, reload }) => {
 
         <MissionCombobox
           id="city"
-          value={filters.city}
-          onSelect={(city) => onChange({ ...filters, city: city ? city.value : null })}
+          values={filters.cities}
+          onChange={(cities) => onChange({ ...filters, cities })}
           placeholder="Villes"
           filters={`${options.publishers.map((p) => `publishers[]=${p.key}`).join("&")}&field=city`}
         />
@@ -153,7 +158,9 @@ const Filters = ({ filters, onChange, reload }) => {
 };
 
 const Badge = ({ label, value, onDelete }) => {
-  if (!value) return null;
+  if (!value) {
+    return null;
+  }
   return (
     <button type="button" className="bg-blue-france-975 flex items-center gap-2 rounded p-2" title={`${label} : ${value} - Supprimer`} onClick={onDelete}>
       <span className="text-sm">{label} :</span>

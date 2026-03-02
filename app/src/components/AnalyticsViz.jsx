@@ -4,11 +4,11 @@ import { RiInformationFill } from "react-icons/ri";
 import Tooltip from "@/components/Tooltip";
 
 import EmptySVG from "@/assets/svg/empty-info.svg";
-import { useAnalyticsProvider } from "@/services/analytics/provider";
-import { captureError } from "@/services/error";
 import { COLORS as CHART_COLORS, Pie, BarChart as SimpleBarChart, StackedBarchart } from "@/components/Chart";
 import Loader from "@/components/Loader";
 import Table from "@/components/Table";
+import { useAnalyticsProvider } from "@/services/analytics/provider";
+import { captureError } from "@/services/error";
 
 const AnalyticsViz = ({
   cardId,
@@ -41,7 +41,9 @@ const AnalyticsViz = ({
   const effectiveAdapter = adapter || analyticsProvider?.adapters?.[type];
 
   useEffect(() => {
-    if (!cardId) return;
+    if (!cardId) {
+      return;
+    }
     if (!effectiveAdapter) {
       setError(new Error(`Aucun adapteur défini pour le type de vue "${type}"`));
       return;
@@ -70,7 +72,9 @@ const AnalyticsViz = ({
           setKpiValue(null);
         }
       } catch (err) {
-        if (err.name === "AbortError") return;
+        if (err.name === "AbortError") {
+          return;
+        }
         setData([]);
         setStackedKeys([]);
         setTableRows([]);
@@ -86,7 +90,9 @@ const AnalyticsViz = ({
     return () => controller.abort();
   }, [cardId, type, effectiveAdapter, variablesKey, adapterOptions, overrideColumns, analyticsProvider]);
 
-  if (!cardId) return null;
+  if (!cardId) {
+    return null;
+  }
 
   if (loading) {
     return (

@@ -85,7 +85,7 @@ export function missionToPilotyJobs(mission: MissionRecord, companyId: string, m
 
   if (mission.remote === "full" || !mission.addresses.length) {
     const city = mission.organizationCity || undefined;
-    const department = mission.organizationDepartment || undefined;
+    const department = mission.departmentName || undefined;
     const country = mission.country || "France";
     const formatted = formatLocalisation([city, department, country]) || "France";
     return [

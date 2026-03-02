@@ -2,13 +2,13 @@ import { useEffect, useState } from "react";
 import { BiSolidInfoSquare } from "react-icons/bi";
 
 import JvaLogoSvg from "@/assets/svg/jva-logo.svg";
-import RadioInput from "@/components/RadioInput";
+import LocationCombobox from "@/components/combobox/LocationCombobox";
+import RadioInput from "@/components/form/RadioInput";
 import Toggle from "@/components/Toggle";
+import QueryBuilder from "@/scenes/widget/components/QueryBuilder";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
-import LocationCombobox from "@/components/combobox/LocationCombobox";
-import QueryBuilder from "@/scenes/widget/components/QueryBuilder";
 
 const JVA_ID = "5f5931496c7ea514150a818f";
 const SC_ID = "5f99dbe75eb1ad767733b206";
@@ -21,11 +21,15 @@ const Settings = ({ widget, values, onChange, loading }) => {
   const [selectAll, setSelectAll] = useState(false);
 
   useEffect(() => {
-    if (loading) return;
+    if (loading) {
+      return;
+    }
     const fetchMissions = async () => {
       try {
         const publishers = publisher.publishers.map((p) => p.diffuseurPublisherId);
-        if (publisher.isAnnonceur) publishers.push(publisher.id);
+        if (publisher.isAnnonceur) {
+          publishers.push(publisher.id);
+        }
         const query = {
           publishers,
           lat: values.location?.lat,
@@ -37,9 +41,13 @@ const Settings = ({ widget, values, onChange, loading }) => {
         };
 
         const res = await api.post("/mission/search", query);
-        if (!res.ok) throw res;
+        if (!res.ok) {
+          throw res;
+        }
         const newPublishers = res.aggs.partners;
-        if (publisher.isAnnonceur && !newPublishers.some((p) => p._id === publisher.id)) newPublishers.push({ _id: publisher.id, name: publisher.name, count: 0 });
+        if (publisher.isAnnonceur && !newPublishers.some((p) => p.key === publisher.id)) {
+          newPublishers.push({ key: publisher.id, doc_count: 0, name: publisher.name, mission_type: publisher.missionType });
+        }
         setPublishers(newPublishers);
       } catch (error) {
         captureError(error, { extra: { publisherId: publisher.id } });
@@ -49,7 +57,9 @@ const Settings = ({ widget, values, onChange, loading }) => {
   }, [loading, publisher, values.location, values.distance, values.jvaModeration]);
 
   useEffect(() => {
-    if (loading) return;
+    if (loading) {
+      return;
+    }
     const timeout = setTimeout(() => {
       const fetchFilteredMissions = async () => {
         try {
@@ -65,7 +75,9 @@ const Settings = ({ widget, values, onChange, loading }) => {
           };
 
           const res = await api.post("/mission/search", query);
-          if (!res.ok) throw res;
+          if (!res.ok) {
+            throw res;
+          }
           setTotal(res.total);
         } catch (error) {
           captureError(error, { extra: { publisherId: publisher.id } });
@@ -181,7 +193,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
               <button
                 className="text-blue-france underline"
                 onClick={() => {
-                  onChange({ ...values, publishers: selectAll ? [] : publishers.map((p) => p._id) });
+                  onChange({ ...values, publishers: selectAll ? [] : publishers.map((p) => p.key) });
                   setSelectAll(!selectAll);
                 }}
               >
@@ -195,13 +207,13 @@ const Settings = ({ widget, values, onChange, loading }) => {
           ) : (
             <div className={`grid grid-cols-3 gap-x-6 gap-y-3 ${values.type === "volontariat" ? "text-gray-625" : ""}`}>
               {publishers
-                .filter((item) => (values.type === "benevolat" ? item._id !== SC_ID : item._id === SC_ID))
-                .sort((a, b) => b.count - a.count)
+                .filter((item) => (values.type === "benevolat" ? item.key !== SC_ID : item.key === SC_ID))
+                .sort((a, b) => b.doc_count - a.doc_count)
                 .slice(0, showAll ? publishers.length : 15)
                 .map((item, i) => (
                   <label
                     key={i}
-                    className={`hover:border-blue-france flex cursor-pointer gap-4 rounded border p-4 ${values.publishers.includes(item._id) ? "border-blue-france" : "border-gray-300"}`}
+                    className={`hover:border-blue-france flex cursor-pointer gap-4 rounded border p-4 ${values.publishers.includes(item.key) ? "border-blue-france" : "border-gray-300"}`}
                   >
                     <div className="flex items-center gap-2">
                       <input
@@ -210,23 +222,23 @@ const Settings = ({ widget, values, onChange, loading }) => {
                         id={`${i}-publishers`}
                         name={`${i}-publishers`}
                         disabled={values.type === "volontariat"}
-                        checked={values.publishers.includes(item._id) || values.type === "volontariat"}
+                        checked={values.publishers.includes(item.key) || values.type === "volontariat"}
                         onChange={(e) =>
-                          onChange({ ...values, publishers: e.target.checked ? [...values.publishers, item._id] : values.publishers.filter((id) => id !== item._id) })
+                          onChange({ ...values, publishers: e.target.checked ? [...values.publishers, item.key] : values.publishers.filter((id) => id !== item.key) })
                         }
                       />
                     </div>
 
                     <div className="flex flex-col truncate">
-                      <span className={`line-clamp-2 truncate text-sm ${values.publishers.includes(item._id) ? "text-blue-france" : "text-black"}`}>{item.name}</span>
+                      <span className={`line-clamp-2 truncate text-sm ${values.publishers.includes(item.key) ? "text-blue-france" : "text-black"}`}>{item.label}</span>
                       <div className={`flex ${values.type === "volontariat" ? "text-gray-625" : "text-text-mention"}`}>
                         <span className="text-xs">
-                          {item.count.toLocaleString("fr")} {item.count > 1 ? "missions" : "mission"}
+                          {item.doc_count.toLocaleString("fr")} {item.doc_count > 1 ? "missions" : "mission"}
                         </span>
                       </div>
                     </div>
 
-                    {item.moderation && item.moderation.length > 0 && values.publishers.includes(item._id) && (
+                    {item.moderation && item.moderation.length > 0 && values.publishers.includes(item.key) && (
                       <div className="pl-8">
                         {item.moderation.map((m, j) => (
                           <div key={j} className="flex items-center gap-2 py-1">
@@ -235,12 +247,12 @@ const Settings = ({ widget, values, onChange, loading }) => {
                               className="checkbox"
                               id={`${j}-moderation`}
                               name={`${j}-moderation`}
-                              checked={!!values.moderations.some((id) => id.moderatorId === item._id && id.publisherId === m._id)}
+                              checked={!!values.moderations.some((id) => id.moderatorId === item.key && id.publisherId === m.key)}
                               onChange={(e) => {
                                 if (e.target.checked) {
-                                  onChange({ ...values, moderations: [...values.moderations, { moderatorId: item._id, publisherId: m._id }] });
+                                  onChange({ ...values, moderations: [...values.moderations, { moderatorId: item.key, publisherId: m.key }] });
                                 } else {
-                                  onChange({ ...values, moderations: values.moderations.filter((id) => id.moderatorId !== item._id || id.publisherId !== m._id) });
+                                  onChange({ ...values, moderations: values.moderations.filter((id) => id.moderatorId !== item.key || id.publisherId !== m.key) });
                                 }
                               }}
                             />

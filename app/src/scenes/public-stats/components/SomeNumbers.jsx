@@ -4,14 +4,16 @@ import { RiQuestionLine } from "react-icons/ri";
 import Loader from "@/components/Loader";
 import Tooltip from "@/components/Tooltip";
 import { DEPARTMENT_NAMES, METABASE_CARD_ID, MONTHS } from "@/constants";
+import AnalyticsCard from "@/scenes/performance/AnalyticsCard";
 import { useAnalyticsProvider } from "@/services/analytics/provider";
 import { captureError } from "@/services/error";
-import AnalyticsCard from "@/scenes/performance/AnalyticsCard";
 
 const SomeNumbers = ({ filters, onFiltersChange }) => {
   const CHART_COLOR = "#000091";
   const formatMonthLabel = (value) => {
-    if (!value) return value;
+    if (!value) {
+      return value;
+    }
     const date = new Date(value);
     if (!Number.isNaN(date.getTime())) {
       const monthIdx = date.getMonth();
@@ -44,7 +46,9 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
   );
 
   useEffect(() => {
-    if (!analyticsProvider?.query) return;
+    if (!analyticsProvider?.query) {
+      return;
+    }
     const controller = new AbortController();
     const fetchData = async () => {
       setLoading(true);
@@ -61,17 +65,23 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
         });
 
         const findIndex = (cols, names, fallback) => {
-          if (!cols || !cols.length) return fallback;
+          if (!cols || !cols.length) {
+            return fallback;
+          }
           const candidates = Array.isArray(names) ? names : [names];
           for (const candidate of candidates) {
             const idx = cols.findIndex((c) => c.name === candidate || c.display_name === candidate);
-            if (idx >= 0) return idx;
+            if (idx >= 0) {
+              return idx;
+            }
           }
           return fallback;
         };
 
         const sumByIndex = (rows, idx) => {
-          if (idx === undefined || idx < 0) return 0;
+          if (idx === undefined || idx < 0) {
+            return 0;
+          }
           return rows.reduce((acc, row) => acc + (Number(row[idx]) || 0), 0);
         };
 

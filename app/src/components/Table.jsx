@@ -5,21 +5,7 @@ import { RiArrowLeftSLine, RiArrowRightSLine, RiSkipLeftLine, RiSkipRightLine } 
 
 import Loader from "@/components/Loader";
 
-const Table = ({
-  header,
-  sortBy,
-  total,
-  onSort,
-  loading,
-  children,
-  auto = false,
-  sticky = false,
-  className = "",
-  pagination = true,
-  page,
-  onPageChange,
-  pageSize = 10,
-}) => {
+const Table = ({ header, sortBy, total, onSort, loading, children, auto = false, sticky = false, className = "", pagination = true, page, onPageChange, pageSize = 10 }) => {
   const [internalPage, setInternalPage] = useState(page || 1);
   useEffect(() => {
     if (typeof page === "number" && page !== internalPage) {
@@ -33,7 +19,7 @@ const Table = ({
   return (
     <>
       <div className={`no-scrollbar w-full overflow-x-auto overflow-y-visible ${className}`}>
-        <table className={`w-full min-w-[600px] border-collapse ${auto ? "table-auto" : "table-fixed"}`}>
+        <table className={`w-full border-collapse ${auto ? "table-auto" : "table-fixed"}`}>
           <thead className={`text-left ${sticky ? "sticky top-0 z-10 shadow-sm" : ""}`}>
             <tr className="table-header">
               {header.map((item, index) => {
@@ -88,8 +74,12 @@ const Pagination = ({ page, setPage, end }) => {
   const [pages, setPages] = useState([]);
 
   useEffect(() => {
-    if (page < 1) setPage(1);
-    if (page > end && end > 0) setPage(end);
+    if (page < 1) {
+      setPage(1);
+    }
+    if (page > end && end > 0) {
+      setPage(end);
+    }
     if (end > 5) {
       if (page < 4) {
         setPages(["1", "2", "3", "4", "...", end.toString()]);

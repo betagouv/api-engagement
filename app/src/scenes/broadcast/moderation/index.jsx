@@ -5,14 +5,15 @@ import ModerationAutoIcon from "@/assets/svg/moderation-auto.svg";
 import Loader from "@/components/Loader";
 import Table from "@/components/Table";
 import Toggle from "@/components/Toggle";
-import api from "@/services/api";
-import { captureError } from "@/services/error";
-import useStore from "@/services/store";
 import Filters from "@/scenes/broadcast/moderation/components/Filters";
 import Header from "@/scenes/broadcast/moderation/components/Header";
 import MissionItem from "@/scenes/broadcast/moderation/components/MissionItem";
 import SettingsModal from "@/scenes/broadcast/moderation/components/SettingsModal";
 import MissionModal from "@/scenes/broadcast/moderation/modal";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import { compactMissionFilters } from "@/services/mission";
+import useStore from "@/services/store";
 
 const Moderation = () => {
   const { publisher } = useStore();
@@ -24,10 +25,10 @@ const Moderation = () => {
     size: 25,
     status: searchParams.get("status") || null,
     comment: searchParams.get("comment") || null,
-    publisherId: searchParams.get("publisher") || null,
-    organizationName: searchParams.get("organizationName") || null,
+    publisherIds: searchParams.has("publisherIds") ? searchParams.get("publisherIds").split(",") : [],
+    organizationNames: searchParams.has("organizationNames") ? searchParams.get("organizationNames").split(",") : [],
     department: searchParams.get("department") || null,
-    city: searchParams.get("city") || null,
+    cities: searchParams.has("cities") ? searchParams.get("cities").split(",") : [],
     activity: searchParams.get("activity") || null,
     domain: searchParams.get("domain") || null,
     search: searchParams.get("search") || null,
@@ -55,14 +56,14 @@ const Moderation = () => {
       setLoading(true);
       try {
         const query = {
+          publisherIds: filters.publisherIds || undefined,
           moderatorId: publisher.id || undefined,
           status: filters.status || undefined,
           comment: filters.comment || undefined,
-          publisherId: filters.publisherId || undefined,
-          city: filters.city || undefined,
+          cities: filters.cities || undefined,
           domain: filters.domain || undefined,
           department: filters.department || undefined,
-          organizationName: filters.organizationName || undefined,
+          organizationNames: filters.organizationNames || undefined,
           activity: filters.activity || undefined,
           search: filters.search || undefined,
           from: (filters.page - 1) * filters.size,
@@ -70,25 +71,23 @@ const Moderation = () => {
           sort: sort || undefined,
         };
 
-        if (query.page > 1) query.from = (query.page - 1) * query.size;
+        if (query.page > 1) {
+          query.from = (query.page - 1) * query.size;
+        }
 
         const resM = await api.post("/moderation/search", query);
 
-        if (!resM.ok) throw resM;
+        if (!resM.ok) {
+          throw resM;
+        }
         setData(resM.data);
         setTotal(resM.total);
 
         const newSearchParams = new URLSearchParams();
-        if (filters.status) newSearchParams.set("status", filters.status);
-        if (filters.comment) newSearchParams.set("comment", filters.comment);
-        if (filters.publisherId) newSearchParams.set("publisher", filters.publisherId);
-        if (filters.organizationName) newSearchParams.set("organizationName", filters.organizationName);
-        if (filters.department) newSearchParams.set("department", filters.department);
-        if (filters.city) newSearchParams.set("city", filters.city);
-        if (filters.activity) newSearchParams.set("activity", filters.activity);
-        if (filters.domain) newSearchParams.set("domain", filters.domain);
-        if (filters.search) newSearchParams.set("search", filters.search);
-        if (searchParams.has("mission")) newSearchParams.set("mission", searchParams.get("mission"));
+        Object.entries(compactMissionFilters(filters)).forEach(([key, value]) => newSearchParams.append(key, value));
+        if (searchParams.has("mission")) {
+          newSearchParams.set("mission", searchParams.get("mission"));
+        }
         setSearchParams(newSearchParams);
       } catch (error) {
         captureError(error, { extra: { filters } });
@@ -101,7 +100,9 @@ const Moderation = () => {
   const fetchHistory = async () => {
     try {
       const res = await api.post("/moderation/search-history", { moderatorId: publisher.id });
-      if (!res.ok) throw res;
+      if (!res.ok) {
+        throw res;
+      }
       setHistory(res.data);
     } catch (error) {
       captureError(error, { extra: { publisherId: publisher.id } });
@@ -110,7 +111,9 @@ const Moderation = () => {
 
   const handleMissionUpdate = (updates) => {
     const list = Array.isArray(updates) ? updates : updates ? [updates] : [];
-    if (!list.length) return;
+    if (!list.length) {
+      return;
+    }
     setData((prev) => {
       return prev.map((mission) => {
         const updated = list.find((u) => u.id === mission.id);
@@ -126,16 +129,20 @@ const Moderation = () => {
 
   const handleSelectAll = (e) => {
     const checked = e.target.checked;
-    if (checked) setSelected(data.map((m) => m.id));
-    else setSelected([]);
+    if (checked) {
+      setSelected(data.map((m) => m.id));
+    } else {
+      setSelected([]);
+    }
   };
 
-  if (!history)
+  if (!history) {
     return (
       <div className="flex h-96 items-center justify-center">
         <Loader />
       </div>
     );
+  }
 
   return (
     <div className="space-y-12 py-12">
@@ -204,7 +211,9 @@ const Moderation = () => {
                       checked={selected.length === data.length && data.length > 0}
                       onChange={handleSelectAll}
                       ref={(el) => {
-                        if (el) el.indeterminate = selected.length > 0 && selected.length < data.length;
+                        if (el) {
+                          el.indeterminate = selected.length > 0 && selected.length < data.length;
+                        }
                       }}
                     />
                   </label>

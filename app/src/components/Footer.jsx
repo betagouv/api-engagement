@@ -1,18 +1,25 @@
 import { RiExternalLinkLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
 
+import deviseSrc from "@/assets/svg/gouv-devise.svg";
+import marianneBanner from "@/assets/svg/marianne-banner.svg";
+
 const Footer = () => {
   return (
     <footer role="contentinfo" className="border-blue-france flex w-full flex-col justify-center border-t-2 bg-white">
       <div className="mx-auto w-full max-w-7xl">
         <div className="mt-10 flex items-center justify-between">
           <Link className="hover:bg-gray-975 flex items-center p-2" to="/">
-            <div className="h-full w-24">
-              <p className="gouv-logo my-2 text-xs leading-3 font-bold text-black uppercase">
-                République
-                <br />
-                française
-              </p>
+            <div className="my-2 h-full w-24">
+              <div className="flex flex-col items-start">
+                <img src={marianneBanner} alt="" aria-hidden="true" className="mb-1 w-10" />
+                <p className="text-xs leading-3 font-bold text-black uppercase">
+                  République
+                  <br />
+                  française
+                </p>
+                <img src={deviseSrc} alt="" aria-hidden="true" className="mt-1 h-7" />
+              </div>
             </div>
             <div>
               <h2 className="m-0 text-xl leading-7 font-bold text-black">API Engagement</h2>

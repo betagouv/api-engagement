@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
 import { toast } from "@/services/toast";
+import { useEffect, useState } from "react";
 
+import STATUS, { DOMAINS, JVA_MODERATION_COMMENTS_LABELS, STATUS_COLORS } from "@/scenes/broadcast/moderation/components/Constants";
+import OrganizationRefusedModal from "@/scenes/broadcast/moderation/components/OrganizationRefusedModal";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
-import STATUS, { DOMAINS, JVA_MODERATION_COMMENTS_LABELS, STATUS_COLORS } from "@/scenes/broadcast/moderation/components/Constants";
-import OrganizationRefusedModal from "@/scenes/broadcast/moderation/components/OrganizationRefusedModal";
 
 const Header = ({ data, onChange }) => {
   const { publisher } = useStore();
@@ -68,7 +68,7 @@ const Header = ({ data, onChange }) => {
         onChange={onChange}
         total={isOrganizationToRefuse}
       />
-      <div className="bg-beige-gris-galet-975 border-grey-border sticky top-0 z-50 flex items-center justify-between gap-8 border-b py-8">
+      <div className="bg-global-background border-grey-border sticky top-0 z-50 flex items-center justify-between gap-8 border-b py-8">
         <div className="max-w-[50%] space-y-2">
           <h1 className="mb-1">{DOMAINS[data.missionDomain]}</h1>
           <h2 className="text-xl font-semibold">{data.title || data.missionTitle}</h2>

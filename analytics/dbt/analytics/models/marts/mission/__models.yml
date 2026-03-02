@@ -253,7 +253,13 @@ models:
       - name: mission_with_click_count
         description: Nombre de missions avec au moins un click.
       - name: mission_with_apply_count
-        description: Nombre de missions avec au moins une candidature.
+        description: Nombre de cycles mission avec au moins une candidature.
+      - name: click_count
+        description: Nombre total de redirections (click) dans le grain.
+      - name: apply_count
+        description: Nombre total de candidatures (apply) dans le grain.
+      - name: conversion_rate
+        description: Ratio candidatures/redirections (`apply_count / click_count`).
       - name: avg_time_to_click_secs
         description: Délai moyen (en secondes) avant premier click.
       - name: avg_time_to_apply_secs
@@ -319,7 +325,13 @@ models:
       - name: mission_with_click_count
         description: Nombre de missions avec au moins un click.
       - name: mission_with_apply_count
-        description: Nombre de missions avec au moins une candidature.
+        description: Nombre de cycles mission avec au moins une candidature.
+      - name: click_count
+        description: Nombre total de redirections (click) dans le grain.
+      - name: apply_count
+        description: Nombre total de candidatures (apply) dans le grain.
+      - name: conversion_rate
+        description: Ratio candidatures/redirections (`apply_count / click_count`).
       - name: avg_time_to_click_secs
         description: Délai moyen (en secondes) avant premier click.
       - name: avg_time_to_apply_secs

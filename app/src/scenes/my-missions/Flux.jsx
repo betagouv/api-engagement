@@ -36,8 +36,8 @@ const Flux = ({ moderated }) => {
     comment: searchParams.get("comment") || null,
     domain: searchParams.get("domain") || null,
     activity: searchParams.get("activity") || null,
-    city: searchParams.get("city") || null,
-    organization: searchParams.get("organization") || null,
+    cities: searchParams.has("cities") ? searchParams.getAll("cities") : [],
+    organizations: searchParams.has("organizations") ? searchParams.getAll("organizations") : [],
     search: searchParams.get("search") || "",
   });
   const [options, setOptions] = useState({
@@ -57,7 +57,9 @@ const Flux = ({ moderated }) => {
     const fetchData = async () => {
       try {
         const res = await api.post("/import/search", { publisherId: publisher.id, size: 1 });
-        if (!res.ok) throw res;
+        if (!res.ok) {
+          throw res;
+        }
         setLastImport(res.data.length ? res.data[0] : null);
       } catch (error) {
         captureError(error, { extra: { publisherId: publisher.id } });
@@ -73,7 +75,9 @@ const Flux = ({ moderated }) => {
       try {
         const res = await searchMissions({ ...filters, publisherId: publisher.id }, { signal: controller.signal });
 
-        if (!res.ok) throw res;
+        if (!res.ok) {
+          throw res;
+        }
         setData(res.data);
         setOptions(res.aggs);
         setTotal(res.total);
@@ -96,7 +100,9 @@ const Flux = ({ moderated }) => {
     try {
       const res = await searchMissions({ ...filters, publisherId: publisher.id, size: 10000, page: 1 });
 
-      if (!res.ok) throw res;
+      if (!res.ok) {
+        throw res;
+      }
       const csv = [];
       res.data.forEach((mission) => {
         const val = {};
@@ -118,6 +124,8 @@ const Flux = ({ moderated }) => {
     setExporting(false);
   };
 
+  console.log("filters", filters.organizations);
+
   return (
     <div className="space-y-12 p-12">
       <title>API Engagement - Missions partagées - Vos Missions</title>
@@ -129,9 +137,9 @@ const Flux = ({ moderated }) => {
           </Link>
         </InfoAlert>
       )}
-      <div className="space-y-4">
+      <div className="flex flex-col gap-6">
         <SearchInput className="w-96" value={filters.search} onChange={(search) => setFilters({ ...filters, search })} placeholder="Rechercher par mot-clé" />
-        <div className="flex items-center gap-4">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <Select
             options={options.status.map((e) => ({ value: e.key, label: STATUS_PLR[e.key], count: e.doc_count }))}
             value={filters.status}
@@ -153,8 +161,7 @@ const Flux = ({ moderated }) => {
             placeholder="Domaines"
             loading={loading}
           />
-        </div>
-        <div className="flex items-center gap-4">
+
           <Select
             options={options.activities.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}
             value={filters.activity}
@@ -164,15 +171,15 @@ const Flux = ({ moderated }) => {
           />
           <MissionCombobox
             id="city"
-            value={filters.city}
-            onSelect={(city) => setFilters({ ...filters, city: city ? city.value : null })}
+            values={filters.cities}
+            onChange={(cities) => setFilters({ ...filters, cities })}
             placeholder="Villes"
             filters={`publishers[]=${publisher.id}&field=city`}
           />
           <MissionCombobox
             id="organization"
-            value={filters.organization}
-            onSelect={(organization) => setFilters({ ...filters, organization: organization ? organization.value : null })}
+            values={filters.organizations}
+            onChange={(organizations) => setFilters({ ...filters, organizations })}
             placeholder="Organisations"
             filters={`publishers[]=${publisher.id}&field=organizationName`}
             className="w-96"
@@ -180,7 +187,7 @@ const Flux = ({ moderated }) => {
         </div>
       </div>
 
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         <div className="flex items-center justify-between gap-4">
           <div className="max-w-[60%] flex-1 space-y-2">
             <h2 className="text-2xl font-bold">{total.toLocaleString("fr")} missions partagées</h2>

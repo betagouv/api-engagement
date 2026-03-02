@@ -149,7 +149,7 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
             zod.object({
               combinator: zod.enum(["and", "or"]),
               field: zod.string(),
-              fieldType: zod.string().optional(),
+              fieldType: zod.string().nullable().optional(),
               operator: zod.string(),
               value: zod.string().min(1),
             })
@@ -237,7 +237,7 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
             zod.object({
               combinator: zod.enum(["and", "or"]),
               field: zod.string(),
-              fieldType: zod.string().optional(),
+              fieldType: zod.string().nullable().optional(),
               operator: zod.string(),
               value: zod.string().min(1),
             })

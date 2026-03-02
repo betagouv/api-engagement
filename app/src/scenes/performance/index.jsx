@@ -43,8 +43,12 @@ const Performance = () => {
 
   useEffect(() => {
     const query = new URLSearchParams();
-    if (filters.from) query.append("from", filters.from.toISOString());
-    if (filters.to) query.append("to", filters.to.toISOString());
+    if (filters.from) {
+      query.append("from", filters.from.toISOString());
+    }
+    if (filters.to) {
+      query.append("to", filters.to.toISOString());
+    }
     setSearchParams(query);
   }, [filters, location.pathname]);
 
