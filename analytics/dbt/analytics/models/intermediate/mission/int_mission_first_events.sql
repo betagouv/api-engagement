@@ -27,11 +27,11 @@ affected_missions as (
 
   union
 
-  select distinct ge.mission_id
-  from {{ ref('int_stat_event_global') }} as ge
+  select distinct secm.mission_id
+  from {{ ref('int_stat_event_click_metrics') }} as secm
   where
-    ge.mission_id is not null
-    and coalesce(ge.updated_at, ge.created_at)
+    secm.mission_id is not null
+    and coalesce(secm.updated_at, secm.first_click_at)
     >= (select lr.last_updated_at from last_run as lr)
 ),
 
@@ -60,25 +60,23 @@ missions as (
 
 events as (
   select
-    mission_id,
-    from_publisher_id,
-    source,
-    source_id,
-    min(created_at) filter (where type = 'click') as first_click_at,
-    min(created_at) filter (where type = 'apply') as first_apply_at,
-    count(*) filter (where type = 'click') as click_count,
-    count(*) filter (where type = 'apply') as apply_count,
-    max(updated_at) as events_updated_at
-  from {{ ref('int_stat_event_global') }}
-  where
-    mission_id is not null
-    and type in ('click', 'apply')
-    {% if is_incremental() %}
-      and mission_id in (
-        select am.mission_id from affected_missions as am
-      )
-    {% endif %}
-  group by 1, 2, 3, 4
+    secm.mission_id,
+    secm.from_publisher_id,
+    secm.source,
+    secm.source_id,
+    secm.first_click_at,
+    secm.first_apply_at,
+    secm.click_count,
+    secm.apply_count,
+    secm.click_with_apply_count,
+    secm.click_with_multi_apply_count,
+    secm.updated_at as events_updated_at
+  from {{ ref('int_stat_event_click_metrics') }} as secm
+  {% if is_incremental() %}
+    where secm.mission_id in (
+      select am.mission_id from affected_missions as am
+    )
+  {% endif %}
 ),
 
 base as (
@@ -102,6 +100,8 @@ base as (
     e.first_apply_at,
     e.click_count,
     e.apply_count,
+    e.click_with_apply_count,
+    e.click_with_multi_apply_count,
     greatest(
       coalesce(m.mission_updated_at, '1900-01-01'::timestamp),
       coalesce(e.events_updated_at, '1900-01-01'::timestamp)
@@ -131,6 +131,8 @@ select
   first_apply_at,
   click_count,
   apply_count,
+  click_with_apply_count,
+  click_with_multi_apply_count,
   updated_at,
   case
     when mission_created_at is null or first_click_at is null then null
@@ -149,5 +151,9 @@ select
   case
     when click_count = 0 then null
     else apply_count::numeric / click_count
-  end as conversion_rate
+  end as conversion_rate,
+  case
+    when click_with_apply_count = 0 then null
+    else click_with_multi_apply_count::numeric / click_with_apply_count
+  end as multi_apply_share
 from base

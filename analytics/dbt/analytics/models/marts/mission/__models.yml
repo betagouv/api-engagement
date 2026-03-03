@@ -202,9 +202,10 @@ models:
     description: >
       Mart hebdomadaire des délais (time-to-click/apply) et volumes, agrégé à partir
       de `int_mission_first_events` au grain mission + diffuseur + source.
+      La cohorte temporelle est basée sur la date du premier click.
     columns:
       - name: week_start
-        description: Date de début de semaine (lundi) basée sur la création de mission.
+        description: Date de début de semaine (lundi) basée sur le premier click.
         tests:
           - not_null
       - name: year
@@ -258,8 +259,18 @@ models:
         description: Nombre total de redirections (click) dans le grain.
       - name: apply_count
         description: Nombre total de candidatures (apply) dans le grain.
+      - name: click_with_apply_count
+        description: Nombre de clicks reliés à au moins une candidature.
+        tests:
+          - not_null
+      - name: click_with_multi_apply_count
+        description: Nombre de clicks reliés à au moins deux candidatures.
+        tests:
+          - not_null
       - name: conversion_rate
         description: Ratio candidatures/redirections (`apply_count / click_count`).
+      - name: multi_apply_share
+        description: Part des clicks avec plusieurs candidatures parmi les clicks avec candidature.
       - name: avg_time_to_click_secs
         description: Délai moyen (en secondes) avant premier click.
       - name: avg_time_to_apply_secs
@@ -274,9 +285,10 @@ models:
     description: >
       Mart mensuel des délais (time-to-click/apply) et volumes, agrégé à partir
       de `int_mission_first_events` au grain mission + diffuseur + source.
+      La cohorte temporelle est basée sur la date du premier click.
     columns:
       - name: month_start
-        description: Date de début de mois basée sur la création de mission.
+        description: Date de début de mois basée sur le premier click.
         tests:
           - not_null
       - name: year
@@ -330,8 +342,18 @@ models:
         description: Nombre total de redirections (click) dans le grain.
       - name: apply_count
         description: Nombre total de candidatures (apply) dans le grain.
+      - name: click_with_apply_count
+        description: Nombre de clicks reliés à au moins une candidature.
+        tests:
+          - not_null
+      - name: click_with_multi_apply_count
+        description: Nombre de clicks reliés à au moins deux candidatures.
+        tests:
+          - not_null
       - name: conversion_rate
         description: Ratio candidatures/redirections (`apply_count / click_count`).
+      - name: multi_apply_share
+        description: Part des clicks avec plusieurs candidatures parmi les clicks avec candidature.
       - name: avg_time_to_click_secs
         description: Délai moyen (en secondes) avant premier click.
       - name: avg_time_to_apply_secs
