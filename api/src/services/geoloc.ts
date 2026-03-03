@@ -1,12 +1,18 @@
-//https://api.gouv.fr/documentation/api_carto_codes_postaux
-
 import { DEPARTMENTS } from "@/constants/departments";
-
 import { captureException } from "@/error";
 import geopfService from "@/services/geopf";
 import { GeolocStatus } from "@/types";
-import type { PublisherRecord } from "@/types/publisher";
-import type { ImportedMission } from "@/jobs/import-missions/types";
+
+export interface GeolocMissionInput {
+  clientId: string;
+  addresses: Array<{
+    street?: string | null;
+    city?: string | null;
+    postalCode?: string | null;
+    departmentCode?: string | null;
+    geolocStatus?: string | null;
+  }>;
+}
 
 export interface GeolocResult {
   clientId: string;
@@ -30,12 +36,12 @@ export interface GeolocResult {
   geolocStatus: GeolocStatus;
 }
 
-export const enrichWithGeoloc = async (publisher: PublisherRecord, missions: ImportedMission[]): Promise<GeolocResult[]> => {
+export const enrichWithGeoloc = async (label: string, missions: GeolocMissionInput[]): Promise<GeolocResult[]> => {
   if (!missions.length) {
     return [];
   }
   try {
-    console.log(`[${publisher.name}] Enriching with geoloc ${missions.length} missions...`);
+    console.log(`[${label}] Enriching with geoloc ${missions.length} missions...`);
     const csv = ["clientid,addressindex,address,city,postcode,departmentcode"];
     const updates: GeolocResult[] = [];
 
@@ -57,7 +63,7 @@ export const enrichWithGeoloc = async (publisher: PublisherRecord, missions: Imp
       const csvString = csv.join("\n");
       const results = await geopfService.searchAddressesCsv(csvString);
       if (!results) {
-        console.log(`[${publisher.name}] No results from geopf for remaining addresses`);
+        console.log(`[${label}] No results from geopf for remaining addresses`);
         return updates;
       }
 
@@ -136,12 +142,12 @@ export const enrichWithGeoloc = async (publisher: PublisherRecord, missions: Imp
 
         updates.push(obj);
       }
-      console.log(`[${publisher.name}] Geoloc found for ${found} addresses`);
+      console.log(`[${label}] Geoloc found for ${found} addresses`);
     }
 
     return updates;
   } catch (error) {
-    captureException(error, `[${publisher.name}] Failure during geoloc enrichment`);
+    captureException(error, `[${label}] Failure during geoloc enrichment`);
     return missions.flatMap((m) =>
       m.addresses.map((_, index) => ({
         clientId: m.clientId,
