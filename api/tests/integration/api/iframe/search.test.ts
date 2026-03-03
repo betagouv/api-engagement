@@ -201,17 +201,17 @@ describe("GET /iframe/:id/search", () => {
       expect(response.body.data[0].title).toContain("Environnement");
     });
 
-    it("should filter by organization name", async () => {
-      const response = await request(app).get(`/iframe/${widget.id}/search`).query({ organization: "Green Org" }).expect(200);
+    it("should filter by organization client ID", async () => {
+      const response = await request(app).get(`/iframe/${widget.id}/search`).query({ organization: "green-org-1" }).expect(200);
 
       expect(response.body.ok).toBe(true);
-      expect(response.body.total).toBeGreaterThanOrEqual(0);
+      expect(response.body.total).toBe(1);
     });
 
-    it("should support multiple organization names", async () => {
+    it("should support multiple organization client IDs", async () => {
       const response = await request(app)
         .get(`/iframe/${widget.id}/search`)
-        .query({ organization: ["Green Org", "Edu Org"] })
+        .query({ organization: ["green-org-1", "edu-org-1"] })
         .expect(200);
 
       expect(response.body.total).toBe(2);
