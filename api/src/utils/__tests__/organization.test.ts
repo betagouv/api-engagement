@@ -1,5 +1,5 @@
+import { buildOrganizationSearchText, isValidRNA, isValidSiret } from "@/utils/organization";
 import { describe, expect, it } from "vitest";
-import { isValidRNA, isValidSiret } from "@/utils/organization";
 
 describe("isValidRNA", () => {
   it("should return true for valid RNAs", () => {
@@ -22,5 +22,25 @@ describe("isValidSiret", () => {
   });
   it("should return false for SIRET with invalid length", () => {
     expect(isValidSiret("123456789012")).toBe(false);
+  });
+});
+
+describe("buildOrganizationSearchText", () => {
+  it("should return null when both inputs are empty", () => {
+    expect(buildOrganizationSearchText({ title: "   ", shortTitle: null })).toBeNull();
+  });
+
+  it("should build a trimmed, collapsed string from title only", () => {
+    expect(buildOrganizationSearchText({ title: "  Croix   Rouge  ", shortTitle: undefined })).toBe("croix rouge");
+  });
+
+  it("should concatenate title and short title with a single space", () => {
+    expect(buildOrganizationSearchText({ title: "Croix Rouge", shortTitle: "  CR  " })).toBe("croix rouge cr");
+  });
+
+  it("should include identifiers in search text", () => {
+    expect(buildOrganizationSearchText({ title: "Croix Rouge", rna: "W123456789", siret: "12345678901234", siren: "123456789" })).toBe(
+      "croix rouge w123456789 12345678901234 123456789"
+    );
   });
 });
