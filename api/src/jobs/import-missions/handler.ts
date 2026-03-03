@@ -12,7 +12,7 @@ import { MissionEventCreateParams } from "@/types/mission-event";
 import type { PublisherRecord } from "@/types/publisher";
 import type { ImportedMission, ImportedOrganization } from "./types";
 import { cleanDB, upsertMission, upsertOrganization } from "./utils/db";
-import { enrichWithGeoloc } from "./utils/geoloc";
+import { enrichWithGeoloc } from "@/services/geoloc";
 import { parseMission } from "./utils/mission";
 import { parseOrganization } from "./utils/organization";
 import { shouldCleanMissionsForPublisher } from "./utils/publisher";
@@ -201,7 +201,7 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
       allMissionsClientIds.push(...missions.map((m) => m.clientId.toString()));
 
       // GEOLOC
-      const resultGeoloc = await enrichWithGeoloc(publisher, missions);
+      const resultGeoloc = await enrichWithGeoloc(publisher.name, missions);
       resultGeoloc.forEach((r) => {
         const mission = missions.find((m) => m.clientId.toString() === r.clientId.toString());
         if (mission && r.addressIndex < mission.addresses.length) {
