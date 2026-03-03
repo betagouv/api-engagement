@@ -131,7 +131,7 @@ const Campaigns = () => {
         <div className="flex items-center gap-4">
           {user.role === "admin" && (
             <Link to="/broadcast/campaign/new" className="primary-btn flex items-center">
-              Nouvelle campagne <RiAddFill className="ml-2" />
+              Nouvelle campagne <RiAddFill className="ml-2" aria-hidden="true" />
             </Link>
           )}
         </div>

@@ -35,25 +35,25 @@ const Footer = () => {
               <li className="mr-6">
                 <a href="https://www.legifrance.gouv.fr/" target="_blank" rel="noopener external" className="link-external">
                   legifrance.gouv.fr
-                  <RiExternalLinkLine className="ml-1" />
+                  <RiExternalLinkLine className="ml-1" aria-hidden="true" />
                 </a>
               </li>
               <li className="mr-6">
                 <a href="https://www.gouvernement.fr/" target="_blank" rel="noopener external" className="link-external">
                   gouvernement.fr
-                  <RiExternalLinkLine className="ml-1" />
+                  <RiExternalLinkLine className="ml-1" aria-hidden="true" />
                 </a>
               </li>
               <li className="mr-6">
                 <a href="https://www.service-public.fr/" target="_blank" rel="noopener external" className="link-external">
                   service-public.fr
-                  <RiExternalLinkLine className="ml-1" />
+                  <RiExternalLinkLine className="ml-1" aria-hidden="true" />
                 </a>
               </li>
               <li className="mr-6">
                 <a href="https://www.data.gouv.fr/fr/" target="_blank" rel="noopener external" className="link-external">
                   data.gouv.fr
-                  <RiExternalLinkLine className="ml-1" />
+                  <RiExternalLinkLine className="ml-1" aria-hidden="true" />
                 </a>
               </li>
             </ul>
@@ -105,7 +105,7 @@ const Footer = () => {
           Sauf mention explicite de propriété intellectuelle détenue par des tiers, les contenus de ce site sont proposés sous
           <a href="https://github.com/etalab/licence-ouverte/blob/master/LO.md" target="_blank" className="ml-1 flex items-center hover:underline">
             licence etalab-2.0
-            <RiExternalLinkLine className="ml-1" />
+            <RiExternalLinkLine className="ml-1" aria-hidden="true" />
           </a>
         </p>
       </div>

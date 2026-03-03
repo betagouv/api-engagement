@@ -90,7 +90,7 @@ const DiffuseurModal = ({ data }) => {
     <>
       <button onClick={() => setOpen(true)} className="text-blue-france border-blue-france flex w-fit items-center gap-2 border-b">
         <span>Tous les diffuseurs</span>
-        <ExportSvg className="h-4 w-4" />
+        <ExportSvg className="h-4 w-4" aria-hidden="true" />
       </button>
       <Modal open={open} onClose={() => setOpen(false)} title="Diffuseurs">
         <p className="text-lg font-semibold">{data.length} diffuseurs</p>

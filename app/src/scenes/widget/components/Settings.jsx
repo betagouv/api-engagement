@@ -161,7 +161,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
               placeholder="Localisation"
             />
             <div className="text-info mt-4 flex items-center gap-2">
-              <BiSolidInfoSquare className="text-sm" />
+              <BiSolidInfoSquare className="text-sm" aria-hidden="true" />
               <span className="text-xs">Laisser vide pour afficher les missions de toute la France</span>
             </div>
           </div>
@@ -283,7 +283,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
                   value={values.jvaModeration}
                   onChange={(value) => onChange({ ...values, jvaModeration: value })}
                 />
-                <img src={JvaLogoSvg} className="ml-4 w-16" />
+                <img src={JvaLogoSvg} className="ml-4 w-16" aria-hidden="true" alt="" />
               </div>
             </div>
           )}
@@ -348,7 +348,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
               <input id="color" className="input flex-1" name="color" value={values.color} onChange={(e) => onChange({ ...values, color: e.target.value })} />
             </div>
             <div className="text-info flex items-center gap-2">
-              <BiSolidInfoSquare className="text-sm" />
+              <BiSolidInfoSquare className="text-sm" aria-hidden="true" />
               <span className="text-xs">Exemple: #000091</span>
             </div>
           </div>

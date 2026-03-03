@@ -300,7 +300,7 @@ const Evolution = ({ filters }) => {
             </div>
           ) : !histogram.length ? (
             <div className="border-grey-border bg-background-grey-hover flex h-[248px] w-full flex-col items-center justify-center border border-dashed">
-              <img src={EmptySVG} alt="empty" className="h-16 w-16" />
+              <img src={EmptySVG} alt="" aria-hidden="true" className="h-16 w-16" />
               <p className="text-color-gray-425 text-base">Aucune donnée disponible pour la période</p>
             </div>
           ) : (
@@ -442,7 +442,7 @@ const Announcers = ({ filters }) => {
           <div id="announce-traffic-panel" role="tabpanel" aria-labelledby={activeTabId || undefined}>
             {!data.length ? (
               <div className="border-grey-border bg-background-grey-hover flex h-[248px] w-full flex-col items-center justify-center border border-dashed">
-                <img src={EmptySVG} alt="empty" className="h-16 w-16" />
+                <img src={EmptySVG} alt="" aria-hidden="true" className="h-16 w-16" />
                 <p className="text-color-gray-425 text-base">Aucune donnée disponible pour la période</p>
               </div>
             ) : (

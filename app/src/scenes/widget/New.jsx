@@ -97,7 +97,7 @@ const New = () => {
       <StickyBar onEdit={handleSubmit} visible={stickyVisible} canSubmit={canSubmit} />
       <div className="flex">
         <Link to={`/broadcast/widgets`} className="text-blue-france flex items-center space-x-1">
-          <RiArrowLeftLine />
+          <RiArrowLeftLine aria-hidden="true" />
           <span>Retour</span>
         </Link>
       </div>

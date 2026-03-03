@@ -66,7 +66,9 @@ const Moderation = () => {
 
       try {
         const res = await api.post("/moderation/search", query);
-        if (!res.ok) throw res;
+        if (!res.ok) {
+          throw res;
+        }
         setData(res.data);
 
         setTotal(res.total);
@@ -88,7 +90,9 @@ const Moderation = () => {
 
       try {
         const res = await api.post("/moderation/aggs", query);
-        if (!res.ok) throw res;
+        if (!res.ok) {
+          throw res;
+        }
         setOptions(res.data);
         if (res.data) {
           buildStats(res.data);
@@ -112,12 +116,13 @@ const Moderation = () => {
     setStats({ status, comments, refused });
   };
 
-  if (!stats)
+  if (!stats) {
     return (
       <div className="flex justify-center bg-white p-12">
         <Loader />
       </div>
     );
+  }
 
   return (
     <div className="space-y-12 p-12">
@@ -132,7 +137,7 @@ const Moderation = () => {
             </a>
           </p>
         </div>
-        <img className="w-2/5" src={JvaLogoPng} />
+        <img className="w-2/5" src={JvaLogoPng} alt="" aria-hidden="true" />
       </div>
 
       <div className="border-b border-b-gray-900 pb-8">
@@ -208,7 +213,7 @@ const Moderation = () => {
                   <p className="text-sm">{FILTERS[key] || key}:</p>
                   <p className="text-sm">{label}</p>
                   <button className="text-sm text-black" onClick={() => setFilters({ ...filters, [key]: "" })}>
-                    <RiCloseFill />
+                    <RiCloseFill aria-hidden="true" />
                   </button>
                 </div>
               );
@@ -297,7 +302,7 @@ const Moderation = () => {
                       tooltipClassName="border-grey-border w-64 border bg-white p-4 text-sm shadow-lg"
                       content={JVA_MODERATION_COMMENTS_LABELS[item.comment] || item.comment}
                     >
-                      <RiInformationLine className="text-text-mention" />
+                      <RiInformationLine className="text-text-mention" aria-hidden="true" />
                     </Tooltip>
                   ) : null}
                 </div>

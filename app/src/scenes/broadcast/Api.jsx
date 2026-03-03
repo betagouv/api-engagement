@@ -57,7 +57,7 @@ const Api = () => {
         </div>
 
         <a href="https://doc.api-engagement.beta.gouv.fr/" className="secondary-btn flex items-center" target="_blank">
-          <RiBookletFill className="mr-2" />
+          <RiBookletFill className="mr-2" aria-hidden="true" />
           Documentation
         </a>
       </div>

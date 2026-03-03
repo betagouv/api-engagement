@@ -138,11 +138,11 @@ const Publishers = () => {
 
         <div className="flex">
           <button className="tertiary-bis-btn flex items-center" onClick={handleExport}>
-            {exporting ? <Loader /> : <RiFileDownloadLine className="mr-2" />}
+            {exporting ? <Loader /> : <RiFileDownloadLine className="mr-2" aria-hidden="true" />}
             Exporter
           </button>
           <Link to="/publisher/new" className="tertiary-btn flex items-center">
-            Nouveau partenaire <HiOutlinePlus className="ml-2" />
+            Nouveau partenaire <HiOutlinePlus className="ml-2" aria-hidden="true" />
           </Link>
         </div>
       </div>

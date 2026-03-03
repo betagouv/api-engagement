@@ -129,7 +129,7 @@ const AuthLayout = () => {
           <Outlet />
         </div>
         <div className="h-full w-1/2">
-          <img src={image} />
+          <img src={image} alt="" aria-hidden="true" />
         </div>
       </main>
       <Footer />

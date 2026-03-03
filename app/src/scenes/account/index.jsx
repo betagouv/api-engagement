@@ -85,7 +85,7 @@ const Account = () => {
             />
             {errors.firstname && (
               <div className="text-error flex items-center text-sm">
-                <RiErrorWarningFill className="mr-2" />
+                <RiErrorWarningFill className="mr-2" aria-hidden="true" />
                 {errors.firstname}
               </div>
             )}
@@ -201,7 +201,7 @@ const ResetPasswordModal = () => {
           />
           {errors.oldPassword && (
             <div className="text-error flex items-center text-sm">
-              <RiErrorWarningFill className="mr-2" />
+              <RiErrorWarningFill className="mr-2" aria-hidden="true" />
               {errors.oldPassword}
             </div>
           )}
@@ -232,7 +232,7 @@ const ResetPasswordModal = () => {
           />
           {errors.newPassword && (
             <div className="text-error flex items-center text-sm">
-              <RiErrorWarningFill className="mr-2" />
+              <RiErrorWarningFill className="mr-2" aria-hidden="true" />
               {errors.newPassword}
             </div>
           )}
@@ -262,7 +262,7 @@ const ResetPasswordModal = () => {
           />
           {errors.confirmPassword && (
             <div className="text-error flex items-center text-sm">
-              <RiErrorWarningFill className="mr-2" />
+              <RiErrorWarningFill className="mr-2" aria-hidden="true" />
               {errors.confirmPassword}
             </div>
           )}
@@ -270,21 +270,37 @@ const ResetPasswordModal = () => {
 
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
-            {(values.newPassword || "").length >= 12 ? <RiCheckboxCircleFill className="text-success" /> : <RiCheckboxCircleFill className="text-text-mention" />}
+            {(values.newPassword || "").length >= 12 ? (
+              <RiCheckboxCircleFill className="text-success" aria-hidden="true" />
+            ) : (
+              <RiCheckboxCircleFill className="text-text-mention" aria-hidden="true" />
+            )}
             <span className={`align-middle text-sm ${values.newPassword && (values.newPassword || "").length >= 12 ? "text-success" : "text-text-mention"}`}>
               Au moins 12 caractères
             </span>
           </div>
           <div className="flex items-center gap-2">
-            {/[a-zA-Z]/.test(values.newPassword) ? <RiCheckboxCircleFill className="text-success" /> : <RiCheckboxCircleFill className="text-text-mention" />}
+            {/[a-zA-Z]/.test(values.newPassword) ? (
+              <RiCheckboxCircleFill className="text-success" aria-hidden="true" />
+            ) : (
+              <RiCheckboxCircleFill className="text-text-mention" aria-hidden="true" />
+            )}
             <span className={`align-middle text-sm ${values.newPassword && /[a-zA-Z]/.test(values.newPassword) ? "text-success" : "text-text-mention"}`}>Au moins une lettre</span>
           </div>
           <div className="flex items-center gap-2">
-            {/[0-9]/.test(values.newPassword) ? <RiCheckboxCircleFill className="text-success" /> : <RiCheckboxCircleFill className="text-text-mention" />}
+            {/[0-9]/.test(values.newPassword) ? (
+              <RiCheckboxCircleFill className="text-success" aria-hidden="true" />
+            ) : (
+              <RiCheckboxCircleFill className="text-text-mention" aria-hidden="true" />
+            )}
             <span className={`align-middle text-sm ${values.newPassword && /[0-9]/.test(values.newPassword) ? "text-success" : "text-text-mention"}`}>Au moins un chiffre</span>
           </div>
           <div className="flex items-center gap-2">
-            {/[!-@#$%^&*(),.?":{}|<>]/.test(values.newPassword) ? <RiCheckboxCircleFill className="text-success" /> : <RiCheckboxCircleFill className="text-text-mention" />}
+            {/[!-@#$%^&*(),.?":{}|<>]/.test(values.newPassword) ? (
+              <RiCheckboxCircleFill className="text-success" aria-hidden="true" />
+            ) : (
+              <RiCheckboxCircleFill className="text-text-mention" aria-hidden="true" />
+            )}
             <span className={`align-middle text-sm ${values.newPassword && /[!-@#$%^&*(),.?":{}|<>]/.test(values.newPassword) ? "text-success" : "text-text-mention"}`}>
               Au moins un caractère spécial
             </span>

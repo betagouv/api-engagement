@@ -155,7 +155,7 @@ const Moderation = () => {
       />
       <div className="mx-12 flex items-start justify-between">
         <div className="flex items-center gap-4">
-          <img src={ModerationAutoIcon} className="h-14 w-14" allt="Modération automatique" />
+          <img src={ModerationAutoIcon} className="h-14 w-14" alt="" aria-hidden="true" />
           <h2 className="text-xl font-semibold text-black">Modération automatique</h2>
         </div>
 

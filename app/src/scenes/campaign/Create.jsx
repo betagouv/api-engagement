@@ -80,7 +80,7 @@ const Create = () => {
       <CopyModal open={copyModalOpen} campaignId={campaignId} onClose={() => setCopyModalOpen(false)} />
       <div className="flex flex-col gap-8">
         <Link to="/broadcast/campaigns" className="border-blue-france text-blue-france flex w-fit items-center gap-2 border-b text-[16px]">
-          <RiArrowLeftLine />
+          <RiArrowLeftLine aria-hidden="true" />
           Retour
         </Link>
 
@@ -136,7 +136,7 @@ const CopyModal = ({ open, campaignId, onClose }) => {
       </div>
 
       <div className="text-warning flex items-center gap-2">
-        <AiFillWarning className="text-2xl" />
+        <AiFillWarning className="text-2xl" aria-hidden="true" />
         <p className="flex flex-row items-center text-base">Copiez exactement ce lien et non celui qui apparaît dans la barre de votre navigateur !</p>
       </div>
 

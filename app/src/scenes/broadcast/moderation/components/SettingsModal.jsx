@@ -8,7 +8,7 @@ const SettingsModal = () => {
   return (
     <>
       <button className="text-blue-france flex cursor-pointer items-center" onClick={() => setOpen(true)}>
-        <RiSettings3Fill className="mr-2" />
+        <RiSettings3Fill className="mr-2" aria-hidden="true" />
         <span>Paramétrage</span>
       </button>
 

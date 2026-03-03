@@ -87,18 +87,18 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
             <div className="text-text-mention mb-2 flex items-center gap-4 text-xs">
               {data.missionCity && (
                 <span className="flex items-center">
-                  <RiMapPin2Fill className="mr-2" />
+                  <RiMapPin2Fill className="mr-2" aria-hidden="true" />
                   {`${data.missionCity} ${data.missionDepartmentCode ? `(${data.missionDepartmentCode})` : ""}`}
                 </span>
               )}
               <span className="flex items-center text-xs">
-                <RiCalendarEventFill className="mr-2" />
+                <RiCalendarEventFill className="mr-2" aria-hidden="true" />
                 {data.missionStartAt && `Du ${new Date(data.missionStartAt).toLocaleDateString("fr")}`}
                 {data.missionEndAt && ` au ${new Date(data.missionEndAt).toLocaleDateString("fr")}`}
               </span>
             </div>
             <div className="text-text-mention flex items-center text-xs">
-              <RiTimeLine className="mr-2 text-xs" />
+              <RiTimeLine className="mr-2 text-xs" aria-hidden="true" />
               Postée le {new Date(data.missionPostedAt).toLocaleDateString("fr")} sur {data.missionPublisherName}
             </div>
           </div>
@@ -156,7 +156,7 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
           )}
           {values.note && (
             <div className="mt-1 flex items-center gap-2 text-xs">
-              <RiPencilFill />
+              <RiPencilFill aria-hidden="true" />
               <div className="italic">{values.note}</div>
             </div>
           )}

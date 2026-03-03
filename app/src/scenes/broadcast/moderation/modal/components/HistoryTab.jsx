@@ -55,22 +55,22 @@ const HistoryTab = ({ data }) => {
                       {
                         ONGOING: (
                           <div className="bg-blue-info-425 flex h-8 w-8 items-center justify-center rounded-full">
-                            <RiTimeLine className="text-white" size={16} />
+                            <RiTimeLine className="text-white" size={16} aria-hidden="true" />
                           </div>
                         ),
                         PENDING: (
                           <div className="bg-warning flex h-8 w-8 items-center justify-center rounded-full">
-                            <RiTimeLine className="text-white" size={16} />
+                            <RiTimeLine className="text-white" size={16} aria-hidden="true" />
                           </div>
                         ),
                         ACCEPTED: (
                           <div className="bg-success flex h-8 w-8 items-center justify-center rounded-full">
-                            <RiCheckboxCircleFill className="text-white" size={16} />
+                            <RiCheckboxCircleFill className="text-white" size={16} aria-hidden="true" />
                           </div>
                         ),
                         REFUSED: (
                           <div className="bg-error flex h-8 w-8 items-center justify-center rounded-full">
-                            <RiCloseFill className="text-white" size={16} />
+                            <RiCloseFill className="text-white" size={16} aria-hidden="true" />
                           </div>
                         ),
                       }[event.newStatus]
@@ -91,7 +91,7 @@ const HistoryTab = ({ data }) => {
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex flex-1 items-center gap-4">
                     <div className="bg-error flex h-8 w-8 items-center justify-center rounded-full">
-                      <RiCloseFill className="text-white" size={16} />
+                      <RiCloseFill className="text-white" size={16} aria-hidden="true" />
                     </div>
                     <p className="text-text-mention flex-1 text-base">
                       <span className="text-black">{event.userName}</span> a modifié le motif de refus en{" "}

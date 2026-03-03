@@ -140,9 +140,9 @@ const Combobox = ({
             : placeholder}
 
         {show ? (
-          <RiArrowDownSLine className="absolute top-1/2 right-4 -translate-y-1/2 rotate-180 transform text-base" />
+          <RiArrowDownSLine className="absolute top-1/2 right-4 -translate-y-1/2 rotate-180 transform text-base" aria-hidden="true" />
         ) : (
-          <RiArrowDownSLine className="absolute top-1/2 right-4 -translate-y-1/2 text-base" />
+          <RiArrowDownSLine className="absolute top-1/2 right-4 -translate-y-1/2 text-base" aria-hidden="true" />
         )}
       </button>
 
@@ -163,7 +163,7 @@ const Combobox = ({
             placeholder={placeholder}
             className="input w-full"
           />
-          <RiSearchLine className="absolute top-1/2 right-4 -translate-y-1/2 text-base text-black" />
+          <RiSearchLine className="absolute top-1/2 right-4 -translate-y-1/2 text-base text-black" aria-hidden="true" />
         </div>
 
         <p className="mx-4 mb-2 text-base">{placeholder}</p>
@@ -215,7 +215,7 @@ const Checkbox = ({ selected }) => {
       className="flex h-4 w-4 items-center justify-center rounded-sm border text-base"
       style={{ borderColor: selected ? "var(--color-blue-france)" : "black", backgroundColor: selected ? "var(--color-blue-france)" : "transparent" }}
     >
-      {selected && <RiCheckFill className="text-white" />}
+      {selected && <RiCheckFill className="text-white" aria-hidden="true" />}
     </div>
   );
 };

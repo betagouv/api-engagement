@@ -77,7 +77,7 @@ const Users = () => {
           </label>
           <input id="user-search" name="user-search" className="input flex-1" placeholder="Chercher par nom ou par email" onChange={(e) => setSearch(e.target.value)} />
           <Link to="/user/new" className="primary-btn flex items-center">
-            Nouvel utilisateur <HiOutlinePlus className="ml-2" />
+            Nouvel utilisateur <HiOutlinePlus className="ml-2" aria-hidden="true" />
           </Link>
         </div>
         <Table caption="Liste des utilisateurs" header={TABLE_HEADER} total={filteredUsers.length} loading={loading} page={page} pageSize={PAGE_SIZE} onPageChange={setPage} auto>
@@ -119,7 +119,7 @@ const Users = () => {
               <td className="table-cell text-center">
                 <Link to={`/connect?id=${item.id}`} target="_blank" className="text-blue-france flex items-center justify-center">
                   Se connecter
-                  <RiLoginBoxLine className="ml-2" />
+                  <RiLoginBoxLine className="ml-2" aria-hidden="true" />
                 </Link>
               </td>
             </tr>

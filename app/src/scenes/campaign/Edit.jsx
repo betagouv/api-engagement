@@ -164,7 +164,7 @@ const Edit = () => {
       <ReassignModal open={isReassignModalOpen} onClose={() => setIsReassignModalOpen(false)} campaign={campaign} values={values} setValues={setValues} setCampaign={setCampaign} />
       <div className="flex flex-col gap-8">
         <Link to="/broadcast/campaigns" className="border-blue-france text-blue-france flex w-fit items-center gap-2 border-b text-[16px]">
-          <RiArrowLeftLine />
+          <RiArrowLeftLine aria-hidden="true" />
           Retour
         </Link>
 
@@ -206,7 +206,7 @@ const Edit = () => {
             </div>
             <div>
               <span className="text-warning mt-2 flex flex-row items-center text-xs">
-                <AiFillWarning className="mr-2" />
+                <AiFillWarning className="mr-2" aria-hidden="true" />
                 Copiez exactement ce lien !
               </span>
             </div>
@@ -227,7 +227,7 @@ const CampaignMenu = ({ setIsReassignModalOpen, handleDelete }) => {
     <Dropdown
       renderTrigger={({ onClick }) => (
         <button className="tertiary-btn flex items-center" onClick={onClick}>
-          <RiMoreLine className="text-xl" />
+          <RiMoreLine className="text-xl" aria-hidden="true" />
         </button>
       )}
       position="bottom"
@@ -236,13 +236,13 @@ const CampaignMenu = ({ setIsReassignModalOpen, handleDelete }) => {
       <ul className="p-1">
         <li>
           <button className="dropdown-btn w-full" onClick={() => setIsReassignModalOpen(true)}>
-            <RiFileTransferLine />
+            <RiFileTransferLine aria-hidden="true" />
             <span>Déplacer</span>
           </button>
         </li>
         <li>
           <button className="dropdown-red-btn w-full" onClick={handleDelete}>
-            <RiDeleteBin6Line />
+            <RiDeleteBin6Line aria-hidden="true" />
             <span>Supprimer</span>
           </button>
         </li>

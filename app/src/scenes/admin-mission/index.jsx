@@ -208,7 +208,7 @@ const AdminMission = () => {
             </div>
           </div>
           <button className="tertiary-btn flex items-center" onClick={handleExport}>
-            {exporting ? <Loader /> : <RiFileDownloadLine className="mr-2" />}
+            {exporting ? <Loader /> : <RiFileDownloadLine className="mr-2" aria-hidden="true" />}
             Exporter
           </button>
         </div>
