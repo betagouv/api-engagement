@@ -41,9 +41,9 @@ export const buildWhere = (filters: ModerationFilters): { where: Prisma.MissionM
     missionWhere.moderationStatuses = { some: { comment: filters.comment } };
   }
 
-  if (filters.publisherId) {
-    where.mission!.publisherId = filters.publisherId;
-    missionWhere.publisherId = filters.publisherId;
+  if (filters.publisherIds && filters.publisherIds.length) {
+    where.mission!.publisherId = { in: filters.publisherIds };
+    missionWhere.publisherId = { in: filters.publisherIds };
   }
 
   if (filters.domain) {

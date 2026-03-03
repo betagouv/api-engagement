@@ -48,7 +48,7 @@ export type MissionModerationRecord = {
 export type ModerationFilters = {
   ids?: string[];
   moderatorId?: string;
-  publisherId?: string;
+  publisherIds?: string[];
   missionId?: string;
   status?: string;
   comment?: string;

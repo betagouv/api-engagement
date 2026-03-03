@@ -119,19 +119,19 @@ const GlobalAnnounce = ({ filters, onFiltersChange }) => {
         </div>
       </div>
       <>
-        <Evolution filters={filters} defaultType="print" />
-        <Announcers filters={filters} defaultType="print" />
+        <Evolution filters={filters} />
+        <Announcers filters={filters} />
       </>
     </div>
   );
 };
 
-const Evolution = ({ filters, defaultType = "print" }) => {
+const Evolution = ({ filters }) => {
   const { publisher } = useStore();
   const analyticsProvider = useAnalyticsProvider();
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [type, setType] = useState(defaultType);
+  const [type, setType] = useState("apply");
   const tabs = [
     {
       key: "print",
@@ -314,13 +314,13 @@ const Evolution = ({ filters, defaultType = "print" }) => {
   );
 };
 
-const Announcers = ({ filters, defaultType = "print" }) => {
+const Announcers = ({ filters }) => {
   const { publisher } = useStore();
   const analyticsProvider = useAnalyticsProvider();
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [type, setType] = useState(defaultType);
+  const [type, setType] = useState("apply");
   const tabs = [
     {
       key: "print",

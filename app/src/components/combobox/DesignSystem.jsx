@@ -129,7 +129,7 @@ const Combobox = ({
         id={id}
         aria-label={placeholder}
         aria-expanded={show}
-        className={`select relative w-full truncate text-left ${!values || values.length === 0 ? "!text-text-mention" : ""}`}
+        className="select relative w-full truncate text-left"
         onClick={() => setShow(!show)}
         onKeyDown={handleButtonKeyDown}
       >
@@ -192,11 +192,13 @@ const Combobox = ({
                   }}
                   onKeyDown={(e) => handleListKeyDown(e, item)}
                 >
-                  <div className="flex w-[90%] items-center">
-                    <Checkbox selected={selected} />
-                    <p className="ml-2 flex-1 truncate text-sm">{getLabel(item)}</p>
+                  <div className="flex items-center">
+                    <div className="flex w-[90%] items-center">
+                      <Checkbox selected={selected} />
+                      <p className="ml-2 flex-1 truncate text-sm text-nowrap">{getLabel(item)}</p>
+                    </div>
+                    {getCount && <p className="text-text-mention text-right text-sm">{getCount(item)}</p>}
                   </div>
-                  {getCount && <p className="text-text-mention text-right text-sm">{getCount(item)}</p>}
                 </li>
               );
             })
