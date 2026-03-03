@@ -9,7 +9,7 @@ import helmet from "@/middlewares/helmet";
 import logger from "@/middlewares/logger";
 import passport from "@/middlewares/passport";
 import requestId from "@/middlewares/request-id";
-// import limiter from "./rate-limite";
+// import limiter from "./rate-limit";
 
 const middlewares = (app: Express) => {
   app.use(cors(corsOptions));
