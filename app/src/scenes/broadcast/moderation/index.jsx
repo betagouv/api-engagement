@@ -223,7 +223,7 @@ const Moderation = () => {
               width: "40%",
             },
             { title: "Organisation" },
-            { title: "Actions", width: "30%" },
+            { title: "Actions", width: "35%" },
           ]}
           total={total}
           loading={loading}

@@ -2,7 +2,7 @@ import { toast } from "@/services/toast";
 import { Menu, Transition } from "@headlessui/react";
 import { Fragment, useEffect, useState } from "react";
 import { BsDot } from "react-icons/bs";
-import { RiCalendarEventFill, RiCheckboxCircleFill, RiCloseCircleFill, RiMapPin2Fill, RiMoreFill, RiPencilFill, RiTimeLine } from "react-icons/ri";
+import { RiCalendarEventFill, RiCheckboxCircleFill, RiCloseCircleFill, RiMapPin2Fill, RiMoreFill, RiTimeLine } from "react-icons/ri";
 import { useSearchParams } from "react-router-dom";
 
 import Modal from "@/components/Modal";
@@ -127,8 +127,8 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
         </div>
       </td>
       <td className="table-cell align-middle">
-        <div className="flex flex-col justify-center gap-3">
-          <div className="flex items-center gap-3">
+        <div className="flex w-full flex-col gap-3">
+          <div className="flex w-full items-center gap-3">
             <select
               className="select flex-1 border-b-2 pr-2"
               style={{ borderBottomColor: STATUS_COLORS[values.status] }}
@@ -145,10 +145,10 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
             <MissionActionsMenu data={data} onFilter={onFilter} onChange={(v) => onChange({ ...data, ...v })} />
           </div>
           {values.status === "REFUSED" && (
-            <select className="select border-error border-b-2" name="motif" value={values.comment} onChange={(e) => handleSubmit({ status: "REFUSED", comment: e.target.value })}>
+            <select className="select mt-4 w-full border-b-2" name="motif" value={values.comment} onChange={(e) => handleSubmit({ status: "REFUSED", comment: e.target.value })}>
               <option value="">Motif de refus</option>
               {Object.entries(JVA_MODERATION_COMMENTS_LABELS).map(([key, value]) => (
-                <option key={key} value={key}>
+                <option key={key} value={key} className="whitespace-nowrap text-black">
                   {value}
                 </option>
               ))}

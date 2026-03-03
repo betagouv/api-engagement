@@ -174,14 +174,14 @@ const Flux = ({ moderated }) => {
             values={filters.cities}
             onChange={(cities) => setFilters({ ...filters, cities })}
             placeholder="Villes"
-            filters={`publishers[]=${publisher.id}&field=city`}
+            filters={`publishers=${publisher.id}&field=city`}
           />
           <MissionCombobox
             id="organization"
             values={filters.organizations}
             onChange={(organizations) => setFilters({ ...filters, organizations })}
             placeholder="Organisations"
-            filters={`publishers[]=${publisher.id}&field=organizationName`}
+            filters={`publishers=${publisher.id}&field=organizationName`}
             className="w-96"
           />
         </div>
@@ -232,9 +232,7 @@ const Flux = ({ moderated }) => {
                 {item.organizationName && <p className="text-sm">{item.organizationName}</p>}
               </td>
               <td className="px-4">{item.places}</td>
-              <td className="px-4">
-                {item.city}
-              </td>
+              <td className="px-4">{item.city}</td>
               <td className="px-4">{new Date(item.createdAt).toLocaleDateString("fr")}</td>
               <td className="px-6">
                 <div className="flex items-center gap-1">

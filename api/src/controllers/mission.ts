@@ -44,7 +44,7 @@ const searchSchema = zod.object({
 });
 
 const autocompleteSchema = zod.object({
-  publishers: zod.array(zod.string()).optional(),
+  publishers: zod.union([zod.string(), zod.array(zod.string())]).optional(),
   field: zod.string(),
   search: zod.string(),
 });
@@ -155,7 +155,7 @@ router.get("/autocomplete", passport.authenticate("user", { session: false }), a
     }
 
     const missions = await missionService.findMissions({
-      publisherIds: query.data.publishers ?? [],
+      publisherIds: Array.isArray(query.data.publishers) ? query.data.publishers : query.data.publishers ? [query.data.publishers] : [],
       limit: 1000,
       skip: 0,
       domain: undefined,

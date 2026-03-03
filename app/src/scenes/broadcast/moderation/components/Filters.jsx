@@ -79,10 +79,7 @@ const Filters = ({ filters, onChange, reload }) => {
         <PublisherCombobox
           id="publisherIds"
           values={filters.publisherIds}
-          onChange={(publisherIds) => {
-            console.log("publisherIds", publisherIds);
-            onChange({ ...filters, publisherIds });
-          }}
+          onChange={(publisherIds) => onChange({ ...filters, publisherIds })}
           placeholder="Annonceur"
           options={options.publishers}
         />
@@ -96,10 +93,10 @@ const Filters = ({ filters, onChange, reload }) => {
 
         <MissionCombobox
           id="organization"
-          values={filters.organizations}
-          onChange={(organizations) => onChange({ ...filters, organizations })}
+          values={filters.organizationNames}
+          onChange={(organizationNames) => onChange({ ...filters, organizationNames })}
           placeholder="Organisations"
-          filters={`${options.publishers.map((p) => `publishers[]=${p.key}`).join("&")}&field=organizationName`}
+          filters={`${filters.publisherIds?.length ? filters.publisherIds.map((p) => `publishers=${p}`).join("&") : options.publishers.map((p) => `publishers=${p.key}`).join("&")}&field=organizationName`}
         />
 
         <Select
@@ -126,7 +123,7 @@ const Filters = ({ filters, onChange, reload }) => {
           values={filters.cities}
           onChange={(cities) => onChange({ ...filters, cities })}
           placeholder="Villes"
-          filters={`${options.publishers.map((p) => `publishers[]=${p.key}`).join("&")}&field=city`}
+          filters={`${filters.publisherIds?.length ? filters.publisherIds.map((p) => `publishers=${p}`).join("&") : options.publishers.map((p) => `publishers=${p.key}`).join("&")}&field=city`}
         />
         <Select
           options={options.activities.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}
@@ -140,7 +137,7 @@ const Filters = ({ filters, onChange, reload }) => {
       <div className="flex flex-wrap gap-3">
         <Badge label="Statut" value={STATUS[filters.status]} onDelete={() => onChange({ ...filters, status: "" })} />
         <Badge label="Annonceur" value={options.publishers.find((p) => p.key === filters.publisherId)?.label} onDelete={() => onChange({ ...filters, publisherId: "" })} />
-        <Badge label="Organisation" value={filters.organizationName} onDelete={() => onChange({ ...filters, organizationName: "" })} />
+        <Badge label="Organisation" value={filters.organizationNames.join(", ")} onDelete={() => onChange({ ...filters, organizationNames: [] })} />
         <Badge
           label="Département"
           value={filters.department === "none" ? "Non renseigné" : DEPARTMENT_LABELS[filters.department]}

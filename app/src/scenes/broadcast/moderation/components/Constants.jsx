@@ -30,7 +30,7 @@ export const STATUS_COLORS = {
   PENDING: "var(--color-warning)",
   ONGOING: "var(--color-warning)",
   ACCEPTED: "var(--color-success)",
-  REFUSED: "var(--color-red-marianne)",
+  REFUSED: "var(--color-error)",
 };
 
 export const STATUS_GRAPH_COLORS = {
