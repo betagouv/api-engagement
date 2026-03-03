@@ -9,6 +9,11 @@ import publisherOrganizationService from "./publisher-organization";
 
 type Bucket = { key: string; doc_count: number };
 
+type PublisherOrganizationTuple = {
+  publisherId: string;
+  clientId: string;
+};
+
 const buildWidgetWhere = (widget: WidgetRecord, filters: MissionSearchFilters): Prisma.MissionWhereInput => {
   if (!widget.jvaModeration) {
     return buildWhere(filters);
@@ -35,6 +40,31 @@ const buildWidgetWhere = (widget: WidgetRecord, filters: MissionSearchFilters): 
 const isPlainObject = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value) && !(value instanceof Date);
 
 /**
+ * Builds a mission condition from `(publisherId, organizationClientId)` tuples.
+ * Returns either one condition or an `OR` of conditions; empty input matches nothing.
+ */
+const buildMissionConditionFromPublisherOrganizationTuples = (tuples: PublisherOrganizationTuple[]): Prisma.MissionWhereInput => {
+  if (!tuples.length) {
+    return { publisherId: { in: [] } };
+  }
+
+  const byPublisher = new Map<string, Set<string>>();
+  tuples.forEach(({ publisherId, clientId }) => {
+    if (!byPublisher.has(publisherId)) {
+      byPublisher.set(publisherId, new Set());
+    }
+    byPublisher.get(publisherId)?.add(clientId);
+  });
+
+  const conditions = Array.from(byPublisher.entries()).map(([publisherId, clientIds]) => ({
+    publisherId,
+    organizationClientId: { in: Array.from(clientIds) },
+  }));
+
+  return conditions.length === 1 ? conditions[0] : { OR: conditions };
+};
+
+/**
  * Replaces `publisherOrganization.is` filters with equivalent mission predicates.
  * This avoids replaying expensive relational OR/ILIKE branches on every query.
  */
@@ -52,10 +82,12 @@ const inlinePublisherOrganizationFilters = async (where: Prisma.MissionWhereInpu
 
     const rows = await prismaCore.publisherOrganization.findMany({
       where: condition,
-      select: { id: true },
+      select: { publisherId: true, clientId: true },
     });
-    const orgIds = rows.map((r) => r.id);
-    const missionCondition: Prisma.MissionWhereInput = orgIds.length ? { publisherOrganizationId: { in: orgIds } } : { id: { in: [] } };
+    const tuples: PublisherOrganizationTuple[] = rows
+      .filter((r): r is typeof r & { clientId: string } => r.clientId != null)
+      .map((r) => ({ publisherId: r.publisherId, clientId: r.clientId }));
+    const missionCondition = buildMissionConditionFromPublisherOrganizationTuples(tuples);
     cache.set(cacheKey, missionCondition);
     return missionCondition;
   };
