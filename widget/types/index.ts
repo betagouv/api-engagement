@@ -124,6 +124,7 @@ export interface ApiResponse<T = any> {
 export interface AggregationBucket {
   key: string;
   doc_count: number;
+  label?: string;
 }
 
 export interface AggregationData {
