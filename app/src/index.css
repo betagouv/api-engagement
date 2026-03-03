@@ -171,7 +171,7 @@ body {
 @custom-variant aria-current (&[aria-current="true"]);
 
 @utility focus {
-  @apply focus-visible:outline-outline-blue focus-visible:outline-2 focus-visible:outline-offset-2;
+  @apply focus-visible:outline-outline-blue focus-visible:shadow-none! focus-visible:outline-2 focus-visible:outline-offset-2;
 }
 
 @utility btn {
@@ -238,10 +238,10 @@ body {
 }
 
 @utility nav-item {
-  @apply hover:bg-background-grey-hover aria-current:border-b-blue-france aria-current:text-blue-france focus flex h-14 cursor-pointer items-center p-4 text-sm aria-current:border-b-2;
+  @apply hover:bg-background-grey-hover aria-current:border-b-blue-france focus aria-current:text-blue-france flex h-14 cursor-pointer items-center p-4 text-sm aria-current:border-b-2;
 }
 @utility nav-link {
-  @apply hover:bg-background-grey-hover aria-selected:text-blue-france aria-current:text-blue-france focus shadow-border-link focus-visible:text-blue-france flex h-auto w-full cursor-pointer px-4 py-3 text-sm text-black aria-current:border-b-2;
+  @apply hover:bg-background-grey-hover aria-selected:text-blue-france focus aria-current:text-blue-france shadow-border-link focus-visible:text-blue-france flex w-full cursor-pointer items-center p-4 text-sm text-black aria-current:border-b-2;
 }
 
 @utility list-item {
@@ -365,14 +365,17 @@ input[aria-expanded]:focus-visible {
   background-color: var(--color-background-grey-hover);
   outline: 2px solid var(--color-outline-blue);
   outline-offset: 2px;
+  box-shadow: none;
 }
 
 /* Active option in dropdown lists */
 [data-headlessui-state~="active"][role="option"],
-[data-headlessui-state~="focus"][role="option"] {
+[data-headlessui-state~="focus"][role="option"],
+[role="option"]:focus-visible {
   background-color: var(--color-background-grey-hover);
   outline: 2px solid var(--color-outline-blue);
   outline-offset: -2px;
+  box-shadow: none;
 }
 
 /* Focus on listbox button */
@@ -381,4 +384,5 @@ button[aria-controls]:focus-visible {
   background-color: var(--color-background-grey-hover);
   outline: 2px solid var(--color-outline-blue);
   outline-offset: 2px;
+  box-shadow: none;
 }

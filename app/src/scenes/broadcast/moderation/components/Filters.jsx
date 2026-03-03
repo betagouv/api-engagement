@@ -67,7 +67,7 @@ const Filters = ({ filters, onChange, reload }) => {
       <div className="mb-4 flex w-full justify-start">
         <SearchInput value={filters.search} onChange={(e) => onChange({ ...filters, search: e })} placeholder="Rechercher" className="w-[40%]" />
       </div>
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4 pb-4">
+      <div className="grid grid-cols-1 gap-4 pb-4 md:grid-cols-2 lg:grid-cols-4">
         <Select
           options={options.status.map((e) => ({ value: e.key, label: STATUS_PLR[e.key], count: e.doc_count }))}
           value={filters.status}
@@ -101,8 +101,7 @@ const Filters = ({ filters, onChange, reload }) => {
           placeholder="Organisations"
           filters={`${options.publishers.map((p) => `publishers[]=${p.key}`).join("&")}&field=organizationName`}
         />
-      </div>
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4 pb-6">
+
         <Select
           options={options.comments.map((e) => ({ value: e.key, label: JVA_MODERATION_COMMENTS_LABELS[e.key] || e.key, count: e.doc_count }))}
           value={filters.comment}

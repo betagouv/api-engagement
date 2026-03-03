@@ -372,7 +372,7 @@ const PublisherMenu = ({ options, value, onChange }) => {
         inert={!show ? true : undefined}
         className={`border-grey-border absolute right-0 z-50 w-80 border bg-white shadow-lg transition-[max-height,opacity] duration-200 ease-in-out focus:outline-none ${show ? "max-h-96 opacity-100" : "pointer-events-none max-h-0 opacity-0"}`}
       >
-        <div role="search" className="border-grey-border focus mb-1 flex items-center gap-2 border-b p-3">
+        <div role="search" className="border-grey-border focus flex items-center gap-2 border-b p-3">
           <RiSearchLine aria-hidden="true" />
           <label htmlFor="publisher-search" className="sr-only">
             Rechercher un partenaire
@@ -388,7 +388,7 @@ const PublisherMenu = ({ options, value, onChange }) => {
             onKeyDown={handleInputKeyDown}
           />
         </div>
-        <ul className="flex max-h-80 list-none flex-col overflow-x-visible overflow-y-auto px-2 py-1" role="listbox">
+        <ul className="flex max-h-80 list-none flex-col overflow-x-visible overflow-y-auto px-2" role="listbox">
           {filtered.map((option, index) => (
             <li
               ref={(el) => {
@@ -399,7 +399,7 @@ const PublisherMenu = ({ options, value, onChange }) => {
               aria-selected={focusedIndex === index}
               aria-label={option.name}
               tabIndex={focusedIndex === index ? 0 : -1}
-              className={`nav-link cursor-pointer items-center ${index === 0 ? "shadow-none" : ""} ${focusedIndex === index || value.id === option.id ? "text-blue-france" : ""}`}
+              className={`nav-link -mx-2 cursor-pointer items-center ${index === 0 ? "shadow-none" : ""} ${focusedIndex === index || value.id === option.id ? "text-blue-france" : ""}`}
               onClick={() => {
                 setSearch("");
                 setShow(false);
@@ -408,7 +408,7 @@ const PublisherMenu = ({ options, value, onChange }) => {
               }}
               onKeyDown={(e) => handleListKeyDown(e, option, index)}
             >
-              <span>{option.name}</span>
+              <span className="text-sm">{option.name}</span>
               {value.id === option.id && <RiCheckLine className="text-blue-france ml-2 text-base" aria-hidden="true" />}
             </li>
           ))}
