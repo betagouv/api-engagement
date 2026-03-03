@@ -7,7 +7,7 @@ import type { MissionRecord, MissionSearchFilters, MissionSelect } from "@/types
 import { buildWhere, missionService } from "./mission";
 import publisherOrganizationService from "./publisher-organization";
 
-type Bucket = { key: string; doc_count: number };
+type Bucket = { key: string; doc_count: number; label?: string };
 
 type PublisherOrganizationTuple = {
   publisherId: string;
@@ -40,7 +40,7 @@ const buildWidgetWhere = (widget: WidgetRecord, filters: MissionSearchFilters): 
 const isPlainObject = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value) && !(value instanceof Date);
 
 /**
- * Builds a mission condition from `(publisherId, organizationClientId)` tuples.
+ * Builds a mission condition from `(publisherId, clientId)` tuples.
  * Returns either one condition or an `OR` of conditions; empty input matches nothing.
  */
 const buildMissionConditionFromPublisherOrganizationTuples = (tuples: PublisherOrganizationTuple[]): Prisma.MissionWhereInput => {
@@ -58,7 +58,7 @@ const buildMissionConditionFromPublisherOrganizationTuples = (tuples: PublisherO
 
   const conditions = Array.from(byPublisher.entries()).map(([publisherId, clientIds]) => ({
     publisherId,
-    organizationClientId: { in: Array.from(clientIds) },
+    publisherOrganization: { clientId: { in: Array.from(clientIds) } },
   }));
 
   return conditions.length === 1 ? conditions[0] : { OR: conditions };
@@ -221,9 +221,14 @@ const aggregateWidgetAggs = async (
   const formatOrganization = async () => {
     const orgRows = await aggregateMissionField("publisherOrganizationId");
     const orgIds = orgRows.map((row) => row.key);
-    const orgs = orgIds.length ? await publisherOrganizationService.findMany({ ids: orgIds }, { select: { id: true, name: true } }) : [];
-    const orgById = new Map(orgs.map((org) => [org.id, org.name ?? ""]));
-    return orgRows.map((row) => ({ key: orgById.get(row.key) ?? "", doc_count: row.doc_count })).filter((row) => row.key);
+    const orgs = orgIds.length ? await publisherOrganizationService.findMany({ ids: orgIds }, { select: { id: true, name: true, clientId: true } }) : [];
+    const orgById = new Map(orgs.map((org) => [org.id, { name: org.name ?? "", clientId: org.clientId ?? "" }]));
+    return orgRows
+      .map((row) => {
+        const org = orgById.get(row.key);
+        return { key: org?.clientId ?? "", doc_count: row.doc_count, label: org?.name ?? "" };
+      })
+      .filter((row) => row.key);
   };
 
   const result: any = {};
