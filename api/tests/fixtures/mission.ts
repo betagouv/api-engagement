@@ -7,6 +7,7 @@ import { missionModerationStatusService } from "@/services/mission-moderation-st
 import { organizationService } from "@/services/organization";
 import { MissionType, type MissionCreateInput, type MissionRecord } from "@/types";
 import type { MissionAddress } from "@/types/mission";
+import { computeAddressHash } from "@/utils/address";
 import { createTestPublisher } from "./publisher";
 
 const ensurePublisherExists = async (publisherId: string) => {
@@ -59,18 +60,27 @@ const resolveActivityId = async (activityName: string): Promise<string> => {
 };
 
 const mapAddressesForCreate = (addresses: MissionAddress[]) =>
-  addresses.map((address) => ({
-    street: address.street ?? null,
-    postalCode: address.postalCode ?? null,
-    departmentName: address.departmentName ?? null,
-    departmentCode: address.departmentCode ?? null,
-    city: address.city ?? null,
-    region: address.region ?? null,
-    country: address.country ?? null,
-    locationLat: address.location?.lat ?? null,
-    locationLon: address.location?.lon ?? null,
-    geolocStatus: (address as any).geolocStatus ?? null,
-  }));
+  addresses.map((address) => {
+    const street = address.street ?? null;
+    const postalCode = address.postalCode != null ? String(address.postalCode) : null;
+    const city = address.city ?? null;
+    const country = address.country ?? null;
+    const locationLat = address.location?.lat ?? null;
+    const locationLon = address.location?.lon ?? null;
+    return {
+      addressHash: computeAddressHash({ street, city, postalCode, country, location: locationLat != null && locationLon != null ? { lat: locationLat, lon: locationLon } : null }),
+      street,
+      postalCode,
+      departmentName: address.departmentName ?? null,
+      departmentCode: address.departmentCode != null ? String(address.departmentCode) : null,
+      city,
+      region: address.region ?? null,
+      country,
+      locationLat,
+      locationLon,
+      geolocStatus: (address as any).geolocStatus ?? null,
+    };
+  });
 
 export const createTestMission = async (data: Partial<MissionCreateInput & { deleted?: boolean }> = {}): Promise<MissionRecord> => {
   const normalizeAddress = (address: MissionAddress): MissionAddress => {

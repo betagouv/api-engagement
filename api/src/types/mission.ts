@@ -14,6 +14,7 @@ export type MissionLocation = {
 
 export type MissionAddress = {
   id?: string;
+  addressHash?: string;
   street?: string | null;
   postalCode?: string | null;
   departmentName?: string | null;
