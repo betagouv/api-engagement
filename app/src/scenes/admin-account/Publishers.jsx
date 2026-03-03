@@ -13,7 +13,7 @@ import { withLegacyPublishers } from "@/utils/publisher";
 
 const TABLE_HEADER = [
   { title: "Nom", key: "name" },
-  { title: "Rôles", key: "roles", position: "center" },
+  { title: "Rôles", key: "roles", position: "center", width: "20%" },
   { title: "Annonceurs", key: "publishers", position: "center" },
   { title: "Diffuseurs", key: "diffuseurs", position: "center" },
   { title: "Membres", key: "members", position: "center" },
@@ -36,7 +36,9 @@ const Publishers = () => {
       try {
         setLoading(true);
         const res = await api.post("/user/search");
-        if (!res.ok) throw res;
+        if (!res.ok) {
+          throw res;
+        }
         setUsers(res.data);
       } catch (error) {
         captureError(error);
@@ -52,14 +54,26 @@ const Publishers = () => {
       try {
         setLoading(true);
         const query = {};
-        if (filters.name) query.name = filters.name;
-        if (filters.role) query.role = filters.role;
-        if (filters.sendReport === "true") query.sendReport = true;
-        if (filters.sendReport === "false") query.sendReport = false;
-        if (filters.missionType) query.missionType = filters.missionType;
+        if (filters.name) {
+          query.name = filters.name;
+        }
+        if (filters.role) {
+          query.role = filters.role;
+        }
+        if (filters.sendReport === "true") {
+          query.sendReport = true;
+        }
+        if (filters.sendReport === "false") {
+          query.sendReport = false;
+        }
+        if (filters.missionType) {
+          query.missionType = filters.missionType;
+        }
 
         const res = await api.post("/publisher/search", query);
-        if (!res.ok) throw res;
+        if (!res.ok) {
+          throw res;
+        }
         const normalized = withLegacyPublishers(res.data);
         setPublishers(normalized);
         if (!Object.keys(query).length) {
@@ -75,7 +89,9 @@ const Publishers = () => {
   }, [filters]);
 
   const handleExport = () => {
-    if (!publishers) return;
+    if (!publishers) {
+      return;
+    }
     setExporting(true);
     const data = [];
     publishers.forEach((publisher) => {
@@ -187,9 +203,9 @@ const Publishers = () => {
             ))}
           </select>
         </div>
-        <Table header={TABLE_HEADER} total={publishers.length} loading={loading} page={page} pageSize={PAGE_SIZE} onPageChange={setPage} auto>
+        <Table caption="Liste des partenaires" header={TABLE_HEADER} total={publishers.length} loading={loading} page={page} pageSize={PAGE_SIZE} onPageChange={setPage}>
           {publishers.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((item, i) => (
-            <tr key={item.id} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
+            <tr key={item.id} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row h-20`}>
               <td className="table-cell">
                 <Link to={`/publisher/${item.id}`} className="text-blue-france">
                   {item.name}
@@ -198,21 +214,15 @@ const Publishers = () => {
               <td className="table-cell">
                 <div className="flex flex-wrap justify-center gap-2">
                   {item.isAnnonceur && <span className="bg-red-marianne-950 rounded px-1 text-[10px]">Annonceur</span>}
-                  {item.hasApiRights && <span className="bg-success-950 rounded px-1 text-[10px]">Diffuseur API</span>}
-                  {item.hasWidgetRights && <span className="bg-success-950 rounded px-1 text-[10px]">Diffuseur Widget</span>}
-                  {item.hasCampaignRights && <span className="bg-success-950 rounded px-1 text-[10px]">Diffuseur Campagne</span>}
+                  {item.hasApiRights && <span className="bg-green-success-950 rounded px-1 text-[10px]">Diffuseur API</span>}
+                  {item.hasWidgetRights && <span className="bg-green-success-950 rounded px-1 text-[10px]">Diffuseur Widget</span>}
+                  {item.hasCampaignRights && <span className="bg-green-success-950 rounded px-1 text-[10px]">Diffuseur Campagne</span>}
                 </div>
               </td>
               <td className="table-cell text-center">{item.publishers.length}</td>
               <td className="table-cell text-center">{diffuseurs.filter((e) => e.publishers.some((j) => j.publisherId === item.id)).length}</td>
               <td className="table-cell text-center">{users.filter((e) => e.publishers.find((j) => j === item.id)).length}</td>
-              <td className="table-cell text-center">
-                {item.sendReport ? (
-                  <span className="bg-blue-france-975 rounded px-1">{`Oui (${item.sendReportTo.length} receveur${item.sendReportTo.length > 1 ? "s" : ""})`}</span>
-                ) : (
-                  <span className="bg-red-marianne-950 rounded px-1">Non</span>
-                )}
-              </td>
+              <td className="table-cell text-center">{item.sendReport ? `Oui (${item.sendReportTo.length} receveur${item.sendReportTo.length > 1 ? "s" : ""})` : "Non"}</td>
             </tr>
           ))}
         </Table>

@@ -1,6 +1,6 @@
+import { toast } from "@/services/toast";
 import { useEffect, useState } from "react";
 import { RiCheckboxCircleFill, RiCloseCircleFill } from "react-icons/ri";
-import { toast } from "@/services/toast";
 
 import Loader from "@/components/Loader";
 import Modal from "@/components/New-Modal";
@@ -108,6 +108,7 @@ const Flux = () => {
         <h2 className="text-3xl font-bold">Historique des synchronisations</h2>
 
         <Table
+          caption="Historique des synchronisations"
           header={TABLE_HEADER}
           pagination
           page={filters.page}
@@ -118,7 +119,7 @@ const Flux = () => {
           auto
         >
           {imports.map((item, i) => (
-            <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
+            <tr key={i} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
               <td className="px-2">{new Date(item.finishedAt).toLocaleString("fr").replace(" ", " • ")}</td>
               <td className="px-4 text-center">{buildDuration(new Date(item.startedAt), new Date(item.finishedAt))}</td>
               <td className="px-4 text-center">{item.updatedCount?.toLocaleString("fr") || "-"}</td>
