@@ -47,6 +47,8 @@
   --color-grey-default: var(--color-grey-200);
   --color-text: var(--color-black);
   --color-text-mention: var(--color-gray-425);
+  --color-table-even: var(--color-gray-975);
+  --color-table-odd: var(--color-gray-1000-active);
 
   --shadow-border-blue: inset 0 0 0 1px var(--color-blue-france);
   --shadow-border-black: inset 0 0 0 1px var(--color-black);
@@ -169,11 +171,11 @@ body {
 @custom-variant aria-current (&[aria-current="true"]);
 
 @utility focus {
-  @apply focus-visible:outline-outline-blue focus:outline-2 focus:outline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2;
+  @apply focus-visible:outline-outline-blue focus-visible:outline-2 focus-visible:outline-offset-2;
 }
 
 @utility btn {
-  @apply inline-flex min-h-10 w-fit cursor-pointer items-center justify-center px-4 py-2 text-sm font-medium transition-all disabled:cursor-not-allowed;
+  @apply focus inline-flex min-h-10 w-fit cursor-pointer items-center justify-center px-4 py-2 text-sm font-medium transition-all disabled:cursor-not-allowed;
 }
 @utility primary-btn {
   @apply btn bg-blue-france hover:bg-blue-france-hover active:bg-blue-france-hover disabled:bg-gray-925 disabled:text-gray-625 text-white;
@@ -207,10 +209,10 @@ body {
 }
 
 @utility input {
-  @apply placeholder:text-gray-425 focus min-h-10 rounded-t border-0 border-b border-b-black bg-gray-950 px-4 py-2 text-sm text-black disabled:opacity-60;
+  @apply focus placeholder:text-text-mention min-h-10 cursor-pointer rounded-t border-0 border-b border-b-black bg-gray-950 px-4 py-2 text-sm text-black disabled:opacity-60;
 }
 @utility select {
-  @apply placeholder:text-gray-425 focus min-h-10 appearance-none rounded-none rounded-t border-0 border-b border-b-black bg-gray-950 py-2 pr-10 pl-4 text-sm text-black disabled:opacity-60;
+  @apply focus min-h-10 cursor-pointer appearance-none rounded-none rounded-t border-0 border-b border-b-black bg-gray-950 py-2 pr-10 pl-4 text-sm text-black placeholder:text-black disabled:opacity-60;
 }
 @utility textarea {
   @apply input h-auto min-h-10;
@@ -228,15 +230,15 @@ body {
 @utility table-header {
   @apply bg-gray-1000-active min-h-12 border-b border-b-black px-4 text-left text-sm font-medium text-black;
 }
-@utility table-item {
-  @apply shadow-border-b-gray min-h-16 text-left text-sm text-black;
+@utility table-row {
+  @apply shadow-border-b-gray h-16 text-left text-sm text-black;
 }
 @utility table-cell {
   @apply px-3 py-1 text-sm;
 }
 
 @utility nav-item {
-  @apply hover:bg-background-grey-hover aria-current:border-b-blue-france aria-current:text-blue-france focus flex h-14 items-center p-4 text-sm aria-current:border-b-2;
+  @apply hover:bg-background-grey-hover aria-current:border-b-blue-france aria-current:text-blue-france focus flex h-14 cursor-pointer items-center p-4 text-sm aria-current:border-b-2;
 }
 @utility nav-link {
   @apply hover:bg-background-grey-hover aria-selected:text-blue-france aria-current:text-blue-france focus shadow-border-link focus-visible:text-blue-france flex h-auto w-full cursor-pointer px-4 py-3 text-sm text-black aria-current:border-b-2;

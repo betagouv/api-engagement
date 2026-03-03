@@ -1,11 +1,38 @@
 import { useEffect, useState } from "react";
 
-import { IoIosArrowDown } from "react-icons/io";
-import { RiArrowLeftSLine, RiArrowRightSLine, RiSkipLeftLine, RiSkipRightLine } from "react-icons/ri";
+import { RiArrowDownSLine, RiArrowLeftSLine, RiArrowRightSLine, RiSkipLeftLine, RiSkipRightLine } from "react-icons/ri";
 
 import Loader from "@/components/Loader";
 
-const Table = ({ header, sortBy, total, onSort, loading, children, auto = false, sticky = false, className = "", pagination = true, page, onPageChange, pageSize = 10 }) => {
+const SortableHeader = ({ item, sortBy, onSort }) => {
+  const isSorted = sortBy === item.key;
+  const isAscending = isSorted && sortBy.startsWith?.("-");
+  const ariaSort = isSorted ? (isAscending ? "ascending" : "descending") : undefined;
+  const positionClass = item.position === "right" ? "justify-end" : item.position === "center" ? "justify-center" : "justify-start";
+
+  return (
+    <th key={item.key} className="p-4" width={item.width || undefined} aria-sort={ariaSort}>
+      <button className={`group flex h-full w-full items-center gap-2 ${positionClass}`} onClick={() => onSort(item.key)} type="button">
+        <span className={`text-sm font-semibold ${item.position === "right" ? "text-right" : item.position === "center" ? "text-center" : "text-left"}`}>{item.title}</span>
+        <RiArrowDownSLine
+          className={`ml-2 text-lg transition-transform duration-200 ${isSorted ? "rotate-180 opacity-100" : "opacity-0 group-hover:opacity-100"}`}
+          aria-hidden="true"
+        />
+      </button>
+    </th>
+  );
+};
+
+const StaticHeader = ({ item }) => {
+  const positionClass = item.position === "right" ? "text-right" : item.position === "center" ? "text-center" : "text-left";
+  return (
+    <th className={`p-4 ${positionClass}`} width={item.width || undefined}>
+      {item.title}
+    </th>
+  );
+};
+
+const Table = ({ header, caption, sortBy, total, onSort, loading, children, sticky = false, className = "", pagination = true, page, onPageChange, pageSize = 10 }) => {
   const [internalPage, setInternalPage] = useState(page || 1);
   useEffect(() => {
     if (typeof page === "number" && page !== internalPage) {
@@ -15,41 +42,33 @@ const Table = ({ header, sortBy, total, onSort, loading, children, auto = false,
 
   const resolvedPage = typeof page === "number" ? page : internalPage;
   const handleSetPage = onPageChange || setInternalPage;
+  const isSortable = typeof onSort === "function";
 
   return (
     <>
-      <div className={`no-scrollbar w-full overflow-x-auto overflow-y-visible ${className}`}>
-        <table className={`w-full border-collapse ${auto ? "table-auto" : "table-fixed"}`}>
-          <thead className={`text-left ${sticky ? "sticky top-0 z-10 shadow-sm" : ""}`}>
+      <div className={`w-full overflow-x-auto overflow-y-visible ${className}`}>
+        <table className="min-w-full table-fixed border-collapse">
+          {caption && (
+            <caption className="sr-only">
+              {caption}
+              {isSortable && ". Activez un bouton d'en-tête de colonne pour trier par cette colonne."}
+            </caption>
+          )}
+          <thead className={`text-left ${sticky ? "sticky top-0 z-10 shadow-sm" : ""}`} style={{ width: "100%" }}>
             <tr className="table-header">
-              {header.map((item, index) => {
-                return (
-                  <th key={index} className="p-4" colSpan={item.colSpan || 1}>
-                    <button
-                      className={`group flex w-full items-center gap-2 ${item.position === "right" ? "justify-end" : item.position === "center" ? "justify-center" : "justify-start"}`}
-                      onClick={() => item.key && onSort && onSort(item.key)}
-                    >
-                      <div className="relative">
-                        <h3 className={`text-sm font-semibold ${item.position === "right" ? "text-right" : item.position === "center" ? "text-center" : "text-left"}`}>
-                          {item.title}
-                          {item.key && onSort && (
-                            <IoIosArrowDown
-                              className={`${sortBy === item.key ? "block" : "hidden group-hover:block"} absolute top-1/2 -right-4 -translate-y-1/2`}
-                              aria-hidden="true"
-                            />
-                          )}
-                        </h3>
-                      </div>
-                    </button>
-                  </th>
-                );
-              })}
+              {header.map((item, index) =>
+                item.key && isSortable ? (
+                  <SortableHeader key={item.key || index} item={item} sortBy={sortBy} onSort={onSort} />
+                ) : (
+                  <StaticHeader key={item.key || index} item={item} />
+                ),
+              )}
             </tr>
           </thead>
           <tbody className="relative">
             {loading ? (
               <tr>
-                <td colSpan={header.reduce((acc, item) => acc + (item.colSpan || 1), 0)}>
+                <td colSpan={header.length}>
                   <div className="bg-gray-975 flex w-full justify-center py-4">
                     <Loader />
                   </div>
@@ -57,7 +76,7 @@ const Table = ({ header, sortBy, total, onSort, loading, children, auto = false,
               </tr>
             ) : total === 0 ? (
               <tr>
-                <td colSpan={header.reduce((acc, item) => acc + (item.colSpan || 1), 0)} className="bg-gray-975 py-4 text-center">
+                <td colSpan={header.length} className="bg-gray-975 py-4 text-center">
                   Aucune donnée trouvée
                 </td>
               </tr>

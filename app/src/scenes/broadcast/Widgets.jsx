@@ -10,7 +10,7 @@ import { BENEVOLAT_URL, VOLONTARIAT_URL } from "@/services/config";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
 
-const TABLE_HEADER = [{ title: "Nom", colSpan: 3 }, { title: "Diffuse des missions de", colSpan: 2 }, { title: "Crée le" }, { title: "Actions" }, { title: "Actif" }];
+const TABLE_HEADER = [{ title: "Nom", width: "35%" }, { title: "Diffuse des missions de", width: "25%" }, { title: "Crée le" }, { title: "Actions" }, { title: "Actif" }];
 
 const Widgets = () => {
   const { user, publisher } = useStore();
@@ -95,6 +95,7 @@ const Widgets = () => {
           </div>
 
           <Table
+            caption="Liste des widgets"
             header={TABLE_HEADER}
             pagination
             page={filters.page}
@@ -104,13 +105,13 @@ const Widgets = () => {
             auto
           >
             {data.slice((filters.page - 1) * filters.pageSize, filters.page * filters.pageSize).map((item, i) => (
-              <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
-                <td className="px-4" colSpan={3}>
+              <tr key={i} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
+                <td className="px-4">
                   <Link to={`/broadcast/widget/${item.id}`} className="text-blue-france truncate">
                     {item.name}
                   </Link>
                 </td>
-                <td className={`px-4 ${!item.active ? "opacity-50" : "opacity-100"}`} colSpan={2}>
+                <td className={`px-4 ${!item.active ? "opacity-50" : "opacity-100"}`}>
                   {item.publishers
                     .slice(0, 3)
                     .map((p) => p.name)

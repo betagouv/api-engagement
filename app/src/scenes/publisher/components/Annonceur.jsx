@@ -69,9 +69,9 @@ const Annonceur = ({ values, onChange, errors, setErrors }) => {
           <p className="text-base">
             {data.length} diffuseurs diffusent les missions de {values.name}
           </p>
-          <Table header={[{ title: "Partenaires" }]} className="h-96">
+          <Table caption="Diffuseurs du partenaire" header={[{ title: "Partenaires" }]} className="h-96">
             {data.slice(0, 5).map((item, index) => (
-              <tr key={index} className={`${index % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
+              <tr key={index} className={`${index % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-row`}>
                 <td className="p-4">{item.name}</td>
               </tr>
             ))}
@@ -96,9 +96,9 @@ const DiffuseurModal = ({ data }) => {
         <div className="space-y-6 p-12">
           <h1 className="text-2xl font-bold">{data.length} diffuseurs</h1>
 
-          <Table header={[{ title: "Partenaires" }]} className="h-96">
+          <Table caption="Diffuseurs du partenaire" header={[{ title: "Partenaires" }]} className="h-96">
             {data.map((item, index) => (
-              <tr key={index} className={`${index % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
+              <tr key={index} className={`${index % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-row`}>
                 <td className="p-4">{item.name}</td>
               </tr>
             ))}

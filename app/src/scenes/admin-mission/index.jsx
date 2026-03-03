@@ -4,6 +4,7 @@ import { Link, useSearchParams } from "react-router-dom";
 
 import ErrorIconSvg from "@/assets/svg/error-icon.svg?react";
 import Combobox from "@/components/combobox";
+import PublisherCombobox from "@/components/combobox/PublisherCombobox";
 import Loader from "@/components/Loader";
 import SearchInput from "@/components/SearchInput";
 import Select from "@/components/Select";
@@ -16,9 +17,9 @@ import { compactMissionFilters, searchMissions } from "@/services/mission";
 import exportCSV from "@/services/utils";
 
 const TABLE_HEADER = [
-  { title: "Mission", key: "title.keyword", colSpan: 4 },
+  { title: "Mission", key: "title.keyword", width: "35%" },
   { title: "Places disponibles", key: "places" },
-  { title: "Ville", key: "city.keyword", colSpan: 2 },
+  { title: "Ville", key: "city.keyword", width: "20%" },
   { title: "Créée le", key: "createdAt" },
   { title: "Statut", key: "statusCode.keyword" },
 ];
@@ -29,7 +30,7 @@ const AdminMission = () => {
     size: 25,
     page: Number(searchParams.get("page")) || 1,
     sortBy: "createdAt",
-    publisherId: searchParams.get("publisherId") || null,
+    publisherIds: searchParams.get("publisherIds") ? searchParams.get("publisherIds").split(",") : [],
     status: searchParams.get("status") || null,
     domain: searchParams.get("domain") || null,
     activity: searchParams.get("activity") || null,
@@ -58,7 +59,9 @@ const AdminMission = () => {
     const fetchData = async () => {
       try {
         const res = await api.post("/import/search", { size: 1 });
-        if (!res.ok) throw res;
+        if (!res.ok) {
+          throw res;
+        }
         setLastImport(res.data.length ? res.data[0] : null);
       } catch (error) {
         captureError(error);
@@ -77,7 +80,9 @@ const AdminMission = () => {
 
         const res = await searchMissions(filters);
 
-        if (!res.ok) throw res;
+        if (!res.ok) {
+          throw res;
+        }
         setData(res.data);
         setOptions(res.aggs);
         setTotal(res.total);
@@ -95,7 +100,9 @@ const AdminMission = () => {
     try {
       const res = await searchMissions({ ...filters, size: total, page: 1 });
 
-      if (!res.ok) throw res;
+      if (!res.ok) {
+        throw res;
+      }
 
       const data = [];
       res.data.forEach((mission) => {
@@ -149,12 +156,19 @@ const AdminMission = () => {
             onChange={(e) => setFilters({ ...filters, activity: e.value })}
             placeholder="Activité"
           />
-          <Combobox
+          {/* <Combobox
             id="publisher"
             options={options.partners.map((e) => ({ value: e.id, label: e.name, count: e.count }))}
             value={filters.publisherId}
             onSelect={(e) => (e ? setFilters({ ...filters, publisherId: e.value }) : null)}
             placeholder="Partenaire"
+          /> */}
+          <PublisherCombobox
+            id="publisherIds"
+            values={filters.publisherIds}
+            onChange={(publisherIds) => setFilters({ ...filters, publisherIds })}
+            placeholder="Partenaire"
+            options={options.partners}
           />
         </div>
         <div className="flex items-center gap-4">
@@ -200,6 +214,7 @@ const AdminMission = () => {
         </div>
 
         <Table
+          caption="Liste des missions"
           header={TABLE_HEADER}
           pagination
           page={filters.page}
@@ -211,8 +226,8 @@ const AdminMission = () => {
           onSort={(sortBy) => setFilters({ ...filters, sortBy })}
         >
           {data.map((item, i) => (
-            <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
-              <td className="p-4" colSpan={4}>
+            <tr key={i} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
+              <td className="p-4">
                 <Link to={`/mission/${item._id}`} className="text-blue-france line-clamp-3">
                   {item.title}
                 </Link>
@@ -220,7 +235,7 @@ const AdminMission = () => {
                 {item.organizationName && <p className="text-sm">{item.organizationName}</p>}
               </td>
               <td className="px-4">{item.places}</td>
-              <td className="px-4" colSpan={2}>
+              <td className="px-4">
                 {item.city}
               </td>
               <td className="px-4">{new Date(item.createdAt).toLocaleDateString("fr")}</td>

@@ -66,6 +66,8 @@ events as (
     source_id,
     min(created_at) filter (where type = 'click') as first_click_at,
     min(created_at) filter (where type = 'apply') as first_apply_at,
+    count(*) filter (where type = 'click') as click_count,
+    count(*) filter (where type = 'apply') as apply_count,
     max(updated_at) as events_updated_at
   from {{ ref('int_stat_event_global') }}
   where
@@ -98,6 +100,8 @@ base as (
     e.source_id,
     e.first_click_at,
     e.first_apply_at,
+    e.click_count,
+    e.apply_count,
     greatest(
       coalesce(m.mission_updated_at, '1900-01-01'::timestamp),
       coalesce(e.events_updated_at, '1900-01-01'::timestamp)
@@ -125,6 +129,8 @@ select
   source_id,
   first_click_at,
   first_apply_at,
+  click_count,
+  apply_count,
   updated_at,
   case
     when mission_created_at is null or first_click_at is null then null
@@ -139,5 +145,9 @@ select
       extract(epoch from (first_apply_at - mission_created_at))::bigint,
       0
     )
-  end as time_to_apply_secs
+  end as time_to_apply_secs,
+  case
+    when click_count = 0 then null
+    else apply_count::numeric / click_count
+  end as conversion_rate
 from base

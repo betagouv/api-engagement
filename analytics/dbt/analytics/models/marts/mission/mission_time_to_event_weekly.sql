@@ -57,6 +57,8 @@ base as (
     time_to_import_secs,
     time_to_click_secs,
     time_to_apply_secs,
+    click_count,
+    apply_count,
     first_click_at,
     first_apply_at,
     updated_at,
@@ -96,6 +98,8 @@ aggregated as (
       as mission_with_click_count,
     count(*) filter (where first_apply_at is not null)
       as mission_with_apply_count,
+    sum(click_count) as click_count,
+    sum(apply_count) as apply_count,
     avg(time_to_click_secs) as avg_time_to_click_secs,
     avg(time_to_apply_secs) as avg_time_to_apply_secs,
     avg(time_to_import_secs) as avg_time_to_import_secs,
@@ -119,4 +123,10 @@ aggregated as (
     mission_duration_days
 )
 
-select * from aggregated
+select
+  a.*,
+  case
+    when a.click_count = 0 then null
+    else a.apply_count::numeric / a.click_count
+  end as conversion_rate
+from aggregated as a

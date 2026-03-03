@@ -7,13 +7,13 @@ import Table from "@/components/Table";
 import Toggle from "@/components/Toggle";
 import Filters from "@/scenes/broadcast/moderation/components/Filters";
 import Header from "@/scenes/broadcast/moderation/components/Header";
-import MissionItem from "@/scenes/broadcast/moderation/components/MissionItem";
 import SettingsModal from "@/scenes/broadcast/moderation/components/SettingsModal";
 import MissionModal from "@/scenes/broadcast/moderation/modal";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import { compactMissionFilters } from "@/services/mission";
 import useStore from "@/services/store";
+import MissionItem from "./components/MissionItem";
 
 const Moderation = () => {
   const { publisher } = useStore();
@@ -25,10 +25,10 @@ const Moderation = () => {
     size: 25,
     status: searchParams.get("status") || null,
     comment: searchParams.get("comment") || null,
-    publisherId: searchParams.get("publisher") || null,
-    organizationNames: searchParams.has("organizationNames") ? searchParams.getAll("organizationNames") : [],
+    publisherIds: searchParams.has("publisherIds") ? searchParams.get("publisherIds").split(",") : [],
+    organizationNames: searchParams.has("organizationNames") ? searchParams.get("organizationNames").split(",") : [],
     department: searchParams.get("department") || null,
-    cities: searchParams.has("cities") ? searchParams.getAll("cities") : [],
+    cities: searchParams.has("cities") ? searchParams.get("cities").split(",") : [],
     activity: searchParams.get("activity") || null,
     domain: searchParams.get("domain") || null,
     search: searchParams.get("search") || null,
@@ -56,10 +56,10 @@ const Moderation = () => {
       setLoading(true);
       try {
         const query = {
+          publisherIds: filters.publisherIds || undefined,
           moderatorId: publisher.id || undefined,
           status: filters.status || undefined,
           comment: filters.comment || undefined,
-          publisherId: filters.publisherId || undefined,
           cities: filters.cities || undefined,
           domain: filters.domain || undefined,
           department: filters.department || undefined,
@@ -198,7 +198,7 @@ const Moderation = () => {
 
       <div className="mx-12">
         <Table
-          auto
+          caption="Missions en modération"
           header={[
             {
               title: (
@@ -220,10 +220,10 @@ const Moderation = () => {
                   <h3 className="text-sm font-semibold">Mission</h3>
                 </div>
               ),
-              colSpan: 3,
+              width: "40%",
             },
             { title: "Organisation" },
-            { title: "Actions", colSpan: 2 },
+            { title: "Actions", width: "30%" },
           ]}
           total={total}
           loading={loading}
@@ -232,8 +232,7 @@ const Moderation = () => {
           onPageChange={handlePageChange}
         >
           {data.map((item, i) => (
-            // <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item h-48`}>
-            <tr key={i} className={`${selected.includes(item.id) ? "bg-blue-france-925" : ""} table-item h-48`}>
+            <tr key={i} className={`${selected.includes(item.id) ? "bg-blue-france-925" : ""} table-row h-48`}>
               <MissionItem
                 data={item}
                 history={history.organization[item.missionOrganizationName] || { ACCEPTED: 0, REFUSED: 0 }}

@@ -27,6 +27,7 @@ const AnalyticsViz = ({
   kpiUnit,
   kpiIcon,
   kpiTooltip,
+  caption,
 }) => {
   const analyticsProvider = useAnalyticsProvider();
   const [data, setData] = useState([]);
@@ -133,7 +134,7 @@ const AnalyticsViz = ({
     const visibleRows = tableRows.slice(start, start + pageSize);
 
     return (
-      <Table header={header} total={tableRows.length} loading={false} className={`border border-gray-900 ${className}`} {...tableProps}>
+      <Table header={header} total={tableRows.length} loading={false} className={`border border-gray-900 ${className}`} caption={caption} {...tableProps}>
         {visibleRows.map((row, idx) => (
           <tr key={idx} className={`${idx % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
             {columns.map((col, colIdx) => (

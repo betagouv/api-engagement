@@ -2,7 +2,7 @@ import { useEffect, useId, useRef, useState } from "react";
 
 import Loader from "./Loader";
 
-const Autocomplete = ({ options, value, onChange, onSelect, loading = false, placeholder, className, id }) => {
+const Autocomplete = ({ options = [], value, onChange, onSelect, loading = false, placeholder, className, id, getLabel = (o) => o, getValue = (o) => o, getCount = null }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState(-1);
   const containerRef = useRef(null);
@@ -60,7 +60,7 @@ const Autocomplete = ({ options, value, onChange, onSelect, loading = false, pla
       case "Enter":
         e.preventDefault();
         if (focusedIndex >= 0 && focusedIndex < options.length) {
-          onSelect(options[focusedIndex]);
+          onSelect(getValue(options[focusedIndex]));
           setIsOpen(false);
           setFocusedIndex(-1);
         }
@@ -98,7 +98,7 @@ const Autocomplete = ({ options, value, onChange, onSelect, loading = false, pla
       case "Enter":
       case " ": {
         e.preventDefault();
-        onSelect(option);
+        onSelect(getValue(option));
         setIsOpen(false);
         setFocusedIndex(-1);
         inputRef.current?.focus();
@@ -164,7 +164,7 @@ const Autocomplete = ({ options, value, onChange, onSelect, loading = false, pla
         id={listboxId}
         role="listbox"
         aria-label={placeholder}
-        className={`absolute top-10 z-10 max-h-80 w-full overflow-y-auto bg-white shadow-lg transition duration-100 ease-in ${className || "w-full"} ${isOpen ? "" : "hidden"}`}
+        className={`absolute top-10 z-10 max-h-80 w-full overflow-y-auto bg-white p-2 shadow-lg transition duration-100 ease-in ${className || "w-full"} ${isOpen ? "" : "hidden"}`}
       >
         {isOpen &&
           (loading ? (
@@ -185,15 +185,15 @@ const Autocomplete = ({ options, value, onChange, onSelect, loading = false, pla
                 tabIndex={i === focusedIndex ? 0 : -1}
                 className="flex list-item"
                 onClick={() => {
-                  onSelect(option);
+                  onSelect(getValue(option));
                   setIsOpen(false);
                   setFocusedIndex(-1);
                   inputRef.current?.focus();
                 }}
                 onKeyDown={(e) => handleListKeyDown(e, option, i)}
               >
-                <p className="flex-1 truncate">{option.label}</p>
-                {option.doc_count && <span>{option.doc_count}</span>}
+                <p className="flex-1 truncate">{getLabel(option)}</p>
+                {getCount && <span>{getCount(option)}</span>}
               </li>
             ))
           ))}

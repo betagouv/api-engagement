@@ -137,6 +137,7 @@ const Distribution = ({ filters, onFiltersChange }) => {
                 }
                 return value;
               }}
+              caption="Domaine d'action des missions"
             />
           </div>
         </div>
@@ -166,6 +167,7 @@ const Distribution = ({ filters, onFiltersChange }) => {
               adapterOptions={{ labelColumn: "department_name", valueColumn: "missions_count" }}
               chartProps={{ unit: "missions", innerRadius: "40%" }}
               loaderHeight="22rem"
+              caption="Domaine d'action des missions"
             />
           </div>
           <div className="lg:w-7/12">
@@ -191,6 +193,7 @@ const Distribution = ({ filters, onFiltersChange }) => {
                 }
                 return value;
               }}
+              caption="Département des missions"
             />
           </div>
         </div>

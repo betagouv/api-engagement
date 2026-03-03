@@ -3,6 +3,7 @@ import { RiCloseFill } from "react-icons/ri";
 
 import ModerationManualIcon from "@/assets/svg/moderation-manual.svg";
 import MissionCombobox from "@/components/combobox/MissionCombobox";
+import PublisherCombobox from "@/components/combobox/PublisherCombobox";
 import SearchInput from "@/components/SearchInput";
 import Select from "@/components/Select";
 import STATUS, { DEPARTMENT_LABELS, JVA_MODERATION_COMMENTS_LABELS, STATUS_PLR } from "@/scenes/broadcast/moderation/components/Constants";
@@ -30,7 +31,7 @@ const Filters = ({ filters, onChange, reload }) => {
           moderatorId: publisher.id || undefined,
           status: filters.status || undefined,
           comment: filters.comment || undefined,
-          publisherId: filters.publisherId || undefined,
+          publisherIds: filters.publisherIds || undefined,
           cities: filters.cities || undefined,
           domain: filters.domain || undefined,
           department: filters.department || undefined,
@@ -44,6 +45,7 @@ const Filters = ({ filters, onChange, reload }) => {
         if (!res.ok) {
           throw res;
         }
+
         setOptions(res.data);
       } catch (error) {
         captureError(error, { extra: { filters } });
@@ -52,7 +54,7 @@ const Filters = ({ filters, onChange, reload }) => {
       }
     };
     fetchOptions();
-  }, [filters, reload]);
+  }, [reload]);
 
   return (
     <div className="mx-12">
@@ -74,12 +76,15 @@ const Filters = ({ filters, onChange, reload }) => {
           loading={loading}
         />
 
-        <Select
-          options={options.publishers.map((e) => ({ value: e.key, label: e.label, count: e.doc_count }))}
-          value={filters.publisherId}
-          onChange={(e) => onChange({ ...filters, publisherId: e.value })}
+        <PublisherCombobox
+          id="publisherIds"
+          values={filters.publisherIds}
+          onChange={(publisherIds) => {
+            console.log("publisherIds", publisherIds);
+            onChange({ ...filters, publisherIds });
+          }}
           placeholder="Annonceur"
-          loading={loading}
+          options={options.publishers}
         />
         <Select
           options={options.domains.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}

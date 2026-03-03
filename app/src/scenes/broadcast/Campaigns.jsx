@@ -12,11 +12,11 @@ import { captureError } from "@/services/error";
 import useStore from "@/services/store";
 
 const TABLE_HEADER = [
-  { title: "Nom", colSpan: 2 },
-  { title: "Diffuse des missions de", colSpan: 2 },
-  { title: "Crée le", colSpan: 1 },
-  { title: "Actions", colSpan: 3 },
-  { title: "Actif", colSpan: 1 },
+  { title: "Nom", width: "22%" },
+  { title: "Diffuse des missions de", width: "22%" },
+  { title: "Crée le" },
+  { title: "Actions", width: "30%" },
+  { title: "Actif" },
 ];
 
 const Campaigns = () => {
@@ -156,6 +156,7 @@ const Campaigns = () => {
           </div>
 
           <Table
+            caption="Liste des campagnes"
             header={TABLE_HEADER}
             pagination
             page={filters.page}
@@ -165,17 +166,17 @@ const Campaigns = () => {
             auto
           >
             {data.slice((filters.page - 1) * filters.pageSize, filters.page * filters.pageSize).map((item, i) => (
-              <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
-                <td className="px-4 py-3" colSpan={2}>
+              <tr key={i} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
+                <td className="px-4 py-3">
                   <Link to={`/broadcast/campaign/${item.id}`} className="text-blue-france break-words">
                     {item.name}
                   </Link>
                 </td>
-                <td className={`px-4 py-3 ${!item.active ? "opacity-50" : "opacity-100"}`} colSpan={2}>
+                <td className={`px-4 py-3 ${!item.active ? "opacity-50" : "opacity-100"}`}>
                   {item.toPublisherName}
                 </td>
                 <td className={`px-4 py-3 ${!item.active ? "opacity-50" : "opacity-100"}`}>{new Date(item.createdAt).toLocaleDateString("fr")}</td>
-                <td colSpan={3} className="px-4 py-3">
+                <td className="px-4 py-3">
                   <div className="flex w-fit gap-2 text-lg">
                     <Link className="secondary-btn flex items-center" to={`/broadcast/campaign/${item.id}`}>
                       <RiEditFill className="text-lg" role="img" aria-label="Modifier la campagne" />
