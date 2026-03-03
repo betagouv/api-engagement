@@ -9,6 +9,7 @@ import RedirectController from "@/controllers/redirect";
 import bodyParserErrorHandler from "@/middlewares/body-parser-error-handler";
 import passport from "@/middlewares/passport";
 import MissionV0Controller from "@/v0/mission/controller";
+import MissionV2WriteController from "@/v2/mission/controller";
 import MyMissionV0Controller from "@/v0/mymission/controller";
 import MyOrganizationV0Controller from "@/v0/myorganization/controller";
 import ViewV0Controller from "@/v0/view";
@@ -32,6 +33,7 @@ export const createTestApp = () => {
   app.use("/moderation", ModerationController);
   app.use("/v0/myorganization", MyOrganizationV0Controller);
   app.use("/v0/mymission", MyMissionV0Controller);
+  app.use("/v2/mission", MissionV2WriteController);
   app.use("/v0/mission", MissionV0Controller);
   app.use("/v0/view", ViewV0Controller);
   app.use("/r", RedirectController);
