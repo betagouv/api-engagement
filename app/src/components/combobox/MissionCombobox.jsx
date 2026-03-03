@@ -1,4 +1,3 @@
-// import Combobox from "@/components/combobox/index";
 import Combobox from "@/components/combobox/DesignSystem";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
