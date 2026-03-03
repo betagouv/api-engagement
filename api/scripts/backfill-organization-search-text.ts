@@ -2,7 +2,7 @@
  * Backfill : calcule le champ search_text des organisations.
  *
  * Exécution :
- *   npx ts-node scripts/backfill-organization-search-text.ts [--batch <taille>] [--last-id <id>]
+ *   npx ts-node scripts/backfill-organization-search-text.ts [--batch <taille>] [--last-id <id>] [--only-null]
  */
 import dotenv from "dotenv";
 
@@ -27,12 +27,13 @@ const parseLastId = () => {
   return idx !== -1 && process.argv[idx + 1] ? process.argv[idx + 1] : null;
 };
 
+const onlyNull = process.argv.includes("--only-null");
 const BATCH_SIZE = parseBatchSize();
 const INITIAL_LAST_ID = parseLastId();
 
 const run = async () => {
   const startedAt = new Date();
-  console.log(`[OrganizationSearchTextBackfill] Démarré à ${startedAt.toISOString()}. Batch=${BATCH_SIZE}.`);
+  console.log(`[OrganizationSearchTextBackfill] Démarré à ${startedAt.toISOString()}. Batch=${BATCH_SIZE}. onlyNull=${onlyNull}.`);
 
   await prismaCore.$connect();
 
@@ -41,13 +42,13 @@ const run = async () => {
 
   while (true) {
     const where = {
-      searchText: null,
+      ...(onlyNull ? { searchText: null } : {}),
       ...(lastId ? { id: { gt: lastId } } : {}),
     };
 
     const batch = await prismaCore.organization.findMany({
       where,
-      select: { id: true, title: true, shortTitle: true },
+      select: { id: true, title: true, shortTitle: true, rna: true, siret: true, siren: true },
       orderBy: { id: "asc" },
       take: BATCH_SIZE,
     });
@@ -58,7 +59,13 @@ const run = async () => {
 
     const updates = batch.map((row) => ({
       id: row.id,
-      searchText: buildOrganizationSearchText(row.title, row.shortTitle),
+      searchText: buildOrganizationSearchText({
+        title: row.title,
+        shortTitle: row.shortTitle,
+        rna: row.rna,
+        siret: row.siret,
+        siren: row.siren,
+      }),
     }));
 
     await prismaCore.$transaction(

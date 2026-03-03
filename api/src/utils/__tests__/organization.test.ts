@@ -27,14 +27,20 @@ describe("isValidSiret", () => {
 
 describe("buildOrganizationSearchText", () => {
   it("should return null when both inputs are empty", () => {
-    expect(buildOrganizationSearchText("   ", null)).toBeNull();
+    expect(buildOrganizationSearchText({ title: "   ", shortTitle: null })).toBeNull();
   });
 
   it("should build a trimmed, collapsed string from title only", () => {
-    expect(buildOrganizationSearchText("  Croix   Rouge  ", undefined)).toBe("Croix Rouge");
+    expect(buildOrganizationSearchText({ title: "  Croix   Rouge  ", shortTitle: undefined })).toBe("croix rouge");
   });
 
   it("should concatenate title and short title with a single space", () => {
-    expect(buildOrganizationSearchText("Croix Rouge", "  CR  ")).toBe("Croix Rouge CR");
+    expect(buildOrganizationSearchText({ title: "Croix Rouge", shortTitle: "  CR  " })).toBe("croix rouge cr");
+  });
+
+  it("should include identifiers in search text", () => {
+    expect(buildOrganizationSearchText({ title: "Croix Rouge", rna: "W123456789", siret: "12345678901234", siren: "123456789" })).toBe(
+      "croix rouge w123456789 12345678901234 123456789"
+    );
   });
 });

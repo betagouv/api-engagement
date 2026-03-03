@@ -52,17 +52,9 @@ const buildSearchWhere = (params: OrganizationSearchParams): Prisma.Organization
       } else if (isValidSiret(query)) {
         and.push({ OR: [{ siret: query }, { sirets: { has: query } }] });
       } else {
-        const slug = slugify(query);
-        const isTextQuery = /[A-Za-zÀ-ÖØ-öø-ÿ]/.test(query);
-        const textConditions: Prisma.OrganizationWhereInput[] = [{ searchText: { contains: query, mode: "insensitive" } }];
-        if (!isTextQuery) {
-          textConditions.push({ rna: { contains: query, mode: "insensitive" } });
-          textConditions.push({ siret: { contains: query, mode: "insensitive" } });
-          textConditions.push({ siren: { contains: query, mode: "insensitive" } });
-        }
-        if (slug) {
-          textConditions.push({ names: { has: slug } });
-        }
+        const normalizedQuery = query.toLowerCase();
+        const textConditions: Prisma.OrganizationWhereInput[] = [{ searchText: { contains: normalizedQuery } }];
+
         and.push({ OR: textConditions });
       }
     }
@@ -87,14 +79,17 @@ const mapCreateInput = (input: OrganizationCreateInput): Prisma.OrganizationCrea
   const sirets = normalizeStringArray(input.sirets);
   const id = (input.id && input.id.trim()) || generateOrganizationId();
   const shortTitle = normalizeOptionalString(input.shortTitle);
-  const searchText = buildOrganizationSearchText(title, shortTitle);
+  const rna = normalizeOptionalString(input.rna);
+  const siren = normalizeOptionalString(input.siren);
+  const siret = normalizeOptionalString(input.siret);
+  const searchText = buildOrganizationSearchText({ title, shortTitle, rna, siren, siret });
 
   return {
     id,
     title,
-    rna: normalizeOptionalString(input.rna),
-    siren: normalizeOptionalString(input.siren),
-    siret: normalizeOptionalString(input.siret),
+    rna,
+    siren,
+    siret,
     sirets,
     rupMi: normalizeOptionalString(input.rupMi),
     gestion: normalizeOptionalString(input.gestion),
@@ -169,10 +164,6 @@ const mapUpdateInput = (patch: OrganizationUpdatePatch): Prisma.OrganizationUpda
     data.shortTitleSlug = normalizeSlug(shortTitlePatch ?? null, patch.shortTitleSlug ?? null);
   } else if (patch.shortTitleSlug !== undefined) {
     data.shortTitleSlug = normalizeOptionalString(patch.shortTitleSlug);
-  }
-
-  if (patch.title !== undefined || patch.shortTitle !== undefined) {
-    data.searchText = buildOrganizationSearchText(titlePatch ?? null, shortTitlePatch ?? null);
   }
 
   if (patch.rna !== undefined) {
@@ -362,17 +353,22 @@ export const organizationService = (() => {
   const updateOrganization = async (id: string, patch: OrganizationUpdatePatch): Promise<OrganizationRecord> => {
     try {
       const data = mapUpdateInput(patch);
-      if (patch.title !== undefined || patch.shortTitle !== undefined) {
+      const shouldRefreshSearchText =
+        patch.title !== undefined || patch.shortTitle !== undefined || patch.rna !== undefined || patch.siret !== undefined || patch.siren !== undefined;
+      if (shouldRefreshSearchText) {
         const existing = await organizationRepository.findUnique({
           where: { id },
-          select: { title: true, shortTitle: true },
+          select: { title: true, shortTitle: true, rna: true, siret: true, siren: true },
         });
         if (!existing) {
           throw new Error("Organization not found");
         }
         const nextTitle = patch.title !== undefined ? (normalizeOptionalString(patch.title) ?? existing.title) : existing.title;
         const nextShortTitle = patch.shortTitle !== undefined ? (normalizeOptionalString(patch.shortTitle) ?? null) : existing.shortTitle;
-        data.searchText = buildOrganizationSearchText(nextTitle, nextShortTitle);
+        const nextRna = patch.rna !== undefined ? (normalizeOptionalString(patch.rna) ?? null) : existing.rna;
+        const nextSiret = patch.siret !== undefined ? (normalizeOptionalString(patch.siret) ?? null) : existing.siret;
+        const nextSiren = patch.siren !== undefined ? (normalizeOptionalString(patch.siren) ?? null) : existing.siren;
+        data.searchText = buildOrganizationSearchText({ title: nextTitle, shortTitle: nextShortTitle, rna: nextRna, siret: nextSiret, siren: nextSiren });
       }
       return await organizationRepository.update({
         where: { id },
@@ -447,10 +443,23 @@ export const organizationService = (() => {
     for (const chunkRecords of chunkedRecords) {
       for (const record of chunkRecords) {
         try {
+          const normalizedRna = normalizeOptionalString(record.rna);
+          const normalizedSiret = normalizeOptionalString(record.siret);
+          const normalizedSiren = normalizeOptionalString(record.siren);
+          const normalizedShortTitle = normalizeOptionalString(record.shortTitle);
           await prismaCore.organization.upsert({
             where: { rna: record.rna as string },
             create: mapCreateInput(record),
-            update: mapUpdateInput(record),
+            update: {
+              ...mapUpdateInput(record),
+              searchText: buildOrganizationSearchText({
+                title: record.title,
+                shortTitle: normalizedShortTitle,
+                rna: normalizedRna,
+                siret: normalizedSiret,
+                siren: normalizedSiren,
+              }),
+            },
           });
         } catch (error) {
           // Skip invalid records while logging the issue to keep the batch moving

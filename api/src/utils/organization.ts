@@ -27,13 +27,21 @@ export const normalizeName = (value?: unknown | null) => {
   return null;
 };
 
-export const buildOrganizationSearchText = (title?: string | null, shortTitle?: string | null): string | null => {
-  const parts = [title, shortTitle].map((value) => (typeof value === "string" ? value.trim() : "")).filter((value) => value.length > 0);
+type OrganizationSearchTextInput = {
+  title?: string | null;
+  shortTitle?: string | null;
+  rna?: string | null;
+  siret?: string | null;
+  siren?: string | null;
+};
+
+export const buildOrganizationSearchText = ({ title, shortTitle, rna, siret, siren }: OrganizationSearchTextInput): string | null => {
+  const parts = [title, shortTitle, rna, siret, siren].map((value) => (typeof value === "string" ? value.trim() : "")).filter((value) => value.length > 0);
 
   if (!parts.length) {
     return null;
   }
 
-  const combined = parts.join(" ").replace(/\s+/g, " ").trim();
+  const combined = parts.join(" ").replace(/\s+/g, " ").trim().toLowerCase();
   return combined.length ? combined : null;
 };
