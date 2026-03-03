@@ -62,7 +62,7 @@ select
   po.city as organization_city,
   po.legal_status as organization_status_juridique,
   po.beneficiaries as organization_beneficiaries,
-  po.beneficiaries as organization_actions,
+  po.actions as organization_actions,
   po.parent_organizations as organization_reseaux,
   po.organisation_is_rup
 from missions as m
