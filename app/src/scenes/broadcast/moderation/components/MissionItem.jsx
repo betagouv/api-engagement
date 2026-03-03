@@ -73,7 +73,7 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
         onChange={onChangeMany}
         total={isOrganizationToRefuse}
       />
-      <td className="table-cell align-middle" colSpan={3}>
+      <td className="table-cell align-middle">
         <div className="flex items-center">
           <label className="flex w-14 items-center">
             <span className="sr-only">Sélectionner la mission</span>
@@ -104,18 +104,9 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
           </div>
         </div>
       </td>
-      <td className="table-cell align-middle">
-        <div className="flex flex-col justify-between py-2 text-xs">
-          <span className="max-h-12 truncate">{data.missionOrganizationName}</span>
-
-          <div className="border-grey-border my-2 inline-flex flex-wrap items-center gap-1 rounded border p-1">
-            <span>Missions</span>
-            <RiCheckboxCircleFill role="img" aria-label="Acceptées" className="text-success" />
-            <span className="text-success">{history["ACCEPTED"] || "0"}</span>
-            <BsDot className="text-text-mention" />
-            <RiCloseCircleFill role="img" aria-label="Refusées" className="text-error" />
-            <span className="text-error">{history["REFUSED"] || "0"}</span>
-          </div>
+      <td className="table-cell">
+        <div className="flex flex-1 flex-col justify-between gap-2 text-xs">
+          <p className="w-full text-ellipsis">{data.missionOrganizationName}</p>
 
           {data.associationSources?.length ? (
             <span className="text-text-mention">
@@ -124,9 +115,18 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
           ) : (
             <span className="text-text-mention">Pas d'inscription retrouvée</span>
           )}
+
+          <div className="border-grey-border my-2 inline-flex w-fit flex-wrap items-center gap-1 rounded border p-1">
+            <span>Missions</span>
+            <RiCheckboxCircleFill role="img" aria-label="Acceptées" className="text-success" />
+            <span className="text-success">{history["ACCEPTED"] || "0"}</span>
+            <BsDot className="text-text-mention" />
+            <RiCloseCircleFill role="img" aria-label="Refusées" className="text-error" />
+            <span className="text-error">{history["REFUSED"] || "0"}</span>
+          </div>
         </div>
       </td>
-      <td className="table-cell align-middle" colSpan={2}>
+      <td className="table-cell align-middle">
         <div className="flex flex-col justify-center gap-3">
           <div className="flex items-center gap-3">
             <select

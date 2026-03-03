@@ -191,9 +191,9 @@ const Edit = () => {
               ))}
             </div>
           )}
-          <Table header={TABLE_HEADER} total={filteredPublishers.length} pagination={false} auto className="max-h-96 overflow-y-auto">
+          <Table caption="Partenaires de l'utilisateur" header={TABLE_HEADER} total={filteredPublishers.length} pagination={false} auto className="max-h-96 overflow-y-auto">
             {filteredPublishers.map((item, i) => (
-              <tr key={item.id || item._id} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
+              <tr key={item.id || item._id} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
                 <td className="table-cell">
                   <input
                     type="checkbox"

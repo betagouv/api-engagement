@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
-import { RiDownload2Line } from "react-icons/ri";
 import Combobox from "@/components/combobox";
 import Select from "@/components/Select";
 import Table from "@/components/Table";
 import { MONTHS, REPORT_STATUS, YEARS } from "@/constants";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
+import { RiDownload2Line } from "react-icons/ri";
 
 const TABLE_HEADER = [{ title: "Partenaire", key: "publisherName" }, { title: "Statut", key: "status" }, { title: "Stat" }];
 
@@ -89,6 +89,7 @@ const AdminReport = () => {
           />
         </div>
         <Table
+          caption="Liste des signalements"
           header={TABLE_HEADER}
           pagination
           page={filters.page}
@@ -100,7 +101,7 @@ const AdminReport = () => {
           onSort={(sortBy) => setFilters({ ...filters, sortBy })}
         >
           {data.map((item, i) => (
-            <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
+            <tr key={i} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
               <td className="space-y-1 p-4">
                 <Link className="link text-base font-bold" to={`/publisher/${item.publisherId}`}>
                   {item.publisherName}

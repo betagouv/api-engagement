@@ -16,6 +16,7 @@ const AnalyticsCard = ({
   kpiTooltip,
   chartProps,
   loaderHeight,
+  caption,
 }) => {
   if (!cardId) {
     return null;
@@ -48,6 +49,7 @@ const AnalyticsCard = ({
       kpiUnit={kpiUnit}
       kpiIcon={kpiIcon}
       kpiTooltip={kpiTooltip}
+      caption={caption}
     />
   );
 
