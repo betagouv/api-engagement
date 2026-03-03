@@ -51,12 +51,16 @@ models:
 
   - name: int_stat_event_click_metrics
     description: >
-      Vue intermédiaire au grain mission + diffuseur + source, pilotée par les
-      clicks, qui centralise les premières dates click/apply et les métriques
-      de candidatures liées à un même click.
+      Vue intermédiaire au grain click (une ligne par `stat_event` de type click),
+      qui centralise les candidatures rattachées au click via `click_id`.
     columns:
+      - name: click_stat_event_id
+        description: Identifiant du click (`stat_event.id`).
+        tests:
+          - not_null
+          - unique
       - name: mission_id
-        description: Identifiant de la mission.
+        description: Identifiant de la mission portée par le click.
         tests:
           - not_null
           - relationships:
@@ -76,26 +80,22 @@ models:
           - not_null
       - name: source_id
         description: Identifiant de la source (widget/campaign/publisher selon source).
-      - name: first_click_at
-        description: Horodatage du premier click observé sur le grain.
+      - name: click_created_at
+        description: Horodatage du click.
         tests:
           - not_null
       - name: first_apply_at
-        description: Horodatage de la première candidature observée sur le grain.
-      - name: click_count
-        description: Nombre total de clicks observés sur le grain.
-        tests:
-          - not_null
+        description: Horodatage de la première candidature liée au click.
       - name: apply_count
-        description: Nombre total de candidatures observées sur le grain.
+        description: Nombre total de candidatures liées au click.
         tests:
           - not_null
-      - name: click_with_apply_count
-        description: Nombre de clicks reliés à au moins une candidature.
+      - name: has_apply
+        description: Indique si le click est relié à au moins une candidature.
         tests:
           - not_null
-      - name: click_with_multi_apply_count
-        description: Nombre de clicks reliés à au moins deux candidatures.
+      - name: has_multi_apply
+        description: Indique si le click est relié à au moins deux candidatures.
         tests:
           - not_null
       - name: updated_at

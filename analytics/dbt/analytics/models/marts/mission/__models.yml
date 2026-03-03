@@ -201,7 +201,7 @@ models:
   - name: mission_time_to_event_weekly
     description: >
       Mart hebdomadaire des délais (time-to-click/apply) et volumes, agrégé à partir
-      de `int_mission_first_events` au grain mission + diffuseur + source.
+      de `int_mission_click_apply_metrics` au grain mission + diffuseur + source.
       La cohorte temporelle est basée sur la date du premier click.
     columns:
       - name: week_start
@@ -251,10 +251,6 @@ models:
         description: Durée de mission en jours (start_at/end_at).
       - name: mission_count
         description: Nombre de missions distinctes dans le grain.
-      - name: mission_with_click_count
-        description: Nombre de missions avec au moins un click.
-      - name: mission_with_apply_count
-        description: Nombre de cycles mission avec au moins une candidature.
       - name: click_count
         description: Nombre total de redirections (click) dans le grain.
       - name: apply_count
@@ -284,7 +280,7 @@ models:
   - name: mission_time_to_event_monthly
     description: >
       Mart mensuel des délais (time-to-click/apply) et volumes, agrégé à partir
-      de `int_mission_first_events` au grain mission + diffuseur + source.
+      de `int_mission_click_apply_metrics` au grain mission + diffuseur + source.
       La cohorte temporelle est basée sur la date du premier click.
     columns:
       - name: month_start
@@ -334,10 +330,6 @@ models:
         description: Durée de mission en jours (start_at/end_at).
       - name: mission_count
         description: Nombre de missions distinctes dans le grain.
-      - name: mission_with_click_count
-        description: Nombre de missions avec au moins un click.
-      - name: mission_with_apply_count
-        description: Nombre de cycles mission avec au moins une candidature.
       - name: click_count
         description: Nombre total de redirections (click) dans le grain.
       - name: apply_count

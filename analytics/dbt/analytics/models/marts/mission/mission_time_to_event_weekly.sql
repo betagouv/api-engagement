@@ -30,7 +30,7 @@ with last_run as (
 
 affected_weeks as (
   select distinct date_trunc('week', first_click_at)::date as week_start
-  from {{ ref('int_mission_first_events') }}
+  from {{ ref('int_mission_click_apply_metrics') }}
   where
     first_click_at is not null
     and coalesce(updated_at, first_click_at)
@@ -70,7 +70,7 @@ base as (
       when description_length < 700 then '300-700'
       else '700+'
     end as description_length_bucket
-  from {{ ref('int_mission_first_events') }}
+  from {{ ref('int_mission_click_apply_metrics') }}
   where
     first_click_at is not null
     {% if is_incremental() %}
@@ -99,10 +99,6 @@ aggregated as (
     round(avg(description_length))::int as avg_description_length,
     mission_duration_days,
     count(distinct mission_id) as mission_count,
-    count(*) filter (where first_click_at is not null)
-      as mission_with_click_count,
-    count(*) filter (where first_apply_at is not null)
-      as mission_with_apply_count,
     sum(click_count) as click_count,
     sum(apply_count) as apply_count,
     sum(click_with_apply_count) as click_with_apply_count,

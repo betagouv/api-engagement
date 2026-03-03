@@ -4,8 +4,8 @@
   incremental_strategy = 'delete+insert',
   on_schema_change = 'sync_all_columns',
   post_hook = [
-    'create index if not exists "int_mission_first_events_mission_id_idx" on {{ this }} (mission_id)',
-    'create index if not exists "int_mission_first_events_from_publisher_id_idx" on {{ this }} (from_publisher_id)'
+    'create index if not exists "int_mission_click_apply_metrics_mission_id_idx" on {{ this }} (mission_id)',
+    'create index if not exists "int_mission_click_apply_metrics_from_publisher_id_idx" on {{ this }} (from_publisher_id)'
   ]
 ) }}
 
@@ -31,7 +31,7 @@ affected_missions as (
   from {{ ref('int_stat_event_click_metrics') }} as secm
   where
     secm.mission_id is not null
-    and coalesce(secm.updated_at, secm.first_click_at)
+    and coalesce(secm.updated_at, secm.click_created_at)
     >= (select lr.last_updated_at from last_run as lr)
 ),
 
@@ -64,19 +64,24 @@ events as (
     secm.from_publisher_id,
     secm.source,
     secm.source_id,
-    secm.first_click_at,
-    secm.first_apply_at,
-    secm.click_count,
-    secm.apply_count,
-    secm.click_with_apply_count,
-    secm.click_with_multi_apply_count,
-    secm.updated_at as events_updated_at
+    min(secm.click_created_at) as first_click_at,
+    min(secm.first_apply_at) as first_apply_at,
+    count(*) as click_count,
+    sum(secm.apply_count) as apply_count,
+    count(*) filter (where secm.has_apply) as click_with_apply_count,
+    count(*) filter (
+      where secm.has_multi_apply
+    ) as click_with_multi_apply_count,
+    max(secm.updated_at) as events_updated_at
   from {{ ref('int_stat_event_click_metrics') }} as secm
-  {% if is_incremental() %}
-    where secm.mission_id in (
-      select am.mission_id from affected_missions as am
-    )
-  {% endif %}
+  where
+    secm.mission_id is not null
+    {% if is_incremental() %}
+      and secm.mission_id in (
+        select am.mission_id from affected_missions as am
+      )
+    {% endif %}
+  group by 1, 2, 3, 4
 ),
 
 base as (

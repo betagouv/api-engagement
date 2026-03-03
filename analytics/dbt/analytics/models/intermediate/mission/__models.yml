@@ -194,7 +194,7 @@ models:
         description: Timestamp de dernière mise à jour propagé depuis la mission/adresse.
         tests:
           - not_null
-  - name: int_mission_first_events
+  - name: int_mission_click_apply_metrics
     description: >
       Vue intermédiaire au grain mission + diffuseur + source, qui expose les premières
       dates de click/apply, les métriques multi-candidatures par click et les délais
