@@ -7,6 +7,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 
 import LabelledInput from "@/components/form/LabelledInput";
 import LabelledSelect from "@/components/form/LabelledSelect";
+import Loader from "@/components/Loader";
 import Modal from "@/components/Modal";
 import Table from "@/components/Table";
 import api from "@/services/api";
@@ -277,33 +278,34 @@ const ResetPasswordModal = ({ user }) => {
       <button type="button" className="tertiary-btn" onClick={() => setOpen(true)}>
         Réinitialiser le mot de passe
       </button>
-      <Modal className="w-full max-w-3xl" isOpen={open} onClose={() => setOpen(false)}>
-        <h2 className="mb-4 text-center text-2xl font-bold">Réinitialisation du mot de passe de {user.firstname}</h2>
+      <Modal
+        className="min-w-2xl"
+        open={open}
+        onClose={() => setOpen(false)}
+        title={!newPassword ? `Réinitialisation du mot de passe de ${user.firstname}` : "Voici le mot de passe temporaire"}
+      >
         {isConfirm ? (
-          <div>
-            {newPassword ? (
-              <>
-                <h4 className="mb-6 text-center">Voici le mot de passe temporaire</h4>
-                <div className="mb-12 flex items-center justify-center px-20">
-                  <span className="input w-1/2">{newPassword}</span>
-                  <button type="button" className="secondary-btn ml-2" onClick={() => handleCopy(newPassword)}>
-                    <RiFileCopyFill className="text-lg" aria-hidden="true" />
-                  </button>
-                </div>
-                <div className="w-full pr-6 text-right">
-                  <button className="primary-btn" onClick={() => setOpen(false)}>
-                    Fermer
-                  </button>
-                </div>
-              </>
-            ) : (
-              <h4>Chargement...</h4>
-            )}
-          </div>
+          newPassword ? (
+            <>
+              <div className="flex items-center justify-center">
+                <span className="input w-full">{newPassword}</span>
+                <button type="button" className="secondary-btn ml-2" onClick={() => handleCopy(newPassword)}>
+                  <RiFileCopyFill className="text-lg" aria-hidden="true" />
+                </button>
+              </div>
+              <div className="mt-6 w-full text-right">
+                <button className="primary-btn" onClick={() => setOpen(false)}>
+                  Fermer
+                </button>
+              </div>
+            </>
+          ) : (
+            <Loader className="h-6 w-6" />
+          )
         ) : (
           <>
-            <h4 className="mb-6 text-center">Êtes-vous sûr de réinitialiser le mot de passe ?</h4>
-            <div className="w-full pr-6 text-right">
+            <p className="text-base text-black">Êtes-vous sûr de réinitialiser le mot de passe ?</p>
+            <div className="mt-6 w-full text-right">
               <button className="primary-btn" onClick={handleConfirm}>
                 Confirmer
               </button>

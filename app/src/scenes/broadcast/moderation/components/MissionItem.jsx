@@ -66,7 +66,7 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
   return (
     <>
       <OrganizationRefusedModal
-        isOpen={isOrganizationToRefuse > 0}
+        open={isOrganizationToRefuse > 0}
         onClose={() => setIsOrganizationToRefuse(0)}
         data={data}
         update={values}
@@ -237,12 +237,12 @@ const MissionActionsMenu = ({ data, onFilter, onChange }) => {
           </Menu.Items>
         </Transition>
       </Menu>
-      <UpdateNoteModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onChange={onChange} data={data} />
+      <UpdateNoteModal open={isModalOpen} onClose={() => setIsModalOpen(false)} onChange={onChange} data={data} />
     </>
   );
 };
 
-const UpdateNoteModal = ({ isOpen, onChange, onClose, data }) => {
+const UpdateNoteModal = ({ open, onChange, onClose, data }) => {
   const { publisher } = useStore();
   const [note, setNote] = useState(data.note || "");
 
@@ -266,9 +266,8 @@ const UpdateNoteModal = ({ isOpen, onChange, onClose, data }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={() => onClose()}>
-      <form className="px-32 py-16" onSubmit={handleSubmit}>
-        <h1 className="mb-10">Modifier la note</h1>
+    <Modal open={open} onClose={onClose} title="Modifier la note" className="min-w-3xl">
+      <form onSubmit={handleSubmit}>
         <div className="flex items-center justify-center">
           <div className="flex w-full flex-col justify-center gap-4">
             <div className="flex flex-col gap-1">

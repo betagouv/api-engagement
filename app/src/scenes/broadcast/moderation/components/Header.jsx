@@ -82,7 +82,7 @@ const Header = ({ total, data, size, sort, selected, onSize, onSort, onSelect, o
 
 const ManyUpdateModal = ({ onClose, selected, onChange }) => {
   const { publisher } = useStore();
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [status, setStatus] = useState("");
   const [comment, setComment] = useState("");
   const [note, setNote] = useState("");
@@ -113,13 +113,12 @@ const ManyUpdateModal = ({ onClose, selected, onChange }) => {
 
   return (
     <>
-      <button className="secondary-btn" onClick={() => setIsOpen(true)}>
+      <button className="secondary-btn" onClick={() => setOpen(true)}>
         Modérer
       </button>
 
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
-        <form className="px-32 py-16" onSubmit={handleSubmit}>
-          <h1 className="mb-10">Modérer {selected.length > 1 ? `${selected.length} missions` : `la mission`}</h1>
+      <Modal open={open} onClose={() => setOpen(false)} title="Modérer les missions" className="min-w-3xl">
+        <form onSubmit={handleSubmit}>
           <div className="flex items-center justify-center">
             <div className="flex w-full flex-col justify-center gap-4">
               <div className="flex flex-col gap-2">

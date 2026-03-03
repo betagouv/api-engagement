@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { RiCheckboxCircleFill, RiCloseCircleFill } from "react-icons/ri";
 
 import Loader from "@/components/Loader";
-import Modal from "@/components/New-Modal";
+import Modal from "@/components/Modal";
 
 import Table from "@/components/Table";
 import api from "@/services/api";
@@ -142,7 +142,7 @@ const Flux = () => {
 
 const ModifyModal = () => {
   const { publisher, setPublisher } = useStore();
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [feed, setFeed] = useState(publisher.feed);
   const [loading, setLoading] = useState(false);
 
@@ -161,7 +161,7 @@ const ModifyModal = () => {
 
       toast.success("Flux mis à jour");
       setPublisher(res.data);
-      setIsOpen(false);
+      setOpen(false);
     } catch (error) {
       captureError(error, { extra: { publisherId: publisher.id, feed } });
     } finally {
@@ -171,26 +171,21 @@ const ModifyModal = () => {
 
   return (
     <>
-      <button className="primary-btn" onClick={() => setIsOpen(!isOpen)}>
+      <button className="primary-btn" onClick={() => setOpen(!open)}>
         Modifier
       </button>
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
-        <div className="p-10">
-          <h2 className="mb-8 text-lg font-bold">
-            <span aria-hidden="true">⚙️</span> Modifier votre flux de missions
-          </h2>
-          <div className="flex flex-col items-start justify-between gap-4">
-            <div>Lien du fichier XML à synchroniser</div>
-            <input className="input w-full border-b-0 bg-gray-100 p-4 focus:ring-2" value={feed} onChange={(e) => setFeed(e.target.value)} />
-          </div>
-          <div className="col-span-2 mt-8 flex justify-end gap-6">
-            <button type="button" className="tertiary-btn" onClick={() => setIsOpen(false)}>
-              Annuler
-            </button>
-            <button type="button" className="primary-btn" onClick={handleFeedSubmit} disabled={loading}>
-              {loading ? <Loader className="mr-2" /> : "Enregister"}
-            </button>
-          </div>
+      <Modal open={open} onClose={() => setOpen(false)} title="Modifier votre flux de missions" className="min-w-3xl">
+        <div className="flex flex-col items-start justify-between gap-4">
+          <div>Lien du fichier XML à synchroniser</div>
+          <input className="input focus w-full" value={feed} onChange={(e) => setFeed(e.target.value)} />
+        </div>
+        <div className="flex justify-end gap-6">
+          <button type="button" className="tertiary-btn" onClick={() => setOpen(false)}>
+            Annuler
+          </button>
+          <button type="button" className="primary-btn" onClick={handleFeedSubmit} disabled={loading}>
+            {loading ? <Loader className="mr-2" /> : "Enregister"}
+          </button>
         </div>
       </Modal>
     </>
