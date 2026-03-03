@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import ExportSvg from "@/assets/svg/export-icon.svg?react";
 import RadioInput from "@/components/form/RadioInput";
-import Modal from "@/components/New-Modal";
+import Modal from "@/components/Modal";
 import Table from "@/components/Table";
 import Toggle from "@/components/Toggle";
 import { MISSION_TYPES } from "@/constants";
@@ -71,7 +71,7 @@ const Annonceur = ({ values, onChange, errors, setErrors }) => {
           </p>
           <Table caption="Diffuseurs du partenaire" header={[{ title: "Partenaires" }]} className="h-96">
             {data.slice(0, 5).map((item, index) => (
-              <tr key={index} className={`${index % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-row`}>
+              <tr key={index} className={`${index % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
                 <td className="p-4">{item.name}</td>
               </tr>
             ))}
@@ -92,18 +92,16 @@ const DiffuseurModal = ({ data }) => {
         <span>Tous les diffuseurs</span>
         <ExportSvg className="h-4 w-4" />
       </button>
-      <Modal isOpen={open} onClose={() => setOpen(false)}>
-        <div className="space-y-6 p-12">
-          <h1 className="text-2xl font-bold">{data.length} diffuseurs</h1>
+      <Modal open={open} onClose={() => setOpen(false)} title="Diffuseurs">
+        <p className="text-lg font-semibold">{data.length} diffuseurs</p>
 
-          <Table caption="Diffuseurs du partenaire" header={[{ title: "Partenaires" }]} className="h-96">
-            {data.map((item, index) => (
-              <tr key={index} className={`${index % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-row`}>
-                <td className="p-4">{item.name}</td>
-              </tr>
-            ))}
-          </Table>
-        </div>
+        <Table caption="Diffuseurs du partenaire" header={[{ title: "Partenaires" }]} className="h-96">
+          {data.map((item, index) => (
+            <tr key={index} className={`${index % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
+              <td className="p-4">{item.name}</td>
+            </tr>
+          ))}
+        </Table>
       </Modal>
     </>
   );
