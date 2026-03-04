@@ -3,7 +3,7 @@ import passport from "passport";
 import zod from "zod";
 
 import { INVALID_BODY, INVALID_PARAMS, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "@/error";
-import { missionWriteLimiter } from "@/middlewares/rate-limit";
+import { defaultRateLimiter } from "@/middlewares/rate-limit";
 import { missionService } from "@/services/mission";
 import { MissionCreateInput, MissionUpdatePatch } from "@/types/mission";
 import { PublisherRequest } from "@/types/passport";
@@ -112,7 +112,7 @@ const missionClientIdParamSchema = zod.object({
 // POST /v2/mission — Create
 // ──────────────────────────────────────────────────────────────────────────────
 
-router.post("/", passport.authenticate(["apikey", "api"], { session: false }), missionWriteLimiter, async (req: PublisherRequest, res: Response, next: NextFunction) => {
+router.post("/", passport.authenticate(["apikey", "api"], { session: false }), defaultRateLimiter, async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
     const publisher = req.user as PublisherRecord;
 
@@ -192,7 +192,7 @@ router.post("/", passport.authenticate(["apikey", "api"], { session: false }), m
 // PUT /v2/mission/:clientId — Update (PATCH semantics)
 // ──────────────────────────────────────────────────────────────────────────────
 
-router.put("/:clientId", passport.authenticate(["apikey", "api"], { session: false }), missionWriteLimiter, async (req: PublisherRequest, res: Response, next: NextFunction) => {
+router.put("/:clientId", passport.authenticate(["apikey", "api"], { session: false }), defaultRateLimiter, async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
     const publisher = req.user as PublisherRecord;
 
@@ -248,7 +248,7 @@ router.put("/:clientId", passport.authenticate(["apikey", "api"], { session: fal
 // DELETE /v2/mission/:clientId — Soft delete
 // ──────────────────────────────────────────────────────────────────────────────
 
-router.delete("/:clientId", passport.authenticate(["apikey", "api"], { session: false }), missionWriteLimiter, async (req: PublisherRequest, res: Response, next: NextFunction) => {
+router.delete("/:clientId", passport.authenticate(["apikey", "api"], { session: false }), defaultRateLimiter, async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
     const publisher = req.user as PublisherRecord;
 
