@@ -57,7 +57,10 @@ describe("Mission V2 Write API Integration Tests", () => {
     });
 
     it("should return 201 for minimal valid payload", async () => {
-      const response = await request(app).post("/v2/mission").set("x-api-key", apiKey).send({ clientId: "test-minimal", title: "Mission minimale" });
+      const response = await request(app)
+        .post("/v2/mission")
+        .set("x-api-key", apiKey)
+        .send({ clientId: "test-minimal", title: "Mission minimale", description: "Description valide", applicationUrl: "https://example.com/apply" });
       expect(response.status).toBe(201);
       expect(response.body.ok).toBe(true);
       expect(response.body.data.clientId).toBe("test-minimal");
@@ -230,6 +233,7 @@ describe("Mission V2 Write API Integration Tests", () => {
         title: "Mission valide",
         description: "Description existante",
         applicationUrl: "https://example.com/apply",
+        domain: "sport", // valid domain to avoid moderation refusal
         statusCode: "ACCEPTED",
       });
 
@@ -246,6 +250,7 @@ describe("Mission V2 Write API Integration Tests", () => {
         title: "Mission valide",
         description: "Description existante",
         applicationUrl: "https://example.com/apply",
+        domain: "sport", // valid domain to avoid masking the expected refusal reason
         statusCode: "ACCEPTED",
       });
 
