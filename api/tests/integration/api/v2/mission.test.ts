@@ -119,6 +119,20 @@ describe("Mission V2 Write API Integration Tests", () => {
       expect(org?.name).toBe("Croix Rouge");
     });
 
+    it("should set statusCode REFUSED when description is missing", async () => {
+      const response = await request(app).post("/v2/mission").set("x-api-key", apiKey).send({ clientId: "test-refused-no-desc", title: "Mission sans description", applicationUrl: "https://example.com/apply" });
+      expect(response.status).toBe(201);
+      expect(response.body.data.statusCode).toBe("REFUSED");
+      expect(response.body.data.statusComment).toBe("Description manquante");
+    });
+
+    it("should set statusCode REFUSED when applicationUrl is missing", async () => {
+      const response = await request(app).post("/v2/mission").set("x-api-key", apiKey).send({ clientId: "test-refused-no-url", title: "Mission sans URL", description: "Description valide" });
+      expect(response.status).toBe(201);
+      expect(response.body.data.statusCode).toBe("REFUSED");
+      expect(response.body.data.statusComment).toBe("URL de candidature manquant");
+    });
+
     it("should return 409 for duplicate clientId within same publisher", async () => {
       await request(app).post("/v2/mission").set("x-api-key", apiKey).send({ clientId: "test-dup", title: "First" });
       const response = await request(app).post("/v2/mission").set("x-api-key", apiKey).send({ clientId: "test-dup", title: "Second" });
@@ -208,6 +222,54 @@ describe("Mission V2 Write API Integration Tests", () => {
       const org = await prismaCore.publisherOrganization.findFirst({ where: { publisherId: publisher.id, rna: "W999999999" } });
       expect(org).not.toBeNull();
       expect(org?.name).toBe("Updated Org");
+    });
+
+    it("should keep statusCode ACCEPTED when partial update doesn't invalidate existing fields", async () => {
+      const mission = await createTestMission({
+        publisherId: publisher.id,
+        title: "Mission valide",
+        description: "Description existante",
+        applicationUrl: "https://example.com/apply",
+        statusCode: "ACCEPTED",
+      });
+
+      // Only update the title — description and applicationUrl still valid from existing record
+      const response = await request(app).put(`/v2/mission/${mission.clientId}`).set("x-api-key", apiKey).send({ title: "Titre mis à jour" });
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.statusCode).toBe("ACCEPTED");
+    });
+
+    it("should set statusCode REFUSED when description is cleared on update", async () => {
+      const mission = await createTestMission({
+        publisherId: publisher.id,
+        title: "Mission valide",
+        description: "Description existante",
+        applicationUrl: "https://example.com/apply",
+        statusCode: "ACCEPTED",
+      });
+
+      const response = await request(app).put(`/v2/mission/${mission.clientId}`).set("x-api-key", apiKey).send({ description: "" });
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.statusCode).toBe("REFUSED");
+      expect(response.body.data.statusComment).toBe("Description manquante");
+    });
+
+    it("should not duplicate PublisherOrganization when org data is unchanged", async () => {
+      const orgFields = { organizationName: "Asso Stable", organizationRNA: "W111111111" };
+
+      // Create via POST
+      await request(app)
+        .post("/v2/mission")
+        .set("x-api-key", apiKey)
+        .send({ clientId: "test-org-no-dup", title: "Mission", ...orgFields });
+
+      // Update with same org data → should not create a second org record
+      await request(app).put("/v2/mission/test-org-no-dup").set("x-api-key", apiKey).send(orgFields);
+
+      const orgs = await prismaCore.publisherOrganization.findMany({ where: { publisherId: publisher.id, rna: "W111111111" } });
+      expect(orgs).toHaveLength(1);
     });
 
     it("should recalculate placesStatus when places is in body", async () => {
