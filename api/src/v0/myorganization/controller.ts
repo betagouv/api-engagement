@@ -2,10 +2,10 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { INVALID_BODY, INVALID_PARAMS } from "@/error";
-import { missionService } from "@/services/mission";
+import { INVALID_BODY, INVALID_PARAMS, NOT_FOUND } from "@/error";
 import { publisherService } from "@/services/publisher";
 import { publisherDiffusionExclusionService } from "@/services/publisher-diffusion-exclusion";
+import publisherOrganizationService from "@/services/publisher-organization";
 import { statEventService } from "@/services/stat-event";
 import { PublisherRequest } from "@/types/passport";
 import type { PublisherRecord } from "@/types/publisher";
@@ -28,13 +28,18 @@ router.get("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
 
-    const [publishers, organizationExclusions] = await Promise.all([
+    const [publishers, publisherOrganization] = await Promise.all([
       publisherService.findPublishers({ diffuseurOf: user.id }),
-      publisherDiffusionExclusionService.findExclusions({ excludedByAnnonceurId: user.id, organizationClientId: params.data.organizationClientId }),
+      publisherOrganizationService.findExclusions(params.data.organizationClientId, user.id),
     ]);
 
+    if (!publisherOrganization) {
+      res.locals = { code: NOT_FOUND, message: "Publisher organization not found" };
+      return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher organization not found" });
+    }
+
     // Build Set of exclusions to lookup clicks with .has() for better performance
-    const exclusionSet = new Set(organizationExclusions.map((o) => o.excludedForDiffuseurId));
+    const exclusionSet = new Set(publisherOrganization.publisherDiffusionExclusions?.map((o) => o.excludedForDiffuseurId) ?? []);
 
     const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const publisherIds = publishers.map((publisher) => publisher.id);
@@ -89,18 +94,10 @@ router.put("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
     }
 
-    const publishers = await publisherService.findPublishers({ diffuseurOf: user.id });
-
-    if (!body.data.organizationName) {
-      const mission = await missionService.findOneMissionBy({
-        organizationClientId: params.data.organizationClientId,
-      });
-      if (mission) {
-        body.data.organizationName = mission.organizationName;
-      }
-    }
-
-    await publisherDiffusionExclusionService.deleteExclusionsByAnnonceurAndOrganization(user.id, params.data.organizationClientId);
+    const [publishers, publisherOrganization] = await Promise.all([
+      publisherService.findPublishers({ diffuseurOf: user.id }),
+      publisherOrganizationService.findUniqueOrCreate(params.data.organizationClientId, user.id, { name: body.data.organizationName }),
+    ]);
 
     const bulk: Array<PublisherDiffusionExclusionCreateManyInput> = [];
     publishers
@@ -109,17 +106,11 @@ router.put("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
         bulk.push({
           excludedForDiffuseurId: publisher.id,
           excludedByAnnonceurId: user.id,
-          organizationClientId: params.data.organizationClientId,
-          organizationName: body.data.organizationName || null,
+          publisherOrganizationId: publisherOrganization.id,
         });
       });
 
-    await publisherDiffusionExclusionService.createManyExclusions(bulk);
-
-    const newDiffusionExclusions = await publisherDiffusionExclusionService.findExclusions({
-      excludedByAnnonceurId: user.id,
-      organizationClientId: params.data.organizationClientId,
-    });
+    const newDiffusionExclusions = await publisherDiffusionExclusionService.updateExclusionsForPublisherOrganization(publisherOrganization.id, user.id, bulk);
 
     const data = [] as any[];
     publishers.forEach((publisher) => {

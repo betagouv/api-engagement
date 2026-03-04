@@ -1,5 +1,6 @@
 import { Prisma } from "@/db/core";
 import { OrganizationRecord } from "@/types/organization";
+import { PublisherDiffusionExclusionRecord } from "./publisher-diffusion-exclusion";
 
 export interface PublisherOrganizationFindParams {
   id?: string;
@@ -49,7 +50,8 @@ export interface PublisherOrganizationRecord {
 }
 
 export type PublisherOrganizationWithRelations = PublisherOrganizationRecord & {
-  organizationVerified: Partial<OrganizationRecord> | null;
+  organizationVerified?: Partial<OrganizationRecord> | null;
+  publisherDiffusionExclusions?: PublisherDiffusionExclusionRecord[] | null;
 };
 
 export type PublisherOrganizationUpdateInput = Partial<Omit<PublisherOrganizationRecord, "id" | "createdAt" | "updatedAt">>;
