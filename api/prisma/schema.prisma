@@ -757,6 +757,7 @@ model MissionActivity {
 model MissionAddress {
   id             String                @id @default(uuid())
   missionId      String                @map("mission_id")
+  addressHash    String                @map("address_hash")
   street         String?
   postalCode     String?               @map("postal_code")
   departmentName String?               @map("department_name")
@@ -775,6 +776,7 @@ model MissionAddress {
 
   jobBoards MissionJobBoard[]
 
+  @@unique([missionId, addressHash], map: "mission_address_hash_unique")
   @@index([missionId], map: "mission_address_mission_id_idx")
   @@index([city], map: "mission_address_city_idx")
   @@index([country], map: "mission_address_country_idx")
@@ -797,7 +799,7 @@ model MissionJobBoard {
   updatedAt        DateTime                   @updatedAt @map("updated_at")
 
   mission        Mission         @relation(fields: [missionId], references: [id], onDelete: Cascade)
-  missionAddress MissionAddress? @relation(fields: [missionAddressId], references: [id], onDelete: Cascade)
+  missionAddress MissionAddress? @relation(fields: [missionAddressId], references: [id], onDelete: SetNull)
 
   @@unique([jobBoardId, missionId, missionAddressId], map: "mission_jobboard_unique")
   @@index([missionId], map: "mission_jobboard_mission_id_idx")
@@ -861,6 +863,7 @@ model Organization {
   title                  String
   names                  String[]  @default([])
   shortTitle             String?   @map("short_title")
+  searchText             String?   @map("search_text")
   titleSlug              String?   @map("title_slug")
   shortTitleSlug         String?   @map("short_title_slug")
   object                 String?
@@ -901,6 +904,7 @@ model Organization {
   @@index([rna(ops: raw("gin_trgm_ops"))], type: Gin, map: "organization_rna_idx")
   @@index([title(ops: raw("gin_trgm_ops"))], type: Gin, map: "organization_title_idx")
   @@index([shortTitle(ops: raw("gin_trgm_ops"))], type: Gin, map: "organization_short_title_idx")
+  @@index([searchText(ops: raw("gin_trgm_ops"))], type: Gin, map: "organization_search_text_idx")
   @@index([object(ops: raw("gin_trgm_ops"))], type: Gin, map: "organization_object_idx")
   @@index([titleSlug], map: "organization_title_slug_idx")
   @@index([siret(ops: raw("gin_trgm_ops"))], type: Gin, map: "organization_siret_idx")

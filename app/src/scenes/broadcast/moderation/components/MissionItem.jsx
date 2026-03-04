@@ -6,11 +6,11 @@ import { RiCalendarEventFill, RiCheckboxCircleFill, RiCloseCircleFill, RiMapPin2
 import { useSearchParams } from "react-router-dom";
 
 import Modal from "@/components/Modal";
+import { JVA_MODERATION_COMMENTS_LABELS, STATUS, STATUS_COLORS } from "@/scenes/broadcast/moderation/components/Constants";
+import OrganizationRefusedModal from "@/scenes/broadcast/moderation/components/OrganizationRefusedModal";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
-import { JVA_MODERATION_COMMENTS_LABELS, STATUS, STATUS_COLORS } from "@/scenes/broadcast/moderation/components/Constants";
-import OrganizationRefusedModal from "@/scenes/broadcast/moderation/components/OrganizationRefusedModal";
 
 const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, onChangeMany }) => {
   const { publisher } = useStore();
@@ -31,7 +31,9 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
     try {
       setValues({ ...values, ...v });
 
-      if (v.status === "REFUSED" && !v.comment) return;
+      if (v.status === "REFUSED" && !v.comment) {
+        return;
+      }
 
       const res = await api.put(`/moderation/${data.id}`, { ...v, moderatorId: publisher.id });
       if (!res.ok) {
@@ -45,7 +47,9 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
       onChange(res.data);
       if (v.status === "REFUSED" && ["ORGANIZATION_NOT_COMPLIANT", "ORGANIZATION_ALREADY_PUBLISHED"].includes(v.comment)) {
         const resO = await api.post("/moderation/search", { moderatorId: publisher.id, organizationName: data.missionOrganizationName, status: "PENDING", size: 0 });
-        if (!resO.ok) throw resO;
+        if (!resO.ok) {
+          throw resO;
+        }
         setIsOrganizationToRefuse(resO.total);
       }
     } catch (error) {
@@ -62,14 +66,14 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
   return (
     <>
       <OrganizationRefusedModal
-        isOpen={isOrganizationToRefuse > 0}
+        open={isOrganizationToRefuse > 0}
         onClose={() => setIsOrganizationToRefuse(0)}
         data={data}
         update={values}
         onChange={onChangeMany}
         total={isOrganizationToRefuse}
       />
-      <td className="table-cell align-middle" colSpan={3}>
+      <td className="table-cell align-middle">
         <div className="flex items-center">
           <label className="flex w-14 items-center">
             <span className="sr-only">Sélectionner la mission</span>
@@ -83,35 +87,26 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
             <div className="text-text-mention mb-2 flex items-center gap-4 text-xs">
               {data.missionCity && (
                 <span className="flex items-center">
-                  <RiMapPin2Fill className="mr-2" />
+                  <RiMapPin2Fill className="mr-2" aria-hidden="true" />
                   {`${data.missionCity} ${data.missionDepartmentCode ? `(${data.missionDepartmentCode})` : ""}`}
                 </span>
               )}
               <span className="flex items-center text-xs">
-                <RiCalendarEventFill className="mr-2" />
+                <RiCalendarEventFill className="mr-2" aria-hidden="true" />
                 {data.missionStartAt && `Du ${new Date(data.missionStartAt).toLocaleDateString("fr")}`}
                 {data.missionEndAt && ` au ${new Date(data.missionEndAt).toLocaleDateString("fr")}`}
               </span>
             </div>
             <div className="text-text-mention flex items-center text-xs">
-              <RiTimeLine className="mr-2 text-xs" />
+              <RiTimeLine className="mr-2 text-xs" aria-hidden="true" />
               Postée le {new Date(data.missionPostedAt).toLocaleDateString("fr")} sur {data.missionPublisherName}
             </div>
           </div>
         </div>
       </td>
-      <td className="table-cell align-middle">
-        <div className="flex flex-col justify-between py-2 text-xs">
-          <span className="max-h-12 truncate">{data.missionOrganizationName}</span>
-
-          <div className="border-grey-border my-2 inline-flex flex-wrap items-center gap-1 rounded border p-1">
-            <span>Missions</span>
-            <RiCheckboxCircleFill role="img" aria-label="Acceptées" className="text-success" />
-            <span className="text-success">{history["ACCEPTED"] || "0"}</span>
-            <BsDot className="text-text-mention" />
-            <RiCloseCircleFill role="img" aria-label="Refusées" className="text-error" />
-            <span className="text-error">{history["REFUSED"] || "0"}</span>
-          </div>
+      <td className="table-cell">
+        <div className="flex flex-1 flex-col justify-between gap-2 text-xs">
+          <p className="w-full text-ellipsis">{data.missionOrganizationName}</p>
 
           {data.associationSources?.length ? (
             <span className="text-text-mention">
@@ -120,11 +115,20 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
           ) : (
             <span className="text-text-mention">Pas d'inscription retrouvée</span>
           )}
+
+          <div className="border-grey-border my-2 inline-flex w-fit flex-wrap items-center gap-1 rounded border p-1">
+            <span>Missions</span>
+            <RiCheckboxCircleFill role="img" aria-label="Acceptées" className="text-success" />
+            <span className="text-success">{history["ACCEPTED"] || "0"}</span>
+            <BsDot className="text-text-mention" />
+            <RiCloseCircleFill role="img" aria-label="Refusées" className="text-error" />
+            <span className="text-error">{history["REFUSED"] || "0"}</span>
+          </div>
         </div>
       </td>
-      <td className="table-cell align-middle" colSpan={2}>
-        <div className="flex flex-col justify-center gap-3">
-          <div className="flex items-center gap-3">
+      <td className="table-cell align-middle">
+        <div className="flex w-full flex-col gap-3">
+          <div className="flex w-full items-center gap-3">
             <select
               className="select flex-1 border-b-2 pr-2"
               style={{ borderBottomColor: STATUS_COLORS[values.status] }}
@@ -141,10 +145,10 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
             <MissionActionsMenu data={data} onFilter={onFilter} onChange={(v) => onChange({ ...data, ...v })} />
           </div>
           {values.status === "REFUSED" && (
-            <select className="select border-error border-b-2" name="motif" value={values.comment} onChange={(e) => handleSubmit({ status: "REFUSED", comment: e.target.value })}>
+            <select className="select mt-4 w-full border-b-2" name="motif" value={values.comment} onChange={(e) => handleSubmit({ status: "REFUSED", comment: e.target.value })}>
               <option value="">Motif de refus</option>
               {Object.entries(JVA_MODERATION_COMMENTS_LABELS).map(([key, value]) => (
-                <option key={key} value={key}>
+                <option key={key} value={key} className="whitespace-nowrap text-black">
                   {value}
                 </option>
               ))}
@@ -152,7 +156,7 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
           )}
           {values.note && (
             <div className="mt-1 flex items-center gap-2 text-xs">
-              <RiPencilFill />
+              <RiPencilFill aria-hidden="true" />
               <div className="italic">{values.note}</div>
             </div>
           )}
@@ -233,12 +237,12 @@ const MissionActionsMenu = ({ data, onFilter, onChange }) => {
           </Menu.Items>
         </Transition>
       </Menu>
-      <UpdateNoteModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onChange={onChange} data={data} />
+      <UpdateNoteModal open={isModalOpen} onClose={() => setIsModalOpen(false)} onChange={onChange} data={data} />
     </>
   );
 };
 
-const UpdateNoteModal = ({ isOpen, onChange, onClose, data }) => {
+const UpdateNoteModal = ({ open, onChange, onClose, data }) => {
   const { publisher } = useStore();
   const [note, setNote] = useState(data.note || "");
 
@@ -250,7 +254,9 @@ const UpdateNoteModal = ({ isOpen, onChange, onClose, data }) => {
     e.preventDefault();
     try {
       const res = await api.put(`/moderation/${data.id}`, { note, moderatorId: publisher.id });
-      if (!res.ok) throw res;
+      if (!res.ok) {
+        throw res;
+      }
       toast.success("La note a été mise à jour avec succès");
       onChange({ note });
       onClose();
@@ -260,9 +266,8 @@ const UpdateNoteModal = ({ isOpen, onChange, onClose, data }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={() => onClose()}>
-      <form className="px-32 py-16" onSubmit={handleSubmit}>
-        <h1 className="mb-10">Modifier la note</h1>
+    <Modal open={open} onClose={onClose} title="Modifier la note" className="min-w-3xl">
+      <form onSubmit={handleSubmit}>
         <div className="flex items-center justify-center">
           <div className="flex w-full flex-col justify-center gap-4">
             <div className="flex flex-col gap-1">

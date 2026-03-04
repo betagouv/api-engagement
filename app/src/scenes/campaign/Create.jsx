@@ -1,21 +1,21 @@
+import { toast } from "@/services/toast";
 import { useState } from "react";
 import { AiFillWarning } from "react-icons/ai";
 import { RiArrowLeftLine } from "react-icons/ri";
 import { Link, useNavigate } from "react-router-dom";
-import { toast } from "@/services/toast";
 
-import Modal from "@/components/New-Modal";
+import Modal from "@/components/Modal";
+import Information from "@/scenes/campaign/components/Information";
+import Trackers from "@/scenes/campaign/components/Trackers";
 import api from "@/services/api";
 import { API_URL } from "@/services/config";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
 import { isValidUrl } from "@/services/utils";
-import Information from "@/scenes/campaign/components/Information";
-import Trackers from "@/scenes/campaign/components/Trackers";
 
 const Create = () => {
   const { publisher } = useStore();
-  const [isCopyModalOpen, setIsCopyModalOpen] = useState(false);
+  const [copyModalOpen, setCopyModalOpen] = useState(false);
   const [campaignId, setCampaignId] = useState(null);
   const [values, setValues] = useState({
     name: "",
@@ -30,11 +30,21 @@ const Create = () => {
   const handleSubmit = async () => {
     const errors = {};
 
-    if (!values.name) errors.name = "Le nom est requis";
-    if (!values.type) errors.type = "Le type de campagne est requis";
-    if (!values.toPublisherId) errors.toPublisherId = "Le partenaire est requis";
-    if (!values.url) errors.url = "L'url est requis";
-    if (!isValidUrl(values.url)) errors.url = "L'url n'est pas valide";
+    if (!values.name) {
+      errors.name = "Le nom est requis";
+    }
+    if (!values.type) {
+      errors.type = "Le type de campagne est requis";
+    }
+    if (!values.toPublisherId) {
+      errors.toPublisherId = "Le partenaire est requis";
+    }
+    if (!values.url) {
+      errors.url = "L'url est requis";
+    }
+    if (!isValidUrl(values.url)) {
+      errors.url = "L'url n'est pas valide";
+    }
 
     if (errors.name || errors.type || errors.toPublisherId || errors.url) {
       setErrors(errors);
@@ -54,7 +64,7 @@ const Create = () => {
         }
       }
       setCampaignId(res.data.id);
-      setIsCopyModalOpen(true);
+      setCopyModalOpen(true);
       toast.success("Campagne créée avec succès");
     } catch (error) {
       captureError(error, { extra: { values } });
@@ -67,10 +77,10 @@ const Create = () => {
   return (
     <>
       <title>API Engagement - Nouvelle campagne de diffusion</title>
-      <CopyModal isOpen={isCopyModalOpen} campaignId={campaignId} onClose={() => setIsCopyModalOpen(false)} />
+      <CopyModal open={copyModalOpen} campaignId={campaignId} onClose={() => setCopyModalOpen(false)} />
       <div className="flex flex-col gap-8">
         <Link to="/broadcast/campaigns" className="border-blue-france text-blue-france flex w-fit items-center gap-2 border-b text-[16px]">
-          <RiArrowLeftLine />
+          <RiArrowLeftLine aria-hidden="true" />
           Retour
         </Link>
 
@@ -97,7 +107,7 @@ const Create = () => {
   );
 };
 
-const CopyModal = ({ isOpen, campaignId, onClose }) => {
+const CopyModal = ({ open, campaignId, onClose }) => {
   const navigate = useNavigate();
   const trackedLink = `${API_URL}/r/campaign/${campaignId}`;
 
@@ -108,43 +118,39 @@ const CopyModal = ({ isOpen, campaignId, onClose }) => {
 
   return (
     <Modal
-      isOpen={isOpen}
+      open={open}
       onClose={() => {
         onClose();
         navigate(`/broadcast/campaign/${campaignId}`);
       }}
-      className="min-w-4xl"
+      className="min-w-3xl"
+      title="Votre campagne est créée !"
     >
-      <div className="flex flex-col gap-6 p-10 pt-16">
-        <h2 className="text-2xl font-bold">
-          <span aria-hidden="true">🥳</span> Votre campagne est créée !
-        </h2>
-        <p className="text-base">Pour commencer à diffuser des missions et suivre les statistiques, insérez ce lien dans le contenu de votre campagne.</p>
+      <p className="text-base">Pour commencer à diffuser des missions et suivre les statistiques, insérez ce lien dans le contenu de votre campagne.</p>
 
-        <div className="border-blue-france-925 bg-blue-france-975 flex items-center justify-between border p-6">
-          <span className="truncate text-sm">{trackedLink}</span>
-          <button type="button" className="secondary-btn" onClick={handleCopy}>
-            Copier
-          </button>
-        </div>
+      <div className="border-blue-france-925 bg-blue-france-975 flex items-center justify-between border p-6">
+        <span className="truncate text-sm">{trackedLink}</span>
+        <button type="button" className="secondary-btn" onClick={handleCopy}>
+          Copier
+        </button>
+      </div>
 
-        <div className="text-warning flex items-center gap-2">
-          <AiFillWarning className="text-2xl" />
-          <p className="flex flex-row items-center text-base">Copiez exactement ce lien et non celui qui apparaît dans la barre de votre navigateur !</p>
-        </div>
+      <div className="text-warning flex items-center gap-2">
+        <AiFillWarning className="text-2xl" aria-hidden="true" />
+        <p className="flex flex-row items-center text-base">Copiez exactement ce lien et non celui qui apparaît dans la barre de votre navigateur !</p>
+      </div>
 
-        <div className="mt-6 flex justify-end">
-          <button
-            type="button"
-            className="primary-btn"
-            onClick={() => {
-              onClose();
-              navigate(`/broadcast/campaign/${campaignId}`);
-            }}
-          >
-            C'est fait
-          </button>
-        </div>
+      <div className="flex justify-end">
+        <button
+          type="button"
+          className="primary-btn"
+          onClick={() => {
+            onClose();
+            navigate(`/broadcast/campaign/${campaignId}`);
+          }}
+        >
+          C'est fait
+        </button>
       </div>
     </Modal>
   );

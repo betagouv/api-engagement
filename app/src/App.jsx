@@ -122,14 +122,14 @@ const AuthLayout = () => {
   }
 
   return (
-    <div className="bg-beige-gris-galet-975 flex min-h-screen w-screen flex-col">
+    <div className="bg-global-background flex min-h-screen w-screen flex-col">
       <Header />
       <main id="main-content" role="main" tabIndex={-1} className="flex flex-1">
         <div className="flex-1">
           <Outlet />
         </div>
         <div className="h-full w-1/2">
-          <img src={image} />
+          <img src={image} alt="" aria-hidden="true" />
         </div>
       </main>
       <Footer />
@@ -239,7 +239,7 @@ const ProtectedLayout = () => {
   }
 
   return (
-    <div className="bg-beige-gris-galet-975 flex min-h-screen w-screen flex-col">
+    <div className="bg-global-background flex min-h-screen w-screen flex-col">
       {ENV === "staging" && (
         <div className="bg-error w-full p-2 text-center text-white">
           <span>Environnement de pré-prod</span>
@@ -306,7 +306,7 @@ const PublicLayout = () => {
   }, [location.pathname]);
 
   return (
-    <div className="bg-beige-gris-galet-975 flex min-h-screen w-screen flex-col">
+    <div className="bg-global-background flex min-h-screen w-screen flex-col">
       <Header />
       {user ? <Nav /> : ""}
       <main id="main-content" role="main" tabIndex={-1} aria-labelledby={user && hasActiveTab ? activeTabId : undefined}>

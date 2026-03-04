@@ -18,12 +18,12 @@ const RANGES = [
 
 const DateRangePicker = ({ value, onChange }) => {
   return (
-    <div className="flex gap-4">
-      <div className="border-grey-border flex items-center rounded-sm border">
+    <div className="flex flex-col gap-4 lg:flex-row">
+      <div className="border-grey-border flex w-fit items-center gap-x-2 rounded-sm border">
         {RANGES.map((range, i) => (
           <button
             key={i}
-            className={`cursor-pointer px-4 py-2 text-sm ${value.from.toLocaleDateString() === range.from.toLocaleDateString() ? "border-blue-france text-blue-france -my-px rounded-sm border" : ""} hover:bg-gray-100`}
+            className={`focus h-full cursor-pointer rounded-sm px-4 py-2 text-sm ${value.from.toLocaleDateString() === range.from.toLocaleDateString() ? "border-blue-france text-blue-france -my-px border" : ""} hover:bg-gray-100`}
             onClick={() => onChange(range)}
           >
             {range.label}
@@ -41,7 +41,9 @@ export const DateInput = ({ value, onChange }) => {
   const [to, setTo] = useState(value.to);
 
   useEffect(() => {
-    if (value.from === from && value.to === to) return;
+    if (value.from === from && value.to === to) {
+      return;
+    }
     setFrom(value.from);
     setTo(value.to);
   }, [value]);
@@ -62,7 +64,7 @@ export const DateInput = ({ value, onChange }) => {
         <span className="mx-3 font-semibold">{value.from ? value.from.toLocaleDateString("fr") : "-"}</span>
         <span>au</span>
         <span className="mx-3 font-semibold">{value.to ? value.to.toLocaleDateString("fr") : "-"}</span>
-        <RiArrowDownSLine />
+        <RiArrowDownSLine aria-hidden="true" />
       </PopoverButton>
       <PopoverPanel
         transition
@@ -158,7 +160,7 @@ const DatePickerContainer = ({ children }) => (
 const DatePickerHeader = ({ monthDate, customHeaderCount, decreaseMonth, increaseMonth }) => (
   <div className="flex items-center justify-between gap-8 pb-4">
     <button aria-label="Previous Month" className="hover:bg-gray-975" style={customHeaderCount === 1 ? { visibility: "hidden" } : null} onClick={decreaseMonth}>
-      <RiArrowLeftSLine className="text-blue-france text-[32px]" />
+      <RiArrowLeftSLine className="text-blue-france text-[32px]" aria-hidden="true" />
     </button>
     <span className="text-base font-bold">
       {monthDate.toLocaleString("fr-Fr", {
@@ -167,7 +169,7 @@ const DatePickerHeader = ({ monthDate, customHeaderCount, decreaseMonth, increas
       })}
     </span>
     <button aria-label="Next Month" className="hover:bg-gray-975" style={customHeaderCount === 0 ? { visibility: "hidden" } : null} onClick={increaseMonth}>
-      <RiArrowRightSLine className="text-blue-france text-[32px]" />
+      <RiArrowRightSLine className="text-blue-france text-[32px]" aria-hidden="true" />
     </button>
   </div>
 );

@@ -4,11 +4,11 @@ import { RiInformationFill } from "react-icons/ri";
 import Tooltip from "@/components/Tooltip";
 
 import EmptySVG from "@/assets/svg/empty-info.svg";
-import { useAnalyticsProvider } from "@/services/analytics/provider";
-import { captureError } from "@/services/error";
 import { COLORS as CHART_COLORS, Pie, BarChart as SimpleBarChart, StackedBarchart } from "@/components/Chart";
 import Loader from "@/components/Loader";
 import Table from "@/components/Table";
+import { useAnalyticsProvider } from "@/services/analytics/provider";
+import { captureError } from "@/services/error";
 
 const AnalyticsViz = ({
   cardId,
@@ -27,6 +27,7 @@ const AnalyticsViz = ({
   kpiUnit,
   kpiIcon,
   kpiTooltip,
+  caption,
 }) => {
   const analyticsProvider = useAnalyticsProvider();
   const [data, setData] = useState([]);
@@ -41,7 +42,9 @@ const AnalyticsViz = ({
   const effectiveAdapter = adapter || analyticsProvider?.adapters?.[type];
 
   useEffect(() => {
-    if (!cardId) return;
+    if (!cardId) {
+      return;
+    }
     if (!effectiveAdapter) {
       setError(new Error(`Aucun adapteur défini pour le type de vue "${type}"`));
       return;
@@ -70,7 +73,9 @@ const AnalyticsViz = ({
           setKpiValue(null);
         }
       } catch (err) {
-        if (err.name === "AbortError") return;
+        if (err.name === "AbortError") {
+          return;
+        }
         setData([]);
         setStackedKeys([]);
         setTableRows([]);
@@ -86,7 +91,9 @@ const AnalyticsViz = ({
     return () => controller.abort();
   }, [cardId, type, effectiveAdapter, variablesKey, adapterOptions, overrideColumns, analyticsProvider]);
 
-  if (!cardId) return null;
+  if (!cardId) {
+    return null;
+  }
 
   if (loading) {
     return (
@@ -109,7 +116,7 @@ const AnalyticsViz = ({
     if (!tableRows.length) {
       return (
         <div className={`flex h-[200px] w-full flex-col items-center justify-center border border-dashed border-gray-900 bg-[#f6f6f6] ${className}`}>
-          <img src={EmptySVG} alt="empty" className="h-16 w-16" />
+          <img src={EmptySVG} alt="" aria-hidden="true" className="h-16 w-16" />
           <p className="text-base text-[#666]">Aucune donnée disponible</p>
         </div>
       );
@@ -127,7 +134,7 @@ const AnalyticsViz = ({
     const visibleRows = tableRows.slice(start, start + pageSize);
 
     return (
-      <Table header={header} total={tableRows.length} loading={false} className={`border border-gray-900 ${className}`} {...tableProps}>
+      <Table header={header} total={tableRows.length} loading={false} className={`border border-gray-900 ${className}`} caption={caption} {...tableProps}>
         {visibleRows.map((row, idx) => (
           <tr key={idx} className={`${idx % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
             {columns.map((col, colIdx) => (
@@ -145,7 +152,7 @@ const AnalyticsViz = ({
     if (kpiValue === null) {
       return (
         <div className={`flex h-[120px] w-full flex-col items-center justify-center border border-dashed border-gray-900 bg-[#f6f6f6] ${className}`}>
-          <img src={EmptySVG} alt="empty" className="h-12 w-12" />
+          <img src={EmptySVG} alt="" aria-hidden="true" className="h-12 w-12" />
           <p className="text-base text-[#666]">Aucune donnée disponible</p>
         </div>
       );
@@ -182,7 +189,7 @@ const AnalyticsViz = ({
   if (!data.length) {
     return (
       <div className={`flex h-[200px] w-full flex-col items-center justify-center border border-dashed border-gray-900 bg-[#f6f6f6] ${className}`}>
-        <img src={EmptySVG} alt="empty" className="h-16 w-16" />
+        <img src={EmptySVG} alt="" aria-hidden="true" className="h-16 w-16" />
         <p className="text-base text-[#666]">Aucune donnée disponible</p>
       </div>
     );

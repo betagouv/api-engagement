@@ -74,7 +74,7 @@ const Information = ({ values, onChange, errors, onErrorChange }) => {
           />
           {errors.name && (
             <div className="text-error flex items-center text-sm">
-              <RiErrorWarningFill className="mr-2" />
+              <RiErrorWarningFill className="mr-2" aria-hidden="true" />
               {errors.name}
             </div>
           )}
@@ -114,7 +114,7 @@ const Information = ({ values, onChange, errors, onErrorChange }) => {
           </select>
           {errors.type && (
             <div className="text-error flex items-center text-sm">
-              <RiErrorWarningFill className="mr-2" />
+              <RiErrorWarningFill className="mr-2" aria-hidden="true" />
               {errors.type}
             </div>
           )}
@@ -132,7 +132,7 @@ const Information = ({ values, onChange, errors, onErrorChange }) => {
           />
           {errors.toPublisherId && (
             <div className="text-error flex items-center text-sm">
-              <RiErrorWarningFill className="mr-2" />
+              <RiErrorWarningFill className="mr-2" aria-hidden="true" />
               {errors.toPublisherId}
             </div>
           )}
@@ -153,12 +153,12 @@ const Information = ({ values, onChange, errors, onErrorChange }) => {
         />
         {errors.url && (
           <div className="text-error flex items-center text-sm">
-            <RiErrorWarningFill className="mr-2" />
+            <RiErrorWarningFill className="mr-2" aria-hidden="true" />
             {errors.url}
           </div>
         )}
         <span className="text-info mt-2 flex items-center text-xs">
-          <BiSolidInfoSquare className="mr-2 text-sm" />
+          <BiSolidInfoSquare className="mr-2 text-sm" aria-hidden="true" />
           <p>Lien de la page à laquelle les utilisateurs accèderont</p>
         </span>
       </div>

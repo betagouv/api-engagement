@@ -1,4 +1,4 @@
-import RadioInput from "@/components/RadioInput";
+import RadioInput from "@/components/form/RadioInput";
 import Toggle from "@/components/Toggle";
 import { MISSION_TYPES } from "@/constants";
 

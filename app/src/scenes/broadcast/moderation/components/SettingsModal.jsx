@@ -1,240 +1,235 @@
+import Modal from "@/components/Modal";
 import { useState } from "react";
 import { RiSettings3Fill } from "react-icons/ri";
-import Modal from "@/components/New-Modal";
 
 const SettingsModal = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
   return (
     <>
-      <button className="text-blue-france flex cursor-pointer items-center" onClick={() => setIsOpen(true)}>
-        <RiSettings3Fill className="mr-2" />
+      <button className="text-blue-france flex cursor-pointer items-center" onClick={() => setOpen(true)}>
+        <RiSettings3Fill className="mr-2" aria-hidden="true" />
         <span>Paramétrage</span>
       </button>
 
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} className="h-[90%] w-[75%]">
-        <div className="h-full bg-white p-16">
-          <div className="mb-10 flex items-center justify-between">
-            <h1 className="text-2xl font-bold">Paramétrages de la modération automatique</h1>
-          </div>
-          <div className="border-grey-border mb-10 flex flex-col border p-4">
-            <div className="flex items-start gap-3">
-              <div className="w-[20%]">
-                <h2 className="text-lg">Conditions</h2>
-              </div>
-              <div className="flex w-[20%] flex-col gap-2">
-                <select className="select" disabled defaultValue="">
-                  <option value="">createdAt</option>
-                </select>
-                <select className="select" disabled defaultValue="">
-                  <option value="">modération</option>
-                </select>
-              </div>
-              <div className="flex w-[20%] flex-col gap-2">
-                <select className="select" disabled defaultValue="">
-                  <option value="">supérieure à</option>
-                </select>
-                <select className="select" disabled defaultValue="">
-                  <option value="">égale à</option>
-                </select>
-              </div>
-              <div className="flex flex-1 flex-col gap-2">
-                <input className="input" type="text" defaultValue="6 mois" readOnly />
-                <input className="input" type="text" defaultValue="À modérer" readOnly />
-              </div>
+      <Modal open={open} onClose={() => setOpen(false)} className="min-w-5xl" title="Paramétrages de la modération automatique">
+        <div className="border-grey-border mb-10 flex flex-col border p-4">
+          <div className="flex items-start gap-3">
+            <div className="w-[20%]">
+              <h2 className="text-lg">Conditions</h2>
             </div>
-            <div className="border-grey-border my-4 border-t" />
-            <div className="flex items-start gap-3">
-              <div className="w-[20%]">
-                <h2 className="text-lg">Action</h2>
-              </div>
-              <div className="flex w-[20%] flex-col gap-2">
-                <select className="select" disabled defaultValue="">
-                  <option value="">modération</option>
-                </select>
-                <select className="select" disabled defaultValue="">
-                  <option value="">motif</option>
-                </select>
-              </div>
-              <div className="flex w-[20%] flex-col gap-2">
-                <select className="select" disabled defaultValue="">
-                  <option value="">égale à</option>
-                </select>
-                <select className="select" disabled defaultValue="">
-                  <option value="">égale à</option>
-                </select>
-              </div>
-              <div className="flex flex-1 flex-col gap-2">
-                <input className="input" type="text" defaultValue="Refusée" readOnly />
-                <input className="input" type="text" defaultValue="La mission est refusée car la date de création est trop ancienne (> 6 mois)" readOnly />
-              </div>
+            <div className="flex w-[20%] flex-col gap-2">
+              <select className="select" disabled defaultValue="">
+                <option value="">createdAt</option>
+              </select>
+              <select className="select" disabled defaultValue="">
+                <option value="">modération</option>
+              </select>
+            </div>
+            <div className="flex w-[20%] flex-col gap-2">
+              <select className="select" disabled defaultValue="">
+                <option value="">supérieure à</option>
+              </select>
+              <select className="select" disabled defaultValue="">
+                <option value="">égale à</option>
+              </select>
+            </div>
+            <div className="flex flex-1 flex-col gap-2">
+              <input className="input" type="text" defaultValue="6 mois" readOnly />
+              <input className="input" type="text" defaultValue="À modérer" readOnly />
             </div>
           </div>
-          <div className="border-grey-border flex flex-col border p-4">
-            <div className="flex items-start gap-3">
-              <div className="w-[20%]">
-                <h2 className="text-lg">Conditions</h2>
-              </div>
-              <div className="flex w-[20%] flex-col gap-2">
-                <select className="select" disabled defaultValue="">
-                  <option value="">startAt</option>
-                </select>
-                <select className="select" disabled defaultValue="">
-                  <option value="">endAt</option>
-                </select>
-                <select className="select" disabled defaultValue="">
-                  <option value="">modération</option>
-                </select>
-              </div>
-              <div className="flex w-[20%] flex-col gap-2">
-                <select className="select" disabled defaultValue="">
-                  <option value="">inférieur à</option>
-                </select>
-                <select className="select" disabled defaultValue="">
-                  <option value="">inférieur à</option>
-                </select>
-                <select className="select" disabled defaultValue="">
-                  <option value="">égale à</option>
-                </select>
-              </div>
-              <div className="flex flex-1 flex-col gap-2">
-                <input className="input" type="text" defaultValue="7 jours" readOnly />
-                <input className="input" type="text" defaultValue="21 jours" readOnly />
-                <input className="input" type="text" defaultValue="À modérer" readOnly />
-              </div>
+          <div className="border-grey-border my-4 border-t" />
+          <div className="flex items-start gap-3">
+            <div className="w-[20%]">
+              <h2 className="text-lg">Action</h2>
             </div>
-            <div className="border-grey-border my-4 border-t" />
-            <div className="flex items-start gap-3">
-              <div className="w-[20%]">
-                <h2 className="text-lg">Action</h2>
-              </div>
-              <div className="flex w-[20%] flex-col gap-2">
-                <select className="select" disabled defaultValue="">
-                  <option value="">modération</option>
-                </select>
-                <select className="select" disabled defaultValue="">
-                  <option value="">motif</option>
-                </select>
-              </div>
-              <div className="flex w-[20%] flex-col gap-2">
-                <select className="select" disabled defaultValue="">
-                  <option value="">égale à</option>
-                </select>
-                <select className="select" disabled defaultValue="">
-                  <option value="">égale à</option>
-                </select>
-              </div>
-              <div className="flex flex-1 flex-col gap-2">
-                <input className="input" type="text" defaultValue="Refusée" readOnly />
-                <input className="input" type="text" defaultValue="La date de la mission n’est pas compatible avec le recrutement de bénévoles" readOnly />
-              </div>
+            <div className="flex w-[20%] flex-col gap-2">
+              <select className="select" disabled defaultValue="">
+                <option value="">modération</option>
+              </select>
+              <select className="select" disabled defaultValue="">
+                <option value="">motif</option>
+              </select>
+            </div>
+            <div className="flex w-[20%] flex-col gap-2">
+              <select className="select" disabled defaultValue="">
+                <option value="">égale à</option>
+              </select>
+              <select className="select" disabled defaultValue="">
+                <option value="">égale à</option>
+              </select>
+            </div>
+            <div className="flex flex-1 flex-col gap-2">
+              <input className="input" type="text" defaultValue="Refusée" readOnly />
+              <input className="input" type="text" defaultValue="La mission est refusée car la date de création est trop ancienne (> 6 mois)" readOnly />
             </div>
           </div>
-          <div className="border-grey-border flex flex-col border p-4">
-            <div className="flex items-start gap-3">
-              <div className="w-[20%]">
-                <h2 className="text-lg">Conditions</h2>
-              </div>
-              <div className="flex w-[20%] flex-col gap-2">
-                <select className="select" disabled defaultValue="">
-                  <option value="">description</option>
-                </select>
-                <select className="select" disabled defaultValue="">
-                  <option value="">modération</option>
-                </select>
-              </div>
-              <div className="flex w-[20%] flex-col gap-2">
-                <select className="select" disabled defaultValue="">
-                  <option value="">inférieur à</option>
-                </select>
-                <select className="select" disabled defaultValue="">
-                  <option value="">égale à</option>
-                </select>
-              </div>
-              <div className="flex flex-1 flex-col gap-2">
-                <input className="input" type="text" defaultValue="300 caractères" readOnly />
-                <input className="input" type="text" defaultValue="À modérer" readOnly />
-              </div>
+        </div>
+        <div className="border-grey-border flex flex-col border p-4">
+          <div className="flex items-start gap-3">
+            <div className="w-[20%]">
+              <h2 className="text-lg">Conditions</h2>
             </div>
-            <div className="border-grey-border my-4 border-t" />
-            <div className="flex items-start gap-3">
-              <div className="w-[20%]">
-                <h2 className="text-lg">Action</h2>
-              </div>
-              <div className="flex w-[20%] flex-col gap-2">
-                <select className="select" disabled defaultValue="">
-                  <option value="">modération</option>
-                </select>
-                <select className="select" disabled defaultValue="">
-                  <option value="">motif</option>
-                </select>
-              </div>
-              <div className="flex w-[20%] flex-col gap-2">
-                <select className="select" disabled defaultValue="">
-                  <option value="">égale à</option>
-                </select>
-                <select className="select" disabled defaultValue="">
-                  <option value="">égale à</option>
-                </select>
-              </div>
-              <div className="flex flex-1 flex-col gap-2">
-                <input className="input" type="text" defaultValue="Refusée" readOnly />
-                <input className="input" type="text" defaultValue="Le contenu est insuffisant / non qualitatif" readOnly />
-              </div>
+            <div className="flex w-[20%] flex-col gap-2">
+              <select className="select" disabled defaultValue="">
+                <option value="">startAt</option>
+              </select>
+              <select className="select" disabled defaultValue="">
+                <option value="">endAt</option>
+              </select>
+              <select className="select" disabled defaultValue="">
+                <option value="">modération</option>
+              </select>
+            </div>
+            <div className="flex w-[20%] flex-col gap-2">
+              <select className="select" disabled defaultValue="">
+                <option value="">inférieur à</option>
+              </select>
+              <select className="select" disabled defaultValue="">
+                <option value="">inférieur à</option>
+              </select>
+              <select className="select" disabled defaultValue="">
+                <option value="">égale à</option>
+              </select>
+            </div>
+            <div className="flex flex-1 flex-col gap-2">
+              <input className="input" type="text" defaultValue="7 jours" readOnly />
+              <input className="input" type="text" defaultValue="21 jours" readOnly />
+              <input className="input" type="text" defaultValue="À modérer" readOnly />
             </div>
           </div>
-          <div className="border-grey-border flex flex-col border p-4">
-            <div className="flex items-start gap-3">
-              <div className="w-[20%]">
-                <h2 className="text-lg">Conditions</h2>
-              </div>
-              <div className="flex w-[20%] flex-col gap-2">
-                <select className="select" disabled defaultValue="">
-                  <option value="">city</option>
-                </select>
-                <select className="select" disabled defaultValue="">
-                  <option value="">modération</option>
-                </select>
-              </div>
-              <div className="flex w-[20%] flex-col gap-2">
-                <select className="select" disabled defaultValue="">
-                  <option value="">n'hexiste pas</option>
-                </select>
-                <select className="select" disabled defaultValue="">
-                  <option value="">égale à</option>
-                </select>
-              </div>
-              <div className="flex flex-1 flex-col gap-2">
-                <div className="h-9" />
-                <input className="input" type="text" defaultValue="À modérer" readOnly />
-              </div>
+          <div className="border-grey-border my-4 border-t" />
+          <div className="flex items-start gap-3">
+            <div className="w-[20%]">
+              <h2 className="text-lg">Action</h2>
             </div>
-            <div className="border-grey-border my-4 border-t" />
-            <div className="flex items-start gap-3">
-              <div className="w-[20%]">
-                <h2 className="text-lg">Action</h2>
-              </div>
-              <div className="flex w-[20%] flex-col gap-2">
-                <select className="select" disabled defaultValue="">
-                  <option value="">modération</option>
-                </select>
-                <select className="select" disabled defaultValue="">
-                  <option value="">motif</option>
-                </select>
-              </div>
-              <div className="flex w-[20%] flex-col gap-2">
-                <select className="select" disabled defaultValue="">
-                  <option value="">égale à</option>
-                </select>
-                <select className="select" disabled defaultValue="">
-                  <option value="">égale à</option>
-                </select>
-              </div>
+            <div className="flex w-[20%] flex-col gap-2">
+              <select className="select" disabled defaultValue="">
+                <option value="">modération</option>
+              </select>
+              <select className="select" disabled defaultValue="">
+                <option value="">motif</option>
+              </select>
+            </div>
+            <div className="flex w-[20%] flex-col gap-2">
+              <select className="select" disabled defaultValue="">
+                <option value="">égale à</option>
+              </select>
+              <select className="select" disabled defaultValue="">
+                <option value="">égale à</option>
+              </select>
+            </div>
+            <div className="flex flex-1 flex-col gap-2">
+              <input className="input" type="text" defaultValue="Refusée" readOnly />
+              <input className="input" type="text" defaultValue="La date de la mission n’est pas compatible avec le recrutement de bénévoles" readOnly />
+            </div>
+          </div>
+        </div>
+        <div className="border-grey-border flex flex-col border p-4">
+          <div className="flex items-start gap-3">
+            <div className="w-[20%]">
+              <h2 className="text-lg">Conditions</h2>
+            </div>
+            <div className="flex w-[20%] flex-col gap-2">
+              <select className="select" disabled defaultValue="">
+                <option value="">description</option>
+              </select>
+              <select className="select" disabled defaultValue="">
+                <option value="">modération</option>
+              </select>
+            </div>
+            <div className="flex w-[20%] flex-col gap-2">
+              <select className="select" disabled defaultValue="">
+                <option value="">inférieur à</option>
+              </select>
+              <select className="select" disabled defaultValue="">
+                <option value="">égale à</option>
+              </select>
+            </div>
+            <div className="flex flex-1 flex-col gap-2">
+              <input className="input" type="text" defaultValue="300 caractères" readOnly />
+              <input className="input" type="text" defaultValue="À modérer" readOnly />
+            </div>
+          </div>
+          <div className="border-grey-border my-4 border-t" />
+          <div className="flex items-start gap-3">
+            <div className="w-[20%]">
+              <h2 className="text-lg">Action</h2>
+            </div>
+            <div className="flex w-[20%] flex-col gap-2">
+              <select className="select" disabled defaultValue="">
+                <option value="">modération</option>
+              </select>
+              <select className="select" disabled defaultValue="">
+                <option value="">motif</option>
+              </select>
+            </div>
+            <div className="flex w-[20%] flex-col gap-2">
+              <select className="select" disabled defaultValue="">
+                <option value="">égale à</option>
+              </select>
+              <select className="select" disabled defaultValue="">
+                <option value="">égale à</option>
+              </select>
+            </div>
+            <div className="flex flex-1 flex-col gap-2">
+              <input className="input" type="text" defaultValue="Refusée" readOnly />
+              <input className="input" type="text" defaultValue="Le contenu est insuffisant / non qualitatif" readOnly />
+            </div>
+          </div>
+        </div>
+        <div className="border-grey-border flex flex-col border p-4">
+          <div className="flex items-start gap-3">
+            <div className="w-[20%]">
+              <h2 className="text-lg">Conditions</h2>
+            </div>
+            <div className="flex w-[20%] flex-col gap-2">
+              <select className="select" disabled defaultValue="">
+                <option value="">city</option>
+              </select>
+              <select className="select" disabled defaultValue="">
+                <option value="">modération</option>
+              </select>
+            </div>
+            <div className="flex w-[20%] flex-col gap-2">
+              <select className="select" disabled defaultValue="">
+                <option value="">n'hexiste pas</option>
+              </select>
+              <select className="select" disabled defaultValue="">
+                <option value="">égale à</option>
+              </select>
+            </div>
+            <div className="flex flex-1 flex-col gap-2">
+              <div className="h-9" />
+              <input className="input" type="text" defaultValue="À modérer" readOnly />
+            </div>
+          </div>
+          <div className="border-grey-border my-4 border-t" />
+          <div className="flex items-start gap-3">
+            <div className="w-[20%]">
+              <h2 className="text-lg">Action</h2>
+            </div>
+            <div className="flex w-[20%] flex-col gap-2">
+              <select className="select" disabled defaultValue="">
+                <option value="">modération</option>
+              </select>
+              <select className="select" disabled defaultValue="">
+                <option value="">motif</option>
+              </select>
+            </div>
+            <div className="flex w-[20%] flex-col gap-2">
+              <select className="select" disabled defaultValue="">
+                <option value="">égale à</option>
+              </select>
+              <select className="select" disabled defaultValue="">
+                <option value="">égale à</option>
+              </select>
+            </div>
 
-              <div className="flex flex-1 flex-col gap-2">
-                <input className="input" type="text" defaultValue="Refusée" readOnly />
-                <input className="input" type="text" defaultValue="Le contenu est insuffisant / non qualitatif" readOnly />
-              </div>
+            <div className="flex flex-1 flex-col gap-2">
+              <input className="input" type="text" defaultValue="Refusée" readOnly />
+              <input className="input" type="text" defaultValue="Le contenu est insuffisant / non qualitatif" readOnly />
             </div>
           </div>
         </div>

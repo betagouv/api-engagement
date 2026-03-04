@@ -236,9 +236,9 @@ const buildMissionFilters = (
     }
   }
 
-  const organizationNames = normalizeToArray(query.organization);
-  if (organizationNames?.length) {
-    filters.organizationName = organizationNames;
+  const organizationClientIds = normalizeToArray(query.organization);
+  if (organizationClientIds?.length) {
+    filters.organizationClientId = organizationClientIds;
   }
 
   const actions = normalizeToArray(query.action);

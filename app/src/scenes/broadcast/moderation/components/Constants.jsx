@@ -14,10 +14,10 @@ export const STATUS_PLR = {
 };
 
 export const STATUS_ICONS = {
-  PENDING: <RiTimeFill className="text-warning" />,
-  ONGOING: <RiTimeFill className="text-warning" />,
-  ACCEPTED: <RiCheckboxCircleFill className="text-success" />,
-  REFUSED: <RiCloseCircleFill className="text-red-marianne" />,
+  PENDING: <RiTimeFill className="text-warning" aria-hidden="true" />,
+  ONGOING: <RiTimeFill className="text-warning" aria-hidden="true" />,
+  ACCEPTED: <RiCheckboxCircleFill className="text-success" aria-hidden="true" />,
+  REFUSED: <RiCloseCircleFill className="text-red-marianne" aria-hidden="true" />,
 };
 
 export const STATUS_CLASSES = {
@@ -30,7 +30,7 @@ export const STATUS_COLORS = {
   PENDING: "var(--color-warning)",
   ONGOING: "var(--color-warning)",
   ACCEPTED: "var(--color-success)",
-  REFUSED: "var(--color-red-marianne)",
+  REFUSED: "var(--color-error)",
 };
 
 export const STATUS_GRAPH_COLORS = {

@@ -1,4 +1,4 @@
-import { IoMdCheckmark } from "react-icons/io";
+import { RiCheckLine } from "react-icons/ri";
 
 const Toggle = ({ value, onChange = () => null, className = "", ...rest }) => {
   const checked = Boolean(value);
@@ -17,7 +17,7 @@ const Toggle = ({ value, onChange = () => null, className = "", ...rest }) => {
         aria-hidden="true"
         className={`${checked ? "translate-x-4" : "-translate-x-0.5"} border-blue-france pointer-events-none flex h-6 w-6 transform items-center justify-center rounded-full border bg-white shadow-lg ring-0 transition duration-200 ease-in-out`}
       >
-        {checked && <IoMdCheckmark className="text-blue-france" />}
+        {checked && <RiCheckLine className="text-blue-france" />}
       </span>
     </button>
   );

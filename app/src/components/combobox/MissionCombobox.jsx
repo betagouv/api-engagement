@@ -1,23 +1,43 @@
+import Combobox from "@/components/combobox/DesignSystem";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
-import Combobox from "@/components/combobox/index";
+import { useEffect, useState } from "react";
 
-const MissionCombobox = ({ id, value, onSelect, onChange, placeholder, className, filters }) => {
+const MissionCombobox = ({ id, values, onChange, placeholder, className = "w-full min-w-80", filters }) => {
+  const [options, setOptions] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchOptions("");
+  }, [filters]);
+
   const fetchOptions = async (search) => {
     try {
+      setLoading(true);
       const res = await api.get(`/mission/autocomplete?${filters}&search=${search}`);
-      if (!res.ok) throw res;
-      return res.data.map((item) => ({
-        label: item.key === "" ? "Non renseignée" : item.key,
-        value: item.key,
-      }));
+      if (!res.ok) {
+        throw res;
+      }
+      setOptions(res.data.map((item) => (item.key === "" ? "Non renseignée" : item.key)));
     } catch (error) {
       captureError(error, { extra: { search, filters } });
+    } finally {
+      setLoading(false);
     }
-    return [];
   };
 
-  return <Combobox id={id} value={value} onSelect={onSelect} onChange={onChange} onSearch={(search) => fetchOptions(search)} placeholder={placeholder} className={className} />;
+  return (
+    <Combobox
+      id={id}
+      options={options}
+      values={values}
+      onChange={onChange}
+      onSearch={(search) => fetchOptions(search)}
+      placeholder={placeholder}
+      className={className}
+      loading={loading}
+    />
+  );
 };
 
 export default MissionCombobox;

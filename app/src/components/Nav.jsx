@@ -1,4 +1,3 @@
-import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { useEffect, useRef, useState } from "react";
 import { RiArrowDownSFill, RiArrowDownSLine, RiArrowLeftRightLine, RiCheckLine, RiSearchLine } from "react-icons/ri";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -19,7 +18,9 @@ const Nav = () => {
       try {
         const query = user.role === "admin" ? {} : { ids: user.publishers };
         const res = await api.post("/publisher/search", query);
-        if (!res.ok) throw res;
+        if (!res.ok) {
+          throw res;
+        }
         const normalized = withLegacyPublishers(res.data);
         setPublishers(normalized.sort((a, b) => (a.name || "").localeCompare(b.name || "")));
       } catch (error) {
@@ -28,8 +29,12 @@ const Nav = () => {
     };
 
     let newFlux = localStorage.getItem("flux") || flux;
-    if (newFlux === "to" && !publisher.isAnnonceur) newFlux = "from";
-    if (newFlux === "from" && !(publisher.hasApiRights || publisher.hasWidgetRights || publisher.hasCampaignRights)) newFlux = "to";
+    if (newFlux === "to" && !publisher.isAnnonceur) {
+      newFlux = "from";
+    }
+    if (newFlux === "from" && !(publisher.hasApiRights || publisher.hasWidgetRights || publisher.hasCampaignRights)) {
+      newFlux = "to";
+    }
     setFlux(newFlux);
 
     fetchData();
@@ -91,21 +96,15 @@ const Nav = () => {
   ];
 
   return (
-    <nav role="navigation" aria-label="Navigation principale" className="flex w-full justify-center bg-white shadow-lg">
-      <div className="flex w-full max-w-312 flex-wrap items-center justify-between pl-4">
-        <ul className="m-0 flex w-full list-none flex-wrap items-center justify-between gap-x-6 gap-y-2 p-0" role="list" aria-label="Menu principal">
-          <li className="flex items-center gap-4 lg:gap-6">
+    <div className="w-full bg-white shadow-lg">
+      <nav role="navigation" aria-label="Navigation principale" className="mx-auto min-h-14 w-full max-w-312">
+        <ul className="m-0 flex w-full list-none flex-col items-center justify-between gap-x-6 gap-y-2 p-0 lg:flex-row" role="list" aria-label="Menu principal">
+          <li className="flex flex-col items-center gap-4 lg:flex-row lg:gap-6">
             {publisher.isAnnonceur && (publisher.hasApiRights || publisher.hasWidgetRights || publisher.hasCampaignRights) && <FluxMenu value={flux} onChange={handleFluxChange} />}
-            <ul className="m-0 flex list-none flex-wrap items-center gap-4 p-0 lg:gap-6">
+            <ul className="m-0 flex list-none flex-col items-center gap-4 p-0 lg:flex-row lg:gap-6">
               {menuItems.map((item) => (
                 <li key={item.key}>
-                  <Link
-                    to={item.to}
-                    aria-current={item.isActive ? "page" : undefined}
-                    className={`hover:bg-gray-975 flex items-center px-4 py-3 text-sm lg:px-6 ${
-                      item.isActive ? "border-b-blue-france text-blue-france border-b-2" : "border-none text-black"
-                    }`}
-                  >
+                  <Link to={item.to} aria-current={item.isActive} className="nav-item">
                     {item.label}
                   </Link>
                 </li>
@@ -113,164 +112,400 @@ const Nav = () => {
             </ul>
           </li>
 
-          <li className="flex items-center gap-4 lg:gap-6">
+          <li className="flex flex-col items-center gap-4 lg:flex-row lg:gap-6">
             {publishers.length > 1 && <PublisherMenu options={publishers} value={publisher} onChange={handleChangePublisher} />}
             {user.role === "admin" && <AdminMenu />}
           </li>
         </ul>
-      </div>
-    </nav>
+      </nav>
+    </div>
   );
 };
 
-const FluxMenu = ({ value, onChange }) => (
-  <Menu>
-    <MenuButton className="bg-blue-france focus-visible:outline-outline-blue flex w-44 cursor-pointer items-center justify-between rounded-full px-4 py-2 text-sm text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
-      <span>Mode {value === "to" ? "annonceur" : "diffuseur"}</span>
+const FLUX_OPTIONS = [
+  { key: "current", getFlux: (v) => v, getLabel: (v) => `Mode ${v === "to" ? "annonceur" : "diffuseur"}`, isCurrent: true },
+  { key: "other", getFlux: (v) => (v === "to" ? "from" : "to"), getLabel: (v) => `Mode ${v === "to" ? "diffuseur" : "annonceur"}`, isCurrent: false },
+];
 
-      <RiArrowDownSFill className="text-base" />
-    </MenuButton>
-
-    <MenuItems
-      transition
-      anchor="bottom start"
-      className="border-grey-border divide-grey-border mt-2 w-64 origin-top-left divide-y border bg-white shadow-lg transition duration-200 ease-out focus:outline-none data-closed:scale-95 data-closed:opacity-0"
-    >
-      <MenuItem>
-        <button
-          aria-current="page"
-          className="data-[focus]:ring-outline-blue data-[focus]:bg-gray-975 flex w-full cursor-pointer items-center justify-between p-4 text-left text-sm data-[focus]:ring-2 data-[focus]:ring-inset"
-          onClick={() => onChange(value === "to" ? "to" : "from")}
-        >
-          <span>Mode {value === "to" ? "annonceur" : "diffuseur"}</span>
-          <div>
-            <RiCheckLine className="text-success text-lg" />
-            <span className="sr-only">État du service</span>
-          </div>
-        </button>
-      </MenuItem>
-      <MenuItem>
-        <button
-          className="data-[focus]:ring-outline-blue data-[focus]:bg-gray-975 flex w-full cursor-pointer items-center justify-between p-4 text-left text-sm data-[focus]:ring-2 data-[focus]:ring-inset"
-          onClick={() => onChange(value === "to" ? "from" : "to")}
-        >
-          <span>Mode {value === "to" ? "diffuseur" : "annonceur"}</span>
-          <div>
-            <RiArrowLeftRightLine className="text-blue-france text-lg" />
-            <span className="sr-only">État du service</span>
-          </div>
-        </button>
-      </MenuItem>
-    </MenuItems>
-  </Menu>
-);
-
-const PublisherMenu = ({ options, value, onChange }) => {
+const FluxMenu = ({ value, onChange }) => {
   const ref = useRef(null);
+  const buttonRef = useRef(null);
+  const [listRef, setListRef] = useState(FLUX_OPTIONS.map(() => undefined));
   const [isOpen, setIsOpen] = useState(false);
-  const [search, setSearch] = useState("");
+  const [focusedIndex, setFocusedIndex] = useState(-1);
 
   useEffect(() => {
     const handleClick = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) setIsOpen(false);
+      if (ref.current && !ref.current.contains(e.target)) {
+        setIsOpen(false);
+      }
     };
-
     document.addEventListener("click", handleClick);
     return () => document.removeEventListener("click", handleClick);
-  }, [ref]);
+  }, []);
+
+  const handleFocusOut = (e) => {
+    if (ref.current && !ref.current.contains(e.relatedTarget)) {
+      setIsOpen(false);
+    }
+  };
+
+  const handleButtonKeyDown = (e) => {
+    if (!isOpen && (e.key === "Enter" || e.key === " " || e.key === "ArrowDown")) {
+      e.preventDefault();
+      setIsOpen(true);
+      setFocusedIndex(0);
+      requestAnimationFrame(() => listRef[0]?.focus());
+      return;
+    }
+    if (e.key === "Escape") {
+      e.preventDefault();
+      setIsOpen(false);
+    }
+  };
+
+  const handleListKeyDown = (e, option, index) => {
+    switch (e.key) {
+      case "ArrowDown": {
+        e.preventDefault();
+        const newIndex = index < FLUX_OPTIONS.length - 1 ? index + 1 : 0;
+        setFocusedIndex(newIndex);
+        listRef[newIndex]?.focus();
+        break;
+      }
+      case "ArrowUp": {
+        e.preventDefault();
+        const newIndex = index > 0 ? index - 1 : FLUX_OPTIONS.length - 1;
+        setFocusedIndex(newIndex);
+        listRef[newIndex]?.focus();
+        break;
+      }
+      case "Enter":
+      case " ": {
+        e.preventDefault();
+        onChange(option.getFlux(value));
+        setIsOpen(false);
+        buttonRef.current?.focus();
+        break;
+      }
+      case "Escape":
+        e.preventDefault();
+        setIsOpen(false);
+        buttonRef.current?.focus();
+        break;
+      case "Tab":
+        setIsOpen(false);
+        break;
+    }
+  };
 
   return (
-    <div className="relative h-full" ref={ref}>
+    <div className="relative" ref={ref} onBlur={handleFocusOut}>
       <button
-        className="hover:bg-gray-975 focus-visible:ring-outline-blue flex h-full cursor-pointer items-center justify-between gap-4 px-4 text-sm focus:outline-none focus-visible:ring-2"
+        ref={buttonRef}
+        className="bg-blue-france hover:bg-blue-france-hover active:bg-blue-france-hover focus flex w-44 cursor-pointer items-center justify-between rounded-full px-4 py-2 text-sm text-white"
+        aria-expanded={isOpen}
+        aria-haspopup="true"
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
+        onKeyDown={handleButtonKeyDown}
       >
-        <span className="font-semibold">{value.name}</span>
-        <RiArrowDownSLine className={`text-lg ${isOpen ? "rotate-180 transform" : ""}`} />
+        <span>Mode {value === "to" ? "annonceur" : "diffuseur"}</span>
+        <RiArrowDownSFill className={`text-base transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} aria-hidden="true" />
       </button>
 
-      <div className={`absolute z-10 mt-1 origin-top-right transition duration-200 ease-in-out ${isOpen ? "" : "pointer-events-none scale-95 opacity-0"}`}>
-        {isOpen && (
-          <div className={`border-grey-border w-72 border bg-white shadow-lg focus:outline-none`}>
-            <div role="search" className="border-grey-border focus-visible:ring-outline-blue flex items-center gap-2 border-b p-3 focus-visible:ring-2">
-              <RiSearchLine />
-              <label htmlFor="publisher-search" className="sr-only">
-                Rechercher un partenaire
-              </label>
-              <input id="publisher-search" name="publisher-search" className="w-full pl-2 focus:outline-none" onChange={(e) => setSearch(e.target.value)} />
-            </div>
-            <div className="max-h-80 overflow-y-scroll">
-              {options
-                .filter((option) => option.name.toLowerCase().includes(search.toLowerCase()))
-                .map((option, index) => (
-                  <button
-                    key={index}
-                    className="hover:bg-gray-975 focus-visible:bg-gray-975 border-grey-border focus-visible:ring-outline-blue flex w-full items-center justify-between border-b p-4 text-left text-sm focus:outline-none focus-visible:ring-1"
-                    onClick={() => {
-                      setSearch("");
-                      setIsOpen(false);
-                      onChange(option);
-                    }}
-                  >
-                    <span>{option.name}</span>
-                    {(value.id ?? value._id) === (option.id ?? option._id) && <RiCheckLine className="text-blue-france text-lg" />}
-                  </button>
-                ))}
-            </div>
-          </div>
-        )}
+      <div
+        inert={!isOpen ? true : undefined}
+        className={`border-grey-border absolute left-0 z-10 mt-2 w-64 border bg-white shadow-lg transition-[max-height,opacity] duration-200 ease-in-out ${isOpen ? "max-h-96 opacity-100" : "pointer-events-none max-h-0 opacity-0"}`}
+      >
+        <ul className="m-0 flex list-none flex-col p-0" role="listbox">
+          {FLUX_OPTIONS.map((option, index) => (
+            <li
+              ref={(el) => {
+                listRef[index] = el || undefined;
+              }}
+              key={option.key}
+              role="option"
+              aria-selected={value === option.getFlux(value)}
+              tabIndex={focusedIndex === index ? 0 : -1}
+              className="nav-link items-center justify-between"
+              onClick={() => {
+                onChange(option.getFlux(value));
+                setIsOpen(false);
+              }}
+              onKeyDown={(e) => handleListKeyDown(e, option, index)}
+            >
+              <span>{option.getLabel(value)}</span>
+              {option.isCurrent ? (
+                <RiCheckLine className="text-success text-lg" aria-hidden="true" />
+              ) : (
+                <RiArrowLeftRightLine className="text-blue-france text-lg" aria-hidden="true" />
+              )}
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
 };
 
-const AdminMenu = () => (
-  <Menu>
-    {({ open }) => (
-      <>
-        <MenuButton className="data-[focus]:bg-gray-975 hover:bg-gray-975 flex h-full cursor-pointer items-center justify-between gap-4 px-4 text-sm">
-          <span className="font-semibold">Administration</span>
-          <RiArrowDownSLine className={`text-lg ${open ? "rotate-180 transform" : ""}`} />
-        </MenuButton>
-        <MenuItems
-          transition
-          anchor="bottom end"
-          className="border-grey-border divide-grey-border mt-1 w-64 origin-top-right divide-y border bg-white shadow-lg transition duration-200 ease-out focus:outline-none data-closed:scale-95 data-closed:opacity-0"
-        >
-          <MenuItem>
-            <Link to="/admin-account" className="data-[focus]:bg-gray-975 block w-full p-4 text-sm">
-              Comptes
-            </Link>
-          </MenuItem>
-          <MenuItem>
-            <Link to="/admin-mission" className="data-[focus]:bg-gray-975 block w-full p-4 text-sm">
-              Missions
-            </Link>
-          </MenuItem>
-          <MenuItem>
-            <Link to="/admin-organization" className="data-[focus]:bg-gray-975 block w-full p-4 text-sm">
-              Organisations
-            </Link>
-          </MenuItem>
-          <MenuItem>
-            <Link to="/admin-stats" className="data-[focus]:bg-gray-975 block w-full p-4 text-sm">
-              Statistiques
-            </Link>
-          </MenuItem>
-          <MenuItem>
-            <Link to="/admin-warning" className="data-[focus]:bg-gray-975 block w-full p-4 text-sm">
-              Alertes
-            </Link>
-          </MenuItem>
-          <MenuItem>
-            <Link to="/admin-report" className="data-[focus]:bg-gray-975 block w-full p-4 text-sm">
-              Rapports d'impacts
-            </Link>
-          </MenuItem>
-        </MenuItems>
-      </>
-    )}
-  </Menu>
-);
+const PublisherMenu = ({ options, value, onChange }) => {
+  const ref = useRef(null);
+  const buttonRef = useRef(null);
+  const inputRef = useRef(null);
+  const [listRef, setListRef] = useState([]);
+  const [show, setShow] = useState(false);
+  const [search, setSearch] = useState("");
+  const [focusedIndex, setFocusedIndex] = useState(-1);
+
+  const filtered = options.filter((option) => option.name.toLowerCase().includes(search.toLowerCase()));
+
+  useEffect(() => {
+    setListRef(filtered.map(() => undefined));
+    setFocusedIndex(-1);
+  }, [filtered.length, search]);
+
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) {
+        setShow(false);
+      }
+    };
+
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
+  }, []);
+
+  const handleFocusOut = (e) => {
+    if (ref.current && !ref.current.contains(e.relatedTarget)) {
+      setShow(false);
+    }
+  };
+
+  const handleInputKeyDown = (e) => {
+    switch (e.key) {
+      case "ArrowDown": {
+        e.preventDefault();
+        if (filtered.length > 0) {
+          const newIndex = 0;
+          setFocusedIndex(newIndex);
+          listRef[newIndex]?.focus();
+        }
+        break;
+      }
+      case "ArrowUp": {
+        e.preventDefault();
+        if (filtered.length > 0) {
+          const newIndex = filtered.length - 1;
+          setFocusedIndex(newIndex);
+          listRef[newIndex]?.focus();
+        }
+        break;
+      }
+      case "Tab":
+        if (!e.shiftKey && filtered.length > 0) {
+          e.preventDefault();
+          setFocusedIndex(0);
+          listRef[0]?.focus();
+        }
+        break;
+      case "Escape":
+        e.preventDefault();
+        setShow(false);
+        buttonRef.current?.focus();
+        break;
+    }
+  };
+
+  const handleListKeyDown = (e, option, index) => {
+    switch (e.key) {
+      case "ArrowDown": {
+        e.preventDefault();
+        const newIndex = index < filtered.length - 1 ? index + 1 : 0;
+        setFocusedIndex(newIndex);
+        listRef[newIndex]?.focus();
+        break;
+      }
+      case "ArrowUp": {
+        e.preventDefault();
+        const newIndex = index > 0 ? index - 1 : filtered.length - 1;
+        setFocusedIndex(newIndex);
+        listRef[newIndex]?.focus();
+        break;
+      }
+      case "Enter":
+      case " ": {
+        e.preventDefault();
+        setSearch("");
+        setShow(false);
+        onChange(option);
+        buttonRef.current?.focus();
+        break;
+      }
+      case "Escape":
+        e.preventDefault();
+        setShow(false);
+        buttonRef.current?.focus();
+        break;
+      case "Tab":
+        if (e.shiftKey) {
+          e.preventDefault();
+          inputRef.current?.focus();
+        } else {
+          setShow(false);
+        }
+        break;
+    }
+  };
+
+  return (
+    <div className="relative h-full" ref={ref} onBlur={handleFocusOut}>
+      <button ref={buttonRef} className="nav-item" aria-expanded={show} aria-haspopup="true" type="button" onClick={() => setShow(!show)}>
+        <span className="font-semibold">{value.name}</span>
+        <RiArrowDownSLine className={`ml-2 text-lg transition-transform duration-200 ${show ? "rotate-180" : ""}`} aria-hidden="true" />
+      </button>
+
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="publisher-search"
+        inert={!show ? true : undefined}
+        className={`border-grey-border absolute right-0 z-50 w-80 border bg-white shadow-lg transition-[max-height,opacity] duration-200 ease-in-out focus:outline-none ${show ? "max-h-96 opacity-100" : "pointer-events-none max-h-0 opacity-0"}`}
+      >
+        <div role="search" className="border-grey-border focus flex items-center gap-2 border-b p-3">
+          <RiSearchLine aria-hidden="true" />
+          <label htmlFor="publisher-search" className="sr-only">
+            Rechercher un partenaire
+          </label>
+          <input
+            ref={inputRef}
+            type="search"
+            role="searchbox"
+            id="publisher-search"
+            name="publisher-search"
+            className="w-full pl-2 focus:outline-none"
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={handleInputKeyDown}
+          />
+        </div>
+        <ul className="flex max-h-80 list-none flex-col overflow-x-visible overflow-y-auto px-2" role="listbox">
+          {filtered.map((option, index) => (
+            <li
+              ref={(el) => {
+                listRef[index] = el || undefined;
+              }}
+              key={index}
+              role="option"
+              aria-selected={focusedIndex === index}
+              aria-label={option.name}
+              tabIndex={focusedIndex === index ? 0 : -1}
+              className={`nav-link -mx-2 cursor-pointer items-center ${index === 0 ? "shadow-none" : ""} ${focusedIndex === index || value.id === option.id ? "text-blue-france" : ""}`}
+              onClick={() => {
+                setSearch("");
+                setShow(false);
+                setFocusedIndex(-1);
+                onChange(option);
+              }}
+              onKeyDown={(e) => handleListKeyDown(e, option, index)}
+            >
+              <span className="text-sm">{option.name}</span>
+              {value.id === option.id && <RiCheckLine className="text-blue-france ml-2 text-base" aria-hidden="true" />}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+};
+
+const ADMIN_MENU_ITEMS = [
+  {
+    key: "accounts",
+    label: "Comptes",
+    href: "/admin-account",
+  },
+  {
+    key: "missions",
+    label: "Missions",
+    href: "/admin-mission",
+  },
+  {
+    key: "organizations",
+    label: "Organisations",
+    href: "/admin-organization",
+  },
+  {
+    key: "stats",
+    label: "Statistiques",
+    href: "/admin-stats",
+  },
+  {
+    key: "warnings",
+    label: "Alertes",
+    href: "/admin-warning",
+  },
+  {
+    key: "reports",
+    label: "Rapports d'impacts",
+    href: "/admin-report",
+  },
+];
+
+const AdminMenu = () => {
+  const ref = useRef(null);
+  const buttonRef = useRef(null);
+  const [show, setShow] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) {
+        setShow(false);
+      }
+    };
+
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
+  }, []);
+
+  const handleFocusOut = (e) => {
+    if (ref.current && !ref.current.contains(e.relatedTarget)) {
+      setShow(false);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Escape") {
+      setShow(false);
+      buttonRef.current?.focus();
+    }
+  };
+
+  return (
+    <div className="relative h-full" ref={ref} onBlur={handleFocusOut} onKeyDown={handleKeyDown}>
+      <button ref={buttonRef} className="nav-item" aria-expanded={show} aria-haspopup="true" type="button" onClick={() => setShow(!show)}>
+        <span className="font-semibold">Administration</span>
+        <RiArrowDownSLine className={`ml-2 text-lg transition-transform duration-200 ${show ? "rotate-180" : ""}`} aria-hidden="true" />
+      </button>
+      <div
+        inert={!show ? true : undefined}
+        className={`border-grey-border absolute right-0 z-10 w-80 border bg-white shadow-lg transition-[max-height,opacity] duration-200 ease-in-out ${show ? "max-h-96 opacity-100" : "pointer-events-none max-h-0 opacity-0"}`}
+      >
+        <ul className="m-0 flex list-none flex-col p-0">
+          {ADMIN_MENU_ITEMS.map((item, index) => {
+            const isCurrent = location.pathname.startsWith(item.href);
+            return (
+              <li key={index}>
+                <Link to={item.href} className="nav-link" aria-current={isCurrent ? "page" : undefined}>
+                  {item.label}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </div>
+  );
+};
 
 export default Nav;

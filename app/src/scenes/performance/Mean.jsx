@@ -6,12 +6,12 @@ import DateRangePicker from "@/components/DateRangePicker";
 import Loader from "@/components/Loader";
 import Table from "@/components/Table";
 import { METABASE_CARD_ID } from "@/constants";
+import AnalyticsCard from "@/scenes/performance/AnalyticsCard";
 import { useAnalyticsProvider } from "@/services/analytics/provider";
 import { adaptKpiFromMetabase } from "@/services/analytics/providers/metabase/adapters";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
-import AnalyticsCard from "@/scenes/performance/AnalyticsCard";
 
 const adaptConversionRate = (raw) => {
   const { value } = adaptKpiFromMetabase(raw, { valueColumn: "conversion_rate" });
@@ -30,8 +30,12 @@ const Mean = ({ filters, onFiltersChange }) => {
 
   const metabaseVariables = useMemo(() => {
     const vars = { publisher_id: publisher.id, source };
-    if (filters?.from) vars.from = filters.from instanceof Date ? filters.from.toISOString() : filters.from;
-    if (filters?.to) vars.to = filters.to instanceof Date ? filters.to.toISOString() : filters.to;
+    if (filters?.from) {
+      vars.from = filters.from instanceof Date ? filters.from.toISOString() : filters.from;
+    }
+    if (filters?.to) {
+      vars.to = filters.to instanceof Date ? filters.to.toISOString() : filters.to;
+    }
     return vars;
   }, [filters, publisher.id, source]);
 
@@ -48,7 +52,9 @@ const Mean = ({ filters, onFiltersChange }) => {
 
         if (publisher.hasCampaignRights) {
           const resC = await api.post("/campaign/search", { fromPublisherId: publisher.id, size: 0 });
-          if (!resC.ok) throw resC;
+          if (!resC.ok) {
+            throw resC;
+          }
           if (resC.total) {
             source = "campaign";
             newOptions.push({ label: "Campagnes", value: "campaign" });
@@ -57,7 +63,9 @@ const Mean = ({ filters, onFiltersChange }) => {
 
         if (publisher.hasWidgetRights) {
           const resW = await api.post("/widget/search", { fromPublisherId: publisher.id, size: 0 });
-          if (!resW.ok) throw resW;
+          if (!resW.ok) {
+            throw resW;
+          }
           if (resW.total) {
             source = "widget";
             newOptions.push({ label: "Widgets", value: "widget" });
@@ -74,8 +82,12 @@ const Mean = ({ filters, onFiltersChange }) => {
   }, []);
 
   useEffect(() => {
-    if (!options.length) return;
-    if (!analyticsProvider?.query) return;
+    if (!options.length) {
+      return;
+    }
+    if (!analyticsProvider?.query) {
+      return;
+    }
     const controller = new AbortController();
     const fetchData = async () => {
       setLoading(true);
@@ -114,7 +126,9 @@ const Mean = ({ filters, onFiltersChange }) => {
         const map = results.reduce((acc, [key, sources]) => ({ ...acc, [key]: { sources } }), {});
         setDataBySource(map);
       } catch (error) {
-        if (error.name === "AbortError") return;
+        if (error.name === "AbortError") {
+          return;
+        }
         captureError(error, { extra: { filters, publisherId: publisher.id } });
       }
       setLoading(false);
@@ -124,8 +138,12 @@ const Mean = ({ filters, onFiltersChange }) => {
   }, [analyticsProvider, metabaseVariables, options, publisher.id]);
 
   useEffect(() => {
-    if (!source) return;
-    if (!analyticsProvider?.query) return;
+    if (!source) {
+      return;
+    }
+    if (!analyticsProvider?.query) {
+      return;
+    }
     const controller = new AbortController();
     const fetchGraph = async () => {
       setGraphLoading(true);
@@ -139,7 +157,9 @@ const Mean = ({ filters, onFiltersChange }) => {
         const cols = raw?.data?.cols || raw?.cols || [];
         const getValue = (name) => {
           const idx = cols.findIndex((c) => c.name === name || c.display_name === name);
-          if (idx < 0) return 0;
+          if (idx < 0) {
+            return 0;
+          }
           const row = rows?.[0] || [];
           return Number(row[idx]) || 0;
         };
@@ -151,7 +171,9 @@ const Mean = ({ filters, onFiltersChange }) => {
 
         setGraph({ clickCount, applyCount, printCount, accountCount, conversionRate });
       } catch (error) {
-        if (error.name === "AbortError") return;
+        if (error.name === "AbortError") {
+          return;
+        }
         captureError(error, { extra: { source, filters, publisherId: publisher.id } });
         setGraph({ clickCount: 0, applyCount: 0, printCount: 0, accountCount: 0, conversionRate: 0 });
       }
@@ -161,12 +183,13 @@ const Mean = ({ filters, onFiltersChange }) => {
     return () => controller.abort();
   }, [analyticsProvider, filters, metabaseVariables, publisher.id, source]);
 
-  if (!source)
+  if (!source) {
     return (
       <div className="flex justify-center p-12">
         <Loader />
       </div>
     );
+  }
 
   return (
     <div className="space-y-12 p-12">
@@ -275,8 +298,8 @@ const Mean = ({ filters, onFiltersChange }) => {
 
       <div className="border-grey-border bg-blue-france-975 flex items-center gap-8 border p-8">
         <div className="relative h-full w-[128px]">
-          <img src={JessicaSvg} alt="Jessica" className="absolute top-1/2 left-0 h-[72px] w-[72px] -translate-y-1/2 rounded-full" />
-          <img src={NassimSvg} alt="Nassim" className="absolute top-1/2 right-0 h-[72px] w-[72px] -translate-y-1/2 rounded-full" />
+          <img src={JessicaSvg} alt="" aria-hidden="true" className="absolute top-1/2 left-0 h-[72px] w-[72px] -translate-y-1/2 rounded-full" />
+          <img src={NassimSvg} alt="" aria-hidden="true" className="absolute top-1/2 right-0 h-[72px] w-[72px] -translate-y-1/2 rounded-full" />
         </div>
         <div className="space-y-8">
           <div className="space-y-2">
@@ -305,8 +328,12 @@ const Mean = ({ filters, onFiltersChange }) => {
 };
 
 const getLabelPosition = (value) => {
-  if (value < 10) return "5%";
-  if (value > 90) return "94%";
+  if (value < 10) {
+    return "5%";
+  }
+  if (value > 90) {
+    return "94%";
+  }
   return `${value - 4}%`;
 };
 
@@ -330,7 +357,7 @@ const Bar = ({ value, height = BAR_HEIGHT }) => {
 };
 
 const TABLE_HEADER = (source) => [
-  { title: `Nom ${source === "widget" ? "du widget" : "de la campagne"}`, key: "name", position: "left", colSpan: 2 },
+  { title: `Nom ${source === "widget" ? "du widget" : "de la campagne"}`, key: "name", position: "left", width: "30%" },
   { title: "Impressions", key: "printCount", position: "right" },
   { title: "Redirections", key: "clickCount", position: "right" },
   { title: "Créations de compte", key: "accountCount", position: "right" },
@@ -348,10 +375,20 @@ const SourcePerformance = ({ data, source }) => {
   return (
     <div className="border-grey-border space-y-4 border p-6">
       <h3 className="text-2xl font-semibold">Performance par {source === "widget" ? "widget" : "campagne"}</h3>
-      <Table header={TABLE_HEADER(source)} total={data.length} sortBy={sortBy} onSort={setSortBy} page={page} onPageChange={setPage} pageSize={pageSize} auto>
+      <Table
+        caption={`Performance par ${source === "widget" ? "widget" : "campagne"}`}
+        header={TABLE_HEADER(source)}
+        total={data.length}
+        sortBy={sortBy}
+        onSort={setSortBy}
+        page={page}
+        onPageChange={setPage}
+        pageSize={pageSize}
+        auto
+      >
         {paginated.map((item, i) => (
-          <tr key={`${item.name || "source"}-${(page - 1) * pageSize + i}`} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
-            <td colSpan={2} className="px-4">
+          <tr key={`${item.name || "source"}-${(page - 1) * pageSize + i}`} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
+            <td className="px-4">
               {item.name}
             </td>
             <td className="px-4 text-right">{(item.printCount || 0).toLocaleString("fr")}</td>

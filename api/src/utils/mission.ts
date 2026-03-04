@@ -1,8 +1,10 @@
 import { API_URL } from "@/config";
-import { MissionRecord } from "@/types/mission";
+import { MissionAddress, MissionRecord } from "@/types/mission";
 import { JobBoardId, MissionJobBoardSyncStatus } from "@/types/mission-job-board";
 import { parseDate } from "./parser";
 import { slugify } from "./string";
+
+export { computeAddressHash } from "./address";
 
 /**
  * Format the tracked application URL for a mission and a given publisher

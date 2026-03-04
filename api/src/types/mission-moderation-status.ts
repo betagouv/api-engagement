@@ -46,15 +46,17 @@ export type MissionModerationRecord = {
 };
 
 export type ModerationFilters = {
+  ids?: string[];
   moderatorId?: string;
-  publisherId?: string;
+  publisherIds?: string[];
   missionId?: string;
   status?: string;
   comment?: string;
   domain?: string;
   department?: string;
-  organizationName?: string;
-  city?: string;
+  organizationNames?: string[];
+  organizationClientId?: string;
+  cities?: string[];
   activity?: string;
   search?: string;
   limit?: number;

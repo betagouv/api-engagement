@@ -60,7 +60,7 @@ const Create = () => {
     <div className="flex flex-col gap-8">
       <title>API Engagement - Nouveau compte partenaire</title>
       <Link to="/admin-account/publishers" className="border-blue-france text-blue-france flex w-fit items-center gap-2 border-b text-[16px]">
-        <RiArrowLeftLine />
+        <RiArrowLeftLine aria-hidden="true" />
         Retour
       </Link>
       <h1 className="text-4xl font-bold">Nouveau compte partenaire</h1>

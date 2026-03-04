@@ -3,6 +3,7 @@ import { randomUUID } from "crypto";
 import { Mission, Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
 import { missionRepository } from "@/repositories/mission";
+import { activityService } from "@/services/activity";
 import type {
   MissionCreateInput,
   MissionFacets,
@@ -15,9 +16,8 @@ import type {
 } from "@/types/mission";
 import { PublisherOrganizationWithRelations } from "@/types/publisher-organization";
 import { calculateBoundingBox } from "@/utils";
-import { buildJobBoardMap, deriveMissionLocation, normalizeMissionAddresses } from "@/utils/mission";
+import { buildJobBoardMap, computeAddressHash, deriveMissionLocation, normalizeMissionAddresses } from "@/utils/mission";
 import { normalizeOptionalString, normalizeStringList } from "@/utils/normalize";
-import { activityService } from "./activity";
 import { publisherService } from "./publisher";
 import publisherOrganizationService from "./publisher-organization";
 
@@ -335,7 +335,7 @@ export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereIn
   }
 
   if (filters.moderationAcceptedFor) {
-    const moderationWhere: Prisma.MissionModerationStatusWhereInput = { publisherId: filters.moderationAcceptedFor };
+    const moderationWhere: Prisma.MissionModerationStatusWhereInput = { publisherId: filters.moderationAcceptedFor, status: "ACCEPTED" };
     if (filters.moderationStatus) {
       moderationWhere.status = filters.moderationStatus as any;
     }
@@ -494,14 +494,14 @@ const buildAggregations = async (where: Prisma.MissionWhereInput): Promise<Missi
     .map((row) => {
       const publisher = publisherById.get(row.key);
       return {
-        _id: row.key,
-        count: row.doc_count,
-        name: publisher?.name,
+        key: row.key,
+        doc_count: row.doc_count,
+        label: publisher?.name,
         mission_type: publisher?.missionType === "volontariat_service_civique" ? "volontariat" : "benevolat",
       };
     })
-    .filter((row) => isNonEmpty(row._id))
-    .sort((a, b) => b.count - a.count);
+    .filter((row) => isNonEmpty(row.key))
+    .sort((a, b) => b.doc_count - a.doc_count);
 
   return { status, comments, domains, organizations: organizationsAgg, activities, cities, departments, partners };
 };
@@ -512,22 +512,31 @@ const mapAddressesForCreate = (addresses?: MissionRecord["addresses"]) => {
   if (!addresses || !addresses.length) {
     return [];
   }
-  return addresses.map((address) => ({
-    street: normalizeOptionalString(address.street !== undefined && address.street !== null ? String(address.street) : (address.street as any)),
-    postalCode: normalizeOptionalString(address.postalCode !== undefined && address.postalCode !== null ? String(address.postalCode) : (address.postalCode as any)),
-    departmentName: normalizeOptionalString(
-      address.departmentName !== undefined && address.departmentName !== null ? String(address.departmentName) : (address.departmentName as any)
-    ),
-    departmentCode: normalizeOptionalString(
-      address.departmentCode !== undefined && address.departmentCode !== null ? String(address.departmentCode) : (address.departmentCode as any)
-    ),
-    city: normalizeOptionalString(address.city !== undefined && address.city !== null ? String(address.city) : (address.city as any)),
-    region: normalizeOptionalString(address.region !== undefined && address.region !== null ? String(address.region) : (address.region as any)),
-    country: normalizeOptionalString(address.country !== undefined && address.country !== null ? String(address.country) : (address.country as any)),
-    locationLat: address.location?.lat ?? null,
-    locationLon: address.location?.lon ?? null,
-    geolocStatus: (address as any).geolocStatus ?? null,
-  }));
+  return addresses.map((address) => {
+    const street = normalizeOptionalString(address.street !== undefined && address.street !== null ? String(address.street) : (address.street as any));
+    const postalCode = normalizeOptionalString(address.postalCode !== undefined && address.postalCode !== null ? String(address.postalCode) : (address.postalCode as any));
+    const city = normalizeOptionalString(address.city !== undefined && address.city !== null ? String(address.city) : (address.city as any));
+    const country = normalizeOptionalString(address.country !== undefined && address.country !== null ? String(address.country) : (address.country as any));
+    const locationLat = address.location?.lat ?? null;
+    const locationLon = address.location?.lon ?? null;
+    return {
+      addressHash: computeAddressHash({ street, city, postalCode, country, location: locationLat != null && locationLon != null ? { lat: locationLat, lon: locationLon } : null }),
+      street,
+      postalCode,
+      departmentName: normalizeOptionalString(
+        address.departmentName !== undefined && address.departmentName !== null ? String(address.departmentName) : (address.departmentName as any)
+      ),
+      departmentCode: normalizeOptionalString(
+        address.departmentCode !== undefined && address.departmentCode !== null ? String(address.departmentCode) : (address.departmentCode as any)
+      ),
+      city,
+      region: normalizeOptionalString(address.region !== undefined && address.region !== null ? String(address.region) : (address.region as any)),
+      country,
+      locationLat,
+      locationLon,
+      geolocStatus: (address as any).geolocStatus ?? null,
+    };
+  });
 };
 
 const baseInclude: MissionInclude = {
@@ -853,10 +862,16 @@ export const missionService = {
     }
 
     if ("addresses" in patch) {
-      data.addresses = {
-        deleteMany: {},
-        ...(addresses.length ? { createMany: { data: addresses } } : {}),
-      };
+      const addressesUpdate: Prisma.MissionAddressUncheckedUpdateManyWithoutMissionNestedInput = { deleteMany: {} };
+      if (addresses.length) {
+        addressesUpdate.upsert = addresses.map((addr) => ({
+          where: { missionId_addressHash: { missionId: id, addressHash: addr.addressHash } },
+          create: addr,
+          update: addr,
+        }));
+        addressesUpdate.deleteMany = { addressHash: { notIn: addresses.map((a) => a.addressHash) } };
+      }
+      data.addresses = addressesUpdate;
     }
 
     await missionRepository.updateUnchecked(id, data);

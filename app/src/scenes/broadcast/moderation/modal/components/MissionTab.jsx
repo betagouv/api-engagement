@@ -48,7 +48,7 @@ const MissionTab = ({ data, onChange }) => {
           />
           {error && (
             <div className="text-error flex items-center text-sm">
-              <RiErrorWarningFill className="mr-2" />
+              <RiErrorWarningFill className="mr-2" aria-hidden="true" />
               {error}
             </div>
           )}
@@ -110,7 +110,7 @@ const MissionTab = ({ data, onChange }) => {
             >
               Ouvrir le lien de la mission
             </Link>
-            <RiExternalLinkLine />
+            <RiExternalLinkLine aria-hidden="true" />
           </div>
         </div>
         <div className="border-grey-border border-t" />

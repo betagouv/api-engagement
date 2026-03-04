@@ -28,7 +28,9 @@ const Users = () => {
   const [loading, setLoading] = useState(false);
 
   const filteredUsers = users.filter((u) => {
-    if (!search) return true;
+    if (!search) {
+      return true;
+    }
     return (
       u.firstname.toLowerCase().includes(search.toLowerCase()) || u.lastname?.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase())
     );
@@ -39,11 +41,15 @@ const Users = () => {
       setLoading(true);
       try {
         const resU = await api.post("/user/search");
-        if (!resU.ok) throw resU;
+        if (!resU.ok) {
+          throw resU;
+        }
         setUsers(resU.data);
 
         const resP = await api.post("/publisher/search");
-        if (!resP.ok) throw resP;
+        if (!resP.ok) {
+          throw resP;
+        }
         setPublishers(withLegacyPublishers(resP.data));
       } catch (error) {
         captureError(error);
@@ -71,12 +77,12 @@ const Users = () => {
           </label>
           <input id="user-search" name="user-search" className="input flex-1" placeholder="Chercher par nom ou par email" onChange={(e) => setSearch(e.target.value)} />
           <Link to="/user/new" className="primary-btn flex items-center">
-            Nouvel utilisateur <HiOutlinePlus className="ml-2" />
+            Nouvel utilisateur <HiOutlinePlus className="ml-2" aria-hidden="true" />
           </Link>
         </div>
-        <Table header={TABLE_HEADER} total={filteredUsers.length} loading={loading} page={page} pageSize={PAGE_SIZE} onPageChange={setPage} auto>
+        <Table caption="Liste des utilisateurs" header={TABLE_HEADER} total={filteredUsers.length} loading={loading} page={page} pageSize={PAGE_SIZE} onPageChange={setPage} auto>
           {filteredUsers.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((item, i) => (
-            <tr key={item.id} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
+            <tr key={item.id} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
               <td className="table-cell">
                 <Link to={`/user/${item.id}`} className="text-blue-france truncate">
                   {item.firstname} {item.lastname}
@@ -91,7 +97,9 @@ const Users = () => {
                     <>
                       {item.publishers.slice(0, 2).map((p, j) => {
                         const publisher = publishers.find((pub) => pub.id === p || pub._id === p);
-                        if (!publisher) return null;
+                        if (!publisher) {
+                          return null;
+                        }
                         return (
                           <span key={j} className="text-2xs bg-blue-france-975 max-w-48 truncate rounded p-1">
                             {publisher.name}
@@ -104,14 +112,14 @@ const Users = () => {
                 </div>
               </td>
               <td className="table-cell text-center">
-                {item.role === "admin" ? <span className="bg-red-marianne-950 rounded px-1">Admin</span> : <span className="bg-success-950 rounded px-1">Utilisateur</span>}
+                {item.role === "admin" ? <span className="bg-red-marianne-950 rounded px-1">Admin</span> : <span className="bg-green-success-950 rounded px-1">Utilisateur</span>}
               </td>
               <td className="table-cell text-center">{new Date(item.createdAt).toLocaleDateString("fr")}</td>
               <td className="table-cell text-center">{item.lastActivityAt ? new Date(item.lastActivityAt).toLocaleDateString("fr") : "-"}</td>
               <td className="table-cell text-center">
                 <Link to={`/connect?id=${item.id}`} target="_blank" className="text-blue-france flex items-center justify-center">
                   Se connecter
-                  <RiLoginBoxLine className="ml-2" />
+                  <RiLoginBoxLine className="ml-2" aria-hidden="true" />
                 </Link>
               </td>
             </tr>

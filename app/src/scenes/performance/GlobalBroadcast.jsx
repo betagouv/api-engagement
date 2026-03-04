@@ -7,10 +7,10 @@ import Loader from "@/components/Loader";
 import Table from "@/components/Table";
 import Tabs from "@/components/Tabs";
 import { METABASE_CARD_ID, MONTHS } from "@/constants";
+import AnalyticsCard from "@/scenes/performance/AnalyticsCard";
 import { useAnalyticsProvider } from "@/services/analytics/provider";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
-import AnalyticsCard from "@/scenes/performance/AnalyticsCard";
 
 const KEYS = {
   api: "API",
@@ -47,7 +47,7 @@ const GlobalDiffuseur = ({ filters, onFiltersChange }) => {
           <p className="text-text-mention text-base">Les missions que vous diffusez et l'impact que vous générez pour vos partenaires annonceurs</p>
         </div>
         <div className="mt-4 grid gap-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <AnalyticsCard
               cardId={METABASE_CARD_ID.DIFFUSEUR_TOTAL_MISSIONS}
               filters={filters}
@@ -65,7 +65,7 @@ const GlobalDiffuseur = ({ filters, onFiltersChange }) => {
               adapterOptions={{ valueColumn: "total_mission_apply" }}
             />
           </div>
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
             <AnalyticsCard
               cardId={METABASE_CARD_ID.DIFFUSEUR_TOTAL_EVENTS}
               filters={filters}
@@ -104,19 +104,19 @@ const GlobalDiffuseur = ({ filters, onFiltersChange }) => {
       </div>
 
       <>
-        {(publisher.hasApiRights && 1) + (publisher.hasCampaignRights && 1) + (publisher.hasWidgetRights && 1) > 1 && <DistributionMean filters={filters} defaultType="print" />}
-        <Evolution filters={filters} defaultType="print" />
+        {(publisher.hasApiRights && 1) + (publisher.hasCampaignRights && 1) + (publisher.hasWidgetRights && 1) > 1 && <DistributionMean filters={filters} />}
+        <Evolution filters={filters} />
         <Announcers filters={filters} />
       </>
     </div>
   );
 };
 
-const DistributionMean = ({ filters, defaultType = "print" }) => {
+const DistributionMean = ({ filters }) => {
   const { publisher } = useStore();
   const analyticsProvider = useAnalyticsProvider();
   const [data, setData] = useState([]);
-  const [type, setType] = useState(defaultType);
+  const [type, setType] = useState("apply");
   const [loading, setLoading] = useState(true);
   const tabs = [
     {
@@ -151,14 +151,20 @@ const DistributionMean = ({ filters, defaultType = "print" }) => {
   const activeTabId = activeTab ? activeTab.id : null;
 
   useEffect(() => {
-    if (!analyticsProvider?.query) return;
+    if (!analyticsProvider?.query) {
+      return;
+    }
     const controller = new AbortController();
     const fetchData = async () => {
       setLoading(true);
       try {
         const variables = { publisher_id: String(publisher.id), type };
-        if (filters.from) variables.from = filters.from.toISOString();
-        if (filters.to) variables.to = filters.to.toISOString();
+        if (filters.from) {
+          variables.from = filters.from.toISOString();
+        }
+        if (filters.to) {
+          variables.to = filters.to.toISOString();
+        }
 
         const raw = await analyticsProvider.query({
           cardId: METABASE_CARD_ID.DIFFUSEUR_REPARITION_PAR_MOYEN_DIFFUSION,
@@ -170,7 +176,9 @@ const DistributionMean = ({ filters, defaultType = "print" }) => {
         const parsed = rows.map((row) => ({ key: row?.[0] ?? "", doc_count: Number(row?.[1]) || 0 }));
         setData(parsed);
       } catch (error) {
-        if (error.name === "AbortError") return;
+        if (error.name === "AbortError") {
+          return;
+        }
         captureError(error, { extra: { filters, type } });
         setData([]);
       }
@@ -184,7 +192,13 @@ const DistributionMean = ({ filters, defaultType = "print" }) => {
     <div className="space-y-6">
       <h2 className="text-3xl font-bold">Répartition par moyen de diffusion</h2>
       <div className="border-grey-border space-y-4 border p-6">
-        <Tabs tabs={tabs} ariaLabel="Répartition par moyen de diffusion" panelId="distribution-panel" className="mb-8 flex items-center gap-8 text-sm" variant="underline" />
+        <Tabs
+          tabs={tabs}
+          ariaLabel="Répartition par moyen de diffusion"
+          panelId="distribution-panel"
+          className="mb-8 flex flex-wrap items-center gap-8 text-sm"
+          variant="underline"
+        />
         <div id="distribution-panel" role="tabpanel" aria-labelledby={activeTabId || undefined}>
           {loading ? (
             <div className="flex h-64 items-center justify-center">
@@ -192,11 +206,11 @@ const DistributionMean = ({ filters, defaultType = "print" }) => {
             </div>
           ) : !data.length ? (
             <div className="border-grey-border bg-background-grey-hover flex h-[248px] w-full flex-col items-center justify-center border border-dashed">
-              <img src={EmptySVG} alt="empty" className="h-16 w-16" />
+              <img src={EmptySVG} alt="" aria-hidden="true" className="h-16 w-16" />
               <p className="text-color-gray-425 text-base">Aucune donnée disponible pour la période</p>
             </div>
           ) : (
-            <div className="flex h-64 justify-between gap-4 p-2">
+            <div className="flex h-64 flex-col justify-between gap-4 p-2 lg:flex-row">
               <div className="w-2/3">
                 <table className="w-full table-auto">
                   <thead className="text-left">
@@ -222,7 +236,7 @@ const DistributionMean = ({ filters, defaultType = "print" }) => {
                   </tbody>
                 </table>
               </div>
-              <div className="mr-8 ml-24 flex h-56 w-1/3 items-center justify-center">
+              <div className="mr-8 ml-0 flex h-56 w-full items-center justify-center lg:ml-24 lg:w-1/3">
                 <Pie
                   data={data.map((d, i) => ({ name: KEYS[d.key], value: d.doc_count, color: COLORS[i % COLORS.length] }))}
                   innerRadius="0%"
@@ -237,12 +251,12 @@ const DistributionMean = ({ filters, defaultType = "print" }) => {
   );
 };
 
-const Evolution = ({ filters, defaultType = "print" }) => {
+const Evolution = ({ filters }) => {
   const { publisher } = useStore();
   const analyticsProvider = useAnalyticsProvider();
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [type, setType] = useState(defaultType);
+  const [type, setType] = useState("apply");
   const tabs = [
     {
       key: "print",
@@ -276,14 +290,20 @@ const Evolution = ({ filters, defaultType = "print" }) => {
   const activeTabId = activeTab ? activeTab.id : null;
 
   useEffect(() => {
-    if (!analyticsProvider?.query) return;
+    if (!analyticsProvider?.query) {
+      return;
+    }
     const controller = new AbortController();
     const fetchData = async () => {
       setLoading(true);
       try {
         const variables = { publisher_id: String(publisher.id), flux: "from", type };
-        if (filters.from) variables.from = filters.from.toISOString();
-        if (filters.to) variables.to = filters.to.toISOString();
+        if (filters.from) {
+          variables.from = filters.from.toISOString();
+        }
+        if (filters.to) {
+          variables.to = filters.to.toISOString();
+        }
 
         const raw = await analyticsProvider.query({
           cardId: METABASE_CARD_ID.EVOLUTION_STAT_EVENT,
@@ -295,7 +315,9 @@ const Evolution = ({ filters, defaultType = "print" }) => {
         const cols = raw?.data?.cols || raw?.cols || [];
 
         const getColumnIndex = (column) => {
-          if (!cols?.length) return -1;
+          if (!cols?.length) {
+            return -1;
+          }
           return cols.findIndex((c) => c.name === column || c.display_name === column);
         };
 
@@ -324,7 +346,9 @@ const Evolution = ({ filters, defaultType = "print" }) => {
 
         setRows(parsed);
       } catch (error) {
-        if (error.name === "AbortError") return;
+        if (error.name === "AbortError") {
+          return;
+        }
         captureError(error, { extra: { filters, type } });
         setRows([]);
       }
@@ -336,15 +360,21 @@ const Evolution = ({ filters, defaultType = "print" }) => {
 
   const buildHistogram = (data) => {
     const res = [];
-    if (!data) return res;
+    if (!data) {
+      return res;
+    }
     const keysSet = new Set();
     const map = new Map();
     const diff = filters?.from && filters?.to ? (filters.to.getTime() - filters.from.getTime()) / (1000 * 60 * 60 * 24) : 0;
 
     data.forEach((row) => {
-      if (!row?.bucket) return;
+      if (!row?.bucket) {
+        return;
+      }
       const date = row.bucket instanceof Date ? row.bucket : new Date(row.bucket);
-      if (Number.isNaN(date.getTime())) return;
+      if (Number.isNaN(date.getTime())) {
+        return;
+      }
       const key = date.getTime();
       const entry = map.get(key) || {
         name: diff < 61 ? date.toLocaleDateString("fr") : `${MONTHS[date.getMonth()]} ${date.getFullYear()}`,
@@ -356,13 +386,17 @@ const Evolution = ({ filters, defaultType = "print" }) => {
     });
 
     const keys = Array.from(keysSet).filter((key) => key !== "Autres");
-    if (keysSet.has("Autres")) keys.push("Autres");
+    if (keysSet.has("Autres")) {
+      keys.push("Autres");
+    }
 
     const sorted = Array.from(map.entries())
       .sort((a, b) => a[0] - b[0])
       .map(([, entry]) => {
         keys.forEach((key) => {
-          if (entry[key] === undefined) entry[key] = 0;
+          if (entry[key] === undefined) {
+            entry[key] = 0;
+          }
         });
         return entry;
       });
@@ -378,7 +412,7 @@ const Evolution = ({ filters, defaultType = "print" }) => {
         <p className="text-text-mention text-base">Trafic que vous avez généré pour vos partenaires annonceurs</p>
       </div>
       <div className="border-grey-border border p-4">
-        <Tabs tabs={tabs} ariaLabel="Evolution" panelId="evolution-panel" className="mb-8 flex items-center gap-8 text-sm" variant="underline" />
+        <Tabs tabs={tabs} ariaLabel="Evolution" panelId="evolution-panel" className="mb-8 flex flex-wrap items-center gap-8 text-sm" variant="underline" />
         <div id="evolution-panel" role="tabpanel" aria-labelledby={activeTabId || undefined}>
           {loading ? (
             <div className="flex h-[420px] items-center justify-center">
@@ -386,7 +420,7 @@ const Evolution = ({ filters, defaultType = "print" }) => {
             </div>
           ) : !histogram.length ? (
             <div className="border-grey-border bg-background-grey-hover flex h-[248px] w-full flex-col items-center justify-center border border-dashed">
-              <img src={EmptySVG} alt="empty" className="h-16 w-16" />
+              <img src={EmptySVG} alt="" aria-hidden="true" className="h-16 w-16" />
               <p className="text-color-gray-425 text-base">Aucune donnée disponible pour la période</p>
             </div>
           ) : (
@@ -401,7 +435,7 @@ const Evolution = ({ filters, defaultType = "print" }) => {
 };
 
 const TABLE_HEADER = [
-  { title: "Annonceurs", key: "publisherId", position: "left", colSpan: 2 },
+  { title: "Annonceurs", key: "publisherId", position: "left", width: "30%" },
   { title: "Impressions", key: "printCount", position: "right" },
   { title: "Redirections", key: "clickCount", position: "right" },
   { title: "Créations de compte", key: "accountCount", position: "right" },
@@ -418,14 +452,20 @@ const Announcers = ({ filters }) => {
   const [tableSettings, setTableSettings] = useState({ page: 1, sortBy: "publisherId" });
 
   useEffect(() => {
-    if (!analyticsProvider?.query) return;
+    if (!analyticsProvider?.query) {
+      return;
+    }
     const controller = new AbortController();
     const fetchData = async () => {
       setLoading(true);
       try {
         const variables = { publisher_id: String(publisher.id) };
-        if (filters.from) variables.from = filters.from.toISOString();
-        if (filters.to) variables.to = filters.to.toISOString();
+        if (filters.from) {
+          variables.from = filters.from.toISOString();
+        }
+        if (filters.to) {
+          variables.to = filters.to.toISOString();
+        }
 
         const raw = await analyticsProvider.query({
           cardId: METABASE_CARD_ID.DIFFUSEUR_PERFORMANCE_ANNONCEURS,
@@ -437,7 +477,9 @@ const Announcers = ({ filters }) => {
         const cols = raw?.data?.cols || raw?.cols || [];
 
         const getColumnIndex = (column) => {
-          if (!cols?.length) return -1;
+          if (!cols?.length) {
+            return -1;
+          }
           return cols.findIndex((c) => c.name === column || c.display_name === column);
         };
 
@@ -489,7 +531,9 @@ const Announcers = ({ filters }) => {
         const missionCols = missionRaw?.data?.cols || missionRaw?.cols || [];
 
         const getMissionIndex = (column) => {
-          if (!missionCols?.length) return -1;
+          if (!missionCols?.length) {
+            return -1;
+          }
           return missionCols.findIndex((c) => c.name === column || c.display_name === column);
         };
 
@@ -515,7 +559,9 @@ const Announcers = ({ filters }) => {
 
         setMissionData(missionParsed);
       } catch (error) {
-        if (error.name === "AbortError") return;
+        if (error.name === "AbortError") {
+          return;
+        }
         captureError(error, { extra: { filters } });
         setAnnouncerData([]);
       }
@@ -541,6 +587,7 @@ const Announcers = ({ filters }) => {
             <div className="flex flex-col gap-4">
               <h3 className="text-2xl font-semibold">Performance des annonceurs</h3>
               <Table
+                caption="Performance des annonceurs"
                 header={TABLE_HEADER}
                 pagination
                 page={tableSettings.page}
@@ -554,8 +601,8 @@ const Announcers = ({ filters }) => {
                   .sort((a, b) => (tableSettings.sortBy === "publisherId" ? a.publisherId.localeCompare(b.publisherId) : b[tableSettings.sortBy] - a[tableSettings.sortBy]))
                   .slice((tableSettings.page - 1) * 5, tableSettings.page * 5)
                   .map((item, i) => (
-                    <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
-                      <td colSpan={2} className="px-4">
+                    <tr key={i} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
+                      <td className="px-4">
                         {item.publisherId}
                       </td>
                       <td className="px-4 text-right">{item.printCount.toLocaleString("fr")}</td>
@@ -572,7 +619,7 @@ const Announcers = ({ filters }) => {
             <h3 className="text-2xl font-semibold">Répartition des missions par annonceur</h3>
             {!missionData.length ? (
               <div className="border-grey-border bg-background-grey-hover flex h-[248px] w-full flex-col items-center justify-center border border-dashed">
-                <img src={EmptySVG} alt="empty" className="h-16 w-16" />
+                <img src={EmptySVG} alt="" aria-hidden="true" className="h-16 w-16" />
                 <p className="text-color-gray-425 text-base">Aucune donnée disponible pour la période</p>
               </div>
             ) : (

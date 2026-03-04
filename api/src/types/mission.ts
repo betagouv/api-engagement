@@ -14,6 +14,7 @@ export type MissionLocation = {
 
 export type MissionAddress = {
   id?: string;
+  addressHash?: string;
   street?: string | null;
   postalCode?: string | null;
   departmentName?: string | null;
@@ -33,7 +34,7 @@ export type MissionFacets = {
 };
 
 export type MissionAggregationBucket = { key: string; doc_count: number };
-export type MissionPartnerAggregation = { _id: string; count: number; name?: string; mission_type?: string };
+export type MissionPartnerAggregation = { key: string; doc_count: number; label?: string; mission_type?: string };
 export type MissionSearchAggregations = {
   status: MissionAggregationBucket[];
   comments: MissionAggregationBucket[];
