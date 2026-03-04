@@ -1,4 +1,3 @@
-import { prismaCore } from "@/db/postgres";
 import { captureException } from "@/error";
 import { BaseHandler } from "@/jobs/base/handler";
 import { JobResult } from "@/jobs/types";
@@ -42,14 +41,18 @@ export class EnrichMissionsGeolocHandler implements BaseHandler<EnrichMissionsGe
         skip: offset,
       });
 
-      if (!addresses.length) break;
+      if (!addresses.length) {
+        break;
+      }
       offset += addresses.length;
 
       // Group addresses by missionId, preserving order for stable addressIndex
       const missionMap = new Map<string, { clientId: string; addresses: typeof addresses }>();
       for (const addr of addresses) {
         const mission = (addr as any).mission as { clientId: string };
-        if (!mission) continue;
+        if (!mission) {
+          continue;
+        }
         if (!missionMap.has(addr.missionId)) {
           missionMap.set(addr.missionId, { clientId: mission.clientId, addresses: [] });
         }
@@ -71,10 +74,14 @@ export class EnrichMissionsGeolocHandler implements BaseHandler<EnrichMissionsGe
 
       for (const result of results) {
         const missionEntry = Array.from(missionMap.values()).find((e) => e.clientId === result.clientId);
-        if (!missionEntry) continue;
+        if (!missionEntry) {
+          continue;
+        }
 
         const targetAddress = missionEntry.addresses[result.addressIndex];
-        if (!targetAddress) continue;
+        if (!targetAddress) {
+          continue;
+        }
 
         try {
           await missionAddressRepository.update(targetAddress.id, {
