@@ -4,7 +4,7 @@ import { publisherService } from "@/services/publisher";
 import type { PublisherCreateInput, PublisherRecord } from "@/types/publisher";
 import { PublisherMissionType } from "@/types/publisher";
 
-export const createTestPublisher = async (data: Partial<PublisherCreateInput> = {}): Promise<PublisherRecord> => {
+export const createTestPublisher = async (data: Partial<PublisherCreateInput & { id?: string }> = {}): Promise<PublisherRecord> => {
   const uniqueSuffix = randomUUID();
 
   const defaultData = {
