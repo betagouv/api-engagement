@@ -1,7 +1,6 @@
 import { randomBytes } from "crypto";
 
 import { Prisma } from "@/db/core";
-import { prismaCore } from "@/db/postgres";
 import { organizationRepository } from "@/repositories/organization";
 import {
   OrganizationCreateInput,
@@ -447,7 +446,7 @@ export const organizationService = (() => {
           const normalizedSiret = normalizeOptionalString(record.siret);
           const normalizedSiren = normalizeOptionalString(record.siren);
           const normalizedShortTitle = normalizeOptionalString(record.shortTitle);
-          await prismaCore.organization.upsert({
+          await organizationRepository.upsert({
             where: { rna: record.rna as string },
             create: mapCreateInput(record),
             update: {

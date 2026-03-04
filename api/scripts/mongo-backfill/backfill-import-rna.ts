@@ -165,7 +165,7 @@ const formatRecordForLog = (record: ImportRnaRecord) => ({
 const cleanup = async () => {
   try {
     const { prismaCore } = await import("@/db/postgres");
-    await Promise.allSettled([prismaCore.$disconnect(), mongoose.connection.close()]);
+    await Promise.allSettled([prisma.$disconnect(), mongoose.connection.close()]);
   } catch {
     await Promise.allSettled([mongoose.connection.close()]);
   }
@@ -205,7 +205,7 @@ const main = async () => {
 
   for (const chunk of chunkArray(normalized, BATCH_SIZE)) {
     const ids = chunk.map(({ record }) => record.id);
-    const existingRecords = await prismaCore.importRna.findMany({ where: { id: { in: ids } } });
+    const existingRecords = await prisma.importRna.findMany({ where: { id: { in: ids } } });
     const existingById = new Map(existingRecords.map((record) => [record.id, record]));
 
     for (const entry of chunk) {
@@ -218,7 +218,7 @@ const main = async () => {
             sampleCreates.push(entry.record);
           }
         } else {
-          await prismaCore.importRna.create({ data: entry.create });
+          await prisma.importRna.create({ data: entry.create });
         }
         continue;
       }
@@ -249,7 +249,7 @@ const main = async () => {
           sampleUpdates.push({ before: existingRecord, after: entry.record });
         }
       } else {
-        await prismaCore.importRna.update({ where: { id: entry.record.id }, data: entry.update });
+        await prisma.importRna.update({ where: { id: entry.record.id }, data: entry.update });
       }
     }
   }

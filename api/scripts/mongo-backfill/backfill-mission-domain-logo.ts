@@ -58,7 +58,7 @@ const flushBatch = async (
     return payload.length;
   }
 
-  const rows = await prismaCore.$executeRaw(
+  const rows = await prisma.$executeRaw(
     Prisma.sql`
       UPDATE "mission" AS m
       SET "domain_logo" = v.domain_logo
@@ -76,7 +76,7 @@ const flushBatch = async (
 const cleanup = async () => {
   try {
     const { prismaCore } = await import("@/db/postgres");
-    await Promise.allSettled([prismaCore.$disconnect(), mongoose.connection.close()]);
+    await Promise.allSettled([prisma.$disconnect(), mongoose.connection.close()]);
   } catch {
     await Promise.allSettled([mongoose.connection.close()]);
   }
@@ -96,9 +96,7 @@ const main = async () => {
     return;
   }
 
-  const cursor = collection
-    .find(filter, { batchSize: BATCH_SIZE, projection: { _id: 1, id: 1, domainLogo: 1 } })
-    .sort({ _id: 1 });
+  const cursor = collection.find(filter, { batchSize: BATCH_SIZE, projection: { _id: 1, id: 1, domainLogo: 1 } }).sort({ _id: 1 });
 
   const stats = { processed: 0, withLogo: 0, skipped: 0, updated: 0, wouldUpdate: 0 };
   let batch: DomainLogoEntry[] = [];

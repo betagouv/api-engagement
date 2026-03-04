@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { prismaCore } from "@/db/postgres";
+import { prisma } from "@/db/postgres";
 import { organizationService } from "@/services/organization";
 
-const organizationCrud = (prismaCore as any).organization as {
+const organizationCrud = (prisma as any).organization as {
   findUnique: ReturnType<typeof vi.fn>;
   update: ReturnType<typeof vi.fn>;
   upsert: ReturnType<typeof vi.fn>;

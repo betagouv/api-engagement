@@ -2,7 +2,7 @@ import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { PUBLISHER_IDS } from "@/config";
-import { prismaCore } from "@/db/postgres";
+import { prisma } from "@/db/postgres";
 import { createTestMission, createTestPublisher } from "../../fixtures";
 import { createTestUser } from "../../fixtures/user";
 import { createTestApp } from "../../testApp";
@@ -45,7 +45,7 @@ describe("Moderation API endpoints (integration test)", () => {
     });
 
     // Fetch the moderation record created by the factory
-    const moderation = await prismaCore.missionModerationStatus.findFirst({
+    const moderation = await prisma.missionModerationStatus.findFirst({
       where: { missionId: mission.id, publisherId: PUBLISHER_IDS.JEVEUXAIDER },
     });
     if (!moderation) {
@@ -287,7 +287,7 @@ describe("Moderation API endpoints (integration test)", () => {
       expect(res.status).toBe(200);
       expect(res.body.data.status).toBe("ACCEPTED");
 
-      const inDb = await prismaCore.missionModerationStatus.findUnique({ where: { id: moderation.id } });
+      const inDb = await prisma.missionModerationStatus.findUnique({ where: { id: moderation.id } });
       expect(inDb?.status).toBe("ACCEPTED");
     });
 
@@ -296,7 +296,7 @@ describe("Moderation API endpoints (integration test)", () => {
 
       await request(app).put(`/moderation/${moderation.id}`).set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id, status: "ACCEPTED" });
 
-      const events = await prismaCore.moderationEvent.findMany({ where: { missionId: moderation.missionId } });
+      const events = await prisma.moderationEvent.findMany({ where: { missionId: moderation.missionId } });
       expect(events).toHaveLength(1);
       expect(events[0].initialStatus).toBe("PENDING");
       expect(events[0].newStatus).toBe("ACCEPTED");
@@ -311,7 +311,7 @@ describe("Moderation API endpoints (integration test)", () => {
       expect(res.status).toBe(200);
       expect(res.body.data.comment).toBeNull();
 
-      const inDb = await prismaCore.missionModerationStatus.findUnique({ where: { id: moderation.id } });
+      const inDb = await prisma.missionModerationStatus.findUnique({ where: { id: moderation.id } });
       expect(inDb?.comment).toBeNull();
     });
 
@@ -321,7 +321,7 @@ describe("Moderation API endpoints (integration test)", () => {
       const res = await request(app).put(`/moderation/${moderation.id}`).set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id, note: "Note interne" });
 
       expect(res.status).toBe(200);
-      const inDb = await prismaCore.missionModerationStatus.findUnique({ where: { id: moderation.id } });
+      const inDb = await prisma.missionModerationStatus.findUnique({ where: { id: moderation.id } });
       expect(inDb?.note).toBe("Note interne");
       expect(inDb?.status).toBe("PENDING");
     });
@@ -334,7 +334,7 @@ describe("Moderation API endpoints (integration test)", () => {
         .set("Authorization", `jwt ${adminToken}`)
         .send({ moderatorId: jva.id, status: "REFUSED", comment: "MISSION_DATE_NOT_COMPATIBLE" });
 
-      const events = await prismaCore.moderationEvent.findMany({ where: { missionId: moderation.missionId } });
+      const events = await prisma.moderationEvent.findMany({ where: { missionId: moderation.missionId } });
       expect(events).toHaveLength(1);
       expect(events[0].initialStatus).toBeNull();
       expect(events[0].newStatus).toBeNull();
@@ -345,13 +345,10 @@ describe("Moderation API endpoints (integration test)", () => {
     it("should create a ModerationEvent with RNA fields when RNA is set on the publisher organization", async () => {
       const { moderation, mission } = await createMissionWithModeration();
 
-      const res = await request(app)
-        .put(`/moderation/${moderation.id}`)
-        .set("Authorization", `jwt ${adminToken}`)
-        .send({ moderatorId: jva.id, rna: "W123456789" });
+      const res = await request(app).put(`/moderation/${moderation.id}`).set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id, rna: "W123456789" });
 
       expect(res.status).toBe(200);
-      const events = await prismaCore.moderationEvent.findMany({ where: { missionId: mission.id } });
+      const events = await prisma.moderationEvent.findMany({ where: { missionId: mission.id } });
       expect(events).toHaveLength(1);
       expect(events[0].initialRNA).toBeNull();
       expect(events[0].newRNA).toBe("W123456789");
@@ -360,13 +357,10 @@ describe("Moderation API endpoints (integration test)", () => {
     it("should create a ModerationEvent with SIREN fields when SIREN is set on the publisher organization", async () => {
       const { moderation, mission } = await createMissionWithModeration();
 
-      const res = await request(app)
-        .put(`/moderation/${moderation.id}`)
-        .set("Authorization", `jwt ${adminToken}`)
-        .send({ moderatorId: jva.id, siren: "123456789" });
+      const res = await request(app).put(`/moderation/${moderation.id}`).set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id, siren: "123456789" });
 
       expect(res.status).toBe(200);
-      const events = await prismaCore.moderationEvent.findMany({ where: { missionId: mission.id } });
+      const events = await prisma.moderationEvent.findMany({ where: { missionId: mission.id } });
       expect(events).toHaveLength(1);
       expect(events[0].initialSiren).toBeNull();
       expect(events[0].newSiren).toBe("123456789");
@@ -377,13 +371,10 @@ describe("Moderation API endpoints (integration test)", () => {
       const { moderation: mod1 } = await createMissionWithModeration();
       const { mission: mission2 } = await createMissionWithModeration();
 
-      await request(app)
-        .put(`/moderation/${mod1.id}`)
-        .set("Authorization", `jwt ${adminToken}`)
-        .send({ moderatorId: jva.id, rna: "W123456789" });
+      await request(app).put(`/moderation/${mod1.id}`).set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id, rna: "W123456789" });
 
       // The shared PublisherOrganization should now have the updated RNA
-      const pubOrg = await prismaCore.publisherOrganization.findFirst({
+      const pubOrg = await prisma.publisherOrganization.findFirst({
         where: { missions: { some: { id: mission2.id } } },
       });
       expect(pubOrg?.rna).toBe("W123456789");
@@ -399,7 +390,7 @@ describe("Moderation API endpoints (integration test)", () => {
 
       expect(res.status).toBe(200);
 
-      const inDb = await prismaCore.missionModerationStatus.findUnique({ where: { id: moderation.id } });
+      const inDb = await prisma.missionModerationStatus.findUnique({ where: { id: moderation.id } });
       expect(inDb?.status).toBe("REFUSED");
       expect(inDb?.comment).toBe("CONTENT_INSUFFICIENT");
     });
@@ -407,10 +398,7 @@ describe("Moderation API endpoints (integration test)", () => {
     it("should return 400 when status is REFUSED without a comment", async () => {
       const { moderation } = await createMissionWithModeration();
 
-      const res = await request(app)
-        .put(`/moderation/${moderation.id}`)
-        .set("Authorization", `jwt ${adminToken}`)
-        .send({ moderatorId: jva.id, status: "REFUSED" });
+      const res = await request(app).put(`/moderation/${moderation.id}`).set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id, status: "REFUSED" });
 
       expect(res.status).toBe(400);
     });
@@ -466,8 +454,8 @@ describe("Moderation API endpoints (integration test)", () => {
       expect(res.status).toBe(200);
       expect(res.body.data.updatedIds).toHaveLength(2);
 
-      const inDb1 = await prismaCore.missionModerationStatus.findUnique({ where: { id: mod1.id } });
-      const inDb2 = await prismaCore.missionModerationStatus.findUnique({ where: { id: mod2.id } });
+      const inDb1 = await prisma.missionModerationStatus.findUnique({ where: { id: mod1.id } });
+      const inDb2 = await prisma.missionModerationStatus.findUnique({ where: { id: mod2.id } });
       expect(inDb1?.status).toBe("ACCEPTED");
       expect(inDb2?.status).toBe("ACCEPTED");
     });
@@ -484,7 +472,7 @@ describe("Moderation API endpoints (integration test)", () => {
           update: { status: "ACCEPTED" },
         });
 
-      const events = await prismaCore.moderationEvent.findMany({ where: { moderatorId: jva.id } });
+      const events = await prisma.moderationEvent.findMany({ where: { moderatorId: jva.id } });
       expect(events).toHaveLength(2);
       events.forEach((e) => {
         expect(e.newStatus).toBe("ACCEPTED");
@@ -497,7 +485,7 @@ describe("Moderation API endpoints (integration test)", () => {
       const mission2 = await createTestMission({ publisherId: partner.id, statusCode: "ACCEPTED", organizationName: "Croix Rouge", moderationStatus: "PENDING" as any });
       const otherMission = await createTestMission({ publisherId: partner.id, statusCode: "ACCEPTED", organizationName: "SAMU Social", moderationStatus: "PENDING" as any });
 
-      const modOther = await prismaCore.missionModerationStatus.findFirst({ where: { missionId: otherMission.id, publisherId: jva.id } });
+      const modOther = await prisma.missionModerationStatus.findFirst({ where: { missionId: otherMission.id, publisherId: jva.id } });
       expect(modOther).toBeTruthy();
 
       const res = await request(app)
@@ -511,7 +499,7 @@ describe("Moderation API endpoints (integration test)", () => {
       expect(res.status).toBe(200);
       expect(res.body.data.updatedIds).toHaveLength(2);
 
-      const otherStatus = await prismaCore.missionModerationStatus.findUnique({ where: { id: modOther!.id } });
+      const otherStatus = await prisma.missionModerationStatus.findUnique({ where: { id: modOther!.id } });
       expect(otherStatus?.status).toBe("PENDING");
     });
   });

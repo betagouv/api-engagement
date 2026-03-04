@@ -12,12 +12,12 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { prismaCore } from "@/db/postgres";
+import { prisma } from "@/db/postgres";
 
 const DRY_RUN = process.argv.includes("--dry-run");
 
 const migrateMissions = async () => {
-  const publisherOrganizations = await prismaCore.publisherOrganization.findMany({
+  const publisherOrganizations = await prisma.publisherOrganization.findMany({
     where: {},
     select: {
       id: true,
@@ -30,7 +30,7 @@ const migrateMissions = async () => {
   let updatedMissionsCount = 0;
   let processedPublisherOrganizationsCount = 0;
   for (const publisherOrganization of publisherOrganizations) {
-    const missionsCount = await prismaCore.mission.count({
+    const missionsCount = await prisma.mission.count({
       where: {
         organizationClientId: publisherOrganization.clientId,
         publisherOrganizationId: null,
@@ -42,7 +42,7 @@ const migrateMissions = async () => {
     }
 
     if (!DRY_RUN) {
-      const updatedMissions = await prismaCore.mission.updateMany({
+      const updatedMissions = await prisma.mission.updateMany({
         where: {
           publisherId: publisherOrganization.publisherId,
           organizationClientId: publisherOrganization.clientId,
@@ -67,12 +67,12 @@ const migrateMissions = async () => {
 };
 
 const shutdown = async (exitCode: number) => {
-  await prismaCore.$disconnect().catch(() => undefined);
+  await prisma.$disconnect().catch(() => undefined);
   process.exit(exitCode);
 };
 
 const main = async () => {
-  await prismaCore.$connect();
+  await prisma.$connect();
   console.log("[PublisherOrganizationReviewModelBackfill] Connected to PostgreSQL");
   await migrateMissions();
 };

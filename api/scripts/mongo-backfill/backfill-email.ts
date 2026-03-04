@@ -232,7 +232,7 @@ const cleanup = async () => {
   // prismaCore is loaded dynamically; guard if not loaded yet
   try {
     const { prismaCore } = await import("@/db/postgres");
-    await Promise.allSettled([prismaCore.$disconnect(), mongoose.connection.close()]);
+    await Promise.allSettled([prisma.$disconnect(), mongoose.connection.close()]);
   } catch {
     await Promise.allSettled([mongoose.connection.close()]);
   }
@@ -241,11 +241,7 @@ const cleanup = async () => {
 const main = async () => {
   console.log(`[MigrateEmails] Starting${options.dryRun ? " (dry-run)" : ""}`);
   // Load env-dependent modules after dotenv has been configured
-  const [{ mongoConnected }, { pgConnected, prismaCore }, { emailRepository }] = await Promise.all([
-    import("@/db/mongo"),
-    import("@/db/postgres"),
-    import("@/repositories/email"),
-  ]);
+  const [{ mongoConnected }, { pgConnected, prismaCore }, { emailRepository }] = await Promise.all([import("@/db/mongo"), import("@/db/postgres"), import("@/repositories/email")]);
 
   await Promise.all([mongoConnected, pgConnected]);
 

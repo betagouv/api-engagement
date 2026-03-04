@@ -49,7 +49,7 @@ import mongoose from "mongoose";
 
 import type { Prisma, ModerationEvent as PrismaModerationEvent } from "@/db/core";
 import { mongoConnected } from "@/db/mongo";
-import { pgConnected, prismaCore } from "@/db/postgres";
+import { pgConnected } from "@/db/postgres";
 import { moderationEventRepository } from "@/repositories/moderation-event";
 import type { ModerationEventRecord, ModerationEventStatus } from "@/types/moderation-event";
 
@@ -276,7 +276,7 @@ const hasDifferences = (existing: PrismaModerationEvent, target: ModerationEvent
 };
 
 const cleanup = async () => {
-  await Promise.allSettled([prismaCore.$disconnect(), mongoose.connection.close()]);
+  await Promise.allSettled([prisma.$disconnect(), mongoose.connection.close()]);
 };
 
 const main = async () => {

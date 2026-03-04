@@ -188,7 +188,7 @@ const formatRecordForLog = (record: WarningRecord) => ({
 const cleanup = async () => {
   try {
     const { prismaCore } = await import("@/db/postgres");
-    await Promise.allSettled([prismaCore.$disconnect(), mongoose.connection.close()]);
+    await Promise.allSettled([prisma.$disconnect(), mongoose.connection.close()]);
   } catch {
     await Promise.allSettled([mongoose.connection.close()]);
   }
@@ -218,7 +218,7 @@ const main = async () => {
     }
   }
 
-  const existingPublishers = await prismaCore.publisher.findMany({
+  const existingPublishers = await prisma.publisher.findMany({
     where: { id: { in: Array.from(publisherIds) } },
     select: { id: true },
   });
@@ -255,7 +255,7 @@ const main = async () => {
 
   for (const chunk of chunkArray(normalized, BATCH_SIZE)) {
     const chunkIds = chunk.map(({ record }) => record.id);
-    const existingRecords = await prismaCore.warning.findMany({
+    const existingRecords = await prisma.warning.findMany({
       where: { id: { in: chunkIds } },
     });
     const existingById = new Map(existingRecords.map((record) => [record.id, record]));
@@ -270,7 +270,7 @@ const main = async () => {
             sampleCreates.push(entry.record);
           }
         } else {
-          await prismaCore.warning.create({ data: entry.create });
+          await prisma.warning.create({ data: entry.create });
         }
         continue;
       }
@@ -300,7 +300,7 @@ const main = async () => {
           sampleUpdates.push({ before: existingRecord, after: entry.record });
         }
       } else {
-        await prismaCore.warning.update({
+        await prisma.warning.update({
           where: { id: entry.record.id },
           data: entry.update,
         });

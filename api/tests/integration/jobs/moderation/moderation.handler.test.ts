@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import { PUBLISHER_IDS } from "../../../../src/config";
-import { prismaCore } from "../../../../src/db/postgres";
-import { ModerationHandler } from "../../../../src/jobs/moderation/handler";
+import { PUBLISHER_IDS } from "@/config";
+import { prisma } from "@/db/postgres";
+import { ModerationHandler } from "@/jobs/moderation/handler";
 import { createTestMission, createTestPublisher } from "../../../fixtures";
 
 /**
@@ -56,13 +56,13 @@ describe("Moderation job (integration test)", () => {
 
       // Temporarily remove the moderation status created by the factory for the accepted mission
       // so we can observe the job picking it up as "no prior status"
-      await prismaCore.missionModerationStatus.deleteMany({ where: { missionId: acceptedMission.id } });
-      await prismaCore.missionModerationStatus.deleteMany({ where: { missionId: refusedMission.id } });
+      await prisma.missionModerationStatus.deleteMany({ where: { missionId: acceptedMission.id } });
+      await prisma.missionModerationStatus.deleteMany({ where: { missionId: refusedMission.id } });
 
       await handler.handle();
 
       // Only the ACCEPTED mission should have gotten a moderation status from the job
-      const statuses = await prismaCore.missionModerationStatus.findMany({ where: { publisherId: PUBLISHER_IDS.JEVEUXAIDER } });
+      const statuses = await prisma.missionModerationStatus.findMany({ where: { publisherId: PUBLISHER_IDS.JEVEUXAIDER } });
       expect(statuses).toHaveLength(1);
       expect(statuses[0].missionId).toBe(acceptedMission.id);
     });
@@ -71,11 +71,11 @@ describe("Moderation job (integration test)", () => {
       const { partner } = await setupJva();
 
       const deletedMission = await createTestMission({ publisherId: partner.id, statusCode: "ACCEPTED", deleted: true });
-      await prismaCore.missionModerationStatus.deleteMany({ where: { missionId: deletedMission.id } });
+      await prisma.missionModerationStatus.deleteMany({ where: { missionId: deletedMission.id } });
 
       await handler.handle();
 
-      const statuses = await prismaCore.missionModerationStatus.findMany({ where: { publisherId: PUBLISHER_IDS.JEVEUXAIDER } });
+      const statuses = await prisma.missionModerationStatus.findMany({ where: { publisherId: PUBLISHER_IDS.JEVEUXAIDER } });
       expect(statuses).toHaveLength(0);
     });
 
@@ -84,11 +84,11 @@ describe("Moderation job (integration test)", () => {
       const mission = await createValidMission(partner.id);
 
       // Remove the status created by the factory to simulate a "new" mission
-      await prismaCore.missionModerationStatus.deleteMany({ where: { missionId: mission.id } });
+      await prisma.missionModerationStatus.deleteMany({ where: { missionId: mission.id } });
 
       await handler.handle();
 
-      const statuses = await prismaCore.missionModerationStatus.findMany({ where: { publisherId: PUBLISHER_IDS.JEVEUXAIDER, missionId: mission.id } });
+      const statuses = await prisma.missionModerationStatus.findMany({ where: { publisherId: PUBLISHER_IDS.JEVEUXAIDER, missionId: mission.id } });
       expect(statuses).toHaveLength(1);
     });
 
@@ -100,7 +100,7 @@ describe("Moderation job (integration test)", () => {
       const result = await handler.handle();
 
       expect(result.success).toBe(true);
-      const status = await prismaCore.missionModerationStatus.findFirst({ where: { missionId: mission.id, publisherId: PUBLISHER_IDS.JEVEUXAIDER } });
+      const status = await prisma.missionModerationStatus.findFirst({ where: { missionId: mission.id, publisherId: PUBLISHER_IDS.JEVEUXAIDER } });
       expect(status?.status).toBe("REFUSED");
     });
 
@@ -109,7 +109,7 @@ describe("Moderation job (integration test)", () => {
       const mission = await createValidMission(partner.id);
 
       // Override the factory-created PENDING status to ACCEPTED
-      await prismaCore.missionModerationStatus.updateMany({
+      await prisma.missionModerationStatus.updateMany({
         where: { missionId: mission.id, publisherId: PUBLISHER_IDS.JEVEUXAIDER },
         data: { status: "ACCEPTED" },
       });
@@ -117,7 +117,7 @@ describe("Moderation job (integration test)", () => {
       await handler.handle();
 
       // Status should remain ACCEPTED
-      const status = await prismaCore.missionModerationStatus.findFirst({ where: { missionId: mission.id, publisherId: PUBLISHER_IDS.JEVEUXAIDER } });
+      const status = await prisma.missionModerationStatus.findFirst({ where: { missionId: mission.id, publisherId: PUBLISHER_IDS.JEVEUXAIDER } });
       expect(status?.status).toBe("ACCEPTED");
     });
 
@@ -127,11 +127,11 @@ describe("Moderation job (integration test)", () => {
       const mission = await createValidMission(unrelatedPublisher.id);
 
       // Remove the JVA moderation status created by the factory
-      await prismaCore.missionModerationStatus.deleteMany({ where: { missionId: mission.id } });
+      await prisma.missionModerationStatus.deleteMany({ where: { missionId: mission.id } });
 
       await handler.handle();
 
-      const statuses = await prismaCore.missionModerationStatus.findMany({ where: { publisherId: PUBLISHER_IDS.JEVEUXAIDER } });
+      const statuses = await prisma.missionModerationStatus.findMany({ where: { publisherId: PUBLISHER_IDS.JEVEUXAIDER } });
       expect(statuses).toHaveLength(0);
     });
   });
@@ -144,11 +144,11 @@ describe("Moderation job (integration test)", () => {
       // Backdate the mission creation (factory createdAt support)
       const sevenMonthsAgo = new Date();
       sevenMonthsAgo.setMonth(sevenMonthsAgo.getMonth() - 7);
-      await prismaCore.mission.update({ where: { id: mission.id }, data: { createdAt: sevenMonthsAgo } });
+      await prisma.mission.update({ where: { id: mission.id }, data: { createdAt: sevenMonthsAgo } });
 
       await handler.handle();
 
-      const status = await prismaCore.missionModerationStatus.findFirst({ where: { missionId: mission.id, publisherId: PUBLISHER_IDS.JEVEUXAIDER } });
+      const status = await prisma.missionModerationStatus.findFirst({ where: { missionId: mission.id, publisherId: PUBLISHER_IDS.JEVEUXAIDER } });
       expect(status?.status).toBe("REFUSED");
       expect(status?.comment).toBe("MISSION_CREATION_DATE_TOO_OLD");
     });
@@ -165,7 +165,7 @@ describe("Moderation job (integration test)", () => {
 
       await handler.handle();
 
-      const status = await prismaCore.missionModerationStatus.findFirst({ where: { missionId: mission.id, publisherId: PUBLISHER_IDS.JEVEUXAIDER } });
+      const status = await prisma.missionModerationStatus.findFirst({ where: { missionId: mission.id, publisherId: PUBLISHER_IDS.JEVEUXAIDER } });
       expect(status?.status).toBe("REFUSED");
       expect(status?.comment).toBe("MISSION_DATE_NOT_COMPATIBLE");
     });
@@ -182,7 +182,7 @@ describe("Moderation job (integration test)", () => {
 
       await handler.handle();
 
-      const status = await prismaCore.missionModerationStatus.findFirst({ where: { missionId: mission.id, publisherId: PUBLISHER_IDS.JEVEUXAIDER } });
+      const status = await prisma.missionModerationStatus.findFirst({ where: { missionId: mission.id, publisherId: PUBLISHER_IDS.JEVEUXAIDER } });
       expect(status?.status).toBe("PENDING");
     });
 
@@ -192,7 +192,7 @@ describe("Moderation job (integration test)", () => {
 
       await handler.handle();
 
-      const status = await prismaCore.missionModerationStatus.findFirst({ where: { missionId: mission.id, publisherId: PUBLISHER_IDS.JEVEUXAIDER } });
+      const status = await prisma.missionModerationStatus.findFirst({ where: { missionId: mission.id, publisherId: PUBLISHER_IDS.JEVEUXAIDER } });
       expect(status?.status).toBe("REFUSED");
       expect(status?.comment).toBe("CONTENT_INSUFFICIENT");
     });
@@ -203,7 +203,7 @@ describe("Moderation job (integration test)", () => {
 
       await handler.handle();
 
-      const status = await prismaCore.missionModerationStatus.findFirst({ where: { missionId: mission.id, publisherId: PUBLISHER_IDS.JEVEUXAIDER } });
+      const status = await prisma.missionModerationStatus.findFirst({ where: { missionId: mission.id, publisherId: PUBLISHER_IDS.JEVEUXAIDER } });
       expect(status?.status).toBe("PENDING");
       expect(status?.comment).toBeNull();
     });
@@ -215,11 +215,11 @@ describe("Moderation job (integration test)", () => {
       const mission = await createValidMission(partner.id, { description: "Courte" });
       const sevenMonthsAgo = new Date();
       sevenMonthsAgo.setMonth(sevenMonthsAgo.getMonth() - 7);
-      await prismaCore.mission.update({ where: { id: mission.id }, data: { createdAt: sevenMonthsAgo } });
+      await prisma.mission.update({ where: { id: mission.id }, data: { createdAt: sevenMonthsAgo } });
 
       await handler.handle();
 
-      const status = await prismaCore.missionModerationStatus.findFirst({ where: { missionId: mission.id, publisherId: PUBLISHER_IDS.JEVEUXAIDER } });
+      const status = await prisma.missionModerationStatus.findFirst({ where: { missionId: mission.id, publisherId: PUBLISHER_IDS.JEVEUXAIDER } });
       expect(status?.status).toBe("REFUSED");
       expect(status?.comment).toBe("MISSION_CREATION_DATE_TOO_OLD");
     });
@@ -233,7 +233,7 @@ describe("Moderation job (integration test)", () => {
 
       await handler.handle();
 
-      const events = await prismaCore.moderationEvent.findMany({ where: { moderatorId: PUBLISHER_IDS.JEVEUXAIDER, missionId: mission.id } });
+      const events = await prisma.moderationEvent.findMany({ where: { moderatorId: PUBLISHER_IDS.JEVEUXAIDER, missionId: mission.id } });
       expect(events).toHaveLength(1);
       expect(events[0].initialStatus).toBe("PENDING");
       expect(events[0].newStatus).toBe("REFUSED");
@@ -246,7 +246,7 @@ describe("Moderation job (integration test)", () => {
 
       await handler.handle();
 
-      const event = await prismaCore.moderationEvent.findFirst({ where: { moderatorId: PUBLISHER_IDS.JEVEUXAIDER, missionId: mission.id } });
+      const event = await prisma.moderationEvent.findFirst({ where: { moderatorId: PUBLISHER_IDS.JEVEUXAIDER, missionId: mission.id } });
       expect(event?.newStatus).toBe("REFUSED");
       expect(event?.newComment).toBe("CONTENT_INSUFFICIENT");
       expect(event?.newNote).toContain("Data de la mission refusée");
@@ -259,7 +259,7 @@ describe("Moderation job (integration test)", () => {
 
       await handler.handle();
 
-      const events = await prismaCore.moderationEvent.findMany({ where: { moderatorId: PUBLISHER_IDS.JEVEUXAIDER, missionId: mission.id } });
+      const events = await prisma.moderationEvent.findMany({ where: { moderatorId: PUBLISHER_IDS.JEVEUXAIDER, missionId: mission.id } });
       expect(events).toHaveLength(0);
     });
 
@@ -270,7 +270,7 @@ describe("Moderation job (integration test)", () => {
 
       await handler.handle();
 
-      const events = await prismaCore.moderationEvent.findMany({ where: { moderatorId: PUBLISHER_IDS.JEVEUXAIDER } });
+      const events = await prisma.moderationEvent.findMany({ where: { moderatorId: PUBLISHER_IDS.JEVEUXAIDER } });
       expect(events).toHaveLength(2);
       const missionIds = events.map((e) => e.missionId);
       expect(missionIds).toContain(mission1.id);
@@ -310,8 +310,8 @@ describe("Moderation job (integration test)", () => {
       expect(result.moderators![0].events).toBe(2);
 
       // Verify in DB
-      const status1 = await prismaCore.missionModerationStatus.findFirst({ where: { missionId: refused1.id } });
-      const status2 = await prismaCore.missionModerationStatus.findFirst({ where: { missionId: refused2.id } });
+      const status1 = await prisma.missionModerationStatus.findFirst({ where: { missionId: refused1.id } });
+      const status2 = await prisma.missionModerationStatus.findFirst({ where: { missionId: refused2.id } });
       expect(status1?.status).toBe("REFUSED");
       expect(status2?.status).toBe("REFUSED");
     });

@@ -4,17 +4,17 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { prismaCore } from "@/db/postgres";
+import { prisma } from "@/db/postgres";
 
 async function cleanModerationRefusedCities() {
-  const moderations = await prismaCore.missionModerationStatus.findMany({
+  const moderations = await prisma.missionModerationStatus.findMany({
     where: {
       status: "REFUSED",
       comment: "CONTENT_INSUFFICIENT",
     },
   });
 
-  const events = await prismaCore.moderationEvent.findMany({
+  const events = await prisma.moderationEvent.findMany({
     where: {
       missionId: { in: moderations.map((m) => m.missionId) },
     },
@@ -40,17 +40,17 @@ async function cleanModerationRefusedCities() {
     // console.log(`Updating moderation status for mission ${moderation.missionId}`);
     updated++;
     console.log(`Updating moderation status for mission ${moderation.missionId}, ${lastEvent.id}`);
-    await prismaCore.missionModerationStatus.update({
+    await prisma.missionModerationStatus.update({
       where: { id: moderation.id },
       data: { status: "PENDING", comment: null },
     });
 
     if (moderationEvents.length > 1) {
-      await prismaCore.moderationEvent.delete({
+      await prisma.moderationEvent.delete({
         where: { id: lastEvent.id },
       });
     } else {
-      await prismaCore.moderationEvent.update({
+      await prisma.moderationEvent.update({
         where: { id: lastEvent.id },
         data: { newStatus: "PENDING", newComment: null },
       });

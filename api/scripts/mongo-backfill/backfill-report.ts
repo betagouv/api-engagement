@@ -209,8 +209,7 @@ const chunkArray = <T>(items: T[], size: number): T[][] => {
   return chunks;
 };
 
-const buildCompositeKey = (record: Pick<NormalizedReportRecord, "publisherId" | "month" | "year">): string =>
-  `${record.publisherId}:${record.year}:${record.month}`;
+const buildCompositeKey = (record: Pick<NormalizedReportRecord, "publisherId" | "month" | "year">): string => `${record.publisherId}:${record.year}:${record.month}`;
 
 const formatRecordForLog = (record: NormalizedReportRecord) => ({
   id: record.id,
@@ -227,7 +226,7 @@ const formatRecordForLog = (record: NormalizedReportRecord) => ({
 const cleanup = async () => {
   try {
     const { prismaCore } = await import("@/db/postgres");
-    await Promise.allSettled([prismaCore.$disconnect(), mongoose.connection.close()]);
+    await Promise.allSettled([prisma.$disconnect(), mongoose.connection.close()]);
   } catch {
     await Promise.allSettled([mongoose.connection.close()]);
   }
@@ -235,11 +234,7 @@ const cleanup = async () => {
 
 const main = async () => {
   console.log(`[BackfillReports] Starting${options.dryRun ? " (dry-run)" : ""}`);
-  const [{ mongoConnected }, postgresModule, { reportRepository }] = await Promise.all([
-    import("@/db/mongo"),
-    import("@/db/postgres"),
-    import("@/repositories/report"),
-  ]);
+  const [{ mongoConnected }, postgresModule, { reportRepository }] = await Promise.all([import("@/db/mongo"), import("@/db/postgres"), import("@/repositories/report")]);
   const { pgConnected } = postgresModule;
 
   await Promise.all([mongoConnected, pgConnected]);
@@ -266,9 +261,7 @@ const main = async () => {
     const existingById = new Map(normalizedExisting.map((report) => [report.id, report]));
     const existingByComposite = new Map(normalizedExisting.map((report) => [buildCompositeKey(report), report]));
 
-    const missingById = chunk
-      .filter(({ record }) => !existingById.has(record.id))
-      .map(({ record }) => record);
+    const missingById = chunk.filter(({ record }) => !existingById.has(record.id)).map(({ record }) => record);
 
     if (missingById.length) {
       const seenCompositeKeys = new Set<string>();

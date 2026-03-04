@@ -2,13 +2,10 @@ import "./shared";
 
 import { afterEach, beforeEach, vi } from "vitest";
 
-import { createPrismaClientMock, pgMock } from "../mocks";
+import { pgMock } from "../mocks";
 
-const prismaAnalytics = createPrismaClientMock();
-
-vi.mock("../../src/db/postgres", () => ({
-  prismaCore: pgMock,
-  prismaAnalytics,
+vi.mock("@/db/postgres", () => ({
+  prisma: pgMock,
   pgConnected: Promise.resolve(),
 }));
 
