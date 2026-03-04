@@ -4,8 +4,8 @@ import { afterEach, beforeEach, vi } from "vitest";
 
 import { pgMock } from "../mocks";
 
-vi.mock("../../src/db/postgres", () => ({
-  prismaCore: pgMock,
+vi.mock("@/db/postgres", () => ({
+  prisma: pgMock,
   pgConnected: Promise.resolve(),
 }));
 
