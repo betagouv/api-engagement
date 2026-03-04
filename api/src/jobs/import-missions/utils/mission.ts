@@ -158,7 +158,12 @@ export const parseMission = (publisher: PublisherRecord, missionXML: MissionXML,
     mission.duration = mission.endAt ? getMonthDifference(new Date(mission.startAt || ""), new Date(mission.endAt || "")) : null;
 
     if (publisher.id !== PUBLISHER_IDS.SERVICE_CIVIQUE) {
-      getModeration(mission);
+      const moderation = getModeration(mission);
+      mission.statusCode = moderation.statusCode;
+      mission.statusComment = moderation.statusComment;
+      if (moderation.description !== undefined) {
+        mission.description = moderation.description;
+      }
     }
     if (!mission.statusComment) {
       mission.statusComment = null as any;
