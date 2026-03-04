@@ -2,7 +2,7 @@ import { toast } from "@/services/toast";
 import { Menu, Transition } from "@headlessui/react";
 import { Fragment, useEffect, useState } from "react";
 import { BsDot } from "react-icons/bs";
-import { RiCalendarEventFill, RiCheckboxCircleFill, RiCloseCircleFill, RiMapPin2Fill, RiMoreFill, RiTimeLine } from "react-icons/ri";
+import { RiCalendarEventFill, RiCheckboxCircleFill, RiCloseCircleFill, RiMapPin2Fill, RiMoreFill, RiPencilFill, RiTimeLine } from "react-icons/ri";
 import { useSearchParams } from "react-router-dom";
 
 import Modal from "@/components/Modal";
