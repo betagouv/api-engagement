@@ -80,7 +80,7 @@ import ViewV0Controller from "@/v0/view";
 import ActivityV2Controller from "@/v2/activity";
 import JobTeaserV2Controller from "@/v2/jobteaser";
 import LeboncoinV2Controller from "@/v2/leboncoin";
-import MissionV2WriteController from "@/v2/mission/controller";
+import MissionV2Controller from "@/v2/mission/controller";
 
 const main = async () => {
   console.log("[API] Waiting for database connections...");
@@ -110,7 +110,7 @@ const main = async () => {
   app.use("/v0/publisher", cors({ origin: "*" }), PublisherV0Controller);
   app.use("/v0/view", cors({ origin: "*" }), ViewV0Controller);
   app.use("/v0/organization", OrganizationV0Controller);
-  app.use("/v2/mission", cors({ origin: "*" }), MissionV2WriteController);
+  app.use("/v2/mission", cors({ origin: "*" }), MissionV2Controller);
   app.use("/v2/mission", cors({ origin: "*" }), MissionV0Controller);
   app.use("/v2/activity", cors({ origin: "*" }), ActivityV2Controller);
   app.use("/v2/leboncoin", cors({ origin: "*" }), LeboncoinV2Controller);

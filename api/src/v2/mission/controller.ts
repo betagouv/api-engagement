@@ -1,157 +1,111 @@
 import { NextFunction, Response, Router } from "express";
 import passport from "passport";
+import zod from "zod";
 
 import { INVALID_BODY, INVALID_PARAMS, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "@/error";
 import { missionWriteLimiter } from "@/middlewares/rate-limit";
 import { missionService } from "@/services/mission";
-import publisherOrganizationService from "@/services/publisher-organization";
-import { MissionCreateInput, MissionRecord, MissionUpdatePatch } from "@/types/mission";
+import { MissionCreateInput, MissionUpdatePatch } from "@/types/mission";
 import { PublisherRequest } from "@/types/passport";
 import { PublisherRecord } from "@/types/publisher";
 
-import { MissionCreateBody, MissionUpdateBody, missionClientIdParamSchema, missionCreateSchema, missionUpdateSchema } from "./schema";
+import { buildAddresses, buildData, hasOrgFields, upsertPublisherOrganization } from "./helpers";
 
 const router = Router();
 
 // ──────────────────────────────────────────────────────────────────────────────
-// Helpers
+// Schema
 // ──────────────────────────────────────────────────────────────────────────────
 
-const ORG_FIELD_KEYS: Array<keyof MissionCreateBody> = [
-  "organizationClientId",
-  "organizationName",
-  "organizationDescription",
-  "organizationUrl",
-  "organizationType",
-  "organizationLogo",
-  "organizationRNA",
-  "organizationSiren",
-  "organizationSiret",
-  "organizationFullAddress",
-  "organizationPostCode",
-  "organizationCity",
-  "organizationDepartment",
-  "organizationDepartmentCode",
-  "organizationDepartmentName",
-  "organizationStatusJuridique",
-  "organizationBeneficiaries",
-  "organizationActions",
-  "organizationReseaux",
-];
+const addressSchema = zod.object({
+  street: zod.string().optional(),
+  postalCode: zod.string().optional(),
+  city: zod.string().optional(),
+  departmentCode: zod.string().optional(),
+  departmentName: zod.string().optional(),
+  region: zod.string().optional(),
+  country: zod.string().optional(),
+});
 
-const hasOrgFields = (body: MissionCreateBody | MissionUpdateBody): boolean => ORG_FIELD_KEYS.some((key) => body[key] !== undefined);
-
-const deriveOrgClientId = (body: MissionCreateBody | MissionUpdateBody): string | null => {
-  if (body.organizationClientId) {
-    return body.organizationClientId;
-  }
-  if (body.organizationRNA) {
-    return body.organizationRNA.replace(/\s+/g, "").toUpperCase();
-  }
-  if (body.organizationSiren) {
-    return body.organizationSiren.replace(/\s+/g, "");
-  }
-  if (body.organizationName) {
-    return body.organizationName
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .substring(0, 100);
-  }
-  return null;
+const orgFields = {
+  organizationClientId: zod.string().optional(),
+  organizationName: zod.string().optional(),
+  organizationDescription: zod.string().optional(),
+  organizationUrl: zod.string().optional(),
+  organizationType: zod.string().optional(),
+  organizationLogo: zod.string().optional(),
+  organizationRNA: zod.string().optional(),
+  organizationSiren: zod.string().optional(),
+  organizationSiret: zod.string().optional(),
+  organizationFullAddress: zod.string().optional(),
+  organizationPostCode: zod.string().optional(),
+  organizationCity: zod.string().optional(),
+  organizationDepartment: zod.string().optional(),
+  organizationDepartmentCode: zod.string().optional(),
+  organizationDepartmentName: zod.string().optional(),
+  organizationStatusJuridique: zod.string().optional(),
+  organizationBeneficiaries: zod.array(zod.string()).optional(),
+  organizationActions: zod.array(zod.string()).optional(),
+  organizationReseaux: zod.array(zod.string()).optional(),
 };
 
-const upsertPublisherOrganization = async (body: MissionCreateBody | MissionUpdateBody, publisherId: string): Promise<string | null> => {
-  const orgClientId = deriveOrgClientId(body);
-  if (!orgClientId) {
-    return null;
-  }
-
-  const orgData = {
-    publisherId,
-    clientId: orgClientId,
-    name: body.organizationName ?? null,
-    rna: body.organizationRNA ?? null,
-    siren: body.organizationSiren ?? null,
-    siret: body.organizationSiret ?? null,
-    url: body.organizationUrl ?? null,
-    logo: body.organizationLogo ?? null,
-    description: body.organizationDescription ?? null,
-    legalStatus: body.organizationStatusJuridique ?? null,
-    type: body.organizationType ?? null,
-    actions: body.organizationActions ?? [],
-    beneficiaries: body.organizationBeneficiaries ?? [],
-    parentOrganizations: body.organizationReseaux ?? [],
-    fullAddress: body.organizationFullAddress ?? null,
-    postalCode: body.organizationPostCode ?? null,
-    city: body.organizationCity ?? null,
-    verifiedAt: null,
-    organizationIdVerified: null,
-    verificationStatus: null,
-  };
-
-  const existing = await publisherOrganizationService.findMany({ publisherId, clientId: orgClientId });
-  if (existing[0]) {
-    await publisherOrganizationService.update(existing[0].id, orgData);
-    return existing[0].id;
-  }
-
-  const created = await publisherOrganizationService.create(orgData);
-  return created.id;
+const missionBaseFields = {
+  title: zod.string().optional(),
+  description: zod.string().optional(),
+  applicationUrl: zod.string().optional(),
+  domain: zod.string().optional(),
+  activities: zod.array(zod.string()).optional(),
+  tags: zod.array(zod.string()).optional(),
+  tasks: zod.array(zod.string()).optional(),
+  audience: zod.array(zod.string()).optional(),
+  requirements: zod.array(zod.string()).optional(),
+  softSkills: zod.array(zod.string()).optional(),
+  romeSkills: zod.array(zod.string()).optional(),
+  remote: zod.enum(["no", "possible", "full"]).optional(),
+  schedule: zod.string().optional(),
+  startAt: zod.coerce.date().optional(),
+  endAt: zod.coerce.date().optional(),
+  priority: zod.string().optional(),
+  places: zod.number().int().positive().optional(),
+  compensationAmount: zod.number().optional(),
+  compensationUnit: zod.enum(["hour", "day", "month", "year"]).optional(),
+  compensationType: zod.enum(["gross", "net"]).optional(),
+  openToMinors: zod.boolean().optional(),
+  reducedMobilityAccessible: zod.boolean().optional(),
+  closeToTransport: zod.boolean().optional(),
+  addresses: zod.array(addressSchema).optional(),
+  type: zod.enum(["benevolat", "volontariat_service_civique", "volontariat_sapeurs_pompiers"]).optional(),
+  ...orgFields,
 };
 
-type AddressInput = NonNullable<MissionCreateBody["addresses"]>[number];
+const orgNameRequiredRefinement = <T extends Record<string, unknown>>(data: T, ctx: zod.RefinementCtx) => {
+  const orgFieldKeys = Object.keys(orgFields) as Array<keyof typeof orgFields>;
+  const hasOrgField = orgFieldKeys.some((key) => key !== "organizationName" && data[key] !== undefined);
+  if (hasOrgField && !data.organizationName) {
+    ctx.addIssue({
+      code: zod.ZodIssueCode.custom,
+      message: "organizationName is required when any organization field is provided",
+      path: ["organizationName"],
+    });
+  }
+};
 
-const buildAddresses = (addresses: MissionCreateBody["addresses"]) => addresses?.map((a: AddressInput) => ({ ...a, geolocStatus: "SHOULD_ENRICH" }));
+const missionCreateSchema = zod
+  .object({
+    clientId: zod.string(),
+    ...missionBaseFields,
+    title: zod.string(),
+  })
+  .superRefine(orgNameRequiredRefinement);
 
-const buildData = (mission: MissionRecord) => ({
-  id: mission.id,
-  clientId: mission.clientId,
-  publisherId: mission.publisherId,
-  statusCode: mission.statusCode,
-  createdAt: mission.createdAt,
-  updatedAt: mission.updatedAt,
-  deletedAt: mission.deletedAt,
-  title: mission.title,
-  description: mission.description,
-  applicationUrl: mission.applicationUrl,
-  domain: mission.domain,
-  activities: mission.activities,
-  tags: mission.tags,
-  tasks: mission.tasks,
-  audience: mission.audience,
-  requirements: mission.requirements,
-  softSkills: mission.softSkills,
-  romeSkills: mission.romeSkills,
-  remote: mission.remote,
-  schedule: mission.schedule,
-  startAt: mission.startAt,
-  endAt: mission.endAt,
-  priority: mission.priority,
-  places: mission.places,
-  compensationAmount: mission.compensationAmount,
-  compensationUnit: mission.compensationUnit,
-  compensationType: mission.compensationType,
-  openToMinors: mission.openToMinors,
-  reducedMobilityAccessible: mission.reducedMobilityAccessible,
-  closeToTransport: mission.closeToTransport,
-  addresses: mission.addresses,
-  type: mission.type,
-  organizationClientId: mission.organizationClientId,
-  organizationName: mission.organizationName,
-  organizationDescription: mission.organizationDescription,
-  organizationUrl: mission.organizationUrl,
-  organizationType: mission.organizationType,
-  organizationLogo: mission.organizationLogo,
-  organizationRNA: mission.organizationRNA,
-  organizationSiren: mission.organizationSiren,
-  organizationSiret: mission.organizationSiret,
-  organizationFullAddress: mission.organizationFullAddress,
-  organizationPostCode: mission.organizationPostCode,
-  organizationCity: mission.organizationCity,
-  organizationStatusJuridique: mission.organizationStatusJuridique,
-  organizationBeneficiaries: mission.organizationBeneficiaries,
-  organizationActions: mission.organizationActions,
-  organizationReseaux: mission.organizationReseaux,
+const missionUpdateSchema = zod
+  .object({
+    ...missionBaseFields,
+  })
+  .superRefine(orgNameRequiredRefinement);
+
+const missionClientIdParamSchema = zod.object({
+  clientId: zod.string(),
 });
 
 // ──────────────────────────────────────────────────────────────────────────────
