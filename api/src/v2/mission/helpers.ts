@@ -1,19 +1,19 @@
 import publisherOrganizationService from "@/services/publisher-organization";
 import { MissionAddress, MissionRecord } from "@/types/mission";
+import { PublisherOrganizationRecord } from "@/types/publisher-organization";
+import { normalizeRNA } from "@/utils/organization";
+import { parseSiren } from "@/utils/parser";
+import { deriveOrganizationClientId, getPublisherOrganizationChanges, OrganizationClientIdInput } from "@/utils/publisher-organization";
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Org fields
 // ──────────────────────────────────────────────────────────────────────────────
 
-export interface OrgBody {
-  organizationClientId?: string;
-  organizationName?: string;
+export interface OrgBody extends OrganizationClientIdInput {
   organizationDescription?: string;
   organizationUrl?: string;
   organizationType?: string;
   organizationLogo?: string;
-  organizationRNA?: string;
-  organizationSiren?: string;
   organizationSiret?: string;
   organizationFullAddress?: string;
   organizationPostCode?: string;
@@ -51,38 +51,13 @@ export const ORG_FIELD_KEYS: Array<keyof OrgBody> = [
 
 export const hasOrgFields = (body: OrgBody): boolean => ORG_FIELD_KEYS.some((key) => body[key] !== undefined);
 
-export const deriveOrgClientId = (body: OrgBody): string | null => {
-  if (body.organizationClientId) {
-    return body.organizationClientId;
-  }
-  if (body.organizationRNA) {
-    return body.organizationRNA.replace(/\s+/g, "").toUpperCase();
-  }
-  if (body.organizationSiren) {
-    return body.organizationSiren.replace(/\s+/g, "");
-  }
-  if (body.organizationName) {
-    return body.organizationName
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .substring(0, 100);
-  }
-  return null;
-};
-
-export const upsertPublisherOrganization = async (body: OrgBody, publisherId: string): Promise<string | null> => {
-  const orgClientId = deriveOrgClientId(body);
-  if (!orgClientId) {
-    return null;
-  }
-
-  const orgData = {
-    publisherId,
-    clientId: orgClientId,
+const buildOrgData = (body: OrgBody) => {
+  const { siret, siren } = parseSiren(body.organizationSiren ?? undefined);
+  return {
     name: body.organizationName ?? null,
-    rna: body.organizationRNA ?? null,
-    siren: body.organizationSiren ?? null,
-    siret: body.organizationSiret ?? null,
+    rna: normalizeRNA(body.organizationRNA) ?? null,
+    siren: siren ?? null,
+    siret: siret ?? null,
     url: body.organizationUrl ?? null,
     logo: body.organizationLogo ?? null,
     description: body.organizationDescription ?? null,
@@ -94,18 +69,34 @@ export const upsertPublisherOrganization = async (body: OrgBody, publisherId: st
     fullAddress: body.organizationFullAddress ?? null,
     postalCode: body.organizationPostCode ?? null,
     city: body.organizationCity ?? null,
-    verifiedAt: null,
-    organizationIdVerified: null,
-    verificationStatus: null,
   };
+};
+
+export const upsertPublisherOrganization = async (body: OrgBody, publisherId: string): Promise<string | null> => {
+  const orgClientId = deriveOrganizationClientId(body);
+  if (!orgClientId) {
+    return null;
+  }
+
+  const orgData = buildOrgData(body);
 
   const existing = await publisherOrganizationService.findMany({ publisherId, clientId: orgClientId });
   if (existing[0]) {
-    await publisherOrganizationService.update(existing[0].id, orgData);
+    const changes = getPublisherOrganizationChanges(existing[0], orgData as PublisherOrganizationRecord);
+    if (changes) {
+      await publisherOrganizationService.update(existing[0].id, orgData);
+    }
     return existing[0].id;
   }
 
-  const created = await publisherOrganizationService.create(orgData);
+  const created = await publisherOrganizationService.create({
+    publisherId,
+    clientId: orgClientId,
+    ...orgData,
+    verifiedAt: null,
+    organizationIdVerified: null,
+    verificationStatus: null,
+  });
   return created.id;
 };
 
@@ -120,6 +111,7 @@ export const buildData = (mission: MissionRecord) => ({
   clientId: mission.clientId,
   publisherId: mission.publisherId,
   statusCode: mission.statusCode,
+  statusComment: mission.statusComment,
   createdAt: mission.createdAt,
   updatedAt: mission.updatedAt,
   deletedAt: mission.deletedAt,
