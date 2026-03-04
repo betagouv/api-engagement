@@ -6,6 +6,7 @@ import { enrichWithGeoloc, GeolocMissionInput } from "@/services/geoloc";
 
 const CHUNK_SIZE = 2000;
 const LABEL = "enrich-missions-geoloc";
+const MAX_FAILURES = 5;
 
 export interface EnrichMissionsGeolocJobPayload {
   includeFailedAddresses?: boolean;
@@ -33,6 +34,7 @@ export class EnrichMissionsGeolocHandler implements BaseHandler<EnrichMissionsGe
       const addresses = await missionAddressRepository.findMany({
         where: {
           geolocStatus: { in: statuses },
+          geolocFailureCount: { lt: MAX_FAILURES },
           mission: { deletedAt: null },
         },
         include: { mission: { select: { clientId: true } } },
@@ -104,6 +106,14 @@ export class EnrichMissionsGeolocHandler implements BaseHandler<EnrichMissionsGe
         } catch (error) {
           captureException(error, `[${LABEL}] Failed to update address ${targetAddress.id}`);
           failedCount++;
+          try {
+            await missionAddressRepository.update(targetAddress.id, {
+              geolocStatus: "FAILED",
+              geolocFailureCount: { increment: 1 },
+            });
+          } catch {
+            // DB is unavailable — will be retried next run
+          }
         }
       }
 

@@ -5,9 +5,10 @@ import zod from "zod";
 import { INVALID_BODY, INVALID_PARAMS, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "@/error";
 import { defaultRateLimiter } from "@/middlewares/rate-limit";
 import { missionService } from "@/services/mission";
-import { MissionCreateInput, MissionUpdatePatch } from "@/types/mission";
+import { MissionCreateInput, MissionRecord, MissionUpdatePatch } from "@/types/mission";
 import { PublisherRequest } from "@/types/passport";
 import { PublisherRecord } from "@/types/publisher";
+import { getModeration } from "@/utils/mission-moderation";
 
 import { buildAddresses, buildData, hasOrgFields, upsertPublisherOrganization } from "./helpers";
 
@@ -135,6 +136,7 @@ router.post("/", passport.authenticate(["apikey", "api"], { session: false }), d
     const input: MissionCreateInput = {
       clientId: body.clientId,
       title: body.title,
+      statusCode: "ACCEPTED",
       publisherId: publisher.id,
       publisherOrganizationId: publisherOrganizationId ?? undefined,
       lastSyncAt: new Date(),
@@ -180,6 +182,8 @@ router.post("/", passport.authenticate(["apikey", "api"], { session: false }), d
       organizationActions: body.organizationActions,
       organizationReseaux: body.organizationReseaux,
     };
+
+    getModeration(input);
 
     const mission = await missionService.create(input);
     return res.status(201).send({ ok: true, data: buildData(mission) });
@@ -235,6 +239,16 @@ router.put("/:clientId", passport.authenticate(["apikey", "api"], { session: fal
 
     if ("addresses" in body) {
       patch.addresses = buildAddresses(body.addresses);
+    }
+
+    // Run moderation on the merged state (existing + patch) to avoid
+    // false negatives on fields not included in the partial update
+    const missionForModeration: Partial<MissionRecord> = { ...existing, ...patch };
+    getModeration(missionForModeration);
+    patch.statusCode = missionForModeration.statusCode;
+    patch.statusComment = missionForModeration.statusComment ?? "";
+    if ("description" in body) {
+      patch.description = missionForModeration.description;
     }
 
     const mission = await missionService.update(existing.id, patch);
