@@ -297,6 +297,10 @@ router.put("/:id", passport.authenticate("user", { session: false }), async (req
         organizationVerifiedId: zod.string().nullable().optional(),
         moderatorId: zod.string(),
       })
+      .refine((data) => data.status !== "REFUSED" || !!data.comment, {
+        message: "comment is required when status is REFUSED",
+        path: ["comment"],
+      })
       .safeParse(req.body);
 
     const params = zod

@@ -388,6 +388,32 @@ describe("Moderation API endpoints (integration test)", () => {
       });
       expect(pubOrg?.rna).toBe("W123456789");
     });
+
+    it("should persist REFUSED status in the database", async () => {
+      const { moderation } = await createMissionWithModeration();
+
+      const res = await request(app)
+        .put(`/moderation/${moderation.id}`)
+        .set("Authorization", `jwt ${adminToken}`)
+        .send({ moderatorId: jva.id, status: "REFUSED", comment: "CONTENT_INSUFFICIENT" });
+
+      expect(res.status).toBe(200);
+
+      const inDb = await prismaCore.missionModerationStatus.findUnique({ where: { id: moderation.id } });
+      expect(inDb?.status).toBe("REFUSED");
+      expect(inDb?.comment).toBe("CONTENT_INSUFFICIENT");
+    });
+
+    it("should return 400 when status is REFUSED without a comment", async () => {
+      const { moderation } = await createMissionWithModeration();
+
+      const res = await request(app)
+        .put(`/moderation/${moderation.id}`)
+        .set("Authorization", `jwt ${adminToken}`)
+        .send({ moderatorId: jva.id, status: "REFUSED" });
+
+      expect(res.status).toBe(400);
+    });
   });
 
   // ─── PUT /moderation/many ─────────────────────────────────────────────────
