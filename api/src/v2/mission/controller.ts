@@ -183,7 +183,12 @@ router.post("/", passport.authenticate(["apikey", "api"], { session: false }), d
       organizationReseaux: body.organizationReseaux,
     };
 
-    getModeration(input);
+    const moderation = getModeration(input);
+    input.statusCode = moderation.statusCode;
+    input.statusComment = moderation.statusComment;
+    if (moderation.description !== undefined) {
+      input.description = moderation.description;
+    }
 
     const mission = await missionService.create(input);
     return res.status(201).send({ ok: true, data: buildData(mission) });
@@ -243,12 +248,11 @@ router.put("/:clientId", passport.authenticate(["apikey", "api"], { session: fal
 
     // Run moderation on the merged state (existing + patch) to avoid
     // false negatives on fields not included in the partial update
-    const missionForModeration: Partial<MissionRecord> = { ...existing, ...patch };
-    getModeration(missionForModeration);
-    patch.statusCode = missionForModeration.statusCode;
-    patch.statusComment = missionForModeration.statusComment ?? "";
-    if ("description" in body) {
-      patch.description = missionForModeration.description;
+    const moderation = getModeration({ ...existing, ...patch });
+    patch.statusCode = moderation.statusCode;
+    patch.statusComment = moderation.statusComment;
+    if ("description" in body && moderation.description !== undefined) {
+      patch.description = moderation.description;
     }
 
     const mission = await missionService.update(existing.id, patch);
