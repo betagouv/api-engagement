@@ -19,13 +19,23 @@ export interface OrganizationClientIdInput {
  * Priority: explicit clientId → RNA → SIRET → SIREN → name slug
  */
 export const deriveOrganizationClientId = (input: OrganizationClientIdInput): string | null => {
-  if (input.organizationClientId) return input.organizationClientId;
+  if (input.organizationClientId) {
+    return input.organizationClientId;
+  }
   const rna = normalizeRNA(input.organizationRNA);
-  if (rna) return rna;
+  if (rna) {
+    return rna;
+  }
   const { siret, siren } = parseSiren(input.organizationSiren ?? undefined);
-  if (siret) return siret;
-  if (siren) return siren;
-  if (input.organizationName) return slugify(input.organizationName);
+  if (siret) {
+    return siret;
+  }
+  if (siren) {
+    return siren;
+  }
+  if (input.organizationName) {
+    return slugify(input.organizationName);
+  }
   return null;
 };
 
