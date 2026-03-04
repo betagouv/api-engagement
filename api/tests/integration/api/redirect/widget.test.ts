@@ -103,6 +103,16 @@ describe("RedirectController /widget/:id", () => {
     expect(redirectUrl.searchParams.get("utm_campaign")).toBe("widget-name");
 
     const clickId = redirectUrl.searchParams.get("apiengagement_id");
+    // The handler updates isBot asynchronously after sending the redirect response,
+    // so we need to wait for that background work to complete before asserting.
+    await vi.waitFor(
+      async () => {
+        const row = await prisma.statEvent.findUnique({ where: { id: clickId! } });
+        expect(row?.isBot).toBe(true);
+      },
+      { timeout: 2000, interval: 50 }
+    );
+
     const storedClick = await prisma.statEvent.findUnique({ where: { id: clickId! } });
     expect(storedClick).toMatchObject({
       type: "click",

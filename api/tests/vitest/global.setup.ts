@@ -18,6 +18,12 @@ async function runPrismaMigrate(env: NodeJS.ProcessEnv) {
       cwd: API_ROOT,
       env,
     });
+    await execFileAsync("npm", ["run", "prisma:generate"], {
+      cwd: API_ROOT,
+      env,
+    });
+
+    console.log("[GlobalSetup] Prisma migrate and generate completed");
   } catch (error) {
     console.error("[GlobalSetup] Prisma migrate failed", error);
     throw error;

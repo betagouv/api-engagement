@@ -12,6 +12,6 @@ vi.mock("@sentry/node", () => ({
 }));
 
 // Mock services that would otherwise call external APIs.
-vi.mock("../../src/services/api-datasubvention", () => ({
+vi.mock("@/services/api-datasubvention", () => ({
   default: dataSubventionMock,
 }));
