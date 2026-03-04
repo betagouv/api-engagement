@@ -3,12 +3,11 @@ import passport from "passport";
 
 import { INVALID_BODY, INVALID_PARAMS, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "@/error";
 import { missionWriteLimiter } from "@/middlewares/rate-limit";
-import publisherOrganizationService from "@/services/publisher-organization";
 import { missionService } from "@/services/mission";
-import { MissionCreateInput, MissionUpdatePatch } from "@/types/mission";
-import { PublisherRecord } from "@/types/publisher";
+import publisherOrganizationService from "@/services/publisher-organization";
+import { MissionCreateInput, MissionRecord, MissionUpdatePatch } from "@/types/mission";
 import { PublisherRequest } from "@/types/passport";
-import { MissionRecord } from "@/types/mission";
+import { PublisherRecord } from "@/types/publisher";
 
 import { MissionCreateBody, MissionUpdateBody, missionClientIdParamSchema, missionCreateSchema, missionUpdateSchema } from "./schema";
 
@@ -40,20 +39,32 @@ const ORG_FIELD_KEYS: Array<keyof MissionCreateBody> = [
   "organizationReseaux",
 ];
 
-const hasOrgFields = (body: MissionCreateBody | MissionUpdateBody): boolean =>
-  ORG_FIELD_KEYS.some((key) => body[key] !== undefined);
+const hasOrgFields = (body: MissionCreateBody | MissionUpdateBody): boolean => ORG_FIELD_KEYS.some((key) => body[key] !== undefined);
 
 const deriveOrgClientId = (body: MissionCreateBody | MissionUpdateBody): string | null => {
-  if (body.organizationClientId) return body.organizationClientId;
-  if (body.organizationRNA) return body.organizationRNA.replace(/\s+/g, "").toUpperCase();
-  if (body.organizationSiren) return body.organizationSiren.replace(/\s+/g, "");
-  if (body.organizationName) return body.organizationName.toLowerCase().replace(/[^a-z0-9]+/g, "-").substring(0, 100);
+  if (body.organizationClientId) {
+    return body.organizationClientId;
+  }
+  if (body.organizationRNA) {
+    return body.organizationRNA.replace(/\s+/g, "").toUpperCase();
+  }
+  if (body.organizationSiren) {
+    return body.organizationSiren.replace(/\s+/g, "");
+  }
+  if (body.organizationName) {
+    return body.organizationName
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .substring(0, 100);
+  }
   return null;
 };
 
 const upsertPublisherOrganization = async (body: MissionCreateBody | MissionUpdateBody, publisherId: string): Promise<string | null> => {
   const orgClientId = deriveOrgClientId(body);
-  if (!orgClientId) return null;
+  if (!orgClientId) {
+    return null;
+  }
 
   const orgData = {
     publisherId,
@@ -90,8 +101,7 @@ const upsertPublisherOrganization = async (body: MissionCreateBody | MissionUpda
 
 type AddressInput = NonNullable<MissionCreateBody["addresses"]>[number];
 
-const buildAddresses = (addresses: MissionCreateBody["addresses"]) =>
-  addresses?.map((a: AddressInput) => ({ ...a, geolocStatus: "SHOULD_ENRICH" }));
+const buildAddresses = (addresses: MissionCreateBody["addresses"]) => addresses?.map((a: AddressInput) => ({ ...a, geolocStatus: "SHOULD_ENRICH" }));
 
 const buildData = (mission: MissionRecord) => ({
   id: mission.id,
@@ -251,7 +261,9 @@ router.put("/:clientId", passport.authenticate(["apikey", "api"], { session: fal
     let publisherOrganizationId: string | undefined;
     if (hasOrgFields(body)) {
       const orgId = await upsertPublisherOrganization(body, publisher.id);
-      if (orgId) publisherOrganizationId = orgId;
+      if (orgId) {
+        publisherOrganizationId = orgId;
+      }
     }
 
     const patch: MissionUpdatePatch = {
