@@ -4,8 +4,17 @@ import { DOMAINS } from "@/constants/domains";
 import type { MissionRecord } from "@/types/mission";
 import { hasEncodageIssue } from "@/utils/parser";
 
-export const getModeration = (mission: Partial<MissionRecord> & Record<string, any>) => {
+export interface ModerationResult {
+  statusCode: "ACCEPTED" | "REFUSED";
+  statusComment: string;
+  /** Set only when the description was truncated to 20 000 characters. */
+  description?: string;
+}
+
+export const getModeration = (mission: Partial<MissionRecord> & Record<string, any>): ModerationResult => {
   let statusComment: string | undefined;
+  let description: string | undefined;
+
   if (!mission.title || mission.title === " ") {
     statusComment = "Titre manquant";
   } else if (hasEncodageIssue(mission.title)) {
@@ -19,7 +28,7 @@ export const getModeration = (mission: Partial<MissionRecord> & Record<string, a
   } else if (hasEncodageIssue(mission.description)) {
     statusComment = "Problème d'encodage dans la description";
   } else if ((mission.description || "").length > 20000) {
-    mission.description = mission.description.substring(0, 20000);
+    description = mission.description!.substring(0, 20000);
     statusComment = "La description est trop longue (plus de 20000 caractères)";
   } else if (!mission.applicationUrl) {
     statusComment = "URL de candidature manquant";
@@ -41,6 +50,9 @@ export const getModeration = (mission: Partial<MissionRecord> & Record<string, a
     statusComment = `Type de compensation invalide (${COMPENSATION_TYPES.join(", ")})`;
   }
 
-  mission.statusCode = statusComment ? "REFUSED" : "ACCEPTED";
-  mission.statusComment = statusComment || "";
+  return {
+    statusCode: statusComment ? "REFUSED" : "ACCEPTED",
+    statusComment: statusComment ?? "",
+    ...(description !== undefined ? { description } : {}),
+  };
 };
