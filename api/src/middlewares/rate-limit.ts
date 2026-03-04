@@ -1,49 +1,10 @@
 import { rateLimit } from "express-rate-limit";
 
-import { APP_URL, BENEVOLAT_URL, VOLONTARIAT_URL } from "@/config";
-import { captureMessage } from "@/error";
-
-const limiter = rateLimit({
-  windowMs: 5000, // 5 second
-  limit: 15, // Limit each IP to 15 requests per `window` (5 r/s).
-  skip: (req) => {
-    // Skip back office and iframe requests
-    if ([APP_URL, BENEVOLAT_URL, VOLONTARIAT_URL].includes(req.headers.origin || "")) {
-      return true;
-    }
-    if (req.url.includes("/iframe/")) {
-      return true;
-    }
-    return false;
-  },
-  handler: (req, res) => {
-    captureMessage(`Too many requests, please try again later.`, {
-      extra: {
-        ip: req.ip,
-        url: req.url,
-        method: req.method,
-      },
-    });
-    res.status(429).send({
-      ok: false,
-      code: "TOO_MANY_REQUESTS",
-      message: "Too many requests, please try again later.",
-    });
-  },
-});
-
-export const missionWriteLimiter = rateLimit({
+export const defaultRateLimiter = rateLimit({
   windowMs: 60_000,
   limit: 60,
   keyGenerator: (req) => (req.headers["x-api-key"] as string) || (req.headers["apikey"] as string) || req.ip || "unknown",
   handler: (req, res) => {
-    captureMessage("Mission write rate limit exceeded", {
-      extra: {
-        ip: req.ip,
-        url: req.url,
-        method: req.method,
-      },
-    });
     res.status(429).send({
       ok: false,
       code: "TOO_MANY_REQUESTS",
@@ -51,5 +12,3 @@ export const missionWriteLimiter = rateLimit({
     });
   },
 });
-
-export default limiter;

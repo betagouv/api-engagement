@@ -1,6 +1,6 @@
-import { ADMIN_SNU_URL, ASSOCIATION_URL, BENEVOLAT_URL, JVA_URL, VOLONTARIAT_URL } from "@/config";
+import cors from "cors";
 
-import { APP_URL } from "@/config";
+import { ADMIN_SNU_URL, APP_URL, ASSOCIATION_URL, BENEVOLAT_URL, JVA_URL, VOLONTARIAT_URL } from "@/config";
 
 const origin = [
   APP_URL,
@@ -14,6 +14,6 @@ const origin = [
   "https://app-ec11b799-95d0-4770-8e41-701b4becf64a.cleverapps.io",
 ];
 
-const corsOptions = { credentials: true, origin };
+export const corsOptions = { credentials: true, origin };
 
-export default corsOptions;
+export const corsPublic = cors({ origin: "*" });
