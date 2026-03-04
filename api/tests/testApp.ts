@@ -2,15 +2,17 @@ import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
+
+import IframeController from "@/controllers/iframe";
+import ModerationController from "@/controllers/moderation";
+import RedirectController from "@/controllers/redirect";
 import bodyParserErrorHandler from "@/middlewares/body-parser-error-handler";
 import passport from "@/middlewares/passport";
-import IframeController from "@/controllers/iframe";
-import RedirectController from "@/controllers/redirect";
-import ActivityV2Controller from "@/v2/activity";
 import MissionV0Controller from "@/v0/mission/controller";
 import MyMissionV0Controller from "@/v0/mymission/controller";
 import MyOrganizationV0Controller from "@/v0/myorganization/controller";
 import ViewV0Controller from "@/v0/view";
+import ActivityV2Controller from "@/v2/activity";
 
 // Create a test Express app with minimal configuration
 export const createTestApp = () => {
@@ -27,6 +29,7 @@ export const createTestApp = () => {
   app.use(passport.initialize());
 
   // Mount the controllers
+  app.use("/moderation", ModerationController);
   app.use("/v0/myorganization", MyOrganizationV0Controller);
   app.use("/v0/mymission", MyMissionV0Controller);
   app.use("/v0/mission", MissionV0Controller);
