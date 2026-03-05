@@ -55,7 +55,7 @@ describe("generateXML", () => {
     expect(xml).toContain("<![CDATA[Test Company]]>");
     expect(xml).toContain("<![CDATA[bénévolat]]>");
     expect(xml).toContain("<![CDATA[Association ONG]]>");
-    expect(xml).toContain("<place>");
+    expect(xml).toContain("<location>");
     expect(xml).toContain("<latitude>48.8566</latitude>");
     expect(xml).toContain("<longitude>2.3522</longitude>");
     expect(xml).toContain("<city>Paris</city>");
