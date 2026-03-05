@@ -14,7 +14,8 @@ locals {
     tomap(local.secrets)
   )
 
-  image_uri = "ghcr.io/${var.github_repository}/api:${var.image_env}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
+  image_uri              = "ghcr.io/${var.github_repository}/api:${var.image_env}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
+  sync_sandbox_image_uri = "ghcr.io/${var.github_repository}/sync-sandbox:production-latest"
 }
 
 # Job Definition for the 'letudiant' task
@@ -236,8 +237,8 @@ resource "scaleway_job_definition" "sync-sandbox" {
   project_id   = var.project_id
   cpu_limit    = 250
   memory_limit = 512
-  image_uri    = local.image_uri
-  command      = "node dist/jobs/run-job.js sync-sandbox"
+  image_uri    = local.sync_sandbox_image_uri
+  command      = "/sync.sh"
   timeout      = "60m"
 
   cron {
@@ -245,5 +246,8 @@ resource "scaleway_job_definition" "sync-sandbox" {
     timezone = "Europe/Paris"
   }
 
-  env = local.all_env_vars
+  env = {
+    DATABASE_URL_CORE_SANDBOX = local.secrets["DATABASE_URL_CORE"]
+    DATABASE_URL_CORE_PROD    = local.secrets["DATABASE_URL_CORE_PROD"]
+  }
 }

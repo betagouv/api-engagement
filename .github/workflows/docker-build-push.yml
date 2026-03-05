@@ -53,6 +53,7 @@ jobs:
           - service: widget
           - service: api
           - service: analytics
+          - service: sync-sandbox
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
