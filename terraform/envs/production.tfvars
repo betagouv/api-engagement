@@ -17,7 +17,7 @@ api_max_scale              = 1
 app_cpu_limit              = 500
 app_memory_limit           = 1024
 app_min_scale              = 1
-app_max_scale              = 1
+app_max_scale              = 4
 
 widget_cpu_limit           = 500
 widget_memory_limit        = 1024

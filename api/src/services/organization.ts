@@ -312,13 +312,27 @@ export const organizationService = (() => {
     const orderBy: Prisma.OrganizationOrderByWithRelationInput = orderByField === "title" ? { title: orderDirection } : { updatedAt: orderDirection };
 
     const [total, organizations] = await Promise.all([
-      includeTotal === "none" ? Promise.resolve(0) : includeTotal === "all" ? organizationRepository.count() : organizationRepository.count({ where }),
-      organizationRepository.findMany({
-        where,
-        skip: offset,
-        take: limit,
-        orderBy,
-      }),
+      includeTotal === "none"
+        ? Promise.resolve(0)
+        : includeTotal === "all"
+          ? organizationRepository.count(
+              {},
+              {
+                readPreference: "replica",
+              }
+            )
+          : organizationRepository.count({ where }, { readPreference: "replica" }),
+      organizationRepository.findMany(
+        {
+          where,
+          skip: offset,
+          take: limit,
+          orderBy,
+        },
+        {
+          readPreference: "replica",
+        }
+      ),
     ]);
 
     return {
