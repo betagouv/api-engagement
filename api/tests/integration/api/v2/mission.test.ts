@@ -1,7 +1,7 @@
 import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
 
-import { prismaCore } from "@/db/postgres";
+import { prisma } from "@/db/postgres";
 import { missionService } from "@/services/mission";
 import { createTestMission, createTestPublisher } from "../../../fixtures";
 import { createTestApp } from "../../../testApp";
@@ -117,20 +117,26 @@ describe("Mission V2 Write API Integration Tests", () => {
       expect(response.status).toBe(201);
       expect(response.body.data.organizationName).toBe("Croix Rouge");
 
-      const org = await prismaCore.publisherOrganization.findFirst({ where: { publisherId: publisher.id, rna: "W123456789" } });
+      const org = await prisma.publisherOrganization.findFirst({ where: { publisherId: publisher.id, rna: "W123456789" } });
       expect(org).not.toBeNull();
       expect(org?.name).toBe("Croix Rouge");
     });
 
     it("should set statusCode REFUSED when description is missing", async () => {
-      const response = await request(app).post("/v2/mission").set("x-api-key", apiKey).send({ clientId: "test-refused-no-desc", title: "Mission sans description", applicationUrl: "https://example.com/apply" });
+      const response = await request(app)
+        .post("/v2/mission")
+        .set("x-api-key", apiKey)
+        .send({ clientId: "test-refused-no-desc", title: "Mission sans description", applicationUrl: "https://example.com/apply" });
       expect(response.status).toBe(201);
       expect(response.body.data.statusCode).toBe("REFUSED");
       expect(response.body.data.statusComment).toBe("Description manquante");
     });
 
     it("should set statusCode REFUSED when applicationUrl is missing", async () => {
-      const response = await request(app).post("/v2/mission").set("x-api-key", apiKey).send({ clientId: "test-refused-no-url", title: "Mission sans URL", description: "Description valide" });
+      const response = await request(app)
+        .post("/v2/mission")
+        .set("x-api-key", apiKey)
+        .send({ clientId: "test-refused-no-url", title: "Mission sans URL", description: "Description valide" });
       expect(response.status).toBe(201);
       expect(response.body.data.statusCode).toBe("REFUSED");
       expect(response.body.data.statusComment).toBe("URL de candidature manquant");
@@ -164,7 +170,7 @@ describe("Mission V2 Write API Integration Tests", () => {
         .set("x-api-key", apiKey)
         .send({ clientId: "test-geo", title: "Mission", addresses: [{ city: "Paris", postalCode: "75001" }] });
       expect(response.status).toBe(201);
-      const addresses = await prismaCore.missionAddress.findMany({
+      const addresses = await prisma.missionAddress.findMany({
         where: { mission: { clientId: "test-geo", publisherId: publisher.id } },
       });
       expect(addresses.length).toBe(1);
@@ -222,7 +228,7 @@ describe("Mission V2 Write API Integration Tests", () => {
       const response = await request(app).put(`/v2/mission/${mission.clientId}`).set("x-api-key", apiKey).send({ organizationName: "Updated Org", organizationRNA: "W999999999" });
 
       expect(response.status).toBe(200);
-      const org = await prismaCore.publisherOrganization.findFirst({ where: { publisherId: publisher.id, rna: "W999999999" } });
+      const org = await prisma.publisherOrganization.findFirst({ where: { publisherId: publisher.id, rna: "W999999999" } });
       expect(org).not.toBeNull();
       expect(org?.name).toBe("Updated Org");
     });
@@ -273,7 +279,7 @@ describe("Mission V2 Write API Integration Tests", () => {
       // Update with same org data → should not create a second org record
       await request(app).put("/v2/mission/test-org-no-dup").set("x-api-key", apiKey).send(orgFields);
 
-      const orgs = await prismaCore.publisherOrganization.findMany({ where: { publisherId: publisher.id, rna: "W111111111" } });
+      const orgs = await prisma.publisherOrganization.findMany({ where: { publisherId: publisher.id, rna: "W111111111" } });
       expect(orgs).toHaveLength(1);
     });
 
