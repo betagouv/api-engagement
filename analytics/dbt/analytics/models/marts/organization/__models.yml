@@ -11,6 +11,12 @@ models:
         tests:
           - not_null
           - unique
+      - name: rna
+        description: Identifiant RNA déclaré pour l'organisation (nullable).
+      - name: siren
+        description: Numéro SIREN déclaré pour l'organisation (nullable).
+      - name: siret
+        description: Numéro SIRET déclaré pour l'organisation (nullable).
       - name: title
         description: Nom officiel complet de l'organisation.
         tests:
@@ -43,6 +49,14 @@ models:
         description: Timestamp de publication officielle (nullable).
       - name: dissolved_at
         description: Timestamp de dissolution s'il y a lieu (nullable).
+      - name: address_number
+        description: Numéro de voie de l'adresse principale (nullable).
+      - name: address_complement
+        description: Complément d'adresse principale (nullable).
+      - name: address_street
+        description: Libellé de voie de l'adresse principale (nullable).
+      - name: address_type
+        description: Type de voie de l'adresse principale (nullable).
       - name: address_city
         description: Ville de l'adresse principale (nullable).
       - name: address_postal_code

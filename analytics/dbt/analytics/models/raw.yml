@@ -238,6 +238,8 @@ sources:
             description: Réseaux déclarés (nullable).
           - name: verification_status
             description: Statut de vérification global (nullable).
+          - name: organization_id_verified
+            description: Identifiant de l'organisation core validée lors de la vérification (nullable).
           - name: organisation_is_rup
             description: Indique si l'organisation est reconnue d'utilité publique (nullable).
           - name: created_at
@@ -519,6 +521,12 @@ sources:
         columns:
           - name: id
             description: Identifiant unique de l'organisation (UUID).
+          - name: rna
+            description: Identifiant RNA déclaré pour l'organisation (nullable).
+          - name: siren
+            description: Numéro SIREN déclaré pour l'organisation (nullable).
+          - name: siret
+            description: Numéro SIRET déclaré pour l'organisation (nullable).
           - name: gestion
             description: Code ou libellé de gestion remonté par l'application source (nullable).
           - name: status
@@ -543,6 +551,14 @@ sources:
             description: Titre court utilisé dans certaines interfaces (nullable).
           - name: names
             description: Variantes de noms déclarés (tableau textuel).
+          - name: address_number
+            description: Numéro de voie de l'adresse principale (nullable).
+          - name: address_complement
+            description: Complément d'adresse principale (nullable).
+          - name: address_street
+            description: Libellé de voie de l'adresse principale (nullable).
+          - name: address_type
+            description: Type de voie de l'adresse principale (nullable).
           - name: address_insee_code
             description: Code INSEE correspondant à l'adresse principale (nullable).
           - name: address_postal_code
