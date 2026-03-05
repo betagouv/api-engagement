@@ -7,6 +7,9 @@ locals {
     "VOLONTARIAT_URL"            = "https://${local.volontariat_hostname}"
     "BUCKET_NAME"                = local.bucket_name
     "SLACK_JOBTEASER_CHANNEL_ID" = terraform.workspace == "production" ? "C080H9MH56W" : ""
+    "PRISMA_POOL_SIZE_CORE"      = "8"
+    "PRISMA_POOL_TIMEOUT"        = "20"
+    "PRISMA_CONNECT_TIMEOUT"     = "10"
   }
 
   all_env_vars = merge(

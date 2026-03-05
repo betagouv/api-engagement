@@ -7,7 +7,7 @@ resource "scaleway_container" "api" {
   cpu_limit       = terraform.workspace == "production" ? 1500 : 250
   memory_limit    = terraform.workspace == "production" ? 2048 : 512
   min_scale       = terraform.workspace == "production" ? 1 : 1
-  max_scale       = terraform.workspace == "production" ? 1 : 1
+  max_scale       = terraform.workspace == "production" ? 4 : 1
   timeout         = 60
   privacy         = "public"
   protocol        = "http1"
@@ -23,7 +23,7 @@ resource "scaleway_container" "api" {
   }
 
   scaling_option {
-    cpu_usage_threshold = 80
+    cpu_usage_threshold = 70
   }
 
   environment_variables = {
@@ -35,6 +35,9 @@ resource "scaleway_container" "api" {
     "PILOTY_BASE_URL" = local.piloty_hostname
     "BUCKET_NAME"   = local.bucket_name
     "SLACK_JOBTEASER_CHANNEL_ID" = terraform.workspace == "production" ? "C080H9MH56W" : ""
+    "PRISMA_POOL_SIZE_CORE" = "20"
+    "PRISMA_POOL_TIMEOUT" = "20"
+    "PRISMA_CONNECT_TIMEOUT" = "10"
 
     # Feature flags ES migration
     "WRITE_STATS_DUAL" = "true"

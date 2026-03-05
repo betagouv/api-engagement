@@ -4,11 +4,11 @@ import type { Prisma } from "./core/client";
 import { PrismaClient } from "./core/client";
 
 // Pool size configuration for Core DB based on:
-// - PostgreSQL max_connections = 350 (verified in production)
-// - Number of API instances (max_scale = 1 in Terraform)
-// - Number of concurrent jobs
+// - PostgreSQL max_connections = 200
+// - API autoscaling in production up to 4 instances
+// - Reserved DB connections for jobs/admin/maintenance
 // See https://github.com/betagouv/api-engagement/pull/726 for dimensioning guidelines
-const poolSizeCore = parseInt(process.env.PRISMA_POOL_SIZE_CORE || "50", 10);
+const poolSizeCore = parseInt(process.env.PRISMA_POOL_SIZE_CORE || "20", 10);
 const poolTimeout = parseInt(process.env.PRISMA_POOL_TIMEOUT || "20", 10);
 const connectTimeout = parseInt(process.env.PRISMA_CONNECT_TIMEOUT || "10", 10);
 const prismaDebugSql = process.env.PRISMA_DEBUG_SQL === "true";
