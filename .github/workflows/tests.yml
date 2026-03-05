@@ -198,7 +198,7 @@ jobs:
         run: cd widget && npm run test:e2e
 
       - name: Upload HTML test report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: playwright-report
