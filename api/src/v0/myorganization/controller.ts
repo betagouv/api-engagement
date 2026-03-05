@@ -93,7 +93,7 @@ router.put("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
 
     if (!body.data.organizationName) {
       const mission = await missionService.findOneMissionBy({
-        organizationClientId: params.data.organizationClientId,
+        publisherOrganization: { clientId: params.data.organizationClientId },
       });
       if (mission) {
         body.data.organizationName = mission.organizationName;

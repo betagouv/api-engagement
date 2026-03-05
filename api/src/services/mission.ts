@@ -427,6 +427,23 @@ const buildAggregations = async (where: Prisma.MissionWhereInput): Promise<Missi
       .sort((a, b) => b.doc_count - a.doc_count);
   };
 
+  const aggregateMissionByPublisherOrganization = async () => {
+    const rows = await prisma.mission.groupBy({
+      by: ["publisherOrganizationId"],
+      where,
+      _count: { _all: true },
+    });
+
+    const ids = rows.map((row) => row.publisherOrganizationId).filter(isNonEmpty) as string[];
+    const organizations = ids.length ? await publisherOrganizationService.findMany({ ids: ids }, { select: { clientId: true, name: true } }) : [];
+    const nameById = new Map(organizations.map((org) => [org.clientId, org.name ?? ""]));
+
+    return rows
+      .map((row) => ({ key: nameById.get(row.publisherOrganizationId ?? "") ?? "", doc_count: Number(row._count?._all ?? 0) }))
+      .filter((row) => isNonEmpty(row.key))
+      .sort((a, b) => b.doc_count - a.doc_count);
+  };
+
   const aggregateMissionByDomain = async () => {
     const rows = await prisma.mission.groupBy({
       by: ["domainId"],
@@ -467,25 +484,16 @@ const buildAggregations = async (where: Prisma.MissionWhereInput): Promise<Missi
   };
 
   // Run in parallel - connection pool is now properly sized (20 connections for core DB)
-  const [status, comments, domains, activities, partnersRaw, organizationsRaw, cities, departments] = await Promise.all([
+  const [status, comments, domains, activities, partnersRaw, organizations, cities, departments] = await Promise.all([
     aggregateMissionField("statusCode"),
     aggregateMissionField("statusComment"),
     aggregateMissionByDomain(),
     activityService.aggregateByMission(where),
     aggregateMissionField("publisherId"),
-    aggregateMissionField("organizationClientId"),
+    aggregateMissionByPublisherOrganization(),
     aggregateAddressField("city"),
     aggregateAddressField("departmentName"),
   ]);
-
-  const organizationClientIds = organizationsRaw.map((row) => row.key).filter(isNonEmpty) as string[];
-  const organizations =
-    organizationClientIds.length > 0 ? await publisherOrganizationService.findMany({ clientIds: organizationClientIds }, { select: { clientId: true, name: true } }) : [];
-  const orgByClientId = new Map(organizations.map((org) => [org.clientId ?? "", org.name ?? ""]));
-  const organizationsAgg = organizationsRaw
-    .map((row) => ({ key: orgByClientId.get(row.key ?? "") ?? "", doc_count: row.doc_count }))
-    .filter((row) => isNonEmpty(row.key))
-    .sort((a, b) => b.doc_count - a.doc_count);
 
   const publisherIds = partnersRaw.map((row) => row.key).filter(isNonEmpty) as string[];
   const publishers = publisherIds.length ? await publisherService.findPublishersByIds(publisherIds) : [];
@@ -503,7 +511,7 @@ const buildAggregations = async (where: Prisma.MissionWhereInput): Promise<Missi
     .filter((row) => isNonEmpty(row.key))
     .sort((a, b) => b.doc_count - a.doc_count);
 
-  return { status, comments, domains, organizations: organizationsAgg, activities, cities, departments, partners };
+  return { status, comments, domains, organizations, activities, cities, departments, partners };
 };
 
 const hasGeoFilters = (filters: MissionSearchFilters) => filters.lat !== undefined && filters.lon !== undefined && filters.distanceKm !== undefined;

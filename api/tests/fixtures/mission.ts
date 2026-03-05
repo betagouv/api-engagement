@@ -83,7 +83,9 @@ const mapAddressesForCreate = (addresses: MissionAddress[]) =>
   });
 
 export const createTestMission = async (
-  data: Partial<MissionCreateInput & { deleted?: boolean; moderationStatus?: string; moderationComment?: string | null; moderationNote?: string | null; moderationTitle?: string | null }> = {}
+  data: Partial<
+    MissionCreateInput & { deleted?: boolean; moderationStatus?: string; moderationComment?: string | null; moderationNote?: string | null; moderationTitle?: string | null }
+  > = {}
 ): Promise<MissionRecord> => {
   const normalizeAddress = (address: MissionAddress): MissionAddress => {
     const departmentCode = (address as any).departmentCode;
@@ -274,7 +276,6 @@ export const createTestMission = async (
     compensationAmount: missionInput.compensationAmount ?? undefined,
     compensationUnit: missionInput.compensationUnit ?? undefined,
     compensationType: missionInput.compensationType ?? undefined,
-    organizationClientId: missionInput.organizationClientId ?? undefined,
     publisherOrganizationId: publisherOrganizationId ?? undefined,
     lastSyncAt: missionInput.lastSyncAt ?? undefined,
     applicationUrl: missionInput.applicationUrl ?? undefined,
