@@ -7,7 +7,7 @@ export const missionAddressRepository = {
   },
 
   async update(id: string, data: Prisma.MissionAddressUpdateInput): Promise<MissionAddress> {
-    return prismaCore.missionAddress.update({ where: { id }, data });
+    return prisma.missionAddress.update({ where: { id }, data });
   },
 
   groupBy<K extends keyof MissionAddress>(by: K[], where: Prisma.MissionAddressWhereInput) {
