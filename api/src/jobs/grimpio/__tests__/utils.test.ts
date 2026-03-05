@@ -27,7 +27,7 @@ describe("generateXML", () => {
         description: "Job description",
         enterpriseIndustry: "Association ONG",
         externalId: "123",
-        place: {
+        location: {
           latitude: 48.8566,
           longitude: 2.3522,
           city: "Paris",

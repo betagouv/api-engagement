@@ -1,13 +1,20 @@
+/**
+ * Grimpio job handler
+ * usefull links:
+ * https://api.grimp.io/partner/education/doc/#/
+ * https://grimp.notion.site/Diffuser-vos-offres-sur-Grimp-Guide-d-int-gration-jobboard-17b7e6e6c363805da6a3c5bd40ed4976
+ */
+
 import fs from "fs";
 
 import { ENV, PUBLISHER_IDS } from "@/config";
 import { captureException } from "@/error";
-import { importService } from "@/services/import";
-import { publisherService } from "@/services/publisher";
 import { BaseHandler } from "@/jobs/base/handler";
-import { JobResult } from "@/jobs/types";
 import { GRIMPIO_PUBLISHER_ID } from "@/jobs/grimpio/config";
 import { generateJobs, generateXML, getMissionsCursor, storeXML } from "@/jobs/grimpio/utils";
+import { JobResult } from "@/jobs/types";
+import { importService } from "@/services/import";
+import { publisherService } from "@/services/publisher";
 
 export interface GrimpioJobPayload {}
 
