@@ -1,8 +1,8 @@
 import { ASC_100_LOGO_URL, JVA_100_LOGO_URL, PUBLISHER_IDS } from "@/config";
+import { ASC_CONTRACT_TYPE, AUDIENCE_MAPPING, DOMAIN_MAPPING, GRIMPIO_PUBLISHER_ID, JVA_CONTRACT_TYPE } from "@/jobs/grimpio/config";
+import { GrimpioJob, GrimpioLocation } from "@/jobs/grimpio/types";
 import { MissionAddress, MissionRecord } from "@/types/mission";
 import { getMissionTrackedApplicationUrl } from "@/utils";
-import { ASC_CONTRACT_TYPE, AUDIENCE_MAPPING, DOMAIN_MAPPING, GRIMPIO_PUBLISHER_ID, JVA_CONTRACT_TYPE } from "@/jobs/grimpio/config";
-import { GrimpioJob, GrimpioPlace } from "@/jobs/grimpio/types";
 
 function getDomainLabel(domain: string): string {
   return DOMAIN_MAPPING[domain] || DOMAIN_MAPPING.autre;
@@ -15,7 +15,7 @@ function getAudienceLabel(audience: string): string {
 /**
  * Helper function to create place object from address or mission location
  */
-function createPlace(address?: MissionAddress): GrimpioPlace {
+function createLocation(address?: MissionAddress): GrimpioLocation {
   if (address && address.location?.lat && address.location?.lon) {
     return {
       latitude: address.location.lat,
@@ -249,7 +249,7 @@ export function missionToGrimpioJobJVA(mission: MissionRecord): GrimpioJob {
     levels: "", // N/A for JVA
     email: "", // N/A for JVA
     startingDate: mission.startAt ? new Date(mission.startAt).toISOString() : "",
-    place: createPlace(mission.addresses?.[0]),
+    location: createLocation(mission.addresses?.[0]),
   };
 
   return baseJob;
@@ -284,7 +284,7 @@ export function missionToGrimpioJobASC(mission: MissionRecord): GrimpioJob {
     levels: "", // N/A for ASC
     email: "", // N/A for ASC
     startingDate: mission.startAt ? new Date(mission.startAt).toISOString() : "",
-    place: createPlace(mission.addresses?.[0]),
+    location: createLocation(mission.addresses?.[0]),
   };
 
   return baseJob;
