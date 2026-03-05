@@ -23,7 +23,7 @@ resource "scaleway_container" "api" {
   }
 
   scaling_option {
-    cpu_usage_threshold = 80
+    cpu_usage_threshold = 70
   }
 
   environment_variables = {
@@ -35,6 +35,9 @@ resource "scaleway_container" "api" {
     "PILOTY_BASE_URL"            = var.piloty_hostname
     "BUCKET_NAME"                = var.bucket_name
     "SLACK_JOBTEASER_CHANNEL_ID" = var.slack_jobteaser_channel_id
+    "PRISMA_POOL_SIZE_CORE"      = "20"
+    "PRISMA_POOL_TIMEOUT"        = "20"
+    "PRISMA_CONNECT_TIMEOUT"     = "10"
 
     # Feature flags ES migration
     "WRITE_STATS_DUAL" = "true"
