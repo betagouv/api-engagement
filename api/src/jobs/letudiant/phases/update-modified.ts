@@ -8,7 +8,7 @@ import { PilotyMandatoryData } from "@/services/piloty/types";
  * Phase: update modified missions
  * Updates on Piloty all currently ONLINE missions that have been modified since the last sync.
  */
-export async function updateModifiedMissions(pilotyClient: PilotyClient, mandatoryData: PilotyMandatoryData, counter: LetudiantJobCounter): Promise<void> {
+export async function updateModifiedMissions(pilotyClient: PilotyClient, mandatoryData: PilotyMandatoryData, counter: LetudiantJobCounter, dryRun = false): Promise<void> {
   const missionIds = await getMissionIdsToUpdate();
   console.log(`[LetudiantHandler] Update phase: ${missionIds.length} missions to update`);
 
@@ -20,7 +20,7 @@ export async function updateModifiedMissions(pilotyClient: PilotyClient, mandato
 
   for (const { mission, jobBoards } of entries) {
     try {
-      await syncMission(pilotyClient, mission, jobBoards, mandatoryData, counter, "update");
+      await syncMission(pilotyClient, mission, jobBoards, mandatoryData, counter, "update", dryRun);
     } catch (error) {
       captureException(error, { extra: { missionId: mission.id } });
       counter.error++;

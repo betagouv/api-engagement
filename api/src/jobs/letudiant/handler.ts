@@ -11,6 +11,7 @@ import { PilotyClient } from "@/services/piloty";
 
 export interface LetudiantJobPayload {
   id?: string;
+  dryRun?: boolean;
 }
 
 export interface LetudiantJobResult extends JobResult {
@@ -34,18 +35,23 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
   name = "Sync des missions L'Etudiant";
 
   public async handle(_payload: LetudiantJobPayload): Promise<LetudiantJobResult> {
+    const dryRun = !!_payload.dryRun;
     const pilotyClient = new PilotyClient(LETUDIANT_PILOTY_TOKEN, MEDIA_PUBLIC_ID);
     const counter: LetudiantJobCounter = { archived: 0, updated: 0, published: 0, skipped: 0, error: 0 };
+
+    if (dryRun) {
+      console.log("[LetudiantHandler] DRY RUN — no Piloty API calls or DB writes will be made");
+    }
 
     const excludedOrgClientIds = await loadExcludedOrganizationClientIds();
     console.log(`[LetudiantHandler] Loaded ${excludedOrgClientIds.size} excluded organizations`);
 
-    await archiveExpiredMissions(pilotyClient, excludedOrgClientIds, counter);
+    await archiveExpiredMissions(pilotyClient, excludedOrgClientIds, counter, dryRun);
 
     const mandatoryData = await getMandatoryData(pilotyClient);
 
-    await updateModifiedMissions(pilotyClient, mandatoryData, counter);
-    await publishNewMissions(pilotyClient, mandatoryData, excludedOrgClientIds, counter);
+    await updateModifiedMissions(pilotyClient, mandatoryData, counter, dryRun);
+    await publishNewMissions(pilotyClient, mandatoryData, excludedOrgClientIds, counter, dryRun);
 
     return {
       success: true,

@@ -15,7 +15,8 @@ export async function publishNewMissions(
   pilotyClient: PilotyClient,
   mandatoryData: PilotyMandatoryData,
   excludedOrgClientIds: Set<string>,
-  counter: LetudiantJobCounter
+  counter: LetudiantJobCounter,
+  dryRun = false
 ): Promise<void> {
   const onlineByDomain = await countOnlineEntriesByDomain();
 
@@ -44,7 +45,7 @@ export async function publishNewMissions(
       }
 
       try {
-        const entriesPublished = await syncMission(pilotyClient, mission, [], mandatoryData, counter, "create");
+        const entriesPublished = await syncMission(pilotyClient, mission, [], mandatoryData, counter, "create", dryRun);
         remainingSlots -= entriesPublished;
       } catch (error) {
         captureException(error, { extra: { missionId: mission.id } });

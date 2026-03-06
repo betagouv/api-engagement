@@ -27,7 +27,8 @@ export async function syncMission(
   existingJobBoards: MissionJobBoardRecord[],
   mandatoryData: PilotyMandatoryData,
   counter: LetudiantJobCounter,
-  mode: "create" | "update"
+  mode: "create" | "update",
+  dryRun = false
 ): Promise<number> {
   const organizationId = mission.organizationId;
   if (!organizationId) {
@@ -43,18 +44,20 @@ export async function syncMission(
     return 0;
   }
 
-  const pilotyCompanyPublicId = await getCompanyPilotyId(pilotyClient, mission, organization);
+  const pilotyCompanyPublicId = await getCompanyPilotyId(pilotyClient, mission, organization, dryRun);
   const jobPayloads = missionToPilotyJobs(mission, pilotyCompanyPublicId ?? "not-found", mandatoryData);
 
   if (!pilotyCompanyPublicId) {
     console.log(`[LetudiantHandler] Unable to get company public ID for mission ${mission.id}`);
-    const errorEntries = jobPayloads.map((jp) => ({
-      missionAddressId: jp.missionAddressId ?? null,
-      publicId: "",
-      syncStatus: "ERROR" as MissionJobBoardSyncStatus,
-      comment: "Cannot create company",
-    }));
-    await missionJobBoardService.replaceForMission(LETUDIANT_JOB_BOARD_ID, mission.id, errorEntries);
+    if (!dryRun) {
+      const errorEntries = jobPayloads.map((jp) => ({
+        missionAddressId: jp.missionAddressId ?? null,
+        publicId: "",
+        syncStatus: "ERROR" as MissionJobBoardSyncStatus,
+        comment: "Cannot create company",
+      }));
+      await missionJobBoardService.replaceForMission(LETUDIANT_JOB_BOARD_ID, mission.id, errorEntries);
+    }
     counter.error++;
     return 0;
   }
@@ -70,6 +73,15 @@ export async function syncMission(
 
   for (const jobPayload of jobPayloads) {
     const letudiantPublicId = findLetudiantPublicId(existingJobBoards, jobPayload.missionAddressId ?? null);
+
+    if (dryRun) {
+      const action = letudiantPublicId ? (mode === "update" ? "update" : "create (with existing ID)") : "create";
+      console.log(`[DRY RUN] Would ${action} job ${mission.id} - ${jobPayload.payload.localisation}`);
+      letudiantPublicId ? counter.updated++ : counter.published++;
+      successCount++;
+      continue;
+    }
+
     try {
       let pilotyJob: PilotyJob | null = null;
       if (letudiantPublicId) {
@@ -111,16 +123,21 @@ export async function syncMission(
     }
   }
 
-  await missionJobBoardService.replaceForMission(LETUDIANT_JOB_BOARD_ID, mission.id, processedJobBoards);
+  if (!dryRun) {
+    await missionJobBoardService.replaceForMission(LETUDIANT_JOB_BOARD_ID, mission.id, processedJobBoards);
+  }
   return successCount;
 }
 
-export const getCompanyPilotyId = async (pilotyClient: PilotyClient, mission: MissionRecord, organization: OrganizationRecord): Promise<string | null> => {
+export const getCompanyPilotyId = async (pilotyClient: PilotyClient, mission: MissionRecord, organization: OrganizationRecord, dryRun = false): Promise<string | null> => {
   let pilotyCompanyPublicId: string | null = null;
 
   if (organization.letudiantPublicId) {
     console.log(`[LetudiantHandler] Company ${organization.title} already exists (${organization.letudiantPublicId})`);
     pilotyCompanyPublicId = organization.letudiantPublicId;
+  } else if (dryRun) {
+    console.log(`[DRY RUN] Would create company for ${organization.title}`);
+    pilotyCompanyPublicId = "dry-run-company-id";
   } else {
     console.log(`[LetudiantHandler] Company ${organization.title} not found: creating...`);
     const companyPayload = await missionToPilotyCompany(mission);
@@ -144,7 +161,9 @@ export const getCompanyPilotyId = async (pilotyClient: PilotyClient, mission: Mi
       console.log(`[LetudiantHandler] Organization ${organization.title} updated with letudiantPublicId ${pilotyCompanyPublicId}`);
     }
   }
-  await rateLimit();
+  if (!dryRun) {
+    await rateLimit();
+  }
   return pilotyCompanyPublicId;
 };
 
