@@ -80,15 +80,9 @@ jobs:
           echo "ENV=${{ needs.set-env.outputs.environment_name }}" >> $GITHUB_OUTPUT
           echo "SENTRY_HOST=${{ vars.SENTRY_HOST }}" >> $GITHUB_OUTPUT
           echo "SENTRY_DNS_APP=${{ secrets.SENTRY_DNS_APP }}" >> $GITHUB_OUTPUT
-          if [[ "${{ needs.set-env.outputs.environment_name }}" == 'production' ]]; then
-            echo "API_URL=${{ vars.API_URL_PRODUCTION }}" >> $GITHUB_OUTPUT
-            echo "BENEVOLAT_URL=${{ vars.BENEVOLAT_URL_PRODUCTION }}" >> $GITHUB_OUTPUT
-            echo "VOLONTARIAT_URL=${{ vars.VOLONTARIAT_URL_PRODUCTION }}" >> $GITHUB_OUTPUT
-          else
-            echo "API_URL=${{ vars.API_URL_STAGING }}" >> $GITHUB_OUTPUT
-            echo "BENEVOLAT_URL=${{ vars.BENEVOLAT_URL_STAGING }}" >> $GITHUB_OUTPUT
-            echo "VOLONTARIAT_URL=${{ vars.VOLONTARIAT_URL_STAGING }}" >> $GITHUB_OUTPUT
-          fi
+          echo "API_URL=${{ vars.API_URL }}" >> $GITHUB_OUTPUT
+          echo "BENEVOLAT_URL=${{ vars.BENEVOLAT_URL }}" >> $GITHUB_OUTPUT
+          echo "VOLONTARIAT_URL=${{ vars.VOLONTARIAT_URL }}" >> $GITHUB_OUTPUT
 
       - name: Build and push ${{ matrix.service }} image
         uses: docker/build-push-action@v6

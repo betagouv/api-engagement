@@ -1,3 +1,8 @@
+resource "scaleway_container_domain" "api" {
+  container_id = scaleway_container.api.id
+  hostname     = var.api_hostname
+}
+
 resource "scaleway_container_domain" "app" {
   container_id = scaleway_container.app.id
   hostname     = var.app_hostname
