@@ -22,6 +22,5 @@ app_min_scale              = 0
 app_max_scale              = 1
 
 enable_widget              = false
-enable_intern_jobs        = false
+enable_intern_jobs         = false
 enable_analytics_jobs      = false
-enable_sandbox_sync        = true

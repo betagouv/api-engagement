@@ -228,26 +228,3 @@ resource "scaleway_job_definition" "import-missions" {
 
   env = local.all_env_vars
 }
-
-# Job Definition for the 'sync-sandbox' task (sandbox only)
-# Syncs users/publishers/organizations from production Core DB to sandbox
-resource "scaleway_job_definition" "sync-sandbox" {
-  count        = var.enable_sandbox_sync ? 1 : 0
-  name         = "${var.env}-sync-sandbox"
-  project_id   = var.project_id
-  cpu_limit    = 250
-  memory_limit = 512
-  image_uri    = local.sync_sandbox_image_uri
-  command      = "/sync.sh"
-  timeout      = "60m"
-
-  cron {
-    schedule = "0 2 * * 1" # Every Monday at 2:00 AM
-    timezone = "Europe/Paris"
-  }
-
-  env = {
-    DATABASE_URL_CORE_SANDBOX = local.secrets["DATABASE_URL_CORE"]
-    DATABASE_URL_CORE_PROD    = local.secrets["DATABASE_URL_CORE_PROD"]
-  }
-}

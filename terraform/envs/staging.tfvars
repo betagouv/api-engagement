@@ -27,6 +27,5 @@ widget_min_scale           = 0
 widget_max_scale           = 1
 
 enable_widget              = true
-enable_intern_jobs        = true
+enable_intern_jobs         = true
 enable_analytics_jobs      = true
-enable_sandbox_sync        = false

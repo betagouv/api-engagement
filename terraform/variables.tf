@@ -144,9 +144,3 @@ variable "enable_analytics_jobs" {
   type    = bool
   default = true
 }
-
-variable "enable_sandbox_sync" {
-  type        = bool
-  default     = false
-  description = "Enable the weekly sync job from production to sandbox"
-}
