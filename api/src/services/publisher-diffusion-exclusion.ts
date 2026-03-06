@@ -32,7 +32,7 @@ const mapCreateManyInput = (input: PublisherDiffusionExclusionCreateManyInput): 
 const defaultInclude = {
   excludedByAnnonceur: { select: { id: true, name: true } },
   excludedForDiffuseur: { select: { id: true, name: true } },
-  publisherOrganization: { select: { id: true, name: true } },
+  publisherOrganization: { select: { id: true, clientId: true, name: true } },
 };
 
 export const publisherDiffusionExclusionService = (() => {
