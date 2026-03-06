@@ -4,7 +4,7 @@ import { PublisherOrganizationWithRelations } from "@/types/publisher-organizati
 
 export const publisherOrganizationRepository = {
   async findUnique(params: Prisma.PublisherOrganizationFindUniqueArgs): Promise<PublisherOrganization | null> {
-    return prismaCore.publisherOrganization.findUnique(params);
+    return prisma.publisherOrganization.findUnique(params);
   },
 
   async findMany(params: Prisma.PublisherOrganizationFindManyArgs = {}): Promise<PublisherOrganization[]> {
