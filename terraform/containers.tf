@@ -44,7 +44,6 @@ resource "scaleway_container" "api" {
   secret_environment_variables = {
     "SECRET"                 = local.secrets.SECRET
     "DATABASE_URL_CORE"      = local.secrets.DATABASE_URL_CORE
-    "DATABASE_URL_ANALYTICS" = lookup(local.secrets, "DATABASE_URL_ANALYTICS", "")
     "SENTRY_DSN_API"         = local.secrets.SENTRY_DSN_API
     "SENDINBLUE_APIKEY"      = local.secrets.SENDINBLUE_APIKEY
     "SLACK_TOKEN"            = local.secrets.SLACK_TOKEN
