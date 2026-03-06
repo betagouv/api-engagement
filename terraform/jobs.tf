@@ -228,3 +228,21 @@ resource "scaleway_job_definition" "import-missions" {
 
   env = local.all_env_vars
 }
+
+# Job Definition for the 'verify-publisher-organization' task
+resource "scaleway_job_definition" "verify-publisher-organization" {
+  name         = "${terraform.workspace}-verify-publisher-organization"
+  project_id   = var.project_id
+  cpu_limit    = 1000
+  memory_limit = 2048
+  image_uri    = local.image_uri
+  command      = "node dist/jobs/run-job.js verify-publisher-organization"
+  timeout      = "60m"
+
+  cron {
+    schedule = "45 */6 * * *" # Every 6 hours at 45 minutes
+    timezone = "Europe/Paris"
+  }
+
+  env = local.all_env_vars
+}
