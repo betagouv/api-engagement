@@ -19,6 +19,13 @@ models:
               arguments:
                 to: ref('publisher')
                 field: id
+      - name: publisher_organization_id
+        description: Identifiant de la structure publisher associée à la mission (nullable).
+        tests:
+          - relationships:
+              arguments:
+                to: ref('publisher_organization')
+                field: id
       - name: organization_client_id
         description: Identifiant client de l'organisation côté diffuseur (nullable).
       - name: domain

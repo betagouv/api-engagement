@@ -557,6 +557,7 @@ export const exportDefinitions: ExportDefinition[] = [
         "compensation_unit",
         "organization_id",
         "organization_client_id",
+        "publisher_organization_id",
         "publisher_id",
         "deleted_at",
         "created_at",
