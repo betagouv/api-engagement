@@ -6,6 +6,10 @@ on:
       branch:
         required: true
         type: string
+      environment:
+        required: false
+        type: string
+        description: 'Force environment (sandbox, production, staging)'
   workflow_dispatch:
 
 permissions:
@@ -23,8 +27,11 @@ jobs:
         id: set-env
         env:
           HEAD_BRANCH: ${{ inputs.branch || github.ref_name }}
+          FORCED_ENV: ${{ inputs.environment }}
         run: |
-          if [[ "$HEAD_BRANCH" == 'main' ]]; then
+          if [[ -n "$FORCED_ENV" ]]; then
+            echo "environment=$FORCED_ENV" >> $GITHUB_OUTPUT
+          elif [[ "$HEAD_BRANCH" == 'main' ]]; then
             echo "environment=production" >> $GITHUB_OUTPUT
           else
             echo "environment=staging" >> $GITHUB_OUTPUT
@@ -80,7 +87,6 @@ jobs:
           echo "image_tag=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
           echo "Using image tag: ${GITHUB_SHA::7}"
           echo "Environment: ${{ needs.set-env.outputs.environment_name }}"
-          echo "Will use images tagged as: ${{ needs.set-env.outputs.environment_name }}-${GITHUB_SHA::7}"
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -101,8 +107,7 @@ jobs:
 
       - name: Terraform Init
         working-directory: ./terraform
-        run: |
-          terraform init
+        run: terraform init
 
       - name: Terraform Workspace
         working-directory: ./terraform
@@ -110,7 +115,12 @@ jobs:
 
       - name: Terraform Plan
         working-directory: ./terraform
-        run: terraform plan -var="image_tag=${{ steps.get-tag.outputs.image_tag }}" -var="project_id=${{ secrets.SCW_PROJECT_ID }}" -out=tfplan
+        run: |
+          terraform plan \
+            -var-file=envs/${{ needs.set-env.outputs.environment_name }}.tfvars \
+            -var="image_tag=${{ steps.get-tag.outputs.image_tag }}" \
+            -var="project_id=${{ secrets.SCW_PROJECT_ID }}" \
+            -out=tfplan
 
       - name: Terraform Apply
         working-directory: ./terraform

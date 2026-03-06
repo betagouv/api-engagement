@@ -1,7 +1,7 @@
 variable "image_tag" {
   type        = string
   default     = "latest"
-  description = "Tag of the Docker image to deploy. Use 'latest' for the default environment tag, or a specific value like 'sha' for a specific commit."
+  description = "Tag of the Docker image to deploy."
 }
 
 variable "project_id" {
@@ -13,4 +13,134 @@ variable "github_repository" {
   type        = string
   default     = "betagouv/api-engagement"
   description = "GitHub repository name in format org/repo"
+}
+
+# Environment
+
+variable "env" {
+  type        = string
+  description = "Environment name (production, staging, sandbox)"
+}
+
+variable "secret_name" {
+  type        = string
+  description = "Scaleway secret name for this environment"
+}
+
+variable "app_env" {
+  type        = string
+  description = "ENV value passed to the application (sandbox uses 'production' to match production behavior)"
+}
+
+variable "image_env" {
+  type        = string
+  description = "Docker image tag prefix to use (production or staging)"
+}
+
+# Hostnames
+
+variable "api_hostname" {
+  type = string
+}
+
+variable "app_hostname" {
+  type = string
+}
+
+variable "benevolat_hostname" {
+  type    = string
+  default = ""
+}
+
+variable "volontariat_hostname" {
+  type    = string
+  default = ""
+}
+
+variable "piloty_hostname" {
+  type    = string
+  default = ""
+}
+
+# Misc
+
+variable "bucket_name" {
+  type = string
+}
+
+variable "slack_jobteaser_channel_id" {
+  type    = string
+  default = ""
+}
+
+# Container sizing
+
+variable "api_cpu_limit" {
+  type = number
+}
+
+variable "api_memory_limit" {
+  type = number
+}
+
+variable "api_min_scale" {
+  type = number
+}
+
+variable "api_max_scale" {
+  type = number
+}
+
+variable "app_cpu_limit" {
+  type = number
+}
+
+variable "app_memory_limit" {
+  type = number
+}
+
+variable "app_min_scale" {
+  type = number
+}
+
+variable "app_max_scale" {
+  type = number
+}
+
+variable "widget_cpu_limit" {
+  type    = number
+  default = 250
+}
+
+variable "widget_memory_limit" {
+  type    = number
+  default = 512
+}
+
+variable "widget_min_scale" {
+  type    = number
+  default = 0
+}
+
+variable "widget_max_scale" {
+  type    = number
+  default = 1
+}
+
+# Feature flags
+
+variable "enable_widget" {
+  type    = bool
+  default = true
+}
+
+variable "enable_intern_jobs" {
+  type        = bool
+  default     = true
+  description = "Enable partner integration jobs (talent, grimpio, linkedin, etc.)"
+}
+
+variable "enable_analytics_jobs" {
+  type    = bool
+  default = true
 }

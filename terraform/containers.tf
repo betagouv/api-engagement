@@ -1,13 +1,13 @@
 resource "scaleway_container" "api" {
-  name            = "${terraform.workspace}-api"
-  description     = "API ${terraform.workspace} container"
+  name            = "${var.env}-api"
+  description     = "API ${var.env} container"
   namespace_id    = scaleway_container_namespace.main.id
-  registry_image  = "ghcr.io/${var.github_repository}/api:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
+  registry_image  = "ghcr.io/${var.github_repository}/api:${var.image_env}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
   port            = 8080
-  cpu_limit       = terraform.workspace == "production" ? 1500 : 250
-  memory_limit    = terraform.workspace == "production" ? 2048 : 512
-  min_scale       = terraform.workspace == "production" ? 1 : 1
-  max_scale       = terraform.workspace == "production" ? 1 : 1
+  cpu_limit       = var.api_cpu_limit
+  memory_limit    = var.api_memory_limit
+  min_scale       = var.api_min_scale
+  max_scale       = var.api_max_scale
   timeout         = 60
   privacy         = "public"
   protocol        = "http1"
@@ -18,7 +18,7 @@ resource "scaleway_container" "api" {
     http {
       path = "/"
     }
-    interval = "30s"
+    interval          = "30s"
     failure_threshold = 3
   }
 
@@ -27,71 +27,70 @@ resource "scaleway_container" "api" {
   }
 
   environment_variables = {
-    "ENV"           = terraform.workspace
-    "API_URL"       = "https://${local.api_hostname}"
-    "APP_URL"       = "https://${local.app_hostname}"
-    "BENEVOLAT_URL" = "https://${local.benevolat_hostname}"
-    "VOLONTARIAT_URL" = "https://${local.volontariat_hostname}"
-    "PILOTY_BASE_URL" = local.piloty_hostname
-    "BUCKET_NAME"   = local.bucket_name
-    "SLACK_JOBTEASER_CHANNEL_ID" = terraform.workspace == "production" ? "C080H9MH56W" : ""
+    "ENV"                        = var.app_env
+    "API_URL"                    = "https://${var.api_hostname}"
+    "APP_URL"                    = "https://${var.app_hostname}"
+    "BENEVOLAT_URL"              = var.benevolat_hostname != "" ? "https://${var.benevolat_hostname}" : ""
+    "VOLONTARIAT_URL"            = var.volontariat_hostname != "" ? "https://${var.volontariat_hostname}" : ""
+    "PILOTY_BASE_URL"            = var.piloty_hostname
+    "BUCKET_NAME"                = var.bucket_name
+    "SLACK_JOBTEASER_CHANNEL_ID" = var.slack_jobteaser_channel_id
 
     # Feature flags ES migration
     "WRITE_STATS_DUAL" = "true"
-    "READ_STATS_FROM" = "pg"
+    "READ_STATS_FROM"  = "pg"
   }
 
   secret_environment_variables = {
-    "SECRET"            = local.secrets.SECRET
-    "DB_ENDPOINT"       = local.secrets.DB_ENDPOINT
-    "ES_ENDPOINT"       = local.secrets.ES_ENDPOINT
-    "DATABASE_URL_CORE" = local.secrets.DATABASE_URL_CORE
-    "DATABASE_URL_ANALYTICS" = local.secrets.DATABASE_URL_ANALYTICS
-    "SENTRY_DSN_API"    = local.secrets.SENTRY_DSN_API
-    "SENDINBLUE_APIKEY" = local.secrets.SENDINBLUE_APIKEY
-    "SLACK_TOKEN"       = local.secrets.SLACK_TOKEN
-    "SCW_ACCESS_KEY"    = local.secrets.SCW_ACCESS_KEY
-    "SCW_SECRET_KEY"    = local.secrets.SCW_SECRET_KEY
-    "LETUDIANT_PILOTY_TOKEN" = local.secrets.LETUDIANT_PILOTY_TOKEN
-    "METABASE_API_KEY"  = local.secrets.METABASE_API_KEY
-    "METABASE_URL"      = local.secrets.METABASE_URL
+    "SECRET"                 = local.secrets.SECRET
+    "DATABASE_URL_CORE"      = local.secrets.DATABASE_URL_CORE
+    "DATABASE_URL_ANALYTICS" = lookup(local.secrets, "DATABASE_URL_ANALYTICS", "")
+    "SENTRY_DSN_API"         = local.secrets.SENTRY_DSN_API
+    "SENDINBLUE_APIKEY"      = local.secrets.SENDINBLUE_APIKEY
+    "SLACK_TOKEN"            = local.secrets.SLACK_TOKEN
+    "SCW_ACCESS_KEY"         = local.secrets.SCW_ACCESS_KEY
+    "SCW_SECRET_KEY"         = local.secrets.SCW_SECRET_KEY
+    "LETUDIANT_PILOTY_TOKEN" = lookup(local.secrets, "LETUDIANT_PILOTY_TOKEN", "")
+    "METABASE_API_KEY"       = lookup(local.secrets, "METABASE_API_KEY", "")
+    "METABASE_URL"           = lookup(local.secrets, "METABASE_URL", "")
   }
 }
 
 # App Container
 resource "scaleway_container" "app" {
-  name            = "${terraform.workspace}-app"
-  description     = "App ${terraform.workspace} container"
-  namespace_id    = scaleway_container_namespace.main.id
-  registry_image  = "ghcr.io/${var.github_repository}/app:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
-  port            = 8080
-  cpu_limit       = terraform.workspace == "production" ? 500 : 250
-  memory_limit    = terraform.workspace == "production" ? 1024 : 512
-  min_scale       = terraform.workspace == "production" ? 1 : 0
-  max_scale       = terraform.workspace == "production" ? 1 : 1
-  timeout         = 60
-  privacy         = "public"
-  protocol        = "http1"
-  http_option     = "redirected" # https only
-  deploy          = true
+  name           = "${var.env}-app"
+  description    = "App ${var.env} container"
+  namespace_id   = scaleway_container_namespace.main.id
+  registry_image = "ghcr.io/${var.github_repository}/app:${var.image_env}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
+  port           = 8080
+  cpu_limit      = var.app_cpu_limit
+  memory_limit   = var.app_memory_limit
+  min_scale      = var.app_min_scale
+  max_scale      = var.app_max_scale
+  timeout        = 60
+  privacy        = "public"
+  protocol       = "http1"
+  http_option    = "redirected" # https only
+  deploy         = true
 }
 
 # Widget Container
 resource "scaleway_container" "widget" {
-  name            = "${terraform.workspace}-widget"
-  description     = "Widget ${terraform.workspace} container"
-  namespace_id    = scaleway_container_namespace.main.id
-  registry_image  = "ghcr.io/${var.github_repository}/widget:${terraform.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
-  port            = 8080
-  cpu_limit       = terraform.workspace == "production" ? 500 : 250
-  memory_limit    = terraform.workspace == "production" ? 1024 : 512
-  min_scale       = terraform.workspace == "production" ? 1 : 0
-  max_scale       = terraform.workspace == "production" ? 2 : 1
-  timeout         = 60
-  privacy         = "public"
-  protocol        = "http1"
-  http_option     = "redirected" # https only
-  deploy          = true
+  count          = var.enable_widget ? 1 : 0
+  name           = "${var.env}-widget"
+  description    = "Widget ${var.env} container"
+  namespace_id   = scaleway_container_namespace.main.id
+  registry_image = "ghcr.io/${var.github_repository}/widget:${var.image_env}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
+  port           = 8080
+  cpu_limit      = var.widget_cpu_limit
+  memory_limit   = var.widget_memory_limit
+  min_scale      = var.widget_min_scale
+  max_scale      = var.widget_max_scale
+  timeout        = 60
+  privacy        = "public"
+  protocol       = "http1"
+  http_option    = "redirected" # https only
+  deploy         = true
 
   health_check {
     http {
@@ -102,8 +101,8 @@ resource "scaleway_container" "widget" {
   }
 
   environment_variables = {
-    "ENV"     = terraform.workspace
-    "API_URL" = "https://${local.api_hostname}"
+    "ENV"     = var.app_env
+    "API_URL" = "https://${var.api_hostname}"
   }
 
   secret_environment_variables = {
