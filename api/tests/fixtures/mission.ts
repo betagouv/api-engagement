@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 
-import { prismaCore } from "@/db/postgres";
+import { prisma } from "@/db/postgres";
 import { missionRepository } from "@/repositories/mission";
 import { missionService } from "@/services/mission";
 import { missionModerationStatusService } from "@/services/mission-moderation-status";
@@ -11,11 +11,11 @@ import { computeAddressHash } from "@/utils/address";
 import { createTestPublisher } from "./publisher";
 
 const ensurePublisherExists = async (publisherId: string) => {
-  const existing = await prismaCore.publisher.findUnique({ where: { id: publisherId } });
+  const existing = await prisma.publisher.findUnique({ where: { id: publisherId } });
   if (existing) {
     return existing;
   }
-  return prismaCore.publisher.create({
+  return prisma.publisher.create({
     data: {
       id: publisherId,
       name: `Publisher ${publisherId}`,
@@ -41,21 +41,21 @@ const buildDefaultAddress = (override: MissionAddress = {}): MissionAddress => (
 
 const resolveDomainId = async (domainName: string): Promise<string> => {
   const name = domainName.trim();
-  const existing = await prismaCore.domain.findUnique({ where: { name }, select: { id: true } });
+  const existing = await prisma.domain.findUnique({ where: { name }, select: { id: true } });
   if (existing) {
     return existing.id;
   }
-  const created = await prismaCore.domain.create({ data: { name } });
+  const created = await prisma.domain.create({ data: { name } });
   return created.id;
 };
 
 const resolveActivityId = async (activityName: string): Promise<string> => {
   const name = activityName.trim();
-  const existing = await prismaCore.activity.findUnique({ where: { name }, select: { id: true } });
+  const existing = await prisma.activity.findUnique({ where: { name }, select: { id: true } });
   if (existing) {
     return existing.id;
   }
-  const created = await prismaCore.activity.create({ data: { name } });
+  const created = await prisma.activity.create({ data: { name } });
   return created.id;
 };
 
@@ -82,7 +82,9 @@ const mapAddressesForCreate = (addresses: MissionAddress[]) =>
     };
   });
 
-export const createTestMission = async (data: Partial<MissionCreateInput & { deleted?: boolean }> = {}): Promise<MissionRecord> => {
+export const createTestMission = async (
+  data: Partial<MissionCreateInput & { deleted?: boolean; moderationStatus?: string; moderationComment?: string | null; moderationNote?: string | null; moderationTitle?: string | null }> = {}
+): Promise<MissionRecord> => {
   const normalizeAddress = (address: MissionAddress): MissionAddress => {
     const departmentCode = (address as any).departmentCode;
     const postalCode = (address as any).postalCode;
@@ -98,7 +100,7 @@ export const createTestMission = async (data: Partial<MissionCreateInput & { del
   let organizationId = data.organizationId ?? null;
 
   if (data.organizationId) {
-    const existingOrg = await prismaCore.organization.findUnique({ where: { id: data.organizationId } });
+    const existingOrg = await prisma.organization.findUnique({ where: { id: data.organizationId } });
     if (!existingOrg && (data.organizationName || data.organizationRNA || data.organizationSiren || data.organizationStatusJuridique)) {
       const created = await organizationService.createOrganization({
         id: data.organizationId,
@@ -209,7 +211,7 @@ export const createTestMission = async (data: Partial<MissionCreateInput & { del
 
   let publisherOrganizationId: string | null = null;
   if (missionInput.organizationClientId) {
-    const pubOrg = await prismaCore.publisherOrganization.upsert({
+    const pubOrg = await prisma.publisherOrganization.upsert({
       where: {
         publisherId_clientId: {
           publisherId: missionInput.publisherId,
@@ -283,7 +285,7 @@ export const createTestMission = async (data: Partial<MissionCreateInput & { del
   });
 
   if (activityIds.length) {
-    await prismaCore.missionActivity.createMany({
+    await prisma.missionActivity.createMany({
       data: activityIds.map((activityId) => ({ missionId, activityId })),
       skipDuplicates: true,
     });
@@ -307,7 +309,7 @@ export const createTestMission = async (data: Partial<MissionCreateInput & { del
   if (data.createdAt || data.updatedAt) {
     const createdAt = data.createdAt ?? mission.createdAt;
     const updatedAt = data.updatedAt ?? mission.updatedAt;
-    await prismaCore.$executeRaw`UPDATE "mission" SET "created_at" = ${createdAt}, "updated_at" = ${updatedAt} WHERE "id" = ${mission.id}`;
+    await prisma.$executeRaw`UPDATE "mission" SET "created_at" = ${createdAt}, "updated_at" = ${updatedAt} WHERE "id" = ${mission.id}`;
     const refreshed = await missionService.findOneMission(mission.id);
     if (refreshed) {
       return refreshed;

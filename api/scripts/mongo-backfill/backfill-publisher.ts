@@ -504,9 +504,7 @@ const migratePublishers = async () => {
     }
 
     if (options.dryRun) {
-      console.log(
-        `[MigratePublishers][Dry-run] Would replace ${validDiffusions.length} diffusion(s) for publisher ${annonceurId} (${annonceurName})`
-      );
+      console.log(`[MigratePublishers][Dry-run] Would replace ${validDiffusions.length} diffusion(s) for publisher ${annonceurId} (${annonceurName})`);
       diffusionRecordsCreated += validDiffusions.length;
       diffusionPublishersSynced++;
       continue;
@@ -514,7 +512,7 @@ const migratePublishers = async () => {
 
     let sanitizedDiffusions: Prisma.PublisherDiffusionUncheckedCreateInput[] = [];
     try {
-      await prismaCore.publisherDiffusion.deleteMany({
+      await prisma.publisherDiffusion.deleteMany({
         where: { annonceurPublisherId: annonceurId },
       });
       if (validDiffusions.length > 0) {
@@ -526,9 +524,9 @@ const migratePublishers = async () => {
           createdAt: diffusion.createdAt ? new Date(diffusion.createdAt) : new Date(),
           updatedAt: diffusion.updatedAt ? new Date(diffusion.updatedAt) : new Date(),
         }));
-        await prismaCore.$transaction(
+        await prisma.$transaction(
           sanitizedDiffusions.map((data) =>
-            prismaCore.publisherDiffusion.create({
+            prisma.publisherDiffusion.create({
               data,
             })
           )
@@ -539,10 +537,7 @@ const migratePublishers = async () => {
     } catch (error) {
       console.error(`[MigratePublishers] Failed to sync diffusions for publisher ${annonceurId} (${annonceurName})`, error);
       if (sanitizedDiffusions.length > 0) {
-        console.error(
-          `[MigratePublishers] Diffusion payload that triggered error for publisher ${annonceurId}:`,
-          JSON.stringify(sanitizedDiffusions.slice(0, 5))
-        );
+        console.error(`[MigratePublishers] Diffusion payload that triggered error for publisher ${annonceurId}:`, JSON.stringify(sanitizedDiffusions.slice(0, 5)));
       }
       errors++;
     }
@@ -572,7 +567,7 @@ const run = async () => {
 const cleanup = async () => {
   try {
     const { prismaCore } = await import("@/db/postgres");
-    await Promise.allSettled([prismaCore.$disconnect(), mongoose.connection.close()]);
+    await Promise.allSettled([prisma.$disconnect(), mongoose.connection.close()]);
   } catch {
     await Promise.allSettled([mongoose.connection.close()]);
   }

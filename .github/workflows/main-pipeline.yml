@@ -49,3 +49,12 @@ jobs:
     secrets: inherit
     with:
       branch: ${{ github.ref_name }}
+
+  deploy-sandbox:
+    needs: [test, build]
+    if: github.ref == 'refs/heads/staging'
+    uses: ./.github/workflows/terraform-deploy.yml
+    with:
+      branch: staging
+      environment: sandbox
+    secrets: inherit

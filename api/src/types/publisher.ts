@@ -76,6 +76,7 @@ export interface PublisherSearchParams {
 }
 
 export interface PublisherCreateInput {
+  id?: string;
   name: string;
   category?: string | null;
   url?: string | null;

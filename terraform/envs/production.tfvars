@@ -1,0 +1,31 @@
+env                        = "production"
+app_env                    = "production"
+secret_name                = "production-secret"
+image_env                  = "production"
+
+api_hostname               = "api.api-engagement.beta.gouv.fr"
+app_hostname               = "app.api-engagement.beta.gouv.fr"
+benevolat_hostname         = "mission.api-engagement.beta.gouv.fr"
+volontariat_hostname       = "sc.api-engagement.beta.gouv.fr"
+piloty_hostname            = "api.piloty.fr"
+bucket_name                = "api-engagement-bucket"
+slack_jobteaser_channel_id = "C080H9MH56W"
+
+api_cpu_limit              = 1500
+api_memory_limit           = 2048
+api_min_scale              = 1
+api_max_scale              = 1
+
+app_cpu_limit              = 500
+app_memory_limit           = 1024
+app_min_scale              = 1
+app_max_scale              = 1
+
+widget_cpu_limit           = 500
+widget_memory_limit        = 1024
+widget_min_scale           = 1
+widget_max_scale           = 2
+
+enable_widget              = true
+enable_intern_jobs         = true
+enable_analytics_jobs      = true

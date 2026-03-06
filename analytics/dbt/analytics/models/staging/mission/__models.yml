@@ -113,6 +113,8 @@ models:
         description: Organisation rattachée à la mission (nullable).
       - name: organization_client_id
         description: Identifiant client de l'organisation côté diffuseur (nullable).
+      - name: publisher_organization_id
+        description: Identifiant de la structure publisher rattachée à la mission (nullable).
       - name: status_code
         description: Statut métier de la mission dans la base source.
       - name: type

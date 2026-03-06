@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
-import { Prisma } from "@/db/core";
 import type { PrismaClient } from "@/db/core";
+import { Prisma } from "@/db/core";
 import type { MissionEventRecord } from "@/types/mission-event";
 import { asDate, asString, toMongoObjectIdString } from "./utils/cast";
 import { compareDates, compareJsons, compareStrings } from "./utils/compare";
@@ -122,7 +122,7 @@ const persistBatch = async (
   }
 
   const ids = batch.map(({ record }) => record.id);
-  const existingRecords = await prismaCore.missionEvent.findMany({ where: { id: { in: ids } } });
+  const existingRecords = await prisma.missionEvent.findMany({ where: { id: { in: ids } } });
   const existingById = new Map(existingRecords.map((record) => [record.id, record]));
 
   for (const entry of batch) {
@@ -135,7 +135,7 @@ const persistBatch = async (
           sampleCreates.push(entry.record);
         }
       } else {
-        await prismaCore.missionEvent.create({ data: entry.create });
+        await prisma.missionEvent.create({ data: entry.create });
       }
       continue;
     }
@@ -161,7 +161,7 @@ const persistBatch = async (
         sampleUpdates.push({ before: existingRecord, after: entry.record });
       }
     } else {
-      await prismaCore.missionEvent.update({
+      await prisma.missionEvent.update({
         where: { id: entry.record.id },
         data: entry.update,
       });
@@ -172,7 +172,7 @@ const persistBatch = async (
 const cleanup = async () => {
   try {
     const { prismaCore } = await import("@/db/postgres");
-    await Promise.allSettled([prismaCore.$disconnect(), mongoose.connection.close()]);
+    await Promise.allSettled([prisma.$disconnect(), mongoose.connection.close()]);
   } catch {
     await Promise.allSettled([mongoose.connection.close()]);
   }

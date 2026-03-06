@@ -345,7 +345,7 @@ const formatRecordForLog = (record: NormalizedWidgetRecord) => ({
 const cleanup = async () => {
   try {
     const { prismaCore } = await import("@/db/postgres");
-    await Promise.allSettled([prismaCore.$disconnect(), mongoose.connection.close()]);
+    await Promise.allSettled([prisma.$disconnect(), mongoose.connection.close()]);
   } catch {
     await Promise.allSettled([mongoose.connection.close()]);
   }
@@ -353,11 +353,7 @@ const cleanup = async () => {
 
 const main = async () => {
   console.log(`[${SCRIPT_LABEL}] Starting${options.dryRun ? " (dry-run)" : ""}`);
-  const [{ mongoConnected }, { pgConnected }, { widgetRepository }] = await Promise.all([
-    import("@/db/mongo"),
-    import("@/db/postgres"),
-    import("@/repositories/widget"),
-  ]);
+  const [{ mongoConnected }, { pgConnected }, { widgetRepository }] = await Promise.all([import("@/db/mongo"), import("@/db/postgres"), import("@/repositories/widget")]);
 
   await Promise.all([mongoConnected, pgConnected]);
 

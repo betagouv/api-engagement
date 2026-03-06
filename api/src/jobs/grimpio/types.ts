@@ -1,4 +1,4 @@
-export interface GrimpioPlace {
+export interface GrimpioLocation {
   latitude: number;
   longitude: number;
   city: string;
@@ -13,7 +13,7 @@ export interface GrimpioJob {
   description: string;
   enterpriseIndustry: string;
   externalId: string;
-  place: GrimpioPlace;
+  location: GrimpioLocation;
   logo: string;
   remoteJob: "none" | "total" | "partial";
   annualGrossSalary: string;

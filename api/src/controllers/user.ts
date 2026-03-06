@@ -23,7 +23,7 @@ router.post("/search", passport.authenticate("admin", { session: false }), async
   try {
     const body = zod
       .object({
-        email: zod.string().email().optional(),
+        email: zod.email().optional(),
         publisherId: zod.string().optional(),
       })
       .safeParse(req.body);
@@ -144,7 +144,7 @@ router.post("/invite", passport.authenticate("admin", { session: false }), async
       .object({
         firstname: zod.string(),
         lastname: zod.string().optional(),
-        email: zod.string().email(),
+        email: zod.email(),
         publishers: zod.array(zod.string()).min(1),
         role: zod.enum(["admin", "user"]).default("user"),
       })
@@ -282,7 +282,7 @@ router.post("/login", async (req: UserRequest, res: Response, next: NextFunction
   try {
     const body = zod
       .object({
-        email: zod.string().email(),
+        email: zod.email(),
         password: zod.string(),
       })
       .safeParse(req.body);
@@ -323,7 +323,7 @@ router.post("/forgot-password", async (req: UserRequest, res: Response, next: Ne
   try {
     const body = zod
       .object({
-        email: zod.string().email(),
+        email: zod.email(),
       })
       .required()
       .safeParse(req.body);
@@ -520,7 +520,7 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
       .object({
         firstname: zod.string().optional(),
         lastname: zod.string().optional(),
-        email: zod.string().email().optional(),
+        email: zod.email().optional(),
         publishers: zod.array(zod.string()).min(1).optional(),
         role: zod.enum(["admin", "user"]).optional(),
       })

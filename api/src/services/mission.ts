@@ -1,7 +1,7 @@
 import { randomUUID } from "crypto";
 
 import { Mission, Prisma } from "@/db/core";
-import { prismaCore } from "@/db/postgres";
+import { prisma } from "@/db/postgres";
 import { missionRepository } from "@/repositories/mission";
 import { activityService } from "@/services/activity";
 import type {
@@ -59,11 +59,11 @@ type MissionWithRelations = Mission & {
 
 const resolveDomainId = async (domainName: string): Promise<string> => {
   const name = domainName.trim();
-  const existing = await prismaCore.domain.findUnique({ where: { name }, select: { id: true } });
+  const existing = await prisma.domain.findUnique({ where: { name }, select: { id: true } });
   if (existing) {
     return existing.id;
   }
-  const created = await prismaCore.domain.create({ data: { name } });
+  const created = await prisma.domain.create({ data: { name } });
   return created.id;
 };
 
@@ -405,7 +405,7 @@ const isNonEmpty = (value: string | null | undefined) => value !== null && value
 
 const buildAggregations = async (where: Prisma.MissionWhereInput): Promise<MissionSearchAggregations> => {
   const aggregateMissionField = async (field: Prisma.MissionScalarFieldEnum) => {
-    const rows = await prismaCore.mission.groupBy({
+    const rows = await prisma.mission.groupBy({
       by: [field],
       where,
       _count: { _all: true },
@@ -421,14 +421,14 @@ const buildAggregations = async (where: Prisma.MissionWhereInput): Promise<Missi
   };
 
   const aggregateMissionByDomain = async () => {
-    const rows = await prismaCore.mission.groupBy({
+    const rows = await prisma.mission.groupBy({
       by: ["domainId"],
       where,
       _count: { _all: true },
     });
 
     const ids = rows.map((row) => row.domainId).filter(isNonEmpty) as string[];
-    const domains = ids.length ? await prismaCore.domain.findMany({ where: { id: { in: ids } }, select: { id: true, name: true } }) : [];
+    const domains = ids.length ? await prisma.domain.findMany({ where: { id: { in: ids } }, select: { id: true, name: true } }) : [];
     const nameById = new Map(domains.map((d) => [d.id, d.name ?? ""]));
 
     return rows
@@ -438,7 +438,7 @@ const buildAggregations = async (where: Prisma.MissionWhereInput): Promise<Missi
   };
 
   const aggregateAddressField = async (field: "city" | "departmentName") => {
-    const rows = await prismaCore.missionAddress.groupBy({
+    const rows = await prisma.missionAddress.groupBy({
       // Count distinct missions per bucket (a mission can have multiple addresses)
       by: [field, "missionId"],
       where: { mission: where },
@@ -651,7 +651,7 @@ export const missionService = {
   },
 
   async updateMany(where: Prisma.MissionWhereInput, data: Prisma.MissionUpdateInput): Promise<number> {
-    const result = await prismaCore.mission.updateMany({ where, data });
+    const result = await prisma.mission.updateMany({ where, data });
     return result.count;
   },
 

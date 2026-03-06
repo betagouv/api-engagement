@@ -23,7 +23,6 @@ if (envName) {
 
 import { LETUDIANT_PILOTY_TOKEN } from "@/config";
 import { JobBoardId } from "@/db/core";
-import { prismaCore } from "@/db/postgres";
 import { MEDIA_PUBLIC_ID } from "@/jobs/letudiant/config";
 import { rateLimit } from "@/jobs/letudiant/utils";
 import { PilotyClient } from "@/services/piloty";
@@ -57,7 +56,7 @@ async function main() {
 
   for (const data of ids) {
     try {
-      const jobBoardEntry = await prismaCore.missionJobBoard.findFirst({
+      const jobBoardEntry = await prisma.missionJobBoard.findFirst({
         where: { publicId: data.id, jobBoardId: JobBoardId.LETUDIANT },
         include: { mission: { include: { organization: true } } },
       });

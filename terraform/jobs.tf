@@ -1,12 +1,12 @@
 locals {
   common_env_vars = {
-    "ENV"                        = terraform.workspace
-    "API_URL"                    = "https://${local.api_hostname}"
-    "APP_URL"                    = "https://${local.app_hostname}"
-    "BENEVOLAT_URL"              = "https://${local.benevolat_hostname}"
-    "VOLONTARIAT_URL"            = "https://${local.volontariat_hostname}"
-    "BUCKET_NAME"                = local.bucket_name
-    "SLACK_JOBTEASER_CHANNEL_ID" = terraform.workspace == "production" ? "C080H9MH56W" : ""
+    "ENV"                        = var.app_env
+    "API_URL"                    = "https://${var.api_hostname}"
+    "APP_URL"                    = "https://${var.app_hostname}"
+    "BENEVOLAT_URL"              = var.benevolat_hostname != "" ? "https://${var.benevolat_hostname}" : ""
+    "VOLONTARIAT_URL"            = var.volontariat_hostname != "" ? "https://${var.volontariat_hostname}" : ""
+    "BUCKET_NAME"                = var.bucket_name
+    "SLACK_JOBTEASER_CHANNEL_ID" = var.slack_jobteaser_channel_id
   }
 
   all_env_vars = merge(
@@ -14,12 +14,14 @@ locals {
     tomap(local.secrets)
   )
 
-  image_uri = "ghcr.io/${var.github_repository}/api:${terraform.workspace == "production" ? "production" : "staging"}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
+  image_uri              = "ghcr.io/${var.github_repository}/api:${var.image_env}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
+  sync_sandbox_image_uri = "ghcr.io/${var.github_repository}/sync-sandbox:production-latest"
 }
 
 # Job Definition for the 'letudiant' task
 # resource "scaleway_job_definition" "letudiant" {
-#   name         = "${terraform.workspace}-letudiant"
+#   count        = var.enable_intern_jobs ? 1 : 0
+#   name         = "${var.env}-letudiant"
 #   project_id   = var.project_id
 #   cpu_limit    = 1000
 #   memory_limit = 2048
@@ -27,18 +29,19 @@ locals {
 #   # Max old space workaround: https://stackoverflow.com/questions/48387040/how-do-i-determine-the-correct-max-old-space-size-for-node-js
 #   command      = "node --max-old-space-size=1800 dist/jobs/run-job.js letudiant"
 #   timeout      = "45m"
-# 
+#
 #   cron {
 #     schedule = "0 */3 * * *" # Every 3 hours
 #     timezone = "Europe/Paris"
 #   }
-# 
+#
 #   env = local.all_env_vars
 # }
 
 # Job Definition for the 'talent' task
 resource "scaleway_job_definition" "talent" {
-  name         = "${terraform.workspace}-talent"
+  count        = var.enable_intern_jobs ? 1 : 0
+  name         = "${var.env}-talent"
   project_id   = var.project_id
   cpu_limit    = 1000
   memory_limit = 2048
@@ -57,7 +60,8 @@ resource "scaleway_job_definition" "talent" {
 
 # Job Definition for the 'grimpio' task
 resource "scaleway_job_definition" "grimpio" {
-  name         = "${terraform.workspace}-grimpio"
+  count        = var.enable_intern_jobs ? 1 : 0
+  name         = "${var.env}-grimpio"
   project_id   = var.project_id
   cpu_limit    = 1000
   memory_limit = 2048
@@ -76,7 +80,8 @@ resource "scaleway_job_definition" "grimpio" {
 
 # Job Definition for the 'linkedin' task
 resource "scaleway_job_definition" "linkedin" {
-  name         = "${terraform.workspace}-linkedin"
+  count        = var.enable_intern_jobs ? 1 : 0
+  name         = "${var.env}-linkedin"
   project_id   = var.project_id
   cpu_limit    = 1500
   memory_limit = 2048
@@ -92,9 +97,10 @@ resource "scaleway_job_definition" "linkedin" {
   env = local.all_env_vars
 }
 
-# Job Defition for the 'import-organizations' task
+# Job Definition for the 'import-organizations' task
 resource "scaleway_job_definition" "import-organizations" {
-  name         = "${terraform.workspace}-import-organizations"
+  count        = var.enable_intern_jobs ? 1 : 0
+  name         = "${var.env}-import-organizations"
   project_id   = var.project_id
   cpu_limit    = 2000
   memory_limit = 4096
@@ -112,7 +118,8 @@ resource "scaleway_job_definition" "import-organizations" {
 
 # Job Definition for the 'warnings' task
 resource "scaleway_job_definition" "warnings" {
-  name         = "${terraform.workspace}-warnings"
+  count        = var.enable_intern_jobs ? 1 : 0
+  name         = "${var.env}-warnings"
   project_id   = var.project_id
   cpu_limit    = 1000
   memory_limit = 2048
@@ -130,7 +137,8 @@ resource "scaleway_job_definition" "warnings" {
 
 # Job Definition for the 'linkedin-stats' task
 resource "scaleway_job_definition" "linkedin-stats" {
-  name         = "${terraform.workspace}-linkedin-stats"
+  count        = var.enable_intern_jobs ? 1 : 0
+  name         = "${var.env}-linkedin-stats"
   project_id   = var.project_id
   cpu_limit    = 1000
   memory_limit = 2048
@@ -148,7 +156,8 @@ resource "scaleway_job_definition" "linkedin-stats" {
 
 # Job Definition for the 'leboncoin' task
 resource "scaleway_job_definition" "leboncoin" {
-  name         = "${terraform.workspace}-leboncoin"
+  count        = var.enable_intern_jobs ? 1 : 0
+  name         = "${var.env}-leboncoin"
   project_id   = var.project_id
   cpu_limit    = 1000
   memory_limit = 2048
@@ -157,7 +166,7 @@ resource "scaleway_job_definition" "leboncoin" {
   timeout      = "15m"
 
   cron {
-    schedule = "0 10 * * *" # Every 3 hours at 30 minutes
+    schedule = "0 10 * * *" # Every day at 10:00 AM
     timezone = "Europe/Paris"
   }
 
@@ -166,7 +175,8 @@ resource "scaleway_job_definition" "leboncoin" {
 
 # Job Definition for the 'brevo' task
 resource "scaleway_job_definition" "brevo" {
-  name         = "${terraform.workspace}-brevo"
+  count        = var.enable_intern_jobs ? 1 : 0
+  name         = "${var.env}-brevo"
   project_id   = var.project_id
   cpu_limit    = 1000
   memory_limit = 2048
@@ -184,7 +194,8 @@ resource "scaleway_job_definition" "brevo" {
 
 # Job Definition for the 'moderation' task
 resource "scaleway_job_definition" "moderation" {
-  name         = "${terraform.workspace}-moderation"
+  count        = var.enable_intern_jobs ? 1 : 0
+  name         = "${var.env}-moderation"
   project_id   = var.project_id
   cpu_limit    = 1000
   memory_limit = 2048
@@ -200,9 +211,9 @@ resource "scaleway_job_definition" "moderation" {
   env = local.all_env_vars
 }
 
-# Job Definition for the 'import-missions' task
+# Job Definition for the 'import-missions' task (all environments)
 resource "scaleway_job_definition" "import-missions" {
-  name         = "${terraform.workspace}-import-missions"
+  name         = "${var.env}-import-missions"
   project_id   = var.project_id
   cpu_limit    = 1000
   memory_limit = 2048
@@ -212,6 +223,24 @@ resource "scaleway_job_definition" "import-missions" {
 
   cron {
     schedule = "15 */6 * * *" # Every 6 hours at 15 minutes
+    timezone = "Europe/Paris"
+  }
+
+  env = local.all_env_vars
+}
+
+# Job Definition for the 'verify-publisher-organization' task
+resource "scaleway_job_definition" "verify-publisher-organization" {
+  name         = "${terraform.workspace}-verify-publisher-organization"
+  project_id   = var.project_id
+  cpu_limit    = 1000
+  memory_limit = 2048
+  image_uri    = local.image_uri
+  command      = "node dist/jobs/run-job.js verify-publisher-organization"
+  timeout      = "60m"
+
+  cron {
+    schedule = "45 */6 * * *" # Every 6 hours at 45 minutes
     timezone = "Europe/Paris"
   }
 

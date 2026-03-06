@@ -1,14 +1,17 @@
 resource "scaleway_container_domain" "app" {
   container_id = scaleway_container.app.id
-  hostname     = local.app_hostname
+  hostname     = var.app_hostname
 }
 
 # Widget is linked to both volontariat and benevolat domains
 resource "scaleway_container_domain" "volontariat" {
-  container_id = scaleway_container.widget.id
-  hostname     = local.volontariat_hostname
+  count        = var.enable_widget ? 1 : 0
+  container_id = scaleway_container.widget[0].id
+  hostname     = var.volontariat_hostname
 }
+
 resource "scaleway_container_domain" "benevolat" {
-  container_id = scaleway_container.widget.id
-  hostname     = local.benevolat_hostname
+  count        = var.enable_widget ? 1 : 0
+  container_id = scaleway_container.widget[0].id
+  hostname     = var.benevolat_hostname
 }
