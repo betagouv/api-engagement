@@ -59,3 +59,9 @@ jobs:
     secrets: inherit
     with:
       branch: ${{ github.ref_name }}
+
+  changelog:
+    needs: deploy
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/changelog-notify.yml
+    secrets: inherit
