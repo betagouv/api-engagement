@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import * as utils from "@/jobs/letudiant/utils";
+import { describe, expect, it } from "vitest";
 
 describe("decodeHtml", () => {
   it("should decode HTML entities", () => {

@@ -3,9 +3,9 @@ import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PUBLISHER_IDS } from "@/config";
 import { prisma } from "@/db/postgres";
+import { ELIGIBLE_DOMAINS, QUOTA_BY_DOMAIN } from "@/jobs/letudiant/config";
 import { LetudiantHandler } from "@/jobs/letudiant/handler";
 import * as letudiantUtils from "@/jobs/letudiant/utils";
-import { ELIGIBLE_DOMAINS, QUOTA_BY_DOMAIN } from "@/jobs/letudiant/config";
 import { createTestMission, createTestPublisher } from "../../../fixtures";
 
 /**
@@ -255,9 +255,15 @@ describe("LetudiantHandler (integration test)", () => {
         if (method === "PATCH") {
           return Promise.resolve({ ok: false, status: 404, json: async () => ({ message: "Not found" }) });
         }
-        if (url.includes("/contracts")) return Promise.resolve({ ok: true, json: async () => MANDATORY_DATA_MOCKS[0] });
-        if (url.includes("/remote_policies")) return Promise.resolve({ ok: true, json: async () => MANDATORY_DATA_MOCKS[1] });
-        if (url.includes("/job_categories")) return Promise.resolve({ ok: true, json: async () => MANDATORY_DATA_MOCKS[2] });
+        if (url.includes("/contracts")) {
+          return Promise.resolve({ ok: true, json: async () => MANDATORY_DATA_MOCKS[0] });
+        }
+        if (url.includes("/remote_policies")) {
+          return Promise.resolve({ ok: true, json: async () => MANDATORY_DATA_MOCKS[1] });
+        }
+        if (url.includes("/job_categories")) {
+          return Promise.resolve({ ok: true, json: async () => MANDATORY_DATA_MOCKS[2] });
+        }
         throw new Error(`Unexpected: ${method} ${url}`);
       });
 
@@ -323,7 +329,7 @@ describe("LetudiantHandler (integration test)", () => {
         await prisma.organization.updateMany({ where: { id: mission.organizationId }, data: { letudiantPublicId: "company-existing" } });
       }
 
-global.fetch = buildFetchMock([pilotyJobResponse("new-piloty-job-1")]); // POST create
+      global.fetch = buildFetchMock([pilotyJobResponse("new-piloty-job-1")]); // POST create
 
       await handler.handle({});
 
@@ -497,11 +503,7 @@ global.fetch = buildFetchMock([pilotyJobResponse("new-piloty-job-1")]); // POST 
         await prisma.organization.updateMany({ where: { id: mission.organizationId }, data: { letudiantPublicId: "company-existing" } });
       }
 
-      global.fetch = buildFetchMock([
-        pilotyJobResponse("job-paris"),
-        pilotyJobResponse("job-lyon"),
-        pilotyJobResponse("job-marseille"),
-      ]);
+      global.fetch = buildFetchMock([pilotyJobResponse("job-paris"), pilotyJobResponse("job-lyon"), pilotyJobResponse("job-marseille")]);
 
       await handler.handle({});
 
