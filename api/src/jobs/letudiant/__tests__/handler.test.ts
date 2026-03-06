@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { findLetudiantPublicId } from "@/jobs/letudiant/handler";
+import { findLetudiantPublicId } from "@/jobs/letudiant/phases/sync-mission";
 import { MissionJobBoardRecord } from "@/types/mission-job-board";
 
 describe("Letudiant handler utils", () => {
