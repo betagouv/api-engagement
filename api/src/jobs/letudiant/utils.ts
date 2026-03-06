@@ -94,9 +94,11 @@ export async function getMissionIdsToUpdate(): Promise<string[]> {
       SELECT DISTINCT mjb.mission_id AS "missionId"
       FROM mission_jobboard mjb
       JOIN mission m ON m.id = mjb.mission_id
+      JOIN publisher_organization po ON po.id = m.publisher_organization_id
       WHERE mjb.jobboard_id = 'LETUDIANT'::"JobBoardId"
         AND mjb.sync_status = 'ONLINE'::"MissionJobBoardSyncStatus"
         AND m.updated_at > mjb.updated_at
+        AND po.organization_id_verified IS NOT NULL
     `
   );
   return rows.map((r) => r.missionId);
@@ -148,10 +150,11 @@ export async function getMissionIdsToPublish(domain: string, limit: number, excl
       SELECT m.id
       FROM mission m
       JOIN domain d ON d.id = m.domain_id
+      JOIN publisher_organization po ON po.id = m.publisher_organization_id
       WHERE m.publisher_id IN (${Prisma.join(WHITELISTED_PUBLISHERS_IDS)})
         AND m.status_code = 'ACCEPTED'
         AND m.deleted_at IS NULL
-        AND m.publisher_organization_id IS NOT NULL
+        AND po.organization_id_verified IS NOT NULL
         AND d.name = ${domain}
         ${excludedClientIds.length > 0 ? Prisma.sql`AND (m.organization_client_id IS NULL OR m.organization_client_id NOT IN (${Prisma.join(excludedClientIds)}))` : Prisma.sql``}
         AND NOT EXISTS (
