@@ -29,18 +29,19 @@ with last_run as (
 ),
 
 affected_weeks as (
-  select distinct date_trunc('week', mission_created_at)::date as week_start
-  from {{ ref('int_mission_first_events') }}
+  select distinct date_trunc('week', first_click_at)::date as week_start
+  from {{ ref('int_mission_click_apply_metrics') }}
   where
-    coalesce(updated_at, mission_created_at)
+    first_click_at is not null
+    and coalesce(updated_at, first_click_at)
     >= (select lr.last_updated_at from last_run as lr)
 ),
 
 base as (
   select
-    date_trunc('week', mission_created_at)::date as week_start,
-    extract(year from date_trunc('week', mission_created_at))::int as year,
-    extract(week from date_trunc('week', mission_created_at))::int as week,
+    date_trunc('week', first_click_at)::date as week_start,
+    extract(year from date_trunc('week', first_click_at))::int as year,
+    extract(week from date_trunc('week', first_click_at))::int as week,
     mission_id,
     publisher_id,
     from_publisher_id,
@@ -59,6 +60,8 @@ base as (
     time_to_apply_secs,
     click_count,
     apply_count,
+    click_with_apply_count,
+    click_with_multi_apply_count,
     first_click_at,
     first_apply_at,
     updated_at,
@@ -67,12 +70,14 @@ base as (
       when description_length < 700 then '300-700'
       else '700+'
     end as description_length_bucket
-  from {{ ref('int_mission_first_events') }}
-  {% if is_incremental() %}
-    where date_trunc('week', mission_created_at)::date in (
-      select aw.week_start from affected_weeks as aw
-    )
-  {% endif %}
+  from {{ ref('int_mission_click_apply_metrics') }}
+  where
+    first_click_at is not null
+    {% if is_incremental() %}
+      and date_trunc('week', first_click_at)::date in (
+        select aw.week_start from affected_weeks as aw
+      )
+    {% endif %}
 ),
 
 aggregated as (
@@ -94,12 +99,10 @@ aggregated as (
     round(avg(description_length))::int as avg_description_length,
     mission_duration_days,
     count(distinct mission_id) as mission_count,
-    count(*) filter (where first_click_at is not null)
-      as mission_with_click_count,
-    count(*) filter (where first_apply_at is not null)
-      as mission_with_apply_count,
     sum(click_count) as click_count,
     sum(apply_count) as apply_count,
+    sum(click_with_apply_count) as click_with_apply_count,
+    sum(click_with_multi_apply_count) as click_with_multi_apply_count,
     avg(time_to_click_secs) as avg_time_to_click_secs,
     avg(time_to_apply_secs) as avg_time_to_apply_secs,
     avg(time_to_import_secs) as avg_time_to_import_secs,
@@ -128,5 +131,9 @@ select
   case
     when a.click_count = 0 then null
     else a.apply_count::numeric / a.click_count
-  end as conversion_rate
+  end as conversion_rate,
+  case
+    when a.click_with_apply_count = 0 then null
+    else a.click_with_multi_apply_count::numeric / a.click_with_apply_count
+  end as multi_apply_share
 from aggregated as a

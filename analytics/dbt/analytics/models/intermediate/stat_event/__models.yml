@@ -1,0 +1,104 @@
+version: 2
+
+models:
+  - name: int_stat_event_global
+    description: >
+      Vue intermédiaire des événements statistiques hors bots, avec normalisation
+      des sources et des identifiants nécessaires aux agrégations downstream.
+    columns:
+      - name: stat_event_id
+        description: Identifiant unique de l'événement source.
+        tests:
+          - not_null
+          - unique
+      - name: created_at
+        description: Horodatage de création de l'événement.
+        tests:
+          - not_null
+      - name: updated_at
+        description: Horodatage de dernière mise à jour.
+        tests:
+          - not_null
+      - name: type
+        description: Type d'événement (`click`, `apply`, `print`, `account`).
+        tests:
+          - not_null
+      - name: source
+        description: Source normalisée de l'événement.
+        tests:
+          - not_null
+      - name: from_publisher_id
+        description: Identifiant du diffuseur à l'origine de l'événement.
+        tests:
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: to_publisher_id
+        description: Identifiant de l'annonceur cible de l'événement.
+        tests:
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: mission_id
+        description: Identifiant de mission associé à l'événement (nullable).
+        tests:
+          - relationships:
+              arguments:
+                to: ref('mission')
+                field: id
+
+  - name: int_stat_event_click_metrics
+    description: >
+      Vue intermédiaire au grain click (une ligne par `stat_event` de type click),
+      qui centralise les candidatures rattachées au click via `click_id`.
+    columns:
+      - name: click_stat_event_id
+        description: Identifiant du click (`stat_event.id`).
+        tests:
+          - not_null
+          - unique
+      - name: mission_id
+        description: Identifiant de la mission portée par le click.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('mission')
+                field: id
+      - name: from_publisher_id
+        description: Identifiant du diffuseur à l'origine du click.
+        tests:
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: source
+        description: Source normalisée des événements du grain.
+        tests:
+          - not_null
+      - name: source_id
+        description: Identifiant de la source (widget/campaign/publisher selon source).
+      - name: click_created_at
+        description: Horodatage du click.
+        tests:
+          - not_null
+      - name: first_apply_at
+        description: Horodatage de la première candidature liée au click.
+      - name: apply_count
+        description: Nombre total de candidatures liées au click.
+        tests:
+          - not_null
+      - name: has_apply
+        description: Indique si le click est relié à au moins une candidature.
+        tests:
+          - not_null
+      - name: has_multi_apply
+        description: Indique si le click est relié à au moins deux candidatures.
+        tests:
+          - not_null
+      - name: updated_at
+        description: Timestamp de dernière mise à jour propagé depuis click/apply.
+        tests:
+          - not_null
