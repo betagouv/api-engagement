@@ -17,24 +17,14 @@ variable "github_repository" {
 
 # Environment
 
+variable "workspace" {
+  type        = string
+  description = "Workspace name (production, staging, sandbox)"
+}
+
 variable "env" {
   type        = string
-  description = "Environment name (production, staging, sandbox)"
-}
-
-variable "secret_name" {
-  type        = string
-  description = "Scaleway secret name for this environment"
-}
-
-variable "app_env" {
-  type        = string
-  description = "ENV value passed to the application (sandbox uses 'production' to match production behavior)"
-}
-
-variable "image_env" {
-  type        = string
-  description = "Docker image tag prefix to use (production or staging)"
+  description = "Environment name (production, staging)"
 }
 
 # Hostnames
