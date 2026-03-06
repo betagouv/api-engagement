@@ -1,23 +1,35 @@
-// Utility functions for letudiant job sync
-import he from "he";
-import { setTimeout as sleep } from "timers/promises";
+import { PUBLISHER_IDS } from "@/config";
+import { Prisma } from "@/db/core";
+import { prisma } from "@/db/postgres";
+import {
+  AUDIENCE_MAPPING,
+  CONTRACT_MAPPING,
+  DOMAIN_MAPPING,
+  ELIGIBLE_DOMAINS,
+  JOB_CATEGORY_MAPPING,
+  ONLINE_DAYS_LIMIT,
+  REMOTE_POLICY_MAPPING,
+  WHITELISTED_PUBLISHERS_IDS,
+} from "@/jobs/letudiant/config";
 import { missionService } from "@/services/mission";
 import missionJobBoardService from "@/services/mission-jobboard";
 import { PilotyClient } from "@/services/piloty/client";
 import { PilotyJobCategory, PilotyMandatoryData } from "@/services/piloty/types";
+import { publisherDiffusionExclusionService } from "@/services/publisher-diffusion-exclusion";
 import { MissionRecord } from "@/types/mission";
 import { JobBoardId, MissionJobBoardRecord } from "@/types/mission-job-board";
-import { AUDIENCE_MAPPING, CONTRACT_MAPPING, DAYS_AFTER_REPUBLISH, DOMAIN_MAPPING, JOB_CATEGORY_MAPPING, REMOTE_POLICY_MAPPING, WHITELISTED_PUBLISHERS_IDS } from "@/jobs/letudiant/config";
+import he from "he";
+import { setTimeout as sleep } from "timers/promises";
 
+export { missionJobBoardService, missionService };
 export const LETUDIANT_JOB_BOARD_ID: JobBoardId = "LETUDIANT";
 export type MissionWithJobBoards = { mission: MissionRecord; jobBoards: MissionJobBoardRecord[] };
 
-/**
- * Check if a mission is already synced to Piloty
- */
-export function isAlreadySynced(mission: MissionRecord, jobBoards: MissionJobBoardRecord[]): boolean {
-  return Boolean(jobBoards.length && mission.letudiantUpdatedAt && mission.letudiantUpdatedAt.getTime() >= mission.updatedAt.getTime());
-}
+export type MissionEntryToArchive = {
+  missionId: string;
+  missionAddressId: string | null;
+  publicId: string;
+};
 
 /**
  * Simple rate limiter: wait for a fixed delay (ms)
@@ -30,45 +42,155 @@ export async function rateLimit(delayMs = 500) {
 }
 
 /**
- * Get accepted missions from whitelisted publishers created or updated since the last sync
- *
- * @param id Optional mission ID to sync
- * @param limit Optional limit (default: 10)
+ * Load the set of organizationClientIds excluded for L'Etudiant diffusion.
+ * Returns a Set for O(1) lookups.
  */
-export async function getMissionsToSync(id?: string, limit = 10): Promise<{ totalCandidates: number; entries: MissionWithJobBoards[] }> {
-  if (id) {
-    const mission = await missionService.findOneMission(id);
-    if (!mission) {
-      return { totalCandidates: 0, entries: [] };
-    }
-    const jobBoards = await missionJobBoardService.findByJobBoardAndMissionIds(LETUDIANT_JOB_BOARD_ID, [mission._id]);
-    return { totalCandidates: 1, entries: [{ mission, jobBoards }] };
-  }
+export async function loadExcludedOrganizationClientIds(): Promise<Set<string>> {
+  const exclusions = await publisherDiffusionExclusionService.findExclusionsForDiffuseurId(PUBLISHER_IDS.LETUDIANT);
+  return new Set(exclusions.map((e) => e.organizationClientId).filter((id): id is string => Boolean(id)));
+}
 
-  const republishingDate = new Date(Date.now() - DAYS_AFTER_REPUBLISH * 24 * 60 * 60 * 1000);
+/**
+ * Phase: archive expired missions
+ * Returns all currently ONLINE L'Etudiant entries that must be archived:
+ * - mission deleted
+ * - mission not ACCEPTED
+ * - entry has been ONLINE for more than ONLINE_DAYS_LIMIT days
+ * - mission's organization is in the exclusion list
+ */
+export async function getMissionEntriesToArchive(excludedOrgClientIds: Set<string>): Promise<MissionEntryToArchive[]> {
+  const onlineCutoffDate = new Date(Date.now() - ONLINE_DAYS_LIMIT * 24 * 60 * 60 * 1000);
+  const excludedClientIds = Array.from(excludedOrgClientIds);
 
-  const { total: totalCandidates, ids: missionIds } = await missionJobBoardService.findMissionIdsToSync({
-    jobBoardId: LETUDIANT_JOB_BOARD_ID,
-    publisherIds: WHITELISTED_PUBLISHERS_IDS,
-    republishingDate,
-    limit,
-  });
-
-  if (!missionIds.length) {
-    return { totalCandidates, entries: [] };
-  }
-
-  const missions = await missionService.findMissionsBy(
-    { id: { in: missionIds } },
-    {
-      limit: missionIds.length,
-      orderBy: { updatedAt: "desc" },
-    }
+  const rows = await prisma.$queryRaw<Array<{ missionId: string; missionAddressId: string | null; publicId: string }>>(
+    Prisma.sql`
+      SELECT
+        mjb.mission_id AS "missionId",
+        mjb.mission_address_id AS "missionAddressId",
+        mjb.public_id AS "publicId"
+      FROM mission_jobboard mjb
+      JOIN mission m ON m.id = mjb.mission_id
+      WHERE mjb.jobboard_id = 'LETUDIANT'::"JobBoardId"
+        AND mjb.sync_status = 'ONLINE'::"MissionJobBoardSyncStatus"
+        AND (
+          m.deleted_at IS NOT NULL
+          OR m.status_code <> 'ACCEPTED'
+          OR mjb.created_at < ${onlineCutoffDate}
+          ${excludedClientIds.length > 0 ? Prisma.sql`OR m.organization_client_id IN (${Prisma.join(excludedClientIds)})` : Prisma.sql``}
+        )
+    `
   );
+
+  return rows;
+}
+
+/**
+ * Phase: update modified missions
+ * Returns distinct mission IDs where the mission was updated after the last sync.
+ */
+export async function getMissionIdsToUpdate(): Promise<string[]> {
+  const rows = await prisma.$queryRaw<Array<{ missionId: string }>>(
+    Prisma.sql`
+      SELECT DISTINCT mjb.mission_id AS "missionId"
+      FROM mission_jobboard mjb
+      JOIN mission m ON m.id = mjb.mission_id
+      JOIN publisher_organization po ON po.id = m.publisher_organization_id
+      WHERE mjb.jobboard_id = 'LETUDIANT'::"JobBoardId"
+        AND mjb.sync_status = 'ONLINE'::"MissionJobBoardSyncStatus"
+        AND m.updated_at > mjb.updated_at
+        AND po.organization_id_verified IS NOT NULL
+    `
+  );
+  return rows.map((r) => r.missionId);
+}
+
+/**
+ * Phase: publish new missions
+ * Counts the number of ONLINE Piloty entries (not missions) per eligible domain.
+ * One mission with N addresses = N entries.
+ */
+export async function countOnlineEntriesByDomain(): Promise<Map<string, number>> {
+  const rows = await prisma.$queryRaw<Array<{ domain: string; count: bigint }>>(
+    Prisma.sql`
+      SELECT d.name AS domain, COUNT(mjb.id)::bigint AS count
+      FROM mission_jobboard mjb
+      JOIN mission m ON m.id = mjb.mission_id
+      JOIN domain d ON d.id = m.domain_id
+      WHERE mjb.jobboard_id = 'LETUDIANT'::"JobBoardId"
+        AND mjb.sync_status = 'ONLINE'::"MissionJobBoardSyncStatus"
+        AND d.name IN (${Prisma.join(ELIGIBLE_DOMAINS)})
+      GROUP BY d.name
+    `
+  );
+
+  const result = new Map<string, number>();
+  for (const domain of ELIGIBLE_DOMAINS) {
+    result.set(domain, 0);
+  }
+  for (const row of rows) {
+    result.set(row.domain, Number(row.count));
+  }
+  return result;
+}
+
+/**
+ * Phase: publish new missions
+ * Returns mission IDs eligible for publication on a given domain, ordered newest first.
+ * Excludes missions already ONLINE, missions with an ERROR status, and excluded orgs.
+ */
+export async function getMissionIdsToPublish(domain: string, limit: number, excludedOrgClientIds: Set<string>): Promise<string[]> {
+  if (limit <= 0) {
+    return [];
+  }
+
+  const excludedClientIds = Array.from(excludedOrgClientIds);
+
+  const rows = await prisma.$queryRaw<Array<{ id: string }>>(
+    Prisma.sql`
+      SELECT m.id
+      FROM mission m
+      JOIN domain d ON d.id = m.domain_id
+      JOIN publisher_organization po ON po.id = m.publisher_organization_id
+      WHERE m.publisher_id IN (${Prisma.join(WHITELISTED_PUBLISHERS_IDS)})
+        AND m.status_code = 'ACCEPTED'
+        AND m.deleted_at IS NULL
+        AND po.organization_id_verified IS NOT NULL
+        AND d.name = ${domain}
+        ${excludedClientIds.length > 0 ? Prisma.sql`AND (m.organization_client_id IS NULL OR m.organization_client_id NOT IN (${Prisma.join(excludedClientIds)}))` : Prisma.sql``}
+        AND NOT EXISTS (
+          SELECT 1 FROM mission_jobboard mjb_err
+          WHERE mjb_err.mission_id = m.id
+            AND mjb_err.jobboard_id = 'LETUDIANT'::"JobBoardId"
+            AND mjb_err.sync_status = 'ERROR'::"MissionJobBoardSyncStatus"
+        )
+        AND NOT EXISTS (
+          SELECT 1 FROM mission_jobboard mjb_online
+          WHERE mjb_online.mission_id = m.id
+            AND mjb_online.jobboard_id = 'LETUDIANT'::"JobBoardId"
+            AND mjb_online.sync_status = 'ONLINE'::"MissionJobBoardSyncStatus"
+        )
+      ORDER BY m.created_at DESC
+      LIMIT ${limit}
+    `
+  );
+
+  return rows.map((r) => r.id);
+}
+
+/**
+ * Load full missions with their existing job board entries for a list of mission IDs.
+ */
+export async function loadMissionsWithJobBoards(missionIds: string[]): Promise<MissionWithJobBoards[]> {
+  if (!missionIds.length) {
+    return [];
+  }
+
+  const missions = await missionService.findMissionsBy({ id: { in: missionIds } }, { limit: missionIds.length, orderBy: { updatedAt: "desc" } });
   const jobBoards = await missionJobBoardService.findByJobBoardAndMissionIds(
     LETUDIANT_JOB_BOARD_ID,
-    missions.map((mission) => mission._id)
+    missions.map((m) => m._id)
   );
+
   const jobBoardsByMission = new Map<string, MissionJobBoardRecord[]>();
   for (const entry of jobBoards) {
     const list = jobBoardsByMission.get(entry.missionId) ?? [];
@@ -76,13 +198,10 @@ export async function getMissionsToSync(id?: string, limit = 10): Promise<{ tota
     jobBoardsByMission.set(entry.missionId, list);
   }
 
-  return {
-    totalCandidates,
-    entries: missions.map((mission) => ({
-      mission,
-      jobBoards: jobBoardsByMission.get(mission._id) ?? [],
-    })),
-  };
+  return missions.map((mission) => ({
+    mission,
+    jobBoards: jobBoardsByMission.get(mission._id) ?? [],
+  }));
 }
 
 /**

@@ -1,8 +1,16 @@
-import { ENV, PUBLISHER_IDS } from "@/config";
+import { PUBLISHER_IDS } from "@/config";
 
-export const DEFAULT_LIMIT = ENV === "production" ? 1000 : 1;
-// Don't want to republish missions in staging
-export const DAYS_AFTER_REPUBLISH = ENV === "production" ? 45 : 10000;
+// Maximum number of days an entry can stay ONLINE on Piloty before being archived
+export const ONLINE_DAYS_LIMIT = 30;
+
+// Quota per domain (number of Piloty entries = addresses, not missions)
+export const QUOTA_BY_DOMAIN: Record<string, number> = {
+  "solidarite-insertion": 1800,
+  sport: 750,
+  "benevolat-competences": 450,
+};
+export const TOTAL_ONLINE_CAP = 3000; // Sum of all domain quotas
+export const ELIGIBLE_DOMAINS = Object.keys(QUOTA_BY_DOMAIN);
 
 export const WHITELISTED_PUBLISHERS_IDS = [PUBLISHER_IDS.JEVEUXAIDER, PUBLISHER_IDS.SERVICE_CIVIQUE];
 
