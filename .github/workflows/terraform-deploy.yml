@@ -9,7 +9,7 @@ on:
       environment:
         required: false
         type: string
-        description: 'Force environment (sandbox, production, staging)'
+        description: "Force environment (sandbox, production, staging)"
   workflow_dispatch:
 
 permissions:
