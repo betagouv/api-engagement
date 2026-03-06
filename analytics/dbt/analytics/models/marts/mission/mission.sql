@@ -14,6 +14,7 @@ select
   m.id,
   m.client_id,
   m.publisher_id,
+  m.publisher_organization_id,
   m.organization_id,
   m.organization_client_id,
   m.activity,
