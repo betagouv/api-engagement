@@ -768,9 +768,10 @@ model MissionAddress {
   locationLat    Float?                @map("location_lat")
   locationLon    Float?                @map("location_lon")
   geoPoint       Unsupported("point")? @map("geo_point")
-  geolocStatus   String?               @map("geoloc_status")
-  createdAt      DateTime              @default(now()) @map("created_at")
-  updatedAt      DateTime              @updatedAt @map("updated_at")
+  geolocStatus        String?               @map("geoloc_status")
+  geolocFailureCount  Int                   @default(0) @map("geoloc_failure_count")
+  createdAt           DateTime              @default(now()) @map("created_at")
+  updatedAt           DateTime              @updatedAt @map("updated_at")
 
   mission Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
 
@@ -778,6 +779,7 @@ model MissionAddress {
 
   @@unique([missionId, addressHash], map: "mission_address_hash_unique")
   @@index([missionId], map: "mission_address_mission_id_idx")
+  @@index([geolocStatus], map: "mission_address_geoloc_status_idx")
   @@index([city], map: "mission_address_city_idx")
   @@index([country], map: "mission_address_country_idx")
   @@index([departmentName], map: "mission_address_department_name_idx")

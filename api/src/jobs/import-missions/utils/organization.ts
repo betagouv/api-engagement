@@ -3,24 +3,17 @@ import { captureException } from "@/error";
 import { ImportedOrganization, MissionXML } from "@/jobs/import-missions/types";
 import type { PublisherRecord } from "@/types/publisher";
 import { normalizeRNA, parseSiren, parseString, parseStringArray } from "@/utils";
-import { slugify } from "@/utils/string";
+import { deriveOrganizationClientId } from "@/utils/publisher-organization";
 
 export const parseOrganizationClientId = (missionXML: MissionXML) => {
   // Before organizationClientId the id was asked into organizationId field, which has been changed
-  if (missionXML.organizationClientId || missionXML.organizationId) {
-    return parseString(missionXML.organizationClientId) || parseString(missionXML.organizationId);
-  }
-  if (missionXML.organizationRNA || missionXML.organizationRna) {
-    return normalizeRNA(parseString(missionXML.organizationRNA) || parseString(missionXML.organizationRna));
-  }
-  const { siret, siren } = parseSiren(missionXML.organizationSiren);
-  if (siret || siren) {
-    return siret || siren;
-  }
-  if (missionXML.organizationName) {
-    return slugify(missionXML.organizationName);
-  }
-  return null;
+  const organizationClientId = parseString(missionXML.organizationClientId) || parseString(missionXML.organizationId) || null;
+  return deriveOrganizationClientId({
+    organizationClientId,
+    organizationRNA: missionXML.organizationRNA || missionXML.organizationRna,
+    organizationSiren: missionXML.organizationSiren,
+    organizationName: missionXML.organizationName,
+  });
 };
 
 export const parseOrganization = (publisher: PublisherRecord, missionXML: MissionXML): ImportedOrganization | null => {
