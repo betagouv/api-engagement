@@ -3,10 +3,10 @@
 import { DEPARTMENTS } from "@/constants/departments";
 
 import { captureException } from "@/error";
+import type { ImportedMission } from "@/jobs/import-missions/types";
 import geopfService from "@/services/geopf";
 import { GeolocStatus } from "@/types";
 import type { PublisherRecord } from "@/types/publisher";
-import type { ImportedMission } from "@/jobs/import-missions/types";
 
 export interface GeolocResult {
   clientId: string;
@@ -55,7 +55,9 @@ export const enrichWithGeoloc = async (publisher: PublisherRecord, missions: Imp
 
     if (csv.length > 1) {
       const csvString = csv.join("\n");
-      const results = await geopfService.searchAddressesCsv(csvString);
+      const results = await geopfService.searchAddressesCsv(csvString, {
+        columns: ["address", "city", "postcode", "departmentcode"],
+      });
       if (!results) {
         console.log(`[${publisher.name}] No results from geopf for remaining addresses`);
         return updates;
@@ -94,7 +96,7 @@ export const enrichWithGeoloc = async (publisher: PublisherRecord, missions: Imp
           location: undefined,
         };
 
-        if (parseFloat(line[headerIndex.result_score]) > 0.4) {
+        if (parseFloat(line[headerIndex.result_score]) > 0.5) {
           if (line[headerIndex.result_name]) {
             obj.street = line[headerIndex.result_name];
           }
@@ -121,8 +123,22 @@ export const enrichWithGeoloc = async (publisher: PublisherRecord, missions: Imp
               obj.departmentName = obj.departmentCode;
             }
           }
-          obj.geolocStatus = "ENRICHED_BY_API";
-          found++;
+
+          const sourceDeptCode = line[headerIndex.departmentcode]?.trim();
+          if (sourceDeptCode && obj.departmentCode && sourceDeptCode !== obj.departmentCode) {
+            console.log(`[${publisher.name}] Department mismatch for ${obj.clientId}: source=${sourceDeptCode}, result=${obj.departmentCode}`);
+            obj.geolocStatus = "NOT_FOUND";
+            obj.street = undefined;
+            obj.city = undefined;
+            obj.postalCode = undefined;
+            obj.departmentCode = undefined;
+            obj.departmentName = undefined;
+            obj.region = undefined;
+            obj.location = undefined;
+          } else {
+            obj.geolocStatus = "ENRICHED_BY_API";
+            found++;
+          }
         }
 
         if (obj.location && obj.location.lon && obj.location.lat) {
