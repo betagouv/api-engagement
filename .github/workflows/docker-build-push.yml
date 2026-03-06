@@ -17,6 +17,10 @@ on:
       branch:
         required: true
         type: string
+      environment:
+        required: false
+        type: string
+        description: "Force environment (production, staging)"
   workflow_dispatch:
 
 permissions:
@@ -35,8 +39,11 @@ jobs:
         id: set-env
         env:
           HEAD_BRANCH: ${{ inputs.branch || github.ref_name }}
+          FORCED_ENV: ${{ inputs.environment }}
         run: |
-          if [[ "$HEAD_BRANCH" == 'main' ]]; then
+          if [[ -n "$FORCED_ENV" ]]; then
+            echo "environment=$FORCED_ENV" >> $GITHUB_OUTPUT
+          elif [[ "$HEAD_BRANCH" == 'main' ]]; then
             echo "environment=production" >> $GITHUB_OUTPUT
           else
             echo "environment=staging" >> $GITHUB_OUTPUT
@@ -46,10 +53,16 @@ jobs:
     name: Build and Push
     needs: set-env
     runs-on: ubuntu-latest
+    environment: ${{ matrix.github_env || needs.set-env.outputs.environment_name }}
     strategy:
       matrix:
         include:
           - service: app
+            variant: staging
+            github_env: staging
+          - service: app
+            variant: sandbox
+            github_env: sandbox
           - service: widget
           - service: api
           - service: analytics
@@ -70,14 +83,14 @@ jobs:
       - name: Set environment variables for build args
         id: vars
         run: |
-          echo "ENV=${{ needs.set-env.outputs.environment_name }}" >> $GITHUB_OUTPUT
           echo "short_sha=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
-          echo "Building for ${{ needs.set-env.outputs.environment_name }} environment"
+          echo "tag=${{ matrix.variant || needs.set-env.outputs.environment_name }}" >> $GITHUB_OUTPUT
+          echo "Building for ${{ matrix.variant || needs.set-env.outputs.environment_name }} environment"
 
       - name: Set app build args
         id: app_args
         run: |
-          echo "ENV=${{ needs.set-env.outputs.environment_name }}" >> $GITHUB_OUTPUT
+          echo "ENV=${{ matrix.variant || needs.set-env.outputs.environment_name }}" >> $GITHUB_OUTPUT
           echo "SENTRY_HOST=${{ vars.SENTRY_HOST }}" >> $GITHUB_OUTPUT
           echo "SENTRY_DNS_APP=${{ secrets.SENTRY_DNS_APP }}" >> $GITHUB_OUTPUT
           echo "API_URL=${{ vars.API_URL }}" >> $GITHUB_OUTPUT
@@ -91,9 +104,9 @@ jobs:
           file: ./${{ matrix.service }}/Dockerfile.production
           push: true
           tags: |
-            ${{ format('ghcr.io/{0}/{1}:{2}', github.repository, matrix.service, needs.set-env.outputs.environment_name) }}
-            ${{ format('ghcr.io/{0}/{1}:{2}-latest', github.repository, matrix.service, needs.set-env.outputs.environment_name) }}
-            ${{ format('ghcr.io/{0}/{1}:{2}-{3}', github.repository, matrix.service, needs.set-env.outputs.environment_name, steps.vars.outputs.short_sha) }}
+            ${{ format('ghcr.io/{0}/{1}:{2}', github.repository, matrix.service, steps.vars.outputs.tag) }}
+            ${{ format('ghcr.io/{0}/{1}:{2}-latest', github.repository, matrix.service, steps.vars.outputs.tag) }}
+            ${{ format('ghcr.io/{0}/{1}:{2}-{3}', github.repository, matrix.service, steps.vars.outputs.tag, steps.vars.outputs.short_sha) }}
           secrets: |
             "sentry_auth_token=${{ secrets.SENTRY_AUTH_TOKEN }}"
             "test_secret=${{ secrets.TEST_SECRET }}"
