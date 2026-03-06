@@ -1,6 +1,6 @@
 locals {
   common_analytics_env_vars = {
-    "ENV"                    = var.app_env
+    "ENV"                    = var.env
     "DATABASE_URL_CORE"      = local.secrets.DATABASE_URL_CORE
     "DATABASE_URL_ANALYTICS" = lookup(local.secrets, "DATABASE_URL_ANALYTICS", "")
     "METABASE_DATABASE_NAME" = lookup(local.secrets, "METABASE_DATABASE_NAME", "")
@@ -11,7 +11,7 @@ locals {
     "SLACK_CRON_CHANNEL_ID"  = lookup(local.secrets, "SLACK_CRON_CHANNEL_ID", "")
   }
 
-  image_analytics_uri = "ghcr.io/${var.github_repository}/analytics:${var.image_env}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
+  image_analytics_uri = "ghcr.io/${var.github_repository}/analytics:${var.env}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
 }
 
 resource "scaleway_job_definition" "analytics-stat-event" {

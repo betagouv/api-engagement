@@ -1,7 +1,5 @@
+workspace                  = "production"
 env                        = "production"
-app_env                    = "production"
-secret_name                = "production-secret"
-image_env                  = "production"
 
 api_hostname               = "api.api-engagement.beta.gouv.fr"
 app_hostname               = "app.api-engagement.beta.gouv.fr"

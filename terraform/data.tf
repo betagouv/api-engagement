@@ -1,5 +1,5 @@
 data "scaleway_secret" "main" {
-  name       = var.secret_name
+  name       = "${var.workspace}-secret"
   project_id = var.project_id
 }
 

@@ -1,7 +1,5 @@
+workspace                  = "staging"
 env                        = "staging"
-app_env                    = "staging"
-secret_name                = "staging-secret"
-image_env                  = "staging"
 
 api_hostname               = "api.api-engagement-dev.fr"
 app_hostname               = "app.api-engagement-dev.fr"

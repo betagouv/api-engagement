@@ -1,7 +1,5 @@
-env                        = "sandbox"
-app_env                    = "production" # sandbox behaves like production at the application level
-secret_name                = "sandbox-secret"
-image_env                  = "production" # sandbox reuses production images
+workspace                  = "sandbox"
+env                        = "staging" # Staging while testing sandbox
 
 api_hostname               = "api.bac-a-sable.api-engagement.beta.gouv.fr"
 app_hostname               = "app.bac-a-sable.api-engagement.beta.gouv.fr"

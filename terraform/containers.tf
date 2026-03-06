@@ -1,8 +1,8 @@
 resource "scaleway_container" "api" {
-  name            = "${var.env}-api"
-  description     = "API ${var.env} container"
+  name            = "${var.workspace}-api"
+  description     = "API ${var.workspace} container"
   namespace_id    = scaleway_container_namespace.main.id
-  registry_image  = "ghcr.io/${var.github_repository}/api:${var.image_env}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
+  registry_image  = "ghcr.io/${var.github_repository}/api:${var.env}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
   port            = 8080
   cpu_limit       = var.api_cpu_limit
   memory_limit    = var.api_memory_limit
@@ -27,7 +27,7 @@ resource "scaleway_container" "api" {
   }
 
   environment_variables = {
-    "ENV"                        = var.app_env
+    "ENV"                        = var.env
     "API_URL"                    = "https://${var.api_hostname}"
     "APP_URL"                    = "https://${var.app_hostname}"
     "BENEVOLAT_URL"              = var.benevolat_hostname != "" ? "https://${var.benevolat_hostname}" : ""
@@ -57,10 +57,10 @@ resource "scaleway_container" "api" {
 
 # App Container
 resource "scaleway_container" "app" {
-  name           = "${var.env}-app"
-  description    = "App ${var.env} container"
+  name           = "${var.workspace}-app"
+  description    = "App ${var.workspace} container"
   namespace_id   = scaleway_container_namespace.main.id
-  registry_image = "ghcr.io/${var.github_repository}/app:${var.image_env}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
+  registry_image = "ghcr.io/${var.github_repository}/app:${var.env}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
   port           = 8080
   cpu_limit      = var.app_cpu_limit
   memory_limit   = var.app_memory_limit
@@ -76,10 +76,10 @@ resource "scaleway_container" "app" {
 # Widget Container
 resource "scaleway_container" "widget" {
   count          = var.enable_widget ? 1 : 0
-  name           = "${var.env}-widget"
-  description    = "Widget ${var.env} container"
+  name           = "${var.workspace}-widget"
+  description    = "Widget ${var.workspace} container"
   namespace_id   = scaleway_container_namespace.main.id
-  registry_image = "ghcr.io/${var.github_repository}/widget:${var.image_env}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
+  registry_image = "ghcr.io/${var.github_repository}/widget:${var.env}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
   port           = 8080
   cpu_limit      = var.widget_cpu_limit
   memory_limit   = var.widget_memory_limit
@@ -100,7 +100,7 @@ resource "scaleway_container" "widget" {
   }
 
   environment_variables = {
-    "ENV"     = var.app_env
+    "ENV"     = var.env
     "API_URL" = "https://${var.api_hostname}"
   }
 

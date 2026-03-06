@@ -1,6 +1,6 @@
 locals {
   common_env_vars = {
-    "ENV"                        = var.app_env
+    "ENV"                        = var.env
     "API_URL"                    = "https://${var.api_hostname}"
     "APP_URL"                    = "https://${var.app_hostname}"
     "BENEVOLAT_URL"              = var.benevolat_hostname != "" ? "https://${var.benevolat_hostname}" : ""
@@ -14,7 +14,7 @@ locals {
     tomap(local.secrets)
   )
 
-  image_uri              = "ghcr.io/${var.github_repository}/api:${var.image_env}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
+  image_uri              = "ghcr.io/${var.github_repository}/api:${var.env}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
   sync_sandbox_image_uri = "ghcr.io/${var.github_repository}/sync-sandbox:production-latest"
 }
 
