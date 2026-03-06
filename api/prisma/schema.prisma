@@ -708,9 +708,10 @@ model PublisherOrganization {
   createdAt              DateTime  @default(now()) @map("created_at")
   updatedAt              DateTime  @updatedAt @map("updated_at")
 
-  publisher            Publisher     @relation(fields: [publisherId], references: [id], onDelete: Cascade)
-  missions             Mission[]     @relation("MissionPublisherOrganization")
-  organizationVerified Organization? @relation(fields: [organizationIdVerified], references: [id])
+  publisher                    Publisher                     @relation(fields: [publisherId], references: [id], onDelete: Cascade)
+  missions                     Mission[]                     @relation("MissionPublisherOrganization")
+  organizationVerified         Organization?                 @relation(fields: [organizationIdVerified], references: [id])
+  publisherDiffusionExclusions PublisherDiffusionExclusion[] @relation("PublisherDiffusionExclusionOrganizationRelation")
 
   @@unique([publisherId, clientId], map: "publisher_organization_publisher_id_client_id_key")
   @@index([publisherId], map: "publisher_organization_publisher_id_idx")
@@ -917,19 +918,26 @@ model Organization {
 }
 
 model PublisherDiffusionExclusion {
-  id                     String   @id @default(uuid())
-  excludedByAnnonceurId  String   @map("excluded_by_annonceur_id")
-  excludedForDiffuseurId String   @map("excluded_for_diffuseur_id")
-  organizationClientId   String?  @map("organization_client_id")
-  organizationName       String?  @map("organization_name")
-  createdAt              DateTime @default(now()) @map("created_at")
-  updatedAt              DateTime @updatedAt @map("updated_at")
+  id                      String  @id @default(uuid())
+  excludedByAnnonceurId   String  @map("excluded_by_annonceur_id")
+  excludedForDiffuseurId  String  @map("excluded_for_diffuseur_id")
+  // Step 2: remove organizationClientId adn organizationName to keep only publisherOrganizationId
+  organizationClientId    String? @map("organization_client_id")
+  organizationName        String? @map("organization_name")
+  publisherOrganizationId String? @map("publisher_organization_id")
 
-  excludedByAnnonceur  Publisher @relation("PublisherDiffusionExclusionByAnnonceurRelation", fields: [excludedByAnnonceurId], references: [id], onDelete: Cascade, map: "pde_excluded_by_annonceur_id_fkey")
-  excludedForDiffuseur Publisher @relation("PublisherDiffusionExclusionForDiffuseurRelation", fields: [excludedForDiffuseurId], references: [id], onDelete: Cascade, map: "pde_excluded_for_diffuseur_id_fkey")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
+  excludedByAnnonceur   Publisher              @relation("PublisherDiffusionExclusionByAnnonceurRelation", fields: [excludedByAnnonceurId], references: [id], onDelete: Cascade, map: "pde_excluded_by_annonceur_id_fkey")
+  excludedForDiffuseur  Publisher              @relation("PublisherDiffusionExclusionForDiffuseurRelation", fields: [excludedForDiffuseurId], references: [id], onDelete: Cascade, map: "pde_excluded_for_diffuseur_id_fkey")
+  publisherOrganization PublisherOrganization? @relation("PublisherDiffusionExclusionOrganizationRelation", fields: [publisherOrganizationId], references: [id], onDelete: SetNull)
+
+  // Step 2: create unique constraint on publisherOrganizationId
+  // @@unique([excludedByAnnonceurId, excludedForDiffuseurId, publisherOrganizationId], map: "pde_by_annonceur_for_diffuseur_publisher_organization_key")
   @@unique([excludedByAnnonceurId, excludedForDiffuseurId, organizationClientId], map: "pde_by_annonceur_for_diffuseur_org_key")
   @@index([excludedForDiffuseurId], map: "publisher_diffusion_exclusion_for_diffuseur_id_idx")
+  @@index([publisherOrganizationId], map: "publisher_diffusion_exclusion_publisher_organization_id_idx")
   @@map("publisher_diffusion_exclusion")
 }
 

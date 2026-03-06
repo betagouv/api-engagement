@@ -2,13 +2,11 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { PUBLISHER_IDS } from "@/config";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
 import { missionService } from "@/services/mission";
-import { publisherDiffusionExclusionService } from "@/services/publisher-diffusion-exclusion";
 import type { MissionRecord, MissionRemote, MissionSearchFilters } from "@/types/mission";
 import { PublisherRequest } from "@/types/passport";
-import type { PublisherRecord } from "@/types/publisher";
+import type { PublisherRecord, PublisherRecordWithRelations } from "@/types/publisher";
 import { getDistanceFromLatLonInKm, getDistanceKm } from "@/utils";
 import { NO_PARTNER, NO_PARTNER_MESSAGE } from "@/v0/mission/constants";
 import { buildData } from "@/v0/mission/transformer";
@@ -70,7 +68,7 @@ const router = Router();
 
 router.get("/", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
-    const user = req.user as PublisherRecord;
+    const user = req.user as PublisherRecordWithRelations;
 
     const query = missionQuerySchema.safeParse(req.query);
 
@@ -91,8 +89,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
       query.data.skip = parseInt(req.query.from as string, 10);
     }
 
-    const diffusionExclusions = await publisherDiffusionExclusionService.findExclusionsForDiffuseurId(user.id);
-    const excludedIds = diffusionExclusions.map((e) => e.organizationClientId).filter((id): id is string => id !== null);
+    const excludePublisherOrganizationIds = user.diffusionExclusionsFor?.map((e) => e.publisherOrganizationId).filter((id): id is string => id !== null);
 
     const normalizePublisherIds = (publisher: string | string[] | undefined): string[] => {
       const values = normalizeQueryArray(publisher);
@@ -110,7 +107,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
 
     const filters: MissionSearchFilters = {
       publisherIds,
-      excludeOrganizationClientIds: excludedIds.length ? excludedIds : undefined,
+      excludePublisherOrganizationIds,
       moderationAcceptedFor: user.moderator ? user.id : undefined,
       activity: normalizeQueryArray(query.data.activity),
       city: normalizeQueryArray(query.data.city),
@@ -131,10 +128,6 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
       limit: query.data.limit,
       skip: query.data.skip,
     };
-
-    if (user.id === PUBLISHER_IDS.BOUYGUES_TELECOM) {
-      filters.excludeOrganizationName = "APF France handicap - Délégations de Haute-Saône et du Territoire de Belfort";
-    }
 
     if (query.data.lat && query.data.lon) {
       const rawDistance = query.data.distance && (query.data.distance === "0" || query.data.distance === "0km") ? "10km" : query.data.distance || "50km";
@@ -160,7 +153,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
 
 router.get("/search", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
-    const user = req.user as PublisherRecord;
+    const user = req.user as PublisherRecordWithRelations;
 
     const query = missionQuerySchema
       .extend({
@@ -185,8 +178,7 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
       query.data.skip = parseInt(req.query.from as string, 10);
     }
 
-    const diffusionExclusions = await publisherDiffusionExclusionService.findExclusionsForDiffuseurId(user.id);
-    const excludedIds = diffusionExclusions.map((e) => e.organizationClientId).filter((id): id is string => id !== null);
+    const excludePublisherOrganizationIds = user.diffusionExclusionsFor?.map((e) => e.publisherOrganizationId).filter((id): id is string => id !== null);
 
     const normalizePublisherIds = (publisher: string | string[] | undefined): string[] => {
       const values = normalizeQueryArray(publisher);
@@ -204,7 +196,7 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
 
     const filters: MissionSearchFilters = {
       publisherIds,
-      excludeOrganizationClientIds: excludedIds.length ? excludedIds : undefined,
+      excludePublisherOrganizationIds,
       moderationAcceptedFor: user.moderator ? user.id : undefined,
       activity: normalizeQueryArray(query.data.activity),
       city: normalizeQueryArray(query.data.city),

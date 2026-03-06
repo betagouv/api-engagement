@@ -1,6 +1,6 @@
-import { randomUUID } from "crypto";
 import { Prisma, WidgetRule } from "@/db/core";
 import { widgetRepository } from "@/repositories/widget";
+import { publisherService } from "@/services/publisher";
 import type {
   WidgetCreateInput,
   WidgetLocation,
@@ -12,11 +12,11 @@ import type {
   WidgetType,
   WidgetUpdatePatch,
 } from "@/types/widget";
-import { publisherService } from "@/services/publisher";
+import { randomUUID } from "crypto";
 
 type PrismaWidgetWithRelations = Prisma.WidgetGetPayload<{
   include: {
-    fromPublisher: { select: { id: true; name: true } };
+    fromPublisher: { select: { id: true; name: true; diffusionExclusionsFor?: true } };
     rules: true;
     widgetPublishers: { select: { publisherId: true } };
   };
@@ -55,6 +55,7 @@ const toWidgetRecord = (widget: PrismaWidgetWithRelations): WidgetRecord => ({
   jvaModeration: widget.jvaModeration,
   fromPublisherId: widget.fromPublisherId,
   fromPublisherName: widget.fromPublisher?.name ?? null,
+  fromPublisherDiffusionExclusions: widget.fromPublisher?.diffusionExclusionsFor ?? [],
   active: widget.active,
   deletedAt: widget.deletedAt,
   createdAt: widget.createdAt,
@@ -182,12 +183,12 @@ export const widgetService = {
     return { widgets: rows.map(toWidgetRecord), total };
   },
 
-  async findOneWidgetById(id: string, options: { includeDeleted?: boolean } = {}): Promise<WidgetRecord | null> {
+  async findOneWidgetById(id: string, options: { includeDeleted?: boolean; include?: Prisma.WidgetInclude } = {}): Promise<WidgetRecord | null> {
     const where: Prisma.WidgetWhereInput = { id };
     if (!options.includeDeleted) {
       where.deletedAt = null;
     }
-    const row = (await widgetRepository.findFirst({ where })) as PrismaWidgetWithRelations | null;
+    const row = (await widgetRepository.findFirst({ where, include: options.include ?? undefined })) as PrismaWidgetWithRelations | null;
 
     return row ? toWidgetRecord(row) : null;
   },

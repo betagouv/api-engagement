@@ -27,6 +27,12 @@ const MISSION_FIELDS: MissionSelect = {
   tags: true,
 };
 
+const WIDGET_INCLUDE = {
+  fromPublisher: { select: { id: true, name: true, diffusionExclusionsFor: true } },
+  rules: { orderBy: { position: "asc" as const } },
+  widgetPublishers: { select: { publisherId: true }, orderBy: { createdAt: "asc" as const } },
+};
+
 router.get("/widget", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const query = zod
@@ -101,12 +107,12 @@ router.get("/:id/search", cors({ origin: "*" }), async (req: Request, res: Respo
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
 
-    const widget = await widgetService.findOneWidgetById(params.data.id);
+    const widget = await widgetService.findOneWidgetById(params.data.id, { include: WIDGET_INCLUDE });
     if (!widget) {
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    const filters = buildMissionFilters(widget, query.data, [], { skip: query.data.from, limit: query.data.size });
+    const filters = buildMissionFilters(widget, query.data, { skip: query.data.from, limit: query.data.size });
     const { data, total } = await widgetMissionService.fetchWidgetMissions(widget, filters, MISSION_FIELDS);
     const mappedData = data.map((mission) => toWidgetMission(mission, widget));
 
@@ -157,12 +163,13 @@ router.get("/:id/aggs", cors({ origin: "*" }), async (req: Request, res: Respons
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
 
-    const widget = await widgetService.findOneWidgetById(params.data.id);
+    const widget = await widgetService.findOneWidgetById(params.data.id, { include: WIDGET_INCLUDE });
+
     if (!widget) {
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    const filters = buildMissionFilters(widget, query.data, [], { skip: 0, limit: 0 });
+    const filters = buildMissionFilters(widget, query.data, { skip: 0, limit: 0 });
     const aggs = await widgetMissionService.fetchWidgetAggregations(widget, filters, query.data.aggs);
     return res.status(200).send({ ok: true, data: aggs });
   } catch (error) {
@@ -200,16 +207,13 @@ const resolveLocationFilters = (widget: WidgetRecord, lon?: number, lat?: number
   return undefined;
 };
 
-const buildMissionFilters = (
-  widget: WidgetRecord,
-  query: { [key: string]: any },
-  excludedOrganizationClientIds: string[],
-  pagination: { skip: number; limit: number }
-): MissionSearchFilters => {
+const buildMissionFilters = (widget: WidgetRecord, query: { [key: string]: any }, pagination: { skip: number; limit: number }): MissionSearchFilters => {
+  const excludedPublisherOrganizationIds = widget.fromPublisherDiffusionExclusions?.map((e) => e.publisherOrganizationId as string) ?? [];
+
   const filters: MissionSearchFilters = {
     directFilters: applyWidgetRules(widget.rules || []),
     publisherIds: widget.publishers,
-    excludeOrganizationClientIds: excludedOrganizationClientIds.length ? excludedOrganizationClientIds : undefined,
+    excludePublisherOrganizationIds: excludedPublisherOrganizationIds.length ? excludedPublisherOrganizationIds : undefined,
     skip: pagination.skip,
     limit: pagination.limit,
   };
