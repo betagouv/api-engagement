@@ -6,6 +6,7 @@ import { prisma } from "@/db/postgres";
 import { ELIGIBLE_DOMAINS, QUOTA_BY_DOMAIN } from "@/jobs/letudiant/config";
 import { LetudiantHandler } from "@/jobs/letudiant/handler";
 import * as letudiantUtils from "@/jobs/letudiant/utils";
+import { buildPilotyFetchMock, pilotyCompanyResponse, pilotyJobResponse, PILOTY_MANDATORY_DATA_MOCKS } from "../../../mocks";
 import { createTestMission, createTestPublisher } from "../../../fixtures";
 
 /**
@@ -22,72 +23,7 @@ import { createTestMission, createTestPublisher } from "../../../fixtures";
  * - countOnlineEntriesByDomain is spied on in quota-heavy tests
  */
 
-// ─── Piloty mock helpers ────────────────────────────────────────────────────
-
-const MANDATORY_DATA_MOCKS = [
-  // GET /contracts
-  {
-    data: [
-      { id: "c-benevolat", ref: "volunteering", name: "Volunteering" },
-      { id: "c-volontariat", ref: "civil_service", name: "Civil Service" },
-    ],
-  },
-  // GET /remote_policies
-  { data: [{ id: "rp-full", ref: "fulltime", name: "Full Remote" }] },
-  // GET /job_categories — include all refs from JOB_CATEGORY_MAPPING
-  {
-    data: [
-      { id: "jc-env", ref: "environment_energie", name: "Env", children: { data: [] } },
-      { id: "jc-solidarite", ref: "customer_service_customer_advisor", name: "Solidarité", children: { data: [] } },
-      { id: "jc-sante", ref: "health_social", name: "Santé", children: { data: [] } },
-      { id: "jc-culture", ref: "tourism_leisure", name: "Culture", children: { data: [] } },
-      { id: "jc-education", ref: "education_training", name: "Education", children: { data: [] } },
-      { id: "jc-emploi", ref: "hr", name: "Emploi", children: { data: [] } },
-      { id: "jc-sport", ref: "arts_culture_sport", name: "Sport", children: { data: [] } },
-      { id: "jc-humanitaire", ref: "hr_mobility", name: "Humanitaire", children: { data: [] } },
-      { id: "jc-animaux", ref: "health_social_pet_sitting", name: "Animaux", children: { data: [] } },
-      { id: "jc-autre", ref: "customer_support", name: "Autre", children: { data: [] } },
-    ],
-  },
-];
-
-type FetchMockResponse = { data: any } | any;
-
-/**
- * Builds a fetch mock that:
- * - Returns mandatory data for GET /contracts, /remote_policies, /job_categories
- * - Returns additional responses from the queue for other calls (POST /jobs, PATCH /jobs/:id, etc.)
- */
-function buildFetchMock(additionalResponses: FetchMockResponse[] = []) {
-  const queue = [...additionalResponses];
-  return vi.fn().mockImplementation((url: string, options: RequestInit = {}) => {
-    const method = (options.method ?? "GET").toUpperCase();
-
-    if (method === "GET" && url.includes("/contracts")) {
-      return Promise.resolve({ ok: true, json: async () => MANDATORY_DATA_MOCKS[0] });
-    }
-    if (method === "GET" && url.includes("/remote_policies")) {
-      return Promise.resolve({ ok: true, json: async () => MANDATORY_DATA_MOCKS[1] });
-    }
-    if (method === "GET" && url.includes("/job_categories")) {
-      return Promise.resolve({ ok: true, json: async () => MANDATORY_DATA_MOCKS[2] });
-    }
-
-    const next = queue.shift();
-    if (next === undefined) {
-      throw new Error(`[Test] Unexpected fetch call: ${method} ${url}. No more mocked responses.`);
-    }
-    return Promise.resolve({ ok: true, json: async () => next });
-  });
-}
-
-function pilotyJobResponse(publicId: string) {
-  return { data: [{ public_id: publicId, name: "Test Job" }] };
-}
-
-function pilotyCompanyResponse(publicId: string) {
-  return { data: { public_id: publicId, name: "Test Company" } };
-}
+// ─── Piloty mock helpers → see api/tests/mocks/pilotyMock.ts ────────────────
 
 /** Returns a map with all eligible domains at 0 except the ones provided */
 function makeOnlineCounts(overrides: Partial<Record<string, number>> = {}): Map<string, number> {
@@ -170,7 +106,7 @@ describe("LetudiantHandler (integration test)", () => {
       const thirtyOneDaysAgo = new Date(Date.now() - 31 * 24 * 60 * 60 * 1000);
       await seedOnlineEntry(mission.id, "piloty-job-old", { createdAt: thirtyOneDaysAgo });
 
-      global.fetch = buildFetchMock([pilotyJobResponse("piloty-job-old")]); // PATCH archive
+      global.fetch = buildPilotyFetchMock([pilotyJobResponse("piloty-job-old")]); // PATCH archive
 
       await handler.handle({});
 
@@ -183,7 +119,7 @@ describe("LetudiantHandler (integration test)", () => {
       const mission = await createTestMission({ publisherId: publisher.id, deleted: true, domain: "solidarite-insertion" });
       await seedOnlineEntry(mission.id, "piloty-job-deleted");
 
-      global.fetch = buildFetchMock([pilotyJobResponse("piloty-job-deleted")]);
+      global.fetch = buildPilotyFetchMock([pilotyJobResponse("piloty-job-deleted")]);
 
       await handler.handle({});
 
@@ -196,7 +132,7 @@ describe("LetudiantHandler (integration test)", () => {
       const mission = await createTestMission({ publisherId: publisher.id, statusCode: "REFUSED", domain: "solidarite-insertion" });
       await seedOnlineEntry(mission.id, "piloty-job-refused");
 
-      global.fetch = buildFetchMock([pilotyJobResponse("piloty-job-refused")]);
+      global.fetch = buildPilotyFetchMock([pilotyJobResponse("piloty-job-refused")]);
 
       await handler.handle({});
 
@@ -224,7 +160,7 @@ describe("LetudiantHandler (integration test)", () => {
         },
       });
 
-      global.fetch = buildFetchMock([pilotyJobResponse("piloty-job-excluded")]);
+      global.fetch = buildPilotyFetchMock([pilotyJobResponse("piloty-job-excluded")]);
 
       await handler.handle({});
 
@@ -237,7 +173,7 @@ describe("LetudiantHandler (integration test)", () => {
       const mission = await createTestMission({ publisherId: publisher.id, statusCode: "ACCEPTED", domain: "solidarite-insertion" });
       await seedOnlineEntry(mission.id, "piloty-job-recent"); // created_at defaults to now
 
-      global.fetch = buildFetchMock([]);
+      global.fetch = buildPilotyFetchMock([]);
 
       await handler.handle({});
 
@@ -256,13 +192,13 @@ describe("LetudiantHandler (integration test)", () => {
           return Promise.resolve({ ok: false, status: 404, json: async () => ({ message: "Not found" }) });
         }
         if (url.includes("/contracts")) {
-          return Promise.resolve({ ok: true, json: async () => MANDATORY_DATA_MOCKS[0] });
+          return Promise.resolve({ ok: true, json: async () => PILOTY_MANDATORY_DATA_MOCKS[0] });
         }
         if (url.includes("/remote_policies")) {
-          return Promise.resolve({ ok: true, json: async () => MANDATORY_DATA_MOCKS[1] });
+          return Promise.resolve({ ok: true, json: async () => PILOTY_MANDATORY_DATA_MOCKS[1] });
         }
         if (url.includes("/job_categories")) {
-          return Promise.resolve({ ok: true, json: async () => MANDATORY_DATA_MOCKS[2] });
+          return Promise.resolve({ ok: true, json: async () => PILOTY_MANDATORY_DATA_MOCKS[2] });
         }
         throw new Error(`Unexpected: ${method} ${url}`);
       });
@@ -290,7 +226,7 @@ describe("LetudiantHandler (integration test)", () => {
         await prisma.organization.updateMany({ where: { id: mission.organizationId }, data: { letudiantPublicId: "company-existing" } });
       }
 
-      global.fetch = buildFetchMock([pilotyJobResponse("piloty-job-to-update")]); // PATCH update
+      global.fetch = buildPilotyFetchMock([pilotyJobResponse("piloty-job-to-update")]); // PATCH update
 
       await handler.handle({});
 
@@ -308,7 +244,7 @@ describe("LetudiantHandler (integration test)", () => {
       const futureDate = new Date(Date.now() + 60 * 1000);
       await prisma.$executeRaw`UPDATE "mission_jobboard" SET "updated_at" = ${futureDate} WHERE "id" = ${entry.id}`;
 
-      const fetchMock = buildFetchMock([]);
+      const fetchMock = buildPilotyFetchMock([]);
       global.fetch = fetchMock;
 
       await handler.handle({});
@@ -329,7 +265,7 @@ describe("LetudiantHandler (integration test)", () => {
         await prisma.organization.updateMany({ where: { id: mission.organizationId }, data: { letudiantPublicId: "company-existing" } });
       }
 
-      global.fetch = buildFetchMock([pilotyJobResponse("new-piloty-job-1")]); // POST create
+      global.fetch = buildPilotyFetchMock([pilotyJobResponse("new-piloty-job-1")]); // POST create
 
       await handler.handle({});
 
@@ -342,7 +278,7 @@ describe("LetudiantHandler (integration test)", () => {
       const publisher = await createTestPublisher({ id: PUBLISHER_IDS.JEVEUXAIDER });
       const mission = await createTestMission({ publisherId: publisher.id, statusCode: "ACCEPTED", domain: "environnement" });
 
-      const fetchMock = buildFetchMock([]);
+      const fetchMock = buildPilotyFetchMock([]);
       global.fetch = fetchMock;
 
       await handler.handle({});
@@ -370,7 +306,7 @@ describe("LetudiantHandler (integration test)", () => {
         },
       });
 
-      const fetchMock = buildFetchMock([]);
+      const fetchMock = buildPilotyFetchMock([]);
       global.fetch = fetchMock;
 
       await handler.handle({});
@@ -387,7 +323,7 @@ describe("LetudiantHandler (integration test)", () => {
         data: { jobBoardId: "LETUDIANT", missionId: mission.id, missionAddressId: null, publicId: "", syncStatus: "ERROR" },
       });
 
-      const fetchMock = buildFetchMock([]);
+      const fetchMock = buildPilotyFetchMock([]);
       global.fetch = fetchMock;
 
       await handler.handle({});
@@ -409,7 +345,7 @@ describe("LetudiantHandler (integration test)", () => {
         await prisma.organization.updateMany({ where: { id: candidate.organizationId }, data: { letudiantPublicId: "company-existing" } });
       }
 
-      const fetchMock = buildFetchMock([]);
+      const fetchMock = buildPilotyFetchMock([]);
       global.fetch = fetchMock;
 
       await handler.handle({});
@@ -435,7 +371,7 @@ describe("LetudiantHandler (integration test)", () => {
         await prisma.organization.updateMany({ where: { id: { in: orgIds } }, data: { letudiantPublicId: "company-existing" } });
       }
 
-      global.fetch = buildFetchMock([
+      global.fetch = buildPilotyFetchMock([
         pilotyJobResponse("new-job-m3"),
         pilotyJobResponse("new-job-m2"),
         // m1 (oldest) has no slots — no POST expected
@@ -471,7 +407,7 @@ describe("LetudiantHandler (integration test)", () => {
         await prisma.organization.updateMany({ where: { id: { in: orgIds } }, data: { letudiantPublicId: "company-existing" } });
       }
 
-      global.fetch = buildFetchMock([pilotyJobResponse("new-job-newest")]); // only 1 slot
+      global.fetch = buildPilotyFetchMock([pilotyJobResponse("new-job-newest")]); // only 1 slot
 
       await handler.handle({});
 
@@ -503,7 +439,7 @@ describe("LetudiantHandler (integration test)", () => {
         await prisma.organization.updateMany({ where: { id: mission.organizationId }, data: { letudiantPublicId: "company-existing" } });
       }
 
-      global.fetch = buildFetchMock([pilotyJobResponse("job-paris"), pilotyJobResponse("job-lyon"), pilotyJobResponse("job-marseille")]);
+      global.fetch = buildPilotyFetchMock([pilotyJobResponse("job-paris"), pilotyJobResponse("job-lyon"), pilotyJobResponse("job-marseille")]);
 
       await handler.handle({});
 
@@ -531,7 +467,7 @@ describe("LetudiantHandler (integration test)", () => {
         await prisma.organization.updateMany({ where: { id: solidariteMission.organizationId }, data: { letudiantPublicId: "company-existing" } });
       }
 
-      global.fetch = buildFetchMock([pilotyJobResponse("new-solidarite-job")]);
+      global.fetch = buildPilotyFetchMock([pilotyJobResponse("new-solidarite-job")]);
 
       await handler.handle({});
 
@@ -560,7 +496,7 @@ describe("LetudiantHandler (integration test)", () => {
       // Mock: PATCH archive (phase 1) + POST create (phase 3)
       // countOnlineEntriesByDomain is NOT mocked — it reads from DB
       // After phase 1 archives the old entry (OFFLINE), count = 0 → 450 slots available
-      global.fetch = buildFetchMock([
+      global.fetch = buildPilotyFetchMock([
         pilotyJobResponse("old-piloty-job"), // PATCH archive
         pilotyJobResponse("new-candidate-job"), // POST create
       ]);
