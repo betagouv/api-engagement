@@ -2,10 +2,8 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { PUBLISHER_IDS } from "@/config";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
 import { missionService } from "@/services/mission";
-import publisherOrganizationService from "@/services/publisher-organization";
 import type { MissionRecord, MissionRemote, MissionSearchFilters } from "@/types/mission";
 import { PublisherRequest } from "@/types/passport";
 import type { PublisherRecord, PublisherRecordWithRelations } from "@/types/publisher";
@@ -130,18 +128,6 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
       limit: query.data.limit,
       skip: query.data.skip,
     };
-
-    if (user.id === PUBLISHER_IDS.BOUYGUES_TELECOM) {
-      // TODO: Remove this once we have a proper way to exclude organizations
-      const franceHandicapOrganization = await publisherOrganizationService.findMany(
-        { name: "APF France handicap - Délégations de Haute-Saône et du Territoire de Belfort" },
-        { take: 1 }
-      );
-      if (!filters.excludePublisherOrganizationIds) {
-        filters.excludePublisherOrganizationIds = [];
-      }
-      filters.excludePublisherOrganizationIds.push(...(franceHandicapOrganization.map((o) => o.id) ?? []));
-    }
 
     if (query.data.lat && query.data.lon) {
       const rawDistance = query.data.distance && (query.data.distance === "0" || query.data.distance === "0km") ? "10km" : query.data.distance || "50km";
