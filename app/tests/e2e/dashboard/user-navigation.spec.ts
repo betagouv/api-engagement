@@ -27,6 +27,8 @@ test.describe("Navigation user — aucune déconnexion involontaire", () => {
       { method: "POST", path: "/mission/search", response: { ok: true, data: [], total: 0, aggs: {} } },
       { method: "POST", path: "/campaign/search", response: { ok: true, data: [], total: 0 } },
       { method: "POST", path: "/widget/search", response: { ok: true, data: [], total: 0 } },
+      // GlobalAnnounce (flux="to") et GlobalBroadcast (flux="from") font des appels Metabase pour les analytics
+      { method: "POST", path: "/metabase/card/", response: { ok: true, data: { data: { rows: [], cols: [] } } } },
     ]);
     await page.goto(`/${PUBLISHER_ID}/performance`);
     await assertNotLoggedOut(page);
