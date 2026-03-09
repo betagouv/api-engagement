@@ -9,7 +9,9 @@ import { createTestMission, createTestPublisher } from "./index";
 export async function createStatEventFixture(overrides: Partial<StatEventRecord> = {}) {
   const ensurePublisherExists = async (id: string, name?: string) => {
     const existing = await prisma.publisher.findUnique({ where: { id } });
-    if (existing) return existing.id;
+    if (existing) {
+      return existing.id;
+    }
     return (await createTestPublisher({ id, name })).id;
   };
 

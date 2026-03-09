@@ -10,7 +10,9 @@ import { createTestPublisher } from "./publisher";
 
 const ensurePublisherExists = async (publisherId: string) => {
   const existing = await prisma.publisher.findUnique({ where: { id: publisherId } });
-  if (existing) return existing;
+  if (existing) {
+    return existing;
+  }
   return createTestPublisher({ id: publisherId });
 };
 
@@ -28,7 +30,9 @@ const buildDefaultAddress = (override: MissionAddress = {}): MissionAddress => (
 });
 
 export const createTestMission = async (
-  data: Partial<MissionCreateInput & { deleted?: boolean; moderationStatus?: string; moderationComment?: string | null; moderationNote?: string | null; moderationTitle?: string | null }> = {}
+  data: Partial<
+    MissionCreateInput & { deleted?: boolean; moderationStatus?: string; moderationComment?: string | null; moderationNote?: string | null; moderationTitle?: string | null }
+  > = {}
 ): Promise<MissionRecord> => {
   const publisher = data.publisherId ? await ensurePublisherExists(data.publisherId) : await createTestPublisher();
 
