@@ -275,6 +275,7 @@ export const createTestMission = async (
     compensationUnit: missionInput.compensationUnit ?? undefined,
     compensationType: missionInput.compensationType ?? undefined,
     organizationClientId: missionInput.organizationClientId ?? undefined,
+    organizationId: missionInput.organizationId ?? undefined,
     publisherOrganizationId: publisherOrganizationId ?? undefined,
     lastSyncAt: missionInput.lastSyncAt ?? undefined,
     applicationUrl: missionInput.applicationUrl ?? undefined,

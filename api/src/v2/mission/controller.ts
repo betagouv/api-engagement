@@ -5,7 +5,7 @@ import zod from "zod";
 import { INVALID_BODY, INVALID_PARAMS, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "@/error";
 import { defaultRateLimiter } from "@/middlewares/rate-limit";
 import { missionService } from "@/services/mission";
-import { MissionCreateInput, MissionRecord, MissionUpdatePatch } from "@/types/mission";
+import { MissionCreateInput, MissionUpdatePatch } from "@/types/mission";
 import { PublisherRequest } from "@/types/passport";
 import { PublisherRecord } from "@/types/publisher";
 import { getModeration } from "@/utils/mission-moderation";
@@ -124,7 +124,7 @@ router.post("/", passport.authenticate(["apikey", "api"], { session: false }), d
     const body = parsed.data;
 
     const existing = await missionService.findMissionByClientAndPublisher(body.clientId, publisher.id);
-    if (existing && !existing.deletedAt) {
+    if (existing) {
       return res.status(409).send({ ok: false, code: RESSOURCE_ALREADY_EXIST, message: "A mission with this clientId already exists for this publisher" });
     }
 

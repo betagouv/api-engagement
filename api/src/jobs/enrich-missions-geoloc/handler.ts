@@ -28,7 +28,7 @@ export class EnrichMissionsGeolocHandler implements BaseHandler<EnrichMissionsGe
 
     let enrichedCount = 0;
     let failedCount = 0;
-    let offset = 0;
+    let lastProcessedId: string | null = null;
 
     while (true) {
       const addresses = await missionAddressRepository.findMany({
@@ -36,33 +36,34 @@ export class EnrichMissionsGeolocHandler implements BaseHandler<EnrichMissionsGe
           geolocStatus: { in: statuses },
           geolocFailureCount: { lt: MAX_FAILURES },
           mission: { deletedAt: null },
+          ...(lastProcessedId ? { id: { gt: lastProcessedId } } : {}),
         },
         include: { mission: { select: { clientId: true } } },
         orderBy: { id: "asc" },
         take: CHUNK_SIZE,
-        skip: offset,
       });
 
       if (!addresses.length) {
         break;
       }
-      offset += addresses.length;
+      lastProcessedId = addresses[addresses.length - 1].id;
 
       // Group addresses by missionId, preserving order for stable addressIndex
-      const missionMap = new Map<string, { clientId: string; addresses: typeof addresses }>();
+      const missionMap = new Map<string, { geolocKey: string; addresses: typeof addresses }>();
       for (const addr of addresses) {
         const mission = (addr as any).mission as { clientId: string };
         if (!mission) {
           continue;
         }
         if (!missionMap.has(addr.missionId)) {
-          missionMap.set(addr.missionId, { clientId: mission.clientId, addresses: [] });
+          missionMap.set(addr.missionId, { geolocKey: `${addr.missionId}:${mission.clientId}`, addresses: [] });
         }
         missionMap.get(addr.missionId)!.addresses.push(addr);
       }
 
-      const geolocInputs: GeolocMissionInput[] = Array.from(missionMap.values()).map(({ clientId, addresses: missionAddresses }) => ({
-        clientId,
+      const geolocEntries = Array.from(missionMap.values());
+      const geolocInputs: GeolocMissionInput[] = geolocEntries.map(({ geolocKey, addresses: missionAddresses }) => ({
+        clientId: geolocKey,
         addresses: missionAddresses.map((a) => ({
           street: a.street,
           city: a.city,
@@ -73,9 +74,10 @@ export class EnrichMissionsGeolocHandler implements BaseHandler<EnrichMissionsGe
       }));
 
       const results = await enrichWithGeoloc(LABEL, geolocInputs);
+      const geolocMap = new Map(geolocEntries.map((entry) => [entry.geolocKey, entry]));
 
       for (const result of results) {
-        const missionEntry = Array.from(missionMap.values()).find((e) => e.clientId === result.clientId);
+        const missionEntry = geolocMap.get(result.clientId);
         if (!missionEntry) {
           continue;
         }
@@ -96,6 +98,7 @@ export class EnrichMissionsGeolocHandler implements BaseHandler<EnrichMissionsGe
             locationLat: result.location?.lat ?? null,
             locationLon: result.location?.lon ?? null,
             geolocStatus: result.geolocStatus,
+            ...(result.geolocStatus === "FAILED" ? { geolocFailureCount: { increment: 1 } } : {}),
           });
 
           if (result.geolocStatus === "ENRICHED_BY_API") {
@@ -117,7 +120,7 @@ export class EnrichMissionsGeolocHandler implements BaseHandler<EnrichMissionsGe
         }
       }
 
-      console.log(`[${LABEL}] Processed chunk of ${addresses.length} addresses (offset ${offset})`);
+      console.log(`[${LABEL}] Processed chunk of ${addresses.length} addresses (lastProcessedId ${lastProcessedId})`);
     }
 
     const message = `${enrichedCount} addresses enriched, ${failedCount} failed or not found`;
