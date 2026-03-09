@@ -4,22 +4,13 @@ import { prisma } from "@/db/postgres";
 import { missionService } from "@/services/mission";
 import { statEventService } from "@/services/stat-event";
 import { StatEventRecord } from "@/types";
-import { createTestPublisher } from "./index";
+import { createTestMission, createTestPublisher } from "./index";
 
 export async function createStatEventFixture(overrides: Partial<StatEventRecord> = {}) {
   const ensurePublisherExists = async (id: string, name?: string) => {
     const existing = await prisma.publisher.findUnique({ where: { id } });
-    if (existing) {
-      return existing.id;
-    }
-
-    const created = await prisma.publisher.create({
-      data: {
-        id,
-        name: name ?? `Test Publisher ${id.slice(0, 8)}`,
-      },
-    });
-    return created.id;
+    if (existing) return existing.id;
+    return (await createTestPublisher({ id, name })).id;
   };
 
   const fromPublisherId = overrides.fromPublisherId ?? (await createTestPublisher({ name: overrides.fromPublisherName })).id;
@@ -37,10 +28,12 @@ export async function createStatEventFixture(overrides: Partial<StatEventRecord>
   if (overrides.missionId) {
     const existingMission = await missionService.findOneMission(overrides.missionId);
     if (!existingMission) {
-      await missionService.create({
+      // createTestMission creates a MissionModerationStatus linked to the JVA publisher
+      await ensurePublisherExists("5f5931496c7ea514150a818f");
+      await createTestMission({
         id: overrides.missionId,
-        clientId: overrides.missionClientId ?? `client-${overrides.missionId}`,
         publisherId: toPublisherId,
+        clientId: overrides.missionClientId ?? `client-${overrides.missionId}`,
         title: overrides.missionTitle ?? "Fixture Mission",
         statusCode: "ACCEPTED",
         addresses: [
