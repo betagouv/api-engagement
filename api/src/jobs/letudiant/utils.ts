@@ -5,11 +5,10 @@ import {
   AUDIENCE_MAPPING,
   CONTRACT_MAPPING,
   DOMAIN_MAPPING,
-  ELIGIBLE_DOMAINS,
   JOB_CATEGORY_MAPPING,
   ONLINE_DAYS_LIMIT,
+  PUBLISHER_SYNC_CONFIGS,
   REMOTE_POLICY_MAPPING,
-  WHITELISTED_PUBLISHERS_IDS,
 } from "@/jobs/letudiant/config";
 import { missionService } from "@/services/mission";
 import missionJobBoardService from "@/services/mission-jobboard";
@@ -61,6 +60,8 @@ export async function loadExcludedOrganizationClientIds(): Promise<Set<string>> 
 export async function getMissionEntriesToArchive(excludedOrgClientIds: Set<string>): Promise<MissionEntryToArchive[]> {
   const onlineCutoffDate = new Date(Date.now() - ONLINE_DAYS_LIMIT * 24 * 60 * 60 * 1000);
   const excludedClientIds = Array.from(excludedOrgClientIds);
+  // Publishers with no quota are never archived by age (they are always fully synced)
+  const unlimitedPublisherIds = PUBLISHER_SYNC_CONFIGS.filter((c) => c.quotaByDomain === null).map((c) => c.publisherId);
 
   const rows = await prisma.$queryRaw<Array<{ missionId: string; missionAddressId: string | null; publicId: string }>>(
     Prisma.sql`
@@ -75,7 +76,10 @@ export async function getMissionEntriesToArchive(excludedOrgClientIds: Set<strin
         AND (
           m.deleted_at IS NOT NULL
           OR m.status_code <> 'ACCEPTED'
-          OR mjb.created_at < ${onlineCutoffDate}
+          OR (
+            mjb.created_at < ${onlineCutoffDate}
+            ${unlimitedPublisherIds.length > 0 ? Prisma.sql`AND m.publisher_id NOT IN (${Prisma.join(unlimitedPublisherIds)})` : Prisma.sql``}
+          )
           ${excludedClientIds.length > 0 ? Prisma.sql`OR m.organization_client_id IN (${Prisma.join(excludedClientIds)})` : Prisma.sql``}
         )
     `
@@ -106,10 +110,11 @@ export async function getMissionIdsToUpdate(): Promise<string[]> {
 
 /**
  * Phase: publish new missions
- * Counts the number of ONLINE Piloty entries (not missions) per eligible domain.
+ * Counts the number of ONLINE Piloty entries (not missions) per domain.
  * One mission with N addresses = N entries.
+ * @param publisherIds Optional filter to count only entries from specific publishers (e.g. JVA only)
  */
-export async function countOnlineEntriesByDomain(): Promise<Map<string, number>> {
+export async function countOnlineEntriesByDomain(publisherIds?: string[]): Promise<Map<string, number>> {
   const rows = await prisma.$queryRaw<Array<{ domain: string; count: bigint }>>(
     Prisma.sql`
       SELECT d.name AS domain, COUNT(mjb.id)::bigint AS count
@@ -118,15 +123,12 @@ export async function countOnlineEntriesByDomain(): Promise<Map<string, number>>
       JOIN domain d ON d.id = m.domain_id
       WHERE mjb.jobboard_id = 'LETUDIANT'::"JobBoardId"
         AND mjb.sync_status = 'ONLINE'::"MissionJobBoardSyncStatus"
-        AND d.name IN (${Prisma.join(ELIGIBLE_DOMAINS)})
+        ${publisherIds && publisherIds.length > 0 ? Prisma.sql`AND m.publisher_id IN (${Prisma.join(publisherIds)})` : Prisma.sql``}
       GROUP BY d.name
     `
   );
 
   const result = new Map<string, number>();
-  for (const domain of ELIGIBLE_DOMAINS) {
-    result.set(domain, 0);
-  }
   for (const row of rows) {
     result.set(row.domain, Number(row.count));
   }
@@ -134,11 +136,11 @@ export async function countOnlineEntriesByDomain(): Promise<Map<string, number>>
 }
 
 /**
- * Phase: publish new missions
+ * Phase: publish new missions (quota-based publishers)
  * Returns mission IDs eligible for publication on a given domain, ordered newest first.
  * Excludes missions already ONLINE, missions with an ERROR status, and excluded orgs.
  */
-export async function getMissionIdsToPublish(domain: string, limit: number, excludedOrgClientIds: Set<string>): Promise<string[]> {
+export async function getMissionIdsToPublishByDomain(publisherIds: string[], domain: string, limit: number, excludedOrgClientIds: Set<string>): Promise<string[]> {
   if (limit <= 0) {
     return [];
   }
@@ -151,7 +153,7 @@ export async function getMissionIdsToPublish(domain: string, limit: number, excl
       FROM mission m
       JOIN domain d ON d.id = m.domain_id
       JOIN publisher_organization po ON po.id = m.publisher_organization_id
-      WHERE m.publisher_id IN (${Prisma.join(WHITELISTED_PUBLISHERS_IDS)})
+      WHERE m.publisher_id IN (${Prisma.join(publisherIds)})
         AND m.status_code = 'ACCEPTED'
         AND m.deleted_at IS NULL
         AND po.organization_id_verified IS NOT NULL
@@ -171,6 +173,43 @@ export async function getMissionIdsToPublish(domain: string, limit: number, excl
         )
       ORDER BY m.created_at DESC
       LIMIT ${limit}
+    `
+  );
+
+  return rows.map((r) => r.id);
+}
+
+/**
+ * Phase: publish new missions (unlimited publishers, e.g. ASC)
+ * Returns all mission IDs eligible for publication, ordered newest first.
+ * No domain filter, no limit — all eligible missions are returned.
+ */
+export async function getMissionIdsToPublishUnlimited(publisherIds: string[], excludedOrgClientIds: Set<string>): Promise<string[]> {
+  const excludedClientIds = Array.from(excludedOrgClientIds);
+
+  const rows = await prisma.$queryRaw<Array<{ id: string }>>(
+    Prisma.sql`
+      SELECT m.id
+      FROM mission m
+      JOIN publisher_organization po ON po.id = m.publisher_organization_id
+      WHERE m.publisher_id IN (${Prisma.join(publisherIds)})
+        AND m.status_code = 'ACCEPTED'
+        AND m.deleted_at IS NULL
+        AND po.organization_id_verified IS NOT NULL
+        ${excludedClientIds.length > 0 ? Prisma.sql`AND (m.organization_client_id IS NULL OR m.organization_client_id NOT IN (${Prisma.join(excludedClientIds)}))` : Prisma.sql``}
+        AND NOT EXISTS (
+          SELECT 1 FROM mission_jobboard mjb_err
+          WHERE mjb_err.mission_id = m.id
+            AND mjb_err.jobboard_id = 'LETUDIANT'::"JobBoardId"
+            AND mjb_err.sync_status = 'ERROR'::"MissionJobBoardSyncStatus"
+        )
+        AND NOT EXISTS (
+          SELECT 1 FROM mission_jobboard mjb_online
+          WHERE mjb_online.mission_id = m.id
+            AND mjb_online.jobboard_id = 'LETUDIANT'::"JobBoardId"
+            AND mjb_online.sync_status = 'ONLINE'::"MissionJobBoardSyncStatus"
+        )
+      ORDER BY m.created_at DESC
     `
   );
 

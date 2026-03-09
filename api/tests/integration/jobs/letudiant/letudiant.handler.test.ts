@@ -3,7 +3,7 @@ import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PUBLISHER_IDS } from "@/config";
 import { prisma } from "@/db/postgres";
-import { ELIGIBLE_DOMAINS, QUOTA_BY_DOMAIN } from "@/jobs/letudiant/config";
+import { PUBLISHER_SYNC_CONFIGS } from "@/jobs/letudiant/config";
 import { LetudiantHandler } from "@/jobs/letudiant/handler";
 import * as letudiantUtils from "@/jobs/letudiant/utils";
 import { buildPilotyFetchMock, pilotyCompanyResponse, pilotyJobResponse, PILOTY_MANDATORY_DATA_MOCKS } from "../../../mocks";
@@ -25,10 +25,15 @@ import { createTestMission, createTestPublisher } from "../../../fixtures";
 
 // ─── Piloty mock helpers → see api/tests/mocks/pilotyMock.ts ────────────────
 
-/** Returns a map with all eligible domains at 0 except the ones provided */
+// Derive JVA quota config for test helpers (quota-based publisher)
+const jvaConfig = PUBLISHER_SYNC_CONFIGS.find((c) => c.publisherId === PUBLISHER_IDS.JEVEUXAIDER)!;
+const JVA_ELIGIBLE_DOMAINS = Object.keys(jvaConfig.quotaByDomain!);
+const JVA_QUOTA_BY_DOMAIN = jvaConfig.quotaByDomain!;
+
+/** Returns a map with all JVA eligible domains at 0 except the ones provided */
 function makeOnlineCounts(overrides: Partial<Record<string, number>> = {}): Map<string, number> {
   const result = new Map<string, number>();
-  for (const domain of ELIGIBLE_DOMAINS) {
+  for (const domain of JVA_ELIGIBLE_DOMAINS) {
     result.set(domain, overrides[domain] ?? 0);
   }
   return result;
@@ -315,6 +320,7 @@ describe("LetudiantHandler (integration test)", () => {
     });
 
     it("does NOT publish a mission from a non-eligible domain", { timeout: 20000 }, async () => {
+      // JVA only — ASC publishes all domains regardless of this list
       const publisher = await createTestPublisher({ id: PUBLISHER_IDS.JEVEUXAIDER });
       const mission = await createTestMission({ publisherId: publisher.id, statusCode: "ACCEPTED", domain: "environnement" });
 
@@ -377,7 +383,7 @@ describe("LetudiantHandler (integration test)", () => {
 
       // Mock countOnlineEntriesByDomain to return quota full for sport
       vi.spyOn(letudiantUtils, "countOnlineEntriesByDomain").mockResolvedValueOnce(
-        makeOnlineCounts({ sport: QUOTA_BY_DOMAIN.sport }) // sport = 750 → 0 slots remaining
+        makeOnlineCounts({ sport: JVA_QUOTA_BY_DOMAIN.sport }) // sport = 750 → 0 slots remaining
       );
 
       const candidate = await createMissionWithOrg(publisher.id, { domain: "sport" });
@@ -399,7 +405,7 @@ describe("LetudiantHandler (integration test)", () => {
 
       // 2 slots remaining for benevolat-competences
       vi.spyOn(letudiantUtils, "countOnlineEntriesByDomain").mockResolvedValueOnce(
-        makeOnlineCounts({ "benevolat-competences": QUOTA_BY_DOMAIN["benevolat-competences"] - 2 }) // 448 → 2 slots
+        makeOnlineCounts({ "benevolat-competences": JVA_QUOTA_BY_DOMAIN["benevolat-competences"] - 2 }) // 448 → 2 slots
       );
 
       const m1 = await createMissionWithOrg(publisher.id, { domain: "benevolat-competences" });
@@ -433,7 +439,7 @@ describe("LetudiantHandler (integration test)", () => {
 
       // 1 slot remaining for sport
       vi.spyOn(letudiantUtils, "countOnlineEntriesByDomain").mockResolvedValueOnce(
-        makeOnlineCounts({ sport: QUOTA_BY_DOMAIN.sport - 1 }) // 749 → 1 slot
+        makeOnlineCounts({ sport: JVA_QUOTA_BY_DOMAIN.sport - 1 }) // 749 → 1 slot
       );
 
       const past = new Date("2024-01-01");
@@ -462,7 +468,7 @@ describe("LetudiantHandler (integration test)", () => {
 
       // 3 slots remaining for solidarite-insertion
       vi.spyOn(letudiantUtils, "countOnlineEntriesByDomain").mockResolvedValueOnce(
-        makeOnlineCounts({ "solidarite-insertion": QUOTA_BY_DOMAIN["solidarite-insertion"] - 3 }) // 1797 → 3 slots
+        makeOnlineCounts({ "solidarite-insertion": JVA_QUOTA_BY_DOMAIN["solidarite-insertion"] - 3 }) // 1797 → 3 slots
       );
 
       // Mission with 3 distinct cities = 3 Piloty entries
@@ -491,7 +497,7 @@ describe("LetudiantHandler (integration test)", () => {
       const publisher = await createTestPublisher({ id: PUBLISHER_IDS.JEVEUXAIDER });
 
       vi.spyOn(letudiantUtils, "countOnlineEntriesByDomain").mockResolvedValueOnce(
-        makeOnlineCounts({ "solidarite-insertion": QUOTA_BY_DOMAIN["solidarite-insertion"] - 1 })
+        makeOnlineCounts({ "solidarite-insertion": JVA_QUOTA_BY_DOMAIN["solidarite-insertion"] - 1 })
       );
 
       const multiAddressMission = await createMissionWithOrg(publisher.id, {
@@ -531,7 +537,7 @@ describe("LetudiantHandler (integration test)", () => {
 
       vi.spyOn(letudiantUtils, "countOnlineEntriesByDomain").mockResolvedValueOnce(
         makeOnlineCounts({
-          sport: QUOTA_BY_DOMAIN.sport, // sport full
+          sport: JVA_QUOTA_BY_DOMAIN.sport, // sport full
           "solidarite-insertion": 0, // solidarite-insertion empty
           "benevolat-competences": 0,
         })
@@ -548,6 +554,98 @@ describe("LetudiantHandler (integration test)", () => {
 
       const entry = await prisma.missionJobBoard.findFirst({ where: { missionId: solidariteMission.id, syncStatus: "ONLINE" } });
       expect(entry).not.toBeNull();
+    });
+  });
+
+  // ── Phase: archive expired missions — ASC (unlimited) ─────────────────────
+
+  describe("Phase: archive expired missions — ASC (unlimited)", () => {
+    it("does NOT archive an ASC mission ONLINE for more than 30 days", { timeout: 20000 }, async () => {
+      const publisher = await createTestPublisher({ id: PUBLISHER_IDS.SERVICE_CIVIQUE });
+      const mission = await createTestMission({ publisherId: publisher.id, statusCode: "ACCEPTED", domain: "environnement" });
+
+      const thirtyOneDaysAgo = new Date(Date.now() - 31 * 24 * 60 * 60 * 1000);
+      await seedOnlineEntry(mission.id, "piloty-asc-old", { createdAt: thirtyOneDaysAgo });
+
+      global.fetch = buildPilotyFetchMock([]); // no PATCH expected
+
+      await handler.handle({});
+
+      const entry = await prisma.missionJobBoard.findFirst({ where: { missionId: mission.id } });
+      expect(entry?.syncStatus).toBe("ONLINE"); // not archived
+    });
+  });
+
+  // ── Phase: publish new missions — ASC (unlimited) ──────────────────────────
+
+  describe("Phase: publish new missions — ASC (unlimited)", () => {
+    it("publishes an ASC mission in a non-eligible JVA domain", { timeout: 20000 }, async () => {
+      // "environnement" is not in JVA_ELIGIBLE_DOMAINS, but ASC publishes all domains
+      const publisher = await createTestPublisher({ id: PUBLISHER_IDS.SERVICE_CIVIQUE });
+      const mission = await createMissionWithOrg(publisher.id, { domain: "environnement" });
+
+      if (mission.organizationId) {
+        await prisma.organization.updateMany({ where: { id: mission.organizationId }, data: { letudiantPublicId: "company-existing" } });
+      }
+
+      global.fetch = buildPilotyFetchMock([pilotyJobResponse("asc-env-job")]);
+
+      await handler.handle({});
+
+      const entry = await prisma.missionJobBoard.findFirst({ where: { missionId: mission.id } });
+      expect(entry?.syncStatus).toBe("ONLINE");
+      expect(entry?.publicId).toBe("asc-env-job");
+    });
+
+    it("publishes an ASC mission even if the JVA quota for that domain is full", { timeout: 20000 }, async () => {
+      // sport quota full (750) → JVA does not publish, but ASC is unlimited
+      vi.spyOn(letudiantUtils, "countOnlineEntriesByDomain").mockResolvedValueOnce(
+        makeOnlineCounts({ sport: JVA_QUOTA_BY_DOMAIN.sport })
+      );
+
+      const publisher = await createTestPublisher({ id: PUBLISHER_IDS.SERVICE_CIVIQUE });
+      const mission = await createMissionWithOrg(publisher.id, { domain: "sport" });
+
+      if (mission.organizationId) {
+        await prisma.organization.updateMany({ where: { id: mission.organizationId }, data: { letudiantPublicId: "company-existing" } });
+      }
+
+      global.fetch = buildPilotyFetchMock([pilotyJobResponse("asc-sport-job")]);
+
+      await handler.handle({});
+
+      const entry = await prisma.missionJobBoard.findFirst({ where: { missionId: mission.id } });
+      expect(entry?.syncStatus).toBe("ONLINE");
+    });
+
+    it("publishes all eligible ASC missions without quota cap", { timeout: 20000 }, async () => {
+      const publisher = await createTestPublisher({ id: PUBLISHER_IDS.SERVICE_CIVIQUE });
+
+      // Sequential to avoid unique constraint conflicts in activity/domain fixtures
+      const missions = [];
+      for (const domain of ["environnement", "sante", "humanitaire", "animaux", "education"]) {
+        missions.push(await createMissionWithOrg(publisher.id, { domain }));
+      }
+
+      const orgIds = missions.map((m) => m.organizationId).filter(Boolean) as string[];
+      if (orgIds.length) {
+        await prisma.organization.updateMany({ where: { id: { in: orgIds } }, data: { letudiantPublicId: "company-existing" } });
+      }
+
+      global.fetch = buildPilotyFetchMock([
+        pilotyJobResponse("asc-job-1"),
+        pilotyJobResponse("asc-job-2"),
+        pilotyJobResponse("asc-job-3"),
+        pilotyJobResponse("asc-job-4"),
+        pilotyJobResponse("asc-job-5"),
+      ]);
+
+      await handler.handle({});
+
+      for (const mission of missions) {
+        const entry = await prisma.missionJobBoard.findFirst({ where: { missionId: mission.id, syncStatus: "ONLINE" } });
+        expect(entry, `mission ${mission.id} should be ONLINE`).not.toBeNull();
+      }
     });
   });
 

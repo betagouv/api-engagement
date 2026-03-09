@@ -1,18 +1,29 @@
 import { PUBLISHER_IDS } from "@/config";
 
 // Maximum number of days an entry can stay ONLINE on Piloty before being archived
+// Only applies to publishers with quotas (unlimited publishers are never archived by age)
 export const ONLINE_DAYS_LIMIT = 30;
 
-// Quota per domain (number of Piloty entries = addresses, not missions)
-export const QUOTA_BY_DOMAIN: Record<string, number> = {
-  "solidarite-insertion": 1800,
-  sport: 750,
-  "benevolat-competences": 450,
-};
-export const TOTAL_ONLINE_CAP = 3000; // Sum of all domain quotas
-export const ELIGIBLE_DOMAINS = Object.keys(QUOTA_BY_DOMAIN);
+export interface PublisherSyncConfig {
+  publisherId: string;
+  /** null = unlimited, all missions synchronized without quota */
+  quotaByDomain: Record<string, number> | null;
+}
 
-export const WHITELISTED_PUBLISHERS_IDS = [PUBLISHER_IDS.JEVEUXAIDER, PUBLISHER_IDS.SERVICE_CIVIQUE];
+export const PUBLISHER_SYNC_CONFIGS: PublisherSyncConfig[] = [
+  {
+    publisherId: PUBLISHER_IDS.JEVEUXAIDER,
+    quotaByDomain: {
+      "solidarite-insertion": 1800,
+      sport: 750,
+      "benevolat-competences": 450,
+    },
+  },
+  {
+    publisherId: PUBLISHER_IDS.SERVICE_CIVIQUE,
+    quotaByDomain: null, // full sync, no quota
+  },
+];
 
 // Used to sign every Piloty API requests
 export const MEDIA_PUBLIC_ID = "letudiant";
