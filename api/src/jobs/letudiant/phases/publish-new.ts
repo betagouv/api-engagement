@@ -54,32 +54,37 @@ async function publishWithQuota(
       continue;
     }
 
-    const candidateLimit = remainingSlots + 20;
-    const missionIds = await getMissionIdsToPublishByDomain(publisherIds, domain, candidateLimit, excludedOrgClientIds);
-    console.log(`[LetudiantHandler] Publish phase: ${missionIds.length} candidate missions for domain "${domain}"`);
+    const pageSize = 100;
+    let offset = 0;
 
-    if (!missionIds.length) {
-      continue;
-    }
+    while (remainingSlots > 0) {
+      const missionIds = await getMissionIdsToPublishByDomain(publisherIds, domain, pageSize, excludedOrgClientIds, offset);
+      console.log(`[LetudiantHandler] Publish phase: ${missionIds.length} candidate missions for domain "${domain}" (offset: ${offset})`);
 
-    const entries = await loadMissionsWithJobBoards(missionIds);
-
-    for (const { mission } of entries) {
-      if (remainingSlots <= 0) {
+      if (!missionIds.length) {
         break;
       }
 
-      try {
-        const requiredSlots = missionToPilotyJobs(mission, "quota-check", mandatoryData).length;
-        if (requiredSlots > remainingSlots) {
-          console.log(`[LetudiantHandler] Publish phase: skipping mission ${mission.id} for domain "${domain}" (needs ${requiredSlots} slots, only ${remainingSlots} remaining)`);
-          continue;
+      offset += missionIds.length;
+      const entries = await loadMissionsWithJobBoards(missionIds);
+
+      for (const { mission } of entries) {
+        if (remainingSlots <= 0) {
+          break;
         }
-        const entriesPublished = await syncMission(pilotyClient, mission, [], mandatoryData, counter, "create", dryRun);
-        remainingSlots -= entriesPublished;
-      } catch (error) {
-        captureException(error, { extra: { missionId: mission.id } });
-        counter.error++;
+
+        try {
+          const requiredSlots = missionToPilotyJobs(mission, "quota-check", mandatoryData).length;
+          if (requiredSlots > remainingSlots) {
+            console.log(`[LetudiantHandler] Publish phase: skipping mission ${mission.id} for domain "${domain}" (needs ${requiredSlots} slots, only ${remainingSlots} remaining)`);
+            continue;
+          }
+          const entriesPublished = await syncMission(pilotyClient, mission, [], mandatoryData, counter, "create", dryRun);
+          remainingSlots -= entriesPublished;
+        } catch (error) {
+          captureException(error, { extra: { missionId: mission.id } });
+          counter.error++;
+        }
       }
     }
   }

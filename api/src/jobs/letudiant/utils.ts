@@ -140,7 +140,13 @@ export async function countOnlineEntriesByDomain(publisherIds?: string[]): Promi
  * Returns mission IDs eligible for publication on a given domain, ordered newest first.
  * Excludes missions already ONLINE, missions with an ERROR status, and excluded orgs.
  */
-export async function getMissionIdsToPublishByDomain(publisherIds: string[], domain: string, limit: number, excludedOrgClientIds: Set<string>): Promise<string[]> {
+export async function getMissionIdsToPublishByDomain(
+  publisherIds: string[],
+  domain: string,
+  limit: number,
+  excludedOrgClientIds: Set<string>,
+  offset = 0
+): Promise<string[]> {
   if (limit <= 0) {
     return [];
   }
@@ -177,8 +183,9 @@ export async function getMissionIdsToPublishByDomain(publisherIds: string[], dom
             AND mjb_offline.jobboard_id = 'LETUDIANT'::"JobBoardId"
             AND mjb_offline.sync_status = 'OFFLINE'::"MissionJobBoardSyncStatus"
         )
-      ORDER BY m.created_at DESC
+      ORDER BY m.created_at DESC, m.id DESC
       LIMIT ${limit}
+      OFFSET ${offset}
     `
   );
 
