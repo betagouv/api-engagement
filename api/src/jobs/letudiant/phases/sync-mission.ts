@@ -168,12 +168,13 @@ export const getCompanyPilotyId = async (pilotyClient: PilotyClient, mission: Mi
 };
 
 export function findLetudiantPublicId(jobBoards: MissionJobBoardRecord[], missionAddressId: string | null): string | undefined {
-  const match = jobBoards.find((entry) => entry.missionAddressId === missionAddressId);
+  const onlineJobBoards = jobBoards.filter((entry) => entry.syncStatus === "ONLINE" && Boolean(entry.publicId));
+  const match = onlineJobBoards.find((entry) => entry.missionAddressId === missionAddressId);
   if (match) {
     return match.publicId;
   }
   if (missionAddressId) {
-    const fallback = jobBoards.find((entry) => entry.missionAddressId === null);
+    const fallback = onlineJobBoards.find((entry) => entry.missionAddressId === null);
     return fallback?.publicId;
   }
   return undefined;

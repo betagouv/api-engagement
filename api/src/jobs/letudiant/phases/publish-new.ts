@@ -1,5 +1,6 @@
 import { captureException } from "@/error";
 import { ELIGIBLE_DOMAINS, QUOTA_BY_DOMAIN } from "@/jobs/letudiant/config";
+import { missionToPilotyJobs } from "@/jobs/letudiant/transformers";
 import { LetudiantJobCounter, syncMission } from "@/jobs/letudiant/phases/sync-mission";
 import { countOnlineEntriesByDomain, getMissionIdsToPublish, loadMissionsWithJobBoards } from "@/jobs/letudiant/utils";
 import { PilotyClient } from "@/services/piloty";
@@ -30,7 +31,8 @@ export async function publishNewMissions(
       continue;
     }
 
-    const missionIds = await getMissionIdsToPublish(domain, remainingSlots, excludedOrgClientIds);
+    const candidateLimit = remainingSlots + 20;
+    const missionIds = await getMissionIdsToPublish(domain, candidateLimit, excludedOrgClientIds);
     console.log(`[LetudiantHandler] Publish phase: ${missionIds.length} candidate missions for domain "${domain}"`);
 
     if (!missionIds.length) {
@@ -45,6 +47,13 @@ export async function publishNewMissions(
       }
 
       try {
+        const requiredSlots = missionToPilotyJobs(mission, "quota-check", mandatoryData).length;
+        if (requiredSlots > remainingSlots) {
+          console.log(
+            `[LetudiantHandler] Publish phase: skipping mission ${mission.id} for domain "${domain}" (needs ${requiredSlots} slots, only ${remainingSlots} remaining)`
+          );
+          continue;
+        }
         const entriesPublished = await syncMission(pilotyClient, mission, [], mandatoryData, counter, "create", dryRun);
         remainingSlots -= entriesPublished;
       } catch (error) {

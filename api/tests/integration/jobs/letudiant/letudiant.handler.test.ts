@@ -252,6 +252,46 @@ describe("LetudiantHandler (integration test)", () => {
       const patchCalls = (fetchMock as any).mock.calls.filter(([, opts]: any) => (opts?.method ?? "GET").toUpperCase() === "PATCH");
       expect(patchCalls).toHaveLength(0);
     });
+
+    it("does NOT reuse an OFFLINE id when updating a mission", { timeout: 20000 }, async () => {
+      const publisher = await createTestPublisher({ id: PUBLISHER_IDS.JEVEUXAIDER });
+      const mission = await createMissionWithOrg(publisher.id, { domain: "solidarite-insertion" });
+      const missionAddress = await prisma.missionAddress.findFirst({ where: { missionId: mission.id } });
+
+      await prisma.missionJobBoard.createMany({
+        data: [
+          {
+            jobBoardId: "LETUDIANT",
+            missionId: mission.id,
+            missionAddressId: missionAddress?.id ?? null,
+            publicId: "offline-job-id",
+            syncStatus: "OFFLINE",
+          },
+          {
+            jobBoardId: "LETUDIANT",
+            missionId: mission.id,
+            missionAddressId: null,
+            publicId: "online-fallback-id",
+            syncStatus: "ONLINE",
+          },
+        ],
+      });
+
+      await prisma.$executeRaw`UPDATE "mission_jobboard" SET "updated_at" = ${new Date("2020-01-01")} WHERE "mission_id" = ${mission.id}`;
+
+      const fetchMock = buildPilotyFetchMock([pilotyJobResponse("updated-job-id")]);
+      global.fetch = fetchMock;
+
+      await handler.handle({});
+
+      const patchCalls = (fetchMock as any).mock.calls.filter(
+        ([, opts]: any) => (opts?.method ?? "GET").toUpperCase() === "PATCH"
+      ) as Array<[string, RequestInit]>;
+
+      expect(patchCalls).toHaveLength(1);
+      expect(patchCalls[0][0]).toContain("/jobs/online-fallback-id");
+      expect(patchCalls[0][0]).not.toContain("/jobs/offline-job-id");
+    });
   });
 
   // ── Phase: publish new missions (quota management) ─────────────────────────
@@ -445,6 +485,41 @@ describe("LetudiantHandler (integration test)", () => {
 
       const entries = await prisma.missionJobBoard.findMany({ where: { missionId: mission.id, syncStatus: "ONLINE" } });
       expect(entries).toHaveLength(3);
+    });
+
+    it("does NOT publish a multi-address mission when remaining quota is smaller than required slots", { timeout: 20000 }, async () => {
+      const publisher = await createTestPublisher({ id: PUBLISHER_IDS.JEVEUXAIDER });
+
+      vi.spyOn(letudiantUtils, "countOnlineEntriesByDomain").mockResolvedValueOnce(
+        makeOnlineCounts({ "solidarite-insertion": QUOTA_BY_DOMAIN["solidarite-insertion"] - 1 })
+      );
+
+      const multiAddressMission = await createMissionWithOrg(publisher.id, {
+        domain: "solidarite-insertion",
+        addresses: [
+          { city: "Paris", departmentName: "Île-de-France", country: "France" },
+          { city: "Lyon", departmentName: "Auvergne-Rhône-Alpes", country: "France" },
+          { city: "Marseille", departmentName: "Provence-Alpes-Côte d'Azur", country: "France" },
+        ],
+      });
+      const singleAddressMission = await createMissionWithOrg(publisher.id, {
+        domain: "solidarite-insertion",
+        addresses: [{ city: "Nantes", departmentName: "Pays de la Loire", country: "France" }],
+      });
+
+      const orgIds = [multiAddressMission.organizationId, singleAddressMission.organizationId].filter(Boolean) as string[];
+      if (orgIds.length) {
+        await prisma.organization.updateMany({ where: { id: { in: orgIds } }, data: { letudiantPublicId: "company-existing" } });
+      }
+
+      global.fetch = buildPilotyFetchMock([pilotyJobResponse("single-address-job")]);
+
+      await handler.handle({});
+
+      const multiEntries = await prisma.missionJobBoard.findMany({ where: { missionId: multiAddressMission.id, syncStatus: "ONLINE" } });
+      const singleEntries = await prisma.missionJobBoard.findMany({ where: { missionId: singleAddressMission.id, syncStatus: "ONLINE" } });
+      expect(multiEntries).toHaveLength(0);
+      expect(singleEntries).toHaveLength(1);
     });
   });
 
