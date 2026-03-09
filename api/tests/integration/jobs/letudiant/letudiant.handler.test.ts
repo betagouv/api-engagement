@@ -463,6 +463,36 @@ describe("LetudiantHandler (integration test)", () => {
       expect(oldEntry).toBeNull();
     });
 
+    it("keeps createdAt priority even when an older mission has a newer updatedAt", { timeout: 20000 }, async () => {
+      const publisher = await createTestPublisher({ id: PUBLISHER_IDS.JEVEUXAIDER });
+
+      vi.spyOn(letudiantUtils, "countOnlineEntriesByDomain").mockResolvedValueOnce(
+        makeOnlineCounts({ sport: JVA_QUOTA_BY_DOMAIN.sport - 1 }) // 1 slot
+      );
+
+      const oldMission = await createMissionWithOrg(publisher.id, { domain: "sport", createdAt: new Date("2024-01-01") });
+      const newMission = await createMissionWithOrg(publisher.id, { domain: "sport", createdAt: new Date("2024-06-01") });
+
+      if (oldMission.organizationId) {
+        await prisma.organization.updateMany({ where: { id: oldMission.organizationId }, data: { letudiantPublicId: "company-existing" } });
+      }
+      if (newMission.organizationId) {
+        await prisma.organization.updateMany({ where: { id: newMission.organizationId }, data: { letudiantPublicId: "company-existing" } });
+      }
+
+      // Make the older mission look "newer" by updated_at to catch wrong sort by updatedAt
+      await prisma.$executeRaw`UPDATE "mission" SET "updated_at" = ${new Date("2025-01-01")} WHERE "id" = ${oldMission.id}`;
+
+      global.fetch = buildPilotyFetchMock([pilotyJobResponse("newest-created-mission")]);
+
+      await handler.handle({});
+
+      const oldEntry = await prisma.missionJobBoard.findFirst({ where: { missionId: oldMission.id, syncStatus: "ONLINE" } });
+      const newEntry = await prisma.missionJobBoard.findFirst({ where: { missionId: newMission.id, syncStatus: "ONLINE" } });
+      expect(oldEntry).toBeNull();
+      expect(newEntry).not.toBeNull();
+    });
+
     it("publishes a mission with multiple addresses and consumes the correct number of slots", { timeout: 20000 }, async () => {
       const publisher = await createTestPublisher({ id: PUBLISHER_IDS.JEVEUXAIDER });
 
@@ -680,6 +710,33 @@ describe("LetudiantHandler (integration test)", () => {
       const candidateEntry = await prisma.missionJobBoard.findFirst({ where: { missionId: candidate.id } });
       expect(oldEntry?.syncStatus).toBe("OFFLINE");
       expect(candidateEntry?.syncStatus).toBe("ONLINE");
+    });
+
+    it("does NOT republish a mission archived in phase 1 during the same run", { timeout: 20000 }, async () => {
+      const publisher = await createTestPublisher({ id: PUBLISHER_IDS.JEVEUXAIDER });
+
+      const mission = await createMissionWithOrg(publisher.id, {
+        domain: "benevolat-competences",
+        createdAt: new Date("2024-01-01"),
+      });
+      if (mission.organizationId) {
+        await prisma.organization.updateMany({ where: { id: mission.organizationId }, data: { letudiantPublicId: "company-existing" } });
+      }
+
+      const thirtyOneDaysAgo = new Date(Date.now() - 31 * 24 * 60 * 60 * 1000);
+      await seedOnlineEntry(mission.id, "old-piloty-job", { createdAt: thirtyOneDaysAgo });
+
+      const fetchMock = buildPilotyFetchMock([pilotyJobResponse("old-piloty-job")]); // PATCH archive only
+      global.fetch = fetchMock;
+
+      await handler.handle({});
+
+      const postCalls = (fetchMock as any).mock.calls.filter(([, opts]: any) => (opts?.method ?? "GET").toUpperCase() === "POST");
+      expect(postCalls).toHaveLength(0);
+
+      const finalEntries = await prisma.missionJobBoard.findMany({ where: { missionId: mission.id } });
+      expect(finalEntries.some((entry) => entry.syncStatus === "ONLINE")).toBe(false);
+      expect(finalEntries.some((entry) => entry.syncStatus === "OFFLINE")).toBe(true);
     });
   });
 });

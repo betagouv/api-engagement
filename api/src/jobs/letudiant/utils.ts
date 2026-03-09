@@ -171,6 +171,12 @@ export async function getMissionIdsToPublishByDomain(publisherIds: string[], dom
             AND mjb_online.jobboard_id = 'LETUDIANT'::"JobBoardId"
             AND mjb_online.sync_status = 'ONLINE'::"MissionJobBoardSyncStatus"
         )
+        AND NOT EXISTS (
+          SELECT 1 FROM mission_jobboard mjb_offline
+          WHERE mjb_offline.mission_id = m.id
+            AND mjb_offline.jobboard_id = 'LETUDIANT'::"JobBoardId"
+            AND mjb_offline.sync_status = 'OFFLINE'::"MissionJobBoardSyncStatus"
+        )
       ORDER BY m.created_at DESC
       LIMIT ${limit}
     `
@@ -209,6 +215,12 @@ export async function getMissionIdsToPublishUnlimited(publisherIds: string[], ex
             AND mjb_online.jobboard_id = 'LETUDIANT'::"JobBoardId"
             AND mjb_online.sync_status = 'ONLINE'::"MissionJobBoardSyncStatus"
         )
+        AND NOT EXISTS (
+          SELECT 1 FROM mission_jobboard mjb_offline
+          WHERE mjb_offline.mission_id = m.id
+            AND mjb_offline.jobboard_id = 'LETUDIANT'::"JobBoardId"
+            AND mjb_offline.sync_status = 'OFFLINE'::"MissionJobBoardSyncStatus"
+        )
       ORDER BY m.created_at DESC
     `
   );
@@ -224,7 +236,7 @@ export async function loadMissionsWithJobBoards(missionIds: string[]): Promise<M
     return [];
   }
 
-  const missions = await missionService.findMissionsBy({ id: { in: missionIds } }, { limit: missionIds.length, orderBy: { updatedAt: "desc" } });
+  const missions = await missionService.findMissionsBy({ id: { in: missionIds } }, { limit: missionIds.length });
   const jobBoards = await missionJobBoardService.findByJobBoardAndMissionIds(
     LETUDIANT_JOB_BOARD_ID,
     missions.map((m) => m._id)
@@ -237,10 +249,14 @@ export async function loadMissionsWithJobBoards(missionIds: string[]): Promise<M
     jobBoardsByMission.set(entry.missionId, list);
   }
 
-  return missions.map((mission) => ({
-    mission,
-    jobBoards: jobBoardsByMission.get(mission._id) ?? [],
-  }));
+  const missionsById = new Map(missions.map((mission) => [mission._id, mission]));
+  return missionIds
+    .map((missionId) => missionsById.get(missionId))
+    .filter((mission): mission is MissionRecord => Boolean(mission))
+    .map((mission) => ({
+      mission,
+      jobBoards: jobBoardsByMission.get(mission._id) ?? [],
+    }));
 }
 
 /**
