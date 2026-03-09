@@ -43,10 +43,10 @@ process.on("unhandledRejection", (reason) => {
   logProcessCrash("unhandled_rejection", reason);
 });
 
-import cors from "cors";
 import express from "express";
 import path from "path";
 
+import { corsPublic } from "@/middlewares/cors";
 import errorHandler from "@/middlewares/error-handler";
 
 import { pgConnected, pgDisconnect } from "@/db/postgres";
@@ -80,6 +80,7 @@ import ViewV0Controller from "@/v0/view";
 import ActivityV2Controller from "@/v2/activity";
 import JobTeaserV2Controller from "@/v2/jobteaser";
 import LeboncoinV2Controller from "@/v2/leboncoin";
+import MissionV2Controller from "@/v2/mission/controller";
 
 const main = async () => {
   console.log("[API] Waiting for database connections...");
@@ -101,20 +102,20 @@ const main = async () => {
 
   // Opened routes
   app.use("/iframe", IframeController);
-  app.use("/r", cors({ origin: "*" }), RedirectController);
-  app.use("/report", cors({ origin: "*" }), ReportController);
-  app.use("/v0/mymission", cors({ origin: "*" }), MyMissionV0Controller);
-  app.use("/v0/myorganization", cors({ origin: "*" }), MyOrganizationV0Controller);
-  app.use("/v0/mission", cors({ origin: "*" }), MissionV0Controller);
-  app.use("/v0/publisher", cors({ origin: "*" }), PublisherV0Controller);
-  app.use("/v0/view", cors({ origin: "*" }), ViewV0Controller);
+  app.use("/r", corsPublic, RedirectController);
+  app.use("/report", corsPublic, ReportController);
+  app.use("/v0/mymission", corsPublic, MyMissionV0Controller);
+  app.use("/v0/myorganization", corsPublic, MyOrganizationV0Controller);
+  app.use("/v0/mission", corsPublic, MissionV0Controller);
+  app.use("/v0/publisher", corsPublic, PublisherV0Controller);
+  app.use("/v0/view", corsPublic, ViewV0Controller);
   app.use("/v0/organization", OrganizationV0Controller);
-  // /v2/mission redirects to /v0/mission
-  app.use("/v2/mission", cors({ origin: "*" }), MissionV0Controller);
-  app.use("/v2/activity", cors({ origin: "*" }), ActivityV2Controller);
-  app.use("/v2/leboncoin", cors({ origin: "*" }), LeboncoinV2Controller);
-  app.use("/v2/jobteaser", cors({ origin: "*" }), JobTeaserV2Controller);
-  app.use("/brevo-webhook", cors({ origin: "*" }), BrevoWebhookController);
+  app.use("/v2/mission", corsPublic, MissionV2Controller);
+  app.use("/v2/mission", corsPublic, MissionV0Controller);
+  app.use("/v2/activity", corsPublic, ActivityV2Controller);
+  app.use("/v2/leboncoin", corsPublic, LeboncoinV2Controller);
+  app.use("/v2/jobteaser", corsPublic, JobTeaserV2Controller);
+  app.use("/brevo-webhook", corsPublic, BrevoWebhookController);
 
   // Interal routes
   app.use("/admin-report", AdminReportController);

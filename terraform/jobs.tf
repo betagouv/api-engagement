@@ -214,6 +214,24 @@ resource "scaleway_job_definition" "moderation" {
   env = local.all_env_vars
 }
 
+# Job Definition for the 'enrich-missions-geoloc' task
+resource "scaleway_job_definition" "enrich-missions-geoloc" {
+  name         = "${terraform.workspace}-enrich-missions-geoloc"
+  project_id   = var.project_id
+  cpu_limit    = 1000
+  memory_limit = 2048
+  image_uri    = local.image_uri
+  command      = "node dist/jobs/run-job.js enrich-missions-geoloc"
+  timeout      = "30m"
+
+  cron {
+    schedule = "30 */2 * * *" # Every 2 hours at 30 minutes (after import-missions)
+    timezone = "Europe/Paris"
+  }
+
+  env = local.all_env_vars
+}
+
 # Job Definition for the 'import-missions' task (all environments)
 resource "scaleway_job_definition" "import-missions" {
   name         = "${var.env}-import-missions"

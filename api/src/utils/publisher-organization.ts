@@ -1,5 +1,51 @@
 import { PublisherOrganizationRecord } from "@/types/publisher-organization";
-import { parseDate } from "@/utils/parser";
+import { normalizeRNA } from "@/utils/organization";
+import { parseDate, parseSiren } from "@/utils/parser";
+import { slugify } from "@/utils/string";
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Client ID derivation
+// ──────────────────────────────────────────────────────────────────────────────
+
+export interface OrganizationClientIdInput {
+  organizationClientId?: string | null;
+  organizationRNA?: string | null;
+  organizationSiren?: string | null;
+  organizationSiret?: string | null;
+  organizationName?: string | null;
+}
+
+/**
+ * Derives a stable clientId for a publisher organization from available identifiers.
+ * Priority: explicit clientId → RNA → SIRET → SIREN → name slug
+ */
+export const deriveOrganizationClientId = (input: OrganizationClientIdInput): string | null => {
+  if (input.organizationClientId) {
+    return input.organizationClientId;
+  }
+  const rna = normalizeRNA(input.organizationRNA);
+  if (rna) {
+    return rna;
+  }
+  const fromSiret = parseSiren(input.organizationSiret ?? undefined);
+  const fromSiren = parseSiren(input.organizationSiren ?? undefined);
+  const siret = fromSiret.siret ?? fromSiren.siret;
+  const siren = fromSiren.siren ?? fromSiret.siren;
+  if (siret) {
+    return siret;
+  }
+  if (siren) {
+    return siren;
+  }
+  if (input.organizationName) {
+    return slugify(input.organizationName);
+  }
+  return null;
+};
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Change detection
+// ──────────────────────────────────────────────────────────────────────────────
 
 export const IMPORT_FIELDS_TO_COMPARE = [
   "name",
