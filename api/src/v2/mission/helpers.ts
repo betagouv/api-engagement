@@ -51,8 +51,17 @@ export const ORG_FIELD_KEYS: Array<keyof OrgBody> = [
 
 export const hasOrgFields = (body: OrgBody): boolean => ORG_FIELD_KEYS.some((key) => body[key] !== undefined);
 
+const parseOrganizationIdentifiers = (body: OrgBody) => {
+  const fromSiret = parseSiren(body.organizationSiret ?? undefined);
+  const fromSiren = parseSiren(body.organizationSiren ?? undefined);
+  return {
+    siret: fromSiret.siret ?? fromSiren.siret,
+    siren: fromSiren.siren ?? fromSiret.siren,
+  };
+};
+
 const buildOrgDataForCreate = (body: OrgBody) => {
-  const { siret, siren } = parseSiren(body.organizationSiren ?? undefined);
+  const { siret, siren } = parseOrganizationIdentifiers(body);
   return {
     name: body.organizationName ?? null,
     rna: normalizeRNA(body.organizationRNA) ?? null,
@@ -73,11 +82,11 @@ const buildOrgDataForCreate = (body: OrgBody) => {
 };
 
 const buildOrgDataForUpdate = (body: OrgBody) => {
-  const parsedSiren = body.organizationSiren !== undefined ? parseSiren(body.organizationSiren) : null;
+  const parsedIdentifiers = body.organizationSiren !== undefined || body.organizationSiret !== undefined ? parseOrganizationIdentifiers(body) : null;
   return {
     ...(body.organizationName !== undefined ? { name: body.organizationName } : {}),
     ...(body.organizationRNA !== undefined ? { rna: normalizeRNA(body.organizationRNA) } : {}),
-    ...(body.organizationSiren !== undefined ? { siren: parsedSiren?.siren ?? null, siret: parsedSiren?.siret ?? null } : {}),
+    ...(body.organizationSiren !== undefined || body.organizationSiret !== undefined ? { siren: parsedIdentifiers?.siren ?? null, siret: parsedIdentifiers?.siret ?? null } : {}),
     ...(body.organizationUrl !== undefined ? { url: body.organizationUrl } : {}),
     ...(body.organizationLogo !== undefined ? { logo: body.organizationLogo } : {}),
     ...(body.organizationDescription !== undefined ? { description: body.organizationDescription } : {}),

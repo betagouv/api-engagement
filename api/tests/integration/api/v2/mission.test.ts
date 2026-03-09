@@ -122,6 +122,28 @@ describe("Mission V2 Write API Integration Tests", () => {
       expect(org?.name).toBe("Croix Rouge");
     });
 
+    it("should support organizationSiret when creating publisher organization", async () => {
+      const payload = {
+        clientId: "test-org-siret",
+        title: "Mission avec SIRET",
+        organizationName: "Asso Siret",
+        organizationSiret: "12345678901234",
+      };
+
+      const response = await request(app).post("/v2/mission").set("x-api-key", apiKey).send(payload);
+      expect(response.status).toBe(201);
+
+      const org = await prisma.publisherOrganization.findFirst({
+        where: {
+          publisherId: publisher.id,
+          clientId: "12345678901234",
+        },
+      });
+      expect(org).not.toBeNull();
+      expect(org?.siret).toBe("12345678901234");
+      expect(org?.siren).toBe("123456789");
+    });
+
     it("should set statusCode REFUSED when description is missing", async () => {
       const response = await request(app)
         .post("/v2/mission")
@@ -248,14 +270,17 @@ describe("Mission V2 Write API Integration Tests", () => {
     });
 
     it("should preserve existing org fields when doing partial update", async () => {
-      const responseCreate = await request(app).post("/v2/mission").set("x-api-key", apiKey).send({
-        clientId: "test-org-partial-update",
-        title: "Mission org partielle",
-        organizationClientId: "org-partial-update",
-        organizationName: "Asso Initiale",
-        organizationRNA: "W123456789",
-        organizationBeneficiaries: ["Jeunes"],
-      });
+      const responseCreate = await request(app)
+        .post("/v2/mission")
+        .set("x-api-key", apiKey)
+        .send({
+          clientId: "test-org-partial-update",
+          title: "Mission org partielle",
+          organizationClientId: "org-partial-update",
+          organizationName: "Asso Initiale",
+          organizationRNA: "W123456789",
+          organizationBeneficiaries: ["Jeunes"],
+        });
       expect(responseCreate.status).toBe(201);
 
       const responseUpdate = await request(app).put("/v2/mission/test-org-partial-update").set("x-api-key", apiKey).send({

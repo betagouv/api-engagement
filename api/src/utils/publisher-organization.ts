@@ -11,6 +11,7 @@ export interface OrganizationClientIdInput {
   organizationClientId?: string | null;
   organizationRNA?: string | null;
   organizationSiren?: string | null;
+  organizationSiret?: string | null;
   organizationName?: string | null;
 }
 
@@ -26,7 +27,10 @@ export const deriveOrganizationClientId = (input: OrganizationClientIdInput): st
   if (rna) {
     return rna;
   }
-  const { siret, siren } = parseSiren(input.organizationSiren ?? undefined);
+  const fromSiret = parseSiren(input.organizationSiret ?? undefined);
+  const fromSiren = parseSiren(input.organizationSiren ?? undefined);
+  const siret = fromSiret.siret ?? fromSiren.siret;
+  const siren = fromSiren.siren ?? fromSiret.siren;
   if (siret) {
     return siret;
   }
