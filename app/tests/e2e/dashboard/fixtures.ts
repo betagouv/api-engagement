@@ -19,7 +19,7 @@ export const MOCK_PUBLISHER = {
   hasWidgetRights: true,
   hasCampaignRights: true,
   moderator: true,
-  isAnnonceur: true, // flux = "to" — active Performance (GlobalAnnounce) + Settings Flux
+  isAnnonceur: true, // flux = "to" — enables Performance (GlobalAnnounce) + Settings Flux
   publishers: [],
 };
 
@@ -30,7 +30,7 @@ const API_URL = "http://localhost:4000";
 type Route = { method: string; path: string; response: object; status?: number };
 
 /**
- * Routes appelées par les layouts partagés sur toutes les pages protégées :
+ * Routes called by shared layouts on all protected pages:
  * - ProtectedLayout → GET /user/refresh
  * - PublisherSyncLayout + Nav → POST /publisher/search
  * - Header NotificationMenu (user) → POST /warning/search + GET /warning/state
@@ -59,15 +59,15 @@ const BASE_ROUTES: Route[] = [
 ];
 
 /**
- * Configure les mocks API pour un test de navigation user.
+ * Sets up API mocks for a user navigation test.
  *
- * Stratégie : whitelist + catch-all 401.
- * - Les routes whitelistées (base + extra) retournent 200 + données mock.
- * - Tout appel non whitelisté retourne 401 → déclenche api.logout() → /login?loggedout=true.
- *   Si assertNotLoggedOut échoue, c'est qu'un endpoint non autorisé a été appelé.
+ * Strategy: whitelist + catch-all 401.
+ * - Whitelisted routes (base + extra) return 200 + mock data.
+ * - Any non-whitelisted call returns 401 → triggers api.logout() → /login?loggedout=true.
+ *   If assertNotLoggedOut fails, an unauthorized endpoint was called.
  *
- * @param page - Page Playwright
- * @param extraRoutes - Routes spécifiques à la page testée
+ * @param page - Playwright page
+ * @param extraRoutes - Page-specific routes
  */
 export const setupUserMocks = async (page: Page, extraRoutes: Route[] = []) => {
   await page.addInitScript(
@@ -97,7 +97,7 @@ export const setupUserMocks = async (page: Page, extraRoutes: Route[] = []) => {
       });
     }
 
-    // Catch-all → 401 : déclenche api.logout() dans le frontend
+    // Catch-all → 401: triggers api.logout() in the frontend
     console.warn(`[E2E mock] 401 non-whitelisted: ${method} ${reqUrl}`);
     return route.fulfill({
       status: 401,
@@ -108,8 +108,8 @@ export const setupUserMocks = async (page: Page, extraRoutes: Route[] = []) => {
 };
 
 /**
- * Vérifie que l'utilisateur n'a pas été déconnecté.
- * Un redirect vers /login indique qu'un appel API non autorisé a déclenché api.logout().
+ * Asserts the user has not been logged out.
+ * A redirect to /login indicates an unauthorized API call triggered api.logout().
  */
 export const assertNotLoggedOut = async (page: Page) => {
   await page.waitForLoadState("networkidle");

@@ -8,15 +8,15 @@ import { createTestApp } from "../../testApp";
 const app = createTestApp();
 
 /**
- * Tests d'accès aux endpoints dashboard pour les utilisateurs role: "user".
+ * Access tests for dashboard endpoints for users with role: "user".
  *
- * Objectif : s'assurer qu'aucun de ces endpoints ne retourne 401 ou 403 avec un token user valide.
- * Une régression (endpoint qui devient admin-only) ferait échouer ces tests avant d'atteindre le frontend.
+ * Goal: ensure none of these endpoints return 401 or 403 with a valid user token.
+ * A regression (endpoint becoming admin-only) would fail these tests before reaching the frontend.
  *
- * Chaque test vérifie uniquement le statut d'authentification/autorisation (≠ 401, ≠ 403).
- * Les statuts 200, 404, etc. sont acceptables — ils prouvent que l'authentification a réussi.
+ * Each test only checks the authentication/authorization status (≠ 401, ≠ 403).
+ * Statuses 200, 404, etc. are acceptable — they prove authentication succeeded.
  */
-describe("Endpoints accessibles aux users (≠ 401, ≠ 403)", () => {
+describe("Endpoints accessible to users (≠ 401, ≠ 403)", () => {
   let token: string;
   let publisherId: string;
 
@@ -72,14 +72,14 @@ describe("Endpoints accessibles aux users (≠ 401, ≠ 403)", () => {
   });
 
   it("POST /moderation/search", async () => {
-    // moderatorId est requis — on passe le publisher créé en test (moderator: true)
+    // moderatorId is required — we pass the publisher created in setup (moderator: true)
     const res = await request(app).post("/moderation/search").set(authHeader()).send({ moderatorId: publisherId });
     expect(res.status).not.toBe(401);
     expect(res.status).not.toBe(403);
   });
 
   it("POST /import/search", async () => {
-    // publisherId requis pour les users (vérification d'autorisation côté controller)
+    // publisherId required for users (authorization check in controller)
     const res = await request(app).post("/import/search").set(authHeader()).send({ publisherId });
     expect(res.status).not.toBe(401);
     expect(res.status).not.toBe(403);
@@ -98,7 +98,7 @@ describe("Endpoints accessibles aux users (≠ 401, ≠ 403)", () => {
   });
 
   it("POST /warning/search", async () => {
-    // publisherId requis pour les users (vérification d'autorisation côté controller)
+    // publisherId required for users (authorization check in controller)
     const res = await request(app).post("/warning/search").set(authHeader()).send({ publisherId });
     expect(res.status).not.toBe(401);
     expect(res.status).not.toBe(403);

@@ -3,20 +3,20 @@ import { test } from "@playwright/test";
 import { PUBLISHER_ID, assertNotLoggedOut, setupUserMocks } from "./fixtures";
 
 /**
- * Tests E2E de navigation pour les utilisateurs role: "user".
+ * E2E navigation tests for users with role: "user".
  *
- * Objectif : s'assurer que naviguer sur les pages user ne provoque pas de déconnexion.
+ * Goal: ensure navigating user pages does not trigger a logout.
  *
- * Stratégie : whitelist + catch-all 401.
- * Tout appel API non whitelisté retourne 401 → api.logout() → /login?loggedout=true.
- * Si assertNotLoggedOut échoue, une page a appelé un endpoint non autorisé.
+ * Strategy: whitelist + catch-all 401.
+ * Any non-whitelisted API call returns 401 → api.logout() → /login?loggedout=true.
+ * If assertNotLoggedOut fails, a page called an unauthorized endpoint.
  *
- * Les endpoints whitelistés ici sont validés par les tests d'intégration API (user-access.test.ts)
- * qui garantissent qu'ils retournent bien 200 avec un token role: "user" en production.
+ * Whitelisted endpoints here are validated by API integration tests (user-access.test.ts)
+ * which guarantee they return 200 with a role: "user" token in production.
  */
 
-test.describe("Navigation user — aucune déconnexion involontaire", () => {
-  test("Mon compte", async ({ page }) => {
+test.describe("User navigation — no unintended logout", () => {
+  test("My account", async ({ page }) => {
     await setupUserMocks(page);
     await page.goto(`/${PUBLISHER_ID}/my-account`);
     await assertNotLoggedOut(page);
@@ -27,14 +27,14 @@ test.describe("Navigation user — aucune déconnexion involontaire", () => {
       { method: "POST", path: "/mission/search", response: { ok: true, data: [], total: 0, aggs: {} } },
       { method: "POST", path: "/campaign/search", response: { ok: true, data: [], total: 0 } },
       { method: "POST", path: "/widget/search", response: { ok: true, data: [], total: 0 } },
-      // GlobalAnnounce (flux="to") et GlobalBroadcast (flux="from") font des appels Metabase pour les analytics
+      // GlobalAnnounce (flux="to") and GlobalBroadcast (flux="from") make Metabase calls for analytics
       { method: "POST", path: "/metabase/card/", response: { ok: true, data: { data: { rows: [], cols: [] } } } },
     ]);
     await page.goto(`/${PUBLISHER_ID}/performance`);
     await assertNotLoggedOut(page);
   });
 
-  test("Broadcast — onglet Widgets", async ({ page }) => {
+  test("Broadcast — Widgets tab", async ({ page }) => {
     await setupUserMocks(page, [
       { method: "POST", path: "/widget/search", response: { ok: true, data: [], total: 0 } },
     ]);
@@ -42,7 +42,7 @@ test.describe("Navigation user — aucune déconnexion involontaire", () => {
     await assertNotLoggedOut(page);
   });
 
-  test("Settings — onglet Flux", async ({ page }) => {
+  test("Settings — Flux tab", async ({ page }) => {
     await setupUserMocks(page, [
       { method: "POST", path: "/import/search", response: { ok: true, data: [], total: 0 } },
     ]);
