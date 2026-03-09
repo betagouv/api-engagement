@@ -1,4 +1,20 @@
 # API Engagement - Changelog
+Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
+
+
+## 02/03/2026
+
+
+### Bug Fixes
+
+- (**api**) Review moderation mission return ([`0669337`](https://github.com/betagouv/api-engagement/commit/06693376a83351fc83bfe4d235c14480fa4cd5e6))
+
+
+### Miscellaneous Tasks
+
+- (**changelog**) Update CHANGELOG.md ([`a8d0cf7`](https://github.com/betagouv/api-engagement/commit/a8d0cf72ca9d1bb82c9ee8e74781364e89367f91))
+
+# API Engagement - Changelog
 
 Vous retrouverez ici l'historique des différents déploiements effectués sur l'API Engagement.
 
