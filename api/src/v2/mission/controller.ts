@@ -124,7 +124,7 @@ router.post("/", passport.authenticate(["apikey", "api"], { session: false }), d
     const body = parsed.data;
 
     const existing = await missionService.findMissionByClientAndPublisher(body.clientId, publisher.id);
-    if (existing && !existing.deletedAt) {
+    if (existing) {
       return res.status(409).send({ ok: false, code: RESSOURCE_ALREADY_EXIST, message: "A mission with this clientId already exists for this publisher" });
     }
 

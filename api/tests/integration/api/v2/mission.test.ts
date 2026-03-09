@@ -150,6 +150,20 @@ describe("Mission V2 Write API Integration Tests", () => {
       expect(response.body.code).toBe("RESSOURCE_ALREADY_EXIST");
     });
 
+    it("should return 409 when a soft-deleted mission already exists for the same clientId", async () => {
+      await createTestMission({
+        publisherId: publisher.id,
+        clientId: "test-dup-soft-deleted",
+        title: "Mission soft deleted",
+        deleted: true,
+      });
+
+      const response = await request(app).post("/v2/mission").set("x-api-key", apiKey).send({ clientId: "test-dup-soft-deleted", title: "Second" });
+      expect(response.status).toBe(409);
+      expect(response.body.ok).toBe(false);
+      expect(response.body.code).toBe("RESSOURCE_ALREADY_EXIST");
+    });
+
     it("should set placesStatus = GIVEN_BY_PARTNER when places is provided", async () => {
       const response = await request(app).post("/v2/mission").set("x-api-key", apiKey).send({ clientId: "test-places", title: "Mission", places: 10 });
       expect(response.status).toBe(201);
@@ -231,6 +245,36 @@ describe("Mission V2 Write API Integration Tests", () => {
       const org = await prisma.publisherOrganization.findFirst({ where: { publisherId: publisher.id, rna: "W999999999" } });
       expect(org).not.toBeNull();
       expect(org?.name).toBe("Updated Org");
+    });
+
+    it("should preserve existing org fields when doing partial update", async () => {
+      const responseCreate = await request(app).post("/v2/mission").set("x-api-key", apiKey).send({
+        clientId: "test-org-partial-update",
+        title: "Mission org partielle",
+        organizationClientId: "org-partial-update",
+        organizationName: "Asso Initiale",
+        organizationRNA: "W123456789",
+        organizationBeneficiaries: ["Jeunes"],
+      });
+      expect(responseCreate.status).toBe(201);
+
+      const responseUpdate = await request(app).put("/v2/mission/test-org-partial-update").set("x-api-key", apiKey).send({
+        organizationClientId: "org-partial-update",
+        organizationName: "Asso Renommee",
+      });
+      expect(responseUpdate.status).toBe(200);
+
+      const org = await prisma.publisherOrganization.findFirst({
+        where: {
+          publisherId: publisher.id,
+          clientId: "org-partial-update",
+        },
+      });
+
+      expect(org).not.toBeNull();
+      expect(org?.name).toBe("Asso Renommee");
+      expect(org?.rna).toBe("W123456789");
+      expect(org?.beneficiaries).toEqual(["Jeunes"]);
     });
 
     it("should keep statusCode ACCEPTED when partial update doesn't invalidate existing fields", async () => {

@@ -28,7 +28,7 @@ export class EnrichMissionsGeolocHandler implements BaseHandler<EnrichMissionsGe
 
     let enrichedCount = 0;
     let failedCount = 0;
-    let offset = 0;
+    let lastProcessedId: string | null = null;
 
     while (true) {
       const addresses = await missionAddressRepository.findMany({
@@ -36,17 +36,17 @@ export class EnrichMissionsGeolocHandler implements BaseHandler<EnrichMissionsGe
           geolocStatus: { in: statuses },
           geolocFailureCount: { lt: MAX_FAILURES },
           mission: { deletedAt: null },
+          ...(lastProcessedId ? { id: { gt: lastProcessedId } } : {}),
         },
         include: { mission: { select: { clientId: true } } },
         orderBy: { id: "asc" },
         take: CHUNK_SIZE,
-        skip: offset,
       });
 
       if (!addresses.length) {
         break;
       }
-      offset += addresses.length;
+      lastProcessedId = addresses[addresses.length - 1].id;
 
       // Group addresses by missionId, preserving order for stable addressIndex
       const missionMap = new Map<string, { clientId: string; addresses: typeof addresses }>();
@@ -117,7 +117,7 @@ export class EnrichMissionsGeolocHandler implements BaseHandler<EnrichMissionsGe
         }
       }
 
-      console.log(`[${LABEL}] Processed chunk of ${addresses.length} addresses (offset ${offset})`);
+      console.log(`[${LABEL}] Processed chunk of ${addresses.length} addresses (lastProcessedId ${lastProcessedId})`);
     }
 
     const message = `${enrichedCount} addresses enriched, ${failedCount} failed or not found`;

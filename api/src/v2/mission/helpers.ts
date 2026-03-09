@@ -51,7 +51,7 @@ export const ORG_FIELD_KEYS: Array<keyof OrgBody> = [
 
 export const hasOrgFields = (body: OrgBody): boolean => ORG_FIELD_KEYS.some((key) => body[key] !== undefined);
 
-const buildOrgData = (body: OrgBody) => {
+const buildOrgDataForCreate = (body: OrgBody) => {
   const { siret, siren } = parseSiren(body.organizationSiren ?? undefined);
   return {
     name: body.organizationName ?? null,
@@ -72,23 +72,44 @@ const buildOrgData = (body: OrgBody) => {
   };
 };
 
+const buildOrgDataForUpdate = (body: OrgBody) => {
+  const parsedSiren = body.organizationSiren !== undefined ? parseSiren(body.organizationSiren) : null;
+  return {
+    ...(body.organizationName !== undefined ? { name: body.organizationName } : {}),
+    ...(body.organizationRNA !== undefined ? { rna: normalizeRNA(body.organizationRNA) } : {}),
+    ...(body.organizationSiren !== undefined ? { siren: parsedSiren?.siren ?? null, siret: parsedSiren?.siret ?? null } : {}),
+    ...(body.organizationUrl !== undefined ? { url: body.organizationUrl } : {}),
+    ...(body.organizationLogo !== undefined ? { logo: body.organizationLogo } : {}),
+    ...(body.organizationDescription !== undefined ? { description: body.organizationDescription } : {}),
+    ...(body.organizationStatusJuridique !== undefined ? { legalStatus: body.organizationStatusJuridique } : {}),
+    ...(body.organizationType !== undefined ? { type: body.organizationType } : {}),
+    ...(body.organizationActions !== undefined ? { actions: body.organizationActions } : {}),
+    ...(body.organizationBeneficiaries !== undefined ? { beneficiaries: body.organizationBeneficiaries } : {}),
+    ...(body.organizationReseaux !== undefined ? { parentOrganizations: body.organizationReseaux } : {}),
+    ...(body.organizationFullAddress !== undefined ? { fullAddress: body.organizationFullAddress } : {}),
+    ...(body.organizationPostCode !== undefined ? { postalCode: body.organizationPostCode } : {}),
+    ...(body.organizationCity !== undefined ? { city: body.organizationCity } : {}),
+  };
+};
+
 export const upsertPublisherOrganization = async (body: OrgBody, publisherId: string): Promise<string | null> => {
   const orgClientId = deriveOrganizationClientId(body);
   if (!orgClientId) {
     return null;
   }
 
-  const orgData = buildOrgData(body);
-
   const existing = await publisherOrganizationService.findMany({ publisherId, clientId: orgClientId });
   if (existing[0]) {
-    const changes = getPublisherOrganizationChanges(existing[0], orgData as PublisherOrganizationRecord);
+    const orgData = buildOrgDataForUpdate(body);
+    const mergedOrg = { ...existing[0], ...orgData };
+    const changes = getPublisherOrganizationChanges(existing[0], mergedOrg as PublisherOrganizationRecord);
     if (changes) {
       await publisherOrganizationService.update(existing[0].id, orgData);
     }
     return existing[0].id;
   }
 
+  const orgData = buildOrgDataForCreate(body);
   const created = await publisherOrganizationService.create({
     publisherId,
     clientId: orgClientId,
