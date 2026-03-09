@@ -42,11 +42,28 @@ const NOTION_DB_FIELDS = {
 const GITHUB_REPO = "betagouv/api-engagement";
 
 // ---------------------------------------------------------------------------
+// ⚙️  Apps connues — ordre d'affichage et décorateurs Slack
+// ---------------------------------------------------------------------------
+const APPS = [
+  { scope: "app",       label: "Tableau de bord", decorator: "——" },
+  { scope: "api",       label: "API",              decorator: "—"  },
+  { scope: "widget",    label: "Widget",           decorator: "—"  },
+  { scope: "analytics", label: "Analytics",        decorator: "·"  },
+] as const;
+
+// ---------------------------------------------------------------------------
 // Types internes
 // ---------------------------------------------------------------------------
 interface Commit {
   sha: string;
   message: string;
+  /** Scope du conventional commit (ex: "api", "app", "widget", "analytics"), ou null */
+  scope: string | null;
+}
+
+interface ChangelogSection {
+  app: string;
+  bullets: string[];
 }
 
 interface PR {
@@ -166,8 +183,34 @@ function getCommits(from: string | null, to: string): Commit[] {
   if (!output) return [];
   return output.split("\n").map((line) => {
     const spaceIdx = line.indexOf(" ");
-    return { sha: line.substring(0, spaceIdx), message: line.substring(spaceIdx + 1) };
+    const message = line.substring(spaceIdx + 1);
+    const scopeMatch = message.match(/^\w+\(([^)]+)\):/);
+    return {
+      sha: line.substring(0, spaceIdx),
+      message,
+      scope: scopeMatch?.[1]?.toLowerCase() ?? null,
+    };
   });
+}
+
+function getPeriod(from: string | null, to: string): { start: string; end: string } {
+  const range = from ? `${from}..${to}` : to;
+  try {
+    const dates = execSync(`git log ${range} --no-merges --format="%as"`)
+      .toString()
+      .trim()
+      .split("\n")
+      .filter(Boolean)
+      .sort();
+    if (dates.length === 0) return { start: "?", end: "?" };
+    const fmt = (iso: string) => {
+      const [, m, d] = iso.split("-");
+      return `${d}/${m}`;
+    };
+    return { start: fmt(dates[0]), end: fmt(dates[dates.length - 1]) };
+  } catch {
+    return { start: "?", end: "?" };
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -296,8 +339,12 @@ async function synthesizeWithOpenAI(
   commits: Commit[],
   contexts: PRContext[],
   openai: OpenAI,
-): Promise<string> {
-  const commitList = commits.map((c) => `- ${c.message}`).join("\n");
+): Promise<ChangelogSection[]> {
+  const appLabels = APPS.map((a) => `"${a.label}" (scope: ${a.scope})`).join(", ");
+
+  const commitList = commits
+    .map((c) => `- [scope:${c.scope ?? "?"}] ${c.message}`)
+    .join("\n");
 
   const prContext = contexts
     .map(({ pr, notionContent }) => {
@@ -309,6 +356,9 @@ async function synthesizeWithOpenAI(
   const prompt = `Tu rédiges le changelog de la version ${tag} d'"API Engagement" \
 (plateforme de mise en relation bénévoles / associations).
 
+Apps connues : ${appLabels}.
+Chaque commit est préfixé par son scope entre crochets pour t'aider à le rattacher à la bonne app.
+
 Commits de cette version :
 ${commitList}
 
@@ -316,21 +366,29 @@ Contexte (tickets et descriptions de PRs) :
 ${prContext || "(aucun contexte disponible)"}
 
 Règles :
-- Un bullet point par changement fonctionnel visible par l'utilisateur
-- Regroupe ou ignore les commits purement techniques (refacto, CI, tests, dépendances, typo) sauf s'ils ont un impact concret
+- Groupe les changements par app (uniquement les apps qui ont des changements visibles)
+- Un bullet par changement fonctionnel visible par l'utilisateur
+- Ignore les commits purement techniques (refacto, CI, tests, dépendances, typo) sauf impact concret
 - Phrase courte, verbe d'action, pas de jargon technique
 - Public cible : équipe non-tech (direction, partenaires)
-- Langue : français`;
+- Langue : français
+- Ordre des apps : Tableau de bord, API, Widget, Analytics
+
+Réponds UNIQUEMENT avec un objet JSON de la forme :
+{"sections": [{"app": "Tableau de bord", "bullets": ["..."]}, {"app": "API", "bullets": ["..."]}]}`;
 
   const response = await openai.chat.completions.create({
     model: "gpt-4o",
-    max_tokens: 1024,
+    max_tokens: 2048,
+    response_format: { type: "json_object" },
     messages: [{ role: "user", content: prompt }],
   });
 
   const text = response.choices[0]?.message?.content;
   if (!text) throw new Error("Réponse OpenAI inattendue");
-  return text;
+
+  const parsed = JSON.parse(text) as { sections: ChangelogSection[] };
+  return parsed.sections ?? [];
 }
 
 // ---------------------------------------------------------------------------
@@ -338,12 +396,40 @@ Règles :
 // ---------------------------------------------------------------------------
 async function createNotionEntry(
   tag: string,
-  summary: string,
+  sections: ChangelogSection[],
   contexts: PRContext[],
   notion: NotionClient,
 ): Promise<{ url: string }> {
   const ticketUrls = contexts.flatMap((c) => c.pr.notionLinks).slice(0, 10);
   const today = new Date().toISOString().split("T")[0];
+
+  // Construire les vrais blocs Notion (heading_2 + bulleted_list_item)
+  // pour éviter d'afficher du markdown brut (les # et * seraient visibles tels quels)
+  type NotionBlock =
+    | { object: "block"; type: "heading_2"; heading_2: { rich_text: [{ text: { content: string } }] } }
+    | { object: "block"; type: "bulleted_list_item"; bulleted_list_item: { rich_text: [{ text: { content: string } }] } }
+    | { object: "block"; type: "paragraph"; paragraph: { rich_text: [{ text: { content: string } }] } };
+
+  const contentBlocks: NotionBlock[] = sections.flatMap((section) => [
+    {
+      object: "block" as const,
+      type: "heading_2" as const,
+      heading_2: { rich_text: [{ text: { content: section.app } }] },
+    },
+    ...section.bullets.map((bullet) => ({
+      object: "block" as const,
+      type: "bulleted_list_item" as const,
+      bulleted_list_item: { rich_text: [{ text: { content: bullet } }] },
+    })),
+  ]);
+
+  const ticketBlock: NotionBlock[] = ticketUrls.length > 0
+    ? [{
+        object: "block" as const,
+        type: "paragraph" as const,
+        paragraph: { rich_text: [{ text: { content: `Tickets liés : ${ticketUrls.join(", ")}` } }] },
+      }]
+    : [];
 
   const page = await notion.pages.create({
     parent: { database_id: NOTION_CHANGELOG_DATABASE_ID! },
@@ -355,28 +441,7 @@ async function createNotionEntry(
         date: { start: today },
       },
     },
-    children: [
-      {
-        object: "block",
-        type: "paragraph",
-        paragraph: {
-          rich_text: [{ text: { content: summary } }],
-        },
-      },
-      ...(ticketUrls.length > 0
-        ? [
-            {
-              object: "block" as const,
-              type: "paragraph" as const,
-              paragraph: {
-                rich_text: [
-                  { text: { content: `Tickets liés : ${ticketUrls.join(", ")}` } },
-                ],
-              },
-            },
-          ]
-        : []),
-    ],
+    children: [...contentBlocks, ...ticketBlock],
   });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -387,12 +452,40 @@ async function createNotionEntry(
 // ---------------------------------------------------------------------------
 // Slack
 // ---------------------------------------------------------------------------
-async function postToSlack(tag: string, summary: string, notionUrl: string): Promise<void> {
-  const date = new Date().toLocaleDateString("fr-FR", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  });
+function buildSlackMessage(
+  sections: ChangelogSection[],
+  period: { start: string; end: string },
+  prCount: number,
+  notionUrl: string,
+): string {
+  const appDecoratorMap = Object.fromEntries(APPS.map((a) => [a.label, a.decorator]));
+
+  const body = sections
+    .map((section) => {
+      const decorator = appDecoratorMap[section.app] ?? "—";
+      const bullets = section.bullets.map((b) => `• ${b}`).join("\n");
+      return `${decorator}   ${section.app}\n${bullets}`;
+    })
+    .join("\n\n");
+
+  return [
+    `*Résumé de MEP*`,
+    `Période : ${period.start} → ${period.end}  |  ${prCount} PR mergées.`,
+    "",
+    body,
+    "",
+    `📋 Voir le changelog complet : ${notionUrl}`,
+  ].join("\n");
+}
+
+async function postToSlack(
+  tag: string,
+  sections: ChangelogSection[],
+  period: { start: string; end: string },
+  prCount: number,
+  notionUrl: string,
+): Promise<void> {
+  const text = buildSlackMessage(sections, period, prCount, notionUrl);
 
   const response = await fetch("https://slack.com/api/chat.postMessage", {
     method: "POST",
@@ -402,13 +495,8 @@ async function postToSlack(tag: string, summary: string, notionUrl: string): Pro
     },
     body: JSON.stringify({
       channel: SLACK_RELEASE_CHANNEL_ID,
-      attachments: [
-        {
-          title: `🚀 Release ${tag} — ${date}`,
-          text: `${summary}\n\n📋 Voir le changelog complet : ${notionUrl}`,
-          color: "#2eb886",
-        },
-      ],
+      text,
+      unfurl_links: false,
     }),
   });
 
@@ -451,19 +539,27 @@ async function main(): Promise<void> {
   const notionCount = contexts.filter((c) => c.notionContent !== null).length;
   console.log(`✅ ${notionCount}/${prs.length} PR(s) avec ticket Notion`);
 
-  // 5. Synthèse OpenAI
-  console.log("🤖 Synthèse avec OpenAI...");
-  const summary = await synthesizeWithOpenAI(args.label, commits, contexts, openai);
-  console.log(`\n--- Résumé ---\n${summary}\n---\n`);
+  // 5. Période
+  const period = getPeriod(args.from, args.to);
+  console.log(`📅 Période : ${period.start} → ${period.end}`);
 
-  // 6. Entrée Notion
+  // 6. Synthèse OpenAI
+  console.log("🤖 Synthèse avec OpenAI...");
+  const sections = await synthesizeWithOpenAI(args.label, commits, contexts, openai);
+  sections.forEach((s) => {
+    console.log(`\n  ${s.app} (${s.bullets.length} point(s))`);
+    s.bullets.forEach((b) => console.log(`    • ${b}`));
+  });
+  console.log();
+
+  // 7. Entrée Notion
   console.log("📝 Création de l'entrée Notion...");
-  const notionPage = await createNotionEntry(args.label, summary, contexts, notion);
+  const notionPage = await createNotionEntry(args.label, sections, contexts, notion);
   console.log(`✅ Page Notion créée : ${notionPage.url}`);
 
-  // 7. Publication Slack
+  // 8. Publication Slack
   console.log("💬 Publication sur Slack...");
-  await postToSlack(args.label, summary, notionPage.url);
+  await postToSlack(args.label, sections, period, prs.length, notionPage.url);
   console.log("✅ Publié sur Slack");
 
   console.log(`\n🎉 Changelog "${args.label}" publié avec succès !`);
