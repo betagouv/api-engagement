@@ -97,7 +97,7 @@ jobs:
         uses: orhun/git-cliff-action@v4
         with:
           config: cliff.toml
-          args: --latest --strip header --output /tmp/release-notes.md
+          args: --unreleased --strip header --output /tmp/release-notes.md
 
       - name: Commit changes to main
         id: commit
@@ -113,5 +113,14 @@ jobs:
         run: |
           TAG_NAME="v${RELEASE_VERSION}"
           echo "Creating and pushing tag: $TAG_NAME"
-          git tag -a "$TAG_NAME" -F /tmp/release-notes.md
+          git tag -a "$TAG_NAME" -m "Release $TAG_NAME"
           git push origin $TAG_NAME
+
+      - name: Create GitHub Release
+        if: steps.commit.outputs.changes_detected == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          name: v${{ env.RELEASE_VERSION }}
+          tag_name: v${{ env.RELEASE_VERSION }}
+          target_commitish: main
+          body_path: /tmp/release-notes.md
