@@ -55,6 +55,6 @@ jobs:
     if: github.ref == 'refs/heads/main'
     uses: ./.github/workflows/terraform-deploy.yml
     with:
-      branch: staging
+      branch: main
       environment: sandbox
     secrets: inherit
