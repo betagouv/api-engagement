@@ -52,17 +52,13 @@ jobs:
   build-and-push:
     name: Build and Push
     needs: set-env
+    if: matrix.variant != 'sandbox' || needs.set-env.outputs.environment_name == 'production'
     runs-on: ubuntu-latest
     environment: ${{ matrix.github_env || needs.set-env.outputs.environment_name }}
     strategy:
       matrix:
         include:
           - service: app
-            variant: production
-            github_env: production
-          - service: app
-            variant: staging
-            github_env: staging
           - service: app
             variant: sandbox
             github_env: sandbox
