@@ -1,4 +1,4 @@
-import { COLORS as CHART_COLORS } from "../../../../components/Chart";
+import { COLORS as CHART_COLORS } from "@/components/Chart";
 
 const getColumnIndex = (cols, column) => {
   if (typeof column === "number") return column;

@@ -1,15 +1,15 @@
+import EmptySVG from "@/assets/svg/empty-info.svg";
+import { Pie, StackedBarchart } from "@/components/Chart";
+import DateRangePicker from "@/components/DateRangePicker";
+import Loader from "@/components/Loader";
+import Tabs from "@/components/Tabs";
+import { METABASE_CARD_ID, MONTHS } from "@/constants";
+import AnalyticsCard from "@/scenes/performance/AnalyticsCard";
+import { useAnalyticsProvider } from "@/services/analytics/provider";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import useStore from "@/services/store";
 import { useEffect, useState } from "react";
-import EmptySVG from "../../assets/svg/empty-info.svg";
-import { Pie, StackedBarchart } from "../../components/Chart";
-import DateRangePicker from "../../components/DateRangePicker";
-import Loader from "../../components/Loader";
-import Tabs from "../../components/Tabs";
-import { METABASE_CARD_ID, MONTHS } from "../../constants";
-import { useAnalyticsProvider } from "../../services/analytics/provider";
-import api from "../../services/api";
-import { captureError } from "../../services/error";
-import useStore from "../../services/store";
-import AnalyticsCard from "./AnalyticsCard";
 
 const COLORS = ["rgba(250,117,117,255)", "rgba(252,205,109,255)", "rgba(251,146,107,255)", "rgba(110,213,197,255)", "rgba(114,183,122,255)", "rgba(146,146,146,255)"];
 const TYPE = {
@@ -34,7 +34,9 @@ const GlobalAnnounce = ({ filters, onFiltersChange }) => {
           availableTo: filters.to,
           size: 0,
         });
-        if (!res.ok) throw res;
+        if (!res.ok) {
+          throw res;
+        }
         setTotalMissionAvailable(res.total);
       } catch (error) {
         captureError(error, { extra: { filters } });
@@ -57,7 +59,7 @@ const GlobalAnnounce = ({ filters, onFiltersChange }) => {
           <p className="text-text-mention text-base">Vos missions partagées et l’impact que vos diffuseurs ont généré pour vous</p>
         </div>
         <div className="mt-4 grid gap-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <div className="border-grey-border border p-6">
               {loadingMission ? (
                 <div className="flex w-full justify-center py-10">
@@ -79,7 +81,7 @@ const GlobalAnnounce = ({ filters, onFiltersChange }) => {
               adapterOptions={{ valueColumn: "total_mission_click" }}
             />
           </div>
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
             <AnalyticsCard
               cardId={METABASE_CARD_ID.ANNONCEUR_TOTAL_EVENTS}
               filters={filters}
@@ -117,19 +119,19 @@ const GlobalAnnounce = ({ filters, onFiltersChange }) => {
         </div>
       </div>
       <>
-        <Evolution filters={filters} defaultType="print" />
-        <Announcers filters={filters} defaultType="print" />
+        <Evolution filters={filters} />
+        <Announcers filters={filters} />
       </>
     </div>
   );
 };
 
-const Evolution = ({ filters, defaultType = "print" }) => {
+const Evolution = ({ filters }) => {
   const { publisher } = useStore();
   const analyticsProvider = useAnalyticsProvider();
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [type, setType] = useState(defaultType);
+  const [type, setType] = useState("apply");
   const tabs = [
     {
       key: "print",
@@ -163,14 +165,20 @@ const Evolution = ({ filters, defaultType = "print" }) => {
   const activeTabId = activeTab ? activeTab.id : null;
 
   useEffect(() => {
-    if (!analyticsProvider?.query) return;
+    if (!analyticsProvider?.query) {
+      return;
+    }
     const controller = new AbortController();
     const fetchData = async () => {
       setLoading(true);
       try {
         const variables = { publisher_id: String(publisher.id), flux: "to", type };
-        if (filters.from) variables.from = filters.from.toISOString();
-        if (filters.to) variables.to = filters.to.toISOString();
+        if (filters.from) {
+          variables.from = filters.from.toISOString();
+        }
+        if (filters.to) {
+          variables.to = filters.to.toISOString();
+        }
 
         const raw = await analyticsProvider.query({
           cardId: METABASE_CARD_ID.EVOLUTION_STAT_EVENT,
@@ -182,7 +190,9 @@ const Evolution = ({ filters, defaultType = "print" }) => {
         const cols = raw?.data?.cols || raw?.cols || [];
 
         const getColumnIndex = (column) => {
-          if (!cols?.length) return -1;
+          if (!cols?.length) {
+            return -1;
+          }
           return cols.findIndex((c) => c.name === column || c.display_name === column);
         };
 
@@ -211,7 +221,9 @@ const Evolution = ({ filters, defaultType = "print" }) => {
 
         setRows(parsed);
       } catch (error) {
-        if (error.name === "AbortError") return;
+        if (error.name === "AbortError") {
+          return;
+        }
         captureError(error, { extra: { filters, type } });
         setRows([]);
       }
@@ -222,15 +234,21 @@ const Evolution = ({ filters, defaultType = "print" }) => {
   }, [filters, type, publisher, analyticsProvider]);
 
   const buildHistogram = (data) => {
-    if (!data) return { histogram: [], keys: [] };
+    if (!data) {
+      return { histogram: [], keys: [] };
+    }
     const keysSet = new Set();
     const map = new Map();
     const diff = filters?.from && filters?.to ? (filters.to.getTime() - filters.from.getTime()) / (1000 * 60 * 60 * 24) : 0;
 
     data.forEach((row) => {
-      if (!row?.bucket) return;
+      if (!row?.bucket) {
+        return;
+      }
       const date = row.bucket instanceof Date ? row.bucket : new Date(row.bucket);
-      if (Number.isNaN(date.getTime())) return;
+      if (Number.isNaN(date.getTime())) {
+        return;
+      }
       const key = date.getTime();
       const entry = map.get(key) || {
         name: diff < 61 ? date.toLocaleDateString("fr") : `${MONTHS[date.getMonth()]} ${date.getFullYear()}`,
@@ -242,13 +260,17 @@ const Evolution = ({ filters, defaultType = "print" }) => {
     });
 
     const keys = Array.from(keysSet).filter((key) => key !== "Autres");
-    if (keysSet.has("Autres")) keys.push("Autres");
+    if (keysSet.has("Autres")) {
+      keys.push("Autres");
+    }
 
     const sorted = Array.from(map.entries())
       .sort((a, b) => a[0] - b[0])
       .map(([, entry]) => {
         keys.forEach((key) => {
-          if (entry[key] === undefined) entry[key] = 0;
+          if (entry[key] === undefined) {
+            entry[key] = 0;
+          }
         });
         return entry;
       });
@@ -268,7 +290,7 @@ const Evolution = ({ filters, defaultType = "print" }) => {
           tabs={tabs}
           ariaLabel="Trafic reçu grâce à vos partenaires diffuseurs"
           panelId="announce-evolution-panel"
-          className="mb-8 flex items-center gap-8 text-sm"
+          className="mb-8 flex flex-wrap items-center gap-8 text-sm"
           variant="underline"
         />
         <div id="announce-evolution-panel" role="tabpanel" aria-labelledby={activeTabId || undefined}>
@@ -278,7 +300,7 @@ const Evolution = ({ filters, defaultType = "print" }) => {
             </div>
           ) : !histogram.length ? (
             <div className="border-grey-border bg-background-grey-hover flex h-[248px] w-full flex-col items-center justify-center border border-dashed">
-              <img src={EmptySVG} alt="empty" className="h-16 w-16" />
+              <img src={EmptySVG} alt="" aria-hidden="true" className="h-16 w-16" />
               <p className="text-color-gray-425 text-base">Aucune donnée disponible pour la période</p>
             </div>
           ) : (
@@ -292,13 +314,13 @@ const Evolution = ({ filters, defaultType = "print" }) => {
   );
 };
 
-const Announcers = ({ filters, defaultType = "print" }) => {
+const Announcers = ({ filters }) => {
   const { publisher } = useStore();
   const analyticsProvider = useAnalyticsProvider();
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [type, setType] = useState(defaultType);
+  const [type, setType] = useState("apply");
   const tabs = [
     {
       key: "print",
@@ -332,14 +354,20 @@ const Announcers = ({ filters, defaultType = "print" }) => {
   const activeTabId = activeTab ? activeTab.id : null;
 
   useEffect(() => {
-    if (!analyticsProvider?.query) return;
+    if (!analyticsProvider?.query) {
+      return;
+    }
     const controller = new AbortController();
     const fetchData = async () => {
       setLoading(true);
       try {
         const variables = { publisher_id: publisher.id, type };
-        if (filters.from) variables.from = filters.from.toISOString();
-        if (filters.to) variables.to = filters.to.toISOString();
+        if (filters.from) {
+          variables.from = filters.from.toISOString();
+        }
+        if (filters.to) {
+          variables.to = filters.to.toISOString();
+        }
 
         const raw = await analyticsProvider.query({
           cardId: METABASE_CARD_ID.ANNONCEUR_TOP_DIFFUSEURS,
@@ -351,7 +379,9 @@ const Announcers = ({ filters, defaultType = "print" }) => {
         const cols = raw?.data?.cols || raw?.cols || [];
 
         const getColumnIndex = (column) => {
-          if (!cols?.length) return -1;
+          if (!cols?.length) {
+            return -1;
+          }
           return cols.findIndex((c) => c.name === column || c.display_name === column);
         };
 
@@ -377,7 +407,9 @@ const Announcers = ({ filters, defaultType = "print" }) => {
         setData(parsed);
         setTotal(parsed.length);
       } catch (error) {
-        if (error.name === "AbortError") return;
+        if (error.name === "AbortError") {
+          return;
+        }
         captureError(error, { extra: { filters, type } });
         setData([]);
         setTotal(0);
@@ -400,17 +432,24 @@ const Announcers = ({ filters, defaultType = "print" }) => {
         </div>
       ) : (
         <div className="border-grey-border space-y-4 border p-6">
-          <Tabs tabs={tabs} ariaLabel="Top partenaires diffuseurs" panelId="announce-traffic-panel" className="mb-8 flex items-center gap-8 text-sm" variant="underline" />
+          <Tabs
+            tabs={tabs}
+            ariaLabel="Top partenaires diffuseurs"
+            panelId="announce-traffic-panel"
+            className="mb-8 flex flex-wrap items-center gap-8 text-sm"
+            variant="underline"
+          />
           <div id="announce-traffic-panel" role="tabpanel" aria-labelledby={activeTabId || undefined}>
             {!data.length ? (
               <div className="border-grey-border bg-background-grey-hover flex h-[248px] w-full flex-col items-center justify-center border border-dashed">
-                <img src={EmptySVG} alt="empty" className="h-16 w-16" />
+                <img src={EmptySVG} alt="" aria-hidden="true" className="h-16 w-16" />
                 <p className="text-color-gray-425 text-base">Aucune donnée disponible pour la période</p>
               </div>
             ) : (
-              <div className="flex justify-between gap-4">
+              <div className="flex flex-col justify-between gap-4 lg:flex-row">
                 <div className="w-2/3">
                   <table className="w-full table-auto">
+                    <caption className="sr-only">Top partenaires diffuseurs en {TYPE[type]}</caption>
                     <thead className="text-left">
                       <tr className="text-text-mention text-xs uppercase">
                         <th colSpan={3} className="px-4">

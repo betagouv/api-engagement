@@ -16,7 +16,7 @@ Ce fichier décrit les conventions de travail attendues pour intervenir dans ce 
 - `.env`, `.env.*` (variables d’environnement : potentiellement sensibles ; ne modifier que sur demande explicite)
 - `coverage/`
 - `scripts-local/`
-- `src/db/core/`, `src/db/analytics/` (clients Prisma générés ; voir section Prisma)
+- `src/db/core/` (client Prisma généré ; voir section Prisma)
 - `linkedin.xml`, `talent.xml`, `grimpio.xml` (données/exports)
 
 Si une modification nécessite ces fichiers, demander explicitement une validation avant d’aller plus loin.
@@ -30,8 +30,8 @@ Structure notable :
 - `src/index.ts` : bootstrap Express, routing (v0/v1/v2 + routes internes), middleware, gestion d’erreurs.
 - `src/controllers/` : endpoints HTTP utilisés par l'app et le widget (validation `zod`, auth `passport`, orchestration).
 - `src/services/` : logique métier, orchestration, mapping, appels externes.
-- `src/repositories/` : accès aux données PostgreSQL via Prisma (clients `prismaCore` / `prismaAnalytics`).
-- `src/db/` : connexions DB (Mongo + Postgres) ; les clients Prisma générés sont importés depuis `src/db/{core,analytics}`.
+- `src/repositories/` : accès aux données PostgreSQL via Prisma (client `prismaCore`).
+- `src/db/` : connexions DB (Mongo + Postgres) ; le client Prisma généré est importé depuis `src/db/core`.
 - `src/jobs/` : jobs exécutables via `npm run job` (batch/import/export/maintenance).
 - `src/utils/` : helpers génériques (parse/sanitize/cast/format, etc.) à réutiliser en priorité.
 - `src/v{0|1|2}` : API versionnée publique, utilisée par les partenaires.
@@ -65,14 +65,13 @@ Chaîne à privilégier : **controller → service → repository**.
 
 ### PostgreSQL / Prisma (règles importantes)
 
-Le projet utilise **2 schémas Prisma** :
+Le projet utilise **1 schéma Prisma** :
 
-- **Core** : `prisma/core/schema.core.prisma` — **source de vérité métier** (à modifier si besoin).
-- **Analytics** : `prisma/analytics/schema.analytics.prisma` — **voué à disparaître** (remplacé par un pipeline dbt dans un autre répertoire) : **ne pas modifier** ce schéma ni ses migrations, sauf demande explicite.
+- **Schema** : `prisma/schema.prisma` — **source de vérité métier** (à modifier si besoin).
 
-Clients Prisma générés :
+Client Prisma généré :
 
-- Les répertoires `src/db/core/` et `src/db/analytics/` sont générés par `npm run prisma:generate` et sont ignorés par git. Ne pas les éditer.
+- Le répertoire `src/db/core/` est généré par `npm run prisma:generate` et est ignoré par git. Ne pas l'éditer.
 
 #### Prisma : repères & conventions (courts)
 
@@ -82,7 +81,7 @@ Clients Prisma générés :
 - **Soft delete** : quand un modèle est “supprimable”, privilégier `deletedAt DateTime? @map("deleted_at")` plutôt qu’un hard delete ; s’assurer que les requêtes applicatives filtrent bien `deletedAt = null` par défaut.
 - **Index/contraintes** : nommer explicitement les indexes/uniques via `map: "..."` (stabilité des migrations) et ajouter les indexes nécessaires aux parcours réels (ex : `deletedAt`, curseurs/tri, tableaux avec index GIN).
 - **Enums** : modifier/renommer des valeurs d’enum est une migration DB + un risque de compatibilité données ; le faire seulement si nécessaire et avec une stratégie de migration.
-- **Migrations** : les migrations sont générées via `npm run prisma:migrate:core` et sont rangées dans `prisma/core/migrations/`. Ne pas écrire directement dans les fichiers, et laisser la commande Prisma s'en occuper.
+- **Migrations** : les migrations sont générées via `npm run prisma:migrate` et sont rangées dans `prisma/migrations/`. Ne pas écrire directement dans les fichiers, et laisser la commande Prisma s'en occuper.
 
 ## Tests
 
@@ -101,8 +100,7 @@ Clients Prisma générés :
 - Démarrage : `npm run start`
 - Prisma :
   - `npm run prisma:generate`
-  - `npm run prisma:migrate:core`
-  - `npm run prisma:migrate:analytics` (à éviter sauf demande explicite)
+  - `npm run prisma:migrate`
 - Jobs : `npm run job -- <job-name> <json-params> --env <env>`
 - Qualité : `npm run lint`, `npm run lint:fix`, `npm run prettier`
 - Tests : `npm test`, `npm run test:ci`

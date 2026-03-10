@@ -2,11 +2,11 @@ import { randomUUID } from "node:crypto";
 import request from "supertest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { PUBLISHER_IDS } from "../../../../src/config";
-import { prismaCore } from "../../../../src/db/postgres";
-import { publisherService } from "../../../../src/services/publisher";
-import { statBotService } from "../../../../src/services/stat-bot";
-import * as utils from "../../../../src/utils";
+import { PUBLISHER_IDS } from "@/config";
+import { prisma } from "@/db/postgres";
+import { publisherService } from "@/services/publisher";
+import { statBotService } from "@/services/stat-bot";
+import * as utils from "@/utils";
 import { createTestMission } from "../../../fixtures";
 import { createTestApp } from "../../../testApp";
 
@@ -23,7 +23,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
 
     expect(response.status).toBe(302);
     expect(response.headers.location).toBe("https://www.service-civique.gouv.fr/");
-    expect(await prismaCore.statEvent.count()).toBe(0);
+    expect(await prisma.statEvent.count()).toBe(0);
   });
 
   it("redirects to Service Civique when mission is not found and identity is missing", async () => {
@@ -35,7 +35,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
 
     expect(response.status).toBe(302);
     expect(response.headers.location).toBe("https://www.service-civique.gouv.fr/");
-    expect(await prismaCore.statEvent.count()).toBe(0);
+    expect(await prisma.statEvent.count()).toBe(0);
   });
 
   it("redirects to mission application URL when identity is missing but mission exists", async () => {
@@ -61,17 +61,12 @@ describe("RedirectController /:missionId/:publisherId", () => {
 
     expect(response.status).toBe(302);
     expect(response.headers.location).toBe("https://mission.example.com/apply");
-    expect(await prismaCore.statEvent.count()).toBe(0);
+    expect(await prisma.statEvent.count()).toBe(0);
   });
 
   it("records click stats and appends tracking parameters when identity and publisher exist", async () => {
     const fromPublisher = await publisherService.createPublisher({ name: "From Publisher" });
-    const missionPublisher = await prismaCore.publisher.create({
-      data: {
-        id: randomUUID(),
-        name: "Mission Publisher",
-      },
-    });
+    const missionPublisher = await publisherService.createPublisher({ name: "Mission Publisher" });
 
     const mission = await createTestMission({
       addresses: [
@@ -115,7 +110,17 @@ describe("RedirectController /:missionId/:publisherId", () => {
     expect(redirectUrl.searchParams.get("utm_medium")).toBe("api");
     expect(redirectUrl.searchParams.get("utm_campaign")).toBe("from-publisher");
 
-    const storedClick = await prismaCore.statEvent.findUnique({ where: { id: clickId! } });
+    // The handler updates isBot asynchronously after sending the redirect response,
+    // so we need to wait for that background work to complete before asserting.
+    await vi.waitFor(
+      async () => {
+        const row = await prisma.statEvent.findUnique({ where: { id: clickId! } });
+        expect(row?.isBot).toBe(true);
+      },
+      { timeout: 2000, interval: 50 },
+    );
+
+    const storedClick = await prisma.statEvent.findUnique({ where: { id: clickId! } });
     expect(storedClick).toMatchObject({
       type: "click",
       user: identity.user,
@@ -132,7 +137,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
       missionPostalCode: mission.postalCode,
       missionDepartmentName: mission.departmentName,
       missionOrganizationName: mission.organizationName ?? "",
-      missionOrganizationId: mission.organizationId,
+      missionOrganizationId: mission.organizationId ?? "",
       missionOrganizationClientId: mission.organizationClientId,
       toPublisherId: mission.publisherId,
       fromPublisherId: fromPublisher.id,
@@ -145,13 +150,11 @@ describe("RedirectController /:missionId/:publisherId", () => {
 
   it("uses mtm tracking parameters for Service Civique missions", async () => {
     const fromPublisher = await publisherService.createPublisher({ name: "From Publisher" });
-    const serviceCiviquePublisherId = PUBLISHER_IDS.SERVICE_CIVIQUE || new Types.ObjectId().toString();
+    const serviceCiviquePublisherId = PUBLISHER_IDS.SERVICE_CIVIQUE || randomUUID();
     if (!PUBLISHER_IDS.SERVICE_CIVIQUE) {
       PUBLISHER_IDS.SERVICE_CIVIQUE = serviceCiviquePublisherId;
     }
-    const serviceCiviquePublisher = await prismaCore.publisher.create({
-      data: { id: serviceCiviquePublisherId, name: "Service Civique" },
-    });
+    const serviceCiviquePublisher = await publisherService.createPublisher({ name: "Service Civique", id: serviceCiviquePublisherId });
 
     const mission = await createTestMission({
       addresses: [

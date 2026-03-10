@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
-import { Prisma, WidgetRule } from "../db/core";
-import { widgetRepository } from "../repositories/widget";
+import { Prisma, WidgetRule } from "@/db/core";
+import { widgetRepository } from "@/repositories/widget";
 import type {
   WidgetCreateInput,
   WidgetLocation,
@@ -11,8 +11,8 @@ import type {
   WidgetStyle,
   WidgetType,
   WidgetUpdatePatch,
-} from "../types/widget";
-import { publisherService } from "./publisher";
+} from "@/types/widget";
+import { publisherService } from "@/services/publisher";
 
 type PrismaWidgetWithRelations = Prisma.WidgetGetPayload<{
   include: {

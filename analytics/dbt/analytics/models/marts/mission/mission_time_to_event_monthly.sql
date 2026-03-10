@@ -12,7 +12,7 @@
     'mission_audience',
     'mission_tags',
     'close_to_transport',
-    'description_length',
+    'description_length_bucket',
     'mission_duration_days'
   ],
   incremental_strategy = 'delete+insert',
@@ -29,18 +29,19 @@ with last_run as (
 ),
 
 affected_months as (
-  select distinct date_trunc('month', mission_created_at)::date as month_start
-  from {{ ref('int_mission_first_events') }}
+  select distinct date_trunc('month', first_click_at)::date as month_start
+  from {{ ref('int_mission_click_apply_metrics') }}
   where
-    coalesce(updated_at, mission_created_at)
+    first_click_at is not null
+    and coalesce(updated_at, first_click_at)
     >= (select lr.last_updated_at from last_run as lr)
 ),
 
 base as (
   select
-    date_trunc('month', mission_created_at)::date as month_start,
-    extract(year from date_trunc('month', mission_created_at))::int as year,
-    extract(month from date_trunc('month', mission_created_at))::int as month,
+    date_trunc('month', first_click_at)::date as month_start,
+    extract(year from date_trunc('month', first_click_at))::int as year,
+    extract(month from date_trunc('month', first_click_at))::int as month,
     mission_id,
     publisher_id,
     from_publisher_id,
@@ -57,15 +58,26 @@ base as (
     time_to_import_secs,
     time_to_click_secs,
     time_to_apply_secs,
+    click_count,
+    apply_count,
+    click_with_apply_count,
+    click_with_multi_apply_count,
     first_click_at,
     first_apply_at,
-    updated_at
-  from {{ ref('int_mission_first_events') }}
-  {% if is_incremental() %}
-    where date_trunc('month', mission_created_at)::date in (
-      select am.month_start from affected_months as am
-    )
-  {% endif %}
+    updated_at,
+    case
+      when description_length < 300 then '0-300'
+      when description_length < 700 then '300-700'
+      else '700+'
+    end as description_length_bucket
+  from {{ ref('int_mission_click_apply_metrics') }}
+  where
+    first_click_at is not null
+    {% if is_incremental() %}
+      and date_trunc('month', first_click_at)::date in (
+        select am.month_start from affected_months as am
+      )
+    {% endif %}
 ),
 
 aggregated as (
@@ -83,13 +95,14 @@ aggregated as (
     mission_audience,
     mission_tags,
     close_to_transport,
-    description_length,
+    description_length_bucket,
+    round(avg(description_length))::int as avg_description_length,
     mission_duration_days,
     count(distinct mission_id) as mission_count,
-    count(*) filter (where first_click_at is not null)
-      as mission_with_click_count,
-    count(*) filter (where first_apply_at is not null)
-      as mission_with_apply_count,
+    sum(click_count) as click_count,
+    sum(apply_count) as apply_count,
+    sum(click_with_apply_count) as click_with_apply_count,
+    sum(click_with_multi_apply_count) as click_with_multi_apply_count,
     avg(time_to_click_secs) as avg_time_to_click_secs,
     avg(time_to_apply_secs) as avg_time_to_apply_secs,
     avg(time_to_import_secs) as avg_time_to_import_secs,
@@ -109,8 +122,18 @@ aggregated as (
     mission_audience,
     mission_tags,
     close_to_transport,
-    description_length,
+    description_length_bucket,
     mission_duration_days
 )
 
-select * from aggregated
+select
+  a.*,
+  case
+    when a.click_count = 0 then null
+    else a.apply_count::numeric / a.click_count
+  end as conversion_rate,
+  case
+    when a.click_with_apply_count = 0 then null
+    else a.click_with_multi_apply_count::numeric / a.click_with_apply_count
+  end as multi_apply_share
+from aggregated as a

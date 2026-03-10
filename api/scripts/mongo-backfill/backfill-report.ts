@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
-import type { Prisma, Report } from "../../src/db/core";
-import type { ReportDataTemplate } from "../../src/types/report";
+import type { Prisma, Report } from "@/db/core";
+import type { ReportDataTemplate } from "@/types/report";
 import { asString, asStringArray } from "./utils/cast";
 import { compareDates, compareJsons, compareNumbers, compareStringArrays, compareStrings } from "./utils/compare";
 import { normalizeDate, normalizeNumber, toJsonValue } from "./utils/normalize";
@@ -209,8 +209,7 @@ const chunkArray = <T>(items: T[], size: number): T[][] => {
   return chunks;
 };
 
-const buildCompositeKey = (record: Pick<NormalizedReportRecord, "publisherId" | "month" | "year">): string =>
-  `${record.publisherId}:${record.year}:${record.month}`;
+const buildCompositeKey = (record: Pick<NormalizedReportRecord, "publisherId" | "month" | "year">): string => `${record.publisherId}:${record.year}:${record.month}`;
 
 const formatRecordForLog = (record: NormalizedReportRecord) => ({
   id: record.id,
@@ -226,8 +225,8 @@ const formatRecordForLog = (record: NormalizedReportRecord) => ({
 
 const cleanup = async () => {
   try {
-    const { prismaCore } = await import("../../src/db/postgres");
-    await Promise.allSettled([prismaCore.$disconnect(), mongoose.connection.close()]);
+    const { prismaCore } = await import("@/db/postgres");
+    await Promise.allSettled([prisma.$disconnect(), mongoose.connection.close()]);
   } catch {
     await Promise.allSettled([mongoose.connection.close()]);
   }
@@ -235,11 +234,7 @@ const cleanup = async () => {
 
 const main = async () => {
   console.log(`[BackfillReports] Starting${options.dryRun ? " (dry-run)" : ""}`);
-  const [{ mongoConnected }, postgresModule, { reportRepository }] = await Promise.all([
-    import("../../src/db/mongo"),
-    import("../../src/db/postgres"),
-    import("../../src/repositories/report"),
-  ]);
+  const [{ mongoConnected }, postgresModule, { reportRepository }] = await Promise.all([import("@/db/mongo"), import("@/db/postgres"), import("@/repositories/report")]);
   const { pgConnected } = postgresModule;
 
   await Promise.all([mongoConnected, pgConnected]);
@@ -266,9 +261,7 @@ const main = async () => {
     const existingById = new Map(normalizedExisting.map((report) => [report.id, report]));
     const existingByComposite = new Map(normalizedExisting.map((report) => [buildCompositeKey(report), report]));
 
-    const missingById = chunk
-      .filter(({ record }) => !existingById.has(record.id))
-      .map(({ record }) => record);
+    const missingById = chunk.filter(({ record }) => !existingById.has(record.id)).map(({ record }) => record);
 
     if (missingById.length) {
       const seenCompositeKeys = new Set<string>();

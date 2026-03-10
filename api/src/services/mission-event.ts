@@ -1,7 +1,7 @@
-import { Prisma } from "../db/core";
-import { missionEventRepository } from "../repositories/mission-event";
-import { MissionEventCreateParams, MissionEventRecord } from "../types/mission-event";
-import { chunk } from "../utils/array";
+import { Prisma } from "@/db/core";
+import { missionEventRepository } from "@/repositories/mission-event";
+import { MissionEventCreateParams, MissionEventRecord } from "@/types/mission-event";
+import { chunk } from "@/utils/array";
 
 const MISSION_EVENT_BATCH_SIZE = 10;
 

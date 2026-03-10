@@ -1,6 +1,6 @@
 import { RiDeleteBin6Line } from "react-icons/ri";
-import Toggle from "../../../components/Toggle";
-import { buildSearchParams } from "../../../utils/url";
+import Toggle from "@/components/Toggle";
+import { buildSearchParams } from "@/utils/url";
 
 const Trackers = ({ values, onChange }) => {
   const handleTrackerKeyChange = (e, i) => {
@@ -53,7 +53,7 @@ const Trackers = ({ values, onChange }) => {
                 <input className="input flex-1" name="value" value={tracker.value} onChange={(e) => handleTrackerValueChange(e, i)} placeholder="Exemples : google, newsletter" />
 
                 <button type="button" className="tertiary-btn w-10 px-0" onClick={() => handleDeleteTracker(i)}>
-                  <RiDeleteBin6Line className="text-error mx-auto" />
+                  <RiDeleteBin6Line className="text-error mx-auto" aria-hidden="true" />
                 </button>
               </div>
             ))}

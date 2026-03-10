@@ -1,10 +1,29 @@
-import { ENV, PUBLISHER_IDS } from "../../config";
+import { PUBLISHER_IDS } from "@/config";
 
-export const DEFAULT_LIMIT = ENV === "production" ? 1000 : 1;
-// Don't want to republish missions in staging
-export const DAYS_AFTER_REPUBLISH = ENV === "production" ? 45 : 10000;
+// Maximum number of days an entry can stay ONLINE on Piloty before being archived
+// Only applies to publishers with quotas (unlimited publishers are never archived by age)
+export const ONLINE_DAYS_LIMIT = 30;
 
-export const WHITELISTED_PUBLISHERS_IDS = [PUBLISHER_IDS.JEVEUXAIDER, PUBLISHER_IDS.SERVICE_CIVIQUE];
+export interface PublisherSyncConfig {
+  publisherId: string;
+  /** null = unlimited, all missions synchronized without quota */
+  quotaByDomain: Record<string, number> | null;
+}
+
+export const PUBLISHER_SYNC_CONFIGS: PublisherSyncConfig[] = [
+  {
+    publisherId: PUBLISHER_IDS.JEVEUXAIDER,
+    quotaByDomain: {
+      "solidarite-insertion": 1800,
+      sport: 750,
+      "benevolat-competences": 450,
+    },
+  },
+  {
+    publisherId: PUBLISHER_IDS.SERVICE_CIVIQUE,
+    quotaByDomain: null, // full sync, no quota
+  },
+];
 
 // Used to sign every Piloty API requests
 export const MEDIA_PUBLIC_ID = "letudiant";

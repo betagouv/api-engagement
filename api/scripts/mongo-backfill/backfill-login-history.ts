@@ -1,5 +1,5 @@
-import { loginHistoryRepository } from "../../src/repositories/login-history";
-import { pgConnected, prismaCore } from "../../src/db/postgres";
+import { pgConnected } from "@/db/postgres";
+import { loginHistoryRepository } from "@/repositories/login-history";
 import { compareDates } from "./utils/compare";
 import { normalizeDate } from "./utils/normalize";
 import { loadEnvironment, parseScriptOptions } from "./utils/options";
@@ -57,7 +57,7 @@ const replaceLoginHistory = async (userId: string, logins: Date[]) => {
 };
 
 const cleanup = async () => {
-  await Promise.allSettled([prismaCore.$disconnect()]);
+  await Promise.allSettled([prisma.$disconnect()]);
 };
 
 const main = async () => {
@@ -69,7 +69,7 @@ const main = async () => {
   let processed = 0;
 
   const fetchBatch = async (cursor?: string) => {
-    return prismaCore.user.findMany({
+    return prisma.user.findMany({
       orderBy: { id: "asc" },
       take: BATCH_SIZE,
       ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
@@ -115,11 +115,7 @@ const main = async () => {
       }
 
       const changeType: "created" | "updated" | "deleted" =
-        existingLogins.length === 0 && entry.logins.length > 0
-          ? "created"
-          : existingLogins.length > 0 && entry.logins.length === 0
-            ? "deleted"
-            : "updated";
+        existingLogins.length === 0 && entry.logins.length > 0 ? "created" : existingLogins.length > 0 && entry.logins.length === 0 ? "deleted" : "updated";
 
       if (options.dryRun) {
         if (sampleChanges.length < 5) {
@@ -145,9 +141,7 @@ const main = async () => {
     if (sampleChanges.length) {
       console.log("[BackfillLoginHistory][Dry-run] Sample changes:");
       for (const sample of sampleChanges) {
-        console.log(
-          `[${sample.type}] user=${sample.userId} before=${JSON.stringify(sample.before)} after=${JSON.stringify(sample.after)}`
-        );
+        console.log(`[${sample.type}] user=${sample.userId} before=${JSON.stringify(sample.before)} after=${JSON.stringify(sample.after)}`);
       }
     }
   } else {

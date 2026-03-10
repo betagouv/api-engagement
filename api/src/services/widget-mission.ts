@@ -1,17 +1,17 @@
-import { PUBLISHER_IDS } from "../config";
-import { Prisma } from "../db/core";
-import { prismaCore } from "../db/postgres";
-import { missionRepository } from "../repositories/mission";
-import { organizationRepository } from "../repositories/organization";
-import type { WidgetRecord } from "../types";
-import type { MissionRecord, MissionSearchFilters, MissionSelect } from "../types/mission";
+import { PUBLISHER_IDS } from "@/config";
+import { Prisma } from "@/db/core";
+import { prisma } from "@/db/postgres";
+import { missionRepository } from "@/repositories/mission";
+import type { WidgetRecord } from "@/types";
+import type { MissionRecord, MissionSearchFilters, MissionSelect } from "@/types/mission";
 import { buildWhere, missionService } from "./mission";
+import publisherOrganizationService from "./publisher-organization";
 
-type Bucket = { key: string; doc_count: number };
+type Bucket = { key: string; doc_count: number; label?: string };
 
 type PublisherOrganizationTuple = {
   publisherId: string;
-  organizationClientId: string;
+  clientId: string;
 };
 
 const buildWidgetWhere = (widget: WidgetRecord, filters: MissionSearchFilters): Prisma.MissionWhereInput => {
@@ -40,7 +40,7 @@ const buildWidgetWhere = (widget: WidgetRecord, filters: MissionSearchFilters): 
 const isPlainObject = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value) && !(value instanceof Date);
 
 /**
- * Builds a mission condition from `(publisherId, organizationClientId)` tuples.
+ * Builds a mission condition from `(publisherId, clientId)` tuples.
  * Returns either one condition or an `OR` of conditions; empty input matches nothing.
  */
 const buildMissionConditionFromPublisherOrganizationTuples = (tuples: PublisherOrganizationTuple[]): Prisma.MissionWhereInput => {
@@ -49,16 +49,16 @@ const buildMissionConditionFromPublisherOrganizationTuples = (tuples: PublisherO
   }
 
   const byPublisher = new Map<string, Set<string>>();
-  tuples.forEach(({ publisherId, organizationClientId }) => {
+  tuples.forEach(({ publisherId, clientId }) => {
     if (!byPublisher.has(publisherId)) {
       byPublisher.set(publisherId, new Set());
     }
-    byPublisher.get(publisherId)?.add(organizationClientId);
+    byPublisher.get(publisherId)?.add(clientId);
   });
 
-  const conditions = Array.from(byPublisher.entries()).map(([publisherId, organizationClientIds]) => ({
+  const conditions = Array.from(byPublisher.entries()).map(([publisherId, clientIds]) => ({
     publisherId,
-    organizationClientId: { in: Array.from(organizationClientIds) },
+    publisherOrganization: { clientId: { in: Array.from(clientIds) } },
   }));
 
   return conditions.length === 1 ? conditions[0] : { OR: conditions };
@@ -80,11 +80,13 @@ const inlinePublisherOrganizationFilters = async (where: Prisma.MissionWhereInpu
       return cached;
     }
 
-    const tuples = await prismaCore.publisherOrganization.findMany({
+    const rows = await prisma.publisherOrganization.findMany({
       where: condition,
-      select: { publisherId: true, organizationClientId: true },
+      select: { publisherId: true, clientId: true },
     });
-    // Convert relational matches into mission-level tuple filters.
+    const tuples: PublisherOrganizationTuple[] = rows
+      .filter((r): r is typeof r & { clientId: string } => r.clientId != null)
+      .map((r) => ({ publisherId: r.publisherId, clientId: r.clientId }));
     const missionCondition = buildMissionConditionFromPublisherOrganizationTuples(tuples);
     cache.set(cacheKey, missionCondition);
     return missionCondition;
@@ -136,7 +138,7 @@ const aggregateWidgetAggs = async (
   const should = (key: string) => requestedAggs.includes(key);
 
   const aggregateMissionField = async (field: Prisma.MissionScalarFieldEnum) => {
-    const rows = await prismaCore.mission.groupBy({
+    const rows = await prisma.mission.groupBy({
       by: [field],
       where,
       _count: { _all: true },
@@ -150,7 +152,7 @@ const aggregateWidgetAggs = async (
   };
 
   const aggregateAddressField = async (field: "city" | "departmentName" | "country") => {
-    const rows = await prismaCore.missionAddress.groupBy({
+    const rows = await prisma.missionAddress.groupBy({
       by: [field, "missionId"],
       where: { mission: where },
       _count: { _all: true },
@@ -169,14 +171,14 @@ const aggregateWidgetAggs = async (
   };
 
   const aggregateDomainField = async () => {
-    const rows = await prismaCore.mission.groupBy({
+    const rows = await prisma.mission.groupBy({
       by: ["domainId"],
       where,
       _count: { _all: true },
     });
 
     const domainIds = rows.map((row) => (row as any).domainId).filter((id): id is string => typeof id === "string" && id.length > 0);
-    const domains = domainIds.length ? await prismaCore.domain.findMany({ where: { id: { in: domainIds } }, select: { id: true, name: true } }) : [];
+    const domains = domainIds.length ? await prisma.domain.findMany({ where: { id: { in: domainIds } }, select: { id: true, name: true } }) : [];
     const nameById = new Map(domains.map((domain) => [domain.id, domain.name ?? ""]));
 
     return rows
@@ -192,7 +194,7 @@ const aggregateWidgetAggs = async (
 
   const aggregateMissionListField = async (field: "tasks" | "audience") => {
     // Resolve filtered mission ids once, then aggregate on that fixed id set.
-    const missions = await prismaCore.mission.findMany({
+    const missions = await prisma.mission.findMany({
       where,
       select: { id: true },
       // Limit to prevent memory issues on extremely large datasets
@@ -217,12 +219,16 @@ const aggregateWidgetAggs = async (
   };
 
   const formatOrganization = async () => {
-    const orgRows = await aggregateMissionField("organizationId");
+    const orgRows = await aggregateMissionField("publisherOrganizationId");
     const orgIds = orgRows.map((row) => row.key);
-    const orgs = orgIds.length ? await organizationRepository.findMany({ where: { id: { in: orgIds } }, select: { id: true, title: true } }) : [];
-    const orgById = new Map(orgs.map((org) => [org.id, org.title ?? ""]));
-
-    return orgRows.map((row) => ({ key: orgById.get(row.key) ?? "", doc_count: row.doc_count })).filter((row) => row.key);
+    const orgs = orgIds.length ? await publisherOrganizationService.findMany({ ids: orgIds }, { select: { id: true, name: true, clientId: true } }) : [];
+    const orgById = new Map(orgs.map((org) => [org.id, { name: org.name ?? "", clientId: org.clientId ?? "" }]));
+    return orgRows
+      .map((row) => {
+        const org = orgById.get(row.key);
+        return { key: org?.clientId ?? "", doc_count: row.doc_count, label: org?.name ?? "" };
+      })
+      .filter((row) => row.key);
   };
 
   const result: any = {};
@@ -256,8 +262,8 @@ const aggregateWidgetAggs = async (
     promises.set("beneficiaries", aggregateMissionListField("audience"));
   }
   if (should("accessibility")) {
-    const reduced = await prismaCore.mission.count({ where: { ...where, reducedMobilityAccessible: true } });
-    const transport = await prismaCore.mission.count({ where: { ...where, closeToTransport: true } });
+    const reduced = await prisma.mission.count({ where: { ...where, reducedMobilityAccessible: true } });
+    const transport = await prisma.mission.count({ where: { ...where, closeToTransport: true } });
     result.accessibility = [
       { key: "reducedMobilityAccessible", doc_count: reduced },
       { key: "closeToTransport", doc_count: transport },

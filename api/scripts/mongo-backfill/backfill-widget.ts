@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
-import type { Prisma, Widget, WidgetRule } from "../../src/db/core";
-import type { WidgetRuleCombinator, WidgetStyle, WidgetType } from "../../src/types/widget";
+import type { Prisma, Widget, WidgetRule } from "@/db/core";
+import type { WidgetRuleCombinator, WidgetStyle, WidgetType } from "@/types/widget";
 import { asBoolean, asString, asStringArray, toMongoObjectIdString } from "./utils/cast";
 import { compareBooleans, compareDates, compareNumbers, compareStringArrays, compareStrings } from "./utils/compare";
 import { normalizeDate, normalizeNumber } from "./utils/normalize";
@@ -344,8 +344,8 @@ const formatRecordForLog = (record: NormalizedWidgetRecord) => ({
 
 const cleanup = async () => {
   try {
-    const { prismaCore } = await import("../../src/db/postgres");
-    await Promise.allSettled([prismaCore.$disconnect(), mongoose.connection.close()]);
+    const { prismaCore } = await import("@/db/postgres");
+    await Promise.allSettled([prisma.$disconnect(), mongoose.connection.close()]);
   } catch {
     await Promise.allSettled([mongoose.connection.close()]);
   }
@@ -353,11 +353,7 @@ const cleanup = async () => {
 
 const main = async () => {
   console.log(`[${SCRIPT_LABEL}] Starting${options.dryRun ? " (dry-run)" : ""}`);
-  const [{ mongoConnected }, { pgConnected }, { widgetRepository }] = await Promise.all([
-    import("../../src/db/mongo"),
-    import("../../src/db/postgres"),
-    import("../../src/repositories/widget"),
-  ]);
+  const [{ mongoConnected }, { pgConnected }, { widgetRepository }] = await Promise.all([import("@/db/mongo"), import("@/db/postgres"), import("@/repositories/widget")]);
 
   await Promise.all([mongoConnected, pgConnected]);
 

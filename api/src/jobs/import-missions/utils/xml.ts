@@ -1,8 +1,8 @@
 import { XMLParser } from "fast-xml-parser";
 
-import { captureException } from "../../../error";
-import type { PublisherRecord } from "../../../types/publisher";
-import { MissionXML } from "../types";
+import { captureException } from "@/error";
+import type { PublisherRecord } from "@/types/publisher";
+import { MissionXML } from "@/jobs/import-missions/types";
 
 export const fetchXML = async (publisher: PublisherRecord): Promise<{ ok: boolean; data: string; error?: string; status?: number }> => {
   try {

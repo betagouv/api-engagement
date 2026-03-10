@@ -1,4 +1,4 @@
-import { captureException } from "../../error";
+import { captureException } from "@/error";
 
 const get = async <T>(path: string) => {
   try {

@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 
-import ExportSvg from "../../../assets/svg/export-icon.svg?react";
-import Modal from "../../../components/New-Modal";
-import RadioInput from "../../../components/RadioInput";
-import Table from "../../../components/Table";
-import Toggle from "../../../components/Toggle";
-import { MISSION_TYPES } from "../../../constants";
-import api from "../../../services/api";
-import { captureError } from "../../../services/error";
-import { withLegacyPublishers } from "../../../utils/publisher";
+import ExportSvg from "@/assets/svg/export-icon.svg?react";
+import RadioInput from "@/components/form/RadioInput";
+import Modal from "@/components/Modal";
+import Table from "@/components/Table";
+import Toggle from "@/components/Toggle";
+import { MISSION_TYPES } from "@/constants";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import { withLegacyPublishers } from "@/utils/publisher";
 
 const Annonceur = ({ values, onChange, errors, setErrors }) => {
   const [data, setData] = useState([]);
@@ -20,7 +20,9 @@ const Annonceur = ({ values, onChange, errors, setErrors }) => {
         const res = await api.post("/publisher/search", {
           diffuseursOf: values.id,
         });
-        if (!res.ok) throw res;
+        if (!res.ok) {
+          throw res;
+        }
         setData(withLegacyPublishers(res.data));
       } catch (error) {
         captureError(error, { extra: { publisherId: values.id } });
@@ -30,7 +32,7 @@ const Annonceur = ({ values, onChange, errors, setErrors }) => {
   }, [values.id]);
 
   return (
-    <div className="border-grey-border space-y-6 border p-6">
+    <div className="border-grey-border flex flex-1 flex-col gap-6 border p-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold">Annonceur</h3>
         <Toggle
@@ -67,9 +69,9 @@ const Annonceur = ({ values, onChange, errors, setErrors }) => {
           <p className="text-base">
             {data.length} diffuseurs diffusent les missions de {values.name}
           </p>
-          <Table header={[{ title: "Partenaires" }]} className="h-96">
+          <Table caption="Diffuseurs du partenaire" header={[{ title: "Partenaires" }]} className="h-96">
             {data.slice(0, 5).map((item, index) => (
-              <tr key={index} className={`${index % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
+              <tr key={index} className={`${index % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
                 <td className="p-4">{item.name}</td>
               </tr>
             ))}
@@ -86,22 +88,20 @@ const DiffuseurModal = ({ data }) => {
 
   return (
     <>
-      <button onClick={() => setOpen(true)} className="text-blue-france border-blue-france flex items-center gap-2 border-b">
+      <button onClick={() => setOpen(true)} className="text-blue-france border-blue-france flex w-fit items-center gap-2 border-b">
         <span>Tous les diffuseurs</span>
-        <ExportSvg className="h-4 w-4" />
+        <ExportSvg className="h-4 w-4" aria-hidden="true" />
       </button>
-      <Modal isOpen={open} onClose={() => setOpen(false)}>
-        <div className="space-y-6 p-12">
-          <h1 className="text-2xl font-bold">{data.length} diffuseurs</h1>
+      <Modal open={open} onClose={() => setOpen(false)} title="Diffuseurs">
+        <p className="text-lg font-semibold">{data.length} diffuseurs</p>
 
-          <Table header={[{ title: "Partenaires" }]} className="h-96">
-            {data.map((item, index) => (
-              <tr key={index} className={`${index % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
-                <td className="p-4">{item.name}</td>
-              </tr>
-            ))}
-          </Table>
-        </div>
+        <Table caption="Diffuseurs du partenaire" header={[{ title: "Partenaires" }]} className="h-96">
+          {data.map((item, index) => (
+            <tr key={index} className={`${index % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
+              <td className="p-4">{item.name}</td>
+            </tr>
+          ))}
+        </Table>
       </Modal>
     </>
   );

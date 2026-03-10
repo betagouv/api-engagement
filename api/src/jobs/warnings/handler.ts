@@ -1,10 +1,10 @@
-import { captureException } from "../../error";
-import { publisherService } from "../../services/publisher";
-import { BaseHandler } from "../base/handler";
-import { JobResult } from "../types";
-import { checkBotClicks } from "./bot";
-import { checkImports } from "./import";
-import { checkTracking } from "./tracking";
+import { captureException } from "@/error";
+import { publisherService } from "@/services/publisher";
+import { BaseHandler } from "@/jobs/base/handler";
+import { JobResult } from "@/jobs/types";
+import { checkBotClicks } from "@/jobs/warnings/bot";
+import { checkImports } from "@/jobs/warnings/import";
+import { checkTracking } from "@/jobs/warnings/tracking";
 
 export interface WarningsJobPayload {}
 

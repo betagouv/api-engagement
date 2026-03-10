@@ -2,15 +2,26 @@ import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
-import bodyParserErrorHandler from "../src/middlewares/body-parser-error-handler";
-import passport from "../src/middlewares/passport";
-import IframeController from "../src/controllers/iframe";
-import RedirectController from "../src/controllers/redirect";
-import ActivityV2Controller from "../src/v2/activity";
-import MissionV0Controller from "../src/v0/mission/controller";
-import MyMissionV0Controller from "../src/v0/mymission/controller";
-import MyOrganizationV0Controller from "../src/v0/myorganization/controller";
-import ViewV0Controller from "../src/v0/view";
+
+import CampaignController from "@/controllers/campaign";
+import IframeController from "@/controllers/iframe";
+import ImportController from "@/controllers/import";
+import MissionController from "@/controllers/mission";
+import ModerationController from "@/controllers/moderation";
+import PublisherController from "@/controllers/publisher";
+import RedirectController from "@/controllers/redirect";
+import StatsController from "@/controllers/stats";
+import UserController from "@/controllers/user";
+import WarningController from "@/controllers/warning";
+import WidgetController from "@/controllers/widget";
+import bodyParserErrorHandler from "@/middlewares/body-parser-error-handler";
+import passport from "@/middlewares/passport";
+import MissionV0Controller from "@/v0/mission/controller";
+import MissionV2WriteController from "@/v2/mission/controller";
+import MyMissionV0Controller from "@/v0/mymission/controller";
+import MyOrganizationV0Controller from "@/v0/myorganization/controller";
+import ViewV0Controller from "@/v0/view";
+import ActivityV2Controller from "@/v2/activity";
 
 // Create a test Express app with minimal configuration
 export const createTestApp = () => {
@@ -27,8 +38,18 @@ export const createTestApp = () => {
   app.use(passport.initialize());
 
   // Mount the controllers
+  app.use("/user", UserController);
+  app.use("/publisher", PublisherController);
+  app.use("/campaign", CampaignController);
+  app.use("/widget", WidgetController);
+  app.use("/mission", MissionController);
+  app.use("/moderation", ModerationController);
+  app.use("/import", ImportController);
+  app.use("/stats", StatsController);
+  app.use("/warning", WarningController);
   app.use("/v0/myorganization", MyOrganizationV0Controller);
   app.use("/v0/mymission", MyMissionV0Controller);
+  app.use("/v2/mission", MissionV2WriteController);
   app.use("/v0/mission", MissionV0Controller);
   app.use("/v0/view", ViewV0Controller);
   app.use("/r", RedirectController);

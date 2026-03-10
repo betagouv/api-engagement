@@ -1,12 +1,12 @@
-import { Prisma, Publisher, PublisherDiffusionExclusion } from "../db/core";
-import { publisherDiffusionExclusionRepository } from "../repositories/publisher-diffusion-exclusion";
+import { Prisma, Publisher, PublisherDiffusionExclusion } from "@/db/core";
+import { publisherDiffusionExclusionRepository } from "@/repositories/publisher-diffusion-exclusion";
 import {
   PublisherDiffusionExclusionCreateInput,
   PublisherDiffusionExclusionCreateManyInput,
   PublisherDiffusionExclusionFindParams,
   PublisherDiffusionExclusionRecord,
-} from "../types/publisher-diffusion-exclusion";
-import { normalizeOptionalString } from "../utils/normalize";
+} from "@/types/publisher-diffusion-exclusion";
+import { normalizeOptionalString } from "@/utils/normalize";
 
 type PublisherDiffusionExclusionWithPublishers = PublisherDiffusionExclusion & {
   excludedByAnnonceur: Publisher;

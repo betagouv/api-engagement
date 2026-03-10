@@ -1,4 +1,4 @@
-import { captureException } from "../error";
+import { captureException } from "@/error";
 const URL = "https://data.geopf.fr/geocodage/";
 
 const geopfService = {

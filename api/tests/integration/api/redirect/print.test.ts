@@ -2,13 +2,13 @@ import { randomUUID } from "node:crypto";
 import request from "supertest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { prismaCore } from "../../../../src/db/postgres";
-import { NOT_FOUND } from "../../../../src/error";
-import { publisherService } from "../../../../src/services/publisher";
-import { statBotService } from "../../../../src/services/stat-bot";
-import { widgetService } from "../../../../src/services/widget";
-import { StatEventRecord } from "../../../../src/types";
-import * as utils from "../../../../src/utils";
+import { prisma } from "@/db/postgres";
+import { NOT_FOUND } from "@/error";
+import { publisherService } from "@/services/publisher";
+import { statBotService } from "@/services/stat-bot";
+import { widgetService } from "@/services/widget";
+import { StatEventRecord } from "@/types";
+import * as utils from "@/utils";
 import { createTestMission } from "../../../fixtures";
 import { createTestApp } from "../../../testApp";
 
@@ -27,7 +27,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
     const response = await request(app).get(`/r/impression/${missionId}/${publisherId}`);
 
     expect(response.status).toBe(204);
-    expect(await prismaCore.statEvent.count()).toBe(0);
+    expect(await prisma.statEvent.count()).toBe(0);
   });
 
   it("returns 404 when mission is not found", async () => {
@@ -40,7 +40,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
 
     expect(response.status).toBe(404);
     expect(response.body).toMatchObject({ ok: false, code: NOT_FOUND });
-    expect(await prismaCore.statEvent.count()).toBe(0);
+    expect(await prisma.statEvent.count()).toBe(0);
   });
 
   it("returns 404 when publisher is not found", async () => {
@@ -64,7 +64,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
 
     expect(response.status).toBe(404);
     expect(response.body).toMatchObject({ ok: false, code: NOT_FOUND });
-    expect(await prismaCore.statEvent.count()).toBe(0);
+    expect(await prisma.statEvent.count()).toBe(0);
   });
 
   it("records print stats with widget source when all data is present", async () => {
@@ -109,7 +109,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
     expect(response.body.ok).toBe(true);
     expect(statsBotFindOneSpy).toHaveBeenCalledWith(identity.user);
 
-    const createdPrint = await prismaCore.statEvent.findUnique({ where: { id: response.body.data._id } });
+    const createdPrint = await prisma.statEvent.findUnique({ where: { id: response.body.data._id } });
     expect(createdPrint).toMatchObject({
       type: "print",
       user: identity.user,
@@ -129,7 +129,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
       missionPostalCode: mission.postalCode,
       missionDepartmentName: mission.departmentName,
       missionOrganizationName: mission.organizationName ?? "",
-      missionOrganizationId: mission.organizationId,
+      missionOrganizationId: mission.organizationId ?? "",
       missionOrganizationClientId: mission.organizationClientId,
       toPublisherId: mission.publisherId,
       fromPublisherId: publisher.id,
@@ -150,7 +150,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
       missionPostalCode: mission.postalCode,
       missionDepartmentName: mission.departmentName,
       missionOrganizationName: mission.organizationName ?? "",
-      missionOrganizationId: mission.organizationId,
+      missionOrganizationId: mission.organizationId ?? "",
       missionOrganizationClientId: mission.organizationClientId,
       toPublisherId: mission.publisherId,
       toPublisherName: mission.publisherName,
@@ -191,7 +191,7 @@ describe("RedirectController /impression/:missionId/:publisherId", () => {
     expect(response.body.data.source).toBe("jstag");
     expect(response.body.data.isBot).toBe(false);
 
-    const storedPrint = await prismaCore.statEvent.findUnique({ where: { id: response.body.data._id } });
+    const storedPrint = await prisma.statEvent.findUnique({ where: { id: response.body.data._id } });
     expect(storedPrint).toMatchObject({
       type: "print",
       tag: "tag",

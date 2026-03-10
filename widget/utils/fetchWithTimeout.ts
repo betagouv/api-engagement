@@ -1,4 +1,4 @@
-import { SSR_API_TIMEOUT_MS } from "../config";
+import { SSR_API_TIMEOUT_MS } from "@/config";
 
 type FetchWithTimeoutOptions = {
   timeoutMs?: number;

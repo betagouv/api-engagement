@@ -1,21 +1,22 @@
+import { toast } from "@/services/toast";
 import { useEffect, useState } from "react";
-import { RiAddFill, RiEditFill, RiFileCopyLine, RiLink } from "react-icons/ri";
+import { RiAddFill, RiEditFill, RiFileCopyLine, RiLink, RiPulseLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
-import { toast } from "../../services/toast";
 
-import Table from "../../components/Table";
-import Toggle from "../../components/Toggle";
-import api from "../../services/api";
-import { API_URL } from "../../services/config";
-import { captureError } from "../../services/error";
-import useStore from "../../services/store";
+import Loader from "@/components/Loader";
+import Table from "@/components/Table";
+import Toggle from "@/components/Toggle";
+import api from "@/services/api";
+import { API_URL } from "@/services/config";
+import { captureError } from "@/services/error";
+import useStore from "@/services/store";
 
 const TABLE_HEADER = [
-  { title: "Nom", colSpan: 3 },
-  { title: "Diffuse des missions de", colSpan: 2 },
-  { title: "Crée le", colSpan: 1 },
-  { title: "Actions", colSpan: 2 },
-  { title: "Actif", colSpan: 1 },
+  { title: "Nom", width: "22%" },
+  { title: "Diffuse des missions de", width: "22%" },
+  { title: "Crée le" },
+  { title: "Actions", width: "30%" },
+  { title: "Actif" },
 ];
 
 const Campaigns = () => {
@@ -29,6 +30,7 @@ const Campaigns = () => {
     active: true,
     pageSize: 10,
   });
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -36,6 +38,7 @@ const Campaigns = () => {
 
   const fetchData = async () => {
     try {
+      setLoading(true);
       const res = await api.post(`/campaign/search`, filters);
       if (!res.ok) {
         throw res;
@@ -43,6 +46,8 @@ const Campaigns = () => {
       setData(res.data || []);
     } catch (error) {
       captureError(error, { extra: { filters } });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -81,13 +86,15 @@ const Campaigns = () => {
     }
   };
 
-  if (!data) return <h2 className="p-3">Chargement...</h2>;
+  if (!data) {
+    return <h2 className="p-3">Chargement...</h2>;
+  }
 
   return (
     <div className="space-y-12 p-12">
       <title>API Engagement - Campagnes - Diffuser des missions</title>
-      <div className="flex items-center justify-between gap-32">
-        <div role="search" className="flex flex-1 items-center gap-4">
+      <div className="flex flex-col items-center justify-between gap-4 lg:flex-row lg:gap-32">
+        <div role="search" className="flex flex-1 flex-col items-center gap-4 lg:flex-row lg:gap-4">
           <label htmlFor="campaign-search" className="sr-only">
             Chercher par nom
           </label>
@@ -124,62 +131,81 @@ const Campaigns = () => {
         <div className="flex items-center gap-4">
           {user.role === "admin" && (
             <Link to="/broadcast/campaign/new" className="primary-btn flex items-center">
-              Nouvelle campagne <RiAddFill className="ml-2" />
+              Nouvelle campagne <RiAddFill className="ml-2" aria-hidden="true" />
             </Link>
           )}
         </div>
       </div>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">{data.length > 1 ? `${data.length} campagnes` : `${data.length} campagne`} </h2>
-          <div>
+      {loading ? (
+        <div className="flex h-full items-center justify-center">
+          <Loader />
+        </div>
+      ) : (
+        <>
+          <div className="flex flex-col items-center justify-between lg:flex-row">
+            <p className="text-lg font-semibold" role="status" aria-live="polite" aria-atomic="true">
+              {data.length > 1 ? `${data.length} campagnes` : `${data.length} campagne`}
+            </p>
+
             {user.role === "admin" && (
-              <div className="mt-3 flex items-center">
+              <div className="flex items-center">
                 <Toggle aria-label="Afficher les campagnes désactivées" value={!filters.active} onChange={(checked) => setFilters({ ...filters, active: !checked, page: 1 })} />
                 <label className="ml-2">Afficher les campagnes désactivées</label>
               </div>
             )}
           </div>
-        </div>
 
-        <Table header={TABLE_HEADER} pagination page={filters.page} pageSize={filters.pageSize} onPageChange={(page) => setFilters({ ...filters, page })} total={data.length} auto>
-          {data.slice((filters.page - 1) * filters.pageSize, filters.page * filters.pageSize).map((item, i) => (
-            <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
-              <td className="truncate px-4" colSpan={3}>
-                <Link to={`/broadcast/campaign/${item.id}`} className="text-blue-france">
-                  {item.name}
-                </Link>
-              </td>
-              <td className={`px-4 ${!item.active ? "opacity-50" : "opacity-100"}`} colSpan={2}>
-                {item.toPublisherName}
-              </td>
-              <td className={`px-4 ${!item.active ? "opacity-50" : "opacity-100"}`}>{new Date(item.createdAt).toLocaleDateString("fr")}</td>
-              <td colSpan={2} className="px-4">
-                <div className="flex gap-2 text-lg">
-                  <Link className="secondary-btn flex items-center" to={`/broadcast/campaign/${item.id}`}>
-                    <RiEditFill className="text-lg" role="img" aria-label="Modifier la campagne" />
+          <Table
+            caption="Liste des campagnes"
+            header={TABLE_HEADER}
+            pagination
+            page={filters.page}
+            pageSize={filters.pageSize}
+            onPageChange={(page) => setFilters({ ...filters, page })}
+            total={data.length}
+            auto
+          >
+            {data.slice((filters.page - 1) * filters.pageSize, filters.page * filters.pageSize).map((item, i) => (
+              <tr key={i} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
+                <td className="px-4 py-3">
+                  <Link to={`/broadcast/campaign/${item.id}`} className="text-blue-france break-words">
+                    {item.name}
                   </Link>
-                  <button className="secondary-btn flex items-center" onClick={() => handleCopy(item.id)}>
-                    <RiLink className="text-lg" role="img" aria-label="Copier le lien de la campagne" />
-                  </button>
-                  <button className="secondary-btn flex items-center" onClick={() => handleDuplicate(item.id)}>
-                    <RiFileCopyLine className="text-lg" role="img" aria-label="Dupliquer la campagne" />
-                  </button>
-                </div>
-              </td>
-              {user.role === "admin" && (
-                <td className="px-4">
-                  <Toggle
-                    aria-label={`${item.active ? "Désactiver" : "Activer"} la campagne ${item.name || ""}`.trim()}
-                    value={item.active}
-                    onChange={(v) => handleActivate(v, item)}
-                  />
                 </td>
-              )}
-            </tr>
-          ))}
-        </Table>
-      </div>
+                <td className={`px-4 py-3 ${!item.active ? "opacity-50" : "opacity-100"}`}>
+                  {item.toPublisherName}
+                </td>
+                <td className={`px-4 py-3 ${!item.active ? "opacity-50" : "opacity-100"}`}>{new Date(item.createdAt).toLocaleDateString("fr")}</td>
+                <td className="px-4 py-3">
+                  <div className="flex w-fit gap-2 text-lg">
+                    <Link className="secondary-btn flex items-center" to={`/broadcast/campaign/${item.id}`}>
+                      <RiEditFill className="text-lg" role="img" aria-label="Modifier la campagne" />
+                    </Link>
+                    <button className="secondary-btn flex items-center" onClick={() => handleCopy(item.id)}>
+                      <RiLink className="text-lg" role="img" aria-label="Copier le lien de la campagne" />
+                    </button>
+                    <button className="secondary-btn flex items-center" onClick={() => handleDuplicate(item.id)}>
+                      <RiFileCopyLine className="text-lg" role="img" aria-label="Dupliquer la campagne" />
+                    </button>
+                    <Link className="secondary-btn flex items-center" to={`/settings/real-time?sourceId=${item.id}&sourceType=campaign`}>
+                      <RiPulseLine className="text-lg" role="img" aria-label={`Voir les événements en direct de la campagne ${item.name || ""}`.trim()} />
+                    </Link>
+                  </div>
+                </td>
+                {user.role === "admin" && (
+                  <td className="px-4 py-3">
+                    <Toggle
+                      aria-label={`${item.active ? "Désactiver" : "Activer"} la campagne ${item.name || ""}`.trim()}
+                      value={item.active}
+                      onChange={(v) => handleActivate(v, item)}
+                    />
+                  </td>
+                )}
+              </tr>
+            ))}
+          </Table>
+        </>
+      )}
     </div>
   );
 };

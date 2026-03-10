@@ -43,18 +43,44 @@ models:
         description: Identifiant du partenaire diffuseur associé.
         tests:
           - not_null
-      - name: organization_client_id
+      - name: client_id
         description: Identifiant client de l'organisation côté diffuseur.
         tests:
           - not_null
-      - name: organization_name
+      - name: name
         description: Nom déclaré de l'organisation (nullable).
-      - name: organization_rna
+      - name: url
+        description: URL publique de l'organisation (nullable).
+      - name: type
+        description: Type d'organisation (nullable).
+      - name: logo
+        description: URL du logo de l'organisation (nullable).
+      - name: description
+        description: Description textuelle de l'organisation (nullable).
+      - name: full_address
+        description: Adresse complète déclarée pour l'organisation (nullable).
+      - name: rna
         description: Identifiant RNA déclaré (nullable).
-      - name: organization_siren
+      - name: siren
         description: Numéro SIREN déclaré (nullable).
-      - name: organization_siret
+      - name: siret
         description: Numéro SIRET déclaré (nullable).
+      - name: postal_code
+        description: Code postal de l'organisation (nullable).
+      - name: city
+        description: Ville de l'organisation (nullable).
+      - name: legal_status
+        description: Statut juridique déclaré (nullable).
+      - name: beneficiaries
+        description: Liste des publics bénéficiaires associés à l'organisation.
+      - name: actions
+        description: Liste des actions associées à l'organisation.
+      - name: parent_organizations
+        description: Liste des réseaux ou organisations parentes déclarées.
+      - name: verification_status
+        description: Statut de vérification global de l'organisation (nullable).
+      - name: organization_id
+        description: Identifiant de l'organisation core validée lors de la vérification (nullable).
       - name: organisation_is_rup
         description: Indique si l'organisation est reconnue d'utilité publique (nullable).
       - name: created_at

@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-import type { OrganizationCreateInput } from "../../src/types/organization";
+import type { OrganizationCreateInput } from "@/types/organization";
 import { asBoolean, asDate, asString, asStringArray, toMongoObjectIdString } from "./utils/cast";
 import { loadEnvironment, parseScriptOptions, type ScriptOptions } from "./utils/options";
 
@@ -142,9 +142,9 @@ const normalizeOrganization = (doc: MongoOrganizationDocument): OrganizationCrea
 
 const migrateOrganizations = async () => {
   const [{ mongoConnected }, { pgConnected, prismaCore }, { organizationService }] = await Promise.all([
-    import("../../src/db/mongo"),
-    import("../../src/db/postgres"),
-    import("../../src/services/organization"),
+    import("@/db/mongo"),
+    import("@/db/postgres"),
+    import("@/services/organization"),
   ]);
 
   await mongoConnected;
@@ -199,7 +199,7 @@ const migrateOrganizations = async () => {
 
   console.log(`[MigrateOrganizations] Completed. Processed: ${processed}, created: ${created}, updated: ${updated}, errors: ${errors}, dry-run: ${options.dryRun}`);
 
-  await Promise.allSettled([mongoose.connection.close(), prismaCore.$disconnect()]);
+  await Promise.allSettled([mongoose.connection.close(), prisma.$disconnect()]);
 };
 
 migrateOrganizations()
@@ -209,8 +209,8 @@ migrateOrganizations()
   .catch(async (error) => {
     console.error("[MigrateOrganizations] Unexpected error:", error);
     try {
-      const { prismaCore } = await import("../../src/db/postgres");
-      await Promise.allSettled([mongoose.connection.close(), prismaCore.$disconnect()]);
+      const { prismaCore } = await import("@/db/postgres");
+      await Promise.allSettled([mongoose.connection.close(), prisma.$disconnect()]);
     } catch {
       await Promise.allSettled([mongoose.connection.close()]);
     }

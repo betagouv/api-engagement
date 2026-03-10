@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 
-import SearchInput from "../../../components/SearchInput";
-import Table from "../../../components/Table";
-import Toggle from "../../../components/Toggle";
-import { PUBLISHER_CATEGORIES } from "../../../constants";
-import api from "../../../services/api";
-import { captureError } from "../../../services/error";
-import { withLegacyPublishers } from "../../../utils/publisher";
+import Checkbox from "@/components/form/Checkbox";
+import SearchInput from "@/components/SearchInput";
+import Table from "@/components/Table";
+import Toggle from "@/components/Toggle";
+import { PUBLISHER_CATEGORIES } from "@/constants";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import { withLegacyPublishers } from "@/utils/publisher";
 
 const resolvePublisherId = (publisher) => publisher?.publisherId ?? publisher?.diffuseurPublisherId ?? publisher?.annonceurPublisherId ?? publisher?.id ?? null;
 
@@ -14,7 +15,9 @@ const normalizeSelectedPublishers = (items = []) =>
   (items || [])
     .map((publisher) => {
       const publisherId = resolvePublisherId(publisher);
-      if (!publisherId) return null;
+      if (!publisherId) {
+        return null;
+      }
       return { ...publisher, publisherId };
     })
     .filter(Boolean);
@@ -37,7 +40,9 @@ const Diffuseur = ({ values, onChange, errors, setErrors }) => {
         const res = await api.post("/publisher/search", {
           role: "annonceur",
         });
-        if (!res.ok) throw res;
+        if (!res.ok) {
+          throw res;
+        }
 
         setPublishers(withLegacyPublishers(res.data));
         setErrors({});
@@ -49,7 +54,7 @@ const Diffuseur = ({ values, onChange, errors, setErrors }) => {
   }, []);
 
   return (
-    <div className="border-grey-border space-y-6 border p-6">
+    <div className="border-grey-border flex flex-1 flex-col gap-6 border p-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold">Diffuseur</h3>
         <Toggle
@@ -77,59 +82,33 @@ const Diffuseur = ({ values, onChange, errors, setErrors }) => {
             </select>
           </div>
           <div className="h-px w-full bg-gray-900" />
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             <label className="text-base" htmlFor="category">
               Moyens de diffusion <span className="text-error ml-1">*</span>
             </label>
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                className="checkbox"
-                id="api"
-                name="api"
-                onChange={(e) => onChange({ ...values, hasApiRights: e.target.checked })}
-                checked={values.hasApiRights}
-              />
-              <label htmlFor="api">API</label>
-            </div>
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                className="checkbox"
-                id="widget"
-                name="widget"
-                onChange={(e) => onChange({ ...values, hasWidgetRights: e.target.checked })}
-                checked={values.hasWidgetRights}
-              />
-              <label htmlFor="widget">Widgets</label>
-            </div>
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                className="checkbox"
-                id="campagne"
-                name="campagne"
-                onChange={(e) => onChange({ ...values, hasCampaignRights: e.target.checked })}
-                checked={values.hasCampaignRights}
-              />
-              <label htmlFor="campagne">Campagnes</label>
-            </div>
+            <Checkbox id="api" label="API" value={values.hasApiRights} onChange={(e) => onChange({ ...values, hasApiRights: e.target.checked })} />
+            <Checkbox id="widget" label="Widgets" value={values.hasWidgetRights} onChange={(e) => onChange({ ...values, hasWidgetRights: e.target.checked })} />
+            <Checkbox id="campagne" label="Campagnes" value={values.hasCampaignRights} onChange={(e) => onChange({ ...values, hasCampaignRights: e.target.checked })} />
           </div>
           <div className="h-px w-full bg-gray-900" />
           <p className="text-base">
             {values.name} diffuse les missions de {selectedPublisherIds.size} annonceurs
           </p>
           <SearchInput value={search} onChange={setSearch} placeholder="Rechercher un annonceur" timeout={0} />
-          <Table header={[{ title: "Annonceurs" }]} className="h-full max-h-96">
+          <Table caption="Liste des annonceurs" header={[{ title: "Annonceurs" }]} className="h-full max-h-96">
             {publishers
               .filter((item) => {
-                if (!item?.name) return false;
+                if (!item?.name) {
+                  return false;
+                }
                 const matchesSelection = editing ? item.id !== values.id : selectedPublisherIds.has(item.id);
-                if (!matchesSelection) return false;
+                if (!matchesSelection) {
+                  return false;
+                }
                 return item.name.toLowerCase().includes(search.toLowerCase());
               })
               .map((item, index) => (
-                <tr key={index} className={`${index % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
+                <tr key={index} className={`${index % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-row`}>
                   <td className="p-4">
                     <div className="flex items-center gap-2">
                       {editing && (

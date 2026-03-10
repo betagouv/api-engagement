@@ -1,4 +1,4 @@
-import AnalyticsViz from "../../components/AnalyticsViz";
+import AnalyticsViz from "@/components/AnalyticsViz";
 
 const AnalyticsCard = ({
   cardId,
@@ -16,8 +16,11 @@ const AnalyticsCard = ({
   kpiTooltip,
   chartProps,
   loaderHeight,
+  caption,
 }) => {
-  if (!cardId) return null;
+  if (!cardId) {
+    return null;
+  }
 
   const variables = { ...(extraVariables || {}) };
   if (filters?.from && variables.from === undefined) {
@@ -46,10 +49,13 @@ const AnalyticsCard = ({
       kpiUnit={kpiUnit}
       kpiIcon={kpiIcon}
       kpiTooltip={kpiTooltip}
+      caption={caption}
     />
   );
 
-  if (type === "kpi") return content;
+  if (type === "kpi") {
+    return content;
+  }
 
   return <div className="space-y-4 p-6">{content}</div>;
 };

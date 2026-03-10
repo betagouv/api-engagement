@@ -1,10 +1,10 @@
-import { PUBLISHER_IDS } from "../../config";
-import { PilotyCompanyPayload, PilotyJobPayload, PilotyMandatoryData } from "../../services/piloty/types";
-import { MissionType } from "../../types";
-import { MissionRecord } from "../../types/mission";
-import { getMissionTrackedApplicationUrl } from "../../utils/mission";
-import { MEDIA_PUBLIC_ID } from "./config";
-import { decodeHtml, getAudienceLabel, getDomainLabel } from "./utils";
+import { PUBLISHER_IDS } from "@/config";
+import { MEDIA_PUBLIC_ID } from "@/jobs/letudiant/config";
+import { decodeHtml, getAudienceLabel, getDomainLabel } from "@/jobs/letudiant/utils";
+import { PilotyCompanyPayload, PilotyJobPayload, PilotyMandatoryData } from "@/services/piloty/types";
+import { MissionType } from "@/types";
+import { MissionRecord } from "@/types/mission";
+import { getMissionTrackedApplicationUrl } from "@/utils/mission";
 
 export type PilotyJobWithAddress = {
   payload: PilotyJobPayload;
@@ -85,7 +85,7 @@ export function missionToPilotyJobs(mission: MissionRecord, companyId: string, m
 
   if (mission.remote === "full" || !mission.addresses.length) {
     const city = mission.organizationCity || undefined;
-    const department = mission.organizationDepartment || undefined;
+    const department = mission.departmentName || undefined;
     const country = mission.country || "France";
     const formatted = formatLocalisation([city, department, country]) || "France";
     return [

@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { RiCheckboxCircleFill } from "react-icons/ri";
-import Loader from "../../../components/Loader";
-import api from "../../../services/api";
-import { captureError } from "../../../services/error";
+import Loader from "@/components/Loader";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
 
 const Bots = () => {
   const [bots, setBots] = useState([]);
@@ -123,7 +123,7 @@ const BotRow = ({ bot }) => {
         {statBot ? (
           <div className="flex flex-col items-end justify-end gap-2">
             <div className="flex items-center gap-2">
-              <RiCheckboxCircleFill className="text-success" /> <p className="text-success">Marqué comme bots (les stats n'apparaîtront pas dans le dashboard)</p>
+              <RiCheckboxCircleFill className="text-success" aria-hidden="true" /> <p className="text-success">Marqué comme bots (les stats n'apparaîtront pas dans le dashboard)</p>
             </div>
             <button className="red-btn w-56" onClick={handleUnblock} disabled={loading}>
               {loading ? <Loader className="h-4 w-4 text-white" /> : "Démarquer comme bots"}

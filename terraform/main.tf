@@ -27,7 +27,7 @@ provider "scaleway" {
 
 # Containers namespace
 resource "scaleway_container_namespace" "main" {
-  name        = terraform.workspace
-  description = "${terraform.workspace} namespace"
+  name        = var.workspace
+  description = "${var.workspace} namespace"
   project_id  = var.project_id
 }

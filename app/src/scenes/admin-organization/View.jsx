@@ -3,9 +3,9 @@ import { HiLocationMarker } from "react-icons/hi";
 import { RiCheckboxCircleFill, RiCloseCircleFill } from "react-icons/ri";
 import { useParams } from "react-router-dom";
 
-import Loader from "../../components/Loader";
-import api from "../../services/api";
-import { captureError } from "../../services/error";
+import Loader from "@/components/Loader";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
 
 const View = () => {
   const { id } = useParams();
@@ -41,16 +41,16 @@ const View = () => {
           {data.status === "ACTIVE" ? (
             <div className="flex items-center gap-2">
               <p>Active</p>
-              <RiCheckboxCircleFill className="text-success" />
+              <RiCheckboxCircleFill className="text-success" aria-hidden="true" />
             </div>
           ) : (
             <div className="flex items-center gap-2">
               <p>Inactive</p>
-              <RiCloseCircleFill className="text-error" />
+              <RiCloseCircleFill className="text-error" aria-hidden="true" />
             </div>
           )}
           <div className="text-text-mention flex items-center gap-2 text-base">
-            <HiLocationMarker className="ml-2" />
+            <HiLocationMarker className="ml-2" aria-hidden="true" />
             {data.addressDepartmentName && <span>{data.addressDepartmentName}</span>}
             {data.addressCity && (
               <>

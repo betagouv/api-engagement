@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-import type { Prisma } from "../../src/db/core";
+import type { Prisma } from "@/db/core";
 import { asDate, asNumber, asString, toMongoObjectIdString } from "./utils/cast";
 import { compareDates, compareNumbers, compareStrings } from "./utils/compare";
 import { loadEnvironment, parseScriptOptions, type ScriptOptions } from "./utils/options";
@@ -159,8 +159,8 @@ const formatRecordForLog = (record: WarningBotRecord) => ({
 
 const cleanup = async () => {
   try {
-    const { prismaCore } = await import("../../src/db/postgres");
-    await Promise.allSettled([prismaCore.$disconnect(), mongoose.connection.close()]);
+    const { prismaCore } = await import("@/db/postgres");
+    await Promise.allSettled([prisma.$disconnect(), mongoose.connection.close()]);
   } catch {
     await Promise.allSettled([mongoose.connection.close()]);
   }
@@ -168,7 +168,7 @@ const cleanup = async () => {
 
 const main = async () => {
   console.log(`[MigrateWarningBots] Starting${options.dryRun ? " (dry-run)" : ""}`);
-  const [{ mongoConnected }, { pgConnected, prismaCore }] = await Promise.all([import("../../src/db/mongo"), import("../../src/db/postgres")]);
+  const [{ mongoConnected }, { pgConnected, prismaCore }] = await Promise.all([import("@/db/mongo"), import("@/db/postgres")]);
 
   await Promise.all([mongoConnected, pgConnected]);
 
@@ -189,7 +189,7 @@ const main = async () => {
     }
   }
 
-  const existingPublishers = await prismaCore.publisher.findMany({
+  const existingPublishers = await prisma.publisher.findMany({
     where: { id: { in: Array.from(publisherIds) } },
     select: { id: true },
   });
@@ -225,7 +225,7 @@ const main = async () => {
 
   for (const chunk of chunkArray(normalized, BATCH_SIZE)) {
     const chunkIds = chunk.map(({ record }) => record.id);
-    const existingRecords = await prismaCore.warningBot.findMany({
+    const existingRecords = await prisma.warningBot.findMany({
       where: { id: { in: chunkIds } },
     });
     const existingById = new Map(existingRecords.map((record) => [record.id, record]));
@@ -240,7 +240,7 @@ const main = async () => {
             sampleCreates.push(entry.record);
           }
         } else {
-          await prismaCore.warningBot.create({ data: entry.create });
+          await prisma.warningBot.create({ data: entry.create });
         }
         continue;
       }
@@ -269,7 +269,7 @@ const main = async () => {
           sampleUpdates.push({ before: existingRecord, after: entry.record });
         }
       } else {
-        await prismaCore.warningBot.update({
+        await prisma.warningBot.update({
           where: { id: entry.record.id },
           data: entry.update,
         });

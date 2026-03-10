@@ -1,11 +1,11 @@
+import { ASC_100_LOGO_URL, JVA_100_LOGO_URL, PUBLISHER_IDS } from "@/config";
+import { missionToGrimpioJob, missionToGrimpioJobASC, missionToGrimpioJobJVA } from "@/jobs/grimpio/transformers";
+import { MissionRecord } from "@/types/mission";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { ASC_100_LOGO_URL, JVA_100_LOGO_URL, PUBLISHER_IDS } from "../../../config";
-import { MissionRecord } from "../../../types/mission";
-import { missionToGrimpioJob, missionToGrimpioJobASC, missionToGrimpioJobJVA } from "../transformers";
 
 // Mock constants with IDs but keep the rest of the config
 vi.mock("../config", async () => {
-  const config = await vi.importActual<typeof import("../config")>("../config");
+  const config = await vi.importActual<typeof import("@/jobs/grimpio/config")>("../config");
   return {
     ...config,
     GRIMPIO_PUBLISHER_ID: "test-grimpio-id",
@@ -85,10 +85,10 @@ describe("missionToGrimpioJobJVA", () => {
     expect(job.enterpriseIndustry).toBe("Association ONG");
     expect(job.externalId).toBe(mission.clientId);
     expect(job.url).toBe(`https://api.api-engagement.beta.gouv.fr/r/${mission._id}/test-grimpio-id`);
-    expect(job.place.city).toBe("Paris");
-    expect(job.place.country).toBe("FR");
-    expect(job.place.latitude).toBe(48.8566);
-    expect(job.place.longitude).toBe(2.3522);
+    expect(job.location.city).toBe("Paris");
+    expect(job.location.country).toBe("FR");
+    expect(job.location.latitude).toBe(48.8566);
+    expect(job.location.longitude).toBe(2.3522);
     expect(job.remoteJob).toBe("none");
     expect(job.duration).toBe(mission.schedule);
     expect(job.startingDate).toBe(mission.startAt?.toISOString());
@@ -103,10 +103,10 @@ describe("missionToGrimpioJobJVA", () => {
     const mission = { ...baseMission, addresses: [], publisherId: PUBLISHER_IDS.JEVEUXAIDER } as MissionRecord;
     const job = missionToGrimpioJobJVA(mission);
 
-    expect(job.place.city).toBe("Paris");
-    expect(job.place.country).toBe("FR");
-    expect(job.place.latitude).toBe(48.8566);
-    expect(job.place.longitude).toBe(2.3522);
+    expect(job.location.city).toBe("Paris");
+    expect(job.location.country).toBe("FR");
+    expect(job.location.latitude).toBe(48.8566);
+    expect(job.location.longitude).toBe(2.3522);
   });
 
   it("should correctly map remote status for JVA", () => {
@@ -152,8 +152,10 @@ describe("missionToGrimpioJobASC", () => {
     expect(job.enterpriseIndustry).toBe("Association - ONG");
     expect(job.externalId).toBe(mission.clientId);
     expect(job.url).toBe(`https://api.api-engagement.beta.gouv.fr/r/${mission._id}/test-grimpio-id`);
-    expect(job.place.city).toBe("Paris");
-    expect(job.place.country).toBe("FR");
+    expect(job.location.city).toBe("Paris");
+    expect(job.location.country).toBe("FR");
+    expect(job.location.latitude).toBe(48.8566);
+    expect(job.location.longitude).toBe(2.3522);
     expect(job.remoteJob).toBe("none");
     expect(job.duration).toBe(mission.schedule);
     expect(job.startingDate).toBe(mission.startAt?.toISOString());

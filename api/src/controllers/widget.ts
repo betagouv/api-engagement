@@ -2,11 +2,11 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "../error";
-import { publisherService } from "../services/publisher";
-import { widgetService } from "../services/widget";
-import { UserRequest } from "../types/passport";
-import type { WidgetCreateInput, WidgetSearchParams } from "../types/widget";
+import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "@/error";
+import { publisherService } from "@/services/publisher";
+import { widgetService } from "@/services/widget";
+import { UserRequest } from "@/types/passport";
+import type { WidgetCreateInput, WidgetSearchParams } from "@/types/widget";
 
 const router = Router();
 
@@ -149,7 +149,7 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
             zod.object({
               combinator: zod.enum(["and", "or"]),
               field: zod.string(),
-              fieldType: zod.string().optional(),
+              fieldType: zod.string().nullable().optional(),
               operator: zod.string(),
               value: zod.string().min(1),
             })
@@ -237,7 +237,7 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
             zod.object({
               combinator: zod.enum(["and", "or"]),
               field: zod.string(),
-              fieldType: zod.string().optional(),
+              fieldType: zod.string().nullable().optional(),
               operator: zod.string(),
               value: zod.string().min(1),
             })

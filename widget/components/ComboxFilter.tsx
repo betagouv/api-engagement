@@ -2,8 +2,8 @@ import { usePlausible } from "next-plausible";
 import { useEffect, useRef, useState } from "react";
 import { RiArrowDownSLine, RiCheckFill, RiSearchLine } from "react-icons/ri";
 
+import { FilterOption } from "@/types";
 import useStore from "@/utils/store";
-import { FilterOption } from "../types";
 
 interface ComboboxFilterProps {
   options: FilterOption[];
@@ -120,7 +120,7 @@ const ComboboxFilter = ({
   };
 
   return (
-    <div className="relative w-full min-w-[6rem]" ref={ref}>
+    <div className="relative w-full min-w-24" ref={ref}>
       <label htmlFor={id} className="sr-only">
         {placeholder}
       </label>
@@ -131,7 +131,7 @@ const ComboboxFilter = ({
         id={id}
         aria-label={placeholder}
         aria-expanded={show}
-        className={`select relative truncate text-left ${!values || values.length === 0 ? "!text-[#666666]" : ""}`}
+        className={`select relative truncate text-left ${!values || values.length === 0 ? "text-[#666666]!" : ""}`}
         onClick={() => setShow(!show)}
         onKeyDown={handleButtonKeyDown}
       >

@@ -1,8 +1,8 @@
 import request from "supertest";
 import { describe, expect, it } from "vitest";
 
-import { publisherService } from "../../../../src/services/publisher";
-import { statEventService } from "../../../../src/services/stat-event";
+import { publisherService } from "@/services/publisher";
+import { statEventService } from "@/services/stat-event";
 import { createTestMission } from "../../../fixtures";
 import { createClickStat, createStatEventFixture } from "../../../fixtures/stat-event";
 import { createTestApp } from "../../../testApp";

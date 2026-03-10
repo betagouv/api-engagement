@@ -1,56 +1,40 @@
-import { randomUUID } from "node:crypto";
-
-import { Prisma, PublisherOrganization } from "../db/core";
-import { prismaCore } from "../db/postgres";
+import { Prisma, PublisherOrganization } from "@/db/core";
+import { prisma } from "@/db/postgres";
+import { PublisherOrganizationWithRelations } from "@/types/publisher-organization";
 
 export const publisherOrganizationRepository = {
   async findMany(params: Prisma.PublisherOrganizationFindManyArgs = {}): Promise<PublisherOrganization[]> {
-    return prismaCore.publisherOrganization.findMany(params);
+    return prisma.publisherOrganization.findMany(params);
   },
 
   async findFirst(params: Prisma.PublisherOrganizationFindFirstArgs): Promise<PublisherOrganization | null> {
-    return prismaCore.publisherOrganization.findFirst(params);
+    return prisma.publisherOrganization.findFirst(params);
   },
 
-  async upsertByPublisherAndClientId(params: {
-    publisherId: string;
-    organizationClientId: string;
-    create: Prisma.PublisherOrganizationCreateInput;
-    update: Prisma.PublisherOrganizationUpdateInput;
-  }): Promise<PublisherOrganization> {
-    const createInput = params.create.id ? params.create : { ...params.create, id: randomUUID() };
-    return prismaCore.publisherOrganization.upsert({
-      where: {
-        publisherId_organizationClientId: {
-          publisherId: params.publisherId,
-          organizationClientId: params.organizationClientId,
-        },
-      },
-      create: createInput,
-      update: params.update,
+  async create(params: Prisma.PublisherOrganizationCreateInput): Promise<PublisherOrganization> {
+    return prisma.publisherOrganization.create({
+      data: params,
     });
   },
-  async updateByPublisherAndClientId(params: {
-    publisherId: string;
-    organizationClientId: string;
-    update: Prisma.PublisherOrganizationUpdateInput;
-  }): Promise<PublisherOrganization> {
-    return prismaCore.publisherOrganization.update({
-      where: {
-        publisherId_organizationClientId: {
-          publisherId: params.publisherId,
-          organizationClientId: params.organizationClientId,
-        },
-      },
-      data: params.update,
+
+  async update(id: string, params: Prisma.PublisherOrganizationUpdateInput, options = {}): Promise<PublisherOrganization | PublisherOrganizationWithRelations> {
+    return prisma.publisherOrganization.update({
+      where: { id },
+      data: params,
+      ...options,
     });
   },
+
   groupBy<K extends keyof PublisherOrganization>(by: K[], where: Prisma.PublisherOrganizationWhereInput) {
-    return prismaCore.publisherOrganization.groupBy({
+    return prisma.publisherOrganization.groupBy({
       by: by as any,
       where,
       _count: true,
     });
+  },
+
+  async count(params: Prisma.PublisherOrganizationCountArgs = {}): Promise<number> {
+    return prisma.publisherOrganization.count(params);
   },
 };
 export default publisherOrganizationRepository;

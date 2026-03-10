@@ -2,7 +2,7 @@ import { Request } from "express";
 import geoip from "geoip-lite";
 import { isbot } from "isbot";
 import hash from "object-hash";
-import { ENV } from "../config";
+import { ENV } from "@/config";
 
 export const geoFromIp = async (req: Request) => {
   const ip = req.headers["x-forwarded-for"] || req.ip;

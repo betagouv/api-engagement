@@ -2,9 +2,9 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { INVALID_BODY } from "../error";
-import { metabaseService } from "../services/metabase";
-import { UserRequest } from "../types/passport";
+import { INVALID_BODY } from "@/error";
+import { metabaseService } from "@/services/metabase";
+import { UserRequest } from "@/types/passport";
 
 const router = Router();
 

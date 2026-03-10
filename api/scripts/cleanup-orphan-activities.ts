@@ -9,8 +9,8 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { Prisma } from "../src/db/core";
-import { prismaCore } from "../src/db/postgres";
+import { Prisma } from "@/db/core";
+import { prisma } from "@/db/postgres";
 
 type ActivityRow = {
   id: string;
@@ -35,9 +35,9 @@ const run = async () => {
   console.log(`[ActivityCleanup] Mode: ${dryRun ? "dry-run" : "execute"}`);
   console.log(`[ActivityCleanup] Batch size: ${batchSize}`);
 
-  await prismaCore.$connect();
+  await prisma.$connect();
 
-  const rows = await prismaCore.$queryRaw<ActivityRow[]>(
+  const rows = await prisma.$queryRaw<ActivityRow[]>(
     Prisma.sql`
       SELECT
         a."id",
@@ -72,7 +72,7 @@ const run = async () => {
   let deleted = 0;
   for (let i = 0; i < ids.length; i += batchSize) {
     const chunk = ids.slice(i, i + batchSize);
-    const result = await prismaCore.activity.deleteMany({
+    const result = await prisma.activity.deleteMany({
       where: { id: { in: chunk } },
     });
     deleted += result.count;
@@ -82,7 +82,7 @@ const run = async () => {
 };
 
 const shutdown = async (exitCode: number) => {
-  await prismaCore.$disconnect().catch(() => undefined);
+  await prisma.$disconnect().catch(() => undefined);
   process.exit(exitCode);
 };
 

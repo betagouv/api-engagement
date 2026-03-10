@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { RiCheckboxCircleFill, RiCloseCircleFill } from "react-icons/ri";
 import { Link, useSearchParams } from "react-router-dom";
 
-import SearchInput from "../../components/SearchInput";
-import Table from "../../components/Table";
-import api from "../../services/api";
-import { captureError } from "../../services/error";
+import SearchInput from "@/components/SearchInput";
+import Table from "@/components/Table";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
 
 const List = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -52,12 +52,18 @@ const List = () => {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h2 className="text-2xl font-semibold">{total.toLocaleString("fr")} d'associations référencées</h2>
 
-        <SearchInput value={filters.search} onChange={(search) => setFilters({ ...filters, search })} className="min-w-[250px] flex-1 lg:max-w-[25%]" placeholder="Rechercher par mot-clé" />
+        <SearchInput
+          value={filters.search}
+          onChange={(search) => setFilters({ ...filters, search })}
+          className="min-w-[250px] flex-1 lg:max-w-[25%]"
+          placeholder="Rechercher par mot-clé"
+        />
       </div>
 
       <div className="border-grey-border border p-6">
         <Table
-          header={[{ title: "Titre de l'organisation", colSpan: 3 }, { title: "RNA" }, { title: "SIRET" }, { title: "Créée le" }, { title: "Statut" }]}
+          caption="Liste des organisations"
+          header={[{ title: "Titre de l'organisation", width: "40%" }, { title: "RNA" }, { title: "SIRET" }, { title: "Créée le" }, { title: "Statut" }]}
           page={filters.from}
           pageSize={filters.size}
           onPageChange={(page) => setFilters({ ...filters, from: (page - 1) * filters.size })}
@@ -67,8 +73,8 @@ const List = () => {
           {data.map((item, i) => {
             const organizationId = item.id ?? `organization-${i}`;
             return (
-              <tr key={organizationId} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
-                <td className="p-4" colSpan={3}>
+              <tr key={organizationId} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
+                <td className="p-4">
                   <Link to={`/admin-organization/${organizationId}`} className="text-blue-france line-clamp-3 max-w-xl flex-1 px-2">
                     {item.title}
                   </Link>
@@ -81,12 +87,12 @@ const List = () => {
                     {item.status === "ACTIVE" ? (
                       <div className="flex items-center gap-2">
                         <p>Active</p>
-                        <RiCheckboxCircleFill className="text-success" />
+                        <RiCheckboxCircleFill className="text-success" aria-hidden="true" />
                       </div>
                     ) : (
                       <div className="flex items-center gap-2">
                         <p>Inactive</p>
-                        <RiCloseCircleFill className="text-error" />
+                        <RiCloseCircleFill className="text-error" aria-hidden="true" />
                       </div>
                     )}
                   </div>

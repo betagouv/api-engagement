@@ -1,8 +1,20 @@
-import api from "./api";
+import api from "@/services/api";
 
-const isEmpty = (value) => value === "" || value === null || value === undefined;
+const isEmpty = (value) => value === "" || value === null || value === undefined || (Array.isArray(value) && value.length === 0);
 
-export const compactMissionFilters = (filters = {}) => Object.fromEntries(Object.entries(filters).filter(([, value]) => !isEmpty(value)));
+const extractValues = (value) => {
+  if (Array.isArray(value) && value.length > 0 && typeof value[0] === "object" && "value" in value[0]) {
+    return value.map((item) => item.value);
+  }
+  return value;
+};
+
+export const compactMissionFilters = (filters = {}) =>
+  Object.fromEntries(
+    Object.entries(filters)
+      .filter(([, value]) => !isEmpty(value))
+      .map(([key, value]) => [key, extractValues(value)]),
+  );
 
 export const buildMissionSearchPayload = (filters = {}) => {
   const { page, sortBy, ...rest } = filters;

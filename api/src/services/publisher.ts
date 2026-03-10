@@ -1,8 +1,8 @@
 import { randomBytes } from "crypto";
 import { v4 as uuid } from "uuid";
 
-import { MissionType, Prisma, Publisher, PublisherDiffusion } from "../db/core";
-import { publisherRepository } from "../repositories/publisher";
+import { MissionType, Prisma, Publisher, PublisherDiffusion } from "@/db/core";
+import { publisherRepository } from "@/repositories/publisher";
 import {
   PublisherCreateInput,
   PublisherDiffusionInput,
@@ -11,8 +11,8 @@ import {
   PublisherRecord,
   PublisherSearchParams,
   PublisherUpdatePatch,
-} from "../types/publisher";
-import { normalizeCollection, normalizeOptionalString } from "../utils";
+} from "@/types/publisher";
+import { normalizeCollection, normalizeOptionalString } from "@/utils";
 
 type PublisherWithDiffusion = Publisher & { diffuseurs?: PublisherDiffusion[] };
 
@@ -159,13 +159,13 @@ export const publisherService = (() => {
     return publisherRepository.count({ where });
   };
 
-  const createPublisher = async (input: PublisherCreateInput & { id?: string }): Promise<PublisherRecord> => {
+  const createPublisher = async (input: PublisherCreateInput): Promise<PublisherRecord> => {
     const normalizedPublishers = normalizeDiffusions(input.publishers);
     const rightsEnabled = Boolean(input.hasApiRights || input.hasWidgetRights || input.hasCampaignRights);
-    const generatedId = await generateUniquePublisherId();
+    const id = input.id ?? (await generateUniquePublisherId());
 
     const data: Prisma.PublisherCreateInput = {
-      id: input.id || generatedId,
+      id: id,
       name: input.name.trim(),
       category: normalizeOptionalString(input.category) ?? null,
       url: normalizeOptionalString(input.url),

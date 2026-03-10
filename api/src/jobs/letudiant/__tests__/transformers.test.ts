@@ -1,10 +1,10 @@
+import { PUBLISHER_IDS } from "@/config";
+import { MEDIA_PUBLIC_ID } from "@/jobs/letudiant/config";
+import { missionToPilotyCompany, missionToPilotyJobs } from "@/jobs/letudiant/transformers";
+import { PilotyMandatoryData } from "@/services/piloty/types";
+import { MissionType } from "@/types";
+import { MissionRecord } from "@/types/mission";
 import { describe, expect, it, vi } from "vitest";
-import { PUBLISHER_IDS } from "../../../config";
-import { PilotyMandatoryData } from "../../../services/piloty/types";
-import { MissionType } from "../../../types";
-import { MissionRecord } from "../../../types/mission";
-import { MEDIA_PUBLIC_ID } from "../config";
-import { missionToPilotyCompany, missionToPilotyJobs } from "../transformers";
 
 vi.mock("../../../utils/mission", () => ({
   getMissionTrackedApplicationUrl: vi.fn((mission, publisherId) => `https://api-engagement.beta.gouv.fr/r/${mission._id}/${publisherId}`),
@@ -121,12 +121,11 @@ describe("L'Etudiant Transformers", () => {
         ...baseMission,
         remote: "full",
         organizationCity: "Lyon",
-        organizationDepartment: "Rhône",
       } as MissionRecord;
 
       const results = missionToPilotyJobs(mission, mockCompanyId, mockMandatoryData);
       const result = results[0].payload;
-      expect(result.localisation).toBe("Lyon, Rhône, France");
+      expect(result.localisation).toBe("Lyon, France");
     });
 
     it("should set localisation to 'France' for full remote missions with no address and no organization city", () => {

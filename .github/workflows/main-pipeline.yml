@@ -60,8 +60,11 @@ jobs:
     with:
       branch: ${{ github.ref_name }}
 
-  changelog:
-    needs: deploy
+  deploy-sandbox:
+    needs: [test, build]
     if: github.ref == 'refs/heads/main'
-    uses: ./.github/workflows/changelog-notify.yml
+    uses: ./.github/workflows/terraform-deploy.yml
+    with:
+      branch: main
+      environment: sandbox
     secrets: inherit

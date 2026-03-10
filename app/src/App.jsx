@@ -1,42 +1,44 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 
-import Footer from "./components/Footer";
-import Header from "./components/Header";
-import Loader from "./components/Loader";
-import Nav from "./components/Nav";
-import Account from "./scenes/account";
-import AdminAccounts from "./scenes/admin-account";
-import AdminMissions from "./scenes/admin-mission";
-import AdminStats from "./scenes/admin-stats";
-import AdminWarnings from "./scenes/admin-warning";
-import ForgotPassword from "./scenes/auth/ForgotPassword";
-import Login from "./scenes/auth/Login";
-import LoginAs from "./scenes/auth/LoginAs";
-import ResetPassword from "./scenes/auth/ResetPassword";
-import Signup from "./scenes/auth/Signup";
-import Broadcast from "./scenes/broadcast";
-import Campaign from "./scenes/campaign";
-import CGU from "./scenes/cgu";
-import Mission from "./scenes/mission";
-import MyMissions from "./scenes/my-missions";
-import Performance from "./scenes/performance";
+import Footer from "@/components/Footer";
+import Header from "@/components/Header";
+import Loader from "@/components/Loader";
+import Nav from "@/components/Nav";
+import Account from "@/scenes/account";
+import AdminAccounts from "@/scenes/admin-account";
+import AdminMissions from "@/scenes/admin-mission";
+import AdminStats from "@/scenes/admin-stats";
+import AdminWarnings from "@/scenes/admin-warning";
+import ForgotPassword from "@/scenes/auth/ForgotPassword";
+import Login from "@/scenes/auth/Login";
+import LoginAs from "@/scenes/auth/LoginAs";
+import ResetPassword from "@/scenes/auth/ResetPassword";
+import Signup from "@/scenes/auth/Signup";
+import Broadcast from "@/scenes/broadcast";
+import Campaign from "@/scenes/campaign";
+import CGU from "@/scenes/cgu";
+import Mission from "@/scenes/mission";
+import MyMissions from "@/scenes/my-missions";
+import Performance from "@/scenes/performance";
 
-import Settings from "./scenes/settings";
-import Warnings from "./scenes/warnings";
-import Widget from "./scenes/widget";
+import Settings from "@/scenes/settings";
+import Warnings from "@/scenes/warnings";
+import Widget from "@/scenes/widget";
 
-import image from "./assets/img/background-connexion.jpg";
-import AdminOrganization from "./scenes/admin-organization";
-import AdminReport from "./scenes/admin-report";
-import PublicStats from "./scenes/public-stats";
-import Publisher from "./scenes/publisher";
-import User from "./scenes/user";
-import api from "./services/api";
-import { ENV } from "./services/config";
-import { captureError } from "./services/error";
-import useStore from "./services/store";
+import image from "@/assets/img/background-connexion.jpg";
+import AdminOrganization from "@/scenes/admin-organization";
+import AdminReport from "@/scenes/admin-report";
+import PublicStats from "@/scenes/public-stats";
+import Publisher from "@/scenes/publisher";
+import User from "@/scenes/user";
+import api from "@/services/api";
+import { ENV } from "@/services/config";
+import { captureError } from "@/services/error";
+import useStore from "@/services/store";
+
+const LEGACY_PATHS = ["/performance", "/broadcast", "/my-missions", "/settings", "/mission", "/warning", "/my-account"];
 
 const TOAST_STYLES = {
   success: "bg-success text-white",
@@ -75,13 +77,22 @@ const App = () => {
             <Route path="/cgu" element={<CGU />} />
           </Route>
           <Route element={<ProtectedLayout />}>
-            <Route path="/performance/*" element={<Performance />} />
-            <Route path="/broadcast/*" element={<Broadcast />} />
-            <Route path="/my-missions/*" element={<MyMissions />} />
-            <Route path="/settings/*" element={<Settings />} />
-            <Route path="/mission/*" element={<Mission />} />
-            <Route path="/warning/*" element={<Warnings />} />
-            <Route path="/my-account" element={<Account />} />
+            <Route element={<PublisherSyncLayout />}>
+              <Route path="/:publisherId/performance/*" element={<Performance />} />
+              <Route path="/:publisherId/broadcast/*" element={<Broadcast />} />
+              <Route path="/:publisherId/my-missions/*" element={<MyMissions />} />
+              <Route path="/:publisherId/settings/*" element={<Settings />} />
+              <Route path="/:publisherId/mission/*" element={<Mission />} />
+              <Route path="/:publisherId/warning/*" element={<Warnings />} />
+              <Route path="/:publisherId/my-account" element={<Account />} />
+            </Route>
+
+            {LEGACY_PATHS.map((path) => (
+              <Route key={path} path={`${path}/*`} element={<LegacyRedirect />} />
+            ))}
+            {LEGACY_PATHS.map((path) => (
+              <Route key={`exact-${path}`} path={path} element={<LegacyRedirect />} />
+            ))}
 
             <Route element={<AdminLayout />}>
               <Route path="/broadcast/campaign/*" element={<Campaign />} />
@@ -106,17 +117,19 @@ const App = () => {
 const AuthLayout = () => {
   const { user } = useStore();
 
-  if (user) return <Navigate to="/performance" replace={true} />;
+  if (user) {
+    return <Navigate to="/performance" replace={true} />;
+  }
 
   return (
-    <div className="bg-beige-gris-galet-975 flex min-h-screen w-screen flex-col">
+    <div className="bg-global-background flex min-h-screen w-screen flex-col">
       <Header />
       <main id="main-content" role="main" tabIndex={-1} className="flex flex-1">
         <div className="flex-1">
           <Outlet />
         </div>
         <div className="h-full w-1/2">
-          <img src={image} />
+          <img src={image} alt="" aria-hidden="true" />
         </div>
       </main>
       <Footer />
@@ -147,10 +160,18 @@ const PATH = [
 
 const ADMIN_PATH = ["/admin-mission", "/admin-organization", "/admin-account", "/admin-stats", "/admin-warning", "/admin-report", "/user/", "/publisher/"];
 const getActiveTabId = (pathname) => {
-  if (pathname.includes("performance")) return "tab-performance";
-  if (pathname.includes("broadcast")) return "tab-broadcast";
-  if (pathname.includes("my-missions")) return "tab-my-missions";
-  if (pathname.includes("settings")) return "tab-settings";
+  if (pathname.includes("performance")) {
+    return "tab-performance";
+  }
+  if (pathname.includes("broadcast")) {
+    return "tab-broadcast";
+  }
+  if (pathname.includes("my-missions")) {
+    return "tab-my-missions";
+  }
+  if (pathname.includes("settings")) {
+    return "tab-settings";
+  }
   return null;
 };
 
@@ -172,7 +193,9 @@ const ProtectedLayout = () => {
         return;
       }
 
-      const path = PATH.find((path) => location.pathname.startsWith(path));
+      // Strip optional /:publisherId prefix before matching paths
+      const strippedPathname = location.pathname.replace(/^\/[^/]+(?=\/)/, "");
+      const path = PATH.find((p) => strippedPathname.startsWith(p));
       if (path) {
         window.plausible(`${user.role} - ${path}`);
       }
@@ -186,7 +209,9 @@ const ProtectedLayout = () => {
         const publisher = localStorage.getItem("publisher");
         const res = await api.get(`/user/refresh${publisher ? `?publisherId=${publisher}` : ""}`);
 
-        if (!res.ok) throw res;
+        if (!res.ok) {
+          throw res;
+        }
         // Don't capture error here, it can be a 401
         setAuth(res.data.user, res.data.publisher);
         api.setToken(res.data.token);
@@ -202,16 +227,19 @@ const ProtectedLayout = () => {
     fetchData();
   }, []);
 
-  if (loading)
+  if (loading) {
     return (
       <main id="main-content" role="main" tabIndex={-1} className="flex h-screen w-full items-center justify-center">
         <Loader />
       </main>
     );
-  if (!user) return <Navigate to="/login" />;
+  }
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
 
   return (
-    <div className="bg-beige-gris-galet-975 flex min-h-screen w-screen flex-col">
+    <div className="bg-global-background flex min-h-screen w-screen flex-col">
       {ENV === "staging" && (
         <div className="bg-error w-full p-2 text-center text-white">
           <span>Environnement de pré-prod</span>
@@ -220,13 +248,7 @@ const ProtectedLayout = () => {
       <Header />
       <Nav />
 
-      <main
-        id="main-content"
-        role="main"
-        tabIndex={-1}
-        aria-labelledby={hasActiveTab ? activeTabId : undefined}
-        className="mx-auto mb-14 pt-14 w-4/5 max-w-[1200px] flex-1"
-      >
+      <main id="main-content" role="main" tabIndex={-1} aria-labelledby={hasActiveTab ? activeTabId : undefined} className="mx-auto mb-14 w-4/5 max-w-[1200px] flex-1 pt-14">
         <Outlet />
       </main>
       <Footer />
@@ -237,6 +259,38 @@ const ProtectedLayout = () => {
 const AdminLayout = () => {
   const { user } = useStore();
   return !user || user.role !== "admin" ? <Navigate to="/login" /> : <Outlet />;
+};
+
+const LegacyRedirect = () => {
+  const { publisher } = useStore();
+  const location = useLocation();
+  if (!publisher) {
+    return <Navigate to="/login" replace />;
+  }
+  const id = publisher.id || publisher._id;
+  return <Navigate to={`/${id}${location.pathname}${location.search}`} replace />;
+};
+
+const PublisherSyncLayout = () => {
+  const { publisherId } = useParams();
+  const { publisher, setPublisher } = useStore();
+
+  useEffect(() => {
+    const currentId = publisher?.id;
+    if (publisherId && publisherId !== currentId) {
+      api.post("/publisher/search", {}).then((res) => {
+        if (!res.ok) {
+          return;
+        }
+        const found = res.data.find((p) => (p.id || p._id) === publisherId);
+        if (found) {
+          setPublisher(found);
+        }
+      });
+    }
+  }, [publisherId]);
+
+  return <Outlet />;
 };
 
 const PublicLayout = () => {
@@ -252,15 +306,10 @@ const PublicLayout = () => {
   }, [location.pathname]);
 
   return (
-    <div className="bg-beige-gris-galet-975 flex min-h-screen w-screen flex-col">
+    <div className="bg-global-background flex min-h-screen w-screen flex-col">
       <Header />
       {user ? <Nav /> : ""}
-      <main
-        id="main-content"
-        role="main"
-        tabIndex={-1}
-        aria-labelledby={user && hasActiveTab ? activeTabId : undefined}
-      >
+      <main id="main-content" role="main" tabIndex={-1} aria-labelledby={user && hasActiveTab ? activeTabId : undefined}>
         <Outlet />
       </main>
       <Footer />

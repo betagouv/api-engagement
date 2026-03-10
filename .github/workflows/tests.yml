@@ -73,13 +73,11 @@ jobs:
           PGPASSWORD: postgres
         run: |
           psql -h localhost -U postgres -d postgres -c 'CREATE DATABASE core;'
-          psql -h localhost -U postgres -d postgres -c 'CREATE DATABASE analytics;'
 
       - name: Check Prisma migrations
         working-directory: api
         env:
           DATABASE_URL_CORE: postgresql://postgres:postgres@localhost:5432/core
-          DATABASE_URL_ANALYTICS: postgresql://postgres:postgres@localhost:5432/analytics
         run: npm run prisma:migrate:deploy
 
   analytics-migrations:
@@ -200,7 +198,7 @@ jobs:
         run: cd widget && npm run test:e2e
 
       - name: Upload HTML test report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: playwright-report

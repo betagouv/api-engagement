@@ -1,7 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 
-import List from "./List";
-import View from "./View";
+import List from "@/scenes/admin-organization/List";
+import View from "@/scenes/admin-organization/View";
 
 const AdminOrganization = () => (
   <Routes>

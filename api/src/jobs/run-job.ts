@@ -37,11 +37,11 @@ if (envPath && fs.existsSync(envPath)) {
   dotenv.config();
 }
 
-import { ENV, SENTRY_DSN_JOBS, SLACK_CRON_CHANNEL_ID } from "../config";
-import { pgConnectedAll, pgDisconnect } from "../db/postgres";
-import { captureException } from "../error";
-import { postMessage } from "../services/slack";
-import { getJobTime } from "../utils";
+import { ENV, SENTRY_DSN_JOBS, SLACK_CRON_CHANNEL_ID } from "@/config";
+import { pgConnected, pgDisconnect } from "@/db/postgres";
+import { captureException } from "@/error";
+import { postMessage } from "@/services/slack";
+import { getJobTime } from "@/utils";
 
 if (ENV !== "development") {
   Sentry.init({
@@ -73,7 +73,7 @@ if (!fs.existsSync(handlerPath)) {
 
 async function runJob() {
   try {
-    await pgConnectedAll();
+    await pgConnected();
 
     const handlerModule = await import(`./${jobName}/handler`);
     // Convert to camelCase

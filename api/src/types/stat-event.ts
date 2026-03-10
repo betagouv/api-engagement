@@ -99,48 +99,6 @@ export interface SearchStatEventsParams {
   skip?: number;
 }
 
-export type ViewStatsDateFilter = {
-  operator: "gt" | "lt";
-  date: Date;
-};
-
-export interface ViewStatsFilters {
-  fromPublisherName?: string;
-  toPublisherName?: string;
-  fromPublisherId?: string;
-  toPublisherId?: string;
-  missionDomain?: string;
-  missionDepartmentName?: string;
-  missionOrganizationId?: string;
-  type?: string;
-  source?: string;
-  createdAt?: ViewStatsDateFilter[];
-}
-
-export type ViewStatsFacetField =
-  | "type"
-  | "source"
-  | "missionDomain"
-  | "missionDepartmentName"
-  | "missionOrganizationId"
-  | "fromPublisherId"
-  | "toPublisherId"
-  | "tag";
-
-export interface SearchViewStatsParams {
-  publisherId: string;
-  size?: number;
-  filters?: ViewStatsFilters;
-  facets?: ViewStatsFacetField[];
-}
-
-export type ViewStatsFacet = { key: string; doc_count: number };
-
-export interface SearchViewStatsResult {
-  total: number;
-  facets: Record<string, ViewStatsFacet[]>;
-}
-
 export interface StatEventMissionStatsSummary {
   key: string;
   name?: string;

@@ -2,11 +2,11 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { INVALID_PARAMS, NOT_FOUND } from "../error";
-import { publisherService } from "../services/publisher";
-import { publisherDiffusionExclusionService } from "../services/publisher-diffusion-exclusion";
-import { PublisherRequest } from "../types/passport";
-import type { PublisherRecord } from "../types/publisher";
+import { INVALID_PARAMS, NOT_FOUND } from "@/error";
+import { publisherService } from "@/services/publisher";
+import { publisherDiffusionExclusionService } from "@/services/publisher-diffusion-exclusion";
+import { PublisherRequest } from "@/types/passport";
+import type { PublisherRecord } from "@/types/publisher";
 const router = Router();
 
 router.get("/", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {

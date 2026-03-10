@@ -16,7 +16,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { pgConnectedCore, prismaCore } from "../src/db/postgres";
+import { pgConnected, prisma } from "@/db/postgres";
 
 type CoreApplyRow = {
   id: string;
@@ -80,7 +80,7 @@ const run = async () => {
   console.log(`[ApplyClickReconcile] Plage: ${FROM_DATE.toISOString()} -> ${TO_DATE ? TO_DATE.toISOString() : "(sans fin)"}`);
   console.log(`[ApplyClickReconcile] Batch: ${BATCH_SIZE}`);
 
-  await pgConnectedCore();
+  await pgConnected();
 
   let lastId = LAST_ID;
   let scanned = 0;
@@ -100,7 +100,7 @@ const run = async () => {
       ...(lastId ? { id: { gt: lastId } } : {}),
     };
 
-    const batch = await prismaCore.statEvent.findMany({
+    const batch = await prisma.statEvent.findMany({
       where,
       select: {
         id: true,
@@ -123,7 +123,7 @@ const run = async () => {
 
       candidates++;
 
-      const coreClick = await prismaCore.statEvent.findUnique({
+      const coreClick = await prisma.statEvent.findUnique({
         where: { esId: event.clickId },
         select: { id: true, esId: true, createdAt: true, type: true },
       });
@@ -134,7 +134,7 @@ const run = async () => {
       }
 
       if (!DRY_RUN) {
-        await prismaCore.statEvent.update({
+        await prisma.statEvent.update({
           where: { id: event.id },
           data: { clickId: coreClick.id },
         });
@@ -172,7 +172,7 @@ const run = async () => {
 };
 
 const shutdown = async (exitCode: number) => {
-  await prismaCore.$disconnect().catch(() => undefined);
+  await prisma.$disconnect().catch(() => undefined);
   process.exit(exitCode);
 };
 

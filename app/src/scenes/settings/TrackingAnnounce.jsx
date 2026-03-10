@@ -1,8 +1,8 @@
-import { toast } from "../../services/toast";
+import { toast } from "@/services/toast";
 
 import { BiSolidInfoSquare } from "react-icons/bi";
 
-import useStore from "../../services/store";
+import useStore from "@/services/store";
 
 const script = `<script>
 (function (i, s, o, g, r, a, m) {
@@ -63,7 +63,7 @@ const TrackingAnnounce = () => {
             </div>
           </div>
           <div className="flex items-start gap-2 pb-6">
-            <BiSolidInfoSquare className="text-info mt-1 text-xs" />
+            <BiSolidInfoSquare className="text-info mt-1 text-xs" aria-hidden="true" />
             <p className="text-info text-xs leading-4">
               clientId = votre identifiant de mission utilisé dans le flux XML. <br />
               Exemple : <span className="font-['courier']">window.apieng && window.apieng("trackAccount", "6294b108de43a106f6ca6d5f")</span> <br />

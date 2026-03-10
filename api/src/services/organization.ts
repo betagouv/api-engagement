@@ -1,8 +1,7 @@
 import { randomBytes } from "crypto";
 
-import { Prisma } from "../db/core";
-import { prismaCore } from "../db/postgres";
-import { organizationRepository } from "../repositories/organization";
+import { Prisma } from "@/db/core";
+import { organizationRepository } from "@/repositories/organization";
 import {
   OrganizationCreateInput,
   OrganizationExportCandidate,
@@ -11,11 +10,11 @@ import {
   OrganizationSearchResult,
   OrganizationUpdatePatch,
   OrganizationUpsertInput,
-} from "../types/organization";
-import { chunk } from "../utils/array";
-import { normalizeOptionalString, normalizeSlug, normalizeStringArray } from "../utils/normalize";
-import { isValidRNA, isValidSiret } from "../utils/organization";
-import { slugify } from "../utils/string";
+} from "@/types/organization";
+import { chunk } from "@/utils/array";
+import { normalizeOptionalString, normalizeSlug, normalizeStringArray } from "@/utils/normalize";
+import { buildOrganizationSearchText, isValidRNA, isValidSiret } from "@/utils/organization";
+import { slugify } from "@/utils/string";
 
 const DEFAULT_LIMIT = 25;
 const MAX_LIMIT = 100;
@@ -52,17 +51,9 @@ const buildSearchWhere = (params: OrganizationSearchParams): Prisma.Organization
       } else if (isValidSiret(query)) {
         and.push({ OR: [{ siret: query }, { sirets: { has: query } }] });
       } else {
-        const slug = slugify(query);
-        const isTextQuery = /[A-Za-zÀ-ÖØ-öø-ÿ]/.test(query);
-        const textConditions: Prisma.OrganizationWhereInput[] = [{ title: { contains: query, mode: "insensitive" } }, { shortTitle: { contains: query, mode: "insensitive" } }];
-        if (!isTextQuery) {
-          textConditions.push({ rna: { contains: query, mode: "insensitive" } });
-          textConditions.push({ siret: { contains: query, mode: "insensitive" } });
-          textConditions.push({ siren: { contains: query, mode: "insensitive" } });
-        }
-        if (slug) {
-          textConditions.push({ names: { has: slug } });
-        }
+        const normalizedQuery = query.toLowerCase();
+        const textConditions: Prisma.OrganizationWhereInput[] = [{ searchText: { contains: normalizedQuery } }];
+
         and.push({ OR: textConditions });
       }
     }
@@ -86,13 +77,18 @@ const mapCreateInput = (input: OrganizationCreateInput): Prisma.OrganizationCrea
   }
   const sirets = normalizeStringArray(input.sirets);
   const id = (input.id && input.id.trim()) || generateOrganizationId();
+  const shortTitle = normalizeOptionalString(input.shortTitle);
+  const rna = normalizeOptionalString(input.rna);
+  const siren = normalizeOptionalString(input.siren);
+  const siret = normalizeOptionalString(input.siret);
+  const searchText = buildOrganizationSearchText({ title, shortTitle, rna, siren, siret });
 
   return {
     id,
     title,
-    rna: normalizeOptionalString(input.rna),
-    siren: normalizeOptionalString(input.siren),
-    siret: normalizeOptionalString(input.siret),
+    rna,
+    siren,
+    siret,
     sirets,
     rupMi: normalizeOptionalString(input.rupMi),
     gestion: normalizeOptionalString(input.gestion),
@@ -105,7 +101,8 @@ const mapCreateInput = (input: OrganizationCreateInput): Prisma.OrganizationCrea
     nature: normalizeOptionalString(input.nature),
     groupement: normalizeOptionalString(input.groupement),
     names,
-    shortTitle: normalizeOptionalString(input.shortTitle),
+    shortTitle,
+    searchText,
     titleSlug: normalizeSlug(title, input.titleSlug ?? null) ?? undefined,
     shortTitleSlug: normalizeSlug(input.shortTitle ?? null, input.shortTitleSlug ?? null) ?? undefined,
     object: normalizeOptionalString(input.object),
@@ -144,13 +141,12 @@ const mapCreateInput = (input: OrganizationCreateInput): Prisma.OrganizationCrea
 
 const mapUpdateInput = (patch: OrganizationUpdatePatch): Prisma.OrganizationUpdateInput => {
   const data: Prisma.OrganizationUpdateInput = {};
+  const titlePatch = patch.title !== undefined ? normalizeOptionalString(patch.title) : undefined;
+  const shortTitlePatch = patch.shortTitle !== undefined ? normalizeOptionalString(patch.shortTitle) : undefined;
 
-  if (patch.title !== undefined) {
-    const title = normalizeOptionalString(patch.title);
-    if (title) {
-      data.title = title;
-      data.titleSlug = normalizeSlug(title, patch.titleSlug ?? null);
-    }
+  if (patch.title !== undefined && titlePatch) {
+    data.title = titlePatch;
+    data.titleSlug = normalizeSlug(titlePatch, patch.titleSlug ?? null);
   }
 
   if (patch.names !== undefined) {
@@ -163,9 +159,8 @@ const mapUpdateInput = (patch: OrganizationUpdatePatch): Prisma.OrganizationUpda
   }
 
   if (patch.shortTitle !== undefined) {
-    const shortTitle = normalizeOptionalString(patch.shortTitle);
-    data.shortTitle = shortTitle ?? null;
-    data.shortTitleSlug = normalizeSlug(shortTitle ?? null, patch.shortTitleSlug ?? null);
+    data.shortTitle = shortTitlePatch ?? null;
+    data.shortTitleSlug = normalizeSlug(shortTitlePatch ?? null, patch.shortTitleSlug ?? null);
   } else if (patch.shortTitleSlug !== undefined) {
     data.shortTitleSlug = normalizeOptionalString(patch.shortTitleSlug);
   }
@@ -356,9 +351,27 @@ export const organizationService = (() => {
 
   const updateOrganization = async (id: string, patch: OrganizationUpdatePatch): Promise<OrganizationRecord> => {
     try {
+      const data = mapUpdateInput(patch);
+      const shouldRefreshSearchText =
+        patch.title !== undefined || patch.shortTitle !== undefined || patch.rna !== undefined || patch.siret !== undefined || patch.siren !== undefined;
+      if (shouldRefreshSearchText) {
+        const existing = await organizationRepository.findUnique({
+          where: { id },
+          select: { title: true, shortTitle: true, rna: true, siret: true, siren: true },
+        });
+        if (!existing) {
+          throw new Error("Organization not found");
+        }
+        const nextTitle = patch.title !== undefined ? (normalizeOptionalString(patch.title) ?? existing.title) : existing.title;
+        const nextShortTitle = patch.shortTitle !== undefined ? (normalizeOptionalString(patch.shortTitle) ?? null) : existing.shortTitle;
+        const nextRna = patch.rna !== undefined ? (normalizeOptionalString(patch.rna) ?? null) : existing.rna;
+        const nextSiret = patch.siret !== undefined ? (normalizeOptionalString(patch.siret) ?? null) : existing.siret;
+        const nextSiren = patch.siren !== undefined ? (normalizeOptionalString(patch.siren) ?? null) : existing.siren;
+        data.searchText = buildOrganizationSearchText({ title: nextTitle, shortTitle: nextShortTitle, rna: nextRna, siret: nextSiret, siren: nextSiren });
+      }
       return await organizationRepository.update({
         where: { id },
-        data: mapUpdateInput(patch),
+        data,
       });
     } catch (error: unknown) {
       if (error instanceof Error && "code" in error && (error as { code?: string }).code === "P2025") {
@@ -429,10 +442,23 @@ export const organizationService = (() => {
     for (const chunkRecords of chunkedRecords) {
       for (const record of chunkRecords) {
         try {
-          await prismaCore.organization.upsert({
+          const normalizedRna = normalizeOptionalString(record.rna);
+          const normalizedSiret = normalizeOptionalString(record.siret);
+          const normalizedSiren = normalizeOptionalString(record.siren);
+          const normalizedShortTitle = normalizeOptionalString(record.shortTitle);
+          await organizationRepository.upsert({
             where: { rna: record.rna as string },
             create: mapCreateInput(record),
-            update: mapUpdateInput(record),
+            update: {
+              ...mapUpdateInput(record),
+              searchText: buildOrganizationSearchText({
+                title: record.title,
+                shortTitle: normalizedShortTitle,
+                rna: normalizedRna,
+                siret: normalizedSiret,
+                siren: normalizedSiren,
+              }),
+            },
           });
         } catch (error) {
           // Skip invalid records while logging the issue to keep the batch moving

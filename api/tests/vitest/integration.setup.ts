@@ -1,19 +1,11 @@
 import "./shared";
 
+import { pgConnected, prisma } from "@/db/postgres";
 import { afterAll, beforeAll, beforeEach } from "vitest";
-import { pgConnectedAll } from "../../src/db/postgres";
-
-type PostgresModule = typeof import("../../src/db/postgres");
-let prismaCore: PostgresModule["prismaCore"] | null = null;
-let prismaAnalytics: PostgresModule["prismaAnalytics"] | null = null;
 
 beforeAll(async () => {
-  const postgresModule = await import("../../src/db/postgres");
-  prismaCore = postgresModule.prismaCore;
-  prismaAnalytics = postgresModule.prismaAnalytics;
-
   try {
-    await pgConnectedAll();
+    await pgConnected();
   } catch (error) {
     console.error("[Tests] Failed to connect Prisma clients:", error);
     throw error;
@@ -21,31 +13,27 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
-  if (prismaCore) {
-    await prismaCore.$transaction([
-      prismaCore.statEvent.deleteMany({}),
-      prismaCore.widgetPublisher.deleteMany({}),
-      prismaCore.widgetRule.deleteMany({}),
-      prismaCore.widget.deleteMany({}),
-      prismaCore.missionModerationStatus.deleteMany({}),
-      prismaCore.missionAddress.deleteMany({}),
-      prismaCore.missionEvent.deleteMany({}),
-      prismaCore.mission.deleteMany({}),
-      prismaCore.publisherOrganization.deleteMany({}),
-      prismaCore.organization.deleteMany({}),
-      prismaCore.publisherDiffusion.deleteMany({}),
-      prismaCore.publisher.deleteMany({}),
-      prismaCore.domain.deleteMany({}),
-      prismaCore.activity.deleteMany({}),
-    ]);
-  }
+  await prisma.$transaction([
+    prisma.statEvent.deleteMany({}),
+    prisma.widgetPublisher.deleteMany({}),
+    prisma.widgetRule.deleteMany({}),
+    prisma.widget.deleteMany({}),
+    prisma.missionModerationStatus.deleteMany({}),
+    prisma.missionAddress.deleteMany({}),
+    prisma.missionEvent.deleteMany({}),
+    prisma.mission.deleteMany({}),
+    prisma.publisherOrganization.deleteMany({}),
+    prisma.organization.deleteMany({}),
+    prisma.publisherDiffusion.deleteMany({}),
+    prisma.publisher.deleteMany({}),
+    prisma.domain.deleteMany({}),
+    prisma.activity.deleteMany({}),
+    prisma.moderationEvent.deleteMany({}),
+    prisma.userPublisher.deleteMany({}),
+    prisma.user.deleteMany({}),
+  ]);
 });
 
 afterAll(async () => {
-  if (prismaCore) {
-    await prismaCore.$disconnect();
-  }
-  if (prismaAnalytics) {
-    await prismaAnalytics.$disconnect();
-  }
+  await prisma.$disconnect();
 });

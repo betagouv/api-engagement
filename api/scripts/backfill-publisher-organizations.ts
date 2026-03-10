@@ -7,17 +7,17 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { Prisma } from "../src/db/core";
-import { prismaCore } from "../src/db/postgres";
+import { Prisma } from "@/db/core";
+import { prisma } from "@/db/postgres";
 type MissingCountRow = { count: number };
 
 const run = async () => {
   const startedAt = new Date();
   console.log(`[PublisherOrganizationBackfill] Started at ${startedAt.toISOString()}`);
 
-  await prismaCore.$connect();
+  await prisma.$connect();
 
-  const publishers = await prismaCore.publisher.findMany({
+  const publishers = await prisma.publisher.findMany({
     where: { isAnnonceur: true },
     select: { id: true },
   });
@@ -28,7 +28,7 @@ const run = async () => {
     return;
   }
 
-  const missingCountRows = await prismaCore.$queryRaw<MissingCountRow[]>(
+  const missingCountRows = await prisma.$queryRaw<MissingCountRow[]>(
     Prisma.sql`
       SELECT COUNT(*)::int AS count
       FROM (
@@ -54,7 +54,7 @@ const run = async () => {
 
   console.log(`[PublisherOrganizationBackfill] ${missingCount} organisations manquantes détectées. Insertion en bulk...`);
 
-  const inserted = await prismaCore.$executeRaw(
+  const inserted = await prisma.$executeRaw(
     Prisma.sql`
       INSERT INTO "publisher_organization" (
         "id",
@@ -151,7 +151,7 @@ const run = async () => {
 };
 
 const shutdown = async (exitCode: number) => {
-  await prismaCore.$disconnect().catch(() => undefined);
+  await prisma.$disconnect().catch(() => undefined);
   process.exit(exitCode);
 };
 

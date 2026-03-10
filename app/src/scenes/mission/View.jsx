@@ -3,8 +3,8 @@ import { HiLocationMarker } from "react-icons/hi";
 import { RiCursorFill } from "react-icons/ri";
 import { useParams } from "react-router-dom";
 
-import api from "../../services/api";
-import { captureError } from "../../services/error";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
 
 const View = () => {
   const { id } = useParams();
@@ -46,7 +46,7 @@ const View = () => {
             </a>
           </p>
           <div className="text-text-mention flex items-center gap-2 text-base">
-            <HiLocationMarker className="ml-2" />
+            <HiLocationMarker className="ml-2" aria-hidden="true" />
             <span>{mission.country}</span>
             {mission.departmentName && (
               <>
@@ -76,7 +76,7 @@ const View = () => {
           </div>
 
           <a className="tertiary-bis-btn flex h-fit items-center" href={buildLink(mission)} target="_blank">
-            <RiCursorFill className="mr-2" />
+            <RiCursorFill className="mr-2" aria-hidden="true" />
             <span>Lien vers la mission</span>
           </a>
         </div>

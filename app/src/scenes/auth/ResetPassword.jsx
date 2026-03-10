@@ -4,11 +4,11 @@ import { IoMdEye, IoMdEyeOff } from "react-icons/io";
 import { RiCheckboxCircleFill, RiErrorWarningFill } from "react-icons/ri";
 import { Link, useSearchParams } from "react-router-dom";
 
-import ErrorAlert from "../../components/ErrorAlert";
-import WarningAlert from "../../components/WarningAlert";
-import api from "../../services/api";
-import { captureError } from "../../services/error";
-import { hasLetter, hasNumber, hasSpecialChar } from "../../services/utils";
+import ErrorAlert from "@/components/ErrorAlert";
+import WarningAlert from "@/components/WarningAlert";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import { hasLetter, hasNumber, hasSpecialChar } from "@/services/utils";
 
 const ResetPassword = () => {
   const [searchParams] = useSearchParams();
@@ -125,7 +125,7 @@ const ResetPasswordForm = ({ user, token }) => {
             Nouveau mot de passe
           </label>
           <div className="flex cursor-pointer items-center gap-1" onClick={() => setShow(!show)}>
-            {show ? <IoMdEyeOff className="text-blue-france" /> : <IoMdEye className="text-blue-france" />}
+            {show ? <IoMdEyeOff className="text-blue-france" aria-hidden="true" /> : <IoMdEye className="text-blue-france" aria-hidden="true" />}
             <span className="text-blue-france text-xs font-bold">{show ? "CACHER" : "AFFICHER"}</span>
           </div>
         </div>
@@ -144,26 +144,26 @@ const ResetPasswordForm = ({ user, token }) => {
         />
         {errors.password && (
           <div className="text-error flex items-center text-sm">
-            <RiErrorWarningFill className="mr-2" />
+            <RiErrorWarningFill className="mr-2" aria-hidden="true" />
             {errors.password}
           </div>
         )}
       </div>
       <div className="mt-2 flex flex-col gap-2">
         <div className="flex items-center gap-2">
-          {(values.password || "").length >= 12 ? <AiFillCloseCircle className="text-success" /> : <AiFillCloseCircle className="text-text-mention" />}
+          {(values.password || "").length >= 12 ? <AiFillCloseCircle className="text-success" aria-hidden="true" /> : <AiFillCloseCircle className="text-text-mention" aria-hidden="true" />}
           <span className={`align-middle text-sm ${values.password && (values.password || "").length >= 12 ? "text-success" : "text-text-mention"}`}>Au moins 12 caractères</span>
         </div>
         <div className="flex items-center gap-2">
-          {hasLetter(values.password) ? <AiFillCloseCircle className="text-success" /> : <AiFillCloseCircle className="text-text-mention" />}
+          {hasLetter(values.password) ? <AiFillCloseCircle className="text-success" aria-hidden="true" /> : <AiFillCloseCircle className="text-text-mention" aria-hidden="true" />}
           <span className={`align-middle text-sm ${values.password && hasLetter(values.password) ? "text-success" : "text-text-mention"}`}>Au moins une lettre</span>
         </div>
         <div className="flex items-center gap-2">
-          {hasNumber(values.password) ? <AiFillCloseCircle className="text-success" /> : <AiFillCloseCircle className="text-text-mention" />}
+          {hasNumber(values.password) ? <AiFillCloseCircle className="text-success" aria-hidden="true" /> : <AiFillCloseCircle className="text-text-mention" aria-hidden="true" />}
           <span className={`align-middle text-sm ${values.password && hasNumber(values.password) ? "text-success" : "text-text-mention"}`}>Au moins un chiffre</span>
         </div>
         <div className="flex items-center gap-2">
-          {hasSpecialChar(values.password) ? <AiFillCloseCircle className="text-success" /> : <AiFillCloseCircle className="text-text-mention" />}
+          {hasSpecialChar(values.password) ? <AiFillCloseCircle className="text-success" aria-hidden="true" /> : <AiFillCloseCircle className="text-text-mention" aria-hidden="true" />}
           <span className={`align-middle text-sm ${values.password && hasSpecialChar(values.password) ? "text-success" : "text-text-mention"}`}>Au moins un caractère spécial</span>
         </div>
       </div>
@@ -174,7 +174,7 @@ const ResetPasswordForm = ({ user, token }) => {
             Confirmez ce mot de passe
           </label>
           <div className="flex cursor-pointer items-center gap-1" onClick={() => setShowConfirm(!showConfirm)}>
-            {showConfirm ? <IoMdEyeOff className="text-blue-france" /> : <IoMdEye className="text-blue-france" />}
+            {showConfirm ? <IoMdEyeOff className="text-blue-france" aria-hidden="true" /> : <IoMdEye className="text-blue-france" aria-hidden="true" />}
             <span className="text-blue-france text-xs font-bold">{showConfirm ? "CACHER" : "AFFICHER"}</span>
           </div>
         </div>
@@ -191,7 +191,7 @@ const ResetPasswordForm = ({ user, token }) => {
         />
         {errors.confirmPassword && (
           <div className="text-error flex items-center text-sm">
-            <RiErrorWarningFill className="mr-2" />
+            <RiErrorWarningFill className="mr-2" aria-hidden="true" />
             {errors.confirmPassword}
           </div>
         )}
@@ -199,7 +199,7 @@ const ResetPasswordForm = ({ user, token }) => {
 
       {errors.expired && (
         <div className="text-error flex items-center text-sm">
-          <RiErrorWarningFill className="mr-2" />
+          <RiErrorWarningFill className="mr-2" aria-hidden="true" />
           <Link to="/forgot-password" className="underline">
             Réinitialisation expirée
           </Link>
@@ -212,7 +212,7 @@ const ResetPasswordForm = ({ user, token }) => {
         </button>
       ) : (
         <div className="text-success mt-4 flex items-center text-sm">
-          <RiCheckboxCircleFill className="mr-2" />
+          <RiCheckboxCircleFill className="mr-2" aria-hidden="true" />
           <p>
             Nouveau mot de passe enregistré <br />
             <Link to="/login" className="underline">

@@ -1,6 +1,6 @@
-import { toast } from "../../services/toast";
+import { toast } from "@/services/toast";
 
-import useStore from "../../services/store";
+import useStore from "@/services/store";
 
 const script = `<script>
 (function (i, s, o, g, r, a, m) {

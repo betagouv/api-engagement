@@ -9,8 +9,8 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { Prisma } from "../src/db/core";
-import { prismaCore } from "../src/db/postgres";
+import { Prisma } from "@/db/core";
+import { prisma } from "@/db/postgres";
 
 type OrganizationRow = {
   id: string;
@@ -36,9 +36,9 @@ const run = async () => {
   console.log(`[OrganizationCleanup] Started at ${startedAt.toISOString()}`);
   console.log(`[OrganizationCleanup] Mode: ${dryRun ? "dry-run" : "execute"}`);
 
-  await prismaCore.$connect();
+  await prisma.$connect();
 
-  const rows = await prismaCore.$queryRaw<OrganizationRow[]>(
+  const rows = await prisma.$queryRaw<OrganizationRow[]>(
     Prisma.sql`
       WITH duplicates AS (
         SELECT LOWER(TRIM(o."title")) AS title_key
@@ -118,9 +118,7 @@ const run = async () => {
   }
 
   const ids = Array.from(idsToDelete);
-  console.log(
-    `[OrganizationCleanup] Doublons trouves: ${byTitle.size}, groupes avec suppressions: ${groupsWithDeletes}, organisations a supprimer: ${ids.length}`
-  );
+  console.log(`[OrganizationCleanup] Doublons trouves: ${byTitle.size}, groupes avec suppressions: ${groupsWithDeletes}, organisations a supprimer: ${ids.length}`);
 
   if (!ids.length) {
     console.log("[OrganizationCleanup] Rien a supprimer.");
@@ -148,7 +146,7 @@ const run = async () => {
   let deleted = 0;
   for (let i = 0; i < ids.length; i += chunkSize) {
     const chunk = ids.slice(i, i + chunkSize);
-    const result = await prismaCore.organization.deleteMany({
+    const result = await prisma.organization.deleteMany({
       where: { id: { in: chunk } },
     });
     deleted += result.count;
@@ -158,7 +156,7 @@ const run = async () => {
 };
 
 const shutdown = async (exitCode: number) => {
-  await prismaCore.$disconnect().catch(() => undefined);
+  await prisma.$disconnect().catch(() => undefined);
   process.exit(exitCode);
 };
 

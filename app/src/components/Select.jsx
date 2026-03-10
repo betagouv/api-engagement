@@ -1,7 +1,7 @@
+import Loader from "@/components/Loader";
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from "@headlessui/react";
 import { Fragment, useEffect, useState } from "react";
 import { RiArrowDownSLine, RiCheckFill, RiCloseFill } from "react-icons/ri";
-import Loader from "./Loader";
 
 const Select = ({ options, value, onChange, className, placeholder = "Sélectionner une option", loading = false }) => {
   const [selected, setSelected] = useState(null);
@@ -23,13 +23,13 @@ const Select = ({ options, value, onChange, className, placeholder = "Sélection
   return (
     <Listbox as="div" className="w-full" value={selected} onChange={handleChange}>
       <div className="relative w-full">
-        <ListboxButton className={`select relative w-full px-4 py-2 ${selected ? "pr-16" : ""} overflow-hidden text-ellipsis text-left`} aria-label={placeholder}>
+        <ListboxButton className={`select relative w-full px-4 py-2 ${selected ? "pr-16" : ""} overflow-hidden text-left text-ellipsis`} aria-label={placeholder}>
           {selected ? selected.label : placeholder}
-          <RiArrowDownSLine className="absolute top-1/2 right-4 -translate-y-1/2 transform text-lg" />
+          <RiArrowDownSLine className="absolute top-1/2 right-4 -translate-y-1/2 transform text-lg" aria-hidden="true" />
         </ListboxButton>
         {selected && (
           <button className="absolute top-1/2 right-8 -translate-y-1/2 transform" onClick={handleClear} aria-label="Effacer" tabIndex={0}>
-            <RiCloseFill className="text-base" />
+            <RiCloseFill className="text-base" aria-hidden="true" />
           </button>
         )}
       </div>
@@ -59,7 +59,7 @@ const Select = ({ options, value, onChange, className, placeholder = "Sélection
                   }`
                 }
               >
-                <RiCheckFill className="invisible text-sm group-data-selected:visible" />
+                <RiCheckFill className="invisible text-sm group-data-selected:visible" aria-hidden="true" />
                 <p className="flex-1 truncate">{option.label}</p>
                 {option.count && <p className="text-sm">{option.count}</p>}
               </ListboxOption>

@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
-import { statBotService } from "../../src/services/stat-bot";
-import type { StatBotCreateInput } from "../../src/types/stat-bot";
+import { statBotService } from "@/services/stat-bot";
+import type { StatBotCreateInput } from "@/types/stat-bot";
 import { asString, toMongoObjectIdString } from "./utils/cast";
 import { loadEnvironment, parseScriptOptions, type ScriptOptions } from "./utils/options";
 
@@ -37,7 +37,7 @@ const normalizeStatsBot = (doc: MongoStatsBotDocument): StatBotCreateInput | nul
 };
 
 const migrateStatsBots = async () => {
-  const [{ mongoConnected }, { pgConnected, prismaCore }] = await Promise.all([import("../../src/db/mongo"), import("../../src/db/postgres")]);
+  const [{ mongoConnected }, { pgConnected, prismaCore }] = await Promise.all([import("@/db/mongo"), import("@/db/postgres")]);
 
   await mongoConnected;
   await pgConnected;
@@ -124,7 +124,7 @@ const migrateStatsBots = async () => {
 
   console.log(`[MigrateStatsBots] Completed. Processed: ${processed}, created: ${created}, skipped: ${skipped}, errors: ${errors}, dry-run: ${options.dryRun}`);
 
-  await Promise.allSettled([mongoose.connection.close(), prismaCore.$disconnect()]);
+  await Promise.allSettled([mongoose.connection.close(), prisma.$disconnect()]);
 };
 
 migrateStatsBots()
@@ -134,8 +134,8 @@ migrateStatsBots()
   .catch(async (error) => {
     console.error("[MigrateStatsBots] Unexpected error:", error);
     try {
-      const { prismaCore } = await import("../../src/db/postgres");
-      await Promise.allSettled([mongoose.connection.close(), prismaCore.$disconnect()]);
+      const { prismaCore } = await import("@/db/postgres");
+      await Promise.allSettled([mongoose.connection.close(), prisma.$disconnect()]);
     } catch {
       await Promise.allSettled([mongoose.connection.close()]);
     }

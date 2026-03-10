@@ -1,6 +1,6 @@
 import { vi } from "vitest";
 
-import { dataSubventionMock, sentryMock } from "../mocks";
+import { dataSubventionMock, s3Mock, sentryMock } from "../mocks";
 
 process.env.JWT_SECRET = process.env.JWT_SECRET || "test-jwt-secret";
 process.env.MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/test";
@@ -12,6 +12,10 @@ vi.mock("@sentry/node", () => ({
 }));
 
 // Mock services that would otherwise call external APIs.
-vi.mock("../../src/services/api-datasubvention", () => ({
+vi.mock("@/services/api-datasubvention", () => ({
   default: dataSubventionMock,
+}));
+
+vi.mock("@/services/s3", () => ({
+  ...s3Mock,
 }));

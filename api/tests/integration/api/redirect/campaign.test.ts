@@ -1,12 +1,12 @@
 import request from "supertest";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { JVA_URL } from "../../../../src/config";
-import { prismaCore } from "../../../../src/db/postgres";
-import { campaignService } from "../../../../src/services/campaign";
-import { statBotService } from "../../../../src/services/stat-bot";
-import { PublisherRecord } from "../../../../src/types/publisher";
-import * as utils from "../../../../src/utils";
+import { JVA_URL } from "@/config";
+import { prisma } from "@/db/postgres";
+import { campaignService } from "@/services/campaign";
+import { statBotService } from "@/services/stat-bot";
+import { PublisherRecord } from "@/types/publisher";
+import * as utils from "@/utils";
 import { createTestPublisher } from "../../../fixtures";
 import { createTestApp } from "../../../testApp";
 
@@ -30,7 +30,7 @@ describe("RedirectController /campaign/:id", () => {
 
     expect(response.status).toBe(302);
     expect(response.headers.location).toBe(JVA_URL);
-    expect(await prismaCore.statEvent.count()).toBe(0);
+    expect(await prisma.statEvent.count()).toBe(0);
   });
 
   it("redirects to JVA when campaign does not exist", async () => {
@@ -40,7 +40,7 @@ describe("RedirectController /campaign/:id", () => {
 
     expect(response.status).toBe(302);
     expect(response.headers.location).toBe(JVA_URL);
-    expect(await prismaCore.statEvent.count()).toBe(0);
+    expect(await prisma.statEvent.count()).toBe(0);
   });
 
   it("redirects to campaign url when identity is missing", async () => {
@@ -59,7 +59,7 @@ describe("RedirectController /campaign/:id", () => {
     expect(response.status).toBe(302);
     expect(response.headers.location).toBe("https://campaign.example.com/landing");
     expect(identifySpy).toHaveBeenCalled();
-    expect(await prismaCore.statEvent.count()).toBe(0);
+    expect(await prisma.statEvent.count()).toBe(0);
   });
 
   it("records stats and appends tracking parameters when identity is present", async () => {
@@ -89,7 +89,17 @@ describe("RedirectController /campaign/:id", () => {
     const clickId = redirectUrl.searchParams.get("apiengagement_id");
     expect(clickId).toBeTruthy();
 
-    const storedClick = await prismaCore.statEvent.findUnique({ where: { id: clickId! } });
+    // The handler updates isBot asynchronously after sending the redirect response,
+    // so we need to wait for that background work to complete before asserting.
+    await vi.waitFor(
+      async () => {
+        const row = await prisma.statEvent.findUnique({ where: { id: clickId! } });
+        expect(row?.isBot).toBe(true);
+      },
+      { timeout: 2000, interval: 50 },
+    );
+
+    const storedClick = await prisma.statEvent.findUnique({ where: { id: clickId! } });
     expect(storedClick).toMatchObject({
       type: "click",
       user: identity.user,

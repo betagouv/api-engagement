@@ -1,8 +1,8 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+import { ENV, IMAGE_VERSION, PORT, SENTRY_DSN_API } from "@/config";
 import * as Sentry from "@sentry/node";
-import { ENV, IMAGE_VERSION, PORT, SENTRY_DSN_API } from "./config";
 
 if (ENV !== "development") {
   Sentry.init({
@@ -43,47 +43,48 @@ process.on("unhandledRejection", (reason) => {
   logProcessCrash("unhandled_rejection", reason);
 });
 
-import cors from "cors";
-import express, { NextFunction, Request, Response } from "express";
+import express from "express";
 import path from "path";
 
-import errorHandler from "./middlewares/error-handler";
+import { corsPublic } from "@/middlewares/cors";
+import errorHandler from "@/middlewares/error-handler";
 
-import { pgConnectedCore, pgDisconnect } from "./db/postgres";
-import middlewares from "./middlewares";
+import { pgConnected, pgDisconnect } from "@/db/postgres";
+import middlewares from "@/middlewares";
 
-import AdminReportController from "./controllers/admin-report";
-import BrevoWebhookController from "./controllers/brevo-webhook/controller";
-import CampaignController from "./controllers/campaign";
-import IframeController from "./controllers/iframe";
-import ImportController from "./controllers/import";
-import MetabaseController from "./controllers/metabase";
-import MissionController from "./controllers/mission";
-import ModerationController from "./controllers/moderation";
-import ModerationEventController from "./controllers/moderation-event";
-import OrganizationController from "./controllers/organization";
-import PublisherController from "./controllers/publisher";
-import RedirectController from "./controllers/redirect";
-import ReportController from "./controllers/report";
-import StatsController from "./controllers/stats";
-import StatsMeanController from "./controllers/stats-mean/controller";
-import UserController from "./controllers/user";
-import WarningController from "./controllers/warning";
-import WarningBotController from "./controllers/warning-bot";
-import WidgetController from "./controllers/widget";
-import MissionV0Controller from "./v0/mission/controller";
-import MyMissionV0Controller from "./v0/mymission/controller";
-import MyOrganizationV0Controller from "./v0/myorganization/controller";
-import OrganizationV0Controller from "./v0/organization";
-import PublisherV0Controller from "./v0/publisher";
-import ViewV0Controller from "./v0/view";
-import ActivityV2Controller from "./v2/activity";
-import JobTeaserV2Controller from "./v2/jobteaser";
-import LeboncoinV2Controller from "./v2/leboncoin";
+import AdminReportController from "@/controllers/admin-report";
+import BrevoWebhookController from "@/controllers/brevo-webhook/controller";
+import CampaignController from "@/controllers/campaign";
+import IframeController from "@/controllers/iframe";
+import ImportController from "@/controllers/import";
+import MetabaseController from "@/controllers/metabase";
+import MissionController from "@/controllers/mission";
+import ModerationController from "@/controllers/moderation";
+import ModerationEventController from "@/controllers/moderation-event";
+import OrganizationController from "@/controllers/organization";
+import PublisherController from "@/controllers/publisher";
+import RedirectController from "@/controllers/redirect";
+import ReportController from "@/controllers/report";
+import StatsController from "@/controllers/stats";
+import StatsMeanController from "@/controllers/stats-mean/controller";
+import UserController from "@/controllers/user";
+import WarningController from "@/controllers/warning";
+import WarningBotController from "@/controllers/warning-bot";
+import WidgetController from "@/controllers/widget";
+import MissionV0Controller from "@/v0/mission/controller";
+import MyMissionV0Controller from "@/v0/mymission/controller";
+import MyOrganizationV0Controller from "@/v0/myorganization/controller";
+import OrganizationV0Controller from "@/v0/organization";
+import PublisherV0Controller from "@/v0/publisher";
+import ViewV0Controller from "@/v0/view";
+import ActivityV2Controller from "@/v2/activity";
+import JobTeaserV2Controller from "@/v2/jobteaser";
+import LeboncoinV2Controller from "@/v2/leboncoin";
+import MissionV2Controller from "@/v2/mission/controller";
 
 const main = async () => {
   console.log("[API] Waiting for database connections...");
-  await pgConnectedCore();
+  await pgConnected();
 
   console.log("[API] Starting API server...");
 
@@ -101,20 +102,20 @@ const main = async () => {
 
   // Opened routes
   app.use("/iframe", IframeController);
-  app.use("/r", cors({ origin: "*" }), RedirectController);
-  app.use("/report", cors({ origin: "*" }), ReportController);
-  app.use("/v0/mymission", cors({ origin: "*" }), MyMissionV0Controller);
-  app.use("/v0/myorganization", cors({ origin: "*" }), MyOrganizationV0Controller);
-  app.use("/v0/mission", cors({ origin: "*" }), MissionV0Controller);
-  app.use("/v0/publisher", cors({ origin: "*" }), PublisherV0Controller);
-  app.use("/v0/view", cors({ origin: "*" }), ViewV0Controller);
+  app.use("/r", corsPublic, RedirectController);
+  app.use("/report", corsPublic, ReportController);
+  app.use("/v0/mymission", corsPublic, MyMissionV0Controller);
+  app.use("/v0/myorganization", corsPublic, MyOrganizationV0Controller);
+  app.use("/v0/mission", corsPublic, MissionV0Controller);
+  app.use("/v0/publisher", corsPublic, PublisherV0Controller);
+  app.use("/v0/view", corsPublic, ViewV0Controller);
   app.use("/v0/organization", OrganizationV0Controller);
-  // /v2/mission redirects to /v0/mission
-  app.use("/v2/mission", cors({ origin: "*" }), MissionV0Controller);
-  app.use("/v2/activity", cors({ origin: "*" }), ActivityV2Controller);
-  app.use("/v2/leboncoin", cors({ origin: "*" }), LeboncoinV2Controller);
-  app.use("/v2/jobteaser", cors({ origin: "*" }), JobTeaserV2Controller);
-  app.use("/brevo-webhook", cors({ origin: "*" }), BrevoWebhookController);
+  app.use("/v2/mission", corsPublic, MissionV2Controller);
+  app.use("/v2/mission", corsPublic, MissionV0Controller);
+  app.use("/v2/activity", corsPublic, ActivityV2Controller);
+  app.use("/v2/leboncoin", corsPublic, LeboncoinV2Controller);
+  app.use("/v2/jobteaser", corsPublic, JobTeaserV2Controller);
+  app.use("/brevo-webhook", corsPublic, BrevoWebhookController);
 
   // Interal routes
   app.use("/admin-report", AdminReportController);

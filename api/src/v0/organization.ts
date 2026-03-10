@@ -1,11 +1,11 @@
 import { NextFunction, Response, Router } from "express";
 import zod from "zod";
 
+import { INVALID_QUERY } from "@/error";
+import { organizationService } from "@/services/organization";
+import { OrganizationRecord } from "@/types/organization";
+import { PublisherRequest } from "@/types/passport";
 import passport from "passport";
-import { INVALID_QUERY } from "../error";
-import { organizationService } from "../services/organization";
-import { OrganizationRecord } from "../types/organization";
-import { PublisherRequest } from "../types/passport";
 
 const router = Router();
 

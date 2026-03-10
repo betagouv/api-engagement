@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-import { Prisma } from "../../src/db/core";
+import { Prisma } from "@/db/core";
 import { asString, toMongoObjectIdString } from "./utils/cast";
 import { loadEnvironment, parseScriptOptions, type ScriptOptions } from "./utils/options";
 
@@ -58,7 +58,7 @@ const flushBatch = async (
     return payload.length;
   }
 
-  const rows = await prismaCore.$executeRaw(
+  const rows = await prisma.$executeRaw(
     Prisma.sql`
       UPDATE "mission" AS m
       SET "domain_logo" = v.domain_logo
@@ -75,8 +75,8 @@ const flushBatch = async (
 
 const cleanup = async () => {
   try {
-    const { prismaCore } = await import("../../src/db/postgres");
-    await Promise.allSettled([prismaCore.$disconnect(), mongoose.connection.close()]);
+    const { prismaCore } = await import("@/db/postgres");
+    await Promise.allSettled([prisma.$disconnect(), mongoose.connection.close()]);
   } catch {
     await Promise.allSettled([mongoose.connection.close()]);
   }
@@ -84,7 +84,7 @@ const cleanup = async () => {
 
 const main = async () => {
   console.log(`[${SCRIPT_NAME}] Starting${options.dryRun ? " (dry-run)" : ""}`);
-  const [{ mongoConnected }, { pgConnected, prismaCore }] = await Promise.all([import("../../src/db/mongo"), import("../../src/db/postgres")]);
+  const [{ mongoConnected }, { pgConnected, prismaCore }] = await Promise.all([import("@/db/mongo"), import("@/db/postgres")]);
   await Promise.all([mongoConnected, pgConnected]);
 
   const collection = mongoose.connection.collection("missions");
@@ -96,9 +96,7 @@ const main = async () => {
     return;
   }
 
-  const cursor = collection
-    .find(filter, { batchSize: BATCH_SIZE, projection: { _id: 1, id: 1, domainLogo: 1 } })
-    .sort({ _id: 1 });
+  const cursor = collection.find(filter, { batchSize: BATCH_SIZE, projection: { _id: 1, id: 1, domainLogo: 1 } }).sort({ _id: 1 });
 
   const stats = { processed: 0, withLogo: 0, skipped: 0, updated: 0, wouldUpdate: 0 };
   let batch: DomainLogoEntry[] = [];

@@ -1,8 +1,8 @@
-import { Prisma } from "../db/core";
-import { moderationEventRepository } from "../repositories/moderation-event";
-import { MissionRecord } from "../types/mission";
-import { ModerationEventCreateInput, ModerationEventParams, ModerationEventRecord } from "../types/moderation-event";
-import type { UserRecord } from "../types/user";
+import { Prisma } from "@/db/core";
+import { moderationEventRepository } from "@/repositories/moderation-event";
+import { MissionRecord } from "@/types/mission";
+import { ModerationEventCreateInput, ModerationEventParams, ModerationEventRecord } from "@/types/moderation-event";
+import type { UserRecord } from "@/types/user";
 
 const buildWhereClause = (params: ModerationEventParams): Prisma.ModerationEventWhereInput => {
   return {

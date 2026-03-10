@@ -1,7 +1,7 @@
 import jsPDF from "jspdf";
 import sharp from "sharp";
-import type { PublisherRecord } from "../../../types/publisher";
-import { PAGE_WIDTH, drawLink, drawText } from "./utils";
+import type { PublisherRecord } from "@/types/publisher";
+import { PAGE_WIDTH, drawLink, drawText } from "@/jobs/report/generate/utils";
 
 const MONTHS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
 const HEADER_HEIGHT = 192;

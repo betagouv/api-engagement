@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 
-import SearchInput from "../../../components/SearchInput";
-import Table from "../../../components/Table";
-import Toggle from "../../../components/Toggle";
-import { PUBLISHER_CATEGORIES } from "../../../constants";
-import api from "../../../services/api";
-import { captureError } from "../../../services/error";
-import { withLegacyPublishers } from "../../../utils/publisher";
+import SearchInput from "@/components/SearchInput";
+import Table from "@/components/Table";
+import Toggle from "@/components/Toggle";
+import { PUBLISHER_CATEGORIES } from "@/constants";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import { withLegacyPublishers } from "@/utils/publisher";
 
 const DiffuseurCreation = ({ values, onChange, errors }) => {
   const [data, setData] = useState([]);
@@ -100,11 +100,11 @@ const DiffuseurCreation = ({ values, onChange, errors }) => {
             {values.name} diffuse les missions de {data.filter((item) => values.publishers.find((p) => p.publisherId === item.id)).length} annonceurs
           </p>
           <SearchInput value={search} onChange={setSearch} placeholder="Rechercher un annonceur" timeout={0} />
-          <Table header={[{ title: "Annonceurs" }]} className="h-full max-h-96">
+          <Table caption="Liste des annonceurs" header={[{ title: "Annonceurs" }]} className="h-full max-h-96">
             {data
               .filter((item) => item.id !== values.id && item.name.toLowerCase().includes(search.toLowerCase()))
               .map((item, index) => (
-                <tr key={index} className={`${index % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-item`}>
+                <tr key={index} className={`${index % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-row`}>
                   <td className="p-4">
                     <div className="flex items-center gap-2">
                       <input

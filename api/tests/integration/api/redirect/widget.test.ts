@@ -2,11 +2,11 @@ import { randomUUID } from "node:crypto";
 import request from "supertest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { JVA_URL, PUBLISHER_IDS } from "../../../../src/config";
-import { prismaCore } from "../../../../src/db/postgres";
-import { statBotService } from "../../../../src/services/stat-bot";
-import { widgetService } from "../../../../src/services/widget";
-import * as utils from "../../../../src/utils";
+import { JVA_URL, PUBLISHER_IDS } from "@/config";
+import { prisma } from "@/db/postgres";
+import { statBotService } from "@/services/stat-bot";
+import { widgetService } from "@/services/widget";
+import * as utils from "@/utils";
 import { createTestMission } from "../../../fixtures";
 import { createTestApp } from "../../../testApp";
 
@@ -25,7 +25,7 @@ describe("RedirectController /widget/:id", () => {
 
     expect(response.status).toBe(302);
     expect(response.headers.location).toBe(JVA_URL);
-    expect(await prismaCore.statEvent.count()).toBe(0);
+    expect(await prisma.statEvent.count()).toBe(0);
   });
 
   it("redirects to mission application URL when identity is missing but mission exists", async () => {
@@ -49,14 +49,14 @@ describe("RedirectController /widget/:id", () => {
 
     expect(response.status).toBe(302);
     expect(response.headers.location).toBe("https://mission.example.com/apply");
-    expect(await prismaCore.statEvent.count()).toBe(0);
+    expect(await prisma.statEvent.count()).toBe(0);
   });
 
   it("records click stats and appends tracking parameters when widget and identity are present", async () => {
     const missionPublisherId = randomUUID();
     const widgetPublisherId = randomUUID();
-    await prismaCore.publisher.create({ data: { id: missionPublisherId, name: "Mission Publisher" } });
-    await prismaCore.publisher.create({ data: { id: widgetPublisherId, name: "From Publisher" } });
+    await prisma.publisher.create({ data: { id: missionPublisherId, name: "Mission Publisher" } });
+    await prisma.publisher.create({ data: { id: widgetPublisherId, name: "From Publisher" } });
 
     const mission = await createTestMission({
       addresses: [
@@ -103,7 +103,17 @@ describe("RedirectController /widget/:id", () => {
     expect(redirectUrl.searchParams.get("utm_campaign")).toBe("widget-name");
 
     const clickId = redirectUrl.searchParams.get("apiengagement_id");
-    const storedClick = await prismaCore.statEvent.findUnique({ where: { id: clickId! } });
+    // The handler updates isBot asynchronously after sending the redirect response,
+    // so we need to wait for that background work to complete before asserting.
+    await vi.waitFor(
+      async () => {
+        const row = await prisma.statEvent.findUnique({ where: { id: clickId! } });
+        expect(row?.isBot).toBe(true);
+      },
+      { timeout: 2000, interval: 50 }
+    );
+
+    const storedClick = await prisma.statEvent.findUnique({ where: { id: clickId! } });
     expect(storedClick).toMatchObject({
       type: "click",
       user: identity.user,
@@ -122,7 +132,7 @@ describe("RedirectController /widget/:id", () => {
       missionPostalCode: mission.postalCode,
       missionDepartmentName: mission.departmentName,
       missionOrganizationName: mission.organizationName ?? "",
-      missionOrganizationId: mission.organizationId,
+      missionOrganizationId: mission.organizationId ?? "",
       missionOrganizationClientId: mission.organizationClientId,
       toPublisherId: mission.publisherId,
       fromPublisherId: widget.fromPublisherId,
@@ -138,9 +148,9 @@ describe("RedirectController /widget/:id", () => {
     if (!originalServicePublisherId) {
       PUBLISHER_IDS.SERVICE_CIVIQUE = servicePublisherId;
     }
-    await prismaCore.publisher.create({ data: { id: servicePublisherId, name: "Service Civique" } });
+    await prisma.publisher.create({ data: { id: servicePublisherId, name: "Service Civique" } });
     const widgetPublisherId = randomUUID();
-    await prismaCore.publisher.create({ data: { id: widgetPublisherId, name: "From Publisher" } });
+    await prisma.publisher.create({ data: { id: widgetPublisherId, name: "From Publisher" } });
 
     try {
       const mission = await createTestMission({

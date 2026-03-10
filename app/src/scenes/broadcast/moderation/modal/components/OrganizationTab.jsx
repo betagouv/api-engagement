@@ -1,31 +1,36 @@
 import { toast } from "@/services/toast";
 import { useEffect, useState } from "react";
 
-import Combobox from "@/components/combobox";
+import Autocomplete from "@/components/Autocomplete";
+import { DOMAINS } from "@/scenes/broadcast/moderation/components/Constants";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
-import { DOMAINS } from "../../components/Constants";
 
 const OrganizationTab = ({ data, onChange }) => {
   const { publisher } = useStore();
   const [values, setValues] = useState({
-    missionOrganizationSirenVerified: data.missionOrganizationSirenVerified,
-    missionOrganizationRNAVerified: data.missionOrganizationRNAVerified,
+    organizationVerifiedId: data.missionOrganizationVerifiedId,
+    siren: data.missionOrganizationSirenVerified,
+    rna: data.missionOrganizationRNAVerified,
   });
   const [organizations, setOrganizations] = useState([]);
 
   useEffect(() => {
     setValues({
-      missionOrganizationSirenVerified: data.missionOrganizationSirenVerified,
-      missionOrganizationRNAVerified: data.missionOrganizationRNAVerified,
+      organizationVerifiedId: data.missionOrganizationVerifiedId,
+      siren: data.missionOrganizationSirenVerified,
+      rna: data.missionOrganizationRNAVerified,
     });
   }, [data]);
 
-  const fetchOrganizations = async (search) => {
+  const handleChange = async (field, value) => {
+    setValues({ ...values, [field]: value });
     try {
-      const res = await api.post(`/organization/search`, { search });
-      if (!res.ok) throw res;
+      const res = await api.post(`/organization/search`, { search: value });
+      if (!res.ok) {
+        throw res;
+      }
       setOrganizations(
         res.data.map((org) => ({
           label: `${org.title}${org.rna ? ` - ${org.rna}` : ""}${org.siren ? ` - ${org.siren}` : ""}`,
@@ -35,20 +40,22 @@ const OrganizationTab = ({ data, onChange }) => {
         })),
       );
     } catch (error) {
-      captureError(error, { extra: { search } });
+      captureError(error, { extra: { field, value } });
     }
-    return null;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const obj = {};
-      if (values.missionOrganizationSirenVerified !== data.missionOrganizationSirenVerified) obj.missionOrganizationSirenVerified = values.missionOrganizationSirenVerified;
-      if (values.missionOrganizationRNAVerified !== data.missionOrganizationRNAVerified) obj.missionOrganizationRNAVerified = values.missionOrganizationRNAVerified;
-
-      const resU = await api.put(`/moderation/${data.id}`, { ...obj, moderatorId: publisher.id });
-      if (!resU.ok) throw resU;
+      const resU = await api.put(`/moderation/${data.id}`, {
+        rna: values.rna ?? null,
+        siren: values.siren ?? null,
+        organizationVerifiedId: values.organizationVerifiedId ?? null,
+        moderatorId: publisher.id,
+      });
+      if (!resU.ok) {
+        throw resU;
+      }
       toast.success("Les données de l'organisation ont été modifiées avec succès", {
         position: "bottom-right",
       });
@@ -79,16 +86,18 @@ const OrganizationTab = ({ data, onChange }) => {
             <label className="text-sm" htmlFor="organization-siren">
               SIREN
             </label>
-            <Combobox
+
+            <Autocomplete
+              id="organization-siren"
               options={organizations}
-              value={values.missionOrganizationSirenVerified}
-              onSearch={fetchOrganizations}
-              onChange={(e) => setValues({ ...values, missionOrganizationSirenVerified: e })}
-              onSelect={(e) =>
-                setValues({ ...values, missionOrganizationSirenVerified: e?.siren || null, missionOrganizationId: e?.id, missionOrganizationRNAVerified: e?.rna || null })
-              }
-              by="siren"
-              getLabel={(o) => o?.siren || ""}
+              value={values.siren}
+              onChange={(e) => handleChange("siren", e)}
+              onSelect={(e) => {
+                const org = organizations.find((o) => o.siren === e);
+                setValues({ ...values, siren: org?.siren || null, rna: org?.rna || null, organizationVerifiedId: org?.id });
+              }}
+              getLabel={(o) => o?.label || ""}
+              getValue={(o) => o?.siren || null}
               placeholder="SIREN"
             />
             <p className="text-text-mention text-xs">
@@ -100,21 +109,17 @@ const OrganizationTab = ({ data, onChange }) => {
             <label className="text-sm" htmlFor="organization-rna">
               RNA
             </label>
-            <Combobox
+            <Autocomplete
+              id="organization-rna"
               options={organizations}
-              value={values.missionOrganizationRNAVerified}
-              onSearch={fetchOrganizations}
-              onChange={(e) => setValues({ ...values, missionOrganizationRNAVerified: e })}
-              onSelect={(e) =>
-                setValues({
-                  ...values,
-                  missionOrganizationRNAVerified: e?.rna || null,
-                  missionOrganizationSirenVerified: e?.siren || null,
-                  missionOrganizationId: e?.id,
-                })
-              }
-              by="rna"
-              getLabel={(o) => o?.rna || ""}
+              value={values.rna}
+              onChange={(e) => handleChange("rna", e)}
+              onSelect={(e) => {
+                const org = organizations.find((o) => o.rna === e);
+                setValues({ ...values, rna: org?.rna || null, siren: org?.siren || null, organizationVerifiedId: org?.id });
+              }}
+              getLabel={(o) => o?.label || ""}
+              getValue={(o) => o?.rna || null}
               placeholder="RNA"
             />
             <p className="text-text-mention text-xs">
@@ -122,7 +127,7 @@ const OrganizationTab = ({ data, onChange }) => {
               {data.missionOrganizationRNA ? data.missionOrganizationRNA : "/"}
             </p>
           </div>
-          {(values.missionOrganizationSirenVerified !== data.missionOrganizationSirenVerified || values.missionOrganizationRNAVerified !== data.missionOrganizationRNAVerified) && (
+          {(values.siren !== data.missionOrganizationSirenVerified || values.rna !== data.missionOrganizationRNAVerified) && (
             <button className="primary-btn mt-4 w-[25%]" type="submit">
               Enregistrer
             </button>

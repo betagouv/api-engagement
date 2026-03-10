@@ -149,7 +149,9 @@ const BarChartTooltip = ({ active, payload, label, nameFormatter, tooltipName, t
 };
 
 export const BarChart = ({ data, dataKey = "Volume", nameKey = "name", color = "#000091", nameFormatter, tooltipName, tooltipValueFormatter }) => {
-  if (!data || !data.length) return;
+  if (!data || !data.length) {
+    return;
+  }
 
   const formattedData = nameFormatter ? data.map((item) => ({ ...item, [nameKey]: nameFormatter(item[nameKey]) })) : data;
 
@@ -205,7 +207,9 @@ const StackedBarChartLegend = ({ payload }) => {
 };
 
 export const StackedBarchart = ({ data, dataKey = ["Volume"], nameKey = "name", color = COLORS, legend = true }) => {
-  if (!data || !data.length) return;
+  if (!data || !data.length) {
+    return;
+  }
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChartRechart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>

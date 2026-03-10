@@ -3,20 +3,20 @@ import { AiFillWarning } from "react-icons/ai";
 import { RiArrowLeftLine, RiDeleteBin6Line, RiFileTransferLine, RiMoreLine } from "react-icons/ri";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
-import { toast } from "../../services/toast";
+import { toast } from "@/services/toast";
 
-import Combobox from "../../components/combobox";
-import Dropdown from "../../components/Dropdown";
-import Loader from "../../components/Loader";
-import Modal from "../../components/New-Modal";
-import Toggle from "../../components/Toggle";
-import api from "../../services/api";
-import { API_URL } from "../../services/config";
-import { captureError } from "../../services/error";
-import { isValidUrl } from "../../services/utils";
-import { withLegacyPublishers } from "../../utils/publisher";
-import Information from "./components/Information";
-import Trackers from "./components/Trackers";
+import Combobox from "@/components/combobox";
+import Loader from "@/components/Loader";
+import Modal from "@/components/Modal";
+import Toggle from "@/components/Toggle";
+import Dropdown from "@/scenes/campaign/components/Dropdown";
+import Information from "@/scenes/campaign/components/Information";
+import Trackers from "@/scenes/campaign/components/Trackers";
+import api from "@/services/api";
+import { API_URL } from "@/services/config";
+import { captureError } from "@/services/error";
+import { isValidUrl } from "@/services/utils";
+import { withLegacyPublishers } from "@/utils/publisher";
 
 const Edit = () => {
   const { id } = useParams();
@@ -58,11 +58,21 @@ const Edit = () => {
   const handleSubmit = async () => {
     const errors = {};
 
-    if (!values.name) errors.name = "Le nom est requis";
-    if (!values.type) errors.type = "Le type de campagne est requis";
-    if (!values.toPublisherId) errors.toPublisherId = "Le partenaire est requis";
-    if (!values.url) errors.url = "L'url est requis";
-    if (!isValidUrl(values.url)) errors.url = "L'url n'est pas valide";
+    if (!values.name) {
+      errors.name = "Le nom est requis";
+    }
+    if (!values.type) {
+      errors.type = "Le type de campagne est requis";
+    }
+    if (!values.toPublisherId) {
+      errors.toPublisherId = "Le partenaire est requis";
+    }
+    if (!values.url) {
+      errors.url = "L'url est requis";
+    }
+    if (!isValidUrl(values.url)) {
+      errors.url = "L'url n'est pas valide";
+    }
 
     if (errors.name || errors.type || errors.toPublisherId || errors.url) {
       setErrors(errors);
@@ -82,8 +92,11 @@ const Edit = () => {
 
       const res = await api.put(`/campaign/${id}`, payload);
       if (!res.ok) {
-        if (res.status === 409) return toast.error("Une campagne avec ce nom existe déjà");
-        else throw res;
+        if (res.status === 409) {
+          return toast.error("Une campagne avec ce nom existe déjà");
+        } else {
+          throw res;
+        }
       }
       toast.success("Campagne mise à jour");
       setCampaign(res.data);
@@ -112,11 +125,15 @@ const Edit = () => {
 
   const handleDelete = async () => {
     const res = window.confirm("Êtes-vous sûr de vouloir supprimer cette campagne ?");
-    if (!res) return;
+    if (!res) {
+      return;
+    }
 
     try {
       const res = await api.delete(`/campaign/${id}`);
-      if (!res.ok) throw res;
+      if (!res.ok) {
+        throw res;
+      }
       toast.success("Campagne supprimée");
       navigate("/broadcast/campaigns");
     } catch (error) {
@@ -133,27 +150,21 @@ const Edit = () => {
     v.name !== campaign.name || v.type !== campaign.type || v.toPublisherId !== campaign.toPublisherId || v.url !== campaign.url || v.urlSource !== campaign.urlSource;
   const isErrors = (e) => e.name || e.toPublisherId || e.url;
 
-  if (!campaign)
+  if (!campaign) {
     return (
       <div className="flex h-full items-center justify-center">
         <Loader />
       </div>
     );
+  }
 
   return (
     <>
       <title>API Engagement - Modifier une campagne de diffusion</title>
-      <ReassignModal
-        isOpen={isReassignModalOpen}
-        onClose={() => setIsReassignModalOpen(false)}
-        campaign={campaign}
-        values={values}
-        setValues={setValues}
-        setCampaign={setCampaign}
-      />
+      <ReassignModal open={isReassignModalOpen} onClose={() => setIsReassignModalOpen(false)} campaign={campaign} values={values} setValues={setValues} setCampaign={setCampaign} />
       <div className="flex flex-col gap-8">
         <Link to="/broadcast/campaigns" className="border-blue-france text-blue-france flex w-fit items-center gap-2 border-b text-[16px]">
-          <RiArrowLeftLine />
+          <RiArrowLeftLine aria-hidden="true" />
           Retour
         </Link>
 
@@ -195,7 +206,7 @@ const Edit = () => {
             </div>
             <div>
               <span className="text-warning mt-2 flex flex-row items-center text-xs">
-                <AiFillWarning className="mr-2" />
+                <AiFillWarning className="mr-2" aria-hidden="true" />
                 Copiez exactement ce lien !
               </span>
             </div>
@@ -216,7 +227,7 @@ const CampaignMenu = ({ setIsReassignModalOpen, handleDelete }) => {
     <Dropdown
       renderTrigger={({ onClick }) => (
         <button className="tertiary-btn flex items-center" onClick={onClick}>
-          <RiMoreLine className="text-xl" />
+          <RiMoreLine className="text-xl" aria-hidden="true" />
         </button>
       )}
       position="bottom"
@@ -225,13 +236,13 @@ const CampaignMenu = ({ setIsReassignModalOpen, handleDelete }) => {
       <ul className="p-1">
         <li>
           <button className="dropdown-btn w-full" onClick={() => setIsReassignModalOpen(true)}>
-            <RiFileTransferLine />
+            <RiFileTransferLine aria-hidden="true" />
             <span>Déplacer</span>
           </button>
         </li>
         <li>
           <button className="dropdown-red-btn w-full" onClick={handleDelete}>
-            <RiDeleteBin6Line />
+            <RiDeleteBin6Line aria-hidden="true" />
             <span>Supprimer</span>
           </button>
         </li>
@@ -240,7 +251,7 @@ const CampaignMenu = ({ setIsReassignModalOpen, handleDelete }) => {
   );
 };
 
-const ReassignModal = ({ isOpen, onClose, campaign, values, setValues, setCampaign }) => {
+const ReassignModal = ({ open, onClose, campaign, values, setValues, setCampaign }) => {
   const navigate = useNavigate();
   const [publishers, setPublishers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -249,7 +260,9 @@ const ReassignModal = ({ isOpen, onClose, campaign, values, setValues, setCampai
     const fetchData = async () => {
       try {
         const res = await api.post(`/publisher/search`, { role: "campaign" });
-        if (!res.ok) throw res;
+        if (!res.ok) {
+          throw res;
+        }
         setPublishers(
           withLegacyPublishers(res.data)
             .sort((a, b) => a.name.localeCompare(b.name))
@@ -274,7 +287,9 @@ const ReassignModal = ({ isOpen, onClose, campaign, values, setValues, setCampai
         fromPublisherId: values.fromPublisherId,
       });
 
-      if (!res.ok) throw res;
+      if (!res.ok) {
+        throw res;
+      }
       toast.success("Campagne déplacée avec succès");
       setCampaign({ ...campaign, toPublisherId: values.toPublisherId });
       onClose();
@@ -287,37 +302,31 @@ const ReassignModal = ({ isOpen, onClose, campaign, values, setValues, setCampai
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} innerClassName="w-full">
-      <div className="p-10">
-        <div className="mb-8 flex items-center gap-3">
-          <RiFileTransferLine className="text-3xl" />
-          <h2 className="text-3xl font-bold">Déplacer une campagne</h2>
-        </div>
-        <span className="text-text-mention">
-          Vers quel compte voulez-vous déplacer la campagne <span className="font-bold">{campaign.name}</span> ?
-        </span>
-        <div className="mt-8 flex flex-1 gap-2">
-          <Combobox
-            id="from-publisher-id"
-            options={publishers.map((p) => ({ value: p.id, label: p.name }))}
-            placeholder="Sélectionner un compte"
-            value={values.fromPublisherId}
-            onSelect={(e) => (e ? setValues({ ...values, fromPublisherId: e.value }) : null)}
-          />
-        </div>
-        <div className="mt-10 flex justify-end gap-2">
-          <button className="tertiary-btn" type="button" onClick={onClose}>
-            Annuler
-          </button>
-          <button
-            className="primary-btn"
-            type="submit"
-            onClick={handleReassignSubmit}
-            disabled={!values.fromPublisherId || values.fromPublisherId === campaign.fromPublisherId || loading}
-          >
-            {loading ? <Loader className="h-6 w-6" /> : "Valider"}
-          </button>
-        </div>
+    <Modal open={open} onClose={onClose} title="Déplacer une campagne">
+      <span className="text-text-mention">
+        Vers quel compte voulez-vous déplacer la campagne <span className="font-bold">{campaign.name}</span> ?
+      </span>
+      <div className="flex flex-1 gap-2">
+        <Combobox
+          id="from-publisher-id"
+          options={publishers.map((p) => ({ value: p.id, label: p.name }))}
+          placeholder="Sélectionner un compte"
+          value={values.fromPublisherId}
+          onSelect={(e) => (e ? setValues({ ...values, fromPublisherId: e.value }) : null)}
+        />
+      </div>
+      <div className="flex justify-end gap-2">
+        <button className="tertiary-btn" type="button" onClick={onClose}>
+          Annuler
+        </button>
+        <button
+          className="primary-btn"
+          type="submit"
+          onClick={handleReassignSubmit}
+          disabled={!values.fromPublisherId || values.fromPublisherId === campaign.fromPublisherId || loading}
+        >
+          {loading ? <Loader className="h-6 w-6" /> : "Valider"}
+        </button>
       </div>
     </Modal>
   );

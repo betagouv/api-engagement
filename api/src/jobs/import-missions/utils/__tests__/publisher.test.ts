@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { importService } from "../../../../services/import";
-import { shouldCleanMissionsForPublisher } from "../publisher";
+import { importService } from "@/services/import";
+import { shouldCleanMissionsForPublisher } from "@/jobs/import-missions/utils/publisher";
 
 // Helper to compute dates
 const days = (n: number) => 1000 * 60 * 60 * 24 * n;

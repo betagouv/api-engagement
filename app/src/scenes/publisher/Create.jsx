@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { toast } from "../../services/toast";
+import { toast } from "@/services/toast";
 
 import { RiArrowLeftLine } from "react-icons/ri";
-import api from "../../services/api";
-import { captureError } from "../../services/error";
-import { buildPublisherPayload } from "../../utils/publisher";
-import AnnonceurCreation from "./components/AnnonceurCreation";
-import DiffuseurCreation from "./components/DiffuseurCreation";
-import Informations from "./components/Informations";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import { buildPublisherPayload } from "@/utils/publisher";
+import AnnonceurCreation from "@/scenes/publisher/components/AnnonceurCreation";
+import DiffuseurCreation from "@/scenes/publisher/components/DiffuseurCreation";
+import Informations from "@/scenes/publisher/components/Informations";
 
 const canSubmit = (values) => {
   if (values.name === "") return false;
@@ -60,7 +60,7 @@ const Create = () => {
     <div className="flex flex-col gap-8">
       <title>API Engagement - Nouveau compte partenaire</title>
       <Link to="/admin-account/publishers" className="border-blue-france text-blue-france flex w-fit items-center gap-2 border-b text-[16px]">
-        <RiArrowLeftLine />
+        <RiArrowLeftLine aria-hidden="true" />
         Retour
       </Link>
       <h1 className="text-4xl font-bold">Nouveau compte partenaire</h1>

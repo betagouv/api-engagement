@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { RiBookletFill, RiFileCopyFill } from "react-icons/ri";
-import { toast } from "../../services/toast";
+import { toast } from "@/services/toast";
 
-import api from "../../services/api";
-import { captureError } from "../../services/error";
-import useStore from "../../services/store";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import useStore from "@/services/store";
 
 const Api = () => {
   const { publisher, setPublisher } = useStore();
@@ -57,7 +57,7 @@ const Api = () => {
         </div>
 
         <a href="https://doc.api-engagement.beta.gouv.fr/" className="secondary-btn flex items-center" target="_blank">
-          <RiBookletFill className="mr-2" />
+          <RiBookletFill className="mr-2" aria-hidden="true" />
           Documentation
         </a>
       </div>
@@ -68,8 +68,9 @@ const Api = () => {
           </label>
           <div className="flex min-w-[200px] flex-1 items-center gap-4">
             <input id="apikey" className="input flex-1" name="apikey" readOnly value={publisher.apikey || ""} />
-            <button className="secondary-btn flex h-10 w-10 shrink-0 items-center justify-center p-0" onClick={handleCopy}>
-              <RiFileCopyFill />
+            <button className="secondary-btn flex h-10 w-10 items-center justify-center p-0" onClick={handleCopy}>
+              <RiFileCopyFill aria-hidden="true" />
+              <span className="sr-only">Copier la clé API</span>
             </button>
           </div>
           <div className="flex flex-wrap gap-4">

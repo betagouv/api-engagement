@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
-import { RiAddFill, RiEditFill, RiEyeFill, RiSearchLine } from "react-icons/ri";
+import { RiAddFill, RiEditFill, RiEyeFill, RiPulseLine, RiSearchLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
 
-import Loader from "../../components/Loader";
-import Table from "../../components/Table";
-import Toggle from "../../components/Toggle";
-import api from "../../services/api";
-import { BENEVOLAT_URL, VOLONTARIAT_URL } from "../../services/config";
-import { captureError } from "../../services/error";
-import useStore from "../../services/store";
+import Loader from "@/components/Loader";
+import Table from "@/components/Table";
+import Toggle from "@/components/Toggle";
+import api from "@/services/api";
+import { BENEVOLAT_URL, VOLONTARIAT_URL } from "@/services/config";
+import { captureError } from "@/services/error";
+import useStore from "@/services/store";
 
-const TABLE_HEADER = [{ title: "Nom", colSpan: 3 }, { title: "Diffuse des missions de", colSpan: 2 }, { title: "Crée le" }, { title: "Actions" }, { title: "Actif" }];
+const TABLE_HEADER = [{ title: "Nom", width: "35%" }, { title: "Diffuse des missions de", width: "25%" }, { title: "Crée le" }, { title: "Actions" }, { title: "Actif" }];
 
 const Widgets = () => {
   const { user, publisher } = useStore();
@@ -32,7 +32,9 @@ const Widgets = () => {
     setLoading(true);
     try {
       const res = await api.post(`/widget/search`, filters);
-      if (!res.ok) throw res;
+      if (!res.ok) {
+        throw res;
+      }
       setData(res.data || []);
     } catch (error) {
       captureError(error, { extra: { filters } });
@@ -47,7 +49,9 @@ const Widgets = () => {
   const handleActivate = async (value, item) => {
     try {
       const res = await api.put(`/widget/${item.id}`, { active: value });
-      if (!res.ok) throw res;
+      if (!res.ok) {
+        throw res;
+      }
       setData((widgets) => widgets.map((w) => (w.id === res.data.id ? res.data : w)));
     } catch (error) {
       captureError(error, { extra: { item } });
@@ -57,17 +61,17 @@ const Widgets = () => {
   return (
     <div className="space-y-6 p-12">
       <title>API Engagement - Widgets - Diffuser des missions</title>
-      <div className="mb-10 flex items-center justify-between gap-4">
-        <div role="search" className="relative flex-1">
+      <div className="mb-10 flex flex-col items-center justify-between gap-4 lg:flex-row lg:gap-4">
+        <div role="search" className="flex flex-1 flex-col items-center gap-4 lg:flex-row lg:gap-4">
           <label htmlFor="widget-search" className="sr-only">
             Chercher par nom
           </label>
           <input id="widget-search" className="input w-full pr-10 pl-4 italic" name="widget-search" placeholder="Chercher par nom" onChange={handleSearch} />
-          <RiSearchLine className="absolute top-1/2 right-3 -translate-y-1/2 transform" />
+          <RiSearchLine className="absolute top-1/2 right-3 -translate-y-1/2 transform" aria-hidden="true" />
         </div>
         {user.role === "admin" && (
           <Link to="/broadcast/widget/new" className="primary-btn flex items-center">
-            Créer un widget <RiAddFill className="ml-2" />
+            Créer un widget <RiAddFill className="ml-2" aria-hidden="true" />
           </Link>
         )}
       </div>
@@ -78,32 +82,36 @@ const Widgets = () => {
         </div>
       ) : (
         <>
-          <div className="flex justify-between">
-            <p
-              className="text-lg font-semibold"
-              role="status"
-              aria-live="polite"
-              aria-atomic="true"
-            >
+          <div className="flex flex-col items-center justify-between lg:flex-row">
+            <p className="text-lg font-semibold" role="status" aria-live="polite" aria-atomic="true">
               {data.length > 1 ? `${data.length} widgets` : `${data.length} widget`}
             </p>
             {user.role === "admin" && (
-              <div className="relative flex items-center">
+              <div className="flex items-center">
                 <Toggle aria-label="Afficher les widgets désactivés" value={!filters.active} onChange={(checked) => setFilters({ ...filters, active: !checked, page: 1 })} />
                 <label className="ml-2">Afficher les widgets désactivés</label>
               </div>
             )}
           </div>
 
-          <Table header={TABLE_HEADER} pagination page={filters.page} pageSize={filters.pageSize} onPageChange={(page) => setFilters({ ...filters, page })} total={data.length} auto>
+          <Table
+            caption="Liste des widgets"
+            header={TABLE_HEADER}
+            pagination
+            page={filters.page}
+            pageSize={filters.pageSize}
+            onPageChange={(page) => setFilters({ ...filters, page })}
+            total={data.length}
+            auto
+          >
             {data.slice((filters.page - 1) * filters.pageSize, filters.page * filters.pageSize).map((item, i) => (
-              <tr key={i} className={`${i % 2 === 0 ? "bg-gray-975" : "bg-gray-1000-active"} table-item`}>
-                <td className="px-4" colSpan={3}>
+              <tr key={i} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
+                <td className="px-4">
                   <Link to={`/broadcast/widget/${item.id}`} className="text-blue-france truncate">
                     {item.name}
                   </Link>
                 </td>
-                <td className={`px-4 ${!item.active ? "opacity-50" : "opacity-100"}`} colSpan={2}>
+                <td className={`px-4 ${!item.active ? "opacity-50" : "opacity-100"}`}>
                   {item.publishers
                     .slice(0, 3)
                     .map((p) => p.name)
@@ -123,6 +131,9 @@ const Widgets = () => {
                   >
                     <RiEyeFill className="text-lg" role="img" aria-label="Voir le widget" />
                   </a>
+                  <Link className="secondary-btn flex items-center" to={`/settings/real-time?sourceId=${item.id}&sourceType=widget`}>
+                    <RiPulseLine className="text-lg" role="img" aria-label={`Voir les événements en direct du widget ${item.name || ""}`.trim()} />
+                  </Link>
                 </td>
                 {user.role === "admin" && (
                   <td className="px-4">

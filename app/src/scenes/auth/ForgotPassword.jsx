@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { RiCheckboxCircleFill, RiErrorWarningFill } from "react-icons/ri";
 
-import api from "../../services/api";
-import { captureError } from "../../services/error";
-import { isValidEmail } from "../../services/utils";
+import api from "@/services/api";
+import { captureError } from "@/services/error";
+import { isValidEmail } from "@/services/utils";
 
 const Forgot = () => {
   const [values, setValues] = useState({ email: "" });
@@ -47,7 +47,7 @@ const Forgot = () => {
       />
       {errors.email && (
         <div className="text-error flex items-center text-sm">
-          <RiErrorWarningFill className="mr-2" />
+          <RiErrorWarningFill className="mr-2" aria-hidden="true" />
           Adresse email invalide
         </div>
       )}
@@ -58,7 +58,7 @@ const Forgot = () => {
 
       {done && (
         <div className="text-success mt-4 flex items-center text-sm">
-          <RiCheckboxCircleFill className="mr-2" />
+          <RiCheckboxCircleFill className="mr-2" aria-hidden="true" />
           <p>Si votre adresse email est valide, un e-mail vous a été envoyé pour vous permettre de réinitialiser votre mot de passe.</p>
         </div>
       )}

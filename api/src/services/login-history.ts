@@ -1,4 +1,4 @@
-import { loginHistoryRepository } from "../repositories/login-history";
+import { loginHistoryRepository } from "@/repositories/login-history";
 
 export interface LoginHistoryEntry {
   userId: string;

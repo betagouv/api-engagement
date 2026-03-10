@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { RiArrowLeftLine } from "react-icons/ri";
 import { Link, useNavigate } from "react-router-dom";
-import { toast } from "../../services/toast";
+import { toast } from "@/services/toast";
 
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
-import Settings from "./components/Settings";
+import Settings from "@/scenes/widget/components/Settings";
 
 const New = () => {
   const { publisher } = useStore();
@@ -97,7 +97,7 @@ const New = () => {
       <StickyBar onEdit={handleSubmit} visible={stickyVisible} canSubmit={canSubmit} />
       <div className="flex">
         <Link to={`/broadcast/widgets`} className="text-blue-france flex items-center space-x-1">
-          <RiArrowLeftLine />
+          <RiArrowLeftLine aria-hidden="true" />
           <span>Retour</span>
         </Link>
       </div>

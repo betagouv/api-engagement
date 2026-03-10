@@ -1,8 +1,8 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { prismaCore } from "../src/db/postgres";
-import { MissionType } from "../src/db/core";
+import { MissionType } from "@/db/core";
+import { prisma } from "@/db/postgres";
 
 const DRY_RUN = process.argv.includes("--dry-run");
 
@@ -20,16 +20,16 @@ const resolveMissionTypeFromPublisher = (publisherMissionType: PublisherMissionT
 };
 
 const run = async () => {
-  await prismaCore.$connect();
+  await prisma.$connect();
   console.log("[MissionTypeBackfill] Connected to PostgreSQL");
 
-  const totalMissionsToProcess = await prismaCore.mission.count({ where: missingTypeWhere });
+  const totalMissionsToProcess = await prisma.mission.count({ where: missingTypeWhere });
   console.log(`[MissionTypeBackfill] ${totalMissionsToProcess} missions without type detected`);
   if (!totalMissionsToProcess) {
     return;
   }
 
-  const publishers = await prismaCore.publisher.findMany({
+  const publishers = await prisma.publisher.findMany({
     select: { id: true, missionType: true },
   });
 
@@ -43,7 +43,7 @@ const run = async () => {
     console.log("[MissionTypeBackfill] Running in dry run mode - no data will be written");
   }
 
-  const publishersWithMissingType = await prismaCore.mission.findMany({
+  const publishersWithMissingType = await prisma.mission.findMany({
     where: missingTypeWhere,
     select: { publisherId: true },
     distinct: ["publisherId"],
@@ -64,7 +64,7 @@ const run = async () => {
     const filter = { ...missingTypeWhere, ...(publisherId ? { publisherId } : {}) };
 
     if (DRY_RUN) {
-      const count = await prismaCore.mission.count({ where: filter });
+      const count = await prisma.mission.count({ where: filter });
       updated += count;
       console.log(
         `[MissionTypeBackfill] [DryRun] Publisher ${publisherId ?? "<none>"} -> ${typeToSet}: ${count} missions would be updated (processed publishers: ${processedPublishers + 1})`
@@ -72,7 +72,7 @@ const run = async () => {
       return;
     }
 
-    const result = await prismaCore.mission.updateMany({
+    const result = await prisma.mission.updateMany({
       where: filter,
       data: {
         type: typeToSet,
@@ -95,7 +95,7 @@ const run = async () => {
 };
 
 const shutdown = async (exitCode: number) => {
-  await prismaCore.$disconnect().catch(() => undefined);
+  await prisma.$disconnect().catch(() => undefined);
   process.exit(exitCode);
 };
 

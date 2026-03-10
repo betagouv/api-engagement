@@ -1,14 +1,14 @@
 import fs from "fs";
 
-import { ENV, PUBLISHER_IDS } from "../../config";
-import { captureException } from "../../error";
-import { importService } from "../../services/import";
-import { publisherService } from "../../services/publisher";
-import { BaseHandler } from "../base/handler";
-import { JobResult } from "../types";
-import { PARTNERS_IDS } from "./config";
-import { LinkedInJob } from "./types";
-import { generateJvaJobs, generatePartnersJobs, generateXML, getMissionsCursor, storeXML } from "./utils";
+import { ENV, PUBLISHER_IDS } from "@/config";
+import { captureException } from "@/error";
+import { importService } from "@/services/import";
+import { publisherService } from "@/services/publisher";
+import { BaseHandler } from "@/jobs/base/handler";
+import { JobResult } from "@/jobs/types";
+import { PARTNERS_IDS } from "@/jobs/linkedin/config";
+import { LinkedInJob } from "@/jobs/linkedin/types";
+import { generateJvaJobs, generatePartnersJobs, generateXML, getMissionsCursor, storeXML } from "@/jobs/linkedin/utils";
 
 export interface LinkedinJobPayload {}
 

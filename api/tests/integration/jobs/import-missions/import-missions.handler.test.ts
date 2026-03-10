@@ -2,10 +2,10 @@ import { readFile } from "fs/promises";
 import path from "path";
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { prismaCore } from "../../../../src/db/postgres";
-import { ImportMissionsHandler } from "../../../../src/jobs/import-missions/handler";
-import { importService } from "../../../../src/services/import";
-import { missionService } from "../../../../src/services/mission";
+import { prisma } from "@/db/postgres";
+import { ImportMissionsHandler } from "@/jobs/import-missions/handler";
+import { importService } from "@/services/import";
+import { missionService } from "@/services/mission";
 import { createTestImport, createTestMission, createTestPublisher } from "../../../fixtures";
 
 const originalFetch = global.fetch;
@@ -237,6 +237,31 @@ describe("Import missions job (integration test)", () => {
     expect(mission?.deletedAt).toBeNull();
   });
 
+  it("Re-importing a mission with the same address preserves the MissionAddress UUID", async () => {
+    const xml = await readFile(path.join(__dirname, "data/correct-feed.xml"), "utf-8");
+    const publisher = await createTestPublisher({ feed: "https://fixture-feed-uuid", isAnnonceur: true });
+
+    // First import — creates the mission and its addresses
+    (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => xml });
+    await handler.handle({ publisherId: publisher.id });
+
+    const missionAfterFirstImport = await missionService.findOneMissionBy({ publisherId: publisher.id, clientId: "32132143" });
+    expect(missionAfterFirstImport).toBeDefined();
+    const addressIdsBefore = missionAfterFirstImport!.addresses.map((a) => a.id).sort();
+    expect(addressIdsBefore.length).toBe(2);
+
+    // Second import — same XML, same addresses
+    (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => xml });
+    await handler.handle({ publisherId: publisher.id });
+
+    const missionAfterSecondImport = await missionService.findOneMissionBy({ publisherId: publisher.id, clientId: "32132143" });
+    expect(missionAfterSecondImport).toBeDefined();
+    const addressIdsAfter = missionAfterSecondImport!.addresses.map((a) => a.id).sort();
+
+    // UUIDs must be identical — no deleteMany + createMany
+    expect(addressIdsAfter).toEqual(addressIdsBefore);
+  });
+
   it("If mission already exists and has no new data, it is not updated", async () => {
     const xml = await readFile(path.join(__dirname, "data/correct-feed.xml"), "utf-8");
     const publisher = await createTestPublisher({ feed: "https://fixture-feed", isAnnonceur: true });
@@ -251,7 +276,7 @@ describe("Import missions job (integration test)", () => {
     if (!existingMission) {
       throw new Error("Mission not found");
     }
-    await prismaCore.$executeRaw`UPDATE "mission" SET "updated_at" = ${new Date("2025-01-01")} WHERE "id" = ${existingMission.id}`;
+    await prisma.$executeRaw`UPDATE "mission" SET "updated_at" = ${new Date("2025-01-01")} WHERE "id" = ${existingMission.id}`;
 
     // Import feed again to update mission (no change)
     (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => xml });
@@ -402,7 +427,6 @@ describe("Import missions job (integration test)", () => {
     await new Promise((resolve) => setTimeout(resolve, 10));
 
     // Second import with same XML (no startAt) - should preserve the existing startAt from DB
-    const secondImportDate = new Date();
     (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => xmlWithoutStartAt });
 
     const result2 = await handler.handle({ publisherId: publisher.id });

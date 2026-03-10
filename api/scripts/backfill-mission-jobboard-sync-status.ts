@@ -1,24 +1,24 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { prismaCore } from "../src/db/postgres";
+import { prisma } from "@/db/postgres";
 
 const DRY_RUN = process.argv.includes("--dry-run");
 
 const run = async () => {
-  await prismaCore.$connect();
+  await prisma.$connect();
   console.log("[MissionJobBoardSyncStatusBackfill] Connected to PostgreSQL");
 
   if (DRY_RUN) {
     console.log("[MissionJobBoardSyncStatusBackfill] Running in dry run mode - no data will be written");
   }
 
-  const editedCount = await prismaCore.missionJobBoard.count({ where: { status: "EDITED", syncStatus: null } });
-  const archivedCount = await prismaCore.missionJobBoard.count({ where: { status: "ARCHIVED", syncStatus: null } });
-  const acceptedCount = await prismaCore.missionJobBoard.count({ where: { status: "ACCEPTED", syncStatus: null } });
-  const deletedCount = await prismaCore.missionJobBoard.count({ where: { status: "DELETED", syncStatus: null } });
-  const nullStatusCount = await prismaCore.missionJobBoard.count({ where: { status: null, syncStatus: null } });
-  const nullStatusWithCommentCount = await prismaCore.missionJobBoard.count({ where: { status: null, syncStatus: null, comment: { not: null } } });
+  const editedCount = await prisma.missionJobBoard.count({ where: { status: "EDITED", syncStatus: null } });
+  const archivedCount = await prisma.missionJobBoard.count({ where: { status: "ARCHIVED", syncStatus: null } });
+  const acceptedCount = await prisma.missionJobBoard.count({ where: { status: "ACCEPTED", syncStatus: null } });
+  const deletedCount = await prisma.missionJobBoard.count({ where: { status: "DELETED", syncStatus: null } });
+  const nullStatusCount = await prisma.missionJobBoard.count({ where: { status: null, syncStatus: null } });
+  const nullStatusWithCommentCount = await prisma.missionJobBoard.count({ where: { status: null, syncStatus: null, comment: { not: null } } });
 
   console.log(`[MissionJobBoardSyncStatusBackfill] EDITED -> ONLINE candidates: ${editedCount}`);
   console.log(`[MissionJobBoardSyncStatusBackfill] ARCHIVED -> OFFLINE candidates: ${archivedCount}`);
@@ -31,32 +31,32 @@ const run = async () => {
     return;
   }
 
-  const editedResult = await prismaCore.missionJobBoard.updateMany({
+  const editedResult = await prisma.missionJobBoard.updateMany({
     where: { status: "EDITED", syncStatus: null },
     data: { syncStatus: "ONLINE" },
   });
 
-  const archivedResult = await prismaCore.missionJobBoard.updateMany({
+  const archivedResult = await prisma.missionJobBoard.updateMany({
     where: { status: "ARCHIVED", syncStatus: null },
     data: { syncStatus: "OFFLINE" },
   });
 
-  const acceptedResult = await prismaCore.missionJobBoard.updateMany({
+  const acceptedResult = await prisma.missionJobBoard.updateMany({
     where: { status: "ACCEPTED", syncStatus: null },
     data: { syncStatus: "ONLINE" },
   });
 
-  const deletedResult = await prismaCore.missionJobBoard.updateMany({
+  const deletedResult = await prisma.missionJobBoard.updateMany({
     where: { status: "DELETED", syncStatus: null },
     data: { syncStatus: "OFFLINE" },
   });
 
-  const nullStatusResult = await prismaCore.missionJobBoard.updateMany({
+  const nullStatusResult = await prisma.missionJobBoard.updateMany({
     where: { status: null, syncStatus: null, comment: null },
     data: { syncStatus: "ONLINE" },
   });
 
-  const nullStatusWithCommentResult = await prismaCore.missionJobBoard.updateMany({
+  const nullStatusWithCommentResult = await prisma.missionJobBoard.updateMany({
     where: { status: null, syncStatus: null, comment: { not: null } },
     data: { syncStatus: "ERROR" },
   });
@@ -70,7 +70,7 @@ const run = async () => {
 };
 
 const shutdown = async (exitCode: number) => {
-  await prismaCore.$disconnect().catch(() => undefined);
+  await prisma.$disconnect().catch(() => undefined);
   process.exit(exitCode);
 };
 

@@ -1,4 +1,4 @@
-import { METABASE_API_KEY, METABASE_URL } from "../config";
+import { METABASE_API_KEY, METABASE_URL } from "@/config";
 
 type VariableValue = string | number | boolean | Array<string | number>;
 type QueryOptions = {
