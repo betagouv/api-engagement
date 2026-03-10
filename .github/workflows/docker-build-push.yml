@@ -58,8 +58,6 @@ jobs:
       matrix:
         include:
           - service: app
-            variant: staging
-            github_env: staging
           - service: app
             variant: sandbox
             github_env: sandbox
@@ -98,6 +96,7 @@ jobs:
           echo "VOLONTARIAT_URL=${{ vars.VOLONTARIAT_URL }}" >> $GITHUB_OUTPUT
 
       - name: Build and push ${{ matrix.service }} image
+        if: ${{ matrix.variant != 'sandbox' || needs.set-env.outputs.environment_name == 'production' }}
         uses: docker/build-push-action@v6
         with:
           context: ./${{ matrix.service }}

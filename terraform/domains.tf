@@ -1,8 +1,3 @@
-import {
-  to = scaleway_container_domain.api
-  id = "fr-par/4c1fa6a5-0b72-4930-bffd-b35873a3ae46"
-}
-
 resource "scaleway_container_domain" "api" {
   container_id = scaleway_container.api.id
   hostname     = var.api_hostname

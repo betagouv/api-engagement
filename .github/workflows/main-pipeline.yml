@@ -52,9 +52,9 @@ jobs:
 
   deploy-sandbox:
     needs: [test, build]
-    if: github.ref == 'refs/heads/staging'
+    if: github.ref == 'refs/heads/main'
     uses: ./.github/workflows/terraform-deploy.yml
     with:
-      branch: staging
+      branch: main
       environment: sandbox
     secrets: inherit
