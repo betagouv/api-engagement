@@ -1,6 +1,6 @@
 {
   "name": "api-engagement",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "scripts": {
     "lint": "npm run lint:api && npm run lint:analytics && npm run lint:widget",
     "lint:fix": "npm run lint:fix:api && npm run lint:fix:widget",
