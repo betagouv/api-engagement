@@ -1,5 +1,5 @@
 workspace                  = "sandbox"
-env                        = "staging" # Staging while testing sandbox
+env                        = "production"
 
 api_hostname               = "api.bac-a-sable.api-engagement.beta.gouv.fr"
 app_hostname               = "app.bac-a-sable.api-engagement.beta.gouv.fr"

@@ -58,6 +58,9 @@ jobs:
       matrix:
         include:
           - service: app
+            variant: production
+            github_env: production
+          - service: app
             variant: staging
             github_env: staging
           - service: app
