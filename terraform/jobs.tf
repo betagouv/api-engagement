@@ -18,13 +18,12 @@ locals {
   )
 
   image_uri              = "ghcr.io/${var.github_repository}/api:${var.env}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
-  sync_sandbox_image_uri = "ghcr.io/${var.github_repository}/sync-sandbox:production-latest"
 }
 
 # Job Definition for the 'letudiant' task
 # resource "scaleway_job_definition" "letudiant" {
 #   count        = var.enable_intern_jobs ? 1 : 0
-#   name         = "${var.env}-letudiant"
+#   name         = "${terraform.workspace}-letudiant"
 #   project_id   = var.project_id
 #   cpu_limit    = 1000
 #   memory_limit = 2048
@@ -44,7 +43,7 @@ locals {
 # Job Definition for the 'talent' task
 resource "scaleway_job_definition" "talent" {
   count        = var.enable_intern_jobs ? 1 : 0
-  name         = "${var.env}-talent"
+  name         = "${terraform.workspace}-talent"
   project_id   = var.project_id
   cpu_limit    = 1000
   memory_limit = 2048
@@ -64,7 +63,7 @@ resource "scaleway_job_definition" "talent" {
 # Job Definition for the 'grimpio' task
 resource "scaleway_job_definition" "grimpio" {
   count        = var.enable_intern_jobs ? 1 : 0
-  name         = "${var.env}-grimpio"
+  name         = "${terraform.workspace}-grimpio"
   project_id   = var.project_id
   cpu_limit    = 1000
   memory_limit = 2048
@@ -84,7 +83,7 @@ resource "scaleway_job_definition" "grimpio" {
 # Job Definition for the 'linkedin' task
 resource "scaleway_job_definition" "linkedin" {
   count        = var.enable_intern_jobs ? 1 : 0
-  name         = "${var.env}-linkedin"
+  name         = "${terraform.workspace}-linkedin"
   project_id   = var.project_id
   cpu_limit    = 1500
   memory_limit = 2048
@@ -103,7 +102,7 @@ resource "scaleway_job_definition" "linkedin" {
 # Job Definition for the 'import-organizations' task
 resource "scaleway_job_definition" "import-organizations" {
   count        = var.enable_intern_jobs ? 1 : 0
-  name         = "${var.env}-import-organizations"
+  name         = "${terraform.workspace}-import-organizations"
   project_id   = var.project_id
   cpu_limit    = 2000
   memory_limit = 4096
@@ -122,7 +121,7 @@ resource "scaleway_job_definition" "import-organizations" {
 # Job Definition for the 'warnings' task
 resource "scaleway_job_definition" "warnings" {
   count        = var.enable_intern_jobs ? 1 : 0
-  name         = "${var.env}-warnings"
+  name         = "${terraform.workspace}-warnings"
   project_id   = var.project_id
   cpu_limit    = 1000
   memory_limit = 2048
@@ -141,7 +140,7 @@ resource "scaleway_job_definition" "warnings" {
 # Job Definition for the 'linkedin-stats' task
 resource "scaleway_job_definition" "linkedin-stats" {
   count        = var.enable_intern_jobs ? 1 : 0
-  name         = "${var.env}-linkedin-stats"
+  name         = "${terraform.workspace}-linkedin-stats"
   project_id   = var.project_id
   cpu_limit    = 1000
   memory_limit = 2048
@@ -160,7 +159,7 @@ resource "scaleway_job_definition" "linkedin-stats" {
 # Job Definition for the 'leboncoin' task
 resource "scaleway_job_definition" "leboncoin" {
   count        = var.enable_intern_jobs ? 1 : 0
-  name         = "${var.env}-leboncoin"
+  name         = "${terraform.workspace}-leboncoin"
   project_id   = var.project_id
   cpu_limit    = 1000
   memory_limit = 2048
@@ -179,7 +178,7 @@ resource "scaleway_job_definition" "leboncoin" {
 # Job Definition for the 'brevo' task
 resource "scaleway_job_definition" "brevo" {
   count        = var.enable_intern_jobs ? 1 : 0
-  name         = "${var.env}-brevo"
+  name         = "${terraform.workspace}-brevo"
   project_id   = var.project_id
   cpu_limit    = 1000
   memory_limit = 2048
@@ -198,7 +197,7 @@ resource "scaleway_job_definition" "brevo" {
 # Job Definition for the 'moderation' task
 resource "scaleway_job_definition" "moderation" {
   count        = var.enable_intern_jobs ? 1 : 0
-  name         = "${var.env}-moderation"
+  name         = "${terraform.workspace}-moderation"
   project_id   = var.project_id
   cpu_limit    = 1000
   memory_limit = 2048
@@ -234,7 +233,7 @@ resource "scaleway_job_definition" "enrich-missions-geoloc" {
 
 # Job Definition for the 'import-missions' task (all environments)
 resource "scaleway_job_definition" "import-missions" {
-  name         = "${var.env}-import-missions"
+  name         = "${terraform.workspace}-import-missions"
   project_id   = var.project_id
   cpu_limit    = 1000
   memory_limit = 2048
