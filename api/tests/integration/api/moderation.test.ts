@@ -480,10 +480,13 @@ describe("Moderation API endpoints (integration test)", () => {
       });
     });
 
-    it("should update all moderation records for a given organization name", async () => {
-      const mission1 = await createTestMission({ publisherId: partner.id, statusCode: "ACCEPTED", organizationName: "Croix Rouge", moderationStatus: "PENDING" as any });
-      const mission2 = await createTestMission({ publisherId: partner.id, statusCode: "ACCEPTED", organizationName: "Croix Rouge", moderationStatus: "PENDING" as any });
-      const otherMission = await createTestMission({ publisherId: partner.id, statusCode: "ACCEPTED", organizationName: "SAMU Social", moderationStatus: "PENDING" as any });
+    it("should update all moderation records for a given organization id", async () => {
+      const mission1 = await createTestMission({ publisherId: partner.id, statusCode: "ACCEPTED", organizationName: "Croix Rouge", organizationClientId: "croix-rouge", moderationStatus: "PENDING" as any });
+      const mission2 = await createTestMission({ publisherId: partner.id, statusCode: "ACCEPTED", organizationName: "Croix Rouge", organizationClientId: "croix-rouge", moderationStatus: "PENDING" as any });
+      const otherMission = await createTestMission({ publisherId: partner.id, statusCode: "ACCEPTED", organizationName: "SAMU Social", organizationClientId: "samu-social", moderationStatus: "PENDING" as any });
+
+      const croixRougeOrg = await prisma.publisherOrganization.findFirst({ where: { publisherId: partner.id, clientId: "croix-rouge" } });
+      expect(croixRougeOrg).toBeTruthy();
 
       const modOther = await prisma.missionModerationStatus.findFirst({ where: { missionId: otherMission.id, publisherId: jva.id } });
       expect(modOther).toBeTruthy();
@@ -492,7 +495,7 @@ describe("Moderation API endpoints (integration test)", () => {
         .put("/moderation/many")
         .set("Authorization", `jwt ${adminToken}`)
         .send({
-          where: { moderatorId: jva.id, organizationName: "Croix Rouge" },
+          where: { moderatorId: jva.id, organizationId: croixRougeOrg!.id },
           update: { status: "ACCEPTED" },
         });
 
