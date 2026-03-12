@@ -1,77 +1,82 @@
 import { Prisma } from "@/db/core";
 import { WidgetRuleRecord } from "@/types/widget";
 
-export const WIDGET_RULE_FIELDS = [
-  { label: "Nom de l'organisation", value: "organizationName", type: "text" },
-  { label: "Domaine de la mission", value: "domain", type: "text" },
-  { label: "Nom du réseau", value: "organizationReseaux", type: "text" },
-  { label: "Titre de la mission", value: "title", type: "text" },
-  { label: "Code postal de la mission", value: "postalCode", type: "text" },
-  { label: "Département de la mission", value: "departmentName", type: "text" },
-  { label: "Région de la mission", value: "regionName", type: "text" },
-  { label: "Activité de la mission", value: "activity", type: "text" },
-  { label: "Tag personnalisé", value: "tags", type: "text" },
-  { label: "Actions de l'organisation", value: "organizationActions", type: "text" },
-  { label: "Ouvert au mineur", value: "openToMinors", type: "boolean" },
-];
-
 type WidgetRule = Pick<WidgetRuleRecord, "field" | "operator" | "value" | "combinator">;
 
 /**
- * Champs qui correspondent à des tableaux (String[]) dans Prisma.
- * Pour ces champs, on utilise `has`/`hasSome` au lieu de `contains`.
+ * LEGACY ARRAY FIELDS to be removed after migration
  */
-const ARRAY_FIELDS = new Set(["associationReseaux", "organizationActions", "organizationNetwork", "organizationReseaux", "tags"]);
+const ARRAY_FIELDS = new Set(["organizationActions", "parentOrganization", "tags", "associationReseaux", "organizationNetwork", "organizationReseaux"]);
 
 /**
  * Mapping des champs virtuels (utilisés dans les règles widget) vers les chemins Prisma réels.
  * Les champs non listés ici sont utilisés directement sur le modèle Mission.
  */
 const FIELD_TO_PRISMA_PATH: Record<string, (condition: any) => Prisma.MissionWhereInput> = {
-  domain: (condition) => ({ domain: { is: { name: condition } } }),
+  domain: (condition) => ({ domain: { name: condition } }),
   activity: (condition) => ({ activities: { some: { activity: { name: condition } } } }),
   postalCode: (condition) => ({ addresses: { some: { postalCode: condition } } }),
   departmentName: (condition) => ({ addresses: { some: { departmentName: condition } } }),
   regionName: (condition) => ({ addresses: { some: { region: condition } } }),
-  associationName: (condition) => ({ publisherOrganization: { is: { name: condition } } }),
-  associationReseaux: (condition) => ({ publisherOrganization: { is: { parentOrganizations: condition } } }),
-  organizationName: (condition) => ({ publisherOrganization: { is: { name: condition } } }),
-  organizationNetwork: (condition) => ({ publisherOrganization: { is: { parentOrganizations: condition } } }),
-  organizationReseaux: (condition) => ({ publisherOrganization: { is: { parentOrganizations: condition } } }),
-  organizationActions: (condition) => ({ publisherOrganization: { is: { actions: condition } } }),
+  organizationName: (condition) => ({ publisherOrganization: { name: condition } }),
+  parentOrganization: (condition) => ({ publisherOrganization: { parentOrganizations: condition } }),
+  organizationActions: (condition) => ({ publisherOrganization: { actions: condition } }),
+  // LEGACY FIELDS to be removed after migration
+  associationName: (condition) => ({ publisherOrganization: { name: condition } }),
+  associationReseaux: (condition) => ({ publisherOrganization: { parentOrganizations: condition } }),
+  organizationNetwork: (condition) => ({ publisherOrganization: { parentOrganizations: condition } }),
+  organizationReseaux: (condition) => ({ publisherOrganization: { parentOrganizations: condition } }),
+};
+
+/**
+ * LEGACY OPERATORS to be removed after migration
+ * - "is" → "contains"
+ * - "is_not" → "does_not_contain"
+ */
+const normalizeArrayOperator = (operator: string): string => {
+  switch (operator) {
+    case "is":
+      return "contains";
+    case "is_not":
+      return "does_not_contain";
+    default:
+      return operator;
+  }
 };
 
 /**
  * Construit une condition Prisma pour une règle donnée.
- * Gère les opérateurs : is, is_not, contains, does_not_contain, is_greater_than, is_less_than, exists, does_not_exist, starts_with
+ *
+ * Opérateurs pour les champs texte : is, is_not, contains, does_not_contain, starts_with, exists, does_not_exist,
+ *   is_greater_than, is_less_than
+ * Opérateurs pour les champs tableau (array) : contains, does_not_contain
+ *   → l'insensibilité à la casse n'est pas possible sur ces champs
  */
 const buildRuleCondition = (rule: WidgetRule): Prisma.MissionWhereInput | null => {
-  const { field, operator, value } = rule;
+  const { field, value } = rule;
   const normalizedValue = field === "openToMinors" ? normalizeBooleanValue(value) : value;
+  const isArrayField = ARRAY_FIELDS.has(field);
 
-  // Pour exists/does_not_exist, pas besoin de valeur
+  // LEGACY OPERATORS to be removed after migration
+  const operator = isArrayField ? normalizeArrayOperator(rule.operator) : rule.operator;
+
   if (operator !== "exists" && operator !== "does_not_exist" && !normalizedValue) {
     return null;
   }
-
-  const isArrayField = ARRAY_FIELDS.has(field);
 
   // Construit la condition de base selon l'opérateur
   let condition: any;
   switch (operator) {
     case "is":
-      // Pour un tableau, "is" signifie "contient exactement cette valeur"
-      condition = isArrayField ? { has: normalizedValue } : normalizedValue;
+      condition = normalizedValue;
       break;
     case "is_not":
       condition = { not: normalizedValue };
       break;
     case "contains":
-      // Pour un tableau, utiliser `has` au lieu de `contains`
       condition = isArrayField ? { has: `${normalizedValue}` } : { contains: normalizedValue, mode: "insensitive" };
       break;
     case "does_not_contain":
-      // Cas spécial : on wrappe dans NOT après le mapping
       condition = isArrayField ? { has: `${normalizedValue}` } : { contains: normalizedValue, mode: "insensitive" };
       break;
     case "is_greater_than":

@@ -163,7 +163,7 @@ router.get("/autocomplete", passport.authenticate("user", { session: false }), a
 
     const values = new Map<string, number>();
     missions.data.forEach((mission) => {
-      const fieldValue = (mission as any)[query.data.field];
+      const fieldValue = query.data.field === "parentOrganization" ? mission.organizationReseaux : (mission as any)[query.data.field];
       if (Array.isArray(fieldValue)) {
         fieldValue.forEach((val) => {
           if (typeof val === "string" && new RegExp(query.data.search, "i").test(val)) {
