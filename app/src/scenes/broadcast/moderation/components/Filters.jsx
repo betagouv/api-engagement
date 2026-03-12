@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { RiCloseFill } from "react-icons/ri";
 
 import ModerationManualIcon from "@/assets/svg/moderation-manual.svg";
+import LabelledCombobox from "@/components/combobox/LabelledCombobox";
 import MissionCombobox from "@/components/combobox/MissionCombobox";
-import PublisherCombobox from "@/components/combobox/PublisherCombobox";
 import SearchInput from "@/components/SearchInput";
 import Select from "@/components/Select";
 import STATUS, { DEPARTMENT_LABELS, JVA_MODERATION_COMMENTS_LABELS, STATUS_PLR } from "@/scenes/broadcast/moderation/components/Constants";
@@ -20,6 +20,7 @@ const Filters = ({ filters, onChange, reload }) => {
     activities: [],
     domains: [],
     departments: [],
+    organizations: [],
   });
   const [loading, setLoading] = useState(false);
 
@@ -35,7 +36,7 @@ const Filters = ({ filters, onChange, reload }) => {
           cities: filters.cities || undefined,
           domain: filters.domain || undefined,
           department: filters.department || undefined,
-          organizationNames: filters.organizationNames || undefined,
+          organizationIds: filters.organizationIds || undefined,
           activity: filters.activity || undefined,
           search: filters.search || undefined,
         };
@@ -76,7 +77,7 @@ const Filters = ({ filters, onChange, reload }) => {
           loading={loading}
         />
 
-        <PublisherCombobox
+        <LabelledCombobox
           id="publisherIds"
           values={filters.publisherIds}
           onChange={(publisherIds) => onChange({ ...filters, publisherIds })}
@@ -91,12 +92,12 @@ const Filters = ({ filters, onChange, reload }) => {
           loading={loading}
         />
 
-        <MissionCombobox
-          id="organization"
-          values={filters.organizationNames}
-          onChange={(organizationNames) => onChange({ ...filters, organizationNames })}
-          placeholder="Organisations"
-          filters={`${filters.publisherIds?.length ? filters.publisherIds.map((p) => `publishers=${p}`).join("&") : options.publishers.map((p) => `publishers=${p.key}`).join("&")}&field=organizationName`}
+        <LabelledCombobox
+          id="organizationIds"
+          values={filters.organizationIds}
+          onChange={(organizationIds) => onChange({ ...filters, organizationIds })}
+          placeholder="Organisation"
+          options={options.organizations}
         />
 
         <Select
@@ -137,7 +138,7 @@ const Filters = ({ filters, onChange, reload }) => {
       <div className="flex flex-wrap gap-3">
         <Badge label="Statut" value={STATUS[filters.status]} onDelete={() => onChange({ ...filters, status: "" })} />
         <Badge label="Annonceur" value={options.publishers.find((p) => p.key === filters.publisherId)?.label} onDelete={() => onChange({ ...filters, publisherId: "" })} />
-        <Badge label="Organisation" value={filters.organizationNames.join(", ")} onDelete={() => onChange({ ...filters, organizationNames: [] })} />
+        {/* <Badge label="Organisation" value={filters.organizationNames.join(", ")} onDelete={() => onChange({ ...filters, organizationNames: [] })} /> */}
         <Badge
           label="Département"
           value={filters.department === "none" ? "Non renseigné" : DEPARTMENT_LABELS[filters.department]}

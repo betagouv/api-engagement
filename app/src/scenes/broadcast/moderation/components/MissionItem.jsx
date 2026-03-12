@@ -16,7 +16,7 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
   const { publisher } = useStore();
   const [searchParams, setSearchParams] = useSearchParams();
   const [values, setValues] = useState(data);
-  const [isOrganizationToRefuse, setIsOrganizationToRefuse] = useState(0);
+  const [missionToRefuse, setMissionToRefuse] = useState(0);
 
   useEffect(() => {
     setValues(data);
@@ -46,11 +46,11 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
       toast.success("La mission a été modérée avec succès");
       onChange(res.data);
       if (v.status === "REFUSED" && ["ORGANIZATION_NOT_COMPLIANT", "ORGANIZATION_ALREADY_PUBLISHED"].includes(v.comment)) {
-        const resO = await api.post("/moderation/search", { moderatorId: publisher.id, organizationName: data.missionOrganizationName, status: "PENDING", size: 0 });
+        const resO = await api.post("/moderation/search", { moderatorId: publisher.id, organizationIds: [data.missionPublisherOrganizationId], status: "PENDING", size: 0 });
         if (!resO.ok) {
           throw resO;
         }
-        setIsOrganizationToRefuse(resO.total);
+        setMissionToRefuse(resO.total);
       }
     } catch (error) {
       captureError(error, { extra: { data } });
@@ -65,14 +65,7 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
 
   return (
     <>
-      <OrganizationRefusedModal
-        open={isOrganizationToRefuse > 0}
-        onClose={() => setIsOrganizationToRefuse(0)}
-        data={data}
-        update={values}
-        onChange={onChangeMany}
-        total={isOrganizationToRefuse}
-      />
+      <OrganizationRefusedModal open={missionToRefuse > 0} onClose={() => setMissionToRefuse(0)} data={data} update={values} onChange={onChangeMany} total={missionToRefuse} />
       <td className="table-cell align-middle">
         <div className="flex items-center">
           <label className="flex w-14 items-center">

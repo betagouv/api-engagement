@@ -54,8 +54,7 @@ export type ModerationFilters = {
   comment?: string;
   domain?: string;
   department?: string;
-  organizationNames?: string[];
-  organizationClientId?: string;
+  organizationIds?: string[];
   cities?: string[];
   activity?: string;
   search?: string;
