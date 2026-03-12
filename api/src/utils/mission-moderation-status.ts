@@ -66,9 +66,9 @@ export const buildWhere = (filters: ModerationFilters): { where: Prisma.MissionM
     }
   }
 
-  if (filters.organizationNames && filters.organizationNames.length) {
-    where.mission!.publisherOrganization = { is: { name: { in: filters.organizationNames } } };
-    missionWhere.publisherOrganization = { is: { name: { in: filters.organizationNames } } };
+  if (filters.organizationIds && filters.organizationIds.length) {
+    where.mission!.publisherOrganizationId = { in: filters.organizationIds };
+    missionWhere.publisherOrganizationId = { in: filters.organizationIds };
   }
 
   if (filters.cities && filters.cities.length) {

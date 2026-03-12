@@ -13,7 +13,7 @@ const Header = ({ data, onChange }) => {
     status: data.status,
     comment: data.comment,
   });
-  const [isOrganizationToRefuse, setIsOrganizationToRefuse] = useState(0);
+  const [missionToRefuse, setMissionToRefuse] = useState(0);
 
   useEffect(() => {
     setValues({
@@ -42,11 +42,11 @@ const Header = ({ data, onChange }) => {
       onChange(resM.data);
 
       if (v.status === "REFUSED" && ["ORGANIZATION_NOT_COMPLIANT", "ORGANIZATION_ALREADY_PUBLISHED"].includes(v.comment)) {
-        const resO = await api.post("/moderation/search", { moderatorId: publisher.id, organizationName: data.missionOrganizationName, status: "PENDING", size: 0 });
+        const resO = await api.post("/moderation/search", { moderatorId: publisher.id, organizationIds: [data.missionPublisherOrganizationId], status: "PENDING", size: 0 });
         if (!resO.ok) {
           throw resO;
         }
-        setIsOrganizationToRefuse(resO.total);
+        setMissionToRefuse(resO.total);
       }
     } catch (error) {
       toast.error("Une erreur est survenue lors de la modération de la mission", {
@@ -64,14 +64,7 @@ const Header = ({ data, onChange }) => {
 
   return (
     <>
-      <OrganizationRefusedModal
-        open={isOrganizationToRefuse > 0}
-        onClose={() => setIsOrganizationToRefuse(0)}
-        data={data}
-        update={values}
-        onChange={onChange}
-        total={isOrganizationToRefuse}
-      />
+      <OrganizationRefusedModal open={missionToRefuse > 0} onClose={() => setMissionToRefuse(0)} data={data} update={values} onChange={onChange} total={missionToRefuse} />
       <div className="bg-global-background border-grey-border sticky top-0 z-50 flex items-center justify-between gap-8 border-b pt-4 pb-8">
         <div className="max-w-[50%] space-y-2">
           <h1 className="mb-1">{DOMAINS[data.missionDomain]}</h1>
