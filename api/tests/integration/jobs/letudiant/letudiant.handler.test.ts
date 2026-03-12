@@ -6,8 +6,9 @@ import { prisma } from "@/db/postgres";
 import { PUBLISHER_SYNC_CONFIGS } from "@/jobs/letudiant/config";
 import { LetudiantHandler } from "@/jobs/letudiant/handler";
 import * as letudiantUtils from "@/jobs/letudiant/utils";
-import { buildPilotyFetchMock, pilotyCompanyResponse, pilotyJobResponse, PILOTY_MANDATORY_DATA_MOCKS } from "../../../mocks";
-import { createTestMission, createTestPublisher } from "../../../fixtures";
+import { createTestMission, createTestPublisher, createTestPublisherOrganization } from "../../../fixtures";
+import { buildPilotyFetchMock, PILOTY_MANDATORY_DATA_MOCKS, pilotyJobResponse } from "../../../mocks";
+import { publisherDiffusionExclusionService } from "@/services/publisher-diffusion-exclusion";
 
 /**
  * L'Etudiant job integration tests
@@ -149,6 +150,7 @@ describe("LetudiantHandler (integration test)", () => {
       const publisher = await createTestPublisher({ id: PUBLISHER_IDS.JEVEUXAIDER });
       const letudiantPublisher = await createTestPublisher({ id: PUBLISHER_IDS.LETUDIANT });
       const orgClientId = "excluded-org-client-id";
+      const publisherOrg = await createTestPublisherOrganization({ publisherId: publisher.id, clientId: orgClientId });
       const mission = await createTestMission({
         publisherId: publisher.id,
         statusCode: "ACCEPTED",
@@ -157,12 +159,10 @@ describe("LetudiantHandler (integration test)", () => {
       });
       await seedOnlineEntry(mission.id, "piloty-job-excluded");
 
-      await prisma.publisherDiffusionExclusion.create({
-        data: {
-          excludedByAnnonceurId: publisher.id,
-          excludedForDiffuseurId: letudiantPublisher.id,
-          organizationClientId: orgClientId,
-        },
+      await publisherDiffusionExclusionService.createExclusion({
+        excludedByAnnonceurId: publisher.id,
+        excludedForDiffuseurId: letudiantPublisher.id,
+        publisherOrganizationId: publisherOrg.id,
       });
 
       global.fetch = buildPilotyFetchMock([pilotyJobResponse("piloty-job-excluded")]);
@@ -289,9 +289,7 @@ describe("LetudiantHandler (integration test)", () => {
 
       await handler.handle({});
 
-      const patchCalls = (fetchMock as any).mock.calls.filter(
-        ([, opts]: any) => (opts?.method ?? "GET").toUpperCase() === "PATCH"
-      ) as Array<[string, RequestInit]>;
+      const patchCalls = (fetchMock as any).mock.calls.filter(([, opts]: any) => (opts?.method ?? "GET").toUpperCase() === "PATCH") as Array<[string, RequestInit]>;
 
       expect(patchCalls).toHaveLength(1);
       expect(patchCalls[0][0]).toContain("/jobs/online-fallback-id");
@@ -337,6 +335,7 @@ describe("LetudiantHandler (integration test)", () => {
       const publisher = await createTestPublisher({ id: PUBLISHER_IDS.JEVEUXAIDER });
       const letudiantPublisher = await createTestPublisher({ id: PUBLISHER_IDS.LETUDIANT });
       const orgClientId = "excluded-org-for-publish";
+      const publisherOrg = await createTestPublisherOrganization({ publisherId: publisher.id, clientId: orgClientId });
       const mission = await createTestMission({
         publisherId: publisher.id,
         statusCode: "ACCEPTED",
@@ -348,7 +347,7 @@ describe("LetudiantHandler (integration test)", () => {
         data: {
           excludedByAnnonceurId: publisher.id,
           excludedForDiffuseurId: letudiantPublisher.id,
-          organizationClientId: orgClientId,
+          publisherOrganizationId: publisherOrg.id,
         },
       });
 
@@ -526,9 +525,7 @@ describe("LetudiantHandler (integration test)", () => {
     it("does NOT publish a multi-address mission when remaining quota is smaller than required slots", { timeout: 20000 }, async () => {
       const publisher = await createTestPublisher({ id: PUBLISHER_IDS.JEVEUXAIDER });
 
-      vi.spyOn(letudiantUtils, "countOnlineEntriesByDomain").mockResolvedValueOnce(
-        makeOnlineCounts({ "solidarite-insertion": JVA_QUOTA_BY_DOMAIN["solidarite-insertion"] - 1 })
-      );
+      vi.spyOn(letudiantUtils, "countOnlineEntriesByDomain").mockResolvedValueOnce(makeOnlineCounts({ "solidarite-insertion": JVA_QUOTA_BY_DOMAIN["solidarite-insertion"] - 1 }));
 
       const multiAddressMission = await createMissionWithOrg(publisher.id, {
         domain: "solidarite-insertion",
@@ -629,9 +626,7 @@ describe("LetudiantHandler (integration test)", () => {
 
     it("publishes an ASC mission even if the JVA quota for that domain is full", { timeout: 20000 }, async () => {
       // sport quota full (750) → JVA does not publish, but ASC is unlimited
-      vi.spyOn(letudiantUtils, "countOnlineEntriesByDomain").mockResolvedValueOnce(
-        makeOnlineCounts({ sport: JVA_QUOTA_BY_DOMAIN.sport })
-      );
+      vi.spyOn(letudiantUtils, "countOnlineEntriesByDomain").mockResolvedValueOnce(makeOnlineCounts({ sport: JVA_QUOTA_BY_DOMAIN.sport }));
 
       const publisher = await createTestPublisher({ id: PUBLISHER_IDS.SERVICE_CIVIQUE });
       const mission = await createMissionWithOrg(publisher.id, { domain: "sport" });
