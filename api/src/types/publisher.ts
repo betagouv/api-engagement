@@ -1,3 +1,5 @@
+import { PublisherDiffusionExclusionRecord } from "./publisher-diffusion-exclusion";
+
 export type PublisherRoleFilter = "annonceur" | "diffuseur" | "api" | "widget" | "campaign";
 
 export enum PublisherMissionType {
@@ -55,6 +57,11 @@ export interface PublisherRecord {
   updatedAt: Date;
   publishers: PublisherDiffusionRecord[];
 }
+
+export type PublisherRecordWithRelations = PublisherRecord & {
+  diffusionExclusionsBy?: PublisherDiffusionExclusionRecord[] | null;
+  diffusionExclusionsFor?: PublisherDiffusionExclusionRecord[] | null;
+};
 
 export interface PublisherSearchParams {
   diffuseurOf?: string;

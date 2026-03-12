@@ -1,6 +1,7 @@
 export interface PublisherDiffusionExclusionFindParams {
   excludedByAnnonceurId?: string;
   excludedForDiffuseurId?: string;
+  publisherOrganizationId?: string | null;
   organizationClientId?: string | null;
   organizationName?: string | null;
 }
@@ -8,11 +9,12 @@ export interface PublisherDiffusionExclusionFindParams {
 export interface PublisherDiffusionExclusionRecord {
   id: string;
   excludedByAnnonceurId: string;
-  excludedByAnnonceurName: string;
+  excludedByAnnonceurName?: string | null;
   excludedForDiffuseurId: string;
-  excludedForDiffuseurName: string;
+  excludedForDiffuseurName?: string | null;
   organizationClientId?: string | null;
   organizationName?: string | null;
+  publisherOrganizationId?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -22,6 +24,7 @@ export interface PublisherDiffusionExclusionCreateInput {
   excludedForDiffuseurId: string;
   organizationClientId?: string | null;
   organizationName?: string | null;
+  publisherOrganizationId?: string | null;
 }
 
 export interface PublisherDiffusionExclusionCreateManyInput {
@@ -29,4 +32,5 @@ export interface PublisherDiffusionExclusionCreateManyInput {
   excludedForDiffuseurId: string;
   organizationClientId?: string | null;
   organizationName?: string | null;
+  publisherOrganizationId?: string | null;
 }

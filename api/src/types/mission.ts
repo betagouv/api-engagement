@@ -143,7 +143,7 @@ export type MissionSearchFilters = {
   publisherIds: string[];
   statusCode?: MissionStatusCode;
   statusComment?: string;
-  excludeOrganizationClientIds?: string[];
+  excludePublisherOrganizationIds?: string[];
   moderationAcceptedFor?: string;
   moderationStatus?: string;
   moderationComment?: string;
@@ -178,7 +178,6 @@ export type MissionSearchFilters = {
   lat?: number;
   lon?: number;
   distanceKm?: number;
-  excludeOrganizationName?: string;
   limit: number;
   skip: number;
   directFilters?: Prisma.MissionWhereInput;

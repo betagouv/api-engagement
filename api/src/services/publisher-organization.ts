@@ -47,6 +47,19 @@ const buildWhere = (params: PublisherOrganizationFindParams): Prisma.PublisherOr
 };
 
 const publisherOrganizationService = {
+  findExclusions: async (clientId: string, publisherId: string): Promise<PublisherOrganizationWithRelations | null> => {
+    return publisherOrganizationRepository.findUnique({
+      where: { publisherId_clientId: { clientId, publisherId } },
+      include: { publisherDiffusionExclusions: true },
+    });
+  },
+  findUniqueOrCreate: async (clientId: string, publisherId: string, data?: Partial<PublisherOrganizationRecord>): Promise<PublisherOrganizationRecord> => {
+    const publisherOrganization = await publisherOrganizationRepository.findUnique({ where: { publisherId_clientId: { clientId, publisherId } } });
+    if (publisherOrganization) {
+      return publisherOrganization;
+    }
+    return publisherOrganizationRepository.create({ publisher: { connect: { id: publisherId } }, clientId, ...data });
+  },
   count: async (params: PublisherOrganizationFindParams): Promise<number> => {
     const where = buildWhere(params);
     return publisherOrganizationRepository.count({ where });
