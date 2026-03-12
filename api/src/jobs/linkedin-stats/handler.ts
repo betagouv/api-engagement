@@ -12,9 +12,7 @@ import { processData } from "@/jobs/linkedin-stats/add-stats";
 const downloadXlsx = async (url: string) => {
   try {
     const response = await getObject(url);
-    const arrayBuffer = response.Body as ArrayBuffer;
-
-    const workbook = XLSX.read(new Uint8Array(arrayBuffer), { type: "array" });
+    const workbook = XLSX.read(new Uint8Array(response.Body), { type: "array" });
 
     const overviewWorksheet = workbook.Sheets["Overview"];
     const jobReportingWorksheet = workbook.Sheets["Jobs Reporting"];
