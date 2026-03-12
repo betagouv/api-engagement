@@ -9,11 +9,6 @@ import publisherOrganizationService from "./publisher-organization";
 
 type Bucket = { key: string; doc_count: number; label?: string };
 
-type PublisherOrganizationTuple = {
-  publisherId: string;
-  clientId: string;
-};
-
 const buildWidgetWhere = (widget: WidgetRecord, filters: MissionSearchFilters): Prisma.MissionWhereInput => {
   if (!widget.jvaModeration) {
     return buildWhere(filters);
@@ -35,89 +30,6 @@ const buildWidgetWhere = (widget: WidgetRecord, filters: MissionSearchFilters): 
   }
 
   return orConditions.length ? { AND: [baseWhere, { OR: orConditions }] } : baseWhere;
-};
-
-const isPlainObject = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value) && !(value instanceof Date);
-
-/**
- * Builds a mission condition from `(publisherId, clientId)` tuples.
- * Returns either one condition or an `OR` of conditions; empty input matches nothing.
- */
-const buildMissionConditionFromPublisherOrganizationTuples = (tuples: PublisherOrganizationTuple[]): Prisma.MissionWhereInput => {
-  if (!tuples.length) {
-    return { publisherId: { in: [] } };
-  }
-
-  const byPublisher = new Map<string, Set<string>>();
-  tuples.forEach(({ publisherId, clientId }) => {
-    if (!byPublisher.has(publisherId)) {
-      byPublisher.set(publisherId, new Set());
-    }
-    byPublisher.get(publisherId)?.add(clientId);
-  });
-
-  const conditions = Array.from(byPublisher.entries()).map(([publisherId, clientIds]) => ({
-    publisherId,
-    publisherOrganization: { clientId: { in: Array.from(clientIds) } },
-  }));
-
-  return conditions.length === 1 ? conditions[0] : { OR: conditions };
-};
-
-/**
- * Replaces `publisherOrganization.is` filters with equivalent mission predicates.
- * This avoids replaying expensive relational OR/ILIKE branches on every query.
- */
-const inlinePublisherOrganizationFilters = async (where: Prisma.MissionWhereInput): Promise<Prisma.MissionWhereInput> => {
-  // Request-scoped memoization: identical `publisherOrganization.is` conditions
-  // are resolved once, then reused during the same where-tree traversal.
-  const cache = new Map<string, Prisma.MissionWhereInput>();
-
-  const resolvePublisherOrganizationCondition = async (condition: Prisma.PublisherOrganizationWhereInput): Promise<Prisma.MissionWhereInput> => {
-    const cacheKey = JSON.stringify(condition);
-    const cached = cache.get(cacheKey);
-    if (cached) {
-      return cached;
-    }
-
-    const rows = await prisma.publisherOrganization.findMany({
-      where: condition,
-      select: { publisherId: true, clientId: true },
-    });
-    const tuples: PublisherOrganizationTuple[] = rows
-      .filter((r): r is typeof r & { clientId: string } => r.clientId != null)
-      .map((r) => ({ publisherId: r.publisherId, clientId: r.clientId }));
-    const missionCondition = buildMissionConditionFromPublisherOrganizationTuples(tuples);
-    cache.set(cacheKey, missionCondition);
-    return missionCondition;
-  };
-
-  const transform = async (node: unknown): Promise<unknown> => {
-    if (Array.isArray(node)) {
-      return await Promise.all(node.map((item) => transform(item)));
-    }
-    if (!isPlainObject(node)) {
-      return node;
-    }
-
-    const maybePublisherOrganization = node.publisherOrganization;
-    if (isPlainObject(maybePublisherOrganization) && isPlainObject(maybePublisherOrganization.is)) {
-      const missionCondition = await resolvePublisherOrganizationCondition(maybePublisherOrganization.is as Prisma.PublisherOrganizationWhereInput);
-      const restEntries = Object.entries(node).filter(([key]) => key !== "publisherOrganization");
-
-      if (!restEntries.length) {
-        return missionCondition;
-      }
-
-      const transformedRest = Object.fromEntries(await Promise.all(restEntries.map(async ([key, value]) => [key, await transform(value)] as const)));
-
-      return { AND: [transformedRest, missionCondition] };
-    }
-
-    return Object.fromEntries(await Promise.all(Object.entries(node).map(async ([key, value]) => [key, await transform(value)] as const)));
-  };
-
-  return (await transform(where)) as Prisma.MissionWhereInput;
 };
 
 const aggregateWidgetAggs = async (
@@ -283,8 +195,8 @@ const sortBuckets = (buckets?: Bucket[]) => (buckets ?? []).sort((a, b) => b.doc
 
 export const widgetMissionService = {
   async fetchWidgetMissions(widget: WidgetRecord, filters: MissionSearchFilters, select: MissionSelect | null = null): Promise<{ data: MissionRecord[]; total: number }> {
-    const rawWhere = buildWidgetWhere(widget, filters);
-    const where = await inlinePublisherOrganizationFilters(rawWhere);
+    const where = buildWidgetWhere(widget, filters);
+
     const [data, total] = await Promise.all([
       missionService.findMissionsBy(where, {
         select,
@@ -300,8 +212,7 @@ export const widgetMissionService = {
   },
 
   async fetchWidgetAggregations(widget: WidgetRecord, filters: MissionSearchFilters, requestedAggs: string[]) {
-    const rawWhere = buildWidgetWhere(widget, { ...filters, skip: 0, limit: 0 });
-    const where = await inlinePublisherOrganizationFilters(rawWhere);
+    const where = buildWidgetWhere(widget, { ...filters, skip: 0, limit: 0 });
     const result = await aggregateWidgetAggs(where, requestedAggs);
 
     const payload: any = {};

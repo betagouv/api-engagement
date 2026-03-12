@@ -4,12 +4,12 @@ import cors from "cors";
 import { Express } from "express";
 
 import bodyParserErrorHandler from "@/middlewares/body-parser-error-handler";
-import corsOptions from "@/middlewares/cors";
+import { corsOptions } from "@/middlewares/cors";
 import helmet from "@/middlewares/helmet";
 import logger from "@/middlewares/logger";
 import passport from "@/middlewares/passport";
 import requestId from "@/middlewares/request-id";
-// import limiter from "./rate-limite";
+// import limiter from "./rate-limit";
 
 const middlewares = (app: Express) => {
   app.use(cors(corsOptions));

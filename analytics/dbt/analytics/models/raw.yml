@@ -470,6 +470,8 @@ sources:
             description: Identifiant de l'organisation liée (nullable).
           - name: organization_client_id
             description: Identifiant client de l'organisation côté diffuseur (nullable).
+          - name: publisher_organization_id
+            description: Identifiant de la structure publisher associée à la mission (nullable).
           - name: publisher_id
             description: Identifiant du partenaire/publisher associé.
           - name: deleted_at

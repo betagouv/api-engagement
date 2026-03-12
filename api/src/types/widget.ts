@@ -1,3 +1,5 @@
+import { PublisherDiffusionExclusionRecord } from "./publisher-diffusion-exclusion";
+
 export type WidgetStyle = "carousel" | "page";
 export type WidgetType = "benevolat" | "volontariat";
 export type WidgetRuleCombinator = "and" | "or";
@@ -34,6 +36,7 @@ export interface WidgetRecord {
   jvaModeration: boolean;
   fromPublisherId: string;
   fromPublisherName: string | null;
+  fromPublisherDiffusionExclusions?: PublisherDiffusionExclusionRecord[];
   active: boolean;
   deletedAt: Date | null;
   createdAt: Date;

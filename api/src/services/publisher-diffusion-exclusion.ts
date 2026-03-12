@@ -1,16 +1,12 @@
-import { Prisma, Publisher, PublisherDiffusionExclusion } from "@/db/core";
+import { Prisma, Publisher, PublisherDiffusionExclusion, PublisherOrganization } from "@/db/core";
 import { publisherDiffusionExclusionRepository } from "@/repositories/publisher-diffusion-exclusion";
-import {
-  PublisherDiffusionExclusionCreateInput,
-  PublisherDiffusionExclusionCreateManyInput,
-  PublisherDiffusionExclusionFindParams,
-  PublisherDiffusionExclusionRecord,
-} from "@/types/publisher-diffusion-exclusion";
+import { PublisherDiffusionExclusionCreateInput, PublisherDiffusionExclusionCreateManyInput, PublisherDiffusionExclusionRecord } from "@/types/publisher-diffusion-exclusion";
 import { normalizeOptionalString } from "@/utils/normalize";
 
-type PublisherDiffusionExclusionWithPublishers = PublisherDiffusionExclusion & {
+type PublisherDiffusionExclusionWithRelation = PublisherDiffusionExclusion & {
   excludedByAnnonceur: Publisher;
   excludedForDiffuseur: Publisher;
+  publisherOrganization: PublisherOrganization;
 };
 
 const mapCreateInput = (input: PublisherDiffusionExclusionCreateInput): Prisma.PublisherDiffusionExclusionCreateInput => {
@@ -19,6 +15,7 @@ const mapCreateInput = (input: PublisherDiffusionExclusionCreateInput): Prisma.P
     excludedForDiffuseur: { connect: { id: input.excludedForDiffuseurId.trim() } },
     organizationClientId: normalizeOptionalString(input.organizationClientId) ?? null,
     organizationName: normalizeOptionalString(input.organizationName) ?? null,
+    publisherOrganization: input.publisherOrganizationId ? { connect: { id: input.publisherOrganizationId } } : undefined,
   };
 };
 
@@ -28,45 +25,30 @@ const mapCreateManyInput = (input: PublisherDiffusionExclusionCreateManyInput): 
     excludedForDiffuseurId: input.excludedForDiffuseurId.trim(),
     organizationClientId: normalizeOptionalString(input.organizationClientId) ?? null,
     organizationName: normalizeOptionalString(input.organizationName) ?? null,
+    publisherOrganizationId: input.publisherOrganizationId ?? null,
   };
 };
 
+const defaultInclude = {
+  excludedByAnnonceur: { select: { id: true, name: true } },
+  excludedForDiffuseur: { select: { id: true, name: true } },
+  publisherOrganization: { select: { id: true, clientId: true, name: true } },
+};
+
 export const publisherDiffusionExclusionService = (() => {
-  const toPublisherDiffusionExclusionRecord = (exclusion: PublisherDiffusionExclusionWithPublishers): PublisherDiffusionExclusionRecord => {
+  const toPublisherDiffusionExclusionRecord = (exclusion: PublisherDiffusionExclusionWithRelation): PublisherDiffusionExclusionRecord => {
     return {
       id: exclusion.id,
       excludedByAnnonceurId: exclusion.excludedByAnnonceurId,
       excludedByAnnonceurName: exclusion.excludedByAnnonceur.name,
       excludedForDiffuseurId: exclusion.excludedForDiffuseurId,
       excludedForDiffuseurName: exclusion.excludedForDiffuseur.name,
-      organizationClientId: exclusion.organizationClientId,
-      organizationName: exclusion.organizationName,
+      organizationClientId: exclusion.publisherOrganization.clientId,
+      organizationName: exclusion.publisherOrganization.name,
+      publisherOrganizationId: exclusion.publisherOrganizationId,
       createdAt: exclusion.createdAt,
       updatedAt: exclusion.updatedAt,
     };
-  };
-
-  const findExclusions = async (params: PublisherDiffusionExclusionFindParams = {}): Promise<PublisherDiffusionExclusionRecord[]> => {
-    const and: Prisma.PublisherDiffusionExclusionWhereInput[] = [];
-
-    if (params.excludedByAnnonceurId) {
-      and.push({ excludedByAnnonceurId: params.excludedByAnnonceurId });
-    }
-    if (params.excludedForDiffuseurId) {
-      and.push({ excludedForDiffuseurId: params.excludedForDiffuseurId });
-    }
-    if (params.organizationClientId) {
-      and.push({ organizationClientId: params.organizationClientId });
-    }
-    if (params.organizationName) {
-      and.push({ organizationName: params.organizationName });
-    }
-
-    const exclusions = (await publisherDiffusionExclusionRepository.findMany({
-      where: { AND: and },
-      include: { excludedByAnnonceur: { select: { id: true, name: true } }, excludedForDiffuseur: { select: { id: true, name: true } } },
-    })) as PublisherDiffusionExclusionWithPublishers[];
-    return exclusions.map(toPublisherDiffusionExclusionRecord);
   };
 
   const findExclusionsForDiffuseurId = async (publisherId: string): Promise<PublisherDiffusionExclusionRecord[]> => {
@@ -75,48 +57,47 @@ export const publisherDiffusionExclusionService = (() => {
     }
     const exclusions = (await publisherDiffusionExclusionRepository.findMany({
       where: { excludedForDiffuseurId: publisherId },
-      include: { excludedByAnnonceur: { select: { id: true, name: true } }, excludedForDiffuseur: { select: { id: true, name: true } } },
-    })) as PublisherDiffusionExclusionWithPublishers[];
+      include: defaultInclude,
+    })) as PublisherDiffusionExclusionWithRelation[];
     return exclusions.map(toPublisherDiffusionExclusionRecord);
   };
 
   const createExclusion = async (input: PublisherDiffusionExclusionCreateInput): Promise<PublisherDiffusionExclusionRecord> => {
     const exclusion = (await publisherDiffusionExclusionRepository.create({
       data: mapCreateInput(input),
-      include: { excludedByAnnonceur: { select: { id: true, name: true } }, excludedForDiffuseur: { select: { id: true, name: true } } },
-    })) as PublisherDiffusionExclusionWithPublishers;
+      include: defaultInclude,
+    })) as PublisherDiffusionExclusionWithRelation;
     return toPublisherDiffusionExclusionRecord(exclusion);
   };
 
-  const createManyExclusions = async (inputs: PublisherDiffusionExclusionCreateManyInput[]): Promise<number> => {
-    if (!inputs.length) {
-      return 0;
-    }
-    const result = await publisherDiffusionExclusionRepository.createMany({
-      data: inputs.map(mapCreateManyInput),
-      skipDuplicates: true,
-    });
-    return result.count;
-  };
-
-  const deleteExclusionsByAnnonceurAndOrganization = async (excludedByAnnonceurId: string, organizationClientId: string): Promise<number> => {
-    if (!excludedByAnnonceurId || !organizationClientId) {
-      return 0;
-    }
-    const result = await publisherDiffusionExclusionRepository.deleteMany({
+  const updateExclusionsForPublisherOrganization = async (
+    publisherOrganizationId: string,
+    excludedByAnnonceurId: string,
+    exclusions: PublisherDiffusionExclusionCreateManyInput[]
+  ): Promise<PublisherDiffusionExclusionRecord[]> => {
+    await publisherDiffusionExclusionRepository.deleteMany({
       where: {
         excludedByAnnonceurId,
-        organizationClientId,
+        publisherOrganizationId,
       },
     });
-    return result.count;
-  };
+    await publisherDiffusionExclusionRepository.createMany({
+      data: exclusions.map(mapCreateManyInput),
+      skipDuplicates: true,
+    });
 
+    const newExclusions = await publisherDiffusionExclusionRepository.findMany({
+      where: {
+        excludedByAnnonceurId,
+        publisherOrganizationId,
+      },
+      include: defaultInclude,
+    });
+    return newExclusions.map((exclusion) => toPublisherDiffusionExclusionRecord(exclusion as PublisherDiffusionExclusionWithRelation));
+  };
   return {
-    findExclusions,
     findExclusionsForDiffuseurId,
     createExclusion,
-    createManyExclusions,
-    deleteExclusionsByAnnonceurAndOrganization,
+    updateExclusionsForPublisherOrganization,
   };
 })();

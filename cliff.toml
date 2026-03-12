@@ -13,8 +13,6 @@ Vous retrouverez ici l'historique des différents déploiements effectués sur l
 body = """
 {% if version %}
     ## {{ timestamp | date(format="%d/%m/%Y") }}
-{% else %}
-    ## [unreleased]
 {% endif %}
 {% for group, commits in commits | group_by(attribute="group") %}
     ### {{ group | upper_first }}

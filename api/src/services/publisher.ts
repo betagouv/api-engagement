@@ -1,7 +1,7 @@
 import { randomBytes } from "crypto";
 import { v4 as uuid } from "uuid";
 
-import { MissionType, Prisma, Publisher, PublisherDiffusion } from "@/db/core";
+import { MissionType, Prisma, Publisher, PublisherDiffusion, PublisherDiffusionExclusion } from "@/db/core";
 import { publisherRepository } from "@/repositories/publisher";
 import {
   PublisherCreateInput,
@@ -9,13 +9,17 @@ import {
   PublisherDiffusionRecord,
   PublisherMissionType,
   PublisherRecord,
+  PublisherRecordWithRelations,
   PublisherSearchParams,
   PublisherUpdatePatch,
 } from "@/types/publisher";
 import { normalizeCollection, normalizeOptionalString } from "@/utils";
 
-type PublisherWithDiffusion = Publisher & { diffuseurs?: PublisherDiffusion[] };
-
+type PrismaPublisherWithRelation = Publisher & {
+  diffuseurs?: PublisherDiffusion[];
+  diffusionExclusionsFor?: PublisherDiffusionExclusion[];
+  diffusionExclusionsBy?: PublisherDiffusionExclusion[];
+};
 export class PublisherNotFoundError extends Error {
   constructor(id: string) {
     super(`Publisher ${id} not found`);
@@ -36,7 +40,7 @@ export const publisherService = (() => {
     updatedAt: diffusion.updatedAt,
   });
 
-  const toPublisherRecord = (publisher: PublisherWithDiffusion): PublisherRecord => ({
+  const toPublisherRecord = (publisher: PrismaPublisherWithRelation): PublisherRecordWithRelations => ({
     _id: publisher.id,
     id: publisher.id,
     name: publisher.name,
@@ -65,6 +69,8 @@ export const publisherService = (() => {
     createdAt: publisher.createdAt,
     updatedAt: publisher.updatedAt,
     publishers: (publisher.diffuseurs ?? []).map(toDiffusionRecord),
+    diffusionExclusionsBy: publisher.diffusionExclusionsBy ?? [],
+    diffusionExclusionsFor: publisher.diffusionExclusionsFor ?? [],
   });
 
   const normalizeDiffusions = (publishers?: PublisherDiffusionInput[] | null) =>
@@ -205,7 +211,7 @@ export const publisherService = (() => {
       include: defaultInclude,
     });
 
-    return toPublisherRecord(created as PublisherWithDiffusion);
+    return toPublisherRecord(created as PrismaPublisherWithRelation);
   };
 
   const publisherExistsByName = async (name: string): Promise<boolean> => {
@@ -213,12 +219,12 @@ export const publisherService = (() => {
     return count > 0;
   };
 
-  const findOnePublisherByApiKey = async (apikey: string, publisherId?: string): Promise<PublisherRecord | null> => {
+  const findOnePublisherByApiKey = async (apikey: string, publisherId?: string): Promise<PublisherRecordWithRelations | null> => {
     const publisher = await publisherRepository.findFirst({
       where: { apikey, ...(publisherId ? { id: publisherId } : {}) },
-      include: defaultInclude,
+      include: { ...defaultInclude, diffusionExclusionsFor: true, diffusionExclusionsBy: true },
     });
-    return publisher ? toPublisherRecord(publisher as PublisherWithDiffusion) : null;
+    return publisher ? toPublisherRecord(publisher) : null;
   };
 
   const findOnePublisherByName = async (name: string): Promise<PublisherRecord | null> => {
@@ -226,7 +232,7 @@ export const publisherService = (() => {
       where: { name },
       include: defaultInclude,
     });
-    return publisher ? toPublisherRecord(publisher as PublisherWithDiffusion) : null;
+    return publisher ? toPublisherRecord(publisher as PrismaPublisherWithRelation) : null;
   };
 
   const findPublishers = async (params: PublisherSearchParams = {}): Promise<PublisherRecord[]> => {
@@ -236,7 +242,7 @@ export const publisherService = (() => {
       orderBy: [{ name: Prisma.SortOrder.asc }],
       include: defaultInclude,
     });
-    return publishers.map((publisher) => toPublisherRecord(publisher as PublisherWithDiffusion));
+    return publishers.map((publisher) => toPublisherRecord(publisher as PrismaPublisherWithRelation));
   };
 
   const findPublishersWithCount = async (params: PublisherSearchParams = {}): Promise<{ data: PublisherRecord[]; total: number }> => {
@@ -263,7 +269,7 @@ export const publisherService = (() => {
 
   const findOnePublisherById = async (id: string): Promise<PublisherRecord | null> => {
     const publisher = await publisherRepository.findUnique({ where: { id }, include: defaultInclude });
-    return publisher ? toPublisherRecord(publisher as PublisherWithDiffusion) : null;
+    return publisher ? toPublisherRecord(publisher as PrismaPublisherWithRelation) : null;
   };
 
   const findPublishersByIds = async (ids: string[]): Promise<PublisherRecord[]> => {
@@ -274,7 +280,7 @@ export const publisherService = (() => {
       where: { id: { in: ids } },
       include: defaultInclude,
     });
-    return publishers.map((publisher) => toPublisherRecord(publisher as PublisherWithDiffusion));
+    return publishers.map((publisher) => toPublisherRecord(publisher as PrismaPublisherWithRelation));
   };
 
   const purgeAll = async (): Promise<void> => {
@@ -288,7 +294,7 @@ export const publisherService = (() => {
       data: { apikey },
       include: defaultInclude,
     });
-    return { apikey, publisher: toPublisherRecord(updated as PublisherWithDiffusion) };
+    return { apikey, publisher: toPublisherRecord(updated as PrismaPublisherWithRelation) };
   };
 
   const softDeletePublisher = async (id: string): Promise<PublisherRecord> => {
@@ -297,11 +303,11 @@ export const publisherService = (() => {
       data: { deletedAt: new Date() },
       include: defaultInclude,
     });
-    return toPublisherRecord(updated as PublisherWithDiffusion);
+    return toPublisherRecord(updated as PrismaPublisherWithRelation);
   };
 
   const updatePublisher = async (id: string, patch: PublisherUpdatePatch): Promise<PublisherRecord> => {
-    const existing: PublisherWithDiffusion | null = await publisherRepository.findUnique({ where: { id }, include: defaultInclude });
+    const existing: PrismaPublisherWithRelation | null = await publisherRepository.findUnique({ where: { id }, include: defaultInclude });
     if (!existing) {
       throw new PublisherNotFoundError(id);
     }
@@ -407,7 +413,7 @@ export const publisherService = (() => {
       include: defaultInclude,
     });
 
-    return toPublisherRecord(updated as PublisherWithDiffusion);
+    return toPublisherRecord(updated as PrismaPublisherWithRelation);
   };
 
   async function getPublisherNameMap(publisherIds: string[]): Promise<Map<string, string>> {

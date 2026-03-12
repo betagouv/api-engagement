@@ -98,31 +98,31 @@ export const findByRNA = async (rna: string) => {
       return response;
     }
 
-    const data = await apiDatasubvention.get(`/association/${rna}`);
+    const result = await apiDatasubvention.get(`/association/${rna}`);
 
-    if (data && data.association) {
-      const departement = data.association.adresse_siege_rna ? getDepartement(data.association.adresse_siege_rna[0]?.value?.code_postal) : null;
-      const siret = Array.isArray(data.association.etablisements_siret) ? data.association.etablisements_siret[0]?.value[0] : data.association.etablisements_siret?.value;
-      const siren = data.association.siren?.[0]?.value || siret?.slice(0, 9);
-      const title = data.association.denomination_rna?.[0]?.value || data.association.denomination_siren?.[0]?.value || data.association.objet_social?.[0]?.value || rna;
+    if (result.ok && result.association) {
+      const departement = result.association.adresse_siege_rna ? getDepartement(result.association.adresse_siege_rna[0]?.value?.code_postal) : null;
+      const siret = Array.isArray(result.association.etablisements_siret) ? result.association.etablisements_siret[0]?.value[0] : result.association.etablisements_siret?.value;
+      const siren = result.association.siren?.[0]?.value || siret?.slice(0, 9);
+      const title = result.association.denomination_rna?.[0]?.value || result.association.denomination_siren?.[0]?.value || result.association.objet_social?.[0]?.value || rna;
       const payload: OrganizationCreateInput = {
         rna,
         title,
         siren,
         siret,
         sirets: siret ? [siret] : undefined,
-        addressNumber: data.association.adresse_siege_rna?.[0]?.value?.numero,
-        addressType: data.association.adresse_siege_rna?.[0]?.value?.type_voie,
-        addressStreet: data.association.adresse_siege_rna?.[0]?.value?.voie,
-        addressCity: data.association.adresse_siege_rna?.[0]?.value?.commune,
-        addressPostalCode: data.association.adresse_siege_rna?.[0]?.value?.code_postal,
+        addressNumber: result.association.adresse_siege_rna?.[0]?.value?.numero,
+        addressType: result.association.adresse_siege_rna?.[0]?.value?.type_voie,
+        addressStreet: result.association.adresse_siege_rna?.[0]?.value?.voie,
+        addressCity: result.association.adresse_siege_rna?.[0]?.value?.commune,
+        addressPostalCode: result.association.adresse_siege_rna?.[0]?.value?.code_postal,
         addressDepartmentCode: departement?.code,
         addressDepartmentName: departement?.name,
         addressRegion: departement?.region,
-        isRUP: Boolean(data.association.rup?.[0]?.value),
-        createdAt: data.association.date_creation_rna?.[0] ? new Date(data.association.date_creation_rna[0].value) : undefined,
-        updatedAt: data.association.date_modification_rna?.[0] ? new Date(data.association.date_modification_rna[0].value) : undefined,
-        object: data.association.objet_social?.[0]?.value,
+        isRUP: Boolean(result.association.rup?.[0]?.value),
+        createdAt: result.association.date_creation_rna?.[0] ? new Date(result.association.date_creation_rna[0].value) : undefined,
+        updatedAt: result.association.date_modification_rna?.[0] ? new Date(result.association.date_modification_rna[0].value) : undefined,
+        object: result.association.objet_social?.[0]?.value,
         source: "DATA_SUBVENTION",
       };
 
@@ -132,6 +132,8 @@ export const findByRNA = async (rna: string) => {
       }
 
       return organizationService.createOrganization(payload);
+    } else if (!result.ok) {
+      console.error("[DataSubvention] Failed to fetch rna", result.message);
     }
   } catch (error: any) {
     captureException(error, { extra: { rna } });
@@ -146,21 +148,21 @@ export const findBySiret = async (siret: string) => {
       return response;
     }
 
-    const data = await apiDatasubvention.get(`/etablissement/${siret}`);
+    const result = await apiDatasubvention.get(`/etablissement/${siret}`);
 
-    if (data && data.etablissement) {
-      const departement = data.etablissement.adresse[0]?.value?.code_postal ? getDepartement(data.etablissement.adresse[0]?.value?.code_postal) : null;
+    if (result.ok && result.etablissement) {
+      const departement = result.etablissement.adresse[0]?.value?.code_postal ? getDepartement(result.etablissement.adresse[0]?.value?.code_postal) : null;
 
       const payload: OrganizationCreateInput = {
         siret,
         sirets: [siret],
         siren: siret.slice(0, 9),
         title: siret,
-        addressNumber: data.etablissement.adresse[0]?.value?.numero,
-        addressType: data.etablissement.adresse[0]?.value?.type_voie,
-        addressStreet: data.etablissement.adresse[0]?.value?.voie,
-        addressCity: data.etablissement.adresse[0]?.value?.commune,
-        addressPostalCode: data.etablissement.adresse[0]?.value?.code_postal,
+        addressNumber: result.etablissement.adresse[0]?.value?.numero,
+        addressType: result.etablissement.adresse[0]?.value?.type_voie,
+        addressStreet: result.etablissement.adresse[0]?.value?.voie,
+        addressCity: result.etablissement.adresse[0]?.value?.commune,
+        addressPostalCode: result.etablissement.adresse[0]?.value?.code_postal,
         addressDepartmentCode: departement?.code,
         addressDepartmentName: departement?.name,
         addressRegion: departement?.region,
@@ -168,7 +170,7 @@ export const findBySiret = async (siret: string) => {
       };
 
       const asso = await apiDatasubvention.get(`/association/${siret}`);
-      if (asso && asso.association) {
+      if (asso.ok && asso.association) {
         payload.rna = asso.association.rna?.[0]?.value;
         payload.title = asso.association.denomination_rna?.[0]?.value || asso.association.denomination_siren?.[0]?.value || payload.title || payload.rna || siret;
       }
@@ -189,6 +191,8 @@ export const findBySiret = async (siret: string) => {
         return organizationService.createOrganization(payload);
       }
       return null;
+    } else if (!result.ok) {
+      console.error("[DataSubvention] Failed to fetch siret", result.message);
     }
   } catch (error: any) {
     captureException(error, `[Organization] Failure during siret enrichment`);

@@ -3,6 +3,7 @@ process.env.TZ = "Europe/Paris";
 export const PORT = process.env.PORT || 4000;
 export const ENV = process.env.ENV || "development";
 export const SECRET = process.env.SECRET || "not-so-secret";
+export const IMAGE_VERSION = process.env.IMAGE_VERSION || "unknown";
 
 export const APP_URL = process.env.APP_URL || "http://localhost:3000";
 export const API_URL = process.env.API_URL || "http://localhost:4000";
@@ -15,8 +16,6 @@ export const ADMIN_SNU_URL = "https://admin.snu.gouv.fr";
 export const METABASE_URL = process.env.METABASE_URL || "https://reserve-civique-metabase.osc-secnum-fr1.scalingo.io";
 export const METABASE_API_KEY = process.env.METABASE_API_KEY;
 
-export const ES_ENDPOINT = process.env.ES_ENDPOINT;
-export const DB_ENDPOINT = process.env.DB_ENDPOINT;
 export const MISSION_INDEX = "mission";
 export const ASSOS_INDEX = "association";
 export const STATS_INDEX = "stats";

@@ -2,6 +2,7 @@ export * from "@/utils/array";
 export * from "@/utils/geo";
 export * from "@/utils/job";
 export * from "@/utils/mission";
+export * from "@/utils/mission-moderation";
 export * from "@/utils/mission-moderation-status";
 export * from "@/utils/normalize";
 export * from "@/utils/organization";

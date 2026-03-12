@@ -1,5 +1,5 @@
 data "scaleway_secret" "main" {
-  name       = terraform.workspace == "production" ? "production-secret" : "staging-secret"
+  name       = "${var.workspace}-secret"
   project_id = var.project_id
 }
 

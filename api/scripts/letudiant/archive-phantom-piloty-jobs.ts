@@ -42,6 +42,7 @@
  */
 
 import dotenv from "dotenv";
+import fs from "fs";
 import path from "path";
 
 // Minimal early parse to detect --env <name> before importing modules that use env vars
@@ -66,12 +67,12 @@ if (envName) {
 
 import { LETUDIANT_PILOTY_TOKEN } from "@/config";
 import { JobBoardId } from "@/db/core";
-import { prismaCore } from "@/db/postgres";
+import { prisma } from "@/db/postgres";
 import { MEDIA_PUBLIC_ID } from "@/jobs/letudiant/config";
 import { missionToPilotyCompany } from "@/jobs/letudiant/transformers";
 import { rateLimit } from "@/jobs/letudiant/utils";
-import { PilotyClient } from "@/services/piloty";
 import { organizationService } from "@/services/organization";
+import { PilotyClient } from "@/services/piloty";
 
 /**
  * Parse a publicId with a numeric suffix, e.g. "my-mission-slug-42"
@@ -81,6 +82,20 @@ function parseSuffixedPublicId(publicId: string): { base: string; suffix: number
   const match = publicId.match(/^(.+)-(\d+)$/);
   if (!match) return null;
   return { base: match[1], suffix: parseInt(match[2], 10) };
+}
+
+function loadProcessedIds(filePath: string): Set<string> {
+  try {
+    const raw = fs.readFileSync(filePath, "utf-8");
+    const parsed = JSON.parse(raw);
+    return new Set(Array.isArray(parsed) ? parsed : []);
+  } catch {
+    return new Set();
+  }
+}
+
+function saveProcessedIds(filePath: string, ids: Set<string>): void {
+  fs.writeFileSync(filePath, JSON.stringify([...ids].sort(), null, 2), "utf-8");
 }
 
 async function main() {
@@ -94,26 +109,76 @@ async function main() {
     console.log("[archive-phantom-piloty-jobs] DRY RUN — no Piloty API calls will be made");
   }
 
-  // 1. Fetch all ONLINE L'Étudiant job board entries with a suffixed publicId
-  const onlineEntries = await prismaCore.missionJobBoard.findMany({
+  const args = process.argv.slice(2);
+  let limit: number | undefined;
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === "--limit" && i + 1 < args.length) {
+      limit = parseInt(args[i + 1], 10);
+      if (isNaN(limit) || limit <= 0) {
+        console.error("--limit must be a positive integer");
+        process.exit(1);
+      }
+    }
+  }
+  if (limit !== undefined) {
+    console.log(`[archive-phantom-piloty-jobs] Limit: ${limit} entries`);
+  }
+
+  const processedFilePath = path.join(__dirname, `archive-phantom-piloty-jobs.processed.${envName ?? "default"}.json`);
+  const processedIds = loadProcessedIds(processedFilePath);
+  if (processedIds.size > 0) {
+    console.log(`[archive-phantom-piloty-jobs] Skipping ${processedIds.size} already-processed entry(ies) (from ${processedFilePath})`);
+  }
+
+  const skippedFilePath = path.join(__dirname, `archive-phantom-piloty-jobs.skipped.${envName ?? "default"}.json`);
+  const skippedIds = loadProcessedIds(skippedFilePath);
+  if (skippedIds.size > 0) {
+    console.log(`[archive-phantom-piloty-jobs] Skipping ${skippedIds.size} previously-unresolvable entry(ies) (from ${skippedFilePath})`);
+  }
+
+  // 1. Fetch all ONLINE L'Étudiant job board entries with a suffixed publicId,
+  //    excluding any whose base prefix has already been processed or whose exact
+  //    publicId was previously unresolvable (no company public ID).
+  const onlineEntries = await prisma.missionJobBoard.findMany({
     where: {
       jobBoardId: JobBoardId.LETUDIANT,
       syncStatus: "ONLINE",
+      NOT: [...[...processedIds].map((base) => ({ publicId: { startsWith: `${base}-` } })), ...(skippedIds.size > 0 ? [{ publicId: { in: [...skippedIds] } }] : [])],
     },
     include: { mission: true },
   });
 
-  const phantomEntries = onlineEntries.filter((entry) => parseSuffixedPublicId(entry.publicId) !== null);
+  // Substrings that permanently disqualify a publicId from being processed
+  const EXCLUDED_SUBSTRINGS = ["arengosse"];
+
+  const allPhantomEntries = onlineEntries
+    .filter((entry) => {
+      if (parseSuffixedPublicId(entry.publicId) === null) return false;
+      if (EXCLUDED_SUBSTRINGS.some((s) => entry.publicId.includes(s))) return false;
+      return true;
+    })
+    .sort((a, b) => parseSuffixedPublicId(b.publicId)!.suffix - parseSuffixedPublicId(a.publicId)!.suffix);
+  const phantomEntries = limit !== undefined ? allPhantomEntries.slice(0, limit) : allPhantomEntries;
 
   if (!phantomEntries.length) {
     console.log("[archive-phantom-piloty-jobs] No suffixed ONLINE entries found. Nothing to do.");
     process.exit(0);
   }
 
-  console.log(`[archive-phantom-piloty-jobs] Found ${phantomEntries.length} suffixed ONLINE entry(ies) to process.`);
+  console.log(
+    `[archive-phantom-piloty-jobs] Found ${allPhantomEntries.length} suffixed ONLINE entry(ies)` +
+      (limit !== undefined ? `, processing first ${phantomEntries.length}.` : ", processing all.")
+  );
 
   // 2. Collect all publicIds currently in DB for this job board (to avoid archiving live entries)
   const allPublicIds = new Set(onlineEntries.map((e) => e.publicId));
+
+  // Count how many phantom entries share each base, to know when all suffixes are done
+  const pendingCountByBase = new Map<string, number>();
+  for (const entry of phantomEntries) {
+    const base = parseSuffixedPublicId(entry.publicId)!.base;
+    pendingCountByBase.set(base, (pendingCountByBase.get(base) ?? 0) + 1);
+  }
 
   const client = new PilotyClient(LETUDIANT_PILOTY_TOKEN, MEDIA_PUBLIC_ID);
 
@@ -142,7 +207,13 @@ async function main() {
     }
 
     if (!companyPublicId) {
-      console.warn(`⚠ Skipping ${entry.publicId}: could not resolve company public ID (organizationId: ${organizationId ?? "none"})`);
+      console.warn(
+        `⚠ Skipping ${entry.publicId}: could not resolve company public ID` + ` (missionId: ${entry.mission?.id ?? "none"}, organizationId: ${organizationId ?? "none"})`
+      );
+      if (!isDryRun) {
+        skippedIds.add(entry.publicId);
+        saveProcessedIds(skippedFilePath, skippedIds);
+      }
       skipped++;
       continue;
     }
@@ -161,7 +232,7 @@ async function main() {
 
     toArchive.push(entry.publicId);
 
-    console.log(`\n→ Processing phantom: ${entry.publicId} (base: "${parsed.base}", suffix: ${parsed.suffix})`);
+    console.log(`\n→ Processing phantom: ${entry.publicId}`);
     console.log(`  Company: ${companyPublicId}`);
     console.log(`  Will archive: ${toArchive.join(", ")}`);
 
@@ -184,6 +255,16 @@ async function main() {
       }
       if (!isDryRun) {
         await rateLimit();
+      }
+    }
+
+    if (!isDryRun) {
+      const remaining = (pendingCountByBase.get(parsed.base) ?? 1) - 1;
+      pendingCountByBase.set(parsed.base, remaining);
+      if (remaining === 0) {
+        // All suffixes for this base have been processed — safe to persist
+        processedIds.add(parsed.base);
+        saveProcessedIds(processedFilePath, processedIds);
       }
     }
   }

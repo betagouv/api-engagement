@@ -64,7 +64,7 @@ Workflows GitHub Actions principaux dans `.github/workflows/` :
 - `docker-build-push.yml` : build + push des images GHCR (`app`, `api`, `analytics`, `widget`) taggées par env + short SHA.
 - `terraform-deploy.yml` : déploiement Scaleway via workspaces Terraform (staging/production).
 - `pr-title-lint.yml` : validation du titre de PR (types/scopes).
-- `changelog.yml` : génération planifiée/manuelle du changelog via `git-cliff` (met à jour `CHANGELOG.md`).
+- `release.yml` : release sur `main` (bump version + tag annoté + notes via `git-cliff`).
 
 ## Commandes (racine)
 

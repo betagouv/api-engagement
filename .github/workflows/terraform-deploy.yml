@@ -6,6 +6,10 @@ on:
       branch:
         required: true
         type: string
+      environment:
+        required: false
+        type: string
+        description: "Force environment (sandbox, production, staging)"
   workflow_dispatch:
 
 permissions:
@@ -23,8 +27,11 @@ jobs:
         id: set-env
         env:
           HEAD_BRANCH: ${{ inputs.branch || github.ref_name }}
+          FORCED_ENV: ${{ inputs.environment }}
         run: |
-          if [[ "$HEAD_BRANCH" == 'main' ]]; then
+          if [[ -n "$FORCED_ENV" ]]; then
+            echo "environment=$FORCED_ENV" >> $GITHUB_OUTPUT
+          elif [[ "$HEAD_BRANCH" == 'main' ]]; then
             echo "environment=production" >> $GITHUB_OUTPUT
           else
             echo "environment=staging" >> $GITHUB_OUTPUT
@@ -41,6 +48,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.branch || github.ref_name }}
+          fetch-depth: 0
+          fetch-tags: true
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v4
@@ -72,15 +83,22 @@ jobs:
           echo "AWS_SECRET_ACCESS_KEY=${{ secrets.SCW_SECRET_KEY }}" >> $GITHUB_ENV
           echo "TF_VAR_project_id=${{ secrets.SCW_PROJECT_ID }}" >> $GITHUB_ENV
 
-      - name: Set image tag from workflow_run
+      - name: Set image tag from branch
         id: get-tag
-        env:
-          GITHUB_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
         run: |
-          echo "image_tag=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
-          echo "Using image tag: ${GITHUB_SHA::7}"
+          SHORT_SHA="$(git rev-parse --short=7 HEAD)"
+          LATEST_TAG=$(git describe --tags --abbrev=0 --match 'v[0-9]*' 2>/dev/null || echo "v0.0.0")
+
+          if [[ "${{ needs.set-env.outputs.environment_name }}" == "production" || "${{ needs.set-env.outputs.environment_name }}" == "sandbox" ]]; then
+            IMAGE_TAG="$LATEST_TAG"
+          else
+            IMAGE_TAG="${LATEST_TAG}-${SHORT_SHA}"
+          fi
+
+          echo "image_tag=${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
+          echo "Using image tag: ${IMAGE_TAG}"
           echo "Environment: ${{ needs.set-env.outputs.environment_name }}"
-          echo "Will use images tagged as: ${{ needs.set-env.outputs.environment_name }}-${GITHUB_SHA::7}"
+          echo "Will use images tagged as: ${{ needs.set-env.outputs.environment_name }}-${IMAGE_TAG}"
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -96,13 +114,11 @@ jobs:
         working-directory: api
         env:
           DATABASE_URL_CORE: ${{ secrets.DATABASE_URL_CORE }}
-          DATABASE_URL_ANALYTICS: ${{ secrets.DATABASE_URL_ANALYTICS }}
         run: npm run prisma:migrate:deploy
 
       - name: Terraform Init
         working-directory: ./terraform
-        run: |
-          terraform init
+        run: terraform init
 
       - name: Terraform Workspace
         working-directory: ./terraform
@@ -110,7 +126,12 @@ jobs:
 
       - name: Terraform Plan
         working-directory: ./terraform
-        run: terraform plan -var="image_tag=${{ steps.get-tag.outputs.image_tag }}" -var="project_id=${{ secrets.SCW_PROJECT_ID }}" -out=tfplan
+        run: |
+          terraform plan \
+            -var-file=envs/${{ needs.set-env.outputs.environment_name }}.tfvars \
+            -var="image_tag=${{ steps.get-tag.outputs.image_tag }}" \
+            -var="project_id=${{ secrets.SCW_PROJECT_ID }}" \
+            -out=tfplan
 
       - name: Terraform Apply
         working-directory: ./terraform
