@@ -6,7 +6,7 @@ import { PUBLISHER_IDS } from "@/config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
 import { missionService } from "@/services/mission";
 import type { UserRequest } from "@/types/passport";
-import { getDistanceKm } from "@/utils";
+import { applyWidgetRules, getDistanceKm } from "@/utils";
 
 const router = Router();
 
@@ -37,7 +37,7 @@ const searchSchema = zod.object({
         field: zod.string(),
         operator: zod.string(),
         value: zod.string(),
-        combinator: zod.string(),
+        combinator: zod.enum(["and", "or"]),
       })
     )
     .optional(),
@@ -137,6 +137,10 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
         return res.status(403).send({ ok: false, code: FORBIDDEN });
       }
       throw error;
+    }
+
+    if (body.data.rules) {
+      filters.directFilters = applyWidgetRules(body.data.rules);
     }
 
     const { data, total, aggs } = await missionService.findMissionsWithAggregations(filters);
