@@ -172,29 +172,34 @@ export const enrichWithGeoloc = async (label: string, missions: GeolocMissionInp
       });
 
       if (retryCsv.length > 1) {
-        const retryResults = await geopfService.searchAddressesCsv(retryCsv.join("\n"));
-        if (retryResults) {
-          const retryParsed = parseGeopfResults(retryResults, missions);
-          let retryFound = 0;
-          for (const retryResult of retryParsed) {
-            if (retryResult.geolocStatus !== "ENRICHED_BY_API") {
-              continue;
+        try {
+          const retryResults = await geopfService.searchAddressesCsv(retryCsv.join("\n"));
+          if (retryResults) {
+            const retryParsed = parseGeopfResults(retryResults, missions);
+            let retryFound = 0;
+            for (const retryResult of retryParsed) {
+              if (retryResult.geolocStatus !== "ENRICHED_BY_API") {
+                continue;
+              }
+              const existing = updates.find((r) => r.clientId === retryResult.clientId && r.addressIndex === retryResult.addressIndex);
+              if (existing) {
+                // City-level geocode: update coordinates and location fields but keep street undefined
+                existing.city = retryResult.city;
+                existing.postalCode = retryResult.postalCode;
+                existing.departmentCode = retryResult.departmentCode;
+                existing.departmentName = retryResult.departmentName;
+                existing.region = retryResult.region;
+                existing.location = retryResult.location;
+                existing.geoPoint = retryResult.geoPoint;
+                existing.geolocStatus = "ENRICHED_BY_API";
+                retryFound++;
+              }
             }
-            const existing = updates.find((r) => r.clientId === retryResult.clientId && r.addressIndex === retryResult.addressIndex);
-            if (existing) {
-              // City-level geocode: update coordinates and location fields but keep street undefined
-              existing.city = retryResult.city;
-              existing.postalCode = retryResult.postalCode;
-              existing.departmentCode = retryResult.departmentCode;
-              existing.departmentName = retryResult.departmentName;
-              existing.region = retryResult.region;
-              existing.location = retryResult.location;
-              existing.geoPoint = retryResult.geoPoint;
-              existing.geolocStatus = "ENRICHED_BY_API";
-              retryFound++;
-            }
+            console.log(`[${label}] Geoloc city fallback found for ${retryFound} addresses`);
           }
-          console.log(`[${label}] Geoloc city fallback found for ${retryFound} addresses`);
+        } catch (retryError) {
+          captureException(retryError, `[${label}] Failure during city-level fallback geoloc enrichment`);
+          // Do not rethrow: first-pass results already in `updates` are preserved
         }
       }
     }
