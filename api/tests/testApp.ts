@@ -16,15 +16,17 @@ import WarningController from "@/controllers/warning";
 import WidgetController from "@/controllers/widget";
 import bodyParserErrorHandler from "@/middlewares/body-parser-error-handler";
 import passport from "@/middlewares/passport";
+import requestId from "@/middlewares/request-id";
+import { createHttpMetricsMiddleware, HttpMetricsRecorder } from "@/observability/metrics";
 import MissionV0Controller from "@/v0/mission/controller";
-import MissionV2WriteController from "@/v2/mission/controller";
 import MyMissionV0Controller from "@/v0/mymission/controller";
 import MyOrganizationV0Controller from "@/v0/myorganization/controller";
 import ViewV0Controller from "@/v0/view";
 import ActivityV2Controller from "@/v2/activity";
+import MissionV2WriteController from "@/v2/mission/controller";
 
 // Create a test Express app with minimal configuration
-export const createTestApp = () => {
+export const createTestApp = ({ metricsRecorder }: { metricsRecorder?: HttpMetricsRecorder } = {}) => {
   const app = express();
 
   app.set("trust proxy", true);
@@ -35,6 +37,8 @@ export const createTestApp = () => {
   app.use(bodyParserErrorHandler);
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(cookieParser());
+  app.use(requestId);
+  app.use(createHttpMetricsMiddleware(metricsRecorder));
   app.use(passport.initialize());
 
   // Mount the controllers

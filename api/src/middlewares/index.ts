@@ -9,6 +9,7 @@ import helmet from "@/middlewares/helmet";
 import logger from "@/middlewares/logger";
 import passport from "@/middlewares/passport";
 import requestId from "@/middlewares/request-id";
+import { createHttpMetricsMiddleware } from "@/observability/metrics";
 // import limiter from "./rate-limit";
 
 const middlewares = (app: Express) => {
@@ -20,6 +21,7 @@ const middlewares = (app: Express) => {
   app.use(cookieParser());
   app.use(helmet);
   app.use(requestId);
+  app.use(createHttpMetricsMiddleware());
   app.use(logger);
   // app.use(limiter); // TODO: enable with correct values
   app.use(passport.initialize());
