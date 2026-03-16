@@ -657,7 +657,15 @@ export const missionService = {
 
   async create(input: MissionCreateInput): Promise<MissionRecord> {
     const id = input.id ?? randomUUID();
-    const addresses = mapAddressesForCreate(input.addresses);
+    const rawAddresses = mapAddressesForCreate(input.addresses);
+    const seenHashes = new Set<string>();
+    const addresses = rawAddresses.filter((addr) => {
+      if (seenHashes.has(addr.addressHash)) {
+        return false;
+      }
+      seenHashes.add(addr.addressHash);
+      return true;
+    });
     const publisherOrganizationId = normalizeOptionalString(input.publisherOrganizationId ?? undefined);
 
     const domainName = input.domain?.trim();
