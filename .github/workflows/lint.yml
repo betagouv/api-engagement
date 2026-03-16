@@ -59,6 +59,21 @@ jobs:
       - name: Run ESLint
         run: cd api && npm run lint
 
+  lint-openapi:
+    name: Lint OpenAPI spec
+    needs: changes
+    if: needs.changes.outputs.api == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Lint OpenAPI spec
+        run: npx --yes @redocly/cli lint --config api/redocly.yaml
+
   lint-widget:
     name: Run ESLint on Widget
     needs: changes
