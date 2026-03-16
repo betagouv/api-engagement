@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<source>
+  <publisher><![CDATA[Example Job Site]]></publisher>
+  <publisherurl><![CDATA[http://www.examplemissionsite.com]]></publisherurl>
+  <lastBuildDate><![CDATA[Fri, 10 March 2020 22:49:39 GMT]]></lastBuildDate>
+  <mission>
+    <title><![CDATA[Mission avec adresse invalide]]></title>
+    <clientId><![CDATA[INVALID_ADDR_1]]></clientId>
+    <description><![CDATA[Description de la mission avec adresse invalide]]></description>
+    <applicationUrl><![CDATA[https://www.urltomymission.org]]></applicationUrl>
+    <postedAt><![CDATA[01/01/2023]]></postedAt>
+    <startAt><![CDATA[01/01/2025]]></startAt>
+    <endAt><![CDATA[11/01/2025]]></endAt>
+    <addresses>
+      <address>
+        <street><![CDATA[champ libre invalide]]></street>
+        <city><![CDATA[Grenoble]]></city>
+        <country><![CDATA[France]]></country>
+      </address>
+    </addresses>
+    <schedule><![CDATA[1 demi-journée par semaine]]></schedule>
+    <places><![CDATA[1]]></places>
+    <domain><![CDATA[environnement]]></domain>
+    <organizationName><![CDATA[Mon asso]]></organizationName>
+    <organizationClientId><![CDATA[ORG_1]]></organizationClientId>
+  </mission>
+</source>
