@@ -1,0 +1,1935 @@
+openapi: 3.1.0
+
+info:
+  title: API Engagement
+  version: "2.0"
+  description: |
+    API partenaires pour la diffusion et le suivi de missions bénévoles et civiques.
+
+    ## Authentification
+    Tous les endpoints nécessitent une clé API transmise dans le header `x-api-key`.
+
+    ## Versions
+    - **v0** : endpoints de lecture (recherche de missions, organisations, partenaires diffuseurs)
+    - **v2** : endpoints d'écriture CRUD (création/modification/suppression de missions, suivi des activités)
+  license:
+    name: MIT
+    identifier: MIT
+
+servers:
+  - url: https://api.api-engagement.beta.gouv.fr
+    description: Production
+  - url: http://localhost:3002
+    description: Développement local
+
+security:
+  - ApiKeyAuth: []
+
+tags:
+  - name: Missions
+    description: Recherche et gestion des missions bénévoles
+  - name: Mes missions
+    description: Consultation des missions publiées par votre organisation
+  - name: Activités
+    description: Suivi des événements d'engagement (candidatures, créations de compte)
+  - name: Organisations
+    description: Recherche et gestion de la diffusion par organisation
+  - name: Partenaires
+    description: Liste des partenaires diffuseurs
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Components
+# ──────────────────────────────────────────────────────────────────────────────
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+      description: Clé API fournie par l'équipe API Engagement
+
+  schemas:
+
+    # ── Adresse ────────────────────────────────────────────────────────────────
+    Address:
+      type: object
+      description: Adresse géographique d'une mission
+      properties:
+        street:
+          type: string
+          description: Numéro et nom de rue
+          example: "12 rue de la Paix"
+        postalCode:
+          type: string
+          description: Code postal
+          example: "75001"
+        city:
+          type: string
+          description: Ville
+          example: "Paris"
+        departmentCode:
+          type: string
+          description: Code du département (ex. 75, 69, 2A)
+          example: "75"
+        departmentName:
+          type: string
+          description: Nom du département
+          example: "Paris"
+        region:
+          type: string
+          description: Nom de la région
+          example: "Île-de-France"
+        country:
+          type: string
+          description: Pays (code ISO 3166-1 alpha-2 ou nom)
+          example: "France"
+
+    # ── Mission (réponse v2) ───────────────────────────────────────────────────
+    Mission:
+      type: object
+      description: Mission bénévole ou civique
+      properties:
+        id:
+          type: string
+          description: Identifiant interne de la mission
+          example: "64a1b2c3d4e5f6789abc0001"
+        clientId:
+          type: string
+          description: Identifiant de la mission dans votre système
+          example: "mission-2024-001"
+        publisherId:
+          type: string
+          description: Identifiant du partenaire annonceur
+          example: "5f5931496c7ea514150a818f"
+        statusCode:
+          type: string
+          enum: [ACCEPTED, REFUSED, PENDING, ONGOING]
+          description: Statut de modération JeVeuxAider
+          example: "ACCEPTED"
+        statusComment:
+          type: [string, "null"]
+          description: Commentaire associé au statut de modération
+        title:
+          type: string
+          description: Titre de la mission
+          example: "Animateur bénévole en maison de retraite"
+        description:
+          type: string
+          description: Description complète de la mission (HTML autorisé)
+        applicationUrl:
+          type: string
+          format: uri
+          description: URL de candidature ou d'inscription
+          example: "https://example.org/missions/001/postuler"
+        domain:
+          type: string
+          description: Domaine d'action principal
+          example: "sante"
+        activities:
+          type: array
+          items:
+            type: string
+          description: Liste des activités proposées
+          example: ["animation", "accompagnement"]
+        tags:
+          type: array
+          items:
+            type: string
+          description: Tags libres
+        tasks:
+          type: array
+          items:
+            type: string
+          description: Tâches à réaliser
+        audience:
+          type: array
+          items:
+            type: string
+          description: Publics visés
+          example: ["seniors", "personnes-isolees"]
+        requirements:
+          type: array
+          items:
+            type: string
+          description: Prérequis
+        softSkills:
+          type: array
+          items:
+            type: string
+          description: Compétences comportementales
+        romeSkills:
+          type: array
+          items:
+            type: string
+          description: Codes ROME des compétences requises
+        remote:
+          type: string
+          enum: [no, possible, full]
+          description: Modalité de télétravail
+          example: "no"
+        schedule:
+          type: string
+          description: Rythme d'engagement (texte libre)
+          example: "2 heures par semaine le samedi matin"
+        startAt:
+          type: [string, "null"]
+          format: date-time
+          description: Date de début
+        endAt:
+          type: [string, "null"]
+          format: date-time
+          description: Date de fin
+        priority:
+          type: [string, "null"]
+          description: Priorité d'affichage
+        places:
+          type: [integer, "null"]
+          description: Nombre de places disponibles
+          example: 5
+        compensationAmount:
+          type: [number, "null"]
+          description: Montant de la rémunération ou indemnité
+        compensationUnit:
+          type: [string, "null"]
+          enum: [hour, day, month, year]
+          description: Unité de la rémunération
+        compensationType:
+          type: [string, "null"]
+          enum: [gross, net]
+          description: Type de rémunération (brut ou net)
+        openToMinors:
+          type: [boolean, "null"]
+          description: La mission est ouverte aux mineurs
+        reducedMobilityAccessible:
+          type: [boolean, "null"]
+          description: La mission est accessible aux personnes à mobilité réduite
+        closeToTransport:
+          type: [boolean, "null"]
+          description: La mission est à proximité des transports en commun
+        addresses:
+          type: array
+          items:
+            $ref: "#/components/schemas/Address"
+          description: Lieux d'exercice de la mission
+        type:
+          type: [string, "null"]
+          enum: [benevolat, volontariat_service_civique, volontariat_sapeurs_pompiers]
+          description: Type d'engagement
+        organizationClientId:
+          type: [string, "null"]
+          description: Identifiant de l'organisation dans votre système
+        organizationName:
+          type: [string, "null"]
+          description: Nom de l'organisation porteuse
+          example: "Croix-Rouge française"
+        organizationDescription:
+          type: [string, "null"]
+          description: Description de l'organisation
+        organizationUrl:
+          type: [string, "null"]
+          format: uri
+          description: Site web de l'organisation
+        organizationType:
+          type: [string, "null"]
+          description: Type d'organisation
+        organizationLogo:
+          type: [string, "null"]
+          format: uri
+          description: URL du logo de l'organisation
+        organizationRNA:
+          type: [string, "null"]
+          description: Numéro RNA de l'association
+          example: "W123456789"
+        organizationSiren:
+          type: [string, "null"]
+          description: Numéro SIREN
+          example: "123456789"
+        organizationSiret:
+          type: [string, "null"]
+          description: Numéro SIRET
+          example: "12345678900012"
+        organizationFullAddress:
+          type: [string, "null"]
+          description: Adresse complète de l'organisation
+        organizationPostCode:
+          type: [string, "null"]
+        organizationCity:
+          type: [string, "null"]
+        organizationStatusJuridique:
+          type: [string, "null"]
+          description: Forme juridique de l'organisation
+        organizationBeneficiaries:
+          type: array
+          items:
+            type: [string, "null"]
+          description: Bénéficiaires de l'organisation
+        organizationActions:
+          type: array
+          items:
+            type: [string, "null"]
+          description: Actions de l'organisation
+        organizationReseaux:
+          type: array
+          items:
+            type: [string, "null"]
+          description: Réseaux auxquels appartient l'organisation
+        createdAt:
+          type: string
+          format: date-time
+          description: Date de création
+        updatedAt:
+          type: string
+          format: date-time
+          description: Date de dernière modification
+        deletedAt:
+          type: [string, "null"]
+          format: date-time
+          description: Date de suppression (soft delete)
+
+    # ── Mission (réponse v0 — format legacy) ──────────────────────────────────
+    MissionLegacy:
+      allOf:
+        - $ref: "#/components/schemas/Mission"
+        - type: object
+          description: |
+            Mission au format legacy (v0). Quelques différences par rapport au format v2 :
+            - `openToMinors` et `reducedMobilityAccessible` sont retournés comme chaînes `"true"` / `"false"`
+            - Champs supplémentaires : `_id`, `activity` (concaténation), `domainLogo`, `publisherName`, `publisherUrl`, `publisherLogo`, `postedAt`, `duration`, `snu`, `snuPlaces`, `metadata`
+            - Champ de modération JVA : `moderation_5f5931496c7ea514150a818f_status`, `moderation_5f5931496c7ea514150a818f_comment`
+          properties:
+            _id:
+              type: string
+              description: Alias de `id` (compatibilité legacy)
+            openToMinors:
+              type: string
+              enum: ["true", "false"]
+              description: Ouvert aux mineurs (format string legacy)
+            reducedMobilityAccessible:
+              type: string
+              enum: ["true", "false"]
+              description: Accessible PMR (format string legacy)
+            activity:
+              type: [string, "null"]
+              description: Activités concaténées en une chaîne
+            publisherName:
+              type: string
+              description: Nom du partenaire diffuseur
+            publisherUrl:
+              type: string
+              format: uri
+              description: URL du partenaire diffuseur
+            publisherLogo:
+              type: string
+              format: uri
+              description: Logo du partenaire diffuseur
+            domainLogo:
+              type: [string, "null"]
+              format: uri
+              description: Logo du domaine d'action
+            postedAt:
+              type: [string, "null"]
+              format: date-time
+              description: Date de première publication
+            duration:
+              type: [integer, "null"]
+              description: Durée de la mission en heures
+            snu:
+              type: [boolean, "null"]
+              description: Mission ouverte au Service National Universel
+            snuPlaces:
+              type: [integer, "null"]
+              description: Nombre de places SNU
+            location:
+              type: [object, "null"]
+              description: Coordonnées géographiques
+              properties:
+                lat:
+                  type: number
+                  format: double
+                lon:
+                  type: number
+                  format: double
+
+    # ── Statistiques d'une mission ────────────────────────────────────────────
+    MissionStats:
+      type: object
+      description: Statistiques d'engagement pour une mission
+      properties:
+        clickCount:
+          type: integer
+          description: Nombre de clics vers la mission
+          example: 42
+        applyCount:
+          type: integer
+          description: Nombre de candidatures enregistrées
+          example: 5
+        accountCount:
+          type: integer
+          description: Nombre de créations de compte depuis la mission
+          example: 2
+
+    # ── Activité ──────────────────────────────────────────────────────────────
+    Activity:
+      type: object
+      description: Événement d'engagement (candidature ou création de compte)
+      properties:
+        _id:
+          type: string
+          description: Identifiant de l'activité
+          example: "64a1b2c3d4e5f6789abc0099"
+        type:
+          type: string
+          enum: [apply, account]
+          description: Type d'événement
+          example: "apply"
+        status:
+          type: string
+          enum: [PENDING, VALIDATED, CANCELED, REFUSED, CARRIED_OUT]
+          description: Statut de la candidature
+          example: "PENDING"
+        clickId:
+          type: string
+          description: Identifiant du clic d'origine
+        missionClientId:
+          type: [string, "null"]
+          description: Identifiant client de la mission concernée
+        missionId:
+          type: [string, "null"]
+          description: Identifiant interne de la mission
+        tag:
+          type: [string, "null"]
+          description: Tag libre associé à l'événement
+        createdAt:
+          type: string
+          format: date-time
+          description: Date de création
+
+    # ── Organisation ──────────────────────────────────────────────────────────
+    Organization:
+      type: object
+      description: Organisation associative ou structure porteuse de missions
+      properties:
+        _id:
+          type: string
+          description: Identifiant interne
+          example: "64a1b2c3d4e5f6789abc0010"
+        name:
+          type: string
+          description: Nom de l'organisation
+          example: "Croix-Rouge française"
+        rna:
+          type: [string, "null"]
+          description: Numéro RNA (Répertoire National des Associations)
+          example: "W751206979"
+        siret:
+          type: [string, "null"]
+          description: Numéro SIRET
+          example: "77567227221138"
+        statusJuridique:
+          type: [string, "null"]
+          description: Forme juridique
+          example: "Association loi 1901"
+
+    # ── Partenaire diffuseur ───────────────────────────────────────────────────
+    Partner:
+      type: object
+      description: Partenaire diffuseur de missions
+      properties:
+        _id:
+          type: string
+          description: Identifiant du partenaire
+          example: "5f5931496c7ea514150a818f"
+        name:
+          type: string
+          description: Nom du partenaire
+          example: "JeVeuxAider.gouv.fr"
+        category:
+          type: [string, "null"]
+          description: Catégorie du partenaire
+        url:
+          type: [string, "null"]
+          format: uri
+          description: Site web du partenaire
+        logo:
+          type: [string, "null"]
+          format: uri
+          description: URL du logo
+        description:
+          type: [string, "null"]
+          description: Description du partenaire
+        widget:
+          type: boolean
+          description: Le partenaire dispose de droits widget
+        api:
+          type: boolean
+          description: Le partenaire dispose de droits API
+        campaign:
+          type: boolean
+          description: Le partenaire dispose de droits campagne
+        annonceur:
+          type: boolean
+          description: Le partenaire est annonceur (publie des missions)
+
+    # ── Partenaire avec exclusions ─────────────────────────────────────────────
+    PartnerWithExclusions:
+      allOf:
+        - $ref: "#/components/schemas/Partner"
+        - type: object
+          properties:
+            excludedOrganizations:
+              type: array
+              description: Organisations exclues de la diffusion vers ce partenaire
+              items:
+                type: object
+                properties:
+                  publisherOrganizationId:
+                    type: string
+                  excludedForDiffuseurId:
+                    type: string
+
+    # ── Partenaire avec statut d'exclusion ────────────────────────────────────
+    PartnerWithExclusionFlag:
+      allOf:
+        - $ref: "#/components/schemas/Partner"
+        - type: object
+          properties:
+            excluded:
+              type: boolean
+              description: Cette organisation est exclue de la diffusion vers ce partenaire
+            clicks:
+              type: integer
+              description: Nombre de clics vers les missions de cette organisation au cours des 30 derniers jours
+
+    # ── Erreur ─────────────────────────────────────────────────────────────────
+    Error:
+      type: object
+      properties:
+        ok:
+          type: boolean
+          example: false
+        code:
+          type: string
+          example: "NOT_FOUND"
+        message:
+          description: Détail de l'erreur (peut être un objet Zod ou une chaîne)
+
+  # ── Réponses réutilisables ──────────────────────────────────────────────────
+  responses:
+    BadRequest:
+      description: Paramètres invalides
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          examples:
+            invalid_body:
+              value:
+                ok: false
+                code: "INVALID_BODY"
+                message: "clientId is required"
+            invalid_params:
+              value:
+                ok: false
+                code: "INVALID_PARAMS"
+                message: "Invalid path parameter"
+
+    Unauthorized:
+      description: Clé API manquante ou invalide
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            ok: false
+            code: "UNAUTHORIZED"
+            message: "Unauthorized"
+
+    NotFound:
+      description: Ressource introuvable
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            ok: false
+            code: "NOT_FOUND"
+            message: "Mission not found"
+
+    Conflict:
+      description: Conflit — la ressource existe déjà
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            ok: false
+            code: "RESSOURCE_ALREADY_EXIST"
+            message: "A mission with this clientId already exists for this publisher"
+
+    TooManyRequests:
+      description: Limite de débit atteinte
+      headers:
+        X-RateLimit-Limit:
+          schema:
+            type: integer
+          description: Nombre maximum de requêtes par fenêtre
+        X-RateLimit-Remaining:
+          schema:
+            type: integer
+          description: Nombre de requêtes restantes
+        Retry-After:
+          schema:
+            type: integer
+          description: Secondes à attendre avant de réessayer
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            ok: false
+            code: "TOO_MANY_REQUESTS"
+            message: "Rate limit exceeded"
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Paths
+# ──────────────────────────────────────────────────────────────────────────────
+
+paths:
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # v2 — Missions
+  # ────────────────────────────────────────────────────────────────────────────
+
+  /v2/mission:
+    post:
+      summary: Créer une mission
+      description: |
+        Crée une nouvelle mission pour votre organisation.
+
+        La mission est immédiatement soumise aux règles de modération automatique :
+        si elle est incomplète (description trop courte, pas d'adresse, etc.), le champ
+        `statusCode` sera positionné à `REFUSED` avec un commentaire explicatif.
+
+        > **Rate limiting** : endpoint soumis à limitation de débit.
+      operationId: createMission
+      tags: [Missions]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [clientId, title]
+              properties:
+                clientId:
+                  type: string
+                  description: Identifiant unique de la mission dans votre système (immuable)
+                  example: "mission-2024-001"
+                title:
+                  type: string
+                  description: Titre de la mission
+                  example: "Animateur bénévole en maison de retraite"
+                description:
+                  type: string
+                  description: Description complète (minimum 300 caractères recommandé pour la modération)
+                applicationUrl:
+                  type: string
+                  format: uri
+                  description: URL de candidature
+                domain:
+                  type: string
+                  description: Domaine d'action
+                  example: "sante"
+                activities:
+                  type: array
+                  items:
+                    type: string
+                  example: ["animation", "accompagnement"]
+                tags:
+                  type: array
+                  items:
+                    type: string
+                tasks:
+                  type: array
+                  items:
+                    type: string
+                audience:
+                  type: array
+                  items:
+                    type: string
+                requirements:
+                  type: array
+                  items:
+                    type: string
+                softSkills:
+                  type: array
+                  items:
+                    type: string
+                romeSkills:
+                  type: array
+                  items:
+                    type: string
+                remote:
+                  type: string
+                  enum: [no, possible, full]
+                schedule:
+                  type: string
+                  example: "2 heures par semaine"
+                startAt:
+                  type: string
+                  format: date-time
+                endAt:
+                  type: string
+                  format: date-time
+                priority:
+                  type: string
+                places:
+                  type: integer
+                  minimum: 1
+                compensationAmount:
+                  type: number
+                compensationUnit:
+                  type: string
+                  enum: [hour, day, month, year]
+                compensationType:
+                  type: string
+                  enum: [gross, net]
+                openToMinors:
+                  type: boolean
+                reducedMobilityAccessible:
+                  type: boolean
+                closeToTransport:
+                  type: boolean
+                addresses:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/Address"
+                type:
+                  type: string
+                  enum: [benevolat, volontariat_service_civique, volontariat_sapeurs_pompiers]
+                organizationClientId:
+                  type: string
+                  description: Identifiant de l'organisation dans votre système
+                organizationName:
+                  type: string
+                  description: Requis si un autre champ `organization*` est renseigné
+                organizationDescription:
+                  type: string
+                organizationUrl:
+                  type: string
+                  format: uri
+                organizationType:
+                  type: string
+                organizationLogo:
+                  type: string
+                  format: uri
+                organizationRNA:
+                  type: string
+                organizationSiren:
+                  type: string
+                organizationSiret:
+                  type: string
+                organizationFullAddress:
+                  type: string
+                organizationPostCode:
+                  type: string
+                organizationCity:
+                  type: string
+                organizationDepartment:
+                  type: string
+                organizationDepartmentCode:
+                  type: string
+                organizationDepartmentName:
+                  type: string
+                organizationStatusJuridique:
+                  type: string
+                organizationBeneficiaries:
+                  type: array
+                  items:
+                    type: string
+                organizationActions:
+                  type: array
+                  items:
+                    type: string
+                organizationReseaux:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        "201":
+          description: Mission créée
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: "#/components/schemas/Mission"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+
+  /v2/mission/{clientId}:
+    put:
+      summary: Modifier une mission
+      description: |
+        Mise à jour partielle d'une mission (sémantique PATCH).
+        Seuls les champs fournis dans le corps sont modifiés.
+        Les règles de modération automatique sont réévaluées sur l'état complet résultant.
+
+        > **Rate limiting** : endpoint soumis à limitation de débit.
+      operationId: updateMission
+      tags: [Missions]
+      parameters:
+        - name: clientId
+          in: path
+          required: true
+          description: Identifiant de la mission dans votre système
+          schema:
+            type: string
+          example: "mission-2024-001"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Tous les champs sont optionnels — seuls les champs fournis sont mis à jour
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                applicationUrl:
+                  type: string
+                  format: uri
+                domain:
+                  type: string
+                activities:
+                  type: array
+                  items:
+                    type: string
+                tags:
+                  type: array
+                  items:
+                    type: string
+                tasks:
+                  type: array
+                  items:
+                    type: string
+                audience:
+                  type: array
+                  items:
+                    type: string
+                requirements:
+                  type: array
+                  items:
+                    type: string
+                softSkills:
+                  type: array
+                  items:
+                    type: string
+                romeSkills:
+                  type: array
+                  items:
+                    type: string
+                remote:
+                  type: string
+                  enum: [no, possible, full]
+                schedule:
+                  type: string
+                startAt:
+                  type: string
+                  format: date-time
+                endAt:
+                  type: string
+                  format: date-time
+                priority:
+                  type: string
+                places:
+                  type: integer
+                  minimum: 1
+                compensationAmount:
+                  type: number
+                compensationUnit:
+                  type: string
+                  enum: [hour, day, month, year]
+                compensationType:
+                  type: string
+                  enum: [gross, net]
+                openToMinors:
+                  type: boolean
+                reducedMobilityAccessible:
+                  type: boolean
+                closeToTransport:
+                  type: boolean
+                addresses:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/Address"
+                type:
+                  type: string
+                  enum: [benevolat, volontariat_service_civique, volontariat_sapeurs_pompiers]
+                organizationClientId:
+                  type: string
+                organizationName:
+                  type: string
+                  description: Requis si un autre champ `organization*` est renseigné
+                organizationDescription:
+                  type: string
+                organizationUrl:
+                  type: string
+                  format: uri
+                organizationType:
+                  type: string
+                organizationLogo:
+                  type: string
+                  format: uri
+                organizationRNA:
+                  type: string
+                organizationSiren:
+                  type: string
+                organizationSiret:
+                  type: string
+                organizationFullAddress:
+                  type: string
+                organizationPostCode:
+                  type: string
+                organizationCity:
+                  type: string
+                organizationStatusJuridique:
+                  type: string
+                organizationBeneficiaries:
+                  type: array
+                  items:
+                    type: string
+                organizationActions:
+                  type: array
+                  items:
+                    type: string
+                organizationReseaux:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        "200":
+          description: Mission mise à jour
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: "#/components/schemas/Mission"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+
+    delete:
+      summary: Supprimer une mission
+      description: |
+        Suppression douce (soft delete) d'une mission. L'opération est idempotente :
+        si la mission est déjà supprimée, la réponse est identique à une suppression réussie.
+
+        > **Rate limiting** : endpoint soumis à limitation de débit.
+      operationId: deleteMission
+      tags: [Missions]
+      parameters:
+        - name: clientId
+          in: path
+          required: true
+          description: Identifiant de la mission dans votre système
+          schema:
+            type: string
+          example: "mission-2024-001"
+      responses:
+        "200":
+          description: Mission supprimée
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      clientId:
+                        type: string
+                        example: "mission-2024-001"
+                      deletedAt:
+                        type: string
+                        format: date-time
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # v2 — Activités
+  # ────────────────────────────────────────────────────────────────────────────
+
+  /v2/activity/{id}:
+    get:
+      summary: Récupérer une activité
+      description: |
+        Récupère une activité (candidature ou création de compte) par son identifiant
+        ou par son `clientEventId`. En cas d'ambiguïté (même `clientEventId` pour un
+        `apply` et un `account`), précisez le paramètre `type`.
+      operationId: getActivity
+      tags: [Activités]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Identifiant interne ou `clientEventId` de l'activité
+          schema:
+            type: string
+          example: "64a1b2c3d4e5f6789abc0099"
+        - name: type
+          in: query
+          required: false
+          description: Type de l'activité (requis en cas d'ambiguïté sur le `clientEventId`)
+          schema:
+            type: string
+            enum: [apply, account]
+      responses:
+        "200":
+          description: Activité trouvée
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: "#/components/schemas/Activity"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          description: Ambiguïté sur le clientEventId — précisez le paramètre `type`
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    put:
+      summary: Mettre à jour le statut d'une activité
+      description: |
+        Met à jour le statut d'une candidature ou d'une création de compte.
+        Utilisez ce endpoint pour notifier l'API des décisions prises sur les candidatures
+        (validation, refus, annulation, etc.).
+      operationId: updateActivity
+      tags: [Activités]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Identifiant interne ou `clientEventId` de l'activité
+          schema:
+            type: string
+        - name: type
+          in: query
+          required: false
+          description: Type de l'activité (requis en cas d'ambiguïté sur le `clientEventId`)
+          schema:
+            type: string
+            enum: [apply, account]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  enum: [PENDING, VALIDATED, CANCELED, REFUSED, CARRIED_OUT]
+                  description: Nouveau statut de l'activité
+                  example: "VALIDATED"
+                type:
+                  type: string
+                  enum: [apply, account]
+                  description: Type de l'activité (requis en cas d'ambiguïté)
+      responses:
+        "200":
+          description: Activité mise à jour
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: "#/components/schemas/Activity"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          description: Ambiguïté sur le clientEventId — précisez le paramètre `type`
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /v2/activity:
+    post:
+      summary: Créer une activité
+      description: |
+        Enregistre un événement d'engagement (candidature ou création de compte)
+        lié à un clic tracé par l'API.
+
+        Le `clickId` doit correspondre à un clic enregistré par l'API Engagement.
+        Si `missionClientId` est fourni, l'activité sera enrichie avec les données de la mission correspondante.
+      operationId: createActivity
+      tags: [Activités]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [clickId]
+              properties:
+                type:
+                  type: string
+                  enum: [apply, account]
+                  default: apply
+                  description: Type d'événement (défaut `apply`)
+                clickId:
+                  type: string
+                  description: Identifiant du clic d'origine (obligatoire)
+                  example: "64a1b2c3d4e5f6789abc0088"
+                missionClientId:
+                  type: string
+                  description: Identifiant client de la mission concernée (optionnel)
+                tag:
+                  type: string
+                  description: Tag libre (optionnel)
+      responses:
+        "200":
+          description: Activité créée
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: "#/components/schemas/Activity"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          description: Clic ou mission introuvable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # v0 — Recherche de missions
+  # ────────────────────────────────────────────────────────────────────────────
+
+  /v0/mission:
+    get:
+      summary: Rechercher des missions
+      description: |
+        Retourne les missions diffusées par vos partenaires, filtrées selon vos critères.
+        Les résultats sont limités aux partenaires autorisés pour votre clé API.
+
+        Les paramètres `activity`, `city`, `clientId`, `country`, `departmentName`,
+        `domain`, `organizationRNA`, `organizationStatusJuridique`, `publisher`,
+        `remote` et `type` acceptent une valeur unique ou un tableau de valeurs
+        (ex. `?domain=sante&domain=education`).
+      operationId: searchMissions
+      tags: [Missions]
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 10000
+            default: 25
+          description: Nombre de résultats (défaut 25, max 10 000)
+        - name: skip
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          description: Décalage pour la pagination
+        - name: keywords
+          in: query
+          schema:
+            type: string
+          description: Recherche textuelle (titre, description, organisation)
+          example: "cuisine solidaire"
+        - name: domain
+          in: query
+          schema:
+            oneOf:
+              - type: string
+              - type: array
+                items:
+                  type: string
+          description: Domaine d'action
+          example: "sante"
+        - name: activity
+          in: query
+          schema:
+            oneOf:
+              - type: string
+              - type: array
+                items:
+                  type: string
+          description: Activité proposée
+        - name: type
+          in: query
+          schema:
+            oneOf:
+              - type: string
+              - type: array
+                items:
+                  type: string
+          description: "Type d'engagement : benevolat, volontariat_service_civique, volontariat_sapeurs_pompiers"
+        - name: remote
+          in: query
+          schema:
+            oneOf:
+              - type: string
+              - type: array
+                items:
+                  type: string
+          description: "Modalité de télétravail : no, possible, full"
+        - name: lat
+          in: query
+          schema:
+            type: number
+            format: double
+          description: Latitude (requis avec `lon` pour la recherche géographique)
+          example: 48.8566
+        - name: lon
+          in: query
+          schema:
+            type: number
+            format: double
+          description: Longitude (requis avec `lat` pour la recherche géographique)
+          example: 2.3522
+        - name: distance
+          in: query
+          schema:
+            type: string
+          description: "Rayon de recherche géographique (ex. `25km`, `50km`). Défaut : 50km"
+          example: "25km"
+        - name: city
+          in: query
+          schema:
+            oneOf:
+              - type: string
+              - type: array
+                items:
+                  type: string
+          description: Filtre par ville
+        - name: departmentName
+          in: query
+          schema:
+            oneOf:
+              - type: string
+              - type: array
+                items:
+                  type: string
+          description: Filtre par département
+          example: "Rhône"
+        - name: country
+          in: query
+          schema:
+            oneOf:
+              - type: string
+              - type: array
+                items:
+                  type: string
+          description: Filtre par pays
+        - name: clientId
+          in: query
+          schema:
+            oneOf:
+              - type: string
+              - type: array
+                items:
+                  type: string
+          description: Filtre par identifiant client
+        - name: publisher
+          in: query
+          schema:
+            oneOf:
+              - type: string
+              - type: array
+                items:
+                  type: string
+          description: Filtre sur les identifiants de partenaires diffuseurs
+        - name: organizationRNA
+          in: query
+          schema:
+            oneOf:
+              - type: string
+              - type: array
+                items:
+                  type: string
+          description: Filtre par numéro RNA de l'organisation
+        - name: organizationStatusJuridique
+          in: query
+          schema:
+            oneOf:
+              - type: string
+              - type: array
+                items:
+                  type: string
+          description: Filtre par forme juridique de l'organisation
+        - name: openToMinors
+          in: query
+          schema:
+            type: string
+            enum: ["true", "false", "yes", "no", "1", "0"]
+          description: Missions ouvertes aux mineurs uniquement
+        - name: reducedMobilityAccessible
+          in: query
+          schema:
+            type: string
+            enum: ["true", "false", "yes", "no", "1", "0"]
+          description: Missions accessibles PMR uniquement
+        - name: snu
+          in: query
+          schema:
+            type: string
+            enum: ["true", "false"]
+          description: Missions Service National Universel uniquement
+        - name: startAt
+          in: query
+          schema:
+            type: string
+          description: "Filtre sur la date de début (ex. `>2024-01-01`, `<2024-12-31`)"
+        - name: createdAt
+          in: query
+          schema:
+            type: string
+          description: "Filtre sur la date de création (ex. `>2024-01-01`)"
+      responses:
+        "200":
+          description: Liste de missions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  total:
+                    type: integer
+                    description: Nombre total de résultats correspondants
+                    example: 1234
+                  limit:
+                    type: integer
+                    example: 25
+                  skip:
+                    type: integer
+                    example: 0
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/MissionLegacy"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /v0/mission/search:
+    get:
+      summary: Rechercher des missions avec facettes
+      description: |
+        Identique à `GET /v0/mission` mais retourne également des facettes
+        (agrégations) sur les domaines, activités et départements pour faciliter
+        la construction de filtres dynamiques.
+      operationId: searchMissionsWithFacets
+      tags: [Missions]
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 10000
+            default: 25
+        - name: skip
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: keywords
+          in: query
+          schema:
+            type: string
+        - name: domain
+          in: query
+          schema:
+            oneOf:
+              - type: string
+              - type: array
+                items:
+                  type: string
+        - name: activity
+          in: query
+          schema:
+            oneOf:
+              - type: string
+              - type: array
+                items:
+                  type: string
+        - name: type
+          in: query
+          schema:
+            oneOf:
+              - type: string
+              - type: array
+                items:
+                  type: string
+        - name: remote
+          in: query
+          schema:
+            oneOf:
+              - type: string
+              - type: array
+                items:
+                  type: string
+        - name: lat
+          in: query
+          schema:
+            type: number
+            format: double
+        - name: lon
+          in: query
+          schema:
+            type: number
+            format: double
+        - name: distance
+          in: query
+          schema:
+            type: string
+        - name: departmentName
+          in: query
+          schema:
+            oneOf:
+              - type: string
+              - type: array
+                items:
+                  type: string
+        - name: openToMinors
+          in: query
+          schema:
+            type: string
+            enum: ["true", "false", "yes", "no", "1", "0"]
+        - name: reducedMobilityAccessible
+          in: query
+          schema:
+            type: string
+            enum: ["true", "false", "yes", "no", "1", "0"]
+      responses:
+        "200":
+          description: Liste de missions avec facettes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  total:
+                    type: integer
+                    example: 1234
+                  limit:
+                    type: integer
+                    example: 25
+                  skip:
+                    type: integer
+                    example: 0
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/MissionLegacy"
+                  facets:
+                    type: object
+                    description: Agrégations pour les filtres dynamiques
+                    properties:
+                      domain:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            key:
+                              type: string
+                            doc_count:
+                              type: integer
+                      activity:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            key:
+                              type: string
+                            doc_count:
+                              type: integer
+                      departmentName:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            key:
+                              type: string
+                            doc_count:
+                              type: integer
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /v0/mission/{id}:
+    get:
+      summary: Récupérer une mission par ID
+      operationId: getMission
+      tags: [Missions]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Identifiant interne de la mission
+          schema:
+            type: string
+          example: "64a1b2c3d4e5f6789abc0001"
+      responses:
+        "200":
+          description: Mission trouvée
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: "#/components/schemas/MissionLegacy"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # v0 — Mes missions
+  # ────────────────────────────────────────────────────────────────────────────
+
+  /v0/mymission:
+    get:
+      summary: Lister mes missions
+      description: Retourne toutes les missions publiées par votre organisation.
+      operationId: listMyMissions
+      tags: [Mes missions]
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 10000
+            default: 50
+          description: Nombre de résultats (défaut 50, max 10 000)
+        - name: skip
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          description: Décalage pour la pagination
+      responses:
+        "200":
+          description: Liste de missions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  total:
+                    type: integer
+                    example: 42
+                  limit:
+                    type: integer
+                    example: 50
+                  skip:
+                    type: integer
+                    example: 0
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/MissionLegacy"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /v0/mymission/{clientId}:
+    get:
+      summary: Récupérer une mission avec ses statistiques
+      description: Retourne une mission identifiée par son `clientId` ainsi que ses statistiques d'engagement (clics, candidatures, créations de compte).
+      operationId: getMyMission
+      tags: [Mes missions]
+      parameters:
+        - name: clientId
+          in: path
+          required: true
+          description: Identifiant de la mission dans votre système
+          schema:
+            type: string
+          example: "mission-2024-001"
+      responses:
+        "200":
+          description: Mission avec statistiques
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  data:
+                    allOf:
+                      - $ref: "#/components/schemas/MissionLegacy"
+                      - type: object
+                        properties:
+                          stats:
+                            $ref: "#/components/schemas/MissionStats"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /v0/mymission/{clientId}/stats:
+    get:
+      summary: Récupérer les statistiques d'une mission
+      description: Retourne uniquement les statistiques d'engagement d'une mission (clics, candidatures, créations de compte).
+      operationId: getMyMissionStats
+      tags: [Mes missions]
+      parameters:
+        - name: clientId
+          in: path
+          required: true
+          description: Identifiant de la mission dans votre système
+          schema:
+            type: string
+          example: "mission-2024-001"
+      responses:
+        "200":
+          description: Statistiques de la mission
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: "#/components/schemas/MissionStats"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # v0 — Organisations
+  # ────────────────────────────────────────────────────────────────────────────
+
+  /v0/organization:
+    get:
+      summary: Rechercher des organisations
+      description: |
+        Recherche des organisations par nom, numéro RNA ou SIRET.
+        Au moins un critère de recherche est recommandé.
+      operationId: searchOrganizations
+      tags: [Organisations]
+      parameters:
+        - name: q
+          in: query
+          schema:
+            type: string
+          description: Recherche textuelle sur le nom
+          example: "Croix-Rouge"
+        - name: rna
+          in: query
+          schema:
+            type: string
+          description: Numéro RNA exact
+          example: "W751206979"
+        - name: siret
+          in: query
+          schema:
+            type: string
+          description: Numéro SIRET exact
+          example: "77567227221138"
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 100
+            default: 25
+          description: Nombre de résultats (défaut 25, max 100)
+        - name: skip
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          description: Décalage pour la pagination
+      responses:
+        "200":
+          description: Liste d'organisations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  total:
+                    type: integer
+                    example: 3
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Organization"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /v0/myorganization/{organizationClientId}:
+    get:
+      summary: Consulter la diffusion d'une organisation
+      description: |
+        Retourne la liste des partenaires diffuseurs éligibles, avec pour chacun :
+        - le nombre de clics vers les missions de cette organisation sur les 30 derniers jours
+        - l'indicateur d'exclusion éventuelle
+
+        Utile pour piloter la stratégie de diffusion d'une organisation.
+      operationId: getOrganizationDiffusion
+      tags: [Organisations]
+      parameters:
+        - name: organizationClientId
+          in: path
+          required: true
+          description: Identifiant de l'organisation dans votre système
+          schema:
+            type: string
+          example: "org-croix-rouge-001"
+      responses:
+        "200":
+          description: Liste des partenaires diffuseurs avec statut d'exclusion
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  total:
+                    type: integer
+                    example: 8
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/PartnerWithExclusionFlag"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    put:
+      summary: Gérer les exclusions de diffusion d'une organisation
+      description: |
+        Définit la liste des partenaires diffuseurs **autorisés** pour une organisation.
+        Les partenaires non inclus dans `publisherIds` seront exclus de la diffusion.
+
+        > **Attention** : cette opération remplace intégralement les exclusions existantes.
+      operationId: updateOrganizationDiffusion
+      tags: [Organisations]
+      parameters:
+        - name: organizationClientId
+          in: path
+          required: true
+          description: Identifiant de l'organisation dans votre système
+          schema:
+            type: string
+          example: "org-croix-rouge-001"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [publisherIds]
+              properties:
+                organizationName:
+                  type: [string, "null"]
+                  description: Nom de l'organisation (optionnel, mis à jour si fourni)
+                  example: "Croix-Rouge française"
+                publisherIds:
+                  type: array
+                  items:
+                    type: string
+                  description: Liste des identifiants des partenaires **autorisés** à diffuser les missions de cette organisation
+                  example: ["5f5931496c7ea514150a818f", "60a1b2c3d4e5f6789abc0001"]
+      responses:
+        "200":
+          description: Exclusions mises à jour
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  total:
+                    type: integer
+                    example: 8
+                  data:
+                    type: array
+                    description: Liste complète des partenaires avec leur statut d'exclusion mis à jour
+                    items:
+                      $ref: "#/components/schemas/PartnerWithExclusionFlag"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # v0 — Partenaires diffuseurs
+  # ────────────────────────────────────────────────────────────────────────────
+
+  /v0/publisher:
+    get:
+      summary: Lister les partenaires diffuseurs
+      description: |
+        Retourne la liste des partenaires diffuseurs qui diffusent vos missions,
+        avec les exclusions d'organisations éventuellement configurées.
+      operationId: listPartners
+      tags: [Partenaires]
+      responses:
+        "200":
+          description: Liste des partenaires diffuseurs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  total:
+                    type: integer
+                    example: 12
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/PartnerWithExclusions"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /v0/publisher/{id}:
+    get:
+      summary: Récupérer un partenaire diffuseur
+      description: Retourne le détail d'un partenaire diffuseur, incluant les organisations exclues.
+      operationId: getPartner
+      tags: [Partenaires]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Identifiant du partenaire diffuseur
+          schema:
+            type: string
+          example: "5f5931496c7ea514150a818f"
+      responses:
+        "200":
+          description: Partenaire trouvé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: "#/components/schemas/PartnerWithExclusions"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
