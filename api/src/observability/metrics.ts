@@ -41,16 +41,22 @@ let httpMetricsRecorder: HttpMetricsRecorder = noopRecorder;
 
 const getPathname = (req: Request) => req.originalUrl.split("?")[0];
 
-const buildRouteLabel = (baseUrl: string, routePath: string) => {
-  if (!baseUrl) {
-    return routePath || "/";
-  }
+const splitRouteSegments = (value: string) => value.split("/").filter(Boolean);
 
+const buildRouteLabel = (pathname: string, routePath: string) => {
   if (routePath === "/") {
-    return baseUrl;
+    return pathname || "/";
   }
 
-  return `${baseUrl}${routePath}`;
+  const pathnameSegments = splitRouteSegments(pathname);
+  const routeSegments = splitRouteSegments(routePath);
+
+  if (routeSegments.length === 0) {
+    return pathname || "/";
+  }
+
+  const mountSegments = pathnameSegments.slice(0, Math.max(pathnameSegments.length - routeSegments.length, 0));
+  return `/${[...mountSegments, ...routeSegments].join("/")}`;
 };
 
 const getRequestRoutePath = (req: Request) => {
@@ -168,7 +174,7 @@ export const getHttpMetricsRoute = (req: Request) => {
     return "unmatched";
   }
 
-  return buildRouteLabel(req.baseUrl, routePath);
+  return buildRouteLabel(getPathname(req), routePath);
 };
 
 export const shouldIgnoreHttpMetrics = (req: Request) => {

@@ -87,6 +87,23 @@ describe("HTTP metrics middleware", () => {
     expect(records[0]!.durationSeconds).toBeGreaterThanOrEqual(0);
   });
 
+  it("reconstructs the mounted route prefix for dynamic partner endpoints", async () => {
+    const records = await executeMetricsMiddleware({
+      method: "GET",
+      originalUrl: "/v2/mission/68b57297db8e5bb5cefb8a39",
+      routePath: "/:id",
+      statusCode: 200,
+    });
+
+    expect(records).toHaveLength(1);
+    expect(records[0]).toMatchObject({
+      environment: "test",
+      method: "GET",
+      route: "/v2/mission/:id",
+      statusCode: 200,
+    });
+  });
+
   it("records unmatched partner routes as unmatched", async () => {
     const records = await executeMetricsMiddleware({
       method: "GET",
