@@ -444,11 +444,12 @@ async function createNotionEntry(tag: string, codeName: string, result: Changelo
   const releaseUrl = `https://github.com/${GITHUB_REPO}/releases/tag/${tag}`;
   const commitBlocks: NotionBlock[] = [
     { object: "block", type: "divider", divider: {} },
+    { object: "block", type: "heading_1", heading_1: { rich_text: [{ text: { content: "📝 Commits" } }] } },
     {
       object: "block",
-      type: "heading_1",
-      heading_1: {
-        rich_text: [{ text: { content: "📝 Commits  →  " } }, { text: { content: "Voir la release", link: { url: releaseUrl } } }],
+      type: "bulleted_list_item",
+      bulleted_list_item: {
+        rich_text: [{ text: { content: "Voir la release", link: { url: releaseUrl } } }],
       },
     },
   ];
