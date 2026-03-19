@@ -4,10 +4,10 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { DateInput } from "@/components/DateRangePicker";
 import Table from "@/components/Table";
 import { MISSION_TYPE_OPTIONS } from "@/constants";
-import MultiSearchSelect from "@/scenes/admin-stats/MultiSearchSelect";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
+import { withLegacyPublishers } from "@/utils/publisher";
 
 const TABLE_HEADER = [
   { title: "Données", key: "name", colSpan: 2 },
@@ -22,7 +22,7 @@ const Broacaster = () => {
     from: searchParams.has("from") ? new Date(searchParams.get("from")) : new Date(new Date().getFullYear() - 1, new Date().getMonth(), new Date().getDate()),
     to: searchParams.has("to") ? new Date(searchParams.get("to")) : new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + 1, 0, 0, 0, -1),
     type: searchParams.get("type") || "",
-    publishers: [],
+    publisher: searchParams.get("broadcaster") || "",
     source: searchParams.get("source") || "",
   });
   const [sortBy, setSortBy] = useState("clickFrom");
@@ -34,13 +34,42 @@ const Broacaster = () => {
   });
   const [loading, setLoading] = useState(false);
   const [partners, setPartners] = useState([]);
-  const { setPublisher } = useStore();
+  const { user, setPublisher } = useStore();
 
   const navigate = useNavigate();
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  useEffect(() => {
+    const fetchPartners = async () => {
+      if (!user) return;
+
+      try {
+        const query = user.role === "admin" ? {} : { ids: user.publishers };
+        const res = await api.post("/publisher/search", query);
+        if (!res.ok) {
+          throw res;
+        }
+
+        const options = withLegacyPublishers(res.data)
+          .filter((publisher) => publisher?.id || publisher?._id)
+          .filter((publisher) => publisher.hasApiRights || publisher.hasWidgetRights || publisher.hasCampaignRights)
+          .sort((a, b) => (a.name || "").localeCompare(b.name || ""))
+          .map((publisher) => ({
+            value: String(publisher.id || publisher._id),
+            label: publisher.name || "Partenaire inconnu",
+          }));
+
+        setPartners(options);
+      } catch (error) {
+        captureError(error, { extra: { userRole: user.role, userPublishers: user.publishers } });
+      }
+    };
+
+    fetchPartners();
+  }, [user]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -52,7 +81,7 @@ const Broacaster = () => {
         if (filters.to) query.set("to", filters.to.toISOString());
         if (filters.type) query.set("type", filters.type);
         if (filters.source) query.set("source", filters.source);
-        if (filters.publishers.length > 0) query.set("broadcaster", filters.publishers.join(","));
+        if (filters.publisher) query.set("broadcaster", filters.publisher);
 
         const res = await api.get(`/stats-admin/publishers-views?${query.toString()}`);
 
@@ -63,7 +92,6 @@ const Broacaster = () => {
             ...item,
             rate: item.clickFrom === 0 ? 0 : item.applyFrom / item.clickFrom,
           }));
-        setPartners(broadcasters.map((p) => ({ value: p._id, label: p.name })));
         setData(broadcasters);
         setTotal(res.total);
         setSearchParams(query);
@@ -92,7 +120,17 @@ const Broacaster = () => {
       <div className="box-border flex bg-white">
         <div className="flex justify-between gap-2">
           <DateInput value={{ from: filters.from, to: filters.to }} onChange={(v) => setFilters({ ...filters, from: v.from, to: v.to })} />
-          <MultiSearchSelect options={partners} value={filters.publishers} onChange={(e) => setFilters({ ...filters, publishers: e.value })} placeholder="Partenaires" />
+          <label htmlFor="broadcaster" className="sr-only">
+            Partenaire diffuseur
+          </label>
+          <select id="broadcaster" className="select w-[18em]" value={filters.publisher} onChange={(e) => setFilters({ ...filters, publisher: e.target.value })}>
+            <option value="">Partenaires</option>
+            {partners.map((partner) => (
+              <option key={partner.value} value={partner.value}>
+                {partner.label}
+              </option>
+            ))}
+          </select>
           <label htmlFor="mission-type" className="sr-only">
             Type de mission
           </label>

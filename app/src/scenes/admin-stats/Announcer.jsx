@@ -4,10 +4,10 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { DateInput } from "@/components/DateRangePicker";
 import Table from "@/components/Table";
 import { MISSION_TYPE_OPTIONS } from "@/constants";
-import MultiSearchSelect from "@/scenes/admin-stats/MultiSearchSelect";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
+import { withLegacyPublishers } from "@/utils/publisher";
 
 const TABLE_HEADER = [
   { title: "Données", key: "name", colSpan: 2 },
@@ -22,8 +22,7 @@ const Announcer = () => {
     from: searchParams.has("from") ? new Date(searchParams.get("from")) : new Date(new Date().getFullYear() - 1, new Date().getMonth(), new Date().getDate()),
     to: searchParams.has("to") ? new Date(searchParams.get("to")) : new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + 1, 0, 0, 0, -1),
     type: searchParams.get("type") || "",
-    publishers: [],
-    search: searchParams.get("search") || "",
+    publisher: searchParams.get("announcer") || "",
   });
   const [sortBy, setSortBy] = useState("clickTo");
   const [data, setData] = useState([]);
@@ -34,13 +33,42 @@ const Announcer = () => {
   });
   const [loading, setLoading] = useState(false);
   const [partners, setPartners] = useState([]);
-  const { setPublisher } = useStore();
+  const { user, setPublisher } = useStore();
 
   const navigate = useNavigate();
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  useEffect(() => {
+    const fetchPartners = async () => {
+      if (!user) return;
+
+      try {
+        const query = user.role === "admin" ? {} : { ids: user.publishers };
+        const res = await api.post("/publisher/search", query);
+        if (!res.ok) {
+          throw res;
+        }
+
+        const options = withLegacyPublishers(res.data)
+          .filter((publisher) => publisher?.id || publisher?._id)
+          .filter((publisher) => publisher.isAnnonceur)
+          .sort((a, b) => (a.name || "").localeCompare(b.name || ""))
+          .map((publisher) => ({
+            value: String(publisher.id || publisher._id),
+            label: publisher.name || "Partenaire inconnu",
+          }));
+
+        setPartners(options);
+      } catch (error) {
+        captureError(error, { extra: { userRole: user.role, userPublishers: user.publishers } });
+      }
+    };
+
+    fetchPartners();
+  }, [user]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,7 +79,7 @@ const Announcer = () => {
         if (filters.from) query.set("from", filters.from.toISOString());
         if (filters.to) query.set("to", filters.to.toISOString());
         if (filters.type) query.set("type", filters.type);
-        if (filters.publishers.length > 0) query.set("announcer", filters.publishers.join(","));
+        if (filters.publisher) query.set("announcer", filters.publisher);
 
         const res = await api.get(`/stats-admin/publishers-views?${query.toString()}`);
 
@@ -63,7 +91,6 @@ const Announcer = () => {
             rate: item.clickTo === 0 ? 0 : item.applyTo / item.clickTo,
           }));
 
-        setPartners(announcers.map((p) => ({ label: p.name, value: p._id })));
         setData(announcers);
         setTotal(res.total);
         setSearchParams(query);
@@ -92,7 +119,17 @@ const Announcer = () => {
       <div className="box-border flex">
         <div className="flex w-full justify-between gap-2">
           <DateInput value={{ from: filters.from, to: filters.to }} onChange={(v) => setFilters({ ...filters, from: v.from, to: v.to })} />
-          <MultiSearchSelect options={partners} value={filters.publishers} onChange={(e) => setFilters({ ...filters, publishers: e.value })} placeholder="Partenaires" />
+          <label htmlFor="announcer" className="sr-only">
+            Partenaire annonceur
+          </label>
+          <select id="announcer" className="select min-w-[27.5em]" value={filters.publisher} onChange={(e) => setFilters({ ...filters, publisher: e.target.value })}>
+            <option value="">Partenaires</option>
+            {partners.map((partner) => (
+              <option key={partner.value} value={partner.value}>
+                {partner.label}
+              </option>
+            ))}
+          </select>
           <label htmlFor="mission-type" className="sr-only">
             Type de mission
           </label>
