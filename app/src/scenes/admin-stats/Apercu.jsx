@@ -16,7 +16,6 @@ const CHART_COLORS = ["rgba(117,165,236,1)", "rgba(251,146,107,1)", "#fdc639"];
 const ADMIN_STATS_CARD_IDS = {
   engagementRedirections: "5726",
   engagementCandidatures: "5727",
-  engagementEvolution: "",
   missionsActives: "5728",
   missionsCreees: "5729",
   diffuseursTop: "5730",
@@ -265,15 +264,6 @@ const EngagementSection = ({ filters, publisher }) => {
         cardId={ADMIN_STATS_CARD_IDS.engagementCandidatures}
         title="Candidatures"
         subtitle="Candidatures que vous avez générées pour vos partenaires annonceurs"
-      />
-      <ChartBlock
-        title="Evolution de l'engagement"
-        subtitle="Redirections, candidatures et missions actives"
-        cardId={ADMIN_STATS_CARD_IDS.engagementEvolution}
-        filters={filters}
-        publisher={publisher}
-        type="stacked"
-        chartProps={{ color: ["#6a6af4", "#4cb4bd", "#fdc639"], legend: false }}
       />
     </div>
   );
