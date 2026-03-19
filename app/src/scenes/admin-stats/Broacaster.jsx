@@ -5,6 +5,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { DateInput } from "@/components/DateRangePicker";
 import Loader from "@/components/Loader";
 import Table from "@/components/Table";
+import { MISSION_TYPE_OPTIONS } from "@/constants";
 import MultiSearchSelect from "@/scenes/admin-stats/MultiSearchSelect";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
@@ -150,8 +151,11 @@ const Broacaster = () => {
             <option className="text-sm" value="">
               Type de mission
             </option>
-            <option value="benevolat">Toutes les missions de bénévolat</option>
-            <option value="volontariat">Toutes les missions de volontariat</option>
+            {MISSION_TYPE_OPTIONS.map((missionType) => (
+              <option key={missionType.value} value={missionType.value}>
+                {missionType.label}
+              </option>
+            ))}
           </select>
           <label htmlFor="source" className="sr-only">
             Moyen de diffusion

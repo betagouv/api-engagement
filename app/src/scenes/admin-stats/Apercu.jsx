@@ -10,6 +10,7 @@ import { useAnalyticsProvider } from "@/services/analytics/provider";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
 import EmptySVG from "@/assets/svg/empty-info.svg";
+import { MISSION_TYPE_OPTIONS } from "@/constants";
 
 const CHART_COLORS = ["rgba(117,165,236,1)", "rgba(251,146,107,1)", "#fdc639"];
 
@@ -59,8 +60,11 @@ const Filters = ({ filters, onChange, idPrefix, showLabel = true }) => {
       </label>
       <select id={`${idPrefix}-mission-type`} className="select w-80" value={filters.type} onChange={(event) => onChange({ ...filters, type: event.target.value })}>
         <option value="">Tous les types de missions</option>
-        <option value="benevolat">Toutes les missions de bénévolat</option>
-        <option value="volontariat">Toutes les missions de volontariat</option>
+        {MISSION_TYPE_OPTIONS.map((missionType) => (
+          <option key={missionType.value} value={missionType.value}>
+            {missionType.label}
+          </option>
+        ))}
       </select>
     </div>
   );

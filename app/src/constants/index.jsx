@@ -204,6 +204,11 @@ export const MISSION_TYPES = {
   VOLONTARIAT_SAPERS_POMPIERS: { slug: "volontariat_sapeurs_pompiers", label: "Volontariat (Sapeurs-Pompiers)" },
 };
 
+export const MISSION_TYPE_OPTIONS = Object.values(MISSION_TYPES).map(({ slug, label }) => ({
+  value: slug,
+  label,
+}));
+
 export const METABASE_CARD_ID = {
   EVOLUTION_STAT_EVENT: "5497",
   DIFFUSEUR_TOTAL_MISSIONS: "5494",
