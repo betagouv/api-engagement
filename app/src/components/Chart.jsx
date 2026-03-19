@@ -168,7 +168,7 @@ export const BarChart = ({ data, dataKey = "Volume", nameKey = "name", color = "
   );
 };
 
-const StackedBarChartTooltip = ({ active, payload, label }) => {
+const StackedBarChartTooltip = ({ active, payload, label, seriesLabelMap = {} }) => {
   if (active && payload && payload.length) {
     const total = payload.reduce((acc, p) => acc + p.value, 0);
     return (
@@ -181,7 +181,7 @@ const StackedBarChartTooltip = ({ active, payload, label }) => {
             <div key={i} className="flex items-center justify-between gap-4">
               <div className="flex items-center">
                 <div className="mr-2 h-2 w-4" style={{ backgroundColor: p.fill }} />
-                <p className="truncate text-xs font-bold">{p.name}</p>
+                <p className="truncate text-xs font-bold">{seriesLabelMap[p.name] || p.name}</p>
               </div>
               <p className="text-xs font-bold">{p.value}</p>
             </div>
@@ -193,20 +193,20 @@ const StackedBarChartTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-const StackedBarChartLegend = ({ payload }) => {
+const StackedBarChartLegend = ({ payload, seriesLabelMap = {} }) => {
   return (
     <div className="flex flex-wrap justify-end gap-4 pb-4">
       {payload.map((entry, index) => (
         <div key={`item-${index}`} className="flex items-center gap-2">
           <div className="h-2 w-4" style={{ backgroundColor: entry.color }}></div>
-          <p className="truncate text-xs">{entry.value}</p>
+          <p className="truncate text-xs">{seriesLabelMap[entry.value] || entry.value}</p>
         </div>
       ))}
     </div>
   );
 };
 
-export const StackedBarchart = ({ data, dataKey = ["Volume"], nameKey = "name", color = COLORS, legend = true }) => {
+export const StackedBarchart = ({ data, dataKey = ["Volume"], nameKey = "name", color = COLORS, legend = true, seriesLabelMap = {} }) => {
   if (!data || !data.length) {
     return;
   }
@@ -216,8 +216,8 @@ export const StackedBarchart = ({ data, dataKey = ["Volume"], nameKey = "name", 
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <XAxis dataKey={nameKey} style={{ fontSize: "12px", color: "#666666" }} />
         <YAxis style={{ fontSize: "12px", color: "#666666" }} />
-        <Tooltip content={<StackedBarChartTooltip />} />
-        {legend && <Legend verticalAlign="top" content={<StackedBarChartLegend />} />}
+        <Tooltip content={<StackedBarChartTooltip seriesLabelMap={seriesLabelMap} />} />
+        {legend && <Legend verticalAlign="top" content={<StackedBarChartLegend seriesLabelMap={seriesLabelMap} />} />}
         {dataKey.map((k, i) => (
           <Bar key={i} dataKey={k} stackId="a" fill={k === "Autres" ? "rgba(0,0,0,0.5)" : color[i % color.length]} />
         ))}

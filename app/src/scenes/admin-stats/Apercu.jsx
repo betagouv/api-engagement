@@ -284,7 +284,11 @@ const MissionsSection = ({ filters, publisher }) => {
         filters={filters}
         publisher={publisher}
         type="stacked"
-        chartProps={{ color: CHART_COLORS.slice(0, 2), legend: false }}
+        chartProps={{
+          color: CHART_COLORS.slice(0, 2),
+          legend: true,
+          seriesLabelMap: { mission_active_count: "Total Missions" },
+        }}
       />
       <ChartBlock
         title="Missions créées"
