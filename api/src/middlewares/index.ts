@@ -9,7 +9,7 @@ import helmet from "@/middlewares/helmet";
 import logger from "@/middlewares/logger";
 import passport from "@/middlewares/passport";
 import requestId from "@/middlewares/request-id";
-import { createHttpMetricsMiddleware } from "@/observability/metrics";
+import { createHttpMetricsMiddleware } from "@/services/observability/metrics";
 // import limiter from "./rate-limit";
 
 const middlewares = (app: Express) => {

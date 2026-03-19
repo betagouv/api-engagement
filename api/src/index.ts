@@ -51,7 +51,7 @@ import errorHandler from "@/middlewares/error-handler";
 
 import { pgConnected, pgDisconnect } from "@/db/postgres";
 import middlewares from "@/middlewares";
-import { initHttpMetrics, shutdownHttpMetrics } from "@/observability/metrics";
+import { initHttpMetrics, shutdownHttpMetrics } from "@/services/observability/metrics";
 
 import AdminReportController from "@/controllers/admin-report";
 import BrevoWebhookController from "@/controllers/brevo-webhook/controller";

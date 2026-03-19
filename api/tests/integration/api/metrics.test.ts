@@ -1,7 +1,7 @@
 import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
 
-import { HttpMetricsRecorder, RecordedHttpRequestMetric } from "@/observability/metrics";
+import { HttpMetricsRecorder, RecordedHttpRequestMetric } from "@/services/observability/metrics";
 import { createTestPublisher } from "../../fixtures";
 import { createTestUser } from "../../fixtures/user";
 import { createTestApp } from "../../testApp";

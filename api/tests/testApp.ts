@@ -17,7 +17,7 @@ import WidgetController from "@/controllers/widget";
 import bodyParserErrorHandler from "@/middlewares/body-parser-error-handler";
 import passport from "@/middlewares/passport";
 import requestId from "@/middlewares/request-id";
-import { createHttpMetricsMiddleware, HttpMetricsRecorder } from "@/observability/metrics";
+import { createHttpMetricsMiddleware, HttpMetricsRecorder } from "@/services/observability/metrics";
 import MissionV0Controller from "@/v0/mission/controller";
 import MyMissionV0Controller from "@/v0/mymission/controller";
 import MyOrganizationV0Controller from "@/v0/myorganization/controller";
