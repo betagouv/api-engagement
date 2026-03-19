@@ -244,3 +244,33 @@ models:
         description: Genre déclaré du candidat.
       - name: candidate_postal_code
         description: Code postal du candidat.
+
+  - name: apply_jva_attrs
+    description: >
+      Extraction des attributs personnalisés pour les candidatures liées au
+      partenaire "JeVeuxAider". Ce modèle dérive les champs métier depuis le
+      JSON `custom_attributes` et rattache chaque ligne à la table `Apply`.
+    columns:
+      - name: apply_id
+        description: Identifiant de la candidature (référence à `public."Apply"`).
+        tests:
+          - not_null
+          - unique
+          - relationships:
+              arguments:
+                to: ref('apply')
+                field: stat_event_id
+      - name: created_at
+        description: Horodatage de création de l'événement de candidature.
+      - name: updated_at
+        description: Horodatage de dernière mise à jour de l'événement source.
+      - name: is_new_user
+        description: Indique si le candidat est considéré comme nouvel utilisateur.
+      - name: candidate_age
+        description: Âge déclaré du candidat.
+      - name: candidate_job
+        description: Métier ou profession déclaré(e) du candidat.
+      - name: user_identifiant
+        description: Identifiant utilisateur transmis par JeVeuxAider.
+      - name: candidate_postal_code
+        description: Code postal déclaré du candidat.
