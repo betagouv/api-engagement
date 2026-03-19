@@ -59,7 +59,7 @@ jobs:
           terraform_version: 1.9.1
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -89,7 +89,7 @@ jobs:
           SHORT_SHA="$(git rev-parse --short=7 HEAD)"
           LATEST_TAG=$(git describe --tags --abbrev=0 --match 'v[0-9]*' 2>/dev/null || echo "v0.0.0")
 
-          if [[ "${{ needs.set-env.outputs.environment_name }}" == "production" ]]; then
+          if [[ "${{ needs.set-env.outputs.environment_name }}" == "production" || "${{ needs.set-env.outputs.environment_name }}" == "sandbox" ]]; then
             IMAGE_TAG="$LATEST_TAG"
           else
             IMAGE_TAG="${LATEST_TAG}-${SHORT_SHA}"

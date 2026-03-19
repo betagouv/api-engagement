@@ -223,16 +223,6 @@ export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereIn
     where.publisherId = { in: filters.publisherIds };
   }
 
-  if (filters.excludeOrganizationClientIds?.length) {
-    const existingNot = Array.isArray(where.NOT) ? where.NOT : where.NOT ? [where.NOT] : [];
-    where.NOT = [
-      ...existingNot,
-      {
-        publisherOrganization: { is: { clientId: { in: filters.excludeOrganizationClientIds } } },
-      },
-    ];
-  }
-
   if (filters.activity?.length) {
     where.activities = { some: { activity: { name: { in: filters.activity } } } };
   }
@@ -245,9 +235,29 @@ export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereIn
   if (filters.clientId?.length) {
     where.clientId = { in: filters.clientId };
   }
-  if (filters.organizationClientId?.length) {
-    where.publisherOrganization = { is: { clientId: { in: filters.organizationClientId } } };
+
+  if (filters.organizationRNA?.length || filters.organizationStatusJuridique?.length || filters.organizationName?.length) {
+    where.publisherOrganization = {
+      ...(filters.organizationRNA?.length ? { rna: { in: filters.organizationRNA } } : {}),
+      ...(filters.organizationStatusJuridique?.length ? { legalStatus: { in: filters.organizationStatusJuridique } } : {}),
+      ...(filters.organizationName?.length ? { name: { in: filters.organizationName } } : {}),
+    };
   }
+  if (filters.organizationClientId?.length) {
+    if (where.publisherOrganization) {
+      where.publisherOrganization["clientId"] = { in: filters.organizationClientId };
+    } else {
+      where.publisherOrganization = { clientId: { in: filters.organizationClientId } };
+    }
+  }
+  if (filters.excludePublisherOrganizationIds?.length) {
+    if (where.publisherOrganization) {
+      where.publisherOrganization["id"] = { notIn: filters.excludePublisherOrganizationIds };
+    } else {
+      where.publisherOrganization = { id: { notIn: filters.excludePublisherOrganizationIds } };
+    }
+  }
+
   if (filters.domain?.length && !filters.domainIncludeMissing) {
     where.domain = { is: { name: { in: filters.domain } } };
   } else if (filters.domain?.length && filters.domainIncludeMissing) {
@@ -324,16 +334,6 @@ export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereIn
     where.addresses = clauses.length === 1 ? { some: clauses[0] } : { some: { OR: clauses } };
   }
 
-  if (filters.organizationRNA?.length || filters.organizationStatusJuridique?.length || filters.organizationName?.length) {
-    where.publisherOrganization = {
-      is: {
-        ...(filters.organizationRNA?.length ? { rna: { in: filters.organizationRNA } } : {}),
-        ...(filters.organizationStatusJuridique?.length ? { legalStatus: { in: filters.organizationStatusJuridique } } : {}),
-        ...(filters.organizationName?.length ? { name: { in: filters.organizationName } } : {}),
-      },
-    };
-  }
-
   if (filters.moderationAcceptedFor) {
     const moderationWhere: Prisma.MissionModerationStatusWhereInput = { publisherId: filters.moderationAcceptedFor, status: "ACCEPTED" };
     if (filters.moderationStatus) {
@@ -359,13 +359,6 @@ export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereIn
         ],
       },
     ];
-  }
-
-  if (filters.excludeOrganizationName) {
-    const organizationWhere = (where.publisherOrganization?.is as Prisma.PublisherOrganizationWhereInput | undefined) ?? {};
-    const nameFilter = (organizationWhere.name as Prisma.StringFilter | undefined) ?? {};
-    organizationWhere.name = { ...nameFilter, not: filters.excludeOrganizationName };
-    where.publisherOrganization = { is: organizationWhere };
   }
 
   if (orConditions.length) {
@@ -664,7 +657,15 @@ export const missionService = {
 
   async create(input: MissionCreateInput): Promise<MissionRecord> {
     const id = input.id ?? randomUUID();
-    const addresses = mapAddressesForCreate(input.addresses);
+    const rawAddresses = mapAddressesForCreate(input.addresses);
+    const seenHashes = new Set<string>();
+    const addresses = rawAddresses.filter((addr) => {
+      if (seenHashes.has(addr.addressHash)) {
+        return false;
+      }
+      seenHashes.add(addr.addressHash);
+      return true;
+    });
     const publisherOrganizationId = normalizeOptionalString(input.publisherOrganizationId ?? undefined);
 
     const domainName = input.domain?.trim();

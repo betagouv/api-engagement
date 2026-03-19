@@ -104,7 +104,10 @@ jobs:
         if: steps.release_mode.outputs.should_release == 'true'
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
-          commit_message: "chore(release): v${{ env.RELEASE_VERSION }} [skip ci]"
+          commit_message: |
+            chore(release): v${{ env.RELEASE_VERSION }}
+
+            [skip ci]
           file_pattern: package.json package-lock.json
           branch: main
 

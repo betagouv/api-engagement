@@ -3,6 +3,10 @@ import { prisma } from "@/db/postgres";
 import { PublisherOrganizationWithRelations } from "@/types/publisher-organization";
 
 export const publisherOrganizationRepository = {
+  async findUnique(params: Prisma.PublisherOrganizationFindUniqueArgs): Promise<PublisherOrganization | null> {
+    return prisma.publisherOrganization.findUnique(params);
+  },
+
   async findMany(params: Prisma.PublisherOrganizationFindManyArgs = {}): Promise<PublisherOrganization[]> {
     return prisma.publisherOrganization.findMany(params);
   },
