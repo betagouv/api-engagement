@@ -10,14 +10,7 @@
  *  6. Publie sur Slack
  *
  * Usage :
- *   # Mode tag (production / CI) — range auto depuis le tag précédent
- *   npx ts-node generate-changelog.ts --tag v1.2.3
- *
- *   # Mode range explicite (dev / test sans tag git)
- *   npx ts-node generate-changelog.ts --from abc1234 [--to HEAD]
- *
- *   # Combiné : range explicite + label personnalisé
- *   npx ts-node generate-changelog.ts --tag v1.2.3 --from abc1234 [--to def5678]
+ *   npx ts-node generate-changelog.ts --tag v1.2.3 [--dry-run]
  *
  * Variables d'environnement requises :
  *   GITHUB_TOKEN, NOTION_API_KEY, NOTION_CHANGELOG_DATABASE_ID,
@@ -27,16 +20,30 @@
 import * as dotenv from "dotenv";
 dotenv.config(); // Charge scripts/.env si présent (ignoré en CI où les vars sont injectées)
 
+import { Client as NotionClient } from "@notionhq/client";
 import { execSync } from "child_process";
 import OpenAI from "openai";
-import { Client as NotionClient } from "@notionhq/client";
 
 // ---------------------------------------------------------------------------
 // ⚙️  Configuration Notion DB — adapter aux noms réels de vos propriétés
 // ---------------------------------------------------------------------------
 const NOTION_DB_FIELDS = {
-  version: "Version", // Propriété de type Title
-  date: "Date",       // Propriété de type Date
+  tag:      "Tag",          // Propriété de type Title
+  codeName: "Nom de code",  // Propriété de type rich_text
+  date:     "Date",         // Propriété de type Date
+} as const;
+
+// Champs des tickets sources (liés aux PRs)
+const NOTION_TICKET_FIELDS = {
+  deliveredVersion: "Version livrée", // Relation vers la DB changelog
+} as const;
+
+// ---------------------------------------------------------------------------
+// ⚙️  Thème des noms de code — modifier uniquement ici pour changer de thème
+// ---------------------------------------------------------------------------
+const CODE_NAME_THEME = {
+  description: "prénoms traditionnels Francs (mérovingiens et carolingiens)",
+  examples: "Clovis, Pépin, Dagobert, Childebert, Caribert, Mérovée, Sigebert, Gontran, Thierry, Chilpéric",
 } as const;
 
 const GITHUB_REPO = "betagouv/api-engagement";
@@ -45,10 +52,10 @@ const GITHUB_REPO = "betagouv/api-engagement";
 // ⚙️  Apps connues — ordre d'affichage et décorateurs Slack
 // ---------------------------------------------------------------------------
 const APPS = [
-  { scope: "app",       label: "Tableau de bord", decorator: "——" },
-  { scope: "api",       label: "API",              decorator: "—"  },
-  { scope: "widget",    label: "Widget",           decorator: "—"  },
-  { scope: "analytics", label: "Analytics",        decorator: "·"  },
+  { scope: "app", label: "Tableau de bord", decorator: "——" },
+  { scope: "api", label: "API", decorator: "—" },
+  { scope: "widget", label: "Widget", decorator: "—" },
+  { scope: "analytics", label: "Analytics", decorator: "·" },
 ] as const;
 
 // ---------------------------------------------------------------------------
@@ -64,6 +71,13 @@ interface Commit {
 interface ChangelogSection {
   app: string;
   bullets: string[];
+}
+
+interface ChangelogResult {
+  /** Résumé global de la release (bullets courts, non-tech) */
+  impact: string[];
+  /** Détail par app */
+  sections: ChangelogSection[];
 }
 
 interface PR {
@@ -83,24 +97,10 @@ interface PRContext {
 // ---------------------------------------------------------------------------
 // Lecture des variables d'environnement
 // ---------------------------------------------------------------------------
-const {
-  GITHUB_TOKEN,
-  NOTION_API_KEY,
-  NOTION_CHANGELOG_DATABASE_ID,
-  OPENAI_API_KEY,
-  SLACK_TOKEN,
-  SLACK_RELEASE_CHANNEL_ID,
-} = process.env;
+const { GITHUB_TOKEN, NOTION_API_KEY, NOTION_CHANGELOG_DATABASE_ID, OPENAI_API_KEY, SLACK_TOKEN, SLACK_RELEASE_CHANNEL_ID } = process.env;
 
 function validateEnv(): void {
-  const missing = [
-    "GITHUB_TOKEN",
-    "NOTION_API_KEY",
-    "NOTION_CHANGELOG_DATABASE_ID",
-    "OPENAI_API_KEY",
-    "SLACK_TOKEN",
-    "SLACK_RELEASE_CHANNEL_ID",
-  ].filter((v) => !process.env[v]);
+  const missing = ["GITHUB_TOKEN", "NOTION_API_KEY", "NOTION_CHANGELOG_DATABASE_ID", "OPENAI_API_KEY", "SLACK_TOKEN", "SLACK_RELEASE_CHANNEL_ID"].filter((v) => !process.env[v]);
   if (missing.length > 0) {
     throw new Error(`Variables d'environnement manquantes : ${missing.join(", ")}`);
   }
@@ -110,54 +110,30 @@ function validateEnv(): void {
 // Parsing des arguments
 // ---------------------------------------------------------------------------
 interface Args {
-  /** Label utilisé dans le titre Notion et le message Slack */
-  label: string;
-  /** Borne de début (exclusive). null = depuis le tout premier commit */
-  from: string | null;
-  /** Borne de fin (inclusive) */
-  to: string;
-}
-
-function arg(flag: string): string | undefined {
-  const idx = process.argv.indexOf(flag);
-  return idx !== -1 ? process.argv[idx + 1] : undefined;
+  tag: string;
+  /** Si true, n'écrit pas dans Notion ni Slack — affiche le contenu dans le terminal */
+  dryRun: boolean;
 }
 
 function parseArgs(): Args {
-  const tag = arg("--tag");
-  const from = arg("--from") ?? null;
-  const to = arg("--to");
-
-  if (!tag && !from) {
-    throw new Error(
-      "Usage :\n" +
-        "  --tag v1.2.3                        (mode production)\n" +
-        "  --from <sha> [--to <sha|HEAD>]      (mode test)\n" +
-        "  --tag v1.2.3 --from <sha> [--to …]  (combiné)",
-    );
-  }
-
-  if (from) {
-    // Mode range explicite : --from [--to] [--tag]
-    const today = new Date().toISOString().split("T")[0];
-    return {
-      label: tag ?? `dev-${today}`,
-      from,
-      to: to ?? "HEAD",
-    };
-  }
-
-  // Mode tag seul : range auto depuis le tag précédent
-  return {
-    label: tag!,
-    from: findPreviousTag(tag!),
-    to: tag!,
-  };
+  const idx = process.argv.indexOf("--tag");
+  const tag = idx !== -1 ? process.argv[idx + 1] : undefined;
+  if (!tag) throw new Error("Usage : npx ts-node generate-changelog.ts --tag v1.2.3 [--dry-run]");
+  return { tag, dryRun: process.argv.includes("--dry-run") };
 }
 
 // ---------------------------------------------------------------------------
 // Git helpers
 // ---------------------------------------------------------------------------
+function tagExists(tag: string): boolean {
+  try {
+    execSync(`git rev-parse --verify ${tag}`, { stdio: "pipe" });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function findPreviousTag(currentTag: string): string | null {
   try {
     const tags = execSync("git tag --sort=-version:refname")
@@ -176,9 +152,7 @@ function findPreviousTag(currentTag: string): string | null {
 
 function getCommits(from: string | null, to: string): Commit[] {
   const range = from ? `${from}..${to}` : to;
-  const output = execSync(`git log ${range} --no-merges --format="%H %s"`)
-    .toString()
-    .trim();
+  const output = execSync(`git log ${range} --no-merges --format="%H %s"`).toString().trim();
 
   if (!output) return [];
   return output.split("\n").map((line) => {
@@ -196,12 +170,7 @@ function getCommits(from: string | null, to: string): Commit[] {
 function getPeriod(from: string | null, to: string): { start: string; end: string } {
   const range = from ? `${from}..${to}` : to;
   try {
-    const dates = execSync(`git log ${range} --no-merges --format="%as"`)
-      .toString()
-      .trim()
-      .split("\n")
-      .filter(Boolean)
-      .sort();
+    const dates = execSync(`git log ${range} --no-merges --format="%as"`).toString().trim().split("\n").filter(Boolean).sort();
     if (dates.length === 0) return { start: "?", end: "?" };
     const fmt = (iso: string) => {
       const [, m, d] = iso.split("-");
@@ -217,16 +186,13 @@ function getPeriod(from: string | null, to: string): { start: string; end: strin
 // GitHub API
 // ---------------------------------------------------------------------------
 async function getPRsForCommit(sha: string): Promise<PR[]> {
-  const response = await fetch(
-    `https://api.github.com/repos/${GITHUB_REPO}/commits/${sha}/pulls`,
-    {
-      headers: {
-        Authorization: `Bearer ${GITHUB_TOKEN}`,
-        Accept: "application/vnd.github+json",
-        "X-GitHub-Api-Version": "2022-11-28",
-      },
+  const response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/commits/${sha}/pulls`, {
+    headers: {
+      Authorization: `Bearer ${GITHUB_TOKEN}`,
+      Accept: "application/vnd.github+json",
+      "X-GitHub-Api-Version": "2022-11-28",
     },
-  );
+  });
   if (!response.ok) return [];
 
   const data = (await response.json()) as Array<{
@@ -290,16 +256,7 @@ async function fetchNotionPageContent(url: string, notion: NotionClient): Promis
       page_size: 50,
     });
 
-    const textTypes = [
-      "paragraph",
-      "heading_1",
-      "heading_2",
-      "heading_3",
-      "bulleted_list_item",
-      "numbered_list_item",
-      "quote",
-      "callout",
-    ];
+    const textTypes = ["paragraph", "heading_1", "heading_2", "heading_3", "bulleted_list_item", "numbered_list_item", "quote", "callout"];
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const content = (blocksResponse.results as any[])
@@ -327,24 +284,17 @@ async function getContextsForPRs(prs: PR[], notion: NotionClient): Promise<PRCon
         return { pr, notionContent };
       }
       return { pr, notionContent: null };
-    }),
+    })
   );
 }
 
 // ---------------------------------------------------------------------------
 // OpenAI LLM
 // ---------------------------------------------------------------------------
-async function synthesizeWithOpenAI(
-  tag: string,
-  commits: Commit[],
-  contexts: PRContext[],
-  openai: OpenAI,
-): Promise<ChangelogSection[]> {
+async function synthesizeWithOpenAI(tag: string, commits: Commit[], contexts: PRContext[], openai: OpenAI): Promise<ChangelogResult> {
   const appLabels = APPS.map((a) => `"${a.label}" (scope: ${a.scope})`).join(", ");
 
-  const commitList = commits
-    .map((c) => `- [scope:${c.scope ?? "?"}] ${c.message}`)
-    .join("\n");
+  const commitList = commits.map((c) => `- [scope:${c.scope ?? "?"}] ${c.message}`).join("\n");
 
   const prContext = contexts
     .map(({ pr, notionContent }) => {
@@ -365,17 +315,26 @@ ${commitList}
 Contexte (tickets et descriptions de PRs) :
 ${prContext || "(aucun contexte disponible)"}
 
-Règles :
-- Groupe les changements par app (uniquement les apps qui ont des changements visibles)
-- Un bullet par changement fonctionnel visible par l'utilisateur
+Règles communes :
 - Ignore les commits purement techniques (refacto, CI, tests, dépendances, typo) sauf impact concret
-- Phrase courte, verbe d'action, pas de jargon technique
-- Public cible : équipe non-tech (direction, partenaires)
+- Phrase courte, verbe d'action, sans jargon technique
+- Public cible : équipe globalement non-tech (direction, partenaires)
 - Langue : français
+
+Section "impact" :
+- 2 à 4 bullets résumant les grandes orientations de la release (cross-app, vue d'ensemble)
+- Mettre en avant la valeur pour les utilisateurs finaux et partenaires
+
+Section "sections" :
+- Un bullet par changement fonctionnel visible par l'utilisateur, groupé par app
+- N'inclure que les apps qui ont des changements visibles
 - Ordre des apps : Tableau de bord, API, Widget, Analytics
 
 Réponds UNIQUEMENT avec un objet JSON de la forme :
-{"sections": [{"app": "Tableau de bord", "bullets": ["..."]}, {"app": "API", "bullets": ["..."]}]}`;
+{
+  "impact": ["bullet résumé 1", "bullet résumé 2"],
+  "sections": [{"app": "Tableau de bord", "bullets": ["..."]}, {"app": "API", "bullets": ["..."]}]
+}`;
 
   const response = await openai.chat.completions.create({
     model: "gpt-4o",
@@ -387,8 +346,30 @@ Réponds UNIQUEMENT avec un objet JSON de la forme :
   const text = response.choices[0]?.message?.content;
   if (!text) throw new Error("Réponse OpenAI inattendue");
 
-  const parsed = JSON.parse(text) as { sections: ChangelogSection[] };
-  return parsed.sections ?? [];
+  const parsed = JSON.parse(text) as { impact?: string[]; sections?: ChangelogSection[] };
+  return { impact: parsed.impact ?? [], sections: parsed.sections ?? [] };
+}
+
+// ---------------------------------------------------------------------------
+// Code name generator
+// ---------------------------------------------------------------------------
+async function generateCodeName(tag: string, openai: OpenAI): Promise<string> {
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
+    max_tokens: 20,
+    messages: [
+      {
+        role: "user",
+        content:
+          `Génère un ${CODE_NAME_THEME.description} aléatoire pour nommer la version ${tag} d'un logiciel. ` +
+          `Exemples : ${CODE_NAME_THEME.examples}. ` +
+          `Réponds uniquement avec le prénom, sans ponctuation ni explication.`,
+      },
+    ],
+  });
+  const name = response.choices[0]?.message?.content?.trim();
+  if (!name) throw new Error("Réponse OpenAI inattendue pour le nom de code");
+  return name;
 }
 
 // ---------------------------------------------------------------------------
@@ -396,63 +377,146 @@ Réponds UNIQUEMENT avec un objet JSON de la forme :
 // ---------------------------------------------------------------------------
 async function createNotionEntry(
   tag: string,
-  sections: ChangelogSection[],
+  codeName: string,
+  result: ChangelogResult,
   contexts: PRContext[],
   notion: NotionClient,
-): Promise<{ url: string }> {
-  const ticketUrls = contexts.flatMap((c) => c.pr.notionLinks).slice(0, 10);
+): Promise<{ url: string; pageId: string }> {
   const today = new Date().toISOString().split("T")[0];
 
-  // Construire les vrais blocs Notion (heading_2 + bulleted_list_item)
-  // pour éviter d'afficher du markdown brut (les # et * seraient visibles tels quels)
+  // rich_text avec lien optionnel
+  type RichTextItem = { type?: "text"; text: { content: string; link?: { url: string } } };
   type NotionBlock =
-    | { object: "block"; type: "heading_2"; heading_2: { rich_text: [{ text: { content: string } }] } }
-    | { object: "block"; type: "bulleted_list_item"; bulleted_list_item: { rich_text: [{ text: { content: string } }] } }
-    | { object: "block"; type: "paragraph"; paragraph: { rich_text: [{ text: { content: string } }] } };
+    | { object: "block"; type: "heading_1"; heading_1: { rich_text: RichTextItem[] } }
+    | { object: "block"; type: "heading_2"; heading_2: { rich_text: RichTextItem[] } }
+    | { object: "block"; type: "bulleted_list_item"; bulleted_list_item: { rich_text: RichTextItem[] } }
+    | { object: "block"; type: "divider"; divider: Record<string, never> };
 
-  const contentBlocks: NotionBlock[] = sections.flatMap((section) => [
-    {
-      object: "block" as const,
-      type: "heading_2" as const,
-      heading_2: { rich_text: [{ text: { content: section.app } }] },
-    },
-    ...section.bullets.map((bullet) => ({
+  // Section Impact
+  const impactBlocks: NotionBlock[] = [
+    { object: "block", type: "heading_1", heading_1: { rich_text: [{ text: { content: "🥊 Impact" } }] } },
+    ...result.impact.map((bullet) => ({
       object: "block" as const,
       type: "bulleted_list_item" as const,
       bulleted_list_item: { rich_text: [{ text: { content: bullet } }] },
     })),
-  ]);
+    { object: "block", type: "divider", divider: {} },
+  ];
 
-  const ticketBlock: NotionBlock[] = ticketUrls.length > 0
-    ? [{
+  // Section Changelog (par app)
+  const changelogBlocks: NotionBlock[] = [
+    { object: "block", type: "heading_1", heading_1: { rich_text: [{ text: { content: "📋 Changelog" } }] } },
+    ...result.sections.flatMap((section) => [
+      {
         object: "block" as const,
-        type: "paragraph" as const,
-        paragraph: { rich_text: [{ text: { content: `Tickets liés : ${ticketUrls.join(", ")}` } }] },
-      }]
-    : [];
+        type: "heading_2" as const,
+        heading_2: { rich_text: [{ text: { content: section.app } }] },
+      },
+      ...section.bullets.map((bullet) => ({
+        object: "block" as const,
+        type: "bulleted_list_item" as const,
+        bulleted_list_item: { rich_text: [{ text: { content: bullet } }] },
+      })),
+    ]),
+  ];
+
+  // Section Tickets liés — un bullet par PR avec lien Notion (dédupliqués par URL)
+  const ticketEntries = [
+    ...new Map(
+      contexts
+        .filter((c) => c.pr.notionLinks.length > 0)
+        .map((c) => [c.pr.notionLinks[0], { title: c.pr.title, url: c.pr.notionLinks[0] }]),
+    ).values(),
+  ];
+  const ticketSectionBlocks: NotionBlock[] =
+    ticketEntries.length > 0
+      ? [
+          { object: "block", type: "divider", divider: {} },
+          { object: "block", type: "heading_1", heading_1: { rich_text: [{ text: { content: "🎟️ Tickets" } }] } },
+          ...ticketEntries.map(({ title, url }) => ({
+            object: "block" as const,
+            type: "bulleted_list_item" as const,
+            bulleted_list_item: { rich_text: [{ text: { content: title, link: { url } } }] },
+          })),
+        ]
+      : [];
 
   const page = await notion.pages.create({
     parent: { database_id: NOTION_CHANGELOG_DATABASE_ID! },
     properties: {
-      [NOTION_DB_FIELDS.version]: {
+      [NOTION_DB_FIELDS.tag]: {
         title: [{ text: { content: tag } }],
+      },
+      [NOTION_DB_FIELDS.codeName]: {
+        rich_text: [{ text: { content: codeName } }],
       },
       [NOTION_DB_FIELDS.date]: {
         date: { start: today },
       },
     },
-    children: [...contentBlocks, ...ticketBlock],
+    children: [...impactBlocks, ...changelogBlocks, ...ticketSectionBlocks],
   });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const pageId = (page as any).id as string;
-  return { url: `https://notion.so/${pageId.replace(/-/g, "")}` };
+  return { url: `https://notion.so/${pageId.replace(/-/g, "")}`, pageId };
+}
+
+// ---------------------------------------------------------------------------
+// Relier les tickets Notion à l'entrée de release
+// ---------------------------------------------------------------------------
+async function linkTicketsToRelease(
+  ticketUrls: string[],
+  changelogPageId: string,
+  notion: NotionClient,
+): Promise<void> {
+  const pageIds = [...new Set(ticketUrls)]
+    .map((url) => {
+      const raw = extractNotionPageId(url);
+      return raw ? toNotionUUID(raw) : null;
+    })
+    .filter((id): id is string => id !== null);
+
+  if (pageIds.length === 0) return;
+
+  console.log(`🔗 Mise à jour de ${pageIds.length} ticket(s) Notion (champ "${NOTION_TICKET_FIELDS.deliveredVersion}")...`);
+
+  await Promise.all(
+    pageIds.map(async (pageId) => {
+      try {
+        // Lire les relations existantes pour ne pas les écraser
+        const page = await notion.pages.retrieve({ page_id: pageId });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const props = (page as any).properties as Record<string, any>;
+        const existingRelations: Array<{ id: string }> =
+          props[NOTION_TICKET_FIELDS.deliveredVersion]?.relation ?? [];
+
+        // Ajouter la release seulement si elle n'est pas déjà liée
+        if (existingRelations.some((r) => r.id === changelogPageId)) return;
+
+        await notion.pages.update({
+          page_id: pageId,
+          properties: {
+            [NOTION_TICKET_FIELDS.deliveredVersion]: {
+              relation: [...existingRelations, { id: changelogPageId }],
+            },
+          },
+        });
+      } catch (err) {
+        console.warn(`  ⚠️  Impossible de mettre à jour le ticket ${pageId} : ${err}`);
+      }
+    }),
+  );
+
+  console.log(`✅ ${pageIds.length} ticket(s) mis à jour`);
 }
 
 // ---------------------------------------------------------------------------
 // Slack
 // ---------------------------------------------------------------------------
 function buildSlackMessage(
+  tag: string,
+  codeName: string,
   sections: ChangelogSection[],
   period: { start: string; end: string },
   prCount: number,
@@ -469,7 +533,7 @@ function buildSlackMessage(
     .join("\n\n");
 
   return [
-    `*Résumé de MEP*`,
+    `*Résumé de MEP — ${codeName} (${tag})*`,
     `Période : ${period.start} → ${period.end}  |  ${prCount} PR mergées.`,
     "",
     body,
@@ -480,12 +544,13 @@ function buildSlackMessage(
 
 async function postToSlack(
   tag: string,
+  codeName: string,
   sections: ChangelogSection[],
   period: { start: string; end: string },
   prCount: number,
   notionUrl: string,
 ): Promise<void> {
-  const text = buildSlackMessage(sections, period, prCount, notionUrl);
+  const text = buildSlackMessage(tag, codeName, sections, period, prCount, notionUrl);
 
   const response = await fetch("https://slack.com/api/chat.postMessage", {
     method: "POST",
@@ -511,14 +576,24 @@ async function main(): Promise<void> {
   validateEnv();
 
   const args = parseArgs();
-  console.log(`\n📋 Génération du changelog pour "${args.label}"...`);
-  console.log(`📌 Range : ${args.from ?? "(début du repo)"}..${args.to}`);
+  const tagIsReal = tagExists(args.tag);
+
+  if (!tagIsReal && !args.dryRun) {
+    throw new Error(`Le tag "${args.tag}" n'existe pas en tant que ref git. Utilisez --dry-run pour prévisualiser.`);
+  }
+
+  // Si le tag n'existe pas encore, on cible HEAD (mode preview avant release)
+  const toRef = tagIsReal ? args.tag : "HEAD";
+  const prevTag = findPreviousTag(args.tag);
+
+  console.log(`\n📋 Génération du changelog pour ${args.tag}${!tagIsReal ? " (aperçu — tag non encore créé)" : ""}...`);
+  console.log(`📌 Range : ${prevTag ?? "(début du repo)"}..${toRef}`);
 
   const notion = new NotionClient({ auth: NOTION_API_KEY });
   const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 
   // 1. Commits
-  const commits = getCommits(args.from, args.to);
+  const commits = getCommits(prevTag, toRef);
   console.log(`✅ ${commits.length} commit(s) trouvé(s)`);
   if (commits.length === 0) {
     console.log("Aucun commit à traiter, arrêt.");
@@ -540,29 +615,49 @@ async function main(): Promise<void> {
   console.log(`✅ ${notionCount}/${prs.length} PR(s) avec ticket Notion`);
 
   // 5. Période
-  const period = getPeriod(args.from, args.to);
+  const period = getPeriod(prevTag, toRef);
   console.log(`📅 Période : ${period.start} → ${period.end}`);
 
   // 6. Synthèse OpenAI
   console.log("🤖 Synthèse avec OpenAI...");
-  const sections = await synthesizeWithOpenAI(args.label, commits, contexts, openai);
-  sections.forEach((s) => {
+  const result = await synthesizeWithOpenAI(args.tag, commits, contexts, openai);
+  console.log(`\n  🥊 Impact (${result.impact.length} point(s))`);
+  result.impact.forEach((b) => console.log(`    • ${b}`));
+  result.sections.forEach((s) => {
     console.log(`\n  ${s.app} (${s.bullets.length} point(s))`);
     s.bullets.forEach((b) => console.log(`    • ${b}`));
   });
   console.log();
 
-  // 7. Entrée Notion
+  // 7. Nom de code
+  console.log("🎲 Génération du nom de code...");
+  const codeName = await generateCodeName(args.tag, openai);
+  console.log(`✅ Nom de code : ${codeName}`);
+
+  if (args.dryRun) {
+    console.log("\n[DRY RUN] Message Slack qui aurait été envoyé :\n");
+    console.log(buildSlackMessage(args.tag, codeName, result.sections, period, prs.length, "https://notion.so/<page-id>"));
+    console.log("\n[DRY RUN] Contenu Notion :\n");
+    console.log(JSON.stringify(result, null, 2));
+    console.log("\n[DRY RUN] Aucune écriture effectuée.");
+    return;
+  }
+
+  // 8. Entrée Notion
   console.log("📝 Création de l'entrée Notion...");
-  const notionPage = await createNotionEntry(args.label, sections, contexts, notion);
+  const notionPage = await createNotionEntry(args.tag, codeName, result, contexts, notion);
   console.log(`✅ Page Notion créée : ${notionPage.url}`);
 
-  // 8. Publication Slack
+  // 9. Relier les tickets à la release
+  const ticketUrls = contexts.flatMap((c) => c.pr.notionLinks);
+  await linkTicketsToRelease(ticketUrls, notionPage.pageId, notion);
+
+  // 10. Publication Slack
   console.log("💬 Publication sur Slack...");
-  await postToSlack(args.label, sections, period, prs.length, notionPage.url);
+  await postToSlack(args.tag, codeName, result.sections, period, prs.length, notionPage.url);
   console.log("✅ Publié sur Slack");
 
-  console.log(`\n🎉 Changelog "${args.label}" publié avec succès !`);
+  console.log(`\n🎉 Changelog ${args.tag} publié avec succès !`);
 }
 
 main().catch((err) => {
