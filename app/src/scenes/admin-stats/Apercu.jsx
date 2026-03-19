@@ -299,7 +299,7 @@ const PartnersSection = ({ filters, publisher }) => {
   return (
     <div className="space-y-6">
       <h2 className="text-3xl font-bold">🤝 Partenaires</h2>
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="space-y-4">
         <ChartBlock
           title="Top diffuseurs"
           subtitle="Diffuseurs ayant généré le plus de candidatures"
