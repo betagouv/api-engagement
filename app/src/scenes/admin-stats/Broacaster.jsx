@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
-import { RiFileDownloadLine } from "react-icons/ri";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { DateInput } from "@/components/DateRangePicker";
-import Loader from "@/components/Loader";
 import Table from "@/components/Table";
 import { MISSION_TYPE_OPTIONS } from "@/constants";
 import MultiSearchSelect from "@/scenes/admin-stats/MultiSearchSelect";
@@ -34,7 +32,6 @@ const Broacaster = () => {
     clicks: 0,
     applys: 0,
   });
-  const [exporting, setExporting] = useState(false);
   const [loading, setLoading] = useState(false);
   const [partners, setPartners] = useState([]);
   const { setPublisher } = useStore();
@@ -86,59 +83,11 @@ const Broacaster = () => {
     window.scrollTo(0, 0);
   };
 
-  const handleExport = async () => {
-    setExporting(true);
-    try {
-      const query = new URLSearchParams({
-        from: filters.from.toISOString(),
-        to: filters.to.toISOString(),
-        type: filters.type,
-        source: filters.source,
-      });
-
-      if (filters.publishers.length > 0) {
-        query.set("broadcaster", filters.publishers.join(","));
-      }
-
-      const res = await api.get(`/stats-admin/publishers-views?${query.toString()}`);
-      if (!res.ok) throw res;
-
-      const csv =
-        "Id;Nom du partenaire;Nombre de redirections;Nombre de candidatures;Taux de conversion\n" +
-        res.data
-          .filter((item) => item.hasApiRights || item.hasWidgetRights || item.hasCampaignRights)
-          .map(
-            (item) => `${item._id};${item.name};${item.clickFrom};${item.applyFrom};${item.clickFrom === 0 ? "0 %" : ((item.applyFrom / item.clickFrom) * 100).toFixed(1) + " %"}`,
-          )
-          .join("\n");
-
-      const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", "statistiques_diffuseur.csv");
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (error) {
-      captureError(error, "Erreur lors de l'export des données");
-    }
-    setExporting(false);
-  };
-
   return (
     <div className="space-y-12 p-12">
       <title>Diffuseurs - Statistiques - Administration - API Engagement</title>
       <div className="flex justify-between">
         <h2 className="text-2xl font-bold">{total.broadcasters} diffuseurs</h2>
-        <button className="hover:bg-gray-975 flex items-center border px-4 py-2 text-blue-900 transition delay-50" onClick={handleExport} disabled={exporting}>
-          {exporting ? (
-            <Loader className="h- w-4" />
-          ) : (
-            <>
-              <RiFileDownloadLine className="mr-2 inline align-middle" /> Exporter
-            </>
-          )}
-        </button>
       </div>
       <div className="box-border flex bg-white">
         <div className="flex justify-between gap-2">
