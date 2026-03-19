@@ -10,6 +10,12 @@ import { PublisherRecord } from "@/types";
 import { MissionRecord } from "@/types/mission";
 import { PublisherRequest } from "@/types/passport";
 
+const toYesNo = (value: unknown) => {
+  if (value === true) return "yes";
+  if (value === false) return "no";
+  return value;
+};
+
 const router = Router();
 
 router.get("/", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
@@ -142,7 +148,7 @@ const buildData = (data: MissionRecord) => {
     moderation_5f5931496c7ea514150a818f_status: (data as any).moderation_5f5931496c7ea514150a818f_status as string | null,
     moderation_5f5931496c7ea514150a818f_date: (data as any).moderation_5f5931496c7ea514150a818f_date as Date | null,
     moderation_5f5931496c7ea514150a818f_title: (data as any).moderation_5f5931496c7ea514150a818f_title as string | null,
-    openToMinors: data.openToMinors ? "true" : "false",
+    openToMinors: toYesNo(data.openToMinors),
     organizationActions: data.organizationActions,
     organizationBeneficiaries: data.organizationBeneficiaries,
     organizationCity: data.organizationCity,
@@ -165,7 +171,7 @@ const buildData = (data: MissionRecord) => {
     publisherLogo: data.publisherLogo,
     publisherName: data.publisherName,
     publisherUrl: data.publisherUrl,
-    reducedMobilityAccessible: data.reducedMobilityAccessible ? "true" : "false",
+    reducedMobilityAccessible: toYesNo(data.reducedMobilityAccessible),
     remote: data.remote,
     schedule: data.schedule,
     snu: data.snu,

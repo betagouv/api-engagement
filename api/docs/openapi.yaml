@@ -57,30 +57,37 @@ components:
       properties:
         street:
           type: string
+          nullable: true
           description: Numéro et nom de rue
           example: "12 rue de la Paix"
         postalCode:
           type: string
+          nullable: true
           description: Code postal
           example: "75001"
         city:
           type: string
+          nullable: true
           description: Ville
           example: "Paris"
         departmentCode:
           type: string
+          nullable: true
           description: Code du département (ex. 75, 69, 2A)
           example: "75"
         departmentName:
           type: string
+          nullable: true
           description: Nom du département
           example: "Paris"
         region:
           type: string
+          nullable: true
           description: Nom de la région
           example: "Île-de-France"
         country:
           type: string
+          nullable: true
           description: Pays (code ISO 3166-1 alpha-2 ou nom)
           example: "France"
 
@@ -152,11 +159,13 @@ components:
           description: Description complète de la mission (HTML autorisé)
         applicationUrl:
           type: string
+          nullable: true
           format: uri
           description: URL de candidature ou d'inscription
           example: "https://example.org/missions/001/postuler"
         domain:
           type: string
+          nullable: true
           description: Domaine d'action principal
           example: "sante"
         activities:
@@ -198,11 +207,13 @@ components:
           description: Codes ROME des compétences requises
         remote:
           type: string
-          enum: [no, possible, full]
+          nullable: true
+          enum: [no, possible, full, null]
           description: Modalité de télétravail
           example: "no"
         schedule:
           type: string
+          nullable: true
           description: Rythme d'engagement (texte libre)
           example: "2 heures par semaine le samedi matin"
         startAt:
@@ -231,25 +242,13 @@ components:
         compensationUnit:
           type: string
           nullable: true
-          enum: [hour, day, month, year]
+          enum: [hour, day, month, year, null]
           description: Unité de la rémunération
         compensationType:
           type: string
           nullable: true
-          enum: [gross, net]
+          enum: [gross, net, null]
           description: Type de rémunération (brut ou net)
-        openToMinors:
-          type: boolean
-          nullable: true
-          description: La mission est ouverte aux mineurs
-        reducedMobilityAccessible:
-          type: boolean
-          nullable: true
-          description: La mission est accessible aux personnes à mobilité réduite
-        closeToTransport:
-          type: boolean
-          nullable: true
-          description: La mission est à proximité des transports en commun
         addresses:
           type: array
           items:
@@ -258,7 +257,7 @@ components:
         type:
           type: string
           nullable: true
-          enum: [benevolat, volontariat_service_civique, volontariat_sapeurs_pompiers]
+          enum: [benevolat, volontariat_service_civique, volontariat_sapeurs_pompiers, null]
           description: Type d'engagement
         organizationClientId:
           type: string
@@ -348,6 +347,27 @@ components:
           format: date-time
           description: Date de suppression (soft delete)
 
+
+    # ── Mission (réponse v2 — avec champs booléens) ────────────────────────────
+    MissionV2:
+      description: Mission bénévole ou civique (format v2, étend Mission)
+      allOf:
+        - $ref: "#/components/schemas/Mission"
+        - type: object
+          properties:
+            openToMinors:
+              type: boolean
+              nullable: true
+              description: La mission est ouverte aux mineurs
+            reducedMobilityAccessible:
+              type: boolean
+              nullable: true
+              description: La mission est accessible aux personnes à mobilité réduite
+            closeToTransport:
+              type: boolean
+              nullable: true
+              description: La mission est à proximité des transports en commun
+
     # ── Mission (réponse v0 — format legacy) ──────────────────────────────────
     MissionLegacy:
       allOf:
@@ -364,11 +384,13 @@ components:
               description: Alias de `id` (compatibilité legacy)
             openToMinors:
               type: string
-              enum: ["true", "false"]
+              nullable: true
+              enum: ["yes", "no", null]
               description: Ouvert aux mineurs (format string legacy)
             reducedMobilityAccessible:
               type: string
-              enum: ["true", "false"]
+              nullable: true
+              enum: ["yes", "no", null]
               description: Accessible PMR (format string legacy)
             activity:
               type: string
@@ -467,6 +489,7 @@ components:
           example: "PENDING"
         clickId:
           type: string
+          nullable: true
           description: Identifiant du clic d'origine
         missionClientId:
           type: string
@@ -871,7 +894,7 @@ paths:
                     type: boolean
                     example: true
                   data:
-                    $ref: "#/components/schemas/Mission"
+                    $ref: "#/components/schemas/MissionV2"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -1035,7 +1058,7 @@ paths:
                     type: boolean
                     example: true
                   data:
-                    $ref: "#/components/schemas/Mission"
+                    $ref: "#/components/schemas/MissionV2"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
