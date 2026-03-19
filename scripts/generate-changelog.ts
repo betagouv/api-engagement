@@ -28,9 +28,9 @@ import OpenAI from "openai";
 // ⚙️  Configuration Notion DB — adapter aux noms réels de vos propriétés
 // ---------------------------------------------------------------------------
 const NOTION_DB_FIELDS = {
-  tag:      "Tag",          // Propriété de type Title
-  codeName: "Nom de code",  // Propriété de type rich_text
-  date:     "Date",         // Propriété de type Date
+  tag: "Tag", // Propriété de type Title
+  codeName: "Nom de code", // Propriété de type rich_text
+  date: "Date", // Propriété de type Date
 } as const;
 
 // Champs des tickets sources (liés aux PRs)
@@ -90,6 +90,8 @@ interface PR {
 
 interface PRContext {
   pr: PR;
+  /** Titre de la page Notion du ticket (si trouvée) */
+  notionTitle: string | null;
   /** Contenu Notion si trouvé, sinon null → fallback sur pr.body */
   notionContent: string | null;
 }
@@ -239,7 +241,7 @@ function richTextToString(richText: any[]): string {
   return (richText ?? []).map((r: { plain_text: string }) => r.plain_text).join("");
 }
 
-async function fetchNotionPageContent(url: string, notion: NotionClient): Promise<string | null> {
+async function fetchNotionPageContent(url: string, notion: NotionClient): Promise<{ title: string; content: string } | null> {
   try {
     const rawId = extractNotionPageId(url);
     if (!rawId) return null;
@@ -269,7 +271,7 @@ async function fetchNotionPageContent(url: string, notion: NotionClient): Promis
       .filter(Boolean)
       .join("\n");
 
-    return `# ${title}\n${content}`;
+    return { title, content };
   } catch (err) {
     console.warn(`  ⚠️  Impossible de récupérer la page Notion ${url} : ${err}`);
     return null;
@@ -280,10 +282,14 @@ async function getContextsForPRs(prs: PR[], notion: NotionClient): Promise<PRCon
   return Promise.all(
     prs.map(async (pr) => {
       if (pr.notionLinks.length > 0) {
-        const notionContent = await fetchNotionPageContent(pr.notionLinks[0], notion);
-        return { pr, notionContent };
+        const fetched = await fetchNotionPageContent(pr.notionLinks[0], notion);
+        return {
+          pr,
+          notionTitle: fetched?.title ?? null,
+          notionContent: fetched ? `# ${fetched.title}\n${fetched.content}` : null,
+        };
       }
-      return { pr, notionContent: null };
+      return { pr, notionTitle: null, notionContent: null };
     })
   );
 }
@@ -375,13 +381,7 @@ async function generateCodeName(tag: string, openai: OpenAI): Promise<string> {
 // ---------------------------------------------------------------------------
 // Notion DB entry
 // ---------------------------------------------------------------------------
-async function createNotionEntry(
-  tag: string,
-  codeName: string,
-  result: ChangelogResult,
-  contexts: PRContext[],
-  notion: NotionClient,
-): Promise<{ url: string; pageId: string }> {
+async function createNotionEntry(tag: string, codeName: string, result: ChangelogResult, contexts: PRContext[], notion: NotionClient): Promise<{ url: string; pageId: string }> {
   const today = new Date().toISOString().split("T")[0];
 
   // rich_text avec lien optionnel
@@ -400,35 +400,34 @@ async function createNotionEntry(
       type: "bulleted_list_item" as const,
       bulleted_list_item: { rich_text: [{ text: { content: bullet } }] },
     })),
-    { object: "block", type: "divider", divider: {} },
   ];
 
-  // Section Changelog (par app)
-  const changelogBlocks: NotionBlock[] = [
-    { object: "block", type: "heading_1", heading_1: { rich_text: [{ text: { content: "📋 Changelog" } }] } },
-    ...result.sections.flatMap((section) => [
-      {
-        object: "block" as const,
-        type: "heading_2" as const,
-        heading_2: { rich_text: [{ text: { content: section.app } }] },
-      },
-      ...section.bullets.map((bullet) => ({
-        object: "block" as const,
-        type: "bulleted_list_item" as const,
-        bulleted_list_item: { rich_text: [{ text: { content: bullet } }] },
-      })),
-    ]),
-  ];
+  // Section Changelog — masquée si vide
+  const changelogBlocks: NotionBlock[] =
+    result.sections.length > 0
+      ? [
+          { object: "block", type: "divider", divider: {} },
+          { object: "block", type: "heading_1", heading_1: { rich_text: [{ text: { content: "📋 Changelog" } }] } },
+          ...result.sections.flatMap((section) => [
+            {
+              object: "block" as const,
+              type: "heading_2" as const,
+              heading_2: { rich_text: [{ text: { content: section.app } }] },
+            },
+            ...section.bullets.map((bullet) => ({
+              object: "block" as const,
+              type: "bulleted_list_item" as const,
+              bulleted_list_item: { rich_text: [{ text: { content: bullet } }] },
+            })),
+          ]),
+        ]
+      : [];
 
-  // Section Tickets liés — un bullet par PR avec lien Notion (dédupliqués par URL)
+  // Section Tickets — label = titre du ticket Notion (fallback : titre de la PR)
   const ticketEntries = [
-    ...new Map(
-      contexts
-        .filter((c) => c.pr.notionLinks.length > 0)
-        .map((c) => [c.pr.notionLinks[0], { title: c.pr.title, url: c.pr.notionLinks[0] }]),
-    ).values(),
+    ...new Map(contexts.filter((c) => c.pr.notionLinks.length > 0).map((c) => [c.pr.notionLinks[0], { title: c.notionTitle ?? c.pr.title, url: c.pr.notionLinks[0] }])).values(),
   ];
-  const ticketSectionBlocks: NotionBlock[] =
+  const ticketBlocks: NotionBlock[] =
     ticketEntries.length > 0
       ? [
           { object: "block", type: "divider", divider: {} },
@@ -440,6 +439,19 @@ async function createNotionEntry(
           })),
         ]
       : [];
+
+  // Section Commits — lien vers la release GitHub
+  const releaseUrl = `https://github.com/${GITHUB_REPO}/releases/tag/${tag}`;
+  const commitBlocks: NotionBlock[] = [
+    { object: "block", type: "divider", divider: {} },
+    {
+      object: "block",
+      type: "heading_1",
+      heading_1: {
+        rich_text: [{ text: { content: "📝 Commits  →  " } }, { text: { content: "Voir la release", link: { url: releaseUrl } } }],
+      },
+    },
+  ];
 
   const page = await notion.pages.create({
     parent: { database_id: NOTION_CHANGELOG_DATABASE_ID! },
@@ -454,7 +466,7 @@ async function createNotionEntry(
         date: { start: today },
       },
     },
-    children: [...impactBlocks, ...changelogBlocks, ...ticketSectionBlocks],
+    children: [...impactBlocks, ...changelogBlocks, ...ticketBlocks, ...commitBlocks],
   });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -465,11 +477,7 @@ async function createNotionEntry(
 // ---------------------------------------------------------------------------
 // Relier les tickets Notion à l'entrée de release
 // ---------------------------------------------------------------------------
-async function linkTicketsToRelease(
-  ticketUrls: string[],
-  changelogPageId: string,
-  notion: NotionClient,
-): Promise<void> {
+async function linkTicketsToRelease(ticketUrls: string[], changelogPageId: string, notion: NotionClient): Promise<void> {
   const pageIds = [...new Set(ticketUrls)]
     .map((url) => {
       const raw = extractNotionPageId(url);
@@ -488,8 +496,7 @@ async function linkTicketsToRelease(
         const page = await notion.pages.retrieve({ page_id: pageId });
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const props = (page as any).properties as Record<string, any>;
-        const existingRelations: Array<{ id: string }> =
-          props[NOTION_TICKET_FIELDS.deliveredVersion]?.relation ?? [];
+        const existingRelations: Array<{ id: string }> = props[NOTION_TICKET_FIELDS.deliveredVersion]?.relation ?? [];
 
         // Ajouter la release seulement si elle n'est pas déjà liée
         if (existingRelations.some((r) => r.id === changelogPageId)) return;
@@ -505,7 +512,7 @@ async function linkTicketsToRelease(
       } catch (err) {
         console.warn(`  ⚠️  Impossible de mettre à jour le ticket ${pageId} : ${err}`);
       }
-    }),
+    })
   );
 
   console.log(`✅ ${pageIds.length} ticket(s) mis à jour`);
@@ -514,14 +521,7 @@ async function linkTicketsToRelease(
 // ---------------------------------------------------------------------------
 // Slack
 // ---------------------------------------------------------------------------
-function buildSlackMessage(
-  tag: string,
-  codeName: string,
-  sections: ChangelogSection[],
-  period: { start: string; end: string },
-  prCount: number,
-  notionUrl: string,
-): string {
+function buildSlackMessage(tag: string, codeName: string, sections: ChangelogSection[], period: { start: string; end: string }, prCount: number, notionUrl: string): string {
   const appDecoratorMap = Object.fromEntries(APPS.map((a) => [a.label, a.decorator]));
 
   const body = sections
@@ -542,14 +542,7 @@ function buildSlackMessage(
   ].join("\n");
 }
 
-async function postToSlack(
-  tag: string,
-  codeName: string,
-  sections: ChangelogSection[],
-  period: { start: string; end: string },
-  prCount: number,
-  notionUrl: string,
-): Promise<void> {
+async function postToSlack(tag: string, codeName: string, sections: ChangelogSection[], period: { start: string; end: string }, prCount: number, notionUrl: string): Promise<void> {
   const text = buildSlackMessage(tag, codeName, sections, period, prCount, notionUrl);
 
   const response = await fetch("https://slack.com/api/chat.postMessage", {
