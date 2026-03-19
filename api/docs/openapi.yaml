@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.0.3
 
 info:
   title: API Engagement
@@ -14,7 +14,6 @@ info:
     - **v2** : endpoints d'écriture CRUD (création/modification/suppression de missions, suivi des activités)
   license:
     name: MIT
-    identifier: MIT
 
 servers:
   - url: https://api.api-engagement.beta.gouv.fr
@@ -108,7 +107,8 @@ components:
           description: Statut de modération JeVeuxAider
           example: "ACCEPTED"
         statusComment:
-          type: [string, "null"]
+          type: string
+          nullable: true
           description: Commentaire associé au statut de modération
         title:
           type: string
@@ -173,39 +173,49 @@ components:
           description: Rythme d'engagement (texte libre)
           example: "2 heures par semaine le samedi matin"
         startAt:
-          type: [string, "null"]
+          type: string
+          nullable: true
           format: date-time
           description: Date de début
         endAt:
-          type: [string, "null"]
+          type: string
+          nullable: true
           format: date-time
           description: Date de fin
         priority:
-          type: [string, "null"]
+          type: string
+          nullable: true
           description: Priorité d'affichage
         places:
-          type: [integer, "null"]
+          type: integer
+          nullable: true
           description: Nombre de places disponibles
           example: 5
         compensationAmount:
-          type: [number, "null"]
+          type: number
+          nullable: true
           description: Montant de la rémunération ou indemnité
         compensationUnit:
-          type: [string, "null"]
+          type: string
+          nullable: true
           enum: [hour, day, month, year]
           description: Unité de la rémunération
         compensationType:
-          type: [string, "null"]
+          type: string
+          nullable: true
           enum: [gross, net]
           description: Type de rémunération (brut ou net)
         openToMinors:
-          type: [boolean, "null"]
+          type: boolean
+          nullable: true
           description: La mission est ouverte aux mineurs
         reducedMobilityAccessible:
-          type: [boolean, "null"]
+          type: boolean
+          nullable: true
           description: La mission est accessible aux personnes à mobilité réduite
         closeToTransport:
-          type: [boolean, "null"]
+          type: boolean
+          nullable: true
           description: La mission est à proximité des transports en commun
         addresses:
           type: array
@@ -213,66 +223,83 @@ components:
             $ref: "#/components/schemas/Address"
           description: Lieux d'exercice de la mission
         type:
-          type: [string, "null"]
+          type: string
+          nullable: true
           enum: [benevolat, volontariat_service_civique, volontariat_sapeurs_pompiers]
           description: Type d'engagement
         organizationClientId:
-          type: [string, "null"]
+          type: string
+          nullable: true
           description: Identifiant de l'organisation dans votre système
         organizationName:
-          type: [string, "null"]
+          type: string
+          nullable: true
           description: Nom de l'organisation porteuse
           example: "Croix-Rouge française"
         organizationDescription:
-          type: [string, "null"]
+          type: string
+          nullable: true
           description: Description de l'organisation
         organizationUrl:
-          type: [string, "null"]
+          type: string
+          nullable: true
           format: uri
           description: Site web de l'organisation
         organizationType:
-          type: [string, "null"]
+          type: string
+          nullable: true
           description: Type d'organisation
         organizationLogo:
-          type: [string, "null"]
+          type: string
+          nullable: true
           format: uri
           description: URL du logo de l'organisation
         organizationRNA:
-          type: [string, "null"]
+          type: string
+          nullable: true
           description: Numéro RNA de l'association
           example: "W123456789"
         organizationSiren:
-          type: [string, "null"]
+          type: string
+          nullable: true
           description: Numéro SIREN
           example: "123456789"
         organizationSiret:
-          type: [string, "null"]
+          type: string
+          nullable: true
           description: Numéro SIRET
           example: "12345678900012"
         organizationFullAddress:
-          type: [string, "null"]
+          type: string
+          nullable: true
           description: Adresse complète de l'organisation
         organizationPostCode:
-          type: [string, "null"]
+          type: string
+          nullable: true
         organizationCity:
-          type: [string, "null"]
+          type: string
+          nullable: true
         organizationStatusJuridique:
-          type: [string, "null"]
+          type: string
+          nullable: true
           description: Forme juridique de l'organisation
         organizationBeneficiaries:
           type: array
           items:
-            type: [string, "null"]
+            type: string
+            nullable: true
           description: Bénéficiaires de l'organisation
         organizationActions:
           type: array
           items:
-            type: [string, "null"]
+            type: string
+            nullable: true
           description: Actions de l'organisation
         organizationReseaux:
           type: array
           items:
-            type: [string, "null"]
+            type: string
+            nullable: true
           description: Réseaux auxquels appartient l'organisation
         createdAt:
           type: string
@@ -283,7 +310,8 @@ components:
           format: date-time
           description: Date de dernière modification
         deletedAt:
-          type: [string, "null"]
+          type: string
+          nullable: true
           format: date-time
           description: Date de suppression (soft delete)
 
@@ -310,7 +338,8 @@ components:
               enum: ["true", "false"]
               description: Accessible PMR (format string legacy)
             activity:
-              type: [string, "null"]
+              type: string
+              nullable: true
               description: Activités concaténées en une chaîne
             publisherName:
               type: string
@@ -324,24 +353,30 @@ components:
               format: uri
               description: Logo du partenaire diffuseur
             domainLogo:
-              type: [string, "null"]
+              type: string
+              nullable: true
               format: uri
               description: Logo du domaine d'action
             postedAt:
-              type: [string, "null"]
+              type: string
+              nullable: true
               format: date-time
               description: Date de première publication
             duration:
-              type: [integer, "null"]
+              type: integer
+              nullable: true
               description: Durée de la mission en heures
             snu:
-              type: [boolean, "null"]
+              type: boolean
+              nullable: true
               description: Mission ouverte au Service National Universel
             snuPlaces:
-              type: [integer, "null"]
+              type: integer
+              nullable: true
               description: Nombre de places SNU
             location:
-              type: [object, "null"]
+              type: object
+              nullable: true
               description: Coordonnées géographiques
               properties:
                 lat:
@@ -392,13 +427,16 @@ components:
           type: string
           description: Identifiant du clic d'origine
         missionClientId:
-          type: [string, "null"]
+          type: string
+          nullable: true
           description: Identifiant client de la mission concernée
         missionId:
-          type: [string, "null"]
+          type: string
+          nullable: true
           description: Identifiant interne de la mission
         tag:
-          type: [string, "null"]
+          type: string
+          nullable: true
           description: Tag libre associé à l'événement
         createdAt:
           type: string
@@ -419,15 +457,18 @@ components:
           description: Nom de l'organisation
           example: "Croix-Rouge française"
         rna:
-          type: [string, "null"]
+          type: string
+          nullable: true
           description: Numéro RNA (Répertoire National des Associations)
           example: "W751206979"
         siret:
-          type: [string, "null"]
+          type: string
+          nullable: true
           description: Numéro SIRET
           example: "77567227221138"
         statusJuridique:
-          type: [string, "null"]
+          type: string
+          nullable: true
           description: Forme juridique
           example: "Association loi 1901"
 
@@ -445,18 +486,22 @@ components:
           description: Nom du partenaire
           example: "JeVeuxAider.gouv.fr"
         category:
-          type: [string, "null"]
+          type: string
+          nullable: true
           description: Catégorie du partenaire
         url:
-          type: [string, "null"]
+          type: string
+          nullable: true
           format: uri
           description: Site web du partenaire
         logo:
-          type: [string, "null"]
+          type: string
+          nullable: true
           format: uri
           description: URL du logo
         description:
-          type: [string, "null"]
+          type: string
+          nullable: true
           description: Description du partenaire
         widget:
           type: boolean
@@ -1834,7 +1879,8 @@ paths:
               required: [publisherIds]
               properties:
                 organizationName:
-                  type: [string, "null"]
+                  type: string
+                  nullable: true
                   description: Nom de l'organisation (optionnel, mis à jour si fourni)
                   example: "Croix-Rouge française"
                 publisherIds:
