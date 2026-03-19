@@ -88,6 +88,39 @@ components:
     Mission:
       type: object
       description: Mission bénévole ou civique
+      example:
+        id: "64a1b2c3d4e5f6789abc0001"
+        clientId: "mission-bénévolat-2024-001"
+        publisherId: "5f5931496c7ea514150a818f"
+        statusCode: "ACCEPTED"
+        title: "Animateur bénévole en maison de retraite"
+        applicationUrl: "https://example.org/missions/001/postuler"
+        domain: "sante"
+        activities: ["animation", "accompagnement"]
+        audience: ["seniors", "personnes-isolees"]
+        remote: "no"
+        schedule: "2 heures par semaine le samedi matin"
+        places: 5
+        openToMinors: false
+        reducedMobilityAccessible: true
+        addresses:
+          - street: "12 rue de la Paix"
+            zip: "75001"
+            city: "Paris"
+            department: "75"
+            departmentName: "Paris"
+            region: "Île-de-France"
+            country: "France"
+            location:
+              lat: 48.8698
+              lon: 2.3303
+        organizationName: "Croix-Rouge française"
+        organizationRNA: "W751206979"
+        organizationSiren: "775672272"
+        organizationSiret: "77567227221138"
+        organizationUrl: "https://www.croix-rouge.fr"
+        createdAt: "2024-01-15T09:00:00.000Z"
+        updatedAt: "2024-03-01T14:30:00.000Z"
       properties:
         id:
           type: string
@@ -408,6 +441,15 @@ components:
     Activity:
       type: object
       description: Événement d'engagement (candidature ou création de compte)
+      example:
+        _id: "64a1b2c3d4e5f6789abc0099"
+        type: "apply"
+        status: "PENDING"
+        clickId: "64a1b2c3d4e5f6789abc0050"
+        missionClientId: "mission-bénévolat-2024-001"
+        missionId: "64a1b2c3d4e5f6789abc0001"
+        tag: "homepage"
+        createdAt: "2024-03-15T10:22:00.000Z"
       properties:
         _id:
           type: string
@@ -447,6 +489,12 @@ components:
     Organization:
       type: object
       description: Organisation associative ou structure porteuse de missions
+      example:
+        _id: "64a1b2c3d4e5f6789abc0010"
+        name: "Croix-Rouge française"
+        rna: "W751206979"
+        siret: "77567227221138"
+        statusJuridique: "Association loi 1901"
       properties:
         _id:
           type: string
@@ -476,6 +524,16 @@ components:
     Partner:
       type: object
       description: Partenaire diffuseur de missions
+      example:
+        _id: "5f5931496c7ea514150a818f"
+        name: "JeVeuxAider.gouv.fr"
+        category: "Plateforme gouvernementale"
+        url: "https://www.jeveuxaider.gouv.fr"
+        description: "La plateforme officielle du bénévolat en France"
+        widget: true
+        api: true
+        campaign: false
+        annonceur: false
       properties:
         _id:
           type: string
