@@ -100,6 +100,11 @@ async function findOneStatEventById(id: string): Promise<StatEventRecord | null>
   return result ? toStatEventRecord(result) : null;
 }
 
+async function findOneStatEventByLegacyId(esId: string): Promise<StatEventRecord | null> {
+  const result = (await statEventRepository.findUnique({ where: { esId } })) as PrismaStatEventWithPublishers | null;
+  return result ? toStatEventRecord(result) : null;
+}
+
 async function countStatEvents() {
   return statEventRepository.count();
 }
@@ -609,6 +614,7 @@ export const statEventService = {
   createStatEvent,
   updateStatEvent,
   findOneStatEventById,
+  findOneStatEventByLegacyId,
   findOneStatEventByMissionId,
   findStatEvents,
   countStatEvents,
