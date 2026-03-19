@@ -26,14 +26,24 @@ security:
 
 tags:
   - name: Missions
+    x-page-icon: bullseye
+    x-page-description: Recherche et consultation des missions bénévoles (v0) et gestion CRUD pour les annonceurs (v2).
     description: Recherche et gestion des missions bénévoles
   - name: Mes missions
+    x-page-icon: list-check
+    x-page-description: Consultation des missions que votre organisation a publiées, avec leurs statistiques d'engagement.
     description: Consultation des missions publiées par votre organisation
   - name: Activités
+    x-page-icon: chart-line
+    x-page-description: Déclarez et suivez les événements d'engagement générés depuis vos diffusions (candidatures, créations de compte).
     description: Suivi des événements d'engagement (candidatures, créations de compte)
   - name: Organisations
+    x-page-icon: building
+    x-page-description: Consultez et mettez à jour le profil de votre organisation sur la plateforme.
     description: Recherche et gestion de la diffusion par organisation
   - name: Partenaires
+    x-page-icon: handshake
+    x-page-description: Liste des partenaires diffuseurs disponibles sur la plateforme API Engagement.
     description: Liste des partenaires diffuseurs
 
 # ──────────────────────────────────────────────────────────────────────────────
