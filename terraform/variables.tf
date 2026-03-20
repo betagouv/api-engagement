@@ -134,3 +134,8 @@ variable "enable_analytics_jobs" {
   type    = bool
   default = true
 }
+
+variable "cockpit_metrics_otlp_url" {
+  type    = string
+  default = ""
+}

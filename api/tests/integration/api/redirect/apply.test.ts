@@ -212,6 +212,39 @@ describe("RedirectController /apply", () => {
     expect(storedApply?.clientEventId).toBe("client-event-apply-1");
   });
 
+  it("records apply stats when view is a legacy Elasticsearch ID (es_id fallback)", async () => {
+    const identity = {
+      user: "legacy-id-user",
+      referer: "https://legacy.example.com",
+      userAgent: "Mozilla/5.0",
+    };
+
+    vi.spyOn(utils, "identify").mockReturnValue(identity);
+    vi.spyOn(statBotService, "findStatBotByUser").mockResolvedValue(null);
+
+    const clickStat = await createClickStat("click-legacy-uuid", {
+      user: "click-user",
+      source: "publisher",
+      sourceId: "source-id",
+      sourceName: "Source Name",
+      fromPublisherId: "source-publisher-id",
+      toPublisherId: "to-publisher-id",
+    });
+
+    const legacyEsId = "62d82dd3290f20071ee6a986";
+    await prisma.statEvent.update({ where: { id: clickStat._id }, data: { esId: legacyEsId } });
+
+    const response = await request(app).get("/r/apply").query({ view: legacyEsId });
+
+    expect(response.status).toBe(200);
+    const storedApply = await prisma.statEvent.findUnique({ where: { id: response.body.id } });
+    expect(storedApply).toMatchObject({
+      type: "apply",
+      clickId: clickStat._id,
+      toPublisherId: clickStat.toPublisherId,
+    });
+  });
+
   it("returns 204 when custom attributes payload is invalid JSON", async () => {
     vi.spyOn(utils, "identify").mockReturnValue({
       user: "invalid-identity-user",
