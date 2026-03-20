@@ -7,7 +7,7 @@ info:
     API partenaires pour la diffusion et le suivi de missions bénévoles et civiques.
 
     ## Authentification
-    Tous les endpoints nécessitent une clé API transmise dans le header `x-api-key`.
+    Tous les endpoints nécessitent une clé API transmise dans le header "x-api-key".
 
     ## Versions
     - **v0** : endpoints de lecture (recherche de missions, organisations, partenaires diffuseurs)
@@ -18,6 +18,8 @@ info:
 servers:
   - url: https://api.api-engagement.beta.gouv.fr
     description: Production
+  - url: https://api.bac-a-sable.api-engagement.beta.gouv.fr
+    description: Bac à sable
   - url: http://localhost:3002
     description: Développement local
 
@@ -385,13 +387,13 @@ components:
         - type: object
           description: |
             Mission au format legacy (v0). Quelques différences par rapport au format v2 :
-            - `openToMinors` et `reducedMobilityAccessible` sont retournés comme chaînes `"true"` / `"false"`
-            - Champs supplémentaires : `_id`, `activity` (concaténation), `domainLogo`, `publisherName`, `publisherUrl`, `publisherLogo`, `postedAt`, `duration`, `snu`, `snuPlaces`, `metadata`
-            - Champ de modération JVA : `moderation_5f5931496c7ea514150a818f_status`, `moderation_5f5931496c7ea514150a818f_comment`
+            - "openToMinors" et "reducedMobilityAccessible" sont retournés comme chaînes ""true"" / ""false""
+            - Champs supplémentaires : "_id", "activity" (concaténation), "domainLogo", "publisherName", "publisherUrl", "publisherLogo", "postedAt", "duration", "snu", "snuPlaces", "metadata"
+            - Champ de modération JVA : "moderation_5f5931496c7ea514150a818f_status", "moderation_5f5931496c7ea514150a818f_comment"
           properties:
             _id:
               type: string
-              description: Alias de `id` (compatibilité legacy)
+              description: Alias de "id" (compatibilité legacy)
             openToMinors:
               type: string
               nullable: true
@@ -745,7 +747,7 @@ paths:
 
         La mission est immédiatement soumise aux règles de modération automatique :
         si elle est incomplète (description trop courte, pas d'adresse, etc.), le champ
-        `statusCode` sera positionné à `REFUSED` avec un commentaire explicatif.
+        "statusCode" sera positionné à "REFUSED" avec un commentaire explicatif.
 
         > **Rate limiting** : endpoint soumis à limitation de débit.
       operationId: createMission
@@ -849,7 +851,7 @@ paths:
                   description: Identifiant de l'organisation dans votre système
                 organizationName:
                   type: string
-                  description: Requis si un autre champ `organization*` est renseigné
+                  description: Requis si un autre champ "organization*" est renseigné
                 organizationDescription:
                   type: string
                 organizationUrl:
@@ -1019,7 +1021,7 @@ paths:
                   type: string
                 organizationName:
                   type: string
-                  description: Requis si un autre champ `organization*` est renseigné
+                  description: Requis si un autre champ "organization*" est renseigné
                 organizationDescription:
                   type: string
                 organizationUrl:
@@ -1133,22 +1135,22 @@ paths:
       summary: Récupérer une activité
       description: |
         Récupère une activité (candidature ou création de compte) par son identifiant
-        ou par son `clientEventId`. En cas d'ambiguïté (même `clientEventId` pour un
-        `apply` et un `account`), précisez le paramètre `type`.
+        ou par son "clientEventId". En cas d'ambiguïté (même "clientEventId" pour un
+        "apply" et un "account"), précisez le paramètre "type".
       operationId: getActivity
       tags: [Activités]
       parameters:
         - name: id
           in: path
           required: true
-          description: Identifiant interne ou `clientEventId` de l'activité
+          description: Identifiant interne ou "clientEventId" de l'activité
           schema:
             type: string
           example: "64a1b2c3d4e5f6789abc0099"
         - name: type
           in: query
           required: false
-          description: Type de l'activité (requis en cas d'ambiguïté sur le `clientEventId`)
+          description: Type de l'activité (requis en cas d'ambiguïté sur le "clientEventId")
           schema:
             type: string
             enum: [apply, account]
@@ -1172,7 +1174,7 @@ paths:
         "404":
           $ref: "#/components/responses/NotFound"
         "409":
-          description: Ambiguïté sur le clientEventId — précisez le paramètre `type`
+          description: Ambiguïté sur le clientEventId — précisez le paramètre "type"
           content:
             application/json:
               schema:
@@ -1190,13 +1192,13 @@ paths:
         - name: id
           in: path
           required: true
-          description: Identifiant interne ou `clientEventId` de l'activité
+          description: Identifiant interne ou "clientEventId" de l'activité
           schema:
             type: string
         - name: type
           in: query
           required: false
-          description: Type de l'activité (requis en cas d'ambiguïté sur le `clientEventId`)
+          description: Type de l'activité (requis en cas d'ambiguïté sur le "clientEventId")
           schema:
             type: string
             enum: [apply, account]
@@ -1237,7 +1239,7 @@ paths:
         "404":
           $ref: "#/components/responses/NotFound"
         "409":
-          description: Ambiguïté sur le clientEventId — précisez le paramètre `type`
+          description: Ambiguïté sur le clientEventId — précisez le paramètre "type"
           content:
             application/json:
               schema:
@@ -1250,8 +1252,8 @@ paths:
         Enregistre un événement d'engagement (candidature ou création de compte)
         lié à un clic tracé par l'API.
 
-        Le `clickId` doit correspondre à un clic enregistré par l'API Engagement.
-        Si `missionClientId` est fourni, l'activité sera enrichie avec les données de la mission correspondante.
+        Le "clickId" doit correspondre à un clic enregistré par l'API Engagement.
+        Si "missionClientId" est fourni, l'activité sera enrichie avec les données de la mission correspondante.
       operationId: createActivity
       tags: [Activités]
       requestBody:
@@ -1266,7 +1268,7 @@ paths:
                   type: string
                   enum: [apply, account]
                   default: apply
-                  description: Type d'événement (défaut `apply`)
+                  description: Type d'événement (défaut "apply")
                 clickId:
                   type: string
                   description: Identifiant du clic d'origine (obligatoire)
@@ -1312,10 +1314,10 @@ paths:
         Retourne les missions diffusées par vos partenaires, filtrées selon vos critères.
         Les résultats sont limités aux partenaires autorisés pour votre clé API.
 
-        Les paramètres `activity`, `city`, `clientId`, `country`, `departmentName`,
-        `domain`, `organizationRNA`, `organizationStatusJuridique`, `publisher`,
-        `remote` et `type` acceptent une valeur unique ou un tableau de valeurs
-        (ex. `?domain=sante&domain=education`).
+        Les paramètres "activity", "city", "clientId", "country", "departmentName",
+        "domain", "organizationRNA", "organizationStatusJuridique", "publisher",
+        "remote" et "type" acceptent une valeur unique ou un tableau de valeurs
+        (ex. "?domain=sante&domain=education").
       operationId: searchMissions
       tags: [Missions]
       parameters:
@@ -1382,20 +1384,20 @@ paths:
           schema:
             type: number
             format: double
-          description: Latitude (requis avec `lon` pour la recherche géographique)
+          description: Latitude (requis avec "lon" pour la recherche géographique)
           example: 48.8566
         - name: lon
           in: query
           schema:
             type: number
             format: double
-          description: Longitude (requis avec `lat` pour la recherche géographique)
+          description: Longitude (requis avec "lat" pour la recherche géographique)
           example: 2.3522
         - name: distance
           in: query
           schema:
             type: string
-          description: "Rayon de recherche géographique (ex. `25km`, `50km`). Défaut : 50km"
+          description: "Rayon de recherche géographique (ex. 25km, 50km). Défaut : 50km"
           example: "25km"
         - name: city
           in: query
@@ -1483,12 +1485,12 @@ paths:
           in: query
           schema:
             type: string
-          description: "Filtre sur la date de début (ex. `>2024-01-01`, `<2024-12-31`)"
+          description: "Filtre sur la date de début (ex. >2024-01-01, <2024-12-31)"
         - name: createdAt
           in: query
           schema:
             type: string
-          description: "Filtre sur la date de création (ex. `>2024-01-01`)"
+          description: "Filtre sur la date de création (ex. >2024-01-01)"
       responses:
         "200":
           description: Liste de missions
@@ -1523,7 +1525,7 @@ paths:
     get:
       summary: Rechercher des missions avec facettes
       description: |
-        Identique à `GET /v0/mission` mais retourne également des facettes
+        Identique à "GET /v0/mission" mais retourne également des facettes
         (agrégations) sur les domaines, activités et départements pour faciliter
         la construction de filtres dynamiques.
       operationId: searchMissionsWithFacets
@@ -1761,7 +1763,7 @@ paths:
   /v0/mymission/{clientId}:
     get:
       summary: Récupérer une mission avec ses statistiques
-      description: Retourne une mission identifiée par son `clientId` ainsi que ses statistiques d'engagement (clics, candidatures, créations de compte).
+      description: Retourne une mission identifiée par son "clientId" ainsi que ses statistiques d'engagement (clics, candidatures, créations de compte).
       operationId: getMyMission
       tags: [Mes missions]
       parameters:
@@ -1948,7 +1950,7 @@ paths:
       summary: Gérer les exclusions de diffusion d'une organisation
       description: |
         Définit la liste des partenaires diffuseurs **autorisés** pour une organisation.
-        Les partenaires non inclus dans `publisherIds` seront exclus de la diffusion.
+        Les partenaires non inclus dans "publisherIds" seront exclus de la diffusion.
 
         > **Attention** : cette opération remplace intégralement les exclusions existantes.
       operationId: updateOrganizationDiffusion

@@ -6,26 +6,26 @@
 
 ## Mission
 
-* [Récupérer des missions](mission/recuperer.md)
-* [Rechercher dans les missions](mission/rechercher.md)
-* [Récupérer une mission par identifiant](mission/par-identifiant.md)
-* [Créer / mettre à jour une mission](mission/creer-mettre-a-jour.md)
-* [Supprimer une mission](mission/supprimer.md)
+* [GET /v0/mission — Récupérer des missions](mission/recuperer.md)
+* [GET /v0/mission/search — Rechercher dans les missions](mission/rechercher.md)
+* [GET /v0/mission/{id} — Récupérer une mission par identifiant](mission/par-identifiant.md)
+* [POST · PUT /v2/mission — Créer / mettre à jour une mission](mission/creer-mettre-a-jour.md)
+* [DELETE /v2/mission/{clientId} — Supprimer une mission](mission/supprimer.md)
 
 ## Tracking
 
-* [Qualifier une candidature](tracking/qualifier.md)
+* [POST · PUT /v2/activity — Qualifier une candidature](tracking/qualifier.md)
 
 ## Diffuseur
 
-* [Récupérer la liste des partenaires diffuseurs](diffuseur/liste.md)
-* [Récupérer un partenaire diffuseur](diffuseur/par-identifiant.md)
+* [GET /v0/publisher — Récupérer la liste des partenaires diffuseurs](diffuseur/liste.md)
+* [GET /v0/publisher/{id} — Récupérer un partenaire diffuseur](diffuseur/par-identifiant.md)
 
 ## Organisations
 
-* [Récupérer les organisations](organisations/recuperer.md)
+* [GET /v0/organization — Récupérer les organisations](organisations/recuperer.md)
 
 ## Mes organisations
 
-* [Récupérer les partenaires diffuseurs d'une organisation](mes-organisations/liste-diffuseurs.md)
-* [Modifier les partenaires diffuseurs d'une organisation](mes-organisations/modifier-diffuseurs.md)
+* [GET /v0/myorganization/{id} — Récupérer les partenaires diffuseurs d'une organisation](mes-organisations/liste-diffuseurs.md)
+* [PUT /v0/myorganization/{id} — Modifier les partenaires diffuseurs d'une organisation](mes-organisations/modifier-diffuseurs.md)
