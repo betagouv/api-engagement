@@ -11,8 +11,12 @@ import { MissionRecord } from "@/types/mission";
 import { PublisherRequest } from "@/types/passport";
 
 const toYesNo = (value: unknown) => {
-  if (value === true) return "yes";
-  if (value === false) return "no";
+  if (value === true) {
+    return "yes";
+  }
+  if (value === false) {
+    return "no";
+  }
   return value;
 };
 
