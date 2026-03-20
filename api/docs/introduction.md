@@ -40,6 +40,16 @@ https://api.bac-a-sable.api-engagement.beta.gouv.fr
 
 Toutes les requêtes doivent utiliser HTTPS.
 
+## Spec OpenAPI
+
+La spécification complète de l'API est disponible au format OpenAPI 3.0 :
+
+```
+https://raw.githubusercontent.com/betagouv/api-engagement/main/api/docs/openapi.yaml
+```
+
+Vous pouvez l'importer directement dans [Postman](https://learning.postman.com/docs/integrations/available-integrations/working-with-openAPI/), [Insomnia](https://docs.insomnia.rest/insomnia/import-export-data) ou tout autre client HTTP compatible OpenAPI.
+
 ## Authentification
 
 Tous les endpoints nécessitent une clé API. Consultez la section [Authentification](authentification.md) pour les détails.
