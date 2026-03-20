@@ -1,5 +1,5 @@
 ---
-description: Récupère la liste des missions disponibles, avec filtres optionnels sur le domaine, la localisation ou l'organisation.
+description: Récupérer toutes les missions de vos partenaires avec des filtres précis.
 ---
 
 # Récupérer des missions

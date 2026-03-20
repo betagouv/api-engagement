@@ -1,5 +1,5 @@
 ---
-description: Recherche des missions par mot-clé en texte libre, avec classement par pertinence.
+description: Rechercher dans les missions de vos partenaires avec des filtres précis. A noter que vous récupérez des facets sur certains champs.
 ---
 
 # Rechercher dans les missions

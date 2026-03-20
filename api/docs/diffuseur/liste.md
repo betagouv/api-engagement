@@ -1,5 +1,5 @@
 ---
-description: Récupère la liste des partenaires diffuseurs qui diffusent les missions de votre organisation.
+description: Récupérer la liste de l'ensemble des partenaires qui diffusent vos missions et redirigent du traffic vers votre site.
 ---
 
 # Récupérer la liste des partenaires diffuseurs
