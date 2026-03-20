@@ -11,26 +11,31 @@ L'API Engagement permet aux organisations partenaires de **publier et diffuser d
 L'API s'adresse à deux types de partenaires :
 
 **Partenaires annonceurs** — organisations qui créent et gèrent des missions bénévoles. Ils utilisent l'API pour :
+
 - Publier et mettre à jour leurs missions
 - Supprimer des missions expirées
 - Suivre l'engagement généré (clics, candidatures)
 
 **Partenaires diffuseurs** — plateformes qui affichent des missions issues de l'API Engagement à leurs utilisateurs. Ils utilisent l'API pour :
+
 - Rechercher et filtrer des missions par localisation, domaine, organisation
 - Récupérer le détail d'une mission
 - Consulter les organisations et les partenaires disponibles
 
-## Versions de l'API
-
-| Version | Type | Usage |
-|---|---|---|
-| **v0** | Lecture seule | Recherche et consultation de missions, organisations, partenaires diffuseurs |
-| **v2** | Lecture / Écriture | CRUD missions, suivi des activités (impressions, clics, candidatures) |
-
 ## URL de base
+
+### Production
 
 ```
 https://api.api-engagement.beta.gouv.fr
+```
+
+### Bac à sable
+
+Un environnement bac à sable est disponible pour vous permettre de tester votre intégration avec des jeux de données de test. Rapprochez-vous de votre chargé de déploiement pour en demander l'accès.
+
+```
+https://api.bac-a-sable.api-engagement.beta.gouv.fr
 ```
 
 Toutes les requêtes doivent utiliser HTTPS.
