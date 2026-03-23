@@ -526,7 +526,7 @@ components:
       description: Organisation associative ou structure porteuse de missions
       example:
         _id: "64a1b2c3d4e5f6789abc0010"
-        name: "Croix-Rouge française"
+        title: "Croix-Rouge française"
         rna: "W751206979"
         siret: "77567227221138"
         statusJuridique: "Association loi 1901"
@@ -535,7 +535,7 @@ components:
           type: string
           description: Identifiant interne
           example: "64a1b2c3d4e5f6789abc0010"
-        name:
+        title:
           type: string
           description: Nom de l'organisation
           example: "Croix-Rouge française"
@@ -1195,13 +1195,6 @@ paths:
           description: Identifiant interne ou "clientEventId" de l'activité
           schema:
             type: string
-        - name: type
-          in: query
-          required: false
-          description: Type de l'activité (requis en cas d'ambiguïté sur le "clientEventId")
-          schema:
-            type: string
-            enum: [apply, account]
       requestBody:
         required: true
         content:
@@ -1626,13 +1619,7 @@ paths:
                   total:
                     type: integer
                     example: 1234
-                  limit:
-                    type: integer
-                    example: 25
-                  skip:
-                    type: integer
-                    example: 0
-                  data:
+                  hits:
                     type: array
                     items:
                       $ref: "#/components/schemas/MissionLegacy"
@@ -1640,7 +1627,7 @@ paths:
                     type: object
                     description: Agrégations pour les filtres dynamiques
                     properties:
-                      domain:
+                      domains:
                         type: array
                         items:
                           type: object
@@ -1649,7 +1636,7 @@ paths:
                               type: string
                             doc_count:
                               type: integer
-                      activity:
+                      activities:
                         type: array
                         items:
                           type: object
