@@ -8,20 +8,10 @@ import Loader from "@/components/Loader";
 import AnalyticsCard from "@/scenes/performance/AnalyticsCard";
 import { useAnalyticsProvider } from "@/services/analytics/provider";
 import { captureError } from "@/services/error";
-import useStore from "@/services/store";
 import EmptySVG from "@/assets/svg/empty-info.svg";
-import { MISSION_TYPE_OPTIONS } from "@/constants";
+import { METABASE_CARD_ID, MISSION_TYPE_OPTIONS } from "@/constants";
 
 const CHART_COLORS = ["rgba(117,165,236,1)", "rgba(251,146,107,1)", "#fdc639"];
-
-const ADMIN_STATS_CARD_IDS = {
-  engagementRedirections: "5726",
-  engagementCandidatures: "5727",
-  missionsActives: "5728",
-  missionsCreees: "5729",
-  diffuseursTop: "5730",
-  annonceursTop: "5731",
-};
 
 const toEndOfDay = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1, 0, 0, 0, -1);
 
@@ -40,12 +30,7 @@ const buildDefaultFilters = (searchParams) => {
     from: Number.isNaN(from.getTime()) ? defaultFrom : from,
     to: Number.isNaN(to.getTime()) ? defaultTo : to,
     type: searchParams.get("type") || "",
-    publisherId: searchParams.get("publisher_id") || searchParams.get("publisherId") || "",
   };
-};
-
-const resolvePublisherId = (filters, publisher) => {
-  return filters?.publisherId || publisher?.id || publisher?._id || "";
 };
 
 const Filters = ({ filters, onChange, idPrefix, showLabel = true }) => {
@@ -73,18 +58,14 @@ const Filters = ({ filters, onChange, idPrefix, showLabel = true }) => {
 const ChartFallback = ({ title }) => (
   <div className="flex h-[420px] w-full flex-col items-center justify-center border border-dashed border-gray-900 bg-[#f6f6f6] px-6 text-center">
     <p className="text-base font-semibold">{title}</p>
-    <p className="mt-2 text-sm text-[#666]">Renseigner le `cardId` Metabase dans ADMIN_STATS_CARD_IDS.</p>
+    <p className="mt-2 text-sm text-[#666]">Renseigner le `cardId` Metabase dans `METABASE_CARD_ID`.</p>
   </div>
 );
 
-const ChartBlock = ({ title, subtitle, cardId, filters, publisher, type = "stacked", chartProps, adapterOptions, showLegend = false, loaderHeight = "420px", includeMissionTypeFilter = true }) => {
+const ChartBlock = ({ title, subtitle, cardId, filters, type = "stacked", chartProps, adapterOptions, showLegend = false, loaderHeight = "420px", includeMissionTypeFilter = true }) => {
   const variables = {};
   if (includeMissionTypeFilter && filters.type) {
     variables.type = filters.type;
-  }
-  const publisherId = resolvePublisherId(filters, publisher);
-  if (publisherId) {
-    variables.publisher_id = publisherId;
   }
 
   return (
@@ -111,7 +92,7 @@ const ChartBlock = ({ title, subtitle, cardId, filters, publisher, type = "stack
   );
 };
 
-const TrafficByAnnouncerChart = ({ filters, publisher, cardId, title, subtitle }) => {
+const TrafficByAnnouncerChart = ({ filters, cardId, title, subtitle }) => {
   const analyticsProvider = useAnalyticsProvider();
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -134,9 +115,8 @@ const TrafficByAnnouncerChart = ({ filters, publisher, cardId, title, subtitle }
         if (filters.to) {
           variables.to = filters.to.toISOString();
         }
-        const publisherId = resolvePublisherId(filters, publisher);
-        if (publisherId) {
-          variables.publisher_id = publisherId;
+        if (filters.type) {
+          variables.type = filters.type;
         }
 
         const raw = await analyticsProvider.query({
@@ -180,7 +160,7 @@ const TrafficByAnnouncerChart = ({ filters, publisher, cardId, title, subtitle }
 
     fetchData();
     return () => controller.abort();
-  }, [filters, publisher, analyticsProvider, cardId]);
+  }, [filters, analyticsProvider, cardId]);
 
   const buildHistogram = (data) => {
     const map = new Map();
@@ -251,21 +231,19 @@ const TrafficByAnnouncerChart = ({ filters, publisher, cardId, title, subtitle }
   );
 };
 
-const EngagementSection = ({ filters, publisher }) => {
+const EngagementSection = ({ filters }) => {
   return (
     <div className="space-y-6">
       <h2 className="text-3xl font-bold">🫶 Engagement généré</h2>
       <TrafficByAnnouncerChart
         filters={filters}
-        publisher={publisher}
-        cardId={ADMIN_STATS_CARD_IDS.engagementRedirections}
+        cardId={METABASE_CARD_ID.ADMIN_STATS_ENGAGEMENT_REDIRECTIONS}
         title="Redirections"
         subtitle="Trafic que vous avez généré pour vos partenaires annonceurs"
       />
       <TrafficByAnnouncerChart
         filters={filters}
-        publisher={publisher}
-        cardId={ADMIN_STATS_CARD_IDS.engagementCandidatures}
+        cardId={METABASE_CARD_ID.ADMIN_STATS_ENGAGEMENT_CANDIDATURES}
         title="Candidatures"
         subtitle="Candidatures que vous avez générées pour vos partenaires annonceurs"
       />
@@ -273,16 +251,15 @@ const EngagementSection = ({ filters, publisher }) => {
   );
 };
 
-const MissionsSection = ({ filters, publisher }) => {
+const MissionsSection = ({ filters }) => {
   return (
     <div className="space-y-6">
       <h2 className="text-3xl font-bold">🚀 Missions</h2>
       <ChartBlock
         title="Missions actives"
         subtitle="Répartition par type de mission sur la période"
-        cardId={ADMIN_STATS_CARD_IDS.missionsActives}
+        cardId={METABASE_CARD_ID.ADMIN_STATS_MISSIONS_ACTIVES}
         filters={filters}
-        publisher={publisher}
         type="stacked"
         chartProps={{
           color: CHART_COLORS.slice(0, 2),
@@ -293,9 +270,8 @@ const MissionsSection = ({ filters, publisher }) => {
       <ChartBlock
         title="Missions créées"
         subtitle="Répartition par type de mission sur la période"
-        cardId={ADMIN_STATS_CARD_IDS.missionsCreees}
+        cardId={METABASE_CARD_ID.ADMIN_STATS_MISSIONS_CREEES}
         filters={filters}
-        publisher={publisher}
         type="stacked"
         chartProps={{ color: CHART_COLORS.slice(0, 2), legend: false }}
       />
@@ -303,7 +279,7 @@ const MissionsSection = ({ filters, publisher }) => {
   );
 };
 
-const PartnersSection = ({ filters, publisher }) => {
+const PartnersSection = ({ filters }) => {
   return (
     <div className="space-y-6">
       <h2 className="text-3xl font-bold">🤝 Partenaires</h2>
@@ -311,9 +287,8 @@ const PartnersSection = ({ filters, publisher }) => {
         <ChartBlock
           title="Top diffuseurs"
           subtitle="Diffuseurs ayant généré le plus de candidatures"
-          cardId={ADMIN_STATS_CARD_IDS.diffuseursTop}
+          cardId={METABASE_CARD_ID.ADMIN_STATS_TOP_DIFFUSEURS}
           filters={filters}
-          publisher={publisher}
           type="pie"
           showLegend={true}
           loaderHeight="22rem"
@@ -321,9 +296,8 @@ const PartnersSection = ({ filters, publisher }) => {
         <ChartBlock
           title="Top annonceurs"
           subtitle="Annonceurs ayant reçu le plus de candidatures"
-          cardId={ADMIN_STATS_CARD_IDS.annonceursTop}
+          cardId={METABASE_CARD_ID.ADMIN_STATS_TOP_ANNONCEURS}
           filters={filters}
-          publisher={publisher}
           type="pie"
           showLegend={true}
           loaderHeight="22rem"
@@ -345,18 +319,9 @@ const PartnersSection = ({ filters, publisher }) => {
 
 const Apercu = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { publisher } = useStore();
   const [stickyVisible, setStickyVisible] = useState(false);
   const [filterSection, setFilterSection] = useState(null);
   const [filters, setFilters] = useState(() => buildDefaultFilters(searchParams));
-
-  useEffect(() => {
-    const publisherId = publisher?.id || publisher?._id;
-    if (!publisherId || filters.publisherId) {
-      return;
-    }
-    setFilters((prev) => ({ ...prev, publisherId }));
-  }, [publisher, filters.publisherId]);
 
   useEffect(() => {
     const query = new URLSearchParams();
@@ -369,11 +334,8 @@ const Apercu = () => {
     if (filters.type) {
       query.set("type", filters.type);
     }
-    if (filters.publisherId) {
-      query.set("publisher_id", filters.publisherId);
-    }
     setSearchParams(query, { replace: true });
-  }, [filters.from, filters.to, filters.type, filters.publisherId, setSearchParams]);
+  }, [filters.from, filters.to, filters.type, setSearchParams]);
 
   useEffect(() => {
     if (!filterSection) {
@@ -407,9 +369,9 @@ const Apercu = () => {
 
       <div className="border-b border-b-gray-900" />
 
-      <EngagementSection filters={filters} publisher={publisher} />
-      <MissionsSection filters={filters} publisher={publisher} />
-      <PartnersSection filters={filters} publisher={publisher} />
+      <EngagementSection filters={filters} />
+      <MissionsSection filters={filters} />
+      <PartnersSection filters={filters} />
     </div>
   );
 };
