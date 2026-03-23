@@ -8,6 +8,7 @@ volontariat_hostname       = "sc.api-engagement.beta.gouv.fr"
 piloty_hostname            = "api.piloty.fr"
 bucket_name                = "api-engagement-bucket"
 slack_jobteaser_channel_id = "C080H9MH56W"
+cockpit_metrics_otlp_url   = "https://4cf96773-b69e-4c42-81ed-940b78886deb.metrics.cockpit.fr-par.scw.cloud/otlp/v1/metrics"
 
 api_cpu_limit              = 1500
 api_memory_limit           = 2048

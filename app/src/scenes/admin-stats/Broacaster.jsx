@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { DateInput } from "@/components/DateRangePicker";
-import { MISSION_TYPE_OPTIONS } from "@/constants";
+import { METABASE_CARD_ID, MISSION_TYPE_OPTIONS } from "@/constants";
 import AnalyticsCard from "@/scenes/performance/AnalyticsCard";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
@@ -145,7 +145,7 @@ const Broacaster = () => {
       </div>
       <div>
         <AnalyticsCard
-          cardId="5742"
+          cardId={METABASE_CARD_ID.ADMIN_STATS_PARTNERS_TABLE}
           type="table"
           filters={filters}
           variables={{
