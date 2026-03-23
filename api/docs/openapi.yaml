@@ -454,22 +454,38 @@ components:
                   format: double
 
     # ── Statistiques d'une mission ────────────────────────────────────────────
+    MissionStatsBucket:
+      type: object
+      description: Bucket de statistiques par partenaire diffuseur
+      properties:
+        key:
+          type: string
+          description: Identifiant du partenaire diffuseur
+          example: "5f5931496c7ea514150a818f"
+        name:
+          type: string
+          nullable: true
+          description: Nom du partenaire diffuseur
+          example: "JeVeuxAider.gouv.fr"
+        doc_count:
+          type: integer
+          description: Nombre d'événements
+          example: 42
+
     MissionStats:
       type: object
-      description: Statistiques d'engagement pour une mission
+      description: Statistiques d'engagement pour une mission, agrégées par partenaire diffuseur
       properties:
-        clickCount:
-          type: integer
-          description: Nombre de clics vers la mission
-          example: 42
-        applyCount:
-          type: integer
-          description: Nombre de candidatures enregistrées
-          example: 5
-        accountCount:
-          type: integer
-          description: Nombre de créations de compte depuis la mission
-          example: 2
+        clicks:
+          type: array
+          description: Clics vers la mission, par partenaire diffuseur
+          items:
+            $ref: "#/components/schemas/MissionStatsBucket"
+        applications:
+          type: array
+          description: Candidatures enregistrées, par partenaire diffuseur
+          items:
+            $ref: "#/components/schemas/MissionStatsBucket"
 
     # ── Activité ──────────────────────────────────────────────────────────────
     Activity:
@@ -529,7 +545,7 @@ components:
         title: "Croix-Rouge française"
         rna: "W751206979"
         siret: "77567227221138"
-        statusJuridique: "Association loi 1901"
+        status: "Association loi 1901"
       properties:
         _id:
           type: string
@@ -549,7 +565,7 @@ components:
           nullable: true
           description: Numéro SIRET
           example: "77567227221138"
-        statusJuridique:
+        status:
           type: string
           nullable: true
           description: Forme juridique
