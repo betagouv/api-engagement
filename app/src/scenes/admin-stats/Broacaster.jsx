@@ -28,7 +28,9 @@ const Broacaster = () => {
 
   useEffect(() => {
     const fetchPartners = async () => {
-      if (!user) return;
+      if (!user) {
+        return;
+      }
 
       try {
         const query = user.role === "admin" ? { role: "diffuseur" } : { role: "diffuseur", ids: user.publishers };
@@ -56,11 +58,21 @@ const Broacaster = () => {
 
   useEffect(() => {
     const query = new URLSearchParams();
-    if (filters.from) query.set("from", filters.from.toISOString());
-    if (filters.to) query.set("to", filters.to.toISOString());
-    if (filters.type) query.set("type", filters.type);
-    if (filters.source) query.set("source", filters.source);
-    if (filters.publisher) query.set("broadcaster", filters.publisher);
+    if (filters.from) {
+      query.set("from", filters.from.toISOString());
+    }
+    if (filters.to) {
+      query.set("to", filters.to.toISOString());
+    }
+    if (filters.type) {
+      query.set("type", filters.type);
+    }
+    if (filters.source) {
+      query.set("source", filters.source);
+    }
+    if (filters.publisher) {
+      query.set("broadcaster", filters.publisher);
+    }
     setSearchParams(query);
   }, [filters, setSearchParams]);
 
@@ -125,7 +137,7 @@ const Broacaster = () => {
             <option className="text-sm" value="">
               Moyen de diffusion
             </option>
-            <option value="publisher">API</option>
+            <option value="api">API</option>
             <option value="widget">Widget</option>
             <option value="campaign">Campagne</option>
           </select>
