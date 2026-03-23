@@ -130,8 +130,38 @@ const AnalyticsViz = ({
 
     const page = tableProps?.page ?? 1;
     const pageSize = tableProps?.pageSize ?? 10;
+    const sortBy = tableProps?.sortBy;
+    const sortKey = typeof sortBy === "string" ? sortBy.replace(/^-/, "") : "";
+    const sortAsc = typeof sortBy === "string" && sortBy.startsWith("-");
+    const sortIndex = sortKey ? columns.findIndex((col) => (col.key || col.name) === sortKey) : -1;
+
+    const sortedRows =
+      sortIndex >= 0
+        ? [...tableRows].sort((a, b) => {
+            const left = a?.[sortIndex];
+            const right = b?.[sortIndex];
+
+            if (left === right) return 0;
+            if (left === null || left === undefined || left === "") return 1;
+            if (right === null || right === undefined || right === "") return -1;
+
+            const leftNum = Number(left);
+            const rightNum = Number(right);
+            const bothNumbers = Number.isFinite(leftNum) && Number.isFinite(rightNum);
+
+            if (bothNumbers) {
+              return sortAsc ? leftNum - rightNum : rightNum - leftNum;
+            }
+
+            const leftText = String(left).toLocaleLowerCase("fr");
+            const rightText = String(right).toLocaleLowerCase("fr");
+            const comparison = leftText.localeCompare(rightText, "fr");
+            return sortAsc ? comparison : -comparison;
+          })
+        : tableRows;
+
     const start = (page - 1) * pageSize;
-    const visibleRows = tableRows.slice(start, start + pageSize);
+    const visibleRows = sortedRows.slice(start, start + pageSize);
 
     return (
       <Table header={header} total={tableRows.length} loading={false} className={`border border-gray-900 ${className}`} caption={caption} {...tableProps}>
