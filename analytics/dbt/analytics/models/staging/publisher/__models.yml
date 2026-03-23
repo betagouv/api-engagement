@@ -21,6 +21,8 @@ models:
         description: Droit d'accès aux widgets embarqués.
       - name: diffuseur_campaign
         description: Droit d'accès aux campagnes emailing.
+      - name: mission_type
+        description: Type de mission associé au partenaire (nullable, ex. bénévolat / service civique / pompiers).
       - name: created_at
         description: Timestamp de création initial.
         tests:
