@@ -7,6 +7,8 @@ import path from "path";
 
 import bodyParserErrorHandler from "@/middlewares/body-parser-error-handler";
 import passport from "@/middlewares/passport";
+import OrganizationV0Controller from "@/v0/organization";
+import PublisherV0Controller from "@/v0/publisher";
 import MissionV0Controller from "@/v0/mission/controller";
 import MyMissionV0Controller from "@/v0/mymission/controller";
 import MyOrganizationV0Controller from "@/v0/myorganization/controller";
@@ -32,6 +34,8 @@ app.use(
   })
 );
 
+app.use("/v0/organization", OrganizationV0Controller);
+app.use("/v0/publisher", PublisherV0Controller);
 app.use("/v0/myorganization", MyOrganizationV0Controller);
 app.use("/v0/mymission", MyMissionV0Controller);
 app.use("/v2/mission", MissionV2WriteController);
