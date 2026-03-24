@@ -56,12 +56,6 @@ if (!jobName) {
   process.exit(1);
 }
 
-if (!tableName) {
-  console.error("Error: no table name provided");
-  console.log("Usage: npm run job -- <job-name> <tableName>");
-  process.exit(1);
-}
-
 const jobDir = path.join(__dirname, jobName);
 if (!fs.existsSync(jobDir)) {
   console.error(`Error: job directory '${jobName}' not found`);

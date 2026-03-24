@@ -22,6 +22,7 @@ jobs:
       widget: ${{ steps.filter.outputs.widget }}
       analytics: ${{ steps.filter.outputs.analytics }}
       app: ${{ steps.filter.outputs.app }}
+      api_prisma_schema: ${{ steps.filter.outputs.api_prisma_schema }}
     steps:
       - uses: actions/checkout@v6
       - uses: dorny/paths-filter@v4
@@ -36,6 +37,8 @@ jobs:
               - 'analytics/**'
             app:
               - 'app/**'
+            api_prisma_schema:
+              - 'api/prisma/schema.prisma'
 
   api-migrations:
     name: Verify API migrations
@@ -137,6 +140,69 @@ jobs:
         env:
           DATABASE_URL_ANALYTICS: postgresql://postgres:postgres@localhost:5432/analytics
         run: ./scripts/dbt-env.sh compile
+
+  analytics-export-job:
+    name: Verify analytics export job
+    needs: changes
+    if: needs.changes.outputs.api_prisma_schema == 'true'
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: |
+            api/package-lock.json
+            analytics/package-lock.json
+
+      - name: Install API dependencies
+        run: cd api && npm ci
+
+      - name: Install Analytics dependencies
+        run: cd analytics && npm ci
+
+      - name: Prepare temporary databases
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h localhost -U postgres -d postgres -c 'CREATE DATABASE core;'
+          psql -h localhost -U postgres -d postgres -c 'CREATE DATABASE analytics;'
+
+      - name: Apply API Prisma migrations
+        working-directory: api
+        env:
+          DATABASE_URL_CORE: postgresql://postgres:postgres@localhost:5432/core
+        run: npm run prisma:migrate:deploy
+
+      - name: Apply Analytics migrations
+        working-directory: analytics
+        env:
+          DATABASE_URL_ANALYTICS: postgresql://postgres:postgres@localhost:5432/analytics?sslmode=disable
+        run: npm run db:migrate
+
+      - name: Run analytics export job
+        working-directory: analytics
+        env:
+          DATABASE_URL_CORE: postgresql://postgres:postgres@localhost:5432/core
+          DATABASE_URL_ANALYTICS: postgresql://postgres:postgres@localhost:5432/analytics?sslmode=disable
+          ENV: development
+        run: npm run job -- export-to-analytics-raw
 
   api-tests:
     name: API Tests
