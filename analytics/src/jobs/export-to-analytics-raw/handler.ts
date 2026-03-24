@@ -115,7 +115,11 @@ export class ExportToAnalyticsRawHandler implements BaseHandler<ExportToPgJobPay
     const requestedTables = payload?.table ? [payload.table] : exportDefinitions.map((item) => item.key);
     const tables = Array.from(new Set(requestedTables));
 
-    const results = await Promise.all(tables.map((table) => processTable(table, payload?.batchSize)));
+    const results: ExportToPgTableResult[] = [];
+    for (const table of tables) {
+      const result = await processTable(table, payload?.batchSize);
+      results.push(result);
+    }
     const summary = results.reduce(
       (acc, result) => ({
         processed: acc.processed + result.summary.processed,
