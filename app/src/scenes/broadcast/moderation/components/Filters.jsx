@@ -138,7 +138,7 @@ const Filters = ({ filters, onChange, reload }) => {
       <div className="flex flex-wrap gap-3">
         <Badge label="Statut" value={STATUS[filters.status]} onDelete={() => onChange({ ...filters, status: "" })} />
         <Badge label="Annonceur" value={options.publishers.find((p) => p.key === filters.publisherId)?.label} onDelete={() => onChange({ ...filters, publisherId: "" })} />
-        {/* <Badge label="Organisation" value={filters.organizationNames.join(", ")} onDelete={() => onChange({ ...filters, organizationNames: [] })} /> */}
+        <Badge label="Organisation" value={options.organizations.find((o) => o.key === filters.organizationId)?.label} onDelete={() => onChange({ ...filters, organizationId: "" })} />
         <Badge
           label="Département"
           value={filters.department === "none" ? "Non renseigné" : DEPARTMENT_LABELS[filters.department]}
