@@ -15,7 +15,7 @@ const OrganizationRefusedModal = ({ open, onClose, data, update, onChange, total
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const where = { moderatorId: publisher.id, organizationName: data.missionOrganizationName, status: "PENDING" };
+      const where = { moderatorId: publisher.id, organizationId: data.missionPublisherOrganizationId, status: "PENDING" };
 
       const res = await api.put(`/moderation/many`, {
         where,

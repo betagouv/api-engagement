@@ -23,8 +23,7 @@ const searchSchema = zod.object({
   domain: zod.string().nullable().optional(),
   cities: zod.array(zod.string()).nullable().optional(),
   department: zod.string().nullable().optional(),
-  organizationNames: zod.array(zod.string()).nullable().optional(),
-  organizationClientId: zod.string().nullable().optional(),
+  organizationIds: zod.array(zod.string()).nullable().optional(),
   search: zod.string().nullable().optional(),
   activity: zod.string().nullable().optional(),
   size: zod.coerce.number().min(0).default(25),
@@ -42,14 +41,14 @@ const aggsSchema = zod.object({
   domain: zod.string().nullable().optional(),
   cities: zod.array(zod.string()).nullable().optional(),
   department: zod.string().nullable().optional(),
-  organizationNames: zod.array(zod.string()).nullable().optional(),
+  organizationIds: zod.array(zod.string()).nullable().optional(),
   search: zod.string().nullable().optional(),
   activity: zod.string().nullable().optional(),
 });
 
 const searchHistorySchema = zod.object({
   moderatorId: zod.string(),
-  organizationName: zod.string().optional(),
+  organizationId: zod.string().optional(),
 });
 
 const missionParamsSchema = zod.object({
@@ -81,8 +80,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       comment: body.data.comment || undefined,
       domain: body.data.domain || undefined,
       department: body.data.department || undefined,
-      organizationNames: body.data.organizationNames || undefined,
-      organizationClientId: body.data.organizationClientId || undefined,
+      organizationIds: body.data.organizationIds || undefined,
       cities: body.data.cities || undefined,
       search: body.data.search || undefined,
       activity: body.data.activity || undefined,
@@ -119,7 +117,7 @@ router.post("/aggs", passport.authenticate("user", { session: false }), async (r
       comment: body.data.comment || undefined,
       domain: body.data.domain || undefined,
       department: body.data.department || undefined,
-      organizationNames: body.data.organizationNames || undefined,
+      organizationIds: body.data.organizationIds || undefined,
       cities: body.data.cities || undefined,
       activity: body.data.activity || undefined,
       search: body.data.search || undefined,
@@ -147,7 +145,7 @@ router.post("/search-history", passport.authenticate("user", { session: false })
 
     const result = await missionModerationStatusService.aggregateByOrganization({
       moderatorId: moderator.id,
-      organizationName: body.data.organizationName,
+      organizationId: body.data.organizationId,
     });
 
     return res.status(200).send({ ok: true, data: { organization: result.organization }, total: result.total });
@@ -201,7 +199,7 @@ router.put("/many", passport.authenticate("user", { session: false }), async (re
         where: zod.object({
           moderatorId: zod.string(),
           ids: zod.array(zod.string()).optional(),
-          organizationName: zod.string().optional(),
+          organizationId: zod.string().optional(),
           status: zod.enum(["PENDING"]).optional(),
         }),
         update: zod.object({
@@ -232,7 +230,7 @@ router.put("/many", passport.authenticate("user", { session: false }), async (re
       moderatorId: body.data.where.moderatorId,
       ids: body.data.where.ids,
       status: body.data.where.status,
-      organizationNames: body.data.where.organizationName ? [body.data.where.organizationName] : undefined,
+      organizationIds: body.data.where.organizationId ? [body.data.where.organizationId] : undefined,
     });
 
     if (total === 0) {

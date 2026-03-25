@@ -4,7 +4,7 @@ import { Link, useSearchParams } from "react-router-dom";
 
 import ErrorIconSvg from "@/assets/svg/error-icon.svg?react";
 import Combobox from "@/components/combobox";
-import PublisherCombobox from "@/components/combobox/PublisherCombobox";
+import LabelledCombobox from "@/components/combobox/LabelledCombobox";
 import Loader from "@/components/Loader";
 import SearchInput from "@/components/SearchInput";
 import Select from "@/components/Select";
@@ -163,7 +163,7 @@ const AdminMission = () => {
             onSelect={(e) => (e ? setFilters({ ...filters, publisherId: e.value }) : null)}
             placeholder="Partenaire"
           /> */}
-          <PublisherCombobox
+          <LabelledCombobox
             id="publisherIds"
             values={filters.publisherIds}
             onChange={(publisherIds) => setFilters({ ...filters, publisherIds })}
@@ -235,9 +235,7 @@ const AdminMission = () => {
                 {item.organizationName && <p className="text-sm">{item.organizationName}</p>}
               </td>
               <td className="px-4">{item.places}</td>
-              <td className="px-4">
-                {item.city}
-              </td>
+              <td className="px-4">{item.city}</td>
               <td className="px-4">{new Date(item.createdAt).toLocaleDateString("fr")}</td>
               <td className="px-6">
                 <div className="flex items-center gap-1">
