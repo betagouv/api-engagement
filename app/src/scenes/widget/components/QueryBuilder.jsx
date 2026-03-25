@@ -8,20 +8,20 @@ import { useEffect, useState } from "react";
 const FIELDS = [
   { label: "Nom de l'organisation", value: "organizationName", type: "text" },
   { label: "Domaine de la mission", value: "domain", type: "text" },
-  { label: "Nom du réseau", value: "organizationReseaux", type: "text" },
+  { label: "Réseau parent de l'organisation", value: "parentOrganization", type: "array" },
   { label: "Titre de la mission", value: "title", type: "text" },
   { label: "Code postal de la mission", value: "postalCode", type: "text" },
   { label: "Département de la mission", value: "departmentName", type: "text" },
   { label: "Région de la mission", value: "regionName", type: "text" },
   { label: "Activité de la mission", value: "activity", type: "text" },
-  { label: "Tag personnalisé", value: "tags", type: "text" },
-  { label: "Actions de l'organisation", value: "organizationActions", type: "text" },
+  { label: "Tag personnalisé", value: "tags", type: "array" },
+  { label: "Actions de l'organisation", value: "organizationActions", type: "array" },
   { label: "Ouvert au mineur", value: "openToMinors", type: "boolean" },
 ];
 
 const QueryBuilder = ({ values, onChange }) => {
   const handleAddRule = () => {
-    onChange([...values.rules, { combinator: "and", field: FIELDS[0].value, operator: "is", value: "" }]);
+    onChange([...values.rules, { combinator: "and", field: FIELDS[0].value, fieldType: FIELDS[0].type, operator: "is", value: "" }]);
   };
 
   const handleDeleteRule = (index) => {
@@ -101,6 +101,8 @@ const Rule = ({ fields, rule, onChange, index, filters }) => {
     }
     if (f.type === "boolean") {
       onChange({ ...rule, field: f.value, fieldType: f.type, operator: "is", value: "yes" });
+    } else if (f.type === "array") {
+      onChange({ ...rule, field: f.value, fieldType: f.type, operator: "contains", value: "" });
     } else {
       onChange({ ...rule, field: f.value, fieldType: f.type });
     }
@@ -134,6 +136,27 @@ const Rule = ({ fields, rule, onChange, index, filters }) => {
               <option value="no">Non</option>
             </select>
           </>
+        ) : rule.fieldType === "array" ? (
+          <>
+            <select className="select w-[15%]" value={rule.operator} onChange={(e) => onChange({ ...rule, operator: e.target.value })}>
+              <option value="contains">contient</option>
+              <option value="does_not_contain">ne contient pas</option>
+            </select>
+
+            <div className="flex-1">
+              <Autocomplete
+                id={`rule-${index}-autocomplete`}
+                options={options}
+                value={rule.value}
+                onChange={handleChange}
+                onSelect={handleSelect}
+                placeholder="Choisissez une option"
+                getLabel={(o) => o.label}
+                getValue={(o) => o.value}
+                getCount={(o) => o.doc_count}
+              />
+            </div>
+          </>
         ) : (
           <>
             <select className="select w-[15%]" value={rule.operator} onChange={(e) => onChange({ ...rule, operator: e.target.value })}>
@@ -155,10 +178,7 @@ const Rule = ({ fields, rule, onChange, index, filters }) => {
                   options={options}
                   value={rule.value}
                   onChange={handleChange}
-                  onSelect={(v) => {
-                    console.log("v", v);
-                    handleSelect(v);
-                  }}
+                  onSelect={handleSelect}
                   placeholder="Choisissez une option"
                   getLabel={(o) => o.label}
                   getValue={(o) => o.value}
