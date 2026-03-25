@@ -375,7 +375,7 @@ export const organizationService = (() => {
       });
     } catch (error: unknown) {
       if (error instanceof Error && "code" in error && (error as { code?: string }).code === "P2025") {
-        throw new Error("Organization not found");
+        throw new Error("Organization not found", { cause: error });
       }
       throw error;
     }

@@ -153,7 +153,7 @@ const Frame = ({ widget }) => {
   }, [widget]);
 
   const handleLoad = (e) => {
-    let height = 0;
+    let height;
     const width = e.target.offsetWidth;
     if (widget.type === "volontariat") {
       if (widget.style === "carousel") {

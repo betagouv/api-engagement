@@ -1,3 +1,5 @@
+import { RiErrorWarningFill } from "react-icons/ri";
+
 const LabelledSelect = ({ id, label, options, placeholder = null, error, value, onChange, className, ...props }) => {
   return (
     <div className={`flex flex-col gap-2 ${className}`}>

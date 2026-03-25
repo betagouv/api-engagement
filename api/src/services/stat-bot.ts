@@ -65,7 +65,7 @@ export const statBotService = {
       });
     } catch (error: unknown) {
       if (error instanceof Error && "code" in error && (error as { code?: string }).code === "P2002") {
-        throw new Error("StatBot with this user already exists");
+        throw new Error("StatBot with this user already exists", { cause: error });
       }
       throw error;
     }
@@ -89,7 +89,7 @@ export const statBotService = {
       });
     } catch (error: unknown) {
       if (error instanceof Error && "code" in error && (error as { code?: string }).code === "P2025") {
-        throw new Error("StatBot not found");
+        throw new Error("StatBot not found", { cause: error });
       }
       throw error;
     }
