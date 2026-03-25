@@ -245,13 +245,13 @@ const Mean = ({ filters, onFiltersChange }) => {
           ) : (
             <>
               <div className="h-full w-full max-w-[220px] p-4">
-                <h1 className="text-4xl font-bold">
+                <h3 className="text-4xl font-bold">
                   {graph.conversionRate
                     ? graph.conversionRate.toLocaleString("fr-FR", { style: "percent", maximumFractionDigits: 2 })
                     : graph.clickCount
                       ? (graph.applyCount / graph.clickCount).toLocaleString("fr-FR", { style: "percent", maximumFractionDigits: 2 })
                       : "-"}
-                </h1>
+                </h3>
                 <p className="mt-2 text-base">taux de conversion de l'API</p>
                 <p className="text-text-mention mt-4 text-sm">
                   entre le nombre de <span className="font-semibold text-black">redirections</span> et le nombre de <span className="font-semibold text-black">candidatures</span>
@@ -261,14 +261,14 @@ const Mean = ({ filters, onFiltersChange }) => {
                 <div className="group flex h-full flex-1 flex-col justify-end gap-4 px-4">
                   <Bar value={100} height={BAR_HEIGHT} />
                   <div className="h-24">
-                    <h4 className="text-3xl font-semibold text-gray-700 group-hover:text-black">{graph.clickCount.toLocaleString("fr")}</h4>
+                    <h3 className="text-3xl font-semibold text-gray-700 group-hover:text-black">{graph.clickCount.toLocaleString("fr")}</h3>
                     <p className="text-base text-gray-700 group-hover:text-black">redirections vers une mission</p>
                   </div>
                 </div>
                 <div className="group flex h-full flex-1 flex-col justify-end gap-4 px-4">
                   <Bar value={graph.clickCount ? (graph.applyCount * 100) / graph.clickCount : 0} height={BAR_HEIGHT} />
                   <div className="h-24">
-                    <h4 className="text-3xl font-semibold text-gray-700 group-hover:text-black">{graph.applyCount.toLocaleString("fr")}</h4>
+                    <h3 className="text-3xl font-semibold text-gray-700 group-hover:text-black">{graph.applyCount.toLocaleString("fr")}</h3>
                     <p className="text-base text-gray-700 group-hover:text-black">candidatures</p>
                   </div>
                 </div>

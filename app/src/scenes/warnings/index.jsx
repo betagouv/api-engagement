@@ -157,7 +157,7 @@ const List = () => {
                 </span>
               </div>
               <div className="flex flex-col gap-4">
-                <h4 className="text-xl font-bold text-black">Votre compte est parfaitement opérationnel</h4>
+                <h2 className="text-xl font-bold text-black">Votre compte est parfaitement opérationnel</h2>
               </div>
             </>
           )}

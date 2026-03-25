@@ -33,7 +33,8 @@ const Forgot = () => {
   return (
     <form onSubmit={handleSubmit} className="flex h-full flex-col bg-white px-32 py-10">
       <title>API Engagement - Mot de passe oublié</title>
-      <h1 className="text-4xl font-bold">Récupérez votre mot de passe</h1>
+      <h1 className="font-light">Mot de passe oublié</h1>
+      <h2 className="text-4xl font-bold">Récupérez votre mot de passe</h2>
 
       <label className="mt-6 mb-2 text-sm" htmlFor="email">
         E-mail

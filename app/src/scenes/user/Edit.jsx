@@ -125,7 +125,7 @@ const Edit = () => {
   const isErrors = () => errors.firstname || errors.email || errors.role;
 
   if (!user) {
-    return <h1 className="text-4xl font-bold">Chargement...</h1>;
+    return <p className="text-4xl font-bold">Chargement...</p>;
   }
 
   return (

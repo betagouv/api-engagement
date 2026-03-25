@@ -112,8 +112,8 @@ const ResetPasswordForm = ({ user, token }) => {
 
   return (
     <form className="flex h-full flex-col py-10" onSubmit={handleSubmit}>
-      <h2 className="font-light">Mot de passe</h2>
-      <h1 className="text-4xl font-bold">Définissez un nouveau mot de passe</h1>
+      <h1 className="font-light">Mot de passe</h1>
+      <h2 className="text-4xl font-bold">Définissez un nouveau mot de passe</h2>
 
       <div className="mt-4 flex flex-col">
         <label className="mt-6 mb-2 text-sm" htmlFor="email">
