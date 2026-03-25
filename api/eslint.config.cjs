@@ -32,6 +32,7 @@ module.exports = [
       // Base rules
       "import/prefer-default-export": "off",
       "no-console": "off",
+      "preserve-caught-error": "off",
       "no-control-regex": "off",
       curly: ["error", "all"],
 

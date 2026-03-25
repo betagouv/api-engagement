@@ -262,7 +262,7 @@ export const campaignService = {
       });
     } catch (error: unknown) {
       if (error instanceof Error && "code" in error && (error as { code?: string }).code === "P2025") {
-        throw new Error("Campaign not found", { cause: error });
+        throw new Error("Campaign not found");
       }
       throw error;
     }
