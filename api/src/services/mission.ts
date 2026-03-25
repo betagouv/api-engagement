@@ -712,7 +712,6 @@ export const missionService = {
       statusComment: input.statusComment ?? undefined,
       deletedAt: input.deletedAt ?? undefined,
       lastExportedToPgAt: input.lastExportedToPgAt ?? undefined,
-      organizationClientId: input.organizationClientId ?? undefined,
       addresses: addresses.length ? { create: addresses } : undefined,
       publisherOrganizationId: publisherOrganizationId ?? undefined,
     };
