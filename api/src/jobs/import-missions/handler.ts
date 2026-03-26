@@ -38,7 +38,7 @@ export class ImportMissionsHandler implements BaseHandler<ImportMissionsJobPaylo
     console.log(`[Import XML] Starting at ${start.toISOString()}`);
 
     const imports = [] as PrismaImport[];
-    let publishers: PublisherRecord[] = [];
+    let publishers: PublisherRecord[];
     if (payload.publisherId) {
       const publisher = await publisherService.findOnePublisherById(payload.publisherId);
       if (!publisher) {

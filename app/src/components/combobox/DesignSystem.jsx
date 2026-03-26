@@ -54,7 +54,7 @@ const Combobox = ({
   }, []);
 
   const handleToggle = (option) => {
-    let newSelection = [];
+    let newSelection;
     if (selection.some((o) => getValue(o) === getValue(option))) {
       newSelection = selection.filter((o) => getValue(o) !== getValue(option));
     } else {
