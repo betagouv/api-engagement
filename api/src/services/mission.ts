@@ -424,19 +424,21 @@ const buildAggregations = async (where: Prisma.MissionWhereInput): Promise<Missi
   };
 
   const aggregateMissionByPublisherOrganization = async () => {
-    const rows = await prisma.mission.groupBy({
-      by: ["publisherOrganizationId"],
-      where,
-      _count: { _all: true },
-    });
+    const rows = (
+      await prisma.mission.groupBy({
+        by: ["publisherOrganizationId"],
+        where,
+        _count: { _all: true },
+      })
+    ).filter((row) => row.publisherOrganizationId !== null) as { publisherOrganizationId: string; _count: { _all: number } }[];
 
-    const ids = rows.map((row) => row.publisherOrganizationId).filter(isNonEmpty) as string[];
-    const organizations = ids.length ? await publisherOrganizationService.findMany({ ids: ids }, { select: { clientId: true, name: true } }) : [];
-    const nameById = new Map(organizations.map((org) => [org.clientId, org.name ?? ""]));
+    const organizations = rows.length
+      ? await publisherOrganizationService.findMany({ ids: rows.map((row) => row.publisherOrganizationId) }, { select: { id: true, name: true } })
+      : [];
+    const orgById = new Map(organizations.map((org) => [org.id, org.name ?? ""]));
 
     return rows
-      .map((row) => ({ key: nameById.get(row.publisherOrganizationId ?? "") ?? "", doc_count: Number(row._count?._all ?? 0) }))
-      .filter((row) => isNonEmpty(row.key))
+      .map((row) => ({ key: row.publisherOrganizationId, label: orgById.get(row.publisherOrganizationId) ?? "", doc_count: Number(row._count?._all ?? 0) }))
       .sort((a, b) => b.doc_count - a.doc_count);
   };
 
