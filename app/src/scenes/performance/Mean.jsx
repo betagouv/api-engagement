@@ -8,15 +8,9 @@ import Table from "@/components/Table";
 import { METABASE_CARD_ID } from "@/constants";
 import AnalyticsCard from "@/scenes/performance/AnalyticsCard";
 import { useAnalyticsProvider } from "@/services/analytics/provider";
-import { adaptKpiFromMetabase } from "@/services/analytics/providers/metabase/adapters";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
-
-const adaptConversionRate = (raw) => {
-  const { value } = adaptKpiFromMetabase(raw, { valueColumn: "conversion_rate" });
-  return { value: Number(((value || 0) * 100).toFixed(2)) };
-};
 
 const Mean = ({ filters, onFiltersChange }) => {
   const { publisher } = useStore();
@@ -245,13 +239,13 @@ const Mean = ({ filters, onFiltersChange }) => {
           ) : (
             <>
               <div className="h-full w-full max-w-[220px] p-4">
-                <h1 className="text-4xl font-bold">
+                <h3 className="text-4xl font-bold">
                   {graph.conversionRate
                     ? graph.conversionRate.toLocaleString("fr-FR", { style: "percent", maximumFractionDigits: 2 })
                     : graph.clickCount
                       ? (graph.applyCount / graph.clickCount).toLocaleString("fr-FR", { style: "percent", maximumFractionDigits: 2 })
                       : "-"}
-                </h1>
+                </h3>
                 <p className="mt-2 text-base">taux de conversion de l'API</p>
                 <p className="text-text-mention mt-4 text-sm">
                   entre le nombre de <span className="font-semibold text-black">redirections</span> et le nombre de <span className="font-semibold text-black">candidatures</span>
@@ -261,14 +255,14 @@ const Mean = ({ filters, onFiltersChange }) => {
                 <div className="group flex h-full flex-1 flex-col justify-end gap-4 px-4">
                   <Bar value={100} height={BAR_HEIGHT} />
                   <div className="h-24">
-                    <h4 className="text-3xl font-semibold text-gray-700 group-hover:text-black">{graph.clickCount.toLocaleString("fr")}</h4>
+                    <h3 className="text-3xl font-semibold text-gray-700 group-hover:text-black">{graph.clickCount.toLocaleString("fr")}</h3>
                     <p className="text-base text-gray-700 group-hover:text-black">redirections vers une mission</p>
                   </div>
                 </div>
                 <div className="group flex h-full flex-1 flex-col justify-end gap-4 px-4">
                   <Bar value={graph.clickCount ? (graph.applyCount * 100) / graph.clickCount : 0} height={BAR_HEIGHT} />
                   <div className="h-24">
-                    <h4 className="text-3xl font-semibold text-gray-700 group-hover:text-black">{graph.applyCount.toLocaleString("fr")}</h4>
+                    <h3 className="text-3xl font-semibold text-gray-700 group-hover:text-black">{graph.applyCount.toLocaleString("fr")}</h3>
                     <p className="text-base text-gray-700 group-hover:text-black">candidatures</p>
                   </div>
                 </div>
@@ -388,9 +382,7 @@ const SourcePerformance = ({ data, source }) => {
       >
         {paginated.map((item, i) => (
           <tr key={`${item.name || "source"}-${(page - 1) * pageSize + i}`} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
-            <td className="px-4">
-              {item.name}
-            </td>
+            <td className="px-4">{item.name}</td>
             <td className="px-4 text-right">{(item.printCount || 0).toLocaleString("fr")}</td>
             <td className="px-4 text-right">{(item.clickCount || 0).toLocaleString("fr")}</td>
             <td className="px-4 text-right">{(item.accountCount || 0).toLocaleString("fr")}</td>

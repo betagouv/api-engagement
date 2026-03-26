@@ -14,8 +14,6 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
-    ignore:
-      - dependency-name: "bcryptjs"
     groups:
       dev-dependencies:
         patterns:
@@ -40,12 +38,6 @@ updates:
 
   - package-ecosystem: "npm"
     directory: "/app"
-    ignore:
-      - dependency-name: "tailwindcss"
-      - dependency-name: "vite"
-      - dependency-name: "react" # TODO: update to v19
-      - dependency-name: "react-dom"
-      - dependency-name: "react-date-picker"
     schedule:
       interval: "monthly"
     cooldown:

@@ -27,18 +27,19 @@ resource "scaleway_container" "api" {
   }
 
   environment_variables = {
-    "ENV"                        = var.env
-    "IMAGE_VERSION"              = var.image_tag
-    "API_URL"                    = "https://${var.api_hostname}"
-    "APP_URL"                    = "https://${var.app_hostname}"
-    "BENEVOLAT_URL"              = var.benevolat_hostname != "" ? "https://${var.benevolat_hostname}" : ""
-    "VOLONTARIAT_URL"            = var.volontariat_hostname != "" ? "https://${var.volontariat_hostname}" : ""
-    "PILOTY_BASE_URL"            = var.piloty_hostname
-    "BUCKET_NAME"                = var.bucket_name
-    "SLACK_JOBTEASER_CHANNEL_ID" = var.slack_jobteaser_channel_id
-    "PRISMA_POOL_SIZE_CORE"      = "20"
-    "PRISMA_POOL_TIMEOUT"        = "20"
-    "PRISMA_CONNECT_TIMEOUT"     = "10"
+    "ENV"                               = var.env
+    "IMAGE_VERSION"                     = var.image_tag
+    "API_URL"                           = "https://${var.api_hostname}"
+    "APP_URL"                           = "https://${var.app_hostname}"
+    "BENEVOLAT_URL"                     = var.benevolat_hostname != "" ? "https://${var.benevolat_hostname}" : ""
+    "VOLONTARIAT_URL"                   = var.volontariat_hostname != "" ? "https://${var.volontariat_hostname}" : ""
+    "PILOTY_BASE_URL"                   = var.piloty_hostname
+    "BUCKET_NAME"                       = var.bucket_name
+    "SLACK_JOBTEASER_CHANNEL_ID"        = var.slack_jobteaser_channel_id
+    "PRISMA_POOL_SIZE_CORE"             = "20"
+    "PRISMA_POOL_TIMEOUT"               = "20"
+    "PRISMA_CONNECT_TIMEOUT"            = "10"
+    "COCKPIT_METRICS_OTLP_URL"          = var.cockpit_metrics_otlp_url
 
     # Feature flags ES migration
     "WRITE_STATS_DUAL" = "true"
@@ -56,6 +57,7 @@ resource "scaleway_container" "api" {
     "LETUDIANT_PILOTY_TOKEN" = lookup(local.secrets, "LETUDIANT_PILOTY_TOKEN", "")
     "METABASE_API_KEY"       = lookup(local.secrets, "METABASE_API_KEY", "")
     "METABASE_URL"           = lookup(local.secrets, "METABASE_URL", "")
+    "COCKPIT_METRICS_TOKEN"  = lookup(local.secrets, "COCKPIT_METRICS_TOKEN", "")
   }
 }
 

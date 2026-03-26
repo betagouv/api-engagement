@@ -130,7 +130,7 @@ export async function syncMission(
 }
 
 export const getCompanyPilotyId = async (pilotyClient: PilotyClient, mission: MissionRecord, organization: OrganizationRecord, dryRun = false): Promise<string | null> => {
-  let pilotyCompanyPublicId: string | null = null;
+  let pilotyCompanyPublicId: string | null;
 
   if (organization.letudiantPublicId) {
     console.log(`[LetudiantHandler] Company ${organization.title} already exists (${organization.letudiantPublicId})`);

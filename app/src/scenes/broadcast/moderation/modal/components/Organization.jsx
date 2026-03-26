@@ -6,9 +6,7 @@ const Organization = ({ data, history }) => {
     <div className="border-grey-border flex flex-col gap-2 border bg-white p-6">
       <div className="mb-2 flex items-center gap-2">
         <RiPencilFill className="text-text-mention" aria-hidden="true" />
-        <label className="text-text-mention text-xs font-semibold" htmlFor="note">
-          ORGANISATION
-        </label>
+        <h3 className="text-text-mention text-xs font-semibold">ORGANISATION</h3>
       </div>
       <div className="flex flex-col">
         <span className="font-semibold">{data.organizationName}</span>

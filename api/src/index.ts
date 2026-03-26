@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { ENV, IMAGE_VERSION, PORT, SENTRY_DSN_API } from "@/config";
+import { COCKPIT_METRICS_OTLP_URL, COCKPIT_METRICS_TOKEN, ENV, IMAGE_VERSION, PORT, SENTRY_DSN_API } from "@/config";
 import * as Sentry from "@sentry/node";
 
 if (ENV !== "development") {
@@ -51,6 +51,7 @@ import errorHandler from "@/middlewares/error-handler";
 
 import { pgConnected, pgDisconnect } from "@/db/postgres";
 import middlewares from "@/middlewares";
+import { initHttpMetrics, shutdownHttpMetrics } from "@/services/observability/metrics";
 
 import AdminReportController from "@/controllers/admin-report";
 import BrevoWebhookController from "@/controllers/brevo-webhook/controller";
@@ -90,6 +91,11 @@ const main = async () => {
 
   const app = express();
   const start = new Date();
+  initHttpMetrics({
+    environment: ENV,
+    otlpUrl: COCKPIT_METRICS_OTLP_URL,
+    token: COCKPIT_METRICS_TOKEN,
+  });
 
   middlewares(app);
 
@@ -152,6 +158,9 @@ const main = async () => {
       server.close(() => resolve());
     });
 
+    await shutdownHttpMetrics().catch((error) => {
+      console.error("[API] Metrics shutdown error:", error);
+    });
     await pgDisconnect();
     console.log("[API] Shutdown complete");
     process.exit(0);

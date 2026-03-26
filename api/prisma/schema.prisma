@@ -706,23 +706,23 @@ model MissionActivity {
 }
 
 model MissionAddress {
-  id             String                @id @default(uuid())
-  missionId      String                @map("mission_id")
-  addressHash    String                @map("address_hash")
-  street         String?
-  postalCode     String?               @map("postal_code")
-  departmentName String?               @map("department_name")
-  departmentCode String?               @map("department_code")
-  city           String?
-  region         String?
-  country        String?
-  locationLat    Float?                @map("location_lat")
-  locationLon    Float?                @map("location_lon")
-  geoPoint       Unsupported("point")? @map("geo_point")
-  geolocStatus        String?               @map("geoloc_status")
-  geolocFailureCount  Int                   @default(0) @map("geoloc_failure_count")
-  createdAt           DateTime              @default(now()) @map("created_at")
-  updatedAt           DateTime              @updatedAt @map("updated_at")
+  id                 String                @id @default(uuid())
+  missionId          String                @map("mission_id")
+  addressHash        String                @map("address_hash")
+  street             String?
+  postalCode         String?               @map("postal_code")
+  departmentName     String?               @map("department_name")
+  departmentCode     String?               @map("department_code")
+  city               String?
+  region             String?
+  country            String?
+  locationLat        Float?                @map("location_lat")
+  locationLon        Float?                @map("location_lon")
+  geoPoint           Unsupported("point")? @map("geo_point")
+  geolocStatus       String?               @map("geoloc_status")
+  geolocFailureCount Int                   @default(0) @map("geoloc_failure_count")
+  createdAt          DateTime              @default(now()) @map("created_at")
+  updatedAt          DateTime              @updatedAt @map("updated_at")
 
   mission Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
 

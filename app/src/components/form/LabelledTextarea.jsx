@@ -1,3 +1,5 @@
+import { RiErrorWarningFill } from "react-icons/ri";
+
 const LabelledTextarea = ({ id, label, error, value, onChange, className, ...props }) => {
   return (
     <div className={`flex flex-col gap-2 ${className}`}>

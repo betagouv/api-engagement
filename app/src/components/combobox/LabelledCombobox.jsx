@@ -2,7 +2,7 @@
 import Combobox from "@/components/combobox/DesignSystem";
 import { useMemo, useState } from "react";
 
-const PublisherCombobox = ({ id, values, onChange, placeholder, className = "w-full min-w-80", options }) => {
+const LabelledCombobox = ({ id, values, onChange, placeholder, className = "w-full min-w-80", options }) => {
   const [search, setSearch] = useState("");
 
   const optionMap = useMemo(() => {
@@ -29,4 +29,4 @@ const PublisherCombobox = ({ id, values, onChange, placeholder, className = "w-f
   );
 };
 
-export default PublisherCombobox;
+export default LabelledCombobox;

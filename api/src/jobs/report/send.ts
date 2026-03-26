@@ -135,8 +135,7 @@ export const sendReports = async (year: number, month: number, publisherId?: str
       continue;
     }
 
-    const updated = await reportService.updateReport(report.id, { status: "SENT", sentAt: new Date(), sentTo });
-    report = updated;
+    await reportService.updateReport(report.id, { status: "SENT", sentAt: new Date(), sentTo });
     count += sentTo.length;
   }
 

@@ -1,8 +1,5 @@
 const js = require("@eslint/js");
-const importPlugin = require("eslint-plugin-import");
-const reactPlugin = require("eslint-plugin-react");
-const reactHooksPlugin = require("eslint-plugin-react-hooks");
-const jsxA11yPlugin = require("eslint-plugin-jsx-a11y");
+const importPlugin = require("eslint-plugin-import-x");
 const globals = require("globals");
 
 module.exports = [
@@ -27,15 +24,12 @@ module.exports = [
     },
     plugins: {
       import: importPlugin,
-      react: reactPlugin,
-      "react-hooks": reactHooksPlugin,
-      "jsx-a11y": jsxA11yPlugin,
     },
     rules: {
       "import/prefer-default-export": "off",
       "no-console": "off",
       "no-control-regex": "off",
-      curly: ["warn", "all"],
+      curly: "off",
 
       // Enforce @/ alias instead of relative parent imports
       "no-restricted-imports": [
@@ -52,9 +46,6 @@ module.exports = [
 
       "import/no-extraneous-dependencies": "off",
       "no-unused-vars": "off",
-    },
-    settings: {
-      react: { version: "detect" },
     },
   },
 ];

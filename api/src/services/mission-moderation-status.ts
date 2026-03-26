@@ -92,6 +92,15 @@ type AggregationItem = { key: string; doc_count: number; label?: string };
 const toAggItems = <T>(results: T[], keyGetter: (item: T) => string | null, countGetter: (item: T) => number): AggregationItem[] =>
   results.map((item) => ({ key: keyGetter(item) ?? "", doc_count: countGetter(item) })).sort((a, b) => b.doc_count - a.doc_count);
 
+const aggregatePublisherOrganisation = async (where: Prisma.PublisherOrganizationWhereInput) => {
+  const rows = await publisherOrganizationService.groupBy(["id"], where);
+  const ids = rows.map((row) => row.id).filter(Boolean) as string[];
+  const organizations = ids.length ? await publisherOrganizationService.findMany({ ids: ids }, { select: { id: true, name: true } }) : [];
+  const nameById = new Map(organizations.map((org) => [org.id, org.name ?? ""]));
+
+  return rows.map((row) => ({ key: row.id ?? "", label: nameById.get(row.id) ?? "" })).filter((row) => row.key);
+};
+
 export const missionModerationStatusService = {
   async findOneMissionModerationStatus(id: string): Promise<MissionModerationRecord | null> {
     const status = await missionModerationStatusRepository.findUnique({ where: { id }, include: baseInclude });
@@ -146,7 +155,7 @@ export const missionModerationStatusService = {
 
     const [orgResults, deptResults, cityResults] = await Promise.all([
       // MissionAddress aggregations
-      publisherOrganizationService.groupBy(["name"], { missions: { some: missionWhere } } as Prisma.PublisherOrganizationWhereInput),
+      aggregatePublisherOrganisation({ missions: { some: missionWhere } }),
       missionAddressRepository.groupBy(["departmentCode"], { mission: missionWhere as Prisma.MissionWhereInput } as Prisma.MissionAddressWhereInput),
       missionAddressRepository.groupBy(["city"], { mission: missionWhere as Prisma.MissionWhereInput } as Prisma.MissionAddressWhereInput),
     ]);
@@ -175,11 +184,7 @@ export const missionModerationStatusService = {
       publishers: publisherResults
         .map((r) => ({ key: r.publisherId, doc_count: r._count, label: publisherMap.get(r.publisherId) ?? r.publisherId }))
         .sort((a, b) => b.doc_count - a.doc_count),
-      organizations: toAggItems(
-        orgResults,
-        (r) => r.name,
-        (r) => r._count
-      ),
+      organizations: orgResults,
       domains: domainResults.map((r) => ({ key: r.domainId ? (domainMap.get(r.domainId) ?? "") : "", doc_count: r._count })).sort((a, b) => b.doc_count - a.doc_count),
       activities: activityResults.map((r) => ({ key: r.activityId ? (activityMap.get(r.activityId) ?? "") : "", doc_count: r._count })).sort((a, b) => b.doc_count - a.doc_count),
       departments: toAggItems(
@@ -264,41 +269,41 @@ export const missionModerationStatusService = {
     return toRecord(res as MissionModerationWithRelations);
   },
 
-  async aggregateByOrganization(filters: { moderatorId: string; organizationName?: string }) {
+  async aggregateByOrganization(filters: { moderatorId: string; organizationId?: string }) {
     const where = {
       publisherId: filters.moderatorId,
       mission: { deletedAt: null, statusCode: "ACCEPTED" } as Prisma.MissionWhereInput,
     };
 
-    if (filters.organizationName) {
-      where.mission.publisherOrganization = { is: { name: { contains: filters.organizationName, mode: "insensitive" } } } as Prisma.PublisherOrganizationWhereInput;
+    if (filters.organizationId) {
+      where.mission.publisherOrganizationId = filters.organizationId;
     }
 
     const results = await missionModerationStatusRepository.findMany({
       where,
       select: {
         status: true,
-        mission: { select: { publisherOrganization: { select: { name: true } } } },
+        mission: { select: { publisherOrganizationId: true } },
       },
     });
 
     const aggregation: Record<string, { total: number; ACCEPTED: number; REFUSED: number }> = {};
 
     for (const item of results) {
-      const orgName = (item as any).mission?.publisherOrganization?.name;
-      if (!orgName) {
+      const orgId = (item as any).mission?.publisherOrganizationId;
+      if (!orgId) {
         continue;
       }
 
-      if (!aggregation[orgName]) {
-        aggregation[orgName] = { total: 0, ACCEPTED: 0, REFUSED: 0 };
+      if (!aggregation[orgId]) {
+        aggregation[orgId] = { total: 0, ACCEPTED: 0, REFUSED: 0 };
       }
 
-      aggregation[orgName].total += 1;
+      aggregation[orgId].total += 1;
       if (item.status === "ACCEPTED") {
-        aggregation[orgName].ACCEPTED += 1;
+        aggregation[orgId].ACCEPTED += 1;
       } else if (item.status === "REFUSED") {
-        aggregation[orgName].REFUSED += 1;
+        aggregation[orgId].REFUSED += 1;
       }
     }
 

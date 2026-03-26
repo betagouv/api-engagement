@@ -120,7 +120,7 @@ const StickyBar = ({ onEdit, visible, canSubmit }) => {
   return (
     <div className="fixed top-0 left-0 z-50 w-full items-center bg-white py-4 shadow-lg">
       <div className="m-auto flex w-[90%] items-center justify-between">
-        <h1 className="text-2xl font-bold">Créer un widget</h1>
+        <p className="text-2xl font-bold" aria-hidden="true">Créer un widget</p>
         <button type="button" className="primary-btn" onClick={onEdit} disabled={!canSubmit()}>
           Créer le widget
         </button>

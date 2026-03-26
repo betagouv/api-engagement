@@ -224,7 +224,7 @@ const Moderation = () => {
       <div className="grid grid-cols-3 gap-5">
         <div className="border-grey-border border p-4">
           <div className="flex items-start">
-            <h2 className="flex-1 text-lg font-bold">Répartition des missions par statut</h2>
+            <h3 className="flex-1 text-lg font-bold">Répartition des missions par statut</h3>
           </div>
           <div className="p-4">
             <Pie data={stats.status} backgroundColor={colors} legendPosition="right" />
@@ -232,7 +232,7 @@ const Moderation = () => {
         </div>
         <div className="border-grey-border col-span-2 border p-4">
           <div className="flex items-start">
-            <h2 className="flex-1 text-lg font-bold">Répartition des motifs de refus</h2>
+            <h3 className="flex-1 text-lg font-bold">Répartition des motifs de refus</h3>
           </div>
           {stats.refused === 0 ? (
             <div className="flex h-full items-center">

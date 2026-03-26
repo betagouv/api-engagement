@@ -1,13 +1,13 @@
+import { toast } from "@/services/toast";
 import { useEffect, useState } from "react";
 import { RiArrowLeftLine, RiCodeSSlashFill } from "react-icons/ri";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { toast } from "@/services/toast";
 
 import Toggle from "@/components/Toggle";
+import Settings from "@/scenes/widget/components/Settings";
 import api from "@/services/api";
 import { BENEVOLAT_URL, VOLONTARIAT_URL } from "@/services/config";
 import { captureError } from "@/services/error";
-import Settings from "@/scenes/widget/components/Settings";
 
 const Edit = () => {
   const navigate = useNavigate();
@@ -28,7 +28,9 @@ const Edit = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!saveButton) return;
+    if (!saveButton) {
+      return;
+    }
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -50,7 +52,9 @@ const Edit = () => {
     const fetchData = async () => {
       try {
         const res = await api.get(`/widget/${id}`);
-        if (!res.ok) throw res;
+        if (!res.ok) {
+          throw res;
+        }
         setWidget(res.data);
         setValues({
           name: res.data.name || "",
@@ -77,7 +81,9 @@ const Edit = () => {
   const handleSubmit = async () => {
     try {
       const res = await api.put(`/widget/${widget.id}`, values);
-      if (!res.ok) throw res;
+      if (!res.ok) {
+        throw res;
+      }
       setWidget(res.data);
 
       toast.success("Widget mis à jour");
@@ -89,7 +95,9 @@ const Edit = () => {
   const handleActivate = async (value) => {
     try {
       const res = await api.put(`/widget/${widget.id.toString()}`, { active: value });
-      if (!res.ok) throw res;
+      if (!res.ok) {
+        throw res;
+      }
       setWidget(res.data);
     } catch (error) {
       captureError(error, { extra: { widget } });
@@ -109,7 +117,9 @@ const Edit = () => {
     return true;
   };
 
-  if (!widget) return <h2 className="p-3">Chargement...</h2>;
+  if (!widget) {
+    return <p className="p-3">Chargement...</p>;
+  }
 
   return (
     <div className="space-y-6">
@@ -153,25 +163,39 @@ const Frame = ({ widget }) => {
   }, [widget]);
 
   const handleLoad = (e) => {
-    let height = 0;
+    let height;
     const width = e.target.offsetWidth;
     if (widget.type === "volontariat") {
       if (widget.style === "carousel") {
-        if (width < 768) height = "670px";
-        else height = "600px";
+        if (width < 768) {
+          height = "670px";
+        } else {
+          height = "600px";
+        }
       } else {
-        if (width < 640) height = "2200px";
-        else if (width < 1024) height = "1350px";
-        else height = "1050px";
+        if (width < 640) {
+          height = "2200px";
+        } else if (width < 1024) {
+          height = "1350px";
+        } else {
+          height = "1050px";
+        }
       }
     } else {
       if (widget.style === "carousel") {
-        if (width < 768) height = "780px";
-        else height = "686px";
+        if (width < 768) {
+          height = "780px";
+        } else {
+          height = "686px";
+        }
       } else {
-        if (width < 640) height = "3424px";
-        else if (width < 1024) height = "1862px";
-        else height = "1314px";
+        if (width < 640) {
+          height = "3424px";
+        } else if (width < 1024) {
+          height = "1862px";
+        } else {
+          height = "1314px";
+        }
       }
     }
     e.target.style.height = height;
@@ -247,12 +271,14 @@ const Code = ({ widget }) => {
 };
 
 const StickyBar = ({ onEdit, visible, widget, handleActivate, canSubmit }) => {
-  if (!visible) return null;
+  if (!visible) {
+    return null;
+  }
 
   return (
     <div className="fixed top-0 left-0 z-50 w-full items-center bg-white py-4 shadow-lg">
       <div className="m-auto flex w-[90%] items-center justify-between">
-        <h1 className="text-2xl font-bold">Modifier un widget</h1>
+        <p className="text-2xl font-bold" aria-hidden="true">Modifier un widget</p>
         <div className="flex items-center gap-6">
           <div className="flex flex-col items-end">
             <Toggle aria-label={widget.active ? "Désactiver le widget" : "Activer le widget"} value={widget.active} onChange={(value) => handleActivate(value)} />

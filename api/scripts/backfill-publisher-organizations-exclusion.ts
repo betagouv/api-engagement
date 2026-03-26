@@ -11,7 +11,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { prismaCore } from "@/db/postgres";
+import { prisma } from "@/db/postgres";
 import publisherOrganizationService from "@/services/publisher-organization";
 
 const isDryRun = process.argv.includes("--dry-run");
@@ -20,12 +20,12 @@ const run = async () => {
   const startedAt = new Date();
   console.log(`[PublisherDiffusionExclusionBackfill] Started at ${startedAt.toISOString()}${isDryRun ? " (dry-run)" : ""}`);
 
-  await prismaCore.$connect();
+  await prisma.$connect();
 
   let updated = 0;
   let notFound = 0;
 
-  const exclusions = await prismaCore.publisherDiffusionExclusion.groupBy({
+  const exclusions = await prisma.publisherDiffusionExclusion.groupBy({
     where: { publisherOrganizationId: null, organizationClientId: { not: null } },
     by: ["excludedByAnnonceurId", "organizationClientId"],
     _count: true,
@@ -41,7 +41,7 @@ const run = async () => {
       `[PublisherDiffusionExclusionBackfill] Processing exclusion ${exclusion.excludedByAnnonceurId} for organization ${exclusion.organizationClientId} (${_count} exclusions)`
     );
 
-    const organizationName = await prismaCore.publisherDiffusionExclusion.findFirst({
+    const organizationName = await prisma.publisherDiffusionExclusion.findFirst({
       where: { excludedByAnnonceurId, organizationClientId, organizationName: { not: null } },
       orderBy: { createdAt: "desc" },
       take: 1,
@@ -51,14 +51,14 @@ const run = async () => {
     const publisherOrg = await publisherOrganizationService.findUniqueOrCreate(organizationClientId, excludedByAnnonceurId, { name: organizationName?.organizationName });
 
     if (!isDryRun) {
-      const result = await prismaCore.publisherDiffusionExclusion.updateMany({
+      const result = await prisma.publisherDiffusionExclusion.updateMany({
         where: { excludedByAnnonceurId, organizationClientId },
         data: { publisherOrganizationId: publisherOrg.id },
       });
       updated += result.count ?? 0;
       console.log(`[PublisherDiffusionExclusionBackfill] Updated ${result.count ?? 0} exclusions for publisher organization ${publisherOrg.id}`);
     } else {
-      const count = await prismaCore.publisherDiffusionExclusion.count({
+      const count = await prisma.publisherDiffusionExclusion.count({
         where: { excludedByAnnonceurId, organizationClientId },
       });
       console.log(`[PublisherDiffusionExclusionBackfill] Would update ${count} exclusions for publisher organization ${publisherOrg.id}`);
@@ -76,7 +76,7 @@ const run = async () => {
 };
 
 const shutdown = async (exitCode: number) => {
-  await prismaCore.$disconnect().catch(() => undefined);
+  await prisma.$disconnect().catch(() => undefined);
   process.exit(exitCode);
 };
 

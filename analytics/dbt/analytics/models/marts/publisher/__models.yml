@@ -30,6 +30,8 @@ models:
         description: Flag indiquant si le partenaire agit comme annonceur (receveur de candidatures).
         tests:
           - not_null
+      - name: mission_type
+        description: Type de mission principal du partenaire (nullable).
       - name: created_at
         description: Horodatage de création (UTC).
       - name: updated_at

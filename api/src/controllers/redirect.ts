@@ -59,7 +59,7 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
       }
     }
     if (query.data.view) {
-      const clickEvent = await statEventService.findOneStatEventById(query.data.view);
+      const clickEvent = (await statEventService.findOneStatEventById(query.data.view)) ?? (await statEventService.findOneStatEventByLegacyId(query.data.view));
       if (clickEvent) {
         const hasRecentApply = await statEventService.hasStatEventWithRecentClickId({
           type: "apply",
@@ -82,7 +82,14 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
         }
         click = clickEvent;
       } else {
-        captureException(new Error(`[Apply] Click not found`), { extra: { clickId: query.data.view } });
+        captureException(new Error(`[Apply] Click not found`), {
+          extra: {
+            clickId: query.data.view,
+            clientEventId: query.data.clientEventId,
+            publisher: query.data.publisher,
+            mission: query.data.mission,
+          },
+        });
       }
     }
     if (!click) {
@@ -186,7 +193,7 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
     let mission = null as MissionRecord | null;
 
     if (query.data.view) {
-      const clickEvent = await statEventService.findOneStatEventById(query.data.view);
+      const clickEvent = (await statEventService.findOneStatEventById(query.data.view)) ?? (await statEventService.findOneStatEventByLegacyId(query.data.view));
       if (clickEvent) {
         const hasRecentAccount = await statEventService.hasStatEventWithRecentClickId({
           type: "account",
@@ -209,7 +216,14 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
         }
         click = clickEvent;
       } else {
-        captureException(new Error(`[Account] Click not found`), { extra: { clickId: query.data.view } });
+        captureException(new Error(`[Account] Click not found`), {
+          extra: {
+            clickId: query.data.view,
+            clientEventId: query.data.clientEventId,
+            publisher: query.data.publisher,
+            mission: query.data.mission,
+          },
+        });
       }
     }
     if (!click) {

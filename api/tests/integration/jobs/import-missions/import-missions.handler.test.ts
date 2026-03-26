@@ -366,6 +366,47 @@ describe("Import missions job (integration test)", () => {
     });
   });
 
+  it("preserves city and country when street is invalid and falls back to city-level geoloc", async () => {
+    const xml = await readFile(path.join(__dirname, "data/invalid-address-feed.xml"), "utf-8");
+    const publisher = await createTestPublisher({ feed: "https://invalid-address-feed", isAnnonceur: true });
+
+    // 1st fetch: XML feed
+    (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => xml });
+
+    // 2nd fetch: geopf first pass — street "champ libre invalide" → low score → NOT_FOUND
+    const geopfNotFound =
+      "clientid,addressindex,result_score,result_name,result_city,result_postcode,result_context,latitude,longitude\n" +
+      "INVALID_ADDR_1,0,0.10,,,,,,";
+    (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => geopfNotFound });
+
+    // 3rd fetch: geopf second pass (city-only) — Grenoble → high score
+    const geopfCityFound =
+      "clientid,addressindex,result_score,result_name,result_city,result_postcode,result_context,latitude,longitude\n" +
+      "INVALID_ADDR_1,0,0.90,,Grenoble,38000,38,45.1875,5.7357";
+    (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => geopfCityFound });
+
+    const result = await handler.handle({ publisherId: publisher.id });
+    expect(result.imports[0].status).toBe("SUCCESS");
+
+    const mission = await missionService.findOneMissionBy({ publisherId: publisher.id, clientId: "INVALID_ADDR_1" });
+    expect(mission).toBeDefined();
+
+    const address = mission!.addresses[0];
+    // Original city and country must be preserved (not wiped to null)
+    expect(address.city).toBe("Grenoble");
+    expect(address.country).toBe("FR");
+    // Street is kept from XML (city-level geocoding doesn't overwrite it)
+    expect(address.street).toBe("champ libre invalide");
+    // City-level coordinates must be set from second-pass geocoding
+    expect(address.geolocStatus).toBe("ENRICHED_BY_API");
+    expect(address.location).toBeDefined();
+    expect(address.location?.lat).toBeCloseTo(45.1875, 3);
+    expect(address.location?.lon).toBeCloseTo(5.7357, 3);
+    expect(address.departmentCode).toBe("38");
+    expect(address.departmentName).toBe("Isère");
+    expect(address.region).toBe("Auvergne-Rhône-Alpes");
+  });
+
   it("If startAt is not defined in XML, uses default on first import", async () => {
     // Create XML without startAt field
     const xmlWithoutStartAt = `<?xml version="1.0" encoding="UTF-8"?>

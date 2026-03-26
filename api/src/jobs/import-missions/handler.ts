@@ -38,7 +38,7 @@ export class ImportMissionsHandler implements BaseHandler<ImportMissionsJobPaylo
     console.log(`[Import XML] Starting at ${start.toISOString()}`);
 
     const imports = [] as PrismaImport[];
-    let publishers: PublisherRecord[] = [];
+    let publishers: PublisherRecord[];
     if (payload.publisherId) {
       const publisher = await publisherService.findOnePublisherById(payload.publisherId);
       if (!publisher) {
@@ -206,15 +206,17 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
         const mission = missions.find((m) => m.clientId.toString() === r.clientId.toString());
         if (mission && r.addressIndex < mission.addresses.length) {
           const address = mission.addresses[r.addressIndex];
-          address.street = r.street || "";
-          address.city = r.city || "";
-          address.postalCode = r.postalCode || "";
-          address.departmentCode = r.departmentCode || "";
-          address.departmentName = r.departmentName || "";
-          address.region = r.region || "";
-          if (r.location?.lat && r.location?.lon) {
-            address.location = { lat: r.location.lat, lon: r.location.lon };
-            address.geoPoint = r.geoPoint || null;
+          if (r.geolocStatus === "ENRICHED_BY_API") {
+            address.street = r.street ?? address.street;
+            address.city = r.city ?? address.city;
+            address.postalCode = r.postalCode ?? address.postalCode;
+            address.departmentCode = r.departmentCode ?? address.departmentCode;
+            address.departmentName = r.departmentName ?? address.departmentName;
+            address.region = r.region ?? address.region;
+            if (r.location?.lat && r.location?.lon) {
+              address.location = { lat: r.location.lat, lon: r.location.lon };
+              address.geoPoint = r.geoPoint || null;
+            }
           }
           address.geolocStatus = r.geolocStatus;
         }

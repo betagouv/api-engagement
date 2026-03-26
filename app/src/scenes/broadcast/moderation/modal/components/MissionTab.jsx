@@ -69,7 +69,7 @@ const MissionTab = ({ data, onChange }) => {
           </label>
           <div
             className="text-text-mention border-grey-border overflow-hidden rounded-t border bg-gray-950 p-6 text-sm"
-            dangerouslySetInnerHTML={{ __html: data.missionDescription.replace(/\n/g, "<br />") }}
+            dangerouslySetInnerHTML={{ __html: `<p>${data.missionDescription.replace(/\n/g, "</p><p>")}</p>` }}
           />
         </div>
         <div className="border-grey-border border-t" />

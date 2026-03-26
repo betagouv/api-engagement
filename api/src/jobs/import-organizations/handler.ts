@@ -120,7 +120,6 @@ export class ImportOrganizationsHandler implements BaseHandler<ImportOrganizatio
         status: "FAILED",
       });
       console.log(`[ImportOrganizations] Recorded failed import ${failedImport.id}`);
-      success = false;
     } finally {
       console.log(`[ImportOrganizations] Cleaning up files`);
       if (fs.existsSync(folder)) {

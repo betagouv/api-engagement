@@ -24,6 +24,8 @@ export const SENDINBLUE_APIKEY = process.env.SENDINBLUE_APIKEY;
 
 export const SENTRY_DSN_API = process.env.SENTRY_DSN_API;
 export const SENTRY_DSN_JOBS = process.env.SENTRY_DSN_JOBS;
+export const COCKPIT_METRICS_OTLP_URL = process.env.COCKPIT_METRICS_OTLP_URL || "";
+export const COCKPIT_METRICS_TOKEN = process.env.COCKPIT_METRICS_TOKEN || "";
 
 // Bucket storage
 export const SCW_ACCESS_KEY = process.env.SCW_ACCESS_KEY;

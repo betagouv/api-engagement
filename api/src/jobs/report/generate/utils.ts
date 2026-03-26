@@ -37,7 +37,7 @@ export const drawText = (
   doc.setTextColor(options?.color || "#000000");
   doc.setFont("Marianne", options?.fontWeight || "normal");
   doc.setFontSize((options?.fontSize || 12) * TEXT_SIZE_FACTOR);
-  let height = 0;
+  let height: number;
   if (options?.width) {
     const lines = doc.splitTextToSize(text, options.width);
     doc.text(lines, x, y + (options?.lineHeight || TEXT_BODY_LINE_HEIGHT) - 6, {
