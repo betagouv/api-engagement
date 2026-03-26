@@ -106,7 +106,7 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
     <div className="border-grey-border mx-auto my-14 w-4/5 max-w-[1200px] flex-1 border bg-white p-12">
       <div className="flex justify-between">
         <div className="">
-          <h2 className="text-3xl font-bold">En quelques chiffres</h2>
+          <h3 className="text-3xl font-bold">En quelques chiffres</h3>
         </div>
 
         <div className="flex">
@@ -155,9 +155,9 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
         <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="border-grey-border border p-8">
             <div className="flex justify-between">
-              <h2 className="mb-2 text-2xl font-semibold">
+              <h4 className="mb-2 text-2xl font-semibold">
                 {graphTotal.organizations ? `${graphTotal.organizations.toLocaleString("fr")} organisations actives` : "Pas de données"}
-              </h2>
+              </h4>
               <Tooltip
                 ariaLabel="Voir la définition des organisations actives"
                 triggerClassName="text-text-mention"
@@ -188,7 +188,7 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
 
           <div className="border-grey-border border p-8">
             <div className="flex justify-between">
-              <h2 className="mb-2 text-2xl font-semibold">{graphTotal.missions ? `${graphTotal.missions.toLocaleString("fr")} missions partagées` : "Pas de données"}</h2>
+              <h4 className="mb-2 text-2xl font-semibold">{graphTotal.missions ? `${graphTotal.missions.toLocaleString("fr")} missions partagées` : "Pas de données"}</h4>
 
               <Tooltip
                 ariaLabel="Voir la définition des missions partagées"
@@ -219,7 +219,7 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
           </div>
 
           <div className="border-grey-border border p-8">
-            <h2 className="mb-2 text-2xl font-semibold">{graphTotal.clicks ? `${graphTotal.clicks.toLocaleString("fr")} redirections` : "Pas de données"}</h2>
+            <h4 className="mb-2 text-2xl font-semibold">{graphTotal.clicks ? `${graphTotal.clicks.toLocaleString("fr")} redirections` : "Pas de données"}</h4>
 
             <p className="text-text-mention text-lg font-semibold">Evolution {filters.year}</p>
             <div className="mt-4 mb-1 h-px bg-gray-900" />
@@ -241,7 +241,7 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
           </div>
 
           <div className="border-grey-border border p-8">
-            <h2 className="mb-2 text-2xl font-semibold">{graphTotal.applies ? `${graphTotal.applies.toLocaleString("fr")} candidatures` : "Pas de données"}</h2>
+            <h4 className="mb-2 text-2xl font-semibold">{graphTotal.applies ? `${graphTotal.applies.toLocaleString("fr")} candidatures` : "Pas de données"}</h4>
             <p className="text-text-mention text-lg font-semibold">Evolution {filters.year}</p>
             <div className="mt-4 mb-1 h-px bg-gray-900" />
             <AnalyticsCard

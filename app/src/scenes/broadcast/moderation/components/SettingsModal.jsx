@@ -16,7 +16,7 @@ const SettingsModal = () => {
         <div className="border-grey-border mb-10 flex flex-col border p-4">
           <div className="flex items-start gap-3">
             <div className="w-[20%]">
-              <h2 className="text-lg">Conditions</h2>
+              <h3 className="text-lg">Conditions</h3>
             </div>
             <div className="flex w-[20%] flex-col gap-2">
               <select className="select" disabled defaultValue="">
@@ -42,7 +42,7 @@ const SettingsModal = () => {
           <div className="border-grey-border my-4 border-t" />
           <div className="flex items-start gap-3">
             <div className="w-[20%]">
-              <h2 className="text-lg">Action</h2>
+              <h3 className="text-lg">Action</h3>
             </div>
             <div className="flex w-[20%] flex-col gap-2">
               <select className="select" disabled defaultValue="">
@@ -69,7 +69,7 @@ const SettingsModal = () => {
         <div className="border-grey-border flex flex-col border p-4">
           <div className="flex items-start gap-3">
             <div className="w-[20%]">
-              <h2 className="text-lg">Conditions</h2>
+              <h3 className="text-lg">Conditions</h3>
             </div>
             <div className="flex w-[20%] flex-col gap-2">
               <select className="select" disabled defaultValue="">
@@ -102,7 +102,7 @@ const SettingsModal = () => {
           <div className="border-grey-border my-4 border-t" />
           <div className="flex items-start gap-3">
             <div className="w-[20%]">
-              <h2 className="text-lg">Action</h2>
+              <h3 className="text-lg">Action</h3>
             </div>
             <div className="flex w-[20%] flex-col gap-2">
               <select className="select" disabled defaultValue="">
@@ -129,7 +129,7 @@ const SettingsModal = () => {
         <div className="border-grey-border flex flex-col border p-4">
           <div className="flex items-start gap-3">
             <div className="w-[20%]">
-              <h2 className="text-lg">Conditions</h2>
+              <h3 className="text-lg">Conditions</h3>
             </div>
             <div className="flex w-[20%] flex-col gap-2">
               <select className="select" disabled defaultValue="">
@@ -155,7 +155,7 @@ const SettingsModal = () => {
           <div className="border-grey-border my-4 border-t" />
           <div className="flex items-start gap-3">
             <div className="w-[20%]">
-              <h2 className="text-lg">Action</h2>
+              <h3 className="text-lg">Action</h3>
             </div>
             <div className="flex w-[20%] flex-col gap-2">
               <select className="select" disabled defaultValue="">
@@ -182,7 +182,7 @@ const SettingsModal = () => {
         <div className="border-grey-border flex flex-col border p-4">
           <div className="flex items-start gap-3">
             <div className="w-[20%]">
-              <h2 className="text-lg">Conditions</h2>
+              <h3 className="text-lg">Conditions</h3>
             </div>
             <div className="flex w-[20%] flex-col gap-2">
               <select className="select" disabled defaultValue="">
@@ -208,7 +208,7 @@ const SettingsModal = () => {
           <div className="border-grey-border my-4 border-t" />
           <div className="flex items-start gap-3">
             <div className="w-[20%]">
-              <h2 className="text-lg">Action</h2>
+              <h3 className="text-lg">Action</h3>
             </div>
             <div className="flex w-[20%] flex-col gap-2">
               <select className="select" disabled defaultValue="">

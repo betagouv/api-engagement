@@ -278,7 +278,7 @@ const StickyBar = ({ onEdit, visible, widget, handleActivate, canSubmit }) => {
   return (
     <div className="fixed top-0 left-0 z-50 w-full items-center bg-white py-4 shadow-lg">
       <div className="m-auto flex w-[90%] items-center justify-between">
-        <h1 className="text-2xl font-bold">Modifier un widget</h1>
+        <p className="text-2xl font-bold" aria-hidden="true">Modifier un widget</p>
         <div className="flex items-center gap-6">
           <div className="flex flex-col items-end">
             <Toggle aria-label={widget.active ? "Désactiver le widget" : "Activer le widget"} value={widget.active} onChange={(value) => handleActivate(value)} />

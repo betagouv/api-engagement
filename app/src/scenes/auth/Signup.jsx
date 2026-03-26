@@ -129,8 +129,8 @@ const SignupForm = ({ user }) => {
 
   return (
     <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-      <h2 className="font-light">Complétez votre compte</h2>
-      <h1 className="leading-tight">Renseignez vos informations</h1>
+      <h1 className="font-light">Complétez votre compte</h1>
+      <h2 className="leading-tight">Renseignez vos informations</h2>
       <div className="flex flex-col">
         <label className="mb-2" htmlFor="firstname">
           Prénom

@@ -59,7 +59,7 @@ const PublicStats = () => {
           </div>
         </div>
         <div className="border-grey-border mx-auto my-14 w-4/5 max-w-[1200px] border bg-white p-12">
-          <h2 className="text-3xl font-bold">En quelques mots</h2>
+          <h3 className="text-3xl font-bold">En quelques mots</h3>
           <div className="flex-start flex gap-6">
             <div className="text-text-mention mt-8 flex-1 text-lg leading-loose">
               <strong className="text-black">

@@ -58,7 +58,8 @@ const Login = () => {
   return (
     <form onSubmit={handleSubmit} className="flex h-full flex-col bg-white px-32 py-10">
       <title>API Engagement - Connexion</title>
-      <h1 className="text-4xl font-bold">Accedez à votre espace</h1>
+      <h1 className="font-light">Connexion</h1>
+      <h2 className="text-4xl font-bold">Accedez à votre espace</h2>
 
       <label className="mt-6 mb-2 text-sm" htmlFor="email">
         E-mail

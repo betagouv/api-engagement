@@ -189,11 +189,11 @@ const Index = () => {
           </div>
         </div>
         <div className="space-y-12 bg-white p-12 shadow-lg">
-          <h4 className="mb-6 text-xl font-bold text-black">
+          <h2 className="mb-6 text-xl font-bold text-black">
             {Object.keys(currentWarningsByPublishers).length > 1
               ? `${Object.keys(currentWarningsByPublishers).length} partenaires rencontrent un problème`
               : `${Object.keys(currentWarningsByPublishers).length} partenaire rencontre un problème`}
-          </h4>
+          </h2>
           <div className="grid grid-cols-4 gap-10">
             {Object.values(currentWarningsByPublishers).map((p, i) => (
               <div className="border-grey-border flex h-40 flex-col items-center border" key={i}>

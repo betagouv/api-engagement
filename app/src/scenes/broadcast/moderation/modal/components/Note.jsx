@@ -41,9 +41,7 @@ const Note = ({ data, onChange }) => {
     <div className="border-grey-border flex flex-col gap-4 border bg-white p-6">
       <div className="flex items-center gap-2">
         <RiPencilFill className="text-text-mention" aria-hidden="true" />
-        <label className="text-text-mention text-xs font-semibold" htmlFor="note">
-          NOTES
-        </label>
+        <h3 className="text-text-mention text-xs font-semibold">NOTES</h3>
       </div>
       <div>
         {note && !editing && (

@@ -49,7 +49,7 @@ const Distribution = ({ filters, onFiltersChange }) => {
     <div className="border-grey-border mx-auto my-14 w-4/5 max-w-[1200px] flex-1 border bg-white p-12">
       <div className="flex justify-between">
         <div className="">
-          <h2 className="text-3xl font-bold">Répartition des missions</h2>
+          <h3 className="text-3xl font-bold">Répartition des missions</h3>
         </div>
 
         <div className="flex">
@@ -93,7 +93,7 @@ const Distribution = ({ filters, onFiltersChange }) => {
 
       <div className="border-grey-border mt-8 gap-4 border p-8">
         <div className="mb-4 flex justify-between">
-          <h2 className="mb-6 text-2xl font-bold">Domaine d'action des missions</h2>
+          <h4 className="mb-6 text-2xl font-bold">Domaine d'action des missions</h4>
           <Tooltip
             ariaLabel="Voir la définition de la répartition par domaine"
             triggerClassName="text-text-mention"
@@ -145,7 +145,7 @@ const Distribution = ({ filters, onFiltersChange }) => {
 
       <div className="border-grey-border mt-8 gap-4 border p-8">
         <div className="mb-4 flex justify-between">
-          <h2 className="mb-6 text-2xl font-bold">Département des missions</h2>
+          <h4 className="mb-6 text-2xl font-bold">Département des missions</h4>
           <Tooltip
             ariaLabel="Voir la définition de la répartition par département"
             triggerClassName="text-text-mention"
