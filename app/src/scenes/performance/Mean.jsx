@@ -8,15 +8,9 @@ import Table from "@/components/Table";
 import { METABASE_CARD_ID } from "@/constants";
 import AnalyticsCard from "@/scenes/performance/AnalyticsCard";
 import { useAnalyticsProvider } from "@/services/analytics/provider";
-import { adaptKpiFromMetabase } from "@/services/analytics/providers/metabase/adapters";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
-
-const adaptConversionRate = (raw) => {
-  const { value } = adaptKpiFromMetabase(raw, { valueColumn: "conversion_rate" });
-  return { value: Number(((value || 0) * 100).toFixed(2)) };
-};
 
 const Mean = ({ filters, onFiltersChange }) => {
   const { publisher } = useStore();
