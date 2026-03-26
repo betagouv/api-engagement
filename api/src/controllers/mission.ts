@@ -16,7 +16,7 @@ const searchSchema = zod.object({
   publisherId: zod.string().optional(),
   publisherIds: zod.array(zod.string()).optional(),
   domain: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-  organizations: zod.array(zod.string()).optional(),
+  organizationIds: zod.array(zod.string()).optional(),
   activity: zod.string().optional(),
   cities: zod.array(zod.string()).optional(),
   department: zod.string().optional(),
@@ -26,6 +26,7 @@ const searchSchema = zod.object({
   size: zod.coerce.number().int().min(0).default(25),
   from: zod.coerce.number().int().min(0).default(0),
   sort: zod.string().optional(),
+  aggs: zod.boolean().default(true),
   jvaModeration: zod.boolean().optional(),
   lat: zod.coerce.number().min(-90).max(90).optional(),
   lon: zod.coerce.number().min(-180).max(180).optional(),
@@ -85,11 +86,12 @@ const findFilters = (user: UserRequest["user"], body: zod.infer<typeof searchSch
     publisherIds,
     limit: body.size,
     skip: body.from,
+    aggs: body.aggs,
     domain: asArray(body.domain),
     activity: asArray(body.activity),
     city: asArray(body.cities),
     departmentName: asArray(body.department),
-    organizationName: asArray(body.organizations),
+    organizationIds: asArray(body.organizationIds),
   };
 
   if (body.status) {
@@ -143,9 +145,13 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       filters.directFilters = applyWidgetRules(body.data.rules);
     }
 
-    const { data, total, aggs } = await missionService.findMissionsWithAggregations(filters);
-
-    return res.status(200).send({ ok: true, data, total, aggs });
+    if (body.data.aggs) {
+      const { data, total, aggs } = await missionService.findMissionsWithAggregations(filters);
+      return res.status(200).send({ ok: true, data, total, aggs });
+    } else {
+      const { data, total } = await missionService.findMissions(filters);
+      return res.status(200).send({ ok: true, data, total });
+    }
   } catch (error) {
     next(error);
   }

@@ -250,6 +250,9 @@ export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereIn
       where.publisherOrganization = { clientId: { in: filters.organizationClientId } };
     }
   }
+  if (filters.organizationIds?.length) {
+    where.publisherOrganizationId = { in: filters.organizationIds };
+  }
   if (filters.excludePublisherOrganizationIds?.length) {
     if (where.publisherOrganization) {
       where.publisherOrganization["id"] = { notIn: filters.excludePublisherOrganizationIds };
@@ -459,26 +462,25 @@ const buildAggregations = async (where: Prisma.MissionWhereInput): Promise<Missi
       .sort((a, b) => b.doc_count - a.doc_count);
   };
 
+  const aggregatePublisherOrganisation = async () => {
+    const rows = await publisherOrganizationService.groupBy(["id"], { missions: { some: where } });
+    const ids = rows.map((row) => row.id).filter(Boolean) as string[];
+    const orgs = ids.length ? await publisherOrganizationService.findMany({ ids }, { select: { id: true, name: true } }) : [];
+    const nameById = new Map(orgs.map((org) => [org.id, org.name ?? ""]));
+    return rows.map((row) => ({ key: row.id ?? "", label: nameById.get(row.id) ?? "", doc_count: row._count })).filter((row) => row.key);
+  };
+
   // Run in parallel - connection pool is now properly sized (20 connections for core DB)
-  const [status, comments, domains, activities, partnersRaw, organizationsRaw, cities, departments] = await Promise.all([
+  const [status, comments, domains, activities, partnersRaw, organizationsAgg, cities, departments] = await Promise.all([
     aggregateMissionField("statusCode"),
     aggregateMissionField("statusComment"),
     aggregateMissionByDomain(),
     activityService.aggregateByMission(where),
     aggregateMissionField("publisherId"),
-    aggregateMissionField("organizationClientId"),
+    aggregatePublisherOrganisation(),
     aggregateAddressField("city"),
     aggregateAddressField("departmentName"),
   ]);
-
-  const organizationClientIds = organizationsRaw.map((row) => row.key).filter(isNonEmpty) as string[];
-  const organizations =
-    organizationClientIds.length > 0 ? await publisherOrganizationService.findMany({ clientIds: organizationClientIds }, { select: { clientId: true, name: true } }) : [];
-  const orgByClientId = new Map(organizations.map((org) => [org.clientId ?? "", org.name ?? ""]));
-  const organizationsAgg = organizationsRaw
-    .map((row) => ({ key: orgByClientId.get(row.key ?? "") ?? "", doc_count: row.doc_count }))
-    .filter((row) => isNonEmpty(row.key))
-    .sort((a, b) => b.doc_count - a.doc_count);
 
   const publisherIds = partnersRaw.map((row) => row.key).filter(isNonEmpty) as string[];
   const publishers = publisherIds.length ? await publisherService.findPublishersByIds(publisherIds) : [];

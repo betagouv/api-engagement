@@ -33,7 +33,7 @@ export type MissionFacets = {
   departmentName: { key: string; count: number }[];
 };
 
-export type MissionAggregationBucket = { key: string; doc_count: number };
+export type MissionAggregationBucket = { key: string; doc_count: number; label?: string };
 export type MissionPartnerAggregation = { key: string; doc_count: number; label?: string; mission_type?: string };
 export type MissionSearchAggregations = {
   status: MissionAggregationBucket[];
@@ -160,6 +160,7 @@ export type MissionSearchFilters = {
   domain?: string[];
   keywords?: string;
   organizationName?: string[];
+  organizationIds?: string[];
   organizationRNA?: string[];
   organizationStatusJuridique?: string[];
   openToMinors?: boolean;
