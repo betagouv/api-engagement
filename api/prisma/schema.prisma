@@ -256,20 +256,21 @@ model StatEvent {
   fromPublisher Publisher @relation("StatEventFromPublisher", fields: [fromPublisherId], references: [id])
   toPublisher   Publisher @relation("StatEventToPublisher", fields: [toPublisherId], references: [id])
 
-  missionId                   String?  @map("mission_id")
+  missionId                   String? @map("mission_id")
   // TODO: restore relation when data has been backfilled
   //mission   Mission? @relation("MissionStatEvents", fields: [missionId], references: [id], onDelete: SetNull)
-  missionClientId             String?  @map("mission_client_id")
-  missionDomain               String?  @map("mission_domain")
-  missionTitle                String?  @map("mission_title")
-  missionPostalCode           String?  @map("mission_postal_code")
-  missionDepartmentName       String?  @map("mission_department_name")
-  missionOrganizationId       String?  @map("mission_organization_id")
-  missionOrganizationName     String?  @map("mission_organization_name")
-  missionOrganizationClientId String?  @map("mission_organization_client_id")
-  tag                         String?
-  tags                        String[] @default([])
-  exportToAnalytics           String?  @map("export_to_analytics")
+  missionClientId             String? @map("mission_client_id")
+  missionDomain               String? @map("mission_domain")
+  missionTitle                String? @map("mission_title")
+  missionPostalCode           String? @map("mission_postal_code")
+  missionDepartmentName       String? @map("mission_department_name")
+  missionOrganizationId       String? @map("mission_organization_id")
+  missionOrganizationName     String? @map("mission_organization_name")
+  missionOrganizationClientId String? @map("mission_organization_client_id")
+
+  tag               String?
+  tags              String[] @default([])
+  exportToAnalytics String?  @map("export_to_analytics")
 
   @@unique([clientEventId, toPublisherId, type], map: "stat_event_client_event_id_to_publisher_type_key")
   @@index([type, createdAt], map: "stats_event_type_created_at_desc_idx")
@@ -609,44 +610,10 @@ model Mission {
   jobBoards             MissionJobBoard[]
   activities            MissionActivity[]
 
-  // TODO after migration: remove Legacy fields, kept during backfill
-  organizationId                     String?  @map("organization_id")
-  organizationClientId               String?  @map("organization_client_id")
-  organizationUrl                    String?
-  organizationName                   String?
-  organizationType                   String?
-  organizationLogo                   String?
-  organizationDescription            String?
-  organizationFullAddress            String?
-  organizationRNA                    String?
-  organizationSiren                  String?
-  organizationSiret                  String?
-  organizationDepartment             String?
-  organizationDepartmentCode         String?
-  organizationDepartmentName         String?
-  organizationPostCode               String?
-  organizationCity                   String?
-  organizationStatusJuridique        String?
-  organizationBeneficiaries          String[]
-  organizationActions                String[]
-  organizationReseaux                String[]
-  organizationNameVerified           String?
-  organizationRNAVerified            String?
-  organizationSirenVerified          String?
-  organizationSiretVerified          String?
-  organizationAddressVerified        String?
-  organizationCityVerified           String?
-  organizationPostalCodeVerified     String?
-  organizationDepartmentCodeVerified String?
-  organizationDepartmentNameVerified String?
-  organizationRegionVerified         String?
-  organizationVerificationStatus     String?
-  organisationIsRUP                  Boolean?
-
-  // TODO: restore relations
+  // TODO: restore relations 
   // missionEvents      MissionEvent[]
   // moderationEvents   ModerationEvent[]
-  //statEvents         StatEvent[]               @relation("MissionStatEvents")
+  // statEvents         StatEvent[]               @relation("MissionStatEvents")
 
   @@unique([clientId, publisherId], map: "mission_client_publisher_key")
   @@index([publisherId, statusCode, deletedAt, startAt(sort: Desc)], map: "mission_publisher_status_deleted_start_at_idx")
@@ -656,7 +623,6 @@ model Mission {
   @@index([remote], map: "mission_remote_idx")
   @@index([publisherId], map: "mission_publisher_id_idx")
   @@index([clientId], map: "mission_client_id_idx")
-  @@index([organizationClientId], map: "mission_organization_client_id_idx")
   @@index([domainId], map: "mission_domain_id_idx")
   @@index([deletedAt], map: "mission_deleted_at_idx")
   @@index([statusCode], map: "mission_status_code_idx")
@@ -685,22 +651,6 @@ model PublisherOrganization {
   city                String?  @map("city")
   beneficiaries       String[] @default([]) @map("beneficiaries")
   parentOrganizations String[] @default([]) @map("parent_organizations")
-
-  // TODO after migration: remove Legacy fields, kept during backfill
-  organizationDepartment             String?  @map("organization_department")
-  organizationDepartmentCode         String?  @map("organization_department_code")
-  organizationDepartmentName         String?  @map("organization_department_name")
-  organizationNameVerified           String?  @map("organization_name_verified")
-  organizationRNAVerified            String?  @map("organization_rna_verified")
-  organizationSirenVerified          String?  @map("organization_siren_verified")
-  organizationSiretVerified          String?  @map("organization_siret_verified")
-  organizationAddressVerified        String?  @map("organization_address_verified")
-  organizationCityVerified           String?  @map("organization_city_verified")
-  organizationPostalCodeVerified     String?  @map("organization_postal_code_verified")
-  organizationDepartmentCodeVerified String?  @map("organization_department_code_verified")
-  organizationDepartmentNameVerified String?  @map("organization_department_name_verified")
-  organizationRegionVerified         String?  @map("organization_region_verified")
-  organisationIsRUP                  Boolean? @map("organisation_is_rup")
 
   verifiedAt             DateTime? @map("verified_at")
   verificationStatus     String?   @map("verification_status")
