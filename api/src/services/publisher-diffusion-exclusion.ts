@@ -6,7 +6,7 @@ import { normalizeOptionalString } from "@/utils/normalize";
 type PublisherDiffusionExclusionWithRelation = PublisherDiffusionExclusion & {
   excludedByAnnonceur: Publisher;
   excludedForDiffuseur: Publisher;
-  publisherOrganization: PublisherOrganization;
+  publisherOrganization: PublisherOrganization | null;
 };
 
 const mapCreateInput = (input: PublisherDiffusionExclusionCreateInput): Prisma.PublisherDiffusionExclusionCreateInput => {
@@ -43,8 +43,8 @@ export const publisherDiffusionExclusionService = (() => {
       excludedByAnnonceurName: exclusion.excludedByAnnonceur.name,
       excludedForDiffuseurId: exclusion.excludedForDiffuseurId,
       excludedForDiffuseurName: exclusion.excludedForDiffuseur.name,
-      organizationClientId: exclusion.publisherOrganization.clientId,
-      organizationName: exclusion.publisherOrganization.name,
+      organizationClientId: exclusion.publisherOrganization?.clientId ?? exclusion.organizationClientId,
+      organizationName: exclusion.publisherOrganization?.name ?? exclusion.organizationName,
       publisherOrganizationId: exclusion.publisherOrganizationId,
       createdAt: exclusion.createdAt,
       updatedAt: exclusion.updatedAt,

@@ -32,6 +32,7 @@ const baseMission = (): MissionModerationRecord => ({
   missionOrganizationRNA: null,
   missionOrganizationSirenVerified: null,
   missionOrganizationRNAVerified: null,
+  missionOrganizationVerifiedId: null,
 });
 
 describe("getModerationEvents", () => {

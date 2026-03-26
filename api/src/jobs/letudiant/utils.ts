@@ -80,7 +80,7 @@ export async function getMissionEntriesToArchive(excludedOrgClientIds: Set<strin
             mjb.created_at < ${onlineCutoffDate}
             ${unlimitedPublisherIds.length > 0 ? Prisma.sql`AND m.publisher_id NOT IN (${Prisma.join(unlimitedPublisherIds)})` : Prisma.sql``}
           )
-          ${excludedClientIds.length > 0 ? Prisma.sql`OR m.organization_client_id IN (${Prisma.join(excludedClientIds)})` : Prisma.sql``}
+          ${excludedClientIds.length > 0 ? Prisma.sql`OR m.publisher_organization_id IN (SELECT id FROM publisher_organization WHERE client_id IN (${Prisma.join(excludedClientIds)}))` : Prisma.sql``}
         )
     `
   );
