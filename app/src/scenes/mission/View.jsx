@@ -31,7 +31,7 @@ const View = () => {
     return mission.applicationUrl;
   };
 
-  if (!mission) return <h2 className="p-3">Chargement...</h2>;
+  if (!mission) return <p className="p-3">Chargement...</p>;
 
   return (
     <div className="space-y-12">
@@ -84,7 +84,7 @@ const View = () => {
         <div className="border-grey-border flex gap-4 border p-6">
           <div>
             <p className="text-xl font-semibold">Presentation de la mission</p>
-            <div className="mt-2 max-h-96 overflow-y-scroll text-xs leading-relaxed" dangerouslySetInnerHTML={{ __html: mission.description.replace(/\n/g, "<br />") }} />
+            <div className="mt-2 max-h-96 overflow-y-scroll text-xs leading-relaxed" dangerouslySetInnerHTML={{ __html: `<p>${mission.description.replace(/\n/g, "</p><p>")}</p>` }} />
           </div>
           <div className="w-px bg-gray-900" />
           <div>

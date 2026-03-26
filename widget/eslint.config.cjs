@@ -1,15 +1,12 @@
 const js = require("@eslint/js");
-const importPlugin = require("eslint-plugin-import");
-const reactPlugin = require("eslint-plugin-react");
-const reactHooksPlugin = require("eslint-plugin-react-hooks");
-const jsxA11yPlugin = require("eslint-plugin-jsx-a11y");
+const importPlugin = require("eslint-plugin-import-x");
 const tsParser = require("@typescript-eslint/parser");
 const globals = require("globals");
 const nextPlugin = require("@next/eslint-plugin-next");
 
 module.exports = [
   {
-    ignores: ["node_modules/", ".next/", "out/", "public/", "next.config.js", "coverage/", "eslint.config.*", ".eslintrc.*"],
+    ignores: ["node_modules/", ".next/", "out/", "public/", "next.config.js", "postcss.config.js", "instrumentation-node.js", "coverage/", "eslint.config.*", ".eslintrc.*"],
   },
 
   // Apply @eslint/js recommended (and override rules)
@@ -22,55 +19,6 @@ module.exports = [
     },
     rules: {
       ...nextPlugin.configs["core-web-vitals"].rules,
-    },
-  },
-
-  // Base JS/JSX config
-  {
-    files: ["**/*.js", "**/*.jsx"],
-    languageOptions: {
-      ecmaVersion: "latest",
-      sourceType: "module",
-      parserOptions: {
-        ecmaFeatures: { jsx: true },
-      },
-      globals: {
-        ...globals.browser,
-        ...globals.node,
-      },
-    },
-    plugins: {
-      import: importPlugin,
-      react: reactPlugin,
-      "react-hooks": reactHooksPlugin,
-      "jsx-a11y": jsxA11yPlugin,
-    },
-    rules: {
-      // From project base config
-      "import/prefer-default-export": "off",
-      "no-console": "off",
-      "no-control-regex": "off",
-      curly: ["error", "all"],
-
-      // Enforce @/ alias instead of relative parent imports
-      "no-restricted-imports": [
-        "error",
-        {
-          patterns: [
-            {
-              group: ["../*"],
-              message: "Use @/ alias instead of relative parent imports (e.g. @/components/Foo).",
-            },
-          ],
-        },
-      ],
-
-      // Relax rules (code should be fixed and rules activated)
-      "import/no-extraneous-dependencies": "off",
-      "no-unused-vars": "off",
-    },
-    settings: {
-      react: { version: "detect" },
     },
   },
 

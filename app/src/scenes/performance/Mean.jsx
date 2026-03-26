@@ -388,9 +388,7 @@ const SourcePerformance = ({ data, source }) => {
       >
         {paginated.map((item, i) => (
           <tr key={`${item.name || "source"}-${(page - 1) * pageSize + i}`} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
-            <td className="px-4">
-              {item.name}
-            </td>
+            <td className="px-4">{item.name}</td>
             <td className="px-4 text-right">{(item.printCount || 0).toLocaleString("fr")}</td>
             <td className="px-4 text-right">{(item.clickCount || 0).toLocaleString("fr")}</td>
             <td className="px-4 text-right">{(item.accountCount || 0).toLocaleString("fr")}</td>

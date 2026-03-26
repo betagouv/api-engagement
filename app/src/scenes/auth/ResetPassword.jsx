@@ -108,7 +108,7 @@ const ResetPasswordForm = ({ user, token }) => {
     }
   };
 
-  if (!user) return <div>Chargement...</div>;
+  if (!user) return <p>Chargement...</p>;
 
   return (
     <form className="flex h-full flex-col py-10" onSubmit={handleSubmit}>
@@ -213,12 +213,14 @@ const ResetPasswordForm = ({ user, token }) => {
       ) : (
         <div className="text-success mt-4 flex items-center text-sm">
           <RiCheckboxCircleFill className="mr-2" aria-hidden="true" />
-          <p>
-            Nouveau mot de passe enregistré <br />
-            <Link to="/login" className="underline">
-              Retourner à la page de connexion
-            </Link>
-          </p>
+          <div>
+            <p>Nouveau mot de passe enregistré</p>
+            <p>
+              <Link to="/login" className="underline">
+                Retourner à la page de connexion
+              </Link>
+            </p>
+          </div>
         </div>
       )}
     </form>

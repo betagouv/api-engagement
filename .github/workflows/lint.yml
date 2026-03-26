@@ -14,34 +14,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  changes:
-    name: Detect changes
+  lint:
+    name: Run ESLint
     runs-on: ubuntu-latest
-    outputs:
-      api: ${{ steps.filter.outputs.api }}
-      widget: ${{ steps.filter.outputs.widget }}
-      analytics: ${{ steps.filter.outputs.analytics }}
-    steps:
-      - uses: actions/checkout@v6
-      - uses: dorny/paths-filter@v4
-        id: filter
-        with:
-          filters: |
-            api:
-              - 'api/**'
-            widget:
-              - 'widget/**'
-            analytics:
-              - 'analytics/**'
-
-  lint-api:
-    name: Run ESLint on API
-    needs: changes
-    if: needs.changes.outputs.api == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      actions: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -50,23 +25,20 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: "24"
-          cache: "npm"
-          cache-dependency-path: "api/package-lock.json"
 
-      - name: Install API dependencies
-        run: cd api && npm ci
+      - name: Install dependencies
+        run: |
+          cd api && npm ci
+          cd ../app && npm ci
+          cd ../analytics && npm ci
+          cd ../widget && npm ci
 
       - name: Run ESLint
-        run: cd api && npm run lint
+        run: npm run lint
 
   lint-openapi:
     name: Lint OpenAPI spec
-    needs: changes
-    if: needs.changes.outputs.api == 'true'
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      actions: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -74,64 +46,9 @@ jobs:
       - name: Lint OpenAPI spec
         run: npx --yes @redocly/cli lint --config api/redocly.yaml
 
-  lint-widget:
-    name: Run ESLint on Widget
-    needs: changes
-    if: needs.changes.outputs.widget == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      actions: write
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: "24"
-          cache: "npm"
-          cache-dependency-path: "widget/package-lock.json"
-
-      - name: Install widget dependencies
-        run: cd widget && npm ci
-
-      - name: Run ESLint
-        run: cd widget && npm run lint
-
-  lint-analytics:
-    name: Run ESLint on Analytics
-    needs: changes
-    if: needs.changes.outputs.analytics == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      actions: write
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: "24"
-          cache: "npm"
-          cache-dependency-path: "analytics/package-lock.json"
-
-      - name: Install analytics dependencies
-        run: cd analytics && npm ci
-
-      - name: Run ESLint
-        run: cd analytics && npm run lint
-
   lint-analytics-models:
     name: Run SQLFluff on Analytics models
-    needs: changes
-    if: needs.changes.outputs.analytics == 'true'
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      actions: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v6

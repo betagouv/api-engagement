@@ -125,7 +125,7 @@ const SignupForm = ({ user }) => {
     setLoading(false);
   };
 
-  if (!user) return <div>Chargement...</div>;
+  if (!user) return <p>Chargement...</p>;
 
   return (
     <form className="flex flex-col gap-4" onSubmit={handleSubmit}>

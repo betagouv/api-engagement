@@ -118,7 +118,7 @@ const Edit = () => {
   };
 
   if (!widget) {
-    return <h2 className="p-3">Chargement...</h2>;
+    return <p className="p-3">Chargement...</p>;
   }
 
   return (
@@ -163,7 +163,7 @@ const Frame = ({ widget }) => {
   }, [widget]);
 
   const handleLoad = (e) => {
-    let height = 0;
+    let height;
     const width = e.target.offsetWidth;
     if (widget.type === "volontariat") {
       if (widget.style === "carousel") {

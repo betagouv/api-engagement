@@ -265,8 +265,6 @@ const generateOverviewSection = (doc: jsPDF, data: StatsReport, x: number, width
       value: stats.account,
       compareValue: stats.accountLastMonth,
     });
-    leftColY += BOX_STATS_HEIGHT + BOX_GAP;
-
     // Applies
     drawStatBox({
       doc,

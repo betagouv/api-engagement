@@ -142,11 +142,10 @@ const List = () => {
                 </span>
               </div>
               <div className="flex flex-col gap-4">
-                <p className="text-lg">
-                  <b>Il semble y avoir un problème de paramétrages de votre côté.</b>
-                  <br />
-                  Consultez les alertes ci-dessous pour identifier le problème.
-                </p>
+                <div className="text-lg">
+                  <p><b>Il semble y avoir un problème de paramétrages de votre côté.</b></p>
+                  <p>Consultez les alertes ci-dessous pour identifier le problème.</p>
+                </div>
               </div>
             </>
           ) : (
