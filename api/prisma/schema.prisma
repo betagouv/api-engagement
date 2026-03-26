@@ -45,6 +45,7 @@ enum MissionType {
   benevolat
   volontariat_service_civique
   volontariat_sapeurs_pompiers
+  volontariat_reserve_operationnelle
 }
 
 enum MissionEventType {

@@ -6,6 +6,7 @@ export enum PublisherMissionType {
   VOLONTARIAT_SERVICE_CIVIQUE = "volontariat_service_civique",
   BENEVOLAT = "benevolat",
   VOLONTARIAT_SAPEURS_POMPIERS = "volontariat_sapeurs_pompiers",
+  VOLONTARIAT_RESERVE_OPERATIONNELLE = "volontariat_reserve_operationnelle",
 }
 
 export interface PublisherDiffusionInput {

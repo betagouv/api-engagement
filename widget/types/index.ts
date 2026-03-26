@@ -16,7 +16,7 @@ export interface FilterOption {
 
 export interface Widget {
   id: string;
-  type: "benevolat" | "volontariat";
+  type: "benevolat" | "volontariat_service_civique" | "volontariat_sapeurs_pompiers" | "volontariat_reserve_operationnelle";
   style: "carousel" | "grid" | "page";
   color?: string;
   location?: Location | null;
