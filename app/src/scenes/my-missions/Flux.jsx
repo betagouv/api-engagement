@@ -10,7 +10,7 @@ import SearchInput from "@/components/SearchInput";
 import Select from "@/components/Select";
 import Table from "@/components/Table";
 import Tooltip from "@/components/Tooltip";
-import { STATUS_PLR } from "@/constants";
+import { DOMAINS_LABELS, STATUS_PLR } from "@/constants";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import { compactMissionFilters, searchMissions } from "@/services/mission";
@@ -125,7 +125,6 @@ const Flux = ({ moderated }) => {
   };
 
   console.log("filters", filters.organizations);
-
   return (
     <div className="space-y-12 p-12">
       <title>API Engagement - Missions partagées - Vos Missions</title>
@@ -155,7 +154,7 @@ const Flux = ({ moderated }) => {
             loading={loading}
           />
           <Select
-            options={options.domains.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}
+            options={options.domains.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseigné" : DOMAINS_LABELS[e.key], count: e.doc_count }))}
             value={filters.domain}
             onChange={(e) => setFilters({ ...filters, domain: e.value })}
             placeholder="Domaines"

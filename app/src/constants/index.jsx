@@ -12,7 +12,7 @@ export const LEBONCOIN_STATUS = {
   REFUSED: "Refusées",
 };
 
-export const DOMAINS = {
+export const DOMAINS_LABELS = {
   environnement: "Environnement",
   nature: "Environnement",
   "solidarite-insertion": "Solidarité et insertion",

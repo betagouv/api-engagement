@@ -9,7 +9,7 @@ import Pie, { colors } from "@/components/Pie";
 import SearchInput from "@/components/SearchInput";
 import Select from "@/components/Select";
 import Table from "@/components/Table";
-import { DOMAINS } from "@/constants";
+import { DOMAINS_LABELS } from "@/constants";
 import { DEPARTMENT_LABELS, JVA_MODERATION_COMMENTS_LABELS, STATUS, STATUS_GRAPH_COLORS, STATUS_ICONS, STATUS_PLR } from "@/scenes/broadcast/moderation/components/Constants";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
@@ -161,7 +161,7 @@ const Moderation = () => {
             placeholder="Motif de refus"
           />
           <Select
-            options={options.domains.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseigné" : DOMAINS[e.key], count: e.doc_count }))}
+            options={options.domains.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseigné" : DOMAINS_LABELS[e.key], count: e.doc_count }))}
             value={filters.domain}
             onChange={(e) => setFilters({ ...filters, domain: e.value })}
             placeholder="Domaine"
@@ -205,7 +205,7 @@ const Moderation = () => {
                 label = DEPARTMENT_LABELS[filters[key]];
               }
               if (key === "domain") {
-                label = DOMAINS[filters[key]];
+                label = DOMAINS_LABELS[filters[key]];
               }
 
               return (
