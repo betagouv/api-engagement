@@ -4,7 +4,8 @@ import { prisma } from "@/db/postgres";
 import { missionService } from "@/services/mission";
 import { missionModerationStatusService } from "@/services/mission-moderation-status";
 import { organizationService } from "@/services/organization";
-import { MissionType, type MissionCreateInput, type MissionRecord } from "@/types";
+import { MissionType } from "@/db/core";
+import { type MissionCreateInput, type MissionRecord } from "@/types";
 import type { MissionAddress } from "@/types/mission";
 import { createTestPublisher } from "./publisher";
 
@@ -142,7 +143,7 @@ export const createTestMission = async (
     domainOriginal: data.domainOriginal,
     domainLogo: data.domainLogo ?? "https://example.com/logo.png",
     activities: data.activities ?? ["environnement"],
-    type: data.type ?? MissionType.BENEVOLAT,
+    type: data.type ?? MissionType.benevolat,
     snu: data.snu ?? false,
     snuPlaces: data.snuPlaces ?? 0,
     compensationAmount: data.compensationAmount ?? null,

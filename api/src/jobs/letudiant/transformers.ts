@@ -2,7 +2,7 @@ import { PUBLISHER_IDS } from "@/config";
 import { MEDIA_PUBLIC_ID } from "@/jobs/letudiant/config";
 import { decodeHtml, getAudienceLabel, getDomainLabel } from "@/jobs/letudiant/utils";
 import { PilotyCompanyPayload, PilotyJobPayload, PilotyMandatoryData } from "@/services/piloty/types";
-import { MissionType } from "@/types";
+import { MissionType } from "@/db/core";
 import { MissionRecord } from "@/types/mission";
 import { getMissionTrackedApplicationUrl } from "@/utils/mission";
 
@@ -33,7 +33,7 @@ export type PilotyJobWithAddress = {
  */
 export function missionToPilotyJobs(mission: MissionRecord, companyId: string, mandatoryData: PilotyMandatoryData): PilotyJobWithAddress[] {
   function buildJobPayload(isRemote: boolean, localisation: string | undefined): PilotyJobPayload {
-    const isVolontariat = mission.type === MissionType.VOLONTARIAT;
+    const isVolontariat = mission.type === MissionType.volontariat_service_civique;
 
     return {
       media_public_id: MEDIA_PUBLIC_ID,

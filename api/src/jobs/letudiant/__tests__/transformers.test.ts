@@ -2,7 +2,7 @@ import { PUBLISHER_IDS } from "@/config";
 import { MEDIA_PUBLIC_ID } from "@/jobs/letudiant/config";
 import { missionToPilotyCompany, missionToPilotyJobs } from "@/jobs/letudiant/transformers";
 import { PilotyMandatoryData } from "@/services/piloty/types";
-import { MissionType } from "@/types";
+import { MissionType } from "@/db/core";
 import { MissionRecord } from "@/types/mission";
 import { describe, expect, it, vi } from "vitest";
 
@@ -59,7 +59,7 @@ describe("L'Etudiant Transformers", () => {
       ],
       domain: "education",
       title: "Super Mission de Test",
-      type: MissionType.BENEVOLAT,
+      type: MissionType.benevolat,
       organizationName: "Association de Test",
       descriptionHtml: "<p>Une description 素晴らしい HTML.</p>",
       applicationUrl: "https://example.com/apply",
@@ -100,7 +100,7 @@ describe("L'Etudiant Transformers", () => {
     it("should correctly transform a volontariat mission", () => {
       const mission: MissionRecord = {
         ...baseMission,
-        type: MissionType.VOLONTARIAT,
+        type: MissionType.volontariat_service_civique,
       } as MissionRecord;
 
       const results = missionToPilotyJobs(mission, mockCompanyId, mockMandatoryData);

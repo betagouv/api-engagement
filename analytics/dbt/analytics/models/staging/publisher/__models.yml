@@ -22,7 +22,7 @@ models:
       - name: diffuseur_campaign
         description: Droit d'accès aux campagnes emailing.
       - name: mission_type
-        description: Type de mission associé au partenaire (nullable, ex. bénévolat / service civique / pompiers).
+        description: "Type de mission associé au partenaire (nullable) : Bénévolat, Volontariat (Service Civique), Volontariat (Sapeurs-Pompiers), Volontariat (Réserve opérationnelle)."
       - name: created_at
         description: Timestamp de création initial.
         tests:

@@ -15,12 +15,9 @@ interface FiltersProps {
 const Filters = (props: FiltersProps) => {
   const { widget, ...rest } = props;
 
-  if (widget.type === "volontariat") {
-    return <FiltersVolontariat widget={widget} {...rest} />;
-  } else if (widget.type === "benevolat") {
+  if (widget.type === "benevolat") {
     return <FiltersBenevolat widget={widget} {...rest} />;
   } else {
-    console.warn("Unknown widgetType for Filters:", widget.type);
     return <FiltersVolontariat widget={widget} {...rest} />;
   }
 };

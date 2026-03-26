@@ -1,10 +1,5 @@
 export type GeolocStatus = "ENRICHED_BY_PUBLISHER" | "ENRICHED_BY_API" | "NOT_FOUND" | "NO_DATA" | "SHOULD_ENRICH" | "FAILED";
 
-export enum MissionType {
-  BENEVOLAT = "benevolat",
-  VOLONTARIAT = "volontariat_service_civique",
-}
-
 export * from "@/types/campaign";
 export * from "@/types/email";
 export * from "@/types/import";

@@ -202,6 +202,7 @@ export const MISSION_TYPES = {
   VOLONTARIAT_SERVICE_CIVIQUE: { slug: "volontariat_service_civique", label: "Volontariat (Service Civique)" },
   BENEVOLAT: { slug: "benevolat", label: "Bénévolat" },
   VOLONTARIAT_SAPERS_POMPIERS: { slug: "volontariat_sapeurs_pompiers", label: "Volontariat (Sapeurs-Pompiers)" },
+  VOLONTARIAT_RESERVE_OPERATIONNELLE: { slug: "volontariat_reserve_operationnelle", label: "Volontariat (Réserve opérationnelle)" },
 };
 
 export const MISSION_TYPE_OPTIONS = Object.values(MISSION_TYPES).map(({ slug, label }) => ({

@@ -14,7 +14,7 @@ interface CardProps {
 const Card = (props: CardProps) => {
   const { widget, request, ...rest } = props;
 
-  if (widget.type === "volontariat") {
+  if (widget.type !== "benevolat") {
     return <CardVolontariat widget={widget} request={request} {...rest} />;
   } else {
     return <CardBenevolat widget={widget} request={request} {...rest} />;
