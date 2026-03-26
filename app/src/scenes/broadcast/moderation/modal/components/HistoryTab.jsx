@@ -43,7 +43,7 @@ const HistoryTab = ({ data }) => {
     <div className="p-8">
       <h3 className="text-text-mention mb-4 text-xs font-bold uppercase">Évolution des statuts</h3>
       <div className="space-y-2">
-        {status.length === 0 && modifications.length === 0 && <div className="text-text-mention text-center">Aucun événement de modération trouvé.</div>}
+        {status.length === 0 && modifications.length === 0 && <p className="text-text-mention text-center">Aucun événement de modération trouvé.</p>}
         {status.map((event, index) => (
           <Fragment key={index}>
             {event.newStatus !== null && (

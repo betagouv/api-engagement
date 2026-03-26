@@ -45,7 +45,7 @@ const Api = () => {
     toast.success("Lien copié");
   };
 
-  if (!publisher) return <h2 className="p-3">Chargement...</h2>;
+  if (!publisher) return <p className="p-3">Chargement...</p>;
 
   return (
     <div className="space-y-12 p-12">

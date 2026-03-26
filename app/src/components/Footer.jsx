@@ -22,7 +22,7 @@ const Footer = () => {
               </div>
             </div>
             <div>
-              <h2 className="m-0 text-xl leading-7 font-bold text-black">API Engagement</h2>
+              <p className="m-0 text-xl leading-7 font-bold text-black">API Engagement</p>
               <p className="text-sm">Plateforme de partage de missions de bénévolat et de volontariat</p>
             </div>
           </Link>

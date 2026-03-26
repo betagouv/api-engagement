@@ -118,7 +118,7 @@ const Edit = () => {
   };
 
   if (!widget) {
-    return <h2 className="p-3">Chargement...</h2>;
+    return <p className="p-3">Chargement...</p>;
   }
 
   return (
