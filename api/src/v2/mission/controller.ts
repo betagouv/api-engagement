@@ -75,7 +75,7 @@ const missionBaseFields = {
   reducedMobilityAccessible: zod.boolean().optional(),
   closeToTransport: zod.boolean().optional(),
   addresses: zod.array(addressSchema).optional(),
-  type: zod.enum(["benevolat", "volontariat_service_civique", "volontariat_sapeurs_pompiers"]).optional(),
+  type: zod.enum(["benevolat", "volontariat_service_civique", "volontariat_sapeurs_pompiers", "volontariat_reserve_operationnelle"]).optional(),
   ...orgFields,
 };
 
