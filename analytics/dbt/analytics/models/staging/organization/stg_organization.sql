@@ -31,5 +31,5 @@ select
   o.management_city,
   o.management_country,
   o.director_civility,
-  o.source
+  coalesce(o.source, 'INSEE') as source
 from {{ source('analytics_raw', 'organization') }} as o
