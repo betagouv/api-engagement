@@ -215,3 +215,46 @@ models:
         description: Timestamp de dernière mise à jour (curseur d'export).
         tests:
           - not_null
+  - name: stg_mission_jobboard
+    description: >
+      Staging des informations de diffusion vers les jobboards depuis `analytics_raw.mission_jobboard`.
+      Le modèle conserve la granularité technique d'origine et applique le typage des champs.
+    columns:
+      - name: id
+        description: Identifiant unique de la ligne mission_jobboard.
+        tests:
+          - not_null
+          - unique
+      - name: jobboard_id
+        description: Identifiant du jobboard cible.
+        tests:
+          - not_null
+      - name: mission_id
+        description: Identifiant de la mission concernée.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('mission')
+                field: id
+      - name: mission_address_id
+        description: Identifiant de l'adresse associée à la diffusion (nullable).
+        tests:
+          - relationships:
+              arguments:
+                to: ref('mission_address')
+                field: id
+      - name: public_id
+        description: Identifiant de l'offre côté jobboard.
+        tests:
+          - not_null
+      - name: sync_status
+        description: Statut de synchronisation (`ONLINE`, `OFFLINE`, `ERROR`, nullable).
+      - name: created_at
+        description: Timestamp de création de la ligne.
+        tests:
+          - not_null
+      - name: updated_at
+        description: Timestamp de dernière mise à jour (curseur d'export).
+        tests:
+          - not_null

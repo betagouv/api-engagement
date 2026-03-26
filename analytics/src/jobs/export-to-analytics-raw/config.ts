@@ -602,6 +602,22 @@ export const exportDefinitions: ExportDefinition[] = [
     },
   },
   {
+    key: "mission_jobboard",
+    batchSize: 2000,
+    source: {
+      table: "mission_jobboard",
+      cursor: {
+        field: "updated_at",
+        idField: "id",
+      },
+      columns: ["id", "jobboard_id", "mission_id", "mission_address_id", "public_id", "sync_status", "created_at", "updated_at"],
+    },
+    destination: {
+      table: "mission_jobboard",
+      conflictColumns: ["id"],
+    },
+  },
+  {
     key: "mission_moderation_status",
     batchSize: 2000,
     source: {

@@ -177,6 +177,87 @@ models:
         description: Longitude géographique (nullable).
       - name: geo_point
         description: Point géographique (nullable).
+  - name: mission_jobboard
+    description: >
+      Mart des diffusions de mission vers les jobboards externes, alimenté depuis
+      `stg_mission_jobboard`. Le modèle conserve un historique technique par
+      enregistrement de synchronisation.
+    columns:
+      - name: id
+        description: Identifiant unique de la ligne mission_jobboard.
+        tests:
+          - not_null
+          - unique
+      - name: jobboard_id
+        description: Identifiant du jobboard cible.
+        tests:
+          - not_null
+      - name: mission_id
+        description: Identifiant de la mission concernée.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('mission')
+                field: id
+      - name: mission_address_id
+        description: Identifiant de l'adresse associée à la diffusion (nullable).
+        tests:
+          - relationships:
+              arguments:
+                to: ref('mission_address')
+                field: id
+      - name: public_id
+        description: Identifiant public de l'offre côté jobboard.
+        tests:
+          - not_null
+      - name: sync_status
+        description: Statut de synchronisation (`ONLINE`, `OFFLINE`, `ERROR`, nullable).
+      - name: created_at
+        description: Timestamp de création de la ligne.
+        tests:
+          - not_null
+      - name: updated_at
+        description: Timestamp de dernière mise à jour (curseur incrémental).
+        tests:
+          - not_null
+  - name: mission_jobboard_daily
+    description: >
+      Agrégat quotidien des diffusions jobboard au grain jour + domaine de mission +
+      jobboard. Le domaine est enrichi depuis `mission` via `mission_id`.
+    columns:
+      - name: event_date
+        description: Jour d'agrégation basé sur `mission_jobboard.created_at`.
+        tests:
+          - not_null
+      - name: mission_domain
+        description: Domaine de la mission (fallback `unknown` si non renseigné).
+        tests:
+          - not_null
+      - name: jobboard_id
+        description: Identifiant du jobboard cible.
+        tests:
+          - not_null
+      - name: mission_jobboard_count
+        description: Nombre total d'enregistrements mission_jobboard dans le grain.
+        tests:
+          - not_null
+      - name: online_count
+        description: Nombre d'enregistrements au statut `ONLINE`.
+        tests:
+          - not_null
+      - name: offline_count
+        description: Nombre d'enregistrements au statut `OFFLINE`.
+        tests:
+          - not_null
+      - name: error_count
+        description: Nombre d'enregistrements au statut `ERROR`.
+        tests:
+          - not_null
+      - name: max_updated_at
+        description: Dernière date de mise à jour observée dans l'agrégat.
+        tests:
+          - not_null
   - name: mission_time_to_event_weekly
     description: >
       Mart hebdomadaire des délais (time-to-click/apply) et volumes, agrégé à partir
