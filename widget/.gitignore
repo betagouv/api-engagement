@@ -46,3 +46,5 @@ yarn-error.log*
 /tests/e2e/_test-results/
 /tests/e2e/_playwright-report/
 .playwright-visual-snapshots-results/
+
+tsconfig.tsbuildinfo
