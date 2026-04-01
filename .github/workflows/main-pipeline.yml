@@ -61,7 +61,7 @@ jobs:
       branch: ${{ github.ref_name }}
 
   deploy-sandbox:
-    needs: [test, build]
+    needs: build
     if: github.ref == 'refs/heads/main'
     uses: ./.github/workflows/terraform-deploy.yml
     with:

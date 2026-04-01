@@ -70,7 +70,7 @@ jobs:
         with:
           access-key: ${{ secrets.SCW_ACCESS_KEY }}
           secret-key: ${{ secrets.SCW_SECRET_KEY }}
-          project-id: ${{ secrets.SCW_PROJECT_ID }}
+          default-project-id: ${{ secrets.SCW_PROJECT_ID }}
 
       # AWS_ env are required for the S3 backend, with scaleway credentials
       # See https://registry.terraform.io/providers/scaleway/scaleway/latest/docs#store-terraform-state-on-scaleway-s3-compatible-object-storage

@@ -4,9 +4,9 @@ import jwt from "jsonwebtoken";
 import passport from "passport";
 import zod from "zod";
 
-import { APP_URL, SECRET } from "@/config";
+import { APP_URL, ENV, SECRET } from "@/config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, REQUEST_EXPIRED, RESSOURCE_ALREADY_EXIST } from "@/error";
-import { sendTemplate } from "@/services/brevo";
+import { sendTemplate, TEMPLATE_IDS } from "@/services/brevo";
 import { loginHistoryService } from "@/services/login-history";
 import { publisherService } from "@/services/publisher";
 import { userService } from "@/services/user";
@@ -172,9 +172,12 @@ router.post("/invite", passport.authenticate("admin", { session: false }), async
       invitationExpiresAt,
     });
 
-    await sendTemplate(1, {
+    await sendTemplate(TEMPLATE_IDS.INVITATION, {
       emailTo: [user.email],
-      params: { link: `${APP_URL}/signup?token=${user.invitationToken}` },
+      params: {
+        link: `${APP_URL}/signup?token=${user.invitationToken}`,
+        title: ENV === "sandbox" ? "Invitation à Bac à Sable - API Engagement" : "Invitation à l'API Engagement",
+      },
     });
 
     return res.status(200).send({ ok: true, data: user });
@@ -342,7 +345,7 @@ router.post("/forgot-password", async (req: UserRequest, res: Response, next: Ne
         forgotPasswordExpiresAt: new Date(Date.now() + FORGET_PASSWORD_EXPIRATION),
       });
 
-      await sendTemplate(5, {
+      await sendTemplate(TEMPLATE_IDS.FORGOT_PASSWORD, {
         emailTo: [body.data.email],
         params: { link: `${APP_URL}/reset-password?token=${token}` },
       });
@@ -497,9 +500,12 @@ router.put("/:id/invite-again", passport.authenticate("admin", { session: false 
       invitationCompletedAt: null,
     });
 
-    await sendTemplate(1, {
+    await sendTemplate(TEMPLATE_IDS.INVITATION, {
       emailTo: [user.email],
-      params: { link: `${APP_URL}/signup?token=${invitationToken}` },
+      params: {
+        link: `${APP_URL}/signup?token=${invitationToken}`,
+        title: ENV === "sandbox" ? "Invitation à Bac à Sable - API Engagement" : "Invitation à l'API Engagement",
+      },
     });
 
     return res.status(200).send({ ok: true });

@@ -241,8 +241,13 @@ const ProtectedLayout = () => {
   return (
     <div className="bg-global-background flex min-h-screen w-screen flex-col">
       {ENV === "staging" && (
-        <div className="bg-error w-full p-2 text-center text-white">
-          <span>Environnement de pré-prod</span>
+        <div className="bg-error w-full p-2 text-center">
+          <p className="text-sm text-white">Environnement de pré-prod</p>
+        </div>
+      )}
+      {ENV === "sandbox" && (
+        <div className="bg-yellow-tournesol-850 w-full p-2 text-center">
+          <p className="text-sm text-black">Tableau de bord - Bac à Sable</p>
         </div>
       )}
       <Header />
