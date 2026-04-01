@@ -54,6 +54,9 @@ const missionBaseFields = {
   title: zod.string().optional(),
   description: zod.string().optional(),
   applicationUrl: zod.string().optional(),
+  image: zod.string().optional(),
+  metadata: zod.string().optional(),
+  postedAt: zod.coerce.date().optional(),
   domain: zod.string().optional(),
   activities: zod.array(zod.string()).optional(),
   tags: zod.array(zod.string()).optional(),
@@ -144,6 +147,9 @@ router.post("/", passport.authenticate(["apikey", "api"], { session: false }), d
       addresses: buildAddresses(body.addresses),
       description: body.description,
       applicationUrl: body.applicationUrl,
+      domainLogo: body.image,
+      metadata: body.metadata,
+      postedAt: body.postedAt,
       domain: body.domain,
       activities: body.activities,
       tags: body.tags,
@@ -244,6 +250,10 @@ router.put("/:clientId", passport.authenticate(["apikey", "api"], { session: fal
 
     if ("addresses" in body) {
       patch.addresses = buildAddresses(body.addresses);
+    }
+
+    if ("image" in body) {
+      patch.domainLogo = body.image;
     }
 
     // Run moderation on the merged state (existing + patch) to avoid
