@@ -67,7 +67,7 @@ resource "scaleway_container" "app" {
   description    = "App ${var.workspace} container"
   namespace_id   = scaleway_container_namespace.main.id
   # App is always built for the workspace
-  registry_image = "ghcr.io/${var.github_repository}/app:${var.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
+  registry_image = "ghcr.io/${var.github_repository}/app:${var.env}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
   port           = 8080
   cpu_limit      = var.app_cpu_limit
   memory_limit   = var.app_memory_limit
