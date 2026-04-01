@@ -258,17 +258,20 @@ components:
           type: string
           nullable: true
           format: date-time
-          description: "Date de début de la mission souhaitée. Défaut : now()"
+          description: "Date de début de la mission souhaitée. Format ISO 8601. Défaut : now()"
+          example: "2024-09-01T00:00:00.000Z"
         endAt:
           type: string
           nullable: true
           format: date-time
-          description: "Date de fin de la mission souhaitée. Défaut : now()"
+          description: "Date de fin de la mission souhaitée. Format ISO 8601. Défaut : now()"
+          example: "2025-06-30T00:00:00.000Z"
         postedAt:
           type: string
           nullable: true
           format: date-time
-          description: Date de première publication de la mission.
+          description: "Date de première publication de la mission. Format ISO 8601."
+          example: "2024-06-15T09:00:00.000Z"
         places:
           type: integer
           nullable: true
@@ -308,8 +311,8 @@ components:
               country: "France"
         type:
           type: string
-          nullable: false
-          enum: [benevolat, volontariat_service_civique, volontariat_sapeurs_pompiers, volontariat_reserve_operationnelle]
+          nullable: true
+          enum: [benevolat, volontariat_service_civique, volontariat_sapeurs_pompiers, volontariat_reserve_operationnelle, null]
           description: Type de mission d'engagement
         organizationClientId:
           type: string
@@ -905,15 +908,18 @@ paths:
                 startAt:
                   type: string
                   format: date-time
-                  description: "Date de début de la mission souhaitée. Défaut : now()"
+                  description: "Date de début de la mission souhaitée. Format ISO 8601. Défaut : now()"
+                  example: "2024-09-01T00:00:00.000Z"
                 endAt:
                   type: string
                   format: date-time
-                  description: "Date de fin de la mission souhaitée. Défaut : now()"
+                  description: "Date de fin de la mission souhaitée. Format ISO 8601. Défaut : now()"
+                  example: "2025-06-30T00:00:00.000Z"
                 postedAt:
                   type: string
                   format: date-time
-                  description: Date de première publication de la mission.
+                  description: "Date de première publication de la mission. Format ISO 8601."
+                  example: "2024-06-15T09:00:00.000Z"
                 places:
                   type: integer
                   minimum: 1
@@ -1168,15 +1174,18 @@ paths:
                 startAt:
                   type: string
                   format: date-time
-                  description: "Date de début de la mission souhaitée. Défaut : now()"
+                  description: "Date de début de la mission souhaitée. Format ISO 8601. Défaut : now()"
+                  example: "2024-09-01T00:00:00.000Z"
                 endAt:
                   type: string
                   format: date-time
-                  description: "Date de fin de la mission souhaitée. Défaut : now()"
+                  description: "Date de fin de la mission souhaitée. Format ISO 8601. Défaut : now()"
+                  example: "2025-06-30T00:00:00.000Z"
                 postedAt:
                   type: string
                   format: date-time
-                  description: Date de première publication de la mission.
+                  description: "Date de première publication de la mission. Format ISO 8601."
+                  example: "2024-06-15T09:00:00.000Z"
                 places:
                   type: integer
                   minimum: 1
