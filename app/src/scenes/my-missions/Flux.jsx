@@ -3,6 +3,7 @@ import { RiCheckboxCircleFill, RiFileDownloadLine, RiInformationLine } from "rea
 import { Link, useSearchParams } from "react-router-dom";
 
 import ErrorIconSvg from "@/assets/svg/error-icon.svg?react";
+import LabelledCombobox from "@/components/combobox/LabelledCombobox";
 import MissionCombobox from "@/components/combobox/MissionCombobox";
 import InfoAlert from "@/components/InfoAlert";
 import Loader from "@/components/Loader";
@@ -10,7 +11,7 @@ import SearchInput from "@/components/SearchInput";
 import Select from "@/components/Select";
 import Table from "@/components/Table";
 import Tooltip from "@/components/Tooltip";
-import { STATUS_PLR } from "@/constants";
+import { DOMAINS_LABELS, STATUS_PLR } from "@/constants";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import { compactMissionFilters, searchMissions } from "@/services/mission";
@@ -37,7 +38,7 @@ const Flux = ({ moderated }) => {
     domain: searchParams.get("domain") || null,
     activity: searchParams.get("activity") || null,
     cities: searchParams.has("cities") ? searchParams.getAll("cities") : [],
-    organizations: searchParams.has("organizations") ? searchParams.getAll("organizations") : [],
+    organizationIds: searchParams.has("organizationIds") ? searchParams.getAll("organizationIds") : [],
     search: searchParams.get("search") || "",
   });
   const [options, setOptions] = useState({
@@ -45,6 +46,7 @@ const Flux = ({ moderated }) => {
     comments: [],
     domains: [],
     activities: [],
+    organizations: [],
   });
   const [lastImport, setLastImport] = useState();
   const [data, setData] = useState([]);
@@ -124,8 +126,6 @@ const Flux = ({ moderated }) => {
     setExporting(false);
   };
 
-  console.log("filters", filters.organizations);
-
   return (
     <div className="space-y-12 p-12">
       <title>API Engagement - Missions partagées - Vos Missions</title>
@@ -155,7 +155,7 @@ const Flux = ({ moderated }) => {
             loading={loading}
           />
           <Select
-            options={options.domains.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}
+            options={options.domains.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseigné" : DOMAINS_LABELS[e.key], count: e.doc_count }))}
             value={filters.domain}
             onChange={(e) => setFilters({ ...filters, domain: e.value })}
             placeholder="Domaines"
@@ -176,13 +176,12 @@ const Flux = ({ moderated }) => {
             placeholder="Villes"
             filters={`publishers=${publisher.id}&field=city`}
           />
-          <MissionCombobox
-            id="organization"
-            values={filters.organizations}
-            onChange={(organizations) => setFilters({ ...filters, organizations })}
+          <LabelledCombobox
+            id="organizationIds"
+            values={filters.organizationIds}
+            onChange={(organizationIds) => setFilters({ ...filters, organizationIds })}
             placeholder="Organisations"
-            filters={`publishers=${publisher.id}&field=organizationName`}
-            className="w-96"
+            options={options.organizations}
           />
         </div>
       </div>
