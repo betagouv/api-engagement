@@ -164,7 +164,7 @@ export async function getMissionIdsToPublishByDomain(
         AND m.deleted_at IS NULL
         AND po.organization_id_verified IS NOT NULL
         AND d.name = ${domain}
-        ${excludedClientIds.length > 0 ? Prisma.sql`AND (m.organization_client_id IS NULL OR m.organization_client_id NOT IN (${Prisma.join(excludedClientIds)}))` : Prisma.sql``}
+        ${excludedClientIds.length > 0 ? Prisma.sql`AND (po.client_id IS NULL OR po.client_id NOT IN (${Prisma.join(excludedClientIds)}))` : Prisma.sql``}
         AND NOT EXISTS (
           SELECT 1 FROM mission_jobboard mjb_err
           WHERE mjb_err.mission_id = m.id
@@ -209,7 +209,7 @@ export async function getMissionIdsToPublishUnlimited(publisherIds: string[], ex
         AND m.status_code = 'ACCEPTED'
         AND m.deleted_at IS NULL
         AND po.organization_id_verified IS NOT NULL
-        ${excludedClientIds.length > 0 ? Prisma.sql`AND (m.organization_client_id IS NULL OR m.organization_client_id NOT IN (${Prisma.join(excludedClientIds)}))` : Prisma.sql``}
+        ${excludedClientIds.length > 0 ? Prisma.sql`AND (po.client_id IS NULL OR po.client_id NOT IN (${Prisma.join(excludedClientIds)}))` : Prisma.sql``}
         AND NOT EXISTS (
           SELECT 1 FROM mission_jobboard mjb_err
           WHERE mjb_err.mission_id = m.id
