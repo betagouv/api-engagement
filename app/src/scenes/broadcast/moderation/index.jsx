@@ -248,7 +248,7 @@ const Moderation = () => {
                   setReloadFilters(!reloadFilters);
                 }}
                 onSelect={() => setSelected(selected.includes(item.id) ? selected.filter((id) => id !== item.id) : [...selected, item.id])}
-                onFilter={(v) => setFilters({ ...filters, organizationName: v, page: 1 })}
+                onFilter={(v) => setFilters({ ...filters, organizationIds: [v], page: 1 })}
               />
             </tr>
           ))}

@@ -222,7 +222,7 @@ const MissionActionsMenu = ({ data, onFilter, onChange }) => {
             <Menu.Item>
               <button
                 className="text-blue-france flex w-full cursor-pointer items-center border-none p-3 text-left text-sm hover:bg-gray-950"
-                onClick={() => onFilter(data.missionOrganizationName)}
+                onClick={() => onFilter(data.missionPublisherOrganizationId)}
               >
                 Filtrer les missions de l'organisation
               </button>

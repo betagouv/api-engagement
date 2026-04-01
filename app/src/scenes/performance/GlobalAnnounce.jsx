@@ -33,6 +33,7 @@ const GlobalAnnounce = ({ filters, onFiltersChange }) => {
           availableFrom: filters.from,
           availableTo: filters.to,
           size: 0,
+          aggs: false,
         });
         if (!res.ok) {
           throw res;

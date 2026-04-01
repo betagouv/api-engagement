@@ -139,31 +139,28 @@ export const missionModerationStatusService = {
   async aggregateModerationStatuses(filters: ModerationFilters) {
     const { where, missionWhere } = buildWhere(filters);
 
-    // TODO: Refactor this to remove slow queries
-    // Parallel aggregations using repositories
     const [statusResults, commentResults] = await Promise.all([
-      // MissionModerationStatus aggregations
-      missionModerationStatusRepository.groupBy(["status"], where),
-      missionModerationStatusRepository.groupBy(["comment"], { ...where, status: ModerationEventStatus.REFUSED }),
+      missionModerationStatusRepository.groupBy(["status"], { ...where, status: undefined }),
+      missionModerationStatusRepository.groupBy(["comment"], { ...where, comment: undefined, status: ModerationEventStatus.REFUSED }),
     ]);
     const [publisherResults, domainResults, activityResults] = await Promise.all([
-      // Mission aggregations
-      missionRepository.groupBy(["publisherId"], missionWhere as Prisma.MissionWhereInput),
-      missionRepository.groupBy(["domainId"], missionWhere as Prisma.MissionWhereInput),
-      missionActivityRepository.groupBy(["activityId"], { mission: missionWhere as Prisma.MissionWhereInput }),
+      missionRepository.groupBy(["publisherId"], { ...missionWhere, publisherId: undefined } as Prisma.MissionWhereInput),
+      missionRepository.groupBy(["domainId"], { ...missionWhere, domain: undefined } as Prisma.MissionWhereInput),
+      missionActivityRepository.groupBy(["activityId"], { mission: { ...missionWhere, activities: undefined } as Prisma.MissionWhereInput }),
     ]);
 
     const [orgResults, deptResults, cityResults] = await Promise.all([
-      // MissionAddress aggregations
-      aggregatePublisherOrganisation({ missions: { some: missionWhere } }),
-      missionAddressRepository.groupBy(["departmentCode"], { mission: missionWhere as Prisma.MissionWhereInput } as Prisma.MissionAddressWhereInput),
-      missionAddressRepository.groupBy(["city"], { mission: missionWhere as Prisma.MissionWhereInput } as Prisma.MissionAddressWhereInput),
+      aggregatePublisherOrganisation({ missions: { some: { ...missionWhere, publisherOrganizationId: undefined } } }),
+      missionAddressRepository.groupBy(["departmentCode"], { mission: { ...missionWhere, addresses: undefined } as Prisma.MissionWhereInput } as Prisma.MissionAddressWhereInput),
+      missionAddressRepository.groupBy(["city"], { mission: { ...missionWhere, addresses: undefined } as Prisma.MissionWhereInput } as Prisma.MissionAddressWhereInput),
     ]);
     const [publishers, domains, activities] = await Promise.all([
-      // Labels
-      publisherRepository.findMany({ where: { missions: { some: missionWhere } } as Prisma.PublisherWhereInput, select: { id: true, name: true } }),
-      domainRepository.findMany({ where: { missions: { some: missionWhere } } as Prisma.DomainWhereInput, select: { id: true, name: true } }),
-      activityRepository.findMany({ where: { missionActivities: { some: { mission: missionWhere } } } as Prisma.ActivityWhereInput, select: { id: true, name: true } }),
+      publisherRepository.findMany({ where: { missions: { some: { ...missionWhere, publisherId: undefined } } } as Prisma.PublisherWhereInput, select: { id: true, name: true } }),
+      domainRepository.findMany({ where: { missions: { some: { ...missionWhere, domain: undefined } } } as Prisma.DomainWhereInput, select: { id: true, name: true } }),
+      activityRepository.findMany({
+        where: { missionActivities: { some: { mission: { ...missionWhere, activities: undefined } } } } as Prisma.ActivityWhereInput,
+        select: { id: true, name: true },
+      }),
     ]);
 
     const publisherMap = new Map(publishers.map((p) => [p.id, p.name]));

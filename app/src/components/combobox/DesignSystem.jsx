@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { RiArrowDownSLine, RiCheckFill, RiSearchLine } from "react-icons/ri";
+import { RiArrowDownSLine, RiCheckFill, RiCloseFill, RiSearchLine } from "react-icons/ri";
 
 const Combobox = ({
   options,
@@ -125,26 +125,41 @@ const Combobox = ({
       <div aria-live="polite" className="sr-only">
         {(selection || []).length > 1 ? `${(selection || []).length} filtres sélectionnés` : `${(selection || []).length} filtre sélectionné`}
       </div>
-      <button
-        id={id}
-        aria-label={placeholder}
-        aria-expanded={show}
-        className="select relative w-full truncate text-left"
-        onClick={() => setShow(!show)}
-        onKeyDown={handleButtonKeyDown}
-      >
-        {!values || values.some((o) => o === undefined)
-          ? placeholder
-          : values.length > 0
-            ? `${getLabel(values[0])}${values.length > 1 ? ` +${values.length - 1}` : ""}`
-            : placeholder}
+      <div className="relative w-full">
+        <button
+          id={id}
+          aria-label={placeholder}
+          aria-expanded={show}
+          className="select relative w-full truncate pr-12 text-left"
+          onClick={() => setShow(!show)}
+          onKeyDown={handleButtonKeyDown}
+        >
+          {!values || values.some((o) => o === undefined)
+            ? placeholder
+            : values.length > 0
+              ? `${getLabel(values[0])}${values.length > 1 ? ` +${values.length - 1}` : ""}`
+              : placeholder}
 
-        {show ? (
-          <RiArrowDownSLine className="absolute top-1/2 right-4 -translate-y-1/2 rotate-180 transform text-base" aria-hidden="true" />
-        ) : (
-          <RiArrowDownSLine className="absolute top-1/2 right-4 -translate-y-1/2 text-base" aria-hidden="true" />
+          {show ? (
+            <RiArrowDownSLine className="absolute top-1/2 right-4 -translate-y-1/2 rotate-180 transform text-base" aria-hidden="true" />
+          ) : (
+            <RiArrowDownSLine className="absolute top-1/2 right-4 -translate-y-1/2 text-base" aria-hidden="true" />
+          )}
+        </button>
+        {values && values.length > 0 && (
+          <button
+            type="button"
+            aria-label={`Effacer ${placeholder.toLowerCase()}`}
+            className="absolute top-1/2 right-8 -translate-y-1/2 p-1"
+            onClick={(e) => {
+              e.stopPropagation();
+              onChange([]);
+            }}
+          >
+            <RiCloseFill className="text-base text-black" aria-hidden="true" />
+          </button>
         )}
-      </button>
+      </div>
 
       <div
         role="dialog"

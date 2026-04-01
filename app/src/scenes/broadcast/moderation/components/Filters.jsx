@@ -6,6 +6,7 @@ import LabelledCombobox from "@/components/combobox/LabelledCombobox";
 import MissionCombobox from "@/components/combobox/MissionCombobox";
 import SearchInput from "@/components/SearchInput";
 import Select from "@/components/Select";
+import { DOMAINS_LABELS } from "@/constants";
 import STATUS, { DEPARTMENT_LABELS, JVA_MODERATION_COMMENTS_LABELS, STATUS_PLR } from "@/scenes/broadcast/moderation/components/Constants";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
@@ -55,7 +56,7 @@ const Filters = ({ filters, onChange, reload }) => {
       }
     };
     fetchOptions();
-  }, [reload]);
+  }, [filters, reload]);
 
   return (
     <div className="mx-12">
@@ -85,7 +86,7 @@ const Filters = ({ filters, onChange, reload }) => {
           options={options.publishers}
         />
         <Select
-          options={options.domains.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}
+          options={options.domains.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : DOMAINS_LABELS[e.key], count: e.doc_count }))}
           value={filters.domain}
           onChange={(e) => onChange({ ...filters, domain: e.value })}
           placeholder="Domaine"
@@ -137,16 +138,49 @@ const Filters = ({ filters, onChange, reload }) => {
 
       <div className="flex flex-wrap gap-3">
         <Badge label="Statut" value={STATUS[filters.status]} onDelete={() => onChange({ ...filters, status: "" })} />
-        <Badge label="Annonceur" value={options.publishers.find((p) => p.key === filters.publisherId)?.label} onDelete={() => onChange({ ...filters, publisherId: "" })} />
-        <Badge label="Organisation" value={options.organizations.find((o) => o.key === filters.organizationId)?.label} onDelete={() => onChange({ ...filters, organizationId: "" })} />
+        <Badge
+          label="Annonceur"
+          value={
+            filters.publisherIds.length > 0
+              ? options.publishers
+                  .filter((p) => filters.publisherIds.includes(p.key))
+                  .map((p) => p.label)
+                  .join(", ")
+              : null
+          }
+          onDelete={() => onChange({ ...filters, publisherIds: [] })}
+        />
+        <Badge
+          label="Organisation"
+          value={
+            filters.organizationIds.length > 0
+              ? options.organizations
+                  .filter((o) => filters.organizationIds.includes(o.key))
+                  .map((o) => o.label)
+                  .join(", ")
+              : null
+          }
+          onDelete={() => onChange({ ...filters, organizationIds: [] })}
+        />
         <Badge
           label="Département"
           value={filters.department === "none" ? "Non renseigné" : DEPARTMENT_LABELS[filters.department]}
           onDelete={() => onChange({ ...filters, department: "" })}
         />
-        <Badge label="Ville" value={filters.city === "none" ? "Non renseignée" : filters.city} onDelete={() => onChange({ ...filters, city: "" })} />
+        <Badge
+          label="Ville"
+          value={
+            filters.cities.length > 0
+              ? options.cities
+                  .filter((c) => filters.cities.includes(c.key))
+                  .map((c) => (c.key === "none" ? "Non renseignée" : c.key))
+                  .join(", ")
+              : null
+          }
+          onDelete={() => onChange({ ...filters, cities: [] })}
+        />
         <Badge label="Motif de refus" value={JVA_MODERATION_COMMENTS_LABELS[filters.comment] || filters.comment} onDelete={() => onChange({ ...filters, comment: "" })} />
-        <Badge label="Domaine" value={filters.domain} onDelete={() => onChange({ ...filters, domain: "" })} />
+        <Badge label="Domaine" value={filters.domain === "none" ? "Non renseigné" : DOMAINS_LABELS[filters.domain]} onDelete={() => onChange({ ...filters, domain: "" })} />
         <Badge label="Activité" value={filters.activity === "none" ? "Non renseignée" : filters.activity} onDelete={() => onChange({ ...filters, activity: "" })} />
         <Badge label="Recherche" value={filters.search} onDelete={() => onChange({ ...filters, search: "" })} />
       </div>
