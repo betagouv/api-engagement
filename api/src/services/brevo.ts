@@ -24,6 +24,11 @@ interface EmailBody {
   tags?: string[];
 }
 
+export const TEMPLATE_IDS = {
+  INVITATION: 1,
+  RESET_PASSWORD: 5,
+};
+
 const api = async (path: string, body = {}, method = "POST"): Promise<{ ok: boolean; data: any }> => {
   if (!SENDINBLUE_APIKEY) {
     return { ok: false, data: "SENDINBLUE_APIKEY is undefined" };
