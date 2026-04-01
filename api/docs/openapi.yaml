@@ -61,7 +61,6 @@ components:
       description: Clé API fournie par l'équipe API Engagement
 
   schemas:
-
     # ── Adresse ────────────────────────────────────────────────────────────────
     Address:
       type: object
@@ -147,7 +146,7 @@ components:
           example: "64a1b2c3d4e5f6789abc0001"
         clientId:
           type: string
-          description: Identifiant de la mission dans votre système
+          description: Identifiant unique de la mission dans votre système d'information (immuable)
           example: "mission-2024-001"
         publisherId:
           type: string
@@ -168,183 +167,233 @@ components:
           example: "Animateur bénévole en maison de retraite"
         description:
           type: string
-          description: Description complète de la mission (HTML autorisé)
+          description: |
+            Description complète de la mission. Texte brut ou HTML acceptés, stockés tels quels.
+
+            **Recommandations** :
+            - Utiliser le format HTML pour une meilleure lisibilité lors de la diffusion (sauts de ligne, gras, listes)
+            - Structurer en plusieurs sections pour agréger des informations provenant de champs différents dans votre système
+            - La description est limitée à 20 000 caractères
+          example: "<p><strong>EN QUELQUES MOTS</strong></p><p>Favoriser la mixité au sein du club</p><p><strong>VOTRE MISSION DE SERVICE CIVIQUE</strong></p><p><u>Objectifs</u></p><ul><li>Développer la féminisation et favoriser l'accès à la pratique du football des jeunes filles</li></ul><p><u>Actions</u></p><ul><li>Accompagner les éducateurs dans le projet éducatif féminin</li><li>Mettre en place des actions en faveur de la mixité</li><li>Sensibiliser les jeunes filles éloignées de la pratique sportive</li></ul>"
         applicationUrl:
           type: string
           nullable: true
           format: uri
-          description: URL de candidature ou d'inscription
-          example: "https://example.org/missions/001/postuler"
+          description: URL de la page où l'utilisateur sera redirigé pour candidater (URL de la page présentant la mission)
+          example: "https://www.example.org/missions/animateur-maison-retraite"
+        image:
+          type: string
+          nullable: true
+          format: uri
+          description: URL de l'image de la mission. Si absent, l'API Engagement utilise une image de sa bibliothèque selon le domaine.
+        metadata:
+          type: string
+          nullable: true
+          description: Métadonnées libres associées à la mission.
         domain:
           type: string
           nullable: true
-          description: Domaine d'action principal
+          description: |
+            Domaine d'action de la mission. Valeurs possibles :
+            `environnement`, `solidarite-insertion`, `prevention-protection`, `sante`, `culture-loisirs`, `education`, `emploi`, `sport`, `humanitaire`, `animaux`, `vivre-ensemble`, `memoire-et-citoyennete`, `benevolat-competences`, `autre`.
+
+            > Une demande d'ajout de valeur peut être faite auprès de l'équipe API Engagement.
           example: "sante"
         activities:
           type: array
           items:
             type: string
-          description: Liste des activités proposées
-          example: ["animation", "accompagnement"]
+          description: |
+            Activité(s) principale(s) de la mission. Valeurs possibles :
+            `accueil-de-public`, `aide-psychologique`, `activites-manuelles`, `alphabetisation`, `animation`, `Animation, Valorisation`, `art`, `autre`, `bricolage`, `collecte`, `communication`, `comptabilite-finance`, `conseil`, `distribution`, `documentation-traduction`, `ecoute-permanence`, `encadrement-d-equipes`, `enseignement-formation`, `gestion-de-projets`, `gestion-recherche-des-partenariats`, `informatique`, `jardinage`, `juridique`, `logistique`, `lutte-contre-isolement`, `Médiation, Information`, `mentorat-parrainage`, `mission-internationale`, `Préservation, Patrimoine`, `Prévention, Sensibilisation`, `ramassage-dechets`, `recrutement`, `responsabilites-associatives`, `sante-soins`, `Secours, Aide`, `secourisme`, `sensibilisation`, `soins-animaux`, `Soutien, Accompagnement`, `soutien-scolaire`, `sport`, `taches-administratives`, `Transmission, Pédagogie`, `visites`.
+
+            > Une demande d'ajout de valeur peut être faite auprès de l'équipe API Engagement.
+          example: ["animation", "lutte-contre-isolement"]
         tags:
           type: array
           items:
             type: string
-          description: Tags libres
-        tasks:
-          type: array
-          items:
-            type: string
-          description: Tâches à réaliser
+          description: |
+            Mots-clés personnalisés pour taguer la mission. Chaque élément du tableau est un tag distinct.
+          example: ["Ecologie", "Sport", "Solidarité"]
         audience:
           type: array
           items:
             type: string
-          description: Publics visés
-          example: ["seniors", "personnes-isolees"]
+          description: |
+            Les bénéficiaires de la mission — à qui la mission s'adresse, le public auquel sera confronté la personne qui s'engage.
+          example: ["Tous publics"]
         requirements:
           type: array
           items:
             type: string
-          description: Prérequis
+          description: Pré-requis relatifs à la mission.
+          example: ["Niveau d'étude : BAC+2", "Connaissance de langue anglaise"]
         softSkills:
           type: array
           items:
             type: string
-          description: Compétences comportementales
+          description: |
+            Les compétences générales requises pour la mission. Ce champ ne repose pas sur un référentiel de compétence structuré.
+          example: ["Écoute active", "Communication orale"]
         romeSkills:
           type: array
           items:
             type: string
-          description: Codes ROME des compétences requises
+          description: |
+            Code OGR Macro du ROME 4.0. Ce champ repose sur le référentiel "Arborescence simplifiée des compétences" (section "Arborescence du ROME").
+          example: ["300412", "300361"]
         remote:
           type: string
           nullable: true
           enum: [no, possible, full, null]
-          description: Modalité de télétravail
+          description: "Disponibilité en distanciel. Valeurs possibles : `no` (présentiel uniquement), `possible` (distanciel possible), `full` (100% distanciel)"
           example: "no"
         schedule:
           type: string
           nullable: true
-          description: Rythme d'engagement (texte libre)
-          example: "2 heures par semaine le samedi matin"
+          description: Rythme de la mission (texte libre)
+          example: "2 heures par semaine"
         startAt:
           type: string
           nullable: true
           format: date-time
-          description: Date de début
+          description: "Date de début de la mission souhaitée. Format ISO 8601. Défaut : now()"
+          example: "2024-09-01T00:00:00.000Z"
         endAt:
           type: string
           nullable: true
           format: date-time
-          description: Date de fin
-        priority:
+          description: "Date de fin de la mission souhaitée. Format ISO 8601. Défaut : now()"
+          example: "2025-06-30T00:00:00.000Z"
+        postedAt:
           type: string
           nullable: true
-          description: Priorité d'affichage
+          format: date-time
+          description: "Date de première publication de la mission. Format ISO 8601."
+          example: "2024-06-15T09:00:00.000Z"
         places:
           type: integer
           nullable: true
-          description: Nombre de places disponibles
+          minimum: 1
+          default: 1
+          description: |
+            Nombre de places disponibles pour la mission. Ce nombre doit être mis à jour dès qu'il évolue dans votre système afin que l'API Engagement dispose toujours de la donnée la plus récente.
           example: 5
         compensationAmount:
           type: number
           nullable: true
-          description: Montant de la rémunération ou indemnité
+          description: Montant de l'indemnisation perçue par le bénévole ou le volontaire.
+          example: 10
         compensationUnit:
           type: string
           nullable: true
           enum: [hour, day, month, year, null]
-          description: Unité de la rémunération
+          description: "Période de l'indemnisation pour le montant fourni. Valeurs possibles : `year`, `month`, `day`, `hour`"
         compensationType:
           type: string
           nullable: true
           enum: [gross, net, null]
-          description: Type de rémunération (brut ou net)
+          description: "Type d'indemnisation. Valeurs possibles : `gross` (brut), `net` (net)"
         addresses:
           type: array
           items:
             $ref: "#/components/schemas/Address"
-          description: Lieux d'exercice de la mission
+          description: |
+            Ensemble des localisations où se déroule la mission. Si la mission se tient dans plusieurs lieux, renseignez autant d'objets que de localisations. Pour une mission en lieu unique, le tableau ne contient qu'un seul objet.
+          example:
+            - street: "12 rue de la Paix"
+              postalCode: "75001"
+              city: "Paris"
+              departmentCode: "75"
+              departmentName: "Paris"
+              region: "Île-de-France"
+              country: "France"
         type:
           type: string
           nullable: true
           enum: [benevolat, volontariat_service_civique, volontariat_sapeurs_pompiers, volontariat_reserve_operationnelle, null]
-          description: Type d'engagement
+          description: Type de mission d'engagement
         organizationClientId:
           type: string
           nullable: true
-          description: Identifiant de l'organisation dans votre système
+          description: Identifiant de l'organisation dans votre système. L'organisation désigne l'entité qui accueille le bénévole ou le volontaire.
         organizationName:
           type: string
           nullable: true
-          description: Nom de l'organisation porteuse
+          description: "Nom de l'organisation. Requis si un autre champ `organization*` est renseigné."
           example: "Croix-Rouge française"
         organizationDescription:
           type: string
           nullable: true
-          description: Description de l'organisation
+          description: Description de l'organisation.
         organizationUrl:
           type: string
           nullable: true
           format: uri
-          description: Site web de l'organisation
+          description: Lien de l'organisation (ex. page de présentation sur votre site).
         organizationType:
           type: string
           nullable: true
-          description: Type d'organisation
+          description: Type de l'organisation.
+          example: "Association déclarée"
         organizationLogo:
           type: string
           nullable: true
           format: uri
-          description: URL du logo de l'organisation
+          description: URL de l'image de l'organisation.
         organizationRNA:
           type: string
           nullable: true
-          description: Numéro RNA de l'association
-          example: "W123456789"
+          description: Numéro RNA de l'organisation. Uniquement valable pour les organisations de type association.
+          example: "W353002476"
         organizationSiren:
           type: string
           nullable: true
-          description: Numéro SIREN
-          example: "123456789"
+          description: SIREN de l'organisation.
+          example: "339863417"
         organizationSiret:
           type: string
           nullable: true
-          description: Numéro SIRET
-          example: "12345678900012"
+          description: SIRET de l'organisation.
+          example: "33986341700418"
         organizationFullAddress:
           type: string
           nullable: true
-          description: Adresse complète de l'organisation
+          description: Adresse de l'organisation. Pas de format strict attendu (contrairement à l'adresse de la mission).
         organizationPostCode:
           type: string
           nullable: true
+          description: Code postal de l'organisation.
+          example: "94170"
         organizationCity:
           type: string
           nullable: true
+          description: Ville de l'organisation.
+          example: "Le Perreux-sur-Marne"
         organizationStatusJuridique:
           type: string
           nullable: true
-          description: Forme juridique de l'organisation
+          description: Statut juridique de l'organisation.
         organizationBeneficiaries:
           type: array
           items:
             type: string
             nullable: true
-          description: Bénéficiaires de l'organisation
+          description: Bénéficiaires de l'organisation.
         organizationActions:
           type: array
           items:
             type: string
             nullable: true
-          description: Actions de l'organisation
+          description: Principales actions menées par l'organisation.
+          example: ["Animation", "Valorisation", "Préservation"]
         organizationReseaux:
           type: array
           items:
             type: string
             nullable: true
-          description: Réseaux auxquels appartient l'organisation
+          description: Réseau de l'organisation. Ce champ sert à renseigner les organisations ayant des antennes locales et dépendant d'un réseau national.
         createdAt:
           type: string
           format: date-time
@@ -359,7 +408,6 @@ components:
           format: date-time
           description: Date de suppression (soft delete)
 
-
     # ── Mission (réponse v2 — avec champs booléens) ────────────────────────────
     MissionV2:
       description: Mission bénévole ou civique (format v2, étend Mission)
@@ -370,15 +418,15 @@ components:
             openToMinors:
               type: boolean
               nullable: true
-              description: La mission est ouverte aux mineurs
+              description: Mission ouverte aux mineurs.
             reducedMobilityAccessible:
               type: boolean
               nullable: true
-              description: La mission est accessible aux personnes à mobilité réduite
+              description: Mission accessible aux personnes à mobilité réduite.
             closeToTransport:
               type: boolean
               nullable: true
-              description: La mission est à proximité des transports en commun
+              description: Mission proche des transports en commun.
 
     # ── Mission (réponse v0 — format legacy) ──────────────────────────────────
     MissionLegacy:
@@ -388,7 +436,7 @@ components:
           description: |
             Mission au format legacy (v0). Quelques différences par rapport au format v2 :
             - "openToMinors" et "reducedMobilityAccessible" sont retournés comme chaînes ""true"" / ""false""
-            - Champs supplémentaires : "_id", "activity" (concaténation), "domainLogo", "publisherName", "publisherUrl", "publisherLogo", "postedAt", "duration", "snu", "snuPlaces", "metadata"
+            - Champs supplémentaires : "_id", "activity" (concaténation), "domainLogo", "publisherName", "publisherUrl", "publisherLogo", "postedAt", "duration", "metadata"
             - Champ de modération JVA : "moderation_5f5931496c7ea514150a818f_status", "moderation_5f5931496c7ea514150a818f_comment"
           properties:
             _id:
@@ -433,14 +481,6 @@ components:
               type: integer
               nullable: true
               description: Durée de la mission en heures
-            snu:
-              type: boolean
-              nullable: true
-              description: Mission ouverte au Service National Universel
-            snuPlaces:
-              type: integer
-              nullable: true
-              description: Nombre de places SNU
             location:
               type: object
               nullable: true
@@ -750,7 +790,6 @@ components:
 # ──────────────────────────────────────────────────────────────────────────────
 
 paths:
-
   # ────────────────────────────────────────────────────────────────────────────
   # v2 — Missions
   # ────────────────────────────────────────────────────────────────────────────
@@ -778,7 +817,7 @@ paths:
               properties:
                 clientId:
                   type: string
-                  description: Identifiant unique de la mission dans votre système (immuable)
+                  description: Identifiant unique de la mission dans votre système d'information (immuable)
                   example: "mission-2024-001"
                 title:
                   type: string
@@ -786,130 +825,217 @@ paths:
                   example: "Animateur bénévole en maison de retraite"
                 description:
                   type: string
-                  description: Description complète (minimum 300 caractères recommandé pour la modération)
+                  description: |
+                    Description complète de la mission. Texte brut ou HTML acceptés, stockés tels quels.
+
+                    **Recommandations** :
+                    - Utiliser le format HTML pour une meilleure lisibilité lors de la diffusion (sauts de ligne, gras, listes)
+                    - Structurer en plusieurs sections pour agréger des informations provenant de champs différents dans votre système
+                    - La description est limitée à 20 000 caractères
+                  example: "<p><strong>EN QUELQUES MOTS</strong></p><p>Favoriser la mixité au sein du club</p><p><strong>VOTRE MISSION DE SERVICE CIVIQUE</strong></p><p><u>Objectifs</u></p><ul><li>Développer la féminisation et favoriser l'accès à la pratique du football des jeunes filles</li></ul><p><u>Actions</u></p><ul><li>Accompagner les éducateurs dans le projet éducatif féminin</li><li>Mettre en place des actions en faveur de la mixité</li><li>Sensibiliser les jeunes filles éloignées de la pratique sportive</li></ul>"
                 applicationUrl:
                   type: string
                   format: uri
-                  description: URL de candidature
+                  description: URL de la page où l'utilisateur sera redirigé pour candidater (URL de la page présentant la mission)
+                  example: "https://www.example.org/missions/animateur-maison-retraite"
+                image:
+                  type: string
+                  format: uri
+                  description: URL de l'image de la mission. Si absent, l'API Engagement utilise une image de sa bibliothèque selon le domaine.
+                metadata:
+                  type: string
+                  description: Métadonnées libres associées à la mission.
                 domain:
                   type: string
-                  description: Domaine d'action
+                  description: |
+                    Domaine d'action de la mission. Valeurs possibles :
+                    `environnement`, `solidarite-insertion`, `prevention-protection`, `sante`, `culture-loisirs`, `education`, `emploi`, `sport`, `humanitaire`, `animaux`, `vivre-ensemble`, `memoire-et-citoyennete`, `benevolat-competences`, `autre`.
+
+                    > Une demande d'ajout de valeur peut être faite auprès de l'équipe API Engagement.
                   example: "sante"
                 activities:
                   type: array
                   items:
                     type: string
-                  example: ["animation", "accompagnement"]
+                  description: |
+                    Activité(s) principale(s) de la mission. Valeurs possibles :
+                    `accueil-de-public`, `aide-psychologique`, `activites-manuelles`, `alphabetisation`, `animation`, `Animation, Valorisation`, `art`, `autre`, `bricolage`, `collecte`, `communication`, `comptabilite-finance`, `conseil`, `distribution`, `documentation-traduction`, `ecoute-permanence`, `encadrement-d-equipes`, `enseignement-formation`, `gestion-de-projets`, `gestion-recherche-des-partenariats`, `informatique`, `jardinage`, `juridique`, `logistique`, `lutte-contre-isolement`, `Médiation, Information`, `mentorat-parrainage`, `mission-internationale`, `Préservation, Patrimoine`, `Prévention, Sensibilisation`, `ramassage-dechets`, `recrutement`, `responsabilites-associatives`, `sante-soins`, `Secours, Aide`, `secourisme`, `sensibilisation`, `soins-animaux`, `Soutien, Accompagnement`, `soutien-scolaire`, `sport`, `taches-administratives`, `Transmission, Pédagogie`, `visites`.
+
+                    > Une demande d'ajout de valeur peut être faite auprès de l'équipe API Engagement.
+                  example: ["animation", "lutte-contre-isolement"]
                 tags:
                   type: array
                   items:
                     type: string
-                tasks:
-                  type: array
-                  items:
-                    type: string
+                  description: Mots-clés personnalisés pour taguer la mission. Chaque élément du tableau est un tag distinct.
+                  example: ["Ecologie", "Sport", "Solidarité"]
                 audience:
                   type: array
                   items:
                     type: string
+                  description: |
+                    Les bénéficiaires de la mission — à qui la mission s'adresse, le public auquel sera confronté la personne qui s'engage.
+                  example: ["Tous publics"]
                 requirements:
                   type: array
                   items:
                     type: string
+                  description: Pré-requis relatifs à la mission.
+                  example: ["Niveau d'étude : BAC+2", "Connaissance de langue anglaise"]
                 softSkills:
                   type: array
                   items:
                     type: string
+                  description: |
+                    Les compétences générales requises pour la mission. Ce champ ne repose pas sur un référentiel de compétence structuré.
+                  example: ["Écoute active", "Communication orale"]
                 romeSkills:
                   type: array
                   items:
                     type: string
+                  description: |
+                    Code OGR Macro du ROME 4.0. Ce champ repose sur le référentiel "Arborescence simplifiée des compétences" (section "Arborescence du ROME").
+                  example: ["300412", "300361"]
                 remote:
                   type: string
                   enum: [no, possible, full]
+                  description: "Disponibilité en distanciel. Valeurs possibles : `no` (présentiel uniquement), `possible` (distanciel possible), `full` (100% distanciel)"
+                  example: "no"
                 schedule:
                   type: string
+                  description: Rythme de la mission (texte libre)
                   example: "2 heures par semaine"
                 startAt:
                   type: string
                   format: date-time
+                  description: "Date de début de la mission souhaitée. Format ISO 8601. Défaut : now()"
+                  example: "2024-09-01T00:00:00.000Z"
                 endAt:
                   type: string
                   format: date-time
-                priority:
+                  description: "Date de fin de la mission souhaitée. Format ISO 8601. Défaut : now()"
+                  example: "2025-06-30T00:00:00.000Z"
+                postedAt:
                   type: string
+                  format: date-time
+                  description: "Date de première publication de la mission. Format ISO 8601."
+                  example: "2024-06-15T09:00:00.000Z"
                 places:
                   type: integer
                   minimum: 1
+                  default: 1
+                  description: |
+                    Nombre de places disponibles pour la mission. Ce nombre doit être mis à jour dès qu'il évolue dans votre système afin que l'API Engagement dispose toujours de la donnée la plus récente.
                 compensationAmount:
                   type: number
+                  description: Montant de l'indemnisation perçue par le bénévole ou le volontaire.
+                  example: 10
                 compensationUnit:
                   type: string
                   enum: [hour, day, month, year]
+                  description: "Période de l'indemnisation pour le montant fourni. Valeurs possibles : `year`, `month`, `day`, `hour`"
                 compensationType:
                   type: string
                   enum: [gross, net]
+                  description: "Type d'indemnisation. Valeurs possibles : `gross` (brut), `net` (net)"
                 openToMinors:
                   type: boolean
+                  description: Mission ouverte aux mineurs.
                 reducedMobilityAccessible:
                   type: boolean
+                  description: Mission accessible aux personnes à mobilité réduite.
                 closeToTransport:
                   type: boolean
+                  description: Mission proche des transports en commun.
                 addresses:
                   type: array
                   items:
                     $ref: "#/components/schemas/Address"
+                  description: |
+                    Ensemble des localisations où se déroule la mission. Si la mission se tient dans plusieurs lieux, renseignez autant d'objets que de localisations. Pour une mission en lieu unique, le tableau ne contient qu'un seul objet.
+                  example:
+                    - street: "12 rue de la Paix"
+                      postalCode: "75001"
+                      city: "Paris"
+                      departmentCode: "75"
+                      departmentName: "Paris"
+                      region: "Île-de-France"
+                      country: "France"
                 type:
                   type: string
                   enum: [benevolat, volontariat_service_civique, volontariat_sapeurs_pompiers, volontariat_reserve_operationnelle]
+                  description: Type de mission d'engagement
                 organizationClientId:
                   type: string
-                  description: Identifiant de l'organisation dans votre système
+                  description: Identifiant de l'organisation dans votre système. L'organisation désigne l'entité qui accueille le bénévole ou le volontaire.
                 organizationName:
                   type: string
-                  description: Requis si un autre champ "organization*" est renseigné
+                  description: "Nom de l'organisation. Requis si un autre champ `organization*` est renseigné."
                 organizationDescription:
                   type: string
+                  description: Description de l'organisation.
                 organizationUrl:
                   type: string
                   format: uri
+                  description: Lien de l'organisation (ex. page de présentation sur votre site).
                 organizationType:
                   type: string
+                  description: Type de l'organisation.
+                  example: "Association déclarée"
                 organizationLogo:
                   type: string
                   format: uri
+                  description: URL de l'image de l'organisation.
                 organizationRNA:
                   type: string
+                  description: Numéro RNA de l'organisation. Uniquement valable pour les organisations de type association.
+                  example: "W353002476"
                 organizationSiren:
                   type: string
+                  description: SIREN de l'organisation.
+                  example: "339863417"
                 organizationSiret:
                   type: string
+                  description: SIRET de l'organisation.
+                  example: "33986341700418"
                 organizationFullAddress:
                   type: string
+                  description: Adresse de l'organisation. Pas de format strict attendu (contrairement à l'adresse de la mission).
                 organizationPostCode:
                   type: string
+                  description: Code postal de l'organisation.
+                  example: "94170"
                 organizationCity:
                   type: string
-                organizationDepartment:
-                  type: string
+                  description: Ville de l'organisation.
+                  example: "Le Perreux-sur-Marne"
                 organizationDepartmentCode:
                   type: string
+                  description: Code du département de l'organisation.
+                  example: "94"
                 organizationDepartmentName:
                   type: string
+                  description: Nom du département de l'organisation.
+                  example: "Val de Marne"
                 organizationStatusJuridique:
                   type: string
+                  description: Statut juridique de l'organisation.
                 organizationBeneficiaries:
                   type: array
                   items:
                     type: string
+                  description: Bénéficiaires de l'organisation.
                 organizationActions:
                   type: array
                   items:
                     type: string
+                  description: Principales actions menées par l'organisation.
+                  example: ["Animation", "Valorisation", "Préservation"]
                 organizationReseaux:
                   type: array
                   items:
                     type: string
+                  description: Réseau de l'organisation. Ce champ sert à renseigner les organisations ayant des antennes locales et dépendant d'un réseau national.
       responses:
         "201":
           description: Mission créée
@@ -961,119 +1087,210 @@ paths:
               properties:
                 title:
                   type: string
+                  description: Titre de la mission
+                  example: "Animateur bénévole en maison de retraite"
                 description:
                   type: string
+                  description: |
+                    Description complète de la mission. Texte brut ou HTML acceptés, stockés tels quels.
+
+                    **Recommandations** :
+                    - Utiliser le format HTML pour une meilleure lisibilité lors de la diffusion (sauts de ligne, gras, listes)
+                    - Structurer en plusieurs sections pour agréger des informations provenant de champs différents dans votre système
+                    - La description est limitée à 20 000 caractères
+                  example: "<p><strong>EN QUELQUES MOTS</strong></p><p>Favoriser la mixité au sein du club</p><p><strong>VOTRE MISSION DE SERVICE CIVIQUE</strong></p><p><u>Objectifs</u></p><ul><li>Développer la féminisation et favoriser l'accès à la pratique du football des jeunes filles</li></ul><p><u>Actions</u></p><ul><li>Accompagner les éducateurs dans le projet éducatif féminin</li><li>Mettre en place des actions en faveur de la mixité</li><li>Sensibiliser les jeunes filles éloignées de la pratique sportive</li></ul>"
                 applicationUrl:
                   type: string
                   format: uri
+                  description: URL de la page où l'utilisateur sera redirigé pour candidater (URL de la page présentant la mission)
+                  example: "https://www.example.org/missions/animateur-maison-retraite"
+                image:
+                  type: string
+                  format: uri
+                  description: URL de l'image de la mission. Si absent, l'API Engagement utilise une image de sa bibliothèque selon le domaine.
+                metadata:
+                  type: string
+                  description: Métadonnées libres associées à la mission.
                 domain:
                   type: string
+                  description: |
+                    Domaine d'action de la mission. Valeurs possibles :
+                    `environnement`, `solidarite-insertion`, `prevention-protection`, `sante`, `culture-loisirs`, `education`, `emploi`, `sport`, `humanitaire`, `animaux`, `vivre-ensemble`, `memoire-et-citoyennete`, `benevolat-competences`, `autre`.
+
+                    > Une demande d'ajout de valeur peut être faite auprès de l'équipe API Engagement.
+                  example: "sante"
                 activities:
                   type: array
                   items:
                     type: string
+                  description: |
+                    Activité(s) principale(s) de la mission. Valeurs possibles :
+                    `accueil-de-public`, `aide-psychologique`, `activites-manuelles`, `alphabetisation`, `animation`, `Animation, Valorisation`, `art`, `autre`, `bricolage`, `collecte`, `communication`, `comptabilite-finance`, `conseil`, `distribution`, `documentation-traduction`, `ecoute-permanence`, `encadrement-d-equipes`, `enseignement-formation`, `gestion-de-projets`, `gestion-recherche-des-partenariats`, `informatique`, `jardinage`, `juridique`, `logistique`, `lutte-contre-isolement`, `Médiation, Information`, `mentorat-parrainage`, `mission-internationale`, `Préservation, Patrimoine`, `Prévention, Sensibilisation`, `ramassage-dechets`, `recrutement`, `responsabilites-associatives`, `sante-soins`, `Secours, Aide`, `secourisme`, `sensibilisation`, `soins-animaux`, `Soutien, Accompagnement`, `soutien-scolaire`, `sport`, `taches-administratives`, `Transmission, Pédagogie`, `visites`.
+
+                    > Une demande d'ajout de valeur peut être faite auprès de l'équipe API Engagement.
+                  example: ["animation", "lutte-contre-isolement"]
                 tags:
                   type: array
                   items:
                     type: string
-                tasks:
-                  type: array
-                  items:
-                    type: string
+                  description: Mots-clés personnalisés pour taguer la mission. Chaque élément du tableau est un tag distinct.
+                  example: ["Ecologie", "Sport", "Solidarité"]
                 audience:
                   type: array
                   items:
                     type: string
+                  description: |
+                    Les bénéficiaires de la mission — à qui la mission s'adresse, le public auquel sera confronté la personne qui s'engage.
+                  example: ["Tous publics"]
                 requirements:
                   type: array
                   items:
                     type: string
+                  description: Pré-requis relatifs à la mission.
+                  example: ["Niveau d'étude : BAC+2", "Connaissance de langue anglaise"]
                 softSkills:
                   type: array
                   items:
                     type: string
+                  description: |
+                    Les compétences générales requises pour la mission. Ce champ ne repose pas sur un référentiel de compétence structuré.
+                  example: ["Écoute active", "Communication orale"]
                 romeSkills:
                   type: array
                   items:
                     type: string
+                  description: |
+                    Code OGR Macro du ROME 4.0. Ce champ repose sur le référentiel "Arborescence simplifiée des compétences" (section "Arborescence du ROME").
+                  example: ["300412", "300361"]
                 remote:
                   type: string
                   enum: [no, possible, full]
+                  description: "Disponibilité en distanciel. Valeurs possibles : `no` (présentiel uniquement), `possible` (distanciel possible), `full` (100% distanciel)"
+                  example: "no"
                 schedule:
                   type: string
+                  description: Rythme de la mission (texte libre)
+                  example: "2 heures par semaine"
                 startAt:
                   type: string
                   format: date-time
+                  description: "Date de début de la mission souhaitée. Format ISO 8601. Défaut : now()"
+                  example: "2024-09-01T00:00:00.000Z"
                 endAt:
                   type: string
                   format: date-time
-                priority:
+                  description: "Date de fin de la mission souhaitée. Format ISO 8601. Défaut : now()"
+                  example: "2025-06-30T00:00:00.000Z"
+                postedAt:
                   type: string
+                  format: date-time
+                  description: "Date de première publication de la mission. Format ISO 8601."
+                  example: "2024-06-15T09:00:00.000Z"
                 places:
                   type: integer
                   minimum: 1
                 compensationAmount:
                   type: number
+                  description: Montant de l'indemnisation perçue par le bénévole ou le volontaire.
+                  example: 10
                 compensationUnit:
                   type: string
                   enum: [hour, day, month, year]
+                  description: "Période de l'indemnisation pour le montant fourni. Valeurs possibles : `year`, `month`, `day`, `hour`"
                 compensationType:
                   type: string
                   enum: [gross, net]
+                  description: "Type d'indemnisation. Valeurs possibles : `gross` (brut), `net` (net)"
                 openToMinors:
                   type: boolean
+                  description: Mission ouverte aux mineurs.
                 reducedMobilityAccessible:
                   type: boolean
+                  description: Mission accessible aux personnes à mobilité réduite.
                 closeToTransport:
                   type: boolean
+                  description: Mission proche des transports en commun.
                 addresses:
                   type: array
                   items:
                     $ref: "#/components/schemas/Address"
+                  description: |
+                    Ensemble des localisations où se déroule la mission. Si la mission se tient dans plusieurs lieux, renseignez autant d'objets que de localisations. Pour une mission en lieu unique, le tableau ne contient qu'un seul objet.
+                  example:
+                    - street: "12 rue de la Paix"
+                      postalCode: "75001"
+                      city: "Paris"
+                      departmentCode: "75"
+                      departmentName: "Paris"
+                      region: "Île-de-France"
+                      country: "France"
                 type:
                   type: string
                   enum: [benevolat, volontariat_service_civique, volontariat_sapeurs_pompiers, volontariat_reserve_operationnelle]
+                  description: Type de mission d'engagement
                 organizationClientId:
                   type: string
+                  description: Identifiant de l'organisation dans votre système. L'organisation désigne l'entité qui accueille le bénévole ou le volontaire.
                 organizationName:
                   type: string
-                  description: Requis si un autre champ "organization*" est renseigné
+                  description: "Nom de l'organisation. Requis si un autre champ `organization*` est renseigné."
                 organizationDescription:
                   type: string
+                  description: Description de l'organisation.
                 organizationUrl:
                   type: string
                   format: uri
+                  description: Lien de l'organisation (ex. page de présentation sur votre site).
                 organizationType:
                   type: string
+                  description: Type de l'organisation.
+                  example: "Association déclarée"
                 organizationLogo:
                   type: string
                   format: uri
+                  description: URL de l'image de l'organisation.
                 organizationRNA:
                   type: string
+                  description: Numéro RNA de l'organisation. Uniquement valable pour les organisations de type association.
+                  example: "W353002476"
                 organizationSiren:
                   type: string
+                  description: SIREN de l'organisation.
+                  example: "339863417"
                 organizationSiret:
                   type: string
+                  description: SIRET de l'organisation.
+                  example: "33986341700418"
                 organizationFullAddress:
                   type: string
+                  description: Adresse de l'organisation. Pas de format strict attendu (contrairement à l'adresse de la mission).
                 organizationPostCode:
                   type: string
+                  description: Code postal de l'organisation.
+                  example: "94170"
                 organizationCity:
                   type: string
+                  description: Ville de l'organisation.
+                  example: "Le Perreux-sur-Marne"
                 organizationStatusJuridique:
                   type: string
+                  description: Statut juridique de l'organisation.
                 organizationBeneficiaries:
                   type: array
                   items:
                     type: string
+                  description: Bénéficiaires de l'organisation.
                 organizationActions:
                   type: array
                   items:
                     type: string
+                  description: Principales actions menées par l'organisation.
+                  example: ["Animation", "Valorisation", "Préservation"]
                 organizationReseaux:
                   type: array
                   items:
                     type: string
+                  description: Réseau de l'organisation. Ce champ sert à renseigner les organisations ayant des antennes locales et dépendant d'un réseau national.
       responses:
         "200":
           description: Mission mise à jour
@@ -1484,12 +1701,6 @@ paths:
             type: string
             enum: ["true", "false", "yes", "no", "1", "0"]
           description: Missions accessibles PMR uniquement
-        - name: snu
-          in: query
-          schema:
-            type: string
-            enum: ["true", "false"]
-          description: Missions Service National Universel uniquement
         - name: startAt
           in: query
           schema:
