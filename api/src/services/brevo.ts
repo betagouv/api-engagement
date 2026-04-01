@@ -26,7 +26,7 @@ interface EmailBody {
 
 export const TEMPLATE_IDS = {
   INVITATION: 1,
-  RESET_PASSWORD: 5,
+  FORGOT_PASSWORD: 5,
 };
 
 const api = async (path: string, body = {}, method = "POST"): Promise<{ ok: boolean; data: any }> => {

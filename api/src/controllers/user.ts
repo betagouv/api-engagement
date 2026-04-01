@@ -345,7 +345,7 @@ router.post("/forgot-password", async (req: UserRequest, res: Response, next: Ne
         forgotPasswordExpiresAt: new Date(Date.now() + FORGET_PASSWORD_EXPIRATION),
       });
 
-      await sendTemplate(TEMPLATE_IDS.RESET_PASSWORD, {
+      await sendTemplate(TEMPLATE_IDS.FORGOT_PASSWORD, {
         emailTo: [body.data.email],
         params: { link: `${APP_URL}/reset-password?token=${token}` },
       });
