@@ -464,8 +464,6 @@ sources:
             description: Typologie de mission (benevolat, volontariat…).
           - name: status_code
             description: Statut métier côté application (nullable).
-          - name: organization_client_id
-            description: Identifiant client de l'organisation côté diffuseur (nullable).
           - name: publisher_organization_id
             description: Identifiant de la structure publisher associée à la mission (nullable).
           - name: publisher_id

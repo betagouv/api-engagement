@@ -19,6 +19,7 @@ with last_run as (
 publisher_organizations as (
   select
     id,
+    client_id,
     organization_id,
     updated_at
   from {{ ref('int_publisher_organization') }}
@@ -59,7 +60,7 @@ select
   m.publisher_id,
   m.publisher_organization_id,
   po.organization_id,
-  m.organization_client_id,
+  po.client_id as organization_client_id,
   m.domain_id,
   m.title,
   m.description,
