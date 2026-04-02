@@ -26,10 +26,19 @@ import {
 
 const DEFAULT_TYPES: StatEventType[] = ["click", "print", "apply", "account"];
 
-type PrismaStatEventWithPublishers = Prisma.StatEventGetPayload<{
+type PrismaStatEventWithRelations = Prisma.StatEventGetPayload<{
   include: {
     fromPublisher: { select: { id: true; name: true } };
     toPublisher: { select: { id: true; name: true } };
+    mission: {
+      select: {
+        clientId: true;
+        title: true;
+        domain: { select: { name: true } };
+        publisherOrganization: { select: { id: true; name: true; clientId: true } };
+        addresses: { select: { postalCode: true; departmentName: true } };
+      };
+    };
   };
 }>;
 
@@ -58,14 +67,6 @@ function toPrisma(data: Partial<StatEventRecord>, options: { includeDefaults?: b
     fromPublisherId: includeDefaults ? (data.fromPublisherId ?? "") : data.fromPublisherId,
     toPublisherId: includeDefaults ? (data.toPublisherId ?? "") : data.toPublisherId,
     missionId: data.missionId,
-    missionClientId: data.missionClientId,
-    missionDomain: data.missionDomain,
-    missionTitle: data.missionTitle,
-    missionPostalCode: data.missionPostalCode,
-    missionDepartmentName: data.missionDepartmentName,
-    missionOrganizationId: data.missionOrganizationId,
-    missionOrganizationName: data.missionOrganizationName,
-    missionOrganizationClientId: data.missionOrganizationClientId,
     tag: data.tag,
     tags: includeDefaults ? (data.tags ?? []) : data.tags,
     exportToAnalytics: data.exportToAnalytics,
@@ -74,13 +75,22 @@ function toPrisma(data: Partial<StatEventRecord>, options: { includeDefaults?: b
   return mapped;
 }
 
-function toStatEventRecord(row: PrismaStatEventWithPublishers): StatEventRecord {
-  const { fromPublisher, toPublisher, id, ...rest } = row;
+function toStatEventRecord(row: PrismaStatEventWithRelations): StatEventRecord {
+  const { fromPublisher, toPublisher, mission, id, ...rest } = row;
+  const primaryAddress = mission?.addresses?.[0];
 
   return {
     _id: id,
     fromPublisherName: fromPublisher?.name,
     toPublisherName: toPublisher?.name,
+    missionClientId: mission?.clientId,
+    missionDomain: mission?.domain?.name ?? undefined,
+    missionTitle: mission?.title,
+    missionPostalCode: primaryAddress?.postalCode ?? undefined,
+    missionDepartmentName: primaryAddress?.departmentName ?? undefined,
+    missionOrganizationId: mission?.publisherOrganization?.id ?? undefined,
+    missionOrganizationName: mission?.publisherOrganization?.name ?? undefined,
+    missionOrganizationClientId: mission?.publisherOrganization?.clientId ?? undefined,
     ...rest,
   } as StatEventRecord;
 }
@@ -96,12 +106,12 @@ async function updateStatEvent(id: string, patch: Partial<StatEventRecord>) {
 }
 
 async function findOneStatEventById(id: string): Promise<StatEventRecord | null> {
-  const result = (await statEventRepository.findUnique({ where: { id } })) as PrismaStatEventWithPublishers | null;
+  const result = (await statEventRepository.findUnique({ where: { id } })) as PrismaStatEventWithRelations | null;
   return result ? toStatEventRecord(result) : null;
 }
 
 async function findOneStatEventByLegacyId(esId: string): Promise<StatEventRecord | null> {
-  const result = (await statEventRepository.findUnique({ where: { esId } })) as PrismaStatEventWithPublishers | null;
+  const result = (await statEventRepository.findUnique({ where: { esId } })) as PrismaStatEventWithRelations | null;
   return result ? toStatEventRecord(result) : null;
 }
 
@@ -113,7 +123,7 @@ async function findOneStatEventByMissionId(missionId: string): Promise<StatEvent
   const result = (await statEventRepository.findFirst({
     where: { missionId },
     orderBy: { createdAt: "desc" },
-  })) as PrismaStatEventWithPublishers | null;
+  })) as PrismaStatEventWithRelations | null;
   return result ? toStatEventRecord(result) : null;
 }
 
@@ -216,7 +226,7 @@ async function findOneStatEventByClientEventId({ clientEventId, toPublisherId, t
 
   const result = (await statEventRepository.findFirst({
     where,
-  })) as PrismaStatEventWithPublishers | null;
+  })) as PrismaStatEventWithRelations | null;
   return result ? toStatEventRecord(result) : null;
 }
 
@@ -301,7 +311,7 @@ async function findStatEvents({ fromPublisherId, toPublisherId, type, sourceId, 
     orderBy: { createdAt: "desc" },
     skip,
     take: size,
-  })) as PrismaStatEventWithPublishers[];
+  })) as PrismaStatEventWithRelations[];
 
   return rows.map(toStatEventRecord);
 }
@@ -580,7 +590,7 @@ async function scrollStatEvents({ type, batchSize = 5000, cursor = null, filters
       where: whereForRows,
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
       take: batchSize,
-    }) as Promise<PrismaStatEventWithPublishers[]>,
+    }) as Promise<PrismaStatEventWithRelations[]>,
     cursor ? Promise.resolve(0) : statEventRepository.count({ where: whereForCount }),
   ]);
 
