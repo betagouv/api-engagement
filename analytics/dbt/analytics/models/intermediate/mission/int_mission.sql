@@ -90,8 +90,8 @@ select
   m.places_status,
   m.deleted_at,
   m.created_at,
-  greatest(m.updated_at, coalesce(po.updated_at, m.updated_at)) as updated_at,
   ma.activity_names as activity,
+  greatest(m.updated_at, coalesce(po.updated_at, m.updated_at)) as updated_at,
   coalesce(d.domain_name, m.domain_original) as domain,
   (m.deleted_at is not null) as is_deleted
 from missions as m
