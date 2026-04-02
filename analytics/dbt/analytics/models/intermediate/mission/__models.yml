@@ -26,6 +26,13 @@ models:
               arguments:
                 to: ref('publisher_organization')
                 field: id
+      - name: organization_id
+        description: Identifiant de l'organisation core dérivé de `publisher_organization` (nullable).
+        tests:
+          - relationships:
+              arguments:
+                to: ref('organization')
+                field: id
       - name: organization_client_id
         description: Identifiant client de l'organisation côté diffuseur (nullable).
       - name: domain

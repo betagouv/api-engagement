@@ -109,8 +109,6 @@ models:
         description: Référence au domaine (`analytics_raw.domain.id`).
       - name: publisher_id
         description: Partenaire/publisher propriétaire de la mission.
-      - name: organization_id
-        description: Organisation rattachée à la mission (nullable).
       - name: organization_client_id
         description: Identifiant client de l'organisation côté diffuseur (nullable).
       - name: publisher_organization_id

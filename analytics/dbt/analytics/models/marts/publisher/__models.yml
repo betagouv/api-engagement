@@ -136,8 +136,12 @@ models:
         description: Statut de vérification global de l'organisation (nullable).
       - name: organization_id
         description: Identifiant de l'organisation core validée lors de la vérification (nullable).
-      - name: organisation_is_rup
-        description: Indique si l'organisation est reconnue d'utilité publique (nullable).
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('organization')
+                field: id
       - name: created_at
         description: Horodatage de création.
       - name: updated_at

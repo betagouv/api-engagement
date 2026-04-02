@@ -38,7 +38,6 @@ select
   parent_organizations,
   verification_status,
   organization_id,
-  organisation_is_rup,
   created_at,
   updated_at
 from source
