@@ -64,10 +64,7 @@ select
   po.legal_status as organization_status_juridique,
   po.beneficiaries as organization_beneficiaries,
   po.actions as organization_actions,
-  po.parent_organizations as organization_reseaux,
-  po.organisation_is_rup
+  po.parent_organizations as organization_reseaux
 from missions as m
 left join publisher_organizations as po
-  on
-    m.publisher_id = po.publisher_id
-    and m.organization_client_id = po.client_id
+  on m.publisher_organization_id = po.id

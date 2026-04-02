@@ -21,7 +21,6 @@ select
   parent_organizations,
   verification_status,
   organization_id,
-  organisation_is_rup,
   created_at,
   updated_at
 from {{ ref('int_publisher_organization') }}

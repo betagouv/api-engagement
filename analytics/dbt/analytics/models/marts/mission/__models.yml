@@ -29,7 +29,7 @@ models:
                 to: ref('publisher_organization')
                 field: id
       - name: organization_id
-        description: Identifiant de l'organization associé à la mission.
+        description: Identifiant de l'organisation associé à la mission, dérivé de `publisher_organization`.
         tests:
           - relationships:
               arguments:
@@ -137,8 +137,6 @@ models:
         description: Liste des actions déclarées (nullable).
       - name: organization_reseaux
         description: Réseaux déclarés (nullable).
-      - name: organisation_is_rup
-        description: Indique si l'organisation est reconnue d'utilité publique (nullable).
   - name: mission_address
     description: >
       Mart des adresses de missions, dérivé du staging `stg_mission_address` pour exposer les localisations associées

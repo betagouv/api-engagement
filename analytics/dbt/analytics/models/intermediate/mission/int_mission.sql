@@ -7,15 +7,33 @@
   ]
 ) }}
 
-with missions as (
-  select *
-  from {{ ref('stg_mission') }}
+with last_run as (
   {% if is_incremental() %}
+    select coalesce(max(updated_at), '1900-01-01'::timestamp) as last_updated_at
+    from {{ this }}
+  {% else %}
+    select '1900-01-01'::timestamp as last_updated_at
+  {% endif %}
+),
+
+publisher_organizations as (
+  select
+    id,
+    organization_id,
+    updated_at
+  from {{ ref('int_publisher_organization') }}
+),
+
+missions as (
+  select m.*
+  from {{ ref('stg_mission') }} as m
+  {% if is_incremental() %}
+    left join publisher_organizations as po
+      on m.publisher_organization_id = po.id
     where
-      updated_at
-      > (
-        select coalesce(max(m.updated_at), '1900-01-01') from {{ this }} as m
-      )
+      m.updated_at > (select lr.last_updated_at from last_run as lr)
+      or coalesce(po.updated_at, '1900-01-01'::timestamp)
+      > (select lr.last_updated_at from last_run as lr)
   {% endif %}
 ),
 
@@ -40,7 +58,7 @@ select
   m.client_id,
   m.publisher_id,
   m.publisher_organization_id,
-  m.organization_id,
+  po.organization_id,
   m.organization_client_id,
   m.domain_id,
   m.title,
@@ -72,10 +90,11 @@ select
   m.places_status,
   m.deleted_at,
   m.created_at,
-  m.updated_at,
   ma.activity_names as activity,
+  greatest(m.updated_at, coalesce(po.updated_at, m.updated_at)) as updated_at,
   coalesce(d.domain_name, m.domain_original) as domain,
   (m.deleted_at is not null) as is_deleted
 from missions as m
+left join publisher_organizations as po on m.publisher_organization_id = po.id
 left join domains as d on m.domain_id = d.domain_id
 left join mission_activities as ma on m.id = ma.mission_id

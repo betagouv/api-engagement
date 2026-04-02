@@ -19,7 +19,6 @@ select
   parent_organizations,
   verification_status,
   organization_id_verified as organization_id,
-  organisation_is_rup::boolean as organisation_is_rup,
   created_at::timestamp as created_at,
   updated_at::timestamp as updated_at
 from {{ source('analytics_raw', 'publisher_organization') }}

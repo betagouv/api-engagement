@@ -240,8 +240,6 @@ sources:
             description: Statut de vérification global (nullable).
           - name: organization_id_verified
             description: Identifiant de l'organisation core validée lors de la vérification (nullable).
-          - name: organisation_is_rup
-            description: Indique si l'organisation est reconnue d'utilité publique (nullable).
           - name: created_at
             description: Timestamp de création de la relation.
           - name: updated_at
@@ -466,8 +464,6 @@ sources:
             description: Typologie de mission (benevolat, volontariat…).
           - name: status_code
             description: Statut métier côté application (nullable).
-          - name: organization_id
-            description: Identifiant de l'organisation liée (nullable).
           - name: organization_client_id
             description: Identifiant client de l'organisation côté diffuseur (nullable).
           - name: publisher_organization_id
