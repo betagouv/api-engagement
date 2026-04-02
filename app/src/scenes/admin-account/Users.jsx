@@ -84,7 +84,7 @@ const Users = () => {
           {filteredUsers.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((item, i) => (
             <tr key={item.id} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
               <td className="table-cell max-w-0">
-                <Link to={`/user/${item.id}`} className="text-blue-france block truncate" title={`${item.firstname} ${item.lastname}`}>
+                <Link to={`/user/${item.id}`} className="text-blue-france block truncate">
                   {item.firstname} {item.lastname}
                 </Link>
               </td>
