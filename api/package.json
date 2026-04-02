@@ -6,6 +6,7 @@
     "scripts": {
         "build": "npm run prisma:generate && npx tsc --build --clean && npx tsc -p tsconfig.build.json && npx tsc-alias -p tsconfig.build.json",
         "dev": "nodemon",
+        "dev:worker": "nodemon --exec \"ts-node src/worker/index.ts\"",
         "start": "npm run build && node dist/index.js",
         "prisma:migrate:dev": "prisma migrate dev",
         "prisma:migrate:deploy": "prisma migrate deploy",
