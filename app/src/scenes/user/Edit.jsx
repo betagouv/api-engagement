@@ -5,6 +5,7 @@ import { RiCloseFill, RiFileCopyFill } from "react-icons/ri";
 import { TiDeleteOutline } from "react-icons/ti";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
+import Checkbox from "@/components/form/Checkbox";
 import LabelledInput from "@/components/form/LabelledInput";
 import LabelledSelect from "@/components/form/LabelledSelect";
 import Loader from "@/components/Loader";
@@ -15,7 +16,7 @@ import { captureError } from "@/services/error";
 import { isValidEmail } from "@/services/utils";
 import { withLegacyPublishers } from "@/utils/publisher";
 
-const TABLE_HEADER = [{ title: "" }, { title: "Nom" }, { title: "Rôles", position: "center" }];
+const TABLE_HEADER = [{ title: "Nom" }, { title: "Rôles", position: "center" }];
 
 const Edit = () => {
   const { id } = useParams();
@@ -183,7 +184,7 @@ const Edit = () => {
             <div className="mb-2 flex flex-wrap gap-2">
               {values.publishers.map((p, i) => (
                 <div key={i} className="bg-blue-france-975 flex items-center rounded p-2">
-                  <span className="text-xs">{publishers.find((pub) => pub.id === p || pub._id === p)?.name}</span>
+                  <span className="text-xs">{publishers.find((pub) => pub.id === p)?.name}</span>
                   <button type="button" className="ml-2" onClick={() => setValues({ ...values, publishers: values.publishers.filter((pub) => pub !== p) })}>
                     <RiCloseFill className="text-xs" aria-hidden="true" />
                   </button>
@@ -193,29 +194,27 @@ const Edit = () => {
           )}
           <Table caption="Partenaires de l'utilisateur" header={TABLE_HEADER} total={filteredPublishers.length} pagination={false} auto className="max-h-96 overflow-y-auto">
             {filteredPublishers.map((item, i) => (
-              <tr key={item.id || item._id} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
+              <tr key={item.id} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
                 <td className="table-cell">
-                  <input
-                    type="checkbox"
-                    className="checkbox"
+                  <Checkbox
+                    id={item.id}
+                    size="sm"
+                    label={item.name}
+                    value={values.publishers.includes(item.id)}
                     onChange={(e) =>
                       setValues({
                         ...values,
-                        publishers: e.target.checked
-                          ? [...values.publishers, (item.id || item._id).toString()]
-                          : values.publishers.filter((pub) => pub !== (item.id || item._id).toString()),
+                        publishers: values.publishers.includes(item.id) ? values.publishers.filter((pub) => pub !== item.id) : [...values.publishers, item.id],
                       })
                     }
-                    checked={values.publishers.includes((item.id || item._id).toString())}
                   />
                 </td>
-                <td className="table-cell">{item.name}</td>
                 <td className="table-cell">
                   <div className="flex flex-wrap justify-center gap-2">
                     {item.isAnnonceur && <span className="bg-red-marianne-950 rounded p-2">Annonceur</span>}
-                    {item.hasApiRights && <span className="bg-success-950 rounded p-2">Diffuseur API</span>}
-                    {item.hasWidgetRights && <span className="bg-success-950 rounded p-2">Diffuseur Widget</span>}
-                    {item.hasCampaignRights && <span className="bg-success-950 rounded p-2">Diffuseur Campagne</span>}
+                    {item.hasApiRights && <span className="bg-green-success-950 rounded p-2">Diffuseur API</span>}
+                    {item.hasWidgetRights && <span className="bg-green-success-950 rounded p-2">Diffuseur Widget</span>}
+                    {item.hasCampaignRights && <span className="bg-green-success-950 rounded p-2">Diffuseur Campagne</span>}
                   </div>
                 </td>
               </tr>
