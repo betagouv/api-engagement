@@ -224,7 +224,7 @@ const Edit = () => {
         </div>
 
         <div className="flex justify-end gap-4">
-          <Link to="/accounts?tab=users" className="tertiary-btn">
+          <Link to="/admin-account" className="tertiary-btn">
             Retour
           </Link>
           <ResetPasswordModal user={user} />

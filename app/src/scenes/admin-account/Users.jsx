@@ -9,12 +9,12 @@ import { captureError } from "@/services/error";
 import { withLegacyPublishers } from "@/utils/publisher";
 
 const TABLE_HEADER = [
-  { title: "Nom", key: "name" },
-  { title: "Email", key: "email" },
-  { title: "Partenaires", key: "publishers", position: "center" },
-  { title: "Rôle", key: "role", position: "center" },
-  { title: "Accès données", key: "createdAt", position: "center" },
-  { title: "Dernière activité", key: "lastActivityAt", position: "center" },
+  { title: "Nom", key: "name", width: "20%" },
+  { title: "Email", key: "email", width: "20%" },
+  { title: "Partenaires", key: "publishers", position: "center", width: "1%" },
+  { title: "Rôle", key: "role", position: "center", width: "10%" },
+  { title: "Accès données", key: "createdAt", position: "center", width: "10%" },
+  { title: "Dernière activité", key: "lastActivityAt", position: "center", width: "10%" },
   { title: "Se connecter en tant que", position: "center" },
 ];
 
@@ -83,12 +83,16 @@ const Users = () => {
         <Table caption="Liste des utilisateurs" header={TABLE_HEADER} total={filteredUsers.length} loading={loading} page={page} pageSize={PAGE_SIZE} onPageChange={setPage} auto>
           {filteredUsers.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((item, i) => (
             <tr key={item.id} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
-              <td className="table-cell">
-                <Link to={`/user/${item.id}`} className="text-blue-france truncate">
+              <td className="table-cell max-w-0">
+                <Link to={`/user/${item.id}`} className="text-blue-france block truncate" title={`${item.firstname} ${item.lastname}`}>
                   {item.firstname} {item.lastname}
                 </Link>
               </td>
-              <td className="table-cell truncate">{item.email}</td>
+              <td className="table-cell max-w-0">
+                <span className="block truncate" title={item.email}>
+                  {item.email}
+                </span>
+              </td>
               <td className="table-cell">
                 <div className="gap-y-.5 flex flex-wrap justify-center gap-x-2 py-1">
                   {item.role === "admin" ? (
