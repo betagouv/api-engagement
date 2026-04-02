@@ -315,7 +315,6 @@ select {
   border-radius: 0 !important;
   border: none;
   color: #000091;
-  padding-top: 6px;
   color: var(--color-blue-france);
 }
 .react-datepicker__day:not(.react-datepicker__day--disabled):hover {

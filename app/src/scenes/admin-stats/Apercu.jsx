@@ -17,8 +17,9 @@ const toEndOfDay = (date) => new Date(date.getFullYear(), date.getMonth(), date.
 
 const buildDefaultFilters = (searchParams) => {
   const now = new Date();
+  const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
   const defaultFrom = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
-  const defaultTo = toEndOfDay(now);
+  const defaultTo = toEndOfDay(yesterday);
 
   const fromValue = searchParams.get("from");
   const toValue = searchParams.get("to");
