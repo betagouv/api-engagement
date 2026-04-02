@@ -5,19 +5,18 @@ import { publisherService } from "@/services/publisher";
 import {
   AggregateMissionStatsParams,
   CountByTypeParams,
-  CountStatEventsByClientEventIdParams,
   CountClicksByPublisherForOrganizationSinceParams,
   CountEventsParams,
+  CountStatEventsByClientEventIdParams,
   FindWarningBotCandidatesParams,
-  HasRecentStatEventWithClientEventIdParams,
   HasRecentStatEventWithClickIdParams,
+  HasRecentStatEventWithClientEventIdParams,
   MissionStatsAggregations,
   ScrollStatEventsParams,
   ScrollStatEventsResult,
   SearchStatEventsParams,
   StatEventMissionStatsSummary,
   StatEventRecord,
-  StatEventSource,
   StatEventType,
   WarningBotAggregationBucket,
   WarningBotAggregations,
@@ -184,12 +183,7 @@ async function hasStatEventWithRecentClickId({ type, clickId, since }: HasRecent
   return total > 0;
 }
 
-async function hasStatEventWithRecentClientEventId({
-  type,
-  clientEventId,
-  toPublisherId,
-  since,
-}: HasRecentStatEventWithClientEventIdParams): Promise<boolean> {
+async function hasStatEventWithRecentClientEventId({ type, clientEventId, toPublisherId, since }: HasRecentStatEventWithClientEventIdParams): Promise<boolean> {
   const total = await statEventRepository.count({
     where: {
       type: type as any,
