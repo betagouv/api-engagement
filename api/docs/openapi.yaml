@@ -2104,9 +2104,6 @@ paths:
                   ok:
                     type: boolean
                     example: true
-                  total:
-                    type: integer
-                    example: 3
                   data:
                     type: array
                     items:
