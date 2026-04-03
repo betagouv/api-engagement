@@ -1,7 +1,7 @@
 import { PublisherDiffusionExclusionRecord } from "./publisher-diffusion-exclusion";
 
 export type WidgetStyle = "carousel" | "page";
-export type WidgetType = "benevolat" | "volontariat";
+export type WidgetType = "benevolat" | "volontariat_service_civique" | "volontariat_sapeurs_pompiers" | "volontariat_reserve_operationnelle";
 export type WidgetRuleCombinator = "and" | "or";
 
 export type WidgetLocation = {

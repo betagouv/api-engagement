@@ -16,7 +16,7 @@ import {
 import { normalizeCollection, normalizeOptionalString } from "@/utils";
 
 type PrismaPublisherWithRelation = Publisher & {
-  diffuseurs?: PublisherDiffusion[];
+  diffuseurs?: (PublisherDiffusion & { diffuseur?: Publisher })[];
   diffusionExclusionsFor?: PublisherDiffusionExclusion[];
   diffusionExclusionsBy?: PublisherDiffusionExclusion[];
 };
@@ -28,11 +28,12 @@ export class PublisherNotFoundError extends Error {
 }
 
 export const publisherService = (() => {
-  const defaultInclude = Object.freeze({ diffuseurs: true }) satisfies Prisma.PublisherInclude;
+  const defaultInclude = Object.freeze({ diffuseurs: { include: { diffuseur: true } } }) satisfies Prisma.PublisherInclude;
 
-  const toDiffusionRecord = (diffusion: PublisherDiffusion): PublisherDiffusionRecord => ({
+  const toDiffusionRecord = (diffusion: PublisherDiffusion & { diffuseur?: Publisher }): PublisherDiffusionRecord => ({
     id: diffusion.id,
     diffuseurPublisherId: diffusion.diffuseurPublisherId,
+    diffuseurPublisherName: diffusion.diffuseur?.name ?? null,
     annonceurPublisherId: diffusion.annonceurPublisherId,
     moderator: diffusion.moderator,
     missionType: (diffusion.missionType as PublisherMissionType) ?? null,
