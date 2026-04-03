@@ -6,6 +6,7 @@
     "scripts": {
         "build": "npm run prisma:generate && npx tsc --build --clean && npx tsc -p tsconfig.build.json && npx tsc-alias -p tsconfig.build.json",
         "dev": "nodemon",
+        "dev:worker": "nodemon --exec \"ts-node src/worker/index.ts\"",
         "start": "npm run build && node dist/index.js",
         "prisma:migrate:dev": "prisma migrate dev",
         "prisma:migrate:deploy": "prisma migrate deploy",
@@ -24,6 +25,7 @@
     },
     "dependencies": {
         "@aws-sdk/client-s3": "3.1009.0",
+        "@aws-sdk/client-sqs": "3.1023.0",
         "@aws-sdk/lib-storage": "3.1009.0",
         "@opentelemetry/exporter-metrics-otlp-http": "0.213.0",
         "@opentelemetry/resources": "2.6.0",
