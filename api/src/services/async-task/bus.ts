@@ -1,7 +1,7 @@
 import { taskRegistry, TaskType } from "@/worker/registry";
 
 export type QueueProvider = {
-  publish(queue: string, message: string): Promise<void>;
+  publish(queueUrl: string, message: string): Promise<void>;
 };
 
 type PublishInput<TType extends TaskType> = {
@@ -17,7 +17,7 @@ export class AsyncTaskBus {
     const parsedPayload = entry.schema.parse(payload);
 
     await this.queueProvider.publish(
-      entry.queue,
+      entry.queueUrl,
       JSON.stringify({
         type,
         payload: parsedPayload,

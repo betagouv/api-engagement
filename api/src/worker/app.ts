@@ -29,6 +29,8 @@ export const buildAsyncWorkerApp = () => {
 
       await entry.handler(payload);
 
+      console.log(`[async-worker] handler ${entry.handler.name} processed`);
+
       return res.status(200).send({ ok: true });
     } catch (error) {
       if (error instanceof z.ZodError) {

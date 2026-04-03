@@ -12,7 +12,7 @@ export const taskEnvelopeSchema = z.object({
 export type TaskEnvelope = z.infer<typeof taskEnvelopeSchema>;
 
 export type TaskRegistryEntry<TSchema extends z.ZodTypeAny = z.ZodTypeAny> = {
-  queue: string;
+  queueUrl: string;
   schema: TSchema;
   handler: (payload: z.infer<TSchema>) => Promise<void>;
 };
