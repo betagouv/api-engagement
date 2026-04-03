@@ -1,6 +1,7 @@
 process.env.TZ = "Europe/Paris";
 
 export const PORT = process.env.PORT || 4000;
+export const PORT_WORKER = process.env.PORT_WORKER || 4001;
 export const ENV = process.env.ENV || "development";
 export const SECRET = process.env.SECRET || "not-so-secret";
 export const IMAGE_VERSION = process.env.IMAGE_VERSION || "unknown";
