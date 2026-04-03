@@ -158,7 +158,7 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
 
         style: zod.enum(["carousel", "page"]).optional(),
         color: zod.string().optional(),
-        type: zod.enum(["benevolat", "volontariat"]).optional(),
+        type: zod.enum(["benevolat", "volontariat_service_civique", "volontariat_sapeurs_pompiers", "volontariat_reserve_operationnelle"]).optional(),
         active: zod.coerce.boolean().optional(),
         publishers: zod.array(zod.string()).optional(),
         jvaModeration: zod.coerce.boolean().optional(),
@@ -246,7 +246,7 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
 
         style: zod.enum(["carousel", "page"]).optional(),
         color: zod.string().optional(),
-        type: zod.enum(["benevolat", "volontariat"]).optional(),
+        type: zod.enum(["benevolat", "volontariat_service_civique", "volontariat_sapeurs_pompiers", "volontariat_reserve_operationnelle"]).optional(),
         active: zod.coerce.boolean().optional(),
         publishers: zod.array(zod.string()).optional(),
         jvaModeration: zod.coerce.boolean().optional(),

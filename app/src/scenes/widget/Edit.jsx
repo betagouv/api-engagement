@@ -7,6 +7,8 @@ import Toggle from "@/components/Toggle";
 import Settings from "@/scenes/widget/components/Settings";
 import api from "@/services/api";
 import { BENEVOLAT_URL, VOLONTARIAT_URL } from "@/services/config";
+
+const getWidgetUrl = (type) => (type === "benevolat" ? BENEVOLAT_URL : VOLONTARIAT_URL);
 import { captureError } from "@/services/error";
 
 const Edit = () => {
@@ -165,7 +167,7 @@ const Frame = ({ widget }) => {
   const handleLoad = (e) => {
     let height;
     const width = e.target.offsetWidth;
-    if (widget.type === "volontariat") {
+    if (widget.type !== "benevolat") {
       if (widget.style === "carousel") {
         if (width < 768) {
           height = "670px";
@@ -218,7 +220,7 @@ const Frame = ({ widget }) => {
         allowFullScreen
         allow="geolocation"
         onLoad={handleLoad}
-        src={`${widget.type === "volontariat" ? VOLONTARIAT_URL : BENEVOLAT_URL}?widget=${widget.id}&notrack=true`}
+        src={`${getWidgetUrl(widget.type)}?widget=${widget.id}&notrack=true`}
       />
     </div>
   );
@@ -229,7 +231,15 @@ const IFRAMES = {
     carousel: `<iframe id="engagement-widget" title="Widget Trouver une mission de bénévolat" border="0" frameborder="0" style="display:block; width:100%; transition: height 0.3s ease;" loading="lazy" allowfullscreen allow="geolocation" src="${BENEVOLAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 768 ? '780px': '686px'"></iframe>`,
     page: `<iframe id="engagement-widget" title="Widget Trouver une mission de bénévolat" border="0" frameborder="0" style="display:block; width:100%; transition: height 0.3s ease;" loading="lazy" allowfullscreen allow="geolocation" src="${BENEVOLAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 640 ? '3424px': this.offsetWidth < 1024 ? '1862px': '1314px'"></iframe>`,
   },
-  volontariat: {
+  volontariat_service_civique: {
+    carousel: `<iframe id="engagement-widget" title="Widget Trouver une mission de volontariat" border="0" frameborder="0" style="display:block; width:100%; transition: height 0.3s ease;" loading="lazy" allowfullscreen allow="geolocation" src="${VOLONTARIAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 768 ? '670px': '600px'"></iframe>`,
+    page: `<iframe id="engagement-widget" title="Widget Trouver une mission de volontariat" border="0" frameborder="0" style="display:block; width:100%; transition: height 0.3s ease;" loading="lazy" allowfullscreen allow="geolocation" src="${VOLONTARIAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 640 ? '2200px': this.offsetWidth < 1024 ? '1350px': '1050px'"></iframe>`,
+  },
+  volontariat_sapeurs_pompiers: {
+    carousel: `<iframe id="engagement-widget" title="Widget Trouver une mission de volontariat" border="0" frameborder="0" style="display:block; width:100%; transition: height 0.3s ease;" loading="lazy" allowfullscreen allow="geolocation" src="${VOLONTARIAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 768 ? '670px': '600px'"></iframe>`,
+    page: `<iframe id="engagement-widget" title="Widget Trouver une mission de volontariat" border="0" frameborder="0" style="display:block; width:100%; transition: height 0.3s ease;" loading="lazy" allowfullscreen allow="geolocation" src="${VOLONTARIAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 640 ? '2200px': this.offsetWidth < 1024 ? '1350px': '1050px'"></iframe>`,
+  },
+  volontariat_reserve_operationnelle: {
     carousel: `<iframe id="engagement-widget" title="Widget Trouver une mission de volontariat" border="0" frameborder="0" style="display:block; width:100%; transition: height 0.3s ease;" loading="lazy" allowfullscreen allow="geolocation" src="${VOLONTARIAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 768 ? '670px': '600px'"></iframe>`,
     page: `<iframe id="engagement-widget" title="Widget Trouver une mission de volontariat" border="0" frameborder="0" style="display:block; width:100%; transition: height 0.3s ease;" loading="lazy" allowfullscreen allow="geolocation" src="${VOLONTARIAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 640 ? '2200px': this.offsetWidth < 1024 ? '1350px': '1050px'"></iframe>`,
   },
