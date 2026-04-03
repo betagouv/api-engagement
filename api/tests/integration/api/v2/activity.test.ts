@@ -116,14 +116,6 @@ describe("Activity V2 controller", () => {
 
       const clickStat = await createClickStat("click-apply", {
         missionId: mission.id,
-        missionClientId: mission.clientId,
-        missionDomain: "mission-domain",
-        missionTitle: mission.title,
-        missionPostalCode: "75001",
-        missionDepartmentName: "Paris",
-        missionOrganizationName: "Mission Org",
-        missionOrganizationId: "mission-org-id",
-        missionOrganizationClientId: "mission-org-client-id",
         toPublisherId: mission.publisherId,
         toPublisherName: mission.publisherName || undefined,
         fromPublisherId: "click-from",
@@ -156,7 +148,6 @@ describe("Activity V2 controller", () => {
         fromPublisherId: clickStat.fromPublisherId,
         toPublisherId: publisher.id,
         missionId: mission.id,
-        missionClientId: mission.clientId,
       });
     });
 

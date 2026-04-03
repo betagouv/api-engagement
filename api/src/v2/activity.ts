@@ -102,14 +102,6 @@ router.post("/", passport.authenticate(["apikey", "api"], { session: false }), a
       }
 
       obj.missionId = mission.id;
-      obj.missionClientId = mission.clientId;
-      obj.missionDomain = mission.domain || undefined;
-      obj.missionTitle = mission.title;
-      obj.missionPostalCode = mission.postalCode || undefined;
-      obj.missionDepartmentName = mission.departmentName || undefined;
-      obj.missionOrganizationName = mission.organizationName || undefined;
-      obj.missionOrganizationId = mission.organizationId || undefined;
-      obj.missionOrganizationClientId = mission.organizationClientId || undefined;
     }
 
     const id = await statEventService.createStatEvent(obj);
