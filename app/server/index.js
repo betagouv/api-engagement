@@ -10,6 +10,14 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 app.use(express.static(path.join(__dirname, "../dist")));
 
+app.get("/.well-known/security.txt", (req, res) => {
+  res.type("text/plain").sendFile(path.join(__dirname, "../dist/.well-known/security.txt"));
+});
+
+app.get("/.well-known/security-policy.txt", (req, res) => {
+  res.type("text/plain").sendFile(path.join(__dirname, "../dist/.well-known/security-policy.txt"));
+});
+
 app.get("/linkedin.xml", function (req, res) {
   res.redirect(301, "https://api-engagement-bucket.s3.fr-par.scw.cloud/xml/linkedin.xml");
 });

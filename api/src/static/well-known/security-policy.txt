@@ -1,0 +1,37 @@
+Politique de divulgation responsable - API Engagement
+======================================================
+
+Objet
+-----
+API Engagement encourage le signalement responsable de toute vulnerabilite de
+securite decouverte sur ses systemes. Nous nous engageons a traiter chaque
+signalement avec serieux et transparence.
+
+Comment signaler
+----------------
+Envoyez votre signalement a : api-engagement@beta.gouv.fr
+
+Merci d'inclure dans votre message :
+- La description du probleme et son impact potentiel
+- Les etapes pour reproduire la vulnerabilite
+- Les composants ou URLs concernes
+- Votre identite (facultative, pour un retour personnalise)
+
+Nos engagements
+---------------
+- Accuse de reception dans les 5 jours ouvres
+- Evaluation et reponse de fond dans les 30 jours
+- Aucune action legale a l'encontre des chercheurs agissant de bonne foi
+  dans le cadre de cette politique
+
+Perimetre concerne
+------------------
+Inclus :
+  - *.api-engagement.beta.gouv.fr
+  - *.bac-a-sable.api-engagement.beta.gouv.fr
+  - Code source public (github.com/betagouv/api-engagement)
+
+Exclus :
+  - Tests automatises agressifs (fuzzing, DoS, scan massif)
+  - Attaques sur les systemes des partenaires
+  - Ingenierie sociale

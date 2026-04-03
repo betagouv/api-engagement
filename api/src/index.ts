@@ -105,6 +105,12 @@ const main = async () => {
   app.get("/impression.js", async (req, res) => {
     res.sendFile(path.join(__dirname, "static/impression.js"));
   });
+  app.get("/.well-known/security.txt", (req, res) => {
+    res.type("text/plain").sendFile(path.join(__dirname, "static/well-known/security.txt"));
+  });
+  app.get("/.well-known/security-policy.txt", (req, res) => {
+    res.type("text/plain").sendFile(path.join(__dirname, "static/well-known/security-policy.txt"));
+  });
 
   // Opened routes
   app.use("/iframe", IframeController);
