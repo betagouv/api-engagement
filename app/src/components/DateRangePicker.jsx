@@ -3,7 +3,7 @@ import fr from "date-fns/locale/fr";
 import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { RiArrowDownSLine, RiArrowLeftSLine, RiArrowRightSLine } from "react-icons/ri";
+import { RiArrowDownSLine, RiArrowLeftSLine, RiArrowRightSLine, RiInformationLine } from "react-icons/ri";
 
 const NOW = new Date();
 const YESTERDAY = new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() - 1);
@@ -69,7 +69,7 @@ export const DateInput = ({ value, onChange }) => {
       <PopoverPanel
         transition
         anchor="bottom"
-        className="border-grey-border divide-grey-border mt-1 origin-top divide-y border bg-white p-10 shadow-lg transition duration-200 ease-out focus:outline-none data-closed:scale-95 data-closed:opacity-0"
+        className="border-grey-border divide-grey-border mt-1 origin-top divide-y border bg-white px-8 pt-6 pb-4 shadow-lg transition duration-200 ease-out focus:outline-none data-closed:scale-95 data-closed:opacity-0"
       >
         <div className="flex gap-6">
           <ul className="m-0 flex w-44 list-none flex-col p-0 text-base" role="list" aria-label="Périodes disponibles">
@@ -138,7 +138,7 @@ export const DateInput = ({ value, onChange }) => {
             onChange={handleChange}
             startDate={from}
             endDate={to}
-            maxDate={NOW}
+            maxDate={YESTERDAY}
             locale={fr}
             selectsRange
             inline
@@ -146,6 +146,10 @@ export const DateInput = ({ value, onChange }) => {
             calendarContainer={DatePickerContainer}
           />
         </div>
+        <p className="text-grey-text flex items-center gap-1 pt-4 text-sm">
+          <RiInformationLine className="shrink-0" aria-hidden="true" />
+          Les données du jour en cours ne sont pas encore disponibles.
+        </p>
       </PopoverPanel>
     </Popover>
   );
