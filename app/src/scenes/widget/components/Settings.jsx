@@ -24,6 +24,11 @@ const toWidgetType = (missionType) => {
   return missionType || "benevolat";
 };
 
+const toMissionTypes = (widgetType) => {
+  if (widgetType === "volontariat") return ["volontariat_service_civique"];
+  return widgetType ? [widgetType] : undefined;
+};
+
 const Settings = ({ widget, values, onChange, loading }) => {
   const { publisher } = useStore();
   const [publishers, setPublishers] = useState([]);
@@ -60,7 +65,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
         try {
           const query = {
             publisherIds: values.publishers,
-            type: values.type ? [values.type] : undefined,
+            type: toMissionTypes(values.type),
             lat: values.location?.lat,
             lon: values.location?.lon,
             distance: values.distance,
