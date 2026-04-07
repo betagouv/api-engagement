@@ -7,9 +7,9 @@ import Toggle from "@/components/Toggle";
 import Settings from "@/scenes/widget/components/Settings";
 import api from "@/services/api";
 import { BENEVOLAT_URL, VOLONTARIAT_URL } from "@/services/config";
+import { captureError } from "@/services/error";
 
 const getWidgetUrl = (type) => (type === "benevolat" ? BENEVOLAT_URL : VOLONTARIAT_URL);
-import { captureError } from "@/services/error";
 
 const Edit = () => {
   const navigate = useNavigate();
@@ -231,7 +231,7 @@ const IFRAMES = {
     carousel: `<iframe id="engagement-widget" title="Widget Trouver une mission de bénévolat" border="0" frameborder="0" style="display:block; width:100%; transition: height 0.3s ease;" loading="lazy" allowfullscreen allow="geolocation" src="${BENEVOLAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 768 ? '780px': '686px'"></iframe>`,
     page: `<iframe id="engagement-widget" title="Widget Trouver une mission de bénévolat" border="0" frameborder="0" style="display:block; width:100%; transition: height 0.3s ease;" loading="lazy" allowfullscreen allow="geolocation" src="${BENEVOLAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 640 ? '3424px': this.offsetWidth < 1024 ? '1862px': '1314px'"></iframe>`,
   },
-  volontariat_service_civique: {
+  volontariat: {
     carousel: `<iframe id="engagement-widget" title="Widget Trouver une mission de volontariat" border="0" frameborder="0" style="display:block; width:100%; transition: height 0.3s ease;" loading="lazy" allowfullscreen allow="geolocation" src="${VOLONTARIAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 768 ? '670px': '600px'"></iframe>`,
     page: `<iframe id="engagement-widget" title="Widget Trouver une mission de volontariat" border="0" frameborder="0" style="display:block; width:100%; transition: height 0.3s ease;" loading="lazy" allowfullscreen allow="geolocation" src="${VOLONTARIAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 640 ? '2200px': this.offsetWidth < 1024 ? '1350px': '1050px'"></iframe>`,
   },

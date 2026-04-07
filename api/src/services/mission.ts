@@ -503,7 +503,10 @@ const buildAggregations = async (where: Prisma.MissionWhereInput): Promise<Missi
         key: row.key,
         doc_count: row.doc_count,
         label: publisher?.name,
-        mission_type: publisher?.missionType ?? "benevolat",
+        mission_type:
+          publisher?.missionType === "volontariat_service_civique"
+            ? "volontariat"
+            : (publisher?.missionType ?? "benevolat"),
       };
     })
     .filter((row) => isNonEmpty(row.key))

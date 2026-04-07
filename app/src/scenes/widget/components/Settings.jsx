@@ -14,9 +14,14 @@ const JVA_ID = "5f5931496c7ea514150a818f";
 
 const MISSION_TYPE_LABELS = {
   benevolat: "Bénévolat",
-  volontariat_service_civique: "Service Civique",
+  volontariat: "Service Civique",
   volontariat_sapeurs_pompiers: "Sapeurs-pompiers",
   volontariat_reserve_operationnelle: "Réserve opérationnelle",
+};
+
+const toWidgetType = (missionType) => {
+  if (missionType === "volontariat_service_civique") return "volontariat";
+  return missionType || "benevolat";
 };
 
 const Settings = ({ widget, values, onChange, loading }) => {
@@ -28,8 +33,8 @@ const Settings = ({ widget, values, onChange, loading }) => {
 
   const availableTypes = useMemo(() => {
     const types = new Set();
-    publisher.publishers.forEach((p) => types.add(p.missionType || "benevolat"));
-    if (publisher.isAnnonceur && publisher.missionType) types.add(publisher.missionType);
+    publisher.publishers.forEach((p) => types.add(toWidgetType(p.missionType)));
+    if (publisher.isAnnonceur && publisher.missionType) types.add(toWidgetType(publisher.missionType));
     return Object.keys(MISSION_TYPE_LABELS).filter((t) => types.has(t));
   }, [publisher]);
 
@@ -38,10 +43,10 @@ const Settings = ({ widget, values, onChange, loading }) => {
     const items = publisher.publishers.map((p) => ({
       key: p.diffuseurPublisherId,
       label: p.diffuseurPublisherName,
-      mission_type: p.missionType || "benevolat",
+      mission_type: toWidgetType(p.missionType),
     }));
     if (publisher.isAnnonceur) {
-      items.push({ key: publisher.id, label: publisher.name, mission_type: publisher.missionType || "benevolat" });
+      items.push({ key: publisher.id, label: publisher.name, mission_type: toWidgetType(publisher.missionType) });
     }
     setPublishers(items);
   }, [loading, publisher]);
