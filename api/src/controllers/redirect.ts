@@ -97,7 +97,7 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
     }
 
     if (query.data.mission) {
-      mission = await missionService.findMissionByClientAndPublisher(query.data.mission, click.toPublisherId || query.data.publisher);
+      mission = await missionService.findMissionByClientAndPublisher(query.data.mission, click.toPublisherId || query.data.publisher || "");
       if (!mission) {
         captureException(new Error(`[Apply] Mission not found`), { extra: { missionId: query.data.mission, publisherId: click.toPublisherId || query.data.publisher } });
       }
@@ -231,7 +231,7 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
     }
 
     if (query.data.mission) {
-      mission = await missionService.findMissionByClientAndPublisher(query.data.mission, click.toPublisherId || query.data.publisher);
+      mission = await missionService.findMissionByClientAndPublisher(query.data.mission, click.toPublisherId || query.data.publisher || "");
       if (!mission) {
         captureException(new Error(`[Account] Mission not found`), { extra: { missionId: query.data.mission, publisherId: click.toPublisherId || query.data.publisher } });
       }
