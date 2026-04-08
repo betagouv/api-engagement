@@ -1,0 +1,208 @@
+import { generateText } from "ai";
+import { Prisma } from "@/db/core";
+
+import { prisma } from "@/db/postgres";
+import { asyncTaskBus } from "@/services/async-task";
+import { CONFIDENCE_THRESHOLD, CURRENT_PROMPT_VERSION } from "./config";
+import { parseEnrichmentResponse, type TaxonomyLookup } from "./parser";
+import { PROMPT_REGISTRY } from "./prompts";
+import type { MissionForPrompt, TaxonomyForPrompt } from "./prompts/v1";
+
+const LOG_PREFIX = "[mission-enrichment]";
+
+const buildTaxonomyLookup = (
+  dimensions: Array<{ key: string; values: Array<{ key: string; id: string }> }>,
+): TaxonomyLookup => {
+  const lookup: TaxonomyLookup = new Map();
+  for (const dim of dimensions) {
+    const valueMap = new Map<string, string>();
+    for (const val of dim.values) {
+      valueMap.set(val.key, val.id);
+    }
+    lookup.set(dim.key, valueMap);
+  }
+  return lookup;
+};
+
+const missionInclude = {
+  domain: { select: { name: true } },
+  activities: { include: { activity: { select: { name: true } } } },
+  publisherOrganization: {
+    include: {
+      organizationVerified: {
+        select: { object: true, socialObject1: true, socialObject2: true },
+      },
+    },
+  },
+} satisfies Prisma.MissionInclude;
+
+type MissionWithRelations = Prisma.MissionGetPayload<{ include: typeof missionInclude }>;
+
+const toMissionForPrompt = (mission: MissionWithRelations): MissionForPrompt => {
+  const org = mission.publisherOrganization;
+  const verifiedOrg = org?.organizationVerified;
+
+  return {
+    title: mission.title,
+    description: mission.description,
+    tasks: mission.tasks,
+    audience: mission.audience,
+    softSkills: mission.softSkills,
+    requirements: mission.requirements,
+    tags: mission.tags,
+    type: mission.type,
+    remote: mission.remote,
+    openToMinors: mission.openToMinors,
+    reducedMobilityAccessible: mission.reducedMobilityAccessible,
+    duration: mission.duration,
+    startAt: mission.startAt,
+    endAt: mission.endAt,
+    schedule: mission.schedule,
+    domainName: mission.domain?.name ?? null,
+    activities: mission.activities.map((a: { activity: { name: string } }) => a.activity.name),
+    organizationName: org?.name ?? null,
+    organizationType: org?.type ?? null,
+    organizationDescription: org?.description ?? null,
+    organizationActions: org?.actions ?? [],
+    organizationBeneficiaries: org?.beneficiaries ?? [],
+    organizationParentOrganizations: org?.parentOrganizations ?? [],
+    organizationObject: verifiedOrg?.object ?? null,
+    organizationSocialObject1: verifiedOrg?.socialObject1 ?? null,
+    organizationSocialObject2: verifiedOrg?.socialObject2 ?? null,
+  };
+};
+
+const toTaxonomyForPrompt = (
+  dimensions: Array<{
+    key: string;
+    label: string;
+    type: string;
+    values: Array<{ key: string; label: string; active: boolean }>;
+  }>,
+): TaxonomyForPrompt =>
+  dimensions.map((dim) => ({
+    key: dim.key,
+    label: dim.label,
+    type: dim.type,
+    values: dim.values.filter((v) => v.active).map((v) => ({ key: v.key, label: v.label })),
+  }));
+
+export const missionEnrichmentService = {
+  async enrich(missionId: string, options: { force?: boolean } = {}) {
+    // 1. Load mission first (needed for idempotence check)
+    const mission = await prisma.mission.findUnique({
+      where: { id: missionId },
+      include: missionInclude,
+    });
+
+    if (!mission) {
+      throw new Error(`${LOG_PREFIX} Mission ${missionId} not found`);
+    }
+
+    // 2. Idempotence check
+    if (!options.force) {
+      const existing = await prisma.missionEnrichment.findFirst({
+        where: {
+          missionId,
+          promptVersion: CURRENT_PROMPT_VERSION,
+          status: "completed",
+        },
+        orderBy: { createdAt: "desc" },
+      });
+
+      if (existing && mission.updatedAt <= existing.createdAt) {
+        console.log(`${LOG_PREFIX} skipping ${missionId} — already enriched for ${CURRENT_PROMPT_VERSION}`);
+        return;
+      }
+    }
+
+    // 3. Load taxonomy
+    const dimensions = await prisma.taxonomy.findMany({
+      include: { values: true },
+      orderBy: { key: "asc" },
+    });
+
+    // 4. Create enrichment record (pending)
+    const enrichment = await prisma.missionEnrichment.create({
+      data: {
+        missionId,
+        promptVersion: CURRENT_PROMPT_VERSION,
+        status: "pending",
+      },
+    });
+
+    try {
+      // 5. Processing
+      await prisma.missionEnrichment.update({
+        where: { id: enrichment.id },
+        data: { status: "processing" },
+      });
+
+      // 6. Build prompts
+      const promptVersion = PROMPT_REGISTRY[CURRENT_PROMPT_VERSION];
+      const taxonomyForPrompt = toTaxonomyForPrompt(dimensions);
+      const systemPrompt = promptVersion.buildSystemPrompt(taxonomyForPrompt);
+      const userMessage = promptVersion.buildUserMessage(toMissionForPrompt(mission));
+
+      // 7. Call LLM
+      const result = await generateText({
+        model: promptVersion.MODEL,
+        system: systemPrompt,
+        prompt: userMessage,
+      });
+
+      // 8. Parse response
+      const taxonomyLookup = buildTaxonomyLookup(dimensions);
+      const { valid, skipped } = parseEnrichmentResponse(result.text, taxonomyLookup, CONFIDENCE_THRESHOLD);
+
+      if (skipped.length > 0) {
+        console.warn(
+          `${LOG_PREFIX} ${missionId}: ${skipped.length} classifications skipped`,
+          skipped.map((s) => s.reason),
+        );
+      }
+
+      // 9. Transaction: persist values + mark completed
+      await prisma.$transaction(async (tx) => {
+        if (valid.length > 0) {
+          await tx.missionEnrichmentValue.createMany({
+            data: valid.map((v) => ({
+              enrichmentId: enrichment.id,
+              taxonomyValueId: v.taxonomyValueId,
+              confidence: v.confidence,
+              evidence: v.evidence,
+            })),
+          });
+        }
+
+        await tx.missionEnrichment.update({
+          where: { id: enrichment.id },
+          data: {
+            status: "completed",
+            rawResponse: result.text,
+            completedAt: new Date(),
+          },
+        });
+      });
+
+      console.log(`${LOG_PREFIX} ${missionId}: enrichment completed — ${valid.length} values persisted`);
+
+      // 10. Publish to scoring queue
+      await asyncTaskBus.publish({
+        type: "mission.scoring",
+        payload: { missionId },
+      });
+    } catch (error) {
+      await prisma.missionEnrichment
+        .update({
+          where: { id: enrichment.id },
+          data: { status: "failed" },
+        })
+        .catch((updateErr) => {
+          console.error(`${LOG_PREFIX} ${missionId}: failed to update status to failed`, updateErr);
+        });
+
+      throw error;
+    }
+  },
+};

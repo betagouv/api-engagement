@@ -14,6 +14,8 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   await prisma.$transaction([
+    prisma.missionEnrichmentValue.deleteMany({}),
+    prisma.missionEnrichment.deleteMany({}),
     prisma.statEvent.deleteMany({}),
     prisma.widgetPublisher.deleteMany({}),
     prisma.widgetRule.deleteMany({}),
@@ -26,6 +28,8 @@ beforeEach(async () => {
     prisma.organization.deleteMany({}),
     prisma.publisherDiffusion.deleteMany({}),
     prisma.publisher.deleteMany({}),
+    prisma.taxonomyValue.deleteMany({}),
+    prisma.taxonomy.deleteMany({}),
     prisma.domain.deleteMany({}),
     prisma.activity.deleteMany({}),
     prisma.moderationEvent.deleteMany({}),
