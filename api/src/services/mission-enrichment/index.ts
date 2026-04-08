@@ -11,11 +11,12 @@ import type { MissionForPrompt, TaxonomyForPrompt } from "./prompts/types";
 
 const LOG_PREFIX = "[mission-enrichment]";
 
-const buildTaxonomyLookup = (dimensions: Array<{ key: string; values: Array<{ key: string; id: string }> }>): TaxonomyLookup => {
+const buildTaxonomyLookup = (dimensions: Array<{ key: string; values: Array<{ key: string; id: string; active: boolean }> }>): TaxonomyLookup => {
   const lookup: TaxonomyLookup = new Map();
   for (const dim of dimensions) {
     const valueMap = new Map<string, string>();
     for (const val of dim.values) {
+      if (!val.active) continue;
       valueMap.set(val.key, val.id);
     }
     lookup.set(dim.key, valueMap);
