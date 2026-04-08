@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { RiCloseFill, RiErrorWarningFill } from "react-icons/ri";
 import { Link, useNavigate } from "react-router-dom";
 
+import Checkbox from "@/components/form/Checkbox";
 import LabelledInput from "@/components/form/LabelledInput";
 import LabelledSelect from "@/components/form/LabelledSelect";
 import Table from "@/components/Table";
@@ -11,7 +12,7 @@ import { captureError } from "@/services/error";
 import { isValidEmail } from "@/services/utils";
 import { withLegacyPublishers } from "@/utils/publisher";
 
-const TABLE_HEADER = [{ title: "" }, { title: "Nom" }, { title: "Roles", position: "center" }];
+const TABLE_HEADER = [{ title: "Nom" }, { title: "Roles", position: "center" }];
 
 const Create = () => {
   const [publishers, setPublishers] = useState([]);
@@ -37,12 +38,6 @@ const Create = () => {
     };
     fetchData();
   }, []);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setErrors({ ...errors, [name]: "" });
-    setValues({ ...values, [name]: value });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -133,7 +128,7 @@ const Create = () => {
             <div className="mb-2 flex flex-wrap gap-2">
               {values.publishers.map((p, i) => (
                 <div key={i} className="bg-blue-france-975 flex items-center rounded p-2">
-                  <span className="text-xs">{publishers.find((pub) => pub.id === p || pub._id === p)?.name}</span>
+                  <span className="text-xs">{publishers.find((pub) => pub.id === p)?.name}</span>
                   <button
                     type="button"
                     className="ml-2"
@@ -155,28 +150,27 @@ const Create = () => {
           )}
           <Table caption="Partenaires de l'utilisateur" header={TABLE_HEADER} total={filteredPublishers.length} pagination={false} auto className="max-h-96 overflow-y-auto">
             {filteredPublishers.map((item, i) => (
-              <tr key={item.id || item._id} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
+              <tr key={item.id} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
                 <td className="table-cell">
-                  <input
-                    type="checkbox"
-                    className="checkbox"
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        setValues({ ...values, publishers: [...values.publishers, (item.id || item._id).toString()] });
-                      } else {
-                        setValues({ ...values, publishers: values.publishers.filter((p) => p !== (item.id || item._id).toString()) });
-                      }
-                    }}
-                    checked={values.publishers.includes((item.id || item._id).toString())}
+                  <Checkbox
+                    id={item.id}
+                    size="sm"
+                    label={item.name}
+                    value={values.publishers.includes(item.id)}
+                    onChange={() =>
+                      setValues({
+                        ...values,
+                        publishers: values.publishers.includes(item.id) ? values.publishers.filter((pub) => pub !== item.id) : [...values.publishers, item.id],
+                      })
+                    }
                   />
                 </td>
-                <td className="table-cell">{item.name}</td>
                 <td className="table-cell">
                   <div className="flex flex-wrap justify-center gap-2">
                     {item.isAnnonceur && <span className="bg-red-marianne-950 rounded p-2">Annonceur</span>}
-                    {item.hasApiRights && <span className="bg-success-950 rounded p-2">Diffuseur API</span>}
-                    {item.hasWidgetRights && <span className="bg-success-950 rounded p-2">Diffuseur Widget</span>}
-                    {item.hasCampaignRights && <span className="bg-success-950 rounded p-2">Diffuseur Campagne</span>}
+                    {item.hasApiRights && <span className="bg-green-success-950 rounded p-2">Diffuseur API</span>}
+                    {item.hasWidgetRights && <span className="bg-green-success-950 rounded p-2">Diffuseur Widget</span>}
+                    {item.hasCampaignRights && <span className="bg-green-success-950 rounded p-2">Diffuseur Campagne</span>}
                   </div>
                 </td>
               </tr>
@@ -185,7 +179,7 @@ const Create = () => {
         </div>
 
         <div className="flex justify-end gap-4">
-          <Link to="/accounts?tab=users" className="tertiary-btn">
+          <Link to="/admin-account" className="tertiary-btn">
             Retour
           </Link>
           <button type="submit" className="primary-btn" disabled={!isChanged() || isErrors()}>
