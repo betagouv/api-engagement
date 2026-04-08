@@ -87,6 +87,32 @@ Exemple :
 npm run job -- letudiant "{\"limit\": 100}" --env staging
 ```
 
+### Lancement du worker asynchrone
+
+Le worker est un processus Express séparé qui consomme les messages SQS et exécute les handlers correspondants. Pour le lancer en mode développement avec rechargement à chaud :
+
+```bash
+npm run dev:worker
+```
+
+Il écoute sur le port défini par la variable `PORT_WORKER` (défaut : 8080).
+
+### Exécuter un handler directement (sans SQS)
+
+Pour invoquer un handler du worker en local sans passer par la file SQS (utile pour déboguer ou tester) :
+
+```bash
+npm run worker:run -- <type> '<json-payload>'
+```
+
+Exemple :
+
+```bash
+npm run worker:run -- mission.enrichment '{"missionId":"abc123"}'
+```
+
+Les types disponibles correspondent aux clés du `taskRegistry` (`src/worker/registry.ts`). Un message d'erreur explicite est affiché si le type est inconnu ou si le payload ne correspond pas au schéma attendu.
+
 ## Mode production
 
 ### Compilation pour la production
