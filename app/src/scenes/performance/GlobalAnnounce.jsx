@@ -287,13 +287,7 @@ const Evolution = ({ filters }) => {
         <p className="text-text-mention text-base">Trafic reçu grâce à vos partenaires diffuseurs</p>
       </div>
       <div className="border-grey-border overflow-x-auto border p-4">
-        <Tabs
-          tabs={tabs}
-          ariaLabel="Trafic reçu grâce à vos partenaires diffuseurs"
-          panelId="announce-evolution-panel"
-          className="mb-8 flex flex-wrap items-center gap-8 text-sm"
-          variant="underline"
-        />
+        <Tabs tabs={tabs} ariaLabel="Trafic reçu grâce à vos partenaires diffuseurs" panelId="announce-evolution-panel" className="mb-6 gap-8 pb-2 text-sm" variant="underline" />
         <div id="announce-evolution-panel" role="tabpanel" aria-labelledby={activeTabId || undefined} className="min-w-[600px]">
           {loading ? (
             <div className="flex h-[248px] items-center justify-center">
@@ -433,13 +427,7 @@ const Announcers = ({ filters }) => {
         </div>
       ) : (
         <div className="border-grey-border space-y-4 overflow-x-auto border p-6">
-          <Tabs
-            tabs={tabs}
-            ariaLabel="Top partenaires diffuseurs"
-            panelId="announce-traffic-panel"
-            className="mb-8 flex flex-wrap items-center gap-8 text-sm"
-            variant="underline"
-          />
+          <Tabs tabs={tabs} ariaLabel="Top partenaires diffuseurs" panelId="announce-traffic-panel" className="mb-6 gap-8 pb-2 text-sm" variant="underline" />
           <div id="announce-traffic-panel" role="tabpanel" aria-labelledby={activeTabId || undefined} className="min-w-[600px]">
             {!data.length ? (
               <div className="border-grey-border bg-background-grey-hover flex h-[248px] w-full flex-col items-center justify-center border border-dashed">

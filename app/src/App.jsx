@@ -253,7 +253,13 @@ const ProtectedLayout = () => {
       <Header />
       <Nav />
 
-      <main id="main-content" role="main" tabIndex={-1} aria-labelledby={hasActiveTab ? activeTabId : undefined} className="mx-auto mb-14 w-full max-w-[1200px] flex-1 px-4 pt-14 sm:w-4/5 sm:px-0">
+      <main
+        id="main-content"
+        role="main"
+        tabIndex={-1}
+        aria-labelledby={hasActiveTab ? activeTabId : undefined}
+        className="mx-auto mb-14 w-full max-w-[1200px] flex-1 px-0 pt-14 sm:w-4/5 sm:px-4"
+      >
         <Outlet />
       </main>
       <Footer />
