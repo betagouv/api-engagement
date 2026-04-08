@@ -226,20 +226,14 @@ const Frame = ({ widget }) => {
   );
 };
 
+const getIframeKey = (type) => (type === "benevolat" ? "benevolat" : "volontariat");
+
 const IFRAMES = {
   benevolat: {
     carousel: `<iframe id="engagement-widget" title="Widget Trouver une mission de bénévolat" border="0" frameborder="0" style="display:block; width:100%; transition: height 0.3s ease;" loading="lazy" allowfullscreen allow="geolocation" src="${BENEVOLAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 768 ? '780px': '686px'"></iframe>`,
     page: `<iframe id="engagement-widget" title="Widget Trouver une mission de bénévolat" border="0" frameborder="0" style="display:block; width:100%; transition: height 0.3s ease;" loading="lazy" allowfullscreen allow="geolocation" src="${BENEVOLAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 640 ? '3424px': this.offsetWidth < 1024 ? '1862px': '1314px'"></iframe>`,
   },
   volontariat: {
-    carousel: `<iframe id="engagement-widget" title="Widget Trouver une mission de volontariat" border="0" frameborder="0" style="display:block; width:100%; transition: height 0.3s ease;" loading="lazy" allowfullscreen allow="geolocation" src="${VOLONTARIAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 768 ? '670px': '600px'"></iframe>`,
-    page: `<iframe id="engagement-widget" title="Widget Trouver une mission de volontariat" border="0" frameborder="0" style="display:block; width:100%; transition: height 0.3s ease;" loading="lazy" allowfullscreen allow="geolocation" src="${VOLONTARIAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 640 ? '2200px': this.offsetWidth < 1024 ? '1350px': '1050px'"></iframe>`,
-  },
-  volontariat_sapeurs_pompiers: {
-    carousel: `<iframe id="engagement-widget" title="Widget Trouver une mission de volontariat" border="0" frameborder="0" style="display:block; width:100%; transition: height 0.3s ease;" loading="lazy" allowfullscreen allow="geolocation" src="${VOLONTARIAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 768 ? '670px': '600px'"></iframe>`,
-    page: `<iframe id="engagement-widget" title="Widget Trouver une mission de volontariat" border="0" frameborder="0" style="display:block; width:100%; transition: height 0.3s ease;" loading="lazy" allowfullscreen allow="geolocation" src="${VOLONTARIAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 640 ? '2200px': this.offsetWidth < 1024 ? '1350px': '1050px'"></iframe>`,
-  },
-  volontariat_reserve_operationnelle: {
     carousel: `<iframe id="engagement-widget" title="Widget Trouver une mission de volontariat" border="0" frameborder="0" style="display:block; width:100%; transition: height 0.3s ease;" loading="lazy" allowfullscreen allow="geolocation" src="${VOLONTARIAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 768 ? '670px': '600px'"></iframe>`,
     page: `<iframe id="engagement-widget" title="Widget Trouver une mission de volontariat" border="0" frameborder="0" style="display:block; width:100%; transition: height 0.3s ease;" loading="lazy" allowfullscreen allow="geolocation" src="${VOLONTARIAT_URL}?widget={{widgetId}}" onload="this.style.height=this.offsetWidth < 640 ? '2200px': this.offsetWidth < 1024 ? '1350px': '1050px'"></iframe>`,
   },
@@ -254,7 +248,7 @@ const JVA_LOGO = `<div style="padding:10px; display:flex; justify-content:center
 
 const Code = ({ widget }) => {
   const handleCopy = () => {
-    navigator.clipboard.writeText(`${IFRAMES[widget.type][widget.style].replace("{{widgetId}}", widget.id)}${widget.type === "benevolat" ? `\n\n${JVA_LOGO}` : ""}`);
+    navigator.clipboard.writeText(`${IFRAMES[getIframeKey(widget.type)][widget.style].replace("{{widgetId}}", widget.id)}${widget.type === "benevolat" ? `\n\n${JVA_LOGO}` : ""}`);
     toast.success("Clé copiée");
   };
 
@@ -273,7 +267,7 @@ const Code = ({ widget }) => {
           className="border-blue-france-925 bg-blue-france-975 w-full rounded-none border px-4 py-2 text-base read-only:opacity-80"
           rows={widget.type === "benevolat" ? 11 : 4}
           readOnly
-          value={`${IFRAMES[widget.type][widget.style].replace("{{widgetId}}", widget.id)}${widget.type === "benevolat" ? `\n\n${JVA_LOGO}` : ""}`}
+          value={`${IFRAMES[getIframeKey(widget.type)][widget.style].replace("{{widgetId}}", widget.id)}${widget.type === "benevolat" ? `\n\n${JVA_LOGO}` : ""}`}
         />
       </div>
     </div>
