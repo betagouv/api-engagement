@@ -1,27 +1,23 @@
 import { Prisma } from "@/db/core";
 import { generateText } from "ai";
 
-import { missionRepository } from "@/repositories/mission";
-import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
-import { taxonomyRepository } from "@/repositories/taxonomy";
-import { CONFIDENCE_THRESHOLD, CURRENT_PROMPT_VERSION, LLM_MAX_RETRIES } from "./config";
+import { prisma } from "@/db/postgres";
+import { asyncTaskBus } from "@/services/async-task";
+import { CONFIDENCE_THRESHOLD, CURRENT_PROMPT_VERSION } from "./config";
 import { parseEnrichmentResponse, type TaxonomyLookup } from "./parser";
-import { buildMissionBlock, buildTaxonomyBlock, PROMPT_REGISTRY } from "./prompts";
-import type { MissionForPrompt, TaxonomyForPrompt } from "./prompts/types";
+import { PROMPT_REGISTRY } from "./prompts";
+import type { MissionForPrompt, TaxonomyForPrompt } from "./prompts/v1";
 
 const LOG_PREFIX = "[mission-enrichment]";
 
-const buildTaxonomyLookup = (taxonomies: Array<{ key: string; type: string; values: Array<{ key: string; id: string; active: boolean }> }>): TaxonomyLookup => {
+const buildTaxonomyLookup = (dimensions: Array<{ key: string; values: Array<{ key: string; id: string }> }>): TaxonomyLookup => {
   const lookup: TaxonomyLookup = new Map();
-  for (const taxonomy of taxonomies) {
-    const values = new Map<string, string>();
-    for (const val of taxonomy.values) {
-      if (!val.active) {
-        continue;
-      }
-      values.set(val.key, val.id);
+  for (const dim of dimensions) {
+    const valueMap = new Map<string, string>();
+    for (const val of dim.values) {
+      valueMap.set(val.key, val.id);
     }
-    lookup.set(taxonomy.key, { type: taxonomy.type, values });
+    lookup.set(dim.key, valueMap);
   }
   return lookup;
 };
@@ -91,91 +87,71 @@ const toTaxonomyForPrompt = (
 
 export const missionEnrichmentService = {
   async enrich(missionId: string, options: { force?: boolean } = {}) {
-    // 1. Load mission (needed before idempotence check for updatedAt comparison)
-    const mission = await missionRepository.findUnique({
-      where: { id: missionId, deletedAt: null },
+    // 1. Load mission first (needed for idempotence check)
+    const mission = await prisma.mission.findUnique({
+      where: { id: missionId },
       include: missionInclude,
     });
 
     if (!mission) {
-      console.log(`${LOG_PREFIX} skipping ${missionId} — not found or deleted`);
-      return;
+      throw new Error(`${LOG_PREFIX} Mission ${missionId} not found`);
     }
 
-    // 2. Idempotence: skip if a completed enrichment exists and mission hasn't changed,
-    //    or if an in-flight enrichment (pending/processing) already exists for this version
+    // 2. Idempotence check
     if (!options.force) {
-      const existing = await missionEnrichmentRepository.findFirst({
-        where: { missionId, promptVersion: CURRENT_PROMPT_VERSION, status: { in: ["completed", "pending", "processing"] } },
+      const existing = await prisma.missionEnrichment.findFirst({
+        where: {
+          missionId,
+          promptVersion: CURRENT_PROMPT_VERSION,
+          status: "completed",
+        },
         orderBy: { createdAt: "desc" },
       });
 
-      if (existing?.status === "completed" && mission.updatedAt <= existing.createdAt) {
+      if (existing && mission.updatedAt <= existing.createdAt) {
         console.log(`${LOG_PREFIX} skipping ${missionId} — already enriched for ${CURRENT_PROMPT_VERSION}`);
         return;
       }
-
-      if (existing?.status === "pending" || existing?.status === "processing") {
-        console.log(`${LOG_PREFIX} skipping ${missionId} — enrichment already in-flight (${existing.status})`);
-        return;
-      }
     }
 
-    // 3. Load active taxonomy
-    const dimensions = await taxonomyRepository.findManyWithValues({ orderBy: { key: "asc" } });
+    // 3. Load taxonomy
+    const dimensions = await prisma.taxonomy.findMany({
+      include: { values: true },
+      orderBy: { key: "asc" },
+    });
 
     // 4. Create enrichment record (pending)
-    // The partial unique index on (mission_id, prompt_version) WHERE status IN ('pending', 'processing')
-    // enforces at DB level that no two concurrent workers can run for the same mission/version.
-    // A P2002 here means another worker won the race — skip silently.
-    let enrichment;
-    try {
-      enrichment = await missionEnrichmentRepository.create({
-        data: { missionId, promptVersion: CURRENT_PROMPT_VERSION, status: "pending" },
-      });
-    } catch (error) {
-      if ((error as { code?: string }).code === "P2002") {
-        console.log(`${LOG_PREFIX} skipping ${missionId} — lost race to concurrent worker`);
-        return;
-      }
-      throw error;
-    }
-
-    // Declared outside try/catch so the catch block can persist them on failure
-    let llmResult: Awaited<ReturnType<typeof generateText>> | undefined;
+    const enrichment = await prisma.missionEnrichment.create({
+      data: {
+        missionId,
+        promptVersion: CURRENT_PROMPT_VERSION,
+        status: "pending",
+      },
+    });
 
     try {
-      // 5. Mark as processing
-      await missionEnrichmentRepository.update({
+      // 5. Processing
+      await prisma.missionEnrichment.update({
         where: { id: enrichment.id },
         data: { status: "processing" },
       });
 
       // 6. Build prompts
       const promptVersion = PROMPT_REGISTRY[CURRENT_PROMPT_VERSION];
-      const systemPrompt = promptVersion.buildSystemPrompt(buildTaxonomyBlock(toTaxonomyForPrompt(dimensions)));
-      const userMessage = promptVersion.buildUserMessage(buildMissionBlock(toMissionForPrompt(mission)));
+      const taxonomyForPrompt = toTaxonomyForPrompt(dimensions);
+      const systemPrompt = promptVersion.buildSystemPrompt(taxonomyForPrompt);
+      const userMessage = promptVersion.buildUserMessage(toMissionForPrompt(mission));
 
       // 7. Call LLM
-      llmResult = await generateText({
+      const result = await generateText({
         model: promptVersion.MODEL,
         system: systemPrompt,
         prompt: userMessage,
-        maxRetries: LLM_MAX_RETRIES,
       });
 
-      const { inputTokens, outputTokens, totalTokens } = llmResult.usage;
-      console.log(`${LOG_PREFIX} ${missionId}: LLM response received — tokens: ${inputTokens} in / ${outputTokens} out / ${totalTokens} total`);
-
-      // 8. Parse + validate response
-      let valid: ReturnType<typeof parseEnrichmentResponse>["valid"];
-      let skipped: ReturnType<typeof parseEnrichmentResponse>["skipped"];
-      try {
-        ({ valid, skipped } = parseEnrichmentResponse(llmResult.text, buildTaxonomyLookup(dimensions), CONFIDENCE_THRESHOLD));
-      } catch (parseError) {
-        console.error(`${LOG_PREFIX} ${missionId}: failed to parse LLM response\n${llmResult.text}`);
-        throw parseError;
-      }
+      // 8. Parse response
+      const taxonomyLookup = buildTaxonomyLookup(dimensions);
+      const { valid, skipped } = parseEnrichmentResponse(result.text, taxonomyLookup, CONFIDENCE_THRESHOLD);
 
       if (skipped.length > 0) {
         console.warn(
@@ -184,41 +160,47 @@ export const missionEnrichmentService = {
         );
       }
 
-      // 9. Persist values + mark completed (atomic)
-      const { inputTokens, outputTokens, totalTokens } = llmResult.usage;
-      await missionEnrichmentRepository.completeWithValues(
-        enrichment.id,
-        llmResult.text,
-        { inputTokens, outputTokens, totalTokens },
-        valid.map((v) => ({
-          taxonomyValueId: v.taxonomyValueId,
-          confidence: v.confidence,
-          evidence: v.evidence,
-        }))
-      );
+      // 9. Transaction: persist values + mark completed
+      await prisma.$transaction(async (tx) => {
+        if (valid.length > 0) {
+          await tx.missionEnrichmentValue.createMany({
+            data: valid.map((v) => ({
+              enrichmentId: enrichment.id,
+              taxonomyValueId: v.taxonomyValueId,
+              confidence: v.confidence,
+              evidence: v.evidence,
+            })),
+          });
+        }
+
+        await tx.missionEnrichment.update({
+          where: { id: enrichment.id },
+          data: {
+            status: "completed",
+            rawResponse: result.text,
+            completedAt: new Date(),
+          },
+        });
+      });
 
       console.log(`${LOG_PREFIX} ${missionId}: enrichment completed — ${valid.length} values persisted`);
-    } catch (error) {
-      await missionEnrichmentRepository.update({
-        where: { id: enrichment.id },
-        data: {
-          status: "failed",
-          ...(llmResult && {
-            rawResponse: llmResult.text,
-            inputTokens: llmResult.usage.inputTokens,
-            outputTokens: llmResult.usage.outputTokens,
-            totalTokens: llmResult.usage.totalTokens,
-          }),
-        },
-      }).catch((updateErr) => {
-        console.error(`${LOG_PREFIX} ${missionId}: failed to update status to failed`, updateErr);
+
+      // 10. Publish to scoring queue
+      await asyncTaskBus.publish({
+        type: "mission.scoring",
+        payload: { missionId },
       });
+    } catch (error) {
+      await prisma.missionEnrichment
+        .update({
+          where: { id: enrichment.id },
+          data: { status: "failed" },
+        })
+        .catch((updateErr) => {
+          console.error(`${LOG_PREFIX} ${missionId}: failed to update status to failed`, updateErr);
+        });
 
       throw error;
     }
-
-    // 10. Trigger scoring (outside try/catch — enrichment is already completed)
-    // TODO
-    // await asyncTaskBus.publish({ type: "mission.scoring", payload: { missionId } });
   },
 };

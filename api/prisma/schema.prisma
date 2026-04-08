@@ -145,6 +145,20 @@ enum MissionEnrichmentStatus {
   failed
 }
 
+enum TaxonomyType {
+  categorical
+  multi_value
+  ordered
+  gate
+}
+
+enum MissionEnrichmentStatus {
+  pending
+  processing
+  completed
+  failed
+}
+
 //
 // Models
 //
@@ -626,7 +640,7 @@ model Mission {
   activities            MissionActivity[]
   enrichments           MissionEnrichment[]
 
-  // TODO: restore relations 
+  // TODO: restore relations
   // missionEvents      MissionEvent[]
   // moderationEvents   ModerationEvent[]
   // statEvents         StatEvent[]               @relation("MissionStatEvents")
@@ -1005,9 +1019,6 @@ model MissionEnrichment {
   status        MissionEnrichmentStatus @default(pending)
   promptVersion String                  @map("prompt_version")
   rawResponse   Json?                   @map("raw_response")
-  inputTokens   Int?                    @map("input_tokens")
-  outputTokens  Int?                    @map("output_tokens")
-  totalTokens   Int?                    @map("total_tokens")
   completedAt   DateTime?               @map("completed_at")
   createdAt     DateTime                @default(now()) @map("created_at")
   updatedAt     DateTime                @updatedAt @map("updated_at")
@@ -1030,7 +1041,7 @@ model MissionEnrichmentValue {
   enrichment    MissionEnrichment @relation(fields: [enrichmentId], references: [id], onDelete: Cascade)
   taxonomyValue TaxonomyValue     @relation(fields: [taxonomyValueId], references: [id], onDelete: Cascade)
 
-  @@unique([enrichmentId, taxonomyValueId], map: "mission_enrichment_value_unique")
+  @@index([enrichmentId], map: "mission_enrichment_value_enrichment_id_idx")
   @@index([taxonomyValueId], map: "mission_enrichment_value_taxonomy_value_id_idx")
   @@map("mission_enrichment_value")
 }

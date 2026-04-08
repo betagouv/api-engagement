@@ -143,26 +143,14 @@ const run = async () => {
     });
     dimensionCount++;
 
-    const activeKeys: string[] = [];
-
     for (let i = 0; i < dim.values.length; i++) {
       const val = dim.values[i];
       await prisma.taxonomyValue.upsert({
         where: { taxonomyId_key: { taxonomyId: taxonomy.id, key: val.key } },
-        update: { label: val.label, icon: val.icon ?? null, order: i, active: true },
-        create: { taxonomyId: taxonomy.id, key: val.key, label: val.label, icon: val.icon ?? null, order: i, active: true },
+        update: { label: val.label, icon: val.icon ?? null, order: i },
+        create: { taxonomyId: taxonomy.id, key: val.key, label: val.label, icon: val.icon ?? null, order: i },
       });
-      activeKeys.push(val.key);
       valueCount++;
-    }
-
-    // Deactivate values that are no longer in the reference
-    const deactivated = await prisma.taxonomyValue.updateMany({
-      where: { taxonomyId: taxonomy.id, key: { notIn: activeKeys }, active: true },
-      data: { active: false },
-    });
-    if (deactivated.count > 0) {
-      console.log(`[seed-taxonomy] ${dim.key}: ${deactivated.count} value(s) deactivated`);
     }
   }
 
