@@ -1,12 +1,14 @@
 import { generateText } from "ai";
 import { Prisma } from "@/db/core";
 
-import { prisma } from "@/db/postgres";
+import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
+import { missionRepository } from "@/repositories/mission";
+import { taxonomyRepository } from "@/repositories/taxonomy";
 import { asyncTaskBus } from "@/services/async-task";
 import { CONFIDENCE_THRESHOLD, CURRENT_PROMPT_VERSION } from "./config";
 import { parseEnrichmentResponse, type TaxonomyLookup } from "./parser";
-import { PROMPT_REGISTRY } from "./prompts";
-import type { MissionForPrompt, TaxonomyForPrompt } from "./prompts/v1";
+import { buildMissionBlock, buildTaxonomyBlock, PROMPT_REGISTRY } from "./prompts";
+import type { MissionForPrompt, TaxonomyForPrompt } from "./prompts/types";
 
 const LOG_PREFIX = "[mission-enrichment]";
 
@@ -89,8 +91,8 @@ const toTaxonomyForPrompt = (
 
 export const missionEnrichmentService = {
   async enrich(missionId: string, options: { force?: boolean } = {}) {
-    // 1. Load mission first (needed for idempotence check)
-    const mission = await prisma.mission.findUnique({
+    // 1. Load mission (needed before idempotence check for updatedAt comparison)
+    const mission = await missionRepository.findUnique({
       where: { id: missionId },
       include: missionInclude,
     });
@@ -99,14 +101,10 @@ export const missionEnrichmentService = {
       throw new Error(`${LOG_PREFIX} Mission ${missionId} not found`);
     }
 
-    // 2. Idempotence check
+    // 2. Idempotence: skip if a completed enrichment exists and mission hasn't changed
     if (!options.force) {
-      const existing = await prisma.missionEnrichment.findFirst({
-        where: {
-          missionId,
-          promptVersion: CURRENT_PROMPT_VERSION,
-          status: "completed",
-        },
+      const existing = await missionEnrichmentRepository.findFirst({
+        where: { missionId, promptVersion: CURRENT_PROMPT_VERSION, status: "completed" },
         orderBy: { createdAt: "desc" },
       });
 
@@ -116,33 +114,25 @@ export const missionEnrichmentService = {
       }
     }
 
-    // 3. Load taxonomy
-    const dimensions = await prisma.taxonomy.findMany({
-      include: { values: true },
-      orderBy: { key: "asc" },
-    });
+    // 3. Load active taxonomy
+    const dimensions = await taxonomyRepository.findManyWithValues({ orderBy: { key: "asc" } });
 
     // 4. Create enrichment record (pending)
-    const enrichment = await prisma.missionEnrichment.create({
-      data: {
-        missionId,
-        promptVersion: CURRENT_PROMPT_VERSION,
-        status: "pending",
-      },
+    const enrichment = await missionEnrichmentRepository.create({
+      data: { missionId, promptVersion: CURRENT_PROMPT_VERSION, status: "pending" },
     });
 
     try {
-      // 5. Processing
-      await prisma.missionEnrichment.update({
+      // 5. Mark as processing
+      await missionEnrichmentRepository.update({
         where: { id: enrichment.id },
         data: { status: "processing" },
       });
 
       // 6. Build prompts
       const promptVersion = PROMPT_REGISTRY[CURRENT_PROMPT_VERSION];
-      const taxonomyForPrompt = toTaxonomyForPrompt(dimensions);
-      const systemPrompt = promptVersion.buildSystemPrompt(taxonomyForPrompt);
-      const userMessage = promptVersion.buildUserMessage(toMissionForPrompt(mission));
+      const systemPrompt = promptVersion.buildSystemPrompt(buildTaxonomyBlock(toTaxonomyForPrompt(dimensions)));
+      const userMessage = promptVersion.buildUserMessage(buildMissionBlock(toMissionForPrompt(mission)));
 
       // 7. Call LLM
       const result = await generateText({
@@ -151,9 +141,12 @@ export const missionEnrichmentService = {
         prompt: userMessage,
       });
 
-      // 8. Parse response
-      const taxonomyLookup = buildTaxonomyLookup(dimensions);
-      const { valid, skipped } = parseEnrichmentResponse(result.text, taxonomyLookup, CONFIDENCE_THRESHOLD);
+      // 8. Parse + validate response
+      const { valid, skipped } = parseEnrichmentResponse(
+        result.text,
+        buildTaxonomyLookup(dimensions),
+        CONFIDENCE_THRESHOLD,
+      );
 
       if (skipped.length > 0) {
         console.warn(
@@ -162,42 +155,24 @@ export const missionEnrichmentService = {
         );
       }
 
-      // 9. Transaction: persist values + mark completed
-      await prisma.$transaction(async (tx) => {
-        if (valid.length > 0) {
-          await tx.missionEnrichmentValue.createMany({
-            data: valid.map((v) => ({
-              enrichmentId: enrichment.id,
-              taxonomyValueId: v.taxonomyValueId,
-              confidence: v.confidence,
-              evidence: v.evidence,
-            })),
-          });
-        }
-
-        await tx.missionEnrichment.update({
-          where: { id: enrichment.id },
-          data: {
-            status: "completed",
-            rawResponse: result.text,
-            completedAt: new Date(),
-          },
-        });
-      });
+      // 9. Persist values + mark completed (atomic)
+      await missionEnrichmentRepository.completeWithValues(
+        enrichment.id,
+        result.text,
+        valid.map((v) => ({
+          taxonomyValueId: v.taxonomyValueId,
+          confidence: v.confidence,
+          evidence: v.evidence,
+        })),
+      );
 
       console.log(`${LOG_PREFIX} ${missionId}: enrichment completed — ${valid.length} values persisted`);
 
-      // 10. Publish to scoring queue
-      await asyncTaskBus.publish({
-        type: "mission.scoring",
-        payload: { missionId },
-      });
+      // 10. Trigger scoring
+      await asyncTaskBus.publish({ type: "mission.scoring", payload: { missionId } });
     } catch (error) {
-      await prisma.missionEnrichment
-        .update({
-          where: { id: enrichment.id },
-          data: { status: "failed" },
-        })
+      await missionEnrichmentRepository
+        .update({ where: { id: enrichment.id }, data: { status: "failed" } })
         .catch((updateErr) => {
           console.error(`${LOG_PREFIX} ${missionId}: failed to update status to failed`, updateErr);
         });
