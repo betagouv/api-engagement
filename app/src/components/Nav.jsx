@@ -97,7 +97,7 @@ const Nav = () => {
 
   return (
     <div className="w-full bg-white shadow-lg">
-      <nav role="navigation" aria-label="Navigation principale" className="mx-auto min-h-14 w-full max-w-312">
+      <nav role="navigation" aria-label="Navigation principale" className="mx-auto min-h-14 w-full max-w-312 px-4">
         <ul className="m-0 flex w-full list-none flex-col items-center justify-between gap-x-6 gap-y-2 p-0 lg:flex-row" role="list" aria-label="Menu principal">
           <li className="flex flex-col items-center gap-4 lg:flex-row lg:gap-6">
             {publisher.isAnnonceur && (publisher.hasApiRights || publisher.hasWidgetRights || publisher.hasCampaignRights) && <FluxMenu value={flux} onChange={handleFluxChange} />}
@@ -203,7 +203,7 @@ const FluxMenu = ({ value, onChange }) => {
     <div className="relative" ref={ref} onBlur={handleFocusOut}>
       <button
         ref={buttonRef}
-        className="bg-blue-france hover:bg-blue-france-hover active:bg-blue-france-hover focus flex w-44 cursor-pointer items-center justify-between rounded-full px-4 py-2 text-sm text-white"
+        className="bg-blue-france hover:bg-blue-france-hover active:bg-blue-france-hover focus flex w-full cursor-pointer items-center justify-between rounded-full px-4 py-2 text-sm text-white sm:w-44"
         aria-expanded={isOpen}
         aria-haspopup="true"
         type="button"
@@ -216,7 +216,7 @@ const FluxMenu = ({ value, onChange }) => {
 
       <div
         inert={!isOpen ? true : undefined}
-        className={`border-grey-border absolute left-0 z-10 mt-2 w-64 border bg-white shadow-lg transition-[max-height,opacity] duration-200 ease-in-out ${isOpen ? "max-h-96 opacity-100" : "pointer-events-none max-h-0 opacity-0"}`}
+        className={`border-grey-border absolute left-0 z-10 mt-2 w-[calc(100vw-2rem)] border bg-white shadow-lg transition-[max-height,opacity] duration-200 ease-in-out sm:w-64 ${isOpen ? "max-h-96 opacity-100" : "pointer-events-none max-h-0 opacity-0"}`}
       >
         <ul className="m-0 flex list-none flex-col p-0" role="listbox">
           {FLUX_OPTIONS.map((option, index) => (
@@ -370,7 +370,7 @@ const PublisherMenu = ({ options, value, onChange }) => {
         aria-modal="true"
         aria-labelledby="publisher-search"
         inert={!show ? true : undefined}
-        className={`border-grey-border absolute right-0 z-50 w-80 border bg-white shadow-lg transition-[max-height,opacity] duration-200 ease-in-out focus:outline-none ${show ? "max-h-96 opacity-100" : "pointer-events-none max-h-0 opacity-0"}`}
+        className={`border-grey-border absolute right-0 z-50 w-[calc(100vw-2rem)] border bg-white shadow-lg transition-[max-height,opacity] duration-200 ease-in-out focus:outline-none sm:w-80 ${show ? "max-h-96 opacity-100" : "pointer-events-none max-h-0 opacity-0"}`}
       >
         <div role="search" className="border-grey-border focus flex items-center gap-2 border-b p-3">
           <RiSearchLine aria-hidden="true" />
@@ -489,7 +489,7 @@ const AdminMenu = () => {
       </button>
       <div
         inert={!show ? true : undefined}
-        className={`border-grey-border absolute right-0 z-10 w-80 border bg-white shadow-lg transition-[max-height,opacity] duration-200 ease-in-out ${show ? "max-h-96 opacity-100" : "pointer-events-none max-h-0 opacity-0"}`}
+        className={`border-grey-border absolute right-0 z-10 w-[calc(100vw-2rem)] border bg-white shadow-lg transition-[max-height,opacity] duration-200 ease-in-out sm:w-80 ${show ? "max-h-96 opacity-100" : "pointer-events-none max-h-0 opacity-0"}`}
       >
         <ul className="m-0 flex list-none flex-col p-0">
           {ADMIN_MENU_ITEMS.map((item, index) => {
