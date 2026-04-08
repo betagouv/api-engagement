@@ -216,7 +216,7 @@ const FluxMenu = ({ value, onChange }) => {
 
       <div
         inert={!isOpen ? true : undefined}
-        className={`border-grey-border absolute left-0 z-10 mt-2 w-[calc(100vw-2rem)] border bg-white shadow-lg transition-[max-height,opacity] duration-200 ease-in-out sm:w-64 ${isOpen ? "max-h-96 opacity-100" : "pointer-events-none max-h-0 opacity-0"}`}
+        className={`border-grey-border absolute left-0 z-10 mt-2 w-[calc(100vw-2rem)] w-full border bg-white shadow-lg transition-[max-height,opacity] duration-200 ease-in-out sm:w-64 ${isOpen ? "max-h-96 opacity-100" : "pointer-events-none max-h-0 opacity-0"}`}
       >
         <ul className="m-0 flex list-none flex-col p-0" role="listbox">
           {FLUX_OPTIONS.map((option, index) => (
@@ -370,7 +370,7 @@ const PublisherMenu = ({ options, value, onChange }) => {
         aria-modal="true"
         aria-labelledby="publisher-search"
         inert={!show ? true : undefined}
-        className={`border-grey-border absolute right-0 z-50 w-[calc(100vw-2rem)] border bg-white shadow-lg transition-[max-height,opacity] duration-200 ease-in-out focus:outline-none sm:w-80 ${show ? "max-h-96 opacity-100" : "pointer-events-none max-h-0 opacity-0"}`}
+        className={`border-grey-border absolute right-0 z-50 w-[calc(100vw-2rem)] w-full border bg-white shadow-lg transition-[max-height,opacity] duration-200 ease-in-out focus:outline-none sm:w-80 ${show ? "max-h-96 opacity-100" : "pointer-events-none max-h-0 opacity-0"}`}
       >
         <div role="search" className="border-grey-border focus flex items-center gap-2 border-b p-3">
           <RiSearchLine aria-hidden="true" />
@@ -489,7 +489,7 @@ const AdminMenu = () => {
       </button>
       <div
         inert={!show ? true : undefined}
-        className={`border-grey-border absolute right-0 z-10 w-[calc(100vw-2rem)] border bg-white shadow-lg transition-[max-height,opacity] duration-200 ease-in-out sm:w-80 ${show ? "max-h-96 opacity-100" : "pointer-events-none max-h-0 opacity-0"}`}
+        className={`border-grey-border absolute right-0 z-10 w-[calc(100vw-2rem)] w-full border bg-white shadow-lg transition-[max-height,opacity] duration-200 ease-in-out sm:w-80 ${show ? "max-h-96 opacity-100" : "pointer-events-none max-h-0 opacity-0"}`}
       >
         <ul className="m-0 flex list-none flex-col p-0">
           {ADMIN_MENU_ITEMS.map((item, index) => {
