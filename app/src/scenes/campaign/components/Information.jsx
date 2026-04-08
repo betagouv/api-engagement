@@ -59,7 +59,7 @@ const Information = ({ values, onChange, errors, onErrorChange }) => {
 
   return (
     <>
-      <div className="flex gap-8">
+      <div className="flex flex-col gap-8 sm:flex-row">
         <div className="flex flex-1 flex-col gap-2">
           <label className="text-sm" htmlFor="name">
             Nom de la campagne<span className="text-error ml-1">*</span>
@@ -93,7 +93,7 @@ const Information = ({ values, onChange, errors, onErrorChange }) => {
           />
         </div>
       </div>
-      <div className="flex gap-8">
+      <div className="flex flex-col gap-8 sm:flex-row">
         <div className="flex flex-1 flex-col gap-2">
           <label className="text-sm" htmlFor="type">
             Type de campagne<span className="text-error ml-1">*</span>

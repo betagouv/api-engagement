@@ -168,7 +168,7 @@ const Edit = () => {
           Retour
         </Link>
 
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-4xl font-bold">Modifier une campagne</h1>
             <p className="text-text-mention mt-2 text-base">Créée le {new Date(campaign.createdAt).toLocaleDateString("fr")}</p>
@@ -185,7 +185,7 @@ const Edit = () => {
           </div>
         </div>
 
-        <div className="flex flex-col gap-8 bg-white p-10 shadow-lg">
+        <div className="flex flex-col gap-8 bg-white p-4 shadow-lg sm:p-10">
           <div>
             <h2 className="mb-2 text-3xl font-bold">Paramètres</h2>
             <p className="text-text-mention text-xs">
