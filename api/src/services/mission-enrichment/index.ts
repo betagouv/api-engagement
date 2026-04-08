@@ -1,10 +1,9 @@
 import { Prisma } from "@/db/core";
 import { generateText } from "ai";
 
-import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
 import { missionRepository } from "@/repositories/mission";
+import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
 import { taxonomyRepository } from "@/repositories/taxonomy";
-import { asyncTaskBus } from "@/services/async-task";
 import { CONFIDENCE_THRESHOLD, CURRENT_PROMPT_VERSION } from "./config";
 import { parseEnrichmentResponse, type TaxonomyLookup } from "./parser";
 import { buildMissionBlock, buildTaxonomyBlock, PROMPT_REGISTRY } from "./prompts";
@@ -132,6 +131,8 @@ export const missionEnrichmentService = {
       const systemPrompt = promptVersion.buildSystemPrompt(buildTaxonomyBlock(toTaxonomyForPrompt(dimensions)));
       const userMessage = promptVersion.buildUserMessage(buildMissionBlock(toMissionForPrompt(mission)));
 
+      console.log(`${LOG_PREFIX} ${missionId}: prompt built`, { systemPrompt, userMessage });
+
       // 7. Call LLM
       const result = await generateText({
         model: promptVersion.MODEL,
@@ -139,12 +140,10 @@ export const missionEnrichmentService = {
         prompt: userMessage,
       });
 
+      console.log(`${LOG_PREFIX} ${missionId}: LLM response received`, { response: result.text });
+
       // 8. Parse + validate response
-      const { valid, skipped } = parseEnrichmentResponse(
-        result.text,
-        buildTaxonomyLookup(dimensions),
-        CONFIDENCE_THRESHOLD,
-      );
+      const { valid, skipped } = parseEnrichmentResponse(result.text, buildTaxonomyLookup(dimensions), CONFIDENCE_THRESHOLD);
 
       if (skipped.length > 0) {
         console.warn(
@@ -161,21 +160,20 @@ export const missionEnrichmentService = {
           taxonomyValueId: v.taxonomyValueId,
           confidence: v.confidence,
           evidence: v.evidence,
-        })),
+        }))
       );
 
       console.log(`${LOG_PREFIX} ${missionId}: enrichment completed — ${valid.length} values persisted`);
-
-      // 10. Trigger scoring
-      await asyncTaskBus.publish({ type: "mission.scoring", payload: { missionId } });
     } catch (error) {
-      await missionEnrichmentRepository
-        .update({ where: { id: enrichment.id }, data: { status: "failed" } })
-        .catch((updateErr) => {
-          console.error(`${LOG_PREFIX} ${missionId}: failed to update status to failed`, updateErr);
-        });
+      await missionEnrichmentRepository.update({ where: { id: enrichment.id }, data: { status: "failed" } }).catch((updateErr) => {
+        console.error(`${LOG_PREFIX} ${missionId}: failed to update status to failed`, updateErr);
+      });
 
       throw error;
     }
+
+    // 10. Trigger scoring (outside try/catch — enrichment is already completed)
+    // TODO
+    // await asyncTaskBus.publish({ type: "mission.scoring", payload: { missionId } });
   },
 };

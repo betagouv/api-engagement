@@ -38,9 +38,6 @@ CREATE TABLE "mission_enrichment" (
     "status" "MissionEnrichmentStatus" NOT NULL DEFAULT 'pending',
     "prompt_version" TEXT NOT NULL,
     "raw_response" JSONB,
-    "input_tokens" INTEGER,
-    "output_tokens" INTEGER,
-    "total_tokens" INTEGER,
     "completed_at" TIMESTAMP(3),
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
@@ -74,11 +71,8 @@ CREATE INDEX "mission_enrichment_mission_version_idx" ON "mission_enrichment"("m
 -- CreateIndex
 CREATE INDEX "mission_enrichment_status_idx" ON "mission_enrichment"("status");
 
--- CreateIndex: prevent concurrent in-flight enrichments for the same mission/version
-CREATE UNIQUE INDEX "mission_enrichment_inflight_unique" ON "mission_enrichment"("mission_id", "prompt_version") WHERE status IN ('pending', 'processing');
-
 -- CreateIndex
-CREATE UNIQUE INDEX "mission_enrichment_value_unique" ON "mission_enrichment_value"("enrichment_id", "taxonomy_value_id");
+CREATE INDEX "mission_enrichment_value_enrichment_id_idx" ON "mission_enrichment_value"("enrichment_id");
 
 -- CreateIndex
 CREATE INDEX "mission_enrichment_value_taxonomy_value_id_idx" ON "mission_enrichment_value"("taxonomy_value_id");
