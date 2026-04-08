@@ -60,10 +60,10 @@ CREATE TABLE "mission_enrichment_value" (
 CREATE UNIQUE INDEX "taxonomy_key_key" ON "taxonomy"("key");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "taxonomy_value_taxonomy_key_unique" ON "taxonomy_value"("taxonomy_id", "key");
+CREATE INDEX "taxonomy_value_taxonomy_id_idx" ON "taxonomy_value"("taxonomy_id");
 
 -- CreateIndex
-CREATE INDEX "taxonomy_value_taxonomy_id_idx" ON "taxonomy_value"("taxonomy_id");
+CREATE UNIQUE INDEX "taxonomy_value_taxonomy_key_unique" ON "taxonomy_value"("taxonomy_id", "key");
 
 -- CreateIndex
 CREATE INDEX "mission_enrichment_mission_version_idx" ON "mission_enrichment"("mission_id", "prompt_version");

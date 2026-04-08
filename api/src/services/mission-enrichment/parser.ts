@@ -27,14 +27,16 @@ export type TaxonomyLookup = Map<string, Map<string, string>>;
 
 const extractJson = (raw: string): string => {
   const fenceMatch = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
-  if (fenceMatch) return fenceMatch[1].trim();
+  if (fenceMatch) {
+    return fenceMatch[1].trim();
+  }
   return raw.trim();
 };
 
 export const parseEnrichmentResponse = (
   rawText: string,
   taxonomyLookup: TaxonomyLookup,
-  confidenceThreshold: number,
+  confidenceThreshold: number
 ): { valid: ParsedClassification[]; skipped: SkippedClassification[] } => {
   const jsonStr = extractJson(rawText);
   const parsed = classificationResponseSchema.parse(JSON.parse(jsonStr));

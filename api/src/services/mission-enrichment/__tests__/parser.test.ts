@@ -9,7 +9,7 @@ const buildLookup = (): TaxonomyLookup => {
     new Map([
       ["sante_soins", "tv-sante"],
       ["social_solidarite", "tv-social"],
-    ]),
+    ])
   );
   lookup.set("type_mission", new Map([["ponctuelle", "tv-ponctuelle"]]));
   return lookup;
@@ -92,10 +92,7 @@ describe("parseEnrichmentResponse", () => {
 
   it("handles multiple classifications across dimensions", () => {
     const raw = JSON.stringify({
-      classifications: [
-        validClassification,
-        { ...validClassification, dimension_key: "type_mission", value_key: "ponctuelle", confidence: 0.8 },
-      ],
+      classifications: [validClassification, { ...validClassification, dimension_key: "type_mission", value_key: "ponctuelle", confidence: 0.8 }],
     });
     const { valid } = parseEnrichmentResponse(raw, buildLookup(), 0.3);
 
