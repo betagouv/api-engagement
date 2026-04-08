@@ -1,7 +1,7 @@
 import { mistral } from "@ai-sdk/mistral";
 
 export const VERSION = "v1";
-export const MODEL = mistral("mistral-large-latest");
+export const MODEL = mistral("mistral-small-2503");
 
 export const buildSystemPrompt = (taxonomyBlock: string): string => `\
 Tu es un classificateur de missions d'engagement bénévole et civique.
