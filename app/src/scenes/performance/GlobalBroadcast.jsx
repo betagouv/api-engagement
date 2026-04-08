@@ -191,7 +191,7 @@ const DistributionMean = ({ filters }) => {
   return (
     <div className="space-y-6">
       <h2 className="text-3xl font-bold">Répartition par moyen de diffusion</h2>
-      <div className="border-grey-border space-y-4 border p-6">
+      <div className="border-grey-border space-y-4 overflow-x-auto border p-6">
         <Tabs
           tabs={tabs}
           ariaLabel="Répartition par moyen de diffusion"
@@ -199,7 +199,7 @@ const DistributionMean = ({ filters }) => {
           className="mb-8 flex flex-wrap items-center gap-8 text-sm"
           variant="underline"
         />
-        <div id="distribution-panel" role="tabpanel" aria-labelledby={activeTabId || undefined}>
+        <div id="distribution-panel" role="tabpanel" aria-labelledby={activeTabId || undefined} className="min-w-[600px]">
           {loading ? (
             <div className="flex h-64 items-center justify-center">
               <Loader />
@@ -411,9 +411,9 @@ const Evolution = ({ filters }) => {
         <h2 className="text-3xl font-bold">Evolution</h2>
         <p className="text-text-mention text-base">Trafic que vous avez généré pour vos partenaires annonceurs</p>
       </div>
-      <div className="border-grey-border border p-4">
+      <div className="border-grey-border overflow-x-auto border p-4">
         <Tabs tabs={tabs} ariaLabel="Evolution" panelId="evolution-panel" className="mb-8 flex flex-wrap items-center gap-8 text-sm" variant="underline" />
-        <div id="evolution-panel" role="tabpanel" aria-labelledby={activeTabId || undefined}>
+        <div id="evolution-panel" role="tabpanel" aria-labelledby={activeTabId || undefined} className="min-w-[600px]">
           {loading ? (
             <div className="flex h-[420px] items-center justify-center">
               <Loader />
@@ -583,8 +583,8 @@ const Announcers = ({ filters }) => {
         </div>
       ) : (
         <>
-          <div className="border-grey-border space-y-4 border p-6">
-            <div className="flex flex-col gap-4">
+          <div className="border-grey-border space-y-4 overflow-x-auto border p-6">
+            <div className="min-w-[600px] flex flex-col gap-4">
               <h3 className="text-2xl font-semibold">Performance des annonceurs</h3>
               <Table
                 caption="Performance des annonceurs"
@@ -615,7 +615,8 @@ const Announcers = ({ filters }) => {
               </Table>
             </div>
           </div>
-          <div className="border-grey-border space-y-4 border p-6">
+          <div className="border-grey-border space-y-4 overflow-x-auto border p-6">
+            <div className="min-w-[600px]">
             <h3 className="text-2xl font-semibold">Répartition des missions par annonceur</h3>
             {!missionData.length ? (
               <div className="border-grey-border bg-background-grey-hover flex h-[248px] w-full flex-col items-center justify-center border border-dashed">
@@ -656,6 +657,7 @@ const Announcers = ({ filters }) => {
                 </div>
               </div>
             )}
+            </div>
           </div>
         </>
       )}

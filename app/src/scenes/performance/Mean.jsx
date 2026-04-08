@@ -231,7 +231,7 @@ const Mean = ({ filters, onFiltersChange }) => {
             }[source]
           }
         </h2>
-        <div className="border-grey-border flex flex-col gap-6 border p-6 md:flex-row">
+        <div className="border-grey-border flex flex-col gap-6 overflow-x-auto border p-6 md:flex-row">
           {graphLoading ? (
             <div className="flex w-full justify-center py-10">
               <Loader />
@@ -290,7 +290,7 @@ const Mean = ({ filters, onFiltersChange }) => {
         </div>
       </div>
 
-      <div className="border-grey-border bg-blue-france-975 flex items-center gap-8 border p-8">
+      <div className="border-grey-border bg-blue-france-975 flex flex-col items-center gap-8 overflow-x-auto border p-8 sm:flex-row">
         <div className="relative h-full w-[128px]">
           <img src={JessicaSvg} alt="" aria-hidden="true" className="absolute top-1/2 left-0 h-[72px] w-[72px] -translate-y-1/2 rounded-full" />
           <img src={NassimSvg} alt="" aria-hidden="true" className="absolute top-1/2 right-0 h-[72px] w-[72px] -translate-y-1/2 rounded-full" />
@@ -367,7 +367,8 @@ const SourcePerformance = ({ data, source }) => {
   const paginated = sorted.slice((page - 1) * pageSize, page * pageSize);
 
   return (
-    <div className="border-grey-border space-y-4 border p-6">
+    <div className="border-grey-border space-y-4 overflow-x-auto border p-6">
+      <div className="min-w-[600px]">
       <h3 className="text-2xl font-semibold">Performance par {source === "widget" ? "widget" : "campagne"}</h3>
       <Table
         caption={`Performance par ${source === "widget" ? "widget" : "campagne"}`}
@@ -391,6 +392,7 @@ const SourcePerformance = ({ data, source }) => {
           </tr>
         ))}
       </Table>
+      </div>
     </div>
   );
 };
