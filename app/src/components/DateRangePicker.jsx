@@ -1,9 +1,9 @@
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import fr from "date-fns/locale/fr";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { RiArrowDownSLine, RiArrowLeftSLine, RiArrowRightSLine, RiInformationLine } from "react-icons/ri";
+import { RiArrowLeftSLine, RiArrowRightSLine, RiCalendarLine, RiInformationLine } from "react-icons/ri";
 
 const NOW = new Date();
 const YESTERDAY = new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() - 1);
@@ -16,20 +16,73 @@ const RANGES = [
   { label: "Total", from: new Date(2020, 0, 1), to: YESTERDAY },
 ];
 
+function parseDateFr(str) {
+  const match = str.trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (!match) return null;
+  const [, d, m, y] = match;
+  const day = Number(d),
+    month = Number(m),
+    year = Number(y);
+  const date = new Date(year, month - 1, day);
+  if (date.getDate() !== day || date.getMonth() !== month - 1 || date.getFullYear() !== year) return null;
+  return date;
+}
+
+function formatDateFr(date) {
+  if (!date) return "";
+  return `${String(date.getDate()).padStart(2, "0")}/${String(date.getMonth() + 1).padStart(2, "0")}/${date.getFullYear()}`;
+}
+
+function toEndOfDay(date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1, 0, 0, 0, -1);
+}
+
 const DateRangePicker = ({ value, onChange }) => {
+  const radioRefs = useRef([]);
+  const selectedIndex = RANGES.findIndex((r) => r.from.toLocaleDateString() === value.from.toLocaleDateString());
+
+  const handleKeyDown = (e, index) => {
+    let newIndex;
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+      e.preventDefault();
+      newIndex = (index + 1) % RANGES.length;
+    } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+      e.preventDefault();
+      newIndex = (index - 1 + RANGES.length) % RANGES.length;
+    } else if (e.key === " ") {
+      e.preventDefault();
+      onChange(RANGES[index]);
+      return;
+    } else {
+      return;
+    }
+    radioRefs.current[newIndex]?.focus();
+  };
+
   return (
     <div className="flex flex-col gap-4 lg:flex-row">
-      <div className="border-grey-border flex w-fit items-center gap-x-2 rounded-sm border">
-        {RANGES.map((range, i) => (
-          <button
-            key={i}
-            className={`focus h-full cursor-pointer rounded-sm px-4 py-2 text-sm ${value.from.toLocaleDateString() === range.from.toLocaleDateString() ? "border-blue-france text-blue-france -my-px border" : ""} hover:bg-gray-100`}
-            onClick={() => onChange(range)}
-          >
-            {range.label}
-          </button>
-        ))}
-      </div>
+      <fieldset className="m-0 border-0 p-0">
+        <legend className="sr-only">Période</legend>
+        <div className="border-grey-border flex w-fit items-center gap-x-2 rounded-sm border" role="radiogroup">
+          {RANGES.map((range, i) => {
+            const isSelected = selectedIndex === i;
+            return (
+              <div
+                key={i}
+                ref={(el) => (radioRefs.current[i] = el)}
+                role="radio"
+                aria-checked={isSelected}
+                tabIndex={isSelected || (selectedIndex === -1 && i === 0) ? 0 : -1}
+                className={`focus cursor-pointer rounded-sm px-4 py-2 text-sm ${isSelected ? "border-blue-france text-blue-france -my-px border" : ""} hover:bg-gray-100`}
+                onClick={() => onChange(range)}
+                onKeyDown={(e) => handleKeyDown(e, i)}
+              >
+                {range.label}
+              </div>
+            );
+          })}
+        </div>
+      </fieldset>
 
       <DateInput value={value} onChange={onChange} />
     </div>
@@ -37,122 +90,208 @@ const DateRangePicker = ({ value, onChange }) => {
 };
 
 export const DateInput = ({ value, onChange }) => {
+  const id = useId();
   const [from, setFrom] = useState(value.from);
   const [to, setTo] = useState(value.to);
+  const [fromText, setFromText] = useState(formatDateFr(value.from));
+  const [toText, setToText] = useState(formatDateFr(value.to));
+  const closeRef = useRef(null);
 
   useEffect(() => {
-    if (value.from === from && value.to === to) {
-      return;
-    }
+    if (value.from === from && value.to === to) return;
     setFrom(value.from);
     setTo(value.to);
+    setFromText(formatDateFr(value.from));
+    setToText(formatDateFr(value.to));
   }, [value]);
 
-  const handleChange = (dates) => {
+  const handleCalendarChange = (dates) => {
     const [start, end] = dates;
     setFrom(start);
     setTo(end);
+    setFromText(formatDateFr(start));
+    setToText(end ? formatDateFr(end) : "");
     if (start && end) {
-      onChange({ from: start, to: new Date(end.getFullYear(), end.getMonth(), end.getDate() + 1, 0, 0, 0, -1) });
+      onChange({ from: start, to: toEndOfDay(end) });
+      closeRef.current?.();
+    }
+  };
+
+  const handleFromTextChange = (e) => {
+    const text = e.target.value;
+    setFromText(text);
+    const parsed = parseDateFr(text);
+    if (parsed) {
+      setFrom(parsed);
+      if (to) onChange({ from: parsed, to: toEndOfDay(to) });
+    }
+  };
+
+  const handleToTextChange = (e) => {
+    const text = e.target.value;
+    setToText(text);
+    const parsed = parseDateFr(text);
+    if (parsed) {
+      setTo(parsed);
+      if (from) onChange({ from, to: toEndOfDay(parsed) });
     }
   };
 
   return (
     <Popover className="relative">
-      <PopoverButton className="select flex h-full items-center px-4">
-        <span>du</span>
-        <span className="mx-3 font-semibold">{value.from ? value.from.toLocaleDateString("fr") : "-"}</span>
-        <span>au</span>
-        <span className="mx-3 font-semibold">{value.to ? value.to.toLocaleDateString("fr") : "-"}</span>
-        <RiArrowDownSLine aria-hidden="true" />
-      </PopoverButton>
-      <PopoverPanel
-        transition
-        anchor="bottom"
-        className="border-grey-border divide-grey-border mt-1 origin-top divide-y border bg-white px-8 pt-6 pb-4 shadow-lg transition duration-200 ease-out focus:outline-none data-closed:scale-95 data-closed:opacity-0"
-      >
-        <div className="flex gap-6">
-          <ul className="m-0 flex w-44 list-none flex-col p-0 text-base" role="list" aria-label="Périodes disponibles">
-            <li>
-              <button
-                className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base"
-                onClick={() => handleChange([new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() - 7), YESTERDAY])}
-              >
-                Depuis 7 jours
-              </button>
-            </li>
-            <li>
-              <button
-                className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base"
-                onClick={() => handleChange([new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() - 30), YESTERDAY])}
-              >
-                Depuis 30 jours
-              </button>
-            </li>
-            <li>
-              <button
-                className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base"
-                onClick={() => handleChange([new Date(NOW.getFullYear() - 1, NOW.getMonth(), NOW.getDate()), YESTERDAY])}
-              >
-                Depuis 1 an
-              </button>
-            </li>
-            <li>
-              <button className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base" onClick={() => handleChange([new Date(2020, 0, 1), YESTERDAY])}>
-                Depuis toujours
-              </button>
-            </li>
-            <li>
-              <button
-                className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base"
-                onClick={() => handleChange([new Date(NOW.getFullYear(), NOW.getMonth(), 1), YESTERDAY])}
-              >
-                Ce mois-ci
-              </button>
-            </li>
-            <li>
-              <button
-                className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base"
-                onClick={() => handleChange([new Date(NOW.getFullYear(), NOW.getMonth() - 1, 1), new Date(NOW.getFullYear(), NOW.getMonth(), 1, 0, 0, 0, -1)])}
-              >
-                Le mois dernier
-              </button>
-            </li>
-            <li>
-              <button className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base" onClick={() => handleChange([new Date(NOW.getFullYear(), 0, 1), YESTERDAY])}>
-                Cette année
-              </button>
-            </li>
-            <li>
-              <button
-                className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base"
-                onClick={() => handleChange([new Date(NOW.getFullYear() - 1, 0, 1), new Date(NOW.getFullYear(), 0, 1, 0, 0, 0, -1)])}
-              >
-                L'année dernière
-              </button>
-            </li>
-          </ul>
-
-          <DatePicker
-            renderCustomHeader={DatePickerHeader}
-            onChange={handleChange}
-            startDate={from}
-            endDate={to}
-            maxDate={YESTERDAY}
-            locale={fr}
-            selectsRange
-            inline
-            monthsShown={2}
-            calendarContainer={DatePickerContainer}
+      <div className="flex items-center gap-2">
+        <div className="input flex items-center gap-1 px-2 py-1">
+          <label htmlFor={`${id}-from`} className="text-sm text-gray-500">
+            Du
+          </label>
+          <input
+            id={`${id}-from`}
+            type="text"
+            inputMode="numeric"
+            value={fromText}
+            onChange={handleFromTextChange}
+            placeholder="JJ/MM/AAAA"
+            aria-describedby={`${id}-format`}
+            className="w-24 border-0 bg-transparent p-0 text-sm font-semibold outline-none focus:ring-0"
           />
         </div>
-        <p className="text-grey-text flex items-center gap-1 pt-4 text-sm">
-          <RiInformationLine className="shrink-0" aria-hidden="true" />
-          Les données du jour en cours ne sont pas encore disponibles.
-        </p>
+        <div className="input flex items-center gap-1 px-2 py-1">
+          <label htmlFor={`${id}-to`} className="text-sm text-gray-500">
+            Au
+          </label>
+          <input
+            id={`${id}-to`}
+            type="text"
+            inputMode="numeric"
+            value={toText}
+            onChange={handleToTextChange}
+            placeholder="JJ/MM/AAAA"
+            aria-describedby={`${id}-format`}
+            className="w-24 border-0 bg-transparent p-0 text-sm font-semibold outline-none focus:ring-0"
+          />
+        </div>
+        <span id={`${id}-format`} className="sr-only">
+          Format attendu : JJ/MM/AAAA
+        </span>
+        <PopoverButton className="focus flex items-center rounded-sm p-2 hover:bg-gray-100" aria-label="Ouvrir le calendrier">
+          <RiCalendarLine className="text-lg" aria-hidden="true" />
+        </PopoverButton>
+      </div>
+
+      <PopoverPanel
+        focus
+        transition
+        anchor={{ to: "bottom start", gap: 4, offset: -200 }}
+        className="border-grey-border divide-grey-border z-50 mt-1 origin-top divide-y border bg-white px-8 pt-6 pb-4 shadow-lg transition duration-200 ease-out focus:outline-none data-closed:scale-95 data-closed:opacity-0"
+      >
+        {({ close }) => {
+          closeRef.current = close;
+          return (
+            <>
+              <div className="flex gap-6">
+                <ul className="m-0 flex w-44 list-none flex-col p-0 text-base" role="list" aria-label="Périodes disponibles">
+                  <li>
+                    <button
+                      className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base"
+                      onClick={() => handleCalendarChange([new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() - 7), YESTERDAY])}
+                    >
+                      Depuis 7 jours
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base"
+                      onClick={() => handleCalendarChange([new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() - 30), YESTERDAY])}
+                    >
+                      Depuis 30 jours
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base"
+                      onClick={() => handleCalendarChange([new Date(NOW.getFullYear() - 1, NOW.getMonth(), NOW.getDate()), YESTERDAY])}
+                    >
+                      Depuis 1 an
+                    </button>
+                  </li>
+                  <li>
+                    <button className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base" onClick={() => handleCalendarChange([new Date(2020, 0, 1), YESTERDAY])}>
+                      Depuis toujours
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base"
+                      onClick={() => handleCalendarChange([new Date(NOW.getFullYear(), NOW.getMonth(), 1), YESTERDAY])}
+                    >
+                      Ce mois-ci
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base"
+                      onClick={() =>
+                        handleCalendarChange([new Date(NOW.getFullYear(), NOW.getMonth() - 1, 1), new Date(NOW.getFullYear(), NOW.getMonth(), 1, 0, 0, 0, -1)])
+                      }
+                    >
+                      Le mois dernier
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base"
+                      onClick={() => handleCalendarChange([new Date(NOW.getFullYear(), 0, 1), YESTERDAY])}
+                    >
+                      Cette année
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base"
+                      onClick={() => handleCalendarChange([new Date(NOW.getFullYear() - 1, 0, 1), new Date(NOW.getFullYear(), 0, 1, 0, 0, 0, -1)])}
+                    >
+                      L&apos;année dernière
+                    </button>
+                  </li>
+                </ul>
+
+                <AccessibleCalendar>
+                  <DatePicker
+                    renderCustomHeader={DatePickerHeader}
+                    onChange={handleCalendarChange}
+                    startDate={from}
+                    endDate={to}
+                    maxDate={YESTERDAY}
+                    locale={fr}
+                    selectsRange
+                    inline
+                    monthsShown={2}
+                    calendarContainer={DatePickerContainer}
+                    ariaLabelPrefix="Choisir"
+                  />
+                </AccessibleCalendar>
+              </div>
+              <p className="text-grey-text flex items-center gap-1 pt-4 text-sm">
+                <RiInformationLine className="shrink-0" aria-hidden="true" />
+                Les données du jour en cours ne sont pas encore disponibles.
+              </p>
+            </>
+          );
+        }}
       </PopoverPanel>
     </Popover>
   );
+};
+
+const AccessibleCalendar = ({ children }) => {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!ref.current) return;
+    ref.current.querySelectorAll('[aria-current="date"]').forEach((el) => el.removeAttribute("aria-current"));
+    const today = ref.current.querySelector(".react-datepicker__day--today");
+    if (today) today.setAttribute("aria-current", "date");
+  });
+  return <div ref={ref}>{children}</div>;
 };
 
 const DatePickerContainer = ({ children }) => (
@@ -163,7 +302,7 @@ const DatePickerContainer = ({ children }) => (
 
 const DatePickerHeader = ({ monthDate, customHeaderCount, decreaseMonth, increaseMonth }) => (
   <div className="flex items-center justify-between gap-8 pb-4">
-    <button aria-label="Previous Month" className="hover:bg-gray-975" style={customHeaderCount === 1 ? { visibility: "hidden" } : null} onClick={decreaseMonth}>
+    <button aria-label="Mois précédent" className="hover:bg-gray-975" style={customHeaderCount === 1 ? { visibility: "hidden" } : null} onClick={decreaseMonth}>
       <RiArrowLeftSLine className="text-blue-france text-[32px]" aria-hidden="true" />
     </button>
     <span className="text-base font-bold">
@@ -172,7 +311,7 @@ const DatePickerHeader = ({ monthDate, customHeaderCount, decreaseMonth, increas
         year: "numeric",
       })}
     </span>
-    <button aria-label="Next Month" className="hover:bg-gray-975" style={customHeaderCount === 0 ? { visibility: "hidden" } : null} onClick={increaseMonth}>
+    <button aria-label="Mois suivant" className="hover:bg-gray-975" style={customHeaderCount === 0 ? { visibility: "hidden" } : null} onClick={increaseMonth}>
       <RiArrowRightSLine className="text-blue-france text-[32px]" aria-hidden="true" />
     </button>
   </div>
