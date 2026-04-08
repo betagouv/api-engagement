@@ -1,4 +1,3 @@
-import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import fr from "date-fns/locale/fr";
 import { useEffect, useId, useRef, useState } from "react";
 import DatePicker from "react-datepicker";
@@ -49,7 +48,7 @@ const DateRangePicker = ({ value, onChange }) => {
     } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
       e.preventDefault();
       newIndex = (index - 1 + RANGES.length) % RANGES.length;
-    } else if (e.key === " ") {
+    } else if (e.key === " " || e.key === "Enter") {
       e.preventDefault();
       onChange(RANGES[index]);
       return;
@@ -73,7 +72,7 @@ const DateRangePicker = ({ value, onChange }) => {
                 role="radio"
                 aria-checked={isSelected}
                 tabIndex={isSelected || (selectedIndex === -1 && i === 0) ? 0 : -1}
-                className={`focus cursor-pointer rounded-sm px-4 py-2 text-sm ${isSelected ? "border-blue-france text-blue-france -my-px border" : ""} hover:bg-gray-100`}
+                className={`focus cursor-pointer rounded-sm px-4 py-2 text-sm ${isSelected ? "border-blue-france text-blue-france -my-px border-2" : ""} hover:bg-gray-100`}
                 onClick={() => onChange(range)}
                 onKeyDown={(e) => handleKeyDown(e, i)}
               >
@@ -95,7 +94,30 @@ export const DateInput = ({ value, onChange }) => {
   const [to, setTo] = useState(value.to);
   const [fromText, setFromText] = useState(formatDateFr(value.from));
   const [toText, setToText] = useState(formatDateFr(value.to));
-  const closeRef = useRef(null);
+  const [show, setShow] = useState(false);
+  const ref = useRef(null);
+  const buttonRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (ref.current && !ref.current.contains(event.target)) {
+        setShow(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    const handleEscape = (event) => {
+      if (event.key === "Escape" && show) {
+        setShow(false);
+        buttonRef.current?.focus();
+      }
+    };
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [show]);
 
   useEffect(() => {
     if (value.from === from && value.to === to) return;
@@ -113,7 +135,8 @@ export const DateInput = ({ value, onChange }) => {
     setToText(end ? formatDateFr(end) : "");
     if (start && end) {
       onChange({ from: start, to: toEndOfDay(end) });
-      closeRef.current?.();
+      setShow(false);
+      buttonRef.current?.focus();
     }
   };
 
@@ -138,7 +161,7 @@ export const DateInput = ({ value, onChange }) => {
   };
 
   return (
-    <Popover className="relative">
+    <div className="relative" ref={ref}>
       <div className="flex items-center gap-2">
         <div className="input flex items-center gap-1 px-2 py-1">
           <label htmlFor={`${id}-from`} className="text-sm text-gray-500">
@@ -173,113 +196,110 @@ export const DateInput = ({ value, onChange }) => {
         <span id={`${id}-format`} className="sr-only">
           Format attendu : JJ/MM/AAAA
         </span>
-        <PopoverButton className="focus flex items-center rounded-sm p-2 hover:bg-gray-100" aria-label="Ouvrir le calendrier">
+        <button
+          ref={buttonRef}
+          className="focus flex items-center rounded-sm p-2 hover:bg-gray-100"
+          aria-label="Ouvrir le calendrier"
+          aria-expanded={show}
+          onClick={() => setShow(!show)}
+        >
           <RiCalendarLine className="text-lg" aria-hidden="true" />
-        </PopoverButton>
+        </button>
       </div>
 
-      <PopoverPanel
-        focus
-        transition
-        anchor={{ to: "bottom start", gap: 4, offset: -200 }}
-        className="border-grey-border divide-grey-border z-50 mt-1 origin-top divide-y border bg-white px-8 pt-6 pb-4 shadow-lg transition duration-200 ease-out focus:outline-none data-closed:scale-95 data-closed:opacity-0"
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Sélection de période"
+        className={`border-grey-border divide-grey-border absolute right-0 z-50 mt-1 divide-y border bg-white px-8 pt-6 pb-4 shadow-lg ${show ? "block" : "hidden"}`}
       >
-        {({ close }) => {
-          closeRef.current = close;
-          return (
-            <>
-              <div className="flex gap-6">
-                <ul className="m-0 flex w-44 list-none flex-col p-0 text-base" role="list" aria-label="Périodes disponibles">
-                  <li>
-                    <button
-                      className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base"
-                      onClick={() => handleCalendarChange([new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() - 7), YESTERDAY])}
-                    >
-                      Depuis 7 jours
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base"
-                      onClick={() => handleCalendarChange([new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() - 30), YESTERDAY])}
-                    >
-                      Depuis 30 jours
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base"
-                      onClick={() => handleCalendarChange([new Date(NOW.getFullYear() - 1, NOW.getMonth(), NOW.getDate()), YESTERDAY])}
-                    >
-                      Depuis 1 an
-                    </button>
-                  </li>
-                  <li>
-                    <button className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base" onClick={() => handleCalendarChange([new Date(2020, 0, 1), YESTERDAY])}>
-                      Depuis toujours
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base"
-                      onClick={() => handleCalendarChange([new Date(NOW.getFullYear(), NOW.getMonth(), 1), YESTERDAY])}
-                    >
-                      Ce mois-ci
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base"
-                      onClick={() =>
-                        handleCalendarChange([new Date(NOW.getFullYear(), NOW.getMonth() - 1, 1), new Date(NOW.getFullYear(), NOW.getMonth(), 1, 0, 0, 0, -1)])
-                      }
-                    >
-                      Le mois dernier
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base"
-                      onClick={() => handleCalendarChange([new Date(NOW.getFullYear(), 0, 1), YESTERDAY])}
-                    >
-                      Cette année
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base"
-                      onClick={() => handleCalendarChange([new Date(NOW.getFullYear() - 1, 0, 1), new Date(NOW.getFullYear(), 0, 1, 0, 0, 0, -1)])}
-                    >
-                      L&apos;année dernière
-                    </button>
-                  </li>
-                </ul>
+        <div className="flex gap-6">
+          <ul className="m-0 flex w-44 list-none flex-col p-0 text-base" role="list" aria-label="Périodes disponibles">
+            <li>
+              <button
+                className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base"
+                onClick={() => handleCalendarChange([new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() - 7), YESTERDAY])}
+              >
+                Depuis 7 jours
+              </button>
+            </li>
+            <li>
+              <button
+                className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base"
+                onClick={() => handleCalendarChange([new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate() - 30), YESTERDAY])}
+              >
+                Depuis 30 jours
+              </button>
+            </li>
+            <li>
+              <button
+                className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base"
+                onClick={() => handleCalendarChange([new Date(NOW.getFullYear() - 1, NOW.getMonth(), NOW.getDate()), YESTERDAY])}
+              >
+                Depuis 1 an
+              </button>
+            </li>
+            <li>
+              <button className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base" onClick={() => handleCalendarChange([new Date(2020, 0, 1), YESTERDAY])}>
+                Depuis toujours
+              </button>
+            </li>
+            <li>
+              <button
+                className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base"
+                onClick={() => handleCalendarChange([new Date(NOW.getFullYear(), NOW.getMonth(), 1), YESTERDAY])}
+              >
+                Ce mois-ci
+              </button>
+            </li>
+            <li>
+              <button
+                className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base"
+                onClick={() => handleCalendarChange([new Date(NOW.getFullYear(), NOW.getMonth() - 1, 1), new Date(NOW.getFullYear(), NOW.getMonth(), 1, 0, 0, 0, -1)])}
+              >
+                Le mois dernier
+              </button>
+            </li>
+            <li>
+              <button
+                className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base"
+                onClick={() => handleCalendarChange([new Date(NOW.getFullYear(), 0, 1), YESTERDAY])}
+              >
+                Cette année
+              </button>
+            </li>
+            <li>
+              <button
+                className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base"
+                onClick={() => handleCalendarChange([new Date(NOW.getFullYear() - 1, 0, 1), new Date(NOW.getFullYear(), 0, 1, 0, 0, 0, -1)])}
+              >
+                L&apos;année dernière
+              </button>
+            </li>
+          </ul>
 
-                <AccessibleCalendar>
-                  <DatePicker
-                    renderCustomHeader={DatePickerHeader}
-                    onChange={handleCalendarChange}
-                    startDate={from}
-                    endDate={to}
-                    maxDate={YESTERDAY}
-                    locale={fr}
-                    selectsRange
-                    inline
-                    monthsShown={2}
-                    calendarContainer={DatePickerContainer}
-                    ariaLabelPrefix="Choisir"
-                  />
-                </AccessibleCalendar>
-              </div>
-              <p className="text-grey-text flex items-center gap-1 pt-4 text-sm">
-                <RiInformationLine className="shrink-0" aria-hidden="true" />
-                Les données du jour en cours ne sont pas encore disponibles.
-              </p>
-            </>
-          );
-        }}
-      </PopoverPanel>
-    </Popover>
+          <AccessibleCalendar>
+            <DatePicker
+              renderCustomHeader={DatePickerHeader}
+              onChange={handleCalendarChange}
+              startDate={from}
+              endDate={to}
+              maxDate={YESTERDAY}
+              locale={fr}
+              selectsRange
+              inline
+              monthsShown={2}
+              calendarContainer={DatePickerContainer}
+              ariaLabelPrefix="Choisir"
+            />
+          </AccessibleCalendar>
+        </div>
+        <p className="text-grey-text flex items-center gap-1 pt-4 text-sm">
+          <RiInformationLine className="shrink-0" aria-hidden="true" />
+          Les données du jour en cours ne sont pas encore disponibles.
+        </p>
+      </div>
+    </div>
   );
 };
 
