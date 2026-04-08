@@ -21,7 +21,8 @@
         "test:integration:watch": "vitest --config vitest.integration.config.ts",
         "test:watch": "npm run test:unit:watch",
         "test:ci": "npm run prisma:generate && npm run test:unit && npm run test:integration",
-        "job": "ts-node src/jobs/run-job.ts"
+        "job": "ts-node src/jobs/run-job.ts",
+        "worker:run": "ts-node src/worker/run-handler.ts"
     },
     "dependencies": {
         "@aws-sdk/client-s3": "3.1020.0",
