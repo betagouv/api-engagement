@@ -132,8 +132,6 @@ export const missionEnrichmentService = {
       const systemPrompt = promptVersion.buildSystemPrompt(buildTaxonomyBlock(toTaxonomyForPrompt(dimensions)));
       const userMessage = promptVersion.buildUserMessage(buildMissionBlock(toMissionForPrompt(mission)));
 
-      console.log(`${LOG_PREFIX} ${missionId}: prompt built`, { systemPrompt, userMessage });
-
       // 7. Call LLM
       const result = await generateText({
         model: promptVersion.MODEL,
@@ -141,7 +139,8 @@ export const missionEnrichmentService = {
         prompt: userMessage,
       });
 
-      console.log(`${LOG_PREFIX} ${missionId}: LLM response received`, { response: result.text });
+      const { inputTokens, outputTokens, totalTokens } = result.usage;
+      console.log(`${LOG_PREFIX} ${missionId}: LLM response received — tokens: ${inputTokens} in / ${outputTokens} out / ${totalTokens} total`);
 
       // 8. Parse + validate response
       const { valid, skipped } = parseEnrichmentResponse(result.text, buildTaxonomyLookup(dimensions), CONFIDENCE_THRESHOLD);
@@ -157,6 +156,7 @@ export const missionEnrichmentService = {
       await missionEnrichmentRepository.completeWithValues(
         enrichment.id,
         result.text,
+        { inputTokens, outputTokens, totalTokens },
         valid.map((v) => ({
           taxonomyValueId: v.taxonomyValueId,
           confidence: v.confidence,
@@ -165,6 +165,9 @@ export const missionEnrichmentService = {
       );
 
       console.log(`${LOG_PREFIX} ${missionId}: enrichment completed — ${valid.length} values persisted`);
+      for (const v of valid) {
+        console.log(`${LOG_PREFIX} ${missionId}:   ${v.dimension_key}.${v.value_key} (${v.confidence}) — ${v.evidence.reasoning}`);
+      }
     } catch (error) {
       await missionEnrichmentRepository.update({ where: { id: enrichment.id }, data: { status: "failed" } }).catch((updateErr) => {
         console.error(`${LOG_PREFIX} ${missionId}: failed to update status to failed`, updateErr);

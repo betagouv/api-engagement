@@ -17,6 +17,7 @@ export const missionEnrichmentRepository = {
   async completeWithValues(
     enrichmentId: string,
     rawResponse: string,
+    tokenUsage: { inputTokens: number | undefined; outputTokens: number | undefined; totalTokens: number | undefined },
     values: Omit<Prisma.MissionEnrichmentValueUncheckedCreateInput, "enrichmentId">[],
   ): Promise<void> {
     await prisma.$transaction(async (tx) => {
@@ -27,7 +28,14 @@ export const missionEnrichmentRepository = {
       }
       await tx.missionEnrichment.update({
         where: { id: enrichmentId },
-        data: { status: "completed", rawResponse, completedAt: new Date() },
+        data: {
+          status: "completed",
+          rawResponse,
+          inputTokens: tokenUsage.inputTokens,
+          outputTokens: tokenUsage.outputTokens,
+          totalTokens: tokenUsage.totalTokens,
+          completedAt: new Date(),
+        },
       });
     });
   },
