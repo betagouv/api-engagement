@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BiSolidInfoSquare } from "react-icons/bi";
 
 import JvaLogoSvg from "@/assets/svg/jva-logo.svg";
@@ -11,7 +11,23 @@ import { captureError } from "@/services/error";
 import useStore from "@/services/store";
 
 const JVA_ID = "5f5931496c7ea514150a818f";
-const SC_ID = "5f99dbe75eb1ad767733b206";
+
+const MISSION_TYPE_LABELS = {
+  benevolat: "Bénévolat",
+  volontariat: "Service Civique",
+  volontariat_sapeurs_pompiers: "Sapeurs-pompiers",
+  volontariat_reserve_operationnelle: "Réserve opérationnelle",
+};
+
+const toWidgetType = (missionType) => {
+  if (missionType === "volontariat_service_civique") return "volontariat";
+  return missionType || "benevolat";
+};
+
+const toMissionTypes = (widgetType) => {
+  if (widgetType === "volontariat") return ["volontariat_service_civique"];
+  return widgetType ? [widgetType] : undefined;
+};
 
 const Settings = ({ widget, values, onChange, loading }) => {
   const { publisher } = useStore();
@@ -20,41 +36,25 @@ const Settings = ({ widget, values, onChange, loading }) => {
   const [showAll, setShowAll] = useState(false);
   const [selectAll, setSelectAll] = useState(false);
 
-  useEffect(() => {
-    if (loading) {
-      return;
-    }
-    const fetchMissions = async () => {
-      try {
-        const publishers = publisher.publishers.map((p) => p.diffuseurPublisherId);
-        if (publisher.isAnnonceur) {
-          publishers.push(publisher.id);
-        }
-        const query = {
-          publishers,
-          lat: values.location?.lat,
-          lon: values.location?.lon,
-          distance: values.distance,
-          jvaModeration: values.jvaModeration,
-          status: "ACCEPTED",
-          size: 0,
-        };
+  const availableTypes = useMemo(() => {
+    const types = new Set();
+    publisher.publishers.forEach((p) => types.add(toWidgetType(p.missionType)));
+    if (publisher.isAnnonceur && publisher.missionType) types.add(toWidgetType(publisher.missionType));
+    return Object.keys(MISSION_TYPE_LABELS).filter((t) => types.has(t));
+  }, [publisher]);
 
-        const res = await api.post("/mission/search", query);
-        if (!res.ok) {
-          throw res;
-        }
-        const newPublishers = res.aggs.partners;
-        if (publisher.isAnnonceur && !newPublishers.some((p) => p.key === publisher.id)) {
-          newPublishers.push({ key: publisher.id, doc_count: 0, name: publisher.name, mission_type: publisher.missionType });
-        }
-        setPublishers(newPublishers);
-      } catch (error) {
-        captureError(error, { extra: { publisherId: publisher.id } });
-      }
-    };
-    fetchMissions();
-  }, [loading, publisher, values.location, values.distance, values.jvaModeration]);
+  useEffect(() => {
+    if (loading) return;
+    const items = publisher.publishers.map((p) => ({
+      key: p.diffuseurPublisherId,
+      label: p.diffuseurPublisherName,
+      mission_type: toWidgetType(p.missionType),
+    }));
+    if (publisher.isAnnonceur) {
+      items.push({ key: publisher.id, label: publisher.name, mission_type: toWidgetType(publisher.missionType) });
+    }
+    setPublishers(items);
+  }, [loading, publisher]);
 
   useEffect(() => {
     if (loading) {
@@ -64,7 +64,8 @@ const Settings = ({ widget, values, onChange, loading }) => {
       const fetchFilteredMissions = async () => {
         try {
           const query = {
-            publishers: values.publishers,
+            publisherIds: values.publishers,
+            type: toMissionTypes(values.type),
             lat: values.location?.lat,
             lon: values.location?.lon,
             distance: values.distance,
@@ -86,7 +87,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
       fetchFilteredMissions();
     }, 1000);
     return () => clearTimeout(timeout);
-  }, [loading, values.publishers, values.location, values.distance, values.jvaModeration, values.rules]);
+  }, [loading, values.type, values.publishers, values.location, values.distance, values.jvaModeration, values.rules]);
 
   return (
     <div className="space-y-12 bg-white p-4 shadow-lg sm:p-12">
@@ -121,31 +122,19 @@ const Settings = ({ widget, values, onChange, loading }) => {
               Type de mission<span className="text-error ml-1">*</span>
             </label>
             <div className="flex items-center">
-              {publisher.publishers.filter((p) => p.publisherId !== SC_ID).length > 0 && (
+              {availableTypes.map((type) => (
                 <RadioInput
-                  id="type-benevolat"
+                  key={type}
+                  id={`type-${type}`}
                   name="type"
-                  value="benevolat"
-                  label="Bénévolat"
-                  checked={values.type === "benevolat"}
-                  onChange={() => onChange({ ...values, type: "benevolat", publishers: [] })}
+                  value={type}
+                  label={MISSION_TYPE_LABELS[type]}
+                  checked={values.type === type}
+                  onChange={() => onChange({ ...values, type, publishers: [] })}
                   className="flex-1"
                   size={24}
                 />
-              )}
-
-              {publisher.publishers.some((p) => p.publisherId === SC_ID) && (
-                <RadioInput
-                  id="type-volontariat"
-                  name="type"
-                  value="volontariat"
-                  label="Volontariat"
-                  checked={values.type === "volontariat"}
-                  onChange={() => onChange({ ...values, type: "volontariat", publishers: [SC_ID] })}
-                  className="flex-1"
-                  size={24}
-                />
-              )}
+              ))}
             </div>
           </div>
           <div />
@@ -188,29 +177,25 @@ const Settings = ({ widget, values, onChange, loading }) => {
             <span className="text-error ml-1">*</span>
           </label>
 
-          {values.type === "benevolat" && (
-            <div>
-              <button
-                className="text-blue-france underline"
-                onClick={() => {
-                  onChange({ ...values, publishers: selectAll ? [] : publishers.map((p) => p.key) });
-                  setSelectAll(!selectAll);
-                }}
-              >
-                {selectAll ? "Tout déselectionner" : "Tout sélectionner"}
-              </button>
-            </div>
-          )}
+          <div>
+            <button
+              className="text-blue-france cursor-pointer underline"
+              onClick={() => {
+                onChange({ ...values, publishers: selectAll ? [] : publishers.filter((p) => (p.mission_type || "benevolat") === values.type).map((p) => p.key) });
+                setSelectAll(!selectAll);
+              }}
+            >
+              {selectAll ? "Tout déselectionner" : "Tout sélectionner"}
+            </button>
+          </div>
 
-          {publishers.length === 0 ? (
-            <p className="text-text-mention text-sm">Aucun partenaire disponible</p>
-          ) : (
-            <div className={`grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2 lg:grid-cols-3 ${values.type === "volontariat" ? "text-gray-625" : ""}`}>
-              {publishers
-                .filter((item) => (values.type === "benevolat" ? item.key !== SC_ID : item.key === SC_ID))
-                .sort((a, b) => b.doc_count - a.doc_count)
-                .slice(0, showAll ? publishers.length : 15)
-                .map((item, i) => (
+          {(() => {
+            const filteredPublishers = publishers.filter((item) => (item.mission_type || "benevolat") === values.type).sort((a, b) => b.doc_count - a.doc_count);
+            return filteredPublishers.length === 0 ? (
+              <p className="text-text-mention text-sm">Aucun partenaire disponible</p>
+            ) : (
+              <div className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
+                {filteredPublishers.slice(0, showAll ? filteredPublishers.length : 15).map((item, i) => (
                   <label
                     key={i}
                     className={`hover:border-blue-france flex cursor-pointer gap-4 rounded border p-4 ${values.publishers.includes(item.key) ? "border-blue-france" : "border-gray-300"}`}
@@ -221,8 +206,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
                         className="checkbox"
                         id={`${i}-publishers`}
                         name={`${i}-publishers`}
-                        disabled={values.type === "volontariat"}
-                        checked={values.publishers.includes(item.key) || values.type === "volontariat"}
+                        checked={values.publishers.includes(item.key)}
                         onChange={(e) =>
                           onChange({ ...values, publishers: e.target.checked ? [...values.publishers, item.key] : values.publishers.filter((id) => id !== item.key) })
                         }
@@ -231,11 +215,6 @@ const Settings = ({ widget, values, onChange, loading }) => {
 
                     <div className="flex flex-col truncate">
                       <span className={`line-clamp-2 truncate text-sm ${values.publishers.includes(item.key) ? "text-blue-france" : "text-black"}`}>{item.label}</span>
-                      <div className={`flex ${values.type === "volontariat" ? "text-gray-625" : "text-text-mention"}`}>
-                        <span className="text-xs">
-                          {item.doc_count.toLocaleString("fr")} {item.doc_count > 1 ? "missions" : "mission"}
-                        </span>
-                      </div>
                     </div>
 
                     {item.moderation && item.moderation.length > 0 && values.publishers.includes(item.key) && (
@@ -265,10 +244,11 @@ const Settings = ({ widget, values, onChange, loading }) => {
                     )}
                   </label>
                 ))}
-            </div>
-          )}
+              </div>
+            );
+          })()}
 
-          {publishers.length > 15 && values.type === "benevolat" && (
+          {publishers.filter((item) => (item.mission_type || "benevolat") === values.type).length > 15 && (
             <button className="border-blue-france text-blue-france mt-6 border p-2" onClick={() => setShowAll(!showAll)}>
               {showAll ? "Masquer les annonceurs" : "Afficher tous les annonceurs"}
             </button>

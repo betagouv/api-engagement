@@ -9,6 +9,8 @@ import api from "@/services/api";
 import { BENEVOLAT_URL, VOLONTARIAT_URL } from "@/services/config";
 import { captureError } from "@/services/error";
 
+const getWidgetUrl = (type) => (type === "benevolat" ? BENEVOLAT_URL : VOLONTARIAT_URL);
+
 const Edit = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -165,7 +167,7 @@ const Frame = ({ widget }) => {
   const handleLoad = (e) => {
     let height;
     const width = e.target.offsetWidth;
-    if (widget.type === "volontariat") {
+    if (widget.type !== "benevolat") {
       if (widget.style === "carousel") {
         if (width < 768) {
           height = "670px";
@@ -218,11 +220,13 @@ const Frame = ({ widget }) => {
         allowFullScreen
         allow="geolocation"
         onLoad={handleLoad}
-        src={`${widget.type === "volontariat" ? VOLONTARIAT_URL : BENEVOLAT_URL}?widget=${widget.id}&notrack=true`}
+        src={`${getWidgetUrl(widget.type)}?widget=${widget.id}&notrack=true`}
       />
     </div>
   );
 };
+
+const getIframeKey = (type) => (type === "benevolat" ? "benevolat" : "volontariat");
 
 const IFRAMES = {
   benevolat: {
@@ -244,7 +248,7 @@ const JVA_LOGO = `<div style="padding:10px; display:flex; justify-content:center
 
 const Code = ({ widget }) => {
   const handleCopy = () => {
-    navigator.clipboard.writeText(`${IFRAMES[widget.type][widget.style].replace("{{widgetId}}", widget.id)}${widget.type === "benevolat" ? `\n\n${JVA_LOGO}` : ""}`);
+    navigator.clipboard.writeText(`${IFRAMES[getIframeKey(widget.type)][widget.style].replace("{{widgetId}}", widget.id)}${widget.type === "benevolat" ? `\n\n${JVA_LOGO}` : ""}`);
     toast.success("Clé copiée");
   };
 
@@ -263,7 +267,7 @@ const Code = ({ widget }) => {
           className="border-blue-france-925 bg-blue-france-975 w-full rounded-none border px-4 py-2 text-base read-only:opacity-80"
           rows={widget.type === "benevolat" ? 11 : 4}
           readOnly
-          value={`${IFRAMES[widget.type][widget.style].replace("{{widgetId}}", widget.id)}${widget.type === "benevolat" ? `\n\n${JVA_LOGO}` : ""}`}
+          value={`${IFRAMES[getIframeKey(widget.type)][widget.style].replace("{{widgetId}}", widget.id)}${widget.type === "benevolat" ? `\n\n${JVA_LOGO}` : ""}`}
         />
       </div>
     </div>
