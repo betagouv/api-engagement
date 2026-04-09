@@ -18,8 +18,8 @@ const Header = () => {
   const { user } = useStore();
   return (
     <header role="banner" className="border-b-grey-border flex w-full justify-center border-b bg-white">
-      <div className="flex w-full max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-3">
-        <Link className="hover:bg-gray-975 flex items-center gap-4 p-4" to={user ? "/" : "/login"}>
+      <div className="flex w-full max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-1 sm:py-3">
+        <Link className="hover:bg-gray-975 flex items-center gap-4 p-2 sm:p-4" to={user ? "/" : "/login"}>
           <div className="flex h-24 items-center justify-center">
             <div className="flex flex-col items-start">
               <img src={marianneBanner} alt="" aria-hidden="true" className="mb-1 w-10" />
@@ -31,8 +31,8 @@ const Header = () => {
               <img src={deviseSrc} alt="" aria-hidden="true" className="mt-1 h-7" />
             </div>
           </div>
-          <LogoSvg alt="" className="w-8" />
-          <div>
+          <LogoSvg alt="" className="hidden w-8 sm:block" aria-hidden="true" />
+          <div className="hidden sm:block">
             <h1 className="text-xl font-bold">API Engagement</h1>
             <p className="text-sm">Plateforme de partage de missions de bénévolat et de volontariat</p>
           </div>

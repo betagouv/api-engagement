@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { RiArrowDownSFill, RiArrowDownSLine, RiArrowLeftRightLine, RiCheckLine, RiSearchLine } from "react-icons/ri";
+import { RiArrowDownSFill, RiArrowDownSLine, RiArrowLeftRightLine, RiCheckLine, RiMenuLine, RiCloseLine, RiSearchLine } from "react-icons/ri";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import api from "@/services/api";
@@ -95,16 +95,30 @@ const Nav = () => {
         ]),
   ];
 
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
     <div className="w-full bg-white shadow-lg">
       <nav role="navigation" aria-label="Navigation principale" className="mx-auto min-h-14 w-full max-w-312 px-4">
-        <ul className="m-0 flex w-full list-none flex-col items-center justify-between gap-x-6 gap-y-2 p-0 lg:flex-row" role="list" aria-label="Menu principal">
-          <li className="flex flex-col items-center gap-4 lg:flex-row lg:gap-6">
+        <div className="flex items-center justify-between lg:hidden">
+          <span className="py-3 text-sm font-semibold">{menuItems.find((item) => item.isActive)?.label || "Menu"}</span>
+          <button
+            className="focus flex items-center rounded-sm p-2 hover:bg-gray-100"
+            aria-expanded={menuOpen}
+            aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            {menuOpen ? <RiCloseLine className="text-xl" aria-hidden="true" /> : <RiMenuLine className="text-xl" aria-hidden="true" />}
+          </button>
+        </div>
+
+        <ul className={`m-0 w-full list-none flex-col items-start justify-between gap-x-6 gap-y-2 p-0 pb-4 lg:flex lg:flex-row lg:items-center lg:pb-0 ${menuOpen ? "flex" : "hidden lg:flex"}`} role="list" aria-label="Menu principal">
+          <li className="flex w-full flex-col items-start gap-4 lg:w-auto lg:flex-row lg:items-center lg:gap-6">
             {publisher.isAnnonceur && (publisher.hasApiRights || publisher.hasWidgetRights || publisher.hasCampaignRights) && <FluxMenu value={flux} onChange={handleFluxChange} />}
-            <ul className="m-0 flex list-none flex-col items-center gap-4 p-0 lg:flex-row lg:gap-6">
+            <ul className="m-0 flex w-full list-none flex-col items-start gap-2 p-0 lg:w-auto lg:flex-row lg:items-center lg:gap-6">
               {menuItems.map((item) => (
                 <li key={item.key}>
-                  <Link to={item.to} aria-current={item.isActive} className="nav-item">
+                  <Link to={item.to} aria-current={item.isActive} className="nav-item" onClick={() => setMenuOpen(false)}>
                     {item.label}
                   </Link>
                 </li>
@@ -112,7 +126,7 @@ const Nav = () => {
             </ul>
           </li>
 
-          <li className="flex flex-col items-center gap-4 lg:flex-row lg:gap-6">
+          <li className="flex w-full flex-col items-start gap-4 lg:w-auto lg:flex-row lg:items-center lg:gap-6">
             {publishers.length > 1 && <PublisherMenu options={publishers} value={publisher} onChange={handleChangePublisher} />}
             {user.role === "admin" && <AdminMenu />}
           </li>
