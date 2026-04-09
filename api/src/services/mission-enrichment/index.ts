@@ -162,7 +162,14 @@ export const missionEnrichmentService = {
       console.log(`${LOG_PREFIX} ${missionId}: LLM response received — tokens: ${inputTokens} in / ${outputTokens} out / ${totalTokens} total`);
 
       // 8. Parse + validate response
-      const { valid, skipped } = parseEnrichmentResponse(result.text, buildTaxonomyLookup(dimensions), CONFIDENCE_THRESHOLD);
+      let valid: ReturnType<typeof parseEnrichmentResponse>["valid"];
+      let skipped: ReturnType<typeof parseEnrichmentResponse>["skipped"];
+      try {
+        ({ valid, skipped } = parseEnrichmentResponse(result.text, buildTaxonomyLookup(dimensions), CONFIDENCE_THRESHOLD));
+      } catch (parseError) {
+        console.error(`${LOG_PREFIX} ${missionId}: failed to parse LLM response\n${result.text}`);
+        throw parseError;
+      }
 
       if (skipped.length > 0) {
         console.warn(
