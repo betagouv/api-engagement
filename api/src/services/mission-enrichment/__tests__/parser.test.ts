@@ -4,14 +4,17 @@ import { parseEnrichmentResponse, type TaxonomyLookup } from "../parser";
 
 const buildLookup = (): TaxonomyLookup => {
   const lookup: TaxonomyLookup = new Map();
-  lookup.set(
-    "domaine",
-    new Map([
+  lookup.set("domaine", {
+    type: "multi_value",
+    values: new Map([
       ["sante_soins", "tv-sante"],
       ["social_solidarite", "tv-social"],
-    ])
-  );
-  lookup.set("type_mission", new Map([["ponctuelle", "tv-ponctuelle"]]));
+    ]),
+  });
+  lookup.set("type_mission", {
+    type: "categorical",
+    values: new Map([["ponctuelle", "tv-ponctuelle"]]),
+  });
   return lookup;
 };
 
