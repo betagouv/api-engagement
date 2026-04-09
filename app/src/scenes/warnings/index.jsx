@@ -111,8 +111,8 @@ const List = () => {
       <div className="mb-10 flex flex-col gap-8">
         <h1 className="text-3xl font-bold">État du service</h1>
 
-        <div className="flex items-center gap-8 bg-white p-6 shadow-sm">
-          <img className="h-18 w-18" src={APILogo} alt="" aria-hidden="true" />
+        <div className="flex flex-col gap-4 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:gap-8 sm:p-6">
+          <img className="h-18 w-18 shrink-0" src={APILogo} alt="" aria-hidden="true" />
           <div>
             {!state.up ? (
               <p className="text-xl">
@@ -133,7 +133,7 @@ const List = () => {
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-6 bg-white p-6 shadow-sm">
+        <div className="flex flex-col gap-4 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:gap-6 sm:p-6">
           {currentWarnings.length > 1 ? (
             <>
               <div className="flex items-center justify-center">
@@ -164,9 +164,9 @@ const List = () => {
       </div>
 
       <div className="mb-4 flex flex-col">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <h2 className="text-2xl font-bold">Alertes en cours</h2>
-          <a href="mailto:apiengagement@beta.gouv.fr" className="text-blue-france border-grey-border flex items-center border py-2 pr-3 pl-4 text-sm">
+          <a href="mailto:apiengagement@beta.gouv.fr" className="text-blue-france border-grey-border flex shrink-0 items-center border py-2 pr-3 pl-4 text-sm">
             Contacter le support
             <RiMessage2Line className="ml-2" aria-hidden="true" />
           </a>
@@ -181,7 +181,7 @@ const List = () => {
               {currentWarningsByDays[d].map((w, i) => {
                 const label = WARNINGS[w.type] || WARNINGS.OTHER_WARNING;
                 return (
-                  <Link to={LINKS[w.type]} className="flex items-end gap-8 bg-white p-6 shadow-sm" key={i} id={slugify(`${w.type}-${w.publisherName}`)}>
+                  <Link to={LINKS[w.type]} className="flex flex-col gap-4 bg-white p-4 shadow-sm sm:flex-row sm:items-end sm:gap-8 sm:p-6" key={i} id={slugify(`${w.type}-${w.publisherName}`)}>
                     <div className="flex items-center justify-center gap-8">
                       <div className="flex items-center justify-center">{label.emoji}</div>
                       <div className="flex flex-1 flex-col justify-between">
@@ -208,7 +208,7 @@ const List = () => {
       </div>
       <div className="space-y-6">
         <h2 className="text-2xl font-bold">Historiques des alertes passées</h2>
-        <div className="flex w-1/2 items-center justify-start gap-4">
+        <div className="flex w-full flex-col gap-4 sm:w-1/2 sm:flex-row sm:flex-wrap sm:items-center">
           <Select
             options={Object.entries(WARNINGS).map(([k, v]) => ({ value: k, label: v.name }))}
             value={archivedFilters.type}
@@ -244,7 +244,7 @@ const List = () => {
                 {archivedWarningsByDays[d].map((w, i) => {
                   const label = WARNINGS[w.type] || WARNINGS.OTHER_WARNING;
                   return (
-                    <div className="flex items-center gap-8 bg-white p-6 shadow-sm" key={i} id={slugify(`${w.type}-${w.publisherName}`)}>
+                    <div className="flex flex-col gap-4 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:gap-8 sm:p-6" key={i} id={slugify(`${w.type}-${w.publisherName}`)}>
                       <div className="flex items-center justify-center">{label.emoji}</div>
                       <div className="flex flex-1 flex-col justify-between">
                         <div className="mb-3">
