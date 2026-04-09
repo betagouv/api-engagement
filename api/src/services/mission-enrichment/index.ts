@@ -93,12 +93,13 @@ export const missionEnrichmentService = {
   async enrich(missionId: string, options: { force?: boolean } = {}) {
     // 1. Load mission (needed before idempotence check for updatedAt comparison)
     const mission = await missionRepository.findUnique({
-      where: { id: missionId },
+      where: { id: missionId, deletedAt: null },
       include: missionInclude,
     });
 
     if (!mission) {
-      throw new Error(`${LOG_PREFIX} Mission ${missionId} not found`);
+      console.log(`${LOG_PREFIX} skipping ${missionId} — not found or deleted`);
+      return;
     }
 
     // 2. Idempotence: skip if a completed enrichment exists and mission hasn't changed,
