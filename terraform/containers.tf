@@ -61,6 +61,45 @@ resource "scaleway_container" "api" {
   }
 }
 
+resource "scaleway_container" "api_worker" {
+  name           = "${var.workspace}-api-worker"
+  description    = "API worker ${var.workspace} container"
+  namespace_id   = scaleway_container_namespace.main.id
+  registry_image = "ghcr.io/${var.github_repository}/api-worker:${var.env}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
+  port           = 8080
+  cpu_limit      = var.worker_cpu_limit
+  memory_limit   = var.worker_memory_limit
+  min_scale      = var.worker_min_scale
+  max_scale      = var.worker_max_scale
+  timeout        = 300
+  privacy        = "private"
+  protocol       = "http1"
+  deploy         = true
+
+  health_check {
+    http {
+      path = "/"
+    }
+    interval          = "30s"
+    failure_threshold = 3
+  }
+
+  environment_variables = {
+    "ENV"                               = var.env
+    "IMAGE_VERSION"                     = var.image_tag
+    "PORT"                              = "8080"
+    "PRISMA_POOL_SIZE_CORE"             = "20"
+    "PRISMA_POOL_TIMEOUT"               = "20"
+    "PRISMA_CONNECT_TIMEOUT"            = "10"
+    "SCW_QUEUE_URL_MISSION_ENRICHMENT"  = module.async_task_queues["mission_enrichment"].url
+    "SCW_QUEUE_URL_MISSION_SCORING"     = module.async_task_queues["mission_scoring"].url
+  }
+
+  secret_environment_variables = {
+    "DATABASE_URL_CORE" = local.secrets.DATABASE_URL_CORE
+  }
+}
+
 # App Container
 resource "scaleway_container" "app" {
   name           = "${var.workspace}-app"
