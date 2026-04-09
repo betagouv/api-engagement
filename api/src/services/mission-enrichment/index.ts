@@ -4,7 +4,7 @@ import { generateText } from "ai";
 import { missionRepository } from "@/repositories/mission";
 import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
 import { taxonomyRepository } from "@/repositories/taxonomy";
-import { CONFIDENCE_THRESHOLD, CURRENT_PROMPT_VERSION } from "./config";
+import { CONFIDENCE_THRESHOLD, CURRENT_PROMPT_VERSION, LLM_MAX_RETRIES } from "./config";
 import { parseEnrichmentResponse, type TaxonomyLookup } from "./parser";
 import { buildMissionBlock, buildTaxonomyBlock, PROMPT_REGISTRY } from "./prompts";
 import type { MissionForPrompt, TaxonomyForPrompt } from "./prompts/types";
@@ -155,6 +155,7 @@ export const missionEnrichmentService = {
         model: promptVersion.MODEL,
         system: systemPrompt,
         prompt: userMessage,
+        maxRetries: LLM_MAX_RETRIES,
       });
 
       const { inputTokens, outputTokens, totalTokens } = result.usage;
