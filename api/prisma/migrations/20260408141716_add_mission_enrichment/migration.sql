@@ -75,7 +75,7 @@ CREATE INDEX "mission_enrichment_mission_version_idx" ON "mission_enrichment"("m
 CREATE INDEX "mission_enrichment_status_idx" ON "mission_enrichment"("status");
 
 -- CreateIndex
-CREATE INDEX "mission_enrichment_value_enrichment_id_idx" ON "mission_enrichment_value"("enrichment_id");
+CREATE UNIQUE INDEX "mission_enrichment_value_unique" ON "mission_enrichment_value"("enrichment_id", "taxonomy_value_id");
 
 -- CreateIndex
 CREATE INDEX "mission_enrichment_value_taxonomy_value_id_idx" ON "mission_enrichment_value"("taxonomy_value_id");

@@ -1044,7 +1044,7 @@ model MissionEnrichmentValue {
   enrichment    MissionEnrichment @relation(fields: [enrichmentId], references: [id], onDelete: Cascade)
   taxonomyValue TaxonomyValue     @relation(fields: [taxonomyValueId], references: [id], onDelete: Cascade)
 
-  @@index([enrichmentId], map: "mission_enrichment_value_enrichment_id_idx")
+  @@unique([enrichmentId, taxonomyValueId], map: "mission_enrichment_value_unique")
   @@index([taxonomyValueId], map: "mission_enrichment_value_taxonomy_value_id_idx")
   @@map("mission_enrichment_value")
 }
