@@ -11,7 +11,7 @@ import type { MissionForPrompt, TaxonomyForPrompt } from "./prompts/types";
 
 const LOG_PREFIX = "[mission-enrichment]";
 
-const buildTaxonomyLookup = (dimensions: Array<{ key: string; values: Array<{ key: string; id: string; active: boolean }> }>): TaxonomyLookup => {
+const buildTaxonomyLookup = (dimensions: Array<{ key: string; type: string; values: Array<{ key: string; id: string; active: boolean }> }>): TaxonomyLookup => {
   const lookup: TaxonomyLookup = new Map();
   for (const dim of dimensions) {
     const valueMap = new Map<string, string>();
@@ -19,7 +19,7 @@ const buildTaxonomyLookup = (dimensions: Array<{ key: string; values: Array<{ ke
       if (!val.active) continue;
       valueMap.set(val.key, val.id);
     }
-    lookup.set(dim.key, valueMap);
+    lookup.set(dim.key, { type: dim.type, values: valueMap });
   }
   return lookup;
 };
