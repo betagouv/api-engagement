@@ -16,7 +16,9 @@ const buildTaxonomyLookup = (taxonomies: Array<{ key: string; type: string; valu
   for (const taxonomy of taxonomies) {
     const values = new Map<string, string>();
     for (const val of taxonomy.values) {
-      if (!val.active) continue;
+      if (!val.active) {
+        continue;
+      }
       values.set(val.key, val.id);
     }
     lookup.set(taxonomy.key, { type: taxonomy.type, values });
@@ -191,9 +193,6 @@ export const missionEnrichmentService = {
       );
 
       console.log(`${LOG_PREFIX} ${missionId}: enrichment completed — ${valid.length} values persisted`);
-      for (const v of valid) {
-        console.log(`${LOG_PREFIX} ${missionId}:   ${v.dimension_key}.${v.value_key} (${v.confidence}) — ${v.evidence.reasoning}`);
-      }
     } catch (error) {
       await missionEnrichmentRepository.update({ where: { id: enrichment.id }, data: { status: "failed" } }).catch((updateErr) => {
         console.error(`${LOG_PREFIX} ${missionId}: failed to update status to failed`, updateErr);

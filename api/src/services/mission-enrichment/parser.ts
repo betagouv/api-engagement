@@ -1,4 +1,4 @@
-import JSON5 from "json5";
+import { jsonrepair } from "jsonrepair";
 import { z } from "zod";
 
 const classificationItemSchema = z.object({
@@ -40,9 +40,9 @@ const parseJson = (jsonStr: string): unknown => {
   try {
     return JSON.parse(jsonStr);
   } catch {
-    // Fallback: JSON5 handles trailing commas, single quotes, and other
-    // minor deviations that LLMs occasionally produce
-    return JSON5.parse(jsonStr);
+    // Fallback: jsonrepair handles trailing commas, multi-value strings,
+    // and other structural deviations that LLMs occasionally produce
+    return JSON.parse(jsonrepair(jsonStr));
   }
 };
 

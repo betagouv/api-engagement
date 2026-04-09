@@ -7,9 +7,9 @@ import { parseEnrichmentResponse, type TaxonomyLookup } from "@/services/mission
 import fs from "fs";
 import path from "path";
 
-// Pricing mistral-small-2503 (USD → EUR, taux fixe 0.93)
-const INPUT_COST_PER_TOKEN = (0.1 / 1_000_000) * 0.93; // €0.000000093
-const OUTPUT_COST_PER_TOKEN = (0.3 / 1_000_000) * 0.93; // €0.000000279
+// Pricing mistral-small-2603 (USD → EUR, taux fixe 0.93)
+const INPUT_COST_PER_TOKEN = (0.15 / 1_000_000) * 0.93; // €0.0000001395
+const OUTPUT_COST_PER_TOKEN = (0.6 / 1_000_000) * 0.93; // €0.000000558
 
 // ─── CLI args ────────────────────────────────────────────────────────────────
 
