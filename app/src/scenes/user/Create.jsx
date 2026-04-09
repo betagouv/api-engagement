@@ -85,7 +85,7 @@ const Create = () => {
         <title>API Engagement - Nouvel utilisateur</title>
         <h1 className="text-4xl font-bold">Nouvel utilisateur</h1>
       </div>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-6 bg-white p-16 shadow-lg">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-6 bg-white p-4 shadow-lg sm:p-16">
         <h2 className="text-3xl font-bold">Les informations</h2>
 
         <div className="grid grid-cols-1 gap-x-10 gap-y-5 lg:grid-cols-2">
@@ -118,7 +118,7 @@ const Create = () => {
 
           <input
             id="publishers"
-            className="input mb-4 w-64 flex-1 bg-gray-950 px-3 py-2 text-sm"
+            className="input mb-4 w-full bg-gray-950 px-3 py-2 text-sm sm:w-64"
             placeholder="Rechercher"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -178,7 +178,7 @@ const Create = () => {
           </Table>
         </div>
 
-        <div className="flex justify-end gap-4">
+        <div className="flex flex-wrap justify-end gap-4">
           <Link to="/admin-account" className="tertiary-btn">
             Retour
           </Link>
