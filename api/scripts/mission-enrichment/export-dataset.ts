@@ -1,15 +1,15 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import fs from "fs";
-import path from "path";
 import { prisma } from "@/db/postgres";
 import { CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/config";
 import { parseEnrichmentResponse, type TaxonomyLookup } from "@/services/mission-enrichment/parser";
+import fs from "fs";
+import path from "path";
 
-// Pricing mistral-small-2603 (USD → EUR, taux fixe 0.93)
-const INPUT_COST_PER_TOKEN = (0.15 / 1_000_000) * 0.93; // €0.0000001395
-const OUTPUT_COST_PER_TOKEN = (0.6 / 1_000_000) * 0.93; // €0.000000558
+// Pricing mistral-small-2503 (USD → EUR, taux fixe 0.93)
+const INPUT_COST_PER_TOKEN = (0.1 / 1_000_000) * 0.93; // €0.000000093
+const OUTPUT_COST_PER_TOKEN = (0.3 / 1_000_000) * 0.93; // €0.000000279
 
 // ─── CLI args ────────────────────────────────────────────────────────────────
 
@@ -28,7 +28,9 @@ const outputPath = getArg("--output") ?? "./enrichment-export.csv";
 type DimensionMeta = { type: string; label: string; values: Map<string, { id: string; label: string }> };
 type FullTaxonomyLookup = Map<string, DimensionMeta>;
 
-const buildFullLookup = (dimensions: Array<{ key: string; type: string; label: string; values: Array<{ key: string; id: string; label: string; active: boolean }> }>): { taxonomyLookup: TaxonomyLookup; fullLookup: FullTaxonomyLookup } => {
+const buildFullLookup = (
+  dimensions: Array<{ key: string; type: string; label: string; values: Array<{ key: string; id: string; label: string; active: boolean }> }>
+): { taxonomyLookup: TaxonomyLookup; fullLookup: FullTaxonomyLookup } => {
   const taxonomyLookup: TaxonomyLookup = new Map();
   const fullLookup: FullTaxonomyLookup = new Map();
 
@@ -57,12 +59,24 @@ const csvEscape = (value: string | null | undefined): string => {
 };
 
 const HEADERS = [
-  "enrichmentId", "missionId", "title", "description",
-  "promptVersion", "completedAt",
-  "status", "skipReason",
-  "dimension", "dimensionLabel", "value", "valueLabel",
-  "confidence", "reasoning",
-  "inputTokens", "outputTokens", "totalTokens", "costEuros",
+  "enrichmentId",
+  "missionId",
+  "title",
+  "description",
+  "promptVersion",
+  "completedAt",
+  "status",
+  "skipReason",
+  "dimension",
+  "dimensionLabel",
+  "value",
+  "valueLabel",
+  "confidence",
+  "reasoning",
+  "inputTokens",
+  "outputTokens",
+  "totalTokens",
+  "costEuros",
 ];
 
 type CsvRow = {
@@ -86,8 +100,7 @@ type CsvRow = {
   costEuros: string;
 };
 
-const rowToCsv = (row: CsvRow): string =>
-  HEADERS.map((h) => csvEscape(row[h as keyof CsvRow])).join(",");
+const rowToCsv = (row: CsvRow): string => HEADERS.map((h) => csvEscape(row[h as keyof CsvRow])).join(",");
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
@@ -169,7 +182,7 @@ async function main() {
         const { skipped } = parseEnrichmentResponse(
           typeof enrichment.rawResponse === "string" ? enrichment.rawResponse : JSON.stringify(enrichment.rawResponse),
           taxonomyLookup,
-          0, // threshold = 0 to recover all items (already filtered in valid)
+          0 // threshold = 0 to recover all items (already filtered in valid)
         );
 
         for (const s of skipped) {
