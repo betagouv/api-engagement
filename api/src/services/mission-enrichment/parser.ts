@@ -22,10 +22,10 @@ export type SkippedClassification = z.infer<typeof classificationItemSchema> & {
   reason: string;
 };
 
-type DimensionMeta = { type: string; values: Map<string, string> };
+type TaxonomyMeta = { type: string; values: Map<string, string> };
 
-// dimensionKey -> { type, values: valueKey -> taxonomyValueId }
-export type TaxonomyLookup = Map<string, DimensionMeta>;
+// taxonomyKey -> { type, values: valueKey -> taxonomyValueId }
+export type TaxonomyLookup = Map<string, TaxonomyMeta>;
 
 const extractJson = (raw: string): string => {
   const fenceMatch = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
@@ -47,13 +47,13 @@ export const parseEnrichmentResponse = (
   const skipped: SkippedClassification[] = [];
 
   for (const item of parsed.classifications) {
-    const dimension = taxonomyLookup.get(item.dimension_key);
-    if (!dimension) {
+    const taxonomy = taxonomyLookup.get(item.dimension_key);
+    if (!taxonomy) {
       skipped.push({ ...item, reason: `unknown_dimension: ${item.dimension_key}` });
       continue;
     }
 
-    const taxonomyValueId = dimension.values.get(item.value_key);
+    const taxonomyValueId = taxonomy.values.get(item.value_key);
     if (!taxonomyValueId) {
       skipped.push({ ...item, reason: `unknown_value: ${item.dimension_key}.${item.value_key}` });
       continue;
@@ -64,7 +64,7 @@ export const parseEnrichmentResponse = (
       continue;
     }
 
-    // Deduplicate same dimension.value_key — keep highest confidence
+    // Deduplicate same taxonomy.value_key — keep highest confidence
     const dedupeKey = `${item.dimension_key}.${item.value_key}`;
     const existingIndex = valid.findIndex((v) => `${v.dimension_key}.${v.value_key}` === dedupeKey);
     if (existingIndex !== -1) {
@@ -74,8 +74,8 @@ export const parseEnrichmentResponse = (
       continue;
     }
 
-    // For categorical dimensions, only keep the single highest-confidence value
-    if (dimension.type === "categorical") {
+    // For categorical taxonomies, only keep the single highest-confidence value
+    if (taxonomy.type === "categorical") {
       const existingCategorical = valid.findIndex((v) => v.dimension_key === item.dimension_key);
       if (existingCategorical !== -1) {
         if (item.confidence > valid[existingCategorical].confidence) {

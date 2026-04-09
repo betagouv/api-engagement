@@ -11,15 +11,15 @@ import type { MissionForPrompt, TaxonomyForPrompt } from "./prompts/types";
 
 const LOG_PREFIX = "[mission-enrichment]";
 
-const buildTaxonomyLookup = (dimensions: Array<{ key: string; type: string; values: Array<{ key: string; id: string; active: boolean }> }>): TaxonomyLookup => {
+const buildTaxonomyLookup = (taxonomies: Array<{ key: string; type: string; values: Array<{ key: string; id: string; active: boolean }> }>): TaxonomyLookup => {
   const lookup: TaxonomyLookup = new Map();
-  for (const dim of dimensions) {
-    const valueMap = new Map<string, string>();
-    for (const val of dim.values) {
+  for (const taxonomy of taxonomies) {
+    const values = new Map<string, string>();
+    for (const val of taxonomy.values) {
       if (!val.active) continue;
-      valueMap.set(val.key, val.id);
+      values.set(val.key, val.id);
     }
-    lookup.set(dim.key, { type: dim.type, values: valueMap });
+    lookup.set(taxonomy.key, { type: taxonomy.type, values });
   }
   return lookup;
 };
@@ -99,15 +99,21 @@ export const missionEnrichmentService = {
       throw new Error(`${LOG_PREFIX} Mission ${missionId} not found`);
     }
 
-    // 2. Idempotence: skip if a completed enrichment exists and mission hasn't changed
+    // 2. Idempotence: skip if a completed enrichment exists and mission hasn't changed,
+    //    or if an in-flight enrichment (pending/processing) already exists for this version
     if (!options.force) {
       const existing = await missionEnrichmentRepository.findFirst({
-        where: { missionId, promptVersion: CURRENT_PROMPT_VERSION, status: "completed" },
+        where: { missionId, promptVersion: CURRENT_PROMPT_VERSION, status: { in: ["completed", "pending", "processing"] } },
         orderBy: { createdAt: "desc" },
       });
 
-      if (existing && mission.updatedAt <= existing.createdAt) {
+      if (existing?.status === "completed" && mission.updatedAt <= existing.createdAt) {
         console.log(`${LOG_PREFIX} skipping ${missionId} — already enriched for ${CURRENT_PROMPT_VERSION}`);
+        return;
+      }
+
+      if (existing?.status === "pending" || existing?.status === "processing") {
+        console.log(`${LOG_PREFIX} skipping ${missionId} — enrichment already in-flight (${existing.status})`);
         return;
       }
     }
@@ -116,9 +122,21 @@ export const missionEnrichmentService = {
     const dimensions = await taxonomyRepository.findManyWithValues({ orderBy: { key: "asc" } });
 
     // 4. Create enrichment record (pending)
-    const enrichment = await missionEnrichmentRepository.create({
-      data: { missionId, promptVersion: CURRENT_PROMPT_VERSION, status: "pending" },
-    });
+    // The partial unique index on (mission_id, prompt_version) WHERE status IN ('pending', 'processing')
+    // enforces at DB level that no two concurrent workers can run for the same mission/version.
+    // A P2002 here means another worker won the race — skip silently.
+    let enrichment;
+    try {
+      enrichment = await missionEnrichmentRepository.create({
+        data: { missionId, promptVersion: CURRENT_PROMPT_VERSION, status: "pending" },
+      });
+    } catch (error) {
+      if ((error as { code?: string }).code === "P2002") {
+        console.log(`${LOG_PREFIX} skipping ${missionId} — lost race to concurrent worker`);
+        return;
+      }
+      throw error;
+    }
 
     try {
       // 5. Mark as processing

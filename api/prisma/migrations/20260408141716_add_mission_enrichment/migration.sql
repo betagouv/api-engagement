@@ -74,6 +74,9 @@ CREATE INDEX "mission_enrichment_mission_version_idx" ON "mission_enrichment"("m
 -- CreateIndex
 CREATE INDEX "mission_enrichment_status_idx" ON "mission_enrichment"("status");
 
+-- CreateIndex: prevent concurrent in-flight enrichments for the same mission/version
+CREATE UNIQUE INDEX "mission_enrichment_inflight_unique" ON "mission_enrichment"("mission_id", "prompt_version") WHERE status IN ('pending', 'processing');
+
 -- CreateIndex
 CREATE UNIQUE INDEX "mission_enrichment_value_unique" ON "mission_enrichment_value"("enrichment_id", "taxonomy_value_id");
 
