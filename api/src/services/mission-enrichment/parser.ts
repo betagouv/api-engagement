@@ -1,3 +1,4 @@
+import JSON5 from "json5";
 import { z } from "zod";
 
 const classificationItemSchema = z.object({
@@ -35,13 +36,23 @@ const extractJson = (raw: string): string => {
   return raw.trim();
 };
 
+const parseJson = (jsonStr: string): unknown => {
+  try {
+    return JSON.parse(jsonStr);
+  } catch {
+    // Fallback: JSON5 handles trailing commas, single quotes, and other
+    // minor deviations that LLMs occasionally produce
+    return JSON5.parse(jsonStr);
+  }
+};
+
 export const parseEnrichmentResponse = (
   rawText: string,
   taxonomyLookup: TaxonomyLookup,
   confidenceThreshold: number
 ): { valid: ParsedClassification[]; skipped: SkippedClassification[] } => {
   const jsonStr = extractJson(rawText);
-  const parsed = classificationResponseSchema.parse(JSON.parse(jsonStr));
+  const parsed = classificationResponseSchema.parse(parseJson(jsonStr));
 
   const valid: ParsedClassification[] = [];
   const skipped: SkippedClassification[] = [];
