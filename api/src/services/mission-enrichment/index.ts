@@ -141,6 +141,9 @@ export const missionEnrichmentService = {
       throw error;
     }
 
+    // Declared outside try/catch so the catch block can persist them on failure
+    let llmResult: Awaited<ReturnType<typeof generateText>> | undefined;
+
     try {
       // 5. Mark as processing
       await missionEnrichmentRepository.update({
@@ -154,23 +157,23 @@ export const missionEnrichmentService = {
       const userMessage = promptVersion.buildUserMessage(buildMissionBlock(toMissionForPrompt(mission)));
 
       // 7. Call LLM
-      const result = await generateText({
+      llmResult = await generateText({
         model: promptVersion.MODEL,
         system: systemPrompt,
         prompt: userMessage,
         maxRetries: LLM_MAX_RETRIES,
       });
 
-      const { inputTokens, outputTokens, totalTokens } = result.usage;
+      const { inputTokens, outputTokens, totalTokens } = llmResult.usage;
       console.log(`${LOG_PREFIX} ${missionId}: LLM response received — tokens: ${inputTokens} in / ${outputTokens} out / ${totalTokens} total`);
 
       // 8. Parse + validate response
       let valid: ReturnType<typeof parseEnrichmentResponse>["valid"];
       let skipped: ReturnType<typeof parseEnrichmentResponse>["skipped"];
       try {
-        ({ valid, skipped } = parseEnrichmentResponse(result.text, buildTaxonomyLookup(dimensions), CONFIDENCE_THRESHOLD));
+        ({ valid, skipped } = parseEnrichmentResponse(llmResult.text, buildTaxonomyLookup(dimensions), CONFIDENCE_THRESHOLD));
       } catch (parseError) {
-        console.error(`${LOG_PREFIX} ${missionId}: failed to parse LLM response\n${result.text}`);
+        console.error(`${LOG_PREFIX} ${missionId}: failed to parse LLM response\n${llmResult.text}`);
         throw parseError;
       }
 
@@ -182,9 +185,10 @@ export const missionEnrichmentService = {
       }
 
       // 9. Persist values + mark completed (atomic)
+      const { inputTokens, outputTokens, totalTokens } = llmResult.usage;
       await missionEnrichmentRepository.completeWithValues(
         enrichment.id,
-        result.text,
+        llmResult.text,
         { inputTokens, outputTokens, totalTokens },
         valid.map((v) => ({
           taxonomyValueId: v.taxonomyValueId,
@@ -195,9 +199,22 @@ export const missionEnrichmentService = {
 
       console.log(`${LOG_PREFIX} ${missionId}: enrichment completed — ${valid.length} values persisted`);
     } catch (error) {
-      await missionEnrichmentRepository.update({ where: { id: enrichment.id }, data: { status: "failed" } }).catch((updateErr) => {
-        console.error(`${LOG_PREFIX} ${missionId}: failed to update status to failed`, updateErr);
-      });
+      await missionEnrichmentRepository
+        .update({
+          where: { id: enrichment.id },
+          data: {
+            status: "failed",
+            ...(llmResult && {
+              rawResponse: llmResult.text,
+              inputTokens: llmResult.usage.inputTokens,
+              outputTokens: llmResult.usage.outputTokens,
+              totalTokens: llmResult.usage.totalTokens,
+            }),
+          },
+        })
+        .catch((updateErr) => {
+          console.error(`${LOG_PREFIX} ${missionId}: failed to update status to failed`, updateErr);
+        });
 
       throw error;
     }
