@@ -3,9 +3,11 @@ import { INVALID_BODY } from "@/error";
 import { emailService } from "@/services/email";
 import { BrevoInboundEmail } from "@/types/brevo";
 import { EmailCreateInput } from "@/types/email";
+import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { downloadFile } from "@/controllers/brevo-webhook/helpers/download-file";
 
 const router = Router();
+router.use(ipRateLimiter);
 
 /**
  * Webhook for Brevo

@@ -9,9 +9,12 @@ import { PublisherRequest } from "@/types/passport";
 import { PublisherRecord } from "@/types/publisher";
 import { getModeration } from "@/utils/mission-moderation";
 
+import { publisherRateLimiter } from "@/middlewares/rate-limit";
 import { buildAddresses, buildData, hasOrgFields, upsertPublisherOrganization } from "./helpers";
 
 const router = Router();
+router.use(passport.authenticate(["apikey", "api"], { session: false }));
+router.use(publisherRateLimiter);
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Schema
@@ -115,7 +118,7 @@ const missionClientIdParamSchema = zod.object({
 // POST /v2/mission — Create
 // ──────────────────────────────────────────────────────────────────────────────
 
-router.post("/", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
+router.post("/", async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
     const publisher = req.user as PublisherRecord;
 
@@ -206,7 +209,7 @@ router.post("/", passport.authenticate(["apikey", "api"], { session: false }), a
 // PUT /v2/mission/:clientId — Update (PATCH semantics)
 // ──────────────────────────────────────────────────────────────────────────────
 
-router.put("/:clientId", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
+router.put("/:clientId", async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
     const publisher = req.user as PublisherRecord;
 
@@ -275,7 +278,7 @@ router.put("/:clientId", passport.authenticate(["apikey", "api"], { session: fal
 // DELETE /v2/mission/:clientId — Soft delete
 // ──────────────────────────────────────────────────────────────────────────────
 
-router.delete("/:clientId", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
+router.delete("/:clientId", async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
     const publisher = req.user as PublisherRecord;
 

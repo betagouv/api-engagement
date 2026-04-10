@@ -7,14 +7,18 @@ import { OrganizationRecord } from "@/types/organization";
 import { PublisherRequest } from "@/types/passport";
 import passport from "passport";
 
+import { publisherRateLimiter } from "@/middlewares/rate-limit";
+
 const router = Router();
+router.use(passport.authenticate(["apikey", "api"], { session: false }));
+router.use(publisherRateLimiter);
 
 const withLegacyId = (organization: OrganizationRecord) => {
   const { id, ...rest } = organization;
   return { ...rest, _id: id };
 };
 
-router.get("/", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
+router.get("/", async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
     const query = zod
       .object({

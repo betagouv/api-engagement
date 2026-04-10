@@ -5,9 +5,11 @@ import zod from "zod";
 import { FORBIDDEN, INVALID_BODY, INVALID_QUERY } from "@/error";
 import { importService } from "@/services/import";
 import { warningService } from "@/services/warning";
+import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { UserRequest } from "@/types/passport";
 
 const router = Router();
+router.use(ipRateLimiter);
 
 router.post("/search", passport.authenticate(["user", "admin"], { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {

@@ -10,15 +10,17 @@ const handler = (req: any, res: any) => {
   });
 };
 
-// 600 req/min par IP — endpoints partenaires et webhooks
-// Clé sur IP uniquement : les headers x-api-key/apikey ne sont pas encore
-// vérifiés à ce stade (avant passport.authenticate), les utiliser comme clé
-// permettrait de contourner la limite en les faisant varier.
+// 600 req/min par publisher — endpoints partenaires et webhooks
+// Appliqué après passport.authenticate : req.user.id est résolu.
+// Fallback IP si req.user est absent (ex: route sans auth).
 export const createPublisherRateLimiter = (limit = RATE_LIMIT_PUBLISHER_MAX): RateLimitRequestHandler =>
   rateLimit({
     windowMs: 60_000,
     limit,
-    keyGenerator: (req) => ipKeyGenerator(req.ip ?? ""),
+    keyGenerator: (req) => {
+      const user = req.user as { id?: string } | undefined;
+      return user?.id ?? ipKeyGenerator(req.ip ?? "");
+    },
     handler,
   });
 

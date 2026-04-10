@@ -48,7 +48,6 @@ import path from "path";
 
 import { corsPublic } from "@/middlewares/cors";
 import errorHandler from "@/middlewares/error-handler";
-import { ipRateLimiter, publisherRateLimiter } from "@/middlewares/rate-limit";
 
 import { pgConnected, pgDisconnect } from "@/db/postgres";
 import middlewares from "@/middlewares";
@@ -112,14 +111,6 @@ const main = async () => {
   app.get("/.well-known/security-policy.txt", (req, res) => {
     res.type("text/plain").sendFile(path.join(__dirname, "static/well-known/security-policy.txt"));
   });
-
-  // Rate limiting
-  app.use(["/v0", "/v2", "/brevo-webhook"], publisherRateLimiter);
-  app.use(["/r", "/iframe"], ipRateLimiter);
-  app.use(
-    ["/admin-report", "/campaign", "/import", "/mission", "/moderation", "/moderation-event", "/metabase", "/publisher", "/organization", "/stats", "/stats-mean", "/user", "/warning", "/warning-bot", "/widget", "/report"],
-    ipRateLimiter,
-  );
 
   // Opened routes
   app.use("/iframe", IframeController);

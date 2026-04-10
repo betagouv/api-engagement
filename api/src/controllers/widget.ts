@@ -6,9 +6,11 @@ import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESS
 import { publisherService } from "@/services/publisher";
 import { widgetService } from "@/services/widget";
 import { UserRequest } from "@/types/passport";
+import { ipRateLimiter } from "@/middlewares/rate-limit";
 import type { WidgetCreateInput, WidgetSearchParams } from "@/types/widget";
 
 const router = Router();
+router.use(ipRateLimiter);
 
 router.post("/search", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
