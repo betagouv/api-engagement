@@ -1,6 +1,38 @@
 import { Mission, Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
 
+const statEventContextSelect = {
+  id: true,
+  clientId: true,
+  title: true,
+  domain: {
+    select: {
+      name: true,
+    },
+  },
+  publisherOrganization: {
+    select: {
+      id: true,
+      name: true,
+      clientId: true,
+    },
+  },
+  addresses: {
+    select: {
+      postalCode: true,
+      departmentName: true,
+    },
+    orderBy: {
+      createdAt: "asc" as const,
+    },
+    take: 1,
+  },
+} satisfies Prisma.MissionSelect;
+
+export type MissionStatEventContext = Prisma.MissionGetPayload<{
+  select: typeof statEventContextSelect;
+}>;
+
 export const missionRepository = {
   async findMany(params: Prisma.MissionFindManyArgs = {}): Promise<Mission[]> {
     return prisma.mission.findMany(params);
@@ -16,6 +48,21 @@ export const missionRepository = {
 
   async findFirst(params: Prisma.MissionFindFirstArgs): Promise<Mission | null> {
     return prisma.mission.findFirst(params);
+  },
+
+  async findStatEventContexts(ids: string[]): Promise<MissionStatEventContext[]> {
+    if (!ids.length) {
+      return [];
+    }
+
+    return prisma.mission.findMany({
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+      select: statEventContextSelect,
+    });
   },
 
   async create(data: Prisma.MissionCreateInput): Promise<Mission> {
