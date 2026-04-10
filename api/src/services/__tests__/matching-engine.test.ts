@@ -136,5 +136,29 @@ describe("matchingEngineService", () => {
       expect(result.items).toEqual([]);
       expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(2);
     });
+
+    it("builds a ranking query that keeps only the latest mission scoring per mission", async () => {
+      prismaMock.$queryRaw
+        .mockResolvedValueOnce([
+          {
+            id: "user-scoring-1",
+            expires_at: null,
+          },
+        ])
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([]);
+
+      await matchingEngineService.rankMissionsByUserScoring({
+        userScoringId: "user-scoring-1",
+      });
+
+      const rankingQuery = prismaMock.$queryRaw.mock.calls[1][0] as { strings?: TemplateStringsArray | string[] };
+      const rankingSql = Array.from(rankingQuery.strings ?? []).join(" ");
+
+      expect(rankingSql).toContain("ROW_NUMBER() OVER (");
+      expect(rankingSql).toContain('PARTITION BY ms."mission_id"');
+      expect(rankingSql).toContain('me."completed_at" DESC NULLS LAST');
+      expect(rankingSql).toContain('WHERE ranked_mission_scorings."row_num" = 1');
+    });
   });
 });

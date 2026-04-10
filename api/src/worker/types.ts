@@ -4,6 +4,12 @@ export const missionPayloadSchema = z.object({
   missionId: z.string().min(1),
 });
 
+export const missionScoringPayloadSchema = z.object({
+  missionId: z.string().min(1),
+  missionEnrichmentId: z.string().min(1),
+  force: z.boolean().optional(),
+});
+
 export const missionEnrichmentPayloadSchema = z.object({
   missionId: z.string().min(1),
   force: z.boolean().optional(),
