@@ -258,7 +258,7 @@ resource "scaleway_job_definition" "update-mission-enrichment" {
   memory_limit = 2048
   image_uri    = local.image_uri
   command      = "node dist/jobs/run-job.js update-mission-enrichment"
-  timeout      = "120m"
+  timeout      = "24h"
 
   env = local.all_env_vars
 }
