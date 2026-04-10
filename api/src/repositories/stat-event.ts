@@ -8,15 +8,6 @@ const defaultInclude = {
   toPublisher: {
     select: { id: true, name: true },
   },
-  mission: {
-    select: {
-      clientId: true,
-      title: true,
-      domain: { select: { name: true } },
-      publisherOrganization: { select: { id: true, name: true, clientId: true } },
-      addresses: { select: { postalCode: true, departmentName: true }, take: 1, orderBy: { createdAt: "asc" as const } },
-    },
-  },
 } satisfies Prisma.StatEventInclude;
 
 export const statEventRepository = {

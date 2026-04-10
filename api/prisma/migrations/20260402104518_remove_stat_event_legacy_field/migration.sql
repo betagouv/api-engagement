@@ -34,6 +34,3 @@ DROP COLUMN IF EXISTS "mission_organization_id",
 DROP COLUMN IF EXISTS "mission_organization_name",
 DROP COLUMN IF EXISTS "mission_postal_code",
 DROP COLUMN IF EXISTS "mission_title";
-
--- AddForeignKey
-ALTER TABLE "stat_event" ADD CONSTRAINT "stat_event_mission_id_fkey" FOREIGN KEY ("mission_id") REFERENCES "mission"("id") ON DELETE SET NULL ON UPDATE CASCADE;

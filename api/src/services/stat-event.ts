@@ -1,5 +1,6 @@
 import { Prisma } from "@/db/core";
 
+import { MissionStatEventContext, missionRepository } from "@/repositories/mission";
 import { statEventRepository } from "@/repositories/stat-event";
 import { publisherService } from "@/services/publisher";
 import {
@@ -25,19 +26,10 @@ import {
 
 const DEFAULT_TYPES: StatEventType[] = ["click", "print", "apply", "account"];
 
-type PrismaStatEventWithRelations = Prisma.StatEventGetPayload<{
+type PrismaStatEventWithPublishers = Prisma.StatEventGetPayload<{
   include: {
     fromPublisher: { select: { id: true; name: true } };
     toPublisher: { select: { id: true; name: true } };
-    mission: {
-      select: {
-        clientId: true;
-        title: true;
-        domain: { select: { name: true } };
-        publisherOrganization: { select: { id: true; name: true; clientId: true } };
-        addresses: { select: { postalCode: true; departmentName: true } };
-      };
-    };
   };
 }>;
 
@@ -74,8 +66,16 @@ function toPrisma(data: Partial<StatEventRecord>, options: { includeDefaults?: b
   return mapped;
 }
 
-function toStatEventRecord(row: PrismaStatEventWithRelations): StatEventRecord {
-  const { fromPublisher, toPublisher, mission, id, ...rest } = row;
+const getMissionIds = (rows: Array<{ missionId: string | null }>): string[] =>
+  Array.from(new Set(rows.map((row) => row.missionId).filter((missionId): missionId is string => typeof missionId === "string" && missionId.trim().length > 0)));
+
+async function buildMissionContextMap(rows: Array<{ missionId: string | null }>): Promise<Map<string, MissionStatEventContext>> {
+  const missions = await missionRepository.findStatEventContexts(getMissionIds(rows));
+  return new Map(missions.map((mission) => [mission.id, mission]));
+}
+
+function toStatEventRecord(row: PrismaStatEventWithPublishers, mission?: MissionStatEventContext): StatEventRecord {
+  const { fromPublisher, toPublisher, id, ...rest } = row;
   const primaryAddress = mission?.addresses?.[0];
 
   return {
@@ -94,6 +94,29 @@ function toStatEventRecord(row: PrismaStatEventWithRelations): StatEventRecord {
   } as StatEventRecord;
 }
 
+async function toStatEventRecordOrNull(row: PrismaStatEventWithPublishers | null): Promise<StatEventRecord | null> {
+  if (!row) {
+    return null;
+  }
+
+  const missionContextMap = await buildMissionContextMap([row]);
+  const mission = row.missionId ? missionContextMap.get(row.missionId) : undefined;
+  return toStatEventRecord(row, mission);
+}
+
+async function toStatEventRecords(rows: PrismaStatEventWithPublishers[]): Promise<StatEventRecord[]> {
+  if (!rows.length) {
+    return [];
+  }
+
+  const missionContextMap = await buildMissionContextMap(rows);
+
+  return rows.map((row) => {
+    const mission = row.missionId ? missionContextMap.get(row.missionId) : undefined;
+    return toStatEventRecord(row, mission);
+  });
+}
+
 async function createStatEvent(event: StatEventRecord): Promise<string> {
   const result = await statEventRepository.create({ data: toPrisma(event) });
   return result.id;
@@ -105,13 +128,13 @@ async function updateStatEvent(id: string, patch: Partial<StatEventRecord>) {
 }
 
 async function findOneStatEventById(id: string): Promise<StatEventRecord | null> {
-  const result = (await statEventRepository.findUnique({ where: { id } })) as PrismaStatEventWithRelations | null;
-  return result ? toStatEventRecord(result) : null;
+  const result = (await statEventRepository.findUnique({ where: { id } })) as PrismaStatEventWithPublishers | null;
+  return toStatEventRecordOrNull(result);
 }
 
 async function findOneStatEventByLegacyId(esId: string): Promise<StatEventRecord | null> {
-  const result = (await statEventRepository.findUnique({ where: { esId } })) as PrismaStatEventWithRelations | null;
-  return result ? toStatEventRecord(result) : null;
+  const result = (await statEventRepository.findUnique({ where: { esId } })) as PrismaStatEventWithPublishers | null;
+  return toStatEventRecordOrNull(result);
 }
 
 async function countStatEvents() {
@@ -122,8 +145,8 @@ async function findOneStatEventByMissionId(missionId: string): Promise<StatEvent
   const result = (await statEventRepository.findFirst({
     where: { missionId },
     orderBy: { createdAt: "desc" },
-  })) as PrismaStatEventWithRelations | null;
-  return result ? toStatEventRecord(result) : null;
+  })) as PrismaStatEventWithPublishers | null;
+  return toStatEventRecordOrNull(result);
 }
 
 async function countStatEventsByTypeSince({ publisherId, from, types }: CountByTypeParams) {
@@ -220,8 +243,8 @@ async function findOneStatEventByClientEventId({ clientEventId, toPublisherId, t
 
   const result = (await statEventRepository.findFirst({
     where,
-  })) as PrismaStatEventWithRelations | null;
-  return result ? toStatEventRecord(result) : null;
+  })) as PrismaStatEventWithPublishers | null;
+  return toStatEventRecordOrNull(result);
 }
 
 async function findStatEventByIdOrClientEventId({
@@ -305,9 +328,9 @@ async function findStatEvents({ fromPublisherId, toPublisherId, type, sourceId, 
     orderBy: { createdAt: "desc" },
     skip,
     take: size,
-  })) as PrismaStatEventWithRelations[];
+  })) as PrismaStatEventWithPublishers[];
 
-  return rows.map(toStatEventRecord);
+  return toStatEventRecords(rows);
 }
 
 async function findStatEventWarningBotCandidatesSince({ from, minClicks }: FindWarningBotCandidatesParams): Promise<WarningBotCandidate[]> {
@@ -584,7 +607,7 @@ async function scrollStatEvents({ type, batchSize = 5000, cursor = null, filters
       where: whereForRows,
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
       take: batchSize,
-    }) as Promise<PrismaStatEventWithRelations[]>,
+    }) as Promise<PrismaStatEventWithPublishers[]>,
     cursor ? Promise.resolve(0) : statEventRepository.count({ where: whereForCount }),
   ]);
 
@@ -597,7 +620,7 @@ async function scrollStatEvents({ type, batchSize = 5000, cursor = null, filters
         });
 
   return {
-    events: rows.map(toStatEventRecord),
+    events: await toStatEventRecords(rows),
     cursor: nextCursor,
     total: cursor ? 0 : total,
   };
