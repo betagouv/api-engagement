@@ -257,8 +257,7 @@ model StatEvent {
   fromPublisher Publisher @relation("StatEventFromPublisher", fields: [fromPublisherId], references: [id])
   toPublisher   Publisher @relation("StatEventToPublisher", fields: [toPublisherId], references: [id])
 
-  missionId String? @map("mission_id")
-  mission   Mission? @relation("MissionStatEvents", fields: [missionId], references: [id], onDelete: SetNull)
+  missionId         String?  @map("mission_id")
   tag               String?
   tags              String[] @default([])
   exportToAnalytics String?  @map("export_to_analytics")
@@ -597,8 +596,6 @@ model Mission {
   moderationStatuses    MissionModerationStatus[]
   jobBoards             MissionJobBoard[]
   activities            MissionActivity[]
-
-  statEvents            StatEvent[]               @relation("MissionStatEvents")
 
   // TODO: restore relations
   // missionEvents      MissionEvent[]
