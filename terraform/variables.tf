@@ -144,6 +144,11 @@ variable "enable_widget" {
   default = true
 }
 
+variable "enable_async_tasks" {
+  type    = bool
+  default = true
+}
+
 variable "enable_intern_jobs" {
   type        = bool
   default     = true
