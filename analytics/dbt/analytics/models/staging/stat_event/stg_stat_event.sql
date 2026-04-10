@@ -10,6 +10,7 @@ with base as (
     from_publisher_id,
     to_publisher_id,
     mission_id,
+    mission_client_id,
     tag,
     tags,
     status::text,

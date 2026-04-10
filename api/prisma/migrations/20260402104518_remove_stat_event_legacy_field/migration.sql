@@ -26,14 +26,14 @@ DROP INDEX IF EXISTS "stats_event_mission_department_name_created_at_idx";
 DROP INDEX IF EXISTS "stats_event_mission_domain_created_at_idx";
 
 -- AlterTable
-ALTER TABLE "stat_event" DROP COLUMN "mission_client_id",
-DROP COLUMN "mission_department_name",
-DROP COLUMN "mission_domain",
-DROP COLUMN "mission_organization_client_id",
-DROP COLUMN "mission_organization_id",
-DROP COLUMN "mission_organization_name",
-DROP COLUMN "mission_postal_code",
-DROP COLUMN "mission_title";
+ALTER TABLE "stat_event" DROP COLUMN IF EXISTS "mission_client_id",
+DROP COLUMN IF EXISTS "mission_department_name",
+DROP COLUMN IF EXISTS "mission_domain",
+DROP COLUMN IF EXISTS "mission_organization_client_id",
+DROP COLUMN IF EXISTS "mission_organization_id",
+DROP COLUMN IF EXISTS "mission_organization_name",
+DROP COLUMN IF EXISTS "mission_postal_code",
+DROP COLUMN IF EXISTS "mission_title";
 
 -- AddForeignKey
 ALTER TABLE "stat_event" ADD CONSTRAINT "stat_event_mission_id_fkey" FOREIGN KEY ("mission_id") REFERENCES "mission"("id") ON DELETE SET NULL ON UPDATE CASCADE;

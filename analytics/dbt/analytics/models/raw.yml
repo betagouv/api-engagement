@@ -16,8 +16,7 @@ sources:
         description: >-
           Événements de statistiques (impressions, clics, candidatures, création de compte) exportés depuis la base `core`
           pour alimenter l'entrepôt analytics. Chaque ligne correspond à une action utilisateur observée, enrichie des
-          identifiants partenaires et missions. Les attributs détaillés de mission supprimés du schéma source sont
-          reconstruits downstream via une jointure sur la dimension `mission`.
+          identifiants partenaires et missions.
         columns:
           - name: id
             description: Identifiant unique de l'événement issu de l'application source.
@@ -47,6 +46,8 @@ sources:
             description: Identifiant du partenaire receveur (annonceur).
           - name: mission_id
             description: Identifiant de la mission dans la base analytics (nullable).
+          - name: mission_client_id
+            description: Identifiant métier de la mission côté client/source (nullable).
           - name: tag
             description: Tag principal associé à l'événement (nullable).
           - name: tags

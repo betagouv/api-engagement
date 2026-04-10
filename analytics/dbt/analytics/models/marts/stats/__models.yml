@@ -5,8 +5,7 @@ models:
     description: >
       Table de faits des événements statistiques (`stat_event`) filtrés des bots,
       avec normalisation des sources et enrichissement des publishers émetteur/récepteur.
-      Les anciens attributs mission portés par `stat_event` y sont reconstruits via
-      une jointure sur `mission` et l’adresse principale de mission.
+      Sert de base aux graphiques de performance (impressions, clics, comptes, candidatures).
     columns:
       - name: stat_event_id
         description: Identifiant de l'événement `stat_event` (clé d’origine).
@@ -44,22 +43,6 @@ models:
               arguments:
                 to: ref('mission')
                 field: id
-      - name: mission_client_id
-        description: Identifiant métier de la mission reconstruit depuis `mission.client_id`.
-      - name: mission_title
-        description: Titre de mission reconstruit depuis la dimension `mission`.
-      - name: mission_domain
-        description: Domaine de mission reconstruit depuis la dimension `mission`.
-      - name: mission_organization_client_id
-        description: Identifiant client de l’organisation rattachée à la mission.
-      - name: mission_organization_id
-        description: Identifiant de l’organisation core rattachée à la mission.
-      - name: mission_organization_name
-        description: Nom de l’organisation rattachée à la mission.
-      - name: mission_postal_code
-        description: Code postal de l’adresse principale retenue pour la mission.
-      - name: mission_department_name
-        description: Département de l’adresse principale retenue pour la mission.
 
   - name: global_events_daily
     description: >
