@@ -117,9 +117,34 @@ variable "widget_max_scale" {
   default = 1
 }
 
+variable "worker_cpu_limit" {
+  type    = number
+  default = 250
+}
+
+variable "worker_memory_limit" {
+  type    = number
+  default = 512
+}
+
+variable "worker_min_scale" {
+  type    = number
+  default = 0
+}
+
+variable "worker_max_scale" {
+  type    = number
+  default = 1
+}
+
 # Feature flags
 
 variable "enable_widget" {
+  type    = bool
+  default = true
+}
+
+variable "enable_async_tasks" {
   type    = bool
   default = true
 }

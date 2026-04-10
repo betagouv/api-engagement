@@ -53,6 +53,22 @@ services:
     ports:
       - "3002:3002"
 
+  worker:
+    build:
+      context: ./api
+      dockerfile: Dockerfile.worker
+    depends_on:
+      - postgres-core
+    environment:
+      PORT_WORKER: 3004
+      ENV: development
+      DATABASE_URL_CORE: postgres://user:password@postgres-core:5432/api-engagement-core
+    volumes:
+      - ./api:/app
+      - /app/node_modules
+    ports:
+      - "3004:3004"
+
   app:
     build: ./app
     depends_on:

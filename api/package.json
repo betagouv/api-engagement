@@ -6,6 +6,7 @@
     "scripts": {
         "build": "npm run prisma:generate && npx tsc --build --clean && npx tsc -p tsconfig.build.json && npx tsc-alias -p tsconfig.build.json",
         "dev": "nodemon",
+        "dev:worker": "nodemon --exec \"ts-node src/worker/index.ts\"",
         "start": "npm run build && node dist/index.js",
         "prisma:migrate:dev": "prisma migrate dev",
         "prisma:migrate:deploy": "prisma migrate deploy",
@@ -20,10 +21,12 @@
         "test:integration:watch": "vitest --config vitest.integration.config.ts",
         "test:watch": "npm run test:unit:watch",
         "test:ci": "npm run prisma:generate && npm run test:unit && npm run test:integration",
-        "job": "ts-node src/jobs/run-job.ts"
+        "job": "ts-node src/jobs/run-job.ts",
+        "worker:run": "ts-node src/worker/run-handler.ts"
     },
     "dependencies": {
         "@aws-sdk/client-s3": "3.1020.0",
+        "@aws-sdk/client-sqs": "3.1023.0",
         "@aws-sdk/lib-storage": "3.1020.0",
         "@opentelemetry/exporter-metrics-otlp-http": "0.214.0",
         "@opentelemetry/resources": "2.6.1",
