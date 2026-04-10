@@ -1,16 +1,31 @@
+import express from "express";
 import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
 
+import { createIpRateLimiter, createPublisherRateLimiter } from "@/middlewares/rate-limit";
 import { createTestPublisher } from "../../fixtures";
 import { createTestApp } from "../../testApp";
 
+const createRateLimitedApp = ({ publisherMax, ipMax }: { publisherMax?: number; ipMax?: number } = {}) => {
+  const wrapper = express();
+  wrapper.set("trust proxy", true);
+  if (publisherMax !== undefined) {
+    wrapper.use("/v0", createPublisherRateLimiter(publisherMax));
+  }
+  if (ipMax !== undefined) {
+    wrapper.use(["/r", "/mission"], createIpRateLimiter(ipMax));
+  }
+  wrapper.use(createTestApp());
+  return wrapper;
+};
+
 describe("Rate limiting", () => {
   describe("publisherRateLimiter — /v0/*", () => {
-    let app: ReturnType<typeof createTestApp>;
+    let app: ReturnType<typeof createRateLimitedApp>;
     let apiKey: string;
 
     beforeEach(async () => {
-      app = createTestApp({ rateLimits: { publisherMax: 2 } });
+      app = createRateLimitedApp({ publisherMax: 2 });
       const publisher = await createTestPublisher();
       apiKey = publisher.apikey;
     });
@@ -45,10 +60,10 @@ describe("Rate limiting", () => {
   });
 
   describe("ipRateLimiter — /r/*", () => {
-    let app: ReturnType<typeof createTestApp>;
+    let app: ReturnType<typeof createRateLimitedApp>;
 
     beforeEach(() => {
-      app = createTestApp({ rateLimits: { ipMax: 2 } });
+      app = createRateLimitedApp({ ipMax: 2 });
     });
 
     it("returns 429 after exceeding the threshold", async () => {
@@ -66,10 +81,10 @@ describe("Rate limiting", () => {
   });
 
   describe("ipRateLimiter — backoffice /mission", () => {
-    let app: ReturnType<typeof createTestApp>;
+    let app: ReturnType<typeof createRateLimitedApp>;
 
     beforeEach(() => {
-      app = createTestApp({ rateLimits: { ipMax: 2 } });
+      app = createRateLimitedApp({ ipMax: 2 });
     });
 
     it("returns 429 after exceeding the threshold", async () => {

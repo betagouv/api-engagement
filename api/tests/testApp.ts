@@ -16,7 +16,6 @@ import WarningController from "@/controllers/warning";
 import WidgetController from "@/controllers/widget";
 import bodyParserErrorHandler from "@/middlewares/body-parser-error-handler";
 import passport from "@/middlewares/passport";
-import { createIpRateLimiter, createPublisherRateLimiter } from "@/middlewares/rate-limit";
 import requestId from "@/middlewares/request-id";
 import { createHttpMetricsMiddleware, HttpMetricsRecorder } from "@/services/observability/metrics";
 import MissionV0Controller from "@/v0/mission/controller";
@@ -27,13 +26,7 @@ import ActivityV2Controller from "@/v2/activity";
 import MissionV2WriteController from "@/v2/mission/controller";
 
 // Create a test Express app with minimal configuration
-export const createTestApp = ({
-  metricsRecorder,
-  rateLimits,
-}: {
-  metricsRecorder?: HttpMetricsRecorder;
-  rateLimits?: { publisherMax?: number; ipMax?: number };
-} = {}) => {
+export const createTestApp = ({ metricsRecorder }: { metricsRecorder?: HttpMetricsRecorder } = {}) => {
   const app = express();
 
   app.set("trust proxy", true);
@@ -47,14 +40,6 @@ export const createTestApp = ({
   app.use(requestId);
   app.use(createHttpMetricsMiddleware(metricsRecorder));
   app.use(passport.initialize());
-
-  // Rate limiting (opt-in via rateLimits option)
-  if (rateLimits !== undefined) {
-    const publisherLimiter = createPublisherRateLimiter(rateLimits.publisherMax);
-    const ipLimiter = createIpRateLimiter(rateLimits.ipMax);
-    app.use(["/v0", "/v2"], publisherLimiter);
-    app.use(["/r", "/iframe", "/user", "/publisher", "/campaign", "/widget", "/mission", "/moderation", "/import", "/stats", "/warning"], ipLimiter);
-  }
 
   // Mount the controllers
   app.use("/user", UserController);
