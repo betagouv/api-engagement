@@ -58,12 +58,20 @@ jobs:
       matrix:
         include:
           - service: app
+            image_name: app
           - service: app
+            image_name: app
             variant: sandbox
             github_env: sandbox
           - service: widget
+            image_name: widget
           - service: api
+            image_name: api
+          - service: api
+            image_name: api-worker
+            dockerfile: ./api/Dockerfile.worker.production
           - service: analytics
+            image_name: analytics
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -110,17 +118,17 @@ jobs:
           echo "BENEVOLAT_URL=${{ vars.BENEVOLAT_URL }}" >> $GITHUB_OUTPUT
           echo "VOLONTARIAT_URL=${{ vars.VOLONTARIAT_URL }}" >> $GITHUB_OUTPUT
 
-      - name: Build and push ${{ matrix.service }} image
+      - name: Build and push ${{ matrix.image_name }} image
         if: ${{ matrix.variant != 'sandbox' || needs.set-env.outputs.environment_name == 'production' }}
         uses: docker/build-push-action@v7
         with:
           context: ./${{ matrix.service }}
-          file: ./${{ matrix.service }}/Dockerfile.production
+          file: ${{ matrix.dockerfile || format('./{0}/Dockerfile.production', matrix.service) }}
           push: true
           tags: |
-            ${{ format('ghcr.io/{0}/{1}:{2}', github.repository, matrix.service, steps.vars.outputs.tag) }}
-            ${{ format('ghcr.io/{0}/{1}:{2}-latest', github.repository, matrix.service, steps.vars.outputs.tag) }}
-            ${{ format('ghcr.io/{0}/{1}:{2}-{3}', github.repository, matrix.service, steps.vars.outputs.tag, steps.image_tag.outputs.image_tag) }}
+            ${{ format('ghcr.io/{0}/{1}:{2}', github.repository, matrix.image_name, steps.vars.outputs.tag) }}
+            ${{ format('ghcr.io/{0}/{1}:{2}-latest', github.repository, matrix.image_name, steps.vars.outputs.tag) }}
+            ${{ format('ghcr.io/{0}/{1}:{2}-{3}', github.repository, matrix.image_name, steps.vars.outputs.tag, steps.image_tag.outputs.image_tag) }}
           secrets: |
             "sentry_auth_token=${{ secrets.SENTRY_AUTH_TOKEN }}"
             "test_secret=${{ secrets.TEST_SECRET }}"

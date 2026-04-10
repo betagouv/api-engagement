@@ -20,5 +20,6 @@ app_min_scale              = 0
 app_max_scale              = 1
 
 enable_widget              = false
+enable_async_tasks         = false
 enable_intern_jobs         = false
 enable_analytics_jobs      = false

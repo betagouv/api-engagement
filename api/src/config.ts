@@ -35,6 +35,11 @@ export const SCW_HOST = process.env.SCW_HOST || "https://s3.fr-par.scw.cloud";
 export const BUCKET_NAME = process.env.BUCKET_NAME || "api-engagement-bucket-staging";
 export const REGION = process.env.REGION || "fr-par";
 
+// Worker Queue
+export const SCW_QUEUE_ENDPOINT = process.env.SCW_QUEUE_ENDPOINT || "https://sqs.mnq.fr-par.scaleway.com";
+export const SCW_QUEUE_ACCESS_KEY = process.env.SCW_QUEUE_ACCESS_KEY ?? SCW_ACCESS_KEY ?? "";
+export const SCW_QUEUE_SECRET_KEY = process.env.SCW_QUEUE_SECRET_KEY ?? SCW_SECRET_KEY ?? "";
+
 // Slack
 export const SLACK_TOKEN = process.env.SLACK_TOKEN;
 export const SLACK_WARNING_CHANNEL_ID = process.env.SLACK_WARNING_CHANNEL_ID || "C052V2UF918";
