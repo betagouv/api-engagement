@@ -249,6 +249,20 @@ resource "scaleway_job_definition" "import-missions" {
   env = local.all_env_vars
 }
 
+# Job Definition for the 'mission-enrichment' task (on-demand only, no cron)
+resource "scaleway_job_definition" "mission-enrichment" {
+  count        = var.enable_intern_jobs ? 1 : 0
+  name         = "${terraform.workspace}-mission-enrichment"
+  project_id   = var.project_id
+  cpu_limit    = 1000
+  memory_limit = 2048
+  image_uri    = local.image_uri
+  command      = "node dist/jobs/run-job.js mission-enrichment"
+  timeout      = "120m"
+
+  env = local.all_env_vars
+}
+
 # Job Definition for the 'verify-publisher-organization' task
 resource "scaleway_job_definition" "verify-publisher-organization" {
   name         = "${terraform.workspace}-verify-publisher-organization"
