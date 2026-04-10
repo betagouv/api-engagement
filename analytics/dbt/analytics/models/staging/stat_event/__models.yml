@@ -5,7 +5,9 @@ models:
     description: >
       Extraction brute de la table `analytics_raw.stat_event`. Ce modèle applique
       uniquement le typage de base (timestamps, booléens) tout en conservant la
-      granularité événementielle d’origine avant enrichissements.
+      granularité événementielle d’origine avant enrichissements. Les attributs
+      métier de mission supprimés de `stat_event` sont reconstruits downstream
+      à partir de `mission_id`.
     columns:
       - name: id
         description: Identifiant unique de l’événement côté application source.
@@ -33,9 +35,9 @@ models:
       - name: to_publisher_id
         description: Identifiant partenaire « annonceur » issu de la base core.
       - name: mission_id
-        description: Identifiant de mission connu côté analytics (peut être nul).
-      - name: mission_client_id
-        description: Identifiant client de mission (clé métier provenant du diffuseur).
+        description: >
+          Identifiant de mission connu côté analytics (peut être nul), utilisé
+          pour rattacher les attributs de mission downstream.
       - name: click_id
         description: Identifiant de clic associé lorsqu’il existe, sinon chaîne vide.
       - name: client_event_id
