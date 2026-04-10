@@ -14,6 +14,10 @@ export const missionRepository = {
     return prisma.mission.findUnique({ where: { id } });
   },
 
+  async findUnique<T extends Prisma.MissionFindUniqueArgs>(params: T): Promise<Prisma.MissionGetPayload<T> | null> {
+    return prisma.mission.findUnique(params) as Promise<Prisma.MissionGetPayload<T> | null>;
+  },
+
   async findFirst(params: Prisma.MissionFindFirstArgs): Promise<Mission | null> {
     return prisma.mission.findFirst(params);
   },
