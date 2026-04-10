@@ -43,6 +43,10 @@ export const SLACK_JOBTEASER_CHANNEL_ID = process.env.SLACK_JOBTEASER_CHANNEL_ID
 
 export const DATA_SUBVENTION_TOKEN = process.env.DATA_SUBVENTION_TOKEN;
 
+// Rate limit
+export const RATE_LIMIT_PUBLISHER_MAX = Number(process.env.RATE_LIMIT_PUBLISHER_MAX) || 600;
+export const RATE_LIMIT_IP_MAX = Number(process.env.RATE_LIMIT_IP_MAX) || 120;
+
 // Ids (ISO prod / staging)
 export const PUBLISHER_IDS = {
   ADIE: "619fb52a7d373e07aea8be35",
