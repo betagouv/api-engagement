@@ -117,7 +117,7 @@ const main = async () => {
   app.use(["/v0", "/v2", "/brevo-webhook"], publisherRateLimiter);
   app.use(["/r", "/iframe"], ipRateLimiter);
   app.use(
-    ["/admin-report", "/campaign", "/import", "/mission", "/moderation", "/moderation-event", "/metabase", "/publisher", "/organization", "/stats", "/stats-mean", "/user", "/warning", "/widget", "/report"],
+    ["/admin-report", "/campaign", "/import", "/mission", "/moderation", "/moderation-event", "/metabase", "/publisher", "/organization", "/stats", "/stats-mean", "/user", "/warning", "/warning-bot", "/widget", "/report"],
     ipRateLimiter,
   );
 

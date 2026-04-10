@@ -8,11 +8,14 @@ const handler = (req: any, res: any) => {
   });
 };
 
-// 600 req/min par API key (fallback IP) — endpoints partenaires et webhooks
+// 600 req/min par IP — endpoints partenaires et webhooks
+// Clé sur IP uniquement : les headers x-api-key/apikey ne sont pas encore
+// vérifiés à ce stade (avant passport.authenticate), les utiliser comme clé
+// permettrait de contourner la limite en les faisant varier.
 export const publisherRateLimiter = rateLimit({
   windowMs: 60_000,
   limit: 600,
-  keyGenerator: (req) => (req.headers["x-api-key"] as string) || (req.headers["apikey"] as string) || ipKeyGenerator(req.ip ?? ""),
+  keyGenerator: (req) => ipKeyGenerator(req.ip ?? ""),
   handler,
 });
 
