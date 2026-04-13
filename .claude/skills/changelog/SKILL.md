@@ -1,6 +1,7 @@
 ---
 description: "Generate deployment summary"
 name: "changelog"
+version: "1.0.0"
 ---
 
 # Skill: Release Notes

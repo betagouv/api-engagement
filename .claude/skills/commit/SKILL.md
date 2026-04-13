@@ -1,6 +1,7 @@
 ---
 description: "Create conventional commits"
 name: "commit"
+version: "1.0.0"
 ---
 
 # Skill: Conventional Commit

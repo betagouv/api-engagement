@@ -1,6 +1,7 @@
 ---
 description: "Contextual linting"
 name: "lint"
+version: "1.0.0"
 ---
 
 # Skill: Contextual Linting
