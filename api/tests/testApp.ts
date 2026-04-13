@@ -8,6 +8,7 @@ import IframeController from "@/controllers/iframe";
 import ImportController from "@/controllers/import";
 import MissionController from "@/controllers/mission";
 import ModerationController from "@/controllers/moderation";
+import UserScoringController from "@/controllers/user-scoring";
 import PublisherController from "@/controllers/publisher";
 import RedirectController from "@/controllers/redirect";
 import StatsController from "@/controllers/stats";
@@ -48,6 +49,7 @@ export const createTestApp = ({ metricsRecorder }: { metricsRecorder?: HttpMetri
   app.use("/widget", WidgetController);
   app.use("/mission", MissionController);
   app.use("/moderation", ModerationController);
+  app.use("/user-scoring", UserScoringController);
   app.use("/import", ImportController);
   app.use("/stats", StatsController);
   app.use("/warning", WarningController);
