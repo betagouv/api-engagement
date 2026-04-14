@@ -109,6 +109,7 @@ resource "scaleway_container" "api_worker" {
 
 # App Container
 resource "scaleway_container" "app" {
+  count        = var.enable_app ? 1 : 0
   name         = "${var.workspace}-app"
   description  = "App ${var.workspace} container"
   namespace_id = scaleway_container_namespace.main.id
@@ -123,6 +124,25 @@ resource "scaleway_container" "app" {
   privacy        = "public"
   protocol       = "http1"
   http_option    = "redirected" # https only
+  deploy         = true
+}
+
+# POC Quiz Container
+resource "scaleway_container" "poc_quiz" {
+  count          = var.enable_poc_quiz ? 1 : 0
+  name           = "${var.workspace}-poc-quiz"
+  description    = "POC Quiz ${var.workspace} container"
+  namespace_id   = scaleway_container_namespace.main.id
+  registry_image = "ghcr.io/${var.github_repository}/poc-quiz:${var.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
+  port           = 8080
+  cpu_limit      = 250
+  memory_limit   = 512
+  min_scale      = 0
+  max_scale      = 1
+  timeout        = 60
+  privacy        = "public"
+  protocol       = "http1"
+  http_option    = "redirected"
   deploy         = true
 }
 

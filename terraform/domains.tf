@@ -4,8 +4,15 @@ resource "scaleway_container_domain" "api" {
 }
 
 resource "scaleway_container_domain" "app" {
-  container_id = scaleway_container.app.id
+  count        = var.enable_app ? 1 : 0
+  container_id = scaleway_container.app[0].id
   hostname     = var.app_hostname
+}
+
+resource "scaleway_container_domain" "poc_quiz" {
+  count        = var.enable_poc_quiz && var.poc_quiz_hostname != "" ? 1 : 0
+  container_id = scaleway_container.poc_quiz[0].id
+  hostname     = var.poc_quiz_hostname
 }
 
 # Widget is linked to both volontariat and benevolat domains

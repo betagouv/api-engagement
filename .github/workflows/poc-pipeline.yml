@@ -1,0 +1,157 @@
+name: POC Pipeline
+
+on:
+  push:
+    branches:
+      - valentin/poc/quiz-flow
+      - feature/plateforme-engagement
+    paths:
+      - ".github/workflows/poc-pipeline.yml"
+      - "api/**"
+      - "poc-quiz/**"
+      - "terraform/**"
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
+concurrency:
+  group: poc-pipeline-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build and Push Docker Images
+    runs-on: ubuntu-latest
+    environment: poc
+    outputs:
+      image_tag: ${{ steps.tag.outputs.image_tag }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compute image tag
+        id: tag
+        run: |
+          SHORT_SHA=$(git rev-parse --short=7 HEAD)
+          echo "image_tag=${SHORT_SHA}" >> "$GITHUB_OUTPUT"
+          echo "Using image tag: ${SHORT_SHA}"
+
+      - name: Build and push API image
+        uses: docker/build-push-action@v7
+        with:
+          context: ./api
+          file: ./api/Dockerfile.production
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}/api:poc
+            ghcr.io/${{ github.repository }}/api:poc-${{ steps.tag.outputs.image_tag }}
+
+      - name: Build and push poc-quiz image
+        uses: docker/build-push-action@v7
+        with:
+          context: ./poc-quiz
+          file: ./poc-quiz/Dockerfile.production
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}/poc-quiz:poc
+            ghcr.io/${{ github.repository }}/poc-quiz:poc-${{ steps.tag.outputs.image_tag }}
+          build-args: |
+            VITE_API_URL=https://poc-api.api-engagement.beta.gouv.fr
+
+  deploy:
+    name: Deploy to Scaleway (poc)
+    needs: build
+    runs-on: ubuntu-latest
+    environment: poc
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: 1.9.1
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Scaleway credentials
+        uses: scaleway/action-scw@v0
+        with:
+          access-key: ${{ secrets.SCW_ACCESS_KEY }}
+          secret-key: ${{ secrets.SCW_SECRET_KEY }}
+          default-project-id: ${{ secrets.SCW_PROJECT_ID }}
+
+      - name: Export Scaleway environment variables
+        run: |
+          echo "SCW_ACCESS_KEY=${{ secrets.SCW_ACCESS_KEY }}" >> $GITHUB_ENV
+          echo "SCW_SECRET_KEY=${{ secrets.SCW_SECRET_KEY }}" >> $GITHUB_ENV
+          echo "SCW_DEFAULT_PROJECT_ID=${{ secrets.SCW_PROJECT_ID }}" >> $GITHUB_ENV
+          echo "AWS_ACCESS_KEY_ID=${{ secrets.SCW_ACCESS_KEY }}" >> $GITHUB_ENV
+          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.SCW_SECRET_KEY }}" >> $GITHUB_ENV
+          echo "TF_VAR_project_id=${{ secrets.SCW_PROJECT_ID }}" >> $GITHUB_ENV
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: "api/package-lock.json"
+
+      - name: Install API dependencies
+        run: cd api && npm ci
+
+      - name: Run Prisma migrations
+        working-directory: api
+        env:
+          DATABASE_URL_CORE: ${{ secrets.DATABASE_URL_CORE }}
+        run: npm run prisma:migrate:deploy
+
+      - name: Terraform Init
+        working-directory: ./terraform
+        run: terraform init
+
+      - name: Terraform Workspace
+        working-directory: ./terraform
+        run: terraform workspace select poc || terraform workspace new poc
+
+      - name: Terraform Plan
+        working-directory: ./terraform
+        run: |
+          terraform plan \
+            -var-file=envs/poc.tfvars \
+            -var="image_tag=${{ needs.build.outputs.image_tag }}" \
+            -var="project_id=${{ secrets.SCW_PROJECT_ID }}" \
+            -out=tfplan
+
+      - name: Terraform Apply
+        working-directory: ./terraform
+        run: terraform apply -auto-approve tfplan
+
+      - name: Output Deployment URLs
+        working-directory: ./terraform
+        run: |
+          echo "API: https://poc-api.api-engagement.beta.gouv.fr"
+          echo "POC Quiz: https://poc-quiz.api-engagement.beta.gouv.fr"
