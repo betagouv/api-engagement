@@ -1,4 +1,4 @@
-import { prisma } from "@/db/postgres";
+import { userScoringRepository } from "@/repositories/user-scoring";
 
 const USER_SCORING_TTL_DAYS = 7;
 
@@ -30,12 +30,8 @@ export const userScoringService = {
       }
     }
 
-    // Batch-validate all taxonomy_value_ids
-    const validValues = await prisma.taxonomyValue.findMany({
-      where: { id: { in: uniqueIds }, active: true },
-      select: { id: true },
-    });
-
+    // Batch-validate: all ids must exist and be active
+    const validValues = await userScoringRepository.findActiveTaxonomyValues(uniqueIds);
     if (validValues.length !== uniqueIds.length) {
       const foundIds = new Set(validValues.map((v) => v.id));
       const invalid = uniqueIds.find((id) => !foundIds.has(id));
@@ -44,26 +40,12 @@ export const userScoringService = {
 
     const expiresAt = new Date(Date.now() + USER_SCORING_TTL_DAYS * 24 * 60 * 60 * 1000);
 
-    const userScoring = await prisma.userScoring.create({
-      data: {
-        expiresAt,
-        values: {
-          createMany: {
-            data: uniqueIds.map((id) => ({ taxonomyValueId: id, score: 1.0 })),
-          },
-        },
-        ...(input.geo
-          ? {
-              geo: {
-                create: {
-                  lat: input.geo.lat,
-                  lon: input.geo.lon,
-                  radiusKm: input.geo.radius_km,
-                },
-              },
-            }
-          : {}),
-      },
+    const userScoring = await userScoringRepository.create({
+      expiresAt,
+      taxonomyValueIds: uniqueIds,
+      geo: input.geo
+        ? { lat: input.geo.lat, lon: input.geo.lon, radiusKm: input.geo.radius_km }
+        : undefined,
     });
 
     return { id: userScoring.id, created_at: userScoring.createdAt };

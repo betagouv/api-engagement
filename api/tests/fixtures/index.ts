@@ -5,6 +5,7 @@ import type { ImportCreateInput } from "@/types/import";
 export { createTestMission } from "./mission";
 export { createTestPublisher } from "./publisher";
 export { createTestPublisherOrganization } from "./publisher-organization";
+export { createTestTaxonomy, createTestTaxonomyValue } from "./taxonomy";
 export { createTestWidget, createTestWidgetRule } from "./widget";
 
 export const createTestImport = async (data: Partial<ImportCreateInput> = {}): Promise<PrismaImport> => {

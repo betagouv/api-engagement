@@ -2,33 +2,16 @@ import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { prisma } from "@/db/postgres";
+import { createTestTaxonomyValue } from "../../fixtures";
 import { createTestApp } from "../../testApp";
 
 const app = createTestApp();
-
-let _valueCounter = 0;
-const createTaxonomyValue = async (opts: { active?: boolean } = {}) => {
-  const taxonomy = await prisma.taxonomy.upsert({
-    where: { key: "domaine" },
-    update: {},
-    create: { key: "domaine", label: "Domaine", type: "multi_value" },
-  });
-  return prisma.taxonomyValue.create({
-    data: {
-      taxonomyId: taxonomy.id,
-      key: `value_${++_valueCounter}`,
-      label: `Value ${_valueCounter}`,
-      active: opts.active ?? true,
-    },
-  });
-};
 
 describe("POST /user-scoring", () => {
   let taxonomyValueId: string;
 
   beforeEach(async () => {
-    const tv = await createTaxonomyValue();
-    taxonomyValueId = tv.id;
+    taxonomyValueId = (await createTestTaxonomyValue()).id;
   });
 
   // ─── Success cases ──────────────────────────────────────────────────────────
@@ -92,7 +75,7 @@ describe("POST /user-scoring", () => {
   });
 
   it("should create a user scoring with multiple answers", async () => {
-    const tv2 = await createTaxonomyValue();
+    const tv2 = await createTestTaxonomyValue();
 
     const res = await request(app)
       .post("/user-scoring")
@@ -174,7 +157,7 @@ describe("POST /user-scoring", () => {
   });
 
   it("should return 400 when taxonomy_value_id is inactive", async () => {
-    const inactiveTv = await createTaxonomyValue({ active: false });
+    const inactiveTv = await createTestTaxonomyValue({ active: false });
 
     const res = await request(app)
       .post("/user-scoring")
