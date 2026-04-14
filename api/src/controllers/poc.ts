@@ -98,16 +98,16 @@ router.get("/match", async (req, res, next) => {
       title: string;
       city: string | null;
       description: string | null;
-      tasks: string | null;
-      audience: string | null;
-      softSkills: string | null;
-      requirements: string | null;
+      tasks: string[];
+      audience: string[];
+      softSkills: string[];
+      requirements: string[];
       tags: string[];
       type: string | null;
       remote: string | null;
       openToMinors: boolean | null;
       reducedMobilityAccessible: boolean | null;
-      duration: string | null;
+      duration: number | null;
       schedule: string | null;
       startAt: Date | null;
       endAt: Date | null;
@@ -118,11 +118,11 @@ router.get("/match", async (req, res, next) => {
         title: m.title,
         city: m.addresses[0]?.city ?? null,
         description: m.description ?? null,
-        tasks: m.tasks ?? null,
-        audience: m.audience ?? null,
-        softSkills: m.softSkills ?? null,
-        requirements: m.requirements ?? null,
-        tags: m.tags ?? [],
+        tasks: m.tasks,
+        audience: m.audience,
+        softSkills: m.softSkills,
+        requirements: m.requirements,
+        tags: m.tags,
         type: m.type ?? null,
         remote: m.remote ?? null,
         openToMinors: m.openToMinors ?? null,

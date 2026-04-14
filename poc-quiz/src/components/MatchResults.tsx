@@ -172,7 +172,7 @@ function MissionDetailAccordion({ mission }: { mission: MissionDetail }) {
     mission.domainOriginal ? { label: "Domaine", value: mission.domainOriginal } : null,
     mission.type ? { label: "Type", value: mission.type } : null,
     mission.remote ? { label: "Remote", value: mission.remote } : null,
-    mission.duration ? { label: "Durée", value: mission.duration } : null,
+    mission.duration != null ? { label: "Durée", value: `${mission.duration}h` } : null,
     mission.schedule ? { label: "Rythme", value: mission.schedule } : null,
     mission.startAt ? { label: "Début", value: new Date(mission.startAt).toLocaleDateString("fr-FR") } : null,
     mission.endAt ? { label: "Fin", value: new Date(mission.endAt).toLocaleDateString("fr-FR") } : null,
@@ -182,10 +182,10 @@ function MissionDetailAccordion({ mission }: { mission: MissionDetail }) {
 
   const textSections: { label: string; content: string }[] = [
     mission.description ? { label: "Description", content: mission.description } : null,
-    mission.tasks ? { label: "Tâches", content: mission.tasks } : null,
-    mission.audience ? { label: "Public", content: mission.audience } : null,
-    mission.softSkills ? { label: "Savoir-être", content: mission.softSkills } : null,
-    mission.requirements ? { label: "Prérequis", content: mission.requirements } : null,
+    mission.tasks.length > 0 ? { label: "Tâches", content: mission.tasks.join("\n") } : null,
+    mission.audience.length > 0 ? { label: "Public", content: mission.audience.join("\n") } : null,
+    mission.softSkills.length > 0 ? { label: "Savoir-être", content: mission.softSkills.join("\n") } : null,
+    mission.requirements.length > 0 ? { label: "Prérequis", content: mission.requirements.join("\n") } : null,
   ].filter((x): x is { label: string; content: string } => x !== null);
 
   return (
