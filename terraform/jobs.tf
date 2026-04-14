@@ -263,6 +263,20 @@ resource "scaleway_job_definition" "update-mission-enrichment" {
   env = local.all_env_vars
 }
 
+# Job Definition for the 'update-mission-scoring' task (on-demand only, no cron)
+resource "scaleway_job_definition" "update-mission-scoring" {
+  count        = var.enable_intern_jobs ? 1 : 0
+  name         = "${terraform.workspace}-update-mission-scoring"
+  project_id   = var.project_id
+  cpu_limit    = 1000
+  memory_limit = 2048
+  image_uri    = local.image_uri
+  command      = "node dist/jobs/run-job.js update-mission-scoring"
+  timeout      = "24h"
+
+  env = local.all_env_vars
+}
+
 # Job Definition for the 'verify-publisher-organization' task
 resource "scaleway_job_definition" "verify-publisher-organization" {
   name         = "${terraform.workspace}-verify-publisher-organization"
