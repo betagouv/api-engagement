@@ -156,14 +156,68 @@ describe("POST /user-scoring", () => {
     expect(res.body.ok).toBe(false);
   });
 
-  it("should return 400 when taxonomy_value_id is inactive", async () => {
+  it("should silently skip inactive taxonomy_value_id", async () => {
+    const inactiveTv = await createTestTaxonomyValue({ active: false });
+
+    const res = await request(app)
+      .post("/user-scoring")
+      .send({
+        answers: [{ taxonomy_value_id: taxonomyValueId }, { taxonomy_value_id: inactiveTv.id }],
+      });
+
+    expect(res.status).toBe(201);
+
+    const values = await prisma.userScoringValue.findMany({
+      where: { userScoringId: res.body.data.id },
+    });
+    expect(values).toHaveLength(1);
+    expect(values[0].taxonomyValueId).toBe(taxonomyValueId);
+  });
+
+  it("should return 201 with no values when all answers are inactive", async () => {
     const inactiveTv = await createTestTaxonomyValue({ active: false });
 
     const res = await request(app)
       .post("/user-scoring")
       .send({ answers: [{ taxonomy_value_id: inactiveTv.id }] });
-    expect(res.status).toBe(400);
-    expect(res.body.ok).toBe(false);
+
+    expect(res.status).toBe(201);
+
+    const values = await prisma.userScoringValue.findMany({
+      where: { userScoringId: res.body.data.id },
+    });
+    expect(values).toHaveLength(0);
+  });
+
+  it("should accept uppercase UUID", async () => {
+    const res = await request(app)
+      .post("/user-scoring")
+      .send({ answers: [{ taxonomy_value_id: taxonomyValueId.toUpperCase() }] });
+
+    expect(res.status).toBe(201);
+
+    const values = await prisma.userScoringValue.findMany({
+      where: { userScoringId: res.body.data.id },
+    });
+    expect(values).toHaveLength(1);
+  });
+
+  it("should deduplicate UUIDs that differ only in casing", async () => {
+    const res = await request(app)
+      .post("/user-scoring")
+      .send({
+        answers: [
+          { taxonomy_value_id: taxonomyValueId.toUpperCase() },
+          { taxonomy_value_id: taxonomyValueId.toLowerCase() },
+        ],
+      });
+
+    expect(res.status).toBe(201);
+
+    const values = await prisma.userScoringValue.findMany({
+      where: { userScoringId: res.body.data.id },
+    });
+    expect(values).toHaveLength(1);
   });
 
   it("should return 400 when geo.lat is out of range", async () => {

@@ -2,10 +2,10 @@ import { TaxonomyValue, UserScoring } from "@/db/core";
 import { prisma } from "@/db/postgres";
 
 export const userScoringRepository = {
-  findActiveTaxonomyValues(ids: string[]): Promise<Pick<TaxonomyValue, "id">[]> {
+  findTaxonomyValuesByIds(ids: string[]): Promise<Pick<TaxonomyValue, "id" | "active">[]> {
     return prisma.taxonomyValue.findMany({
-      where: { id: { in: ids }, active: true },
-      select: { id: true },
+      where: { id: { in: ids } },
+      select: { id: true, active: true },
     });
   },
 
