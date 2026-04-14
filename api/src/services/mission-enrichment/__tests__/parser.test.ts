@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { parseEnrichmentResponse, type TaxonomyLookup } from "../parser";
+import { parseEnrichmentResponse, type TaxonomyLookup } from "@/services/mission-enrichment/parser";
 
 const buildLookup = (): TaxonomyLookup => {
   const lookup: TaxonomyLookup = new Map();
