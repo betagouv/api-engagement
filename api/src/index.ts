@@ -72,6 +72,7 @@ import UserController from "@/controllers/user";
 import WarningController from "@/controllers/warning";
 import WarningBotController from "@/controllers/warning-bot";
 import UserScoringController from "@/controllers/user-scoring";
+import PocController from "@/controllers/poc";
 import WidgetController from "@/controllers/widget";
 import MissionV0Controller from "@/v0/mission/controller";
 import MyMissionV0Controller from "@/v0/mymission/controller";
@@ -129,6 +130,7 @@ const main = async () => {
   app.use("/v2/leboncoin", corsPublic, LeboncoinV2Controller);
   app.use("/v2/jobteaser", corsPublic, JobTeaserV2Controller);
   app.use("/user-scoring", corsPublic, UserScoringController);
+  app.use("/poc", corsPublic, PocController);
   app.use("/brevo-webhook", corsPublic, BrevoWebhookController);
 
   // Interal routes

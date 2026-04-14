@@ -1,0 +1,89 @@
+const BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? "";
+
+export type TaxonomyValue = {
+  id: string;
+  key: string;
+  label: string;
+  icon: string | null;
+  order: number | null;
+};
+
+export type Taxonomy = {
+  id: string;
+  key: string;
+  label: string;
+  type: "categorical" | "multi_value" | "ordered" | "gate";
+  values: TaxonomyValue[];
+};
+
+export type MatchValueDetail = {
+  dimensionKey: string;
+  taxonomyValueKey: string;
+  taxonomyValueLabel: string;
+  enrichmentConfidence: number;
+  scoringScore: number;
+  evidence: unknown;
+};
+
+export type MissionDetail = {
+  description: string | null;
+  tasks: string | null;
+  audience: string | null;
+  softSkills: string | null;
+  requirements: string | null;
+  tags: string[];
+  type: string | null;
+  remote: string | null;
+  openToMinors: boolean | null;
+  reducedMobilityAccessible: boolean | null;
+  duration: string | null;
+  schedule: string | null;
+  startAt: string | null;
+  endAt: string | null;
+  domainOriginal: string | null;
+};
+
+export type MatchResultItem = {
+  missionId: string;
+  missionScoringId: string;
+  title: string;
+  city: string | null;
+  mission: MissionDetail | null;
+  totalScore: number;
+  taxonomyScore: number;
+  geoScore: number | null;
+  distanceKm: number | null;
+  dimensionScores: Partial<Record<string, number>>;
+  values: MatchValueDetail[];
+};
+
+export type MatchResult = {
+  tookMs: number;
+  items: MatchResultItem[];
+};
+
+async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(`${BASE}${path}`, init);
+  const json = await res.json();
+  if (!json.ok) throw new Error(json.message ?? json.error ?? "API error");
+  return json.data as T;
+}
+
+export async function fetchTaxonomies(): Promise<Taxonomy[]> {
+  return apiFetch<Taxonomy[]>("/poc/taxonomy");
+}
+
+export async function postUserScoring(
+  answers: { taxonomy_value_id: string }[],
+  geo: { lat: number; lon: number } | null
+): Promise<{ id: string; created_at: string }> {
+  return apiFetch("/user-scoring", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ answers, ...(geo ? { geo } : {}) }),
+  });
+}
+
+export async function fetchMatch(userScoringId: string, limit = 20): Promise<MatchResult> {
+  return apiFetch<MatchResult>(`/poc/match?userScoringId=${encodeURIComponent(userScoringId)}&limit=${limit}`);
+}
