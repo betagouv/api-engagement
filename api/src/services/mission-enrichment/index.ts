@@ -185,7 +185,6 @@ export const missionEnrichmentService = {
       }
 
       // 9. Persist values + mark completed (atomic)
-      const { inputTokens, outputTokens, totalTokens } = llmResult.usage;
       await missionEnrichmentRepository.completeWithValues(
         enrichment.id,
         llmResult.text,
