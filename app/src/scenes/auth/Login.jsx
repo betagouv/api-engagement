@@ -56,7 +56,7 @@ const Login = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex h-full flex-col bg-white px-32 py-10">
+    <form onSubmit={handleSubmit} className="flex h-full flex-col bg-white px-4 py-10 sm:px-32">
       <title>API Engagement - Connexion</title>
       <h1 className="font-light">Connexion</h1>
       <h2 className="text-4xl font-bold">Accedez à votre espace</h2>

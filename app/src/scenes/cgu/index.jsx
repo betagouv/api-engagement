@@ -3,10 +3,10 @@ const Index = () => {
   return (
     <>
       <title>API Engagement - Conditions Générales d’Utilisation</title>
-      <div className="mx-auto my-14 w-4/5 max-w-[1200px] flex-1 space-y-10">
+      <div className="mx-auto my-14 w-full max-w-[1200px] flex-1 space-y-10 px-4 sm:w-4/5 sm:px-0">
         <h1 className="mb-2 text-4xl font-bold">Conditions Générales d’Utilisation</h1>
 
-        <div className="space-y-10 border bg-white px-24 py-12 text-base">
+        <div className="space-y-10 border bg-white px-4 py-12 text-base sm:px-24">
           <p>En vigueur à partir du 20/03/2025</p>
           <div className="space-y-6">
             <h2 className="text-lg font-bold">Article 1 - Champ d’application</h2>

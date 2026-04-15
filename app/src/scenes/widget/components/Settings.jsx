@@ -90,11 +90,11 @@ const Settings = ({ widget, values, onChange, loading }) => {
   }, [loading, values.type, values.publishers, values.location, values.distance, values.jvaModeration, values.rules]);
 
   return (
-    <div className="space-y-12 bg-white p-12 shadow-lg">
+    <div className="space-y-12 bg-white p-4 shadow-lg sm:p-12">
       <div className="space-y-10">
         <h2 className="text-2xl font-bold">Informations générales</h2>
 
-        <div className="grid grid-cols-2 gap-10">
+        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2">
           <div className="flex flex-col gap-4">
             <label className="text-base" htmlFor="name">
               Nom du widget<span className="text-error ml-1">*</span>
@@ -116,7 +116,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
       <div className="space-y-10">
         <h2 className="text-2xl font-bold">Missions à diffuser</h2>
 
-        <div className="grid grid-cols-2 gap-10">
+        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2">
           <div className="flex flex-col gap-1">
             <label className="text-base">
               Type de mission<span className="text-error ml-1">*</span>
@@ -194,7 +194,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
             return filteredPublishers.length === 0 ? (
               <p className="text-text-mention text-sm">Aucun partenaire disponible</p>
             ) : (
-              <div className="grid grid-cols-3 gap-x-6 gap-y-3">
+              <div className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
                 {filteredPublishers.slice(0, showAll ? filteredPublishers.length : 15).map((item, i) => (
                   <label
                     key={i}
@@ -255,7 +255,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
           )}
 
           {values.publishers.includes(JVA_ID) && (
-            <div className="flex w-[50%] items-center justify-between pt-6">
+            <div className="flex w-full flex-col gap-4 pt-6 sm:w-[50%] sm:flex-row sm:items-center sm:justify-between">
               <div> Afficher uniquement les missions modérées par JeVeuxAider.gouv.fr</div>
               <div className="flex items-center gap-4">
                 <Toggle
@@ -287,7 +287,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
       <div className="space-y-10">
         <h2 className="text-2xl font-bold">Personnalisation</h2>
 
-        <div className="grid grid-cols-2 gap-10">
+        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2">
           <div className="flex flex-col gap-4">
             <label className="text-base" htmlFor="style">
               Mode d'affichage<span className="text-error ml-1">*</span>

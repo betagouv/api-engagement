@@ -1,6 +1,6 @@
+import { toast } from "@/services/toast";
 import { useEffect, useState } from "react";
 import { RiBookletFill, RiFileCopyFill } from "react-icons/ri";
-import { toast } from "@/services/toast";
 
 import api from "@/services/api";
 import { captureError } from "@/services/error";
@@ -48,7 +48,7 @@ const Api = () => {
   if (!publisher) return <p className="p-3">Chargement...</p>;
 
   return (
-    <div className="space-y-12 p-12">
+    <div className="space-y-12 p-4 sm:p-12">
       <title>API Engagement - Flux par API - Diffuser des missions</title>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="space-y-2">
@@ -61,14 +61,14 @@ const Api = () => {
           Documentation
         </a>
       </div>
-      <div className="border-grey-border border p-6">
-        <div className="border-b-gray-925 flex flex-wrap items-center gap-4 border-b pb-6">
+      <div className="border-grey-border border p-4 sm:p-6">
+        <div className="border-b-gray-925 flex flex-col gap-4 border-b pb-6">
           <label htmlFor="apikey" className="font-semibold">
             Votre clé API
           </label>
-          <div className="flex min-w-[200px] flex-1 items-center gap-4">
-            <input id="apikey" className="input flex-1" name="apikey" readOnly value={publisher.apikey || ""} />
-            <button className="secondary-btn flex h-10 w-10 items-center justify-center p-0" onClick={handleCopy}>
+          <div className="flex items-center gap-4">
+            <input id="apikey" className="input min-w-0 flex-1" name="apikey" readOnly value={publisher.apikey || ""} />
+            <button className="secondary-btn flex h-10 w-10 shrink-0 items-center justify-center p-0" onClick={handleCopy}>
               <RiFileCopyFill aria-hidden="true" />
               <span className="sr-only">Copier la clé API</span>
             </button>
@@ -91,7 +91,7 @@ const Api = () => {
         </div>
         <div className="flex flex-col gap-4 pt-6">
           <div className="flex items-center justify-between gap-4">
-            <p className="w-1/4 font-semibold">Exemple d'appel</p>
+            <p className="font-semibold sm:w-1/4">Exemple d'appel</p>
           </div>
           <textarea
             className="border-blue-france-925 bg-blue-france-975 w-full rounded-none border px-4 py-2 font-mono text-sm read-only:opacity-80"

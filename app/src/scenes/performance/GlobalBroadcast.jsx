@@ -191,15 +191,9 @@ const DistributionMean = ({ filters }) => {
   return (
     <div className="space-y-6">
       <h2 className="text-3xl font-bold">Répartition par moyen de diffusion</h2>
-      <div className="border-grey-border space-y-4 border p-6">
-        <Tabs
-          tabs={tabs}
-          ariaLabel="Répartition par moyen de diffusion"
-          panelId="distribution-panel"
-          className="mb-8 flex flex-wrap items-center gap-8 text-sm"
-          variant="underline"
-        />
-        <div id="distribution-panel" role="tabpanel" aria-labelledby={activeTabId || undefined}>
+      <div className="border-grey-border space-y-4 overflow-x-auto border p-6">
+        <Tabs tabs={tabs} ariaLabel="Répartition par moyen de diffusion" panelId="distribution-panel" className="mb-6 gap-8 pb-2 text-sm" variant="underline" />
+        <div id="distribution-panel" role="tabpanel" aria-labelledby={activeTabId || undefined} className="min-w-[600px]">
           {loading ? (
             <div className="flex h-64 items-center justify-center">
               <Loader />
@@ -411,9 +405,9 @@ const Evolution = ({ filters }) => {
         <h2 className="text-3xl font-bold">Evolution</h2>
         <p className="text-text-mention text-base">Trafic que vous avez généré pour vos partenaires annonceurs</p>
       </div>
-      <div className="border-grey-border border p-4">
-        <Tabs tabs={tabs} ariaLabel="Evolution" panelId="evolution-panel" className="mb-8 flex flex-wrap items-center gap-8 text-sm" variant="underline" />
-        <div id="evolution-panel" role="tabpanel" aria-labelledby={activeTabId || undefined}>
+      <div className="border-grey-border overflow-x-auto border p-4">
+        <Tabs tabs={tabs} ariaLabel="Evolution" panelId="evolution-panel" className="mb-6 gap-8 pb-2 text-sm" variant="underline" />
+        <div id="evolution-panel" role="tabpanel" aria-labelledby={activeTabId || undefined} className="min-w-[600px]">
           {loading ? (
             <div className="flex h-[420px] items-center justify-center">
               <Loader />
@@ -583,8 +577,8 @@ const Announcers = ({ filters }) => {
         </div>
       ) : (
         <>
-          <div className="border-grey-border space-y-4 border p-6">
-            <div className="flex flex-col gap-4">
+          <div className="border-grey-border space-y-4 overflow-x-auto border p-6">
+            <div className="flex min-w-[600px] flex-col gap-4">
               <h3 className="text-2xl font-semibold">Performance des annonceurs</h3>
               <Table
                 caption="Performance des annonceurs"
@@ -602,9 +596,7 @@ const Announcers = ({ filters }) => {
                   .slice((tableSettings.page - 1) * 5, tableSettings.page * 5)
                   .map((item, i) => (
                     <tr key={i} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
-                      <td className="px-4">
-                        {item.publisherId}
-                      </td>
+                      <td className="px-4">{item.publisherId}</td>
                       <td className="px-4 text-right">{item.printCount.toLocaleString("fr")}</td>
                       <td className="px-4 text-right">{item.clickCount.toLocaleString("fr")}</td>
                       <td className="px-4 text-right">{item.accountCount.toLocaleString("fr")}</td>
@@ -615,47 +607,53 @@ const Announcers = ({ filters }) => {
               </Table>
             </div>
           </div>
-          <div className="border-grey-border space-y-4 border p-6">
-            <h3 className="text-2xl font-semibold">Répartition des missions par annonceur</h3>
-            {!missionData.length ? (
-              <div className="border-grey-border bg-background-grey-hover flex h-[248px] w-full flex-col items-center justify-center border border-dashed">
-                <img src={EmptySVG} alt="" aria-hidden="true" className="h-16 w-16" />
-                <p className="text-color-gray-425 text-base">Aucune donnée disponible pour la période</p>
-              </div>
-            ) : (
-              <div className="flex justify-between gap-4">
-                <div className="w-2/3">
-                  <table className="w-full table-auto">
-                    <thead className="text-left">
-                      <tr className="text-text-mention text-xs uppercase">
-                        <th colSpan={3} className="px-4">
-                          Annonceurs
-                        </th>
-                        <th className="px-4 text-right">Nombre de missions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {missionData.slice(0, 6).map((item, i) => (
-                        <tr key={i}>
-                          <td colSpan={3} className="p-4">
-                            <div className="flex items-center gap-2">
-                              <span className="mr-2 h-4 w-6" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
-                              <div className="flex-1 text-sm font-semibold">{item.key}</div>
-                            </div>
-                          </td>
-                          <td className="px-4 text-right text-sm">{item.doc_count.toLocaleString("fr")}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+          <div className="border-grey-border space-y-4 overflow-x-auto border p-6">
+            <div className="min-w-[600px]">
+              <h3 className="text-2xl font-semibold">Répartition des missions par annonceur</h3>
+              {!missionData.length ? (
+                <div className="border-grey-border bg-background-grey-hover flex h-[248px] w-full flex-col items-center justify-center border border-dashed">
+                  <img src={EmptySVG} alt="" aria-hidden="true" className="h-16 w-16" />
+                  <p className="text-color-gray-425 text-base">Aucune donnée disponible pour la période</p>
                 </div>
-                <div className="mr-8 ml-24 flex w-1/3 items-center justify-center">
-                  <div className="h-56 w-full">
-                    <Pie data={missionData?.slice(0, 6).map((d, i) => ({ name: d.key, value: d.doc_count, color: COLORS[i % COLORS.length] }))} innerRadius="0%" unit="missions" />
+              ) : (
+                <div className="flex justify-between gap-4">
+                  <div className="w-2/3">
+                    <table className="w-full table-auto">
+                      <thead className="text-left">
+                        <tr className="text-text-mention text-xs uppercase">
+                          <th colSpan={3} className="px-4">
+                            Annonceurs
+                          </th>
+                          <th className="px-4 text-right">Nombre de missions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {missionData.slice(0, 6).map((item, i) => (
+                          <tr key={i}>
+                            <td colSpan={3} className="p-4">
+                              <div className="flex items-center gap-2">
+                                <span className="mr-2 h-4 w-6" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                                <div className="flex-1 text-sm font-semibold">{item.key}</div>
+                              </div>
+                            </td>
+                            <td className="px-4 text-right text-sm">{item.doc_count.toLocaleString("fr")}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="mr-8 ml-24 flex w-1/3 items-center justify-center">
+                    <div className="h-56 w-full">
+                      <Pie
+                        data={missionData?.slice(0, 6).map((d, i) => ({ name: d.key, value: d.doc_count, color: COLORS[i % COLORS.length] }))}
+                        innerRadius="0%"
+                        unit="missions"
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </>
       )}

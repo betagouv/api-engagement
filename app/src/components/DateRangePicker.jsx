@@ -59,10 +59,10 @@ const DateRangePicker = ({ value, onChange }) => {
   };
 
   return (
-    <div className="flex flex-col gap-4 lg:flex-row">
+    <div className="flex flex-col gap-4">
       <fieldset className="m-0 border-0 p-0">
         <legend className="sr-only">Période</legend>
-        <div className="border-grey-border flex w-fit items-center gap-x-2 rounded-sm border" role="radiogroup">
+        <div className="border-grey-border flex flex-col items-stretch gap-2 rounded-sm border sm:w-fit sm:flex-row sm:items-center sm:gap-x-2" role="radiogroup">
           {RANGES.map((range, i) => {
             const isSelected = selectedIndex === i;
             return (
@@ -72,7 +72,7 @@ const DateRangePicker = ({ value, onChange }) => {
                 role="radio"
                 aria-checked={isSelected}
                 tabIndex={isSelected || (selectedIndex === -1 && i === 0) ? 0 : -1}
-                className={`focus cursor-pointer rounded-sm px-4 py-2 text-sm ${isSelected ? "border-blue-france text-blue-france -my-px border-2" : ""} hover:bg-gray-100`}
+                className={`focus cursor-pointer rounded-sm px-4 py-2 text-sm whitespace-nowrap ${isSelected ? "border-blue-france text-blue-france -my-px border" : ""} hover:bg-gray-100`}
                 onClick={() => onChange(range)}
                 onKeyDown={(e) => handleKeyDown(e, i)}
               >
@@ -88,8 +88,19 @@ const DateRangePicker = ({ value, onChange }) => {
   );
 };
 
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(typeof window !== "undefined" && window.innerWidth < 640);
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 640);
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, []);
+  return isMobile;
+};
+
 export const DateInput = ({ value, onChange }) => {
   const id = useId();
+  const isMobile = useIsMobile();
   const [from, setFrom] = useState(value.from);
   const [to, setTo] = useState(value.to);
   const [fromText, setFromText] = useState(formatDateFr(value.from));
@@ -211,10 +222,23 @@ export const DateInput = ({ value, onChange }) => {
         role="dialog"
         aria-modal="true"
         aria-label="Sélection de période"
-        className={`border-grey-border divide-grey-border absolute right-0 z-50 mt-1 divide-y border bg-white px-8 pt-6 pb-4 shadow-lg ${show ? "block" : "hidden"}`}
+        className={`border-grey-border fixed inset-0 z-50 overflow-y-auto border bg-white px-4 pt-4 pb-4 shadow-lg sm:absolute sm:inset-auto sm:right-0 sm:mt-1 sm:overflow-visible sm:px-8 sm:pt-6 ${show ? "block" : "hidden"}`}
       >
-        <div className="flex gap-6">
-          <ul className="m-0 flex w-44 list-none flex-col p-0 text-base" role="list" aria-label="Périodes disponibles">
+        <div className="mb-4 flex justify-end sm:hidden">
+          <button
+            type="button"
+            className="tertiary-btn"
+            onClick={() => {
+              setShow(false);
+              buttonRef.current?.focus();
+            }}
+            aria-label="Fermer le calendrier"
+          >
+            Fermer
+          </button>
+        </div>
+        <div className="flex flex-col gap-6 sm:flex-row">
+          <ul className="m-0 flex list-none flex-col p-0 text-base sm:w-44" role="list" aria-label="Périodes disponibles">
             <li>
               <button
                 className="hover:bg-gray-975 w-full cursor-pointer p-3 text-left text-base"
@@ -280,7 +304,7 @@ export const DateInput = ({ value, onChange }) => {
 
           <AccessibleCalendar>
             <DatePicker
-              renderCustomHeader={DatePickerHeader}
+              renderCustomHeader={(props) => <DatePickerHeader {...props} isMobile={isMobile} />}
               onChange={handleCalendarChange}
               startDate={from}
               endDate={to}
@@ -288,7 +312,7 @@ export const DateInput = ({ value, onChange }) => {
               locale={fr}
               selectsRange
               inline
-              monthsShown={2}
+              monthsShown={isMobile ? 1 : 2}
               calendarContainer={DatePickerContainer}
               ariaLabelPrefix="Choisir"
             />
@@ -320,9 +344,9 @@ const DatePickerContainer = ({ children }) => (
   </div>
 );
 
-const DatePickerHeader = ({ monthDate, customHeaderCount, decreaseMonth, increaseMonth }) => (
+const DatePickerHeader = ({ monthDate, customHeaderCount, decreaseMonth, increaseMonth, isMobile }) => (
   <div className="flex items-center justify-between gap-8 pb-4">
-    <button aria-label="Mois précédent" className="hover:bg-gray-975" style={customHeaderCount === 1 ? { visibility: "hidden" } : null} onClick={decreaseMonth}>
+    <button aria-label="Mois précédent" className="hover:bg-gray-975" style={!isMobile && customHeaderCount === 1 ? { visibility: "hidden" } : null} onClick={decreaseMonth}>
       <RiArrowLeftSLine className="text-blue-france text-[32px]" aria-hidden="true" />
     </button>
     <span className="text-base font-bold">
@@ -331,7 +355,7 @@ const DatePickerHeader = ({ monthDate, customHeaderCount, decreaseMonth, increas
         year: "numeric",
       })}
     </span>
-    <button aria-label="Mois suivant" className="hover:bg-gray-975" style={customHeaderCount === 0 ? { visibility: "hidden" } : null} onClick={increaseMonth}>
+    <button aria-label="Mois suivant" className="hover:bg-gray-975" style={!isMobile && customHeaderCount === 0 ? { visibility: "hidden" } : null} onClick={increaseMonth}>
       <RiArrowRightSLine className="text-blue-france text-[32px]" aria-hidden="true" />
     </button>
   </div>

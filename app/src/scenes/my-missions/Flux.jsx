@@ -127,7 +127,7 @@ const Flux = ({ moderated }) => {
   };
 
   return (
-    <div className="space-y-12 p-12">
+    <div className="space-y-12 p-4 sm:p-12">
       <title>API Engagement - Missions partagées - Vos Missions</title>
       {moderated && !hideAlert && (
         <InfoAlert onClose={() => setHideAlert(true)}>
@@ -138,7 +138,7 @@ const Flux = ({ moderated }) => {
         </InfoAlert>
       )}
       <div className="flex flex-col gap-6">
-        <SearchInput className="w-96" value={filters.search} onChange={(search) => setFilters({ ...filters, search })} placeholder="Rechercher par mot-clé" />
+        <SearchInput className="w-full sm:w-96" value={filters.search} onChange={(search) => setFilters({ ...filters, search })} placeholder="Rechercher par mot-clé" />
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <Select
             options={options.status.map((e) => ({ value: e.key, label: STATUS_PLR[e.key], count: e.doc_count }))}
@@ -187,23 +187,23 @@ const Flux = ({ moderated }) => {
       </div>
 
       <div className="flex flex-col gap-6">
-        <div className="flex items-center justify-between gap-4">
-          <div className="max-w-[60%] flex-1 space-y-2">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="min-w-0 flex-1 space-y-2">
             <h2 className="text-2xl font-bold">{total.toLocaleString("fr")} missions partagées</h2>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <p className="text-text-mention text-base">Dernière synchronisation le {lastImport ? new Date(lastImport.startedAt).toLocaleDateString("fr") : "N/A"}</p>
               {lastImport && new Date(lastImport.startedAt) > new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - 1) ? (
-                <RiCheckboxCircleFill role="img" aria-label="OK" className="text-success text-base" />
+                <RiCheckboxCircleFill role="img" aria-label="OK" className="text-success shrink-0 text-base" />
               ) : (
-                <ErrorIconSvg role="img" aria-label="Erreur" className="fill-error h-4 w-4" />
+                <ErrorIconSvg role="img" aria-label="Erreur" className="fill-error h-4 w-4 shrink-0" />
               )}
-              <Link to="/settings" className="link">
+              <Link to="/settings" className="link whitespace-nowrap">
                 Paraméter mon flux de missions
               </Link>
             </div>
           </div>
 
-          <button className="tertiary-btn" onClick={handleExport}>
+          <button className="tertiary-btn shrink-0" onClick={handleExport}>
             {exporting ? <Loader /> : <RiFileDownloadLine className="mr-2" aria-hidden="true" />}
             Exporter
           </button>

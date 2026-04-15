@@ -169,7 +169,7 @@ const Index = () => {
       <div className="space-y-10">
         <h1 className="text-4xl font-bold">État du service</h1>
 
-        <div className="flex items-center gap-8 bg-white p-6 shadow-sm">
+        <div className="flex flex-col gap-4 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:gap-8 sm:p-6">
           <img className="h-18 w-18" src={APILogo} alt="" aria-hidden="true" />
           <div>
             {state.success / state.imports < 0.9 ? (
@@ -188,13 +188,13 @@ const Index = () => {
             <p className="text-xl">Dernière mise à jour des flux réalisée le {`${buildDate(state.last)}`}</p>
           </div>
         </div>
-        <div className="space-y-12 bg-white p-12 shadow-lg">
+        <div className="space-y-12 bg-white p-4 shadow-lg sm:p-12">
           <h2 className="mb-6 text-xl font-bold text-black">
             {Object.keys(currentWarningsByPublishers).length > 1
               ? `${Object.keys(currentWarningsByPublishers).length} partenaires rencontrent un problème`
               : `${Object.keys(currentWarningsByPublishers).length} partenaire rencontre un problème`}
           </h2>
-          <div className="grid grid-cols-4 gap-10">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-10">
             {Object.values(currentWarningsByPublishers).map((p, i) => (
               <div className="border-grey-border flex h-40 flex-col items-center border" key={i}>
                 <div className="text-text-mention mt-2 text-center text-xs">{p.name}</div>
@@ -218,7 +218,7 @@ const Index = () => {
       <Bots />
       <div className="mb-6 space-y-6">
         <h2 className="text-2xl font-bold">Alertes en cours</h2>
-        <div className="flex w-2/3 items-center justify-start gap-4">
+        <div className="flex w-full flex-col gap-4 sm:w-2/3 sm:flex-row sm:flex-wrap sm:items-center">
           <Select
             options={publishers.map((e) => ({ value: e.id, label: e.name }))}
             value={currentFilters.publisher}
@@ -265,8 +265,8 @@ const Index = () => {
                 {currentWarningsByDays[d].map((w, i) => {
                   const label = WARNINGS[w.type] || WARNINGS.OTHER_WARNING;
                   return (
-                    <div className="flex items-center gap-8 bg-white p-6 shadow-sm" key={i} id={slugify(`${w.type}-${w.publisherName}`)}>
-                      {w.publisherLogo ? <img className="h-20 w-36 object-contain" src={w.publisherLogo} alt="" aria-hidden="true" /> : <div className="bg-grey-200 h-20 w-36" />}
+                    <div className="flex flex-col gap-4 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:gap-8 sm:p-6" key={i} id={slugify(`${w.type}-${w.publisherName}`)}>
+                      {w.publisherLogo ? <img className="h-20 w-36 shrink-0 object-contain" src={w.publisherLogo} alt="" aria-hidden="true" /> : <div className="bg-grey-200 h-20 w-36 shrink-0" />}
                       <div className="flex flex-col justify-between">
                         <div className="mb-2">
                           <span className="bg-yellow-tournesol-950 text-yellow-tournesol-200 truncate rounded p-1 text-center text-xs font-semibold uppercase">{label.name}</span>
@@ -287,7 +287,7 @@ const Index = () => {
       </div>
       <div className="space-y-6">
         <h2 className="text-2xl font-bold">Historiques des alertes passées</h2>
-        <div className="flex w-2/3 items-center justify-start gap-4">
+        <div className="flex w-full flex-col gap-4 sm:w-2/3 sm:flex-row sm:flex-wrap sm:items-center">
           <Select
             options={publishers.map((e) => ({ value: e.id, label: e.name }))}
             value={archivedFilters.publisher}
@@ -334,8 +334,8 @@ const Index = () => {
                 {archivedWarningsByDays[d].map((w, i) => {
                   const label = WARNINGS[w.type] || WARNINGS.OTHER_WARNING;
                   return (
-                    <div className="flex items-center gap-8 bg-white p-6 shadow-sm" key={i}>
-                      {w.publisherLogo ? <img className="h-20 w-36 object-contain" src={w.publisherLogo} alt="" aria-hidden="true" /> : <div className="bg-grey-200 h-20 w-36" />}
+                    <div className="flex flex-col gap-4 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:gap-8 sm:p-6" key={i}>
+                      {w.publisherLogo ? <img className="h-20 w-36 shrink-0 object-contain" src={w.publisherLogo} alt="" aria-hidden="true" /> : <div className="bg-grey-200 h-20 w-36 shrink-0" />}
 
                       <div className="flex flex-col justify-between">
                         <div className="mb-2">
