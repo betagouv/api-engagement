@@ -1,4 +1,5 @@
-const BASE = (typeof window !== "undefined" && (window as any).__API_URL__) || (import.meta.env.VITE_API_URL as string | undefined) || "";
+const rawApiUrl: string | undefined = typeof window !== "undefined" ? (window as any).__API_URL__ : undefined;
+const BASE = rawApiUrl && rawApiUrl !== "API_URL_PLACEHOLDER" ? rawApiUrl : (import.meta.env.VITE_API_URL as string | undefined) ?? "";
 
 export type TaxonomyValue = {
   id: string;
