@@ -129,7 +129,9 @@ const main = async () => {
   app.use("/v2/activity", corsPublic, ActivityV2Controller);
   app.use("/v2/leboncoin", corsPublic, LeboncoinV2Controller);
   app.use("/v2/jobteaser", corsPublic, JobTeaserV2Controller);
+  app.options("/user-scoring", corsPublic);
   app.use("/user-scoring", corsPublic, UserScoringController);
+  app.options("/poc/*", corsPublic);
   app.use("/poc", corsPublic, PocController);
   app.use("/brevo-webhook", corsPublic, BrevoWebhookController);
 
