@@ -1,4 +1,4 @@
-const BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? "";
+const BASE = (typeof window !== "undefined" && (window as any).__API_URL__) || (import.meta.env.VITE_API_URL as string | undefined) || "";
 
 export type TaxonomyValue = {
   id: string;

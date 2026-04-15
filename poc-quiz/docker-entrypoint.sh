@@ -6,6 +6,6 @@ if [ -z "$API_URL" ]; then
   API_URL="http://localhost:4000"
 fi
 
-sed -i "s|API_URL_PLACEHOLDER|${API_URL}|g" /etc/nginx/conf.d/default.conf
+sed -i "s|API_URL_PLACEHOLDER|${API_URL}|g" /usr/share/nginx/html/index.html
 
 exec nginx -g "daemon off;"
