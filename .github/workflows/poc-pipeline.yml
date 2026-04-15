@@ -69,6 +69,7 @@ jobs:
           context: ./poc-quiz
           file: ./poc-quiz/Dockerfile.production
           push: true
+          provenance: false
           tags: |
             ghcr.io/${{ github.repository }}/poc-quiz:poc
             ghcr.io/${{ github.repository }}/poc-quiz:poc-${{ steps.tag.outputs.image_tag }}
