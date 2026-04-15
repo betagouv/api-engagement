@@ -99,6 +99,10 @@ const main = async () => {
     token: COCKPIT_METRICS_TOKEN,
   });
 
+  // OPTIONS preflights POC enregistrés AVANT le cors global (middlewares) qui bloquerait les origines inconnues
+  app.options("/user-scoring", corsPoc);
+  app.options("/poc/*", corsPoc);
+
   middlewares(app);
 
   app.get("/", async (req, res) => {
