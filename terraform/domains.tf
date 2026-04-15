@@ -1,4 +1,5 @@
 resource "scaleway_container_domain" "api" {
+  count        = var.api_hostname != "" ? 1 : 0
   container_id = scaleway_container.api.id
   hostname     = var.api_hostname
 }

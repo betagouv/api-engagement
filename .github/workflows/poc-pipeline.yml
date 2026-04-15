@@ -72,8 +72,6 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository }}/poc-quiz:poc
             ghcr.io/${{ github.repository }}/poc-quiz:poc-${{ steps.tag.outputs.image_tag }}
-          build-args: |
-            VITE_API_URL=https://poc-api.api-engagement.beta.gouv.fr
 
   deploy:
     name: Deploy to Scaleway (poc)
@@ -153,5 +151,4 @@ jobs:
       - name: Output Deployment URLs
         working-directory: ./terraform
         run: |
-          echo "API: https://poc-api.api-engagement.beta.gouv.fr"
-          echo "POC Quiz: https://poc-quiz.api-engagement.beta.gouv.fr"
+          terraform output -raw api_url 2>/dev/null && echo "" || echo "Deploy complete — check Scaleway console for container URLs"

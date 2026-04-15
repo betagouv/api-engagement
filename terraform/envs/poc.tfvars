@@ -1,8 +1,8 @@
 workspace = "poc"
 env       = "poc"
 
-api_hostname      = "poc-api.api-engagement.beta.gouv.fr"
-poc_quiz_hostname = "poc-quiz.api-engagement.beta.gouv.fr"
+api_hostname      = ""
+poc_quiz_hostname = ""
 app_hostname      = ""
 bucket_name       = "api-engagement-bucket-poc"
 
@@ -16,4 +16,5 @@ enable_widget         = false
 enable_async_tasks    = false
 enable_intern_jobs    = false
 enable_analytics_jobs = false
+enable_mission_jobs   = false
 enable_poc_quiz       = true

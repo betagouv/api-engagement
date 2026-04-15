@@ -29,8 +29,8 @@ resource "scaleway_container" "api" {
   environment_variables = {
     "ENV"                               = var.env
     "IMAGE_VERSION"                     = var.image_tag
-    "API_URL"                           = "https://${var.api_hostname}"
-    "APP_URL"                           = "https://${var.app_hostname}"
+    "API_URL"                           = var.api_hostname != "" ? "https://${var.api_hostname}" : ""
+    "APP_URL"                           = var.app_hostname != "" ? "https://${var.app_hostname}" : ""
     "BENEVOLAT_URL"                     = var.benevolat_hostname != "" ? "https://${var.benevolat_hostname}" : ""
     "VOLONTARIAT_URL"                   = var.volontariat_hostname != "" ? "https://${var.volontariat_hostname}" : ""
     "PILOTY_BASE_URL"                   = var.piloty_hostname
@@ -144,6 +144,10 @@ resource "scaleway_container" "poc_quiz" {
   protocol       = "http1"
   http_option    = "redirected"
   deploy         = true
+
+  environment_variables = {
+    "API_URL" = "https://${scaleway_container.api.domain_name}"
+  }
 }
 
 # Widget Container

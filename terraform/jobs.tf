@@ -215,6 +215,7 @@ resource "scaleway_job_definition" "moderation" {
 
 # Job Definition for the 'enrich-missions-geoloc' task
 resource "scaleway_job_definition" "enrich-missions-geoloc" {
+  count        = var.enable_mission_jobs ? 1 : 0
   name         = "${terraform.workspace}-enrich-missions-geoloc"
   project_id   = var.project_id
   cpu_limit    = 1000
@@ -233,6 +234,7 @@ resource "scaleway_job_definition" "enrich-missions-geoloc" {
 
 # Job Definition for the 'import-missions' task (all environments)
 resource "scaleway_job_definition" "import-missions" {
+  count        = var.enable_mission_jobs ? 1 : 0
   name         = "${terraform.workspace}-import-missions"
   project_id   = var.project_id
   cpu_limit    = 1000
@@ -279,6 +281,7 @@ resource "scaleway_job_definition" "update-mission-scoring" {
 
 # Job Definition for the 'verify-publisher-organization' task
 resource "scaleway_job_definition" "verify-publisher-organization" {
+  count        = var.enable_mission_jobs ? 1 : 0
   name         = "${terraform.workspace}-verify-publisher-organization"
   project_id   = var.project_id
   cpu_limit    = 1000

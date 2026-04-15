@@ -82,19 +82,23 @@ variable "api_max_scale" {
 }
 
 variable "app_cpu_limit" {
-  type = number
+  type    = number
+  default = 250
 }
 
 variable "app_memory_limit" {
-  type = number
+  type    = number
+  default = 512
 }
 
 variable "app_min_scale" {
-  type = number
+  type    = number
+  default = 0
 }
 
 variable "app_max_scale" {
-  type = number
+  type    = number
+  default = 1
 }
 
 variable "widget_cpu_limit" {
@@ -158,6 +162,12 @@ variable "enable_intern_jobs" {
 variable "enable_analytics_jobs" {
   type    = bool
   default = true
+}
+
+variable "enable_mission_jobs" {
+  type        = bool
+  default     = true
+  description = "Enable always-on mission jobs (import-missions, enrich-missions-geoloc, verify-publisher-organization)"
 }
 
 variable "cockpit_metrics_otlp_url" {
