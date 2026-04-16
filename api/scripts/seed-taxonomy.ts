@@ -98,6 +98,15 @@ const TAXONOMY_DATA: Array<{
     ],
   },
   {
+    key: "tranche_age",
+    label: "Tranche d'âge",
+    type: "gate",
+    values: [
+      { key: "moins_26_ans", label: "Moins de 26 ans" },
+      { key: "moins_31_ans_handicap", label: "Moins de 31 ans — situation de handicap" },
+    ],
+  },
+  {
     key: "formation_onisep",
     label: "Domaine de formation ONISEP",
     type: "multi_value",
