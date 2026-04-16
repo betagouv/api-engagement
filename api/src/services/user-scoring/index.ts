@@ -18,6 +18,12 @@ interface CreateUserScoringInput {
   };
 }
 
+const parsePrefixedKey = (prefixedKey: string): { taxonomyKey: string; valueKey: string } | null => {
+  const dotIndex = prefixedKey.indexOf(".");
+  if (dotIndex <= 0 || dotIndex === prefixedKey.length - 1) return null;
+  return { taxonomyKey: prefixedKey.slice(0, dotIndex), valueKey: prefixedKey.slice(dotIndex + 1) };
+};
+
 export const userScoringService = {
   async create(input: CreateUserScoringInput) {
     // Deduplicate (keep first occurrence)
@@ -31,12 +37,23 @@ export const userScoringService = {
       }
     }
 
-    // Batch-fetch all keys (active and inactive)
-    const allValues = await userScoringRepository.findTaxonomyValuesByKeys(uniqueKeys);
+    // Validate format: each key must be "{taxonomy_key}.{value_key}"
+    for (const key of uniqueKeys) {
+      if (!parsePrefixedKey(key)) {
+        throw new UserScoringValidationError(
+          `taxonomy_value_key '${key}' is invalid: expected format '{taxonomy_key}.{value_key}'`
+        );
+      }
+    }
+
+    const pairs = uniqueKeys.map((key) => parsePrefixedKey(key)!);
+
+    // Batch-fetch all pairs (active and inactive)
+    const allValues = await userScoringRepository.findTaxonomyValuesByPrefixedKeys(pairs);
 
     // Unknown keys (not in DB at all) → 400
-    const foundKeys = new Set(allValues.map((v) => v.key));
-    const unknownKey = uniqueKeys.find((key) => !foundKeys.has(key));
+    const foundPrefixedKeys = new Set(allValues.map((v) => `${v.taxonomyKey}.${v.key}`));
+    const unknownKey = uniqueKeys.find((key) => !foundPrefixedKeys.has(key));
     if (unknownKey) {
       throw new UserScoringValidationError(`taxonomy_value_key '${unknownKey}' is unknown`);
     }

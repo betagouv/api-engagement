@@ -2,19 +2,25 @@ import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { prisma } from "@/db/postgres";
-import { createTestTaxonomyValue } from "../../fixtures";
+import { createTestTaxonomy, createTestTaxonomyValue } from "../../fixtures";
 import { createTestApp } from "../../testApp";
 
 const app = createTestApp();
+
+async function createTVEntry(data: { active?: boolean } = {}) {
+  const taxonomy = await createTestTaxonomy();
+  const tv = await createTestTaxonomyValue({ taxonomyId: taxonomy.id, ...data });
+  return { id: tv.id, prefixedKey: `${taxonomy.key}.${tv.key}` };
+}
 
 describe("POST /user-scoring", () => {
   let taxonomyValueKey: string;
   let taxonomyValueId: string;
 
   beforeEach(async () => {
-    const tv = await createTestTaxonomyValue();
-    taxonomyValueKey = tv.key;
-    taxonomyValueId = tv.id;
+    const entry = await createTVEntry();
+    taxonomyValueKey = entry.prefixedKey;
+    taxonomyValueId = entry.id;
   });
 
   // ─── Success cases ──────────────────────────────────────────────────────────
@@ -78,12 +84,12 @@ describe("POST /user-scoring", () => {
   });
 
   it("should create a user scoring with multiple answers", async () => {
-    const tv2 = await createTestTaxonomyValue();
+    const entry2 = await createTVEntry();
 
     const res = await request(app)
       .post("/user-scoring")
       .send({
-        answers: [{ taxonomy_value_key: taxonomyValueKey }, { taxonomy_value_key: tv2.key }],
+        answers: [{ taxonomy_value_key: taxonomyValueKey }, { taxonomy_value_key: entry2.prefixedKey }],
       });
 
     expect(res.status).toBe(201);
@@ -143,10 +149,10 @@ describe("POST /user-scoring", () => {
     expect(res.body.ok).toBe(false);
   });
 
-  it("should return 400 when taxonomy_value_key is empty string", async () => {
+  it("should return 400 when taxonomy_value_key has no dot separator", async () => {
     const res = await request(app)
       .post("/user-scoring")
-      .send({ answers: [{ taxonomy_value_key: "" }] });
+      .send({ answers: [{ taxonomy_value_key: "nodotinkey" }] });
     expect(res.status).toBe(400);
     expect(res.body.ok).toBe(false);
   });
@@ -154,18 +160,21 @@ describe("POST /user-scoring", () => {
   it("should return 400 when taxonomy_value_key does not exist in DB", async () => {
     const res = await request(app)
       .post("/user-scoring")
-      .send({ answers: [{ taxonomy_value_key: "unknown_key_that_does_not_exist" }] });
+      .send({ answers: [{ taxonomy_value_key: "domaine.does_not_exist" }] });
     expect(res.status).toBe(400);
     expect(res.body.ok).toBe(false);
   });
 
   it("should silently skip inactive taxonomy_value_key", async () => {
-    const inactiveTv = await createTestTaxonomyValue({ active: false });
+    const inactiveEntry = await createTVEntry({ active: false });
 
     const res = await request(app)
       .post("/user-scoring")
       .send({
-        answers: [{ taxonomy_value_key: taxonomyValueKey }, { taxonomy_value_key: inactiveTv.key }],
+        answers: [
+          { taxonomy_value_key: taxonomyValueKey },
+          { taxonomy_value_key: inactiveEntry.prefixedKey },
+        ],
       });
 
     expect(res.status).toBe(201);
@@ -178,11 +187,11 @@ describe("POST /user-scoring", () => {
   });
 
   it("should return 201 with no values when all answers are inactive", async () => {
-    const inactiveTv = await createTestTaxonomyValue({ active: false });
+    const inactiveEntry = await createTVEntry({ active: false });
 
     const res = await request(app)
       .post("/user-scoring")
-      .send({ answers: [{ taxonomy_value_key: inactiveTv.key }] });
+      .send({ answers: [{ taxonomy_value_key: inactiveEntry.prefixedKey }] });
 
     expect(res.status).toBe(201);
 

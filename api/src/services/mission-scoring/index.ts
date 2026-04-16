@@ -52,7 +52,7 @@ export const missionScoringService = {
 
     // Publisher rules: inject gate/publisher-specific values (bypass LLM enrichment)
     const publisherRuleKeys = PUBLISHER_SCORING_RULES[enrichment.mission.publisherId ?? ""] ?? [];
-    const resolvedPublisherValues = await taxonomyRepository.findManyValuesByKeys(publisherRuleKeys);
+    const resolvedPublisherValues = await taxonomyRepository.findManyValuesByPrefixedKeys(publisherRuleKeys);
     const publisherValues: ComputedMissionScoringValue[] = resolvedPublisherValues.map((tv) => ({
       missionEnrichmentValueId: null,
       taxonomyValueId: tv.id,
