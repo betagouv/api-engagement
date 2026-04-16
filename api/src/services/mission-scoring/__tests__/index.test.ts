@@ -65,6 +65,7 @@ describe("missionScoringService.score", () => {
     missionEnrichmentRepositoryMock.findFirst.mockResolvedValue({
       id: "enrichment-1",
       missionId: "mission-1",
+      mission: { publisherId: null },
       values: [buildEnrichmentValue()],
     });
     missionScoringRepositoryMock.findUnique.mockResolvedValue({ id: "mission-scoring-1" });
@@ -81,6 +82,7 @@ describe("missionScoringService.score", () => {
     missionEnrichmentRepositoryMock.findFirst.mockResolvedValue({
       id: "enrichment-1",
       missionId: "mission-1",
+      mission: { publisherId: null },
       values: [buildEnrichmentValue()],
     });
     missionScoringRepositoryMock.findUnique.mockResolvedValue({ id: "mission-scoring-1" });
@@ -108,6 +110,7 @@ describe("missionScoringService.score", () => {
     missionEnrichmentRepositoryMock.findFirst.mockResolvedValue({
       id: "enrichment-1",
       missionId: "mission-1",
+      mission: { publisherId: null },
       values: [
         buildEnrichmentValue({
           taxonomyValueId: "tv-non-specifie",
