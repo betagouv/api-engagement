@@ -11,8 +11,8 @@ type Props = {
 
 function computeAgeKeys(age: number | null, hasDisability: boolean): string[] {
   if (age === null) return [];
-  if (age < 26) return ["moins_26_ans", "moins_31_ans_handicap"];
-  if (age < 31 && hasDisability) return ["moins_31_ans_handicap"];
+  if (age < 26) return ["tranche_age.moins_26_ans", "tranche_age.moins_31_ans_handicap"];
+  if (age < 31 && hasDisability) return ["tranche_age.moins_31_ans_handicap"];
   return [];
 }
 
@@ -31,27 +31,26 @@ export function QuizForm({ onSubmit, loading }: Props) {
       .catch((e) => setFetchError(String(e)));
   }, []);
 
-  function toggle(key: string) {
+  function toggle(prefixedKey: string) {
     setSelected((prev) => {
       const next = new Set(prev);
-      if (next.has(key)) next.delete(key);
-      else next.add(key);
+      if (next.has(prefixedKey)) next.delete(prefixedKey);
+      else next.add(prefixedKey);
       return next;
     });
   }
 
-  function selectOnly(key: string, taxonomyId: string, type: Taxonomy["type"]) {
+  function selectOnly(prefixedKey: string, taxonomyId: string, type: Taxonomy["type"]) {
     if (type === "ordered") {
       setSelected((prev) => {
         const next = new Set(prev);
-        taxonomies
-          .find((t) => t.id === taxonomyId)
-          ?.values.forEach((v) => next.delete(v.key));
-        next.add(key);
+        const taxonomy = taxonomies.find((t) => t.id === taxonomyId);
+        taxonomy?.values.forEach((v) => next.delete(`${taxonomy.key}.${v.key}`));
+        next.add(prefixedKey);
         return next;
       });
     } else {
-      toggle(key);
+      toggle(prefixedKey);
     }
   }
 
@@ -86,7 +85,7 @@ export function QuizForm({ onSubmit, loading }: Props) {
       <h1 style={styles.title}>Quiz Matching Engine — POC</h1>
 
       {scoringTaxonomies.map((taxonomy) => {
-        const selectedCount = taxonomy.values.filter((v) => selected.has(v.key)).length;
+        const selectedCount = taxonomy.values.filter((v) => selected.has(`${taxonomy.key}.${v.key}`)).length;
         const isOrdered = taxonomy.type === "ordered";
         return (
           <details key={taxonomy.id} style={styles.details} open={false}>
@@ -101,14 +100,15 @@ export function QuizForm({ onSubmit, loading }: Props) {
             </summary>
             <div style={styles.valuesGrid}>
               {taxonomy.values.map((value) => {
-                const isChecked = selected.has(value.key);
+                const prefixedKey = `${taxonomy.key}.${value.key}`;
+                const isChecked = selected.has(prefixedKey);
                 return (
                   <label key={value.key} style={{ ...styles.valueLabel, ...(isChecked ? styles.valueLabelChecked : {}) }}>
                     <input
                       type={isOrdered ? "radio" : "checkbox"}
                       name={isOrdered ? `taxonomy-${taxonomy.id}` : undefined}
                       checked={isChecked}
-                      onChange={() => selectOnly(value.key, taxonomy.id, taxonomy.type)}
+                      onChange={() => selectOnly(prefixedKey, taxonomy.id, taxonomy.type)}
                       style={styles.input}
                     />
                     {value.icon && <span style={styles.icon}>{value.icon}</span>}
