@@ -8,10 +8,13 @@ import { createTestApp } from "../../testApp";
 const app = createTestApp();
 
 describe("POST /user-scoring", () => {
+  let taxonomyValueKey: string;
   let taxonomyValueId: string;
 
   beforeEach(async () => {
-    taxonomyValueId = (await createTestTaxonomyValue()).id;
+    const tv = await createTestTaxonomyValue();
+    taxonomyValueKey = tv.key;
+    taxonomyValueId = tv.id;
   });
 
   // ─── Success cases ──────────────────────────────────────────────────────────
@@ -19,7 +22,7 @@ describe("POST /user-scoring", () => {
   it("should create a user scoring with one answer (no geo)", async () => {
     const res = await request(app)
       .post("/user-scoring")
-      .send({ answers: [{ taxonomy_value_id: taxonomyValueId }] });
+      .send({ answers: [{ taxonomy_value_key: taxonomyValueKey }] });
 
     expect(res.status).toBe(201);
     expect(res.body.ok).toBe(true);
@@ -43,7 +46,7 @@ describe("POST /user-scoring", () => {
     const res = await request(app)
       .post("/user-scoring")
       .send({
-        answers: [{ taxonomy_value_id: taxonomyValueId }],
+        answers: [{ taxonomy_value_key: taxonomyValueKey }],
         geo: { lat: 48.8566, lon: 2.3522 },
       });
 
@@ -62,7 +65,7 @@ describe("POST /user-scoring", () => {
     const res = await request(app)
       .post("/user-scoring")
       .send({
-        answers: [{ taxonomy_value_id: taxonomyValueId }],
+        answers: [{ taxonomy_value_key: taxonomyValueKey }],
         geo: { lat: 48.8566, lon: 2.3522, radius_km: 50 },
       });
 
@@ -80,7 +83,7 @@ describe("POST /user-scoring", () => {
     const res = await request(app)
       .post("/user-scoring")
       .send({
-        answers: [{ taxonomy_value_id: taxonomyValueId }, { taxonomy_value_id: tv2.id }],
+        answers: [{ taxonomy_value_key: taxonomyValueKey }, { taxonomy_value_key: tv2.key }],
       });
 
     expect(res.status).toBe(201);
@@ -91,13 +94,13 @@ describe("POST /user-scoring", () => {
     expect(values).toHaveLength(2);
   });
 
-  it("should deduplicate answers with repeated taxonomy_value_id", async () => {
+  it("should deduplicate answers with repeated taxonomy_value_key", async () => {
     const res = await request(app)
       .post("/user-scoring")
       .send({
         answers: [
-          { taxonomy_value_id: taxonomyValueId },
-          { taxonomy_value_id: taxonomyValueId },
+          { taxonomy_value_key: taxonomyValueKey },
+          { taxonomy_value_key: taxonomyValueKey },
         ],
       });
 
@@ -113,7 +116,7 @@ describe("POST /user-scoring", () => {
     const before = Date.now();
     const res = await request(app)
       .post("/user-scoring")
-      .send({ answers: [{ taxonomy_value_id: taxonomyValueId }] });
+      .send({ answers: [{ taxonomy_value_key: taxonomyValueKey }] });
 
     const userScoring = await prisma.userScoring.findUniqueOrThrow({
       where: { id: res.body.data.id },
@@ -140,29 +143,29 @@ describe("POST /user-scoring", () => {
     expect(res.body.ok).toBe(false);
   });
 
-  it("should return 400 when taxonomy_value_id is not a valid UUID", async () => {
+  it("should return 400 when taxonomy_value_key is empty string", async () => {
     const res = await request(app)
       .post("/user-scoring")
-      .send({ answers: [{ taxonomy_value_id: "not-a-uuid" }] });
+      .send({ answers: [{ taxonomy_value_key: "" }] });
     expect(res.status).toBe(400);
     expect(res.body.ok).toBe(false);
   });
 
-  it("should return 400 when taxonomy_value_id does not exist in DB", async () => {
+  it("should return 400 when taxonomy_value_key does not exist in DB", async () => {
     const res = await request(app)
       .post("/user-scoring")
-      .send({ answers: [{ taxonomy_value_id: "00000000-0000-0000-0000-000000000000" }] });
+      .send({ answers: [{ taxonomy_value_key: "unknown_key_that_does_not_exist" }] });
     expect(res.status).toBe(400);
     expect(res.body.ok).toBe(false);
   });
 
-  it("should silently skip inactive taxonomy_value_id", async () => {
+  it("should silently skip inactive taxonomy_value_key", async () => {
     const inactiveTv = await createTestTaxonomyValue({ active: false });
 
     const res = await request(app)
       .post("/user-scoring")
       .send({
-        answers: [{ taxonomy_value_id: taxonomyValueId }, { taxonomy_value_id: inactiveTv.id }],
+        answers: [{ taxonomy_value_key: taxonomyValueKey }, { taxonomy_value_key: inactiveTv.key }],
       });
 
     expect(res.status).toBe(201);
@@ -179,7 +182,7 @@ describe("POST /user-scoring", () => {
 
     const res = await request(app)
       .post("/user-scoring")
-      .send({ answers: [{ taxonomy_value_id: inactiveTv.id }] });
+      .send({ answers: [{ taxonomy_value_key: inactiveTv.key }] });
 
     expect(res.status).toBe(201);
 
@@ -189,42 +192,11 @@ describe("POST /user-scoring", () => {
     expect(values).toHaveLength(0);
   });
 
-  it("should accept uppercase UUID", async () => {
-    const res = await request(app)
-      .post("/user-scoring")
-      .send({ answers: [{ taxonomy_value_id: taxonomyValueId.toUpperCase() }] });
-
-    expect(res.status).toBe(201);
-
-    const values = await prisma.userScoringValue.findMany({
-      where: { userScoringId: res.body.data.id },
-    });
-    expect(values).toHaveLength(1);
-  });
-
-  it("should deduplicate UUIDs that differ only in casing", async () => {
-    const res = await request(app)
-      .post("/user-scoring")
-      .send({
-        answers: [
-          { taxonomy_value_id: taxonomyValueId.toUpperCase() },
-          { taxonomy_value_id: taxonomyValueId.toLowerCase() },
-        ],
-      });
-
-    expect(res.status).toBe(201);
-
-    const values = await prisma.userScoringValue.findMany({
-      where: { userScoringId: res.body.data.id },
-    });
-    expect(values).toHaveLength(1);
-  });
-
   it("should return 400 when geo.lat is out of range", async () => {
     const res = await request(app)
       .post("/user-scoring")
       .send({
-        answers: [{ taxonomy_value_id: taxonomyValueId }],
+        answers: [{ taxonomy_value_key: taxonomyValueKey }],
         geo: { lat: 999, lon: 2.3522 },
       });
     expect(res.status).toBe(400);
@@ -235,7 +207,7 @@ describe("POST /user-scoring", () => {
     const res = await request(app)
       .post("/user-scoring")
       .send({
-        answers: [{ taxonomy_value_id: taxonomyValueId }],
+        answers: [{ taxonomy_value_key: taxonomyValueKey }],
         geo: { lat: 48.8566, lon: 999 },
       });
     expect(res.status).toBe(400);

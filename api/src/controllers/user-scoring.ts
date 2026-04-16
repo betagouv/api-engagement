@@ -8,7 +8,7 @@ const router = Router();
 
 const bodySchema = zod.object({
   answers: zod
-    .array(zod.object({ taxonomy_value_id: zod.string().uuid() }))
+    .array(zod.object({ taxonomy_value_key: zod.string().min(1) }))
     .min(1),
   geo: zod
     .object({
