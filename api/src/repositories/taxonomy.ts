@@ -15,19 +15,10 @@ export const taxonomyRepository = {
     });
   },
 
-  findManyValuesByPrefixedKeys(prefixedKeys: string[]): Promise<Array<{ id: string; key: string }>> {
-    if (prefixedKeys.length === 0) return Promise.resolve([]);
-    const pairs = prefixedKeys.map((pk) => {
-      const dot = pk.indexOf(".");
-      return { taxonomyKey: pk.slice(0, dot), valueKey: pk.slice(dot + 1) };
-    });
+  findManyValuesByKeys(keys: string[]): Promise<Pick<TaxonomyValue, "id" | "key">[]> {
+    if (keys.length === 0) return Promise.resolve([]);
     return prisma.taxonomyValue.findMany({
-      where: {
-        OR: pairs.map(({ taxonomyKey, valueKey }) => ({
-          key: valueKey,
-          taxonomy: { key: taxonomyKey },
-        })),
-      },
+      where: { key: { in: keys } },
       select: { id: true, key: true },
     });
   },
