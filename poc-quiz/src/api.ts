@@ -48,6 +48,7 @@ export type MatchResultItem = {
   missionId: string;
   missionScoringId: string;
   title: string;
+  publisherName: string | null;
   city: string | null;
   mission: MissionDetail | null;
   totalScore: number;
@@ -60,6 +61,7 @@ export type MatchResultItem = {
 
 export type MatchResult = {
   tookMs: number;
+  selectedDimensions: string[];
   items: MatchResultItem[];
 };
 

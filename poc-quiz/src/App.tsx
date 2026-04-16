@@ -6,7 +6,7 @@ import { QuizForm } from "./components/QuizForm";
 type AppState =
   | { screen: "quiz" }
   | { screen: "loading"; message: string }
-  | { screen: "results"; userScoringId: string; items: MatchResultItem[]; tookMs: number }
+  | { screen: "results"; userScoringId: string; items: MatchResultItem[]; tookMs: number; selectedDimensions: string[] }
   | { screen: "error"; message: string };
 
 function getIdFromUrl(): string | null {
@@ -32,7 +32,7 @@ export default function App() {
     setState({ screen: "loading", message: "Chargement des résultats…" });
     fetchMatch(id, 20)
       .then((result) =>
-        setState({ screen: "results", userScoringId: id, items: result.items, tookMs: result.tookMs })
+        setState({ screen: "results", userScoringId: id, items: result.items, tookMs: result.tookMs, selectedDimensions: result.selectedDimensions })
       )
       .catch((e) => setState({ screen: "error", message: String(e) }));
   }, []);
@@ -46,7 +46,7 @@ export default function App() {
       const result = await fetchMatch(scoring.id, 20);
 
       setIdInUrl(scoring.id);
-      setState({ screen: "results", userScoringId: scoring.id, items: result.items, tookMs: result.tookMs });
+      setState({ screen: "results", userScoringId: scoring.id, items: result.items, tookMs: result.tookMs, selectedDimensions: result.selectedDimensions });
     } catch (e) {
       setState({ screen: "error", message: String(e) });
     }
@@ -84,6 +84,7 @@ export default function App() {
         items={state.items}
         tookMs={state.tookMs}
         userScoringId={state.userScoringId}
+        selectedDimensions={state.selectedDimensions}
         onBack={handleBack}
       />
     );

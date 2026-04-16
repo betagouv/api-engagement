@@ -49,7 +49,7 @@ router.get("/match", async (req, res, next) => {
     const missionIds = result.items.map((item) => item.missionId);
     const missionScoringIds = result.items.map((item) => item.missionScoringId);
 
-    const [missionRows, scoringValueRows] = await Promise.all([
+    const [missionRows, scoringValueRows, userScoringValues] = await Promise.all([
       prisma.mission.findMany({
         where: { id: { in: missionIds } },
         select: {
@@ -70,6 +70,7 @@ router.get("/match", async (req, res, next) => {
           startAt: true,
           endAt: true,
           domainOriginal: true,
+          publisher: { select: { name: true } },
           addresses: {
             select: { city: true },
             take: 1,
@@ -92,7 +93,13 @@ router.get("/match", async (req, res, next) => {
           missionEnrichmentValue: { select: { confidence: true, evidence: true } },
         },
       }),
+      prisma.userScoringValue.findMany({
+        where: { userScoringId },
+        select: { taxonomyValue: { select: { taxonomy: { select: { key: true } } } } },
+      }),
     ]);
+
+    const selectedDimensions = [...new Set(userScoringValues.map((v) => v.taxonomyValue.taxonomy.key))];
 
     const missionIndex: Record<string, {
       title: string;
@@ -112,6 +119,7 @@ router.get("/match", async (req, res, next) => {
       startAt: Date | null;
       endAt: Date | null;
       domainOriginal: string | null;
+      publisherName: string | null;
     }> = {};
     for (const m of missionRows) {
       missionIndex[m.id] = {
@@ -132,6 +140,7 @@ router.get("/match", async (req, res, next) => {
         startAt: m.startAt ?? null,
         endAt: m.endAt ?? null,
         domainOriginal: m.domainOriginal ?? null,
+        publisherName: m.publisher?.name ?? null,
       };
     }
 
@@ -152,6 +161,7 @@ router.get("/match", async (req, res, next) => {
       missionId: item.missionId,
       missionScoringId: item.missionScoringId,
       title: missionIndex[item.missionId]?.title ?? "(unknown)",
+      publisherName: missionIndex[item.missionId]?.publisherName ?? null,
       city: missionIndex[item.missionId]?.city ?? null,
       mission: missionIndex[item.missionId] ? {
         description: missionIndex[item.missionId].description,
@@ -178,7 +188,7 @@ router.get("/match", async (req, res, next) => {
       values: valuesIndex[item.missionScoringId] ?? [],
     }));
 
-    return res.status(200).send({ ok: true, data: { tookMs: result.tookMs, items } });
+    return res.status(200).send({ ok: true, data: { tookMs: result.tookMs, selectedDimensions, items } });
   } catch (error) {
     next(error);
   }

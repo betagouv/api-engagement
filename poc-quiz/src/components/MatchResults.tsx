@@ -25,6 +25,7 @@ type Props = {
   items: MatchResultItem[];
   tookMs: number;
   userScoringId: string;
+  selectedDimensions: string[];
   onBack: () => void;
 };
 
@@ -39,7 +40,7 @@ function fmt(n: number | null | undefined, decimals = 2): string {
   return n.toFixed(decimals);
 }
 
-export function MatchResults({ items, tookMs, userScoringId, onBack }: Props) {
+export function MatchResults({ items, tookMs, userScoringId, selectedDimensions, onBack }: Props) {
   return (
     <div style={styles.container}>
       <div style={styles.header}>
@@ -59,15 +60,32 @@ export function MatchResults({ items, tookMs, userScoringId, onBack }: Props) {
 
       <div style={styles.list}>
         {items.map((item, idx) => (
-          <MissionCard key={item.missionId} item={item} rank={idx + 1} />
+          <MissionCard key={item.missionId} item={item} rank={idx + 1} selectedDimensions={selectedDimensions} />
         ))}
       </div>
     </div>
   );
 }
 
-function MissionCard({ item, rank }: { item: MatchResultItem; rank: number }) {
-  const hasDimensionScores = Object.keys(item.dimensionScores).length > 0;
+function MissionCard({ item, rank, selectedDimensions }: { item: MatchResultItem; rank: number; selectedDimensions: string[] }) {
+  // Dériver les scores depuis values si dimensionScores est vide
+  const allDimensionScores: Record<string, number> =
+    Object.keys(item.dimensionScores).length > 0
+      ? (item.dimensionScores as Record<string, number>)
+      : item.values.reduce<Record<string, number>>((acc, v) => {
+          if (acc[v.dimensionKey] === undefined || v.scoringScore > acc[v.dimensionKey]) {
+            acc[v.dimensionKey] = v.scoringScore;
+          }
+          return acc;
+        }, {});
+
+  // Filtrer aux seules dimensions sélectionnées par l'utilisateur (si connues)
+  const dimensionScores =
+    selectedDimensions.length > 0
+      ? Object.fromEntries(Object.entries(allDimensionScores).filter(([dim]) => selectedDimensions.includes(dim)))
+      : allDimensionScores;
+
+  const hasDimensionScores = Object.keys(dimensionScores).length > 0;
 
   return (
     <div style={styles.card}>
@@ -75,7 +93,9 @@ function MissionCard({ item, rank }: { item: MatchResultItem; rank: number }) {
         <div style={styles.rankBadge}>#{rank}</div>
         <div style={styles.missionInfo}>
           <div style={styles.missionTitle}>{item.title}</div>
-          {item.city && <div style={styles.missionCity}>{item.city}</div>}
+          <div style={styles.missionCity}>
+            {[item.publisherName, item.city].filter(Boolean).join(" · ")}
+          </div>
         </div>
         <div
           style={{
@@ -97,7 +117,7 @@ function MissionCard({ item, rank }: { item: MatchResultItem; rank: number }) {
 
       {hasDimensionScores && (
         <div style={styles.dimensionScores}>
-          {Object.entries(item.dimensionScores)
+          {Object.entries(dimensionScores)
             .filter(([, score]) => score !== undefined && score > 0)
             .sort(([, a], [, b]) => (b ?? 0) - (a ?? 0))
             .map(([dim, score]) => (
@@ -118,26 +138,28 @@ function MissionCard({ item, rank }: { item: MatchResultItem; rank: number }) {
         </div>
       )}
 
-      {!hasDimensionScores && (
-        <div style={styles.noDimScores}>Scores par dimension non disponibles (au-delà du top 20)</div>
+      {!hasDimensionScores && item.values.length === 0 && (
+        <div style={styles.noDimScores}>Aucun score de dimension disponible</div>
       )}
 
       {item.mission && <MissionDetailAccordion mission={item.mission} />}
 
-      {item.values.length > 0 && (
-        <Accordion label={`Enrichment / scoring (${item.values.length} valeur${item.values.length !== 1 ? "s" : ""})`}>
+      {item.values.length > 0 && (() => {
+        const enrichedValues = item.values.filter((v) => v.enrichmentConfidence > 0 || v.evidence !== null);
+        if (enrichedValues.length === 0) return null;
+        return (
+        <Accordion label={`Enrichissement (${enrichedValues.length} valeur${enrichedValues.length !== 1 ? "s" : ""})`}>
           <table style={styles.table}>
             <thead>
               <tr>
                 <th style={styles.th}>Dimension</th>
                 <th style={styles.th}>Valeur</th>
                 <th style={styles.th}>Confiance</th>
-                <th style={styles.th}>Score</th>
               </tr>
             </thead>
             <tbody>
-              {item.values
-                .sort((a, b) => b.scoringScore - a.scoringScore)
+              {enrichedValues
+                .sort((a, b) => b.enrichmentConfidence - a.enrichmentConfidence)
                 .map((v, i) => {
                   const evidenceTooltip = v.evidence
                     ? JSON.stringify(v.evidence, null, 2)
@@ -153,16 +175,14 @@ function MissionCard({ item, rank }: { item: MatchResultItem; rank: number }) {
                         {fmt(v.enrichmentConfidence)}
                         {evidenceTooltip && <span style={styles.evidenceHint}>ⓘ</span>}
                       </td>
-                      <td style={{ ...styles.td, color: scoreColor(v.scoringScore) }}>
-                        {fmt(v.scoringScore)}
-                      </td>
                     </tr>
                   );
                 })}
             </tbody>
           </table>
         </Accordion>
-      )}
+        );
+      })()}
     </div>
   );
 }
