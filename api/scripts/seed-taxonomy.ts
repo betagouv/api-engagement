@@ -14,7 +14,7 @@ const TAXONOMY_DATA: Array<{
 }> = [
   {
     key: "domaine",
-    label: "Domaine thématique",
+    label: "Domaine",
     type: "multi_value",
     values: [
       { key: "sante_soins", label: "Santé et soins" },
@@ -57,39 +57,17 @@ const TAXONOMY_DATA: Array<{
     ],
   },
   {
-    key: "accessibilite",
-    label: "Accessibilité handicap",
-    type: "gate",
-    values: [
-      { key: "accessible_handicap", label: "Accessible aux personnes en situation de handicap" },
-      { key: "non_specifie", label: "Non spécifié" },
-    ],
-  },
-  {
     key: "competence_rome",
-    label: "Domaine de compétences (référentiel ROME)",
+    label: "Compétences (référentiel ROME)",
     type: "multi_value",
     values: [
-      { key: "aide_accompagnement_soin", label: "Aider, accompagner ou prendre soin des autres", icon: "🤲" },
+      { key: "management_social_soin", label: "Aider, accompagner ou prendre soin des autres", icon: "🤲" },
       { key: "communication_creation_numerique", label: "Communiquer, créer ou travailler avec le numérique", icon: "💻" },
-      { key: "fabrication_construction_outils", label: "Fabriquer, construire ou travailler avec des outils et des machines", icon: "🛠️" },
-      { key: "gestion_projet_ressources", label: "Gérer une activité, un projet ou des ressources", icon: "💼" },
-      { key: "developpement_commercial", label: "Développer une activité économique ou commerciale", icon: "📈" },
-      { key: "travail_equipe_soft_skills", label: "Travailler en équipe et développer ses compétences personnelles", icon: "🤝" },
-      { key: "protection_societe_environnement", label: "Protéger les personnes, la société ou l'environnement", icon: "🛡️" },
-    ],
-  },
-  {
-    key: "engagement_civique",
-    label: "Type d'engagement civique",
-    type: "categorical",
-    values: [
-      { key: "armee", label: "Armée (Terre, Marine, Air, Santé…)" },
-      { key: "pompiers", label: "Pompiers et sécurité civile" },
-      { key: "gendarmerie", label: "Gendarmerie" },
-      { key: "police", label: "Police nationale ou municipale" },
-      { key: "je_ne_sais_pas", label: "Je ne sais pas" },
-      { key: "aucun", label: "Aucun de ces choix" },
+      { key: "Production_construction_qualité_logistique", label: "Fabriquer, concevoir, construire ou travailler avec des outils et des machines", icon: "🛠️" },
+      { key: "gestion_pilotage_juridique", label: "Gérer une activité, un projet ou des ressources", icon: "💼" },
+      { key: "relation_client_commerce_strategie", label: "Développer une activité économique ou commerciale", icon: "📈" },
+      { key: "cooperation_organisation_soft_skills", label: "Travailler en équipe et développer ses compétences personnelles", icon: "🤝" },
+      { key: "securite_environnement_action_publique", label: "Protéger les personnes, la société ou l'environnement", icon: "🛡️" },
     ],
   },
   {
@@ -120,8 +98,8 @@ const TAXONOMY_DATA: Array<{
     ],
   },
   {
-    key: "orientation_onisep",
-    label: "Orientation professionnelle (référentiel ONISEP)",
+    key: "formation_onisep",
+    label: "Domaine de formation ONISEP",
     type: "categorical",
     values: [
       { key: "environnement_nature_sciences", label: "Environnement, nature et sciences", icon: "🌱" },
@@ -141,6 +119,7 @@ const run = async () => {
   await prisma.$connect();
   console.log("[seed-taxonomy] Connected to PostgreSQL");
 
+  const activeTaxonomyKeys = TAXONOMY_DATA.map((d) => d.key);
   let dimensionCount = 0;
   let valueCount = 0;
 
