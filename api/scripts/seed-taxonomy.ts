@@ -14,7 +14,7 @@ const TAXONOMY_DATA: Array<{
 }> = [
   {
     key: "domaine",
-    label: "Domaine thématique",
+    label: "Domaine",
     type: "multi_value",
     values: [
       { key: "sante_soins", label: "Santé et soins" },
@@ -25,6 +25,8 @@ const TAXONOMY_DATA: Array<{
       { key: "education_transmission", label: "Éducation et transmission" },
       { key: "securite_defense", label: "Sécurité et défense" },
       { key: "international_humanitaire", label: "International et humanitaire" },
+      { key: "gestion_projet", label: "Gestion de projet" },
+      { key: "je_ne_sais_pas", label: "Je ne sais pas encore" },
     ],
   },
   {
@@ -32,18 +34,15 @@ const TAXONOMY_DATA: Array<{
     label: "Secteur d'activité (référentiel ROME)",
     type: "multi_value",
     values: [
-      { key: "accompagnement_social", label: "Aider ou accompagner des personnes" },
-      { key: "sante_secours", label: "Santé et secours" },
-      { key: "enseignement_formation", label: "Enseignement et formation" },
-      { key: "securite_publique_defense", label: "Sécurité publique et défense" },
+      { key: "sante_social_aide_personne", label: "Santé, social et aide à la personne" },
+      { key: "education_formation_animation", label: "Éducation, formation et animation" },
+      { key: "securite_service_public", label: "Sécurité et service public" },
       { key: "environnement_agriculture", label: "Environnement et agriculture" },
-      { key: "sport_animation_loisir", label: "Sport, animation et loisir" },
-      { key: "culture_patrimoine_audiovisuel", label: "Culture, patrimoine et audiovisuel" },
-      { key: "communication_marketing_numerique", label: "Communication, marketing et numérique" },
-      { key: "btp_maintenance_industrie", label: "BTP, maintenance et industrie" },
-      { key: "gestion_administrative_rh", label: "Gestion administrative et RH" },
-      { key: "commerce_distribution_logistique", label: "Commerce, distribution et logistique" },
-      { key: "humanitaire_international", label: "Humanitaire et projets solidaires à l'international" },
+      { key: "culture_creation_medias", label: "Culture, création et médias" },
+      { key: "numerique_communication", label: "Numérique et communication" },
+      { key: "batiment_industrie_logistique", label: "Bâtiment, industrie et logistique" },
+      { key: "gestion_commerce_organisation", label: "Gestion, commerce et organisation" },
+      { key: "je_ne_sais_pas", label: "Je ne sais pas encore" },
     ],
   },
   {
@@ -54,64 +53,21 @@ const TAXONOMY_DATA: Array<{
       { key: "ponctuelle", label: "Mission ponctuelle" },
       { key: "reguliere", label: "Mission régulière" },
       { key: "temps_plein", label: "Mission à temps plein" },
-    ],
-  },
-  {
-    key: "accessibilite",
-    label: "Accessibilité handicap",
-    type: "gate",
-    values: [
-      { key: "accessible_handicap", label: "Accessible aux personnes en situation de handicap" },
-      { key: "non_specifie", label: "Non spécifié" },
-    ],
-  },
-  {
-    key: "format_activite",
-    label: "Format d'activité",
-    type: "multi_value",
-    values: [
-      { key: "organisation_evenements", label: "Organiser des événements ou actions collectives" },
-      { key: "projets_collectifs", label: "Participer à des projets collectifs" },
-      { key: "creation_liens_sociaux", label: "Rencontrer de nouvelles personnes et créer des liens" },
-      { key: "aide_association", label: "Aider dans une association" },
-      { key: "activites_sport_culture", label: "Faire des activités sportives ou culturelles" },
-      { key: "secours_personnes", label: "Secourir des personnes en difficulté" },
-      { key: "partage_competences", label: "Partager une expérience ou des compétences" },
-      { key: "engagement_collectif_civique", label: "S'engager pour son pays dans un collectif" },
+      { key: "je_ne_sais_pas", label: "Je ne sais pas encore" },
     ],
   },
   {
     key: "competence_rome",
-    label: "Domaine de compétences (référentiel ROME)",
+    label: "Compétences (référentiel ROME)",
     type: "multi_value",
     values: [
-      { key: "aide_accompagnement_soin", label: "Aider, accompagner ou prendre soin des autres" },
-      { key: "communication_creation_numerique", label: "Communiquer, créer ou travailler avec le numérique" },
-      { key: "fabrication_construction_outils", label: "Fabriquer, construire ou travailler avec des outils" },
-      { key: "gestion_projet_ressources", label: "Gérer une activité, un projet ou des ressources" },
-      { key: "developpement_commercial", label: "Développer une activité économique ou commerciale" },
-      { key: "travail_equipe_soft_skills", label: "Travailler en équipe et développer ses compétences" },
-      { key: "protection_societe_environnement", label: "Protéger les personnes, la société ou l'environnement" },
-    ],
-  },
-  {
-    key: "engagement_civique",
-    label: "Type d'engagement civique",
-    type: "categorical",
-    values: [
-      { key: "armee", label: "Armée (Terre, Marine, Air, Santé…)" },
-      { key: "pompiers", label: "Pompiers et sécurité civile" },
-      { key: "gendarmerie", label: "Gendarmerie" },
-      { key: "police", label: "Police nationale ou municipale" },
-    ],
-  },
-  {
-    key: "niveau_engagement",
-    label: "Niveau d'engagement",
-    type: "ordered",
-    values: [
-      { key: "decouverte", label: "Première découverte" },
-      { key: "engagement_structure", label: "Engagement régulier et structuré" },
+      { key: "management_social_soin", label: "Aider, accompagner ou prendre soin des autres", icon: "🤲" },
+      { key: "communication_creation_numerique", label: "Communiquer, créer ou travailler avec le numérique", icon: "💻" },
+      { key: "Production_construction_qualité_logistique", label: "Fabriquer, concevoir, construire ou travailler avec des outils et des machines", icon: "🛠️" },
+      { key: "gestion_pilotage_juridique", label: "Gérer une activité, un projet ou des ressources", icon: "💼" },
+      { key: "relation_client_commerce_strategie", label: "Développer une activité économique ou commerciale", icon: "📈" },
+      { key: "cooperation_organisation_soft_skills", label: "Travailler en équipe et développer ses compétences personnelles", icon: "🤝" },
+      { key: "securite_environnement_action_publique", label: "Protéger les personnes, la société ou l'environnement", icon: "🛡️" },
     ],
   },
   {
@@ -123,7 +79,47 @@ const TAXONOMY_DATA: Array<{
       { key: "afrique", label: "Afrique" },
       { key: "amerique", label: "Amérique" },
       { key: "asie", label: "Asie" },
-      { key: "international_non_specifie", label: "International non spécifié" },
+      { key: "je_ne_sais_pas", label: "Je ne sais pas encore" },
+    ],
+  },
+  {
+    key: "engagement_intent",
+    label: "Intention d'engagement",
+    type: "multi_value",
+    values: [
+      { key: "aide_directe", label: "Aide directe aux personnes", icon: "🤝" },
+      { key: "transmission", label: "Transmission / pédagogie / accompagnement de public", icon: "🎓" },
+      { key: "animation", label: "Animation d'actions ou de collectif", icon: "🎉" },
+      { key: "action_terrain", label: "Action terrain concrète (collecte, distribution, fabrication…)", icon: "🌱" },
+      { key: "secours", label: "Secours / intervention", icon: "🚒" },
+      { key: "cadre_engage", label: "Engagement en cadre structuré", icon: "🪖" },
+      { key: "support_organisation", label: "Organisation / gestion de projet / communication", icon: "🧠" },
+      { key: "exploration", label: "Je ne sais pas encore", icon: "🤷" },
+    ],
+  },
+  {
+    key: "tranche_age",
+    label: "Tranche d'âge",
+    type: "gate",
+    values: [
+      { key: "moins_26_ans", label: "Moins de 26 ans" },
+      { key: "moins_31_ans_handicap", label: "Moins de 31 ans — situation de handicap" },
+    ],
+  },
+  {
+    key: "formation_onisep",
+    label: "Domaine de formation ONISEP",
+    type: "multi_value",
+    values: [
+      { key: "environnement_nature_sciences", label: "Environnement, nature et sciences", icon: "🌱" },
+      { key: "numerique_communication", label: "Numérique et communication", icon: "💻" },
+      { key: "commerce_gestion_finance", label: "Commerce, gestion, finance et services", icon: "💼" },
+      { key: "societe_droit_politique", label: "Société, droit et politique", icon: "⚖️" },
+      { key: "education_culture_creation", label: "Éducation, culture et création", icon: "🧑‍🏫" },
+      { key: "social_sante_sport", label: "Social, santé et sport", icon: "🌍" },
+      { key: "technique_industrie_construction", label: "Technique, industrie et construction", icon: "🛠️" },
+      { key: "securite_defense_logistique", label: "Sécurité, défense et logistique", icon: "🚓" },
+      { key: "je_ne_sais_pas", label: "Je ne sais pas encore", icon: "🤷" },
     ],
   },
 ];
@@ -132,6 +128,7 @@ const run = async () => {
   await prisma.$connect();
   console.log("[seed-taxonomy] Connected to PostgreSQL");
 
+  const activeTaxonomyKeys = TAXONOMY_DATA.map((d) => d.key);
   let dimensionCount = 0;
   let valueCount = 0;
 
