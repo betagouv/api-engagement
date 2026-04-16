@@ -85,7 +85,7 @@ const TAXONOMY_DATA: Array<{
   {
     key: "engagement_intent",
     label: "Intention d'engagement",
-    type: "categorical",
+    type: "multi_value",
     values: [
       { key: "aide_directe", label: "Aide directe aux personnes", icon: "🤝" },
       { key: "transmission", label: "Transmission / pédagogie / accompagnement de public", icon: "🎓" },
@@ -100,7 +100,7 @@ const TAXONOMY_DATA: Array<{
   {
     key: "formation_onisep",
     label: "Domaine de formation ONISEP",
-    type: "categorical",
+    type: "multi_value",
     values: [
       { key: "environnement_nature_sciences", label: "Environnement, nature et sciences", icon: "🌱" },
       { key: "numerique_communication", label: "Numérique et communication", icon: "💻" },
