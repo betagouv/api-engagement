@@ -992,10 +992,10 @@ model TaxonomyValue {
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
 
-  taxonomy           Taxonomy                 @relation(fields: [taxonomyId], references: [id], onDelete: Cascade)
-  enrichments        MissionEnrichmentValue[]
+  taxonomy             Taxonomy                 @relation(fields: [taxonomyId], references: [id], onDelete: Cascade)
+  enrichments          MissionEnrichmentValue[]
   missionScoringValues MissionScoringValue[]
-  userScoringValues  UserScoringValue[]
+  userScoringValues    UserScoringValue[]
 
   @@unique([taxonomyId, key], map: "taxonomy_value_taxonomy_key_unique")
   @@index([taxonomyId], map: "taxonomy_value_taxonomy_id_idx")
@@ -1031,8 +1031,8 @@ model MissionEnrichmentValue {
   confidence      Float
   evidence        Json?
 
-  enrichment           MissionEnrichment   @relation(fields: [enrichmentId], references: [id], onDelete: Cascade)
-  taxonomyValue        TaxonomyValue       @relation(fields: [taxonomyValueId], references: [id], onDelete: Cascade)
+  enrichment           MissionEnrichment     @relation(fields: [enrichmentId], references: [id], onDelete: Cascade)
+  taxonomyValue        TaxonomyValue         @relation(fields: [taxonomyValueId], references: [id], onDelete: Cascade)
   missionScoringValues MissionScoringValue[]
 
   @@unique([enrichmentId, taxonomyValueId], map: "mission_enrichment_value_unique")
@@ -1068,7 +1068,7 @@ model MissionScoringValue {
 
   missionScoring         MissionScoring          @relation(fields: [missionScoringId], references: [id], onDelete: Cascade)
   missionEnrichmentValue MissionEnrichmentValue? @relation(fields: [missionEnrichmentValueId], references: [id], onDelete: Cascade)
-  taxonomyValue          TaxonomyValue          @relation(fields: [taxonomyValueId], references: [id], onDelete: Restrict)
+  taxonomyValue          TaxonomyValue           @relation(fields: [taxonomyValueId], references: [id], onDelete: Restrict)
 
   @@unique([missionScoringId, taxonomyValueId], map: "mission_scoring_value_mission_scoring_taxonomy_value_key")
   @@index([missionScoringId], map: "mission_scoring_value_mission_scoring_id_idx")
