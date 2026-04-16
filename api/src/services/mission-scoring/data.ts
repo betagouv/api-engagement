@@ -3,6 +3,7 @@ import { Prisma } from "@/db/core";
 import type { ScoringInputValue } from "@/services/mission-scoring/types";
 
 export const missionScoringEnrichmentInclude = {
+  mission: { select: { publisherId: true } },
   values: {
     include: {
       taxonomyValue: {

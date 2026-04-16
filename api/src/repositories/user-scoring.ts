@@ -2,11 +2,21 @@ import { TaxonomyValue, UserScoring } from "@/db/core";
 import { prisma } from "@/db/postgres";
 
 export const userScoringRepository = {
-  findTaxonomyValuesByIds(ids: string[]): Promise<Pick<TaxonomyValue, "id" | "active">[]> {
-    return prisma.taxonomyValue.findMany({
-      where: { id: { in: ids } },
-      select: { id: true, active: true },
-    });
+  findTaxonomyValuesByPrefixedKeys(
+    pairs: Array<{ taxonomyKey: string; valueKey: string }>
+  ): Promise<Array<{ id: string; key: string; taxonomyKey: string; active: boolean }>> {
+    if (pairs.length === 0) return Promise.resolve([]);
+    return prisma.taxonomyValue
+      .findMany({
+        where: {
+          OR: pairs.map(({ taxonomyKey, valueKey }) => ({
+            key: valueKey,
+            taxonomy: { key: taxonomyKey },
+          })),
+        },
+        select: { id: true, key: true, active: true, taxonomy: { select: { key: true } } },
+      })
+      .then((rows) => rows.map((r) => ({ id: r.id, key: r.key, taxonomyKey: r.taxonomy.key, active: r.active })));
   },
 
   create(params: {

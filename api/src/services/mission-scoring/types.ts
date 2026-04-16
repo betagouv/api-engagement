@@ -19,7 +19,7 @@ export type ScoringInputValue = {
 };
 
 export type ComputedMissionScoringValue = {
-  missionEnrichmentValueId: string;
+  missionEnrichmentValueId: string | null;
   taxonomyValueId: string;
   score: number;
 };

@@ -10,7 +10,7 @@ export class UserScoringValidationError extends Error {
 }
 
 interface CreateUserScoringInput {
-  answers: Array<{ taxonomy_value_id: string }>;
+  answers: Array<{ taxonomy_value_key: string }>;
   geo?: {
     lat: number;
     lon: number;
@@ -18,30 +18,47 @@ interface CreateUserScoringInput {
   };
 }
 
+const parsePrefixedKey = (prefixedKey: string): { taxonomyKey: string; valueKey: string } | null => {
+  const dotIndex = prefixedKey.indexOf(".");
+  if (dotIndex <= 0 || dotIndex === prefixedKey.length - 1) return null;
+  return { taxonomyKey: prefixedKey.slice(0, dotIndex), valueKey: prefixedKey.slice(dotIndex + 1) };
+};
+
 export const userScoringService = {
   async create(input: CreateUserScoringInput) {
-    // Normalize to lowercase + deduplicate (keep first occurrence)
+    // Deduplicate (keep first occurrence)
     const seen = new Set<string>();
-    const uniqueIds: string[] = [];
+    const uniqueKeys: string[] = [];
     for (const answer of input.answers) {
-      const id = answer.taxonomy_value_id.toLowerCase();
-      if (!seen.has(id)) {
-        seen.add(id);
-        uniqueIds.push(id);
+      const key = answer.taxonomy_value_key;
+      if (!seen.has(key)) {
+        seen.add(key);
+        uniqueKeys.push(key);
       }
     }
 
-    // Batch-fetch all ids (active and inactive)
-    const allValues = await userScoringRepository.findTaxonomyValuesByIds(uniqueIds);
-
-    // Unknown IDs (not in DB at all) → 400
-    const foundIds = new Set(allValues.map((v) => v.id));
-    const unknownId = uniqueIds.find((id) => !foundIds.has(id));
-    if (unknownId) {
-      throw new UserScoringValidationError(`taxonomy_value_id '${unknownId}' is unknown`);
+    // Validate format: each key must be "{taxonomy_key}.{value_key}"
+    for (const key of uniqueKeys) {
+      if (!parsePrefixedKey(key)) {
+        throw new UserScoringValidationError(
+          `taxonomy_value_key '${key}' is invalid: expected format '{taxonomy_key}.{value_key}'`
+        );
+      }
     }
 
-    // Inactive IDs → silently skipped for backward compatibility
+    const pairs = uniqueKeys.map((key) => parsePrefixedKey(key)!);
+
+    // Batch-fetch all pairs (active and inactive)
+    const allValues = await userScoringRepository.findTaxonomyValuesByPrefixedKeys(pairs);
+
+    // Unknown keys (not in DB at all) → 400
+    const foundPrefixedKeys = new Set(allValues.map((v) => `${v.taxonomyKey}.${v.key}`));
+    const unknownKey = uniqueKeys.find((key) => !foundPrefixedKeys.has(key));
+    if (unknownKey) {
+      throw new UserScoringValidationError(`taxonomy_value_key '${unknownKey}' is unknown`);
+    }
+
+    // Inactive keys → silently skipped for backward compatibility
     const activeIds = allValues.filter((v) => v.active).map((v) => v.id);
 
     const expiresAt = new Date(Date.now() + USER_SCORING_TTL_DAYS * 24 * 60 * 60 * 1000);

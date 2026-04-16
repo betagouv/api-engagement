@@ -59,10 +59,15 @@ const csvEscape = (value: string | null | undefined): string => {
 };
 
 const HEADERS = [
-  "enrichmentId",
   "missionId",
   "title",
   "description",
+  "applicationUrl",
+  "backofficUrl",
+  "publisherName",
+  "missionType",
+  "domainName",
+  "activity",
   "promptVersion",
   "completedAt",
   "status",
@@ -80,10 +85,15 @@ const HEADERS = [
 ];
 
 type CsvRow = {
-  enrichmentId: string;
   missionId: string;
   title: string;
   description: string;
+  applicationUrl: string;
+  backofficUrl: string;
+  publisherName: string;
+  missionType: string;
+  domainName: string;
+  activity: string;
   promptVersion: string;
   completedAt: string;
   status: "valid" | "skipped";
@@ -126,7 +136,18 @@ async function main() {
     take: limit,
     orderBy: { completedAt: "desc" },
     include: {
-      mission: { select: { title: true, description: true } },
+      mission: {
+        select: {
+          title: true,
+          description: true,
+          applicationUrl: true,
+          publisherId: true,
+          type: true,
+          domain: { select: { name: true } },
+          activities: { include: { activity: { select: { name: true } } } },
+          publisher: { select: { name: true } },
+        },
+      },
       values: {
         include: {
           taxonomyValue: {
@@ -144,14 +165,20 @@ async function main() {
   for (const enrichment of enrichments) {
     const { inputTokens, outputTokens, totalTokens } = enrichment;
     const costEuros = ((inputTokens ?? 0) * INPUT_COST_PER_TOKEN + (outputTokens ?? 0) * OUTPUT_COST_PER_TOKEN).toFixed(8);
-    const description = (enrichment.mission?.description ?? "").slice(0, 300);
+    const description = enrichment.mission?.description ?? "";
     const title = enrichment.mission?.title ?? "";
+    const publisherId = enrichment.mission?.publisherId ?? "";
 
     const base = {
-      enrichmentId: enrichment.id,
       missionId: enrichment.missionId,
       title,
       description,
+      applicationUrl: enrichment.mission?.applicationUrl ?? "",
+      backofficUrl: publisherId ? `https://app.api-engagement.beta.gouv.fr/${publisherId}/mission/${enrichment.missionId}` : "",
+      publisherName: enrichment.mission?.publisher?.name ?? "",
+      missionType: enrichment.mission?.type ?? "",
+      domainName: enrichment.mission?.domain?.name ?? "",
+      activity: enrichment.mission?.activities.map((a) => a.activity.name).join(", ") ?? "",
       promptVersion: enrichment.promptVersion,
       completedAt: enrichment.completedAt?.toISOString() ?? "",
       inputTokens: String(inputTokens ?? ""),
