@@ -1060,14 +1060,14 @@ model MissionScoring {
 model MissionScoringValue {
   id                       String   @id @default(uuid())
   missionScoringId         String   @map("mission_scoring_id")
-  missionEnrichmentValueId String   @map("mission_enrichment_value_id")
+  missionEnrichmentValueId String?  @map("mission_enrichment_value_id")
   taxonomyValueId          String   @map("taxonomy_value_id")
   score                    Float
   createdAt                DateTime @default(now()) @map("created_at")
   updatedAt                DateTime @updatedAt @map("updated_at")
 
-  missionScoring         MissionScoring         @relation(fields: [missionScoringId], references: [id], onDelete: Cascade)
-  missionEnrichmentValue MissionEnrichmentValue @relation(fields: [missionEnrichmentValueId], references: [id], onDelete: Cascade)
+  missionScoring         MissionScoring          @relation(fields: [missionScoringId], references: [id], onDelete: Cascade)
+  missionEnrichmentValue MissionEnrichmentValue? @relation(fields: [missionEnrichmentValueId], references: [id], onDelete: Cascade)
   taxonomyValue          TaxonomyValue          @relation(fields: [taxonomyValueId], references: [id], onDelete: Restrict)
 
   @@unique([missionScoringId, taxonomyValueId], map: "mission_scoring_value_mission_scoring_taxonomy_value_key")

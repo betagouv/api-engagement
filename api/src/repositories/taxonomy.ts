@@ -14,4 +14,12 @@ export const taxonomyRepository = {
       include: { values: true },
     });
   },
+
+  findManyValuesByKeys(keys: string[]): Promise<Pick<TaxonomyValue, "id" | "key">[]> {
+    if (keys.length === 0) return Promise.resolve([]);
+    return prisma.taxonomyValue.findMany({
+      where: { key: { in: keys } },
+      select: { id: true, key: true },
+    });
+  },
 };
