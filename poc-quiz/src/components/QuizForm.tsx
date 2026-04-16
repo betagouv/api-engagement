@@ -5,15 +5,25 @@ import { CityAutocomplete } from "./CityAutocomplete";
 type Geo = { lat: number; lon: number } | null;
 
 type Props = {
-  onSubmit: (answers: { taxonomy_value_id: string }[], geo: Geo) => void;
+  onSubmit: (answers: { taxonomy_value_key: string }[], geo: Geo) => void;
   loading: boolean;
 };
+
+function computeAgeKeys(age: number | null, hasDisability: boolean): string[] {
+  if (age === null) return [];
+  if (age < 26) return ["moins_26_ans", "moins_31_ans_handicap"];
+  if (age < 31 && hasDisability) return ["moins_31_ans_handicap"];
+  return [];
+}
 
 export function QuizForm({ onSubmit, loading }: Props) {
   const [taxonomies, setTaxonomies] = useState<Taxonomy[]>([]);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  // Track selection by taxonomy value key (not id)
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [geoWithLabel, setGeoWithLabel] = useState<{ lat: number; lon: number; label: string } | null>(null);
+  const [age, setAge] = useState<number | "">("");
+  const [hasDisability, setHasDisability] = useState(false);
 
   useEffect(() => {
     fetchTaxonomies()
@@ -21,36 +31,38 @@ export function QuizForm({ onSubmit, loading }: Props) {
       .catch((e) => setFetchError(String(e)));
   }, []);
 
-  function toggle(id: string) {
+  function toggle(key: string) {
     setSelected((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
       return next;
     });
   }
 
-  function selectOnly(id: string, taxonomyId: string, type: Taxonomy["type"]) {
-    if (type === "ordered" || type === "gate") {
+  function selectOnly(key: string, taxonomyId: string, type: Taxonomy["type"]) {
+    if (type === "ordered") {
       setSelected((prev) => {
         const next = new Set(prev);
-        // remove other values from this taxonomy
         taxonomies
           .find((t) => t.id === taxonomyId)
-          ?.values.forEach((v) => next.delete(v.id));
-        next.add(id);
+          ?.values.forEach((v) => next.delete(v.key));
+        next.add(key);
         return next;
       });
     } else {
-      toggle(id);
+      toggle(key);
     }
   }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const answers = Array.from(selected).map((id) => ({ taxonomy_value_id: id }));
+    const taxonomyAnswers = Array.from(selected).map((key) => ({ taxonomy_value_key: key }));
+    const ageAnswers = computeAgeKeys(age !== "" ? age : null, hasDisability).map((key) => ({
+      taxonomy_value_key: key,
+    }));
     const geo: Geo = geoWithLabel ? { lat: geoWithLabel.lat, lon: geoWithLabel.lon } : null;
-    onSubmit(answers, geo);
+    onSubmit([...taxonomyAnswers, ...ageAnswers], geo);
   }
 
   if (fetchError) {
@@ -65,13 +77,17 @@ export function QuizForm({ onSubmit, loading }: Props) {
     return <div style={styles.loading}>Chargement des taxonomies…</div>;
   }
 
+  // Gate dimensions are not shown in the taxonomy grid — they are handled via the age section below
+  const scoringTaxonomies = taxonomies.filter((t) => t.type !== "gate");
+  const totalSelected = selected.size + computeAgeKeys(age !== "" ? age : null, hasDisability).length;
+
   return (
     <form onSubmit={handleSubmit} style={styles.form}>
       <h1 style={styles.title}>Quiz Matching Engine — POC</h1>
 
-      {taxonomies.map((taxonomy) => {
-        const selectedCount = taxonomy.values.filter((v) => selected.has(v.id)).length;
-        const isOrdered = taxonomy.type === "ordered" || taxonomy.type === "gate";
+      {scoringTaxonomies.map((taxonomy) => {
+        const selectedCount = taxonomy.values.filter((v) => selected.has(v.key)).length;
+        const isOrdered = taxonomy.type === "ordered";
         return (
           <details key={taxonomy.id} style={styles.details} open={false}>
             <summary style={styles.summary}>
@@ -85,14 +101,14 @@ export function QuizForm({ onSubmit, loading }: Props) {
             </summary>
             <div style={styles.valuesGrid}>
               {taxonomy.values.map((value) => {
-                const isChecked = selected.has(value.id);
+                const isChecked = selected.has(value.key);
                 return (
-                  <label key={value.id} style={{ ...styles.valueLabel, ...(isChecked ? styles.valueLabelChecked : {}) }}>
+                  <label key={value.key} style={{ ...styles.valueLabel, ...(isChecked ? styles.valueLabelChecked : {}) }}>
                     <input
                       type={isOrdered ? "radio" : "checkbox"}
                       name={isOrdered ? `taxonomy-${taxonomy.id}` : undefined}
                       checked={isChecked}
-                      onChange={() => selectOnly(value.id, taxonomy.id, taxonomy.type)}
+                      onChange={() => selectOnly(value.key, taxonomy.id, taxonomy.type)}
                       style={styles.input}
                     />
                     {value.icon && <span style={styles.icon}>{value.icon}</span>}
@@ -106,18 +122,52 @@ export function QuizForm({ onSubmit, loading }: Props) {
       })}
 
       <fieldset style={styles.fieldset}>
+        <legend style={styles.legend}>Âge (optionnel)</legend>
+        <div style={styles.ageRow}>
+          <label style={styles.ageLabel}>
+            Votre âge
+            <input
+              type="number"
+              min={15}
+              max={99}
+              value={age}
+              onChange={(e) => setAge(e.target.value === "" ? "" : Number(e.target.value))}
+              placeholder="ex. 22"
+              style={styles.ageInput}
+            />
+          </label>
+          <label style={styles.disabilityLabel}>
+            <input
+              type="checkbox"
+              checked={hasDisability}
+              onChange={(e) => setHasDisability(e.target.checked)}
+              style={styles.input}
+            />
+            Situation de handicap
+          </label>
+        </div>
+        {age !== "" && (
+          <div style={styles.ageHint}>
+            {computeAgeKeys(age, hasDisability).length > 0
+              ? `Éligibilité : ${computeAgeKeys(age, hasDisability).join(", ")}`
+              : "Aucune tranche d'âge applicable (> 30 ans ou > 30 ans sans handicap)"}
+          </div>
+        )}
+      </fieldset>
+
+      <fieldset style={styles.fieldset}>
         <legend style={styles.legend}>Géolocalisation (optionnel)</legend>
         <CityAutocomplete value={geoWithLabel} onChange={setGeoWithLabel} />
       </fieldset>
 
       <div style={styles.footer}>
         <span style={styles.selectionCount}>
-          {selected.size} valeur{selected.size !== 1 ? "s" : ""} sélectionnée{selected.size !== 1 ? "s" : ""}
+          {totalSelected} valeur{totalSelected !== 1 ? "s" : ""} sélectionnée{totalSelected !== 1 ? "s" : ""}
         </span>
         <button
           type="submit"
-          disabled={selected.size === 0 || loading}
-          style={{ ...styles.submitBtn, ...(selected.size === 0 || loading ? styles.submitBtnDisabled : {}) }}
+          disabled={totalSelected === 0 || loading}
+          style={{ ...styles.submitBtn, ...(totalSelected === 0 || loading ? styles.submitBtnDisabled : {}) }}
         >
           {loading ? "Calcul en cours…" : "Voir les missions"}
         </button>
@@ -220,6 +270,41 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 600,
     color: "#374151",
     padding: "0 4px",
+  },
+  ageRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: 24,
+    flexWrap: "wrap",
+  },
+  ageLabel: {
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    fontSize: 13,
+    color: "#374151",
+  },
+  ageInput: {
+    width: 72,
+    padding: "4px 8px",
+    border: "1px solid #d1d5db",
+    borderRadius: 6,
+    fontSize: 13,
+    color: "#111",
+  },
+  disabilityLabel: {
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
+    fontSize: 13,
+    color: "#374151",
+    cursor: "pointer",
+  },
+  ageHint: {
+    marginTop: 8,
+    fontSize: 12,
+    color: "#6b7280",
+    fontStyle: "italic",
   },
   footer: {
     display: "flex",

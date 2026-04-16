@@ -75,7 +75,7 @@ export async function fetchTaxonomies(): Promise<Taxonomy[]> {
 }
 
 export async function postUserScoring(
-  answers: { taxonomy_value_id: string }[],
+  answers: { taxonomy_value_key: string }[],
   geo: { lat: number; lon: number } | null
 ): Promise<{ id: string; created_at: string }> {
   return apiFetch("/user-scoring", {

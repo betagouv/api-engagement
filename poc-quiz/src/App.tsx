@@ -37,7 +37,7 @@ export default function App() {
       .catch((e) => setState({ screen: "error", message: String(e) }));
   }, []);
 
-  async function handleSubmit(answers: { taxonomy_value_id: string }[], geo: { lat: number; lon: number } | null) {
+  async function handleSubmit(answers: { taxonomy_value_key: string }[], geo: { lat: number; lon: number } | null) {
     setState({ screen: "loading", message: "Création du profil utilisateur…" });
     try {
       const scoring = await postUserScoring(answers, geo);
