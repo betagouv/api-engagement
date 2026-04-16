@@ -1,0 +1,467 @@
+import { Prisma } from "@/db/core";
+import { prisma } from "@/db/postgres";
+import type { MatchMissionItem, MatchingEngineDimension, RankMissionsByUserScoringInput, RankMissionsByUserScoringResult } from "@/types/matching-engine";
+import { MATCHING_ENGINE_DIMENSIONS } from "@/types/matching-engine";
+
+type DbRankRow = {
+  mission_id: string;
+  mission_scoring_id: string;
+  total_score: number;
+  taxonomy_score: number;
+  geo_score: number | null;
+  distance_km: number | null;
+};
+
+type DbDimensionScoreRow = {
+  mission_scoring_id: string;
+  dimension_key: string;
+  dimension_score: number;
+};
+
+type UserScoringStateRow = {
+  id: string;
+  expires_at: Date | null;
+};
+
+const clampScore = (value: number | null): number => {
+  if (!Number.isFinite(value)) {
+    return 0;
+  }
+
+  return Number(Math.max(0, Math.min(1, value as number)).toFixed(6));
+};
+
+const DIMENSION_SCORES_LIMIT = 20;
+const TAXONOMY_CANDIDATE_MULTIPLIER = 100;
+const MIN_TAXONOMY_CANDIDATE_LIMIT = 1000;
+const GEO_CANDIDATE_MULTIPLIER = 50;
+const MIN_GEO_CANDIDATE_LIMIT = 1000;
+const GEO_PREFILTER_RADIUS_MULTIPLIER = 6;
+
+export const MATCHING_ENGINE_DIMENSION_WEIGHTS: Record<MatchingEngineDimension, number> = {
+  domaine: 1,
+  secteur_activite: 1,
+  type_mission: 1,
+  accessibilite: 1,
+  format_activite: 1,
+  competence_rome: 1,
+  engagement_civique: 1,
+  niveau_engagement: 1,
+  region_internationale: 1,
+};
+
+const getTaxonomyCandidateLimit = (params: { limit: number; offset: number }): number =>
+  Math.max(params.offset + params.limit, params.limit * TAXONOMY_CANDIDATE_MULTIPLIER, MIN_TAXONOMY_CANDIDATE_LIMIT);
+
+const getGeoCandidateLimit = (params: { limit: number; offset: number }): number =>
+  Math.max(params.offset + params.limit, params.limit * GEO_CANDIDATE_MULTIPLIER, MIN_GEO_CANDIDATE_LIMIT);
+
+const buildDimensionWeightsValuesSql = (dimensionWeights: Record<MatchingEngineDimension, number>) =>
+  Prisma.join(MATCHING_ENGINE_DIMENSIONS.map((dimension) => Prisma.sql`(${dimension}, CAST(${dimensionWeights[dimension]} AS double precision))`));
+
+const assertUserScoringIsQueryable = async (userScoringId: string): Promise<void> => {
+  const rows = await prisma.$queryRaw<UserScoringStateRow[]>`
+    SELECT "id", "expires_at"
+    FROM "user_scoring"
+    WHERE "id" = ${userScoringId}
+    LIMIT 1
+  `;
+  const userScoring = rows[0];
+
+  if (!userScoring) {
+    throw new Error(`[matchingEngineService] user_scoring '${userScoringId}' not found.`);
+  }
+
+  if (userScoring.expires_at && userScoring.expires_at.getTime() <= Date.now()) {
+    throw new Error(`[matchingEngineService] user_scoring '${userScoringId}' is expired.`);
+  }
+};
+
+const buildRanking = (params: {
+  userScoringId: string;
+  taxonomyWeight: number;
+  geoWeight: number;
+  geoHalfDecayKm: number;
+  missingGeoScore: number;
+  taxonomyCandidateLimit: number;
+  geoCandidateLimit: number;
+  limit: number;
+  offset: number;
+}) => Prisma.sql`
+  WITH dimension_weights ("dimension_key", "dimension_weight") AS (
+    VALUES ${buildDimensionWeightsValuesSql(MATCHING_ENGINE_DIMENSION_WEIGHTS)}
+  ),
+  user_values AS (
+    SELECT
+      usv."taxonomy_value_id",
+      usv."score"::double precision AS "user_score",
+      t."key" AS "dimension_key"
+    FROM "user_scoring_value" usv
+    JOIN "taxonomy_value" tv
+      ON tv."id" = usv."taxonomy_value_id"
+    JOIN "taxonomy" t
+      ON t."id" = tv."taxonomy_id"
+    WHERE usv."user_scoring_id" = ${params.userScoringId}
+  ),
+  user_dimension_totals AS (
+    SELECT
+      uv."dimension_key",
+      SUM(uv."user_score") AS "dimension_total"
+    FROM user_values uv
+    GROUP BY uv."dimension_key"
+  ),
+  weighted_user_totals AS (
+    SELECT
+      COALESCE(SUM(udt."dimension_total" * COALESCE(dw."dimension_weight", 1.0)), 0) AS "taxonomy_total"
+    FROM user_dimension_totals udt
+    LEFT JOIN dimension_weights dw
+      ON dw."dimension_key" = udt."dimension_key"
+  ),
+  active_mission_scorings AS (
+    SELECT
+      ms."id" AS "mission_scoring_id",
+      ms."mission_id"
+    FROM "mission_scoring" ms
+    JOIN "mission" m
+      ON m."id" = ms."mission_id"
+    WHERE m."deleted_at" IS NULL
+      AND m."status_code" = 'ACCEPTED'
+  ),
+  matched_values AS (
+    SELECT
+      msv."mission_scoring_id",
+      uv."dimension_key",
+      SUM(uv."user_score" * msv."score") AS "dimension_sum"
+    FROM user_values uv
+    JOIN "mission_scoring_value" msv
+      ON msv."taxonomy_value_id" = uv."taxonomy_value_id"
+    JOIN active_mission_scorings ams
+      ON ams."mission_scoring_id" = msv."mission_scoring_id"
+    GROUP BY msv."mission_scoring_id", uv."dimension_key"
+  ),
+  taxonomy_scores AS (
+    SELECT
+      mv."mission_scoring_id",
+      SUM(mv."dimension_sum" * COALESCE(dw."dimension_weight", 1.0)) AS "weighted_sum"
+    FROM matched_values mv
+    LEFT JOIN dimension_weights dw
+      ON dw."dimension_key" = mv."dimension_key"
+    GROUP BY mv."mission_scoring_id"
+  ),
+  taxonomy_candidates AS (
+    SELECT
+      ams."mission_id",
+      ams."mission_scoring_id"
+    FROM taxonomy_scores ts
+    JOIN active_mission_scorings ams
+      ON ams."mission_scoring_id" = ts."mission_scoring_id"
+    CROSS JOIN weighted_user_totals ut
+    WHERE ut."taxonomy_total" > 0
+    ORDER BY ts."weighted_sum" / ut."taxonomy_total" DESC, ams."mission_id" ASC
+    LIMIT ${params.taxonomyCandidateLimit}
+  ),
+  user_geo AS (
+    SELECT
+      usg."lat",
+      usg."lon",
+      usg."radius_km"
+    FROM "user_scoring_geo" usg
+    WHERE usg."user_scoring_id" = ${params.userScoringId}
+    LIMIT 1
+  ),
+  geo_prefilter_settings AS (
+    SELECT
+      ug."lat",
+      ug."lon",
+      GREATEST(
+        COALESCE(NULLIF(ug."radius_km", 0)::double precision, 0.0),
+        CAST(${params.geoHalfDecayKm} AS double precision) * CAST(${GEO_PREFILTER_RADIUS_MULTIPLIER} AS double precision)
+      ) AS "radius_km",
+      GREATEST(
+        COALESCE(NULLIF(ug."radius_km", 0)::double precision, 0.0),
+        CAST(${params.geoHalfDecayKm} AS double precision) * CAST(${GEO_PREFILTER_RADIUS_MULTIPLIER} AS double precision)
+      ) / 111.0 AS "lat_delta",
+      GREATEST(
+        COALESCE(NULLIF(ug."radius_km", 0)::double precision, 0.0),
+        CAST(${params.geoHalfDecayKm} AS double precision) * CAST(${GEO_PREFILTER_RADIUS_MULTIPLIER} AS double precision)
+      ) / NULLIF(
+        111.320 * GREATEST(ABS(COS(RADIANS(ug."lat"))), 0.01),
+        0.0
+      ) AS "lon_delta"
+    FROM user_geo ug
+  ),
+  geo_candidates AS (
+    SELECT
+      ams."mission_id",
+      ams."mission_scoring_id"
+    FROM geo_prefilter_settings gps
+    JOIN "mission_address" ma
+      ON ma."location_lat" IS NOT NULL
+     AND ma."location_lon" IS NOT NULL
+     AND ma."location_lat" BETWEEN gps."lat" - gps."lat_delta" AND gps."lat" + gps."lat_delta"
+     AND ma."location_lon" BETWEEN gps."lon" - gps."lon_delta" AND gps."lon" + gps."lon_delta"
+    JOIN active_mission_scorings ams
+      ON ams."mission_id" = ma."mission_id"
+    GROUP BY ams."mission_id", ams."mission_scoring_id"
+    ORDER BY
+      MIN(
+        6371.0 * 2.0 * ASIN(
+          SQRT(
+            POWER(SIN(RADIANS(ma."location_lat" - gps."lat") / 2.0), 2) +
+            COS(RADIANS(gps."lat")) * COS(RADIANS(ma."location_lat")) *
+            POWER(SIN(RADIANS(ma."location_lon" - gps."lon") / 2.0), 2)
+          )
+        )
+      ) ASC,
+      ams."mission_id" ASC
+    LIMIT ${params.geoCandidateLimit}
+  ),
+  fallback_geo_candidates AS (
+    SELECT
+      ams."mission_id",
+      ams."mission_scoring_id"
+    FROM user_geo ug
+    JOIN "mission_address" ma
+      ON ma."location_lat" IS NOT NULL
+     AND ma."location_lon" IS NOT NULL
+    JOIN active_mission_scorings ams
+      ON ams."mission_id" = ma."mission_id"
+    WHERE NOT EXISTS (SELECT 1 FROM taxonomy_candidates)
+      AND NOT EXISTS (SELECT 1 FROM geo_candidates)
+    GROUP BY ams."mission_id", ams."mission_scoring_id"
+    ORDER BY
+      MIN(
+        6371.0 * 2.0 * ASIN(
+          SQRT(
+            POWER(SIN(RADIANS(ma."location_lat" - ug."lat") / 2.0), 2) +
+            COS(RADIANS(ug."lat")) * COS(RADIANS(ma."location_lat")) *
+            POWER(SIN(RADIANS(ma."location_lon" - ug."lon") / 2.0), 2)
+          )
+        )
+      ) ASC,
+      ams."mission_id" ASC
+    LIMIT ${params.geoCandidateLimit}
+  ),
+  fallback_candidates AS (
+    SELECT
+      ams."mission_id",
+      ams."mission_scoring_id"
+    FROM active_mission_scorings ams
+    CROSS JOIN weighted_user_totals ut
+    WHERE ut."taxonomy_total" = 0
+      AND NOT EXISTS (SELECT 1 FROM user_geo)
+    ORDER BY ams."mission_id" ASC
+    LIMIT ${params.offset + params.limit}
+  ),
+  candidate_missions AS (
+    SELECT
+      tc."mission_id",
+      tc."mission_scoring_id"
+    FROM taxonomy_candidates tc
+    UNION
+    SELECT
+      gc."mission_id",
+      gc."mission_scoring_id"
+    FROM geo_candidates gc
+    UNION
+    SELECT
+      fgc."mission_id",
+      fgc."mission_scoring_id"
+    FROM fallback_geo_candidates fgc
+    UNION
+    SELECT
+      fc."mission_id",
+      fc."mission_scoring_id"
+    FROM fallback_candidates fc
+  ),
+  geo_scores AS (
+    SELECT
+      cm."mission_scoring_id",
+      geo."distance_km"
+    FROM candidate_missions cm
+    LEFT JOIN LATERAL (
+      SELECT
+        MIN(
+          6371.0 * 2.0 * ASIN(
+            SQRT(
+              POWER(SIN(RADIANS(ma."location_lat" - ug."lat") / 2.0), 2) +
+              COS(RADIANS(ug."lat")) * COS(RADIANS(ma."location_lat")) *
+              POWER(SIN(RADIANS(ma."location_lon" - ug."lon") / 2.0), 2)
+            )
+          )
+        ) AS "distance_km"
+      FROM user_geo ug
+      JOIN "mission_address" ma
+        ON ma."mission_id" = cm."mission_id"
+       AND ma."location_lat" IS NOT NULL
+       AND ma."location_lon" IS NOT NULL
+    ) geo ON TRUE
+  ),
+  ranked AS (
+    SELECT
+      cm."mission_id",
+      cm."mission_scoring_id",
+      CASE
+        WHEN ut."taxonomy_total" > 0 THEN COALESCE(ts."weighted_sum", 0) / ut."taxonomy_total"
+        ELSE 0
+      END AS "taxonomy_score",
+      CASE
+        WHEN EXISTS (SELECT 1 FROM user_geo) THEN
+          CASE
+            WHEN gs."distance_km" IS NULL THEN CAST(${params.missingGeoScore} AS double precision)
+            ELSE EXP(-LN(2) * gs."distance_km" / NULLIF(CAST(${params.geoHalfDecayKm} AS double precision), 0.0))
+          END
+        ELSE NULL
+      END AS "geo_score",
+      gs."distance_km"
+    FROM candidate_missions cm
+    CROSS JOIN weighted_user_totals ut
+    LEFT JOIN taxonomy_scores ts
+      ON ts."mission_scoring_id" = cm."mission_scoring_id"
+    LEFT JOIN geo_scores gs
+      ON gs."mission_scoring_id" = cm."mission_scoring_id"
+  )
+  SELECT
+    r."mission_id",
+    r."mission_scoring_id",
+    CASE
+      WHEN r."geo_score" IS NULL THEN r."taxonomy_score"
+      ELSE (
+        (CAST(${params.taxonomyWeight} AS double precision) * r."taxonomy_score") +
+        (CAST(${params.geoWeight} AS double precision) * r."geo_score")
+      ) / NULLIF(
+        CAST(${params.taxonomyWeight} AS double precision) + CAST(${params.geoWeight} AS double precision),
+        0.0
+      )
+    END AS "total_score",
+    r."taxonomy_score",
+    r."geo_score",
+    r."distance_km"
+  FROM ranked r
+  ORDER BY "total_score" DESC, r."mission_id" ASC
+  LIMIT ${params.limit}
+  OFFSET ${params.offset}
+`;
+
+const buildDimensionScoresSql = (params: { userScoringId: string; missionScoringIds: string[] }) => Prisma.sql`
+  WITH user_values AS (
+    SELECT
+      usv."taxonomy_value_id",
+      usv."score"::double precision AS "user_score",
+      t."key" AS "dimension_key"
+    FROM "user_scoring_value" usv
+    JOIN "taxonomy_value" tv
+      ON tv."id" = usv."taxonomy_value_id"
+    JOIN "taxonomy" t
+      ON t."id" = tv."taxonomy_id"
+    WHERE usv."user_scoring_id" = ${params.userScoringId}
+  ),
+  user_dimension_totals AS (
+    SELECT
+      uv."dimension_key",
+      SUM(uv."user_score") AS "dimension_total"
+    FROM user_values uv
+    GROUP BY uv."dimension_key"
+  ),
+  matched_values AS (
+    SELECT
+      msv."mission_scoring_id",
+      uv."dimension_key",
+      SUM(uv."user_score" * msv."score") AS "dimension_sum"
+    FROM user_values uv
+    JOIN "mission_scoring_value" msv
+      ON msv."taxonomy_value_id" = uv."taxonomy_value_id"
+    WHERE msv."mission_scoring_id" IN (${Prisma.join(params.missionScoringIds)})
+    GROUP BY msv."mission_scoring_id", uv."dimension_key"
+  )
+  SELECT
+    mv."mission_scoring_id",
+    mv."dimension_key",
+    CASE
+      WHEN udt."dimension_total" > 0 THEN mv."dimension_sum" / udt."dimension_total"
+      ELSE 0
+    END AS "dimension_score"
+  FROM matched_values mv
+  JOIN user_dimension_totals udt
+    ON udt."dimension_key" = mv."dimension_key"
+`;
+
+const buildDimensionScoresIndex = (rows: DbDimensionScoreRow[]): Record<string, Partial<Record<MatchingEngineDimension, number>>> => {
+  const dimensionSet = new Set<string>(MATCHING_ENGINE_DIMENSIONS);
+  const result: Record<string, Partial<Record<MatchingEngineDimension, number>>> = {};
+
+  for (const row of rows) {
+    if (!dimensionSet.has(row.dimension_key)) {
+      continue;
+    }
+
+    const missionScoringId = row.mission_scoring_id;
+    const dimension = row.dimension_key as MatchingEngineDimension;
+
+    if (!result[missionScoringId]) {
+      result[missionScoringId] = {};
+    }
+
+    result[missionScoringId][dimension] = clampScore(Number(row.dimension_score));
+  }
+
+  return result;
+};
+
+export const matchingEngineService = {
+  async rankMissionsByUserScoring(input: RankMissionsByUserScoringInput): Promise<RankMissionsByUserScoringResult> {
+    const startedAt = Date.now();
+    const limit = Math.max(1, Math.min(500, input.limit ?? 20));
+    const offset = Math.max(0, input.offset ?? 0);
+    const taxonomyWeight = input.taxonomyWeight ?? 0.3;
+    const geoWeight = input.geoWeight ?? 0.7;
+    const geoHalfDecayKm = input.geoHalfDecayKm ?? 20;
+    const missingGeoScore = input.missingGeoScore ?? 0.1;
+    const taxonomyCandidateLimit = getTaxonomyCandidateLimit({ limit, offset });
+    const geoCandidateLimit = getGeoCandidateLimit({ limit, offset });
+
+    await assertUserScoringIsQueryable(input.userScoringId);
+
+    const rows = await prisma.$queryRaw<DbRankRow[]>(
+      buildRanking({
+        userScoringId: input.userScoringId,
+        taxonomyWeight,
+        geoWeight,
+        geoHalfDecayKm,
+        missingGeoScore,
+        taxonomyCandidateLimit,
+        geoCandidateLimit,
+        limit,
+        offset,
+      })
+    );
+    const missionScoringIdsForDetails = rows.slice(0, DIMENSION_SCORES_LIMIT).map((row) => row.mission_scoring_id);
+    const dimensionScoresRows =
+      missionScoringIdsForDetails.length > 0
+        ? await prisma.$queryRaw<DbDimensionScoreRow[]>(
+            buildDimensionScoresSql({
+              userScoringId: input.userScoringId,
+              missionScoringIds: missionScoringIdsForDetails,
+            })
+          )
+        : [];
+    const dimensionScoresByMissionScoringId = buildDimensionScoresIndex(dimensionScoresRows);
+
+    return {
+      items: rows.map(
+        (row): MatchMissionItem => ({
+          missionId: row.mission_id,
+          missionScoringId: row.mission_scoring_id,
+          totalScore: clampScore(Number(row.total_score)),
+          taxonomyScore: clampScore(Number(row.taxonomy_score)),
+          geoScore: row.geo_score === null ? null : clampScore(Number(row.geo_score)),
+          distanceKm: row.distance_km === null ? null : Number(row.distance_km),
+          dimensionScores: dimensionScoresByMissionScoringId[row.mission_scoring_id] ?? {},
+        })
+      ),
+      tookMs: Date.now() - startedAt,
+    };
+  },
+};
+
+export default matchingEngineService;

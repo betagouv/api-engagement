@@ -198,20 +198,22 @@ export const missionEnrichmentService = {
 
       console.log(`${LOG_PREFIX} ${missionId}: enrichment completed — ${valid.length} values persisted`);
     } catch (error) {
-      await missionEnrichmentRepository.update({
-        where: { id: enrichment.id },
-        data: {
-          status: "failed",
-          ...(llmResult && {
-            rawResponse: llmResult.text,
-            inputTokens: llmResult.usage.inputTokens,
-            outputTokens: llmResult.usage.outputTokens,
-            totalTokens: llmResult.usage.totalTokens,
-          }),
-        },
-      }).catch((updateErr) => {
-        console.error(`${LOG_PREFIX} ${missionId}: failed to update status to failed`, updateErr);
-      });
+      await missionEnrichmentRepository
+        .update({
+          where: { id: enrichment.id },
+          data: {
+            status: "failed",
+            ...(llmResult && {
+              rawResponse: llmResult.text,
+              inputTokens: llmResult.usage.inputTokens,
+              outputTokens: llmResult.usage.outputTokens,
+              totalTokens: llmResult.usage.totalTokens,
+            }),
+          },
+        })
+        .catch((updateErr) => {
+          console.error(`${LOG_PREFIX} ${missionId}: failed to update status to failed`, updateErr);
+        });
 
       throw error;
     }

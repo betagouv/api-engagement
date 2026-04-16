@@ -18,7 +18,7 @@ export const missionEnrichmentRepository = {
     enrichmentId: string,
     rawResponse: string,
     tokenUsage: { inputTokens: number | undefined; outputTokens: number | undefined; totalTokens: number | undefined },
-    values: Omit<Prisma.MissionEnrichmentValueUncheckedCreateInput, "enrichmentId">[],
+    values: Omit<Prisma.MissionEnrichmentValueUncheckedCreateInput, "enrichmentId">[]
   ): Promise<void> {
     await prisma.$transaction(async (tx) => {
       if (values.length > 0) {

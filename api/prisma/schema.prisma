@@ -625,8 +625,9 @@ model Mission {
   jobBoards             MissionJobBoard[]
   activities            MissionActivity[]
   enrichments           MissionEnrichment[]
+  missionScorings       MissionScoring[]
 
-  // TODO: restore relations 
+  // TODO: restore relations
   // missionEvents      MissionEvent[]
   // moderationEvents   ModerationEvent[]
   // statEvents         StatEvent[]               @relation("MissionStatEvents")
@@ -991,8 +992,10 @@ model TaxonomyValue {
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
 
-  taxonomy    Taxonomy                 @relation(fields: [taxonomyId], references: [id], onDelete: Cascade)
-  enrichments MissionEnrichmentValue[]
+  taxonomy           Taxonomy                 @relation(fields: [taxonomyId], references: [id], onDelete: Cascade)
+  enrichments        MissionEnrichmentValue[]
+  missionScoringValues MissionScoringValue[]
+  userScoringValues  UserScoringValue[]
 
   @@unique([taxonomyId, key], map: "taxonomy_value_taxonomy_key_unique")
   @@index([taxonomyId], map: "taxonomy_value_taxonomy_id_idx")
@@ -1012,8 +1015,9 @@ model MissionEnrichment {
   createdAt     DateTime                @default(now()) @map("created_at")
   updatedAt     DateTime                @updatedAt @map("updated_at")
 
-  mission Mission                  @relation(fields: [missionId], references: [id], onDelete: Cascade)
-  values  MissionEnrichmentValue[]
+  mission         Mission                  @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  values          MissionEnrichmentValue[]
+  missionScorings MissionScoring[]
 
   @@index([missionId, promptVersion], map: "mission_enrichment_mission_version_idx")
   @@index([status], map: "mission_enrichment_status_idx")
@@ -1027,10 +1031,93 @@ model MissionEnrichmentValue {
   confidence      Float
   evidence        Json?
 
-  enrichment    MissionEnrichment @relation(fields: [enrichmentId], references: [id], onDelete: Cascade)
-  taxonomyValue TaxonomyValue     @relation(fields: [taxonomyValueId], references: [id], onDelete: Cascade)
+  enrichment           MissionEnrichment   @relation(fields: [enrichmentId], references: [id], onDelete: Cascade)
+  taxonomyValue        TaxonomyValue       @relation(fields: [taxonomyValueId], references: [id], onDelete: Cascade)
+  missionScoringValues MissionScoringValue[]
 
   @@unique([enrichmentId, taxonomyValueId], map: "mission_enrichment_value_unique")
   @@index([taxonomyValueId], map: "mission_enrichment_value_taxonomy_value_id_idx")
   @@map("mission_enrichment_value")
+}
+
+model MissionScoring {
+  id                  String   @id @default(uuid())
+  missionId           String   @map("mission_id")
+  missionEnrichmentId String   @map("mission_enrichment_id")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  mission              Mission               @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  missionEnrichment    MissionEnrichment     @relation(fields: [missionEnrichmentId], references: [id], onDelete: Cascade)
+  missionScoringValues MissionScoringValue[]
+
+  @@unique([missionId, missionEnrichmentId], map: "mission_scoring_mission_id_mission_enrichment_id_key")
+  @@index([missionId], map: "mission_scoring_mission_id_idx")
+  @@index([missionEnrichmentId], map: "mission_scoring_mission_enrichment_id_idx")
+  @@map("mission_scoring")
+}
+
+model MissionScoringValue {
+  id                       String   @id @default(uuid())
+  missionScoringId         String   @map("mission_scoring_id")
+  missionEnrichmentValueId String   @map("mission_enrichment_value_id")
+  taxonomyValueId          String   @map("taxonomy_value_id")
+  score                    Float
+  createdAt                DateTime @default(now()) @map("created_at")
+  updatedAt                DateTime @updatedAt @map("updated_at")
+
+  missionScoring         MissionScoring         @relation(fields: [missionScoringId], references: [id], onDelete: Cascade)
+  missionEnrichmentValue MissionEnrichmentValue @relation(fields: [missionEnrichmentValueId], references: [id], onDelete: Cascade)
+  taxonomyValue          TaxonomyValue          @relation(fields: [taxonomyValueId], references: [id], onDelete: Restrict)
+
+  @@unique([missionScoringId, taxonomyValueId], map: "mission_scoring_value_mission_scoring_taxonomy_value_key")
+  @@index([missionScoringId], map: "mission_scoring_value_mission_scoring_id_idx")
+  @@index([taxonomyValueId], map: "mission_scoring_value_taxonomy_value_id_idx")
+  @@index([missionEnrichmentValueId], map: "mission_scoring_value_mission_enrichment_value_id_idx")
+  @@index([taxonomyValueId, score(sort: Desc)], map: "mission_scoring_value_taxonomy_value_score_desc_idx")
+  @@map("mission_scoring_value")
+}
+
+model UserScoring {
+  id        String    @id @default(uuid())
+  createdAt DateTime  @default(now()) @map("created_at")
+  expiresAt DateTime? @map("expires_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  values UserScoringValue[]
+  geo    UserScoringGeo?
+
+  @@index([expiresAt], map: "user_scoring_expires_at_idx")
+  @@map("user_scoring")
+}
+
+model UserScoringValue {
+  id              String   @id @default(uuid())
+  userScoringId   String   @map("user_scoring_id")
+  taxonomyValueId String   @map("taxonomy_value_id")
+  score           Float
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  userScoring   UserScoring   @relation(fields: [userScoringId], references: [id], onDelete: Cascade)
+  taxonomyValue TaxonomyValue @relation(fields: [taxonomyValueId], references: [id], onDelete: Restrict)
+
+  @@unique([userScoringId, taxonomyValueId], map: "user_scoring_value_user_scoring_taxonomy_value_key")
+  @@index([userScoringId], map: "user_scoring_value_user_scoring_id_idx")
+  @@index([taxonomyValueId], map: "user_scoring_value_taxonomy_value_id_idx")
+  @@map("user_scoring_value")
+}
+
+model UserScoringGeo {
+  userScoringId String   @id @map("user_scoring_id")
+  lat           Float
+  lon           Float
+  radiusKm      Float?   @map("radius_km")
+  countryCode   String?  @map("country_code")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  userScoring UserScoring @relation(fields: [userScoringId], references: [id], onDelete: Cascade)
+
+  @@map("user_scoring_geo")
 }
