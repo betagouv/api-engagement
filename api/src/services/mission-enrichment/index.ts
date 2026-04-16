@@ -82,12 +82,14 @@ const toTaxonomyForPrompt = (
     values: Array<{ key: string; label: string; active: boolean }>;
   }>
 ): TaxonomyForPrompt =>
-  dimensions.map((dim) => ({
-    key: dim.key,
-    label: dim.label,
-    type: dim.type,
-    values: dim.values.filter((v) => v.active).map((v) => ({ key: v.key, label: v.label })),
-  }));
+  dimensions
+    .filter((dim) => dim.type !== "gate")
+    .map((dim) => ({
+      key: dim.key,
+      label: dim.label,
+      type: dim.type,
+      values: dim.values.filter((v) => v.active).map((v) => ({ key: v.key, label: v.label })),
+    }));
 
 export const missionEnrichmentService = {
   async enrich(missionId: string, options: { force?: boolean } = {}) {
