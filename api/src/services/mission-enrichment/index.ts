@@ -213,16 +213,22 @@ export const missionEnrichmentService = {
 
       console.log(`${LOG_PREFIX} ${missionId}: enrichment completed — ${valid.length} values persisted`);
     } catch (error) {
+      // NoObjectGeneratedError (schema validation failure) exposes the raw LLM text and usage
+      // directly on the error — llmResult may never have been assigned in this case.
+      const errPayload = error as { text?: string; usage?: { inputTokens?: number; outputTokens?: number; totalTokens?: number } };
+      const rawResponse = llmResult ? JSON.stringify(llmResult.object) : (errPayload.text ?? null);
+      const usage = llmResult?.usage ?? errPayload.usage;
+
       await missionEnrichmentRepository
         .update({
           where: { id: enrichment.id },
           data: {
             status: "failed",
-            ...(llmResult && {
-              rawResponse: JSON.stringify(llmResult.object),
-              inputTokens: llmResult.usage.inputTokens,
-              outputTokens: llmResult.usage.outputTokens,
-              totalTokens: llmResult.usage.totalTokens,
+            ...(rawResponse !== null && { rawResponse }),
+            ...(usage && {
+              inputTokens: usage.inputTokens,
+              outputTokens: usage.outputTokens,
+              totalTokens: usage.totalTokens,
             }),
           },
         })
