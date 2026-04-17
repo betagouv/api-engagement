@@ -2,13 +2,15 @@
  * Génère de faux enrichissements de mission pour tester le scoring à volume.
  *
  * Exécution :
- *   npx ts-node scripts/seed-fake-mission-enrichment.ts [--reset] [--limit N] [--publisher-id X] [--dry-run]
+ *   npx ts-node scripts/seed-fake-mission-enrichment.ts [--reset] [--limit N] [--publisher-id X] [--prompt-version V] [--dry-run]
  *
  * Options :
- *   --reset         Supprime tous les enrichissements fake (_fake: true) et quitte
- *   --limit N       Traite au max N missions (défaut : illimité)
- *   --publisher-id  Filtre par publisher
- *   --dry-run       Log sans écrire en base
+ *   --reset              Supprime tous les enrichissements fake (_fake: true) toutes versions confondues,
+ *                        ou uniquement la version spécifiée via --prompt-version
+ *   --limit N            Traite au max N missions (défaut : illimité)
+ *   --publisher-id X     Filtre par publisher
+ *   --prompt-version V   Version du prompt à utiliser pour le seed/reset (défaut : CURRENT_PROMPT_VERSION)
+ *   --dry-run            Log sans écrire en base
  */
 
 import dotenv from "dotenv";
@@ -26,6 +28,9 @@ const limitArg = args.indexOf("--limit");
 const limit = limitArg !== -1 ? parseInt(args[limitArg + 1], 10) : undefined;
 const publisherIdArg = args.indexOf("--publisher-id");
 const publisherId = publisherIdArg !== -1 ? args[publisherIdArg + 1] : undefined;
+const promptVersionArg = args.indexOf("--prompt-version");
+// For seed: always use a specific version (default: current). For reset: undefined = all versions.
+const promptVersion = promptVersionArg !== -1 ? args[promptVersionArg + 1] : undefined;
 
 const BATCH_SIZE = 500;
 
@@ -80,26 +85,21 @@ function generateValues(taxonomies: TaxonomyWithValues[]): { taxonomyValueId: st
 // ── Reset ─────────────────────────────────────────────────────────────────────
 
 async function reset() {
-  console.log("[seed-fake-mission-enrichment] Suppression des enrichissements fake...");
+  const versionLabel = promptVersion ?? "toutes versions";
+  console.log(`[seed-fake-mission-enrichment] Suppression des enrichissements fake (${versionLabel})...`);
+
+  const where = {
+    ...(promptVersion ? { promptVersion } : {}),
+    rawResponse: { path: ["_fake"], equals: true },
+  };
 
   if (isDryRun) {
-    const count = await prisma.missionEnrichment.count({
-      where: {
-        promptVersion: CURRENT_PROMPT_VERSION,
-        rawResponse: { path: ["_fake"], equals: true },
-      },
-    });
+    const count = await prisma.missionEnrichment.count({ where });
     console.log(`[seed-fake-mission-enrichment] [dry-run] ${count} enrichissements à supprimer`);
     return;
   }
 
-  const { count } = await prisma.missionEnrichment.deleteMany({
-    where: {
-      promptVersion: CURRENT_PROMPT_VERSION,
-      rawResponse: { path: ["_fake"], equals: true },
-    },
-  });
-
+  const { count } = await prisma.missionEnrichment.deleteMany({ where });
   console.log(`[seed-fake-mission-enrichment] ${count} enrichissements supprimés (cascade sur values + scorings)`);
 }
 
@@ -116,15 +116,16 @@ async function seed() {
     process.exit(1);
   }
 
-  console.log(`[seed-fake-mission-enrichment] ${taxonomies.length} taxonomies chargées`);
+  const seedVersion = promptVersion ?? CURRENT_PROMPT_VERSION;
+  console.log(`[seed-fake-mission-enrichment] ${taxonomies.length} taxonomies chargées (version: ${seedVersion})`);
 
-  // Query missions without a completed enrichment
+  // Query missions without a completed enrichment for the target version
   const missions = await prisma.mission.findMany({
     where: {
       ...(publisherId ? { publisherId } : {}),
       deletedAt: null,
       enrichments: {
-        none: { promptVersion: CURRENT_PROMPT_VERSION, status: "completed" },
+        none: { promptVersion: seedVersion, status: "completed" },
       },
     },
     select: { id: true },
@@ -162,7 +163,7 @@ async function seed() {
           const enrichment = await prisma.missionEnrichment.create({
             data: {
               missionId: mission.id,
-              promptVersion: CURRENT_PROMPT_VERSION,
+              promptVersion: seedVersion,
               status: "completed",
               rawResponse,
               inputTokens: 0,
@@ -204,7 +205,7 @@ async function seed() {
 const run = async () => {
   await prisma.$connect();
   console.log("[seed-fake-mission-enrichment] Connecté à PostgreSQL");
-  console.log(`[seed-fake-mission-enrichment] Options — reset: ${isReset}, limit: ${limit ?? "all"}, publisher: ${publisherId ?? "all"}, dry-run: ${isDryRun}`);
+  console.log(`[seed-fake-mission-enrichment] Options — reset: ${isReset}, limit: ${limit ?? "all"}, publisher: ${publisherId ?? "all"}, prompt-version: ${promptVersion ?? `${CURRENT_PROMPT_VERSION} (défaut)`}, dry-run: ${isDryRun}`);
 
   if (isReset) {
     await reset();
