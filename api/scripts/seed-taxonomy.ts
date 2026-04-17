@@ -63,7 +63,7 @@ const TAXONOMY_DATA: Array<{
     values: [
       { key: "management_social_soin", label: "Aider, accompagner ou prendre soin des autres", icon: "🤲" },
       { key: "communication_creation_numerique", label: "Communiquer, créer ou travailler avec le numérique", icon: "💻" },
-      { key: "Production_construction_qualité_logistique", label: "Fabriquer, concevoir, construire ou travailler avec des outils et des machines", icon: "🛠️" },
+      { key: "production_construction_qualite_logistique", label: "Fabriquer, concevoir, construire ou travailler avec des outils et des machines", icon: "🛠️" },
       { key: "gestion_pilotage_juridique", label: "Gérer une activité, un projet ou des ressources", icon: "💼" },
       { key: "relation_client_commerce_strategie", label: "Développer une activité économique ou commerciale", icon: "📈" },
       { key: "cooperation_organisation_soft_skills", label: "Travailler en équipe et développer ses compétences personnelles", icon: "🤝" },
