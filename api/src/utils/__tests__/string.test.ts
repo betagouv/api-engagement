@@ -170,6 +170,19 @@ describe("String Utils", () => {
       const result = fuzzyMatchKey("formation_education_animation", keys, 0.6);
       expect(result?.key).toBe("education_formation_animation");
     });
+
+    it("breaks ties by lexical order (lowest key wins)", () => {
+      // "alpha_beta" and "beta_alpha" both score 1.0 against "alpha_beta" — "alpha_beta" < "beta_alpha"
+      const tiedKeys = ["beta_alpha", "alpha_beta"];
+      const result = fuzzyMatchKey("alpha_beta", tiedKeys, 0.6);
+      expect(result?.key).toBe("alpha_beta");
+    });
+
+    it("tie-break is stable regardless of iteration order", () => {
+      const tiedKeys1 = ["beta_alpha", "alpha_beta"];
+      const tiedKeys2 = ["alpha_beta", "beta_alpha"];
+      expect(fuzzyMatchKey("alpha_beta", tiedKeys1, 0.6)?.key).toBe(fuzzyMatchKey("alpha_beta", tiedKeys2, 0.6)?.key);
+    });
   });
 
   describe("hasLetter", () => {

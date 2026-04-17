@@ -127,7 +127,7 @@ export const fuzzyMatchKey = (
   let best: { key: string; score: number } | null = null;
   for (const key of validKeys) {
     const score = jaccardSimilarity(candidate, key);
-    if (score >= threshold && (!best || score > best.score)) {
+    if (score >= threshold && (!best || score > best.score || (score === best.score && key < best.key))) {
       best = { key, score };
     }
   }
