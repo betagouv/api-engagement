@@ -160,31 +160,33 @@ async function seed() {
             })),
           };
 
-          const enrichment = await prisma.missionEnrichment.create({
-            data: {
-              missionId: mission.id,
-              promptVersion: seedVersion,
-              status: "completed",
-              rawResponse,
-              inputTokens: 0,
-              outputTokens: 0,
-              totalTokens: 0,
-              completedAt: new Date(),
-            },
-            select: { id: true },
-          });
-
-          if (values.length > 0) {
-            await prisma.missionEnrichmentValue.createMany({
-              data: values.map((v) => ({
-                enrichmentId: enrichment.id,
-                taxonomyValueId: v.taxonomyValueId,
-                confidence: v.confidence,
-                evidence: { extract: "Extrait synthétique", reasoning: "Données générées pour tests de scoring" },
-              })),
-              skipDuplicates: true,
+          await prisma.$transaction(async (tx) => {
+            const enrichment = await tx.missionEnrichment.create({
+              data: {
+                missionId: mission.id,
+                promptVersion: seedVersion,
+                status: "completed",
+                rawResponse,
+                inputTokens: 0,
+                outputTokens: 0,
+                totalTokens: 0,
+                completedAt: new Date(),
+              },
+              select: { id: true },
             });
-          }
+
+            if (values.length > 0) {
+              await tx.missionEnrichmentValue.createMany({
+                data: values.map((v) => ({
+                  enrichmentId: enrichment.id,
+                  taxonomyValueId: v.taxonomyValueId,
+                  confidence: v.confidence,
+                  evidence: { extract: "Extrait synthétique", reasoning: "Données générées pour tests de scoring" },
+                })),
+                skipDuplicates: true,
+              });
+            }
+          });
 
           created++;
         } catch (err) {
@@ -205,7 +207,8 @@ async function seed() {
 const run = async () => {
   await prisma.$connect();
   console.log("[seed-fake-mission-enrichment] Connecté à PostgreSQL");
-  console.log(`[seed-fake-mission-enrichment] Options — reset: ${isReset}, limit: ${limit ?? "all"}, publisher: ${publisherId ?? "all"}, prompt-version: ${promptVersion ?? `${CURRENT_PROMPT_VERSION} (défaut)`}, dry-run: ${isDryRun}`);
+  const versionDisplay = promptVersion ?? (isReset ? "toutes versions" : `${CURRENT_PROMPT_VERSION} (défaut)`);
+  console.log(`[seed-fake-mission-enrichment] Options — reset: ${isReset}, limit: ${limit ?? "all"}, publisher: ${publisherId ?? "all"}, prompt-version: ${versionDisplay}, dry-run: ${isDryRun}`);
 
   if (isReset) {
     await reset();
