@@ -51,6 +51,7 @@ export type MatchResultItem = {
   publisherName: string | null;
   city: string | null;
   mission: MissionDetail | null;
+  isFake: boolean;
   totalScore: number;
   taxonomyScore: number;
   geoScore: number | null;

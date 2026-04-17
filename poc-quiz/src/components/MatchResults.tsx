@@ -86,7 +86,7 @@ function MissionCard({ item, rank, selectedDimensions }: { item: MatchResultItem
       : allDimensionScores;
 
   const hasDimensionScores = Object.keys(dimensionScores).length > 0;
-  const isFake = item.values.some((v) => v.evidence !== null && typeof v.evidence === "object" && (v.evidence as any)._fake === true);
+  const isFake = item.isFake;
 
   return (
     <div style={{ ...styles.card, ...(isFake ? styles.cardFake : {}) }}>

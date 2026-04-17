@@ -90,7 +90,13 @@ router.get("/match", async (req, res, next) => {
               taxonomy: { select: { key: true } },
             },
           },
-          missionEnrichmentValue: { select: { confidence: true, evidence: true } },
+          missionEnrichmentValue: {
+            select: {
+              confidence: true,
+              evidence: true,
+              enrichment: { select: { rawResponse: true } },
+            },
+          },
         },
       }),
       prisma.userScoringValue.findMany({
@@ -145,6 +151,7 @@ router.get("/match", async (req, res, next) => {
     }
 
     const valuesIndex: Record<string, { dimensionKey: string; taxonomyValueKey: string; taxonomyValueLabel: string; enrichmentConfidence: number; scoringScore: number; evidence: unknown }[]> = {};
+    const fakeIndex: Record<string, boolean> = {};
     for (const row of scoringValueRows) {
       const entry = {
         dimensionKey: row.taxonomyValue.taxonomy.key,
@@ -155,6 +162,10 @@ router.get("/match", async (req, res, next) => {
         evidence: row.missionEnrichmentValue?.evidence ?? null,
       };
       (valuesIndex[row.missionScoringId] ??= []).push(entry);
+      if (!fakeIndex[row.missionScoringId] && row.missionEnrichmentValue?.enrichment?.rawResponse) {
+        const raw = row.missionEnrichmentValue.enrichment.rawResponse as any;
+        if (raw._fake === true) fakeIndex[row.missionScoringId] = true;
+      }
     }
 
     const items = result.items.map((item) => ({
@@ -180,6 +191,7 @@ router.get("/match", async (req, res, next) => {
         endAt: missionIndex[item.missionId].endAt,
         domainOriginal: missionIndex[item.missionId].domainOriginal,
       } : null,
+      isFake: fakeIndex[item.missionScoringId] ?? false,
       totalScore: item.totalScore,
       taxonomyScore: item.taxonomyScore,
       geoScore: item.geoScore,
