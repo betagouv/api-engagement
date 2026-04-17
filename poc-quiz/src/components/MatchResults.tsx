@@ -86,13 +86,17 @@ function MissionCard({ item, rank, selectedDimensions }: { item: MatchResultItem
       : allDimensionScores;
 
   const hasDimensionScores = Object.keys(dimensionScores).length > 0;
+  const isFake = item.values.some((v) => v.evidence !== null && typeof v.evidence === "object" && (v.evidence as any)._fake === true);
 
   return (
-    <div style={styles.card}>
+    <div style={{ ...styles.card, ...(isFake ? styles.cardFake : {}) }}>
       <div style={styles.cardHeader}>
         <div style={styles.rankBadge}>#{rank}</div>
         <div style={styles.missionInfo}>
-          <div style={styles.missionTitle}>{item.title}</div>
+          <div style={styles.missionTitle}>
+            {item.title}
+            {isFake && <span style={styles.fakeBadge}>FAKE</span>}
+          </div>
           <div style={styles.missionCity}>
             {[item.publisherName, item.city].filter(Boolean).join(" · ")}
           </div>
@@ -299,6 +303,21 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 10,
     padding: 16,
     background: "#fff",
+  },
+  cardFake: {
+    border: "1px solid #fbbf24",
+    background: "#fffbeb",
+  },
+  fakeBadge: {
+    marginLeft: 8,
+    fontSize: 10,
+    fontWeight: 700,
+    letterSpacing: 1,
+    background: "#fbbf24",
+    color: "#78350f",
+    borderRadius: 4,
+    padding: "1px 6px",
+    verticalAlign: "middle",
   },
   cardHeader: {
     display: "flex",
