@@ -91,12 +91,24 @@ export const cleanIdParam = (param: string): string => {
 export const isBlank = (value?: string | null) => value === null || value === undefined || value === "";
 
 /**
+ * Normalize a string for fuzzy comparison: lowercase + remove diacritics.
+ * "Qualité" → "qualite", "SANTE" → "sante"
+ */
+const normalizeToken = (s: string): string =>
+  s
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{Mn}/gu, "");
+
+/**
  * Jaccard similarity between two underscore-separated token strings.
- * Order-insensitive: "sante_social" and "social_sante" → 1.0
+ * Order-insensitive and case/diacritic-insensitive:
+ * "sante_social" and "social_sante" → 1.0
+ * "Qualité_logistique" and "qualite_logistique" → 1.0
  */
 export const jaccardSimilarity = (a: string, b: string): number => {
-  const setA = new Set(a.split("_"));
-  const setB = new Set(b.split("_"));
+  const setA = new Set(a.split("_").map(normalizeToken));
+  const setB = new Set(b.split("_").map(normalizeToken));
   const intersection = new Set([...setA].filter((t) => setB.has(t)));
   const union = new Set([...setA, ...setB]);
   return intersection.size / union.size;
