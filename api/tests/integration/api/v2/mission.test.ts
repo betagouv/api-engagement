@@ -79,6 +79,7 @@ describe("Mission V2 Write API Integration Tests", () => {
         remote: "possible",
         places: 5,
         compensationAmount: 100,
+        compensationAmountMax: 130,
         compensationUnit: "day",
         compensationType: "gross",
         openToMinors: true,
@@ -211,6 +212,35 @@ describe("Mission V2 Write API Integration Tests", () => {
       });
       expect(addresses.length).toBe(1);
       expect(addresses[0].geolocStatus).toBe("SHOULD_ENRICH");
+    });
+
+    it("should return 201 with compensation range (min/max)", async () => {
+      const response = await request(app).post("/v2/mission").set("x-api-key", apiKey).send({
+        clientId: "test-compensation-range",
+        title: "Mission avec fourchette de compensation",
+        applicationUrl: "https://example.com/apply",
+        compensationAmount: 0,
+        compensationAmountMax: 13,
+        compensationUnit: "hour",
+        compensationType: "gross",
+      });
+      expect(response.status).toBe(201);
+      expect(response.body.data.compensationAmount).toBe(0);
+      expect(response.body.data.compensationAmountMax).toBe(13);
+      expect(response.body.data.statusCode).toBe("ACCEPTED");
+    });
+
+    it("should refuse mission when compensationAmountMax < compensationAmount", async () => {
+      const response = await request(app).post("/v2/mission").set("x-api-key", apiKey).send({
+        clientId: "test-compensation-invalid-range",
+        title: "Mission compensation invalide",
+        applicationUrl: "https://example.com/apply",
+        compensationAmount: 10,
+        compensationAmountMax: 5,
+      });
+      expect(response.status).toBe(201);
+      expect(response.body.data.statusCode).toBe("REFUSED");
+      expect(response.body.data.statusComment).toContain("montant maximum");
     });
   });
 

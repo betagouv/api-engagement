@@ -576,6 +576,7 @@ model Mission {
   snu                       Boolean?                 @default(false) @map("snu")
   snuPlaces                 Int?                     @map("snu_places")
   compensationAmount        Float?                   @map("compensation_amount")
+  compensationAmountMax     Float?                   @map("compensation_amount_max")
   compensationUnit          MissionCompensationUnit? @map("compensation_unit")
   compensationType          MissionCompensationType? @map("compensation_type")
   lastSyncAt                DateTime?                @map("last_sync_at")

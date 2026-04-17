@@ -283,8 +283,13 @@ components:
         compensationAmount:
           type: number
           nullable: true
-          description: Montant de l'indemnisation perçue par le bénévole ou le volontaire.
-          example: 10
+          description: Montant minimum de l'indemnisation perçue par le bénévole ou le volontaire. Utilisé seul ou comme borne basse d'une fourchette avec `compensationAmountMax`.
+          example: 0
+        compensationAmountMax:
+          type: number
+          nullable: true
+          description: Montant maximum de l'indemnisation. Si renseigné, `compensationAmount` est la borne basse et `compensationAmountMax` la borne haute (ex. 0–13 €/h). Doit être supérieur ou égal à `compensationAmount`.
+          example: 13
         compensationUnit:
           type: string
           nullable: true
@@ -928,8 +933,12 @@ paths:
                     Nombre de places disponibles pour la mission. Ce nombre doit être mis à jour dès qu'il évolue dans votre système afin que l'API Engagement dispose toujours de la donnée la plus récente.
                 compensationAmount:
                   type: number
-                  description: Montant de l'indemnisation perçue par le bénévole ou le volontaire.
-                  example: 10
+                  description: Montant minimum de l'indemnisation. Utilisé seul ou comme borne basse d'une fourchette avec `compensationAmountMax`.
+                  example: 0
+                compensationAmountMax:
+                  type: number
+                  description: Montant maximum de l'indemnisation. Si renseigné, doit être supérieur ou égal à `compensationAmount` (ex. 0–13 €/h).
+                  example: 13
                 compensationUnit:
                   type: string
                   enum: [hour, day, month, year]
@@ -1191,8 +1200,12 @@ paths:
                   minimum: 1
                 compensationAmount:
                   type: number
-                  description: Montant de l'indemnisation perçue par le bénévole ou le volontaire.
-                  example: 10
+                  description: Montant minimum de l'indemnisation. Utilisé seul ou comme borne basse d'une fourchette avec `compensationAmountMax`.
+                  example: 0
+                compensationAmountMax:
+                  type: number
+                  description: Montant maximum de l'indemnisation. Si renseigné, doit être supérieur ou égal à `compensationAmount` (ex. 0–13 €/h).
+                  example: 13
                 compensationUnit:
                   type: string
                   enum: [hour, day, month, year]
