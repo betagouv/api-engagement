@@ -1,4 +1,3 @@
-import { jsonrepair } from "jsonrepair";
 import { z } from "zod";
 
 const classificationItemSchema = z.object({
@@ -11,15 +10,13 @@ const classificationItemSchema = z.object({
   }),
 });
 
-const classificationResponseSchema = z.object({
-  classifications: z.array(classificationItemSchema),
-});
+export type ClassificationInput = z.infer<typeof classificationItemSchema>;
 
-export type ParsedClassification = z.infer<typeof classificationItemSchema> & {
+export type ParsedClassification = ClassificationInput & {
   taxonomyValueId: string;
 };
 
-export type SkippedClassification = z.infer<typeof classificationItemSchema> & {
+export type SkippedClassification = ClassificationInput & {
   reason: string;
 };
 
@@ -28,36 +25,15 @@ type TaxonomyMeta = { type: string; values: Map<string, string> };
 // taxonomyKey -> { type, values: valueKey -> taxonomyValueId }
 export type TaxonomyLookup = Map<string, TaxonomyMeta>;
 
-const extractJson = (raw: string): string => {
-  const fenceMatch = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
-  if (fenceMatch) {
-    return fenceMatch[1].trim();
-  }
-  return raw.trim();
-};
-
-const parseJson = (jsonStr: string): unknown => {
-  try {
-    return JSON.parse(jsonStr);
-  } catch {
-    // Fallback: jsonrepair handles trailing commas, multi-value strings,
-    // and other structural deviations that LLMs occasionally produce
-    return JSON.parse(jsonrepair(jsonStr));
-  }
-};
-
-export const parseEnrichmentResponse = (
-  rawText: string,
+export const validateEnrichmentClassifications = (
+  classifications: ClassificationInput[],
   taxonomyLookup: TaxonomyLookup,
   confidenceThreshold: number
 ): { valid: ParsedClassification[]; skipped: SkippedClassification[] } => {
-  const jsonStr = extractJson(rawText);
-  const parsed = classificationResponseSchema.parse(parseJson(jsonStr));
-
   const valid: ParsedClassification[] = [];
   const skipped: SkippedClassification[] = [];
 
-  for (const item of parsed.classifications) {
+  for (const item of classifications) {
     const taxonomy = taxonomyLookup.get(item.dimension_key);
     if (!taxonomy) {
       skipped.push({ ...item, reason: `unknown_dimension: ${item.dimension_key}` });

@@ -25,7 +25,8 @@ Ta tâche est d'analyser une mission et de la classifier selon un référentiel 
    - \`region_internationale\` : uniquement si la mission se déroule explicitement à l'étranger.
 
 5. Pour l'evidence, fournis :
-   - \`extract\` : un extrait textuel LITTÉRAL tiré du texte de la mission (titre, description, tâches…)
+   - \`extract\` : un extrait textuel LITTÉRAL tiré du texte de la mission (titre, description, tâches…).
+     IMPORTANT : \`extract\` doit être une SEULE chaîne de caractères. Si tu veux citer plusieurs passages, concatène-les avec \` / \` comme séparateur.
    - \`reasoning\` : une phrase courte expliquant pourquoi cet extrait justifie la classification
 
 ## Taxonomie active
@@ -33,25 +34,6 @@ Ta tâche est d'analyser une mission et de la classifier selon un référentiel 
 --- DÉBUT TAXONOMIE ---
 ${taxonomyBlock}
 --- FIN TAXONOMIE ---
-
-## Format de sortie
-
-Réponds UNIQUEMENT avec un objet JSON valide, sans texte avant ni après.
-Structure attendue :
-
-{
-  "classifications": [
-    {
-      "dimension_key": "<dimension_key>",
-      "value_key": "<value_key>",
-      "confidence": <0.0 à 1.0>,
-      "evidence": {
-        "extract": "<extrait littéral du texte de la mission>",
-        "reasoning": "<explication courte>"
-      }
-    }
-  ]
-}
 
 Si aucune valeur n'est applicable pour une dimension, ne l'inclus pas dans le tableau.`;
 

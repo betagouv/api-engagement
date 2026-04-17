@@ -1,17 +1,20 @@
 import { Prisma } from "@/db/core";
-import { generateText } from "ai";
+import { generateObject } from "ai";
+import { z } from "zod";
 
 import { missionRepository } from "@/repositories/mission";
 import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
 import { taxonomyRepository } from "@/repositories/taxonomy";
 import { CONFIDENCE_THRESHOLD, CURRENT_PROMPT_VERSION, LLM_MAX_RETRIES } from "./config";
-import { parseEnrichmentResponse, type TaxonomyLookup } from "./parser";
+import { validateEnrichmentClassifications, type TaxonomyLookup } from "./parser";
 import { buildMissionBlock, buildTaxonomyBlock, PROMPT_REGISTRY } from "./prompts";
 import type { MissionForPrompt, TaxonomyForPrompt } from "./prompts/types";
 
 const LOG_PREFIX = "[mission-enrichment]";
 
-const buildTaxonomyLookup = (taxonomies: Array<{ key: string; type: string; values: Array<{ key: string; id: string; active: boolean }> }>): TaxonomyLookup => {
+type DimensionWithValues = { key: string; type: string; values: Array<{ key: string; id: string; active: boolean }> };
+
+const buildTaxonomyLookup = (taxonomies: DimensionWithValues[]): TaxonomyLookup => {
   const lookup: TaxonomyLookup = new Map();
   for (const taxonomy of taxonomies) {
     const values = new Map<string, string>();
@@ -24,6 +27,25 @@ const buildTaxonomyLookup = (taxonomies: Array<{ key: string; type: string; valu
     lookup.set(taxonomy.key, { type: taxonomy.type, values });
   }
   return lookup;
+};
+
+const buildEnrichmentSchema = (dimensions: DimensionWithValues[]) => {
+  const dimensionKeys = dimensions.map((d) => d.key) as [string, ...string[]];
+  const valueKeys = dimensions.flatMap((d) => d.values.filter((v) => v.active).map((v) => v.key)) as [string, ...string[]];
+
+  return z.object({
+    classifications: z.array(
+      z.object({
+        dimension_key: z.enum(dimensionKeys),
+        value_key: z.enum(valueKeys),
+        confidence: z.number().min(0).max(1),
+        evidence: z.object({
+          extract: z.string(),
+          reasoning: z.string(),
+        }),
+      })
+    ),
+  });
 };
 
 const missionInclude = {
@@ -142,7 +164,7 @@ export const missionEnrichmentService = {
     }
 
     // Declared outside try/catch so the catch block can persist them on failure
-    let llmResult: Awaited<ReturnType<typeof generateText>> | undefined;
+    let llmResult: Awaited<ReturnType<typeof generateObject>> | undefined;
 
     try {
       // 5. Mark as processing
@@ -151,14 +173,16 @@ export const missionEnrichmentService = {
         data: { status: "processing" },
       });
 
-      // 6. Build prompts
+      // 6. Build prompts + schema
       const promptVersion = PROMPT_REGISTRY[CURRENT_PROMPT_VERSION];
       const systemPrompt = promptVersion.buildSystemPrompt(buildTaxonomyBlock(toTaxonomyForPrompt(dimensions)));
       const userMessage = promptVersion.buildUserMessage(buildMissionBlock(toMissionForPrompt(mission)));
+      const schema = buildEnrichmentSchema(dimensions);
 
-      // 7. Call LLM
-      llmResult = await generateText({
+      // 7. Call LLM with structured output
+      llmResult = await generateObject({
         model: promptVersion.MODEL,
+        schema,
         system: systemPrompt,
         prompt: userMessage,
         maxRetries: LLM_MAX_RETRIES,
@@ -167,15 +191,12 @@ export const missionEnrichmentService = {
       const { inputTokens, outputTokens, totalTokens } = llmResult.usage;
       console.log(`${LOG_PREFIX} ${missionId}: LLM response received — tokens: ${inputTokens} in / ${outputTokens} out / ${totalTokens} total`);
 
-      // 8. Parse + validate response
-      let valid: ReturnType<typeof parseEnrichmentResponse>["valid"];
-      let skipped: ReturnType<typeof parseEnrichmentResponse>["skipped"];
-      try {
-        ({ valid, skipped } = parseEnrichmentResponse(llmResult.text, buildTaxonomyLookup(dimensions), CONFIDENCE_THRESHOLD));
-      } catch (parseError) {
-        console.error(`${LOG_PREFIX} ${missionId}: failed to parse LLM response\n${llmResult.text}`);
-        throw parseError;
-      }
+      // 8. Validate classifications against taxonomy rules
+      const { valid, skipped } = validateEnrichmentClassifications(
+        llmResult.object.classifications,
+        buildTaxonomyLookup(dimensions),
+        CONFIDENCE_THRESHOLD
+      );
 
       if (skipped.length > 0) {
         console.warn(
@@ -187,7 +208,7 @@ export const missionEnrichmentService = {
       // 9. Persist values + mark completed (atomic)
       await missionEnrichmentRepository.completeWithValues(
         enrichment.id,
-        llmResult.text,
+        JSON.stringify(llmResult.object),
         { inputTokens, outputTokens, totalTokens },
         valid.map((v) => ({
           taxonomyValueId: v.taxonomyValueId,
@@ -204,7 +225,7 @@ export const missionEnrichmentService = {
           data: {
             status: "failed",
             ...(llmResult && {
-              rawResponse: llmResult.text,
+              rawResponse: JSON.stringify(llmResult.object),
               inputTokens: llmResult.usage.inputTokens,
               outputTokens: llmResult.usage.outputTokens,
               totalTokens: llmResult.usage.totalTokens,
