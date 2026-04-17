@@ -1,3 +1,5 @@
+import { fuzzyMatchKey } from "@/utils/string";
+
 export type ClassificationInput = {
   dimension_key: string;
   value_key: string;
@@ -20,37 +22,6 @@ export type TaxonomyLookup = Map<string, TaxonomyMeta>;
 
 const FUZZY_MATCH_THRESHOLD = 0.6;
 
-/**
- * Jaccard similarity on underscore-split tokens.
- * "sante_social_aide_personne" vs "social_sante_aide_personne" → 1.0
- * "gestion_commerce_finance" vs "commerce_gestion_finance" → 1.0
- */
-const jaccardSimilarity = (a: string, b: string): number => {
-  const setA = new Set(a.split("_"));
-  const setB = new Set(b.split("_"));
-  const intersection = new Set([...setA].filter((t) => setB.has(t)));
-  const union = new Set([...setA, ...setB]);
-  return intersection.size / union.size;
-};
-
-/**
- * Find the closest value_key in the taxonomy for a given dimension.
- * Returns the best match if similarity >= FUZZY_MATCH_THRESHOLD, null otherwise.
- */
-const fuzzyMatchValueKey = (
-  candidate: string,
-  validKeys: Iterable<string>
-): { key: string; score: number } | null => {
-  let best: { key: string; score: number } | null = null;
-  for (const key of validKeys) {
-    const score = jaccardSimilarity(candidate, key);
-    if (score >= FUZZY_MATCH_THRESHOLD && (!best || score > best.score)) {
-      best = { key, score };
-    }
-  }
-  return best;
-};
-
 export const validateEnrichmentClassifications = (
   classifications: ClassificationInput[],
   taxonomyLookup: TaxonomyLookup,
@@ -70,7 +41,7 @@ export const validateEnrichmentClassifications = (
     let taxonomyValueId = taxonomy.values.get(resolvedKey);
 
     if (!taxonomyValueId) {
-      const match = fuzzyMatchValueKey(item.value_key, taxonomy.values.keys());
+      const match = fuzzyMatchKey(item.value_key, taxonomy.values.keys(), FUZZY_MATCH_THRESHOLD);
       if (match) {
         resolvedKey = match.key;
         taxonomyValueId = taxonomy.values.get(resolvedKey)!;

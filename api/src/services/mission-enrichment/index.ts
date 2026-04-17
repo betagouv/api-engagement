@@ -32,17 +32,13 @@ const buildTaxonomyLookup = (taxonomies: DimensionWithValues[]): TaxonomyLookup 
 // Static schema — validates structure only.
 // value_key and dimension_key correctness is handled by fuzzy matching + taxonomy lookup
 // in validateEnrichmentClassifications, which skips or corrects invalid values gracefully.
-// evidence accepts string | object — Mistral occasionally flattens the nested object.
 const ENRICHMENT_SCHEMA = z.object({
   classifications: z.array(
     z.object({
       dimension_key: z.string(),
       value_key: z.string(),
       confidence: z.number().min(0).max(1),
-      evidence: z.union([
-        z.object({ extract: z.string(), reasoning: z.string() }),
-        z.string(),
-      ]),
+      evidence: z.object({ extract: z.string(), reasoning: z.string() }),
     })
   ),
 });
@@ -190,13 +186,8 @@ export const missionEnrichmentService = {
       console.log(`${LOG_PREFIX} ${missionId}: LLM response received — tokens: ${inputTokens} in / ${outputTokens} out / ${totalTokens} total`);
 
       // 8. Normalize + validate classifications against taxonomy rules
-      // evidence may be a flat string when Mistral ignores the nested object schema
-      const classifications = llmResult.object.classifications.map((c) => ({
-        ...c,
-        evidence: typeof c.evidence === "string" ? { extract: c.evidence, reasoning: "" } : c.evidence,
-      }));
       const { valid, skipped } = validateEnrichmentClassifications(
-        classifications,
+        llmResult.object.classifications,
         buildTaxonomyLookup(dimensions),
         CONFIDENCE_THRESHOLD
       );
