@@ -12,7 +12,7 @@ import type { MissionForPrompt, TaxonomyForPrompt } from "./prompts/types";
 
 const LOG_PREFIX = "[mission-enrichment]";
 
-type DimensionWithValues = { key: string; type: string; values: Array<{ key: string; id: string; active: boolean }> };
+type DimensionWithValues = { key: string; type: string; label: string; values: Array<{ key: string; id: string; label: string; active: boolean }> };
 
 const buildTaxonomyLookup = (taxonomies: DimensionWithValues[]): TaxonomyLookup => {
   const lookup: TaxonomyLookup = new Map();
@@ -29,24 +29,23 @@ const buildTaxonomyLookup = (taxonomies: DimensionWithValues[]): TaxonomyLookup 
   return lookup;
 };
 
-const buildEnrichmentSchema = (dimensions: DimensionWithValues[]) => {
-  const dimensionKeys = dimensions.map((d) => d.key) as [string, ...string[]];
-  const valueKeys = dimensions.flatMap((d) => d.values.filter((v) => v.active).map((v) => v.key)) as [string, ...string[]];
-
-  return z.object({
-    classifications: z.array(
-      z.object({
-        dimension_key: z.enum(dimensionKeys),
-        value_key: z.enum(valueKeys),
-        confidence: z.number().min(0).max(1),
-        evidence: z.object({
-          extract: z.string(),
-          reasoning: z.string(),
-        }),
-      })
-    ),
-  });
-};
+// Static schema — validates structure only.
+// value_key and dimension_key correctness is handled by fuzzy matching + taxonomy lookup
+// in validateEnrichmentClassifications, which skips or corrects invalid values gracefully.
+// evidence accepts string | object — Mistral occasionally flattens the nested object.
+const ENRICHMENT_SCHEMA = z.object({
+  classifications: z.array(
+    z.object({
+      dimension_key: z.string(),
+      value_key: z.string(),
+      confidence: z.number().min(0).max(1),
+      evidence: z.union([
+        z.object({ extract: z.string(), reasoning: z.string() }),
+        z.string(),
+      ]),
+    })
+  ),
+});
 
 const missionInclude = {
   domain: { select: { name: true } },
@@ -173,16 +172,15 @@ export const missionEnrichmentService = {
         data: { status: "processing" },
       });
 
-      // 6. Build prompts + schema
+      // 6. Build prompts
       const promptVersion = PROMPT_REGISTRY[CURRENT_PROMPT_VERSION];
       const systemPrompt = promptVersion.buildSystemPrompt(buildTaxonomyBlock(toTaxonomyForPrompt(dimensions)));
       const userMessage = promptVersion.buildUserMessage(buildMissionBlock(toMissionForPrompt(mission)));
-      const schema = buildEnrichmentSchema(dimensions);
 
       // 7. Call LLM with structured output
       llmResult = await generateObject({
         model: promptVersion.MODEL,
-        schema,
+        schema: ENRICHMENT_SCHEMA,
         system: systemPrompt,
         prompt: userMessage,
         maxRetries: LLM_MAX_RETRIES,
@@ -191,9 +189,14 @@ export const missionEnrichmentService = {
       const { inputTokens, outputTokens, totalTokens } = llmResult.usage;
       console.log(`${LOG_PREFIX} ${missionId}: LLM response received — tokens: ${inputTokens} in / ${outputTokens} out / ${totalTokens} total`);
 
-      // 8. Validate classifications against taxonomy rules
+      // 8. Normalize + validate classifications against taxonomy rules
+      // evidence may be a flat string when Mistral ignores the nested object schema
+      const classifications = llmResult.object.classifications.map((c) => ({
+        ...c,
+        evidence: typeof c.evidence === "string" ? { extract: c.evidence, reasoning: "" } : c.evidence,
+      }));
       const { valid, skipped } = validateEnrichmentClassifications(
-        llmResult.object.classifications,
+        classifications,
         buildTaxonomyLookup(dimensions),
         CONFIDENCE_THRESHOLD
       );

@@ -24,10 +24,19 @@ Ta tâche est d'analyser une mission et de la classifier selon un référentiel 
      à la gendarmerie ou à la police. Ne l'utilise pas pour du bénévolat associatif classique.
    - \`region_internationale\` : uniquement si la mission se déroule explicitement à l'étranger.
 
-5. Pour l'evidence, fournis :
+5. Pour l'evidence, fournis un OBJET avec exactement deux champs — jamais une chaîne simple :
    - \`extract\` : un extrait textuel LITTÉRAL tiré du texte de la mission (titre, description, tâches…).
-     IMPORTANT : \`extract\` doit être une SEULE chaîne de caractères. Si tu veux citer plusieurs passages, concatène-les avec \` / \` comme séparateur.
+     Si tu veux citer plusieurs passages, concatène-les avec \` / \` comme séparateur.
    - \`reasoning\` : une phrase courte expliquant pourquoi cet extrait justifie la classification
+
+   Exemple correct :
+   \`\`\`
+   "evidence": { "extract": "...", "reasoning": "..." }
+   \`\`\`
+   Exemple INCORRECT (ne jamais faire) :
+   \`\`\`
+   "evidence": "...", "reasoning": "..."
+   \`\`\`
 
 ## Taxonomie active
 

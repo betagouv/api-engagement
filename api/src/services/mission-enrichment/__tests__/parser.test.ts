@@ -130,6 +130,32 @@ describe("validateEnrichmentClassifications", () => {
     expect(valid[0].confidence).toBe(0.9);
   });
 
+  it("fuzzy matches reordered value_key tokens", () => {
+    // "soins_sante" vs "sante_soins" → Jaccard = 1.0
+    const { valid, skipped } = validateEnrichmentClassifications(
+      [{ ...validClassification, value_key: "soins_sante" }],
+      buildLookup(),
+      0.3
+    );
+
+    expect(valid).toHaveLength(1);
+    expect(valid[0].value_key).toBe("sante_soins");
+    expect(valid[0].taxonomyValueId).toBe("tv-sante");
+    expect(skipped).toHaveLength(0);
+  });
+
+  it("skips value_key with insufficient fuzzy similarity", () => {
+    // "culture_arts" has no tokens in common with "sante_soins" or "social_solidarite"
+    const { valid, skipped } = validateEnrichmentClassifications(
+      [{ ...validClassification, value_key: "culture_arts" }],
+      buildLookup(),
+      0.3
+    );
+
+    expect(valid).toHaveLength(0);
+    expect(skipped[0].reason).toContain("unknown_value");
+  });
+
   it("enforces categorical constraint: keeps only highest confidence value", () => {
     const lookup: TaxonomyLookup = new Map([
       ["type_mission", { type: "categorical", values: new Map([["ponctuelle", "tv-p"], ["reguliere", "tv-r"]]) }],
