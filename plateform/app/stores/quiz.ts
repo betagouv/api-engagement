@@ -1,41 +1,27 @@
 import { create } from "zustand";
-import type { Question } from "~/types/quiz";
+import { persist } from "zustand/middleware";
+import type { StepId } from "~/config/quiz-flow";
+import type { QuizAnswers, ScreenAnswer } from "~/types/quiz";
 
-const FAKE_QUESTIONS: Question[] = [
-  {
-    slug: "question-1",
-    label: "Question 1",
-    type: "single",
-    answers: [{ id: "answer-1", label: "Réponse 1" }],
-  },
-];
-
-type QuizState = {
-  questions: Question[];
-  // clé = slug de la question, valeur = id de la réponse choisie
-  answers: Record<string, string>;
-
-  // Actions
-  setQuestions: (questions: Question[]) => void;
-  answer: (questionSlug: string, answerId: string) => void;
-  next: () => void;
+interface QuizStore {
+  answers: QuizAnswers;
+  geo?: { lat: number; lon: number };
+  setAnswer: (stepId: StepId, answer: ScreenAnswer) => void;
+  setGeo: (geo: { lat: number; lon: number }) => void;
   reset: () => void;
-};
+}
 
-export const useQuizStore = create<QuizState>((set) => ({
-  questions: FAKE_QUESTIONS,
-  answers: {},
-
-  setQuestions: (questions) => set({ questions, answers: {} }),
-
-  answer: (questionSlug, answerId) =>
-    set((state) => ({
-      answers: { ...state.answers, [questionSlug]: answerId },
-    })),
-
-  next: () => {
-    // Réservé pour d'éventuels side-effects futurs (analytics, etc.)
-  },
-
-  reset: () => set({ questions: [], answers: {} }),
-}));
+// Persisté en localStorage : en cas de refresh, les réponses sont restaurées
+// et le guard du layout reprend au bon step.
+export const useQuizStore = create<QuizStore>()(
+  persist(
+    (set) => ({
+      answers: {},
+      geo: undefined,
+      setAnswer: (stepId, answer) => set((s) => ({ answers: { ...s.answers, [stepId]: answer } })),
+      setGeo: (geo) => set({ geo }),
+      reset: () => set({ answers: {}, geo: undefined }),
+    }),
+    { name: "quiz-answers", version: 1 },
+  ),
+);

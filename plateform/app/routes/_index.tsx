@@ -30,7 +30,7 @@ export default function Landing(_: Route.ComponentProps) {
       <h1>Trouvez votre mission de bénévolat</h1>
       <p className="fr-text--lead">Répondez à quelques questions et découvrez les missions faites pour vous.</p>
 
-      <Link to="/quiz/question-1" className="fr-btn fr-btn--lg fr-mb-6w">
+      <Link to="/quiz/age" className="fr-btn fr-btn--lg fr-mb-6w">
         Commencer le quiz
       </Link>
     </main>
