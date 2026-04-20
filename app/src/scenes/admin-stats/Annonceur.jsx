@@ -9,7 +9,7 @@ import { captureError } from "@/services/error";
 import useStore from "@/services/store";
 import { withLegacyPublishers } from "@/utils/publisher";
 
-const Announcer = () => {
+const Annonceur = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [filters, setFilters] = useState({
     from: searchParams.has("from") ? new Date(searchParams.get("from")) : new Date(new Date().getFullYear() - 1, new Date().getMonth(), new Date().getDate()),
@@ -84,18 +84,18 @@ const Announcer = () => {
   };
 
   return (
-    <div className="space-y-12 p-12">
+    <div className="space-y-12 p-4 sm:p-12">
       <title>Annonceurs - Statistiques - Administration - API Engagement</title>
       <div className="flex justify-between">
         <h2 className="text-2xl font-bold">Annonceurs</h2>
       </div>
       <div className="box-border flex">
-        <div className="flex w-full justify-between gap-2">
+        <div className="flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-between">
           <DateInput value={{ from: filters.from, to: filters.to }} onChange={(v) => setFilters({ ...filters, from: v.from, to: v.to })} />
           <label htmlFor="announcer" className="sr-only">
             Partenaire annonceur
           </label>
-          <select id="announcer" className="select min-w-[27.5em]" value={filters.publisher} onChange={(e) => setFilters({ ...filters, publisher: e.target.value })}>
+          <select id="announcer" className="select w-full sm:min-w-[27.5em]" value={filters.publisher} onChange={(e) => setFilters({ ...filters, publisher: e.target.value })}>
             <option value="">Partenaires</option>
             {partners.map((partner) => (
               <option key={partner.value} value={partner.value}>
@@ -106,7 +106,7 @@ const Announcer = () => {
           <label htmlFor="mission-type" className="sr-only">
             Type de mission
           </label>
-          <select id="mission-type" className="select min-w-[27.5em]" value={filters.type} onChange={(e) => setFilters({ ...filters, type: e.target.value })}>
+          <select id="mission-type" className="select w-full sm:min-w-[27.5em]" value={filters.type} onChange={(e) => setFilters({ ...filters, type: e.target.value })}>
             <option value="">Type de mission</option>
             {MISSION_TYPE_OPTIONS.map((missionType) => (
               <option key={missionType.value} value={missionType.value}>
@@ -143,4 +143,4 @@ const Announcer = () => {
   );
 };
 
-export default Announcer;
+export default Annonceur;

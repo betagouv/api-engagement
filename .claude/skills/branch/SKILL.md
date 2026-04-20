@@ -1,6 +1,7 @@
 ---
 description: "Create formatted branches"
 name: "branch"
+version: "1.0.0"
 ---
 
 # Skill: Create Branch

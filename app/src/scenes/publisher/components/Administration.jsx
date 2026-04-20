@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
-import Toggle from "@/components/Toggle";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
+import { useEffect, useState } from "react";
 
 const Administration = ({ values, onChange }) => {
   const [excludedOrganizations, setExcludedOrganizations] = useState([]);
@@ -22,7 +21,7 @@ const Administration = ({ values, onChange }) => {
 
   return (
     <div className="flex items-center gap-6">
-      <div className="flex flex-1 items-center gap-4">
+      {/* <div className="flex flex-1 items-center gap-4">
         <label className="w-1/2 text-base" htmlFor="automated-report">
           Rapport automatisé
         </label>
@@ -34,11 +33,11 @@ const Administration = ({ values, onChange }) => {
           />
           {values.sendReport ? <p className="text-blue-france absolute top-8 right-0 text-base">Oui</p> : <p className="absolute top-8 right-0 text-base text-gray-700">Non</p>}
         </div>
-      </div>
+      </div> */}
       <div className="flex-1 space-y-4">
         <div className="flex flex-col gap-2">
           <label className="text-base" htmlFor="excludedOrganizations">
-            Organisations exclues de la diffusion par JeVeuxAider.gouv.fr
+            Organisations <strong>exclues</strong> de la diffusion par JeVeuxAider.gouv.fr
           </label>
 
           <div className="flex flex-wrap items-center gap-2">

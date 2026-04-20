@@ -32,6 +32,7 @@ const searchSchema = zod.object({
   lon: zod.coerce.number().min(-180).max(180).optional(),
   location: zod.string().optional(),
   distance: zod.string().optional(),
+  type: zod.array(zod.string()).optional(),
   rules: zod
     .array(
       zod.object({
@@ -92,6 +93,7 @@ const findFilters = (user: UserRequest["user"], body: zod.infer<typeof searchSch
     city: asArray(body.cities),
     departmentName: asArray(body.department),
     organizationIds: asArray(body.organizationIds),
+    type: body.type,
   };
 
   if (body.status) {

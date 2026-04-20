@@ -145,7 +145,7 @@ const Moderation = () => {
   }
 
   return (
-    <div className="space-y-12 py-12">
+    <div className="space-y-12 py-4 sm:py-12">
       <title>API Engagement - Modération - Diffuser des missions</title>
       <MissionModal
         onChange={(updates) => {
@@ -153,9 +153,9 @@ const Moderation = () => {
           fetchHistory();
         }}
       />
-      <div className="mx-12 flex items-start justify-between">
+      <div className="mx-4 flex flex-col gap-4 sm:mx-12 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-center gap-4">
-          <img src={ModerationAutoIcon} className="h-14 w-14" alt="" aria-hidden="true" />
+          <img src={ModerationAutoIcon} className="h-14 w-14 shrink-0" alt="" aria-hidden="true" />
           <h2 className="text-xl font-semibold text-black">Modération automatique</h2>
         </div>
 
@@ -169,12 +169,12 @@ const Moderation = () => {
           </div>
         </div>
       </div>
-      <div className="px-12">
+      <div className="px-4 sm:px-12">
         <div className="h-px w-full bg-gray-900" />
       </div>
 
       <Filters filters={filters} onChange={(next) => setFilters({ ...filters, ...next, page: 1 })} searchParams={searchParams} reload={reloadFilters} />
-      <div className="px-12">
+      <div className="px-4 sm:px-12">
         <div className="h-px w-full bg-gray-900" />
       </div>
       <Header
@@ -196,7 +196,7 @@ const Moderation = () => {
         }}
       />
 
-      <div className="mx-12">
+      <div className="mx-4 overflow-x-auto sm:mx-12">
         <Table
           caption="Missions en modération"
           header={[

@@ -9,7 +9,7 @@ import { captureError } from "@/services/error";
 import useStore from "@/services/store";
 import { withLegacyPublishers } from "@/utils/publisher";
 
-const Broacaster = () => {
+const Diffuseur = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [filters, setFilters] = useState({
     from: searchParams.has("from") ? new Date(searchParams.get("from")) : new Date(new Date().getFullYear() - 1, new Date().getMonth(), new Date().getDate()),
@@ -98,18 +98,18 @@ const Broacaster = () => {
   };
 
   return (
-    <div className="space-y-12 p-12">
+    <div className="space-y-12 p-4 sm:p-12">
       <title>Diffuseurs - Statistiques - Administration - API Engagement</title>
       <div className="flex justify-between">
         <h2 className="text-2xl font-bold">Diffuseurs</h2>
       </div>
       <div className="box-border flex bg-white">
-        <div className="flex justify-between gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-between">
           <DateInput value={{ from: filters.from, to: filters.to }} onChange={(v) => setFilters({ ...filters, from: v.from, to: v.to })} />
           <label htmlFor="broadcaster" className="sr-only">
             Partenaire diffuseur
           </label>
-          <select id="broadcaster" className="select w-[18em]" value={filters.publisher} onChange={(e) => setFilters({ ...filters, publisher: e.target.value })}>
+          <select id="broadcaster" className="select w-full sm:w-[18em]" value={filters.publisher} onChange={(e) => setFilters({ ...filters, publisher: e.target.value })}>
             <option value="">Partenaires</option>
             {partners.map((partner) => (
               <option key={partner.value} value={partner.value}>
@@ -120,7 +120,7 @@ const Broacaster = () => {
           <label htmlFor="mission-type" className="sr-only">
             Type de mission
           </label>
-          <select className="select w-[18em]" id="mission-type" value={filters.type} onChange={(e) => setFilters({ ...filters, type: e.target.value })}>
+          <select className="select w-full sm:w-[18em]" id="mission-type" value={filters.type} onChange={(e) => setFilters({ ...filters, type: e.target.value })}>
             <option className="text-sm" value="">
               Type de mission
             </option>
@@ -133,7 +133,7 @@ const Broacaster = () => {
           <label htmlFor="source" className="sr-only">
             Moyen de diffusion
           </label>
-          <select className="select w-[18em]" id="source" value={filters.source} onChange={(e) => setFilters({ ...filters, source: e.target.value })}>
+          <select className="select w-full sm:w-[18em]" id="source" value={filters.source} onChange={(e) => setFilters({ ...filters, source: e.target.value })}>
             <option className="text-sm" value="">
               Moyen de diffusion
             </option>
@@ -143,34 +143,36 @@ const Broacaster = () => {
           </select>
         </div>
       </div>
-      <div>
-        <AnalyticsCard
-          cardId={METABASE_CARD_ID.ADMIN_STATS_PARTNERS_TABLE}
-          type="table"
-          filters={filters}
-          variables={{
-            role: "diffuseur",
-            ...(filters.publisher ? { publisher_id: filters.publisher } : {}),
-            ...(filters.type ? { mission_type: filters.type } : {}),
-            ...(filters.source ? { source: filters.source } : {}),
-          }}
-          tableProps={{
-            page: tableSettings.page,
-            pageSize: 20,
-            sortBy: tableSettings.sortBy,
-            onPageChange: (page) => setTableSettings((prev) => ({ ...prev, page })),
-            onSort: (key) =>
-              setTableSettings((prev) => ({
-                ...prev,
-                page: 1,
-                sortBy: prev.sortBy === key ? `-${key}` : key,
-              })),
-          }}
-          formatCell={formatTableCell}
-        />
+      <div className="overflow-x-auto">
+        <div className="min-w-[600px]">
+          <AnalyticsCard
+            cardId={METABASE_CARD_ID.ADMIN_STATS_PARTNERS_TABLE}
+            type="table"
+            filters={filters}
+            variables={{
+              role: "diffuseur",
+              ...(filters.publisher ? { publisher_id: filters.publisher } : {}),
+              ...(filters.type ? { mission_type: filters.type } : {}),
+              ...(filters.source ? { source: filters.source } : {}),
+            }}
+            tableProps={{
+              page: tableSettings.page,
+              pageSize: 20,
+              sortBy: tableSettings.sortBy,
+              onPageChange: (page) => setTableSettings((prev) => ({ ...prev, page })),
+              onSort: (key) =>
+                setTableSettings((prev) => ({
+                  ...prev,
+                  page: 1,
+                  sortBy: prev.sortBy === key ? `-${key}` : key,
+                })),
+            }}
+            formatCell={formatTableCell}
+          />
+        </div>
       </div>
     </div>
   );
 };
 
-export default Broacaster;
+export default Diffuseur;
