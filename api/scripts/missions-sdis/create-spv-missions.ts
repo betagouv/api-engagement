@@ -9,18 +9,37 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+import { randomUUID } from "crypto";
+import { readFileSync } from "fs";
+import { join } from "path";
+
 import { prisma } from "@/db/postgres";
-import { DEPT_ADDRESS_MAP, DESCRIPTION_SPV, SDIS_DATA, type SdisEntry } from "./data";
+import { DESCRIPTION_SPV, SDIS_DATA, type SdisEntry } from "./data";
 import { findPublisherForDept } from "./publisher";
+
+type Address = { street: string; postalCode: string; city: string; departmentCode: string };
+
+function loadAddresses(): Map<string, Address[]> {
+  const lines = readFileSync(join(__dirname, "addresses.csv"), "utf-8").trim().split("\n").slice(1);
+  const map = new Map<string, Address[]>();
+  for (const line of lines) {
+    const [dept, , street, postalCode, city] = line.split(",").map((v) => v.replace(/^"|"$/g, "").trim());
+    if (!dept || !city || !postalCode) continue;
+    const list = map.get(dept) ?? [];
+    list.push({ street, postalCode, city, departmentCode: dept });
+    map.set(dept, list);
+  }
+  return map;
+}
 
 const API_URLS: Record<string, string> = {
   prod: "https://api.api-engagement.beta.gouv.fr",
-  staging: "https://api.bac-a-sable.api-engagement.beta.gouv.fr",
-  local: "http://localhost:3002",
+  sandbox: "https://api.bac-a-sable.api-engagement.beta.gouv.fr",
+  local: "http://localhost:4000",
 };
 
-function buildMissionPayload(entry: SdisEntry) {
-  const address = DEPT_ADDRESS_MAP[entry.dept];
+function buildMissionPayload(entry: SdisEntry, addresses: Map<string, Address[]>) {
+  const deptAddresses = addresses.get(entry.dept) ?? [];
   return {
     clientId: `spv-sdis-${entry.dept.toLowerCase()}`,
     title: "Je deviens sapeur-pompier volontaire près de chez moi",
@@ -45,7 +64,7 @@ function buildMissionPayload(entry: SdisEntry) {
     organizationName: entry.organizationName,
     organizationUrl: entry.organizationUrl,
     organizationDescription: "Le SDIS est chargé des missions de secours et d'incendie dans le département.",
-    ...(address ? { addresses: [address] } : {}),
+    ...(deptAddresses.length > 0 ? { addresses: deptAddresses } : {}),
   };
 }
 
@@ -61,8 +80,10 @@ async function run() {
   }
 
   const apiBaseUrl = API_URLS[env];
+  const addresses = loadAddresses();
   console.log(`\n🚒  Création de missions SPV — env: ${env}${isDryRun ? " [DRY RUN]" : ""}`);
-  console.log(`📡  API : ${apiBaseUrl}\n`);
+  console.log(`📡  API : ${apiBaseUrl}`);
+  console.log(`🗺️  ${[...addresses.values()].reduce((n, a) => n + a.length, 0)} adresses chargées pour ${addresses.size} départements\n`);
 
   const publishers = await prisma.publisher.findMany({
     where: { isAnnonceur: true, deletedAt: null },
@@ -83,9 +104,14 @@ async function run() {
     }
 
     if (!publisher.apikey) {
-      console.warn(`⚠️  [${entry.dept}] Publisher "${publisher.name}" sans API key — skippé`);
-      stats.skipped++;
-      continue;
+      if (isDryRun) {
+        console.log(`   🔑 [${entry.dept}] Publisher "${publisher.name}" sans API key — serait créée`);
+      } else {
+        const newApikey = randomUUID();
+        await prisma.publisher.update({ where: { id: publisher.id }, data: { apikey: newApikey } });
+        publisher.apikey = newApikey;
+        console.log(`   🔑 [${entry.dept}] API key créée pour "${publisher.name}"`);
+      }
     }
 
     const existing = await prisma.mission.findFirst({
@@ -108,7 +134,7 @@ async function run() {
       const response = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json", "x-api-key": publisher.apikey },
-        body: JSON.stringify(buildMissionPayload(entry)),
+        body: JSON.stringify(buildMissionPayload(entry, addresses)),
       });
 
       const body = (await response.json()) as { ok: boolean; data?: { statusCode?: string; statusComment?: string } };

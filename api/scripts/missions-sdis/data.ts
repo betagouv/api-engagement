@@ -5,15 +5,6 @@ export interface SdisEntry {
   organizationUrl: string;
 }
 
-export interface DeptAddress {
-  city: string;
-  postalCode: string;
-  departmentCode: string;
-  departmentName: string;
-  region: string;
-  country: string;
-}
-
 // BSPP (75, 92, 93, 94) exclus — brigade militaire, hors périmètre SDIS
 // SDIS sans URL de candidature exclus — applicationUrl requis par l'API
 export const SDIS_DATA: SdisEntry[] = [
@@ -219,106 +210,6 @@ export const SDIS_DATA: SdisEntry[] = [
   { dept: "972", organizationName: "SDIS Martinique", applicationUrl: "https://sis972.fr/sapeur-pompier-volontaire/", organizationUrl: "https://sis972.fr/" },
   { dept: "976", organizationName: "SDIS Mayotte", applicationUrl: "https://www.sdis976.fr/espace-contact.html", organizationUrl: "https://www.sdis976.fr/" },
 ];
-
-export const DEPT_ADDRESS_MAP: Record<string, DeptAddress> = {
-  "01": { city: "Bourg-en-Bresse", postalCode: "01000", departmentCode: "01", departmentName: "Ain", region: "Auvergne-Rhône-Alpes", country: "France" },
-  "02": { city: "Laon", postalCode: "02000", departmentCode: "02", departmentName: "Aisne", region: "Hauts-de-France", country: "France" },
-  "03": { city: "Moulins", postalCode: "03000", departmentCode: "03", departmentName: "Allier", region: "Auvergne-Rhône-Alpes", country: "France" },
-  "04": { city: "Digne-les-Bains", postalCode: "04000", departmentCode: "04", departmentName: "Alpes-de-Haute-Provence", region: "Provence-Alpes-Côte d'Azur", country: "France" },
-  "05": { city: "Gap", postalCode: "05000", departmentCode: "05", departmentName: "Hautes-Alpes", region: "Provence-Alpes-Côte d'Azur", country: "France" },
-  "06": { city: "Nice", postalCode: "06000", departmentCode: "06", departmentName: "Alpes-Maritimes", region: "Provence-Alpes-Côte d'Azur", country: "France" },
-  "07": { city: "Privas", postalCode: "07000", departmentCode: "07", departmentName: "Ardèche", region: "Auvergne-Rhône-Alpes", country: "France" },
-  "08": { city: "Charleville-Mézières", postalCode: "08000", departmentCode: "08", departmentName: "Ardennes", region: "Grand Est", country: "France" },
-  "09": { city: "Foix", postalCode: "09000", departmentCode: "09", departmentName: "Ariège", region: "Occitanie", country: "France" },
-  "10": { city: "Troyes", postalCode: "10000", departmentCode: "10", departmentName: "Aube", region: "Grand Est", country: "France" },
-  "11": { city: "Carcassonne", postalCode: "11000", departmentCode: "11", departmentName: "Aude", region: "Occitanie", country: "France" },
-  "12": { city: "Rodez", postalCode: "12000", departmentCode: "12", departmentName: "Aveyron", region: "Occitanie", country: "France" },
-  "13": { city: "Marseille", postalCode: "13000", departmentCode: "13", departmentName: "Bouches-du-Rhône", region: "Provence-Alpes-Côte d'Azur", country: "France" },
-  "14": { city: "Caen", postalCode: "14000", departmentCode: "14", departmentName: "Calvados", region: "Normandie", country: "France" },
-  "15": { city: "Aurillac", postalCode: "15000", departmentCode: "15", departmentName: "Cantal", region: "Auvergne-Rhône-Alpes", country: "France" },
-  "16": { city: "Angoulême", postalCode: "16000", departmentCode: "16", departmentName: "Charente", region: "Nouvelle-Aquitaine", country: "France" },
-  "17": { city: "La Rochelle", postalCode: "17000", departmentCode: "17", departmentName: "Charente-Maritime", region: "Nouvelle-Aquitaine", country: "France" },
-  "18": { city: "Bourges", postalCode: "18000", departmentCode: "18", departmentName: "Cher", region: "Centre-Val de Loire", country: "France" },
-  "19": { city: "Tulle", postalCode: "19000", departmentCode: "19", departmentName: "Corrèze", region: "Nouvelle-Aquitaine", country: "France" },
-  "2A": { city: "Ajaccio", postalCode: "20000", departmentCode: "2A", departmentName: "Corse-du-Sud", region: "Corse", country: "France" },
-  "2B": { city: "Bastia", postalCode: "20200", departmentCode: "2B", departmentName: "Haute-Corse", region: "Corse", country: "France" },
-  "21": { city: "Dijon", postalCode: "21000", departmentCode: "21", departmentName: "Côte-d'Or", region: "Bourgogne-Franche-Comté", country: "France" },
-  "22": { city: "Saint-Brieuc", postalCode: "22000", departmentCode: "22", departmentName: "Côtes-d'Armor", region: "Bretagne", country: "France" },
-  "23": { city: "Guéret", postalCode: "23000", departmentCode: "23", departmentName: "Creuse", region: "Nouvelle-Aquitaine", country: "France" },
-  "24": { city: "Périgueux", postalCode: "24000", departmentCode: "24", departmentName: "Dordogne", region: "Nouvelle-Aquitaine", country: "France" },
-  "25": { city: "Besançon", postalCode: "25000", departmentCode: "25", departmentName: "Doubs", region: "Bourgogne-Franche-Comté", country: "France" },
-  "26": { city: "Valence", postalCode: "26000", departmentCode: "26", departmentName: "Drôme", region: "Auvergne-Rhône-Alpes", country: "France" },
-  "27": { city: "Évreux", postalCode: "27000", departmentCode: "27", departmentName: "Eure", region: "Normandie", country: "France" },
-  "28": { city: "Chartres", postalCode: "28000", departmentCode: "28", departmentName: "Eure-et-Loir", region: "Centre-Val de Loire", country: "France" },
-  "29": { city: "Quimper", postalCode: "29000", departmentCode: "29", departmentName: "Finistère", region: "Bretagne", country: "France" },
-  "30": { city: "Nîmes", postalCode: "30000", departmentCode: "30", departmentName: "Gard", region: "Occitanie", country: "France" },
-  "31": { city: "Toulouse", postalCode: "31000", departmentCode: "31", departmentName: "Haute-Garonne", region: "Occitanie", country: "France" },
-  "32": { city: "Auch", postalCode: "32000", departmentCode: "32", departmentName: "Gers", region: "Occitanie", country: "France" },
-  "33": { city: "Bordeaux", postalCode: "33000", departmentCode: "33", departmentName: "Gironde", region: "Nouvelle-Aquitaine", country: "France" },
-  "34": { city: "Montpellier", postalCode: "34000", departmentCode: "34", departmentName: "Hérault", region: "Occitanie", country: "France" },
-  "35": { city: "Rennes", postalCode: "35000", departmentCode: "35", departmentName: "Ille-et-Vilaine", region: "Bretagne", country: "France" },
-  "36": { city: "Châteauroux", postalCode: "36000", departmentCode: "36", departmentName: "Indre", region: "Centre-Val de Loire", country: "France" },
-  "37": { city: "Tours", postalCode: "37000", departmentCode: "37", departmentName: "Indre-et-Loire", region: "Centre-Val de Loire", country: "France" },
-  "38": { city: "Grenoble", postalCode: "38000", departmentCode: "38", departmentName: "Isère", region: "Auvergne-Rhône-Alpes", country: "France" },
-  "39": { city: "Lons-le-Saunier", postalCode: "39000", departmentCode: "39", departmentName: "Jura", region: "Bourgogne-Franche-Comté", country: "France" },
-  "40": { city: "Mont-de-Marsan", postalCode: "40000", departmentCode: "40", departmentName: "Landes", region: "Nouvelle-Aquitaine", country: "France" },
-  "41": { city: "Blois", postalCode: "41000", departmentCode: "41", departmentName: "Loir-et-Cher", region: "Centre-Val de Loire", country: "France" },
-  "42": { city: "Saint-Étienne", postalCode: "42000", departmentCode: "42", departmentName: "Loire", region: "Auvergne-Rhône-Alpes", country: "France" },
-  "43": { city: "Le Puy-en-Velay", postalCode: "43000", departmentCode: "43", departmentName: "Haute-Loire", region: "Auvergne-Rhône-Alpes", country: "France" },
-  "44": { city: "Nantes", postalCode: "44000", departmentCode: "44", departmentName: "Loire-Atlantique", region: "Pays de la Loire", country: "France" },
-  "45": { city: "Orléans", postalCode: "45000", departmentCode: "45", departmentName: "Loiret", region: "Centre-Val de Loire", country: "France" },
-  "46": { city: "Cahors", postalCode: "46000", departmentCode: "46", departmentName: "Lot", region: "Occitanie", country: "France" },
-  "47": { city: "Agen", postalCode: "47000", departmentCode: "47", departmentName: "Lot-et-Garonne", region: "Nouvelle-Aquitaine", country: "France" },
-  "48": { city: "Mende", postalCode: "48000", departmentCode: "48", departmentName: "Lozère", region: "Occitanie", country: "France" },
-  "49": { city: "Angers", postalCode: "49000", departmentCode: "49", departmentName: "Maine-et-Loire", region: "Pays de la Loire", country: "France" },
-  "50": { city: "Saint-Lô", postalCode: "50000", departmentCode: "50", departmentName: "Manche", region: "Normandie", country: "France" },
-  "51": { city: "Châlons-en-Champagne", postalCode: "51000", departmentCode: "51", departmentName: "Marne", region: "Grand Est", country: "France" },
-  "52": { city: "Chaumont", postalCode: "52000", departmentCode: "52", departmentName: "Haute-Marne", region: "Grand Est", country: "France" },
-  "53": { city: "Laval", postalCode: "53000", departmentCode: "53", departmentName: "Mayenne", region: "Pays de la Loire", country: "France" },
-  "54": { city: "Nancy", postalCode: "54000", departmentCode: "54", departmentName: "Meurthe-et-Moselle", region: "Grand Est", country: "France" },
-  "55": { city: "Bar-le-Duc", postalCode: "55000", departmentCode: "55", departmentName: "Meuse", region: "Grand Est", country: "France" },
-  "56": { city: "Vannes", postalCode: "56000", departmentCode: "56", departmentName: "Morbihan", region: "Bretagne", country: "France" },
-  "57": { city: "Metz", postalCode: "57000", departmentCode: "57", departmentName: "Moselle", region: "Grand Est", country: "France" },
-  "58": { city: "Nevers", postalCode: "58000", departmentCode: "58", departmentName: "Nièvre", region: "Bourgogne-Franche-Comté", country: "France" },
-  "59": { city: "Lille", postalCode: "59000", departmentCode: "59", departmentName: "Nord", region: "Hauts-de-France", country: "France" },
-  "60": { city: "Beauvais", postalCode: "60000", departmentCode: "60", departmentName: "Oise", region: "Hauts-de-France", country: "France" },
-  "61": { city: "Alençon", postalCode: "61000", departmentCode: "61", departmentName: "Orne", region: "Normandie", country: "France" },
-  "62": { city: "Arras", postalCode: "62000", departmentCode: "62", departmentName: "Pas-de-Calais", region: "Hauts-de-France", country: "France" },
-  "63": { city: "Clermont-Ferrand", postalCode: "63000", departmentCode: "63", departmentName: "Puy-de-Dôme", region: "Auvergne-Rhône-Alpes", country: "France" },
-  "64": { city: "Pau", postalCode: "64000", departmentCode: "64", departmentName: "Pyrénées-Atlantiques", region: "Nouvelle-Aquitaine", country: "France" },
-  "65": { city: "Tarbes", postalCode: "65000", departmentCode: "65", departmentName: "Hautes-Pyrénées", region: "Occitanie", country: "France" },
-  "66": { city: "Perpignan", postalCode: "66000", departmentCode: "66", departmentName: "Pyrénées-Orientales", region: "Occitanie", country: "France" },
-  "67": { city: "Strasbourg", postalCode: "67000", departmentCode: "67", departmentName: "Bas-Rhin", region: "Grand Est", country: "France" },
-  "68": { city: "Colmar", postalCode: "68000", departmentCode: "68", departmentName: "Haut-Rhin", region: "Grand Est", country: "France" },
-  "69": { city: "Lyon", postalCode: "69000", departmentCode: "69", departmentName: "Rhône", region: "Auvergne-Rhône-Alpes", country: "France" },
-  "70": { city: "Vesoul", postalCode: "70000", departmentCode: "70", departmentName: "Haute-Saône", region: "Bourgogne-Franche-Comté", country: "France" },
-  "71": { city: "Mâcon", postalCode: "71000", departmentCode: "71", departmentName: "Saône-et-Loire", region: "Bourgogne-Franche-Comté", country: "France" },
-  "72": { city: "Le Mans", postalCode: "72000", departmentCode: "72", departmentName: "Sarthe", region: "Pays de la Loire", country: "France" },
-  "73": { city: "Chambéry", postalCode: "73000", departmentCode: "73", departmentName: "Savoie", region: "Auvergne-Rhône-Alpes", country: "France" },
-  "74": { city: "Annecy", postalCode: "74000", departmentCode: "74", departmentName: "Haute-Savoie", region: "Auvergne-Rhône-Alpes", country: "France" },
-  "76": { city: "Rouen", postalCode: "76000", departmentCode: "76", departmentName: "Seine-Maritime", region: "Normandie", country: "France" },
-  "77": { city: "Melun", postalCode: "77000", departmentCode: "77", departmentName: "Seine-et-Marne", region: "Île-de-France", country: "France" },
-  "78": { city: "Versailles", postalCode: "78000", departmentCode: "78", departmentName: "Yvelines", region: "Île-de-France", country: "France" },
-  "79": { city: "Niort", postalCode: "79000", departmentCode: "79", departmentName: "Deux-Sèvres", region: "Nouvelle-Aquitaine", country: "France" },
-  "80": { city: "Amiens", postalCode: "80000", departmentCode: "80", departmentName: "Somme", region: "Hauts-de-France", country: "France" },
-  "81": { city: "Albi", postalCode: "81000", departmentCode: "81", departmentName: "Tarn", region: "Occitanie", country: "France" },
-  "82": { city: "Montauban", postalCode: "82000", departmentCode: "82", departmentName: "Tarn-et-Garonne", region: "Occitanie", country: "France" },
-  "83": { city: "Toulon", postalCode: "83000", departmentCode: "83", departmentName: "Var", region: "Provence-Alpes-Côte d'Azur", country: "France" },
-  "84": { city: "Avignon", postalCode: "84000", departmentCode: "84", departmentName: "Vaucluse", region: "Provence-Alpes-Côte d'Azur", country: "France" },
-  "85": { city: "La Roche-sur-Yon", postalCode: "85000", departmentCode: "85", departmentName: "Vendée", region: "Pays de la Loire", country: "France" },
-  "86": { city: "Poitiers", postalCode: "86000", departmentCode: "86", departmentName: "Vienne", region: "Nouvelle-Aquitaine", country: "France" },
-  "87": { city: "Limoges", postalCode: "87000", departmentCode: "87", departmentName: "Haute-Vienne", region: "Nouvelle-Aquitaine", country: "France" },
-  "88": { city: "Épinal", postalCode: "88000", departmentCode: "88", departmentName: "Vosges", region: "Grand Est", country: "France" },
-  "89": { city: "Auxerre", postalCode: "89000", departmentCode: "89", departmentName: "Yonne", region: "Bourgogne-Franche-Comté", country: "France" },
-  "90": { city: "Belfort", postalCode: "90000", departmentCode: "90", departmentName: "Territoire de Belfort", region: "Bourgogne-Franche-Comté", country: "France" },
-  "91": { city: "Évry-Courcouronnes", postalCode: "91000", departmentCode: "91", departmentName: "Essonne", region: "Île-de-France", country: "France" },
-  "95": { city: "Cergy", postalCode: "95000", departmentCode: "95", departmentName: "Val-d'Oise", region: "Île-de-France", country: "France" },
-  "971": { city: "Basse-Terre", postalCode: "97100", departmentCode: "971", departmentName: "Guadeloupe", region: "Guadeloupe", country: "France" },
-  "972": { city: "Fort-de-France", postalCode: "97200", departmentCode: "972", departmentName: "Martinique", region: "Martinique", country: "France" },
-  "973": { city: "Cayenne", postalCode: "97300", departmentCode: "973", departmentName: "Guyane", region: "Guyane", country: "France" },
-  "974": { city: "Saint-Denis", postalCode: "97400", departmentCode: "974", departmentName: "La Réunion", region: "La Réunion", country: "France" },
-  "976": { city: "Mamoudzou", postalCode: "97600", departmentCode: "976", departmentName: "Mayotte", region: "Mayotte", country: "France" },
-};
 
 export const DESCRIPTION_SPV = `<h2>🔥 Et si vous deveniez sapeur-pompier volontaire près de chez vous ?</h2>
 <p>En donnant quelques heures par semaine, vous rejoignez une équipe soudée au cœur de votre territoire et vous agissez concrètement pour protéger et aider la population.</p>

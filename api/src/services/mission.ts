@@ -124,6 +124,7 @@ const toMissionRecord = (mission: MissionWithRelations, moderatedBy: string | nu
     snu: mission.snu ?? false,
     snuPlaces: mission.snuPlaces ?? null,
     compensationAmount: mission.compensationAmount ?? null,
+    compensationAmountMax: mission.compensationAmountMax ?? null,
     compensationUnit: mission.compensationUnit ?? null,
     compensationType: mission.compensationType ?? null,
     adresse: primaryAddress.street ?? null,
@@ -503,10 +504,7 @@ const buildAggregations = async (where: Prisma.MissionWhereInput): Promise<Missi
         key: row.key,
         doc_count: row.doc_count,
         label: publisher?.name,
-        mission_type:
-          publisher?.missionType === "volontariat_service_civique"
-            ? "volontariat"
-            : (publisher?.missionType ?? "benevolat"),
+        mission_type: publisher?.missionType === "volontariat_service_civique" ? "volontariat" : (publisher?.missionType ?? "benevolat"),
       };
     })
     .filter((row) => isNonEmpty(row.key))
@@ -721,6 +719,7 @@ export const missionService = {
       snu: input.snu ?? undefined,
       snuPlaces: input.snuPlaces ?? undefined,
       compensationAmount: input.compensationAmount ?? undefined,
+      compensationAmountMax: input.compensationAmountMax ?? undefined,
       compensationUnit: input.compensationUnit ?? undefined,
       compensationType: input.compensationType ?? undefined,
       lastSyncAt: input.lastSyncAt ?? undefined,
@@ -852,6 +851,9 @@ export const missionService = {
     }
     if ("compensationAmount" in patch) {
       data.compensationAmount = patch.compensationAmount ?? undefined;
+    }
+    if ("compensationAmountMax" in patch) {
+      data.compensationAmountMax = patch.compensationAmountMax ?? undefined;
     }
     if ("compensationUnit" in patch) {
       data.compensationUnit = patch.compensationUnit ?? undefined;
