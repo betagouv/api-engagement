@@ -1,18 +1,16 @@
 import { Link } from "react-router";
-import { API_URL } from "~/services/config";
+import api from "~/services/api";
 import type { Mission } from "~/types/quiz";
 import type { Route } from "./+types/_index";
 
 // Exécuté côté serveur → missions dans le HTML initial → indexé par Google
 export async function loader(): Promise<{ missions: Mission[] }> {
-  const response = await fetch(`${API_URL}/v0/mission?limit=6&publishers=true`);
-
-  if (!response.ok) {
+  try {
+    const missions = await api.get<Mission[]>("/v0/mission?limit=6");
+    return { missions };
+  } catch {
     return { missions: [] };
   }
-
-  const data = await response.json();
-  return { missions: data.hits ?? [] };
 }
 
 // Balises <head> générées côté serveur → OG tags visibles par les crawlers sociaux
@@ -26,9 +24,7 @@ export function meta(): Route.MetaDescriptors {
   ];
 }
 
-export default function Landing({ loaderData }: Route.ComponentProps) {
-  const { missions } = loaderData;
-
+export default function Landing(_: Route.ComponentProps) {
   return (
     <main className="fr-container fr-py-6w">
       <h1>Trouvez votre mission de bénévolat</h1>

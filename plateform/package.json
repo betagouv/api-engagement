@@ -10,22 +10,22 @@
     "typecheck": "react-router typegen && tsc --noEmit",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "prettier": "prettier --write . --plugin=prettier-plugin-organize-imports",
-    "predev": "react-dsfr update-icons",
-    "prebuild": "react-dsfr update-icons"
+    "prettier": "prettier --write . --plugin=prettier-plugin-organize-imports"
   },
   "prettier": {
     "printWidth": 180
   },
   "dependencies": {
-    "@codegouvfr/react-dsfr": "^1.32.0",
+    "@gouvfr/dsfr": "^1.14.4",
     "@react-router/node": "7.6.0",
     "@react-router/serve": "7.6.0",
     "@sentry/react": "9.14.0",
+    "@tailwindcss/vite": "^4.2.2",
     "isbot": "5.1.27",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-router": "7.6.0",
+    "tailwindcss": "^4.2.2",
     "zustand": "5.0.5"
   },
   "devDependencies": {

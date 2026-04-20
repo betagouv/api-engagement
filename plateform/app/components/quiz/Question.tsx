@@ -1,4 +1,3 @@
-import { RadioButtons } from "@codegouvfr/react-dsfr/RadioButtons";
 import type { Question as QuestionType } from "~/types/quiz";
 
 type Props = {
@@ -8,18 +7,24 @@ type Props = {
 };
 
 export default function Question({ question, selectedAnswer, onAnswer }: Props) {
+  const name = `question-${question.slug}`;
+
   return (
-    <RadioButtons
-      legend={question.label}
-      name={`question-${question.id}`}
-      options={question.answers.map((answer) => ({
-        label: answer.label,
-        nativeInputProps: {
-          value: answer.id,
-          checked: selectedAnswer === answer.id,
-          onChange: () => onAnswer(answer.id),
-        },
-      }))}
-    />
+    <fieldset className="fr-fieldset">
+      <legend className="fr-fieldset__legend fr-text--regular">{question.label}</legend>
+      {question.answers.map((answer) => {
+        const id = `${name}-${answer.id}`;
+        return (
+          <div key={answer.id} className="fr-fieldset__element">
+            <div className="fr-radio-group">
+              <input type="radio" id={id} name={name} value={answer.id} checked={selectedAnswer === answer.id} onChange={() => onAnswer(answer.id)} />
+              <label className="fr-label" htmlFor={id}>
+                {answer.label}
+              </label>
+            </div>
+          </div>
+        );
+      })}
+    </fieldset>
   );
 }

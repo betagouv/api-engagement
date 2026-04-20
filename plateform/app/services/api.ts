@@ -1,22 +1,29 @@
 import { API_URL } from "~/services/config";
 
-// En SSR (loaders), utiliser process.env.API_URL directement.
-// Ce wrapper est destiné aux appels côté client uniquement.
-const baseUrl = typeof window !== "undefined" ? API_URL : (process.env.API_URL ?? "");
+const baseUrl = API_URL;
 
-async function get<T>(endpoint: string, signal?: AbortSignal): Promise<T> {
-  const response = await fetch(`${baseUrl}${endpoint}`, {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
+async function request<T>(method: string, path: string, body?: unknown, signal?: AbortSignal): Promise<T> {
+  const response = await fetch(`${baseUrl}${path}`, {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: body !== undefined ? JSON.stringify(body) : undefined,
     signal,
   });
 
-  if (!response.ok) {
-    throw new Error(`API error ${response.status} on GET ${endpoint}`);
-  }
+  if (!response.ok) throw new Error(`API error ${response.status} on ${method} ${path}`);
 
-  return response.json() as Promise<T>;
+  // Enveloppe v0 : { ok, data, … } ou { ok: false, code, message }
+  const json = (await response.json()) as { ok: boolean; data?: T; code?: string };
+  if (!json.ok) throw new Error(json.code ?? `API error on ${method} ${path}`);
+  return json.data as T;
 }
 
-const api = { get };
+const api = {
+  get: <T>(path: string, signal?: AbortSignal) => request<T>("GET", path, undefined, signal),
+  post: <T>(path: string, body?: unknown, signal?: AbortSignal) => request<T>("POST", path, body, signal),
+  put: <T>(path: string, body?: unknown, signal?: AbortSignal) => request<T>("PUT", path, body, signal),
+};
+
 export default api;

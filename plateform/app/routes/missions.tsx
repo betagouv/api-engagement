@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
-import { API_URL } from "~/services/config";
+import api from "~/services/api";
 import { useQuizStore } from "~/stores/quiz";
 import type { Mission } from "~/types/quiz";
 import type { Route } from "./+types/missions";
@@ -18,22 +17,32 @@ export function meta(): Route.MetaDescriptors {
 }
 
 export default function MissionsPage() {
-  const navigate = useNavigate();
   const { answers } = useQuizStore();
 
   const [missions, setMissions] = useState<Mission[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Rediriger si on arrive sans avoir fait le quiz
   useEffect(() => {
-    const params = new URLSearchParams({ answers: Object.values(answers).join(","), limit: "9" });
-    fetch(`${API_URL}/v0/mission?${params}`)
-      .then((r) => r.json())
-      .then((data: Mission[]) => {
+    const controller = new AbortController();
+    setLoading(true);
+    setError(null);
+
+    // TODO: mapper les réponses du quiz vers les vrais filtres de l'API (domain, city, remote, …).
+    // Pour l'instant on récupère simplement les 9 premières missions disponibles.
+    api
+      .get<Mission[]>("/v0/mission?limit=9", controller.signal)
+      .then((data) => {
         setMissions(data);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch((err: Error) => {
+        if (err.name === "AbortError") return;
+        setError(err.message);
+        setLoading(false);
+      });
+
+    return () => controller.abort();
   }, [answers]);
 
   return (
@@ -42,7 +51,13 @@ export default function MissionsPage() {
 
       {loading && <p>Chargement des missions...</p>}
 
-      {!loading && missions.length === 0 && <p>Aucune mission ne correspond à vos réponses pour le moment.</p>}
+      {!loading && error && (
+        <div className="fr-alert fr-alert--error">
+          <p>Erreur lors du chargement des missions : {error}</p>
+        </div>
+      )}
+
+      {!loading && !error && missions.length === 0 && <p>Aucune mission ne correspond à vos réponses pour le moment.</p>}
 
       <ul className="fr-grid-row fr-grid-row--gutters">
         {missions.map((mission) => (

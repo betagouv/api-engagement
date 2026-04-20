@@ -1,14 +1,24 @@
-import "@codegouvfr/react-dsfr/main.css";
+import "@gouvfr/dsfr/dist/dsfr.min.css";
+import "@gouvfr/dsfr/dist/utility/utility.min.css";
+import "./main.css";
+import appleTouchIcon from "@gouvfr/dsfr/dist/favicon/apple-touch-icon.png?url";
+import faviconIco from "@gouvfr/dsfr/dist/favicon/favicon.ico?url";
+import faviconSvg from "@gouvfr/dsfr/dist/favicon/favicon.svg?url";
+import webmanifest from "@gouvfr/dsfr/dist/favicon/manifest.webmanifest?url";
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 import Footer from "~/components/layout/footer";
 import Header from "~/components/layout/header";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr" suppressHydrationWarning>
+    <html lang="fr" data-fr-scheme="system" suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="apple-touch-icon" href={appleTouchIcon} />
+        <link rel="icon" href={faviconSvg} type="image/svg+xml" />
+        <link rel="shortcut icon" href={faviconIco} type="image/x-icon" />
+        <link rel="manifest" href={webmanifest} crossOrigin="use-credentials" />
         <Meta />
         <Links />
       </head>

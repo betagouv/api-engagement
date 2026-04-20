@@ -1,0 +1,7 @@
+/* Tailwind v4 — préfixe `tw` pour éviter les collisions avec les classes DSFR (`fr-*`).
+   ATTENTION : en v4, le séparateur de préfixe est `:` (pas `-` comme en v3).
+   Les classes s'écrivent donc `tw:text-red-500`, `tw:flex`, etc.
+
+   Preflight reste inclus mais est placé dans @layer base : le CSS DSFR n'utilise
+   aucun @layer donc il gagne la cascade et le reset DSFR reste en place. */
+@import "tailwindcss" prefix(tw);
