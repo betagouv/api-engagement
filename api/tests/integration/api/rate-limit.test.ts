@@ -1,24 +1,19 @@
-import { PostgresStore } from "@acpr/rate-limit-postgresql";
 import express from "express";
-import { Store } from "express-rate-limit";
-import path from "node:path";
-import { Client } from "pg";
-import { migrate } from "postgres-migrations";
 import request from "supertest";
-import { afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { createIpRateLimiter, createPublisherRateLimiter } from "@/middlewares/rate-limit";
 import { createTestPublisher } from "../../fixtures";
 import { createTestApp } from "../../testApp";
 
-const createRateLimitedApp = ({ publisherMax, ipMax, store }: { publisherMax?: number; ipMax?: number; store?: Store } = {}) => {
+const createRateLimitedApp = ({ publisherMax, ipMax }: { publisherMax?: number; ipMax?: number } = {}) => {
   const wrapper = express();
   wrapper.set("trust proxy", true);
   if (publisherMax !== undefined) {
-    wrapper.use("/v0", createPublisherRateLimiter(publisherMax, store));
+    wrapper.use("/v0", createPublisherRateLimiter(publisherMax));
   }
   if (ipMax !== undefined) {
-    wrapper.use(["/r", "/mission"], createIpRateLimiter(ipMax, store));
+    wrapper.use(["/r", "/mission"], createIpRateLimiter(ipMax));
   }
   wrapper.use(createTestApp());
   return wrapper;
@@ -103,35 +98,6 @@ describe("Rate limiting", () => {
         code: "TOO_MANY_REQUESTS",
         message: expect.any(String),
       });
-    });
-  });
-
-  describe("publisherRateLimiter — shared PG store (multi-instance)", () => {
-    beforeAll(async () => {
-      // require.resolve gives .../dist/index.cjs — migrations sit alongside it
-      const migrationsPath = path.join(path.dirname(require.resolve("@acpr/rate-limit-postgresql")), "migrations");
-      const client = new Client({ connectionString: process.env.DATABASE_URL_CORE! });
-      await client.connect();
-      try {
-        await migrate({ client }, migrationsPath);
-      } finally {
-        await client.end();
-      }
-    });
-
-    it("shares counter across two app instances", async () => {
-      const prefix = `rl:pub:test:${Date.now()}:`;
-      const store1 = new PostgresStore({ connectionString: process.env.DATABASE_URL_CORE! }, prefix);
-      const store2 = new PostgresStore({ connectionString: process.env.DATABASE_URL_CORE! }, prefix);
-      const publisher = await createTestPublisher();
-      const app1 = createRateLimitedApp({ publisherMax: 2, store: store1 });
-      const app2 = createRateLimitedApp({ publisherMax: 2, store: store2 });
-
-      await request(app1).get("/v0/mission").set("x-api-key", publisher.apikey);
-      await request(app2).get("/v0/mission").set("x-api-key", publisher.apikey);
-      const res = await request(app1).get("/v0/mission").set("x-api-key", publisher.apikey);
-
-      expect(res.status).toBe(429);
     });
   });
 
