@@ -19,11 +19,30 @@ import { findPublisherForDept } from "./publisher";
 
 type Address = { street: string; postalCode: string; city: string; departmentCode: string };
 
+function parseCsvLine(line: string): string[] {
+  const result: string[] = [];
+  let current = "";
+  let inQuotes = false;
+  for (const char of line) {
+    if (char === '"') {
+      inQuotes = !inQuotes;
+    } else if (char === "," && !inQuotes) {
+      result.push(current);
+      current = "";
+    } else {
+      current += char;
+    }
+  }
+  result.push(current);
+  return result;
+}
+
 function loadAddresses(): Map<string, Address[]> {
   const lines = readFileSync(join(__dirname, "addresses.csv"), "utf-8").trim().split("\n").slice(1);
   const map = new Map<string, Address[]>();
   for (const line of lines) {
-    const [dept, , street, postalCode, city] = line.split(",").map((v) => v.replace(/^"|"$/g, "").trim());
+    const cols = parseCsvLine(line);
+    const [dept, , street, postalCode, city] = cols.map((v) => v.trim());
     if (!dept || !city || !postalCode) continue;
     const list = map.get(dept) ?? [];
     list.push({ street, postalCode, city, departmentCode: dept });
