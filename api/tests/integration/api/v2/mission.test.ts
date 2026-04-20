@@ -218,6 +218,7 @@ describe("Mission V2 Write API Integration Tests", () => {
       const response = await request(app).post("/v2/mission").set("x-api-key", apiKey).send({
         clientId: "test-compensation-range",
         title: "Mission avec fourchette de compensation",
+        description: "Description de test.",
         applicationUrl: "https://example.com/apply",
         compensationAmount: 0,
         compensationAmountMax: 13,
