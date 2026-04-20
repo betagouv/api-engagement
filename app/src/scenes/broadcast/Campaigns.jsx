@@ -91,7 +91,7 @@ const Campaigns = () => {
   }
 
   return (
-    <div className="space-y-12 p-12">
+    <div className="space-y-12 p-4 sm:p-12">
       <title>API Engagement - Campagnes - Diffuser des missions</title>
       <div className="flex flex-col items-center justify-between gap-4 lg:flex-row lg:gap-32">
         <div role="search" className="flex flex-1 flex-col items-center gap-4 lg:flex-row lg:gap-4">
@@ -172,9 +172,7 @@ const Campaigns = () => {
                     {item.name}
                   </Link>
                 </td>
-                <td className={`px-4 py-3 ${!item.active ? "opacity-50" : "opacity-100"}`}>
-                  {item.toPublisherName}
-                </td>
+                <td className={`px-4 py-3 ${!item.active ? "opacity-50" : "opacity-100"}`}>{item.toPublisherName}</td>
                 <td className={`px-4 py-3 ${!item.active ? "opacity-50" : "opacity-100"}`}>{new Date(item.createdAt).toLocaleDateString("fr")}</td>
                 <td className="px-4 py-3">
                   <div className="flex w-fit gap-2 text-lg">

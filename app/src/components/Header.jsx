@@ -18,8 +18,8 @@ const Header = () => {
   const { user } = useStore();
   return (
     <header role="banner" className="border-b-grey-border flex w-full justify-center border-b bg-white">
-      <div className="flex w-full max-w-7xl flex-wrap items-center justify-between gap-4 py-3">
-        <Link className="hover:bg-gray-975 flex items-center gap-4 p-4" to={user ? "/" : "/login"}>
+      <div className="flex w-full max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-1 sm:py-3">
+        <Link className="hover:bg-gray-975 flex items-center gap-4 p-2 sm:p-4" to={user ? "/" : "/login"}>
           <div className="flex h-24 items-center justify-center">
             <div className="flex flex-col items-start">
               <img src={marianneBanner} alt="" aria-hidden="true" className="mb-1 w-10" />
@@ -31,19 +31,18 @@ const Header = () => {
               <img src={deviseSrc} alt="" aria-hidden="true" className="mt-1 h-7" />
             </div>
           </div>
-          <LogoSvg alt="" className="w-8" />
-          <div>
+          <LogoSvg alt="" className="hidden w-8 sm:block" aria-hidden="true" />
+          <div className="hidden sm:block">
             <h1 className="text-xl font-bold">API Engagement</h1>
             <p className="text-sm">Plateforme de partage de missions de bénévolat et de volontariat</p>
           </div>
         </Link>
         <nav role="navigation" aria-label="Navigation d'en-tête" className="text-blue-france flex items-center gap-3 text-sm">
-          <div className="tertiary-bis-btn flex items-center">
+          <a href="https://doc.api-engagement.beta.gouv.fr/" target="_blank" className="text-blue-france flex items-center">
             <RiBookletLine className="mr-2" aria-hidden="true" />
-            <a href="https://doc.api-engagement.beta.gouv.fr/" target="_blank">
-              Documentation
-            </a>
-          </div>
+            <span className="hidden sm:block">Documentation</span>
+          </a>
+
           {!user ? (
             <Link to="/login" className="tertiary-btn flex items-center">
               <RiUserLine className="mr-2" aria-hidden="true" />
@@ -347,16 +346,16 @@ const AccountMenu = () => {
         <div className="bg-blue-france flex h-8 w-8 items-center justify-center rounded-full">
           <RiUserLine className="text-white" aria-hidden="true" />
         </div>
-        <div className="mx-4 text-left">
+        <div className="mx-4 hidden text-left sm:block">
           <p className="text-blue-france">{user.firstname}</p>
           <p className="text-text-mention text-sm">{user.publishers.length ? (user.role === "admin" ? "Administrateur" : "Utilisateur") : publisher.name}</p>
         </div>
-        <RiArrowDownSLine className={`text-base transition-transform duration-200 ${show ? "rotate-180" : ""}`} aria-hidden="true" />
+        <RiArrowDownSLine className={`hidden text-base transition-transform duration-200 sm:block ${show ? "rotate-180" : ""}`} aria-hidden="true" />
       </button>
 
       <div
         inert={!show ? true : undefined}
-        className={`border-grey-border absolute right-0 z-10 w-56 border bg-white shadow-lg transition-[max-height,opacity] duration-200 ease-in-out ${show ? "max-h-96 opacity-100" : "pointer-events-none max-h-0 opacity-0"}`}
+        className={`border-grey-border absolute left-1/2 z-10 w-[calc(100vw-2rem)] -translate-x-1/2 border bg-white shadow-lg transition-[max-height,opacity] duration-200 ease-in-out sm:right-0 sm:left-auto sm:w-56 ${show ? "max-h-96 opacity-100" : "pointer-events-none max-h-0 opacity-0"}`}
       >
         <ul className="m-0 flex list-none flex-col p-0">
           <li>

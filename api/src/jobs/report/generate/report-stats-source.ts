@@ -245,17 +245,19 @@ async function getTopPublishers(publisherId: string, columns: ReportColumnDefini
 async function getTopOrganizations(publisherId: string, columns: ReportColumnDefinitions, start: Date, end: Date) {
   const rows = await prisma.$queryRaw<{ key: string | null; doc_count: bigint }[]>(
     Prisma.sql`
-      SELECT "mission_organization_name" AS key,
+      SELECT po."name" AS key,
              COUNT(*)::bigint AS doc_count
       FROM "stat_event"
+      JOIN "mission" m ON m."id" = "stat_event"."mission_id"
+      JOIN "publisher_organization" po ON po."id" = m."publisher_organization_id"
       WHERE is_bot is NOT true
         AND ${columns.publisherIdColumnSql} = ${publisherId}
         AND type = 'click'
         AND created_at >= ${start}
         AND created_at < ${end}
-        AND "mission_organization_name" IS NOT NULL
-        AND "mission_organization_name" <> ''
-      GROUP BY "mission_organization_name"
+        AND po."name" IS NOT NULL
+        AND po."name" <> ''
+      GROUP BY po."name"
       ORDER BY doc_count DESC
       LIMIT 5
     `
@@ -299,16 +301,18 @@ async function getLastSixMonthsBuckets({
     ? await prisma.$queryRaw<{ month: Date; key: string | null; doc_count: bigint }[]>(
         Prisma.sql`
           SELECT date_trunc('month', created_at) AS month,
-                 mission_organization_name AS key,
+                 po."name" AS key,
                  COUNT(*)::bigint AS doc_count
           FROM "stat_event"
+          JOIN "mission" m ON m."id" = "stat_event"."mission_id"
+          JOIN "publisher_organization" po ON po."id" = m."publisher_organization_id"
           WHERE is_bot IS NOT TRUE
             AND ${columns.publisherIdColumnSql} = ${publisherId}
             AND type = 'click'
             AND created_at >= ${start}
             AND created_at < ${end}
-            AND mission_organization_name = ANY(${Prisma.sql`ARRAY[${Prisma.join(topKeys)}]`})
-          GROUP BY month, mission_organization_name
+            AND po."name" = ANY(${Prisma.sql`ARRAY[${Prisma.join(topKeys)}]`})
+          GROUP BY month, po."name"
           ORDER BY month
         `
       )

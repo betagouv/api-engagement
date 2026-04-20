@@ -37,7 +37,7 @@ const View = () => {
       <title>{`API Engagement - Organisation - ${data.title}`}</title>
       <div className="mb-10">
         <h1 className="leading-normal">{data.title}</h1>
-        <div className="mt-4 flex justify-between">
+        <div className="mt-4 flex flex-wrap justify-between gap-4">
           {data.status === "ACTIVE" ? (
             <div className="flex items-center gap-2">
               <p>Active</p>
@@ -64,27 +64,27 @@ const View = () => {
         </div>
       </div>
 
-      <div className="bg-white p-12 shadow-lg">
-        <div className="flex justify-between">
+      <div className="bg-white p-4 shadow-lg sm:p-12">
+        <div className="flex flex-wrap justify-between gap-4">
           <p>
             RNA: <b>{data.rna}</b>
           </p>
           <p>Assocation créée le {data.createdAt ? new Date(data.createdAt).toLocaleDateString("fr") : "N/A"}</p>
         </div>
-        <div className="mb-6 flex justify-between">
+        <div className="mb-6 flex flex-wrap justify-between gap-4">
           <p>
             SIRET: <b>{data.siret || "N/A"}</b>
           </p>
           <p>Dernière modification le {data.updatedAt ? new Date(data.updatedAt).toLocaleDateString("fr") : "N/A"}</p>
         </div>
 
-        <div className="border-grey-border flex gap-4 border p-6">
+        <div className="border-grey-border flex flex-col gap-4 border p-4 sm:flex-row sm:p-6">
           <div className="flex-1">
             <p className="text-xl font-semibold">Object de l'organisme</p>
             <p className="mt-4">{data.object}</p>
           </div>
-          <div className="w-px bg-gray-900" />
-          <div className="w-1/3">
+          <div className="hidden w-px bg-gray-900 sm:block" />
+          <div className="border-t border-gray-900 pt-4 sm:w-1/3 sm:border-t-0 sm:pt-0">
             <p className="text-xl font-semibold">Adresse complète</p>
             <p className="mt-4">
               Numero: <b>{data.addressNumber}</b>

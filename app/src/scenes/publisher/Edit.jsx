@@ -171,20 +171,20 @@ const Edit = () => {
         <RiArrowLeftLine aria-hidden="true" />
         Retour
       </Link>
-      <div className="flex items-center">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
         <label
           htmlFor="logo"
-          className="flex h-24 w-32 cursor-pointer flex-col items-center justify-center bg-white p-2 shadow-lg transition-all duration-500 hover:bg-gray-900/10"
+          className="flex h-24 w-32 shrink-0 cursor-pointer flex-col items-center justify-center bg-white p-2 shadow-lg transition-all duration-500 hover:bg-gray-900/10"
         >
           <img src={`${[publisher.logo]}?${Date.now()}`} className="object-scale-down" alt="" aria-hidden="true" />
         </label>
         <input id="logo" accept=".gif,.jpg,.jpeg,.png" type="file" hidden onChange={handleFileChange} />
 
-        <div className="ml-8 pt-2">
+        <div className="pt-2 sm:ml-8">
           <h1 className="text-4xl font-bold">Compte partenaire de {values.name}</h1>
         </div>
       </div>
-      <div className="flex flex-col gap-12 bg-white p-12 shadow-lg">
+      <div className="flex flex-col gap-12 bg-white p-4 shadow-lg sm:p-12">
         <Informations values={values} onChange={setValues} />
         <div className="h-px w-full bg-gray-900" />
         <div className="flex w-full flex-col gap-6">
@@ -200,7 +200,7 @@ const Edit = () => {
         <div className="h-px w-full bg-gray-900" />
         <Members values={values} onChange={setValues} />
 
-        <div className="flex items-center justify-end gap-2">
+        <div className="flex flex-wrap items-center justify-end gap-2">
           <button className="red-btn flex items-center" onClick={handleDelete}>
             <TrashSvg className="mr-2" aria-hidden="true" />
             <span>Supprimer</span>

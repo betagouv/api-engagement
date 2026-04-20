@@ -56,8 +56,8 @@ const Account = () => {
       <title>API Engagement - Mon compte</title>
       <h1 className="text-4xl font-bold">Mon compte</h1>
 
-      <form onSubmit={handleSubmit} className="bg-white p-12 shadow-lg">
-        <div className="mb-6 flex justify-between">
+      <form onSubmit={handleSubmit} className="bg-white p-4 shadow-lg sm:p-12">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <h2 className="text-3xl font-bold">Vos informations</h2>
           <button
             type="button"
@@ -71,7 +71,7 @@ const Account = () => {
             Se deconnecter
           </button>
         </div>
-        <div className="grid grid-cols-2 gap-x-10 gap-y-5">
+        <div className="grid grid-cols-1 gap-x-10 gap-y-5 sm:grid-cols-2">
           <div className="flex flex-col">
             <label className="mb-2 text-sm" htmlFor="firstname">
               Prénom
@@ -103,14 +103,14 @@ const Account = () => {
               onChange={(e) => setValues({ ...values, lastname: e.target.value })}
             />
           </div>
-          <div className="col-span-2 flex flex-col">
+          <div className="flex flex-col sm:col-span-2">
             <label className="mb-2 text-sm" htmlFor="email">
               E-mail
             </label>
             <input id="email" className="input mb-2 border-b-black" name="email" readOnly value={values.email} />
           </div>
 
-          <div className="col-span-2 flex justify-end gap-4">
+          <div className="flex flex-wrap justify-end gap-4 sm:col-span-2">
             <ResetPasswordModal />
 
             <button type="submit" className="primary-btn" disabled={!isChanged() || isErrors()}>

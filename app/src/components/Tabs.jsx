@@ -16,7 +16,7 @@ const TAB_VARIANTS = {
 
 export const Tab = ({ tab, panelId, isFocusable, onKeyDown, setRef, variant = "primary", className = "" }) => {
   const variantClasses = TAB_VARIANTS[variant] || TAB_VARIANTS.primary;
-  const tabClassName = `${variantClasses.base} ${tab.isActive ? variantClasses.active : variantClasses.inactive} ${className}`.trim();
+  const tabClassName = `whitespace-nowrap ${variantClasses.base} ${tab.isActive ? variantClasses.active : variantClasses.inactive} ${className}`.trim();
   const sharedProps = {
     id: tab.id,
     role: "tab",
@@ -104,7 +104,7 @@ const Tabs = ({ tabs, ariaLabel, panelId, className = "", variant = "primary", t
   };
 
   return (
-    <div role="tablist" aria-label={ariaLabel} className={className}>
+    <div role="tablist" aria-label={ariaLabel} className={`flex flex-nowrap overflow-x-auto ${className}`}>
       {tabs.map((tab, index) => (
         <Tab
           key={tab.key}

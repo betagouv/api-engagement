@@ -36,7 +36,7 @@ const buildDefaultFilters = (searchParams) => {
 
 const Filters = ({ filters, onChange, idPrefix, showLabel = true }) => {
   return (
-    <div className="flex items-end gap-4">
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
       <div className="flex-1 space-y-2">
         {showLabel ? <label className="text-gray-425 text-sm font-semibold uppercase">Période</label> : null}
         <DateRangePicker value={filters} onChange={(value) => onChange({ ...filters, ...value })} />
@@ -44,7 +44,7 @@ const Filters = ({ filters, onChange, idPrefix, showLabel = true }) => {
       <label htmlFor={`${idPrefix}-mission-type`} className="sr-only">
         Type de mission
       </label>
-      <select id={`${idPrefix}-mission-type`} className="select w-80" value={filters.type} onChange={(event) => onChange({ ...filters, type: event.target.value })}>
+      <select id={`${idPrefix}-mission-type`} className="select w-full sm:w-80" value={filters.type} onChange={(event) => onChange({ ...filters, type: event.target.value })}>
         <option value="">Tous les types de missions</option>
         {MISSION_TYPE_OPTIONS.map((missionType) => (
           <option key={missionType.value} value={missionType.value}>
@@ -70,25 +70,27 @@ const ChartBlock = ({ title, subtitle, cardId, filters, type = "stacked", chartP
   }
 
   return (
-    <div className="border border-gray-900 p-4">
-      <div className="mb-4 flex flex-col gap-1 lg:flex-row lg:items-center lg:justify-between">
-        <h3 className="text-lg font-bold">{title}</h3>
-        {subtitle ? <p className="text-sm text-[#666]">{subtitle}</p> : null}
+    <div className="overflow-x-auto border border-gray-900 p-4">
+      <div className="min-w-[600px]">
+        <div className="mb-4 flex flex-col gap-1 lg:flex-row lg:items-center lg:justify-between">
+          <h3 className="text-lg font-bold">{title}</h3>
+          {subtitle ? <p className="text-sm text-[#666]">{subtitle}</p> : null}
+        </div>
+        {cardId ? (
+          <AnalyticsCard
+            cardId={cardId}
+            filters={filters}
+            type={type}
+            variables={variables}
+            chartProps={chartProps}
+            adapterOptions={adapterOptions}
+            showLegend={showLegend}
+            loaderHeight={loaderHeight}
+          />
+        ) : (
+          <ChartFallback title={title} />
+        )}
       </div>
-      {cardId ? (
-        <AnalyticsCard
-          cardId={cardId}
-          filters={filters}
-          type={type}
-          variables={variables}
-          chartProps={chartProps}
-          adapterOptions={adapterOptions}
-          showLegend={showLegend}
-          loaderHeight={loaderHeight}
-        />
-      ) : (
-        <ChartFallback title={title} />
-      )}
     </div>
   );
 };
@@ -209,25 +211,27 @@ const TrafficByAnnouncerChart = ({ filters, cardId, title, subtitle }) => {
   const { histogram, keys } = buildHistogram(rows);
 
   return (
-    <div className="border border-gray-900 p-4">
-      <div className="mb-4 flex flex-col gap-1 lg:flex-row lg:items-center lg:justify-between">
-        <h3 className="text-lg font-bold">{title}</h3>
-        <p className="text-sm text-[#666]">{subtitle}</p>
+    <div className="overflow-x-auto border border-gray-900 p-4">
+      <div className="min-w-[600px]">
+        <div className="mb-4 flex flex-col gap-1 lg:flex-row lg:items-center lg:justify-between">
+          <h3 className="text-lg font-bold">{title}</h3>
+          <p className="text-sm text-[#666]">{subtitle}</p>
+        </div>
+        {loading ? (
+          <div className="flex h-[420px] items-center justify-center">
+            <Loader />
+          </div>
+        ) : !histogram.length ? (
+          <div className="flex h-[248px] w-full flex-col items-center justify-center border border-dashed border-gray-900 bg-[#f6f6f6]">
+            <img src={EmptySVG} alt="" aria-hidden="true" className="h-16 w-16" />
+            <p className="text-base text-[#666]">Aucune donnée disponible pour la période</p>
+          </div>
+        ) : (
+          <div className="h-[420px] w-full">
+            <StackedBarchart data={histogram} dataKey={keys} />
+          </div>
+        )}
       </div>
-      {loading ? (
-        <div className="flex h-[420px] items-center justify-center">
-          <Loader />
-        </div>
-      ) : !histogram.length ? (
-        <div className="flex h-[248px] w-full flex-col items-center justify-center border border-dashed border-gray-900 bg-[#f6f6f6]">
-          <img src={EmptySVG} alt="" aria-hidden="true" className="h-16 w-16" />
-          <p className="text-base text-[#666]">Aucune donnée disponible pour la période</p>
-        </div>
-      ) : (
-        <div className="h-[420px] w-full">
-          <StackedBarchart data={histogram} dataKey={keys} />
-        </div>
-      )}
     </div>
   );
 };
@@ -355,11 +359,11 @@ const Apercu = () => {
   }, [filterSection]);
 
   return (
-    <div className="space-y-12 p-12">
+    <div className="space-y-12 p-4 sm:p-12">
       <title>Aperçu - Statistiques - Administration - API Engagement</title>
 
       {stickyVisible ? (
-        <div className="fixed top-0 left-0 z-50 w-full bg-white px-48 py-4 shadow-lg">
+        <div className="fixed top-0 left-0 z-50 w-full bg-white px-4 py-4 shadow-lg sm:px-48">
           <Filters filters={filters} onChange={setFilters} idPrefix="sticky" showLabel={false} />
         </div>
       ) : null}

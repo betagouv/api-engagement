@@ -59,7 +59,7 @@ const Widgets = () => {
   };
 
   return (
-    <div className="space-y-6 p-12">
+    <div className="space-y-6 p-4 sm:p-12">
       <title>API Engagement - Widgets - Diffuser des missions</title>
       <div className="mb-10 flex flex-col items-center justify-between gap-4 lg:flex-row lg:gap-4">
         <div role="search" className="flex flex-1 flex-col items-center gap-4 lg:flex-row lg:gap-4">

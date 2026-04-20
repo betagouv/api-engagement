@@ -32,7 +32,7 @@ const Annonceur = ({ values, onChange, errors, setErrors }) => {
   }, [values.id]);
 
   return (
-    <div className="border-grey-border flex flex-1 flex-col gap-6 border p-6">
+    <div className="border-grey-border flex flex-1 flex-col gap-6 overflow-x-auto border p-4 sm:p-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold">Annonceur</h3>
         <Toggle
