@@ -33,10 +33,8 @@ const buildEnrichmentValue = (overrides: Record<string, unknown> = {}) => ({
   taxonomyValue: {
     id: "tv-1",
     key: "social_solidarite",
-    order: 0,
     taxonomy: {
       key: "domaine",
-      type: "multi_value",
     },
   },
   ...overrides,
@@ -100,7 +98,7 @@ describe("missionScoringService.score", () => {
         {
           missionEnrichmentValueId: "mev-1",
           taxonomyValueId: "tv-1",
-          score: 0.76,
+          score: 0.6,
         },
       ],
     });
@@ -117,10 +115,8 @@ describe("missionScoringService.score", () => {
           taxonomyValue: {
             id: "tv-non-specifie",
             key: "non_specifie",
-            order: 1,
             taxonomy: {
               key: "accessibilite",
-              type: "gate",
             },
           },
         }),
@@ -139,5 +135,22 @@ describe("missionScoringService.score", () => {
       missionEnrichmentId: "enrichment-1",
       values: [],
     });
+  });
+
+  it("skips persistence when every enrichment value falls below the confidence threshold", async () => {
+    missionEnrichmentRepositoryMock.findFirst.mockResolvedValue({
+      id: "enrichment-1",
+      missionId: "mission-1",
+      mission: { publisherId: null },
+      values: [buildEnrichmentValue({ confidence: 0.54 })],
+    });
+    missionScoringRepositoryMock.findUnique.mockResolvedValue(null);
+
+    await missionScoringService.score({
+      missionId: "mission-1",
+      missionEnrichmentId: "enrichment-1",
+    });
+
+    expect(missionScoringRepositoryMock.replaceForEnrichment).not.toHaveBeenCalled();
   });
 });

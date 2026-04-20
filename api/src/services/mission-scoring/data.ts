@@ -8,7 +8,11 @@ export const missionScoringEnrichmentInclude = {
     include: {
       taxonomyValue: {
         include: {
-          taxonomy: true,
+          taxonomy: {
+            select: {
+              key: true,
+            },
+          },
         },
       },
     },
@@ -23,9 +27,7 @@ export const toScoringInputValues = (enrichment: MissionEnrichmentForScoring): S
   enrichment.values.map((value) => ({
     missionEnrichmentValueId: value.id,
     taxonomyKey: value.taxonomyValue.taxonomy.key,
-    taxonomyType: value.taxonomyValue.taxonomy.type,
     taxonomyValueId: value.taxonomyValueId,
     taxonomyValueKey: value.taxonomyValue.key,
-    order: value.taxonomyValue.order,
     confidence: value.confidence,
   }));
