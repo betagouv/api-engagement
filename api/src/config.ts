@@ -46,6 +46,7 @@ export const DATA_SUBVENTION_TOKEN = process.env.DATA_SUBVENTION_TOKEN;
 // Rate limit
 export const RATE_LIMIT_PUBLISHER_MAX = Number(process.env.RATE_LIMIT_PUBLISHER_MAX) || 600;
 export const RATE_LIMIT_IP_MAX = Number(process.env.RATE_LIMIT_IP_MAX) || 120;
+export const RATE_LIMIT_DISABLED = process.env.RATE_LIMIT_DISABLED === "true";
 
 // Ids (ISO prod / staging)
 export const PUBLISHER_IDS = {
