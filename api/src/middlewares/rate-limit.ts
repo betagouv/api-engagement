@@ -1,5 +1,5 @@
-import { ipKeyGenerator, rateLimit, RateLimitRequestHandler, Store } from "express-rate-limit";
 import { PostgresStore } from "@acpr/rate-limit-postgresql";
+import { ipKeyGenerator, rateLimit, RateLimitRequestHandler, Store } from "express-rate-limit";
 
 import { RATE_LIMIT_IP_MAX, RATE_LIMIT_PUBLISHER_MAX } from "@/config";
 
@@ -13,7 +13,9 @@ const handler = (req: any, res: any) => {
 
 const makeStore = (prefix: string): Store | undefined => {
   const connectionString = process.env.DATABASE_URL_CORE;
-  if (process.env.NODE_ENV === "test" || !connectionString) return undefined;
+  if (process.env.NODE_ENV === "test" || !connectionString) {
+    return undefined;
+  }
   return new PostgresStore({ connectionString }, prefix);
 };
 
