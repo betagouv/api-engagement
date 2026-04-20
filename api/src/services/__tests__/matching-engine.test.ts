@@ -136,5 +136,107 @@ describe("matchingEngineService", () => {
       expect(result.items).toEqual([]);
       expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(2);
     });
+
+    it("returns only missions that remain after gate exclusion", async () => {
+      prismaMock.$queryRaw
+        .mockResolvedValueOnce([
+          {
+            id: "user-scoring-gate-filtered",
+            expires_at: null,
+          },
+        ])
+        .mockResolvedValueOnce([
+          {
+            mission_id: "mission-eligible",
+            mission_scoring_id: "mission-scoring-eligible",
+            total_score: 0.8,
+            taxonomy_score: 0.8,
+            geo_score: null,
+            distance_km: null,
+          },
+        ])
+        .mockResolvedValueOnce([
+          {
+            mission_scoring_id: "mission-scoring-eligible",
+            dimension_key: "domaine",
+            dimension_score: 0.8,
+          },
+        ]);
+
+      const result = await matchingEngineService.rankMissionsByUserScoring({
+        userScoringId: "user-scoring-gate-filtered",
+      });
+
+      expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(3);
+      expect(result.items).toEqual([
+        {
+          missionId: "mission-eligible",
+          missionScoringId: "mission-scoring-eligible",
+          totalScore: 0.8,
+          taxonomyScore: 0.8,
+          geoScore: null,
+          distanceKm: null,
+          dimensionScores: {
+            domaine: 0.8,
+          },
+        },
+      ]);
+    });
+
+    it("keeps excluded missions out of the final payload and ignores their dimension rows", async () => {
+      prismaMock.$queryRaw
+        .mockResolvedValueOnce([
+          {
+            id: "user-scoring-gate-dimensions",
+            expires_at: null,
+          },
+        ])
+        .mockResolvedValueOnce([
+          {
+            mission_id: "mission-1",
+            mission_scoring_id: "mission-scoring-1",
+            total_score: 0.7,
+            taxonomy_score: 0.7,
+            geo_score: null,
+            distance_km: null,
+          },
+        ])
+        .mockResolvedValueOnce([
+          {
+            mission_scoring_id: "mission-scoring-1",
+            dimension_key: "domaine",
+            dimension_score: 0.7,
+          },
+          {
+            mission_scoring_id: "mission-scoring-excluded",
+            dimension_key: "domaine",
+            dimension_score: 0.2,
+          },
+          {
+            mission_scoring_id: "mission-scoring-1",
+            dimension_key: "tranche_age",
+            dimension_score: 1,
+          },
+        ]);
+
+      const result = await matchingEngineService.rankMissionsByUserScoring({
+        userScoringId: "user-scoring-gate-dimensions",
+      });
+
+      expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(3);
+      expect(result.items).toEqual([
+        {
+          missionId: "mission-1",
+          missionScoringId: "mission-scoring-1",
+          totalScore: 0.7,
+          taxonomyScore: 0.7,
+          geoScore: null,
+          distanceKm: null,
+          dimensionScores: {
+            domaine: 0.7,
+          },
+        },
+      ]);
+    });
   });
 });
