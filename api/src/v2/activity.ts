@@ -7,11 +7,14 @@ import missionService from "@/services/mission";
 import { statEventService } from "@/services/stat-event";
 import { StatEventRecord } from "@/types";
 import { PublisherRequest } from "@/types/passport";
+import { publisherRateLimiter } from "@/middlewares/rate-limit";
 import type { PublisherRecord } from "@/types/publisher";
 
 const router = Router();
+router.use(passport.authenticate(["apikey", "api"], { session: false }));
+router.use(publisherRateLimiter);
 
-router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
+router.get("/:id", async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
     const user = req.user as PublisherRecord;
     const params = zod
@@ -53,7 +56,7 @@ router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }),
 });
 
 
-router.post("/", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
+router.post("/", async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
     const user = req.user as PublisherRecord;
     const body = zod
@@ -112,7 +115,7 @@ router.post("/", passport.authenticate(["apikey", "api"], { session: false }), a
   }
 });
 
-router.put("/:id", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
+router.put("/:id", async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
     const user = req.user as PublisherRecord;
     const params = zod

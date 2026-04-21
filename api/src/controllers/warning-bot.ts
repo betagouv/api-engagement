@@ -5,9 +5,11 @@ import { NOT_FOUND } from "@/error";
 import { publisherService } from "@/services/publisher";
 import { statBotService } from "@/services/stat-bot";
 import { statEventService } from "@/services/stat-event";
+import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { warningBotService } from "@/services/warning-bot";
 
 const router = Router();
+router.use(ipRateLimiter);
 
 router.post("/search", passport.authenticate("admin", { session: false }), async (req, res, next) => {
   try {

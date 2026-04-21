@@ -6,9 +6,11 @@ import { PUBLISHER_IDS } from "@/config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
 import { missionService } from "@/services/mission";
 import type { UserRequest } from "@/types/passport";
+import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { applyWidgetRules, getDistanceKm } from "@/utils";
 
 const router = Router();
+router.use(ipRateLimiter);
 
 const searchSchema = zod.object({
   status: zod.union([zod.string(), zod.array(zod.string())]).optional(),

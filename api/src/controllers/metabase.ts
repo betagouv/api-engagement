@@ -4,9 +4,11 @@ import zod from "zod";
 
 import { INVALID_BODY } from "@/error";
 import { metabaseService } from "@/services/metabase";
+import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { UserRequest } from "@/types/passport";
 
 const router = Router();
+router.use(ipRateLimiter);
 
 const PUBLIC_METABASE_CARD = [
   "5525", // PUBLIC_STATS_GLOBAL

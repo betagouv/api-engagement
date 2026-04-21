@@ -11,9 +11,11 @@ import { statBotService } from "@/services/stat-bot";
 import { statEventService } from "@/services/stat-event";
 import { widgetService } from "@/services/widget";
 import { MissionRecord, StatEventRecord } from "@/types";
+import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { cleanIdParam, identify, slugify } from "@/utils";
 
 const router = Router();
+router.use(ipRateLimiter);
 
 const FIVE_MINUTES_IN_MS = 5 * 60 * 1000;
 

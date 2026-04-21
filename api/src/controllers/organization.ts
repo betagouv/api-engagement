@@ -6,9 +6,11 @@ import { INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error"
 import { organizationService } from "@/services/organization";
 import { OrganizationUpdatePatch } from "@/types/organization";
 import { UserRequest } from "@/types/passport";
+import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { slugify } from "@/utils/string";
 
 const router = Router();
+router.use(ipRateLimiter);
 
 router.post("/search", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {

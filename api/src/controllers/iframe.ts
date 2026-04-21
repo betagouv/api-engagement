@@ -10,9 +10,11 @@ import { WidgetRecord } from "@/types";
 import type { MissionRecord, MissionSearchFilters, MissionSelect } from "@/types/mission";
 import { capitalizeFirstLetter, getDistanceKm } from "@/utils";
 import { normalizeToArray } from "@/utils/array";
+import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { applyWidgetRules } from "@/utils/widget";
 
 const router = Router();
+router.use(ipRateLimiter);
 
 const MISSION_FIELDS: MissionSelect = {
   id: true,

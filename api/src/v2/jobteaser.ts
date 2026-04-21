@@ -8,9 +8,12 @@ import { INVALID_BODY, NOT_FOUND } from "@/error";
 import { missionService } from "@/services/mission";
 import missionJobBoardService from "@/services/mission-jobboard";
 import { postMessage } from "@/services/slack";
+import { publisherRateLimiter } from "@/middlewares/rate-limit";
 import { PublisherRequest } from "@/types/passport";
 
 const router = Router();
+router.use(passport.authenticate(["jobteaser"], { session: false }));
+router.use(publisherRateLimiter);
 
 const SYNC_STATUS_MAP = {
   ACCEPTED: "ONLINE",
@@ -26,7 +29,7 @@ const JOBTEASER_STATUS_VALUES = ["ACCEPTED", "PENDING", "DELETED", "REFUSED"] as
  * webhook called for each mission to give back a status of the moderation of the partner in front
  * doc here https://www.notion.so/jeveuxaider/Leboincoin-API-Feedback-de-l-API-Engagement-12672a322d508087ab8bf02951b534b8?pvs=4
  */
-router.post("/feedback", passport.authenticate(["jobteaser"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
+router.post("/feedback", async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
     const body = zod
       .object({
