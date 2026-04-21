@@ -88,7 +88,8 @@ function buildMissionPayload(entry: SdisEntry, addresses: Map<string, Address[]>
 
 async function run() {
   const args = process.argv.slice(2);
-  const envArg = args.find((a) => a.startsWith("--env="))?.split("=")[1] ?? args[args.indexOf("--env") + 1];
+  const envFlagIndex = args.indexOf("--env");
+  const envArg = args.find((a) => a.startsWith("--env="))?.split("=")[1] ?? (envFlagIndex !== -1 ? args[envFlagIndex + 1] : undefined);
   const isDryRun = args.includes("--dry-run");
   const env = envArg ?? "local";
 
