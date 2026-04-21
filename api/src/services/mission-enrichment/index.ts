@@ -1,6 +1,5 @@
 import { Prisma } from "@/db/core";
 import { generateObject } from "ai";
-import { z } from "zod";
 
 import { missionRepository } from "@/repositories/mission";
 import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
@@ -28,20 +27,6 @@ const buildTaxonomyLookup = (taxonomies: DimensionWithValues[]): TaxonomyLookup 
   }
   return lookup;
 };
-
-// Static schema — validates structure only.
-// value_key and dimension_key correctness is handled by fuzzy matching + taxonomy lookup
-// in validateEnrichmentClassifications, which skips or corrects invalid values gracefully.
-const ENRICHMENT_SCHEMA = z.object({
-  classifications: z.array(
-    z.object({
-      dimension_key: z.string(),
-      value_key: z.string(),
-      confidence: z.number().min(0).max(1),
-      evidence: z.object({ extract: z.string(), reasoning: z.string() }),
-    })
-  ),
-});
 
 const missionInclude = {
   domain: { select: { name: true } },
@@ -176,7 +161,7 @@ export const missionEnrichmentService = {
       // 7. Call LLM with structured output
       llmResult = await generateObject({
         model: promptVersion.MODEL,
-        schema: ENRICHMENT_SCHEMA,
+        schema: promptVersion.ENRICHMENT_SCHEMA,
         system: systemPrompt,
         prompt: userMessage,
         maxRetries: LLM_MAX_RETRIES,

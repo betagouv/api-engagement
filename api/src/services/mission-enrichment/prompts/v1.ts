@@ -1,7 +1,18 @@
 import { mistral } from "@ai-sdk/mistral";
+import { z } from "zod";
 
 export const VERSION = "v1";
 export const MODEL = mistral("mistral-small-2603", { temperature: 0 });
+export const ENRICHMENT_SCHEMA = z.object({
+  classifications: z.array(
+    z.object({
+      dimension_key: z.string(),
+      value_key: z.string(),
+      confidence: z.number().min(0).max(1),
+      evidence: z.object({ extract: z.string(), reasoning: z.string() }),
+    })
+  ),
+});
 
 export const buildSystemPrompt = (taxonomyBlock: string): string => `\
 Tu es un classificateur de missions d'engagement bénévole et civique.
