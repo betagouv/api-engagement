@@ -13,12 +13,12 @@ cockpit_metrics_otlp_url   = "https://4cf96773-b69e-4c42-81ed-940b78886deb.metri
 api_cpu_limit              = 1500
 api_memory_limit           = 2048
 api_min_scale              = 1
-api_max_scale              = 1
+api_max_scale              = 4
 
 app_cpu_limit              = 500
 app_memory_limit           = 1024
 app_min_scale              = 1
-app_max_scale              = 4
+app_max_scale              = 1
 
 widget_cpu_limit           = 500
 widget_memory_limit        = 1024
