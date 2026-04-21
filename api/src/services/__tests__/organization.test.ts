@@ -1,10 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { prisma } from "@/db/postgres";
+import { organizationRepository } from "@/repositories/organization";
 import { organizationService } from "@/services/organization";
 
 const organizationCrud = (prisma as any).organization as {
   findUnique: ReturnType<typeof vi.fn>;
+  findMany: ReturnType<typeof vi.fn>;
+  count: ReturnType<typeof vi.fn>;
   update: ReturnType<typeof vi.fn>;
   upsert: ReturnType<typeof vi.fn>;
 };
@@ -12,8 +15,11 @@ const organizationCrud = (prisma as any).organization as {
 describe("organizationService searchText maintenance", () => {
   beforeEach(() => {
     organizationCrud.findUnique.mockReset();
+    organizationCrud.findMany.mockReset();
+    organizationCrud.count.mockReset();
     organizationCrud.update.mockReset();
     organizationCrud.upsert.mockReset();
+    vi.restoreAllMocks();
   });
 
   it("recomputes searchText on updateOrganization when an identifier changes", async () => {
@@ -61,6 +67,69 @@ describe("organizationService searchText maintenance", () => {
         update: expect.objectContaining({
           searchText: "croix rouge cr w123456789 12345678901234 123456789",
         }),
+      })
+    );
+  });
+
+  it("normalizes accented queries for generic organization search", async () => {
+    organizationCrud.count.mockResolvedValue(0);
+    organizationCrud.findMany.mockResolvedValue([]);
+
+    await organizationService.findOrganizationsByFilters({ query: "Association des étudiants" });
+
+    expect(organizationCrud.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          AND: [
+            {
+              OR: [
+                {
+                  searchText: { contains: "association des etudiants" },
+                },
+              ],
+            },
+          ],
+        },
+      })
+    );
+  });
+
+  it("routes a SIREN query to the exact-match v0 search path", async () => {
+    const spy = vi.spyOn(organizationRepository, "findManyForV0Search").mockResolvedValue([]);
+
+    await organizationService.findOrganizationsForV0({ query: "123456789" });
+
+    expect(spy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        querySiren: "123456789",
+        queryTs: null,
+        queryText: null,
+      })
+    );
+  });
+
+  it("routes a long text query to the full-text v0 search path", async () => {
+    const spy = vi.spyOn(organizationRepository, "findManyForV0Search").mockResolvedValue([]);
+
+    await organizationService.findOrganizationsForV0({ query: "Association des étudiants" });
+
+    expect(spy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        queryText: "association des etudiants",
+        queryTs: "association:* & des:* & etudiants:*",
+      })
+    );
+  });
+
+  it("keeps the LIKE fallback for short queries on the v0 search path", async () => {
+    const spy = vi.spyOn(organizationRepository, "findManyForV0Search").mockResolvedValue([]);
+
+    await organizationService.findOrganizationsForV0({ query: "as" });
+
+    expect(spy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        queryText: "as",
+        queryTs: null,
       })
     );
   });

@@ -1,9 +1,71 @@
 import { Organization, Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
 
+type OrganizationV0SearchArgs = {
+  rna?: string | null;
+  siret?: string | null;
+  queryRna?: string | null;
+  querySiret?: string | null;
+  querySiren?: string | null;
+  queryText?: string | null;
+  queryTs?: string | null;
+  skip: number;
+  take: number;
+};
+
+const organizationTextSearchExpression = Prisma.sql`to_tsvector('simple', COALESCE(o."search_text", ''))`;
+
 export const organizationRepository = {
   async findMany(params: Prisma.OrganizationFindManyArgs = {}): Promise<Organization[]> {
     return prisma.organization.findMany(params);
+  },
+
+  async findManyForV0Search(args: OrganizationV0SearchArgs): Promise<Organization[]> {
+    const conditions: Prisma.Sql[] = [];
+
+    if (args.rna) {
+      conditions.push(Prisma.sql`o."rna" = ${args.rna}`);
+    }
+
+    if (args.siret) {
+      conditions.push(Prisma.sql`(o."siret" = ${args.siret} OR ${args.siret} = ANY(o."sirets"))`);
+    }
+
+    if (args.queryRna) {
+      conditions.push(Prisma.sql`o."rna" = ${args.queryRna}`);
+    } else if (args.querySiret) {
+      conditions.push(Prisma.sql`(o."siret" = ${args.querySiret} OR ${args.querySiret} = ANY(o."sirets"))`);
+    } else if (args.querySiren) {
+      conditions.push(Prisma.sql`o."siren" = ${args.querySiren}`);
+    } else if (args.queryTs) {
+      conditions.push(Prisma.sql`${organizationTextSearchExpression} @@ to_tsquery('simple', ${args.queryTs})`);
+    } else if (args.queryText) {
+      conditions.push(Prisma.sql`o."search_text" LIKE ${`%${args.queryText}%`}`);
+    }
+
+    const whereClause = conditions.length ? Prisma.sql`WHERE ${Prisma.join(conditions, Prisma.sql` AND `)}` : Prisma.empty;
+    const idRows = await prisma.$queryRaw<Array<{ id: string }>>(
+      Prisma.sql`
+        SELECT o."id"
+        FROM "organization" o
+        ${whereClause}
+        ORDER BY o."updated_at" DESC
+        LIMIT ${args.take}
+        OFFSET ${args.skip}
+      `
+    );
+
+    const ids = idRows.map((row) => row.id);
+    if (!ids.length) {
+      return [];
+    }
+
+    const organizations = await prisma.organization.findMany({
+      where: { id: { in: ids } },
+    });
+    const organizationById = new Map(organizations.map((organization) => [organization.id, organization]));
+
+    return ids.map((id) => organizationById.get(id)).filter((organization): organization is Organization => Boolean(organization));
   },
 
   async findFirst(params: Prisma.OrganizationFindFirstArgs): Promise<Organization | null> {
