@@ -6,8 +6,10 @@ export const missionEnrichmentRepository = {
     return prisma.missionEnrichment.create(params);
   },
 
-  findFirst(params: Prisma.MissionEnrichmentFindFirstArgs): Promise<MissionEnrichment | null> {
-    return prisma.missionEnrichment.findFirst(params);
+  findFirst<T extends Prisma.MissionEnrichmentFindFirstArgs>(
+    params: Prisma.SelectSubset<T, Prisma.MissionEnrichmentFindFirstArgs>
+  ): Promise<Prisma.MissionEnrichmentGetPayload<T> | null> {
+    return prisma.missionEnrichment.findFirst(params) as Promise<Prisma.MissionEnrichmentGetPayload<T> | null>;
   },
 
   update(params: Prisma.MissionEnrichmentUpdateArgs): Promise<MissionEnrichment> {

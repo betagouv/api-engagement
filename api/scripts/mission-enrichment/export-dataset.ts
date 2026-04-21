@@ -3,7 +3,7 @@ dotenv.config();
 
 import { prisma } from "@/db/postgres";
 import { CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/config";
-import { validateEnrichmentClassifications, type TaxonomyLookup } from "@/services/mission-enrichment/parser";
+import { parseEnrichmentResponse, type TaxonomyLookup } from "@/services/mission-enrichment/parser";
 import fs from "fs";
 import path from "path";
 
