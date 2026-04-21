@@ -14,6 +14,7 @@ tfplan
 
 # Claude
 .mcp.json
+.claude/settings.local.json
 
 # Bruno
 bruno/

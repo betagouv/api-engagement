@@ -1,20 +1,20 @@
-import type { TaxonomyType } from "@/db/core";
-
-export type TaxonomyScoringStrategy = "exact_only";
+export type MissionScoringConfidenceScoreBucket = {
+  minConfidence: number;
+  maxConfidence: number;
+  score: number;
+};
 
 export type MissionScoringRuleset = {
-  version: string;
-  strategiesByType: Record<TaxonomyType, TaxonomyScoringStrategy>;
   ignoredValueKeys: string[];
+  minimumConfidence: number;
+  confidenceScoreBuckets: MissionScoringConfidenceScoreBucket[];
 };
 
 export type ScoringInputValue = {
   missionEnrichmentValueId: string;
   taxonomyKey: string;
-  taxonomyType: TaxonomyType;
   taxonomyValueId: string;
   taxonomyValueKey: string;
-  order: number | null;
   confidence: number;
 };
 

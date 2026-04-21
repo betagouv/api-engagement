@@ -2,10 +2,8 @@ import { MissionScoring, Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
 
 export const missionScoringRepository = {
-  async findUnique<T extends Prisma.MissionScoringFindUniqueArgs>(
-    params: Prisma.SelectSubset<T, Prisma.MissionScoringFindUniqueArgs>
-  ): Promise<Prisma.MissionScoringGetPayload<T> | null> {
-    return prisma.missionScoring.findUnique(params) as Promise<Prisma.MissionScoringGetPayload<T> | null>;
+  async findUnique(params: Prisma.MissionScoringFindUniqueArgs): Promise<MissionScoring | null> {
+    return prisma.missionScoring.findUnique(params);
   },
 
   async replaceForEnrichment(params: {

@@ -128,7 +128,7 @@ const AuthLayout = () => {
         <div className="flex-1">
           <Outlet />
         </div>
-        <div className="h-full w-1/2">
+        <div className="hidden h-full w-1/2 md:block">
           <img src={image} alt="" aria-hidden="true" />
         </div>
       </main>
@@ -253,7 +253,13 @@ const ProtectedLayout = () => {
       <Header />
       <Nav />
 
-      <main id="main-content" role="main" tabIndex={-1} aria-labelledby={hasActiveTab ? activeTabId : undefined} className="mx-auto mb-14 w-4/5 max-w-[1200px] flex-1 pt-14">
+      <main
+        id="main-content"
+        role="main"
+        tabIndex={-1}
+        aria-labelledby={hasActiveTab ? activeTabId : undefined}
+        className="mx-auto mb-14 w-full max-w-[1200px] flex-1 px-0 pt-14 sm:w-4/5 sm:px-4"
+      >
         <Outlet />
       </main>
       <Footer />

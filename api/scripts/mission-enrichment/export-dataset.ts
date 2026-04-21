@@ -206,8 +206,11 @@ async function main() {
     // Skipped classifications from rawResponse
     if (enrichment.rawResponse) {
       try {
-        const { skipped } = parseEnrichmentResponse(
-          typeof enrichment.rawResponse === "string" ? enrichment.rawResponse : JSON.stringify(enrichment.rawResponse),
+        const raw = typeof enrichment.rawResponse === "string" ? enrichment.rawResponse : JSON.stringify(enrichment.rawResponse);
+        const parsed = JSON.parse(raw) as { classifications?: unknown[] };
+        const classifications = Array.isArray(parsed.classifications) ? parsed.classifications : [];
+        const { skipped } = validateEnrichmentClassifications(
+          classifications as Parameters<typeof validateEnrichmentClassifications>[0],
           taxonomyLookup,
           0 // threshold = 0 to recover all items (already filtered in valid)
         );

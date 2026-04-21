@@ -22,8 +22,8 @@ const Header = ({ total, data, size, sort, selected, onSize, onSort, onSelect, o
 
   if (selected.length > 0) {
     return (
-      <div ref={headerRef} className={`sticky top-0 z-10 bg-white ${isSticky ? "px-12 shadow-md" : "mx-12"}`}>
-        <div className="flex items-center justify-between gap-4 py-4">
+      <div ref={headerRef} className={`sticky top-0 z-10 bg-white ${isSticky ? "px-4 shadow-md sm:px-12" : "mx-4 sm:mx-12"}`}>
+        <div className="flex flex-wrap items-center justify-between gap-4 py-4">
           {isSticky ? (
             <div>
               <button
@@ -54,10 +54,10 @@ const Header = ({ total, data, size, sort, selected, onSize, onSort, onSelect, o
   }
 
   return (
-    <div className="mx-12 flex items-center justify-between gap-4 py-4">
+    <div className="mx-4 flex flex-wrap items-center justify-between gap-4 py-4 sm:mx-12">
       <h2 className="text-xl font-semibold">{total.toLocaleString("fr")} missions diffusables</h2>
 
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <label htmlFor="missions-per-page" className="text-text-mention text-xs">
           Missions affichées par page
         </label>

@@ -71,7 +71,7 @@ const parseRow = async (row: (string | number)[], from: Date, to: Date, sourceId
         console.info(`[Linkedin Stats] Mission ${missionId} not found`);
         return;
       } else {
-        mission = existingStat.missionClientId ? await missionService.findMissionByClientAndPublisher(existingStat.missionClientId.toString(), existingStat.toPublisherId) : null;
+        mission = existingStat.missionId ? await missionService.findOneMission(existingStat.missionId.toString()) : null;
         if (!mission) {
           console.info(`[Linkedin Stats] Mission ${missionId} not found`);
           return;
@@ -94,13 +94,6 @@ const parseRow = async (row: (string | number)[], from: Date, to: Date, sourceId
         sourceName: "Linkedin Report",
         sourceId,
         missionId: mission.id,
-        missionClientId: mission.clientId,
-        missionDomain: mission.domain,
-        missionTitle: mission.title,
-        missionPostalCode: mission.postalCode,
-        missionDepartmentName: mission.departmentName,
-        missionOrganizationName: mission.organizationName,
-        missionOrganizationId: mission.organizationId,
         toPublisherId: mission.publisherId,
         toPublisherName: mission.publisherName,
         fromPublisherId: PUBLISHER_IDS.LINKEDIN,

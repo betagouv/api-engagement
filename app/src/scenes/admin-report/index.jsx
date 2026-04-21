@@ -57,15 +57,15 @@ const AdminReport = () => {
   }, [filters]);
 
   return (
-    <div className="space-y-12 bg-white p-12 shadow-lg">
+    <div className="space-y-12 bg-white p-4 shadow-lg sm:p-12">
       <title>API Engagement - Rapports d'impacts - Administration</title>
       <div className="flex items-center justify-between">
         <h2 className="flex-1 text-2xl font-semibold">{total.toLocaleString("fr")} rapports d'impacts</h2>
       </div>
 
-      <div className="border-grey-border space-y-6 border p-6">
+      <div className="border-grey-border space-y-6 overflow-x-auto border p-4 sm:p-6">
         <p className="font-bold">Filtrer les resultats</p>
-        <div className="flex items-center gap-4 border-b border-b-gray-900 pb-6">
+        <div className="flex flex-col gap-4 border-b border-b-gray-900 pb-6 sm:flex-row sm:flex-wrap sm:items-center">
           <Combobox
             id="publisher-id"
             options={options.publishers.sort((a, b) => b.count - a.count).map((e) => ({ value: e._id, label: e.name, count: e.count }))}
@@ -137,27 +137,23 @@ const AdminReport = () => {
 
               <td className="p-4">
                 <div className="flex items-center gap-4">
-                  <div className="grid flex-1 grid-cols-2 gap-2">
-                    {item.data?.receive !== undefined && item.data?.receive.general !== undefined && <p className="text-xs"> Pas de statistiques disponibles</p>}
+                  <div className="flex min-w-[200px] flex-1 flex-col gap-1">
+                    {item.data?.receive !== undefined && item.data?.receive.general !== undefined && <p className="text-xs">Pas de statistiques disponibles</p>}
                     {item.data?.receive !== undefined && (
                       <>
-                        <label className="text-xs">Redirections reçues</label>
-                        <span className="text-xs font-bold">{(item.data.receive.general?.traffic || item.data.receive.click || 0).toLocaleString("fr")}</span>
-                        <label className="text-xs">Candidatures reçues</label>
-                        <span className="text-xs font-bold">{(item.data.receive.general?.apply || item.data.receive.apply || 0).toLocaleString("fr")}</span>
+                        <p className="text-xs">Redirections reçues : <span className="font-bold">{(item.data.receive.general?.traffic || item.data.receive.click || 0).toLocaleString("fr")}</span></p>
+                        <p className="text-xs">Candidatures reçues : <span className="font-bold">{(item.data.receive.general?.apply || item.data.receive.apply || 0).toLocaleString("fr")}</span></p>
                       </>
                     )}
                     {item.data?.send !== undefined && (
                       <>
-                        <label className="text-xs">Redirections envoyées</label>
-                        <span className="text-xs font-bold">{(item.data.send.general?.traffic || item.data.send.click || 0).toLocaleString("fr")}</span>
-                        <label className="text-xs">Candidatures envoyées</label>
-                        <span className="text-xs font-bold">{(item.data.send.general?.apply || item.data.send.apply || 0).toLocaleString("fr")}</span>
+                        <p className="text-xs">Redirections envoyées : <span className="font-bold">{(item.data.send.general?.traffic || item.data.send.click || 0).toLocaleString("fr")}</span></p>
+                        <p className="text-xs">Candidatures envoyées : <span className="font-bold">{(item.data.send.general?.apply || item.data.send.apply || 0).toLocaleString("fr")}</span></p>
                       </>
                     )}
                   </div>
                   {item.url !== null && (
-                    <a className="border-blue-france text-blue-france border p-2" href={item.url} target="_blank" rel="noreferrer">
+                    <a className="border-blue-france text-blue-france shrink-0 border p-2" href={item.url} target="_blank" rel="noreferrer">
                       <RiDownload2Line className="text-blue-france" role="img" aria-label="Télécharger le rapport" />
                     </a>
                   )}

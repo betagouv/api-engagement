@@ -9,6 +9,8 @@ import api from "@/services/api";
 import { BENEVOLAT_URL, VOLONTARIAT_URL } from "@/services/config";
 import { captureError } from "@/services/error";
 
+const getWidgetUrl = (type) => (type === "benevolat" ? BENEVOLAT_URL : VOLONTARIAT_URL);
+
 const Edit = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -132,7 +134,7 @@ const Edit = () => {
         </Link>
       </div>
 
-      <div className="flex items-center justify-between align-baseline">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-4xl font-bold">Modifier un widget</h1>
           <span className="text-text-mention">Créé le {new Date(widget.createdAt).toLocaleDateString("fr")}</span>
@@ -165,7 +167,7 @@ const Frame = ({ widget }) => {
   const handleLoad = (e) => {
     let height;
     const width = e.target.offsetWidth;
-    if (widget.type === "volontariat") {
+    if (widget.type !== "benevolat") {
       if (widget.style === "carousel") {
         if (width < 768) {
           height = "670px";
@@ -202,7 +204,7 @@ const Frame = ({ widget }) => {
   };
 
   return (
-    <div className="space-y-10 bg-white p-16 shadow-lg">
+    <div className="space-y-10 bg-white p-4 shadow-lg sm:p-16">
       <div className="flex flex-col gap-2">
         <h2 className="text-2xl font-bold">Aperçu du widget</h2>
         <span>Enregistrez le widget pour mettre à jour l'aperçu</span>
@@ -218,11 +220,13 @@ const Frame = ({ widget }) => {
         allowFullScreen
         allow="geolocation"
         onLoad={handleLoad}
-        src={`${widget.type === "volontariat" ? VOLONTARIAT_URL : BENEVOLAT_URL}?widget=${widget.id}&notrack=true`}
+        src={`${getWidgetUrl(widget.type)}?widget=${widget.id}&notrack=true`}
       />
     </div>
   );
 };
+
+const getIframeKey = (type) => (type === "benevolat" ? "benevolat" : "volontariat");
 
 const IFRAMES = {
   benevolat: {
@@ -244,16 +248,16 @@ const JVA_LOGO = `<div style="padding:10px; display:flex; justify-content:center
 
 const Code = ({ widget }) => {
   const handleCopy = () => {
-    navigator.clipboard.writeText(`${IFRAMES[widget.type][widget.style].replace("{{widgetId}}", widget.id)}${widget.type === "benevolat" ? `\n\n${JVA_LOGO}` : ""}`);
+    navigator.clipboard.writeText(`${IFRAMES[getIframeKey(widget.type)][widget.style].replace("{{widgetId}}", widget.id)}${widget.type === "benevolat" ? `\n\n${JVA_LOGO}` : ""}`);
     toast.success("Clé copiée");
   };
 
   return (
-    <div className="space-y-12 bg-white p-12 shadow-lg">
+    <div className="space-y-12 bg-white p-4 shadow-lg sm:p-12">
       <h2 className="text-2xl font-bold">Code à intégrer</h2>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <p>Vous n’avez plus qu’à intégrer ce code pour afficher le widget sur votre site</p>
-        <button className="secondary-btn flex items-center" onClick={handleCopy}>
+        <button className="secondary-btn flex shrink-0 items-center" onClick={handleCopy}>
           <RiCodeSSlashFill className="mr-2" aria-hidden="true" />
           Copier le code
         </button>
@@ -263,7 +267,7 @@ const Code = ({ widget }) => {
           className="border-blue-france-925 bg-blue-france-975 w-full rounded-none border px-4 py-2 text-base read-only:opacity-80"
           rows={widget.type === "benevolat" ? 11 : 4}
           readOnly
-          value={`${IFRAMES[widget.type][widget.style].replace("{{widgetId}}", widget.id)}${widget.type === "benevolat" ? `\n\n${JVA_LOGO}` : ""}`}
+          value={`${IFRAMES[getIframeKey(widget.type)][widget.style].replace("{{widgetId}}", widget.id)}${widget.type === "benevolat" ? `\n\n${JVA_LOGO}` : ""}`}
         />
       </div>
     </div>
@@ -276,9 +280,9 @@ const StickyBar = ({ onEdit, visible, widget, handleActivate, canSubmit }) => {
   }
 
   return (
-    <div className="fixed top-0 left-0 z-50 w-full items-center bg-white py-4 shadow-lg">
-      <div className="m-auto flex w-[90%] items-center justify-between">
-        <p className="text-2xl font-bold" aria-hidden="true">Modifier un widget</p>
+    <div className="fixed top-0 left-0 z-50 w-full items-center bg-white px-4 py-4 shadow-lg">
+      <div className="m-auto flex w-full items-center justify-between sm:w-[90%]">
+        <p className="hidden text-2xl font-bold sm:block" aria-hidden="true">Modifier un widget</p>
         <div className="flex items-center gap-6">
           <div className="flex flex-col items-end">
             <Toggle aria-label={widget.active ? "Désactiver le widget" : "Activer le widget"} value={widget.active} onChange={(value) => handleActivate(value)} />

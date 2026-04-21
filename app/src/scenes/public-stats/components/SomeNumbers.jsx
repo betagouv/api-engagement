@@ -103,18 +103,18 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
   }, [analyticsProvider, metabaseVariables, filters]);
 
   return (
-    <div className="border-grey-border mx-auto my-14 w-4/5 max-w-[1200px] flex-1 border bg-white p-12">
-      <div className="flex justify-between">
-        <div className="">
+    <div className="border-grey-border mx-auto my-14 w-full max-w-[1200px] flex-1 border bg-white p-4 px-4 sm:w-4/5 sm:p-12">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
           <h3 className="text-3xl font-bold">En quelques chiffres</h3>
         </div>
 
-        <div className="flex">
-          <div className="ml-4 flex items-center gap-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <label htmlFor="year" className="sr-only">
               Année
             </label>
-            <select id="year" className="input w-48" value={filters.year} onChange={(e) => onFiltersChange({ ...filters, year: parseInt(e.target.value, 10) })}>
+            <select id="year" className="input w-full sm:w-48" value={filters.year} onChange={(e) => onFiltersChange({ ...filters, year: parseInt(e.target.value, 10) })}>
               <option value={2020}>2020</option>
               <option value={2021}>2021</option>
               <option value={2022}>2022</option>
@@ -126,7 +126,7 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
             <label htmlFor="department" className="sr-only">
               Département
             </label>
-            <select id="department" className="input w-48" value={filters.department} onChange={(e) => onFiltersChange({ ...filters, department: e.target.value })}>
+            <select id="department" className="input w-full sm:w-48" value={filters.department} onChange={(e) => onFiltersChange({ ...filters, department: e.target.value })}>
               <option value="">Départements</option>
               {Object.entries(DEPARTMENT_NAMES)
                 .sort((a, b) => a[0].localeCompare(b[0], "fr", { numeric: true }))
@@ -139,7 +139,7 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
             <label htmlFor="mission-type" className="sr-only">
               Type de mission
             </label>
-            <select id="mission-type" className="input w-48" value={filters.type} onChange={(e) => onFiltersChange({ ...filters, type: e.target.value })}>
+            <select id="mission-type" className="input w-full sm:w-48" value={filters.type} onChange={(e) => onFiltersChange({ ...filters, type: e.target.value })}>
               <option value="">Type de mission</option>
               <option value="benevolat">Bénévolat</option>
               <option value="volontariat">Volontariat</option>
