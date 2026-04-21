@@ -9,7 +9,6 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-import { randomUUID } from "crypto";
 import { readFileSync } from "fs";
 import { join } from "path";
 
@@ -123,14 +122,9 @@ async function run() {
     }
 
     if (!publisher.apikey) {
-      if (isDryRun) {
-        console.log(`   🔑 [${entry.dept}] Publisher "${publisher.name}" sans API key — serait créée`);
-      } else {
-        const newApikey = randomUUID();
-        await prisma.publisher.update({ where: { id: publisher.id }, data: { apikey: newApikey } });
-        publisher.apikey = newApikey;
-        console.log(`   🔑 [${entry.dept}] API key créée pour "${publisher.name}"`);
-      }
+      console.warn(`   ⚠️  [${entry.dept}] Publisher "${publisher.name}" sans API key — exécuter update-sdis-publishers.ts d'abord`);
+      stats.skipped++;
+      continue;
     }
 
     const existing = await prisma.mission.findFirst({
