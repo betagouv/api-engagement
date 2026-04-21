@@ -1,15 +1,28 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("@/repositories/mission-matching-result", () => ({
+  missionMatchingResultRepository: {
+    createForUserScoringVersion: vi.fn(),
+  },
+}));
+
 import { prisma } from "@/db/postgres";
+import { missionMatchingResultRepository } from "@/repositories/mission-matching-result";
 import { matchingEngineService } from "@/services/matching-engine";
+import { CURRENT_MATCHING_ENGINE_VERSION } from "@/services/matching-engine/types";
 
 const prismaMock = prisma as unknown as {
   $queryRaw: ReturnType<typeof vi.fn>;
 };
 
+const missionMatchingResultRepositoryMock = missionMatchingResultRepository as unknown as {
+  createForUserScoringVersion: ReturnType<typeof vi.fn>;
+};
+
 describe("matchingEngineService", () => {
   beforeEach(() => {
     prismaMock.$queryRaw.mockReset();
+    missionMatchingResultRepositoryMock.createForUserScoringVersion.mockReset();
   });
 
   describe("rankMissionsByUserScoring", () => {
@@ -85,10 +98,13 @@ describe("matchingEngineService", () => {
             dimension_score: 0.3333333,
           },
         ]);
+      missionMatchingResultRepositoryMock.createForUserScoringVersion.mockResolvedValue({
+        id: "mission-matching-result-1",
+      });
 
       const result = await matchingEngineService.rankMissionsByUserScoring({
         userScoringId: "user-scoring-1",
-        limit: 20,
+        limit: 1,
       });
 
       expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(3);
@@ -104,18 +120,25 @@ describe("matchingEngineService", () => {
             domaine: 1,
           },
         },
-        {
-          missionId: "mission-2",
-          missionScoringId: "mission-scoring-2",
-          totalScore: 0.456789,
-          taxonomyScore: 0.876543,
-          geoScore: null,
-          distanceKm: null,
-          dimensionScores: {
-            format_activite: 0.333333,
-          },
-        },
       ]);
+      expect(missionMatchingResultRepositoryMock.createForUserScoringVersion).toHaveBeenCalledWith({
+        userScoringId: "user-scoring-1",
+        matchingEngineVersion: CURRENT_MATCHING_ENGINE_VERSION,
+        results: [
+          {
+            missionScoringId: "mission-scoring-1",
+            dimensionScores: {
+              domaine: 1,
+            },
+          },
+          {
+            missionScoringId: "mission-scoring-2",
+            dimensionScores: {
+              format_activite: 0.333333,
+            },
+          },
+        ],
+      });
       expect(result.tookMs).toBeGreaterThanOrEqual(0);
     });
 
@@ -128,6 +151,9 @@ describe("matchingEngineService", () => {
           },
         ])
         .mockResolvedValueOnce([]);
+      missionMatchingResultRepositoryMock.createForUserScoringVersion.mockResolvedValue({
+        id: "mission-matching-result-empty",
+      });
 
       const result = await matchingEngineService.rankMissionsByUserScoring({
         userScoringId: "user-scoring-empty",
@@ -135,6 +161,11 @@ describe("matchingEngineService", () => {
 
       expect(result.items).toEqual([]);
       expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(2);
+      expect(missionMatchingResultRepositoryMock.createForUserScoringVersion).toHaveBeenCalledWith({
+        userScoringId: "user-scoring-empty",
+        matchingEngineVersion: CURRENT_MATCHING_ENGINE_VERSION,
+        results: [],
+      });
     });
 
     it("returns only missions that remain after gate exclusion", async () => {
@@ -162,6 +193,9 @@ describe("matchingEngineService", () => {
             dimension_score: 0.8,
           },
         ]);
+      missionMatchingResultRepositoryMock.createForUserScoringVersion.mockResolvedValue({
+        id: "mission-matching-result-gate",
+      });
 
       const result = await matchingEngineService.rankMissionsByUserScoring({
         userScoringId: "user-scoring-gate-filtered",
@@ -218,6 +252,9 @@ describe("matchingEngineService", () => {
             dimension_score: 1,
           },
         ]);
+      missionMatchingResultRepositoryMock.createForUserScoringVersion.mockResolvedValue({
+        id: "mission-matching-result-gate-dimensions",
+      });
 
       const result = await matchingEngineService.rankMissionsByUserScoring({
         userScoringId: "user-scoring-gate-dimensions",
@@ -237,6 +274,54 @@ describe("matchingEngineService", () => {
           },
         },
       ]);
+    });
+
+    it("does not persist a snapshot when the caller requests an offset page", async () => {
+      prismaMock.$queryRaw
+        .mockResolvedValueOnce([
+          {
+            id: "user-scoring-page-2",
+            expires_at: null,
+          },
+        ])
+        .mockResolvedValueOnce([
+          {
+            mission_id: "mission-2",
+            mission_scoring_id: "mission-scoring-2",
+            total_score: 0.6,
+            taxonomy_score: 0.6,
+            geo_score: null,
+            distance_km: null,
+          },
+        ])
+        .mockResolvedValueOnce([
+          {
+            mission_scoring_id: "mission-scoring-2",
+            dimension_key: "domaine",
+            dimension_score: 0.6,
+          },
+        ]);
+
+      const result = await matchingEngineService.rankMissionsByUserScoring({
+        userScoringId: "user-scoring-page-2",
+        limit: 10,
+        offset: 10,
+      });
+
+      expect(result.items).toEqual([
+        {
+          missionId: "mission-2",
+          missionScoringId: "mission-scoring-2",
+          totalScore: 0.6,
+          taxonomyScore: 0.6,
+          geoScore: null,
+          distanceKm: null,
+          dimensionScores: {
+            domaine: 0.6,
+          },
+        },
+      ]);
+      expect(missionMatchingResultRepositoryMock.createForUserScoringVersion).not.toHaveBeenCalled();
     });
   });
 });

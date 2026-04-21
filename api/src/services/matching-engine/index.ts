@@ -1,7 +1,19 @@
 import { Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
-import type { MatchMissionItem, MatchingEngineDimension, RankMissionsByUserScoringInput, RankMissionsByUserScoringResult } from "@/types/matching-engine";
-import { MATCHING_ENGINE_DIMENSIONS } from "@/types/matching-engine";
+import { missionMatchingResultRepository } from "@/repositories/mission-matching-result";
+import { MATCHING_ENGINE_VERSIONS } from "./config";
+import type {
+  MatchMissionItem,
+  MatchingEngineDimension,
+  MissionMatchingResultItem,
+  RankMissionsByUserScoringInput,
+  RankMissionsByUserScoringResult,
+} from "./types";
+import {
+  CURRENT_MATCHING_ENGINE_VERSION,
+  MATCHING_ENGINE_DIMENSIONS,
+  MATCHING_ENGINE_TOP_RESULTS_LIMIT,
+} from "./types";
 
 type DbRankRow = {
   mission_id: string;
@@ -31,24 +43,11 @@ const clampScore = (value: number | null): number => {
   return Number(Math.max(0, Math.min(1, value as number)).toFixed(6));
 };
 
-const DIMENSION_SCORES_LIMIT = 20;
 const TAXONOMY_CANDIDATE_MULTIPLIER = 100;
 const MIN_TAXONOMY_CANDIDATE_LIMIT = 1000;
 const GEO_CANDIDATE_MULTIPLIER = 50;
 const MIN_GEO_CANDIDATE_LIMIT = 1000;
 const GEO_PREFILTER_RADIUS_MULTIPLIER = 6;
-
-export const MATCHING_ENGINE_DIMENSION_WEIGHTS: Record<MatchingEngineDimension, number> = {
-  domaine: 1,
-  secteur_activite: 1,
-  type_mission: 1,
-  accessibilite: 1,
-  format_activite: 1,
-  competence_rome: 1,
-  engagement_civique: 1,
-  niveau_engagement: 1,
-  region_internationale: 1,
-};
 
 const getTaxonomyCandidateLimit = (params: { limit: number; offset: number }): number =>
   Math.max(params.offset + params.limit, params.limit * TAXONOMY_CANDIDATE_MULTIPLIER, MIN_TAXONOMY_CANDIDATE_LIMIT);
@@ -79,6 +78,7 @@ const assertUserScoringIsQueryable = async (userScoringId: string): Promise<void
 
 const buildRanking = (params: {
   userScoringId: string;
+  dimensionWeights: Record<MatchingEngineDimension, number>;
   taxonomyWeight: number;
   geoWeight: number;
   geoHalfDecayKm: number;
@@ -89,13 +89,13 @@ const buildRanking = (params: {
   offset: number;
 }) => Prisma.sql`
   WITH dimension_weights ("dimension_key", "dimension_weight") AS (
-    VALUES ${buildDimensionWeightsValuesSql(MATCHING_ENGINE_DIMENSION_WEIGHTS)}
+    VALUES ${buildDimensionWeightsValuesSql(params.dimensionWeights)}
   ),
   user_values AS (
     SELECT
       usv."taxonomy_value_id",
       usv."score"::double precision AS "user_score",
-      t."key" AS "dimension_key"
+      t."key"::text AS "dimension_key"
     FROM "user_scoring_value" usv
     JOIN "taxonomy_value" tv
       ON tv."id" = usv."taxonomy_value_id"
@@ -421,7 +421,7 @@ const buildDimensionScoresSql = (params: { userScoringId: string; missionScoring
     SELECT
       usv."taxonomy_value_id",
       usv."score"::double precision AS "user_score",
-      t."key" AS "dimension_key"
+      t."key"::text AS "dimension_key"
     FROM "user_scoring_value" usv
     JOIN "taxonomy_value" tv
       ON tv."id" = usv."taxonomy_value_id"
@@ -482,34 +482,49 @@ const buildDimensionScoresIndex = (rows: DbDimensionScoreRow[]): Record<string, 
   return result;
 };
 
+const buildMissionMatchingResultItems = (params: {
+  rows: DbRankRow[];
+  dimensionScoresByMissionScoringId: Record<string, Partial<Record<MatchingEngineDimension, number>>>;
+}): MissionMatchingResultItem[] =>
+  params.rows.map((row) => ({
+    missionScoringId: row.mission_scoring_id,
+    dimensionScores: params.dimensionScoresByMissionScoringId[row.mission_scoring_id] ?? {},
+  }));
+
 export const matchingEngineService = {
   async rankMissionsByUserScoring(input: RankMissionsByUserScoringInput): Promise<RankMissionsByUserScoringResult> {
     const startedAt = Date.now();
+    const version = input.version ?? CURRENT_MATCHING_ENGINE_VERSION;
+    const dimensionWeights = MATCHING_ENGINE_VERSIONS[version].dimensionWeights;
     const limit = Math.max(1, Math.min(500, input.limit ?? 20));
     const offset = Math.max(0, input.offset ?? 0);
+    // The persisted snapshot is defined as the first page of the ranking.
+    const shouldPersistTopResults = offset === 0;
+    const rankingLimit = shouldPersistTopResults ? Math.max(limit, MATCHING_ENGINE_TOP_RESULTS_LIMIT) : limit;
     const taxonomyWeight = input.taxonomyWeight ?? 0.3;
     const geoWeight = input.geoWeight ?? 0.7;
     const geoHalfDecayKm = input.geoHalfDecayKm ?? 20;
     const missingGeoScore = input.missingGeoScore ?? 0.1;
-    const taxonomyCandidateLimit = getTaxonomyCandidateLimit({ limit, offset });
-    const geoCandidateLimit = getGeoCandidateLimit({ limit, offset });
+    const taxonomyCandidateLimit = getTaxonomyCandidateLimit({ limit: rankingLimit, offset });
+    const geoCandidateLimit = getGeoCandidateLimit({ limit: rankingLimit, offset });
 
     await assertUserScoringIsQueryable(input.userScoringId);
 
     const rows = await prisma.$queryRaw<DbRankRow[]>(
       buildRanking({
         userScoringId: input.userScoringId,
+        dimensionWeights,
         taxonomyWeight,
         geoWeight,
         geoHalfDecayKm,
         missingGeoScore,
         taxonomyCandidateLimit,
         geoCandidateLimit,
-        limit,
+        limit: rankingLimit,
         offset,
       })
     );
-    const missionScoringIdsForDetails = rows.slice(0, DIMENSION_SCORES_LIMIT).map((row) => row.mission_scoring_id);
+    const missionScoringIdsForDetails = rows.slice(0, MATCHING_ENGINE_TOP_RESULTS_LIMIT).map((row) => row.mission_scoring_id);
     const dimensionScoresRows =
       missionScoringIdsForDetails.length > 0
         ? await prisma.$queryRaw<DbDimensionScoreRow[]>(
@@ -520,9 +535,21 @@ export const matchingEngineService = {
           )
         : [];
     const dimensionScoresByMissionScoringId = buildDimensionScoresIndex(dimensionScoresRows);
+    const responseRows = shouldPersistTopResults ? rows.slice(0, limit) : rows;
+
+    if (shouldPersistTopResults) {
+      await missionMatchingResultRepository.createForUserScoringVersion({
+        userScoringId: input.userScoringId,
+        matchingEngineVersion: version,
+        results: buildMissionMatchingResultItems({
+          rows: rows.slice(0, MATCHING_ENGINE_TOP_RESULTS_LIMIT),
+          dimensionScoresByMissionScoringId,
+        }),
+      });
+    }
 
     return {
-      items: rows.map(
+      items: responseRows.map(
         (row): MatchMissionItem => ({
           missionId: row.mission_id,
           missionScoringId: row.mission_scoring_id,
