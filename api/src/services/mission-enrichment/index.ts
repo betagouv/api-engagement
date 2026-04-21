@@ -185,16 +185,29 @@ export const missionEnrichmentService = {
       }
 
       // 9. Persist values + mark completed (atomic)
-      await missionEnrichmentRepository.completeWithValues(
-        enrichment.id,
-        JSON.stringify(llmResult.object),
-        { inputTokens, outputTokens, totalTokens },
-        valid.map((v) => ({
-          taxonomyValueId: v.taxonomyValueId,
-          confidence: v.confidence,
-          evidence: v.evidence,
-        }))
-      );
+      const persistedValues = valid.map((v) => ({
+        taxonomyValueId: v.taxonomyValueId,
+        confidence: v.confidence,
+        evidence: v.evidence,
+      }));
+
+      if (options.force) {
+        await missionEnrichmentRepository.completeWithValuesAndDeletePrevious({
+          enrichmentId: enrichment.id,
+          missionId,
+          promptVersion: CURRENT_PROMPT_VERSION,
+          rawResponse: JSON.stringify(llmResult.object),
+          tokenUsage: { inputTokens, outputTokens, totalTokens },
+          values: persistedValues,
+        });
+      } else {
+        await missionEnrichmentRepository.completeWithValues(
+          enrichment.id,
+          JSON.stringify(llmResult.object),
+          { inputTokens, outputTokens, totalTokens },
+          persistedValues
+        );
+      }
 
       console.log(`${LOG_PREFIX} ${missionId}: enrichment completed — ${valid.length} values persisted`);
     } catch (error) {

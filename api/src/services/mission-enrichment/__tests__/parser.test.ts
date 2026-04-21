@@ -156,7 +156,7 @@ describe("validateEnrichmentClassifications", () => {
     expect(skipped[0].reason).toContain("unknown_value");
   });
 
-  it("enforces categorical constraint: keeps only highest confidence value", () => {
+  it("keeps multiple values for the same dimension when they are distinct", () => {
     const lookup: TaxonomyLookup = new Map([
       ["type_mission", { type: "categorical", values: new Map([["ponctuelle", "tv-p"], ["reguliere", "tv-r"]]) }],
     ]);
@@ -170,9 +170,8 @@ describe("validateEnrichmentClassifications", () => {
       0.3
     );
 
-    expect(valid).toHaveLength(1);
-    expect(valid[0].value_key).toBe("reguliere");
-    expect(skipped).toHaveLength(1);
-    expect(skipped[0].reason).toContain("categorical_superseded");
+    expect(valid).toHaveLength(2);
+    expect(valid.map((item) => item.value_key)).toEqual(["ponctuelle", "reguliere"]);
+    expect(skipped).toHaveLength(0);
   });
 });

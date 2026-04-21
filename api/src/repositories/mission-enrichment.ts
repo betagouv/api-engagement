@@ -14,6 +14,10 @@ export const missionEnrichmentRepository = {
     return prisma.missionEnrichment.update(params);
   },
 
+  deleteMany(params: Prisma.MissionEnrichmentDeleteManyArgs): Promise<Prisma.BatchPayload> {
+    return prisma.missionEnrichment.deleteMany(params);
+  },
+
   async completeWithValues(
     enrichmentId: string,
     rawResponse: string,
@@ -35,6 +39,45 @@ export const missionEnrichmentRepository = {
           outputTokens: tokenUsage.outputTokens,
           totalTokens: tokenUsage.totalTokens,
           completedAt: new Date(),
+        },
+      });
+    });
+  },
+
+  async completeWithValuesAndDeletePrevious(
+    params: {
+      enrichmentId: string;
+      missionId: string;
+      promptVersion: string;
+      rawResponse: string;
+      tokenUsage: { inputTokens: number | undefined; outputTokens: number | undefined; totalTokens: number | undefined };
+      values: Omit<Prisma.MissionEnrichmentValueUncheckedCreateInput, "enrichmentId">[];
+    }
+  ): Promise<void> {
+    await prisma.$transaction(async (tx) => {
+      if (params.values.length > 0) {
+        await tx.missionEnrichmentValue.createMany({
+          data: params.values.map((v) => ({ ...v, enrichmentId: params.enrichmentId })),
+        });
+      }
+
+      await tx.missionEnrichment.update({
+        where: { id: params.enrichmentId },
+        data: {
+          status: "completed",
+          rawResponse: params.rawResponse,
+          inputTokens: params.tokenUsage.inputTokens,
+          outputTokens: params.tokenUsage.outputTokens,
+          totalTokens: params.tokenUsage.totalTokens,
+          completedAt: new Date(),
+        },
+      });
+
+      await tx.missionEnrichment.deleteMany({
+        where: {
+          missionId: params.missionId,
+          promptVersion: params.promptVersion,
+          id: { not: params.enrichmentId },
         },
       });
     });
