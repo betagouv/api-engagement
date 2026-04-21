@@ -137,28 +137,106 @@ describe("matchingEngineService", () => {
       expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(2);
     });
 
-    it("builds a ranking query that keeps only the latest mission scoring per mission", async () => {
+    it("returns only missions that remain after gate exclusion", async () => {
       prismaMock.$queryRaw
         .mockResolvedValueOnce([
           {
-            id: "user-scoring-1",
+            id: "user-scoring-gate-filtered",
             expires_at: null,
           },
         ])
-        .mockResolvedValueOnce([])
-        .mockResolvedValueOnce([]);
+        .mockResolvedValueOnce([
+          {
+            mission_id: "mission-eligible",
+            mission_scoring_id: "mission-scoring-eligible",
+            total_score: 0.8,
+            taxonomy_score: 0.8,
+            geo_score: null,
+            distance_km: null,
+          },
+        ])
+        .mockResolvedValueOnce([
+          {
+            mission_scoring_id: "mission-scoring-eligible",
+            dimension_key: "domaine",
+            dimension_score: 0.8,
+          },
+        ]);
 
-      await matchingEngineService.rankMissionsByUserScoring({
-        userScoringId: "user-scoring-1",
+      const result = await matchingEngineService.rankMissionsByUserScoring({
+        userScoringId: "user-scoring-gate-filtered",
       });
 
-      const rankingQuery = prismaMock.$queryRaw.mock.calls[1][0] as { strings?: TemplateStringsArray | string[] };
-      const rankingSql = Array.from(rankingQuery.strings ?? []).join(" ");
+      expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(3);
+      expect(result.items).toEqual([
+        {
+          missionId: "mission-eligible",
+          missionScoringId: "mission-scoring-eligible",
+          totalScore: 0.8,
+          taxonomyScore: 0.8,
+          geoScore: null,
+          distanceKm: null,
+          dimensionScores: {
+            domaine: 0.8,
+          },
+        },
+      ]);
+    });
 
-      expect(rankingSql).toContain("ROW_NUMBER() OVER (");
-      expect(rankingSql).toContain('PARTITION BY ms."mission_id"');
-      expect(rankingSql).toContain('me."completed_at" DESC NULLS LAST');
-      expect(rankingSql).toContain('WHERE ranked_mission_scorings."row_num" = 1');
+    it("keeps excluded missions out of the final payload and ignores their dimension rows", async () => {
+      prismaMock.$queryRaw
+        .mockResolvedValueOnce([
+          {
+            id: "user-scoring-gate-dimensions",
+            expires_at: null,
+          },
+        ])
+        .mockResolvedValueOnce([
+          {
+            mission_id: "mission-1",
+            mission_scoring_id: "mission-scoring-1",
+            total_score: 0.7,
+            taxonomy_score: 0.7,
+            geo_score: null,
+            distance_km: null,
+          },
+        ])
+        .mockResolvedValueOnce([
+          {
+            mission_scoring_id: "mission-scoring-1",
+            dimension_key: "domaine",
+            dimension_score: 0.7,
+          },
+          {
+            mission_scoring_id: "mission-scoring-excluded",
+            dimension_key: "domaine",
+            dimension_score: 0.2,
+          },
+          {
+            mission_scoring_id: "mission-scoring-1",
+            dimension_key: "tranche_age",
+            dimension_score: 1,
+          },
+        ]);
+
+      const result = await matchingEngineService.rankMissionsByUserScoring({
+        userScoringId: "user-scoring-gate-dimensions",
+      });
+
+      expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(3);
+      expect(result.items).toEqual([
+        {
+          missionId: "mission-1",
+          missionScoringId: "mission-scoring-1",
+          totalScore: 0.7,
+          taxonomyScore: 0.7,
+          geoScore: null,
+          distanceKm: null,
+          dimensionScores: {
+            domaine: 0.7,
+          },
+        },
+      ]);
     });
   });
 });

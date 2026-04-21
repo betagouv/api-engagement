@@ -102,6 +102,7 @@ const buildRanking = (params: {
     JOIN "taxonomy" t
       ON t."id" = tv."taxonomy_id"
     WHERE usv."user_scoring_id" = ${params.userScoringId}
+      AND t."type" <> 'gate'
   ),
   user_dimension_totals AS (
     SELECT
@@ -140,6 +141,65 @@ const buildRanking = (params: {
     ) ranked_mission_scorings
     WHERE ranked_mission_scorings."row_num" = 1
   ),
+  user_gate_values AS (
+    SELECT DISTINCT
+      tv."taxonomy_id",
+      usv."taxonomy_value_id"
+    FROM "user_scoring_value" usv
+    JOIN "taxonomy_value" tv
+      ON tv."id" = usv."taxonomy_value_id"
+    JOIN "taxonomy" t
+      ON t."id" = tv."taxonomy_id"
+    WHERE usv."user_scoring_id" = ${params.userScoringId}
+      AND t."type" = 'gate'
+  ),
+  mission_gate_values AS (
+    SELECT DISTINCT
+      ams."mission_scoring_id",
+      ams."mission_id",
+      tv."taxonomy_id",
+      msv."taxonomy_value_id"
+    FROM "mission_scoring_value" msv
+    JOIN "taxonomy_value" tv
+      ON tv."id" = msv."taxonomy_value_id"
+    JOIN "taxonomy" t
+      ON t."id" = tv."taxonomy_id"
+    JOIN active_mission_scorings ams
+      ON ams."mission_scoring_id" = msv."mission_scoring_id"
+    WHERE t."type" = 'gate'
+  ),
+  mission_gate_taxonomies AS (
+    SELECT DISTINCT
+      mgv."mission_scoring_id",
+      mgv."taxonomy_id"
+    FROM mission_gate_values mgv
+  ),
+  matched_gate_taxonomies AS (
+    SELECT DISTINCT
+      mgv."mission_scoring_id",
+      mgv."taxonomy_id"
+    FROM mission_gate_values mgv
+    JOIN user_gate_values ugv
+      ON ugv."taxonomy_id" = mgv."taxonomy_id"
+     AND ugv."taxonomy_value_id" = mgv."taxonomy_value_id"
+  ),
+  eligible_mission_scorings AS (
+    SELECT
+      ams."mission_scoring_id",
+      ams."mission_id"
+    FROM active_mission_scorings ams
+    WHERE NOT EXISTS (
+      SELECT 1
+      FROM mission_gate_taxonomies mgt
+      WHERE mgt."mission_scoring_id" = ams."mission_scoring_id"
+        AND NOT EXISTS (
+          SELECT 1
+          FROM matched_gate_taxonomies mgtm
+          WHERE mgtm."mission_scoring_id" = mgt."mission_scoring_id"
+            AND mgtm."taxonomy_id" = mgt."taxonomy_id"
+        )
+    )
+  ),
   matched_values AS (
     SELECT
       msv."mission_scoring_id",
@@ -148,8 +208,8 @@ const buildRanking = (params: {
     FROM user_values uv
     JOIN "mission_scoring_value" msv
       ON msv."taxonomy_value_id" = uv."taxonomy_value_id"
-    JOIN active_mission_scorings ams
-      ON ams."mission_scoring_id" = msv."mission_scoring_id"
+    JOIN eligible_mission_scorings ems
+      ON ems."mission_scoring_id" = msv."mission_scoring_id"
     GROUP BY msv."mission_scoring_id", uv."dimension_key"
   ),
   taxonomy_scores AS (
@@ -163,14 +223,14 @@ const buildRanking = (params: {
   ),
   taxonomy_candidates AS (
     SELECT
-      ams."mission_id",
-      ams."mission_scoring_id"
+      ems."mission_id",
+      ems."mission_scoring_id"
     FROM taxonomy_scores ts
-    JOIN active_mission_scorings ams
-      ON ams."mission_scoring_id" = ts."mission_scoring_id"
+    JOIN eligible_mission_scorings ems
+      ON ems."mission_scoring_id" = ts."mission_scoring_id"
     CROSS JOIN weighted_user_totals ut
     WHERE ut."taxonomy_total" > 0
-    ORDER BY ts."weighted_sum" / ut."taxonomy_total" DESC, ams."mission_id" ASC
+    ORDER BY ts."weighted_sum" / ut."taxonomy_total" DESC, ems."mission_id" ASC
     LIMIT ${params.taxonomyCandidateLimit}
   ),
   user_geo AS (
@@ -205,17 +265,17 @@ const buildRanking = (params: {
   ),
   geo_candidates AS (
     SELECT
-      ams."mission_id",
-      ams."mission_scoring_id"
+      ems."mission_id",
+      ems."mission_scoring_id"
     FROM geo_prefilter_settings gps
     JOIN "mission_address" ma
       ON ma."location_lat" IS NOT NULL
      AND ma."location_lon" IS NOT NULL
      AND ma."location_lat" BETWEEN gps."lat" - gps."lat_delta" AND gps."lat" + gps."lat_delta"
      AND ma."location_lon" BETWEEN gps."lon" - gps."lon_delta" AND gps."lon" + gps."lon_delta"
-    JOIN active_mission_scorings ams
-      ON ams."mission_id" = ma."mission_id"
-    GROUP BY ams."mission_id", ams."mission_scoring_id"
+    JOIN eligible_mission_scorings ems
+      ON ems."mission_id" = ma."mission_id"
+    GROUP BY ems."mission_id", ems."mission_scoring_id"
     ORDER BY
       MIN(
         6371.0 * 2.0 * ASIN(
@@ -226,22 +286,22 @@ const buildRanking = (params: {
           )
         )
       ) ASC,
-      ams."mission_id" ASC
+      ems."mission_id" ASC
     LIMIT ${params.geoCandidateLimit}
   ),
   fallback_geo_candidates AS (
     SELECT
-      ams."mission_id",
-      ams."mission_scoring_id"
+      ems."mission_id",
+      ems."mission_scoring_id"
     FROM user_geo ug
     JOIN "mission_address" ma
       ON ma."location_lat" IS NOT NULL
      AND ma."location_lon" IS NOT NULL
-    JOIN active_mission_scorings ams
-      ON ams."mission_id" = ma."mission_id"
+    JOIN eligible_mission_scorings ems
+      ON ems."mission_id" = ma."mission_id"
     WHERE NOT EXISTS (SELECT 1 FROM taxonomy_candidates)
       AND NOT EXISTS (SELECT 1 FROM geo_candidates)
-    GROUP BY ams."mission_id", ams."mission_scoring_id"
+    GROUP BY ems."mission_id", ems."mission_scoring_id"
     ORDER BY
       MIN(
         6371.0 * 2.0 * ASIN(
@@ -252,18 +312,18 @@ const buildRanking = (params: {
           )
         )
       ) ASC,
-      ams."mission_id" ASC
+      ems."mission_id" ASC
     LIMIT ${params.geoCandidateLimit}
   ),
   fallback_candidates AS (
     SELECT
-      ams."mission_id",
-      ams."mission_scoring_id"
-    FROM active_mission_scorings ams
+      ems."mission_id",
+      ems."mission_scoring_id"
+    FROM eligible_mission_scorings ems
     CROSS JOIN weighted_user_totals ut
     WHERE ut."taxonomy_total" = 0
       AND NOT EXISTS (SELECT 1 FROM user_geo)
-    ORDER BY ams."mission_id" ASC
+    ORDER BY ems."mission_id" ASC
     LIMIT ${params.offset + params.limit}
   ),
   candidate_missions AS (
@@ -368,6 +428,7 @@ const buildDimensionScoresSql = (params: { userScoringId: string; missionScoring
     JOIN "taxonomy" t
       ON t."id" = tv."taxonomy_id"
     WHERE usv."user_scoring_id" = ${params.userScoringId}
+      AND t."type" <> 'gate'
   ),
   user_dimension_totals AS (
     SELECT
