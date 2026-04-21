@@ -13,7 +13,7 @@ api_max_scale    = 1
 
 enable_app            = false
 enable_widget         = false
-enable_async_tasks    = false
+enable_async_tasks    = true
 enable_intern_jobs    = false
 enable_analytics_jobs = false
 enable_mission_jobs   = false
