@@ -119,27 +119,22 @@ const buildRanking = (params: {
       ON dw."dimension_key" = udt."dimension_key"
   ),
   active_mission_scorings AS (
-    SELECT
-      ranked_mission_scorings."mission_scoring_id",
-      ranked_mission_scorings."mission_id"
-    FROM (
-      SELECT
-        ms."id" AS "mission_scoring_id",
-        ms."mission_id",
-        ROW_NUMBER() OVER (
-          PARTITION BY ms."mission_id"
-          ORDER BY me."completed_at" DESC NULLS LAST, ms."created_at" DESC, ms."id" DESC
-        ) AS "row_num"
-      FROM "mission_scoring" ms
-      JOIN "mission_enrichment" me
-        ON me."id" = ms."mission_enrichment_id"
-       AND me."status" = 'completed'
-      JOIN "mission" m
-        ON m."id" = ms."mission_id"
-      WHERE m."deleted_at" IS NULL
-        AND m."status_code" = 'ACCEPTED'
-    ) ranked_mission_scorings
-    WHERE ranked_mission_scorings."row_num" = 1
+    SELECT DISTINCT ON (ms."mission_id")
+      ms."id" AS "mission_scoring_id",
+      ms."mission_id"
+    FROM "mission_scoring" ms
+    JOIN "mission_enrichment" me
+      ON me."id" = ms."mission_enrichment_id"
+     AND me."status" = 'completed'
+    JOIN "mission" m
+      ON m."id" = ms."mission_id"
+    WHERE m."deleted_at" IS NULL
+      AND m."status_code" = 'ACCEPTED'
+    ORDER BY
+      ms."mission_id" ASC,
+      me."completed_at" DESC NULLS LAST,
+      ms."created_at" DESC,
+      ms."id" DESC
   ),
   user_gate_values AS (
     SELECT DISTINCT
@@ -266,7 +261,16 @@ const buildRanking = (params: {
   geo_candidates AS (
     SELECT
       ems."mission_id",
-      ems."mission_scoring_id"
+      ems."mission_scoring_id",
+      MIN(
+        6371.0 * 2.0 * ASIN(
+          SQRT(
+            POWER(SIN(RADIANS(ma."location_lat" - gps."lat") / 2.0), 2) +
+            COS(RADIANS(gps."lat")) * COS(RADIANS(ma."location_lat")) *
+            POWER(SIN(RADIANS(ma."location_lon" - gps."lon") / 2.0), 2)
+          )
+        )
+      ) AS "distance_km"
     FROM geo_prefilter_settings gps
     JOIN "mission_address" ma
       ON ma."location_lat" IS NOT NULL
@@ -277,22 +281,23 @@ const buildRanking = (params: {
       ON ems."mission_id" = ma."mission_id"
     GROUP BY ems."mission_id", ems."mission_scoring_id"
     ORDER BY
-      MIN(
-        6371.0 * 2.0 * ASIN(
-          SQRT(
-            POWER(SIN(RADIANS(ma."location_lat" - gps."lat") / 2.0), 2) +
-            COS(RADIANS(gps."lat")) * COS(RADIANS(ma."location_lat")) *
-            POWER(SIN(RADIANS(ma."location_lon" - gps."lon") / 2.0), 2)
-          )
-        )
-      ) ASC,
+      "distance_km" ASC,
       ems."mission_id" ASC
     LIMIT ${params.geoCandidateLimit}
   ),
   fallback_geo_candidates AS (
     SELECT
       ems."mission_id",
-      ems."mission_scoring_id"
+      ems."mission_scoring_id",
+      MIN(
+        6371.0 * 2.0 * ASIN(
+          SQRT(
+            POWER(SIN(RADIANS(ma."location_lat" - ug."lat") / 2.0), 2) +
+            COS(RADIANS(ug."lat")) * COS(RADIANS(ma."location_lat")) *
+            POWER(SIN(RADIANS(ma."location_lon" - ug."lon") / 2.0), 2)
+          )
+        )
+      ) AS "distance_km"
     FROM user_geo ug
     JOIN "mission_address" ma
       ON ma."location_lat" IS NOT NULL
@@ -303,15 +308,7 @@ const buildRanking = (params: {
       AND NOT EXISTS (SELECT 1 FROM geo_candidates)
     GROUP BY ems."mission_id", ems."mission_scoring_id"
     ORDER BY
-      MIN(
-        6371.0 * 2.0 * ASIN(
-          SQRT(
-            POWER(SIN(RADIANS(ma."location_lat" - ug."lat") / 2.0), 2) +
-            COS(RADIANS(ug."lat")) * COS(RADIANS(ma."location_lat")) *
-            POWER(SIN(RADIANS(ma."location_lon" - ug."lon") / 2.0), 2)
-          )
-        )
-      ) ASC,
+      "distance_km" ASC,
       ems."mission_id" ASC
     LIMIT ${params.geoCandidateLimit}
   ),
@@ -329,28 +326,32 @@ const buildRanking = (params: {
   candidate_missions AS (
     SELECT
       tc."mission_id",
-      tc."mission_scoring_id"
+      tc."mission_scoring_id",
+      CAST(NULL AS double precision) AS "distance_km"
     FROM taxonomy_candidates tc
     UNION
     SELECT
       gc."mission_id",
-      gc."mission_scoring_id"
+      gc."mission_scoring_id",
+      gc."distance_km"
     FROM geo_candidates gc
     UNION
     SELECT
       fgc."mission_id",
-      fgc."mission_scoring_id"
+      fgc."mission_scoring_id",
+      fgc."distance_km"
     FROM fallback_geo_candidates fgc
     UNION
     SELECT
       fc."mission_id",
-      fc."mission_scoring_id"
+      fc."mission_scoring_id",
+      CAST(NULL AS double precision) AS "distance_km"
     FROM fallback_candidates fc
   ),
   geo_scores AS (
     SELECT
       cm."mission_scoring_id",
-      geo."distance_km"
+      COALESCE(cm."distance_km", geo."distance_km") AS "distance_km"
     FROM candidate_missions cm
     LEFT JOIN LATERAL (
       SELECT
@@ -368,6 +369,7 @@ const buildRanking = (params: {
         ON ma."mission_id" = cm."mission_id"
        AND ma."location_lat" IS NOT NULL
        AND ma."location_lon" IS NOT NULL
+      WHERE cm."distance_km" IS NULL
     ) geo ON TRUE
   ),
   ranked AS (
