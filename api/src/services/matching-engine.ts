@@ -120,13 +120,26 @@ const buildRanking = (params: {
   ),
   active_mission_scorings AS (
     SELECT
-      ms."id" AS "mission_scoring_id",
-      ms."mission_id"
-    FROM "mission_scoring" ms
-    JOIN "mission" m
-      ON m."id" = ms."mission_id"
-    WHERE m."deleted_at" IS NULL
-      AND m."status_code" = 'ACCEPTED'
+      ranked_mission_scorings."mission_scoring_id",
+      ranked_mission_scorings."mission_id"
+    FROM (
+      SELECT
+        ms."id" AS "mission_scoring_id",
+        ms."mission_id",
+        ROW_NUMBER() OVER (
+          PARTITION BY ms."mission_id"
+          ORDER BY me."completed_at" DESC NULLS LAST, ms."created_at" DESC, ms."id" DESC
+        ) AS "row_num"
+      FROM "mission_scoring" ms
+      JOIN "mission_enrichment" me
+        ON me."id" = ms."mission_enrichment_id"
+       AND me."status" = 'completed'
+      JOIN "mission" m
+        ON m."id" = ms."mission_id"
+      WHERE m."deleted_at" IS NULL
+        AND m."status_code" = 'ACCEPTED'
+    ) ranked_mission_scorings
+    WHERE ranked_mission_scorings."row_num" = 1
   ),
   user_gate_values AS (
     SELECT DISTINCT
