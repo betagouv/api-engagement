@@ -1,18 +1,5 @@
 import { Link } from "react-router";
-import api from "~/services/api";
-import type { Mission } from "~/types/quiz";
 import type { Route } from "./+types/_index";
-
-// Exécuté côté serveur → missions dans le HTML initial → indexé par Google
-export async function loader(): Promise<{ missions: Mission[] }> {
-  try {
-    const missions = await api.get<Mission[]>("/v0/mission?limit=6");
-    return { missions };
-  } catch {
-    return { missions: [] };
-  }
-}
-
 // Balises <head> générées côté serveur → OG tags visibles par les crawlers sociaux
 export function meta(): Route.MetaDescriptors {
   return [
