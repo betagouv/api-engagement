@@ -55,40 +55,43 @@ export const QUIZ_FLOW: StepDef[] = [
   // Étape 5 — duree.
   { id: "duree", route: "/quiz/duree" },
   // Étape 6 — embranchement motivation (un seul des 5 visible selon `statut`).
-  { id: "motivation_lyceen", route: "/quiz/motivation-lyceen", condition: screenAnswer("statut", "lyceen") },
-  { id: "motivation_etudiant", route: "/quiz/motivation-etudiant", condition: screenAnswer("statut", "etudiant") },
-  { id: "motivation_demandeur_emploi", route: "/quiz/motivation-demandeur-emploi", condition: screenAnswer("statut", "demandeur_emploi") },
-  { id: "motivation_actif", route: "/quiz/motivation-actif", condition: screenAnswer("statut", "actif") },
-  { id: "motivation_autres", route: "/quiz/motivation-autres", condition: or(screenAnswer("statut", "autre"), screenAnswer("statut", "retraite")) },
+  { id: "motivation_lyceen", route: "/quiz/motivation-lyceen", condition: screenAnswer("statut", "statut.lyceen") },
+  { id: "motivation_etudiant", route: "/quiz/motivation-etudiant", condition: screenAnswer("statut", "statut.etudiant") },
+  { id: "motivation_demandeur_emploi", route: "/quiz/motivation-demandeur-emploi", condition: screenAnswer("statut", "statut.demandeur_emploi") },
+  { id: "motivation_actif", route: "/quiz/motivation-actif", condition: screenAnswer("statut", "statut.actif") },
+  { id: "motivation_autres", route: "/quiz/motivation-autres", condition: or(screenAnswer("statut", "statut.autre"), screenAnswer("statut", "statut.retraite")) },
 
   // Étape 7 — précisions sur la motivation (embranchement).
   // → me_sentir_utile (toutes branches) : mapping référentiel `engagement_intent`.
   {
     id: "precision_domaine_aide",
     route: "/quiz/precision-domaine-aide",
-    condition: anyScreenHasAnswer(ALL_MOTIVATIONS, "me_sentir_utile"),
+    condition: anyScreenHasAnswer(ALL_MOTIVATIONS, "motivation.me_sentir_utile"),
   },
   // → booster_parcoursup (lyceen uniquement) : 3 sous-steps.
   {
     id: "precision_parcoursup_formation",
     route: "/quiz/precision-parcoursup-formation",
-    condition: screenAnswer("motivation_lyceen", "booster_parcoursup"),
+    condition: screenAnswer("motivation_lyceen", "motivation.booster_parcoursup"),
   },
   {
     id: "precision_parcoursup_formation_nom",
     route: "/quiz/precision-parcoursup-formation-nom",
-    condition: and(screenAnswer("motivation_lyceen", "booster_parcoursup"), screenAnswer("precision_parcoursup_formation", "oui")),
+    condition: and(
+      screenAnswer("motivation_lyceen", "motivation.booster_parcoursup"),
+      screenAnswer("precision_parcoursup_formation", "parcoursup_formation.oui"),
+    ),
   },
   {
     id: "precision_parcoursup_domaine",
     route: "/quiz/precision-parcoursup-domaine",
-    condition: screenAnswer("motivation_lyceen", "booster_parcoursup"),
+    condition: screenAnswer("motivation_lyceen", "motivation.booster_parcoursup"),
   },
   // → tester_orientation (lyceen uniquement) : mapping ONISEP.
   {
     id: "precision_orientation_rome",
     route: "/quiz/precision-orientation-rome",
-    condition: screenAnswer("motivation_lyceen", "tester_orientation"),
+    condition: screenAnswer("motivation_lyceen", "motivation.tester_orientation"),
   },
 
   // → booster_cv (étudiant + actif) ou enrichir_cv (demandeur_emploi) : mapping référentiel ROME (compétences).
@@ -96,7 +99,10 @@ export const QUIZ_FLOW: StepDef[] = [
   {
     id: "precision_competences",
     route: "/quiz/precision-competences",
-    condition: or(anyScreenHasAnswer(ETUDIANT_ACTIF, "booster_cv"), screenAnswer("motivation_demandeur_emploi", "enrichir_cv")),
+    condition: or(
+      anyScreenHasAnswer(ETUDIANT_ACTIF, "motivation.booster_cv"),
+      screenAnswer("motivation_demandeur_emploi", "motivation.enrichir_cv"),
+    ),
   },
 
   // → competences_interet_general (actif) : mapping référentiel ROME (compétences actuelles).
@@ -105,55 +111,55 @@ export const QUIZ_FLOW: StepDef[] = [
   {
     id: "precision_competences_actuelles",
     route: "/quiz/precision-competences-actuelles",
-    condition: screenAnswer("motivation_actif", "competences_interet_general"),
+    condition: screenAnswer("motivation_actif", "motivation.competences_interet_general"),
   },
 
   // → decouvrir_domaine (étudiant + actif) : mapping référentiel `domain`.
   {
     id: "precision_decouvrir_domaine",
     route: "/quiz/precision-decouvrir-domaine",
-    condition: anyScreenHasAnswer(ETUDIANT_ACTIF, "decouvrir_domaine"),
+    condition: anyScreenHasAnswer(ETUDIANT_ACTIF, "motivation.decouvrir_domaine"),
   },
 
   // → experience_terrain (étudiant uniquement) : mapping ONISEP du domaine d'études.
   {
     id: "precision_experience_terrain",
     route: "/quiz/precision-experience-terrain",
-    condition: screenAnswer("motivation_etudiant", "experience_terrain"),
+    condition: screenAnswer("motivation_etudiant", "motivation.experience_terrain"),
   },
 
   // → reprendre_activite (demandeur d'emploi) : mapping référentiel ROME (secteurs d'activité).
   {
     id: "precision_reprendre_activite",
     route: "/quiz/precision-reprendre-activite",
-    condition: screenAnswer("motivation_demandeur_emploi", "reprendre_activite"),
+    condition: screenAnswer("motivation_demandeur_emploi", "motivation.reprendre_activite"),
   },
 
   // → preparer_reconversion (demandeur d'emploi) : mapping ONISEP du domaine de reconversion visé.
   {
     id: "precision_reconversion",
     route: "/quiz/precision-reconversion",
-    condition: screenAnswer("motivation_demandeur_emploi", "preparer_reconversion"),
+    condition: screenAnswer("motivation_demandeur_emploi", "motivation.preparer_reconversion"),
   },
 
   // → ne_sais_pas (toutes branches applicables) : fallback — mapping `domain`.
   {
     id: "precision_indecision",
     route: "/quiz/precision-indecision",
-    condition: anyScreenHasAnswer(ALL_MOTIVATIONS, "ne_sais_pas"),
+    condition: anyScreenHasAnswer(ALL_MOTIVATIONS, "motivation.ne_sais_pas"),
   },
 
   // → servir_le_pays (toutes branches applicables).
   {
     id: "precision_servir_pays",
     route: "/quiz/precision-servir-pays",
-    condition: anyScreenHasAnswer(ALL_MOTIVATIONS, "servir_le_pays"),
+    condition: anyScreenHasAnswer(ALL_MOTIVATIONS, "motivation.servir_le_pays"),
   },
 
   // → partir_etranger (étudiant + actif), masqué si `duree = ponctuelle` (règle produit).
   {
     id: "precision_international",
     route: "/quiz/precision-international",
-    condition: and(anyScreenHasAnswer(ETUDIANT_ACTIF, "partir_etranger"), not(screenAnswer("duree", "ponctuelle"))),
+    condition: and(anyScreenHasAnswer(ETUDIANT_ACTIF, "motivation.partir_etranger"), not(screenAnswer("duree", "duree.ponctuelle"))),
   },
 ];

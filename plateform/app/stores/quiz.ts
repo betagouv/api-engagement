@@ -22,6 +22,6 @@ export const useQuizStore = create<QuizStore>()(
       setGeo: (geo) => set({ geo }),
       reset: () => set({ answers: {}, geo: undefined }),
     }),
-    { name: "quiz-answers", version: 1 },
+    { name: "quiz-answers", version: 2 },
   ),
 );

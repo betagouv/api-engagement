@@ -14,9 +14,10 @@ export type ScreenAnswer =
 export type QuizAnswers = Partial<Record<StepId, ScreenAnswer>>;
 
 // Option d'un step de type select (single ou multi).
-// `taxonomyKey` est obligatoire pour construire le payload /user-scoring.
+// `taxonomyKey` est l'identifiant canonique (namespace.key) utilisé à la fois
+// comme clé React, valeur stockée dans `option_ids`, et payload /user-scoring.
+// Le catalogue des options vit dans `~/config/quiz-options`.
 export interface StepOption {
-  id: string;
   label: string;
   sublabel?: string;
   icon?: string;

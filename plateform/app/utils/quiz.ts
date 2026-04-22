@@ -14,3 +14,14 @@ export function refreshSteps(
   const current = freshSteps[idx] ?? null;
   return { next, prev, current, steps: freshSteps };
 }
+
+// Construit le payload /user-scoring à partir des réponses stockées.
+// Les `option_ids` sont déjà des taxonomy keys (format `namespace.key`) depuis la migration
+// vers le catalogue `config/quiz-options` — pas de lookup intermédiaire nécessaire.
+export const buildPayload = (answers: QuizAnswers, geo: { lat: number; lon: number } | undefined) => {
+  const taxonomyKeys = Object.values(answers).flatMap((a) => (a?.type === "options" ? a.option_ids : []));
+  return {
+    answers: taxonomyKeys.map((key) => ({ taxonomy_value_key: key })),
+    geo,
+  };
+};
