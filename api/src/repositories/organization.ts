@@ -43,7 +43,7 @@ export const organizationRepository = {
       conditions.push(Prisma.sql`o."search_text" LIKE ${`%${args.queryText}%`}`);
     }
 
-    const whereClause = conditions.length ? Prisma.sql`WHERE ${Prisma.join(conditions, Prisma.sql` AND `)}` : Prisma.empty;
+    const whereClause = conditions.length ? Prisma.sql`WHERE ${Prisma.join(conditions, " AND ")}` : Prisma.empty;
     const idRows = await prisma.$queryRaw<Array<{ id: string }>>(
       Prisma.sql`
         SELECT o."id"
