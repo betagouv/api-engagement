@@ -14,8 +14,8 @@ dotenv.config();
 
 import { prisma } from "@/db/postgres";
 import { matchingEngineService } from "@/services/matching-engine";
-import { CURRENT_MATCHING_ENGINE_VERSION } from "@/services/matching-engine/types";
 import type { MatchMissionItem, MatchingEngineDimension, MatchingEngineVersion, MissionMatchingResultItem } from "@/services/matching-engine/types";
+import { CURRENT_MATCHING_ENGINE_VERSION } from "@/services/matching-engine/types";
 
 const args = process.argv.slice(2);
 const userScoringId = args.find((arg) => !arg.startsWith("--"));
@@ -35,6 +35,22 @@ type OverlapSignal = {
   missionScore: number;
 };
 
+type UserDimensionSummary = {
+  dimensionKey: MatchingEngineDimension;
+  dimensionLabel: string;
+  values: string[];
+};
+
+type UserScoringValueWithTaxonomy = {
+  taxonomyValue: {
+    label: string;
+    taxonomy: {
+      key: string;
+      label: string;
+    };
+  };
+};
+
 type RankedMissionExplanationItem = MatchMissionItem & {
   title: string;
 };
@@ -48,18 +64,11 @@ const parseStoredResults = (value: unknown): StoredMissionMatchingResultItem[] =
     .filter((item): item is { missionScoringId?: unknown; dimensionScores?: unknown } => typeof item === "object" && item !== null)
     .filter(
       (item): item is StoredMissionMatchingResultItem =>
-        typeof item.missionScoringId === "string" &&
-        typeof item.dimensionScores === "object" &&
-        item.dimensionScores !== null &&
-        !Array.isArray(item.dimensionScores)
+        typeof item.missionScoringId === "string" && typeof item.dimensionScores === "object" && item.dimensionScores !== null && !Array.isArray(item.dimensionScores)
     );
 };
 
-const buildDimensionExplanation = (params: {
-  dimensionKey: MatchingEngineDimension;
-  dimensionScore: number;
-  overlaps: OverlapSignal[];
-}): string => {
+const buildDimensionExplanation = (params: { dimensionKey: MatchingEngineDimension; dimensionScore: number; overlaps: OverlapSignal[] }): string => {
   if (params.overlaps.length === 0) {
     return `- ${params.dimensionKey} (${params.dimensionScore.toFixed(3)}): recouvrement détecté mais non résolu en libellé`;
   }
@@ -74,6 +83,33 @@ const buildDimensionExplanation = (params: {
   const suffix = extraCount > 0 ? ` (+${extraCount})` : "";
 
   return `- ${params.overlaps[0].dimensionLabel} (${params.dimensionScore.toFixed(3)}): match sur ${preview}${suffix}`;
+};
+
+const buildUserDimensionSummary = (params: { values: UserScoringValueWithTaxonomy[] }): UserDimensionSummary[] => {
+  const byDimension = new Map<MatchingEngineDimension, UserDimensionSummary>();
+
+  for (const value of params.values) {
+    const dimensionKey = value.taxonomyValue.taxonomy.key as MatchingEngineDimension;
+    const existing = byDimension.get(dimensionKey);
+
+    if (!existing) {
+      byDimension.set(dimensionKey, {
+        dimensionKey,
+        dimensionLabel: value.taxonomyValue.taxonomy.label,
+        values: [value.taxonomyValue.label],
+      });
+      continue;
+    }
+
+    existing.values.push(value.taxonomyValue.label);
+  }
+
+  return Array.from(byDimension.values())
+    .map((entry) => ({
+      ...entry,
+      values: Array.from(new Set(entry.values)).sort((left, right) => left.localeCompare(right, "fr")),
+    }))
+    .sort((left, right) => left.dimensionLabel.localeCompare(right.dimensionLabel, "fr"));
 };
 
 const run = async () => {
@@ -158,6 +194,7 @@ const run = async () => {
       },
     ])
   );
+  const userDimensionSummaries = buildUserDimensionSummary({ values: userScoringValues });
 
   const missionScoringsById = new Map(missionScorings.map((missionScoring) => [missionScoring.id, missionScoring]));
   const explainedItems: RankedMissionExplanationItem[] = ranking.items
@@ -180,6 +217,21 @@ const run = async () => {
   console.log(
     `[explain-matching-result] userScoringId=${userScoringId} version=${version} missions_retournees=${ranking.items.length} missions_stockees=${storedResults.length} tookMs=${ranking.tookMs}`
   );
+
+  console.log("## Profil user scoring");
+
+  if (userDimensionSummaries.length === 0) {
+    console.log("Aucune dimension renseignée");
+  } else {
+    for (const summary of userDimensionSummaries) {
+      const preview = summary.values.slice(0, 3).join(", ");
+      const extraCount = Math.max(summary.values.length - 3, 0);
+      const suffix = extraCount > 0 ? ` (+${extraCount})` : "";
+      console.log(`- ${summary.dimensionLabel}: ${preview}${suffix}`);
+    }
+  }
+
+  console.log("## Mission scoring");
 
   for (const [index, rankedItem] of explainedItems.entries()) {
     const missionScoring = missionScoringsById.get(rankedItem.missionScoringId);

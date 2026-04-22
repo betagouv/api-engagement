@@ -78,7 +78,7 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
 - **explain-matching-result.ts**
 
   - Exécution: `npx ts-node scripts/explain-matching-result.ts <userScoringId> [--limit N] [--version V]`
-  - Usage: Relit un `mission_matching_result` existant et explique, mission par mission, pourquoi le matching est pertinent par dimension.
+  - Usage: Exécute le `matching-engine`, vérifie la persistance du `mission_matching_result`, affiche les dimensions du `user_scoring`, puis explique mission par mission pourquoi le matching est pertinent par dimension.
   - Options:
     - `--limit N` : nombre max de missions affichées (défaut: 5)
     - `--version V` : version du matching engine à analyser (défaut: version courante)
