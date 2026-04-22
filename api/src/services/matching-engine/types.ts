@@ -16,9 +16,9 @@ export type MatchingEngineDimension = (typeof MATCHING_ENGINE_DIMENSIONS)[number
 
 export type MatchingEngineDimensionWeights = Record<MatchingEngineDimension, number>;
 
-export type MatchingEngineVersion = "v1";
+export type MatchingEngineVersion = "m1";
 
-export const CURRENT_MATCHING_ENGINE_VERSION: MatchingEngineVersion = "v1";
+export const CURRENT_MATCHING_ENGINE_VERSION: MatchingEngineVersion = "m1";
 
 export const MATCHING_ENGINE_TOP_RESULTS_LIMIT = 20;
 

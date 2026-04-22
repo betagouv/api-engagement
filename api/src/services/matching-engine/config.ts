@@ -7,7 +7,7 @@ type MatchingEngineVersionConfig = {
 };
 
 export const MATCHING_ENGINE_VERSIONS = {
-  v1: {
+  m1: {
     dimensionWeights: {
       [TaxonomyKey.domaine]: 1,
       [TaxonomyKey.secteur_activite]: 1,
