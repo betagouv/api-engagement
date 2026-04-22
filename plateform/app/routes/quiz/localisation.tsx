@@ -1,12 +1,13 @@
 import { useState, type FormEvent } from "react";
 import { useOutletContext } from "react-router";
+import type { QuizOutletContext } from "./_layout";
 import { useQuizStore } from "~/stores/quiz";
 
 // Stub : adresse saisie libre, coords factices. TODO : brancher api-adresse.data.gouv.fr.
 export default function LocalisationStep() {
   const setAnswer = useQuizStore((s) => s.setAnswer);
   const setGeo = useQuizStore((s) => s.setGeo);
-  const goNext = useOutletContext<() => void>();
+  const { goNext, goBack } = useOutletContext<QuizOutletContext>();
 
   const [value, setValue] = useState("");
 
@@ -37,9 +38,14 @@ export default function LocalisationStep() {
         />
       </div>
 
-      <button type="submit" className="fr-btn fr-mt-2w" disabled={!value.trim()}>
-        Continuer
-      </button>
+      <div className="fr-mt-2w">
+        <button type="button" className="fr-btn fr-btn--secondary fr-mr-2w" onClick={goBack}>
+          Retour
+        </button>
+        <button type="submit" className="fr-btn" disabled={!value.trim()}>
+          Continuer
+        </button>
+      </div>
     </form>
   );
 }

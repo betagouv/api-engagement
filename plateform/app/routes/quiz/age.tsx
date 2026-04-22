@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useOutletContext } from "react-router";
+import type { QuizOutletContext } from "./_layout";
 import { useQuizStore } from "~/stores/quiz";
 
 const MIN_AGE = 16;
@@ -10,7 +11,7 @@ const STEP_ID = "age";
 // Utilisée uniquement dans les conditions des steps suivants (ex: handicap).
 export default function AgeStep() {
   const { answers, setAnswer } = useQuizStore();
-  const goNext = useOutletContext<() => void>();
+  const { goNext, goBack } = useOutletContext<QuizOutletContext>();
   const [value, setValue] = useState<string>("");
 
   useEffect(() => {
@@ -51,9 +52,14 @@ export default function AgeStep() {
         />
       </div>
 
-      <button type="submit" className="fr-btn fr-mt-2w" disabled={!valid}>
-        Continuer
-      </button>
+      <div className="fr-mt-2w">
+        <button type="button" className="fr-btn fr-btn--secondary fr-mr-2w" onClick={goBack}>
+          Retour
+        </button>
+        <button type="submit" className="fr-btn" disabled={!valid}>
+          Continuer
+        </button>
+      </div>
     </form>
   );
 }
