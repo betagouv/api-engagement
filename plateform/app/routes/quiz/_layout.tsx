@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 import { QUIZ_FLOW, type StepDef } from "~/config/quiz-flow";
 import { useQuizStore } from "~/stores/quiz";
 import { evalCondition } from "~/utils/conditions";
+import { refreshSteps } from "~/utils/quiz";
 import type { Route } from "./+types/_layout";
 
 export function meta(): Route.MetaDescriptors {
@@ -22,21 +23,10 @@ export default function QuizLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { answers, reset } = useQuizStore();
+  const [steps, setSteps] = useState<StepDef[]>(QUIZ_FLOW.filter((s) => !s.condition || evalCondition(s.condition, answers)));
+  const currentStep = useMemo(() => steps.find((s) => s.route === location.pathname) ?? null, [location.pathname, steps]);
 
-  // Liste des steps visibles dérivée des réponses courantes.
-  // Mise à jour à chaque changement du store (ex: après une réponse à `age`, `handicap` peut apparaître/disparaître).
-  const [steps, setSteps] = useState<StepDef[]>([]);
-
-  useEffect(() => {
-    const visibleSteps = QUIZ_FLOW.filter((s) => !s.condition || evalCondition(s.condition, answers));
-    setSteps(visibleSteps);
-  }, [answers]);
-
-  const currentStep = QUIZ_FLOW.find((s) => s.route === location.pathname) ?? null;
   const currentIndex = currentStep ? steps.findIndex((s) => s.id === currentStep.id) : -1;
-  console.log("steps", steps);
-  console.log("current", currentIndex, currentStep);
-  console.log("next", steps[currentIndex + 1]);
 
   // Guard : si la condition du step courant n'est pas remplie (ex: accès direct à /quiz/handicap
   // sans réponse à /quiz/age), on redirige vers le premier step visible.
@@ -47,17 +37,22 @@ export default function QuizLayout() {
       const firstVisible = QUIZ_FLOW.find((s) => !s.condition || evalCondition(s.condition, answers));
       navigate(firstVisible?.route ?? "/quiz/age", { replace: true });
     }
-  }, [location.pathname]);
+  }, [location.pathname, currentStep]);
 
   const goNext = () => {
-    if (currentIndex < 0) return;
-    const next = steps[currentIndex + 1];
+    if (!currentStep) return;
+    const freshAnswers = useQuizStore.getState().answers;
+    const { next, steps } = refreshSteps(QUIZ_FLOW, currentStep.id, freshAnswers);
+    setSteps(steps);
     navigate(next ? next.route : "/quiz/results");
   };
 
   const goBack = () => {
-    if (currentIndex <= 0) return;
-    navigate(steps[currentIndex - 1].route);
+    if (!currentStep) return;
+    const freshAnswers = useQuizStore.getState().answers;
+    const { prev, steps } = refreshSteps(QUIZ_FLOW, currentStep.id, freshAnswers);
+    setSteps(steps);
+    navigate(prev ? prev.route : "/quiz/age", { replace: true });
   };
 
   const handleReset = () => {

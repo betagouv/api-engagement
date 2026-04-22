@@ -7,7 +7,8 @@ export type Condition =
   | { type: "any_screen_has_answer"; screenIds: StepId[]; optionId: string }
   | { type: "numeric_range"; screenId: StepId; min?: number; max?: number }
   | { type: "and"; conditions: Condition[] }
-  | { type: "or"; conditions: Condition[] };
+  | { type: "or"; conditions: Condition[] }
+  | { type: "not"; condition: Condition };
 
 export const screenAnswer = (screenId: StepId, optionId: string): Condition => ({
   type: "screen_answer",
@@ -32,6 +33,8 @@ export const and = (...conditions: Condition[]): Condition => ({ type: "and", co
 
 export const or = (...conditions: Condition[]): Condition => ({ type: "or", conditions });
 
+export const not = (condition: Condition): Condition => ({ type: "not", condition });
+
 export const evalCondition = (condition: Condition, answers: QuizAnswers): boolean => {
   switch (condition.type) {
     case "screen_answer": {
@@ -54,5 +57,7 @@ export const evalCondition = (condition: Condition, answers: QuizAnswers): boole
       return condition.conditions.every((c) => evalCondition(c, answers));
     case "or":
       return condition.conditions.some((c) => evalCondition(c, answers));
+    case "not":
+      return !evalCondition(condition.condition, answers);
   }
 };
