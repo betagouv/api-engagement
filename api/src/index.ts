@@ -63,6 +63,7 @@ import MissionController from "@/controllers/mission";
 import ModerationController from "@/controllers/moderation";
 import ModerationEventController from "@/controllers/moderation-event";
 import OrganizationController from "@/controllers/organization";
+import PocController from "@/controllers/poc";
 import PublisherController from "@/controllers/publisher";
 import RedirectController from "@/controllers/redirect";
 import ReportController from "@/controllers/report";
