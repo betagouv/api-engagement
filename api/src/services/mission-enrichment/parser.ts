@@ -68,20 +68,6 @@ export const validateEnrichmentClassifications = (
       continue;
     }
 
-    // For categorical taxonomies, only keep the single highest-confidence value
-    if (taxonomy.type === "categorical") {
-      const existingCategorical = valid.findIndex((v) => v.dimension_key === normalizedItem.dimension_key);
-      if (existingCategorical !== -1) {
-        if (normalizedItem.confidence > valid[existingCategorical].confidence) {
-          skipped.push({ ...valid[existingCategorical], reason: `categorical_superseded: lower confidence than ${normalizedItem.value_key}` });
-          valid[existingCategorical] = { ...normalizedItem, taxonomyValueId };
-        } else {
-          skipped.push({ ...normalizedItem, reason: `categorical_duplicate: ${normalizedItem.dimension_key} already has a higher confidence value` });
-        }
-        continue;
-      }
-    }
-
     valid.push({ ...normalizedItem, taxonomyValueId });
   }
 
