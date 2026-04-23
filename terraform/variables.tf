@@ -82,19 +82,23 @@ variable "api_max_scale" {
 }
 
 variable "app_cpu_limit" {
-  type = number
+  type    = number
+  default = 250
 }
 
 variable "app_memory_limit" {
-  type = number
+  type    = number
+  default = 512
 }
 
 variable "app_min_scale" {
-  type = number
+  type    = number
+  default = 0
 }
 
 variable "app_max_scale" {
-  type = number
+  type    = number
+  default = 1
 }
 
 variable "widget_cpu_limit" {
@@ -160,7 +164,30 @@ variable "enable_analytics_jobs" {
   default = true
 }
 
+variable "enable_mission_jobs" {
+  type        = bool
+  default     = true
+  description = "Enable always-on mission jobs (import-missions, enrich-missions-geoloc, verify-publisher-organization)"
+}
+
 variable "cockpit_metrics_otlp_url" {
+  type    = string
+  default = ""
+}
+
+variable "enable_app" {
+  type        = bool
+  default     = true
+  description = "Enable the app container"
+}
+
+variable "enable_poc_quiz" {
+  type        = bool
+  default     = false
+  description = "Enable the poc-quiz container"
+}
+
+variable "poc_quiz_hostname" {
   type    = string
   default = ""
 }

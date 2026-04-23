@@ -46,7 +46,7 @@ process.on("unhandledRejection", (reason) => {
 import express from "express";
 import path from "path";
 
-import { corsPublic } from "@/middlewares/cors";
+import { corsPoc, corsPublic } from "@/middlewares/cors";
 import errorHandler from "@/middlewares/error-handler";
 
 import { pgConnected, pgDisconnect } from "@/db/postgres";
@@ -63,15 +63,16 @@ import MissionController from "@/controllers/mission";
 import ModerationController from "@/controllers/moderation";
 import ModerationEventController from "@/controllers/moderation-event";
 import OrganizationController from "@/controllers/organization";
+import PocController from "@/controllers/poc";
 import PublisherController from "@/controllers/publisher";
 import RedirectController from "@/controllers/redirect";
 import ReportController from "@/controllers/report";
 import StatsController from "@/controllers/stats";
 import StatsMeanController from "@/controllers/stats-mean/controller";
 import UserController from "@/controllers/user";
+import UserScoringController from "@/controllers/user-scoring";
 import WarningController from "@/controllers/warning";
 import WarningBotController from "@/controllers/warning-bot";
-import UserScoringController from "@/controllers/user-scoring";
 import WidgetController from "@/controllers/widget";
 import MissionV0Controller from "@/v0/mission/controller";
 import MyMissionV0Controller from "@/v0/mymission/controller";
@@ -97,6 +98,10 @@ const main = async () => {
     otlpUrl: COCKPIT_METRICS_OTLP_URL,
     token: COCKPIT_METRICS_TOKEN,
   });
+
+  // OPTIONS preflights POC enregistrés AVANT le cors global (middlewares) qui bloquerait les origines inconnues
+  app.options("/user-scoring", corsPoc);
+  app.options(/^\/poc/, corsPoc);
 
   middlewares(app);
 
@@ -128,6 +133,7 @@ const main = async () => {
   app.use("/v2/activity", corsPublic, ActivityV2Controller);
   app.use("/v2/leboncoin", corsPublic, LeboncoinV2Controller);
   app.use("/v2/jobteaser", corsPublic, JobTeaserV2Controller);
+  app.use("/poc", corsPoc, PocController);
   app.use("/user-scoring", corsPublic, UserScoringController);
   app.use("/brevo-webhook", corsPublic, BrevoWebhookController);
 
