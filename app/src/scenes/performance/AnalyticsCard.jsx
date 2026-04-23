@@ -57,7 +57,11 @@ const AnalyticsCard = ({
     return content;
   }
 
-  return <div className="space-y-4 p-6">{content}</div>;
+  return (
+    <div className="overflow-x-auto">
+      <div className="min-w-[600px] space-y-4 p-0 sm:p-6">{content}</div>
+    </div>
+  );
 };
 
 export default AnalyticsCard;

@@ -35,18 +35,18 @@ const PublicStats = () => {
   return (
     <div className="flex w-full flex-col bg-white">
       <title>API Engagement - Statistiques</title>
-      <div className="mx-auto my-14 w-4/5 max-w-[1200px] flex-1">
-        <div className="flex justify-between">
+      <div className="mx-auto my-14 w-full max-w-[1200px] flex-1 px-4 sm:w-4/5 sm:px-0">
+        <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h1 className="mb-2 text-4xl font-bold">Statistiques de l'API Engagement</h1>
             <p className="text-text-mention text-lg font-medium">L'API Engagement facilite la diffusion des missions de bénévolat et de volontariat partout en France.</p>
           </div>
 
-          <img className="h-18 w-18" src={APILogo} alt="" aria-hidden="true" />
+          <img className="h-18 w-18 shrink-0" src={APILogo} alt="" aria-hidden="true" />
         </div>
       </div>
       <div className="bg-global-background">
-        <div className="mx-auto my-14 w-4/5 max-w-[1200px] flex-1">
+        <div className="mx-auto my-14 w-full max-w-[1200px] flex-1 px-4 sm:w-4/5 sm:px-0">
           <div className="flex">
             <img className="h-18 w-18" src={dataViz} alt="" aria-hidden="true" />
             <div className="ml-5 flex flex-col">
@@ -58,9 +58,9 @@ const PublicStats = () => {
             </div>
           </div>
         </div>
-        <div className="border-grey-border mx-auto my-14 w-4/5 max-w-[1200px] border bg-white p-12">
+        <div className="border-grey-border mx-auto my-14 w-full max-w-[1200px] border bg-white p-4 px-4 sm:w-4/5 sm:p-12">
           <h3 className="text-3xl font-bold">En quelques mots</h3>
-          <div className="flex-start flex gap-6">
+          <div className="flex-start flex flex-col gap-6 sm:flex-row">
             <div className="text-text-mention mt-8 flex-1 text-lg leading-loose">
               <strong className="text-black">
                 L'API Engagement est un service public numérique qui permet aux plateformes d'engagement associatives, publiques et privées de mettre en commun leurs missions.

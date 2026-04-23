@@ -61,7 +61,7 @@ const Users = () => {
   }, []);
 
   return (
-    <div className="space-y-12 p-12">
+    <div className="space-y-12 p-4 sm:p-12">
       <title>API Engagement - Utilisateurs - Administration</title>
       <div className="flex items-center justify-between">
         <div>
@@ -70,16 +70,17 @@ const Users = () => {
         </div>
       </div>
 
-      <div className="border-grey-border border p-6">
-        <div role="search" className="mb-6 flex items-center gap-4">
+      <div className="border-grey-border overflow-x-auto border p-4 sm:p-6">
+        <div role="search" className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center">
           <label htmlFor="user-search" className="sr-only">
             Rechercher par nom ou par email
           </label>
           <input id="user-search" name="user-search" className="input flex-1" placeholder="Chercher par nom ou par email" onChange={(e) => setSearch(e.target.value)} />
-          <Link to="/user/new" className="primary-btn flex items-center">
+          <Link to="/user/new" className="primary-btn flex shrink-0 items-center">
             Nouvel utilisateur <HiOutlinePlus className="ml-2" aria-hidden="true" />
           </Link>
         </div>
+        <div className="min-w-[700px]">
         <Table caption="Liste des utilisateurs" header={TABLE_HEADER} total={filteredUsers.length} loading={loading} page={page} pageSize={PAGE_SIZE} onPageChange={setPage} auto>
           {filteredUsers.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((item, i) => (
             <tr key={item.id} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
@@ -129,6 +130,7 @@ const Users = () => {
             </tr>
           ))}
         </Table>
+        </div>
       </div>
     </div>
   );

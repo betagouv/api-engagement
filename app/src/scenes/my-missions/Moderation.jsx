@@ -125,9 +125,9 @@ const Moderation = () => {
   }
 
   return (
-    <div className="space-y-12 p-12">
+    <div className="space-y-12 p-4 sm:p-12">
       <title>API Engagement - Modération - Vos Missions</title>
-      <div className="mb-8 flex items-end justify-between gap-4">
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="text-3xl font-bold">Modération de JeVeuxAider.gouv.fr</h2>
           <p className="text-text-mention text-sm">
@@ -137,13 +137,13 @@ const Moderation = () => {
             </a>
           </p>
         </div>
-        <img className="w-2/5" src={JvaLogoPng} alt="" aria-hidden="true" />
+        <img className="hidden w-2/5 sm:block" src={JvaLogoPng} alt="" aria-hidden="true" />
       </div>
 
       <div className="border-b border-b-gray-900 pb-8">
-        <SearchInput value={filters.search} onChange={(search) => setFilters({ ...filters, search })} className="w-96" placeholder="Rechercher par mot-clé" />
+        <SearchInput value={filters.search} onChange={(search) => setFilters({ ...filters, search })} className="w-full sm:w-96" placeholder="Rechercher par mot-clé" />
 
-        <div className="mt-4 flex flex-1 items-center gap-4">
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
           <Select
             options={options.status.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseigné" : STATUS[e.key], count: e.doc_count }))}
             value={filters.status}
@@ -221,13 +221,13 @@ const Moderation = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         <div className="border-grey-border border p-4">
           <div className="flex items-start">
             <h3 className="flex-1 text-lg font-bold">Répartition des missions par statut</h3>
           </div>
           <div className="p-4">
-            <Pie data={stats.status} backgroundColor={colors} legendPosition="right" />
+            <Pie data={stats.status} backgroundColor={colors} legendPosition="bottom" />
           </div>
         </div>
         <div className="border-grey-border col-span-2 border p-4">
@@ -263,7 +263,7 @@ const Moderation = () => {
         </div>
       </div>
 
-      <div className="border-grey-border border p-6">
+      <div className="border-grey-border overflow-x-auto border p-4 sm:p-6">
         <Table
           caption="Missions en modération"
           header={MISSIONS_TABLE_HEADER}

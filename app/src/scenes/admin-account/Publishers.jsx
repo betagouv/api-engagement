@@ -128,15 +128,15 @@ const Publishers = () => {
   };
 
   return (
-    <div className="space-y-12 p-12">
+    <div className="space-y-12 p-4 sm:p-12">
       <title>API Engagement - Partenaires - Administration</title>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-3xl font-bold">Liste des partenaires</h2>
           <p className="mt-2">Liste de comptes annonceurs et diffuseurs de l'API</p>
         </div>
 
-        <div className="flex">
+        <div className="flex shrink-0">
           <button className="tertiary-bis-btn flex items-center" onClick={handleExport}>
             {exporting ? <Loader /> : <RiFileDownloadLine className="mr-2" aria-hidden="true" />}
             Exporter
@@ -147,8 +147,8 @@ const Publishers = () => {
         </div>
       </div>
 
-      <div className="border-grey-border border p-6">
-        <div role="search" className="mb-6 flex items-center gap-4">
+      <div className="border-grey-border overflow-x-auto border p-4 sm:p-6">
+        <div role="search" className="mb-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
           <p className="font-semibold">{`${publishers.length} partenaire${publishers.length > 1 ? "s" : ""}`}</p>
           <label htmlFor="publisher-name" className="sr-only">
             Rechercher par nom
@@ -156,7 +156,7 @@ const Publishers = () => {
           <input
             id="publisher-name"
             name="publisher-name"
-            className="input flex-1"
+            className="input min-w-0 flex-1"
             placeholder="Chercher par nom"
             value={filters.name}
             onChange={(e) => setFilters({ ...filters, name: e.target.value })}
@@ -165,7 +165,7 @@ const Publishers = () => {
           <label htmlFor="publisher-role" className="sr-only">
             Filtrer par rôle
           </label>
-          <select id="publisher-role" name="publisher-role" className="input w-[20%]" value={filters.role} onChange={(e) => setFilters({ ...filters, role: e.target.value })}>
+          <select id="publisher-role" name="publisher-role" className="input w-full sm:w-[20%]" value={filters.role} onChange={(e) => setFilters({ ...filters, role: e.target.value })}>
             <option value="">Tous les rôles</option>
             <option value="annonceur">Tous les annonceurs</option>
             <option value="diffuseur">Tous les diffuseurs</option>
@@ -177,7 +177,7 @@ const Publishers = () => {
             Filtrer par rapport d'impact
           </label>
           <select
-            className="input w-[20%] truncate"
+            className="input w-full truncate sm:w-[20%]"
             id="publisher-send-report"
             value={filters.sendReport.toString()}
             onChange={(e) => setFilters({ ...filters, sendReport: e.target.value })}
@@ -190,7 +190,7 @@ const Publishers = () => {
             Filtrer par type de mission
           </label>
           <select
-            className="input w-[20%] truncate"
+            className="input w-full truncate sm:w-[20%]"
             id="publisher-mission-type"
             value={filters.missionType}
             onChange={(e) => setFilters({ ...filters, missionType: e.target.value })}
@@ -203,6 +203,7 @@ const Publishers = () => {
             ))}
           </select>
         </div>
+        <div className="min-w-[700px]">
         <Table caption="Liste des partenaires" header={TABLE_HEADER} total={publishers.length} loading={loading} page={page} pageSize={PAGE_SIZE} onPageChange={setPage}>
           {publishers.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((item, i) => (
             <tr key={item.id} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row h-20`}>
@@ -226,6 +227,7 @@ const Publishers = () => {
             </tr>
           ))}
         </Table>
+        </div>
       </div>
     </div>
   );

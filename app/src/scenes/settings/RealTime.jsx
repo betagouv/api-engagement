@@ -111,7 +111,7 @@ const RealTime = () => {
   }, [flux, publisher, setSearchParams, type, sourceId, sourceType]);
 
   return (
-    <div className="space-y-12 p-12">
+    <div className="space-y-12 p-4 sm:p-12">
       <title>API Engagement - Événements en temps réel - Paramètres</title>
       <div className="border-grey-border space-y-8 border p-8">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">

@@ -51,9 +51,6 @@ class APIHandler {
       return { ...res, status: response.status };
     } catch (error) {
       error.requestId = requestId;
-      if (error.message.includes("NetworkError")) {
-        return this.logout();
-      }
       throw error;
     }
   }
@@ -77,9 +74,6 @@ class APIHandler {
       return { ...res, status: response.status };
     } catch (error) {
       error.requestId = requestId;
-      if (error.message.includes("NetworkError")) {
-        return this.logout();
-      }
       throw error;
     }
   }
@@ -103,9 +97,6 @@ class APIHandler {
       return { ...res, status: response.status };
     } catch (error) {
       error.requestId = requestId;
-      if (error.message.includes("NetworkError")) {
-        return this.logout();
-      }
       throw error;
     }
   }
@@ -130,9 +121,6 @@ class APIHandler {
       return { ...res, status: response.status };
     } catch (error) {
       error.requestId = requestId;
-      if (error.message.includes("NetworkError")) {
-        return this.logout();
-      }
       throw error;
     }
   }
@@ -156,9 +144,6 @@ class APIHandler {
       return { ...res, status: response.status };
     } catch (error) {
       error.requestId = requestId;
-      if (error.message.includes("NetworkError")) {
-        return this.logout();
-      }
       throw error;
     }
   }

@@ -18,7 +18,7 @@ const TrackingBroadcast = () => {
   };
 
   return (
-    <div className="space-y-4 bg-white p-12 shadow-lg">
+    <div className="space-y-12 p-4 sm:p-12">
       <div className="space-y-2">
         <h2 className="text-3xl font-bold">Script à intégrer sur votre site</h2>
         <p className="text-text-mention text-sm">

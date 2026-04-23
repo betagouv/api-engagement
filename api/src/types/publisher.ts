@@ -21,6 +21,7 @@ export interface PublisherDiffusionInput {
 export interface PublisherDiffusionRecord {
   id: string;
   diffuseurPublisherId: string;
+  diffuseurPublisherName: string | null;
   annonceurPublisherId: string;
   moderator: boolean;
   missionType: PublisherMissionType | null;

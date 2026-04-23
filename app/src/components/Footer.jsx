@@ -7,10 +7,10 @@ import marianneBanner from "@/assets/svg/marianne-banner.svg";
 const Footer = () => {
   return (
     <footer role="contentinfo" className="border-blue-france flex w-full flex-col justify-center border-t-2 bg-white">
-      <div className="mx-auto w-full max-w-7xl">
-        <div className="mt-10 flex items-center justify-between">
-          <Link className="hover:bg-gray-975 flex items-center p-2" to="/">
-            <div className="my-2 h-full w-24">
+      <div className="mx-auto w-full max-w-7xl px-4">
+        <div className="mt-10 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+          <Link className="hover:bg-gray-975 flex items-center gap-4 p-2" to="/">
+            <div className="my-2 h-full w-24 shrink-0">
               <div className="flex flex-col items-start">
                 <img src={marianneBanner} alt="" aria-hidden="true" className="mb-1 w-10" />
                 <p className="text-xs leading-3 font-bold text-black uppercase">
@@ -31,26 +31,26 @@ const Footer = () => {
               L'API vous permet de faciliter l'engagement en simplifiant la démarche de recherche d'une mission de bénévolat ou de volontariat
             </p>
 
-            <ul role="list" aria-label="Liens gouvernementaux" className="text-grey-default flex items-center text-sm font-bold">
-              <li className="mr-6">
+            <ul role="list" aria-label="Liens gouvernementaux" className="text-grey-default flex flex-wrap items-center gap-x-6 gap-y-2 text-sm font-bold">
+              <li>
                 <a href="https://www.legifrance.gouv.fr/" target="_blank" rel="noopener external" className="link-external">
                   legifrance.gouv.fr
                   <RiExternalLinkLine className="ml-1" aria-hidden="true" />
                 </a>
               </li>
-              <li className="mr-6">
+              <li>
                 <a href="https://www.gouvernement.fr/" target="_blank" rel="noopener external" className="link-external">
                   gouvernement.fr
                   <RiExternalLinkLine className="ml-1" aria-hidden="true" />
                 </a>
               </li>
-              <li className="mr-6">
+              <li>
                 <a href="https://www.service-public.fr/" target="_blank" rel="noopener external" className="link-external">
                   service-public.fr
                   <RiExternalLinkLine className="ml-1" aria-hidden="true" />
                 </a>
               </li>
-              <li className="mr-6">
+              <li>
                 <a href="https://www.data.gouv.fr/fr/" target="_blank" rel="noopener external" className="link-external">
                   data.gouv.fr
                   <RiExternalLinkLine className="ml-1" aria-hidden="true" />
@@ -63,7 +63,7 @@ const Footer = () => {
         <ul
           role="list"
           aria-label="Liens de pied de page"
-          className="divide-text-mention border-grey-border text-text-mention mt-10 flex items-center divide-x border-t py-4 text-xs"
+          className="divide-text-mention border-grey-border text-text-mention mt-10 flex flex-wrap items-center divide-x border-t py-4 text-xs"
         >
           <li>
             <a href="https://api-engagement.beta.gouv.fr/accessibilite/" className="pr-3 hover:underline">
@@ -101,7 +101,7 @@ const Footer = () => {
             </Link>
           </li>
         </ul>
-        <p className="text-text-mention flex items-center py-4 text-xs">
+        <p className="text-text-mention flex flex-wrap items-center py-4 text-xs">
           Sauf mention explicite de propriété intellectuelle détenue par des tiers, les contenus de ce site sont proposés sous
           <a href="https://github.com/etalab/licence-ouverte/blob/master/LO.md" target="_blank" className="ml-1 flex items-center hover:underline">
             licence etalab-2.0

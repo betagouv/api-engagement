@@ -75,10 +75,6 @@ describe("RedirectController /account", () => {
       fromPublisherId: publisher.id,
       toPublisherId: publisher.id,
       missionId: mission.id,
-      missionClientId: mission.clientId,
-      missionTitle: mission.title,
-      missionOrganizationName: mission.organizationName ?? "",
-      missionOrganizationId: "click-org-id",
     });
 
     const response = await request(app)
@@ -118,14 +114,6 @@ describe("RedirectController /account", () => {
       source: "publisher",
       sourceId: "source-id",
       sourceName: "Source Name",
-      missionId: "click-mission-id",
-      missionClientId: "click-mission-client-id",
-      missionDomain: "click-domain",
-      missionTitle: "Click Mission Title",
-      missionPostalCode: "33000",
-      missionDepartmentName: "Bordeaux",
-      missionOrganizationName: "Click Org",
-      missionOrganizationId: "click-org-id",
     });
 
     const response = await request(app).get("/r/account").query({ view: "click-456" });
@@ -142,8 +130,6 @@ describe("RedirectController /account", () => {
       sourceName: clickStat.sourceName,
       fromPublisherId: clickStat.fromPublisherId,
       toPublisherId: clickStat.toPublisherId,
-      missionId: clickStat.missionId,
-      missionClientId: clickStat.missionClientId,
       isBot: false,
     });
   });
