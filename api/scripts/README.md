@@ -26,7 +26,7 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
 - **backfill-organization-search-text.ts**
 
   - Exécution: `npx ts-node scripts/backfill-organization-search-text.ts [--batch <taille>] [--last-id <id>] [--only-null]`
-  - Usage: Calcule `organization.search_text` en minuscules (title + short_title + rna + siret + siren) pour accélérer la recherche.
+  - Usage: Calcule `organization.search_text` en minuscules, sans accents et sans ponctuation (title + short_title + rna + siret + siren) pour accélérer la recherche.
   - Options: `--batch <taille>` (défaut: 500), `--last-id <id>` pour reprendre à un identifiant donné, `--only-null` pour ne traiter que les lignes non encore remplies.
 
 - **mongo-backfill/**

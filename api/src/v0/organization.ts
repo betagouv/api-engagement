@@ -35,13 +35,12 @@ router.get("/", async (req: PublisherRequest, res: Response, next: NextFunction)
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
 
-    const { results } = await organizationService.findOrganizationsByFilters({
+    const results = await organizationService.findOrganizationsForV0({
       query: query.data.q,
       rna: query.data.rna,
       siret: query.data.siret,
       offset: query.data.skip,
       limit: query.data.limit,
-      includeTotal: "none",
     });
 
     return res.status(200).send({ ok: true, data: results.map(withLegacyId) });
