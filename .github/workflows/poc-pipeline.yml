@@ -3,7 +3,6 @@ name: POC Pipeline
 on:
   push:
     branches:
-      - valentin/poc/quiz-flow
       - feature/plateforme-engagement
     paths:
       - ".github/workflows/poc-pipeline.yml"
