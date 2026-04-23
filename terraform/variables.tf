@@ -168,6 +168,17 @@ variable "enable_mission_jobs" {
   type        = bool
   default     = true
   description = "Enable always-on mission jobs (import-missions, enrich-missions-geoloc, verify-publisher-organization)"
+
+variable "enable_rdb_backup_job" {
+  type        = bool
+  default     = false
+  description = "Enable the daily Scaleway managed PostgreSQL backup job"
+}
+
+variable "core_database_id" {
+  type        = string
+  default     = ""
+  description = "ID of the managed PostgreSQL instance to back up"
 }
 
 variable "cockpit_metrics_otlp_url" {

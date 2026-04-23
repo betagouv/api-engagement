@@ -4,9 +4,11 @@ import zod from "zod";
 
 import { INVALID_BODY, NOT_FOUND } from "@/error";
 import { moderationEventService } from "@/services/moderation-event";
+import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { UserRequest } from "@/types/passport";
 
 const router = Router();
+router.use(ipRateLimiter);
 
 router.post("/search", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {

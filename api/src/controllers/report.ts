@@ -2,9 +2,11 @@ import { NextFunction, Request, Response, Router } from "express";
 import zod from "zod";
 
 import { captureException, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
+import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { reportService } from "@/services/report";
 
 const router = Router();
+router.use(ipRateLimiter);
 
 // Keep because old version of the report
 router.get("/pdf/:publisherId", async (req: Request, res: Response, next: NextFunction) => {

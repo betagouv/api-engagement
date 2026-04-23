@@ -10,10 +10,14 @@ import { statEventService } from "@/services/stat-event";
 import { PublisherRequest } from "@/types/passport";
 import type { PublisherRecord } from "@/types/publisher";
 import { PublisherDiffusionExclusionCreateManyInput } from "@/types/publisher-diffusion-exclusion";
+import { publisherRateLimiter } from "@/middlewares/rate-limit";
 import { buildPublisherData } from "@/v0/myorganization/transformer";
-const router = Router();
 
-router.get("/:organizationClientId", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
+const router = Router();
+router.use(passport.authenticate(["apikey", "api"], { session: false }));
+router.use(publisherRateLimiter);
+
+router.get("/:organizationClientId", async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
     const user = req.user as PublisherRecord;
 
@@ -68,7 +72,7 @@ router.get("/:organizationClientId", passport.authenticate(["apikey", "api"], { 
   }
 });
 
-router.put("/:organizationClientId", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
+router.put("/:organizationClientId", async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
     const user = req.user as PublisherRecord;
 

@@ -3,9 +3,11 @@ import passport from "passport";
 import zod from "zod";
 
 import { INVALID_BODY } from "@/error";
+import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { reportService } from "@/services/report";
 
 const router = Router();
+router.use(ipRateLimiter);
 
 router.post("/search", passport.authenticate("admin", { session: false }), async (req, res, next) => {
   try {

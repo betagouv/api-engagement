@@ -26,6 +26,7 @@
     },
     "dependencies": {
         "@ai-sdk/mistral": "3.0.30",
+        "@acpr/rate-limit-postgresql": "1.4.1",
         "@aws-sdk/client-s3": "3.1020.0",
         "@aws-sdk/client-sqs": "3.1023.0",
         "@aws-sdk/lib-storage": "3.1020.0",
@@ -60,6 +61,7 @@
         "passport": "0.7.0",
         "passport-headerapikey": "1.2.2",
         "passport-jwt": "4.0.1",
+        "pg": "8.20.0",
         "prisma": "7.6.0",
         "sharp": "0.34.5",
         "uuid": "11.1.0",
@@ -82,6 +84,7 @@
         "@types/object-hash": "3.0.6",
         "@types/passport": "1.0.17",
         "@types/passport-jwt": "4.0.1",
+        "@types/pg": "8.20.0",
         "@types/supertest": "7.2.0",
         "@types/uuid": "10.0.0",
         "@types/yauzl": "2.10.3",

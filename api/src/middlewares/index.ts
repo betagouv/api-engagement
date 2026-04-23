@@ -13,6 +13,7 @@ import { createHttpMetricsMiddleware } from "@/services/observability/metrics";
 // import limiter from "./rate-limit";
 
 const middlewares = (app: Express) => {
+  app.set("trust proxy", 1);
   app.use(cors(corsOptions));
   app.use(bodyParser.json({ limit: "50mb" }));
   app.use(bodyParserErrorHandler);

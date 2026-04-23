@@ -1,4 +1,4 @@
-import { buildOrganizationSearchText, isValidRNA, isValidSiret } from "@/utils/organization";
+import { buildOrganizationPrefixTsQuery, buildOrganizationSearchText, isValidRNA, isValidSiret, normalizeOrganizationSearchQuery, tokenizeOrganizationSearchQuery } from "@/utils/organization";
 import { describe, expect, it } from "vitest";
 
 describe("isValidRNA", () => {
@@ -42,5 +42,35 @@ describe("buildOrganizationSearchText", () => {
     expect(buildOrganizationSearchText({ title: "Croix Rouge", rna: "W123456789", siret: "12345678901234", siren: "123456789" })).toBe(
       "croix rouge w123456789 12345678901234 123456789"
     );
+  });
+
+  it("should remove accents and punctuation from search text", () => {
+    expect(buildOrganizationSearchText({ title: "Association des étudiants !", shortTitle: "A.É." })).toBe("association des etudiants a e");
+  });
+});
+
+describe("normalizeOrganizationSearchQuery", () => {
+  it("should normalize accents, punctuation and spaces", () => {
+    expect(normalizeOrganizationSearchQuery("  Association des étudiants !  ")).toBe("association des etudiants");
+  });
+
+  it("should return null when nothing searchable remains", () => {
+    expect(normalizeOrganizationSearchQuery(" !!! ")).toBeNull();
+  });
+});
+
+describe("tokenizeOrganizationSearchQuery", () => {
+  it("should keep unique tokens with a minimum length", () => {
+    expect(tokenizeOrganizationSearchQuery("Association des étudiants des")).toEqual(["association", "des", "etudiants"]);
+  });
+});
+
+describe("buildOrganizationPrefixTsQuery", () => {
+  it("should build a prefix tsquery from normalized tokens", () => {
+    expect(buildOrganizationPrefixTsQuery("Association des étudiants")).toBe("association:* & des:* & etudiants:*");
+  });
+
+  it("should return null when no token meets the minimum length", () => {
+    expect(buildOrganizationPrefixTsQuery("a l")).toBeNull();
   });
 });
