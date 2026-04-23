@@ -1,13 +1,13 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { TaxonomyType } from "@/db/core";
+import { TaxonomyKey, TaxonomyType } from "@/db/core";
 import { prisma } from "@/db/postgres";
 
 type TaxonomyValueData = { key: string; label: string; icon?: string };
 
 const TAXONOMY_DATA: Array<{
-  key: string;
+  key: TaxonomyKey;
   label: string;
   type: TaxonomyType;
   values: TaxonomyValueData[];

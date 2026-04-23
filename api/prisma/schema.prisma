@@ -138,6 +138,21 @@ enum TaxonomyType {
   gate
 }
 
+enum TaxonomyKey {
+  domaine
+  secteur_activite
+  type_mission
+  accessibilite
+  format_activite
+  competence_rome
+  engagement_civique
+  niveau_engagement
+  region_internationale
+  engagement_intent
+  tranche_age
+  formation_onisep
+}
+
 enum MissionEnrichmentStatus {
   pending
   processing
@@ -955,7 +970,7 @@ model StatBot {
 //
 model Taxonomy {
   id        String       @id @default(uuid())
-  key       String       @unique
+  key       TaxonomyKey  @unique
   label     String
   type      TaxonomyType
   createdAt DateTime     @default(now()) @map("created_at")
@@ -1069,11 +1084,26 @@ model UserScoring {
   expiresAt DateTime? @map("expires_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
 
-  values UserScoringValue[]
-  geo    UserScoringGeo?
+  values          UserScoringValue[]
+  geo             UserScoringGeo?
+  matchingResults MissionMatchingResult[]
 
   @@index([expiresAt], map: "user_scoring_expires_at_idx")
   @@map("user_scoring")
+}
+
+model MissionMatchingResult {
+  id                    String   @id @default(uuid())
+  userScoringId         String   @map("user_scoring_id")
+  matchingEngineVersion String   @map("matching_engine_version")
+  results               Json
+  createdAt             DateTime @default(now()) @map("created_at")
+
+  userScoring UserScoring @relation(fields: [userScoringId], references: [id], onDelete: Cascade)
+
+  @@unique([userScoringId, matchingEngineVersion], map: "mission_matching_result_user_scoring_id_version_key")
+  @@index([userScoringId], map: "mission_matching_result_user_scoring_id_idx")
+  @@map("mission_matching_result")
 }
 
 model UserScoringValue {
