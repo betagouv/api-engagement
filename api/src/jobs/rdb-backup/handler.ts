@@ -20,6 +20,10 @@ export class RdbBackupHandler implements BaseHandler<RdbBackupJobPayload, RdbBac
 
       console.log(`[RDB Backup] Backup ${backup.id} created with status=${backup.status}, region=${backup.region}, same_region=${backup.same_region}`);
 
+      if (backup.same_region) {
+        throw new Error(`Scaleway RDB Backup has been stored in the same region.`);
+      }
+
       return {
         success: true,
         timestamp: new Date(),

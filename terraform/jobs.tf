@@ -278,7 +278,7 @@ resource "scaleway_job_definition" "rdb-backup" {
   timeout      = "10m"
 
   cron {
-    schedule = "0 4 * * *"
+    schedule = "0 3 * * *"
     timezone = "Europe/Paris"
   }
 
