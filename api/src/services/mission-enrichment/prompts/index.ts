@@ -9,6 +9,7 @@ export type { MissionForPrompt, TaxonomyForPrompt } from "./types";
 
 export type PromptEntry = {
   VERSION: string;
+  TEMPERATURE: number;
   MODEL: LanguageModel;
   ENRICHMENT_SCHEMA: ZodTypeAny;
   buildSystemPrompt: (taxonomyBlock: string) => string;
