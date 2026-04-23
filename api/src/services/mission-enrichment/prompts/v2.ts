@@ -155,7 +155,8 @@ const buildTaxonomyGuidanceBlock = (): string =>
     .join("\n\n");
 
 export const VERSION = "v2";
-export const MODEL = mistral("mistral-small-2603", { temperature: 0 });
+export const TEMPERATURE = 0;
+export const MODEL = mistral("mistral-small-2603");
 export const ENRICHMENT_SCHEMA = z.object({
   classifications: z.array(
     z.object({

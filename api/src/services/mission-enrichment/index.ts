@@ -5,7 +5,7 @@ import { missionRepository } from "@/repositories/mission";
 import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
 import { taxonomyRepository } from "@/repositories/taxonomy";
 import { CONFIDENCE_THRESHOLD, CURRENT_PROMPT_VERSION, LLM_MAX_RETRIES } from "./config";
-import { validateEnrichmentClassifications, type TaxonomyLookup } from "./parser";
+import { validateEnrichmentClassifications, type ClassificationInput, type TaxonomyLookup } from "./parser";
 import { buildMissionBlock, buildTaxonomyBlock, PROMPT_REGISTRY } from "./prompts";
 import type { MissionForPrompt, TaxonomyForPrompt } from "./prompts/types";
 
@@ -167,6 +167,7 @@ export const missionEnrichmentService = {
         system: systemPrompt,
         prompt: userMessage,
         maxRetries: LLM_MAX_RETRIES,
+        temperature: promptVersion.TEMPERATURE,
       });
 
       const { inputTokens, outputTokens, totalTokens } = llmResult.usage;
@@ -174,7 +175,7 @@ export const missionEnrichmentService = {
 
       // 8. Normalize + validate classifications against taxonomy rules
       const { valid, skipped } = validateEnrichmentClassifications(
-        llmResult.object.classifications,
+        (llmResult.object as { classifications: ClassificationInput[] }).classifications,
         buildTaxonomyLookup(dimensions),
         CONFIDENCE_THRESHOLD
       );
@@ -203,12 +204,7 @@ export const missionEnrichmentService = {
           values: persistedValues,
         });
       } else {
-        await missionEnrichmentRepository.completeWithValues(
-          enrichment.id,
-          JSON.stringify(llmResult.object),
-          { inputTokens, outputTokens, totalTokens },
-          persistedValues
-        );
+        await missionEnrichmentRepository.completeWithValues(enrichment.id, JSON.stringify(llmResult.object), { inputTokens, outputTokens, totalTokens }, persistedValues);
       }
 
       console.log(`${LOG_PREFIX} ${missionId}: enrichment completed — ${valid.length} values persisted`);
