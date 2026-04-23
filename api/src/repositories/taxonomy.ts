@@ -6,9 +6,7 @@ export const taxonomyRepository = {
     return prisma.taxonomy.findMany(params);
   },
 
-  findManyWithValues(
-    params: Prisma.TaxonomyFindManyArgs = {},
-  ): Promise<(Taxonomy & { values: TaxonomyValue[] })[]> {
+  findManyWithValues(params: Prisma.TaxonomyFindManyArgs = {}): Promise<(Taxonomy & { values: TaxonomyValue[] })[]> {
     return prisma.taxonomy.findMany({
       ...params,
       include: { values: true },
@@ -16,7 +14,9 @@ export const taxonomyRepository = {
   },
 
   findManyValuesByKeys(keys: string[]): Promise<Pick<TaxonomyValue, "id" | "key">[]> {
-    if (keys.length === 0) return Promise.resolve([]);
+    if (keys.length === 0) {
+      return Promise.resolve([]);
+    }
     return prisma.taxonomyValue.findMany({
       where: { key: { in: keys } },
       select: { id: true, key: true },

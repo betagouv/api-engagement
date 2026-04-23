@@ -20,7 +20,9 @@ interface CreateUserScoringInput {
 
 const parsePrefixedKey = (prefixedKey: string): { taxonomyKey: string; valueKey: string } | null => {
   const dotIndex = prefixedKey.indexOf(".");
-  if (dotIndex <= 0 || dotIndex === prefixedKey.length - 1) return null;
+  if (dotIndex <= 0 || dotIndex === prefixedKey.length - 1) {
+    return null;
+  }
   return { taxonomyKey: prefixedKey.slice(0, dotIndex), valueKey: prefixedKey.slice(dotIndex + 1) };
 };
 
@@ -40,9 +42,7 @@ export const userScoringService = {
     // Validate format: each key must be "{taxonomy_key}.{value_key}"
     for (const key of uniqueKeys) {
       if (!parsePrefixedKey(key)) {
-        throw new UserScoringValidationError(
-          `taxonomy_value_key '${key}' is invalid: expected format '{taxonomy_key}.{value_key}'`
-        );
+        throw new UserScoringValidationError(`taxonomy_value_key '${key}' is invalid: expected format '{taxonomy_key}.{value_key}'`);
       }
     }
 
@@ -66,9 +66,7 @@ export const userScoringService = {
     const userScoring = await userScoringRepository.create({
       expiresAt,
       taxonomyValueIds: activeIds,
-      geo: input.geo
-        ? { lat: input.geo.lat, lon: input.geo.lon, radiusKm: input.geo.radius_km }
-        : undefined,
+      geo: input.geo ? { lat: input.geo.lat, lon: input.geo.lon, radiusKm: input.geo.radius_km } : undefined,
     });
 
     return { id: userScoring.id, created_at: userScoring.createdAt };

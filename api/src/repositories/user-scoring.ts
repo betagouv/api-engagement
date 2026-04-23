@@ -1,17 +1,17 @@
-import { TaxonomyValue, UserScoring } from "@/db/core";
+import { TaxonomyKey, UserScoring } from "@/db/core";
 import { prisma } from "@/db/postgres";
 
 export const userScoringRepository = {
-  findTaxonomyValuesByPrefixedKeys(
-    pairs: Array<{ taxonomyKey: string; valueKey: string }>
-  ): Promise<Array<{ id: string; key: string; taxonomyKey: string; active: boolean }>> {
-    if (pairs.length === 0) return Promise.resolve([]);
+  findTaxonomyValuesByPrefixedKeys(pairs: Array<{ taxonomyKey: string; valueKey: string }>): Promise<Array<{ id: string; key: string; taxonomyKey: string; active: boolean }>> {
+    if (pairs.length === 0) {
+      return Promise.resolve([]);
+    }
     return prisma.taxonomyValue
       .findMany({
         where: {
           OR: pairs.map(({ taxonomyKey, valueKey }) => ({
             key: valueKey,
-            taxonomy: { key: taxonomyKey },
+            taxonomy: { is: { key: taxonomyKey as TaxonomyKey } },
           })),
         },
         select: { id: true, key: true, active: true, taxonomy: { select: { key: true } } },
@@ -19,11 +19,7 @@ export const userScoringRepository = {
       .then((rows) => rows.map((r) => ({ id: r.id, key: r.key, taxonomyKey: r.taxonomy.key, active: r.active })));
   },
 
-  create(params: {
-    expiresAt: Date;
-    taxonomyValueIds: string[];
-    geo?: { lat: number; lon: number; radiusKm?: number };
-  }): Promise<UserScoring> {
+  create(params: { expiresAt: Date; taxonomyValueIds: string[]; geo?: { lat: number; lon: number; radiusKm?: number } }): Promise<UserScoring> {
     return prisma.userScoring.create({
       data: {
         expiresAt: params.expiresAt,

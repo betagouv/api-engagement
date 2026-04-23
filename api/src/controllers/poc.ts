@@ -107,26 +107,29 @@ router.get("/match", async (req, res, next) => {
 
     const selectedDimensions = [...new Set(userScoringValues.map((v) => v.taxonomyValue.taxonomy.key))];
 
-    const missionIndex: Record<string, {
-      title: string;
-      city: string | null;
-      description: string | null;
-      tasks: string[];
-      audience: string[];
-      softSkills: string[];
-      requirements: string[];
-      tags: string[];
-      type: string | null;
-      remote: string | null;
-      openToMinors: boolean | null;
-      reducedMobilityAccessible: boolean | null;
-      duration: number | null;
-      schedule: string | null;
-      startAt: Date | null;
-      endAt: Date | null;
-      domainOriginal: string | null;
-      publisherName: string | null;
-    }> = {};
+    const missionIndex: Record<
+      string,
+      {
+        title: string;
+        city: string | null;
+        description: string | null;
+        tasks: string[];
+        audience: string[];
+        softSkills: string[];
+        requirements: string[];
+        tags: string[];
+        type: string | null;
+        remote: string | null;
+        openToMinors: boolean | null;
+        reducedMobilityAccessible: boolean | null;
+        duration: number | null;
+        schedule: string | null;
+        startAt: Date | null;
+        endAt: Date | null;
+        domainOriginal: string | null;
+        publisherName: string | null;
+      }
+    > = {};
     for (const m of missionRows) {
       missionIndex[m.id] = {
         title: m.title,
@@ -150,7 +153,10 @@ router.get("/match", async (req, res, next) => {
       };
     }
 
-    const valuesIndex: Record<string, { dimensionKey: string; taxonomyValueKey: string; taxonomyValueLabel: string; enrichmentConfidence: number; scoringScore: number; evidence: unknown }[]> = {};
+    const valuesIndex: Record<
+      string,
+      { dimensionKey: string; taxonomyValueKey: string; taxonomyValueLabel: string; enrichmentConfidence: number; scoringScore: number; evidence: unknown }[]
+    > = {};
     const fakeIndex: Record<string, boolean> = {};
     for (const row of scoringValueRows) {
       const entry = {
@@ -164,7 +170,9 @@ router.get("/match", async (req, res, next) => {
       (valuesIndex[row.missionScoringId] ??= []).push(entry);
       if (!fakeIndex[row.missionScoringId] && row.missionEnrichmentValue?.enrichment?.rawResponse) {
         const raw = row.missionEnrichmentValue.enrichment.rawResponse as any;
-        if (raw._fake === true) fakeIndex[row.missionScoringId] = true;
+        if (raw._fake === true) {
+          fakeIndex[row.missionScoringId] = true;
+        }
       }
     }
 
@@ -174,23 +182,25 @@ router.get("/match", async (req, res, next) => {
       title: missionIndex[item.missionId]?.title ?? "(unknown)",
       publisherName: missionIndex[item.missionId]?.publisherName ?? null,
       city: missionIndex[item.missionId]?.city ?? null,
-      mission: missionIndex[item.missionId] ? {
-        description: missionIndex[item.missionId].description,
-        tasks: missionIndex[item.missionId].tasks,
-        audience: missionIndex[item.missionId].audience,
-        softSkills: missionIndex[item.missionId].softSkills,
-        requirements: missionIndex[item.missionId].requirements,
-        tags: missionIndex[item.missionId].tags,
-        type: missionIndex[item.missionId].type,
-        remote: missionIndex[item.missionId].remote,
-        openToMinors: missionIndex[item.missionId].openToMinors,
-        reducedMobilityAccessible: missionIndex[item.missionId].reducedMobilityAccessible,
-        duration: missionIndex[item.missionId].duration,
-        schedule: missionIndex[item.missionId].schedule,
-        startAt: missionIndex[item.missionId].startAt,
-        endAt: missionIndex[item.missionId].endAt,
-        domainOriginal: missionIndex[item.missionId].domainOriginal,
-      } : null,
+      mission: missionIndex[item.missionId]
+        ? {
+            description: missionIndex[item.missionId].description,
+            tasks: missionIndex[item.missionId].tasks,
+            audience: missionIndex[item.missionId].audience,
+            softSkills: missionIndex[item.missionId].softSkills,
+            requirements: missionIndex[item.missionId].requirements,
+            tags: missionIndex[item.missionId].tags,
+            type: missionIndex[item.missionId].type,
+            remote: missionIndex[item.missionId].remote,
+            openToMinors: missionIndex[item.missionId].openToMinors,
+            reducedMobilityAccessible: missionIndex[item.missionId].reducedMobilityAccessible,
+            duration: missionIndex[item.missionId].duration,
+            schedule: missionIndex[item.missionId].schedule,
+            startAt: missionIndex[item.missionId].startAt,
+            endAt: missionIndex[item.missionId].endAt,
+            domainOriginal: missionIndex[item.missionId].domainOriginal,
+          }
+        : null,
       isFake: fakeIndex[item.missionScoringId] ?? false,
       totalScore: item.totalScore,
       taxonomyScore: item.taxonomyScore,
