@@ -88,6 +88,7 @@ export type MissionRecord = {
   snu: boolean;
   snuPlaces: number | null;
   compensationAmount: number | null;
+  compensationAmountMax: number | null;
   compensationUnit: MissionCompensationUnit | null;
   compensationType: MissionCompensationType | null;
   adresse: string | null;
