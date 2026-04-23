@@ -33,6 +33,9 @@ export const SCW_SECRET_KEY = process.env.SCW_SECRET_KEY;
 export const SCW_HOST = process.env.SCW_HOST || "https://s3.fr-par.scw.cloud";
 export const BUCKET_NAME = process.env.BUCKET_NAME || "api-engagement-bucket-staging";
 export const REGION = process.env.REGION || "fr-par";
+export const RDB_BACKUP_INSTANCE_ID = process.env.RDB_BACKUP_INSTANCE_ID || "";
+export const RDB_BACKUP_DATABASE_NAME = process.env.RDB_BACKUP_DATABASE_NAME || "";
+export const RDB_BACKUP_RETENTION_DAYS = Number.parseInt(process.env.RDB_BACKUP_RETENTION_DAYS || "7", 10);
 
 // Slack
 export const SLACK_TOKEN = process.env.SLACK_TOKEN;

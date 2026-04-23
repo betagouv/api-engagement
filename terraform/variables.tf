@@ -135,6 +135,18 @@ variable "enable_analytics_jobs" {
   default = true
 }
 
+variable "enable_rdb_backup_job" {
+  type        = bool
+  default     = false
+  description = "Enable the daily Scaleway managed PostgreSQL backup job"
+}
+
+variable "core_database_id" {
+  type        = string
+  default     = ""
+  description = "ID of the managed PostgreSQL instance to back up"
+}
+
 variable "cockpit_metrics_otlp_url" {
   type    = string
   default = ""
