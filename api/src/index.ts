@@ -46,7 +46,7 @@ process.on("unhandledRejection", (reason) => {
 import express from "express";
 import path from "path";
 
-import { corsPublic, corsPoc } from "@/middlewares/cors";
+import { corsPoc, corsPublic } from "@/middlewares/cors";
 import errorHandler from "@/middlewares/error-handler";
 
 import { pgConnected, pgDisconnect } from "@/db/postgres";
@@ -69,9 +69,9 @@ import ReportController from "@/controllers/report";
 import StatsController from "@/controllers/stats";
 import StatsMeanController from "@/controllers/stats-mean/controller";
 import UserController from "@/controllers/user";
+import UserScoringController from "@/controllers/user-scoring";
 import WarningController from "@/controllers/warning";
 import WarningBotController from "@/controllers/warning-bot";
-import UserScoringController from "@/controllers/user-scoring";
 import WidgetController from "@/controllers/widget";
 import MissionV0Controller from "@/v0/mission/controller";
 import MyMissionV0Controller from "@/v0/mymission/controller";
@@ -132,6 +132,7 @@ const main = async () => {
   app.use("/v2/activity", corsPublic, ActivityV2Controller);
   app.use("/v2/leboncoin", corsPublic, LeboncoinV2Controller);
   app.use("/v2/jobteaser", corsPublic, JobTeaserV2Controller);
+  app.use("/poc", corsPoc, PocController);
   app.use("/user-scoring", corsPublic, UserScoringController);
   app.use("/brevo-webhook", corsPublic, BrevoWebhookController);
 
