@@ -1,3 +1,5 @@
+import { isValidTaxonomyValueKey } from "@engagement/taxonomy";
+
 import { userScoringRepository } from "@/repositories/user-scoring";
 
 const USER_SCORING_TTL_DAYS = 7;
@@ -48,17 +50,47 @@ export const userScoringService = {
 
     const pairs = uniqueKeys.map((key) => parsePrefixedKey(key)!);
 
-    // Batch-fetch all pairs (active and inactive)
+    // Batch-fetch legacy seeded rows when they still exist. New string-key storage
+    // remains the primary source of truth during the transition.
     const allValues = await userScoringRepository.findTaxonomyValuesByPrefixedKeys(pairs);
+    const legacyValuesByPrefixedKey = new Map<string, (typeof allValues)[number]>(
+      allValues.map((value) => [`${value.taxonomyKey}.${value.key}`, value] as const)
+    );
 
-    // Clés absentes de la DB (ex: nouvelles dimensions pas encore seedées) ou inactives → ignorées silencieusement
-    const activeIds = allValues.filter((v) => v.active).map((v) => v.id);
+    for (const key of uniqueKeys) {
+      const existsInPackage = isValidTaxonomyValueKey(key);
+      const existsInLegacyDb = legacyValuesByPrefixedKey.has(key);
+
+      if (!existsInPackage && !existsInLegacyDb) {
+        throw new UserScoringValidationError(`taxonomy_value_key '${key}' does not exist`);
+      }
+    }
+
+    // Legacy inactive rows are still skipped to preserve old behavior while the
+    // taxonomy tables remain in place.
+    const valuesToPersist = pairs.flatMap(({ taxonomyKey, valueKey }) => {
+      const prefixedKey = `${taxonomyKey}.${valueKey}`;
+      const legacyValue = legacyValuesByPrefixedKey.get(prefixedKey);
+
+      if (legacyValue && !legacyValue.active) {
+        return [];
+      }
+
+      return [
+        {
+          taxonomyValueId: legacyValue?.id ?? null,
+          dimensionKey: taxonomyKey,
+          valueKey,
+          score: 1.0,
+        },
+      ];
+    });
 
     const expiresAt = new Date(Date.now() + USER_SCORING_TTL_DAYS * 24 * 60 * 60 * 1000);
 
     const userScoring = await userScoringRepository.create({
       expiresAt,
-      taxonomyValueIds: activeIds,
+      values: valuesToPersist,
       geo: input.geo ? { lat: input.geo.lat, lon: input.geo.lon, radiusKm: input.geo.radius_km } : undefined,
     });
 

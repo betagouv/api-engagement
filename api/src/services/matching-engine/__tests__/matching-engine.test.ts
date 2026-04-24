@@ -133,9 +133,7 @@ describe("matchingEngineService", () => {
           },
           {
             missionScoringId: "mission-scoring-2",
-            dimensionScores: {
-              format_activite: 0.333333,
-            },
+            dimensionScores: {},
           },
         ],
       });

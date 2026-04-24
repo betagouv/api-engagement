@@ -1,3 +1,4 @@
+import { TAXONOMY } from "@engagement/taxonomy";
 import { Router } from "express";
 import zod from "zod";
 
@@ -7,23 +8,17 @@ import { matchingEngineService } from "@/services/matching-engine";
 
 const router = Router();
 
-// GET /poc/taxonomy — all active taxonomies with their active values
-router.get("/taxonomy", async (req, res, next) => {
-  try {
-    const taxonomies = await prisma.taxonomy.findMany({
-      include: {
-        values: {
-          where: { active: true },
-          orderBy: [{ order: "asc" }, { label: "asc" }],
-        },
-      },
-      orderBy: { label: "asc" },
-    });
-    return res.status(200).send({ ok: true, data: taxonomies });
-  } catch (error) {
-    next(error);
+const getPackageTaxonomyValueLabel = (dimensionKey: string, valueKey: string): string | null => {
+  const dimension = TAXONOMY[dimensionKey as keyof typeof TAXONOMY] as
+    | { values: Record<string, { label: string }> }
+    | undefined;
+  if (!dimension) {
+    return null;
   }
-});
+
+  const value = dimension.values[valueKey];
+  return value?.label ?? null;
+};
 
 const matchQuerySchema = zod.object({
   userScoringId: zod.string().uuid(),
@@ -82,6 +77,8 @@ router.get("/match", async (req, res, next) => {
         where: { missionScoringId: { in: missionScoringIds } },
         select: {
           missionScoringId: true,
+          dimensionKey: true,
+          valueKey: true,
           score: true,
           taxonomyValue: {
             select: {
@@ -101,11 +98,20 @@ router.get("/match", async (req, res, next) => {
       }),
       prisma.userScoringValue.findMany({
         where: { userScoringId },
-        select: { taxonomyValue: { select: { taxonomy: { select: { key: true } } } } },
+        select: {
+          dimensionKey: true,
+          taxonomyValue: { select: { taxonomy: { select: { key: true } } } },
+        },
       }),
     ]);
 
-    const selectedDimensions = [...new Set(userScoringValues.map((v) => v.taxonomyValue.taxonomy.key))];
+    const selectedDimensions = [
+      ...new Set(
+        userScoringValues
+          .map((value) => value.dimensionKey ?? value.taxonomyValue?.taxonomy.key ?? null)
+          .filter((value): value is string => typeof value === "string")
+      ),
+    ];
 
     const missionIndex: Record<
       string,
@@ -159,10 +165,17 @@ router.get("/match", async (req, res, next) => {
     > = {};
     const fakeIndex: Record<string, boolean> = {};
     for (const row of scoringValueRows) {
+      const dimensionKey = row.dimensionKey ?? row.taxonomyValue?.taxonomy.key ?? "unknown";
+      const taxonomyValueKey = row.valueKey ?? row.taxonomyValue?.key ?? "unknown";
+      const taxonomyValueLabel =
+        row.taxonomyValue?.label ??
+        getPackageTaxonomyValueLabel(dimensionKey, taxonomyValueKey) ??
+        taxonomyValueKey;
+
       const entry = {
-        dimensionKey: row.taxonomyValue.taxonomy.key,
-        taxonomyValueKey: row.taxonomyValue.key,
-        taxonomyValueLabel: row.taxonomyValue.label,
+        dimensionKey,
+        taxonomyValueKey,
+        taxonomyValueLabel,
         enrichmentConfidence: row.missionEnrichmentValue?.confidence ?? 0,
         scoringScore: row.score,
         evidence: row.missionEnrichmentValue?.evidence ?? null,

@@ -1,4 +1,3 @@
-import { isValidTaxonomyValueKey } from "@engagement/taxonomy";
 import { Router } from "express";
 import zod from "zod";
 
@@ -25,10 +24,7 @@ router.post("/", async (req, res, next) => {
       return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
     }
 
-    // Les clés inconnues sont silencieusement ignorées (ex: clés légacy ou futures)
-    const validAnswers = body.data.answers.filter((a) => isValidTaxonomyValueKey(a.taxonomy_value_key));
-
-    const data = await userScoringService.create({ ...body.data, answers: validAnswers });
+    const data = await userScoringService.create(body.data);
     return res.status(201).send({ ok: true, data });
   } catch (error) {
     if (error instanceof UserScoringValidationError) {

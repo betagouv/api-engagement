@@ -19,11 +19,11 @@ const mapConfidenceToScore = (confidence: number, ruleset: MissionScoringRuleset
 
 export const computeMissionScoringValues = (input: ScoringInputValue[], ruleset: MissionScoringRuleset = MISSION_SCORING_RULESET_V1): ComputeMissionScoringResult => {
   const ignoredValueKeys = buildIgnoredValueKeySet(ruleset);
-  const valuesByTaxonomyValueId = new Map<string, ComputedMissionScoringValue>();
+  const valuesByPrefixedKey = new Map<string, ComputedMissionScoringValue>();
   const ignored: ComputeMissionScoringResult["ignored"] = [];
 
   for (const value of input) {
-    const ignoredValueKey = `${value.taxonomyKey}.${value.taxonomyValueKey}`;
+    const ignoredValueKey = `${value.dimensionKey}.${value.taxonomyValueKey}`;
     if (ignoredValueKeys.has(ignoredValueKey)) {
       ignored.push({ ...value, reason: `ignored_value:${ignoredValueKey}` });
       continue;
@@ -37,18 +37,21 @@ export const computeMissionScoringValues = (input: ScoringInputValue[], ruleset:
 
     const computedValue: ComputedMissionScoringValue = {
       missionEnrichmentValueId: value.missionEnrichmentValueId,
+      dimensionKey: value.dimensionKey,
+      valueKey: value.taxonomyValueKey,
       taxonomyValueId: value.taxonomyValueId,
       score: mappedScore,
     };
 
-    const current = valuesByTaxonomyValueId.get(computedValue.taxonomyValueId);
+    const prefixedKey = `${computedValue.dimensionKey}.${computedValue.valueKey}`;
+    const current = valuesByPrefixedKey.get(prefixedKey);
     if (!current || computedValue.score > current.score) {
-      valuesByTaxonomyValueId.set(computedValue.taxonomyValueId, computedValue);
+      valuesByPrefixedKey.set(prefixedKey, computedValue);
     }
   }
 
   return {
-    values: Array.from(valuesByTaxonomyValueId.values()),
+    values: Array.from(valuesByPrefixedKey.values()),
     ignored,
   };
 };

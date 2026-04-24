@@ -13,8 +13,15 @@ vi.mock("@/repositories/mission-scoring", () => ({
   },
 }));
 
+vi.mock("@/repositories/taxonomy", () => ({
+  taxonomyRepository: {
+    findManyLegacyValuesByPrefixedKeys: vi.fn(),
+  },
+}));
+
 import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
 import { missionScoringRepository } from "@/repositories/mission-scoring";
+import { taxonomyRepository } from "@/repositories/taxonomy";
 import { missionScoringService } from "@/services/mission-scoring";
 
 const missionEnrichmentRepositoryMock = missionEnrichmentRepository as unknown as {
@@ -26,9 +33,15 @@ const missionScoringRepositoryMock = missionScoringRepository as unknown as {
   replaceForEnrichment: ReturnType<typeof vi.fn>;
 };
 
+const taxonomyRepositoryMock = taxonomyRepository as unknown as {
+  findManyLegacyValuesByPrefixedKeys: ReturnType<typeof vi.fn>;
+};
+
 const buildEnrichmentValue = (overrides: Record<string, unknown> = {}) => ({
   id: "mev-1",
   confidence: 0.76,
+  dimensionKey: "domaine",
+  valueKey: "social_solidarite",
   taxonomyValueId: "tv-1",
   taxonomyValue: {
     id: "tv-1",
@@ -45,6 +58,8 @@ describe("missionScoringService.score", () => {
     missionEnrichmentRepositoryMock.findFirst.mockReset();
     missionScoringRepositoryMock.findUnique.mockReset();
     missionScoringRepositoryMock.replaceForEnrichment.mockReset();
+    taxonomyRepositoryMock.findManyLegacyValuesByPrefixedKeys.mockReset();
+    taxonomyRepositoryMock.findManyLegacyValuesByPrefixedKeys.mockResolvedValue([]);
   });
 
   it("ignores missing completed enrichments", async () => {
@@ -97,6 +112,8 @@ describe("missionScoringService.score", () => {
       values: [
         {
           missionEnrichmentValueId: "mev-1",
+          dimensionKey: "domaine",
+          valueKey: "social_solidarite",
           taxonomyValueId: "tv-1",
           score: 0.6,
         },
@@ -111,6 +128,8 @@ describe("missionScoringService.score", () => {
       mission: { publisherId: null },
       values: [
         buildEnrichmentValue({
+          dimensionKey: "accessibilite",
+          valueKey: "non_specifie",
           taxonomyValueId: "tv-non-specifie",
           taxonomyValue: {
             id: "tv-non-specifie",

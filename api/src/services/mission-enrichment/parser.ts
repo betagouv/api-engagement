@@ -8,16 +8,16 @@ export type ClassificationInput = {
 };
 
 export type ParsedClassification = ClassificationInput & {
-  taxonomyValueId: string;
+  taxonomyValueId: string | null;
 };
 
 export type SkippedClassification = ClassificationInput & {
   reason: string;
 };
 
-type TaxonomyMeta = { type: string; values: Map<string, string> };
+type TaxonomyMeta = { type: string; values: Map<string, { taxonomyValueId: string | null }> };
 
-// taxonomyKey -> { type, values: valueKey -> taxonomyValueId }
+// taxonomyKey -> { type, values: valueKey -> legacy taxonomyValueId when available }
 export type TaxonomyLookup = Map<string, TaxonomyMeta>;
 
 const FUZZY_MATCH_THRESHOLD = 0.6;
@@ -38,13 +38,13 @@ export const validateEnrichmentClassifications = (
     }
 
     let resolvedKey = item.value_key;
-    let taxonomyValueId = taxonomy.values.get(resolvedKey);
+    let legacyValue = taxonomy.values.get(resolvedKey);
 
-    if (!taxonomyValueId) {
+    if (!legacyValue) {
       const match = fuzzyMatchKey(item.value_key, taxonomy.values.keys(), FUZZY_MATCH_THRESHOLD);
       if (match) {
         resolvedKey = match.key;
-        taxonomyValueId = taxonomy.values.get(resolvedKey)!;
+        legacyValue = taxonomy.values.get(resolvedKey)!;
       } else {
         skipped.push({ ...item, reason: `unknown_value: ${item.dimension_key}.${item.value_key}` });
         continue;
@@ -63,12 +63,12 @@ export const validateEnrichmentClassifications = (
     const existingIndex = valid.findIndex((v) => `${v.dimension_key}.${v.value_key}` === dedupeKey);
     if (existingIndex !== -1) {
       if (normalizedItem.confidence > valid[existingIndex].confidence) {
-        valid[existingIndex] = { ...normalizedItem, taxonomyValueId };
+        valid[existingIndex] = { ...normalizedItem, taxonomyValueId: legacyValue.taxonomyValueId };
       }
       continue;
     }
 
-    valid.push({ ...normalizedItem, taxonomyValueId });
+    valid.push({ ...normalizedItem, taxonomyValueId: legacyValue.taxonomyValueId });
   }
 
   return { valid, skipped };

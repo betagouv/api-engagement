@@ -1,7 +1,7 @@
 import { ENRICHABLE_DIMENSIONS } from "@engagement/taxonomy";
 import type { MatchingEngineDimensionWeights, MatchingEngineVersion, MatchingEngineVersionConfig } from "./types";
 
-export const MATCHING_ENGINE_DIMENSIONS = ENRICHABLE_DIMENSIONS;
+export const MATCHING_ENGINE_DIMENSIONS = ENRICHABLE_DIMENSIONS as readonly (keyof MatchingEngineDimensionWeights)[];
 
 export const MATCHING_ENGINE_TOP_RESULTS_LIMIT = 20;
 

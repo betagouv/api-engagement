@@ -7,13 +7,13 @@ const buildLookup = (): TaxonomyLookup => {
   lookup.set("domaine", {
     type: "multi_value",
     values: new Map([
-      ["sante_soins", "tv-sante"],
-      ["social_solidarite", "tv-social"],
+      ["sante_soins", { taxonomyValueId: "tv-sante" }],
+      ["social_solidarite", { taxonomyValueId: "tv-social" }],
     ]),
   });
   lookup.set("type_mission", {
     type: "categorical",
-    values: new Map([["ponctuelle", "tv-ponctuelle"]]),
+    values: new Map([["ponctuelle", { taxonomyValueId: "tv-ponctuelle" }]]),
   });
   return lookup;
 };
@@ -158,7 +158,7 @@ describe("validateEnrichmentClassifications", () => {
 
   it("keeps multiple values for the same dimension when they are distinct", () => {
     const lookup: TaxonomyLookup = new Map([
-      ["type_mission", { type: "categorical", values: new Map([["ponctuelle", "tv-p"], ["reguliere", "tv-r"]]) }],
+      ["type_mission", { type: "categorical", values: new Map([["ponctuelle", { taxonomyValueId: "tv-p" }], ["reguliere", { taxonomyValueId: "tv-r" }]]) }],
     ]);
 
     const { valid, skipped } = validateEnrichmentClassifications(

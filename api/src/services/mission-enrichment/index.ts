@@ -1,3 +1,4 @@
+import { ENRICHABLE_DIMENSIONS, TAXONOMY } from "@engagement/taxonomy";
 import { Prisma } from "@/db/core";
 import { generateObject } from "ai";
 
@@ -11,17 +12,14 @@ import type { MissionForPrompt, TaxonomyForPrompt } from "./prompts/types";
 
 const LOG_PREFIX = "[mission-enrichment]";
 
-type DimensionWithValues = { key: string; type: string; label: string; values: Array<{ key: string; id: string; label: string; active: boolean }> };
+type DimensionWithValues = { key: string; type: string; label: string; values: Array<{ key: string; id: string | null; label: string }> };
 
 const buildTaxonomyLookup = (taxonomies: DimensionWithValues[]): TaxonomyLookup => {
   const lookup: TaxonomyLookup = new Map();
   for (const taxonomy of taxonomies) {
-    const values = new Map<string, string>();
+    const values = new Map<string, { taxonomyValueId: string | null }>();
     for (const val of taxonomy.values) {
-      if (!val.active) {
-        continue;
-      }
-      values.set(val.key, val.id);
+      values.set(val.key, { taxonomyValueId: val.id });
     }
     lookup.set(taxonomy.key, { type: taxonomy.type, values });
   }
@@ -81,17 +79,29 @@ const toTaxonomyForPrompt = (
     key: string;
     label: string;
     type: string;
-    values: Array<{ key: string; label: string; active: boolean }>;
+    values: Array<{ key: string; label: string }>;
   }>
 ): TaxonomyForPrompt =>
-  dimensions
-    .filter((dim) => dim.type !== "gate")
-    .map((dim) => ({
-      key: dim.key,
-      label: dim.label,
-      type: dim.type,
-      values: dim.values.filter((v) => v.active).map((v) => ({ key: v.key, label: v.label })),
-    }));
+  dimensions.map((dim) => ({
+    key: dim.key,
+    label: dim.label,
+    type: dim.type,
+    values: dim.values.map((v) => ({ key: v.key, label: v.label })),
+  }));
+
+const getPackageTaxonomyDimensions = (): DimensionWithValues[] =>
+  ENRICHABLE_DIMENSIONS.map((dimensionKey) => ({
+    key: dimensionKey,
+    label: TAXONOMY[dimensionKey].label,
+    type: TAXONOMY[dimensionKey].type,
+    values: Object.entries(TAXONOMY[dimensionKey].values)
+      .filter(([, value]) => value.enrichable)
+      .map(([valueKey, value]) => ({
+        key: valueKey,
+        id: null,
+        label: value.label,
+      })),
+  }));
 
 export const missionEnrichmentService = {
   async enrich(missionId: string, options: { force?: boolean } = {}) {
@@ -125,8 +135,17 @@ export const missionEnrichmentService = {
       }
     }
 
-    // 3. Load active taxonomy
-    const dimensions = await taxonomyRepository.findManyWithValues({ orderBy: { key: "asc" } });
+    // 3. Load taxonomy from package and optionally resolve legacy UUIDs for dual-write.
+    const dimensions = getPackageTaxonomyDimensions();
+    const prefixedKeys = dimensions.flatMap((dimension) => dimension.values.map((value) => `${dimension.key}.${value.key}`));
+    const legacyValues = await taxonomyRepository.findManyLegacyValuesByPrefixedKeys(prefixedKeys);
+    const legacyValueIdsByPrefixedKey = new Map(legacyValues.map((value) => [`${value.taxonomyKey}.${value.key}`, value.id] as const));
+
+    for (const dimension of dimensions) {
+      for (const value of dimension.values) {
+        value.id = legacyValueIdsByPrefixedKey.get(`${dimension.key}.${value.key}`) ?? null;
+      }
+    }
 
     // 4. Create enrichment record (pending)
     // The partial unique index on (mission_id, prompt_version) WHERE status IN ('pending', 'processing')
@@ -190,6 +209,8 @@ export const missionEnrichmentService = {
       // 9. Persist values + mark completed (atomic)
       const persistedValues = valid.map((v) => ({
         taxonomyValueId: v.taxonomyValueId,
+        dimensionKey: v.dimension_key,
+        valueKey: v.value_key,
         confidence: v.confidence,
         evidence: v.evidence,
       }));

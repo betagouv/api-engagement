@@ -29,7 +29,7 @@ export const missionEnrichmentRepository = {
     await prisma.$transaction(async (tx) => {
       if (values.length > 0) {
         await tx.missionEnrichmentValue.createMany({
-          data: values.map((v) => ({ ...v, enrichmentId })),
+          data: values.map((value) => ({ ...value, enrichmentId })) as Prisma.MissionEnrichmentValueCreateManyInput[],
         });
       }
       await tx.missionEnrichment.update({
@@ -59,7 +59,7 @@ export const missionEnrichmentRepository = {
     await prisma.$transaction(async (tx) => {
       if (params.values.length > 0) {
         await tx.missionEnrichmentValue.createMany({
-          data: params.values.map((v) => ({ ...v, enrichmentId: params.enrichmentId })),
+          data: params.values.map((value) => ({ ...value, enrichmentId: params.enrichmentId })) as Prisma.MissionEnrichmentValueCreateManyInput[],
         });
       }
 
