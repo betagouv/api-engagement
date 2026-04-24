@@ -1,21 +1,5 @@
 const rawApiUrl: string | undefined = typeof window !== "undefined" ? (window as any).__API_URL__ : undefined;
-const BASE = rawApiUrl && rawApiUrl !== "API_URL_PLACEHOLDER" ? rawApiUrl : (import.meta.env.VITE_API_URL as string | undefined) ?? "";
-
-export type TaxonomyValue = {
-  id: string;
-  key: string;
-  label: string;
-  icon: string | null;
-  order: number | null;
-};
-
-export type Taxonomy = {
-  id: string;
-  key: string;
-  label: string;
-  type: "categorical" | "multi_value" | "ordered" | "gate";
-  values: TaxonomyValue[];
-};
+const BASE = rawApiUrl && rawApiUrl !== "API_URL_PLACEHOLDER" ? rawApiUrl : ((import.meta.env.VITE_API_URL as string | undefined) ?? "");
 
 export type MatchValueDetail = {
   dimensionKey: string;
@@ -73,14 +57,7 @@ async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   return json.data as T;
 }
 
-export async function fetchTaxonomies(): Promise<Taxonomy[]> {
-  return apiFetch<Taxonomy[]>("/poc/taxonomy");
-}
-
-export async function postUserScoring(
-  answers: { taxonomy_value_key: string }[],
-  geo: { lat: number; lon: number } | null
-): Promise<{ id: string; created_at: string }> {
+export async function postUserScoring(answers: { taxonomy_value_key: string }[], geo: { lat: number; lon: number } | null): Promise<{ id: string; created_at: string }> {
   return apiFetch("/user-scoring", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
