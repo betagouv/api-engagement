@@ -50,10 +50,6 @@ jobs:
           cache-dependency-path: "api/package-lock.json"
       - name: Install dependencies
         run: cd api && npm ci
-      - name: Install taxonomy package dependencies
-        run: cd packages/taxonomy && npm ci --ignore-scripts 2>/dev/null || true
-      - name: Build taxonomy package
-        run: cd packages/taxonomy && npm run build
       - name: Build (tsc)
         run: cd api && npm run build
 
