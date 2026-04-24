@@ -4,9 +4,11 @@ import zod from "zod";
 
 import { INVALID_QUERY } from "@/error";
 import { UserRequest } from "@/types/passport";
+import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { getStatsMean } from "@/controllers/stats-mean/helper";
 
 const router = Router();
+router.use(ipRateLimiter);
 
 const querySchema = zod
   .object({

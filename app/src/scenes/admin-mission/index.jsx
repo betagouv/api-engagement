@@ -133,11 +133,11 @@ const AdminMission = () => {
   };
 
   return (
-    <div className="space-y-12 bg-white p-12 shadow-lg">
+    <div className="space-y-12 bg-white p-4 shadow-lg sm:p-12">
       <title>API Engagement - Missions - Administration</title>
       <div className="space-y-4">
-        <SearchInput className="w-96" value={filters.search} onChange={(search) => setFilters({ ...filters, search })} placeholder="Rechercher par mot-clé" />
-        <div className="flex items-center gap-4">
+        <SearchInput className="w-full sm:w-96" value={filters.search} onChange={(search) => setFilters({ ...filters, search })} placeholder="Rechercher par mot-clé" />
+        <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
           <Select
             options={options.status.map((e) => ({ value: e.key, label: STATUS_PLR[e.key], count: e.doc_count }))}
             value={filters.status}
@@ -171,7 +171,7 @@ const AdminMission = () => {
             options={options.partners}
           />
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
           <Select
             options={options.cities.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseignée" : e.key, count: e.doc_count }))}
             value={filters.city}
@@ -195,10 +195,10 @@ const AdminMission = () => {
       </div>
 
       <div className="space-y-6">
-        <div className="flex items-center justify-between gap-4">
-          <div className="max-w-[60%] flex-1 space-y-2">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="min-w-0 flex-1 space-y-2">
             <h2 className="text-2xl font-bold">{total.toLocaleString("fr")} missions partagées</h2>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <p className="text-text-mention text-base">Dernière synchronisation le {lastImport ? new Date(lastImport.startedAt).toLocaleDateString("fr") : "N/A"}</p>
               {lastImport && new Date(lastImport.startedAt) > new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - 1) ? (
                 <RiCheckboxCircleFill role="img" aria-label="OK" className="text-success text-base" />
@@ -207,7 +207,7 @@ const AdminMission = () => {
               )}
             </div>
           </div>
-          <button className="tertiary-btn flex items-center" onClick={handleExport}>
+          <button className="tertiary-btn flex shrink-0 items-center" onClick={handleExport}>
             {exporting ? <Loader /> : <RiFileDownloadLine className="mr-2" aria-hidden="true" />}
             Exporter
           </button>

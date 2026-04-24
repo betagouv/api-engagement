@@ -1,5 +1,5 @@
 import { handleMissionScoring } from "@/worker/handlers/mission-scoring";
-import { defineTask, missionEnrichmentPayloadSchema, missionPayloadSchema, TaskRegistryEntry } from "@/worker/types";
+import { defineTask, missionEnrichmentPayloadSchema, missionScoringPayloadSchema, TaskRegistryEntry } from "@/worker/types";
 import { handleMissionEnrichment } from "./handlers/mission-enrichment";
 
 export const taskRegistry: Record<string, TaskRegistryEntry> = {
@@ -10,7 +10,7 @@ export const taskRegistry: Record<string, TaskRegistryEntry> = {
   }),
   "mission.scoring": defineTask({
     queueUrl: process.env.SCW_QUEUE_URL_MISSION_SCORING ?? "",
-    schema: missionPayloadSchema,
+    schema: missionScoringPayloadSchema,
     handler: handleMissionScoring,
   }),
 };

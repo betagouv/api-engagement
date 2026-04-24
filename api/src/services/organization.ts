@@ -13,7 +13,7 @@ import {
 } from "@/types/organization";
 import { chunk } from "@/utils/array";
 import { normalizeOptionalString, normalizeSlug, normalizeStringArray } from "@/utils/normalize";
-import { buildOrganizationSearchText, isValidRNA, isValidSiret } from "@/utils/organization";
+import { buildOrganizationPrefixTsQuery, buildOrganizationSearchText, isValidRNA, isValidSiren, isValidSiret, normalizeOrganizationSearchQuery } from "@/utils/organization";
 import { slugify } from "@/utils/string";
 
 const DEFAULT_LIMIT = 25;
@@ -50,8 +50,10 @@ const buildSearchWhere = (params: OrganizationSearchParams): Prisma.Organization
         and.push({ rna: query });
       } else if (isValidSiret(query)) {
         and.push({ OR: [{ siret: query }, { sirets: { has: query } }] });
+      } else if (isValidSiren(query)) {
+        and.push({ siren: query });
       } else {
-        const normalizedQuery = query.toLowerCase();
+        const normalizedQuery = normalizeOrganizationSearchQuery(query) ?? query.toLowerCase();
         const textConditions: Prisma.OrganizationWhereInput[] = [{ searchText: { contains: normalizedQuery } }];
 
         and.push({ OR: textConditions });
@@ -327,6 +329,45 @@ export const organizationService = (() => {
     };
   };
 
+  const findOrganizationsForV0 = async (params: Pick<OrganizationSearchParams, "query" | "rna" | "siret" | "offset" | "limit"> = {}): Promise<OrganizationRecord[]> => {
+    const limit = Math.min(Math.max(params.limit ?? DEFAULT_LIMIT, 1), MAX_LIMIT);
+    const offset = Math.max(params.offset ?? 0, 0);
+    const query = params.query?.trim() ?? "";
+    const normalizedRna = normalizeOptionalString(params.rna);
+    const normalizedSiret = normalizeOptionalString(params.siret);
+
+    let queryRna: string | null = null;
+    let querySiret: string | null = null;
+    let querySiren: string | null = null;
+    let queryText: string | null = null;
+    let queryTs: string | null = null;
+
+    if (query) {
+      if (isValidRNA(query)) {
+        queryRna = query;
+      } else if (isValidSiret(query)) {
+        querySiret = query;
+      } else if (isValidSiren(query)) {
+        querySiren = query;
+      } else {
+        queryText = normalizeOrganizationSearchQuery(query) ?? query.toLowerCase();
+        queryTs = buildOrganizationPrefixTsQuery(query);
+      }
+    }
+
+    return organizationRepository.findManyForV0Search({
+      rna: normalizedRna,
+      siret: normalizedSiret,
+      queryRna,
+      querySiret,
+      querySiren,
+      queryText,
+      queryTs,
+      skip: offset,
+      take: limit,
+    });
+  };
+
   const findOneOrganizationById = async (id: string): Promise<OrganizationRecord | null> => {
     if (!id) {
       return null;
@@ -485,6 +526,7 @@ export const organizationService = (() => {
 
   return {
     findOrganizationsByFilters,
+    findOrganizationsForV0,
     findOneOrganizationById,
     findOrganizationsByIds,
     createOrganization,

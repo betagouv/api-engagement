@@ -1,11 +1,16 @@
-import * as Sentry from "@sentry/react";
-import { toast } from "@/services/toast";
 import { ENV } from "@/services/config";
+import { toast } from "@/services/toast";
+import * as Sentry from "@sentry/react";
 
 export const captureError = (error, context = { message: "Une erreur est survenue" }, toastOptions = {}) => {
   // Ignore AbortError - these are expected when requests are cancelled
   if (error && (error.name === "AbortError" || error.message?.includes("signal is aborted"))) {
     console.log("[Sentry] AbortError ignored");
+    return;
+  }
+
+  if (error && error.message?.includes("NetworkError")) {
+    toast.error("Une erreur de connexion est survenue. Veuillez réessayer.");
     return;
   }
 

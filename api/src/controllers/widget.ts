@@ -6,9 +6,11 @@ import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESS
 import { publisherService } from "@/services/publisher";
 import { widgetService } from "@/services/widget";
 import { UserRequest } from "@/types/passport";
+import { ipRateLimiter } from "@/middlewares/rate-limit";
 import type { WidgetCreateInput, WidgetSearchParams } from "@/types/widget";
 
 const router = Router();
+router.use(ipRateLimiter);
 
 router.post("/search", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
@@ -158,7 +160,7 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
 
         style: zod.enum(["carousel", "page"]).optional(),
         color: zod.string().optional(),
-        type: zod.enum(["benevolat", "volontariat"]).optional(),
+        type: zod.enum(["benevolat", "volontariat", "volontariat_sapeurs_pompiers", "volontariat_reserve_operationnelle"]).optional(),
         active: zod.coerce.boolean().optional(),
         publishers: zod.array(zod.string()).optional(),
         jvaModeration: zod.coerce.boolean().optional(),
@@ -246,7 +248,7 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
 
         style: zod.enum(["carousel", "page"]).optional(),
         color: zod.string().optional(),
-        type: zod.enum(["benevolat", "volontariat"]).optional(),
+        type: zod.enum(["benevolat", "volontariat", "volontariat_sapeurs_pompiers", "volontariat_reserve_operationnelle"]).optional(),
         active: zod.coerce.boolean().optional(),
         publishers: zod.array(zod.string()).optional(),
         jvaModeration: zod.coerce.boolean().optional(),

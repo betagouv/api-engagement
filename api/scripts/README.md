@@ -26,7 +26,7 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
 - **backfill-organization-search-text.ts**
 
   - Exécution: `npx ts-node scripts/backfill-organization-search-text.ts [--batch <taille>] [--last-id <id>] [--only-null]`
-  - Usage: Calcule `organization.search_text` en minuscules (title + short_title + rna + siret + siren) pour accélérer la recherche.
+  - Usage: Calcule `organization.search_text` en minuscules, sans accents et sans ponctuation (title + short_title + rna + siret + siren) pour accélérer la recherche.
   - Options: `--batch <taille>` (défaut: 500), `--last-id <id>` pour reprendre à un identifiant donné, `--only-null` pour ne traiter que les lignes non encore remplies.
 
 - **mongo-backfill/**
@@ -64,3 +64,21 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
 
   - Scripts d’initialisation/d’échantillonnage de données (voir `scripts/fixtures/README.md`), dont:
     - `populate-stat-events-from-missions.ts`: génère des `StatEvent` réalistes pour un ou plusieurs publishers à partir de missions Mongo.
+
+- **seed-fake-user-scoring.ts**
+
+  - Exécution: `npx ts-node scripts/seed-fake-user-scoring.ts [--count N] [--with-geo] [--expires-in-hours N] [--dry-run]`
+  - Usage: Crée des `user_scoring` fake en base pour tester le `matching-engine`.
+  - Options:
+    - `--count N` : nombre de profils à créer (défaut: 10)
+    - `--with-geo` : ajoute une géolocalisation fake en France
+    - `--expires-in-hours N` : expiration des profils créés (défaut: 72h)
+    - `--dry-run` : simule la création et loggue les ids/volumes sans écrire en base
+
+- **explain-matching-result.ts**
+
+  - Exécution: `npx ts-node scripts/explain-matching-result.ts <userScoringId> [--limit N] [--version V]`
+  - Usage: Exécute le `matching-engine`, vérifie la persistance du `mission_matching_result`, affiche les dimensions du `user_scoring`, puis explique mission par mission pourquoi le matching est pertinent par dimension.
+  - Options:
+    - `--limit N` : nombre max de missions affichées (défaut: 5)
+    - `--version V` : version du matching engine à analyser (défaut: version courante)

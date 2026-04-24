@@ -11,9 +11,11 @@ import publisherOrganizationService from "@/services/publisher-organization";
 import { UserRecord } from "@/types";
 import { MissionModerationRecord, ModerationFilters } from "@/types/mission-moderation-status";
 import type { UserRequest } from "@/types/passport";
+import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { getModerationEvents, getModerationUpdates, getOrganizationUpdates } from "@/utils/mission-moderation-status";
 
 const router = Router();
+router.use(ipRateLimiter);
 
 const searchSchema = zod.object({
   status: zod.enum(["ACCEPTED", "REFUSED", "PENDING", "ONGOING", ""]).optional(),

@@ -34,6 +34,9 @@ export const SCW_SECRET_KEY = process.env.SCW_SECRET_KEY;
 export const SCW_HOST = process.env.SCW_HOST || "https://s3.fr-par.scw.cloud";
 export const BUCKET_NAME = process.env.BUCKET_NAME || "api-engagement-bucket-staging";
 export const REGION = process.env.REGION || "fr-par";
+export const RDB_BACKUP_INSTANCE_ID = process.env.RDB_BACKUP_INSTANCE_ID || "";
+export const RDB_BACKUP_DATABASE_NAME = process.env.RDB_BACKUP_DATABASE_NAME || "";
+export const RDB_BACKUP_RETENTION_DAYS = Number.parseInt(process.env.RDB_BACKUP_RETENTION_DAYS || "7", 10);
 
 // Worker Queue
 export const SCW_QUEUE_ENDPOINT = process.env.SCW_QUEUE_ENDPOINT || "https://sqs.mnq.fr-par.scaleway.com";
@@ -48,6 +51,11 @@ export const SLACK_CRON_CHANNEL_ID = process.env.SLACK_CRON_CHANNEL_ID || "C085S
 export const SLACK_JOBTEASER_CHANNEL_ID = process.env.SLACK_JOBTEASER_CHANNEL_ID || "C080H9MH56W";
 
 export const DATA_SUBVENTION_TOKEN = process.env.DATA_SUBVENTION_TOKEN;
+
+// Rate limit
+export const RATE_LIMIT_PUBLISHER_MAX = Number(process.env.RATE_LIMIT_PUBLISHER_MAX) || 600;
+export const RATE_LIMIT_IP_MAX = Number(process.env.RATE_LIMIT_IP_MAX) || 120;
+export const RATE_LIMIT_DISABLED = process.env.RATE_LIMIT_DISABLED === "true";
 
 // Ids (ISO prod / staging)
 export const PUBLISHER_IDS = {

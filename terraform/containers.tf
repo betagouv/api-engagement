@@ -29,8 +29,8 @@ resource "scaleway_container" "api" {
   environment_variables = {
     "ENV"                               = var.env
     "IMAGE_VERSION"                     = var.image_tag
-    "API_URL"                           = "https://${var.api_hostname}"
-    "APP_URL"                           = "https://${var.app_hostname}"
+    "API_URL"                           = var.api_hostname != "" ? "https://${var.api_hostname}" : ""
+    "APP_URL"                           = var.app_hostname != "" ? "https://${var.app_hostname}" : ""
     "BENEVOLAT_URL"                     = var.benevolat_hostname != "" ? "https://${var.benevolat_hostname}" : ""
     "VOLONTARIAT_URL"                   = var.volontariat_hostname != "" ? "https://${var.volontariat_hostname}" : ""
     "PILOTY_BASE_URL"                   = var.piloty_hostname
@@ -109,6 +109,7 @@ resource "scaleway_container" "api_worker" {
 
 # App Container
 resource "scaleway_container" "app" {
+  count        = var.enable_app ? 1 : 0
   name         = "${var.workspace}-app"
   description  = "App ${var.workspace} container"
   namespace_id = scaleway_container_namespace.main.id
@@ -124,6 +125,29 @@ resource "scaleway_container" "app" {
   protocol       = "http1"
   http_option    = "redirected" # https only
   deploy         = true
+}
+
+# POC Quiz Container
+resource "scaleway_container" "poc_quiz" {
+  count          = var.enable_poc_quiz ? 1 : 0
+  name           = "${var.workspace}-poc-quiz"
+  description    = "POC Quiz ${var.workspace} container"
+  namespace_id   = scaleway_container_namespace.main.id
+  registry_image = "ghcr.io/${var.github_repository}/poc-quiz:${var.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
+  port           = 8080
+  cpu_limit      = 250
+  memory_limit   = 512
+  min_scale      = 0
+  max_scale      = 1
+  timeout        = 60
+  privacy        = "public"
+  protocol       = "http1"
+  http_option    = "redirected"
+  deploy         = true
+
+  environment_variables = {
+    "API_URL" = "https://${scaleway_container.api.domain_name}"
+  }
 }
 
 # Widget Container

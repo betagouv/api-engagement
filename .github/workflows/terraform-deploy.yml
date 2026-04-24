@@ -101,7 +101,7 @@ jobs:
           echo "Will use images tagged as: ${{ needs.set-env.outputs.environment_name }}-${IMAGE_TAG}"
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v6.3.0
         with:
           node-version: "24"
           cache: "npm"

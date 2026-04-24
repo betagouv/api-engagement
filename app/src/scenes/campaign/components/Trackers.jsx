@@ -40,7 +40,8 @@ const Trackers = ({ values, onChange }) => {
         <label className="ml-2 text-base">Ajouter des paramètres pour le suivi statistique</label>
       </div>
       {values.trackers && values.trackers.length > 0 && (
-        <div className="border-grey-border border p-8">
+        <div className="border-grey-border overflow-x-auto border p-4 sm:p-8">
+          <div className="min-w-[500px]">
           <div className="mb-2 flex items-center gap-4">
             <label className="flex-1 text-base">Nom du paramètre</label>
             <label className="flex-1 text-base">Valeur du paramètre</label>
@@ -62,6 +63,7 @@ const Trackers = ({ values, onChange }) => {
           <button type="button" className="secondary-btn mt-4" onClick={() => onChange({ ...values, trackers: [...values.trackers, { key: "", value: "" }] })}>
             Ajouter un paramètre
           </button>
+          </div>
         </div>
       )}
     </>

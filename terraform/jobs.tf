@@ -17,7 +17,7 @@ locals {
     tomap(local.secrets)
   )
 
-  image_uri              = "ghcr.io/${var.github_repository}/api:${var.env}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
+  image_uri = "ghcr.io/${var.github_repository}/api:${var.env}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
 }
 
 # Job Definition for the 'letudiant' task
@@ -49,8 +49,8 @@ resource "scaleway_job_definition" "talent" {
   memory_limit = 2048
   image_uri    = local.image_uri
   # Max old space workaround: https://stackoverflow.com/questions/48387040/how-do-i-determine-the-correct-max-old-space-size-for-node-js
-  command      = "node --max-old-space-size=1800 dist/jobs/run-job.js talent"
-  timeout      = "45m"
+  command = "node --max-old-space-size=1800 dist/jobs/run-job.js talent"
+  timeout = "45m"
 
   cron {
     schedule = "0 */3 * * *" # Every 3 hours
@@ -69,8 +69,8 @@ resource "scaleway_job_definition" "grimpio" {
   memory_limit = 2048
   image_uri    = local.image_uri
   # Max old space workaround: https://stackoverflow.com/questions/48387040/how-do-i-determine-the-correct-max-old-space-size-for-node-js
-  command      = "node --max-old-space-size=1800 dist/jobs/run-job.js grimpio"
-  timeout      = "45m"
+  command = "node --max-old-space-size=1800 dist/jobs/run-job.js grimpio"
+  timeout = "45m"
 
   cron {
     schedule = "0 1 * * *" # Every day at 1:00 AM
@@ -215,6 +215,7 @@ resource "scaleway_job_definition" "moderation" {
 
 # Job Definition for the 'enrich-missions-geoloc' task
 resource "scaleway_job_definition" "enrich-missions-geoloc" {
+  count        = var.enable_mission_jobs ? 1 : 0
   name         = "${terraform.workspace}-enrich-missions-geoloc"
   project_id   = var.project_id
   cpu_limit    = 1000
@@ -233,6 +234,7 @@ resource "scaleway_job_definition" "enrich-missions-geoloc" {
 
 # Job Definition for the 'import-missions' task (all environments)
 resource "scaleway_job_definition" "import-missions" {
+  count        = var.enable_mission_jobs ? 1 : 0
   name         = "${terraform.workspace}-import-missions"
   project_id   = var.project_id
   cpu_limit    = 1000
@@ -263,8 +265,23 @@ resource "scaleway_job_definition" "update-mission-enrichment" {
   env = local.all_env_vars
 }
 
+# Job Definition for the 'update-mission-scoring' task (on-demand only, no cron)
+resource "scaleway_job_definition" "update-mission-scoring" {
+  count        = var.enable_intern_jobs ? 1 : 0
+  name         = "${terraform.workspace}-update-mission-scoring"
+  project_id   = var.project_id
+  cpu_limit    = 1000
+  memory_limit = 2048
+  image_uri    = local.image_uri
+  command      = "node dist/jobs/run-job.js update-mission-scoring"
+  timeout      = "24h"
+
+  env = local.all_env_vars
+}
+
 # Job Definition for the 'verify-publisher-organization' task
 resource "scaleway_job_definition" "verify-publisher-organization" {
+  count        = var.enable_mission_jobs ? 1 : 0
   name         = "${terraform.workspace}-verify-publisher-organization"
   project_id   = var.project_id
   cpu_limit    = 1000
@@ -279,4 +296,26 @@ resource "scaleway_job_definition" "verify-publisher-organization" {
   }
 
   env = local.all_env_vars
+}
+
+resource "scaleway_job_definition" "rdb-backup" {
+  count        = var.enable_rdb_backup_job ? 1 : 0
+  name         = "${terraform.workspace}-rdb-backup"
+  project_id   = var.project_id
+  cpu_limit    = 250
+  memory_limit = 512
+  image_uri    = local.image_uri
+  command      = "node dist/jobs/run-job.js rdb-backup"
+  timeout      = "10m"
+
+  cron {
+    schedule = "0 3 * * *"
+    timezone = "Europe/Paris"
+  }
+
+  env = merge(local.all_env_vars, {
+    "RDB_BACKUP_INSTANCE_ID"    = var.core_database_id
+    "RDB_BACKUP_DATABASE_NAME"  = "rdb"
+    "RDB_BACKUP_RETENTION_DAYS" = 7
+  })
 }

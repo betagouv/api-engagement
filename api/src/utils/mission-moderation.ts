@@ -44,6 +44,10 @@ export const getModeration = (mission: Partial<MissionRecord> & Record<string, a
     statusComment = "Problème d'encodage dans le nom de l'organisation";
   } else if (typeof mission.compensationAmount === "number" && mission.compensationAmount < 0) {
     statusComment = "Montant de la compensation invalide (nombre positif attendu)";
+  } else if (typeof mission.compensationAmountMax === "number" && mission.compensationAmountMax < 0) {
+    statusComment = "Montant maximum de la compensation invalide (nombre positif attendu)";
+  } else if (typeof mission.compensationAmount === "number" && typeof mission.compensationAmountMax === "number" && mission.compensationAmountMax < mission.compensationAmount) {
+    statusComment = "Le montant maximum de la compensation doit être supérieur ou égal au montant minimum";
   } else if (mission.compensationUnit && !COMPENSATION_UNITS.includes(mission.compensationUnit)) {
     statusComment = `Unité de compensation invalide (${COMPENSATION_UNITS.join(", ")})`;
   } else if (mission.compensationType && !COMPENSATION_TYPES.includes(mission.compensationType)) {

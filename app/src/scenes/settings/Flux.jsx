@@ -76,23 +76,23 @@ const Flux = () => {
   };
 
   return (
-    <div className="space-y-12 p-12">
+    <div className="space-y-12 p-4 sm:p-12">
       <title>API Engagement - Flux de missions - Paramètres</title>
-      <div className="border-grey-border space-y-8 border p-8">
+      <div className="border-grey-border space-y-8 border p-4 sm:p-8">
         <h2 className="text-3xl font-bold">Configurer votre flux de missions</h2>
 
-        <div className="flex items-center justify-between gap-6">
-          <label className="w-[35%] flex-none font-semibold">Lien du fichier XML à synchroniser</label>
-          <div className="flex flex-1 gap-2">
-            <input className="input border-blue-france-925 bg-blue-france-975 w-full border read-only:opacity-80" value={publisher.feed} readOnly />
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+          <label className="font-semibold sm:w-[35%] sm:flex-none">Lien du fichier XML à synchroniser</label>
+          <div className="flex min-w-0 flex-1 gap-2">
+            <input className="input border-blue-france-925 bg-blue-france-975 min-w-0 flex-1 border read-only:opacity-80" value={publisher.feed} readOnly />
             {user.role === "admin" && <ModifyModal />}
           </div>
         </div>
 
         <div className="h-px w-full bg-gray-900" />
 
-        <div className="flex items-center justify-between gap-6">
-          <label className="w-[35%] font-semibold">Dernière synchronisation</label>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+          <label className="font-semibold sm:w-[35%]">Dernière synchronisation</label>
           <div className="flex flex-1 gap-2">
             {imports.length > 0 && lastSync < new Date(Date.now() - 24 * 60 * 60 * 1000) ? (
               <div className="items-center">
@@ -110,7 +110,7 @@ const Flux = () => {
         </div>
       </div>
 
-      <div className="border-grey-border space-y-6 border p-6">
+      <div className="border-grey-border space-y-6 overflow-x-auto border p-4 sm:p-6">
         <h2 className="text-3xl font-bold">Historique des synchronisations</h2>
 
         <Table

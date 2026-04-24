@@ -10,5 +10,6 @@ export * from "@/types/organization";
 export * from "@/types/publisher";
 export * from "@/types/report";
 export * from "@/types/stat-event";
+export * from "@/types/taxonomy";
 export * from "@/types/user";
 export * from "@/types/widget";

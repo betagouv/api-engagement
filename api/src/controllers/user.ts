@@ -12,12 +12,14 @@ import { publisherService } from "@/services/publisher";
 import { userService } from "@/services/user";
 import { UserRequest } from "@/types/passport";
 import type { UserUpdatePatch } from "@/types/user";
+import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { hasLetter, hasNumber, hasSpecialChar } from "@/utils";
 
 const FORGET_PASSWORD_EXPIRATION = 1000 * 60 * 60 * 2; // 2 hours
 const AUTH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7; // 7 day
 
 const router = Router();
+router.use(ipRateLimiter);
 
 router.post("/search", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {

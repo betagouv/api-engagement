@@ -10,6 +10,7 @@ import type { PublisherRecord, PublisherRecordWithRelations } from "@/types/publ
 import { getDistanceFromLatLonInKm, getDistanceKm } from "@/utils";
 import { NO_PARTNER, NO_PARTNER_MESSAGE } from "@/v0/mission/constants";
 import { buildData } from "@/v0/mission/transformer";
+import { publisherRateLimiter } from "@/middlewares/rate-limit";
 import { normalizeQueryArray, parseDateFilter } from "@/v0/mission/utils";
 
 const parseBooleanQuery = (value?: string): boolean | undefined => {
@@ -65,8 +66,10 @@ export const missionQuerySchema = zod.object({
 });
 
 const router = Router();
+router.use(passport.authenticate(["apikey", "api"], { session: false }));
+router.use(publisherRateLimiter);
 
-router.get("/", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
+router.get("/", async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
     const user = req.user as PublisherRecordWithRelations;
 
@@ -151,7 +154,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
   }
 });
 
-router.get("/search", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
+router.get("/search", async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
     const user = req.user as PublisherRecordWithRelations;
 
@@ -260,7 +263,7 @@ router.get("/search", passport.authenticate(["apikey", "api"], { session: false 
   }
 });
 
-router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
+router.get("/:id", async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
     const user = req.user as PublisherRecord;
 

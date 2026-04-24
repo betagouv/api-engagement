@@ -36,7 +36,7 @@ const Signup = () => {
   };
 
   return (
-    <div className="h-full w-full bg-white px-32 py-10">
+    <div className="h-full w-full bg-white px-4 py-10 sm:px-32">
       <title>API Engagement - Inscription</title>
       {error === "invalide" ? (
         <ErrorAlert>

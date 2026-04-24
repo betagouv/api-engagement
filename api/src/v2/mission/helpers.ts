@@ -166,6 +166,7 @@ export const buildData = (mission: MissionRecord) => ({
   priority: mission.priority,
   places: mission.places,
   compensationAmount: mission.compensationAmount,
+  compensationAmountMax: mission.compensationAmountMax,
   compensationUnit: mission.compensationUnit,
   compensationType: mission.compensationType,
   openToMinors: mission.openToMinors,

@@ -1,13 +1,13 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { TaxonomyType } from "@/db/core";
+import { TaxonomyKey, TaxonomyType } from "@/db/core";
 import { prisma } from "@/db/postgres";
 
 type TaxonomyValueData = { key: string; label: string; icon?: string };
 
 const TAXONOMY_DATA: Array<{
-  key: string;
+  key: TaxonomyKey;
   label: string;
   type: TaxonomyType;
   values: TaxonomyValueData[];
@@ -61,13 +61,13 @@ const TAXONOMY_DATA: Array<{
     label: "Compétences (référentiel ROME)",
     type: "multi_value",
     values: [
-      { key: "management_social_soin", label: "Aider, accompagner ou prendre soin des autres", icon: "🤲" },
-      { key: "communication_creation_numerique", label: "Communiquer, créer ou travailler avec le numérique", icon: "💻" },
-      { key: "Production_construction_qualité_logistique", label: "Fabriquer, concevoir, construire ou travailler avec des outils et des machines", icon: "🛠️" },
-      { key: "gestion_pilotage_juridique", label: "Gérer une activité, un projet ou des ressources", icon: "💼" },
-      { key: "relation_client_commerce_strategie", label: "Développer une activité économique ou commerciale", icon: "📈" },
-      { key: "cooperation_organisation_soft_skills", label: "Travailler en équipe et développer ses compétences personnelles", icon: "🤝" },
-      { key: "securite_environnement_action_publique", label: "Protéger les personnes, la société ou l'environnement", icon: "🛡️" },
+      { key: "management_social_soin", label: "Management, social, soin", icon: "🤲" },
+      { key: "communication_creation_numerique", label: "Communication, création, innovation, nouvelles technologies", icon: "💻" },
+      { key: "production_construction_qualite_logistique", label: "Production, construction, qualité, logistique", icon: "🛠️" },
+      { key: "gestion_pilotage_juridique", label: "Gestion, pilotage, juridique", icon: "💼" },
+      { key: "relation_client_commerce_strategie", label: "Relation client, commerce, stratégie", icon: "📈" },
+      { key: "cooperation_organisation_soft_skills", label: "Coopération, organisation, soft skills", icon: "🤝" },
+      { key: "securite_environnement_action_publique", label: "Protection des personnes, de la société ou de l'environnement", icon: "🛡️" },
     ],
   },
   {
@@ -85,7 +85,7 @@ const TAXONOMY_DATA: Array<{
   {
     key: "engagement_intent",
     label: "Intention d'engagement",
-    type: "categorical",
+    type: "multi_value",
     values: [
       { key: "aide_directe", label: "Aide directe aux personnes", icon: "🤝" },
       { key: "transmission", label: "Transmission / pédagogie / accompagnement de public", icon: "🎓" },
@@ -98,9 +98,18 @@ const TAXONOMY_DATA: Array<{
     ],
   },
   {
+    key: "tranche_age",
+    label: "Tranche d'âge",
+    type: "gate",
+    values: [
+      { key: "moins_26_ans", label: "Moins de 26 ans" },
+      { key: "moins_31_ans_handicap", label: "Moins de 31 ans — situation de handicap" },
+    ],
+  },
+  {
     key: "formation_onisep",
     label: "Domaine de formation ONISEP",
-    type: "categorical",
+    type: "multi_value",
     values: [
       { key: "environnement_nature_sciences", label: "Environnement, nature et sciences", icon: "🌱" },
       { key: "numerique_communication", label: "Numérique et communication", icon: "💻" },
