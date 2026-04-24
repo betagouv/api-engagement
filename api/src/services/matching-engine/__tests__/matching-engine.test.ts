@@ -9,7 +9,7 @@ vi.mock("@/repositories/mission-matching-result", () => ({
 import { prisma } from "@/db/postgres";
 import { missionMatchingResultRepository } from "@/repositories/mission-matching-result";
 import { matchingEngineService } from "@/services/matching-engine";
-import { CURRENT_MATCHING_ENGINE_VERSION } from "@/services/matching-engine/types";
+import { CURRENT_MATCHING_ENGINE_VERSION } from "@/services/matching-engine/config";
 
 const prismaMock = prisma as unknown as {
   $queryRaw: ReturnType<typeof vi.fn>;
