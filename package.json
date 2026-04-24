@@ -2,11 +2,12 @@
   "name": "api-engagement",
   "version": "1.4.1",
   "scripts": {
-    "lint": "npm run lint:api && npm run lint:app && npm run lint:analytics && npm run lint:widget",
+    "lint": "npm run lint:api && npm run lint:app && npm run lint:analytics && npm run lint:widget && npm run lint:plateform",
     "lint:api": "cd api && npm run lint",
     "lint:app": "cd app && npm run lint",
     "lint:analytics": "cd analytics && npm run lint",
     "lint:widget": "cd widget && npm run lint",
+    "lint:plateform": "cd plateform && npm run lint",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,yml}\" --ignore-path .prettierignore",
     "commit": "cz",
     "prepare": "husky"

@@ -150,6 +150,29 @@ resource "scaleway_container" "poc_quiz" {
   }
 }
 
+# Plateform Container
+resource "scaleway_container" "plateform" {
+  count          = var.enable_plateform ? 1 : 0
+  name           = "${var.workspace}-plateform"
+  description    = "Plateform ${var.workspace} container"
+  namespace_id   = scaleway_container_namespace.main.id
+  registry_image = "ghcr.io/${var.github_repository}/plateform:${var.workspace}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
+  port           = 8080
+  cpu_limit      = var.plateform_cpu_limit
+  memory_limit   = var.plateform_memory_limit
+  min_scale      = var.plateform_min_scale
+  max_scale      = var.plateform_max_scale
+  timeout        = 60
+  privacy        = "public"
+  protocol       = "http1"
+  http_option    = "redirected"
+  deploy         = true
+
+  environment_variables = {
+    "API_URL" = var.api_hostname != "" ? "https://${var.api_hostname}" : ""
+  }
+}
+
 # Widget Container
 resource "scaleway_container" "widget" {
   count          = var.enable_widget ? 1 : 0

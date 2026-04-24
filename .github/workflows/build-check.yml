@@ -20,6 +20,7 @@ jobs:
       app: ${{ steps.filter.outputs.app }}
       analytics: ${{ steps.filter.outputs.analytics }}
       widget: ${{ steps.filter.outputs.widget }}
+      plateform: ${{ steps.filter.outputs.plateform }}
     steps:
       - uses: actions/checkout@v6
       - uses: dorny/paths-filter@v4.0.1
@@ -34,6 +35,8 @@ jobs:
               - 'analytics/**'
             widget:
               - 'widget/**'
+            plateform:
+              - 'plateform/**'
 
   api-build:
     name: API build
@@ -102,3 +105,20 @@ jobs:
         run: cd widget && npm ci
       - name: Build (next)
         run: cd widget && npm run build
+
+  plateform-build:
+    name: Plateform build
+    needs: changes
+    if: needs.changes.outputs.plateform == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6.3.0
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: "plateform/package-lock.json"
+      - name: Install dependencies
+        run: cd plateform && npm ci
+      - name: Build (react-router)
+        run: cd plateform && npm run build
