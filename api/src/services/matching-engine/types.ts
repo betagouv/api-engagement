@@ -1,16 +1,9 @@
-import { TaxonomyKey } from "@/types/taxonomy";
+import type { DimensionKey } from "@engagement/taxonomy";
 
-export const MATCHING_ENGINE_DIMENSIONS = [
-  TaxonomyKey.domaine,
-  TaxonomyKey.secteur_activite,
-  TaxonomyKey.type_mission,
-  TaxonomyKey.accessibilite,
-  TaxonomyKey.format_activite,
-  TaxonomyKey.competence_rome,
-  TaxonomyKey.engagement_civique,
-  TaxonomyKey.niveau_engagement,
-  TaxonomyKey.region_internationale,
-] as const satisfies readonly TaxonomyKey[];
+// Dimensions actives dans le matching engine — sous-ensemble des dims enrichissables du package.
+// Les dimensions retirées (accessibilite, format_activite, engagement_civique, niveau_engagement)
+// n'existent pas dans la taxonomie seedée et n'ont aucune donnée en DB.
+export const MATCHING_ENGINE_DIMENSIONS = ["domaine", "secteur_activite", "type_mission", "competence_rome", "region_internationale"] as const satisfies readonly DimensionKey[];
 
 export type MatchingEngineDimension = (typeof MATCHING_ENGINE_DIMENSIONS)[number];
 
