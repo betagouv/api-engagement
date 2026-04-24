@@ -30,11 +30,11 @@ const assertColumnsExist = async (target: BackfillTarget): Promise<void> => {
     FROM "information_schema"."columns"
     WHERE "table_schema" = 'public'
       AND "table_name" = '${target.tableName}'
-      AND "column_name" IN ('dimension_key', 'value_key', '${target.legacyColumn}')
+      AND "column_name" IN ('taxonomy_key', 'value_key', '${target.legacyColumn}')
   `);
 
   const availableColumns = new Set(result.rows.map((row) => row.column_name));
-  const requiredColumns = ["dimension_key", "value_key", target.legacyColumn];
+  const requiredColumns = ["taxonomy_key", "value_key", target.legacyColumn];
 
   for (const column of requiredColumns) {
     if (!availableColumns.has(column)) {
@@ -50,7 +50,7 @@ const countRowsMissingNewKeys = async (target: BackfillTarget): Promise<number> 
     SELECT COUNT(*)::bigint AS "count"
     FROM "${target.tableName}" target
     WHERE target."${target.legacyColumn}" IS NOT NULL
-      AND (target."dimension_key" IS NULL OR target."value_key" IS NULL)
+      AND (target."taxonomy_key" IS NULL OR target."value_key" IS NULL)
   `);
 
   return toCount(result.rows[0]?.count ?? 0);
@@ -61,7 +61,7 @@ const countRowsMissingLegacyIds = async (target: BackfillTarget): Promise<number
     SELECT COUNT(*)::bigint AS "count"
     FROM "${target.tableName}" target
     WHERE target."${target.legacyColumn}" IS NULL
-      AND target."dimension_key" IS NOT NULL
+      AND target."taxonomy_key" IS NOT NULL
       AND target."value_key" IS NOT NULL
   `);
 
@@ -73,13 +73,13 @@ const backfillNewKeysFromLegacyIds = async (target: BackfillTarget): Promise<num
     WITH updated AS (
       UPDATE "${target.tableName}" AS target
       SET
-        "dimension_key" = taxonomy."key"::text,
+        "taxonomy_key" = taxonomy."key"::text,
         "value_key" = taxonomy_value."key"
       FROM "taxonomy_value" AS taxonomy_value
       JOIN "taxonomy" AS taxonomy
         ON taxonomy."id" = taxonomy_value."taxonomy_id"
       WHERE taxonomy_value."id" = target."${target.legacyColumn}"
-        AND (target."dimension_key" IS NULL OR target."value_key" IS NULL)
+        AND (target."taxonomy_key" IS NULL OR target."value_key" IS NULL)
       RETURNING 1
     )
     SELECT COUNT(*)::bigint AS "count" FROM updated
@@ -97,9 +97,9 @@ const backfillLegacyIdsFromNewKeys = async (target: BackfillTarget): Promise<num
       JOIN "taxonomy" AS taxonomy
         ON taxonomy."id" = taxonomy_value."taxonomy_id"
       WHERE target."${target.legacyColumn}" IS NULL
-        AND target."dimension_key" IS NOT NULL
+        AND target."taxonomy_key" IS NOT NULL
         AND target."value_key" IS NOT NULL
-        AND taxonomy."key"::text = target."dimension_key"
+        AND taxonomy."key"::text = target."taxonomy_key"
         AND taxonomy_value."key" = target."value_key"
         AND taxonomy_value."taxonomy_id" = taxonomy."id"
       RETURNING 1

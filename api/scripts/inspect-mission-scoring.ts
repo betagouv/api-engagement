@@ -43,7 +43,7 @@ const main = async () => {
           ignored: result.ignored,
           computedValues: result.values.map((value) => ({
             ...value,
-            dimensionKey: inputByMissionEnrichmentValueId.get(value.missionEnrichmentValueId)?.dimensionKey ?? null,
+            taxonomyKey: inputByMissionEnrichmentValueId.get(value.missionEnrichmentValueId)?.taxonomyKey ?? null,
             taxonomyValueKey: inputByMissionEnrichmentValueId.get(value.missionEnrichmentValueId)?.taxonomyValueKey ?? null,
           })),
         },

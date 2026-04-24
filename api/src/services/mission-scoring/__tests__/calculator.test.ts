@@ -5,7 +5,7 @@ import type { ScoringInputValue } from "@/services/mission-scoring/types";
 
 const buildInputValue = (overrides: Partial<ScoringInputValue> = {}): ScoringInputValue => ({
   missionEnrichmentValueId: "mev-1",
-  dimensionKey: "domaine",
+  taxonomyKey: "domaine",
   valueKey: "social_solidarite",
   taxonomyValueId: "tv-1",
   taxonomyValueKey: "social_solidarite",
@@ -20,7 +20,7 @@ describe("computeMissionScoringValues", () => {
     expect(result.values).toEqual([
       {
         missionEnrichmentValueId: "mev-1",
-        dimensionKey: "domaine",
+        taxonomyKey: "domaine",
         valueKey: "social_solidarite",
         taxonomyValueId: "tv-1",
         score: 0.6,
@@ -32,7 +32,7 @@ describe("computeMissionScoringValues", () => {
   it("keeps categorical values and maps their confidence bucket", () => {
     const result = computeMissionScoringValues([
       buildInputValue({
-        dimensionKey: "type_mission",
+        taxonomyKey: "type_mission",
         valueKey: "ponctuelle",
         taxonomyValueId: "tv-ponctuelle",
         taxonomyValueKey: "ponctuelle",
@@ -43,7 +43,7 @@ describe("computeMissionScoringValues", () => {
     expect(result.values).toEqual([
       {
         missionEnrichmentValueId: "mev-1",
-        dimensionKey: "type_mission",
+        taxonomyKey: "type_mission",
         valueKey: "ponctuelle",
         taxonomyValueId: "tv-ponctuelle",
         score: 0.85,
@@ -54,7 +54,7 @@ describe("computeMissionScoringValues", () => {
   it("ignores neutral gate values", () => {
     const result = computeMissionScoringValues([
       buildInputValue({
-        dimensionKey: "accessibilite",
+        taxonomyKey: "accessibilite",
         valueKey: "non_specifie",
         taxonomyValueId: "tv-non-specifie",
         taxonomyValueKey: "non_specifie",
@@ -64,7 +64,7 @@ describe("computeMissionScoringValues", () => {
     expect(result.values).toEqual([]);
     expect(result.ignored).toEqual([
       expect.objectContaining({
-        dimensionKey: "accessibilite",
+        taxonomyKey: "accessibilite",
         taxonomyValueKey: "non_specifie",
         reason: "ignored_value:accessibilite.non_specifie",
       }),
@@ -96,35 +96,35 @@ describe("computeMissionScoringValues", () => {
     expect(result.values).toEqual([
       {
         missionEnrichmentValueId: "mev-055",
-        dimensionKey: "domaine",
+        taxonomyKey: "domaine",
         valueKey: "bucket_055",
         taxonomyValueId: "tv-055",
         score: 0.35,
       },
       {
         missionEnrichmentValueId: "mev-070",
-        dimensionKey: "domaine",
+        taxonomyKey: "domaine",
         valueKey: "bucket_070",
         taxonomyValueId: "tv-070",
         score: 0.6,
       },
       {
         missionEnrichmentValueId: "mev-085",
-        dimensionKey: "domaine",
+        taxonomyKey: "domaine",
         valueKey: "bucket_085",
         taxonomyValueId: "tv-085",
         score: 0.85,
       },
       {
         missionEnrichmentValueId: "mev-095",
-        dimensionKey: "domaine",
+        taxonomyKey: "domaine",
         valueKey: "bucket_095",
         taxonomyValueId: "tv-095",
         score: 1,
       },
       {
         missionEnrichmentValueId: "mev-max",
-        dimensionKey: "domaine",
+        taxonomyKey: "domaine",
         valueKey: "bucket_max",
         taxonomyValueId: "tv-max",
         score: 1,
@@ -149,7 +149,7 @@ describe("computeMissionScoringValues", () => {
     expect(result.values).toEqual([
       {
         missionEnrichmentValueId: "mev-2",
-        dimensionKey: "domaine",
+        taxonomyKey: "domaine",
         valueKey: "social_solidarite",
         taxonomyValueId: "tv-1",
         score: 0.85,

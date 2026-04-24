@@ -14,7 +14,7 @@ export type MissionScoringRuleset = {
 
 export type ScoringInputValue = {
   missionEnrichmentValueId: string;
-  dimensionKey: TaxonomyKey;
+  taxonomyKey: TaxonomyKey;
   valueKey: string;
   taxonomyValueId: string | null;
   taxonomyValueKey: string;
@@ -23,7 +23,7 @@ export type ScoringInputValue = {
 
 export type ComputedMissionScoringValue = {
   missionEnrichmentValueId: string | null;
-  dimensionKey: string;
+  taxonomyKey: string;
   valueKey: string;
   taxonomyValueId: string | null;
   score: number;

@@ -79,7 +79,7 @@ export const userScoringService = {
       return [
         {
           taxonomyValueId: legacyValue?.id ?? null,
-          dimensionKey: taxonomyKey,
+          taxonomyKey,
           valueKey,
           score: 1.0,
         },

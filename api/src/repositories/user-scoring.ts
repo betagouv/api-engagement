@@ -21,7 +21,7 @@ export const userScoringRepository = {
 
   create(params: {
     expiresAt: Date;
-    values: Array<{ taxonomyValueId?: string | null; dimensionKey: string; valueKey: string; score?: number }>;
+    values: Array<{ taxonomyValueId?: string | null; taxonomyKey: string; valueKey: string; score?: number }>;
     geo?: { lat: number; lon: number; radiusKm?: number };
   }): Promise<UserScoring> {
     return prisma.userScoring.create({
@@ -31,7 +31,7 @@ export const userScoringRepository = {
           createMany: {
             data: params.values.map((value) => ({
               taxonomyValueId: value.taxonomyValueId ?? null,
-              dimensionKey: value.dimensionKey,
+              taxonomyKey: value.taxonomyKey,
               valueKey: value.valueKey,
               score: value.score ?? 1.0,
             })),

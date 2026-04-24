@@ -8,15 +8,15 @@ import { matchingEngineService } from "@/services/matching-engine";
 
 const router = Router();
 
-const getPackageTaxonomyValueLabel = (dimensionKey: string, valueKey: string): string | null => {
-  const dimension = TAXONOMY[dimensionKey as keyof typeof TAXONOMY] as
+const getPackageTaxonomyValueLabel = (taxonomyKey: string, valueKey: string): string | null => {
+  const taxonomy = TAXONOMY[taxonomyKey as keyof typeof TAXONOMY] as
     | { values: Record<string, { label: string }> }
     | undefined;
-  if (!dimension) {
+  if (!taxonomy) {
     return null;
   }
 
-  const value = dimension.values[valueKey];
+  const value = taxonomy.values[valueKey];
   return value?.label ?? null;
 };
 
@@ -77,7 +77,7 @@ router.get("/match", async (req, res, next) => {
         where: { missionScoringId: { in: missionScoringIds } },
         select: {
           missionScoringId: true,
-          dimensionKey: true,
+          taxonomyKey: true,
           valueKey: true,
           score: true,
           taxonomyValue: {
@@ -99,7 +99,7 @@ router.get("/match", async (req, res, next) => {
       prisma.userScoringValue.findMany({
         where: { userScoringId },
         select: {
-          dimensionKey: true,
+          taxonomyKey: true,
           taxonomyValue: { select: { taxonomy: { select: { key: true } } } },
         },
       }),
@@ -108,7 +108,7 @@ router.get("/match", async (req, res, next) => {
     const selectedDimensions = [
       ...new Set(
         userScoringValues
-          .map((value) => value.dimensionKey ?? value.taxonomyValue?.taxonomy.key ?? null)
+          .map((value) => value.taxonomyKey ?? value.taxonomyValue?.taxonomy.key ?? null)
           .filter((value): value is string => typeof value === "string")
       ),
     ];
@@ -161,19 +161,19 @@ router.get("/match", async (req, res, next) => {
 
     const valuesIndex: Record<
       string,
-      { dimensionKey: string; taxonomyValueKey: string; taxonomyValueLabel: string; enrichmentConfidence: number; scoringScore: number; evidence: unknown }[]
+      { taxonomyKey: string; taxonomyValueKey: string; taxonomyValueLabel: string; enrichmentConfidence: number; scoringScore: number; evidence: unknown }[]
     > = {};
     const fakeIndex: Record<string, boolean> = {};
     for (const row of scoringValueRows) {
-      const dimensionKey = row.dimensionKey ?? row.taxonomyValue?.taxonomy.key ?? "unknown";
+      const taxonomyKey = row.taxonomyKey ?? row.taxonomyValue?.taxonomy.key ?? "unknown";
       const taxonomyValueKey = row.valueKey ?? row.taxonomyValue?.key ?? "unknown";
       const taxonomyValueLabel =
         row.taxonomyValue?.label ??
-        getPackageTaxonomyValueLabel(dimensionKey, taxonomyValueKey) ??
+        getPackageTaxonomyValueLabel(taxonomyKey, taxonomyValueKey) ??
         taxonomyValueKey;
 
       const entry = {
-        dimensionKey,
+        taxonomyKey,
         taxonomyValueKey,
         taxonomyValueLabel,
         enrichmentConfidence: row.missionEnrichmentValue?.confidence ?? 0,

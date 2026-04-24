@@ -23,7 +23,7 @@ export const computeMissionScoringValues = (input: ScoringInputValue[], ruleset:
   const ignored: ComputeMissionScoringResult["ignored"] = [];
 
   for (const value of input) {
-    const ignoredValueKey = `${value.dimensionKey}.${value.taxonomyValueKey}`;
+    const ignoredValueKey = `${value.taxonomyKey}.${value.taxonomyValueKey}`;
     if (ignoredValueKeys.has(ignoredValueKey)) {
       ignored.push({ ...value, reason: `ignored_value:${ignoredValueKey}` });
       continue;
@@ -37,13 +37,13 @@ export const computeMissionScoringValues = (input: ScoringInputValue[], ruleset:
 
     const computedValue: ComputedMissionScoringValue = {
       missionEnrichmentValueId: value.missionEnrichmentValueId,
-      dimensionKey: value.dimensionKey,
+      taxonomyKey: value.taxonomyKey,
       valueKey: value.taxonomyValueKey,
       taxonomyValueId: value.taxonomyValueId,
       score: mappedScore,
     };
 
-    const prefixedKey = `${computedValue.dimensionKey}.${computedValue.valueKey}`;
+    const prefixedKey = `${computedValue.taxonomyKey}.${computedValue.valueKey}`;
     const current = valuesByPrefixedKey.get(prefixedKey);
     if (!current || computedValue.score > current.score) {
       valuesByPrefixedKey.set(prefixedKey, computedValue);

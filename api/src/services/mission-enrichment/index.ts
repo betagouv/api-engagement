@@ -4,7 +4,6 @@ import { generateObject } from "ai";
 
 import { missionRepository } from "@/repositories/mission";
 import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
-import { taxonomyRepository } from "@/repositories/taxonomy";
 import { CONFIDENCE_THRESHOLD, CURRENT_PROMPT_VERSION, LLM_MAX_RETRIES } from "./config";
 import { validateEnrichmentClassifications, type ClassificationInput, type TaxonomyLookup } from "./parser";
 import { buildMissionBlock, buildTaxonomyBlock, PROMPT_REGISTRY } from "./prompts";
@@ -12,9 +11,9 @@ import type { MissionForPrompt, TaxonomyForPrompt } from "./prompts/types";
 
 const LOG_PREFIX = "[mission-enrichment]";
 
-type DimensionWithValues = { key: string; type: string; label: string; values: Array<{ key: string; id: string | null; label: string }> };
+type TaxonomyWithValues = { key: string; type: string; label: string; values: Array<{ key: string; id: string | null; label: string }> };
 
-const buildTaxonomyLookup = (taxonomies: DimensionWithValues[]): TaxonomyLookup => {
+const buildTaxonomyLookup = (taxonomies: TaxonomyWithValues[]): TaxonomyLookup => {
   const lookup: TaxonomyLookup = new Map();
   for (const taxonomy of taxonomies) {
     const values = new Map<string, { taxonomyValueId: string | null }>();
@@ -75,26 +74,26 @@ const toMissionForPrompt = (mission: MissionWithRelations): MissionForPrompt => 
 };
 
 const toTaxonomyForPrompt = (
-  dimensions: Array<{
+  taxonomies: Array<{
     key: string;
     label: string;
     type: string;
     values: Array<{ key: string; label: string }>;
   }>
 ): TaxonomyForPrompt =>
-  dimensions.map((dim) => ({
-    key: dim.key,
-    label: dim.label,
-    type: dim.type,
-    values: dim.values.map((v) => ({ key: v.key, label: v.label })),
+  taxonomies.map((taxonomy) => ({
+    key: taxonomy.key,
+    label: taxonomy.label,
+    type: taxonomy.type,
+    values: taxonomy.values.map((value) => ({ key: value.key, label: value.label })),
   }));
 
-const getPackageTaxonomyDimensions = (): DimensionWithValues[] =>
-  ENRICHABLE_DIMENSIONS.map((dimensionKey) => ({
-    key: dimensionKey,
-    label: TAXONOMY[dimensionKey].label,
-    type: TAXONOMY[dimensionKey].type,
-    values: Object.entries(TAXONOMY[dimensionKey].values)
+const getTaxonomies = (): TaxonomyWithValues[] =>
+  ENRICHABLE_DIMENSIONS.map((taxonomyKey) => ({
+    key: taxonomyKey,
+    label: TAXONOMY[taxonomyKey].label,
+    type: TAXONOMY[taxonomyKey].type,
+    values: Object.entries(TAXONOMY[taxonomyKey].values)
       .filter(([, value]) => value.enrichable)
       .map(([valueKey, value]) => ({
         key: valueKey,
@@ -135,17 +134,8 @@ export const missionEnrichmentService = {
       }
     }
 
-    // 3. Load taxonomy from package and optionally resolve legacy UUIDs for dual-write.
-    const dimensions = getPackageTaxonomyDimensions();
-    const prefixedKeys = dimensions.flatMap((dimension) => dimension.values.map((value) => `${dimension.key}.${value.key}`));
-    const legacyValues = await taxonomyRepository.findManyLegacyValuesByPrefixedKeys(prefixedKeys);
-    const legacyValueIdsByPrefixedKey = new Map(legacyValues.map((value) => [`${value.taxonomyKey}.${value.key}`, value.id] as const));
-
-    for (const dimension of dimensions) {
-      for (const value of dimension.values) {
-        value.id = legacyValueIdsByPrefixedKey.get(`${dimension.key}.${value.key}`) ?? null;
-      }
-    }
+    // 3. Load taxonomy from package.
+    const taxonomies = getTaxonomies();
 
     // 4. Create enrichment record (pending)
     // The partial unique index on (mission_id, prompt_version) WHERE status IN ('pending', 'processing')
@@ -176,7 +166,7 @@ export const missionEnrichmentService = {
 
       // 6. Build prompts
       const promptVersion = PROMPT_REGISTRY[CURRENT_PROMPT_VERSION];
-      const systemPrompt = promptVersion.buildSystemPrompt(buildTaxonomyBlock(toTaxonomyForPrompt(dimensions)));
+      const systemPrompt = promptVersion.buildSystemPrompt(buildTaxonomyBlock(toTaxonomyForPrompt(taxonomies)));
       const userMessage = promptVersion.buildUserMessage(buildMissionBlock(toMissionForPrompt(mission)));
 
       // 7. Call LLM with structured output
@@ -195,7 +185,7 @@ export const missionEnrichmentService = {
       // 8. Normalize + validate classifications against taxonomy rules
       const { valid, skipped } = validateEnrichmentClassifications(
         (llmResult.object as { classifications: ClassificationInput[] }).classifications,
-        buildTaxonomyLookup(dimensions),
+        buildTaxonomyLookup(taxonomies),
         CONFIDENCE_THRESHOLD
       );
 
@@ -209,7 +199,7 @@ export const missionEnrichmentService = {
       // 9. Persist values + mark completed (atomic)
       const persistedValues = valid.map((v) => ({
         taxonomyValueId: v.taxonomyValueId,
-        dimensionKey: v.dimension_key,
+        taxonomyKey: v.dimension_key,
         valueKey: v.value_key,
         confidence: v.confidence,
         evidence: v.evidence,

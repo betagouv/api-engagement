@@ -1029,7 +1029,7 @@ model MissionEnrichmentValue {
   id              String  @id @default(uuid())
   enrichmentId    String  @map("enrichment_id")
   taxonomyValueId String? @map("taxonomy_value_id")
-  dimensionKey    String? @map("dimension_key")
+  taxonomyKey     String? @map("taxonomy_key")
   valueKey        String? @map("value_key")
   confidence      Float
   evidence        Json?
@@ -1040,8 +1040,8 @@ model MissionEnrichmentValue {
 
   @@unique([enrichmentId, taxonomyValueId], map: "mission_enrichment_value_unique")
   @@index([taxonomyValueId], map: "mission_enrichment_value_taxonomy_value_id_idx")
-  @@unique([enrichmentId, dimensionKey, valueKey], map: "mission_enrichment_value_dimension_value_unique")
-  @@index([dimensionKey, valueKey], map: "mission_enrichment_value_dimension_value_idx")
+  @@unique([enrichmentId, taxonomyKey, valueKey], map: "mission_enrichment_value_taxonomy_value_unique")
+  @@index([taxonomyKey, valueKey], map: "mission_enrichment_value_taxonomy_value_idx")
   @@map("mission_enrichment_value")
 }
 
@@ -1067,7 +1067,7 @@ model MissionScoringValue {
   missionScoringId         String   @map("mission_scoring_id")
   missionEnrichmentValueId String?  @map("mission_enrichment_value_id")
   taxonomyValueId          String?  @map("taxonomy_value_id")
-  dimensionKey             String?  @map("dimension_key")
+  taxonomyKey              String?  @map("taxonomy_key")
   valueKey                 String?  @map("value_key")
   score                    Float
   createdAt                DateTime @default(now()) @map("created_at")
@@ -1078,12 +1078,12 @@ model MissionScoringValue {
   taxonomyValue          TaxonomyValue?          @relation(fields: [taxonomyValueId], references: [id], onDelete: Restrict)
 
   @@unique([missionScoringId, taxonomyValueId], map: "mission_scoring_value_mission_scoring_taxonomy_value_key")
-  @@unique([missionScoringId, dimensionKey, valueKey], map: "mission_scoring_value_mission_scoring_dimension_value_key")
+  @@unique([missionScoringId, taxonomyKey, valueKey], map: "mission_scoring_value_mission_scoring_taxonomy_value_key_v2")
   @@index([missionScoringId], map: "mission_scoring_value_mission_scoring_id_idx")
   @@index([taxonomyValueId], map: "mission_scoring_value_taxonomy_value_id_idx")
   @@index([missionEnrichmentValueId], map: "mission_scoring_value_mission_enrichment_value_id_idx")
   @@index([taxonomyValueId, score(sort: Desc)], map: "mission_scoring_value_taxonomy_value_score_desc_idx")
-  @@index([dimensionKey, valueKey], map: "mission_scoring_value_dimension_value_idx")
+  @@index([taxonomyKey, valueKey], map: "mission_scoring_value_taxonomy_value_idx")
   @@map("mission_scoring_value")
 }
 
@@ -1119,7 +1119,7 @@ model UserScoringValue {
   id              String   @id @default(uuid())
   userScoringId   String   @map("user_scoring_id")
   taxonomyValueId String?  @map("taxonomy_value_id")
-  dimensionKey    String?  @map("dimension_key")
+  taxonomyKey     String?  @map("taxonomy_key")
   valueKey        String?  @map("value_key")
   score           Float
   createdAt       DateTime @default(now()) @map("created_at")
@@ -1129,10 +1129,10 @@ model UserScoringValue {
   taxonomyValue TaxonomyValue? @relation(fields: [taxonomyValueId], references: [id], onDelete: Restrict)
 
   @@unique([userScoringId, taxonomyValueId], map: "user_scoring_value_user_scoring_taxonomy_value_key")
-  @@unique([userScoringId, dimensionKey, valueKey], map: "user_scoring_value_user_scoring_dimension_value_key")
+  @@unique([userScoringId, taxonomyKey, valueKey], map: "user_scoring_value_user_scoring_taxonomy_value_key_v2")
   @@index([userScoringId], map: "user_scoring_value_user_scoring_id_idx")
   @@index([taxonomyValueId], map: "user_scoring_value_taxonomy_value_id_idx")
-  @@index([dimensionKey, valueKey], map: "user_scoring_value_dimension_value_idx")
+  @@index([taxonomyKey, valueKey], map: "user_scoring_value_taxonomy_value_idx")
   @@map("user_scoring_value")
 }
 

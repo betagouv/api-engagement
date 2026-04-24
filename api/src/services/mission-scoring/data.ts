@@ -26,14 +26,14 @@ export type MissionEnrichmentForScoring = Prisma.MissionEnrichmentGetPayload<{
 export const toScoringInputValues = (enrichment: MissionEnrichmentForScoring): ScoringInputValue[] =>
   enrichment.values.map((value) => ({
     missionEnrichmentValueId: value.id,
-    dimensionKey: value.dimensionKey ?? value.taxonomyValue?.taxonomy.key,
+    taxonomyKey: value.taxonomyKey ?? value.taxonomyValue?.taxonomy.key,
     valueKey: value.valueKey ?? value.taxonomyValue?.key,
     taxonomyValueId: value.taxonomyValueId,
     taxonomyValueKey: value.valueKey ?? value.taxonomyValue?.key,
     confidence: value.confidence,
   })).filter(
     (value): value is ScoringInputValue =>
-      typeof value.dimensionKey === "string" &&
+      typeof value.taxonomyKey === "string" &&
       typeof value.valueKey === "string" &&
       typeof value.taxonomyValueKey === "string"
   );
