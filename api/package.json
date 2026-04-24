@@ -23,7 +23,7 @@
         "job": "ts-node src/jobs/run-job.ts"
     },
     "dependencies": {
-"@aws-sdk/client-s3": "3.1020.0",
+        "@aws-sdk/client-s3": "3.1020.0",
         "@aws-sdk/lib-storage": "3.1020.0",
         "@opentelemetry/exporter-metrics-otlp-http": "0.214.0",
         "@opentelemetry/resources": "2.6.1",
