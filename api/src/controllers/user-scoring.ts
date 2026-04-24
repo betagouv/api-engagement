@@ -1,3 +1,4 @@
+import { isValidTaxonomyValueKey } from "@engagement/taxonomy";
 import { Router } from "express";
 import zod from "zod";
 
@@ -7,9 +8,7 @@ import { UserScoringValidationError, userScoringService } from "@/services/user-
 const router = Router();
 
 const bodySchema = zod.object({
-  answers: zod
-    .array(zod.object({ taxonomy_value_key: zod.string().regex(/^[^.]+\.[^.]+$/, "expected format '{taxonomy_key}.{value_key}'") }))
-    .min(1),
+  answers: zod.array(zod.object({ taxonomy_value_key: zod.string() })).min(1),
   geo: zod
     .object({
       lat: zod.number().min(-90).max(90),
@@ -26,7 +25,10 @@ router.post("/", async (req, res, next) => {
       return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
     }
 
-    const data = await userScoringService.create(body.data);
+    // Les clés inconnues sont silencieusement ignorées (ex: clés légacy ou futures)
+    const validAnswers = body.data.answers.filter((a) => isValidTaxonomyValueKey(a.taxonomy_value_key));
+
+    const data = await userScoringService.create({ ...body.data, answers: validAnswers });
     return res.status(201).send({ ok: true, data });
   } catch (error) {
     if (error instanceof UserScoringValidationError) {

@@ -51,14 +51,7 @@ export const userScoringService = {
     // Batch-fetch all pairs (active and inactive)
     const allValues = await userScoringRepository.findTaxonomyValuesByPrefixedKeys(pairs);
 
-    // Unknown keys (not in DB at all) → 400
-    const foundPrefixedKeys = new Set(allValues.map((v) => `${v.taxonomyKey}.${v.key}`));
-    const unknownKey = uniqueKeys.find((key) => !foundPrefixedKeys.has(key));
-    if (unknownKey) {
-      throw new UserScoringValidationError(`taxonomy_value_key '${unknownKey}' is unknown`);
-    }
-
-    // Inactive keys → silently skipped for backward compatibility
+    // Clés absentes de la DB (ex: nouvelles dimensions pas encore seedées) ou inactives → ignorées silencieusement
     const activeIds = allValues.filter((v) => v.active).map((v) => v.id);
 
     const expiresAt = new Date(Date.now() + USER_SCORING_TTL_DAYS * 24 * 60 * 60 * 1000);
