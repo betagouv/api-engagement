@@ -1,19 +1,8 @@
 import { Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
 import { missionMatchingResultRepository } from "@/repositories/mission-matching-result";
-import { MATCHING_ENGINE_VERSIONS } from "./config";
-import type {
-  MatchMissionItem,
-  MatchingEngineDimension,
-  MissionMatchingResultItem,
-  RankMissionsByUserScoringInput,
-  RankMissionsByUserScoringResult,
-} from "./types";
-import {
-  CURRENT_MATCHING_ENGINE_VERSION,
-  MATCHING_ENGINE_DIMENSIONS,
-  MATCHING_ENGINE_TOP_RESULTS_LIMIT,
-} from "./types";
+import { CURRENT_MATCHING_ENGINE_VERSION, MATCHING_ENGINE_DIMENSIONS, MATCHING_ENGINE_TOP_RESULTS_LIMIT, MATCHING_ENGINE_VERSIONS } from "./config";
+import type { MatchMissionItem, MatchingEngineDimension, MissionMatchingResultItem, RankMissionsByUserScoringInput, RankMissionsByUserScoringResult } from "./types";
 
 type DbRankRow = {
   mission_id: string;

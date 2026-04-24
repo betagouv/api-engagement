@@ -2,8 +2,10 @@
   "name": "@engagement/taxonomy",
   "version": "0.1.0",
   "description": "Source unique de vérité pour les clés et valeurs de taxonomie",
-  "type": "module",
-  "exports": {
-    ".": "./src/index.ts"
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch"
   }
 }

@@ -1,12 +1,17 @@
 import { mistral } from "@ai-sdk/mistral";
+import { TAXONOMY } from "@engagement/taxonomy";
 import { z } from "zod";
+import type { TaxonomyGuidanceMap } from "./types";
 
-type TaxonomyGuidance = {
-  dimension: string;
-  values?: Record<string, string>;
-};
-
-const EXCLUDED_VALUE_KEYS = new Set(["je_ne_sais_pas"]);
+// Construit depuis le package : toutes les valeurs avec enrichable: false sont exclues
+// (ex: "je_ne_sais_pas", "exploration" dans engagement_intent, etc.)
+const NON_ENRICHABLE_VALUE_KEYS = new Set(
+  Object.values(TAXONOMY).flatMap((dim) =>
+    Object.entries(dim.values)
+      .filter(([, v]) => !v.enrichable)
+      .map(([k]) => k)
+  )
+);
 
 const buildFilteredTaxonomyBlock = (taxonomyBlock: string): string =>
   taxonomyBlock
@@ -18,11 +23,11 @@ const buildFilteredTaxonomyBlock = (taxonomyBlock: string): string =>
       }
 
       const key = trimmed.slice(2).split(" : ")[0]?.trim();
-      return !EXCLUDED_VALUE_KEYS.has(key);
+      return key === undefined || !NON_ENRICHABLE_VALUE_KEYS.has(key);
     })
     .join("\n");
 
-const TAXONOMY_GUIDANCE_MAP: Record<string, TaxonomyGuidance> = {
+const TAXONOMY_GUIDANCE_MAP = {
   domaine: {
     dimension:
       "Correspond au sujet principal de la mission. Priorise ce que la personne va réellement faire dans ses tâches principales. Ne choisis pas un domaine uniquement à partir du type de structure, du vocabulaire institutionnel, du public bénéficiaire ou de la finalité sociale générale du projet si les tâches décrites relèvent surtout d'un autre domaine.",
@@ -135,7 +140,7 @@ const TAXONOMY_GUIDANCE_MAP: Record<string, TaxonomyGuidance> = {
       securite_defense_logistique: "À utiliser pour les missions de sécurité, défense, protection, logistique, intervention ou organisation opérationnelle.",
     },
   },
-};
+} satisfies TaxonomyGuidanceMap;
 
 const buildTaxonomyGuidanceBlock = (): string =>
   Object.entries(TAXONOMY_GUIDANCE_MAP)
