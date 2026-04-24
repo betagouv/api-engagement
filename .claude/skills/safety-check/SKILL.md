@@ -1,6 +1,7 @@
 ---
 description: "Pre-commit security validation"
 name: "safety-check"
+version: "1.0.0"
 ---
 
 # Skill: Safety Check

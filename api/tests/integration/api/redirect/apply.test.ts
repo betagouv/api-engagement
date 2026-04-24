@@ -74,7 +74,6 @@ describe("RedirectController /apply", () => {
       fromPublisherId: publisher.id,
       toPublisherId: publisher.id,
       missionId: mission.id,
-      missionClientId: mission.clientId,
     });
 
     const response = await request(app)
@@ -103,7 +102,6 @@ describe("RedirectController /apply", () => {
       fromPublisherId: clickStat.fromPublisherId,
       toPublisherId: mission.publisherId,
       missionId: mission.id,
-      missionClientId: mission.clientId,
       isBot: true,
     });
   });
@@ -124,8 +122,6 @@ describe("RedirectController /apply", () => {
       source: "publisher",
       sourceId: "source-id",
       sourceName: "Source Name",
-      missionId: "click-mission-id",
-      missionClientId: "click-mission-client-id",
       toPublisherId: publisher.id,
     });
 
@@ -148,8 +144,6 @@ describe("RedirectController /apply", () => {
       sourceName: clickStat.sourceName,
       fromPublisherId: clickStat.fromPublisherId,
       toPublisherId: clickStat.toPublisherId,
-      missionId: clickStat.missionId,
-      missionClientId: clickStat.missionClientId,
       isBot: false,
     });
   });

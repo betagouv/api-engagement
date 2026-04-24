@@ -10,10 +10,12 @@ import { publisherDiffusionExclusionService } from "@/services/publisher-diffusi
 import { OBJECT_ACL, putObject } from "@/services/s3";
 import { userService } from "@/services/user";
 import { UserRequest } from "@/types/passport";
+import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { PublisherMissionType, type PublisherDiffusionInput, type PublisherRoleFilter } from "@/types/publisher";
 
 const upload = multer();
 const router = Router();
+router.use(ipRateLimiter);
 
 const nullableString = zod.string().nullish();
 const publisherDiffusionSchema = zod.object({

@@ -1,11 +1,11 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import fs from "fs";
-import path from "path";
 import { prisma } from "@/db/postgres";
 import { CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/config";
 import { parseEnrichmentResponse, type TaxonomyLookup } from "@/services/mission-enrichment/parser";
+import fs from "fs";
+import path from "path";
 
 // Pricing mistral-small-2603 (USD → EUR, taux fixe 0.93)
 const INPUT_COST_PER_TOKEN = (0.15 / 1_000_000) * 0.93; // €0.0000001395
@@ -28,7 +28,9 @@ const outputPath = getArg("--output") ?? "./enrichment-export.csv";
 type DimensionMeta = { type: string; label: string; values: Map<string, { id: string; label: string }> };
 type FullTaxonomyLookup = Map<string, DimensionMeta>;
 
-const buildFullLookup = (dimensions: Array<{ key: string; type: string; label: string; values: Array<{ key: string; id: string; label: string; active: boolean }> }>): { taxonomyLookup: TaxonomyLookup; fullLookup: FullTaxonomyLookup } => {
+const buildFullLookup = (
+  dimensions: Array<{ key: string; type: string; label: string; values: Array<{ key: string; id: string; label: string; active: boolean }> }>
+): { taxonomyLookup: TaxonomyLookup; fullLookup: FullTaxonomyLookup } => {
   const taxonomyLookup: TaxonomyLookup = new Map();
   const fullLookup: FullTaxonomyLookup = new Map();
 
@@ -57,19 +59,41 @@ const csvEscape = (value: string | null | undefined): string => {
 };
 
 const HEADERS = [
-  "enrichmentId", "missionId", "title", "description",
-  "promptVersion", "completedAt",
-  "status", "skipReason",
-  "dimension", "dimensionLabel", "value", "valueLabel",
-  "confidence", "reasoning",
-  "inputTokens", "outputTokens", "totalTokens", "costEuros",
+  "missionId",
+  "title",
+  "description",
+  "applicationUrl",
+  "backofficUrl",
+  "publisherName",
+  "missionType",
+  "domainName",
+  "activity",
+  "promptVersion",
+  "completedAt",
+  "status",
+  "skipReason",
+  "dimension",
+  "dimensionLabel",
+  "value",
+  "valueLabel",
+  "confidence",
+  "reasoning",
+  "inputTokens",
+  "outputTokens",
+  "totalTokens",
+  "costEuros",
 ];
 
 type CsvRow = {
-  enrichmentId: string;
   missionId: string;
   title: string;
   description: string;
+  applicationUrl: string;
+  backofficUrl: string;
+  publisherName: string;
+  missionType: string;
+  domainName: string;
+  activity: string;
   promptVersion: string;
   completedAt: string;
   status: "valid" | "skipped";
@@ -86,8 +110,7 @@ type CsvRow = {
   costEuros: string;
 };
 
-const rowToCsv = (row: CsvRow): string =>
-  HEADERS.map((h) => csvEscape(row[h as keyof CsvRow])).join(",");
+const rowToCsv = (row: CsvRow): string => HEADERS.map((h) => csvEscape(row[h as keyof CsvRow])).join(",");
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
@@ -113,7 +136,18 @@ async function main() {
     take: limit,
     orderBy: { completedAt: "desc" },
     include: {
-      mission: { select: { title: true, description: true } },
+      mission: {
+        select: {
+          title: true,
+          description: true,
+          applicationUrl: true,
+          publisherId: true,
+          type: true,
+          domain: { select: { name: true } },
+          activities: { include: { activity: { select: { name: true } } } },
+          publisher: { select: { name: true } },
+        },
+      },
       values: {
         include: {
           taxonomyValue: {
@@ -131,14 +165,20 @@ async function main() {
   for (const enrichment of enrichments) {
     const { inputTokens, outputTokens, totalTokens } = enrichment;
     const costEuros = ((inputTokens ?? 0) * INPUT_COST_PER_TOKEN + (outputTokens ?? 0) * OUTPUT_COST_PER_TOKEN).toFixed(8);
-    const description = (enrichment.mission?.description ?? "").slice(0, 300);
+    const description = enrichment.mission?.description ?? "";
     const title = enrichment.mission?.title ?? "";
+    const publisherId = enrichment.mission?.publisherId ?? "";
 
     const base = {
-      enrichmentId: enrichment.id,
       missionId: enrichment.missionId,
       title,
       description,
+      applicationUrl: enrichment.mission?.applicationUrl ?? "",
+      backofficUrl: publisherId ? `https://app.api-engagement.beta.gouv.fr/${publisherId}/mission/${enrichment.missionId}` : "",
+      publisherName: enrichment.mission?.publisher?.name ?? "",
+      missionType: enrichment.mission?.type ?? "",
+      domainName: enrichment.mission?.domain?.name ?? "",
+      activity: enrichment.mission?.activities.map((a) => a.activity.name).join(", ") ?? "",
       promptVersion: enrichment.promptVersion,
       completedAt: enrichment.completedAt?.toISOString() ?? "",
       inputTokens: String(inputTokens ?? ""),
@@ -166,10 +206,13 @@ async function main() {
     // Skipped classifications from rawResponse
     if (enrichment.rawResponse) {
       try {
-        const { skipped } = parseEnrichmentResponse(
-          typeof enrichment.rawResponse === "string" ? enrichment.rawResponse : JSON.stringify(enrichment.rawResponse),
+        const raw = typeof enrichment.rawResponse === "string" ? enrichment.rawResponse : JSON.stringify(enrichment.rawResponse);
+        const parsed = JSON.parse(raw) as { classifications?: unknown[] };
+        const classifications = Array.isArray(parsed.classifications) ? parsed.classifications : [];
+        const { skipped } = validateEnrichmentClassifications(
+          classifications as Parameters<typeof validateEnrichmentClassifications>[0],
           taxonomyLookup,
-          0, // threshold = 0 to recover all items (already filtered in valid)
+          0 // threshold = 0 to recover all items (already filtered in valid)
         );
 
         for (const s of skipped) {

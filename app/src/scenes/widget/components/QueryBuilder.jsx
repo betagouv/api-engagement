@@ -37,9 +37,9 @@ const QueryBuilder = ({ values, onChange }) => {
   };
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col overflow-x-auto">
       {values.rules.map((r, i) => (
-        <div key={i} className="my-3 flex w-full items-center gap-4">
+        <div key={i} className="my-3 flex min-w-[600px] items-center gap-4">
           <Rule index={i} fields={FIELDS} rule={r} onChange={(r) => handleRuleChange(r, i)} filters={values.publishers.map((p) => `publishers[]=${p}`).join("&")} />
           <button
             type="button"

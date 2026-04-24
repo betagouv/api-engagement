@@ -1,5 +1,5 @@
 /**
- * Backfill : calcule le champ search_text des organisations.
+ * Backfill : calcule le champ search_text normalisé des organisations.
  *
  * Exécution :
  *   npx ts-node scripts/backfill-organization-search-text.ts [--batch <taille>] [--last-id <id>] [--only-null]
@@ -8,7 +8,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-import { prismaCore } from "../src/db/postgres";
+import { prisma } from "../src/db/postgres";
 import { buildOrganizationSearchText } from "../src/utils/organization";
 
 const parseBatchSize = () => {
@@ -35,7 +35,7 @@ const run = async () => {
   const startedAt = new Date();
   console.log(`[OrganizationSearchTextBackfill] Démarré à ${startedAt.toISOString()}. Batch=${BATCH_SIZE}. onlyNull=${onlyNull}.`);
 
-  await prismaCore.$connect();
+  await prisma.$connect();
 
   let total = 0;
   let lastId: string | null = INITIAL_LAST_ID;
@@ -46,7 +46,7 @@ const run = async () => {
       ...(lastId ? { id: { gt: lastId } } : {}),
     };
 
-    const batch = await prismaCore.organization.findMany({
+    const batch = await prisma.organization.findMany({
       where,
       select: { id: true, title: true, shortTitle: true, rna: true, siret: true, siren: true },
       orderBy: { id: "asc" },
@@ -68,9 +68,9 @@ const run = async () => {
       }),
     }));
 
-    await prismaCore.$transaction(
+    await prisma.$transaction(
       updates.map((row) =>
-        prismaCore.organization.update({
+        prisma.organization.update({
           where: { id: row.id },
           data: { searchText: row.searchText },
         })
@@ -87,7 +87,7 @@ const run = async () => {
 };
 
 const shutdown = async (exitCode: number) => {
-  await prismaCore.$disconnect().catch(() => undefined);
+  await prisma.$disconnect().catch(() => undefined);
   process.exit(exitCode);
 };
 

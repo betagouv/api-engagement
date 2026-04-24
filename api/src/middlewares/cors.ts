@@ -17,3 +17,15 @@ const origin = [
 export const corsOptions = { credentials: true, origin };
 
 export const corsPublic = cors({ origin: "*" });
+
+// Middleware pour les endpoints POC : CORS * + gestion explicite du preflight OPTIONS
+export const corsPoc = (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, x-api-key");
+  if (req.method === "OPTIONS") {
+    res.sendStatus(204);
+    return;
+  }
+  next();
+};

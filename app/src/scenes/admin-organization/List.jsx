@@ -47,7 +47,7 @@ const List = () => {
   }, [filters]);
 
   return (
-    <div className="space-y-12 bg-white p-12 shadow-lg">
+    <div className="space-y-12 bg-white p-4 shadow-lg sm:p-12">
       <title>API Engagement - RNA - Administration</title>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h2 className="text-2xl font-semibold">{total.toLocaleString("fr")} d'associations référencées</h2>
@@ -60,7 +60,8 @@ const List = () => {
         />
       </div>
 
-      <div className="border-grey-border border p-6">
+      <div className="border-grey-border overflow-x-auto border p-4 sm:p-6">
+        <div className="min-w-[600px]">
         <Table
           caption="Liste des organisations"
           header={[{ title: "Titre de l'organisation", width: "40%" }, { title: "RNA" }, { title: "SIRET" }, { title: "Créée le" }, { title: "Statut" }]}
@@ -101,6 +102,7 @@ const List = () => {
             );
           })}
         </Table>
+        </div>
       </div>
     </div>
   );

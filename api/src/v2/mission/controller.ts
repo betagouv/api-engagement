@@ -3,13 +3,13 @@ import passport from "passport";
 import zod from "zod";
 
 import { INVALID_BODY, INVALID_PARAMS, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "@/error";
-import { defaultRateLimiter } from "@/middlewares/rate-limit";
 import { missionService } from "@/services/mission";
 import { MissionCreateInput, MissionUpdatePatch } from "@/types/mission";
 import { PublisherRequest } from "@/types/passport";
 import { PublisherRecord } from "@/types/publisher";
 import { getModeration } from "@/utils/mission-moderation";
 
+import { publisherRateLimiter } from "@/middlewares/rate-limit";
 import { buildAddresses, buildData, hasOrgFields, upsertPublisherOrganization } from "./helpers";
 
 const router = Router();
@@ -72,6 +72,7 @@ const missionBaseFields = {
   priority: zod.string().optional(),
   places: zod.number().int().positive().optional(),
   compensationAmount: zod.number().optional(),
+  compensationAmountMax: zod.number().min(0).optional(),
   compensationUnit: zod.enum(["hour", "day", "month", "year"]).optional(),
   compensationType: zod.enum(["gross", "net"]).optional(),
   openToMinors: zod.boolean().optional(),
@@ -116,7 +117,7 @@ const missionClientIdParamSchema = zod.object({
 // POST /v2/mission — Create
 // ──────────────────────────────────────────────────────────────────────────────
 
-router.post("/", passport.authenticate(["apikey", "api"], { session: false }), defaultRateLimiter, async (req: PublisherRequest, res: Response, next: NextFunction) => {
+router.post("/", passport.authenticate(["apikey", "api"], { session: false }), publisherRateLimiter, async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
     const publisher = req.user as PublisherRecord;
 
@@ -165,6 +166,7 @@ router.post("/", passport.authenticate(["apikey", "api"], { session: false }), d
       priority: body.priority,
       places: body.places,
       compensationAmount: body.compensationAmount,
+      compensationAmountMax: body.compensationAmountMax,
       compensationUnit: body.compensationUnit,
       compensationType: body.compensationType,
       openToMinors: body.openToMinors,
@@ -207,7 +209,7 @@ router.post("/", passport.authenticate(["apikey", "api"], { session: false }), d
 // PUT /v2/mission/:clientId — Update (PATCH semantics)
 // ──────────────────────────────────────────────────────────────────────────────
 
-router.put("/:clientId", passport.authenticate(["apikey", "api"], { session: false }), defaultRateLimiter, async (req: PublisherRequest, res: Response, next: NextFunction) => {
+router.put("/:clientId", passport.authenticate(["apikey", "api"], { session: false }), publisherRateLimiter, async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
     const publisher = req.user as PublisherRecord;
 
@@ -276,7 +278,7 @@ router.put("/:clientId", passport.authenticate(["apikey", "api"], { session: fal
 // DELETE /v2/mission/:clientId — Soft delete
 // ──────────────────────────────────────────────────────────────────────────────
 
-router.delete("/:clientId", passport.authenticate(["apikey", "api"], { session: false }), defaultRateLimiter, async (req: PublisherRequest, res: Response, next: NextFunction) => {
+router.delete("/:clientId", passport.authenticate(["apikey", "api"], { session: false }), publisherRateLimiter, async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
     const publisher = req.user as PublisherRecord;
 

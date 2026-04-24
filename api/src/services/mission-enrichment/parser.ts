@@ -1,25 +1,17 @@
-import { jsonrepair } from "jsonrepair";
-import { z } from "zod";
+import { fuzzyMatchKey } from "@/utils/string";
 
-const classificationItemSchema = z.object({
-  dimension_key: z.string(),
-  value_key: z.string(),
-  confidence: z.number().min(0).max(1),
-  evidence: z.object({
-    extract: z.string(),
-    reasoning: z.string(),
-  }),
-});
+export type ClassificationInput = {
+  dimension_key: string;
+  value_key: string;
+  confidence: number;
+  evidence: { extract: string; reasoning: string };
+};
 
-const classificationResponseSchema = z.object({
-  classifications: z.array(classificationItemSchema),
-});
-
-export type ParsedClassification = z.infer<typeof classificationItemSchema> & {
+export type ParsedClassification = ClassificationInput & {
   taxonomyValueId: string;
 };
 
-export type SkippedClassification = z.infer<typeof classificationItemSchema> & {
+export type SkippedClassification = ClassificationInput & {
   reason: string;
 };
 
@@ -28,78 +20,55 @@ type TaxonomyMeta = { type: string; values: Map<string, string> };
 // taxonomyKey -> { type, values: valueKey -> taxonomyValueId }
 export type TaxonomyLookup = Map<string, TaxonomyMeta>;
 
-const extractJson = (raw: string): string => {
-  const fenceMatch = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
-  if (fenceMatch) {
-    return fenceMatch[1].trim();
-  }
-  return raw.trim();
-};
+const FUZZY_MATCH_THRESHOLD = 0.6;
 
-const parseJson = (jsonStr: string): unknown => {
-  try {
-    return JSON.parse(jsonStr);
-  } catch {
-    // Fallback: jsonrepair handles trailing commas, multi-value strings,
-    // and other structural deviations that LLMs occasionally produce
-    return JSON.parse(jsonrepair(jsonStr));
-  }
-};
-
-export const parseEnrichmentResponse = (
-  rawText: string,
+export const validateEnrichmentClassifications = (
+  classifications: ClassificationInput[],
   taxonomyLookup: TaxonomyLookup,
   confidenceThreshold: number
 ): { valid: ParsedClassification[]; skipped: SkippedClassification[] } => {
-  const jsonStr = extractJson(rawText);
-  const parsed = classificationResponseSchema.parse(parseJson(jsonStr));
-
   const valid: ParsedClassification[] = [];
   const skipped: SkippedClassification[] = [];
 
-  for (const item of parsed.classifications) {
+  for (const item of classifications) {
     const taxonomy = taxonomyLookup.get(item.dimension_key);
     if (!taxonomy) {
       skipped.push({ ...item, reason: `unknown_dimension: ${item.dimension_key}` });
       continue;
     }
 
-    const taxonomyValueId = taxonomy.values.get(item.value_key);
+    let resolvedKey = item.value_key;
+    let taxonomyValueId = taxonomy.values.get(resolvedKey);
+
     if (!taxonomyValueId) {
-      skipped.push({ ...item, reason: `unknown_value: ${item.dimension_key}.${item.value_key}` });
-      continue;
-    }
-
-    if (item.confidence < confidenceThreshold) {
-      skipped.push({ ...item, reason: `below_threshold: ${item.confidence} < ${confidenceThreshold}` });
-      continue;
-    }
-
-    // Deduplicate same taxonomy.value_key — keep highest confidence
-    const dedupeKey = `${item.dimension_key}.${item.value_key}`;
-    const existingIndex = valid.findIndex((v) => `${v.dimension_key}.${v.value_key}` === dedupeKey);
-    if (existingIndex !== -1) {
-      if (item.confidence > valid[existingIndex].confidence) {
-        valid[existingIndex] = { ...item, taxonomyValueId };
-      }
-      continue;
-    }
-
-    // For categorical taxonomies, only keep the single highest-confidence value
-    if (taxonomy.type === "categorical") {
-      const existingCategorical = valid.findIndex((v) => v.dimension_key === item.dimension_key);
-      if (existingCategorical !== -1) {
-        if (item.confidence > valid[existingCategorical].confidence) {
-          skipped.push({ ...valid[existingCategorical], reason: `categorical_superseded: lower confidence than ${item.value_key}` });
-          valid[existingCategorical] = { ...item, taxonomyValueId };
-        } else {
-          skipped.push({ ...item, reason: `categorical_duplicate: ${item.dimension_key} already has a higher confidence value` });
-        }
+      const match = fuzzyMatchKey(item.value_key, taxonomy.values.keys(), FUZZY_MATCH_THRESHOLD);
+      if (match) {
+        resolvedKey = match.key;
+        taxonomyValueId = taxonomy.values.get(resolvedKey)!;
+      } else {
+        skipped.push({ ...item, reason: `unknown_value: ${item.dimension_key}.${item.value_key}` });
         continue;
       }
     }
 
-    valid.push({ ...item, taxonomyValueId });
+    const normalizedItem = { ...item, value_key: resolvedKey };
+
+    if (normalizedItem.confidence < confidenceThreshold) {
+      skipped.push({ ...normalizedItem, reason: `below_threshold: ${normalizedItem.confidence} < ${confidenceThreshold}` });
+      continue;
+    }
+
+    // Deduplicate same taxonomy.value_key — keep highest confidence
+    const dedupeKey = `${normalizedItem.dimension_key}.${normalizedItem.value_key}`;
+    const existingIndex = valid.findIndex((v) => `${v.dimension_key}.${v.value_key}` === dedupeKey);
+    if (existingIndex !== -1) {
+      if (normalizedItem.confidence > valid[existingIndex].confidence) {
+        valid[existingIndex] = { ...normalizedItem, taxonomyValueId };
+      }
+      continue;
+    }
+
+    valid.push({ ...normalizedItem, taxonomyValueId });
   }
 
   return { valid, skipped };

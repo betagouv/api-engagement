@@ -6,9 +6,11 @@ import { PUBLISHER_IDS } from "@/config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
 import { missionService } from "@/services/mission";
 import type { UserRequest } from "@/types/passport";
+import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { applyWidgetRules, getDistanceKm } from "@/utils";
 
 const router = Router();
+router.use(ipRateLimiter);
 
 const searchSchema = zod.object({
   status: zod.union([zod.string(), zod.array(zod.string())]).optional(),
@@ -32,6 +34,7 @@ const searchSchema = zod.object({
   lon: zod.coerce.number().min(-180).max(180).optional(),
   location: zod.string().optional(),
   distance: zod.string().optional(),
+  type: zod.array(zod.string()).optional(),
   rules: zod
     .array(
       zod.object({
@@ -92,6 +95,7 @@ const findFilters = (user: UserRequest["user"], body: zod.infer<typeof searchSch
     city: asArray(body.cities),
     departmentName: asArray(body.department),
     organizationIds: asArray(body.organizationIds),
+    type: body.type,
   };
 
   if (body.status) {

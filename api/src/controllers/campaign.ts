@@ -5,9 +5,11 @@ import zod from "zod";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "@/error";
 import { campaignService, InvalidUrlError } from "@/services/campaign";
 import { CampaignCreateInput, CampaignSearchParams, CampaignUpdatePatch } from "@/types/campaign";
+import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { UserRequest } from "@/types/passport";
 
 const router = Router();
+router.use(ipRateLimiter);
 
 router.post("/search", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {

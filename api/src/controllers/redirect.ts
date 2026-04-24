@@ -11,9 +11,11 @@ import { statBotService } from "@/services/stat-bot";
 import { statEventService } from "@/services/stat-event";
 import { widgetService } from "@/services/widget";
 import { MissionRecord, StatEventRecord } from "@/types";
+import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { cleanIdParam, identify, slugify } from "@/utils";
 
 const router = Router();
+router.use(ipRateLimiter);
 
 const FIVE_MINUTES_IN_MS = 5 * 60 * 1000;
 
@@ -113,7 +115,6 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
       origin: req.get("origin") || "",
       type: "apply",
       createdAt: new Date(),
-      missionClientId: query.data.mission || "",
       isBot: statBot ? true : false,
     } as StatEventRecord;
 
@@ -126,14 +127,6 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
 
     if (mission) {
       obj.missionId = mission.id;
-      obj.missionClientId = mission.clientId;
-      obj.missionDomain = mission.domain || undefined;
-      obj.missionTitle = mission.title;
-      obj.missionPostalCode = mission.postalCode || "";
-      obj.missionDepartmentName = mission.departmentName || "";
-      obj.missionOrganizationName = mission.organizationName || "";
-      obj.missionOrganizationId = mission.organizationId || "";
-      obj.missionOrganizationClientId = mission.organizationClientId || "";
       obj.toPublisherId = mission.publisherId;
       obj.toPublisherName = mission.publisherName || "";
     }
@@ -149,13 +142,6 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
 
     if (click && !mission) {
       obj.missionId = click.missionId;
-      obj.missionClientId = click.missionClientId;
-      obj.missionDomain = click.missionDomain;
-      obj.missionTitle = click.missionTitle;
-      obj.missionPostalCode = click.missionPostalCode;
-      obj.missionDepartmentName = click.missionDepartmentName;
-      obj.missionOrganizationName = click.missionOrganizationName;
-      obj.missionOrganizationId = click.missionOrganizationId;
       obj.toPublisherId = click.toPublisherId;
       obj.toPublisherName = click.toPublisherName;
     }
@@ -247,7 +233,6 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
       origin: req.get("origin") || "",
       type: "account",
       createdAt: new Date(),
-      missionClientId: query.data.mission || "",
       isBot: statBot ? true : false,
     } as StatEventRecord;
 
@@ -256,14 +241,6 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
     }
     if (mission) {
       obj.missionId = mission.id;
-      obj.missionClientId = mission.clientId;
-      obj.missionDomain = mission.domain || undefined;
-      obj.missionTitle = mission.title;
-      obj.missionPostalCode = mission.postalCode || "";
-      obj.missionDepartmentName = mission.departmentName || "";
-      obj.missionOrganizationName = mission.organizationName || "";
-      obj.missionOrganizationId = mission.organizationId || "";
-      obj.missionOrganizationClientId = mission.organizationClientId || "";
       obj.toPublisherId = mission.publisherId;
       obj.toPublisherName = mission.publisherName || "";
     }
@@ -279,13 +256,6 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
 
     if (click && !mission) {
       obj.missionId = click.missionId;
-      obj.missionClientId = click.missionClientId;
-      obj.missionDomain = click.missionDomain;
-      obj.missionTitle = click.missionTitle;
-      obj.missionPostalCode = click.missionPostalCode;
-      obj.missionDepartmentName = click.missionDepartmentName;
-      obj.missionOrganizationName = click.missionOrganizationName;
-      obj.missionOrganizationId = click.missionOrganizationId;
       obj.toPublisherId = click.toPublisherId;
       obj.toPublisherName = click.toPublisherName;
     }
@@ -426,14 +396,6 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
       sourceId: widget.id || "",
       createdAt: new Date(),
       missionId: mission.id,
-      missionClientId: mission.clientId || "",
-      missionDomain: mission.domain || "",
-      missionTitle: mission.title || "",
-      missionPostalCode: mission.postalCode || "",
-      missionDepartmentName: mission.departmentName || "",
-      missionOrganizationName: mission.organizationName || "",
-      missionOrganizationId: mission.organizationId || "",
-      missionOrganizationClientId: mission.organizationClientId || "",
       toPublisherId: mission.publisherId,
       toPublisherName: mission.publisherName || "",
       fromPublisherId: widget.fromPublisherId,
@@ -515,14 +477,6 @@ router.get("/seo/:id", cors({ origin: "*" }), async (req: Request, res: Response
       source: "seo",
 
       missionId: mission.id,
-      missionClientId: mission.clientId || "",
-      missionDomain: mission.domain || "",
-      missionTitle: mission.title || "",
-      missionPostalCode: mission.postalCode || "",
-      missionDepartmentName: mission.departmentName || "",
-      missionOrganizationName: mission.organizationName || "",
-      missionOrganizationId: mission.organizationId || "",
-      missionOrganizationClientId: mission.organizationClientId || "",
 
       toPublisherId: mission.publisherId,
       toPublisherName: mission.publisherName,
@@ -649,14 +603,6 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async (req, res) =
       sourceName: fromPublisher?.name || "",
       createdAt: new Date(),
       missionId: mission.id,
-      missionClientId: mission.clientId || "",
-      missionDomain: mission.domain || "",
-      missionTitle: mission.title || "",
-      missionPostalCode: mission.postalCode || "",
-      missionDepartmentName: mission.departmentName || "",
-      missionOrganizationName: mission.organizationName || "",
-      missionOrganizationId: mission.organizationId || "",
-      missionOrganizationClientId: mission.organizationClientId || "",
       toPublisherId: mission.publisherId,
       toPublisherName: mission.publisherName || "",
 
@@ -819,14 +765,6 @@ router.get("/impression/:missionId/:publisherId", cors({ origin: "*" }), async (
       sourceName: source && source.name,
 
       missionId: mission.id,
-      missionClientId: mission.clientId || "",
-      missionDomain: mission.domain || "",
-      missionTitle: mission.title || "",
-      missionPostalCode: mission.postalCode || "",
-      missionDepartmentName: mission.departmentName || "",
-      missionOrganizationName: mission.organizationName || "",
-      missionOrganizationId: mission.organizationId || "",
-      missionOrganizationClientId: mission.organizationClientId || "",
       toPublisherId: mission.publisherId,
       toPublisherName: mission.publisherName || "",
 

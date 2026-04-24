@@ -5,10 +5,14 @@ import zod from "zod";
 import { INVALID_PARAMS, NOT_FOUND } from "@/error";
 import { publisherService } from "@/services/publisher";
 import { PublisherRequest } from "@/types/passport";
+import { publisherRateLimiter } from "@/middlewares/rate-limit";
 import type { PublisherRecordWithRelations } from "@/types/publisher";
-const router = Router();
 
-router.get("/", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
+const router = Router();
+router.use(passport.authenticate(["apikey", "api"], { session: false }));
+router.use(publisherRateLimiter);
+
+router.get("/", async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
     const user = req.user as PublisherRecordWithRelations;
     const partners = await publisherService.findPublishers({ diffuseurOf: user.id });
@@ -41,7 +45,7 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), as
   }
 });
 
-router.get("/:id", passport.authenticate(["apikey", "api"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
+router.get("/:id", async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
     const user = req.user as PublisherRecordWithRelations;
     const params = zod

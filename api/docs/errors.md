@@ -31,6 +31,8 @@ Toutes les erreurs retournent un objet JSON avec la structure suivante :
 
 ## Limite de débit (rate limiting)
 
+L'API autorise **600 requêtes par fenêtre de 60 secondes**, identifiées par votre clé API.
+
 En cas de dépassement, l'API retourne un `429 Too Many Requests`. Les headers de réponse indiquent l'état de votre quota :
 
 | Header | Description |

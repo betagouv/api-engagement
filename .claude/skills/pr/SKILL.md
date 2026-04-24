@@ -1,6 +1,7 @@
 ---
 description: "Create pull requests"
 name: "pr"
+version: "1.0.0"
 ---
 
 # Skill: Create Pull Request

@@ -66,8 +66,8 @@ const Filters = ({ filters, onChange, reload }) => {
           <h2 className="text-xl font-semibold text-black">Modération manuelle</h2>
         </div>
       </div>
-      <div className="mb-4 flex w-full justify-start">
-        <SearchInput value={filters.search} onChange={(e) => onChange({ ...filters, search: e })} placeholder="Rechercher" className="w-[40%]" />
+      <div className="mt-4 mb-4 flex w-full justify-start sm:mt-0">
+        <SearchInput value={filters.search} onChange={(e) => onChange({ ...filters, search: e })} placeholder="Rechercher" className="w-full sm:w-[40%]" />
       </div>
       <div className="grid grid-cols-1 gap-4 pb-4 md:grid-cols-2 lg:grid-cols-4">
         <Select

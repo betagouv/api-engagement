@@ -6,9 +6,12 @@ import { JobBoardId } from "@/db/core";
 import { INVALID_BODY, NOT_FOUND } from "@/error";
 import missionService from "@/services/mission";
 import missionJobBoardService from "@/services/mission-jobboard";
+import { publisherRateLimiter } from "@/middlewares/rate-limit";
 import { PublisherRequest } from "@/types/passport";
 
 const router = Router();
+router.use(passport.authenticate(["leboncoin"], { session: false }));
+router.use(publisherRateLimiter);
 
 /**
  * Webhook for Leboncoin
@@ -25,7 +28,7 @@ const SYNC_STATUS_MAP = {
 
 const LEBONCOIN_STATUS_VALUES = ["ad_online", "ad_edited", "ad_deleted", "ad_rejected_technical", "ad_rejected_moderation"] as const;
 
-router.post("/feedback", passport.authenticate(["leboncoin"], { session: false }), async (req: PublisherRequest, res: Response, next: NextFunction) => {
+router.post("/feedback", async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
     const body = zod
       .object({
