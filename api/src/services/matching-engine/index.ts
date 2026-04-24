@@ -85,16 +85,12 @@ const buildRanking = (params: {
   ),
   user_values AS (
     SELECT
-      COALESCE(usv."dimension_key", t."key"::text) AS "dimension_key",
-      COALESCE(usv."value_key", tv."key") AS "value_key",
-      usv."score"::double precision AS "user_score",
+      usv."taxonomy_key" AS "dimension_key",
+      usv."value_key" AS "value_key",
+      usv."score"::double precision AS "user_score"
     FROM "user_scoring_value" usv
-    LEFT JOIN "taxonomy_value" tv
-      ON tv."id" = usv."taxonomy_value_id"
-    LEFT JOIN "taxonomy" t
-      ON t."id" = tv."taxonomy_id"
     WHERE usv."user_scoring_id" = ${params.userScoringId}
-      AND COALESCE(usv."dimension_key", t."key"::text) NOT IN (${buildGateDimensionsSql()})
+      AND usv."taxonomy_key" NOT IN (${buildGateDimensionsSql()})
   ),
   user_dimension_totals AS (
     SELECT
@@ -130,30 +126,22 @@ const buildRanking = (params: {
   ),
   user_gate_values AS (
     SELECT DISTINCT
-      COALESCE(usv."dimension_key", t."key"::text) AS "dimension_key",
-      COALESCE(usv."value_key", tv."key") AS "value_key"
+      usv."taxonomy_key" AS "dimension_key",
+      usv."value_key" AS "value_key"
     FROM "user_scoring_value" usv
-    LEFT JOIN "taxonomy_value" tv
-      ON tv."id" = usv."taxonomy_value_id"
-    LEFT JOIN "taxonomy" t
-      ON t."id" = tv."taxonomy_id"
     WHERE usv."user_scoring_id" = ${params.userScoringId}
-      AND COALESCE(usv."dimension_key", t."key"::text) IN (${buildGateDimensionsSql()})
+      AND usv."taxonomy_key" IN (${buildGateDimensionsSql()})
   ),
   mission_gate_values AS (
     SELECT DISTINCT
       ams."mission_scoring_id",
       ams."mission_id",
-      COALESCE(msv."dimension_key", t."key"::text) AS "dimension_key",
-      COALESCE(msv."value_key", tv."key") AS "value_key"
+      msv."taxonomy_key" AS "dimension_key",
+      msv."value_key" AS "value_key"
     FROM "mission_scoring_value" msv
-    LEFT JOIN "taxonomy_value" tv
-      ON tv."id" = msv."taxonomy_value_id"
-    LEFT JOIN "taxonomy" t
-      ON t."id" = tv."taxonomy_id"
     JOIN active_mission_scorings ams
       ON ams."mission_scoring_id" = msv."mission_scoring_id"
-    WHERE COALESCE(msv."dimension_key", t."key"::text) IN (${buildGateDimensionsSql()})
+    WHERE msv."taxonomy_key" IN (${buildGateDimensionsSql()})
   ),
   mission_gate_taxonomies AS (
     SELECT DISTINCT
@@ -194,15 +182,10 @@ const buildRanking = (params: {
       SUM(uv."user_score" * msv."score") AS "dimension_sum"
     FROM user_values uv
     JOIN "mission_scoring_value" msv
-      ON TRUE
-    LEFT JOIN "taxonomy_value" msv_tv
-      ON msv_tv."id" = msv."taxonomy_value_id"
-    LEFT JOIN "taxonomy" msv_t
-      ON msv_t."id" = msv_tv."taxonomy_id"
+      ON msv."taxonomy_key" = uv."dimension_key"
+     AND msv."value_key" = uv."value_key"
     JOIN eligible_mission_scorings ems
       ON ems."mission_scoring_id" = msv."mission_scoring_id"
-     AND COALESCE(msv."dimension_key", msv_t."key"::text) = uv."dimension_key"
-     AND COALESCE(msv."value_key", msv_tv."key") = uv."value_key"
     GROUP BY msv."mission_scoring_id", uv."dimension_key"
   ),
   taxonomy_scores AS (
@@ -419,16 +402,12 @@ const buildRanking = (params: {
 const buildDimensionScoresSql = (params: { userScoringId: string; missionScoringIds: string[] }) => Prisma.sql`
   WITH user_values AS (
     SELECT
-      COALESCE(usv."dimension_key", t."key"::text) AS "dimension_key",
-      COALESCE(usv."value_key", tv."key") AS "value_key",
-      usv."score"::double precision AS "user_score",
+      usv."taxonomy_key" AS "dimension_key",
+      usv."value_key" AS "value_key",
+      usv."score"::double precision AS "user_score"
     FROM "user_scoring_value" usv
-    LEFT JOIN "taxonomy_value" tv
-      ON tv."id" = usv."taxonomy_value_id"
-    LEFT JOIN "taxonomy" t
-      ON t."id" = tv."taxonomy_id"
     WHERE usv."user_scoring_id" = ${params.userScoringId}
-      AND COALESCE(usv."dimension_key", t."key"::text) NOT IN (${buildGateDimensionsSql()})
+      AND usv."taxonomy_key" NOT IN (${buildGateDimensionsSql()})
   ),
   user_dimension_totals AS (
     SELECT
@@ -444,14 +423,9 @@ const buildDimensionScoresSql = (params: { userScoringId: string; missionScoring
       SUM(uv."user_score" * msv."score") AS "dimension_sum"
     FROM user_values uv
     JOIN "mission_scoring_value" msv
-      ON TRUE
-    LEFT JOIN "taxonomy_value" msv_tv
-      ON msv_tv."id" = msv."taxonomy_value_id"
-    LEFT JOIN "taxonomy" msv_t
-      ON msv_t."id" = msv_tv."taxonomy_id"
+      ON msv."taxonomy_key" = uv."dimension_key"
+     AND msv."value_key" = uv."value_key"
     WHERE msv."mission_scoring_id" IN (${Prisma.join(params.missionScoringIds)})
-      AND COALESCE(msv."dimension_key", msv_t."key"::text) = uv."dimension_key"
-      AND COALESCE(msv."value_key", msv_tv."key") = uv."value_key"
     GROUP BY msv."mission_scoring_id", uv."dimension_key"
   )
   SELECT

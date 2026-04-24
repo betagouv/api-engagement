@@ -46,45 +46,18 @@ export const userScoringService = {
       if (!parsePrefixedKey(key)) {
         throw new UserScoringValidationError(`taxonomy_value_key '${key}' is invalid: expected format '{taxonomy_key}.{value_key}'`);
       }
-    }
 
-    const pairs = uniqueKeys.map((key) => parsePrefixedKey(key)!);
-
-    // Batch-fetch legacy seeded rows when they still exist. New string-key storage
-    // remains the primary source of truth during the transition.
-    const allValues = await userScoringRepository.findTaxonomyValuesByPrefixedKeys(pairs);
-    const legacyValuesByPrefixedKey = new Map<string, (typeof allValues)[number]>(
-      allValues.map((value) => [`${value.taxonomyKey}.${value.key}`, value] as const)
-    );
-
-    for (const key of uniqueKeys) {
-      const existsInPackage = isValidTaxonomyValueKey(key);
-      const existsInLegacyDb = legacyValuesByPrefixedKey.has(key);
-
-      if (!existsInPackage && !existsInLegacyDb) {
+      if (!isValidTaxonomyValueKey(key)) {
         throw new UserScoringValidationError(`taxonomy_value_key '${key}' does not exist`);
       }
     }
 
-    // Legacy inactive rows are still skipped to preserve old behavior while the
-    // taxonomy tables remain in place.
-    const valuesToPersist = pairs.flatMap(({ taxonomyKey, valueKey }) => {
-      const prefixedKey = `${taxonomyKey}.${valueKey}`;
-      const legacyValue = legacyValuesByPrefixedKey.get(prefixedKey);
-
-      if (legacyValue && !legacyValue.active) {
-        return [];
-      }
-
-      return [
-        {
-          taxonomyValueId: legacyValue?.id ?? null,
-          taxonomyKey,
-          valueKey,
-          score: 1.0,
-        },
-      ];
-    });
+    const pairs = uniqueKeys.map((key) => parsePrefixedKey(key)!);
+    const valuesToPersist = pairs.map(({ taxonomyKey, valueKey }) => ({
+      taxonomyKey,
+      valueKey,
+      score: 1.0,
+    }));
 
     const expiresAt = new Date(Date.now() + USER_SCORING_TTL_DAYS * 24 * 60 * 60 * 1000);
 
