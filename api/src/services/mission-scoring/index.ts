@@ -1,3 +1,4 @@
+import { parseTaxonomyValueKey } from "@engagement/taxonomy";
 import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
 import { missionScoringRepository } from "@/repositories/mission-scoring";
 import { computeMissionScoringValues } from "@/services/mission-scoring/calculator";
@@ -7,16 +8,13 @@ import type { ComputedMissionScoringValue } from "@/services/mission-scoring/typ
 
 const LOG_PREFIX = "[mission-scoring]";
 
-const splitPrefixedKey = (key: string): { taxonomyKey: string; valueKey: string } => {
-  const dotIndex = key.indexOf(".");
-  if (dotIndex <= 0 || dotIndex === key.length - 1) {
+const parsePublisherRuleKey = (key: string): { taxonomyKey: string; valueKey: string } => {
+  const parsedKey = parseTaxonomyValueKey(key);
+  if (!parsedKey) {
     throw new Error(`[mission-scoring] invalid prefixed taxonomy key '${key}'`);
   }
 
-  return {
-    taxonomyKey: key.slice(0, dotIndex),
-    valueKey: key.slice(dotIndex + 1),
-  };
+  return parsedKey;
 };
 
 export const missionScoringService = {
@@ -64,7 +62,7 @@ export const missionScoringService = {
     // Publisher rules: inject gate/publisher-specific values (bypass LLM enrichment)
     const publisherRuleKeys = PUBLISHER_SCORING_RULES[enrichment.mission.publisherId ?? ""] ?? [];
     const publisherValues: ComputedMissionScoringValue[] = publisherRuleKeys.map((prefixedKey) => {
-      const { taxonomyKey, valueKey } = splitPrefixedKey(prefixedKey);
+      const { taxonomyKey, valueKey } = parsePublisherRuleKey(prefixedKey);
 
       return {
         missionEnrichmentValueId: null,

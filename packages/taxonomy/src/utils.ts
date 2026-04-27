@@ -5,18 +5,37 @@ export const ENRICHABLE_TAXONOMIES = (Object.entries(TAXONOMY) as [TaxonomyKey, 
 
 export const GATE_TAXONOMIES = (Object.entries(TAXONOMY) as [TaxonomyKey, (typeof TAXONOMY)[TaxonomyKey]][]).filter(([, d]) => d.gate).map(([k]) => k);
 
+export type ParsedTaxonomyValueKey = {
+  taxonomyKey: string;
+  valueKey: string;
+};
+
+/** Parse une clé plate "taxonomie.valeur" sans valider son existence dans TAXONOMY. */
+export function parseTaxonomyValueKey(key: string): ParsedTaxonomyValueKey | null {
+  const dotIndex = key.indexOf(".");
+  if (dotIndex <= 0 || dotIndex === key.length - 1) {
+    return null;
+  }
+
+  return {
+    taxonomyKey: key.slice(0, dotIndex),
+    valueKey: key.slice(dotIndex + 1),
+  };
+}
+
 /** Vérifie qu'une clé plate "taxonomie.valeur" est valide au runtime. */
 export function isValidTaxonomyValueKey(key: string): key is TaxonomyValueKey {
-  const dot = key.indexOf(".");
-  if (dot === -1) {
+  const parsedKey = parseTaxonomyValueKey(key);
+  if (!parsedKey) {
     return false;
   }
-  const dim = key.slice(0, dot) as TaxonomyKey;
-  const val = key.slice(dot + 1);
-  if (!Object.prototype.hasOwnProperty.call(TAXONOMY, dim)) {
+
+  const taxonomyKey = parsedKey.taxonomyKey as TaxonomyKey;
+  if (!Object.prototype.hasOwnProperty.call(TAXONOMY, taxonomyKey)) {
     return false;
   }
-  return Object.prototype.hasOwnProperty.call(TAXONOMY[dim].values, val);
+
+  return Object.prototype.hasOwnProperty.call(TAXONOMY[taxonomyKey].values, parsedKey.valueKey);
 }
 
 /** Retourne la liste des taxonomies avec leurs valeurs, prête à l'affichage. */

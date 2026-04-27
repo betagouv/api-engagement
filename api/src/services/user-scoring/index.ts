@@ -1,4 +1,4 @@
-import { isValidTaxonomyValueKey } from "@engagement/taxonomy";
+import { isValidTaxonomyValueKey, parseTaxonomyValueKey } from "@engagement/taxonomy";
 
 import { userScoringRepository } from "@/repositories/user-scoring";
 
@@ -20,14 +20,6 @@ interface CreateUserScoringInput {
   };
 }
 
-const parsePrefixedKey = (prefixedKey: string): { taxonomyKey: string; valueKey: string } | null => {
-  const dotIndex = prefixedKey.indexOf(".");
-  if (dotIndex <= 0 || dotIndex === prefixedKey.length - 1) {
-    return null;
-  }
-  return { taxonomyKey: prefixedKey.slice(0, dotIndex), valueKey: prefixedKey.slice(dotIndex + 1) };
-};
-
 export const userScoringService = {
   async create(input: CreateUserScoringInput) {
     // Deduplicate (keep first occurrence)
@@ -43,7 +35,7 @@ export const userScoringService = {
 
     // Validate format: each key must be "{taxonomy_key}.{value_key}"
     for (const key of uniqueKeys) {
-      if (!parsePrefixedKey(key)) {
+      if (!parseTaxonomyValueKey(key)) {
         throw new UserScoringValidationError(`taxonomy_value_key '${key}' is invalid: expected format '{taxonomy_key}.{value_key}'`);
       }
 
@@ -52,7 +44,7 @@ export const userScoringService = {
       }
     }
 
-    const pairs = uniqueKeys.map((key) => parsePrefixedKey(key)!);
+    const pairs = uniqueKeys.map((key) => parseTaxonomyValueKey(key)!);
     const valuesToPersist = pairs.map(({ taxonomyKey, valueKey }) => ({
       taxonomyKey,
       valueKey,
