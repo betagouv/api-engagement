@@ -167,15 +167,10 @@ jobs:
         with:
           node-version: "24"
           cache: "npm"
-          cache-dependency-path: |
-            package-lock.json
-            analytics/package-lock.json
+          cache-dependency-path: "package-lock.json"
 
-      - name: Install API dependencies
+      - name: Install dependencies
         run: npm ci
-
-      - name: Install Analytics dependencies
-        run: cd analytics && npm ci
 
       - name: Prepare temporary databases
         env:
@@ -190,18 +185,16 @@ jobs:
         run: npm --workspace api run prisma:migrate:deploy
 
       - name: Apply Analytics migrations
-        working-directory: analytics
         env:
           DATABASE_URL_ANALYTICS: postgresql://postgres:postgres@localhost:5432/analytics?sslmode=disable
-        run: npm run db:migrate
+        run: npm --workspace analytics run db:migrate
 
       - name: Run analytics export job
-        working-directory: analytics
         env:
           DATABASE_URL_CORE: postgresql://postgres:postgres@localhost:5432/core
           DATABASE_URL_ANALYTICS: postgresql://postgres:postgres@localhost:5432/analytics?sslmode=disable
           ENV: development
-        run: npm run job -- export-to-analytics-raw
+        run: npm --workspace analytics run job -- export-to-analytics-raw
 
   api-tests:
     name: API Tests
