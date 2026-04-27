@@ -1,13 +1,13 @@
-import type { EnrichableDimensionKey } from "@engagement/taxonomy";
+import type { EnrichableTaxonomyKey } from "@engagement/taxonomy";
 
-export type MatchingEngineDimension = EnrichableDimensionKey;
+export type MatchingEngineTaxonomy = EnrichableTaxonomyKey;
 
-export type MatchingEngineDimensionWeights = Record<MatchingEngineDimension, number>;
+export type MatchingEngineTaxonomyWeights = Record<MatchingEngineTaxonomy, number>;
 
 export type MatchingEngineVersion = "m1";
 
 export type MatchingEngineVersionConfig = {
-  dimensionWeights: MatchingEngineDimensionWeights;
+  taxonomyWeights: MatchingEngineTaxonomyWeights;
 };
 
 export type RankMissionsByUserScoringInput = {
@@ -28,12 +28,12 @@ export type MatchMissionItem = {
   taxonomyScore: number;
   geoScore: number | null;
   distanceKm: number | null;
-  dimensionScores: Partial<Record<MatchingEngineDimension, number>>;
+  taxonomyScores: Partial<Record<MatchingEngineTaxonomy, number>>;
 };
 
 export type MissionMatchingResultItem = {
   missionScoringId: string;
-  dimensionScores: Partial<Record<MatchingEngineDimension, number>>;
+  taxonomyScores: Partial<Record<MatchingEngineTaxonomy, number>>;
 };
 
 export type RankMissionsByUserScoringResult = {

@@ -1,12 +1,12 @@
-import type { EnrichableDimensionKey, ValueKey } from "@engagement/taxonomy";
+import type { EnrichableTaxonomyKey, ValueKey } from "@engagement/taxonomy";
 
 /** Type mappé pour les guides de classification par version de prompt.
- *  - Les clés de dimension sont restreintes aux dimensions enrichissables du package.
- *  - Les value keys sont restreintes aux valeurs connues de chaque dimension.
+ *  - Les clés de taxonomies sont restreintes aux taxonomies enrichissables du package.
+ *  - Les value keys sont restreintes aux valeurs connues de chaque taxonomy.
  *  Utiliser avec `satisfies` pour conserver les types littéraux inférés. */
 export type TaxonomyGuidanceMap = Partial<{
-  [D in EnrichableDimensionKey]: {
-    dimension: string;
+  [D in EnrichableTaxonomyKey]: {
+    taxonomy: string;
     values?: Partial<Record<ValueKey<D>, string>>;
   };
 }>;

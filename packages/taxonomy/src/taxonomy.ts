@@ -1,11 +1,11 @@
-// Source unique de vérité pour les dimensions et valeurs de taxonomie.
+// Source unique de vérité pour les taxonomies et valeurs de taxonomie.
 // Basé sur api/scripts/seed-taxonomy.ts.
 //
-// Champs par dimension :
+// Champs par taxonomy :
 //   label     — libellé affiché en UI / logs
 //   type      — "multi_value" | "categorical" | "gate" (correspond au TaxonomyType Prisma)
-//   enrichable — true si la dimension est classifiée par le LLM (mission-enrichment)
-//   gate       — true si la dimension est un filtre dur dans le matching engine
+//   enrichable — true si la taxonomy est classifiée par le LLM (mission-enrichment)
+//   gate       — true si la taxonomy est un filtre dur dans le matching engine
 //
 // Champs par valeur :
 //   label      — libellé affiché
@@ -13,7 +13,7 @@
 //   enrichable — false pour les valeurs exclues de l'enrichissement (ex : je_ne_sais_pas)
 
 export const TAXONOMY = {
-  // ─── Dimensions enrichissables ────────────────────────────────────────────
+  // ─── Taxonomies enrichissables ────────────────────────────────────────────
 
   domaine: {
     label: "Domaine",
@@ -130,7 +130,7 @@ export const TAXONOMY = {
     },
   },
 
-  // ─── Dimension gate (filtre dur dans le matching) ────────────────────────
+  // ─── taxonomy gate (filtre dur dans le matching) ────────────────────────
 
   tranche_age: {
     label: "Tranche d'âge",

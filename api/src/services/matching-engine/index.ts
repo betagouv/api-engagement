@@ -1,9 +1,9 @@
-import { GATE_DIMENSIONS } from "@engagement/taxonomy";
+import { GATE_TAXONOMIES } from "@engagement/taxonomy";
 import { Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
 import { missionMatchingResultRepository } from "@/repositories/mission-matching-result";
-import { CURRENT_MATCHING_ENGINE_VERSION, MATCHING_ENGINE_DIMENSIONS, MATCHING_ENGINE_TOP_RESULTS_LIMIT, MATCHING_ENGINE_VERSIONS } from "./config";
-import type { MatchMissionItem, MatchingEngineDimension, MissionMatchingResultItem, RankMissionsByUserScoringInput, RankMissionsByUserScoringResult } from "./types";
+import { CURRENT_MATCHING_ENGINE_VERSION, MATCHING_ENGINE_TAXONOMIES, MATCHING_ENGINE_TOP_RESULTS_LIMIT, MATCHING_ENGINE_VERSIONS } from "./config";
+import type { MatchMissionItem, MatchingEngineTaxonomy, MissionMatchingResultItem, RankMissionsByUserScoringInput, RankMissionsByUserScoringResult } from "./types";
 
 type DbRankRow = {
   mission_id: string;
@@ -14,10 +14,10 @@ type DbRankRow = {
   distance_km: number | null;
 };
 
-type DbDimensionScoreRow = {
+type DbTaxonomyScoreRow = {
   mission_scoring_id: string;
-  dimension_key: string;
-  dimension_score: number;
+  taxonomy_key: string;
+  taxonomy_score: number;
 };
 
 type UserScoringStateRow = {
@@ -45,10 +45,10 @@ const getTaxonomyCandidateLimit = (params: { limit: number; offset: number }): n
 const getGeoCandidateLimit = (params: { limit: number; offset: number }): number =>
   Math.max(params.offset + params.limit, params.limit * GEO_CANDIDATE_MULTIPLIER, MIN_GEO_CANDIDATE_LIMIT);
 
-const buildDimensionWeightsValuesSql = (dimensionWeights: Record<MatchingEngineDimension, number>) =>
-  Prisma.join(MATCHING_ENGINE_DIMENSIONS.map((dimension) => Prisma.sql`(${dimension}, CAST(${dimensionWeights[dimension]} AS double precision))`));
+const buildTaxonomyWeightsValuesSql = (taxonomyWeights: Record<MatchingEngineTaxonomy, number>) =>
+  Prisma.join(MATCHING_ENGINE_TAXONOMIES.map((taxonomy) => Prisma.sql`(${taxonomy}, CAST(${taxonomyWeights[taxonomy]} AS double precision))`));
 
-const buildGateDimensionsSql = () => Prisma.join(GATE_DIMENSIONS.map((dimension) => Prisma.sql`${dimension}`));
+const buildGateTaxonomiesSql = () => Prisma.join(GATE_TAXONOMIES.map((taxonomy) => Prisma.sql`${taxonomy}`));
 
 const assertUserScoringIsQueryable = async (userScoringId: string): Promise<void> => {
   const rows = await prisma.$queryRaw<UserScoringStateRow[]>`
@@ -70,7 +70,7 @@ const assertUserScoringIsQueryable = async (userScoringId: string): Promise<void
 
 const buildRanking = (params: {
   userScoringId: string;
-  dimensionWeights: Record<MatchingEngineDimension, number>;
+  taxonomyWeights: Record<MatchingEngineTaxonomy, number>;
   taxonomyWeight: number;
   geoWeight: number;
   geoHalfDecayKm: number;
@@ -80,31 +80,31 @@ const buildRanking = (params: {
   limit: number;
   offset: number;
 }) => Prisma.sql`
-  WITH dimension_weights ("dimension_key", "dimension_weight") AS (
-    VALUES ${buildDimensionWeightsValuesSql(params.dimensionWeights)}
+  WITH taxonomy_weights ("taxonomy_key", "taxonomy_weight") AS (
+    VALUES ${buildTaxonomyWeightsValuesSql(params.taxonomyWeights)}
   ),
   user_values AS (
     SELECT
-      usv."taxonomy_key" AS "dimension_key",
+      usv."taxonomy_key" AS "taxonomy_key",
       usv."value_key" AS "value_key",
       usv."score"::double precision AS "user_score"
     FROM "user_scoring_value" usv
     WHERE usv."user_scoring_id" = ${params.userScoringId}
-      AND usv."taxonomy_key" NOT IN (${buildGateDimensionsSql()})
+      AND usv."taxonomy_key" NOT IN (${buildGateTaxonomiesSql()})
   ),
-  user_dimension_totals AS (
+  user_taxonomy_totals AS (
     SELECT
-      uv."dimension_key",
-      SUM(uv."user_score") AS "dimension_total"
+      uv."taxonomy_key",
+      SUM(uv."user_score") AS "taxonomy_total"
     FROM user_values uv
-    GROUP BY uv."dimension_key"
+    GROUP BY uv."taxonomy_key"
   ),
   weighted_user_totals AS (
     SELECT
-      COALESCE(SUM(udt."dimension_total" * COALESCE(dw."dimension_weight", 1.0)), 0) AS "taxonomy_total"
-    FROM user_dimension_totals udt
-    LEFT JOIN dimension_weights dw
-      ON dw."dimension_key" = udt."dimension_key"
+      COALESCE(SUM(udt."taxonomy_total" * COALESCE(dw."taxonomy_weight", 1.0)), 0) AS "taxonomy_total"
+    FROM user_taxonomy_totals udt
+    LEFT JOIN taxonomy_weights dw
+      ON dw."taxonomy_key" = udt."taxonomy_key"
   ),
   active_mission_scorings AS (
     SELECT DISTINCT ON (ms."mission_id")
@@ -126,36 +126,36 @@ const buildRanking = (params: {
   ),
   user_gate_values AS (
     SELECT DISTINCT
-      usv."taxonomy_key" AS "dimension_key",
+      usv."taxonomy_key" AS "taxonomy_key",
       usv."value_key" AS "value_key"
     FROM "user_scoring_value" usv
     WHERE usv."user_scoring_id" = ${params.userScoringId}
-      AND usv."taxonomy_key" IN (${buildGateDimensionsSql()})
+      AND usv."taxonomy_key" IN (${buildGateTaxonomiesSql()})
   ),
   mission_gate_values AS (
     SELECT DISTINCT
       ams."mission_scoring_id",
       ams."mission_id",
-      msv."taxonomy_key" AS "dimension_key",
+      msv."taxonomy_key" AS "taxonomy_key",
       msv."value_key" AS "value_key"
     FROM "mission_scoring_value" msv
     JOIN active_mission_scorings ams
       ON ams."mission_scoring_id" = msv."mission_scoring_id"
-    WHERE msv."taxonomy_key" IN (${buildGateDimensionsSql()})
+    WHERE msv."taxonomy_key" IN (${buildGateTaxonomiesSql()})
   ),
   mission_gate_taxonomies AS (
     SELECT DISTINCT
       mgv."mission_scoring_id",
-      mgv."dimension_key"
+      mgv."taxonomy_key"
     FROM mission_gate_values mgv
   ),
   matched_gate_taxonomies AS (
     SELECT DISTINCT
       mgv."mission_scoring_id",
-      mgv."dimension_key"
+      mgv."taxonomy_key"
     FROM mission_gate_values mgv
     JOIN user_gate_values ugv
-      ON ugv."dimension_key" = mgv."dimension_key"
+      ON ugv."taxonomy_key" = mgv."taxonomy_key"
      AND ugv."value_key" = mgv."value_key"
   ),
   eligible_mission_scorings AS (
@@ -171,30 +171,30 @@ const buildRanking = (params: {
           SELECT 1
           FROM matched_gate_taxonomies mgtm
           WHERE mgtm."mission_scoring_id" = mgt."mission_scoring_id"
-            AND mgtm."dimension_key" = mgt."dimension_key"
+            AND mgtm."taxonomy_key" = mgt."taxonomy_key"
         )
     )
   ),
   matched_values AS (
     SELECT
       msv."mission_scoring_id",
-      uv."dimension_key",
-      SUM(uv."user_score" * msv."score") AS "dimension_sum"
+      uv."taxonomy_key",
+      SUM(uv."user_score" * msv."score") AS "taxonomy_sum"
     FROM user_values uv
     JOIN "mission_scoring_value" msv
-      ON msv."taxonomy_key" = uv."dimension_key"
+      ON msv."taxonomy_key" = uv."taxonomy_key"
      AND msv."value_key" = uv."value_key"
     JOIN eligible_mission_scorings ems
       ON ems."mission_scoring_id" = msv."mission_scoring_id"
-    GROUP BY msv."mission_scoring_id", uv."dimension_key"
+    GROUP BY msv."mission_scoring_id", uv."taxonomy_key"
   ),
   taxonomy_scores AS (
     SELECT
       mv."mission_scoring_id",
-      SUM(mv."dimension_sum" * COALESCE(dw."dimension_weight", 1.0)) AS "weighted_sum"
+      SUM(mv."taxonomy_sum" * COALESCE(dw."taxonomy_weight", 1.0)) AS "weighted_sum"
     FROM matched_values mv
-    LEFT JOIN dimension_weights dw
-      ON dw."dimension_key" = mv."dimension_key"
+    LEFT JOIN taxonomy_weights dw
+      ON dw."taxonomy_key" = mv."taxonomy_key"
     GROUP BY mv."mission_scoring_id"
   ),
   taxonomy_candidates AS (
@@ -399,64 +399,64 @@ const buildRanking = (params: {
   OFFSET ${params.offset}
 `;
 
-const buildDimensionScoresSql = (params: { userScoringId: string; missionScoringIds: string[] }) => Prisma.sql`
+const buildTaxonomyScoresSql = (params: { userScoringId: string; missionScoringIds: string[] }) => Prisma.sql`
   WITH user_values AS (
     SELECT
-      usv."taxonomy_key" AS "dimension_key",
+      usv."taxonomy_key" AS "taxonomy_key",
       usv."value_key" AS "value_key",
       usv."score"::double precision AS "user_score"
     FROM "user_scoring_value" usv
     WHERE usv."user_scoring_id" = ${params.userScoringId}
-      AND usv."taxonomy_key" NOT IN (${buildGateDimensionsSql()})
+      AND usv."taxonomy_key" NOT IN (${buildGateTaxonomiesSql()})
   ),
-  user_dimension_totals AS (
+  user_taxonomy_totals AS (
     SELECT
-      uv."dimension_key",
-      SUM(uv."user_score") AS "dimension_total"
+      uv."taxonomy_key",
+      SUM(uv."user_score") AS "taxonomy_total"
     FROM user_values uv
-    GROUP BY uv."dimension_key"
+    GROUP BY uv."taxonomy_key"
   ),
   matched_values AS (
     SELECT
       msv."mission_scoring_id",
-      uv."dimension_key",
-      SUM(uv."user_score" * msv."score") AS "dimension_sum"
+      uv."taxonomy_key",
+      SUM(uv."user_score" * msv."score") AS "taxonomy_sum"
     FROM user_values uv
     JOIN "mission_scoring_value" msv
-      ON msv."taxonomy_key" = uv."dimension_key"
+      ON msv."taxonomy_key" = uv."taxonomy_key"
      AND msv."value_key" = uv."value_key"
     WHERE msv."mission_scoring_id" IN (${Prisma.join(params.missionScoringIds)})
-    GROUP BY msv."mission_scoring_id", uv."dimension_key"
+    GROUP BY msv."mission_scoring_id", uv."taxonomy_key"
   )
   SELECT
     mv."mission_scoring_id",
-    mv."dimension_key",
+    mv."taxonomy_key",
     CASE
-      WHEN udt."dimension_total" > 0 THEN mv."dimension_sum" / udt."dimension_total"
+      WHEN udt."taxonomy_total" > 0 THEN mv."taxonomy_sum" / udt."taxonomy_total"
       ELSE 0
-    END AS "dimension_score"
+    END AS "taxonomy_score"
   FROM matched_values mv
-  JOIN user_dimension_totals udt
-    ON udt."dimension_key" = mv."dimension_key"
+  JOIN user_taxonomy_totals udt
+    ON udt."taxonomy_key" = mv."taxonomy_key"
 `;
 
-const buildDimensionScoresIndex = (rows: DbDimensionScoreRow[]): Record<string, Partial<Record<MatchingEngineDimension, number>>> => {
-  const dimensionSet = new Set<string>(MATCHING_ENGINE_DIMENSIONS);
-  const result: Record<string, Partial<Record<MatchingEngineDimension, number>>> = {};
+const buildTaxonomyScoresIndex = (rows: DbTaxonomyScoreRow[]): Record<string, Partial<Record<MatchingEngineTaxonomy, number>>> => {
+  const taxonomySet = new Set<string>(MATCHING_ENGINE_TAXONOMIES);
+  const result: Record<string, Partial<Record<MatchingEngineTaxonomy, number>>> = {};
 
   for (const row of rows) {
-    if (!dimensionSet.has(row.dimension_key)) {
+    if (!taxonomySet.has(row.taxonomy_key)) {
       continue;
     }
 
     const missionScoringId = row.mission_scoring_id;
-    const dimension = row.dimension_key as MatchingEngineDimension;
+    const taxonomy = row.taxonomy_key as MatchingEngineTaxonomy;
 
     if (!result[missionScoringId]) {
       result[missionScoringId] = {};
     }
 
-    result[missionScoringId][dimension] = clampScore(Number(row.dimension_score));
+    result[missionScoringId][taxonomy] = clampScore(Number(row.taxonomy_score));
   }
 
   return result;
@@ -464,18 +464,18 @@ const buildDimensionScoresIndex = (rows: DbDimensionScoreRow[]): Record<string, 
 
 const buildMissionMatchingResultItems = (params: {
   rows: DbRankRow[];
-  dimensionScoresByMissionScoringId: Record<string, Partial<Record<MatchingEngineDimension, number>>>;
+  taxonomyScoresByMissionScoringId: Record<string, Partial<Record<MatchingEngineTaxonomy, number>>>;
 }): MissionMatchingResultItem[] =>
   params.rows.map((row) => ({
     missionScoringId: row.mission_scoring_id,
-    dimensionScores: params.dimensionScoresByMissionScoringId[row.mission_scoring_id] ?? {},
+    taxonomyScores: params.taxonomyScoresByMissionScoringId[row.mission_scoring_id] ?? {},
   }));
 
 export const matchingEngineService = {
   async rankMissionsByUserScoring(input: RankMissionsByUserScoringInput): Promise<RankMissionsByUserScoringResult> {
     const startedAt = Date.now();
     const version = input.version ?? CURRENT_MATCHING_ENGINE_VERSION;
-    const dimensionWeights = MATCHING_ENGINE_VERSIONS[version].dimensionWeights;
+    const taxonomyWeights = MATCHING_ENGINE_VERSIONS[version].taxonomyWeights;
     const limit = Math.max(1, Math.min(500, input.limit ?? 20));
     const offset = Math.max(0, input.offset ?? 0);
     // The persisted snapshot is defined as the first page of the ranking.
@@ -493,7 +493,7 @@ export const matchingEngineService = {
     const rows = await prisma.$queryRaw<DbRankRow[]>(
       buildRanking({
         userScoringId: input.userScoringId,
-        dimensionWeights,
+        taxonomyWeights,
         taxonomyWeight,
         geoWeight,
         geoHalfDecayKm,
@@ -505,16 +505,16 @@ export const matchingEngineService = {
       })
     );
     const missionScoringIdsForDetails = rows.slice(0, MATCHING_ENGINE_TOP_RESULTS_LIMIT).map((row) => row.mission_scoring_id);
-    const dimensionScoresRows =
+    const taxonomyScoresRows =
       missionScoringIdsForDetails.length > 0
-        ? await prisma.$queryRaw<DbDimensionScoreRow[]>(
-            buildDimensionScoresSql({
+        ? await prisma.$queryRaw<DbTaxonomyScoreRow[]>(
+            buildTaxonomyScoresSql({
               userScoringId: input.userScoringId,
               missionScoringIds: missionScoringIdsForDetails,
             })
           )
         : [];
-    const dimensionScoresByMissionScoringId = buildDimensionScoresIndex(dimensionScoresRows);
+    const taxonomyScoresByMissionScoringId = buildTaxonomyScoresIndex(taxonomyScoresRows);
     const responseRows = shouldPersistTopResults ? rows.slice(0, limit) : rows;
 
     if (shouldPersistTopResults) {
@@ -523,7 +523,7 @@ export const matchingEngineService = {
         matchingEngineVersion: version,
         results: buildMissionMatchingResultItems({
           rows: rows.slice(0, MATCHING_ENGINE_TOP_RESULTS_LIMIT),
-          dimensionScoresByMissionScoringId,
+          taxonomyScoresByMissionScoringId,
         }),
       });
     }
@@ -537,7 +537,7 @@ export const matchingEngineService = {
           taxonomyScore: clampScore(Number(row.taxonomy_score)),
           geoScore: row.geo_score === null ? null : clampScore(Number(row.geo_score)),
           distanceKm: row.distance_km === null ? null : Number(row.distance_km),
-          dimensionScores: dimensionScoresByMissionScoringId[row.mission_scoring_id] ?? {},
+          taxonomyScores: taxonomyScoresByMissionScoringId[row.mission_scoring_id] ?? {},
         })
       ),
       tookMs: Date.now() - startedAt,

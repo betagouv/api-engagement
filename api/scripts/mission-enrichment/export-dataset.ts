@@ -3,7 +3,8 @@ dotenv.config();
 
 import { prisma } from "@/db/postgres";
 import { CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/config";
-import { parseEnrichmentResponse, type TaxonomyLookup } from "@/services/mission-enrichment/parser";
+import { type TaxonomyLookup, validateEnrichmentClassifications } from "@/services/mission-enrichment/parser";
+
 import fs from "fs";
 import path from "path";
 
@@ -25,16 +26,16 @@ const outputPath = getArg("--output") ?? "./enrichment-export.csv";
 
 // ─── Taxonomy lookup ─────────────────────────────────────────────────────────
 
-type DimensionMeta = { type: string; label: string; values: Map<string, { id: string; label: string }> };
-type FullTaxonomyLookup = Map<string, DimensionMeta>;
+type TaxonomyMeta = { type: string; label: string; values: Map<string, { id: string; label: string }> };
+type FullTaxonomyLookup = Map<string, TaxonomyMeta>;
 
 const buildFullLookup = (
-  dimensions: Array<{ key: string; type: string; label: string; values: Array<{ key: string; id: string; label: string; active: boolean }> }>
+  taxonomies: Array<{ key: string; type: string; label: string; values: Array<{ key: string; id: string; label: string; active: boolean }> }>
 ): { taxonomyLookup: TaxonomyLookup; fullLookup: FullTaxonomyLookup } => {
   const taxonomyLookup: TaxonomyLookup = new Map();
   const fullLookup: FullTaxonomyLookup = new Map();
 
-  for (const dim of dimensions) {
+  for (const dim of taxonomies) {
     const valueMap = new Map<string, string>();
     const fullValueMap = new Map<string, { id: string; label: string }>();
 
@@ -72,8 +73,8 @@ const HEADERS = [
   "completedAt",
   "status",
   "skipReason",
-  "dimension",
-  "dimensionLabel",
+  "taxonomy",
+  "taxonomyLabel",
   "value",
   "valueLabel",
   "confidence",
@@ -98,8 +99,8 @@ type CsvRow = {
   completedAt: string;
   status: "valid" | "skipped";
   skipReason: string;
-  dimension: string;
-  dimensionLabel: string;
+  taxonomy: string;
+  taxonomyLabel: string;
   value: string;
   valueLabel: string;
   confidence: string;
@@ -117,13 +118,13 @@ const rowToCsv = (row: CsvRow): string => HEADERS.map((h) => csvEscape(row[h as 
 async function main() {
   console.log(`[export-dataset] version=${version} limit=${limit ?? "all"} output=${outputPath}`);
 
-  const dimensions = await prisma.taxonomy.findMany({
+  const taxonomies = await prisma.taxonomy.findMany({
     orderBy: { key: "asc" },
     include: { values: true },
   });
 
   const { taxonomyLookup, fullLookup } = buildFullLookup(
-    dimensions.map((d) => ({
+    taxonomies.map((d) => ({
       key: d.key,
       type: d.type,
       label: d.label,
@@ -194,10 +195,10 @@ async function main() {
         ...base,
         status: "valid",
         skipReason: "",
-        dimension: v.taxonomyValue.taxonomy.key,
-        dimensionLabel: v.taxonomyValue.taxonomy.label,
-        value: v.taxonomyValue.key,
-        valueLabel: v.taxonomyValue.label,
+        taxonomy: v.taxonomyValue!.taxonomy.key,
+        taxonomyLabel: v.taxonomyValue!.taxonomy.label,
+        value: v.taxonomyValue!.key,
+        valueLabel: v.taxonomyValue!.label,
         confidence: String(v.confidence),
         reasoning: evidence?.reasoning ?? "",
       });
@@ -222,8 +223,8 @@ async function main() {
             ...base,
             status: "skipped",
             skipReason: s.reason,
-            dimension: s.dimension_key,
-            dimensionLabel: dimMeta?.label ?? "",
+            taxonomy: s.taxonomy_key,
+            taxonomyLabel: dimMeta?.label ?? "",
             value: s.value_key,
             valueLabel: valMeta?.label ?? "",
             confidence: String(s.confidence),

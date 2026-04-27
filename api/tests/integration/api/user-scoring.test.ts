@@ -163,6 +163,20 @@ describe("POST /user-scoring", () => {
     expect(res.body.ok).toBe(false);
   });
 
+  it("should return 400 when taxonomy_value_key targets inherited object properties", async () => {
+    const responses = await Promise.all([
+      request(app)
+        .post("/user-scoring")
+        .send({ answers: [{ taxonomy_value_key: "domaine.toString" }] }),
+      request(app)
+        .post("/user-scoring")
+        .send({ answers: [{ taxonomy_value_key: "__proto__.x" }] }),
+    ]);
+
+    expect(responses.map((res) => res.status)).toEqual([400, 400]);
+    expect(responses.every((res) => res.body.ok === false)).toBe(true);
+  });
+
   it("should return 400 when geo.lat is out of range", async () => {
     const res = await request(app)
       .post("/user-scoring")

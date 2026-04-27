@@ -57,7 +57,7 @@ export function QuizForm({ onSubmit, loading }: Props) {
     onSubmit([...taxonomyAnswers, ...ageAnswers], geo);
   }
 
-  // Les dimensions gate (tranche_age) sont gérées via la section âge ci-dessous
+  // Les taxonomies gate (tranche_age) sont gérées via la section âge ci-dessous.
   const scoringTaxonomies = taxonomies.filter((t) => !t.gate);
   const totalSelected = selected.size + computeAgeKeys(age !== "" ? age : null, hasDisability).length;
 

@@ -2,7 +2,7 @@ const rawApiUrl: string | undefined = typeof window !== "undefined" ? (window as
 const BASE = rawApiUrl && rawApiUrl !== "API_URL_PLACEHOLDER" ? rawApiUrl : ((import.meta.env.VITE_API_URL as string | undefined) ?? "");
 
 export type MatchValueDetail = {
-  dimensionKey: string;
+  taxonomyKey: string;
   taxonomyValueKey: string;
   taxonomyValueLabel: string;
   enrichmentConfidence: number;
@@ -40,13 +40,13 @@ export type MatchResultItem = {
   taxonomyScore: number;
   geoScore: number | null;
   distanceKm: number | null;
-  dimensionScores: Partial<Record<string, number>>;
+  taxonomyScores: Partial<Record<string, number>>;
   values: MatchValueDetail[];
 };
 
 export type MatchResult = {
   tookMs: number;
-  selectedDimensions: string[];
+  selectedTaxonomies: string[];
   items: MatchResultItem[];
 };
 

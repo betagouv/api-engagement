@@ -1,3 +1,3 @@
 export { TAXONOMY } from "./taxonomy";
-export { ENRICHABLE_DIMENSIONS, GATE_DIMENSIONS, getTaxonomyList, isValidTaxonomyValueKey } from "./types";
-export type { DimensionKey, EnrichableDimensionKey, GateDimensionKey, TaxonomyListItem, TaxonomyValueItem, TaxonomyValueKey, ValueKey } from "./types";
+export type { EnrichableTaxonomyKey, GateTaxonomyKey, TaxonomyKey, TaxonomyListItem, TaxonomyValueItem, TaxonomyValueKey, ValueKey } from "./types";
+export { ENRICHABLE_TAXONOMIES, GATE_TAXONOMIES, getTaxonomyList, isValidTaxonomyValueKey } from "./utils";

@@ -1,5 +1,5 @@
-import { ENRICHABLE_DIMENSIONS, TAXONOMY } from "@engagement/taxonomy";
 import { Prisma } from "@/db/core";
+import { ENRICHABLE_TAXONOMIES, TAXONOMY } from "@engagement/taxonomy";
 import { generateObject } from "ai";
 
 import { missionRepository } from "@/repositories/mission";
@@ -89,7 +89,7 @@ const toTaxonomyForPrompt = (
   }));
 
 const getTaxonomies = (): TaxonomyWithValues[] =>
-  ENRICHABLE_DIMENSIONS.map((taxonomyKey) => ({
+  ENRICHABLE_TAXONOMIES.map((taxonomyKey) => ({
     key: taxonomyKey,
     label: TAXONOMY[taxonomyKey].label,
     type: TAXONOMY[taxonomyKey].type,
@@ -199,7 +199,7 @@ export const missionEnrichmentService = {
       // 9. Persist values + mark completed (atomic)
       const persistedValues = valid.map((v) => ({
         taxonomyValueId: v.taxonomyValueId,
-        taxonomyKey: v.dimension_key,
+        taxonomyKey: v.taxonomy_key,
         valueKey: v.value_key,
         confidence: v.confidence,
         evidence: v.evidence,

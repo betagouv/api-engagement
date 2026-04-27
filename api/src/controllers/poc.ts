@@ -105,7 +105,7 @@ router.get("/match", async (req, res, next) => {
       }),
     ]);
 
-    const selectedDimensions = [
+    const selectedTaxonomies = [
       ...new Set(
         userScoringValues
           .map((value) => value.taxonomyKey ?? value.taxonomyValue?.taxonomy.key ?? null)
@@ -219,11 +219,11 @@ router.get("/match", async (req, res, next) => {
       taxonomyScore: item.taxonomyScore,
       geoScore: item.geoScore,
       distanceKm: item.distanceKm,
-      dimensionScores: item.dimensionScores,
+      taxonomyScores: item.taxonomyScores,
       values: valuesIndex[item.missionScoringId] ?? [],
     }));
 
-    return res.status(200).send({ ok: true, data: { tookMs: result.tookMs, selectedDimensions, items } });
+    return res.status(200).send({ ok: true, data: { tookMs: result.tookMs, selectedTaxonomies, items } });
   } catch (error) {
     next(error);
   }
