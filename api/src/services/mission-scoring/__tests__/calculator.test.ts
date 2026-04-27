@@ -8,7 +8,6 @@ const buildInputValue = (overrides: Partial<ScoringInputValue> = {}): ScoringInp
   missionEnrichmentValueId: "mev-1",
   taxonomyKey: "domaine",
   valueKey: "social_solidarite",
-  taxonomyValueId: "tv-1",
   confidence: 0.73,
   ...overrides,
 });
@@ -22,7 +21,6 @@ describe("computeMissionScoringValues", () => {
         missionEnrichmentValueId: "mev-1",
         taxonomyKey: "domaine",
         valueKey: "social_solidarite",
-        taxonomyValueId: "tv-1",
         score: 0.6,
       },
     ]);
@@ -34,7 +32,6 @@ describe("computeMissionScoringValues", () => {
       buildInputValue({
         taxonomyKey: "type_mission",
         valueKey: "ponctuelle",
-        taxonomyValueId: "tv-ponctuelle",
         confidence: 0.94,
       }),
     ]);
@@ -44,7 +41,6 @@ describe("computeMissionScoringValues", () => {
         missionEnrichmentValueId: "mev-1",
         taxonomyKey: "type_mission",
         valueKey: "ponctuelle",
-        taxonomyValueId: "tv-ponctuelle",
         score: 0.85,
       },
     ]);
@@ -58,7 +54,6 @@ describe("computeMissionScoringValues", () => {
         buildInputValue({
           taxonomyKey: "domaine",
           valueKey: "non_specifie",
-          taxonomyValueId: "tv-non-specifie",
         }),
       ],
       ruleset
@@ -75,13 +70,12 @@ describe("computeMissionScoringValues", () => {
   });
 
   it("ignores values below the confidence threshold", () => {
-    const result = computeMissionScoringValues([buildInputValue({ missionEnrichmentValueId: "mev-low", taxonomyValueId: "tv-low", confidence: 0.54 })]);
+    const result = computeMissionScoringValues([buildInputValue({ missionEnrichmentValueId: "mev-low", confidence: 0.54 })]);
 
     expect(result.values).toEqual([]);
     expect(result.ignored).toEqual([
       expect.objectContaining({
         missionEnrichmentValueId: "mev-low",
-        taxonomyValueId: "tv-low",
         reason: "below_threshold:0.54 < 0.55",
       }),
     ]);
@@ -89,11 +83,11 @@ describe("computeMissionScoringValues", () => {
 
   it("maps confidence buckets at exact boundaries", () => {
     const result = computeMissionScoringValues([
-      buildInputValue({ missionEnrichmentValueId: "mev-055", valueKey: "bucket_055", taxonomyValueId: "tv-055", confidence: 0.55 }),
-      buildInputValue({ missionEnrichmentValueId: "mev-070", valueKey: "bucket_070", taxonomyValueId: "tv-070", confidence: 0.7 }),
-      buildInputValue({ missionEnrichmentValueId: "mev-085", valueKey: "bucket_085", taxonomyValueId: "tv-085", confidence: 0.85 }),
-      buildInputValue({ missionEnrichmentValueId: "mev-095", valueKey: "bucket_095", taxonomyValueId: "tv-095", confidence: 0.95 }),
-      buildInputValue({ missionEnrichmentValueId: "mev-max", valueKey: "bucket_max", taxonomyValueId: "tv-max", confidence: 1.23456789 }),
+      buildInputValue({ missionEnrichmentValueId: "mev-055", valueKey: "bucket_055", confidence: 0.55 }),
+      buildInputValue({ missionEnrichmentValueId: "mev-070", valueKey: "bucket_070", confidence: 0.7 }),
+      buildInputValue({ missionEnrichmentValueId: "mev-085", valueKey: "bucket_085", confidence: 0.85 }),
+      buildInputValue({ missionEnrichmentValueId: "mev-095", valueKey: "bucket_095", confidence: 0.95 }),
+      buildInputValue({ missionEnrichmentValueId: "mev-max", valueKey: "bucket_max", confidence: 1.23456789 }),
     ]);
 
     expect(result.values).toEqual([
@@ -101,50 +95,43 @@ describe("computeMissionScoringValues", () => {
         missionEnrichmentValueId: "mev-055",
         taxonomyKey: "domaine",
         valueKey: "bucket_055",
-        taxonomyValueId: "tv-055",
         score: 0.35,
       },
       {
         missionEnrichmentValueId: "mev-070",
         taxonomyKey: "domaine",
         valueKey: "bucket_070",
-        taxonomyValueId: "tv-070",
         score: 0.6,
       },
       {
         missionEnrichmentValueId: "mev-085",
         taxonomyKey: "domaine",
         valueKey: "bucket_085",
-        taxonomyValueId: "tv-085",
         score: 0.85,
       },
       {
         missionEnrichmentValueId: "mev-095",
         taxonomyKey: "domaine",
         valueKey: "bucket_095",
-        taxonomyValueId: "tv-095",
         score: 1,
       },
       {
         missionEnrichmentValueId: "mev-max",
         taxonomyKey: "domaine",
         valueKey: "bucket_max",
-        taxonomyValueId: "tv-max",
         score: 1,
       },
     ]);
   });
 
-  it("deduplicates on taxonomy value id by keeping the highest score", () => {
+  it("deduplicates on taxonomy value key by keeping the highest score", () => {
     const result = computeMissionScoringValues([
       buildInputValue({
         missionEnrichmentValueId: "mev-1",
-        taxonomyValueId: "tv-1",
         confidence: 0.58,
       }),
       buildInputValue({
         missionEnrichmentValueId: "mev-2",
-        taxonomyValueId: "tv-1",
         confidence: 0.94,
       }),
     ]);
@@ -154,7 +141,6 @@ describe("computeMissionScoringValues", () => {
         missionEnrichmentValueId: "mev-2",
         taxonomyKey: "domaine",
         valueKey: "social_solidarite",
-        taxonomyValueId: "tv-1",
         score: 0.85,
       },
     ]);

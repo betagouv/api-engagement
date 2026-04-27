@@ -31,14 +31,6 @@ const buildEnrichmentValue = (overrides: Record<string, unknown> = {}) => ({
   confidence: 0.76,
   taxonomyKey: "domaine",
   valueKey: "social_solidarite",
-  taxonomyValueId: "tv-1",
-  taxonomyValue: {
-    id: "tv-1",
-    key: "social_solidarite",
-    taxonomy: {
-      key: "domaine",
-    },
-  },
   ...overrides,
 });
 
@@ -101,7 +93,6 @@ describe("missionScoringService.score", () => {
           missionEnrichmentValueId: "mev-1",
           taxonomyKey: "domaine",
           valueKey: "social_solidarite",
-          taxonomyValueId: "tv-1",
           score: 0.6,
         },
       ],
@@ -117,14 +108,6 @@ describe("missionScoringService.score", () => {
         buildEnrichmentValue({
           taxonomyKey: "accessibilite",
           valueKey: "non_specifie",
-          taxonomyValueId: "tv-non-specifie",
-          taxonomyValue: {
-            id: "tv-non-specifie",
-            key: "non_specifie",
-            taxonomy: {
-              key: "accessibilite",
-            },
-          },
         }),
       ],
     });

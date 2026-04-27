@@ -7,15 +7,13 @@ export type ClassificationInput = {
   evidence: { extract: string; reasoning: string };
 };
 
-export type ParsedClassification = ClassificationInput & {
-  taxonomyValueId: string | null;
-};
+export type ParsedClassification = ClassificationInput;
 
 export type SkippedClassification = ClassificationInput & {
   reason: string;
 };
 
-type TaxonomyMeta = { type: string; values: Map<string, { taxonomyValueId: string | null }> };
+type TaxonomyMeta = { type: string; values: Set<string> };
 
 export type TaxonomyLookup = Map<string, TaxonomyMeta>;
 
@@ -37,13 +35,11 @@ export const validateEnrichmentClassifications = (
     }
 
     let resolvedKey = item.value_key;
-    let legacyValue = taxonomy.values.get(resolvedKey);
 
-    if (!legacyValue) {
-      const match = fuzzyMatchKey(item.value_key, taxonomy.values.keys(), FUZZY_MATCH_THRESHOLD);
+    if (!taxonomy.values.has(resolvedKey)) {
+      const match = fuzzyMatchKey(item.value_key, taxonomy.values, FUZZY_MATCH_THRESHOLD);
       if (match) {
         resolvedKey = match.key;
-        legacyValue = taxonomy.values.get(resolvedKey)!;
       } else {
         skipped.push({ ...item, reason: `unknown_value: ${item.taxonomy_key}.${item.value_key}` });
         continue;
@@ -62,12 +58,12 @@ export const validateEnrichmentClassifications = (
     const existingIndex = valid.findIndex((v) => `${v.taxonomy_key}.${v.value_key}` === dedupeKey);
     if (existingIndex !== -1) {
       if (normalizedItem.confidence > valid[existingIndex].confidence) {
-        valid[existingIndex] = { ...normalizedItem, taxonomyValueId: legacyValue.taxonomyValueId };
+        valid[existingIndex] = normalizedItem;
       }
       continue;
     }
 
-    valid.push({ ...normalizedItem, taxonomyValueId: legacyValue.taxonomyValueId });
+    valid.push(normalizedItem);
   }
 
   return { valid, skipped };

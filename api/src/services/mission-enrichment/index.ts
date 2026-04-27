@@ -16,9 +16,9 @@ type TaxonomyWithValues = { key: string; type: string; label: string; values: Ar
 const buildTaxonomyLookup = (taxonomies: TaxonomyWithValues[]): TaxonomyLookup => {
   const lookup: TaxonomyLookup = new Map();
   for (const taxonomy of taxonomies) {
-    const values = new Map<string, { taxonomyValueId: string | null }>();
+    const values = new Set<string>();
     for (const val of taxonomy.values) {
-      values.set(val.key, { taxonomyValueId: null });
+      values.add(val.key);
     }
     lookup.set(taxonomy.key, { type: taxonomy.type, values });
   }
@@ -197,7 +197,6 @@ export const missionEnrichmentService = {
 
       // 9. Persist values + mark completed (atomic)
       const persistedValues = valid.map((v) => ({
-        taxonomyValueId: v.taxonomyValueId,
         taxonomyKey: v.taxonomy_key,
         valueKey: v.value_key,
         confidence: v.confidence,

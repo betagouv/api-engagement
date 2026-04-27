@@ -39,7 +39,6 @@ export const computeMissionScoringValues = (input: ScoringInputValue[], ruleset:
       missionEnrichmentValueId: value.missionEnrichmentValueId,
       taxonomyKey: value.taxonomyKey,
       valueKey: value.valueKey,
-      taxonomyValueId: value.taxonomyValueId,
       score: mappedScore,
     };
 

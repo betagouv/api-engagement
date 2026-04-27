@@ -68,7 +68,6 @@ export const missionScoringService = {
         missionEnrichmentValueId: null,
         taxonomyKey,
         valueKey,
-        taxonomyValueId: null,
         score: 1.0,
       };
     });
@@ -94,7 +93,6 @@ export const missionScoringService = {
         missionEnrichmentValueId: value.missionEnrichmentValueId,
         taxonomyKey: value.taxonomyKey,
         valueKey: value.valueKey,
-        taxonomyValueId: value.taxonomyValueId,
         score: value.score,
       })),
     });

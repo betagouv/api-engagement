@@ -6,14 +6,11 @@ const buildLookup = (): TaxonomyLookup => {
   const lookup: TaxonomyLookup = new Map();
   lookup.set("domaine", {
     type: "multi_value",
-    values: new Map([
-      ["sante_soins", { taxonomyValueId: "tv-sante" }],
-      ["social_solidarite", { taxonomyValueId: "tv-social" }],
-    ]),
+    values: new Set(["sante_soins", "social_solidarite"]),
   });
   lookup.set("type_mission", {
     type: "categorical",
-    values: new Map([["ponctuelle", { taxonomyValueId: "tv-ponctuelle" }]]),
+    values: new Set(["ponctuelle"]),
   });
   return lookup;
 };
@@ -26,11 +23,12 @@ const validClassification = {
 };
 
 describe("validateEnrichmentClassifications", () => {
-  it("validates and resolves taxonomy value ID", () => {
+  it("validates known taxonomy and value keys", () => {
     const { valid, skipped } = validateEnrichmentClassifications([validClassification], buildLookup(), 0.3);
 
     expect(valid).toHaveLength(1);
-    expect(valid[0].taxonomyValueId).toBe("tv-sante");
+    expect(valid[0].taxonomy_key).toBe("domaine");
+    expect(valid[0].value_key).toBe("sante_soins");
     expect(valid[0].confidence).toBe(0.9);
     expect(skipped).toHaveLength(0);
   });
@@ -73,8 +71,7 @@ describe("validateEnrichmentClassifications", () => {
     );
 
     expect(valid).toHaveLength(2);
-    expect(valid[0].taxonomyValueId).toBe("tv-sante");
-    expect(valid[1].taxonomyValueId).toBe("tv-ponctuelle");
+    expect(valid.map((item) => item.value_key)).toEqual(["sante_soins", "ponctuelle"]);
   });
 
   it("handles empty classifications array", () => {
@@ -120,7 +117,6 @@ describe("validateEnrichmentClassifications", () => {
 
     expect(valid).toHaveLength(1);
     expect(valid[0].value_key).toBe("sante_soins");
-    expect(valid[0].taxonomyValueId).toBe("tv-sante");
     expect(skipped).toHaveLength(0);
   });
 
@@ -138,10 +134,7 @@ describe("validateEnrichmentClassifications", () => {
         "type_mission",
         {
           type: "categorical",
-          values: new Map([
-            ["ponctuelle", { taxonomyValueId: "tv-p" }],
-            ["reguliere", { taxonomyValueId: "tv-r" }],
-          ]),
+          values: new Set(["ponctuelle", "reguliere"]),
         },
       ],
     ]);

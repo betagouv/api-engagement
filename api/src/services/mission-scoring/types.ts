@@ -16,7 +16,6 @@ export type ScoringInputValue = {
   missionEnrichmentValueId: string;
   taxonomyKey: TaxonomyKey;
   valueKey: string;
-  taxonomyValueId: string | null;
   confidence: number;
 };
 
@@ -24,7 +23,6 @@ export type ComputedMissionScoringValue = {
   missionEnrichmentValueId: string | null;
   taxonomyKey: string;
   valueKey: string;
-  taxonomyValueId: string | null;
   score: number;
 };
 
