@@ -5,7 +5,6 @@ import zod from "zod";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
 import { publisherRateLimiter } from "@/middlewares/rate-limit";
 import { missionService } from "@/services/mission";
-import { publisherService } from "@/services/publisher";
 import type { MissionRecord, MissionRemote, MissionSearchFilters } from "@/types/mission";
 import { PublisherRequest } from "@/types/passport";
 import type { PublisherRecord, PublisherRecordWithRelations } from "@/types/publisher";
@@ -157,12 +156,7 @@ router.get("/", async (req: PublisherRequest, res: Response, next: NextFunction)
 
 router.get("/search", async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
-    const authPublisher = req.user as PublisherRecordWithRelations;
-    const user = (await publisherService.findOnePublisherById(authPublisher.id)) as PublisherRecordWithRelations | null;
-
-    if (!user) {
-      return res.status(404).send({ ok: false, code: NOT_FOUND });
-    }
+    const user = req.user as PublisherRecordWithRelations;
 
     const query = missionQuerySchema
       .extend({
