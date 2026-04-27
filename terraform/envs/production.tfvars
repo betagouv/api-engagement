@@ -30,3 +30,6 @@ enable_widget              = true
 enable_intern_jobs         = true
 enable_analytics_jobs      = true
 enable_rdb_backup_job      = true
+
+enable_plateform           = true
+plateform_hostname         = "plateform.api-engagement.beta.gouv.fr"

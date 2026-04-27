@@ -27,3 +27,6 @@ widget_max_scale           = 1
 enable_widget              = true
 enable_intern_jobs         = true
 enable_analytics_jobs      = true
+
+enable_plateform           = true
+plateform_hostname         = "plateform.api-engagement-dev.fr"

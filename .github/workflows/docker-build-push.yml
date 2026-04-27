@@ -74,6 +74,8 @@ jobs:
             context: .
           - service: analytics
             image_name: analytics
+          - service: plateform
+            image_name: plateform
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
