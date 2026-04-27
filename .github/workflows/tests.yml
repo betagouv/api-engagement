@@ -66,10 +66,10 @@ jobs:
         with:
           node-version: "24"
           cache: "npm"
-          cache-dependency-path: "api/package-lock.json"
+          cache-dependency-path: "package-lock.json"
 
       - name: Install dependencies
-        run: cd api && npm ci
+        run: npm ci --workspace api --include-workspace-root=false
 
       - name: Prepare temporary databases
         env:
@@ -78,10 +78,9 @@ jobs:
           psql -h localhost -U postgres -d postgres -c 'CREATE DATABASE core;'
 
       - name: Check Prisma migrations
-        working-directory: api
         env:
           DATABASE_URL_CORE: postgresql://postgres:postgres@localhost:5432/core
-        run: npm run prisma:migrate:deploy
+        run: npm --workspace api run prisma:migrate:deploy
 
   analytics-migrations:
     name: Verify Analytics migrations
@@ -168,11 +167,11 @@ jobs:
           node-version: "24"
           cache: "npm"
           cache-dependency-path: |
-            api/package-lock.json
+            package-lock.json
             analytics/package-lock.json
 
       - name: Install API dependencies
-        run: cd api && npm ci
+        run: npm ci --workspace api --include-workspace-root=false
 
       - name: Install Analytics dependencies
         run: cd analytics && npm ci
@@ -185,10 +184,9 @@ jobs:
           psql -h localhost -U postgres -d postgres -c 'CREATE DATABASE analytics;'
 
       - name: Apply API Prisma migrations
-        working-directory: api
         env:
           DATABASE_URL_CORE: postgresql://postgres:postgres@localhost:5432/core
-        run: npm run prisma:migrate:deploy
+        run: npm --workspace api run prisma:migrate:deploy
 
       - name: Apply Analytics migrations
         working-directory: analytics
@@ -221,20 +219,18 @@ jobs:
         with:
           node-version: "24"
           cache: "npm"
-          cache-dependency-path: "api/package-lock.json"
+          cache-dependency-path: "package-lock.json"
 
       - name: Install dependencies
-        run: cd api && npm ci
+        run: npm ci --workspace api --include-workspace-root=false
 
       - name: Generate Prisma clients
-        working-directory: api
-        run: npm run prisma:generate
+        run: npm --workspace api run prisma:generate
 
       - name: Run tests
-        working-directory: api
         env:
           TESTCONTAINERS_RYUK_DISABLED: "true"
-        run: npm run test:ci
+        run: npm --workspace api run test:ci
 
   widgets-tests:
     name: Widget Tests
