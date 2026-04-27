@@ -255,10 +255,16 @@ export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereIn
     where.publisherOrganizationId = { in: filters.organizationIds };
   }
   if (filters.excludePublisherOrganizationIds?.length) {
-    if (where.publisherOrganization) {
-      where.publisherOrganization["id"] = { notIn: filters.excludePublisherOrganizationIds };
+    const excludedIds = new Set(filters.excludePublisherOrganizationIds);
+    if (filters.organizationIds?.length) {
+      where.publisherOrganizationId = {
+        in: filters.organizationIds.filter((id) => !excludedIds.has(id)),
+      };
     } else {
-      where.publisherOrganization = { id: { notIn: filters.excludePublisherOrganizationIds } };
+      where.publisherOrganizationId = {
+        not: null,
+        notIn: filters.excludePublisherOrganizationIds,
+      };
     }
   }
 
