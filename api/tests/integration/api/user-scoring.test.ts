@@ -1,8 +1,8 @@
 import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
 
-import { type TaxonomyValueKey } from "@engagement/taxonomy";
 import { prisma } from "@/db/postgres";
+import { type TaxonomyValueKey } from "@engagement/taxonomy";
 import { createTestApp } from "../../testApp";
 
 const app = createTestApp();
@@ -92,20 +92,14 @@ describe("POST /user-scoring", () => {
       orderBy: [{ taxonomyKey: "asc" }, { valueKey: "asc" }],
     });
     expect(values).toHaveLength(2);
-    expect(values.map((value) => `${value.taxonomyKey}.${value.valueKey}`)).toEqual([
-      "domaine.social_solidarite",
-      "type_mission.ponctuelle",
-    ]);
+    expect(values.map((value) => `${value.taxonomyKey}.${value.valueKey}`)).toEqual(["domaine.social_solidarite", "type_mission.ponctuelle"]);
   });
 
   it("should deduplicate answers with repeated taxonomy_value_key", async () => {
     const res = await request(app)
       .post("/user-scoring")
       .send({
-        answers: [
-          { taxonomy_value_key: taxonomyValueKey },
-          { taxonomy_value_key: taxonomyValueKey },
-        ],
+        answers: [{ taxonomy_value_key: taxonomyValueKey }, { taxonomy_value_key: taxonomyValueKey }],
       });
 
     expect(res.status).toBe(201);
@@ -147,7 +141,24 @@ describe("POST /user-scoring", () => {
     expect(res.body.ok).toBe(false);
   });
 
-  it("should return 400 when taxonomy_value_key has no dot separator", async () => {
+  it("should silently skip invalid answers and return 201 when at least one is valid", async () => {
+    const res = await request(app)
+      .post("/user-scoring")
+      .send({
+        answers: [{ taxonomy_value_key: taxonomyValueKey }, { taxonomy_value_key: "domaine.does_not_exist" }, { taxonomy_value_key: "nodotinkey" }],
+      });
+
+    expect(res.status).toBe(201);
+
+    const values = await prisma.userScoringValue.findMany({
+      where: { userScoringId: res.body.data.id },
+    });
+    expect(values).toHaveLength(1);
+    expect(values[0].taxonomyKey).toBe("domaine");
+    expect(values[0].valueKey).toBe("social_solidarite");
+  });
+
+  it("should return 400 when all answers are invalid (no dot separator)", async () => {
     const res = await request(app)
       .post("/user-scoring")
       .send({ answers: [{ taxonomy_value_key: "nodotinkey" }] });
@@ -155,7 +166,7 @@ describe("POST /user-scoring", () => {
     expect(res.body.ok).toBe(false);
   });
 
-  it("should return 400 when taxonomy_value_key does not exist in package", async () => {
+  it("should return 400 when all answers reference unknown taxonomy values", async () => {
     const res = await request(app)
       .post("/user-scoring")
       .send({ answers: [{ taxonomy_value_key: "domaine.does_not_exist" }] });

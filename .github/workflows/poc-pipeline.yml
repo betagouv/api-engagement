@@ -119,7 +119,7 @@ jobs:
           cache-dependency-path: "package-lock.json"
 
       - name: Install API dependencies
-        run: npm ci --workspace api --include-workspace-root=false
+        run: npm ci
 
       - name: Run Prisma migrations
         env:

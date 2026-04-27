@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { computeMissionScoringValues } from "@/services/mission-scoring/calculator";
+import { MISSION_SCORING_RULESET_V1 } from "@/services/mission-scoring/config";
 import type { ScoringInputValue } from "@/services/mission-scoring/types";
 
 const buildInputValue = (overrides: Partial<ScoringInputValue> = {}): ScoringInputValue => ({
@@ -49,21 +50,26 @@ describe("computeMissionScoringValues", () => {
     ]);
   });
 
-  it("ignores neutral gate values", () => {
-    const result = computeMissionScoringValues([
-      buildInputValue({
-        taxonomyKey: "accessibilite",
-        valueKey: "non_specifie",
-        taxonomyValueId: "tv-non-specifie",
-      }),
-    ]);
+  it("ignores values listed in ignoredValueKeys", () => {
+    // Use a custom ruleset to test the mechanism with a valid TaxonomyKey
+    const ruleset = { ...MISSION_SCORING_RULESET_V1, ignoredValueKeys: ["domaine.non_specifie"] };
+    const result = computeMissionScoringValues(
+      [
+        buildInputValue({
+          taxonomyKey: "domaine",
+          valueKey: "non_specifie",
+          taxonomyValueId: "tv-non-specifie",
+        }),
+      ],
+      ruleset
+    );
 
     expect(result.values).toEqual([]);
     expect(result.ignored).toEqual([
       expect.objectContaining({
-        taxonomyKey: "accessibilite",
+        taxonomyKey: "domaine",
         valueKey: "non_specifie",
-        reason: "ignored_value:accessibilite.non_specifie",
+        reason: "ignored_value:domaine.non_specifie",
       }),
     ]);
   });

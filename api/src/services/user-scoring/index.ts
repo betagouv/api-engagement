@@ -1,15 +1,8 @@
-import { isValidTaxonomyValueKey, parseTaxonomyValueKey } from "@engagement/taxonomy";
+import { parseTaxonomyValueKey } from "@engagement/taxonomy";
 
 import { userScoringRepository } from "@/repositories/user-scoring";
 
 const USER_SCORING_TTL_DAYS = 7;
-
-export class UserScoringValidationError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "UserScoringValidationError";
-  }
-}
 
 interface CreateUserScoringInput {
   answers: Array<{ taxonomy_value_key: string }>;
@@ -33,17 +26,7 @@ export const userScoringService = {
       }
     }
 
-    // Validate format: each key must be "{taxonomy_key}.{value_key}"
-    for (const key of uniqueKeys) {
-      if (!parseTaxonomyValueKey(key)) {
-        throw new UserScoringValidationError(`taxonomy_value_key '${key}' is invalid: expected format '{taxonomy_key}.{value_key}'`);
-      }
-
-      if (!isValidTaxonomyValueKey(key)) {
-        throw new UserScoringValidationError(`taxonomy_value_key '${key}' does not exist`);
-      }
-    }
-
+    // Caller (controller) is responsible for filtering invalid keys before reaching here.
     const pairs = uniqueKeys.map((key) => parseTaxonomyValueKey(key)!);
     const valuesToPersist = pairs.map(({ taxonomyKey, valueKey }) => ({
       taxonomyKey,
