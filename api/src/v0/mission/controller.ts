@@ -3,6 +3,7 @@ import passport from "passport";
 import zod from "zod";
 
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
+import { publisherRateLimiter } from "@/middlewares/rate-limit";
 import { missionService } from "@/services/mission";
 import { publisherService } from "@/services/publisher";
 import type { MissionRecord, MissionRemote, MissionSearchFilters } from "@/types/mission";
@@ -11,7 +12,6 @@ import type { PublisherRecord, PublisherRecordWithRelations } from "@/types/publ
 import { getDistanceFromLatLonInKm, getDistanceKm } from "@/utils";
 import { NO_PARTNER, NO_PARTNER_MESSAGE } from "@/v0/mission/constants";
 import { buildData } from "@/v0/mission/transformer";
-import { publisherRateLimiter } from "@/middlewares/rate-limit";
 import { normalizeQueryArray, parseDateFilter } from "@/v0/mission/utils";
 
 const parseBooleanQuery = (value?: string): boolean | undefined => {
@@ -72,12 +72,7 @@ router.use(publisherRateLimiter);
 
 router.get("/", async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
-    const authPublisher = req.user as PublisherRecordWithRelations;
-    const user = (await publisherService.findOnePublisherById(authPublisher.id)) as PublisherRecordWithRelations | null;
-
-    if (!user) {
-      return res.status(404).send({ ok: false, code: NOT_FOUND });
-    }
+    const user = req.user as PublisherRecordWithRelations;
 
     const query = missionQuerySchema.safeParse(req.query);
 
