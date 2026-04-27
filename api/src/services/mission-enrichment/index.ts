@@ -11,14 +11,14 @@ import type { MissionForPrompt, TaxonomyForPrompt } from "./prompts/types";
 
 const LOG_PREFIX = "[mission-enrichment]";
 
-type TaxonomyWithValues = { key: string; type: string; label: string; values: Array<{ key: string; id: string | null; label: string }> };
+type TaxonomyWithValues = { key: string; type: string; label: string; values: Array<{ key: string; label: string }> };
 
 const buildTaxonomyLookup = (taxonomies: TaxonomyWithValues[]): TaxonomyLookup => {
   const lookup: TaxonomyLookup = new Map();
   for (const taxonomy of taxonomies) {
     const values = new Map<string, { taxonomyValueId: string | null }>();
     for (const val of taxonomy.values) {
-      values.set(val.key, { taxonomyValueId: val.id });
+      values.set(val.key, { taxonomyValueId: null });
     }
     lookup.set(taxonomy.key, { type: taxonomy.type, values });
   }
@@ -97,7 +97,6 @@ const getTaxonomies = (): TaxonomyWithValues[] =>
       .filter(([, value]) => value.enrichable)
       .map(([valueKey, value]) => ({
         key: valueKey,
-        id: null,
         label: value.label,
       })),
   }));

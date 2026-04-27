@@ -8,7 +8,6 @@ const buildInputValue = (overrides: Partial<ScoringInputValue> = {}): ScoringInp
   taxonomyKey: "domaine",
   valueKey: "social_solidarite",
   taxonomyValueId: "tv-1",
-  taxonomyValueKey: "social_solidarite",
   confidence: 0.73,
   ...overrides,
 });
@@ -35,7 +34,6 @@ describe("computeMissionScoringValues", () => {
         taxonomyKey: "type_mission",
         valueKey: "ponctuelle",
         taxonomyValueId: "tv-ponctuelle",
-        taxonomyValueKey: "ponctuelle",
         confidence: 0.94,
       }),
     ]);
@@ -57,7 +55,6 @@ describe("computeMissionScoringValues", () => {
         taxonomyKey: "accessibilite",
         valueKey: "non_specifie",
         taxonomyValueId: "tv-non-specifie",
-        taxonomyValueKey: "non_specifie",
       }),
     ]);
 
@@ -65,7 +62,7 @@ describe("computeMissionScoringValues", () => {
     expect(result.ignored).toEqual([
       expect.objectContaining({
         taxonomyKey: "accessibilite",
-        taxonomyValueKey: "non_specifie",
+        valueKey: "non_specifie",
         reason: "ignored_value:accessibilite.non_specifie",
       }),
     ]);
@@ -86,11 +83,11 @@ describe("computeMissionScoringValues", () => {
 
   it("maps confidence buckets at exact boundaries", () => {
     const result = computeMissionScoringValues([
-      buildInputValue({ missionEnrichmentValueId: "mev-055", valueKey: "bucket_055", taxonomyValueId: "tv-055", taxonomyValueKey: "bucket_055", confidence: 0.55 }),
-      buildInputValue({ missionEnrichmentValueId: "mev-070", valueKey: "bucket_070", taxonomyValueId: "tv-070", taxonomyValueKey: "bucket_070", confidence: 0.7 }),
-      buildInputValue({ missionEnrichmentValueId: "mev-085", valueKey: "bucket_085", taxonomyValueId: "tv-085", taxonomyValueKey: "bucket_085", confidence: 0.85 }),
-      buildInputValue({ missionEnrichmentValueId: "mev-095", valueKey: "bucket_095", taxonomyValueId: "tv-095", taxonomyValueKey: "bucket_095", confidence: 0.95 }),
-      buildInputValue({ missionEnrichmentValueId: "mev-max", valueKey: "bucket_max", taxonomyValueId: "tv-max", taxonomyValueKey: "bucket_max", confidence: 1.23456789 }),
+      buildInputValue({ missionEnrichmentValueId: "mev-055", valueKey: "bucket_055", taxonomyValueId: "tv-055", confidence: 0.55 }),
+      buildInputValue({ missionEnrichmentValueId: "mev-070", valueKey: "bucket_070", taxonomyValueId: "tv-070", confidence: 0.7 }),
+      buildInputValue({ missionEnrichmentValueId: "mev-085", valueKey: "bucket_085", taxonomyValueId: "tv-085", confidence: 0.85 }),
+      buildInputValue({ missionEnrichmentValueId: "mev-095", valueKey: "bucket_095", taxonomyValueId: "tv-095", confidence: 0.95 }),
+      buildInputValue({ missionEnrichmentValueId: "mev-max", valueKey: "bucket_max", taxonomyValueId: "tv-max", confidence: 1.23456789 }),
     ]);
 
     expect(result.values).toEqual([
