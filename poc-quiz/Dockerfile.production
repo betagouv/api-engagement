@@ -1,14 +1,18 @@
 FROM node:24-bookworm-slim AS builder
-WORKDIR /app
-COPY package*.json ./
+WORKDIR /workspace
+COPY poc-quiz/package*.json ./poc-quiz/
+COPY packages/taxonomy ./packages/taxonomy
+WORKDIR /workspace/poc-quiz
 RUN npm ci
-COPY . .
+WORKDIR /workspace
+COPY poc-quiz ./poc-quiz
+WORKDIR /workspace/poc-quiz
 RUN npm run build
 
 FROM nginx:alpine
-COPY --from=builder /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY docker-entrypoint.sh /docker-entrypoint.sh
+COPY --from=builder /workspace/poc-quiz/dist /usr/share/nginx/html
+COPY poc-quiz/nginx.conf /etc/nginx/conf.d/default.conf
+COPY poc-quiz/docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 EXPOSE 8080
 ENTRYPOINT ["/docker-entrypoint.sh"]

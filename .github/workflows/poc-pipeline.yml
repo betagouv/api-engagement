@@ -66,7 +66,7 @@ jobs:
       - name: Build and push poc-quiz image
         uses: docker/build-push-action@v7
         with:
-          context: ./poc-quiz
+          context: .
           file: ./poc-quiz/Dockerfile.production
           push: true
           provenance: false
