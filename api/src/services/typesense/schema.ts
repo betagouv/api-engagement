@@ -22,6 +22,12 @@ export async function ensureMissionCollection(): Promise<void> {
     if ((error as { httpStatus?: number }).httpStatus !== 404) {
       throw error;
     }
-    await typesenseClient.collections().create(MISSION_COLLECTION_SCHEMA);
+    try {
+      await typesenseClient.collections().create(MISSION_COLLECTION_SCHEMA);
+    } catch (createError: unknown) {
+      if ((createError as { httpStatus?: number }).httpStatus !== 409) {
+        throw createError;
+      }
+    }
   }
 }

@@ -82,8 +82,8 @@ services:
       PORT: 3000
       VITE_API_URL: http://localhost:3002
     volumes:
-      - ./app:/app
-      - /app/node_modules
+      - ./app:/workspace/app
+      - /workspace/app/node_modules
     ports:
       - "3000:3000"
 
@@ -97,8 +97,8 @@ services:
       API_URL: http://localhost:3002
       ENV: development
     volumes:
-      - ./widget:/app
-      - /app/node_modules
+      - ./widget:/workspace/widget
+      - /workspace/widget/node_modules
     ports:
       - "3003:3003"
 

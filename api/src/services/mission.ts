@@ -569,7 +569,7 @@ export const missionService = {
       return [];
     }
     const missions = await missionRepository.findMany({
-      where: { id: { in: ids }, deletedAt: null },
+      where: { id: { in: ids }, deletedAt: null, statusCode: "ACCEPTED" },
       include: baseInclude,
     });
     const missionMap = new Map(missions.map((m) => [m.id, m]));
