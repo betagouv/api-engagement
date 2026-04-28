@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response, Router } from "express";
 import zod from "zod";
 
-import { INVALID_QUERY } from "@/error";
-import { missionBrowseService } from "@/services/mission-browse";
+import { INVALID_QUERY, SERVICE_UNAVAILABLE, captureException } from "@/error";
+import { MissionBrowseIndexUnavailableError, missionBrowseService } from "@/services/mission-browse";
 
 const router = Router();
 
@@ -26,6 +26,10 @@ router.get("/browse", async (req: Request, res: Response, next: NextFunction) =>
     const result = await missionBrowseService.browse(query.data);
     return res.status(200).send({ ok: true, ...result });
   } catch (error) {
+    if (error instanceof MissionBrowseIndexUnavailableError) {
+      captureException(error);
+      return res.status(503).send({ ok: false, code: SERVICE_UNAVAILABLE, message: "Mission browse index is unavailable" });
+    }
     next(error);
   }
 });

@@ -90,9 +90,6 @@ const main = async () => {
   console.log("[API] Waiting for database connections...");
   await pgConnected();
 
-  const { ensureMissionCollection } = await import("@/services/typesense/schema");
-  await ensureMissionCollection().catch((err) => console.error("[API] Typesense collection init failed:", err));
-
   console.log("[API] Starting API server...");
 
   const app = express();

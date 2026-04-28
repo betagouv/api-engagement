@@ -20,7 +20,10 @@ export const MISSION_COLLECTION_SCHEMA: CollectionCreateSchema = {
 export async function ensureMissionCollection(): Promise<void> {
   try {
     await typesenseClient.collections(TYPESENSE_MISSION_COLLECTION).retrieve();
-  } catch {
+  } catch (error: unknown) {
+    if ((error as { httpStatus?: number }).httpStatus !== 404) {
+      throw error;
+    }
     await typesenseClient.collections().create(MISSION_COLLECTION_SCHEMA);
   }
 }
