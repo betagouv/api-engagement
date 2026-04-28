@@ -1,8 +1,6 @@
 import { MissionEnrichment, MissionEnrichmentStatus, MissionScoring, TaxonomyKey } from "@/db/core";
 import { prisma } from "@/db/postgres";
 
-import { createTestTaxonomy, createTestTaxonomyValue } from "./taxonomy";
-
 export const createTestMissionEnrichment = async (data: { missionId: string; status?: MissionEnrichmentStatus; promptVersion?: string }): Promise<MissionEnrichment> => {
   return prisma.missionEnrichment.create({
     data: {
@@ -27,12 +25,11 @@ export const createTestMissionScoring = async (data: {
 
   if (data.values?.length) {
     for (const v of data.values) {
-      const taxonomy = await createTestTaxonomy({ key: v.taxonomyKey });
-      const taxonomyValue = await createTestTaxonomyValue({ taxonomyId: taxonomy.id, key: v.valueKey });
       await prisma.missionScoringValue.create({
         data: {
           missionScoringId: scoring.id,
-          taxonomyValueId: taxonomyValue.id,
+          taxonomyKey: v.taxonomyKey,
+          valueKey: v.valueKey,
           score: v.score ?? 1.0,
         },
       });

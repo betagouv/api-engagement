@@ -4,6 +4,7 @@ import { generateObject } from "ai";
 
 import { missionRepository } from "@/repositories/mission";
 import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
+import { asyncTaskBus } from "@/services/async-task";
 import { CONFIDENCE_THRESHOLD, CURRENT_PROMPT_VERSION, LLM_MAX_RETRIES } from "./config";
 import { validateEnrichmentClassifications, type ClassificationInput, type TaxonomyLookup } from "./parser";
 import { buildMissionBlock, buildTaxonomyBlock, PROMPT_REGISTRY } from "./prompts";
@@ -245,7 +246,6 @@ export const missionEnrichmentService = {
     }
 
     // 10. Trigger scoring (outside try/catch — enrichment is already completed)
-    // TODO
-    // await asyncTaskBus.publish({ type: "mission.scoring", payload: { missionId } });
+    await asyncTaskBus.publish({ type: "mission.scoring", payload: { missionId } });
   },
 };
