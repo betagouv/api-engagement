@@ -109,14 +109,14 @@ jobs:
         with:
           node-version: "24"
           cache: "npm"
-          cache-dependency-path: "analytics/package-lock.json"
+          cache-dependency-path: "package-lock.json"
 
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: cd analytics && npm ci
+        run: npm ci
 
       - name: Install dbt
         run: |
@@ -130,10 +130,9 @@ jobs:
           psql -h localhost -U postgres -d postgres -c 'CREATE DATABASE analytics;'
 
       - name: Check dbmate migrations
-        working-directory: analytics
         env:
           DATABASE_URL_ANALYTICS: postgresql://postgres:postgres@localhost:5432/analytics?sslmode=disable
-        run: npm run db:migrate
+        run: npm --workspace analytics run db:migrate
 
       - name: Check dbt compile
         working-directory: analytics

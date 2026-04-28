@@ -84,11 +84,11 @@ jobs:
         with:
           node-version: "24"
           cache: "npm"
-          cache-dependency-path: "analytics/package-lock.json"
+          cache-dependency-path: "package-lock.json"
       - name: Install dependencies
-        run: cd analytics && npm ci
+        run: npm ci
       - name: Build (tsc)
-        run: cd analytics && npm run build
+        run: npm --workspace analytics run build
 
   widget-build:
     name: Widget build
@@ -118,8 +118,8 @@ jobs:
         with:
           node-version: "24"
           cache: "npm"
-          cache-dependency-path: "plateform/package-lock.json"
+          cache-dependency-path: "package-lock.json"
       - name: Install dependencies
-        run: cd plateform && npm ci
+        run: npm ci
       - name: Build (react-router)
-        run: cd plateform && npm run build
+        run: npm --workspace plateform run build
