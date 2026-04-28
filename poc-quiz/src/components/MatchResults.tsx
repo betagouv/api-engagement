@@ -25,7 +25,7 @@ type Props = {
   items: MatchResultItem[];
   tookMs: number;
   userScoringId: string;
-  selectedDimensions: string[];
+  selectedTaxonomies: string[];
   onBack: () => void;
 };
 
@@ -40,7 +40,7 @@ function fmt(n: number | null | undefined, decimals = 2): string {
   return n.toFixed(decimals);
 }
 
-export function MatchResults({ items, tookMs, userScoringId, selectedDimensions, onBack }: Props) {
+export function MatchResults({ items, tookMs, userScoringId, selectedTaxonomies, onBack }: Props) {
   return (
     <div style={styles.container}>
       <div style={styles.header}>
@@ -60,32 +60,32 @@ export function MatchResults({ items, tookMs, userScoringId, selectedDimensions,
 
       <div style={styles.list}>
         {items.map((item, idx) => (
-          <MissionCard key={item.missionId} item={item} rank={idx + 1} selectedDimensions={selectedDimensions} />
+          <MissionCard key={item.missionId} item={item} rank={idx + 1} selectedTaxonomies={selectedTaxonomies} />
         ))}
       </div>
     </div>
   );
 }
 
-function MissionCard({ item, rank, selectedDimensions }: { item: MatchResultItem; rank: number; selectedDimensions: string[] }) {
-  // Dériver les scores depuis values si dimensionScores est vide
-  const allDimensionScores: Record<string, number> =
-    Object.keys(item.dimensionScores).length > 0
-      ? (item.dimensionScores as Record<string, number>)
+function MissionCard({ item, rank, selectedTaxonomies }: { item: MatchResultItem; rank: number; selectedTaxonomies: string[] }) {
+  // Dériver les scores depuis values si taxonomyScores est vide
+  const allTaxonomyScores: Record<string, number> =
+    Object.keys(item.taxonomyScores).length > 0
+      ? (item.taxonomyScores as Record<string, number>)
       : item.values.reduce<Record<string, number>>((acc, v) => {
-          if (acc[v.dimensionKey] === undefined || v.scoringScore > acc[v.dimensionKey]) {
-            acc[v.dimensionKey] = v.scoringScore;
+          if (acc[v.taxonomyKey] === undefined || v.scoringScore > acc[v.taxonomyKey]) {
+            acc[v.taxonomyKey] = v.scoringScore;
           }
           return acc;
         }, {});
 
-  // Filtrer aux seules dimensions sélectionnées par l'utilisateur (si connues)
-  const dimensionScores =
-    selectedDimensions.length > 0
-      ? Object.fromEntries(Object.entries(allDimensionScores).filter(([dim]) => selectedDimensions.includes(dim)))
-      : allDimensionScores;
+  // Filtrer aux seules taxonomies sélectionnées par l'utilisateur (si connues)
+  const taxonomyScores =
+    selectedTaxonomies.length > 0
+      ? Object.fromEntries(Object.entries(allTaxonomyScores).filter(([taxonomy]) => selectedTaxonomies.includes(taxonomy)))
+      : allTaxonomyScores;
 
-  const hasDimensionScores = Object.keys(dimensionScores).length > 0;
+  const hasTaxonomyScores = Object.keys(taxonomyScores).length > 0;
   const isFake = item.isFake;
 
   return (
@@ -119,31 +119,31 @@ function MissionCard({ item, rank, selectedDimensions }: { item: MatchResultItem
         )}
       </div>
 
-      {hasDimensionScores && (
-        <div style={styles.dimensionScores}>
-          {Object.entries(dimensionScores)
+      {hasTaxonomyScores && (
+        <div style={styles.taxonomyScores}>
+          {Object.entries(taxonomyScores)
             .filter(([, score]) => score !== undefined && score > 0)
             .sort(([, a], [, b]) => (b ?? 0) - (a ?? 0))
-            .map(([dim, score]) => (
-              <div key={dim} style={styles.dimRow}>
-                <span style={styles.dimKey}>{dim}</span>
-                <div style={styles.dimBar}>
+            .map(([taxonomy, score]) => (
+              <div key={taxonomy} style={styles.taxonomyRow}>
+                <span style={styles.taxonomyKey}>{taxonomy}</span>
+                <div style={styles.taxonomyBar}>
                   <div
                     style={{
-                      ...styles.dimBarFill,
+                      ...styles.taxonomyBarFill,
                       width: `${((score ?? 0) * 100).toFixed(0)}%`,
                       background: scoreColor(score ?? 0),
                     }}
                   />
                 </div>
-                <span style={styles.dimScore}>{fmt(score)}</span>
+                <span style={styles.taxonomyScore}>{fmt(score)}</span>
               </div>
             ))}
         </div>
       )}
 
-      {!hasDimensionScores && item.values.length === 0 && (
-        <div style={styles.noDimScores}>Aucun score de dimension disponible</div>
+      {!hasTaxonomyScores && item.values.length === 0 && (
+        <div style={styles.noTaxonomyScores}>Aucun score de taxonomie disponible</div>
       )}
 
       {item.mission && <MissionDetailAccordion mission={item.mission} />}
@@ -156,7 +156,7 @@ function MissionCard({ item, rank, selectedDimensions }: { item: MatchResultItem
           <table style={styles.table}>
             <thead>
               <tr>
-                <th style={styles.th}>Dimension</th>
+                <th style={styles.th}>Taxonomie</th>
                 <th style={styles.th}>Valeur</th>
                 <th style={styles.th}>Confiance</th>
               </tr>
@@ -170,7 +170,7 @@ function MissionCard({ item, rank, selectedDimensions }: { item: MatchResultItem
                     : undefined;
                   return (
                     <tr key={i} style={i % 2 === 0 ? styles.trEven : styles.trOdd}>
-                      <td style={styles.td}>{v.dimensionKey}</td>
+                      <td style={styles.td}>{v.taxonomyKey}</td>
                       <td style={styles.td}>{v.taxonomyValueLabel}</td>
                       <td
                         style={{ ...styles.td, color: scoreColor(v.enrichmentConfidence), cursor: evidenceTooltip ? "help" : "default" }}
@@ -372,43 +372,43 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "3px 10px",
     color: "#374151",
   },
-  dimensionScores: {
+  taxonomyScores: {
     display: "flex",
     flexDirection: "column",
     gap: 4,
     marginBottom: 10,
   },
-  dimRow: {
+  taxonomyRow: {
     display: "flex",
     alignItems: "center",
     gap: 8,
   },
-  dimKey: {
+  taxonomyKey: {
     fontSize: 11,
     color: "#6b7280",
     width: 160,
     flexShrink: 0,
   },
-  dimBar: {
+  taxonomyBar: {
     flex: 1,
     height: 6,
     background: "#f3f4f6",
     borderRadius: 3,
     overflow: "hidden",
   },
-  dimBarFill: {
+  taxonomyBarFill: {
     height: "100%",
     borderRadius: 3,
     transition: "width 0.3s ease",
   },
-  dimScore: {
+  taxonomyScore: {
     fontSize: 11,
     color: "#374151",
     width: 36,
     textAlign: "right",
     flexShrink: 0,
   },
-  noDimScores: {
+  noTaxonomyScores: {
     fontSize: 11,
     color: "#9ca3af",
     fontStyle: "italic",

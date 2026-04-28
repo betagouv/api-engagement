@@ -105,16 +105,15 @@ jobs:
         with:
           node-version: "24"
           cache: "npm"
-          cache-dependency-path: "api/package-lock.json"
+          cache-dependency-path: "package-lock.json"
 
       - name: Install API dependencies
-        run: cd api && npm ci
+        run: npm ci --workspace api --include-workspace-root=false
 
       - name: Run Prisma migrations (API)
-        working-directory: api
         env:
           DATABASE_URL_CORE: ${{ secrets.DATABASE_URL_CORE }}
-        run: npm run prisma:migrate:deploy
+        run: npm --workspace api run prisma:migrate:deploy
 
       - name: Terraform Init
         working-directory: ./terraform

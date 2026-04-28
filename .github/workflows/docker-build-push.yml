@@ -67,9 +67,11 @@ jobs:
             image_name: widget
           - service: api
             image_name: api
+            context: .
           - service: api
             image_name: api-worker
             dockerfile: ./api/Dockerfile.worker.production
+            context: .
           - service: analytics
             image_name: analytics
           - service: plateform
@@ -124,7 +126,7 @@ jobs:
         if: ${{ matrix.variant != 'sandbox' || needs.set-env.outputs.environment_name == 'production' }}
         uses: docker/build-push-action@v7
         with:
-          context: ./${{ matrix.service }}
+          context: ${{ matrix.context || format('./{0}', matrix.service) }}
           file: ${{ matrix.dockerfile || format('./{0}/Dockerfile.production', matrix.service) }}
           push: true
           tags: |

@@ -2,25 +2,18 @@ import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { prisma } from "@/db/postgres";
-import { createTestTaxonomy, createTestTaxonomyValue } from "../../fixtures";
+import { type TaxonomyValueKey } from "@engagement/taxonomy";
 import { createTestApp } from "../../testApp";
 
 const app = createTestApp();
 
-async function createTVEntry(data: { active?: boolean } = {}) {
-  const taxonomy = await createTestTaxonomy();
-  const tv = await createTestTaxonomyValue({ taxonomyId: taxonomy.id, ...data });
-  return { id: tv.id, prefixedKey: `${taxonomy.key}.${tv.key}` };
-}
-
 describe("POST /user-scoring", () => {
   let taxonomyValueKey: string;
-  let taxonomyValueId: string;
+  let secondaryTaxonomyValueKey: string;
 
   beforeEach(async () => {
-    const entry = await createTVEntry();
-    taxonomyValueKey = entry.prefixedKey;
-    taxonomyValueId = entry.id;
+    taxonomyValueKey = "domaine.social_solidarite" satisfies TaxonomyValueKey;
+    secondaryTaxonomyValueKey = "type_mission.ponctuelle" satisfies TaxonomyValueKey;
   });
 
   // ─── Success cases ──────────────────────────────────────────────────────────
@@ -40,7 +33,9 @@ describe("POST /user-scoring", () => {
     });
     expect(values).toHaveLength(1);
     expect(values[0].score).toBe(1.0);
-    expect(values[0].taxonomyValueId).toBe(taxonomyValueId);
+    expect(values[0].taxonomyKey).toBe("domaine");
+    expect(values[0].valueKey).toBe("social_solidarite");
+    expect(values[0].taxonomyValueId).toBeNull();
 
     const geo = await prisma.userScoringGeo.findUnique({
       where: { userScoringId: res.body.data.id },
@@ -84,30 +79,27 @@ describe("POST /user-scoring", () => {
   });
 
   it("should create a user scoring with multiple answers", async () => {
-    const entry2 = await createTVEntry();
-
     const res = await request(app)
       .post("/user-scoring")
       .send({
-        answers: [{ taxonomy_value_key: taxonomyValueKey }, { taxonomy_value_key: entry2.prefixedKey }],
+        answers: [{ taxonomy_value_key: taxonomyValueKey }, { taxonomy_value_key: secondaryTaxonomyValueKey }],
       });
 
     expect(res.status).toBe(201);
 
     const values = await prisma.userScoringValue.findMany({
       where: { userScoringId: res.body.data.id },
+      orderBy: [{ taxonomyKey: "asc" }, { valueKey: "asc" }],
     });
     expect(values).toHaveLength(2);
+    expect(values.map((value) => `${value.taxonomyKey}.${value.valueKey}`)).toEqual(["domaine.social_solidarite", "type_mission.ponctuelle"]);
   });
 
   it("should deduplicate answers with repeated taxonomy_value_key", async () => {
     const res = await request(app)
       .post("/user-scoring")
       .send({
-        answers: [
-          { taxonomy_value_key: taxonomyValueKey },
-          { taxonomy_value_key: taxonomyValueKey },
-        ],
+        answers: [{ taxonomy_value_key: taxonomyValueKey }, { taxonomy_value_key: taxonomyValueKey }],
       });
 
     expect(res.status).toBe(201);
@@ -149,32 +141,11 @@ describe("POST /user-scoring", () => {
     expect(res.body.ok).toBe(false);
   });
 
-  it("should return 400 when taxonomy_value_key has no dot separator", async () => {
-    const res = await request(app)
-      .post("/user-scoring")
-      .send({ answers: [{ taxonomy_value_key: "nodotinkey" }] });
-    expect(res.status).toBe(400);
-    expect(res.body.ok).toBe(false);
-  });
-
-  it("should return 400 when taxonomy_value_key does not exist in DB", async () => {
-    const res = await request(app)
-      .post("/user-scoring")
-      .send({ answers: [{ taxonomy_value_key: "domaine.does_not_exist" }] });
-    expect(res.status).toBe(400);
-    expect(res.body.ok).toBe(false);
-  });
-
-  it("should silently skip inactive taxonomy_value_key", async () => {
-    const inactiveEntry = await createTVEntry({ active: false });
-
+  it("should silently skip invalid answers and return 201 when at least one is valid", async () => {
     const res = await request(app)
       .post("/user-scoring")
       .send({
-        answers: [
-          { taxonomy_value_key: taxonomyValueKey },
-          { taxonomy_value_key: inactiveEntry.prefixedKey },
-        ],
+        answers: [{ taxonomy_value_key: taxonomyValueKey }, { taxonomy_value_key: "domaine.does_not_exist" }, { taxonomy_value_key: "nodotinkey" }],
       });
 
     expect(res.status).toBe(201);
@@ -183,22 +154,38 @@ describe("POST /user-scoring", () => {
       where: { userScoringId: res.body.data.id },
     });
     expect(values).toHaveLength(1);
-    expect(values[0].taxonomyValueId).toBe(taxonomyValueId);
+    expect(values[0].taxonomyKey).toBe("domaine");
+    expect(values[0].valueKey).toBe("social_solidarite");
   });
 
-  it("should return 201 with no values when all answers are inactive", async () => {
-    const inactiveEntry = await createTVEntry({ active: false });
-
+  it("should return 400 when all answers are invalid (no dot separator)", async () => {
     const res = await request(app)
       .post("/user-scoring")
-      .send({ answers: [{ taxonomy_value_key: inactiveEntry.prefixedKey }] });
+      .send({ answers: [{ taxonomy_value_key: "nodotinkey" }] });
+    expect(res.status).toBe(400);
+    expect(res.body.ok).toBe(false);
+  });
 
-    expect(res.status).toBe(201);
+  it("should return 400 when all answers reference unknown taxonomy values", async () => {
+    const res = await request(app)
+      .post("/user-scoring")
+      .send({ answers: [{ taxonomy_value_key: "domaine.does_not_exist" }] });
+    expect(res.status).toBe(400);
+    expect(res.body.ok).toBe(false);
+  });
 
-    const values = await prisma.userScoringValue.findMany({
-      where: { userScoringId: res.body.data.id },
-    });
-    expect(values).toHaveLength(0);
+  it("should return 400 when taxonomy_value_key targets inherited object properties", async () => {
+    const responses = await Promise.all([
+      request(app)
+        .post("/user-scoring")
+        .send({ answers: [{ taxonomy_value_key: "domaine.toString" }] }),
+      request(app)
+        .post("/user-scoring")
+        .send({ answers: [{ taxonomy_value_key: "__proto__.x" }] }),
+    ]);
+
+    expect(responses.map((res) => res.status)).toEqual([400, 400]);
+    expect(responses.every((res) => res.body.ok === false)).toBe(true);
   });
 
   it("should return 400 when geo.lat is out of range", async () => {

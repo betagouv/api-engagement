@@ -35,7 +35,7 @@ export const missionScoringRepository = {
           data: params.values.map((value) => ({
             ...value,
             missionScoringId: missionScoring.id,
-          })),
+          })) as Prisma.MissionScoringValueCreateManyInput[],
         });
       }
 

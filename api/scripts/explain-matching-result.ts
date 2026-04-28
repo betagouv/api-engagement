@@ -14,8 +14,8 @@ dotenv.config();
 
 import { prisma } from "@/db/postgres";
 import { matchingEngineService } from "@/services/matching-engine";
-import type { MatchMissionItem, MatchingEngineDimension, MatchingEngineVersion, MissionMatchingResultItem } from "@/services/matching-engine/types";
-import { CURRENT_MATCHING_ENGINE_VERSION } from "@/services/matching-engine/types";
+import { CURRENT_MATCHING_ENGINE_VERSION } from "@/services/matching-engine/config";
+import type { MatchMissionItem, MatchingEngineTaxonomy, MatchingEngineVersion, MissionMatchingResultItem } from "@/services/matching-engine/types";
 
 const args = process.argv.slice(2);
 const userScoringId = args.find((arg) => !arg.startsWith("--"));
@@ -28,16 +28,16 @@ const version = (versionArgIndex !== -1 ? args[versionArgIndex + 1] : CURRENT_MA
 type StoredMissionMatchingResultItem = MissionMatchingResultItem;
 
 type OverlapSignal = {
-  dimensionKey: MatchingEngineDimension;
-  dimensionLabel: string;
+  taxonomyKey: MatchingEngineTaxonomy;
+  taxonomyLabel: string;
   valueLabel: string;
   userScore: number;
   missionScore: number;
 };
 
-type UserDimensionSummary = {
-  dimensionKey: MatchingEngineDimension;
-  dimensionLabel: string;
+type UserTaxonomySummary = {
+  taxonomyKey: MatchingEngineTaxonomy;
+  taxonomyLabel: string;
   values: string[];
 };
 
@@ -61,16 +61,16 @@ const parseStoredResults = (value: unknown): StoredMissionMatchingResultItem[] =
   }
 
   return value
-    .filter((item): item is { missionScoringId?: unknown; dimensionScores?: unknown } => typeof item === "object" && item !== null)
+    .filter((item): item is { missionScoringId?: unknown; taxonomyScores?: unknown } => typeof item === "object" && item !== null)
     .filter(
       (item): item is StoredMissionMatchingResultItem =>
-        typeof item.missionScoringId === "string" && typeof item.dimensionScores === "object" && item.dimensionScores !== null && !Array.isArray(item.dimensionScores)
+        typeof item.missionScoringId === "string" && typeof item.taxonomyScores === "object" && item.taxonomyScores !== null && !Array.isArray(item.taxonomyScores)
     );
 };
 
-const buildDimensionExplanation = (params: { dimensionKey: MatchingEngineDimension; dimensionScore: number; overlaps: OverlapSignal[] }): string => {
+const buildTaxonomyExplanation = (params: { taxonomyKey: MatchingEngineTaxonomy; taxonomyScore: number; overlaps: OverlapSignal[] }): string => {
   if (params.overlaps.length === 0) {
-    return `- ${params.dimensionKey} (${params.dimensionScore.toFixed(3)}): recouvrement détecté mais non résolu en libellé`;
+    return `- ${params.taxonomyKey} (${params.taxonomyScore.toFixed(3)}): recouvrement détecté mais non résolu en libellé`;
   }
 
   const topLabels = params.overlaps
@@ -82,20 +82,20 @@ const buildDimensionExplanation = (params: { dimensionKey: MatchingEngineDimensi
   const extraCount = Math.max(uniqueLabels.length - 2, 0);
   const suffix = extraCount > 0 ? ` (+${extraCount})` : "";
 
-  return `- ${params.overlaps[0].dimensionLabel} (${params.dimensionScore.toFixed(3)}): match sur ${preview}${suffix}`;
+  return `- ${params.overlaps[0].taxonomyLabel} (${params.taxonomyScore.toFixed(3)}): match sur ${preview}${suffix}`;
 };
 
-const buildUserDimensionSummary = (params: { values: UserScoringValueWithTaxonomy[] }): UserDimensionSummary[] => {
-  const byDimension = new Map<MatchingEngineDimension, UserDimensionSummary>();
+const buildUserTaxonomySummary = (params: { values: UserScoringValueWithTaxonomy[] }): UserTaxonomySummary[] => {
+  const byTaxonomy = new Map<MatchingEngineTaxonomy, UserTaxonomySummary>();
 
   for (const value of params.values) {
-    const dimensionKey = value.taxonomyValue.taxonomy.key as MatchingEngineDimension;
-    const existing = byDimension.get(dimensionKey);
+    const taxonomyKey = value.taxonomyValue.taxonomy.key as MatchingEngineTaxonomy;
+    const existing = byTaxonomy.get(taxonomyKey);
 
     if (!existing) {
-      byDimension.set(dimensionKey, {
-        dimensionKey,
-        dimensionLabel: value.taxonomyValue.taxonomy.label,
+      byTaxonomy.set(taxonomyKey, {
+        taxonomyKey,
+        taxonomyLabel: value.taxonomyValue.taxonomy.label,
         values: [value.taxonomyValue.label],
       });
       continue;
@@ -104,12 +104,12 @@ const buildUserDimensionSummary = (params: { values: UserScoringValueWithTaxonom
     existing.values.push(value.taxonomyValue.label);
   }
 
-  return Array.from(byDimension.values())
+  return Array.from(byTaxonomy.values())
     .map((entry) => ({
       ...entry,
       values: Array.from(new Set(entry.values)).sort((left, right) => left.localeCompare(right, "fr")),
     }))
-    .sort((left, right) => left.dimensionLabel.localeCompare(right.dimensionLabel, "fr"));
+    .sort((left, right) => left.taxonomyLabel.localeCompare(right.taxonomyLabel, "fr"));
 };
 
 const run = async () => {
@@ -188,13 +188,13 @@ const run = async () => {
       value.taxonomyValueId,
       {
         score: value.score,
-        taxonomyKey: value.taxonomyValue.taxonomy.key as MatchingEngineDimension,
+        taxonomyKey: value.taxonomyValue.taxonomy.key as MatchingEngineTaxonomy,
         taxonomyLabel: value.taxonomyValue.taxonomy.label,
         valueLabel: value.taxonomyValue.label,
       },
     ])
   );
-  const userDimensionSummaries = buildUserDimensionSummary({ values: userScoringValues });
+  const userTaxonomySummaries = buildUserTaxonomySummary({ values: userScoringValues });
 
   const missionScoringsById = new Map(missionScorings.map((missionScoring) => [missionScoring.id, missionScoring]));
   const explainedItems: RankedMissionExplanationItem[] = ranking.items
@@ -209,7 +209,7 @@ const run = async () => {
       return {
         ...item,
         title: missionScoring.mission.title,
-        dimensionScores: storedResult?.dimensionScores ?? item.dimensionScores,
+        taxonomyScores: storedResult?.taxonomyScores ?? item.taxonomyScores,
       };
     })
     .filter((item): item is RankedMissionExplanationItem => item !== null);
@@ -220,14 +220,14 @@ const run = async () => {
 
   console.log("## Profil user scoring");
 
-  if (userDimensionSummaries.length === 0) {
-    console.log("Aucune dimension renseignée");
+  if (userTaxonomySummaries.length === 0) {
+    console.log("Aucune taxonomie renseignée");
   } else {
-    for (const summary of userDimensionSummaries) {
+    for (const summary of userTaxonomySummaries) {
       const preview = summary.values.slice(0, 3).join(", ");
       const extraCount = Math.max(summary.values.length - 3, 0);
       const suffix = extraCount > 0 ? ` (+${extraCount})` : "";
-      console.log(`- ${summary.dimensionLabel}: ${preview}${suffix}`);
+      console.log(`- ${summary.taxonomyLabel}: ${preview}${suffix}`);
     }
   }
 
@@ -241,7 +241,7 @@ const run = async () => {
       continue;
     }
 
-    const overlapsByDimension = new Map<MatchingEngineDimension, OverlapSignal[]>();
+    const overlapsByTaxonomy = new Map<MatchingEngineTaxonomy, OverlapSignal[]>();
 
     for (const missionValue of missionScoring.missionScoringValues) {
       const userValue = userValuesByTaxonomyValueId.get(missionValue.taxonomyValueId);
@@ -249,18 +249,18 @@ const run = async () => {
         continue;
       }
 
-      const dimensionKey = missionValue.taxonomyValue.taxonomy.key as MatchingEngineDimension;
+      const taxonomyKey = missionValue.taxonomyValue.taxonomy.key as MatchingEngineTaxonomy;
       const overlap: OverlapSignal = {
-        dimensionKey,
-        dimensionLabel: missionValue.taxonomyValue.taxonomy.label,
+        taxonomyKey,
+        taxonomyLabel: missionValue.taxonomyValue.taxonomy.label,
         valueLabel: missionValue.taxonomyValue.label,
         userScore: userValue.score,
         missionScore: missionValue.score,
       };
 
-      const existing = overlapsByDimension.get(dimensionKey) ?? [];
+      const existing = overlapsByTaxonomy.get(taxonomyKey) ?? [];
       existing.push(overlap);
-      overlapsByDimension.set(dimensionKey, existing);
+      overlapsByTaxonomy.set(taxonomyKey, existing);
     }
 
     console.log(
@@ -269,17 +269,17 @@ const run = async () => {
       }`
     );
 
-    const dimensionEntries = Object.entries(rankedItem.dimensionScores)
-      .filter((entry): entry is [MatchingEngineDimension, number] => typeof entry[1] === "number")
+    const taxonomyEntries = Object.entries(rankedItem.taxonomyScores)
+      .filter((entry): entry is [MatchingEngineTaxonomy, number] => typeof entry[1] === "number")
       .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0], "fr"));
 
-    if (dimensionEntries.length === 0) {
-      console.log("   - aucun détail dimensionnel stocké");
+    if (taxonomyEntries.length === 0) {
+      console.log("   - aucun détail taxonomique stocké");
       continue;
     }
 
-    for (const [dimensionKey, dimensionScore] of dimensionEntries) {
-      console.log(`   ${buildDimensionExplanation({ dimensionKey, dimensionScore, overlaps: overlapsByDimension.get(dimensionKey) ?? [] })}`);
+    for (const [taxonomyKey, taxonomyScore] of taxonomyEntries) {
+      console.log(`   ${buildTaxonomyExplanation({ taxonomyKey, taxonomyScore, overlaps: overlapsByTaxonomy.get(taxonomyKey) ?? [] })}`);
     }
   }
 };

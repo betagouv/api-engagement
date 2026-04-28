@@ -1,6 +1,7 @@
 {
   "name": "api-engagement",
   "version": "1.4.1",
+  "workspaces": ["packages/*", "api", "app", "widget", "analytics", "plateform", "poc-quiz"],
   "scripts": {
     "lint": "npm run lint:api && npm run lint:app && npm run lint:analytics && npm run lint:widget && npm run lint:plateform",
     "lint:api": "cd api && npm run lint",
@@ -10,7 +11,7 @@
     "lint:plateform": "cd plateform && npm run lint",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,yml}\" --ignore-path .prettierignore",
     "commit": "cz",
-    "prepare": "husky"
+    "prepare": "command -v husky >/dev/null 2>&1 && husky || true"
   },
   "config": {
     "commitizen": {

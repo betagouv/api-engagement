@@ -6,53 +6,43 @@ const buildLookup = (): TaxonomyLookup => {
   const lookup: TaxonomyLookup = new Map();
   lookup.set("domaine", {
     type: "multi_value",
-    values: new Map([
-      ["sante_soins", "tv-sante"],
-      ["social_solidarite", "tv-social"],
-    ]),
+    values: new Set(["sante_soins", "social_solidarite"]),
   });
   lookup.set("type_mission", {
     type: "categorical",
-    values: new Map([["ponctuelle", "tv-ponctuelle"]]),
+    values: new Set(["ponctuelle"]),
   });
   return lookup;
 };
 
 const validClassification = {
-  dimension_key: "domaine",
+  taxonomy_key: "domaine",
   value_key: "sante_soins",
   confidence: 0.9,
   evidence: { extract: "soins infirmiers", reasoning: "mission de santé" },
 };
 
 describe("validateEnrichmentClassifications", () => {
-  it("validates and resolves taxonomy value ID", () => {
+  it("validates known taxonomy and value keys", () => {
     const { valid, skipped } = validateEnrichmentClassifications([validClassification], buildLookup(), 0.3);
 
     expect(valid).toHaveLength(1);
-    expect(valid[0].taxonomyValueId).toBe("tv-sante");
+    expect(valid[0].taxonomy_key).toBe("domaine");
+    expect(valid[0].value_key).toBe("sante_soins");
     expect(valid[0].confidence).toBe(0.9);
     expect(skipped).toHaveLength(0);
   });
 
-  it("skips unknown dimension keys", () => {
-    const { valid, skipped } = validateEnrichmentClassifications(
-      [{ ...validClassification, dimension_key: "unknown_dim" }],
-      buildLookup(),
-      0.3
-    );
+  it("skips unknown taxonomy keys", () => {
+    const { valid, skipped } = validateEnrichmentClassifications([{ ...validClassification, taxonomy_key: "unknown_dim" }], buildLookup(), 0.3);
 
     expect(valid).toHaveLength(0);
     expect(skipped).toHaveLength(1);
-    expect(skipped[0].reason).toContain("unknown_dimension");
+    expect(skipped[0].reason).toContain("unknown_taxonomy");
   });
 
   it("skips unknown value keys", () => {
-    const { valid, skipped } = validateEnrichmentClassifications(
-      [{ ...validClassification, value_key: "unknown_val" }],
-      buildLookup(),
-      0.3
-    );
+    const { valid, skipped } = validateEnrichmentClassifications([{ ...validClassification, value_key: "unknown_val" }], buildLookup(), 0.3);
 
     expect(valid).toHaveLength(0);
     expect(skipped).toHaveLength(1);
@@ -60,11 +50,7 @@ describe("validateEnrichmentClassifications", () => {
   });
 
   it("skips classifications below confidence threshold", () => {
-    const { valid, skipped } = validateEnrichmentClassifications(
-      [{ ...validClassification, confidence: 0.2 }],
-      buildLookup(),
-      0.3
-    );
+    const { valid, skipped } = validateEnrichmentClassifications([{ ...validClassification, confidence: 0.2 }], buildLookup(), 0.3);
 
     expect(valid).toHaveLength(0);
     expect(skipped).toHaveLength(1);
@@ -72,25 +58,20 @@ describe("validateEnrichmentClassifications", () => {
   });
 
   it("keeps classifications at exactly the threshold", () => {
-    const { valid } = validateEnrichmentClassifications(
-      [{ ...validClassification, confidence: 0.3 }],
-      buildLookup(),
-      0.3
-    );
+    const { valid } = validateEnrichmentClassifications([{ ...validClassification, confidence: 0.3 }], buildLookup(), 0.3);
 
     expect(valid).toHaveLength(1);
   });
 
-  it("handles multiple classifications across dimensions", () => {
+  it("handles multiple classifications across taxonomys", () => {
     const { valid } = validateEnrichmentClassifications(
-      [validClassification, { ...validClassification, dimension_key: "type_mission", value_key: "ponctuelle", confidence: 0.8 }],
+      [validClassification, { ...validClassification, taxonomy_key: "type_mission", value_key: "ponctuelle", confidence: 0.8 }],
       buildLookup(),
       0.3
     );
 
     expect(valid).toHaveLength(2);
-    expect(valid[0].taxonomyValueId).toBe("tv-sante");
-    expect(valid[1].taxonomyValueId).toBe("tv-ponctuelle");
+    expect(valid.map((item) => item.value_key)).toEqual(["sante_soins", "ponctuelle"]);
   });
 
   it("handles empty classifications array", () => {
@@ -104,9 +85,9 @@ describe("validateEnrichmentClassifications", () => {
     const { valid, skipped } = validateEnrichmentClassifications(
       [
         validClassification,
-        { ...validClassification, dimension_key: "unknown" },
+        { ...validClassification, taxonomy_key: "unknown" },
         { ...validClassification, confidence: 0.1 },
-        { ...validClassification, dimension_key: "domaine", value_key: "social_solidarite", confidence: 0.5 },
+        { ...validClassification, taxonomy_key: "domaine", value_key: "social_solidarite", confidence: 0.5 },
       ],
       buildLookup(),
       0.3
@@ -116,7 +97,7 @@ describe("validateEnrichmentClassifications", () => {
     expect(skipped).toHaveLength(2);
   });
 
-  it("deduplicates same dimension+value, keeps highest confidence", () => {
+  it("deduplicates same taxonomy+value, keeps highest confidence", () => {
     const { valid } = validateEnrichmentClassifications(
       [
         { ...validClassification, confidence: 0.7 },
@@ -132,39 +113,36 @@ describe("validateEnrichmentClassifications", () => {
 
   it("fuzzy matches reordered value_key tokens", () => {
     // "soins_sante" vs "sante_soins" → Jaccard = 1.0
-    const { valid, skipped } = validateEnrichmentClassifications(
-      [{ ...validClassification, value_key: "soins_sante" }],
-      buildLookup(),
-      0.3
-    );
+    const { valid, skipped } = validateEnrichmentClassifications([{ ...validClassification, value_key: "soins_sante" }], buildLookup(), 0.3);
 
     expect(valid).toHaveLength(1);
     expect(valid[0].value_key).toBe("sante_soins");
-    expect(valid[0].taxonomyValueId).toBe("tv-sante");
     expect(skipped).toHaveLength(0);
   });
 
   it("skips value_key with insufficient fuzzy similarity", () => {
     // "culture_arts" has no tokens in common with "sante_soins" or "social_solidarite"
-    const { valid, skipped } = validateEnrichmentClassifications(
-      [{ ...validClassification, value_key: "culture_arts" }],
-      buildLookup(),
-      0.3
-    );
+    const { valid, skipped } = validateEnrichmentClassifications([{ ...validClassification, value_key: "culture_arts" }], buildLookup(), 0.3);
 
     expect(valid).toHaveLength(0);
     expect(skipped[0].reason).toContain("unknown_value");
   });
 
-  it("keeps multiple values for the same dimension when they are distinct", () => {
+  it("keeps multiple values for the same taxonomy when they are distinct", () => {
     const lookup: TaxonomyLookup = new Map([
-      ["type_mission", { type: "categorical", values: new Map([["ponctuelle", "tv-p"], ["reguliere", "tv-r"]]) }],
+      [
+        "type_mission",
+        {
+          type: "categorical",
+          values: new Set(["ponctuelle", "reguliere"]),
+        },
+      ],
     ]);
 
     const { valid, skipped } = validateEnrichmentClassifications(
       [
-        { ...validClassification, dimension_key: "type_mission", value_key: "ponctuelle", confidence: 0.6 },
-        { ...validClassification, dimension_key: "type_mission", value_key: "reguliere", confidence: 0.9 },
+        { ...validClassification, taxonomy_key: "type_mission", value_key: "ponctuelle", confidence: 0.6 },
+        { ...validClassification, taxonomy_key: "type_mission", value_key: "reguliere", confidence: 0.9 },
       ],
       lookup,
       0.3

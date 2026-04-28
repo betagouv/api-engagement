@@ -1,3 +1,4 @@
+import { TAXONOMY } from "@engagement/taxonomy";
 import { Router } from "express";
 import zod from "zod";
 
@@ -7,23 +8,17 @@ import { matchingEngineService } from "@/services/matching-engine";
 
 const router = Router();
 
-// GET /poc/taxonomy — all active taxonomies with their active values
-router.get("/taxonomy", async (req, res, next) => {
-  try {
-    const taxonomies = await prisma.taxonomy.findMany({
-      include: {
-        values: {
-          where: { active: true },
-          orderBy: [{ order: "asc" }, { label: "asc" }],
-        },
-      },
-      orderBy: { label: "asc" },
-    });
-    return res.status(200).send({ ok: true, data: taxonomies });
-  } catch (error) {
-    next(error);
+const getPackageTaxonomyValueLabel = (taxonomyKey: string, valueKey: string): string | null => {
+  const taxonomy = TAXONOMY[taxonomyKey as keyof typeof TAXONOMY] as
+    | { values: Record<string, { label: string }> }
+    | undefined;
+  if (!taxonomy) {
+    return null;
   }
-});
+
+  const value = taxonomy.values[valueKey];
+  return value?.label ?? null;
+};
 
 const matchQuerySchema = zod.object({
   userScoringId: zod.string().uuid(),
@@ -82,6 +77,8 @@ router.get("/match", async (req, res, next) => {
         where: { missionScoringId: { in: missionScoringIds } },
         select: {
           missionScoringId: true,
+          taxonomyKey: true,
+          valueKey: true,
           score: true,
           taxonomyValue: {
             select: {
@@ -101,11 +98,20 @@ router.get("/match", async (req, res, next) => {
       }),
       prisma.userScoringValue.findMany({
         where: { userScoringId },
-        select: { taxonomyValue: { select: { taxonomy: { select: { key: true } } } } },
+        select: {
+          taxonomyKey: true,
+          taxonomyValue: { select: { taxonomy: { select: { key: true } } } },
+        },
       }),
     ]);
 
-    const selectedDimensions = [...new Set(userScoringValues.map((v) => v.taxonomyValue.taxonomy.key))];
+    const selectedTaxonomies = [
+      ...new Set(
+        userScoringValues
+          .map((value) => value.taxonomyKey ?? value.taxonomyValue?.taxonomy.key ?? null)
+          .filter((value): value is string => typeof value === "string")
+      ),
+    ];
 
     const missionIndex: Record<
       string,
@@ -155,14 +161,21 @@ router.get("/match", async (req, res, next) => {
 
     const valuesIndex: Record<
       string,
-      { dimensionKey: string; taxonomyValueKey: string; taxonomyValueLabel: string; enrichmentConfidence: number; scoringScore: number; evidence: unknown }[]
+      { taxonomyKey: string; taxonomyValueKey: string; taxonomyValueLabel: string; enrichmentConfidence: number; scoringScore: number; evidence: unknown }[]
     > = {};
     const fakeIndex: Record<string, boolean> = {};
     for (const row of scoringValueRows) {
+      const taxonomyKey = row.taxonomyKey ?? row.taxonomyValue?.taxonomy.key ?? "unknown";
+      const taxonomyValueKey = row.valueKey ?? row.taxonomyValue?.key ?? "unknown";
+      const taxonomyValueLabel =
+        row.taxonomyValue?.label ??
+        getPackageTaxonomyValueLabel(taxonomyKey, taxonomyValueKey) ??
+        taxonomyValueKey;
+
       const entry = {
-        dimensionKey: row.taxonomyValue.taxonomy.key,
-        taxonomyValueKey: row.taxonomyValue.key,
-        taxonomyValueLabel: row.taxonomyValue.label,
+        taxonomyKey,
+        taxonomyValueKey,
+        taxonomyValueLabel,
         enrichmentConfidence: row.missionEnrichmentValue?.confidence ?? 0,
         scoringScore: row.score,
         evidence: row.missionEnrichmentValue?.evidence ?? null,
@@ -206,11 +219,11 @@ router.get("/match", async (req, res, next) => {
       taxonomyScore: item.taxonomyScore,
       geoScore: item.geoScore,
       distanceKm: item.distanceKm,
-      dimensionScores: item.dimensionScores,
+      taxonomyScores: item.taxonomyScores,
       values: valuesIndex[item.missionScoringId] ?? [],
     }));
 
-    return res.status(200).send({ ok: true, data: { tookMs: result.tookMs, selectedDimensions, items } });
+    return res.status(200).send({ ok: true, data: { tookMs: result.tookMs, selectedTaxonomies, items } });
   } catch (error) {
     next(error);
   }

@@ -7,7 +7,7 @@ export const MODEL = mistral("mistral-small-2603");
 export const ENRICHMENT_SCHEMA = z.object({
   classifications: z.array(
     z.object({
-      dimension_key: z.string(),
+      taxonomy_key: z.string(),
       value_key: z.string(),
       confidence: z.number().min(0).max(1),
       evidence: z.object({ extract: z.string(), reasoning: z.string() }),
@@ -25,13 +25,13 @@ Ta tâche est d'analyser une mission et de la classifier selon un référentiel 
 1. Tu ne dois utiliser QUE les \`value_key\` fournis dans la taxonomie ci-dessous.
    N'invente jamais de valeur hors référentiel.
 
-2. Une mission peut recevoir plusieurs valeurs pour une même dimension (dimensions multi-valeurs).
-   Pour les dimensions de type \`categorical\`, retourne au plus UNE valeur.
+2. Une mission peut recevoir plusieurs valeurs pour une même taxonomy (taxonomies multi-valeurs).
+   Pour les taxonomies de type \`categorical\`, retourne au plus UNE valeur.
 
 3. N'attribue une valeur que si tu en es raisonnablement certain (confidence ≥ 0.3).
    Mieux vaut omettre une valeur douteuse que d'en inventer une.
 
-4. Certaines dimensions ne s'appliquent qu'à des cas spécifiques :
+4. Certaines taxonomies ne s'appliquent qu'à des cas spécifiques :
    - \`engagement_civique\` : uniquement pour des missions liées à l'armée, aux pompiers,
      à la gendarmerie ou à la police. Ne l'utilise pas pour du bénévolat associatif classique.
    - \`region_internationale\` : uniquement si la mission se déroule explicitement à l'étranger.
@@ -67,7 +67,7 @@ ${taxonomyBlock}
 {
   "classifications": [
     {
-      "dimension_key": "domaine",
+      "taxonomy_key": "domaine",
       "value_key": "social_solidarite",
       "confidence": 0.97,
       "evidence": {
@@ -76,7 +76,7 @@ ${taxonomyBlock}
       }
     },
     {
-      "dimension_key": "engagement_intent",
+      "taxonomy_key": "engagement_intent",
       "value_key": "aide_directe",
       "confidence": 0.95,
       "evidence": {
@@ -85,7 +85,7 @@ ${taxonomyBlock}
       }
     },
     {
-      "dimension_key": "engagement_intent",
+      "taxonomy_key": "engagement_intent",
       "value_key": "animation",
       "confidence": 0.9,
       "evidence": {
@@ -94,7 +94,7 @@ ${taxonomyBlock}
       }
     },
     {
-      "dimension_key": "competence_rome",
+      "taxonomy_key": "competence_rome",
       "value_key": "management_social_soin",
       "confidence": 0.9,
       "evidence": {
@@ -103,7 +103,7 @@ ${taxonomyBlock}
       }
     },
     {
-      "dimension_key": "secteur_activite",
+      "taxonomy_key": "secteur_activite",
       "value_key": "sante_social_aide_personne",
       "confidence": 0.95,
       "evidence": {
@@ -112,7 +112,7 @@ ${taxonomyBlock}
       }
     },
     {
-      "dimension_key": "type_mission",
+      "taxonomy_key": "type_mission",
       "value_key": "reguliere",
       "confidence": 0.99,
       "evidence": {
@@ -133,7 +133,7 @@ ${taxonomyBlock}
 {
   "classifications": [
     {
-      "dimension_key": "domaine",
+      "taxonomy_key": "domaine",
       "value_key": "gestion_projet",
       "confidence": 0.85,
       "evidence": {
@@ -142,7 +142,7 @@ ${taxonomyBlock}
       }
     },
     {
-      "dimension_key": "competence_rome",
+      "taxonomy_key": "competence_rome",
       "value_key": "communication_creation_numerique",
       "confidence": 0.97,
       "evidence": {
@@ -151,7 +151,7 @@ ${taxonomyBlock}
       }
     },
     {
-      "dimension_key": "competence_rome",
+      "taxonomy_key": "competence_rome",
       "value_key": "cooperation_organisation_soft_skills",
       "confidence": 0.8,
       "evidence": {
@@ -160,7 +160,7 @@ ${taxonomyBlock}
       }
     },
     {
-      "dimension_key": "engagement_intent",
+      "taxonomy_key": "engagement_intent",
       "value_key": "support_organisation",
       "confidence": 0.9,
       "evidence": {
@@ -169,7 +169,7 @@ ${taxonomyBlock}
       }
     },
     {
-      "dimension_key": "secteur_activite",
+      "taxonomy_key": "secteur_activite",
       "value_key": "numerique_communication",
       "confidence": 0.95,
       "evidence": {
@@ -178,7 +178,7 @@ ${taxonomyBlock}
       }
     },
     {
-      "dimension_key": "type_mission",
+      "taxonomy_key": "type_mission",
       "value_key": "ponctuelle",
       "confidence": 0.99,
       "evidence": {
@@ -190,7 +190,7 @@ ${taxonomyBlock}
 }
 \`\`\`
 
-Si aucune valeur n'est applicable pour une dimension, ne l'inclus pas dans le tableau.`;
+Si aucune valeur n'est applicable pour une taxonomy, ne l'inclus pas dans le tableau.`;
 
 export const buildUserMessage = (missionBlock: string): string => `\
 ## Mission à classifier

@@ -1,12 +1,17 @@
 import { mistral } from "@ai-sdk/mistral";
+import { TAXONOMY } from "@engagement/taxonomy";
 import { z } from "zod";
+import type { TaxonomyGuidanceMap } from "./types";
 
-type TaxonomyGuidance = {
-  dimension: string;
-  values?: Record<string, string>;
-};
-
-const EXCLUDED_VALUE_KEYS = new Set(["je_ne_sais_pas"]);
+// Toutes les valeurs avec enrichable: false sont exclues
+// (ex: "je_ne_sais_pas", etc.)
+const NON_ENRICHABLE_VALUE_KEYS = new Set(
+  Object.values(TAXONOMY).flatMap((dim) =>
+    Object.entries(dim.values)
+      .filter(([, v]) => !v.enrichable)
+      .map(([k]) => k)
+  )
+);
 
 const buildFilteredTaxonomyBlock = (taxonomyBlock: string): string =>
   taxonomyBlock
@@ -18,13 +23,13 @@ const buildFilteredTaxonomyBlock = (taxonomyBlock: string): string =>
       }
 
       const key = trimmed.slice(2).split(" : ")[0]?.trim();
-      return !EXCLUDED_VALUE_KEYS.has(key);
+      return key === undefined || !NON_ENRICHABLE_VALUE_KEYS.has(key);
     })
     .join("\n");
 
-const TAXONOMY_GUIDANCE_MAP: Record<string, TaxonomyGuidance> = {
+const TAXONOMY_GUIDANCE_MAP = {
   domaine: {
-    dimension:
+    taxonomy:
       "Correspond au sujet principal de la mission. Priorise ce que la personne va réellement faire dans ses tâches principales. Ne choisis pas un domaine uniquement à partir du type de structure, du vocabulaire institutionnel, du public bénéficiaire ou de la finalité sociale générale du projet si les tâches décrites relèvent surtout d'un autre domaine.",
     values: {
       sante_soins: "À utiliser quand la mission porte principalement sur la santé, les soins, la prévention, l'accompagnement médico-social ou le bien-être physique et psychique.",
@@ -44,7 +49,7 @@ const TAXONOMY_GUIDANCE_MAP: Record<string, TaxonomyGuidance> = {
     },
   },
   secteur_activite: {
-    dimension:
+    taxonomy:
       "Décrit le secteur professionnel ou d'activité auquel la mission se rattache le mieux. Peut coexister avec le domaine ; ne pas le confondre avec l'intention d'engagement ou les compétences mobilisées.",
     values: {
       sante_social_aide_personne: "À utiliser pour les missions relevant des soins, de l'accompagnement social, du médico-social ou de l'aide aux personnes.",
@@ -59,7 +64,7 @@ const TAXONOMY_GUIDANCE_MAP: Record<string, TaxonomyGuidance> = {
     },
   },
   type_mission: {
-    dimension:
+    taxonomy:
       "Décrit le format temporel ou l'intensité de la mission. Se baser sur les indices explicites de fréquence, de volume horaire, de période ou de rythme d'engagement. Utiliser les définitions suivantes : ponctuelle = de quelques heures à deux jours sans notion de répétition ; régulière = mission sur plusieurs jours ou semaines, répétée à intervalles réguliers ou irréguliers sur plusieurs semaines, ou mission en dessous de 20h par semaine sur plusieurs semaines avec une durée d'au moins 2 semaines ; temps plein = mission sur plusieurs semaines d'au moins 3 semaines ou sur plusieurs mois avec au moins 20h par semaine.",
     values: {
       ponctuelle:
@@ -71,7 +76,7 @@ const TAXONOMY_GUIDANCE_MAP: Record<string, TaxonomyGuidance> = {
     },
   },
   competence_rome: {
-    dimension:
+    taxonomy:
       "Décrit les grandes familles de compétences réellement mobilisées par la mission selon ce référentiel : Management, social, soin ; Communication, création, innovation, nouvelles technologies ; Production, construction, qualité, logistique ; Gestion, pilotage, juridique ; Relation client, commerce, stratégie ; Coopération, organisation, soft skills ; Protection des personnes, de la société ou de l'environnement. Peut coexister avec le domaine et l'intention d'engagement ; ne pas l'utiliser pour décrire le public ou le secteur.",
     values: {
       management_social_soin:
@@ -91,7 +96,7 @@ const TAXONOMY_GUIDANCE_MAP: Record<string, TaxonomyGuidance> = {
     },
   },
   region_internationale: {
-    dimension:
+    taxonomy:
       "À utiliser uniquement si la mission se déroule explicitement à l'étranger ou comporte une localisation internationale clairement mentionnée. Les DOM-TOM et autres territoires français ne doivent pas être considérés comme de l'international pour cette taxonomie.",
     values: {
       europe: "À utiliser si la mission se déroule explicitement dans un pays européen hors France. Ne pas utiliser pour un territoire français, y compris ultramarin.",
@@ -102,7 +107,7 @@ const TAXONOMY_GUIDANCE_MAP: Record<string, TaxonomyGuidance> = {
     },
   },
   engagement_intent: {
-    dimension:
+    taxonomy:
       "Décrit la manière dont le volontaire contribue concrètement. Cette dimension répond à la question 'comment agit-on ?' et peut coexister avec le domaine et les compétences.",
     values: {
       aide_directe: "À utiliser si la mission implique une interaction directe d'aide, d'écoute, de soutien ou d'accompagnement avec des bénéficiaires.",
@@ -119,7 +124,7 @@ const TAXONOMY_GUIDANCE_MAP: Record<string, TaxonomyGuidance> = {
     },
   },
   formation_onisep: {
-    dimension:
+    taxonomy:
       "Décrit le ou les domaines de formation ou d'orientation auxquels la mission peut être rattachée. Se baser sur les tâches et compétences principales, mais aussi sur le public bénéficiaire, la finalité explicite de la mission et, si elle est claire, la mission sociale ou sectorielle de l'organisation porteuse. Une mission peut relever de plusieurs domaines si elle combine une forme pédagogique ou culturelle et un contenu sectoriel explicite. Ne pas se baser sur un simple mot-clé isolé.",
     values: {
       environnement_nature_sciences:
@@ -135,14 +140,14 @@ const TAXONOMY_GUIDANCE_MAP: Record<string, TaxonomyGuidance> = {
       securite_defense_logistique: "À utiliser pour les missions de sécurité, défense, protection, logistique, intervention ou organisation opérationnelle.",
     },
   },
-};
+} satisfies TaxonomyGuidanceMap;
 
 const buildTaxonomyGuidanceBlock = (): string =>
   Object.entries(TAXONOMY_GUIDANCE_MAP)
     .map(([taxonomyKey, guidance]) =>
       [
         `### ${taxonomyKey}`,
-        `- Dimension : ${guidance.dimension}`,
+        `- Taxonomy : ${guidance.taxonomy}`,
         guidance.values
           ? Object.entries(guidance.values)
               .map(([valueKey, valueGuidance]) => `- ${valueKey} : ${valueGuidance}`)
@@ -160,7 +165,7 @@ export const MODEL = mistral("mistral-small-2603");
 export const ENRICHMENT_SCHEMA = z.object({
   classifications: z.array(
     z.object({
-      dimension_key: z.string(),
+      taxonomy_key: z.string(),
       value_key: z.string(),
       confidence: z.number().min(0).max(1),
       evidence: z.object({ extract: z.string(), reasoning: z.string() }),
@@ -179,9 +184,9 @@ Ta tâche est d'analyser une mission et de la classifier selon un référentiel 
    N'invente jamais de valeur hors référentiel.
    N'utilise jamais la valeur \`je_ne_sais_pas\`.
 
-2. Une mission peut recevoir plusieurs valeurs pour une même dimension.
+2. Une mission peut recevoir plusieurs valeurs pour une même taxonomy.
    Le type de taxonomie ne doit pas servir à limiter artificiellement le nombre de valeurs retournées.
-   Si plusieurs valeurs d'une même dimension sont justifiées par le texte, retourne-les toutes.
+   Si plusieurs valeurs d'une même taxonomy sont justifiées par le texte, retourne-les toutes.
 
 3. N'attribue une valeur que si tu en es raisonnablement certain (confidence ≥ 0.3).
    Mieux vaut omettre une valeur douteuse que d'en inventer une.
@@ -202,7 +207,7 @@ Ta tâche est d'analyser une mission et de la classifier selon un référentiel 
    - Si la mission évoque seulement une association, sans décrire clairement les bénéficiaires ni l'action, il faut rester plus bas ou ne rien retourner
    - N'utilise pas des scores artificiellement précis sans justification ; le score doit refléter la force du lien entre le texte et la valeur
 
-6. Certaines dimensions ne s'appliquent qu'à des cas spécifiques :
+6. Certaines taxonomies ne s'appliquent qu'à des cas spécifiques :
    - \`engagement_civique\` : uniquement pour des missions liées à l'armée, aux pompiers,
      à la gendarmerie ou à la police. Ne l'utilise pas pour du bénévolat associatif classique.
    - \`region_internationale\` : uniquement si la mission se déroule explicitement à l'étranger. Les DOM-TOM et autres territoires français ne doivent pas être considérés comme internationaux pour cette dimension.
@@ -247,7 +252,7 @@ ${buildFilteredTaxonomyBlock(taxonomyBlock)}
 {
   "classifications": [
     {
-      "dimension_key": "domaine",
+      "taxonomy_key": "domaine",
       "value_key": "social_solidarite",
       "confidence": 0.97,
       "evidence": {
@@ -256,7 +261,7 @@ ${buildFilteredTaxonomyBlock(taxonomyBlock)}
       }
     },
     {
-      "dimension_key": "engagement_intent",
+      "taxonomy_key": "engagement_intent",
       "value_key": "aide_directe",
       "confidence": 0.95,
       "evidence": {
@@ -265,7 +270,7 @@ ${buildFilteredTaxonomyBlock(taxonomyBlock)}
       }
     },
     {
-      "dimension_key": "engagement_intent",
+      "taxonomy_key": "engagement_intent",
       "value_key": "animation",
       "confidence": 0.9,
       "evidence": {
@@ -274,7 +279,7 @@ ${buildFilteredTaxonomyBlock(taxonomyBlock)}
       }
     },
     {
-      "dimension_key": "competence_rome",
+      "taxonomy_key": "competence_rome",
       "value_key": "management_social_soin",
       "confidence": 0.9,
       "evidence": {
@@ -283,7 +288,7 @@ ${buildFilteredTaxonomyBlock(taxonomyBlock)}
       }
     },
     {
-      "dimension_key": "secteur_activite",
+      "taxonomy_key": "secteur_activite",
       "value_key": "sante_social_aide_personne",
       "confidence": 0.95,
       "evidence": {
@@ -292,7 +297,7 @@ ${buildFilteredTaxonomyBlock(taxonomyBlock)}
       }
     },
     {
-      "dimension_key": "type_mission",
+      "taxonomy_key": "type_mission",
       "value_key": "reguliere",
       "confidence": 0.99,
       "evidence": {
@@ -313,7 +318,7 @@ ${buildFilteredTaxonomyBlock(taxonomyBlock)}
 {
   "classifications": [
     {
-      "dimension_key": "domaine",
+      "taxonomy_key": "domaine",
       "value_key": "gestion_projet",
       "confidence": 0.85,
       "evidence": {
@@ -322,7 +327,7 @@ ${buildFilteredTaxonomyBlock(taxonomyBlock)}
       }
     },
     {
-      "dimension_key": "competence_rome",
+      "taxonomy_key": "competence_rome",
       "value_key": "communication_creation_numerique",
       "confidence": 0.97,
       "evidence": {
@@ -331,7 +336,7 @@ ${buildFilteredTaxonomyBlock(taxonomyBlock)}
       }
     },
     {
-      "dimension_key": "competence_rome",
+      "taxonomy_key": "competence_rome",
       "value_key": "cooperation_organisation_soft_skills",
       "confidence": 0.8,
       "evidence": {
@@ -340,7 +345,7 @@ ${buildFilteredTaxonomyBlock(taxonomyBlock)}
       }
     },
     {
-      "dimension_key": "engagement_intent",
+      "taxonomy_key": "engagement_intent",
       "value_key": "support_organisation",
       "confidence": 0.9,
       "evidence": {
@@ -349,7 +354,7 @@ ${buildFilteredTaxonomyBlock(taxonomyBlock)}
       }
     },
     {
-      "dimension_key": "secteur_activite",
+      "taxonomy_key": "secteur_activite",
       "value_key": "numerique_communication",
       "confidence": 0.95,
       "evidence": {
@@ -358,7 +363,7 @@ ${buildFilteredTaxonomyBlock(taxonomyBlock)}
       }
     },
     {
-      "dimension_key": "type_mission",
+      "taxonomy_key": "type_mission",
       "value_key": "ponctuelle",
       "confidence": 0.99,
       "evidence": {

@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { fetchTaxonomies, type Taxonomy } from "../api";
+import { getTaxonomyList, type TaxonomyListItem } from "@engagement/taxonomy";
+import { useState } from "react";
 import { CityAutocomplete } from "./CityAutocomplete";
 
 type Geo = { lat: number; lon: number } | null;
@@ -16,20 +16,13 @@ function computeAgeKeys(age: number | null, hasDisability: boolean): string[] {
   return [];
 }
 
+const taxonomies = getTaxonomyList();
+
 export function QuizForm({ onSubmit, loading }: Props) {
-  const [taxonomies, setTaxonomies] = useState<Taxonomy[]>([]);
-  const [fetchError, setFetchError] = useState<string | null>(null);
-  // Track selection by taxonomy value key (not id)
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [geoWithLabel, setGeoWithLabel] = useState<{ lat: number; lon: number; label: string } | null>(null);
   const [age, setAge] = useState<number | "">("");
   const [hasDisability, setHasDisability] = useState(false);
-
-  useEffect(() => {
-    fetchTaxonomies()
-      .then(setTaxonomies)
-      .catch((e) => setFetchError(String(e)));
-  }, []);
 
   function toggle(prefixedKey: string) {
     setSelected((prev) => {
@@ -40,11 +33,11 @@ export function QuizForm({ onSubmit, loading }: Props) {
     });
   }
 
-  function selectOnly(prefixedKey: string, taxonomyId: string, type: Taxonomy["type"]) {
-    if (type === "ordered") {
+  function selectOnly(prefixedKey: string, taxonomyKey: string, type: TaxonomyListItem["type"]) {
+    if (type === "categorical") {
       setSelected((prev) => {
         const next = new Set(prev);
-        const taxonomy = taxonomies.find((t) => t.id === taxonomyId);
+        const taxonomy = taxonomies.find((t) => t.key === taxonomyKey);
         taxonomy?.values.forEach((v) => next.delete(`${taxonomy.key}.${v.key}`));
         next.add(prefixedKey);
         return next;
@@ -64,20 +57,8 @@ export function QuizForm({ onSubmit, loading }: Props) {
     onSubmit([...taxonomyAnswers, ...ageAnswers], geo);
   }
 
-  if (fetchError) {
-    return (
-      <div style={styles.error}>
-        Erreur lors du chargement des taxonomies : {fetchError}
-      </div>
-    );
-  }
-
-  if (taxonomies.length === 0) {
-    return <div style={styles.loading}>Chargement des taxonomies…</div>;
-  }
-
-  // Gate dimensions are not shown in the taxonomy grid — they are handled via the age section below
-  const scoringTaxonomies = taxonomies.filter((t) => t.type !== "gate");
+  // Les taxonomies gate (tranche_age) sont gérées via la section âge ci-dessous.
+  const scoringTaxonomies = taxonomies.filter((t) => !t.gate);
   const totalSelected = selected.size + computeAgeKeys(age !== "" ? age : null, hasDisability).length;
 
   return (
@@ -86,17 +67,15 @@ export function QuizForm({ onSubmit, loading }: Props) {
 
       {scoringTaxonomies.map((taxonomy) => {
         const selectedCount = taxonomy.values.filter((v) => selected.has(`${taxonomy.key}.${v.key}`)).length;
-        const isOrdered = taxonomy.type === "ordered";
+        const isCategorical = taxonomy.type === "categorical";
         return (
-          <details key={taxonomy.id} style={styles.details} open={false}>
+          <details key={taxonomy.key} style={styles.details} open={false}>
             <summary style={styles.summary}>
               <span style={styles.summaryLabel}>
                 {taxonomy.label}
                 <span style={styles.typeTag}>{taxonomy.type}</span>
               </span>
-              {selectedCount > 0 && (
-                <span style={styles.badge}>{selectedCount}</span>
-              )}
+              {selectedCount > 0 && <span style={styles.badge}>{selectedCount}</span>}
             </summary>
             <div style={styles.valuesGrid}>
               {taxonomy.values.map((value) => {
@@ -105,10 +84,10 @@ export function QuizForm({ onSubmit, loading }: Props) {
                 return (
                   <label key={value.key} style={{ ...styles.valueLabel, ...(isChecked ? styles.valueLabelChecked : {}) }}>
                     <input
-                      type={isOrdered ? "radio" : "checkbox"}
-                      name={isOrdered ? `taxonomy-${taxonomy.id}` : undefined}
+                      type={isCategorical ? "radio" : "checkbox"}
+                      name={isCategorical ? `taxonomy-${taxonomy.key}` : undefined}
                       checked={isChecked}
-                      onChange={() => selectOnly(prefixedKey, taxonomy.id, taxonomy.type)}
+                      onChange={() => selectOnly(prefixedKey, taxonomy.key, taxonomy.type)}
                       style={styles.input}
                     />
                     {value.icon && <span style={styles.icon}>{value.icon}</span>}
@@ -137,12 +116,7 @@ export function QuizForm({ onSubmit, loading }: Props) {
             />
           </label>
           <label style={styles.disabilityLabel}>
-            <input
-              type="checkbox"
-              checked={hasDisability}
-              onChange={(e) => setHasDisability(e.target.checked)}
-              style={styles.input}
-            />
+            <input type="checkbox" checked={hasDisability} onChange={(e) => setHasDisability(e.target.checked)} style={styles.input} />
             Situation de handicap
           </label>
         </div>
@@ -164,11 +138,7 @@ export function QuizForm({ onSubmit, loading }: Props) {
         <span style={styles.selectionCount}>
           {totalSelected} valeur{totalSelected !== 1 ? "s" : ""} sélectionnée{totalSelected !== 1 ? "s" : ""}
         </span>
-        <button
-          type="submit"
-          disabled={totalSelected === 0 || loading}
-          style={{ ...styles.submitBtn, ...(totalSelected === 0 || loading ? styles.submitBtnDisabled : {}) }}
-        >
+        <button type="submit" disabled={totalSelected === 0 || loading} style={{ ...styles.submitBtn, ...(totalSelected === 0 || loading ? styles.submitBtnDisabled : {}) }}>
           {loading ? "Calcul en cours…" : "Voir les missions"}
         </button>
       </div>
@@ -331,15 +301,5 @@ const styles: Record<string, React.CSSProperties> = {
   submitBtnDisabled: {
     background: "#9ca3af",
     cursor: "not-allowed",
-  },
-  error: {
-    color: "#dc2626",
-    padding: 16,
-    fontFamily: "system-ui, sans-serif",
-  },
-  loading: {
-    padding: 16,
-    color: "#6b7280",
-    fontFamily: "system-ui, sans-serif",
   },
 };
