@@ -52,7 +52,7 @@ jobs:
           cache: "npm"
           cache-dependency-path: "package-lock.json"
       - name: Install dependencies
-        run: npm ci --workspace api --include-workspace-root=false
+        run: npm ci
       - name: Build (tsc)
         run: npm --workspace api run build
 

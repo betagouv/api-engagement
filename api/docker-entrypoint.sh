@@ -1,3 +1,3 @@
 #!/bin/sh
 
-exec node /app/dist/index.js
+exec node /workspace/api/dist/index.js
