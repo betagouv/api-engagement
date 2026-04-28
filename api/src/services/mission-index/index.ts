@@ -1,19 +1,46 @@
+import { isValidTaxonomyValueKey } from "@engagement/taxonomy";
+
 import { TYPESENSE_MISSION_COLLECTION } from "@/config";
 import { prisma } from "@/db/postgres";
 import { typesenseClient } from "@/services/typesense/client";
+import { INDEXED_TAXONOMY_KEYS, IndexedTaxonomyKey } from "@/services/typesense/mission-fields";
 
-export interface MissionIndexDocument {
+export type MissionIndexDocument = Partial<Record<IndexedTaxonomyKey, string[]>> & {
   id: string;
   publisherId: string;
   departmentCodes: string[];
-  // TODO: résoudre les clés taxonomiques via packages/taxonomy (les tables taxonomy/taxonomyValue sont amenées à disparaître)
-  domaine: string[];
-  engagement_intent: string[];
-  type_mission: string[];
-  tranche_age: string[];
-}
+};
 
 const missionCollection = () => typesenseClient.collections<MissionIndexDocument>(TYPESENSE_MISSION_COLLECTION);
+
+const buildEmptyTaxonomyIndex = (): Record<IndexedTaxonomyKey, string[]> => {
+  return Object.fromEntries(INDEXED_TAXONOMY_KEYS.map((key) => [key, []])) as Record<IndexedTaxonomyKey, string[]>;
+};
+
+const buildTaxonomyIndex = (
+  values: Array<{
+    taxonomyKey: string | null;
+    valueKey: string | null;
+  }>
+): Record<IndexedTaxonomyKey, string[]> => {
+  const indexedValues = buildEmptyTaxonomyIndex();
+
+  for (const value of values) {
+    if (!value.taxonomyKey || !value.valueKey) {
+      continue;
+    }
+
+    const taxonomyValueKey = `${value.taxonomyKey}.${value.valueKey}`;
+    if (!isValidTaxonomyValueKey(taxonomyValueKey)) {
+      continue;
+    }
+
+    const taxonomyKey = value.taxonomyKey as IndexedTaxonomyKey;
+    indexedValues[taxonomyKey].push(value.valueKey);
+  }
+
+  return Object.fromEntries(Object.entries(indexedValues).map(([key, values]) => [key, [...new Set(values)]])) as Record<IndexedTaxonomyKey, string[]>;
+};
 
 export const missionIndexService = {
   async upsert(missionId: string): Promise<void> {
@@ -32,7 +59,7 @@ export const missionIndexService = {
           select: {
             missionScoringValues: {
               where: { score: { gt: 0 } },
-              select: { score: true, taxonomyValueId: true },
+              select: { taxonomyKey: true, valueKey: true },
             },
           },
         },
@@ -45,17 +72,13 @@ export const missionIndexService = {
     }
 
     const departmentCodes = [...new Set(mission.addresses.map((a) => a.departmentCode).filter((c): c is string => c !== null && c !== undefined))];
+    const taxonomyIndex = buildTaxonomyIndex(mission.missionScorings[0]?.missionScoringValues ?? []);
 
-    // TODO: résoudre les clés taxonomiques depuis packages/taxonomy
-    // Pour l'instant les facets taxonomy sont vides en attendant la migration
     const document: MissionIndexDocument = {
       id: mission.id,
       publisherId: mission.publisherId ?? "",
       departmentCodes,
-      domaine: [],
-      engagement_intent: [],
-      type_mission: [],
-      tranche_age: [],
+      ...taxonomyIndex,
     };
 
     await missionCollection().documents().upsert(document);

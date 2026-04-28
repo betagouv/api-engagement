@@ -1,21 +1,20 @@
 import { TYPESENSE_MISSION_COLLECTION } from "@/config";
 import { missionService } from "@/services/mission";
 import { typesenseClient } from "@/services/typesense/client";
+import { INDEXED_TAXONOMY_KEYS, IndexedTaxonomyKey } from "@/services/typesense/mission-fields";
 import { ensureMissionCollection } from "@/services/typesense/schema";
 import { MissionRecord } from "@/types/mission";
 
-const FACET_FIELDS = ["domaine", "engagement_intent", "type_mission", "tranche_age", "departmentCodes"];
+const FACET_FIELDS = [...INDEXED_TAXONOMY_KEYS, "departmentCodes"];
 
-export interface BrowseParams {
+type BrowseTaxonomyParams = Partial<Record<IndexedTaxonomyKey, string | string[]>>;
+
+export type BrowseParams = BrowseTaxonomyParams & {
   publisherId?: string;
   departmentCode?: string | string[];
-  domaine?: string | string[];
-  engagement_intent?: string | string[];
-  type_mission?: string | string[];
-  tranche_age?: string | string[];
   page: number;
   pageSize: number;
-}
+};
 
 export interface FacetCount {
   key: string;
@@ -67,7 +66,7 @@ const buildFilterBy = (params: BrowseParams): string => {
     parts.push(buildTypesenseListFilter("departmentCodes", deptCodes));
   }
 
-  for (const field of ["domaine", "engagement_intent", "type_mission", "tranche_age"] as const) {
+  for (const field of INDEXED_TAXONOMY_KEYS) {
     const vals = toArray(params[field]);
     if (vals?.length) {
       parts.push(buildTypesenseListFilter(field, vals));

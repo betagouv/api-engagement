@@ -3,16 +3,18 @@ import zod from "zod";
 
 import { INVALID_QUERY, SERVICE_UNAVAILABLE, captureException } from "@/error";
 import { MissionBrowseIndexUnavailableError, missionBrowseService } from "@/services/mission-browse";
+import { INDEXED_TAXONOMY_KEYS } from "@/services/typesense/mission-fields";
 
 const router = Router();
 
+const stringOrStringArraySchema = zod.union([zod.string(), zod.array(zod.string())]);
+
+const taxonomyQueryShape = Object.fromEntries(INDEXED_TAXONOMY_KEYS.map((key) => [key, stringOrStringArraySchema.optional()]));
+
 const browseQuerySchema = zod.object({
   publisherId: zod.string().optional(),
-  departmentCode: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-  domaine: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-  engagement_intent: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-  type_mission: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-  tranche_age: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+  departmentCode: stringOrStringArraySchema.optional(),
+  ...taxonomyQueryShape,
   page: zod.coerce.number().int().positive().default(1),
   pageSize: zod.coerce.number().int().positive().max(100).default(20),
 });
