@@ -67,11 +67,11 @@ jobs:
         with:
           node-version: "24"
           cache: "npm"
-          cache-dependency-path: "app/package-lock.json"
+          cache-dependency-path: "package-lock.json"
       - name: Install dependencies
-        run: cd app && npm ci
+        run: npm ci
       - name: Build (vite)
-        run: cd app && npm run build
+        run: npm --workspace app run build
 
   analytics-build:
     name: Analytics build
@@ -101,11 +101,11 @@ jobs:
         with:
           node-version: "24"
           cache: "npm"
-          cache-dependency-path: "widget/package-lock.json"
+          cache-dependency-path: "package-lock.json"
       - name: Install dependencies
-        run: cd widget && npm ci
+        run: npm ci
       - name: Build (next)
-        run: cd widget && npm run build
+        run: npm --workspace widget run build
 
   plateform-build:
     name: Plateform build

@@ -242,16 +242,16 @@ jobs:
         with:
           node-version: "24"
           cache: "npm"
-          cache-dependency-path: "widget/package-lock.json"
+          cache-dependency-path: "package-lock.json"
 
       - name: Install dependencies
-        run: cd widget && npm ci
+        run: npm ci
 
       - name: Install Playwright browsers and dependencies
-        run: cd widget && npx playwright install --with-deps
+        run: npm --workspace widget exec -- playwright install --with-deps
 
       - name: Run tests
-        run: cd widget && npm run test:e2e
+        run: npm --workspace widget run test:e2e
 
       - name: Upload HTML test report
         uses: actions/upload-artifact@v7
@@ -277,13 +277,13 @@ jobs:
         with:
           node-version: "24"
           cache: "npm"
-          cache-dependency-path: "app/package-lock.json"
+          cache-dependency-path: "package-lock.json"
 
       - name: Install dependencies
-        run: cd app && npm ci
+        run: npm ci
 
       - name: Install Playwright browsers and dependencies
-        run: cd app && npx playwright install --with-deps chromium
+        run: npm --workspace app exec -- playwright install --with-deps chromium
 
       - name: Run tests
-        run: cd app && npm run test:e2e
+        run: npm --workspace app run test:e2e
