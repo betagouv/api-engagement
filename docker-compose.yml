@@ -73,7 +73,9 @@ services:
       - "3005:3005"
 
   app:
-    build: ./app
+    build:
+      context: .
+      dockerfile: app/Dockerfile
     depends_on:
       - api
     environment:
@@ -86,7 +88,9 @@ services:
       - "3000:3000"
 
   widget:
-    build: ./widget
+    build:
+      context: .
+      dockerfile: widget/Dockerfile
     depends_on:
       - api
     environment:
