@@ -7,17 +7,17 @@ import type { QuizOutletContext } from "./_layout";
 const STEP_ID = "precision_indecision";
 
 // Fallback pour les users qui ont choisi "Je ne sais pas" en motivation.
-// Mêmes 9 options de domaine que parcoursup_domaine / decouvrir_domaine — même axe de scoring.
+// Mêmes options de domaine que parcoursup_domaine / decouvrir_domaine — même axe de scoring.
 const STEP_OPTIONS = [
-  OPTIONS["domain.social_solidarite"],
-  OPTIONS["domain.education_transmission"],
-  OPTIONS["domain.gestion_projet"],
-  OPTIONS["domain.culture_arts"],
-  OPTIONS["domain.environnement_nature"],
-  OPTIONS["domain.sport_animation"],
-  OPTIONS["domain.sante_soins"],
-  OPTIONS["domain.securite_defense"],
-  OPTIONS["domain.autre"],
+  OPTIONS["domaine.social_solidarite"],
+  OPTIONS["domaine.education_transmission"],
+  OPTIONS["domaine.gestion_projet"],
+  OPTIONS["domaine.culture_arts"],
+  OPTIONS["domaine.environnement_nature"],
+  OPTIONS["domaine.sport_animation"],
+  OPTIONS["domaine.sante_soins"],
+  OPTIONS["domaine.securite_defense"],
+  OPTIONS["domaine.je_ne_sais_pas"],
 ];
 
 export default function PrecisionIndecisionStep() {

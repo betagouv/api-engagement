@@ -6,18 +6,17 @@ import type { QuizOutletContext } from "./_layout";
 
 const STEP_ID = "precision_reconversion";
 
-// Mapping ONISEP — 8 domaines + "ne sais pas" (même grille que precision_experience_terrain).
-// Namespace `reconversion.*` distinct : domaine visé pour une reconversion, pas le domaine d'études actuel.
+// Mapping ONISEP — même grille que precision_experience_terrain.
 const STEP_OPTIONS = [
-  OPTIONS["reconversion.environnement_sciences"],
-  OPTIONS["reconversion.numerique_communication"],
-  OPTIONS["reconversion.commerce_gestion"],
-  OPTIONS["reconversion.societe_droit"],
-  OPTIONS["reconversion.education_culture"],
-  OPTIONS["reconversion.social_sante_sport"],
-  OPTIONS["reconversion.technique_industrie"],
-  OPTIONS["reconversion.securite_logistique"],
-  OPTIONS["reconversion.ne_sais_pas"],
+  OPTIONS["formation_onisep.environnement_nature_sciences"],
+  OPTIONS["formation_onisep.numerique_communication"],
+  OPTIONS["formation_onisep.commerce_gestion_finance"],
+  OPTIONS["formation_onisep.societe_droit_politique"],
+  OPTIONS["formation_onisep.education_culture_creation"],
+  OPTIONS["formation_onisep.social_sante_sport"],
+  OPTIONS["formation_onisep.technique_industrie_construction"],
+  OPTIONS["formation_onisep.securite_defense_logistique"],
+  OPTIONS["formation_onisep.je_ne_sais_pas"],
 ];
 
 export default function PrecisionReconversionStep() {

@@ -8,15 +8,15 @@ const STEP_ID = "precision_reprendre_activite";
 
 // Mapping référentiel ROME — 9 secteurs d'activité (voir Notion — Étape 7 demandeur / reprendre_activite).
 const STEP_OPTIONS = [
-  OPTIONS["secteurs.sante_social_aide"],
-  OPTIONS["secteurs.education_formation_animation"],
-  OPTIONS["secteurs.securite_service_public"],
-  OPTIONS["secteurs.environnement_agriculture"],
-  OPTIONS["secteurs.culture_creation_medias"],
-  OPTIONS["secteurs.numerique_communication"],
-  OPTIONS["secteurs.batiment_industrie_logistique"],
-  OPTIONS["secteurs.gestion_commerce_organisation"],
-  OPTIONS["secteurs.ne_sais_pas"],
+  OPTIONS["secteur_activite.sante_social_aide_personne"],
+  OPTIONS["secteur_activite.education_formation_animation"],
+  OPTIONS["secteur_activite.securite_service_public"],
+  OPTIONS["secteur_activite.environnement_agriculture"],
+  OPTIONS["secteur_activite.culture_creation_medias"],
+  OPTIONS["secteur_activite.numerique_communication"],
+  OPTIONS["secteur_activite.batiment_industrie_logistique"],
+  OPTIONS["secteur_activite.gestion_commerce_organisation"],
+  OPTIONS["secteur_activite.je_ne_sais_pas"],
 ];
 
 export default function PrecisionReprendreActiviteStep() {

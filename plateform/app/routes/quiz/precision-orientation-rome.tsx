@@ -8,15 +8,15 @@ const STEP_ID = "precision_orientation_rome";
 
 // Catégories simplifiées dérivées du référentiel ONISEP (voir Notion — Étape 7 lycéen / tester_orientation).
 const STEP_OPTIONS = [
-  OPTIONS["orientation.environnement_sciences"],
-  OPTIONS["orientation.numerique_communication"],
-  OPTIONS["orientation.commerce_gestion"],
-  OPTIONS["orientation.societe_droit"],
-  OPTIONS["orientation.education_culture"],
-  OPTIONS["orientation.social_sante_sport"],
-  OPTIONS["orientation.technique_industrie"],
-  OPTIONS["orientation.securite_logistique"],
-  OPTIONS["orientation.ne_sais_pas"],
+  OPTIONS["formation_onisep.environnement_nature_sciences"],
+  OPTIONS["formation_onisep.numerique_communication"],
+  OPTIONS["formation_onisep.commerce_gestion_finance"],
+  OPTIONS["formation_onisep.societe_droit_politique"],
+  OPTIONS["formation_onisep.education_culture_creation"],
+  OPTIONS["formation_onisep.social_sante_sport"],
+  OPTIONS["formation_onisep.technique_industrie_construction"],
+  OPTIONS["formation_onisep.securite_defense_logistique"],
+  OPTIONS["formation_onisep.je_ne_sais_pas"],
 ];
 
 export default function PrecisionOrientationRomeStep() {

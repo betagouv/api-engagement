@@ -9,13 +9,13 @@ const STEP_ID = "precision_competences";
 // Mapping référentiel ROME — 7 domaines de compétences.
 // Voir Notion — Étape 7 étudiant / booster_cv.
 const STEP_OPTIONS = [
-  OPTIONS["competences.management_social_soin"],
-  OPTIONS["competences.communication_creation"],
-  OPTIONS["competences.production_construction"],
-  OPTIONS["competences.gestion_pilotage"],
-  OPTIONS["competences.relation_client"],
-  OPTIONS["competences.cooperation_organisation"],
-  OPTIONS["competences.protection"],
+  OPTIONS["competence_rome.management_social_soin"],
+  OPTIONS["competence_rome.communication_creation_numerique"],
+  OPTIONS["competence_rome.production_construction_qualite_logistique"],
+  OPTIONS["competence_rome.gestion_pilotage_juridique"],
+  OPTIONS["competence_rome.relation_client_commerce_strategie"],
+  OPTIONS["competence_rome.cooperation_organisation_soft_skills"],
+  OPTIONS["competence_rome.securite_environnement_action_publique"],
 ];
 
 export default function PrecisionCompetencesStep() {

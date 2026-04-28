@@ -26,6 +26,7 @@ export default function MissionsPage() {
     const controller = new AbortController();
     setLoading(true);
     setError(null);
+    setMissions([]);
 
     // TODO
 

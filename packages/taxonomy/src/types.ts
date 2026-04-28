@@ -26,6 +26,7 @@ export type GateTaxonomyKey = {
 export type TaxonomyValueItem = {
   key: string;
   label: string;
+  sublabel?: string;
   icon: string | null;
   order: number;
   enrichable: boolean;

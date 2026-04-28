@@ -107,14 +107,14 @@ export const QUIZ_FLOW: StepDef[] = [
 
   // → competences_interet_general (actif) : mapping référentiel ROME (compétences actuelles).
   // Sémantique distincte de `precision_competences` — ici on demande ce que l'user SAIT FAIRE
-  // pour l'utiliser, pas ce qu'il veut développer. Namespace `competences_actuelles.*`.
+  // pour l'utiliser, pas ce qu'il veut développer.
   {
     id: "precision_competences_actuelles",
     route: "/quiz/precision-competences-actuelles",
     condition: screenAnswer("motivation_actif", "motivation.competences_interet_general"),
   },
 
-  // → decouvrir_domaine (étudiant + actif) : mapping référentiel `domain`.
+  // → decouvrir_domaine (étudiant + actif) : mapping référentiel `domaine`.
   {
     id: "precision_decouvrir_domaine",
     route: "/quiz/precision-decouvrir-domaine",
@@ -142,7 +142,7 @@ export const QUIZ_FLOW: StepDef[] = [
     condition: screenAnswer("motivation_demandeur_emploi", "motivation.preparer_reconversion"),
   },
 
-  // → ne_sais_pas (toutes branches applicables) : fallback — mapping `domain`.
+  // → ne_sais_pas (toutes branches applicables) : fallback — mapping `domaine`.
   {
     id: "precision_indecision",
     route: "/quiz/precision-indecision",
@@ -156,10 +156,10 @@ export const QUIZ_FLOW: StepDef[] = [
     condition: anyScreenHasAnswer(ALL_MOTIVATIONS, "motivation.servir_le_pays"),
   },
 
-  // → partir_etranger (étudiant + actif), masqué si `duree = ponctuelle` (règle produit).
+  // → partir_etranger (étudiant + actif), masqué si `type_mission = ponctuelle` (règle produit).
   {
     id: "precision_international",
     route: "/quiz/precision-international",
-    condition: and(anyScreenHasAnswer(ETUDIANT_ACTIF, "motivation.partir_etranger"), not(screenAnswer("duree", "duree.ponctuelle"))),
+    condition: and(anyScreenHasAnswer(ETUDIANT_ACTIF, "motivation.partir_etranger"), not(screenAnswer("duree", "type_mission.ponctuelle"))),
   },
 ];

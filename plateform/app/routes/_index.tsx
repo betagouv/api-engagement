@@ -11,7 +11,7 @@ export function meta(): Route.MetaDescriptors {
   ];
 }
 
-export default function Landing(_: Route.ComponentProps) {
+export default function Landing() {
   return (
     <main className="fr-container fr-py-6w">
       <h1>Trouvez votre mission de bénévolat</h1>

@@ -10,10 +10,10 @@ import type { QuizOutletContext } from "./_layout";
 const STEP_ID = "duree";
 
 const STEP_OPTIONS: StepOption[] = [
-  OPTIONS["duree.ponctuelle"],
-  OPTIONS["duree.reguliere"],
-  OPTIONS["duree.temps_plein"],
-  { ...OPTIONS["duree.ne_sais_pas"], hiddenIf: numericRange("age", 16, 25) },
+  OPTIONS["type_mission.ponctuelle"],
+  OPTIONS["type_mission.reguliere"],
+  OPTIONS["type_mission.temps_plein"],
+  { ...OPTIONS["type_mission.je_ne_sais_pas"], hiddenIf: numericRange("age", 16, 25) },
 ];
 
 export default function DureeStep() {

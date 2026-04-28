@@ -10,13 +10,13 @@ const STEP_ID = "precision_competences_actuelles";
 // ici on capture les compétences actuelles de l'user pour les matcher à des missions,
 // pas ses aspirations de développement.
 const STEP_OPTIONS = [
-  OPTIONS["competences_actuelles.management_social_soin"],
-  OPTIONS["competences_actuelles.communication_creation"],
-  OPTIONS["competences_actuelles.production_construction"],
-  OPTIONS["competences_actuelles.gestion_pilotage"],
-  OPTIONS["competences_actuelles.relation_client"],
-  OPTIONS["competences_actuelles.cooperation_organisation"],
-  OPTIONS["competences_actuelles.protection"],
+  OPTIONS["competence_rome.management_social_soin"],
+  OPTIONS["competence_rome.communication_creation_numerique"],
+  OPTIONS["competence_rome.production_construction_qualite_logistique"],
+  OPTIONS["competence_rome.gestion_pilotage_juridique"],
+  OPTIONS["competence_rome.relation_client_commerce_strategie"],
+  OPTIONS["competence_rome.cooperation_organisation_soft_skills"],
+  OPTIONS["competence_rome.securite_environnement_action_publique"],
 ];
 
 export default function PrecisionCompetencesActuellesStep() {

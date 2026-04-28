@@ -6,13 +6,13 @@ import type { QuizOutletContext } from "./_layout";
 
 const STEP_ID = "precision_international";
 
-// Régions du monde. Condition de visibilité dans QUIZ_FLOW : masqué si `duree = ponctuelle`.
+// Régions du monde. Condition de visibilité dans QUIZ_FLOW : masqué si `type_mission = ponctuelle`.
 const STEP_OPTIONS = [
-  OPTIONS["international.europe"],
-  OPTIONS["international.afrique"],
-  OPTIONS["international.amerique"],
-  OPTIONS["international.asie"],
-  OPTIONS["international.ne_sais_pas"],
+  OPTIONS["region_internationale.europe"],
+  OPTIONS["region_internationale.afrique"],
+  OPTIONS["region_internationale.amerique"],
+  OPTIONS["region_internationale.asie"],
+  OPTIONS["region_internationale.je_ne_sais_pas"],
 ];
 
 export default function PrecisionInternationalStep() {

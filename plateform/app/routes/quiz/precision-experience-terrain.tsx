@@ -7,18 +7,16 @@ import type { QuizOutletContext } from "./_layout";
 const STEP_ID = "precision_experience_terrain";
 
 // Domaine d'études actuelles — catégories simplifiées ONISEP (même grille que precision_orientation_rome).
-// Namespace `etudes.*` distinct de `orientation.*` car la sémantique produit est différente
-// (formation actuelle vs orientation souhaitée).
 const STEP_OPTIONS = [
-  OPTIONS["etudes.environnement_sciences"],
-  OPTIONS["etudes.numerique_communication"],
-  OPTIONS["etudes.commerce_gestion"],
-  OPTIONS["etudes.societe_droit"],
-  OPTIONS["etudes.education_culture"],
-  OPTIONS["etudes.social_sante_sport"],
-  OPTIONS["etudes.technique_industrie"],
-  OPTIONS["etudes.securite_logistique"],
-  OPTIONS["etudes.ne_sais_pas"],
+  OPTIONS["formation_onisep.environnement_nature_sciences"],
+  OPTIONS["formation_onisep.numerique_communication"],
+  OPTIONS["formation_onisep.commerce_gestion_finance"],
+  OPTIONS["formation_onisep.societe_droit_politique"],
+  OPTIONS["formation_onisep.education_culture_creation"],
+  OPTIONS["formation_onisep.social_sante_sport"],
+  OPTIONS["formation_onisep.technique_industrie_construction"],
+  OPTIONS["formation_onisep.securite_defense_logistique"],
+  OPTIONS["formation_onisep.je_ne_sais_pas"],
 ];
 
 export default function PrecisionExperienceTerrainStep() {
