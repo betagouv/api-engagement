@@ -24,6 +24,7 @@ export class UpdateMissionIndexHandler implements BaseHandler<UpdateMissionIndex
   name = "Indexation Typesense des missions";
 
   async handle({ publisherId, limit, batchSize = DEFAULT_BATCH_SIZE, dryRun = false }: UpdateMissionIndexJobPayload = {}): Promise<UpdateMissionIndexJobResult> {
+    if (batchSize <= 0) {batchSize = DEFAULT_BATCH_SIZE;}
     try {
       const missions = await prisma.mission.findMany({
         where: {

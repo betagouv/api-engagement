@@ -27,6 +27,7 @@ export class AsyncTaskBus {
       );
     } catch (error) {
       captureException(error, { extra: { taskType: type, queueUrl: entry.queueUrl } });
+      throw error;
     }
   }
 }

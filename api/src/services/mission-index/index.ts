@@ -4,6 +4,7 @@ import { TYPESENSE_MISSION_COLLECTION } from "@/config";
 import { prisma } from "@/db/postgres";
 import { typesenseClient } from "@/services/typesense/client";
 import { INDEXED_TAXONOMY_KEYS, IndexedTaxonomyKey } from "@/services/typesense/mission-fields";
+import { ensureMissionCollection } from "@/services/typesense/schema";
 
 export type MissionIndexDocument = Partial<Record<IndexedTaxonomyKey, string[]>> & {
   id: string;
@@ -44,6 +45,7 @@ const buildTaxonomyIndex = (
 
 export const missionIndexService = {
   async upsert(missionId: string): Promise<void> {
+    await ensureMissionCollection();
     const mission = await prisma.mission.findUnique({
       where: { id: missionId },
       select: {
@@ -88,7 +90,9 @@ export const missionIndexService = {
     try {
       await missionCollection().documents(missionId).delete();
     } catch (err: unknown) {
-      if ((err as { httpStatus?: number }).httpStatus !== 404) {throw err;}
+      if ((err as { httpStatus?: number }).httpStatus !== 404) {
+        throw err;
+      }
     }
   },
 };
