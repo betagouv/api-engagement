@@ -98,6 +98,16 @@ services:
     ports:
       - "3003:3003"
 
+  typesense:
+    image: typesense/typesense:28.0
+    restart: always
+    command: --data-dir /data --api-key=xyz --enable-cors
+    ports:
+      - "8108:8108"
+    volumes:
+      - typesense-data:/data
+
 volumes:
   postgres-analytics-data:
   postgres-core-data:
+  typesense-data:

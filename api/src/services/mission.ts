@@ -4,6 +4,7 @@ import { Mission, Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
 import { missionRepository } from "@/repositories/mission";
 import { activityService } from "@/services/activity";
+import { asyncTaskBus } from "@/services/async-task";
 import type {
   MissionCreateInput,
   MissionFacets,
@@ -557,6 +558,21 @@ const baseInclude: MissionInclude = {
 };
 
 export const missionService = {
+  async findMissionsByIds(ids: string[]): Promise<MissionRecord[]> {
+    if (!ids.length) {
+      return [];
+    }
+    const missions = await missionRepository.findMany({
+      where: { id: { in: ids }, deletedAt: null },
+      include: baseInclude,
+    });
+    const missionMap = new Map(missions.map((m) => [m.id, m]));
+    return ids
+      .map((id) => missionMap.get(id))
+      .filter(Boolean)
+      .map((m) => toMissionRecord(m as MissionWithRelations));
+  },
+
   async findOneMission(id: string, moderatedBy: string | null = null): Promise<MissionRecord | null> {
     const mission = await missionRepository.findFirst({
       where: { id },
@@ -898,6 +914,11 @@ export const missionService = {
     if (!mission) {
       throw new Error(`[missionService] Mission ${id} not found after update`);
     }
+
+    if ("addresses" in patch) {
+      await asyncTaskBus.publish({ type: "mission.scoring", payload: { missionId: id } });
+    }
+
     return toMissionRecord(mission as MissionWithRelations);
   },
 };

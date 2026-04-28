@@ -60,6 +60,7 @@ import IframeController from "@/controllers/iframe";
 import ImportController from "@/controllers/import";
 import MetabaseController from "@/controllers/metabase";
 import MissionController from "@/controllers/mission";
+import MissionBrowseController from "@/controllers/mission-browse";
 import ModerationController from "@/controllers/moderation";
 import ModerationEventController from "@/controllers/moderation-event";
 import OrganizationController from "@/controllers/organization";
@@ -88,6 +89,9 @@ import MissionV2Controller from "@/v2/mission/controller";
 const main = async () => {
   console.log("[API] Waiting for database connections...");
   await pgConnected();
+
+  const { ensureMissionCollection } = await import("@/services/typesense/schema");
+  await ensureMissionCollection().catch((err) => console.error("[API] Typesense collection init failed:", err));
 
   console.log("[API] Starting API server...");
 
@@ -136,6 +140,7 @@ const main = async () => {
   app.use("/poc", corsPoc, PocController);
   app.use("/user-scoring", corsPublic, UserScoringController);
   app.use("/brevo-webhook", corsPublic, BrevoWebhookController);
+  app.use("/missions", corsPublic, MissionBrowseController);
 
   // Interal routes
   app.use("/admin-report", AdminReportController);

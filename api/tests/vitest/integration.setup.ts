@@ -1,6 +1,9 @@
 import "./shared";
 
+import { TYPESENSE_MISSION_COLLECTION } from "@/config";
 import { pgConnected, prisma } from "@/db/postgres";
+import { typesenseClient } from "@/services/typesense/client";
+import { MISSION_COLLECTION_SCHEMA } from "@/services/typesense/schema";
 import { afterAll, beforeAll, beforeEach } from "vitest";
 
 beforeAll(async () => {
@@ -14,6 +17,8 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   await prisma.$transaction([
+    prisma.missionScoringValue.deleteMany({}),
+    prisma.missionScoring.deleteMany({}),
     prisma.missionEnrichmentValue.deleteMany({}),
     prisma.missionEnrichment.deleteMany({}),
     prisma.statEvent.deleteMany({}),
@@ -39,6 +44,13 @@ beforeEach(async () => {
     prisma.userPublisher.deleteMany({}),
     prisma.user.deleteMany({}),
   ]);
+
+  try {
+    await typesenseClient.collections(TYPESENSE_MISSION_COLLECTION).delete();
+  } catch {
+    // collection may not exist yet
+  }
+  await typesenseClient.collections().create(MISSION_COLLECTION_SCHEMA);
 });
 
 afterAll(async () => {

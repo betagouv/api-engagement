@@ -7,12 +7,13 @@ import CampaignController from "@/controllers/campaign";
 import IframeController from "@/controllers/iframe";
 import ImportController from "@/controllers/import";
 import MissionController from "@/controllers/mission";
+import MissionBrowseController from "@/controllers/mission-browse";
 import ModerationController from "@/controllers/moderation";
-import UserScoringController from "@/controllers/user-scoring";
 import PublisherController from "@/controllers/publisher";
 import RedirectController from "@/controllers/redirect";
 import StatsController from "@/controllers/stats";
 import UserController from "@/controllers/user";
+import UserScoringController from "@/controllers/user-scoring";
 import WarningController from "@/controllers/warning";
 import WidgetController from "@/controllers/widget";
 import bodyParserErrorHandler from "@/middlewares/body-parser-error-handler";
@@ -61,6 +62,7 @@ export const createTestApp = ({ metricsRecorder }: { metricsRecorder?: HttpMetri
   app.use("/r", RedirectController);
   app.use("/v2/activity", ActivityV2Controller);
   app.use("/iframe", IframeController);
+  app.use("/missions", MissionBrowseController);
 
   // Error handler
   app.use((err: any, req: express.Request, res: express.Response, _: express.NextFunction) => {
