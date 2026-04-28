@@ -129,7 +129,7 @@ const run = async () => {
   console.log("[seed-taxonomy] Connected to PostgreSQL");
 
   const activeTaxonomyKeys = TAXONOMY_DATA.map((d) => d.key);
-  let dimensionCount = 0;
+  let taxonomyCount = 0;
   let valueCount = 0;
 
   for (const dim of TAXONOMY_DATA) {
@@ -138,7 +138,7 @@ const run = async () => {
       update: { label: dim.label, type: dim.type },
       create: { key: dim.key, label: dim.label, type: dim.type },
     });
-    dimensionCount++;
+    taxonomyCount++;
 
     const activeKeys: string[] = [];
 
@@ -163,7 +163,7 @@ const run = async () => {
     }
   }
 
-  console.log(`[seed-taxonomy] Done: ${dimensionCount} dimensions, ${valueCount} values`);
+  console.log(`[seed-taxonomy] Done: ${taxonomyCount} taxonomies, ${valueCount} values`);
   await prisma.$disconnect();
 };
 

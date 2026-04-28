@@ -29,14 +29,8 @@ const missionScoringRepositoryMock = missionScoringRepository as unknown as {
 const buildEnrichmentValue = (overrides: Record<string, unknown> = {}) => ({
   id: "mev-1",
   confidence: 0.76,
-  taxonomyValueId: "tv-1",
-  taxonomyValue: {
-    id: "tv-1",
-    key: "social_solidarite",
-    taxonomy: {
-      key: "domaine",
-    },
-  },
+  taxonomyKey: "domaine",
+  valueKey: "social_solidarite",
   ...overrides,
 });
 
@@ -97,7 +91,8 @@ describe("missionScoringService.score", () => {
       values: [
         {
           missionEnrichmentValueId: "mev-1",
-          taxonomyValueId: "tv-1",
+          taxonomyKey: "domaine",
+          valueKey: "social_solidarite",
           score: 0.6,
         },
       ],
@@ -111,14 +106,8 @@ describe("missionScoringService.score", () => {
       mission: { publisherId: null },
       values: [
         buildEnrichmentValue({
-          taxonomyValueId: "tv-non-specifie",
-          taxonomyValue: {
-            id: "tv-non-specifie",
-            key: "non_specifie",
-            taxonomy: {
-              key: "accessibilite",
-            },
-          },
+          taxonomyKey: "accessibilite",
+          valueKey: "non_specifie",
         }),
       ],
     });

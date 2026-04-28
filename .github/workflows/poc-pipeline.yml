@@ -7,6 +7,7 @@ on:
     paths:
       - ".github/workflows/poc-pipeline.yml"
       - "api/**"
+      - "packages/**"
       - "poc-quiz/**"
       - "terraform/**"
 
@@ -55,7 +56,7 @@ jobs:
       - name: Build and push API image
         uses: docker/build-push-action@v7
         with:
-          context: ./api
+          context: .
           file: ./api/Dockerfile.production
           push: true
           tags: |
@@ -65,7 +66,7 @@ jobs:
       - name: Build and push poc-quiz image
         uses: docker/build-push-action@v7
         with:
-          context: ./poc-quiz
+          context: .
           file: ./poc-quiz/Dockerfile.production
           push: true
           provenance: false
@@ -116,16 +117,15 @@ jobs:
         with:
           node-version: "24"
           cache: "npm"
-          cache-dependency-path: "api/package-lock.json"
+          cache-dependency-path: "package-lock.json"
 
       - name: Install API dependencies
-        run: cd api && npm ci
+        run: npm ci
 
       - name: Run Prisma migrations
-        working-directory: api
         env:
           DATABASE_URL_CORE: ${{ secrets.DATABASE_URL_CORE }}
-        run: npm run prisma:migrate:deploy
+        run: npm --workspace api run prisma:migrate:deploy
 
       - name: Terraform Init
         working-directory: ./terraform

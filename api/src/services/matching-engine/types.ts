@@ -1,26 +1,14 @@
-import { TaxonomyKey } from "@/types/taxonomy";
+import type { EnrichableTaxonomyKey } from "@engagement/taxonomy";
 
-export const MATCHING_ENGINE_DIMENSIONS = [
-  TaxonomyKey.domaine,
-  TaxonomyKey.secteur_activite,
-  TaxonomyKey.type_mission,
-  TaxonomyKey.accessibilite,
-  TaxonomyKey.format_activite,
-  TaxonomyKey.competence_rome,
-  TaxonomyKey.engagement_civique,
-  TaxonomyKey.niveau_engagement,
-  TaxonomyKey.region_internationale,
-] as const satisfies readonly TaxonomyKey[];
+export type MatchingEngineTaxonomy = EnrichableTaxonomyKey;
 
-export type MatchingEngineDimension = (typeof MATCHING_ENGINE_DIMENSIONS)[number];
-
-export type MatchingEngineDimensionWeights = Record<MatchingEngineDimension, number>;
+export type MatchingEngineTaxonomyWeights = Record<MatchingEngineTaxonomy, number>;
 
 export type MatchingEngineVersion = "m1";
 
-export const CURRENT_MATCHING_ENGINE_VERSION: MatchingEngineVersion = "m1";
-
-export const MATCHING_ENGINE_TOP_RESULTS_LIMIT = 20;
+export type MatchingEngineVersionConfig = {
+  taxonomyWeights: MatchingEngineTaxonomyWeights;
+};
 
 export type RankMissionsByUserScoringInput = {
   userScoringId: string;
@@ -40,12 +28,12 @@ export type MatchMissionItem = {
   taxonomyScore: number;
   geoScore: number | null;
   distanceKm: number | null;
-  dimensionScores: Partial<Record<MatchingEngineDimension, number>>;
+  taxonomyScores: Partial<Record<MatchingEngineTaxonomy, number>>;
 };
 
 export type MissionMatchingResultItem = {
   missionScoringId: string;
-  dimensionScores: Partial<Record<MatchingEngineDimension, number>>;
+  taxonomyScores: Partial<Record<MatchingEngineTaxonomy, number>>;
 };
 
 export type RankMissionsByUserScoringResult = {

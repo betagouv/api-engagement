@@ -1,4 +1,4 @@
-import type { TaxonomyKey } from "@/types/taxonomy";
+import type { TaxonomyKey } from "@engagement/taxonomy";
 
 export type MissionScoringConfidenceScoreBucket = {
   minConfidence: number;
@@ -15,14 +15,14 @@ export type MissionScoringRuleset = {
 export type ScoringInputValue = {
   missionEnrichmentValueId: string;
   taxonomyKey: TaxonomyKey;
-  taxonomyValueId: string;
-  taxonomyValueKey: string;
+  valueKey: string;
   confidence: number;
 };
 
 export type ComputedMissionScoringValue = {
   missionEnrichmentValueId: string | null;
-  taxonomyValueId: string;
+  taxonomyKey: string;
+  valueKey: string;
   score: number;
 };
 

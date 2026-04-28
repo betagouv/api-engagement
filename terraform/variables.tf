@@ -202,3 +202,34 @@ variable "poc_quiz_hostname" {
   type    = string
   default = ""
 }
+
+variable "enable_plateform" {
+  type        = bool
+  default     = false
+  description = "Enable the plateform container"
+}
+
+variable "plateform_hostname" {
+  type    = string
+  default = ""
+}
+
+variable "plateform_cpu_limit" {
+  type    = number
+  default = 250
+}
+
+variable "plateform_memory_limit" {
+  type    = number
+  default = 512
+}
+
+variable "plateform_min_scale" {
+  type    = number
+  default = 0
+}
+
+variable "plateform_max_scale" {
+  type    = number
+  default = 1
+}

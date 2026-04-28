@@ -9,7 +9,7 @@ vi.mock("@/repositories/mission-matching-result", () => ({
 import { prisma } from "@/db/postgres";
 import { missionMatchingResultRepository } from "@/repositories/mission-matching-result";
 import { matchingEngineService } from "@/services/matching-engine";
-import { CURRENT_MATCHING_ENGINE_VERSION } from "@/services/matching-engine/types";
+import { CURRENT_MATCHING_ENGINE_VERSION } from "@/services/matching-engine/config";
 
 const prismaMock = prisma as unknown as {
   $queryRaw: ReturnType<typeof vi.fn>;
@@ -55,7 +55,7 @@ describe("matchingEngineService", () => {
       expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(1);
     });
 
-    it("returns ranked missions with clamped scores and indexed dimension scores", async () => {
+    it("returns ranked missions with clamped scores and indexed taxonomy scores", async () => {
       prismaMock.$queryRaw
         .mockResolvedValueOnce([
           {
@@ -84,18 +84,18 @@ describe("matchingEngineService", () => {
         .mockResolvedValueOnce([
           {
             mission_scoring_id: "mission-scoring-1",
-            dimension_key: "domaine",
-            dimension_score: 1.8,
+            taxonomy_key: "domaine",
+            taxonomy_score: 1.8,
           },
           {
             mission_scoring_id: "mission-scoring-1",
-            dimension_key: "unknown_dimension",
-            dimension_score: 0.9,
+            taxonomy_key: "unknown_taxonomy",
+            taxonomy_score: 0.9,
           },
           {
             mission_scoring_id: "mission-scoring-2",
-            dimension_key: "format_activite",
-            dimension_score: 0.3333333,
+            taxonomy_key: "format_activite",
+            taxonomy_score: 0.3333333,
           },
         ]);
       missionMatchingResultRepositoryMock.createForUserScoringVersion.mockResolvedValue({
@@ -116,7 +116,7 @@ describe("matchingEngineService", () => {
           taxonomyScore: 0,
           geoScore: 0.712346,
           distanceKm: 12.345,
-          dimensionScores: {
+          taxonomyScores: {
             domaine: 1,
           },
         },
@@ -127,22 +127,20 @@ describe("matchingEngineService", () => {
         results: [
           {
             missionScoringId: "mission-scoring-1",
-            dimensionScores: {
+            taxonomyScores: {
               domaine: 1,
             },
           },
           {
             missionScoringId: "mission-scoring-2",
-            dimensionScores: {
-              format_activite: 0.333333,
-            },
+            taxonomyScores: {},
           },
         ],
       });
       expect(result.tookMs).toBeGreaterThanOrEqual(0);
     });
 
-    it("does not query dimension scores when no mission is ranked", async () => {
+    it("does not query taxonomy scores when no mission is ranked", async () => {
       prismaMock.$queryRaw
         .mockResolvedValueOnce([
           {
@@ -189,8 +187,8 @@ describe("matchingEngineService", () => {
         .mockResolvedValueOnce([
           {
             mission_scoring_id: "mission-scoring-eligible",
-            dimension_key: "domaine",
-            dimension_score: 0.8,
+            taxonomy_key: "domaine",
+            taxonomy_score: 0.8,
           },
         ]);
       missionMatchingResultRepositoryMock.createForUserScoringVersion.mockResolvedValue({
@@ -210,18 +208,18 @@ describe("matchingEngineService", () => {
           taxonomyScore: 0.8,
           geoScore: null,
           distanceKm: null,
-          dimensionScores: {
+          taxonomyScores: {
             domaine: 0.8,
           },
         },
       ]);
     });
 
-    it("keeps excluded missions out of the final payload and ignores their dimension rows", async () => {
+    it("keeps excluded missions out of the final payload and ignores their taxonomy rows", async () => {
       prismaMock.$queryRaw
         .mockResolvedValueOnce([
           {
-            id: "user-scoring-gate-dimensions",
+            id: "user-scoring-gate-taxonomies",
             expires_at: null,
           },
         ])
@@ -238,26 +236,26 @@ describe("matchingEngineService", () => {
         .mockResolvedValueOnce([
           {
             mission_scoring_id: "mission-scoring-1",
-            dimension_key: "domaine",
-            dimension_score: 0.7,
+            taxonomy_key: "domaine",
+            taxonomy_score: 0.7,
           },
           {
             mission_scoring_id: "mission-scoring-excluded",
-            dimension_key: "domaine",
-            dimension_score: 0.2,
+            taxonomy_key: "domaine",
+            taxonomy_score: 0.2,
           },
           {
             mission_scoring_id: "mission-scoring-1",
-            dimension_key: "tranche_age",
-            dimension_score: 1,
+            taxonomy_key: "tranche_age",
+            taxonomy_score: 1,
           },
         ]);
       missionMatchingResultRepositoryMock.createForUserScoringVersion.mockResolvedValue({
-        id: "mission-matching-result-gate-dimensions",
+        id: "mission-matching-result-gate-taxonomies",
       });
 
       const result = await matchingEngineService.rankMissionsByUserScoring({
-        userScoringId: "user-scoring-gate-dimensions",
+        userScoringId: "user-scoring-gate-taxonomies",
       });
 
       expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(3);
@@ -269,7 +267,7 @@ describe("matchingEngineService", () => {
           taxonomyScore: 0.7,
           geoScore: null,
           distanceKm: null,
-          dimensionScores: {
+          taxonomyScores: {
             domaine: 0.7,
           },
         },
@@ -297,8 +295,8 @@ describe("matchingEngineService", () => {
         .mockResolvedValueOnce([
           {
             mission_scoring_id: "mission-scoring-2",
-            dimension_key: "domaine",
-            dimension_score: 0.6,
+            taxonomy_key: "domaine",
+            taxonomy_score: 0.6,
           },
         ]);
 
@@ -316,7 +314,7 @@ describe("matchingEngineService", () => {
           taxonomyScore: 0.6,
           geoScore: null,
           distanceKm: null,
-          dimensionScores: {
+          taxonomyScores: {
             domaine: 0.6,
           },
         },

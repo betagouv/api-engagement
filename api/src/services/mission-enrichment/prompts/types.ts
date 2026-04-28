@@ -1,3 +1,16 @@
+import type { EnrichableTaxonomyKey, ValueKey } from "@engagement/taxonomy";
+
+/** Type mappé pour les guides de classification par version de prompt.
+ *  - Les clés de taxonomies sont restreintes aux taxonomies enrichissables du package.
+ *  - Les value keys sont restreintes aux valeurs connues de chaque taxonomy.
+ *  Utiliser avec `satisfies` pour conserver les types littéraux inférés. */
+export type TaxonomyGuidanceMap = Partial<{
+  [D in EnrichableTaxonomyKey]: {
+    taxonomy: string;
+    values?: Partial<Record<ValueKey<D>, string>>;
+  };
+}>;
+
 export type TaxonomyForPrompt = Array<{
   key: string;
   label: string;

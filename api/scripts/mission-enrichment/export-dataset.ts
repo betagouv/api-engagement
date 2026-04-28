@@ -3,7 +3,8 @@ dotenv.config();
 
 import { prisma } from "@/db/postgres";
 import { CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/config";
-import { parseEnrichmentResponse, type TaxonomyLookup } from "@/services/mission-enrichment/parser";
+import { fuzzyMatchKey } from "@/utils/string";
+
 import fs from "fs";
 import path from "path";
 
@@ -25,30 +26,64 @@ const outputPath = getArg("--output") ?? "./enrichment-export.csv";
 
 // ─── Taxonomy lookup ─────────────────────────────────────────────────────────
 
-type DimensionMeta = { type: string; label: string; values: Map<string, { id: string; label: string }> };
-type FullTaxonomyLookup = Map<string, DimensionMeta>;
+type TaxonomyMeta = { type: string; label: string; values: Map<string, { label: string }> };
+type FullTaxonomyLookup = Map<string, TaxonomyMeta>;
 
 const buildFullLookup = (
-  dimensions: Array<{ key: string; type: string; label: string; values: Array<{ key: string; id: string; label: string; active: boolean }> }>
-): { taxonomyLookup: TaxonomyLookup; fullLookup: FullTaxonomyLookup } => {
-  const taxonomyLookup: TaxonomyLookup = new Map();
+  taxonomies: Array<{ key: string; type: string; label: string; values: Array<{ key: string; label: string; active: boolean }> }>
+): FullTaxonomyLookup => {
   const fullLookup: FullTaxonomyLookup = new Map();
 
-  for (const dim of dimensions) {
-    const valueMap = new Map<string, string>();
-    const fullValueMap = new Map<string, { id: string; label: string }>();
+  for (const dim of taxonomies) {
+    const fullValueMap = new Map<string, { label: string }>();
 
     for (const val of dim.values) {
-      if (!val.active) continue;
-      valueMap.set(val.key, val.id);
-      fullValueMap.set(val.key, { id: val.id, label: val.label });
+      if (!val.active) {
+        continue;
+      }
+      fullValueMap.set(val.key, { label: val.label });
     }
 
-    taxonomyLookup.set(dim.key, { type: dim.type, values: valueMap });
     fullLookup.set(dim.key, { type: dim.type, label: dim.label, values: fullValueMap });
   }
 
-  return { taxonomyLookup, fullLookup };
+  return fullLookup;
+};
+
+type RawClassification = {
+  taxonomy_key: string;
+  value_key: string;
+  confidence: number;
+  evidence: { extract: string; reasoning: string };
+};
+
+type SkippedClassification = RawClassification & {
+  reason: string;
+};
+
+const FUZZY_MATCH_THRESHOLD = 0.6;
+
+const getSkippedClassifications = (classifications: RawClassification[], fullLookup: FullTaxonomyLookup): SkippedClassification[] => {
+  const skipped: SkippedClassification[] = [];
+
+  for (const item of classifications) {
+    const taxonomy = fullLookup.get(item.taxonomy_key);
+    if (!taxonomy) {
+      skipped.push({ ...item, reason: `unknown_taxonomy: ${item.taxonomy_key}` });
+      continue;
+    }
+
+    if (taxonomy.values.has(item.value_key)) {
+      continue;
+    }
+
+    const match = fuzzyMatchKey(item.value_key, taxonomy.values.keys(), FUZZY_MATCH_THRESHOLD);
+    if (!match) {
+      skipped.push({ ...item, reason: `unknown_value: ${item.taxonomy_key}.${item.value_key}` });
+    }
+  }
+
+  return skipped;
 };
 
 // ─── CSV helpers ─────────────────────────────────────────────────────────────
@@ -72,8 +107,8 @@ const HEADERS = [
   "completedAt",
   "status",
   "skipReason",
-  "dimension",
-  "dimensionLabel",
+  "taxonomy",
+  "taxonomyLabel",
   "value",
   "valueLabel",
   "confidence",
@@ -98,8 +133,8 @@ type CsvRow = {
   completedAt: string;
   status: "valid" | "skipped";
   skipReason: string;
-  dimension: string;
-  dimensionLabel: string;
+  taxonomy: string;
+  taxonomyLabel: string;
   value: string;
   valueLabel: string;
   confidence: string;
@@ -117,17 +152,17 @@ const rowToCsv = (row: CsvRow): string => HEADERS.map((h) => csvEscape(row[h as 
 async function main() {
   console.log(`[export-dataset] version=${version} limit=${limit ?? "all"} output=${outputPath}`);
 
-  const dimensions = await prisma.taxonomy.findMany({
+  const taxonomies = await prisma.taxonomy.findMany({
     orderBy: { key: "asc" },
     include: { values: true },
   });
 
-  const { taxonomyLookup, fullLookup } = buildFullLookup(
-    dimensions.map((d) => ({
+  const fullLookup = buildFullLookup(
+    taxonomies.map((d) => ({
       key: d.key,
       type: d.type,
       label: d.label,
-      values: d.values.map((v) => ({ key: v.key, id: v.id, label: v.label, active: v.active })),
+      values: d.values.map((v) => ({ key: v.key, label: v.label, active: v.active })),
     }))
   );
 
@@ -194,10 +229,10 @@ async function main() {
         ...base,
         status: "valid",
         skipReason: "",
-        dimension: v.taxonomyValue.taxonomy.key,
-        dimensionLabel: v.taxonomyValue.taxonomy.label,
-        value: v.taxonomyValue.key,
-        valueLabel: v.taxonomyValue.label,
+        taxonomy: v.taxonomyValue!.taxonomy.key,
+        taxonomyLabel: v.taxonomyValue!.taxonomy.label,
+        value: v.taxonomyValue!.key,
+        valueLabel: v.taxonomyValue!.label,
         confidence: String(v.confidence),
         reasoning: evidence?.reasoning ?? "",
       });
@@ -209,21 +244,17 @@ async function main() {
         const raw = typeof enrichment.rawResponse === "string" ? enrichment.rawResponse : JSON.stringify(enrichment.rawResponse);
         const parsed = JSON.parse(raw) as { classifications?: unknown[] };
         const classifications = Array.isArray(parsed.classifications) ? parsed.classifications : [];
-        const { skipped } = validateEnrichmentClassifications(
-          classifications as Parameters<typeof validateEnrichmentClassifications>[0],
-          taxonomyLookup,
-          0 // threshold = 0 to recover all items (already filtered in valid)
-        );
+        const skipped = getSkippedClassifications(classifications as RawClassification[], fullLookup);
 
         for (const s of skipped) {
-          const dimMeta = fullLookup.get(s.dimension_key);
+          const dimMeta = fullLookup.get(s.taxonomy_key);
           const valMeta = dimMeta?.values.get(s.value_key);
           rows.push({
             ...base,
             status: "skipped",
             skipReason: s.reason,
-            dimension: s.dimension_key,
-            dimensionLabel: dimMeta?.label ?? "",
+            taxonomy: s.taxonomy_key,
+            taxonomyLabel: dimMeta?.label ?? "",
             value: s.value_key,
             valueLabel: valMeta?.label ?? "",
             confidence: String(s.confidence),

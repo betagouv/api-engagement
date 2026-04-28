@@ -1,12 +1,21 @@
+import { parseTaxonomyValueKey } from "@engagement/taxonomy";
 import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
 import { missionScoringRepository } from "@/repositories/mission-scoring";
-import { taxonomyRepository } from "@/repositories/taxonomy";
 import { computeMissionScoringValues } from "@/services/mission-scoring/calculator";
 import { missionScoringEnrichmentInclude, toScoringInputValues } from "@/services/mission-scoring/data";
 import { PUBLISHER_SCORING_RULES } from "@/services/mission-scoring/publisher-rules";
 import type { ComputedMissionScoringValue } from "@/services/mission-scoring/types";
 
 const LOG_PREFIX = "[mission-scoring]";
+
+const parsePublisherRuleKey = (key: string): { taxonomyKey: string; valueKey: string } => {
+  const parsedKey = parseTaxonomyValueKey(key);
+  if (!parsedKey) {
+    throw new Error(`[mission-scoring] invalid prefixed taxonomy key '${key}'`);
+  }
+
+  return parsedKey;
+};
 
 export const missionScoringService = {
   async score(params: { missionId: string; missionEnrichmentId?: string; force?: boolean }) {
@@ -52,19 +61,23 @@ export const missionScoringService = {
 
     // Publisher rules: inject gate/publisher-specific values (bypass LLM enrichment)
     const publisherRuleKeys = PUBLISHER_SCORING_RULES[enrichment.mission.publisherId ?? ""] ?? [];
-    const resolvedPublisherValues = await taxonomyRepository.findManyValuesByKeys(publisherRuleKeys);
-    const publisherValues: ComputedMissionScoringValue[] = resolvedPublisherValues.map((tv) => ({
-      missionEnrichmentValueId: null,
-      taxonomyValueId: tv.id,
-      score: 1.0,
-    }));
+    const publisherValues: ComputedMissionScoringValue[] = publisherRuleKeys.map((prefixedKey) => {
+      const { taxonomyKey, valueKey } = parsePublisherRuleKey(prefixedKey);
 
-    // Merge: start with enrichment values, publisher rules override on same taxonomyValueId
+      return {
+        missionEnrichmentValueId: null,
+        taxonomyKey,
+        valueKey,
+        score: 1.0,
+      };
+    });
+
+    // Merge: start with enrichment values, publisher rules override on same taxonomy key
     const mergedValuesMap = new Map<string, ComputedMissionScoringValue>(
-      result.values.map((v) => [v.taxonomyValueId, v])
+      result.values.map((value) => [`${value.taxonomyKey}.${value.valueKey}`, value] as const)
     );
     for (const pv of publisherValues) {
-      mergedValuesMap.set(pv.taxonomyValueId, pv);
+      mergedValuesMap.set(`${pv.taxonomyKey}.${pv.valueKey}`, pv);
     }
     const allValues = Array.from(mergedValuesMap.values());
 
@@ -78,7 +91,8 @@ export const missionScoringService = {
       missionEnrichmentId: enrichmentId,
       values: allValues.map((value) => ({
         missionEnrichmentValueId: value.missionEnrichmentValueId,
-        taxonomyValueId: value.taxonomyValueId,
+        taxonomyKey: value.taxonomyKey,
+        valueKey: value.valueKey,
         score: value.score,
       })),
     });

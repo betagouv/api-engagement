@@ -144,34 +144,33 @@ const aggregateWidgetAggs = async (
   };
 
   const result: any = {};
-  const promises = new Map<string, Promise<Bucket[]>>();
 
   if (should("domain")) {
-    promises.set("domains", aggregateDomainField());
+    result.domains = await aggregateDomainField();
   }
   if (should("organization")) {
-    promises.set("organizations", formatOrganization());
+    result.organizations = await formatOrganization();
   }
   if (should("department")) {
-    promises.set("departments", aggregateAddressField("departmentName"));
+    result.departments = await aggregateAddressField("departmentName");
   }
   if (should("remote")) {
-    promises.set("remote", aggregateMissionField("remote"));
+    result.remote = await aggregateMissionField("remote");
   }
   if (should("country")) {
-    promises.set("countries", aggregateAddressField("country"));
+    result.countries = await aggregateAddressField("country");
   }
   if (should("minor")) {
-    promises.set("minor", aggregateMissionField("openToMinors"));
+    result.minor = await aggregateMissionField("openToMinors");
   }
   if (should("schedule")) {
-    promises.set("schedule", aggregateMissionField("schedule"));
+    result.schedule = await aggregateMissionField("schedule");
   }
   if (should("action")) {
-    promises.set("actions", aggregateMissionListField("tasks"));
+    result.actions = await aggregateMissionListField("tasks");
   }
   if (should("beneficiary")) {
-    promises.set("beneficiaries", aggregateMissionListField("audience"));
+    result.beneficiaries = await aggregateMissionListField("audience");
   }
   if (should("accessibility")) {
     const reduced = await prisma.mission.count({ where: { ...where, reducedMobilityAccessible: true } });
@@ -181,12 +180,6 @@ const aggregateWidgetAggs = async (
       { key: "closeToTransport", doc_count: transport },
     ];
   }
-
-  const entries = Array.from(promises.entries());
-  const values = await Promise.all(entries.map(([, promise]) => promise));
-  entries.forEach(([key], index) => {
-    result[key] = values[index];
-  });
 
   return result;
 };

@@ -31,6 +31,7 @@ jobs:
           filters: |
             api:
               - 'api/**'
+              - 'packages/**'
             widget:
               - 'widget/**'
             analytics:
@@ -66,10 +67,10 @@ jobs:
         with:
           node-version: "24"
           cache: "npm"
-          cache-dependency-path: "api/package-lock.json"
+          cache-dependency-path: "package-lock.json"
 
       - name: Install dependencies
-        run: cd api && npm ci
+        run: npm ci
 
       - name: Prepare temporary databases
         env:
@@ -78,10 +79,9 @@ jobs:
           psql -h localhost -U postgres -d postgres -c 'CREATE DATABASE core;'
 
       - name: Check Prisma migrations
-        working-directory: api
         env:
           DATABASE_URL_CORE: postgresql://postgres:postgres@localhost:5432/core
-        run: npm run prisma:migrate:deploy
+        run: npm --workspace api run prisma:migrate:deploy
 
   analytics-migrations:
     name: Verify Analytics migrations
@@ -109,14 +109,14 @@ jobs:
         with:
           node-version: "24"
           cache: "npm"
-          cache-dependency-path: "analytics/package-lock.json"
+          cache-dependency-path: "package-lock.json"
 
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: cd analytics && npm ci
+        run: npm ci
 
       - name: Install dbt
         run: |
@@ -130,10 +130,9 @@ jobs:
           psql -h localhost -U postgres -d postgres -c 'CREATE DATABASE analytics;'
 
       - name: Check dbmate migrations
-        working-directory: analytics
         env:
           DATABASE_URL_ANALYTICS: postgresql://postgres:postgres@localhost:5432/analytics?sslmode=disable
-        run: npm run db:migrate
+        run: npm --workspace analytics run db:migrate
 
       - name: Check dbt compile
         working-directory: analytics
@@ -167,15 +166,10 @@ jobs:
         with:
           node-version: "24"
           cache: "npm"
-          cache-dependency-path: |
-            api/package-lock.json
-            analytics/package-lock.json
+          cache-dependency-path: "package-lock.json"
 
-      - name: Install API dependencies
-        run: cd api && npm ci
-
-      - name: Install Analytics dependencies
-        run: cd analytics && npm ci
+      - name: Install dependencies
+        run: npm ci
 
       - name: Prepare temporary databases
         env:
@@ -185,24 +179,21 @@ jobs:
           psql -h localhost -U postgres -d postgres -c 'CREATE DATABASE analytics;'
 
       - name: Apply API Prisma migrations
-        working-directory: api
         env:
           DATABASE_URL_CORE: postgresql://postgres:postgres@localhost:5432/core
-        run: npm run prisma:migrate:deploy
+        run: npm --workspace api run prisma:migrate:deploy
 
       - name: Apply Analytics migrations
-        working-directory: analytics
         env:
           DATABASE_URL_ANALYTICS: postgresql://postgres:postgres@localhost:5432/analytics?sslmode=disable
-        run: npm run db:migrate
+        run: npm --workspace analytics run db:migrate
 
       - name: Run analytics export job
-        working-directory: analytics
         env:
           DATABASE_URL_CORE: postgresql://postgres:postgres@localhost:5432/core
           DATABASE_URL_ANALYTICS: postgresql://postgres:postgres@localhost:5432/analytics?sslmode=disable
           ENV: development
-        run: npm run job -- export-to-analytics-raw
+        run: npm --workspace analytics run job -- export-to-analytics-raw
 
   api-tests:
     name: API Tests
@@ -221,20 +212,18 @@ jobs:
         with:
           node-version: "24"
           cache: "npm"
-          cache-dependency-path: "api/package-lock.json"
+          cache-dependency-path: "package-lock.json"
 
       - name: Install dependencies
-        run: cd api && npm ci
+        run: npm ci
 
       - name: Generate Prisma clients
-        working-directory: api
-        run: npm run prisma:generate
+        run: npm --workspace api run prisma:generate
 
       - name: Run tests
-        working-directory: api
         env:
           TESTCONTAINERS_RYUK_DISABLED: "true"
-        run: npm run test:ci
+        run: npm --workspace api run test:ci
 
   widgets-tests:
     name: Widget Tests
@@ -252,16 +241,16 @@ jobs:
         with:
           node-version: "24"
           cache: "npm"
-          cache-dependency-path: "widget/package-lock.json"
+          cache-dependency-path: "package-lock.json"
 
       - name: Install dependencies
-        run: cd widget && npm ci
+        run: npm ci
 
       - name: Install Playwright browsers and dependencies
-        run: cd widget && npx playwright install --with-deps
+        run: npm --workspace widget exec -- playwright install --with-deps
 
       - name: Run tests
-        run: cd widget && npm run test:e2e
+        run: npm --workspace widget run test:e2e
 
       - name: Upload HTML test report
         uses: actions/upload-artifact@v7
@@ -287,13 +276,13 @@ jobs:
         with:
           node-version: "24"
           cache: "npm"
-          cache-dependency-path: "app/package-lock.json"
+          cache-dependency-path: "package-lock.json"
 
       - name: Install dependencies
-        run: cd app && npm ci
+        run: npm ci
 
       - name: Install Playwright browsers and dependencies
-        run: cd app && npx playwright install --with-deps chromium
+        run: npm --workspace app exec -- playwright install --with-deps chromium
 
       - name: Run tests
-        run: cd app && npm run test:e2e
+        run: npm --workspace app run test:e2e

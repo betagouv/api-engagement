@@ -4,7 +4,8 @@
     "rootDir": "./src",
     "baseUrl": "./src",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@engagement/taxonomy": ["../../packages/taxonomy/dist/index"]
     },
     "outDir": "./dist"
   },
