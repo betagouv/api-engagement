@@ -1,17 +1,6 @@
 version: "3.9"
 
 services:
-  mongo:
-    image: mongo:4.4 # NB: Clevercloud is 4.3 but no 4.3 image is available. Nevermind, should upgrade.
-    restart: always
-    command:
-      - mongod
-      - --quiet
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo-data:/data/db
-
   postgres-analytics:
     image: postgres:13
     restart: always
@@ -37,26 +26,26 @@ services:
       - postgres-core-data:/var/lib/postgresql/data
 
   api:
-    build: ./api
+    build:
+      context: .
+      dockerfile: api/Dockerfile
     depends_on:
-      - mongo
       - postgres-analytics
       - postgres-core
     environment:
       PORT: 3002
-      DB_ENDPOINT: mongodb://mongo:27017/api-engagement
-      DATABASE_URL_ANALYTICS: postgres://user:password@postgres-analytics:5432/api-engagement-analytics
       DATABASE_URL_CORE: postgres://user:password@postgres-core:5432/api-engagement-core
     volumes:
-      - ./api:/app
-      - /app/node_modules
+      - ./api:/workspace/api
+      - /workspace/api/node_modules
+      - ./packages/taxonomy:/workspace/packages/taxonomy
     ports:
       - "3002:3002"
 
   worker:
     build:
-      context: ./api
-      dockerfile: Dockerfile.worker
+      context: .
+      dockerfile: api/Dockerfile.worker
     depends_on:
       - postgres-core
     environment:
@@ -64,10 +53,24 @@ services:
       ENV: development
       DATABASE_URL_CORE: postgres://user:password@postgres-core:5432/api-engagement-core
     volumes:
-      - ./api:/app
-      - /app/node_modules
+      - ./api:/workspace/api
+      - /workspace/api/node_modules
+      - ./packages/taxonomy:/workspace/packages/taxonomy
     ports:
       - "3004:3004"
+
+  plateform:
+    build: ./plateform
+    depends_on:
+      - api
+    environment:
+      VITE_API_URL: http://localhost:3002
+      VITE_ENV: development
+    volumes:
+      - ./plateform:/app
+      - /app/node_modules
+    ports:
+      - "3005:3005"
 
   app:
     build: ./app
@@ -96,6 +99,5 @@ services:
       - "3003:3003"
 
 volumes:
-  mongo-data:
   postgres-analytics-data:
   postgres-core-data:

@@ -1,16 +1,17 @@
-FROM node:24-bookworm-slim AS builder
+FROM node:24-bookworm-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libcurl4 \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+WORKDIR /workspace
 
-COPY package*.json ./
+COPY api/package*.json ./api/
+COPY packages/taxonomy ./packages/taxonomy
+
+WORKDIR /workspace/api
 
 RUN npm ci
-
-COPY . .
 
 EXPOSE 3004
 
