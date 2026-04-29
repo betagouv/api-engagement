@@ -128,6 +128,7 @@ describe("Import missions job (integration test)", () => {
     await createTestMission({ publisherId: publisher.id, clientId: "client-old" });
     await createTestImport({ publisherId: publisher.id, status: "SUCCESS" });
     (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => emptyXml });
+    vi.mocked(asyncTaskBus.publish).mockClear();
 
     const result = await handler.handle({ publisherId: publisher.id });
 
@@ -150,6 +151,7 @@ describe("Import missions job (integration test)", () => {
     await createTestImport({ publisherId: publisher.id, status: "FAILED", finishedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000) });
     await createTestImport({ publisherId: publisher.id, status: "FAILED", finishedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) });
     (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => emptyXml });
+    vi.mocked(asyncTaskBus.publish).mockClear();
 
     await handler.handle({ publisherId: publisher.id });
 
@@ -169,6 +171,7 @@ describe("Import missions job (integration test)", () => {
     await createTestImport({ publisherId: publisher.id, status: "FAILED", finishedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000) });
     await createTestImport({ publisherId: publisher.id, status: "FAILED", finishedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) });
     (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => emptyXml });
+    vi.mocked(asyncTaskBus.publish).mockClear();
 
     await handler.handle({ publisherId: publisher.id });
 
