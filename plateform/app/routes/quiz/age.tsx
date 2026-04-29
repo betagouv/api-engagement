@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useOutletContext } from "react-router";
+import Title from "~/components/quiz/title";
 import type { QuizOutletContext } from "./_layout";
 import { useQuizStore } from "~/stores/quiz";
 

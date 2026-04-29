@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import Title from "~/components/quiz/title";
 import { useQuizStore } from "~/stores/quiz";
 import { buildPayload } from "~/utils/quiz";
 
@@ -10,7 +11,7 @@ export default function ResultsPage() {
 
   return (
     <div>
-      <h1 className="fr-h3">Quiz terminé</h1>
+      <Title>Quiz terminé</Title>
       <p className="fr-text--sm fr-mb-4w">Tes réponses ont été enregistrées. La page de résultats arrivera dans une prochaine itération.</p>
 
       <details className="fr-mb-4w">

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useOutletContext } from "react-router";
 import SingleSelect from "~/components/quiz/single-select";
+import Title from "~/components/quiz/title";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
 import type { StepOption } from "~/types/quiz";
@@ -33,7 +34,7 @@ export default function DureeStep() {
 
   return (
     <>
-      <h1 className="fr-h3">Combien de temps aimerais-tu consacrer à une mission ?</h1>
+      <Title>Combien de temps aimerais-tu consacrer à une mission ?</Title>
       <SingleSelect onChange={handleSelect} options={options} />
       <div className="fr-mt-4w tw:flex tw:flex-col tw:sm:flex-row tw:gap-4 tw:items-center">
         <button type="button" className="fr-btn tw:w-full! tw:sm:w-auto! tw:justify-center!" onClick={goNext}>

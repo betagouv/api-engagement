@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useOutletContext } from "react-router";
+import Title from "~/components/quiz/title";
 import type { QuizOutletContext } from "./_layout";
 import { useQuizStore } from "~/stores/quiz";
 
@@ -29,20 +30,13 @@ export default function PrecisionParcoursupFormationNomStep() {
 
   return (
     <form onSubmit={handleSubmit}>
-      <h1 className="fr-h3">Quelle formation as-tu en tête ?</h1>
+      <Title>Quelle formation as-tu en tête ?</Title>
 
       <div className="fr-input-group">
         <label className="fr-label" htmlFor="formation-input">
           Nom de la formation
         </label>
-        <input
-          id="formation-input"
-          className="fr-input"
-          type="text"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          autoFocus
-        />
+        <input id="formation-input" className="fr-input" type="text" value={value} onChange={(e) => setValue(e.target.value)} autoFocus />
       </div>
 
       <div className="fr-mt-2w">

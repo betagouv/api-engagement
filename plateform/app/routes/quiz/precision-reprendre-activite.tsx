@@ -1,5 +1,6 @@
 import { useOutletContext } from "react-router";
 import SingleSelect from "~/components/quiz/single-select";
+import Title from "~/components/quiz/title";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
 import type { QuizOutletContext } from "./_layout";
@@ -30,7 +31,7 @@ export default function PrecisionReprendreActiviteStep() {
 
   return (
     <>
-      <h1 className="fr-h3">Quel secteur d'activité t'attirerait le plus ?</h1>
+      <Title>Quel secteur d'activité t'attirerait le plus ?</Title>
       <SingleSelect onChange={handleSelect} options={STEP_OPTIONS} />
       <div className="fr-mt-4w tw:flex tw:flex-col tw:sm:flex-row tw:gap-4 tw:items-center">
         <button type="button" className="fr-btn tw:w-full! tw:sm:w-auto! tw:justify-center!" onClick={goNext}>

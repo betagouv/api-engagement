@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { useOutletContext } from "react-router";
+import Title from "~/components/quiz/title";
 import type { QuizOutletContext } from "./_layout";
 import { useQuizStore } from "~/stores/quiz";
 
@@ -22,20 +23,13 @@ export default function LocalisationStep() {
 
   return (
     <form onSubmit={handleSubmit}>
-      <h1 className="fr-h3">Où veux-tu chercher des missions ?</h1>
+      <Title>Où veux-tu chercher des missions ?</Title>
 
       <div className="fr-input-group">
         <label className="fr-label" htmlFor="localisation-input">
           Adresse, ville ou code postal
         </label>
-        <input
-          id="localisation-input"
-          className="fr-input"
-          type="text"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          autoFocus
-        />
+        <input id="localisation-input" className="fr-input" type="text" value={value} onChange={(e) => setValue(e.target.value)} autoFocus />
       </div>
 
       <div className="fr-mt-2w">
