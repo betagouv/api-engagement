@@ -10,6 +10,7 @@ import { publisherService } from "@/services/publisher";
 import publisherOrganizationService from "@/services/publisher-organization";
 import { MissionEventCreateParams } from "@/types/mission-event";
 import type { PublisherRecord } from "@/types/publisher";
+import { getJobTime } from "@/utils/job";
 import type { ImportedMission, ImportedOrganization } from "./types";
 import { cleanDB, upsertMission, upsertOrganization } from "./utils/db";
 import { enrichWithGeoloc } from "@/services/geoloc";
@@ -19,6 +20,20 @@ import { shouldCleanMissionsForPublisher } from "./utils/publisher";
 import { fetchXML, parseXML } from "./utils/xml";
 
 const CHUNK_SIZE = 2000;
+
+const cleanEmptyFeedMissions = async (publisher: PublisherRecord, start: Date): Promise<number> => {
+  const missions = await missionService.findMissionsBy({ publisherId: publisher.id, deletedAt: null, updatedAt: { lt: start } });
+  const deletedAt = new Date();
+
+  console.log(`[${publisher.name}] Found ${missions.length} missions to delete from empty feed`);
+  const cleanStartedAt = new Date();
+  for (const mission of missions) {
+    await missionService.update(mission.id, { deletedAt });
+  }
+  console.log(`[${publisher.name}] Mission empty-feed clean updates done: ${missions.length} in ${getJobTime(cleanStartedAt)}`);
+
+  return missions.length;
+};
 
 export interface ImportMissionsJobPayload {
   publisherId?: string;
@@ -141,7 +156,7 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
     if (typeof missionsXML === "string" || !missionsXML.length) {
       if (await shouldCleanMissionsForPublisher(publisher.id)) {
         console.log(`[${publisher.name}] Empty xml, cleaning missions...`);
-        const deletedCount = await missionService.updateMany({ publisherId: publisher.id, deletedAt: null, updatedAt: { lt: start } }, { deletedAt: new Date() });
+        const deletedCount = await cleanEmptyFeedMissions(publisher, start);
         console.log(`[${publisher.name}] Deleted ${deletedCount} missions`);
         obj.deletedCount = deletedCount;
       } else {

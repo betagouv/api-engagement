@@ -141,11 +141,12 @@ describe("Import missions job (integration test)", () => {
     expect(failedImports[0].deletedCount).toBe(0);
     expect(failedImports[0].status).toBe("FAILED");
     expect(failedImports[0].error).toBe("Empty xml");
+    expect(asyncTaskBus.publish).not.toHaveBeenCalledWith(expect.objectContaining({ type: "mission.enrichment" }));
   });
 
-  it("If feed is empty and no import is successful for 7 days, missions should be deleted", async () => {
+  it("If feed is empty and no import is successful for 7 days, missions should be deleted and reprocessed", async () => {
     const publisher = await createTestPublisher({ feed: "https://empty-feed", isAnnonceur: true });
-    await createTestMission({ publisherId: publisher.id, clientId: "client-old" });
+    const mission = await createTestMission({ publisherId: publisher.id, clientId: "client-old" });
     await createTestImport({ publisherId: publisher.id, status: "FAILED", finishedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000) });
     await createTestImport({ publisherId: publisher.id, status: "FAILED", finishedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) });
     (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => emptyXml });
@@ -155,6 +156,29 @@ describe("Import missions job (integration test)", () => {
     const deletedMissions = await missionService.findMissionsBy({ publisherId: publisher.id, deletedAt: { not: null } });
 
     expect(deletedMissions.length).toBe(1);
+    expect(asyncTaskBus.publish).toHaveBeenCalledWith({
+      type: "mission.enrichment",
+      payload: { missionId: mission.id },
+    });
+  });
+
+  it("If feed is empty cleanup deletes two missions, it republishes enrichment for each mission", async () => {
+    const publisher = await createTestPublisher({ feed: "https://empty-feed", isAnnonceur: true });
+    const missionA = await createTestMission({ publisherId: publisher.id, clientId: "client-old-a" });
+    const missionB = await createTestMission({ publisherId: publisher.id, clientId: "client-old-b" });
+    await createTestImport({ publisherId: publisher.id, status: "FAILED", finishedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000) });
+    await createTestImport({ publisherId: publisher.id, status: "FAILED", finishedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) });
+    (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => emptyXml });
+
+    await handler.handle({ publisherId: publisher.id });
+
+    const deletedMissions = await missionService.findMissionsBy({ publisherId: publisher.id, deletedAt: { not: null } });
+    const enrichmentPublishes = vi.mocked(asyncTaskBus.publish).mock.calls.filter(([input]) => input.type === "mission.enrichment");
+
+    expect(deletedMissions.length).toBe(2);
+    expect(enrichmentPublishes).toHaveLength(2);
+    expect(asyncTaskBus.publish).toHaveBeenCalledWith({ type: "mission.enrichment", payload: { missionId: missionA.id } });
+    expect(asyncTaskBus.publish).toHaveBeenCalledWith({ type: "mission.enrichment", payload: { missionId: missionB.id } });
   });
 
   it("If publisher has no feed, skip import", async () => {
