@@ -84,7 +84,7 @@ describe("albert", () => {
           name: "mission_enrichment",
           description: "Résultat d'enrichissement",
           strict: true,
-          schema_definition: baseOptions.responseFormat.schema,
+          schema: baseOptions.responseFormat.schema,
         },
       },
     });

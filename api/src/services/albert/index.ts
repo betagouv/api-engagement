@@ -68,7 +68,7 @@ const buildResponseFormat = (responseFormat: LanguageModelV3CallOptions["respons
     json_schema: {
       name: responseFormat.name ?? "response",
       ...(responseFormat.description ? { description: responseFormat.description } : {}),
-      schema_definition: schema,
+      schema,
       strict: true,
     },
   };
