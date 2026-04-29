@@ -15,7 +15,7 @@ export type MissionIndexDocument = Partial<Record<IndexedTaxonomyKey, string[]>>
 const missionCollection = () => typesenseClient.collections<MissionIndexDocument>(TYPESENSE_MISSION_COLLECTION);
 
 const buildEmptyTaxonomyIndex = (): Record<IndexedTaxonomyKey, string[]> => {
-  return Object.fromEntries(INDEXED_TAXONOMY_KEYS.map((key) => [key, []])) as Record<IndexedTaxonomyKey, string[]>;
+  return Object.fromEntries(INDEXED_TAXONOMY_KEYS.map((key) => [key, []])) as unknown as Record<IndexedTaxonomyKey, string[]>;
 };
 
 const buildTaxonomyIndex = (

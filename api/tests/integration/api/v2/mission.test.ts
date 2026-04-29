@@ -1,7 +1,8 @@
 import request from "supertest";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { prisma } from "@/db/postgres";
+import { asyncTaskBus } from "@/services/async-task";
 import { missionService } from "@/services/mission";
 import { createTestMission, createTestPublisher } from "../../../fixtures";
 import { createTestApp } from "../../../testApp";
@@ -13,6 +14,7 @@ describe("Mission V2 Write API Integration Tests", () => {
   let otherPublisher: any;
 
   beforeEach(async () => {
+    vi.clearAllMocks();
     publisher = await createTestPublisher();
     apiKey = publisher.apikey;
     otherPublisher = await createTestPublisher();
@@ -67,6 +69,10 @@ describe("Mission V2 Write API Integration Tests", () => {
       expect(response.body.data.title).toBe("Mission minimale");
       expect(response.body.data.publisherId).toBe(publisher.id);
       expect(response.body.data.statusCode).toBe("ACCEPTED");
+      expect(asyncTaskBus.publish).toHaveBeenCalledWith({
+        type: "mission.enrichment",
+        payload: { missionId: expect.any(String) },
+      });
     });
 
     it("should return 201 with all optional fields", async () => {
@@ -289,6 +295,10 @@ describe("Mission V2 Write API Integration Tests", () => {
       expect(response.body.ok).toBe(true);
       expect(response.body.data.title).toBe("Updated Title");
       expect(response.body.data.description).toBe("Original Description");
+      expect(asyncTaskBus.publish).toHaveBeenCalledWith({
+        type: "mission.enrichment",
+        payload: { missionId: expect.any(String) },
+      });
     });
 
     it("should update PublisherOrganization when org fields are in body", async () => {
@@ -427,6 +437,10 @@ describe("Mission V2 Write API Integration Tests", () => {
 
       const deleted = await missionService.findMissionByClientAndPublisher(mission.clientId, publisher.id);
       expect(deleted?.deletedAt).not.toBeNull();
+      expect(asyncTaskBus.publish).toHaveBeenCalledWith({
+        type: "mission.enrichment",
+        payload: { missionId: expect.any(String) },
+      });
     });
 
     it("should be idempotent: second DELETE returns same deletedAt", async () => {

@@ -3,7 +3,6 @@ import passport from "passport";
 import zod from "zod";
 
 import { INVALID_BODY, INVALID_PARAMS, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "@/error";
-import { asyncTaskBus } from "@/services/async-task";
 import { missionService } from "@/services/mission";
 import { MissionCreateInput, MissionUpdatePatch } from "@/types/mission";
 import { PublisherRequest } from "@/types/passport";
@@ -304,7 +303,6 @@ router.delete(
 
       const deletedAt = new Date();
       await missionService.update(existing.id, { deletedAt });
-      await asyncTaskBus.publish({ type: "mission.index", payload: { missionId: existing.id, action: "delete" } });
       return res.status(200).send({ ok: true, data: { clientId: existing.clientId, deletedAt } });
     } catch (error) {
       next(error);

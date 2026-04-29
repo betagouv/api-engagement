@@ -106,12 +106,17 @@ export const missionEnrichmentService = {
   async enrich(missionId: string, options: { force?: boolean } = {}) {
     // 1. Load mission (needed before idempotence check for updatedAt comparison)
     const mission = await missionRepository.findUnique({
-      where: { id: missionId, deletedAt: null },
+      where: { id: missionId },
       include: missionInclude,
     });
 
     if (!mission) {
-      console.log(`${LOG_PREFIX} skipping ${missionId} — not found or deleted`);
+      console.log(`${LOG_PREFIX} skipping ${missionId} — not found`);
+      return;
+    }
+
+    if (mission.deletedAt !== null) {
+      await asyncTaskBus.publish({ type: "mission.scoring", payload: { missionId } });
       return;
     }
 

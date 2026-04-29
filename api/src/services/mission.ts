@@ -756,6 +756,7 @@ export const missionService = {
     await missionRepository.createUnchecked(data);
 
     await activityService.addMissionActivities(id, activityIds);
+    await asyncTaskBus.publish({ type: "mission.enrichment", payload: { missionId: id } });
 
     const mission = await missionRepository.findFirst({ where: { id }, include: baseInclude });
     if (!mission) {
@@ -921,9 +922,7 @@ export const missionService = {
       throw new Error(`[missionService] Mission ${id} not found after update`);
     }
 
-    if ("addresses" in patch) {
-      await asyncTaskBus.publish({ type: "mission.scoring", payload: { missionId: id } });
-    }
+    await asyncTaskBus.publish({ type: "mission.enrichment", payload: { missionId: id } });
 
     return toMissionRecord(mission as MissionWithRelations);
   },

@@ -4,6 +4,7 @@ import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { prisma } from "@/db/postgres";
 import { ImportMissionsHandler } from "@/jobs/import-missions/handler";
+import { asyncTaskBus } from "@/services/async-task";
 import { importService } from "@/services/import";
 import { missionService } from "@/services/mission";
 import { createTestImport, createTestMission, createTestPublisher } from "../../../fixtures";
@@ -23,6 +24,7 @@ describe("Import missions job (integration test)", () => {
   });
 
   beforeEach(() => {
+    vi.clearAllMocks();
     (global.fetch as any).mockReset();
   });
 
@@ -88,6 +90,11 @@ describe("Import missions job (integration test)", () => {
     expect(mission.startAt?.toISOString()).toBe("2025-01-01T00:00:00.000Z");
     expect(mission.tags).toEqual(expect.arrayContaining(["environnement", "écologie"]));
     expect(mission.title).toBe("Titre de la mission");
+
+    expect(asyncTaskBus.publish).toHaveBeenCalledWith({
+      type: "mission.enrichment",
+      payload: { missionId: expect.any(String) },
+    });
   });
 
   it("refuses missions when compensation data is invalid", async () => {
@@ -214,6 +221,11 @@ describe("Import missions job (integration test)", () => {
     const mission = missions[0];
     expect(mission.title).toBe("Titre de la mission");
     expect(mission.description).toBe("Description de la mission");
+
+    expect(asyncTaskBus.publish).toHaveBeenCalledWith({
+      type: "mission.enrichment",
+      payload: { missionId: expect.any(String) },
+    });
   });
 
   it("If mission exists but was deleted, it is restored on import", async () => {
@@ -270,6 +282,10 @@ describe("Import missions job (integration test)", () => {
     (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => xml });
     await handler.handle({ publisherId: publisher.id });
 
+    // Reset mocks to track only the second import
+    vi.clearAllMocks();
+    (global.fetch as any).mockReset();
+
     // Update updatedAt to simulate older mission
     const existingMission = await missionService.findOneMissionBy({ publisherId: publisher.id, clientId: "32132143" });
     expect(existingMission).toBeDefined();
@@ -285,6 +301,7 @@ describe("Import missions job (integration test)", () => {
     const missions = await missionService.findMissionsBy({ publisherId: publisher.id, clientId: "32132143" });
 
     expect(missions.length).toBe(1);
+    expect(asyncTaskBus.publish).not.toHaveBeenCalledWith(expect.objectContaining({ type: "mission.enrichment" }));
   });
 
   describe("activities", () => {
@@ -374,15 +391,12 @@ describe("Import missions job (integration test)", () => {
     (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => xml });
 
     // 2nd fetch: geopf first pass — street "champ libre invalide" → low score → NOT_FOUND
-    const geopfNotFound =
-      "clientid,addressindex,result_score,result_name,result_city,result_postcode,result_context,latitude,longitude\n" +
-      "INVALID_ADDR_1,0,0.10,,,,,,";
+    const geopfNotFound = "clientid,addressindex,result_score,result_name,result_city,result_postcode,result_context,latitude,longitude\n" + "INVALID_ADDR_1,0,0.10,,,,,,";
     (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => geopfNotFound });
 
     // 3rd fetch: geopf second pass (city-only) — Grenoble → high score
     const geopfCityFound =
-      "clientid,addressindex,result_score,result_name,result_city,result_postcode,result_context,latitude,longitude\n" +
-      "INVALID_ADDR_1,0,0.90,,Grenoble,38000,38,45.1875,5.7357";
+      "clientid,addressindex,result_score,result_name,result_city,result_postcode,result_context,latitude,longitude\n" + "INVALID_ADDR_1,0,0.90,,Grenoble,38000,38,45.1875,5.7357";
     (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => geopfCityFound });
 
     const result = await handler.handle({ publisherId: publisher.id });
