@@ -46,7 +46,7 @@ describe("albert", () => {
           id: "chatcmpl-1",
           created: 1710000000,
           model: "mistral-test",
-          choices: [{ finish_reason: "stop", message: { role: "assistant", content: "{\"classifications\":[]}" } }],
+          choices: [{ finish_reason: "stop", message: { role: "assistant", content: '{"classifications":[]}' } }],
           usage: { prompt_tokens: 12, completion_tokens: 5, total_tokens: 17 },
         }),
         { status: 200, headers: { "content-type": "application/json" } }
@@ -88,7 +88,7 @@ describe("albert", () => {
         },
       },
     });
-    expect(result.content).toEqual([{ type: "text", text: "{\"classifications\":[]}" }]);
+    expect(result.content).toEqual([{ type: "text", text: '{"classifications":[]}' }]);
     expect(result.usage.inputTokens.total).toBe(12);
     expect(result.usage.outputTokens.total).toBe(5);
     expect(result.finishReason).toEqual({ unified: "stop", raw: "stop" });
@@ -114,6 +114,32 @@ describe("albert", () => {
       statusCode: 503,
       responseBody: "busy",
       isRetryable: true,
+    } satisfies Partial<APICallError>);
+  });
+
+  it("throws a non-retryable APICallError when Albert returns no content", async () => {
+    process.env.ALBERT_API_KEY = "test-key";
+    process.env.ALBERT_BASE_URL = "https://albert.test";
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({ id: "x", choices: [] }), { status: 200, headers: { "content-type": "application/json" } })));
+
+    const { albert } = await importAlbert();
+
+    await expect(albert("mistral-test").doGenerate(baseOptions)).rejects.toMatchObject({
+      message: "Albert returned no content",
+      isRetryable: false,
+    } satisfies Partial<APICallError>);
+  });
+
+  it("throws a non-retryable APICallError when Albert returns non-JSON", async () => {
+    process.env.ALBERT_API_KEY = "test-key";
+    process.env.ALBERT_BASE_URL = "https://albert.test";
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("<html>Gateway Timeout</html>", { status: 200 })));
+
+    const { albert } = await importAlbert();
+
+    await expect(albert("mistral-test").doGenerate(baseOptions)).rejects.toMatchObject({
+      message: expect.stringContaining("non-JSON"),
+      isRetryable: false,
     } satisfies Partial<APICallError>);
   });
 

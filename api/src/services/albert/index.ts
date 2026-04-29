@@ -1,6 +1,14 @@
 import { ALBERT_API_KEY, ALBERT_BASE_URL } from "@/config";
+import type {
+  JSONObject,
+  JSONSchema7,
+  LanguageModelV3,
+  LanguageModelV3CallOptions,
+  LanguageModelV3GenerateResult,
+  LanguageModelV3Message,
+  LanguageModelV3Usage,
+} from "@ai-sdk/provider";
 import { APICallError, LoadAPIKeyError, UnsupportedFunctionalityError } from "@ai-sdk/provider";
-import type { JSONObject, JSONSchema7, LanguageModelV3, LanguageModelV3CallOptions, LanguageModelV3GenerateResult, LanguageModelV3Message, LanguageModelV3Usage } from "@ai-sdk/provider";
 
 type AlbertChatMessage = {
   role: "system" | "user" | "assistant";
@@ -58,6 +66,7 @@ const buildResponseFormat = (responseFormat: LanguageModelV3CallOptions["respons
     return undefined;
   }
 
+  // The SDK types responseFormat.schema as JSONObject; cast to JSONSchema7 for Albert's strict mode
   const schema = responseFormat.schema as JSONSchema7 | undefined;
   if (!schema) {
     return { type: "json_object" };
@@ -105,13 +114,7 @@ const mapUsage = (usage: AlbertChatCompletion["usage"]): LanguageModelV3Usage =>
   raw: usage ? (usage as JSONObject) : undefined,
 });
 
-const headersToRecord = (headers: Headers): Record<string, string> => {
-  const record: Record<string, string> = {};
-  headers.forEach((value, key) => {
-    record[key] = value;
-  });
-  return record;
-};
+const headersToRecord = (headers: Headers): Record<string, string> => Object.fromEntries(headers.entries());
 
 const getAlbertApiKey = (): string => {
   if (!ALBERT_API_KEY) {
@@ -168,9 +171,34 @@ export const albert = (modelId: string): LanguageModelV3 => ({
       });
     }
 
-    const json = JSON.parse(responseBody) as AlbertChatCompletion;
+    let json: AlbertChatCompletion;
+    try {
+      json = JSON.parse(responseBody) as AlbertChatCompletion;
+    } catch {
+      throw new APICallError({
+        message: `Albert returned non-JSON response: ${responseBody.slice(0, 200)}`,
+        url,
+        requestBodyValues: requestBody,
+        statusCode: response.status,
+        responseHeaders: headersToRecord(response.headers),
+        responseBody,
+        isRetryable: false,
+      });
+    }
+
     const choice = json.choices?.[0];
-    const text = choice?.message?.content ?? "";
+    const text = choice?.message?.content;
+    if (text == null) {
+      throw new APICallError({
+        message: "Albert returned no content",
+        url,
+        requestBodyValues: requestBody,
+        statusCode: response.status,
+        responseHeaders: headersToRecord(response.headers),
+        responseBody,
+        isRetryable: false,
+      });
+    }
 
     return {
       content: [{ type: "text", text }],
@@ -187,7 +215,7 @@ export const albert = (modelId: string): LanguageModelV3 => ({
       warnings: [],
     };
   },
-  async doStream() {
+  async doStream(_options: LanguageModelV3CallOptions) {
     throw new UnsupportedFunctionalityError({ functionality: "streaming" });
   },
 });
