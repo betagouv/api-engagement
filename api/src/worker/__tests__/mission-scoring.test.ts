@@ -60,4 +60,12 @@ describe("mission scoring worker", () => {
       payload: { missionId: "mission-1", action: "upsert" },
     });
   });
+
+  it("does not publish mission.index when scoring throws", async () => {
+    missionScoringServiceMock.score.mockRejectedValue(new Error("scoring failed"));
+
+    await expect(handleMissionScoring({ missionId: "mission-1" })).rejects.toThrow("scoring failed");
+
+    expect(asyncTaskBusMock.publish).not.toHaveBeenCalled();
+  });
 });
