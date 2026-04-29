@@ -1,4 +1,13 @@
+import { Link, useLocation } from "react-router";
+
 export default function Header() {
+  const location = useLocation();
+  const isQuiz = location.pathname.startsWith("/quiz");
+
+  if (isQuiz) {
+    return null;
+  }
+
   return (
     <header role="banner" className="fr-header">
       <div className="fr-header__body">
@@ -15,10 +24,10 @@ export default function Header() {
                 </div>
               </div>
               <div className="fr-header__service">
-                <a href="/" title="Accueil — API Engagement">
-                  <p className="fr-header__service-title">API Engagement</p>
-                </a>
-                <p className="fr-header__service-tagline">Trouvez votre mission de bénévolat</p>
+                <Link to="/" title="Trouve ta mission">
+                  <p className="fr-header__service-title">Trouve ta mission</p>
+                </Link>
+                <p className="fr-header__service-tagline">Service public pour trouver une mission d'engagement</p>
               </div>
             </div>
           </div>

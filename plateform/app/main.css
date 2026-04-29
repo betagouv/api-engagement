@@ -5,3 +5,22 @@
    Preflight reste inclus mais est placé dans @layer base : le CSS DSFR n'utilise
    aucun @layer donc il gagne la cascade et le reset DSFR reste en place. */
 @import "tailwindcss" prefix(tw);
+
+@theme {
+  --color-info-950: var(--info-950-100);
+  --color-blue-france-sun: var(--blue-france-sun-113-625);
+  --color-raised-grey: var(--background-raised-grey);
+}
+
+.header-shadow {
+  --idle: transparent;
+  --hover: var(--background-raised-grey-hover);
+  --active: var(--background-raised-grey-active);
+  background-color: var(--background-raised-grey);
+  filter: drop-shadow(var(--raised-shadow));
+  flex-wrap: wrap;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+  width: 100%;
+  z-index: calc(var(--ground) + 750);
+}
