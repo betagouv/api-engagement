@@ -64,21 +64,8 @@ export default function QuizLayout() {
 
   return (
     <div className="tw:flex tw:flex-col tw:flex-1">
-      <QuizHeader />
+      <QuizHeader step={currentIndex + 1} stepCount={steps.length} />
       <main className="fr-container fr-py-2w tw:flex-1">
-        {currentStep && (
-          <div className="fr-mb-4w">
-            <div className="fr-stepper">
-              <h2 className="fr-stepper__title">
-                <span className="fr-stepper__state">
-                  Étape {currentIndex + 1} sur {steps.length}
-                </span>
-              </h2>
-              <div className="fr-stepper__steps" data-fr-current-step={currentIndex + 1} data-fr-steps={steps.length} />
-            </div>
-          </div>
-        )}
-
         {/* `goNext` / `goBack` exposés aux routes enfants via Outlet context — elles les appellent après validation. */}
         <Outlet context={{ goNext, goBack } satisfies QuizOutletContext} />
       </main>
