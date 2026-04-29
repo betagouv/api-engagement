@@ -29,6 +29,7 @@ export class UpdateMissionIndexHandler implements BaseHandler<UpdateMissionIndex
       const missions = await prisma.mission.findMany({
         where: {
           deletedAt: null,
+          statusCode: "ACCEPTED",
           missionScorings: { some: {} },
           ...(publisherId ? { publisherId } : {}),
         },

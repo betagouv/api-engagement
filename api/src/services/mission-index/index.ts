@@ -52,6 +52,7 @@ export const missionIndexService = {
         id: true,
         publisherId: true,
         deletedAt: true,
+        statusCode: true,
         addresses: {
           select: { departmentCode: true },
         },
@@ -68,7 +69,7 @@ export const missionIndexService = {
       },
     });
 
-    if (!mission || mission.deletedAt !== null) {
+    if (!mission || mission.deletedAt !== null || mission.statusCode !== "ACCEPTED") {
       await this.delete(missionId);
       return;
     }
