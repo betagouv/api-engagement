@@ -103,6 +103,30 @@ describe("albert", () => {
     await expect(albert("mistral-test").doGenerate(baseOptions)).rejects.toBeInstanceOf(LoadAPIKeyError);
   });
 
+  it("throws a retryable APICallError on network/transport errors", async () => {
+    process.env.ALBERT_API_KEY = "test-key";
+    process.env.ALBERT_BASE_URL = "https://albert.test";
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("fetch failed")));
+
+    const { albert } = await importAlbert();
+
+    await expect(albert("mistral-test").doGenerate(baseOptions)).rejects.toMatchObject({
+      message: expect.stringContaining("network error"),
+      isRetryable: true,
+    } satisfies Partial<APICallError>);
+  });
+
+  it("rethrows AbortError without wrapping", async () => {
+    process.env.ALBERT_API_KEY = "test-key";
+    process.env.ALBERT_BASE_URL = "https://albert.test";
+    const abort = Object.assign(new Error("aborted"), { name: "AbortError" });
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(abort));
+
+    const { albert } = await importAlbert();
+
+    await expect(albert("mistral-test").doGenerate(baseOptions)).rejects.toMatchObject({ name: "AbortError" });
+  });
+
   it("throws a retryable APICallError on Albert HTTP errors", async () => {
     process.env.ALBERT_API_KEY = "test-key";
     process.env.ALBERT_BASE_URL = "https://albert.test";

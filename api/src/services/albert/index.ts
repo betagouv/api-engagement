@@ -133,6 +133,7 @@ export const albert = (modelId: string): LanguageModelV3 => ({
       throw new UnsupportedFunctionalityError({ functionality: "tools" });
     }
 
+    const apiKey = getAlbertApiKey();
     const url = `${ALBERT_BASE_URL.replace(/\/$/, "")}/v1/chat/completions`;
     const requestBody = {
       model: modelId,
@@ -147,18 +148,33 @@ export const albert = (modelId: string): LanguageModelV3 => ({
       stream: false,
     };
 
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${getAlbertApiKey()}`,
-        "Content-Type": "application/json",
-        ...options.headers,
-      },
-      body: JSON.stringify(requestBody),
-      signal: options.abortSignal,
-    });
-
-    const responseBody = await response.text();
+    let response: Response;
+    let responseBody: string;
+    try {
+      response = await fetch(url, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+          ...options.headers,
+        },
+        body: JSON.stringify(requestBody),
+        signal: options.abortSignal,
+      });
+      responseBody = await response.text();
+    } catch (err) {
+      // DNS / TLS / socket / abort errors — retryable unless it's an abort
+      if (err instanceof Error && err.name === "AbortError") {
+        throw err;
+      }
+      throw new APICallError({
+        message: `Albert network error: ${err instanceof Error ? err.message : String(err)}`,
+        url,
+        requestBodyValues: requestBody,
+        cause: err,
+        isRetryable: true,
+      });
+    }
     if (!response.ok) {
       throw new APICallError({
         message: `Albert API error ${response.status}: ${responseBody}`,
