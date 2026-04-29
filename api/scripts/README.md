@@ -82,3 +82,15 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
   - Options:
     - `--limit N` : nombre max de missions affichées (défaut: 5)
     - `--version V` : version du matching engine à analyser (défaut: version courante)
+
+- **mission-enrichment/compare-prompts.ts**
+
+  - Exécution: `npx ts-node scripts/mission-enrichment/compare-prompts.ts [--ids <id1,id2>] [--versions v2,v3] [--runs 5]`
+  - Usage: Compare plusieurs versions de prompt d'enrichissement sur les mêmes missions, sans écrire en base.
+  - Options:
+    - `--ids <id1,id2>` ou `--ids-file <chemin>` : missions à comparer ; si absent, 5 missions non supprimées sont tirées aléatoirement
+    - `--versions <v1,v2,v3>` : versions à tester, la première sert de baseline (défaut: `v2,v3`)
+    - `--runs <N>` : nombre d'exécutions par mission/version (défaut: 5)
+    - `--output <chemin>` : détails JSONL (défaut: `./compare-prompts.jsonl`)
+    - `--summary <chemin>` : synthèse CSV (défaut: `./compare-prompts-summary.csv`)
+    - `--sleep-ms <N>` : délai entre appels LLM (défaut: 500)
