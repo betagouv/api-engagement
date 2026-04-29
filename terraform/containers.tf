@@ -100,10 +100,13 @@ resource "scaleway_container" "api_worker" {
     "PRISMA_CONNECT_TIMEOUT"            = "10"
     "SCW_QUEUE_URL_MISSION_ENRICHMENT"  = module.async_task_queues["mission_enrichment"].url
     "SCW_QUEUE_URL_MISSION_SCORING"     = module.async_task_queues["mission_scoring"].url
+    "ALBERT_BASE_URL"                   = lookup(local.secrets, "ALBERT_BASE_URL", "https://albert.api.etalab.gouv.fr")
   }
 
   secret_environment_variables = {
     "DATABASE_URL_CORE" = local.secrets.DATABASE_URL_CORE
+    "MISTRAL_API_KEY"   = lookup(local.secrets, "MISTRAL_API_KEY", "")
+    "ALBERT_API_KEY"    = lookup(local.secrets, "ALBERT_API_KEY", "")
   }
 }
 
