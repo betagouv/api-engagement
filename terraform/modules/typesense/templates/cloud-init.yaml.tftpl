@@ -1,0 +1,89 @@
+#cloud-config
+package_update: true
+packages:
+  - ca-certificates
+  - curl
+  - docker.io
+
+write_files:
+  - path: /etc/typesense/nodes
+    permissions: "0644"
+    owner: root:root
+    content: |
+      ${typesense_nodes}
+
+  - path: /etc/typesense/typesense.env
+    permissions: "0600"
+    owner: root:root
+    content: |
+      TYPESENSE_API_KEY_B64=${typesense_api_key_b64}
+      TYPESENSE_DOCKER_IMAGE=${typesense_docker_image}
+      TYPESENSE_VERSION=${typesense_version}
+      TYPESENSE_CONTAINER=${typesense_container}
+      TYPESENSE_DATA_DIR=/var/lib/typesense
+      TYPESENSE_SNAPSHOT_PATH=/var/lib/typesense-snapshots
+      TYPESENSE_API_PORT=${api_port}
+      TYPESENSE_PEERING_PORT=${peering_port}
+      TYPESENSE_PEERING_ADDRESS=${node_private_ip}
+
+  - path: /usr/local/bin/run-typesense
+    permissions: "0750"
+    owner: root:root
+    content: |
+      #!/usr/bin/env bash
+      set -euo pipefail
+
+      source /etc/typesense/typesense.env
+
+      until ip addr | grep -q "$TYPESENSE_PEERING_ADDRESS"; do
+        echo "Waiting for private IP $TYPESENSE_PEERING_ADDRESS"
+        sleep 5
+      done
+
+      mkdir -p "$TYPESENSE_DATA_DIR" "$TYPESENSE_SNAPSHOT_PATH"
+      chown -R 1000:1000 "$TYPESENSE_DATA_DIR" "$TYPESENSE_SNAPSHOT_PATH"
+
+      TYPESENSE_API_KEY="$(printf '%s' "$TYPESENSE_API_KEY_B64" | base64 -d)"
+      export TYPESENSE_API_KEY
+
+      exec docker run --rm \
+        --name "$TYPESENSE_CONTAINER" \
+        --network host \
+        --volume "$TYPESENSE_DATA_DIR:/data" \
+        --volume "$TYPESENSE_SNAPSHOT_PATH:/snapshots" \
+        --volume /etc/typesense/nodes:/etc/typesense/nodes:ro \
+        "$TYPESENSE_DOCKER_IMAGE:$TYPESENSE_VERSION" \
+        --data-dir /data \
+        --api-key "$TYPESENSE_API_KEY" \
+        --api-address 0.0.0.0 \
+        --api-port "$TYPESENSE_API_PORT" \
+        --peering-address "$TYPESENSE_PEERING_ADDRESS" \
+        --peering-port "$TYPESENSE_PEERING_PORT" \
+        --nodes /etc/typesense/nodes
+
+  - path: /etc/systemd/system/typesense.service
+    permissions: "0644"
+    owner: root:root
+    content: |
+      [Unit]
+      Description=Typesense
+      Requires=docker.service
+      After=docker.service network-online.target
+      Wants=network-online.target
+
+      [Service]
+      Restart=always
+      RestartSec=10
+      EnvironmentFile=/etc/typesense/typesense.env
+      ExecStartPre=-/usr/bin/docker rm -f typesense
+      ExecStartPre=/usr/bin/docker pull ${typesense_docker_image}:${typesense_version}
+      ExecStart=/usr/local/bin/run-typesense
+      ExecStop=/usr/bin/docker stop typesense
+
+      [Install]
+      WantedBy=multi-user.target
+
+runcmd:
+  - systemctl enable --now docker
+  - systemctl daemon-reload
+  - systemctl enable --now typesense
