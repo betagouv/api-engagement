@@ -9,7 +9,6 @@ import { INDEXED_TAXONOMY_KEYS } from "./mission-fields";
 export const MISSION_COLLECTION_SCHEMA: CollectionCreateSchema = {
   name: TYPESENSE_MISSION_COLLECTION,
   fields: [
-    { name: "id", type: "string" },
     { name: "publisherId", type: "string", facet: true },
     { name: "departmentCodes", type: "string[]", facet: true },
     ...INDEXED_TAXONOMY_KEYS.map((name) => ({ name, type: "string[]" as const, facet: true, optional: true })),

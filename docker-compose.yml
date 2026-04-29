@@ -36,6 +36,7 @@ services:
       PORT: 3002
       DATABASE_URL_CORE: postgres://user:password@postgres-core:5432/api-engagement-core
       WORKER_URL: http://worker:3004
+      TYPESENSE_HOST: typesense
     volumes:
       - ./api:/workspace/api
       - /workspace/api/node_modules
@@ -53,6 +54,8 @@ services:
       PORT_WORKER: 3004
       ENV: development
       DATABASE_URL_CORE: postgres://user:password@postgres-core:5432/api-engagement-core
+      WORKER_URL: http://worker:3004
+      TYPESENSE_HOST: typesense
     volumes:
       - ./api:/workspace/api
       - /workspace/api/node_modules
