@@ -298,6 +298,7 @@ router.delete(
 
       // Idempotent: already deleted
       if (existing.deletedAt) {
+        await missionService.enqueueMissionProcessing(existing.id);
         return res.status(200).send({ ok: true, data: { clientId: existing.clientId, deletedAt: existing.deletedAt } });
       }
 

@@ -443,16 +443,21 @@ describe("Mission V2 Write API Integration Tests", () => {
       });
     });
 
-    it("should be idempotent: second DELETE returns same deletedAt", async () => {
+    it("should be idempotent: second DELETE returns same deletedAt and republishes enrichment", async () => {
       const mission = await createTestMission({ publisherId: publisher.id });
 
       const first = await request(app).delete(`/v2/mission/${mission.clientId}`).set("x-api-key", apiKey);
       expect(first.status).toBe(200);
       const firstDeletedAt = first.body.data.deletedAt;
+      vi.clearAllMocks();
 
       const second = await request(app).delete(`/v2/mission/${mission.clientId}`).set("x-api-key", apiKey);
       expect(second.status).toBe(200);
       expect(second.body.data.deletedAt).toBe(firstDeletedAt);
+      expect(asyncTaskBus.publish).toHaveBeenCalledWith({
+        type: "mission.enrichment",
+        payload: { missionId: mission.id },
+      });
     });
 
     it("should not return soft-deleted mission via findMissionByClientAndPublisher", async () => {

@@ -564,6 +564,10 @@ const baseInclude: MissionInclude = {
 };
 
 export const missionService = {
+  async enqueueMissionProcessing(missionId: string): Promise<void> {
+    await asyncTaskBus.publish({ type: "mission.enrichment", payload: { missionId } });
+  },
+
   async findMissionsByIds(ids: string[]): Promise<MissionRecord[]> {
     if (!ids.length) {
       return [];
@@ -756,7 +760,7 @@ export const missionService = {
     await missionRepository.createUnchecked(data);
 
     await activityService.addMissionActivities(id, activityIds);
-    await asyncTaskBus.publish({ type: "mission.enrichment", payload: { missionId: id } });
+    await this.enqueueMissionProcessing(id);
 
     const mission = await missionRepository.findFirst({ where: { id }, include: baseInclude });
     if (!mission) {
@@ -922,7 +926,7 @@ export const missionService = {
       throw new Error(`[missionService] Mission ${id} not found after update`);
     }
 
-    await asyncTaskBus.publish({ type: "mission.enrichment", payload: { missionId: id } });
+    await this.enqueueMissionProcessing(id);
 
     return toMissionRecord(mission as MissionWithRelations);
   },
