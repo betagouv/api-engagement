@@ -2,29 +2,16 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const upsertDocumentMock = vi.hoisted(() => vi.fn());
 const deleteDocumentMock = vi.hoisted(() => vi.fn());
-const ensureMissionCollectionMock = vi.hoisted(() => vi.fn());
 
-vi.mock("@/services/typesense/schema", () => ({
-  ensureMissionCollection: ensureMissionCollectionMock,
-}));
-
-vi.mock("@/services/typesense/client", () => ({
-  typesenseClient: {
-    collections: vi.fn(() => ({
-      documents: vi.fn((documentId?: string) => {
-        if (documentId) {
-          return { delete: deleteDocumentMock };
-        }
-        return { upsert: upsertDocumentMock };
-      }),
-    })),
+vi.mock("@/services/typesense/mission-client", () => ({
+  missionTypesenseClient: {
+    upsert: upsertDocumentMock,
+    delete: deleteDocumentMock,
   },
 }));
 
 import { prisma } from "@/db/postgres";
 import { missionIndexService } from "@/services/mission-index";
-import { typesenseClient } from "@/services/typesense/client";
-import { ensureMissionCollection } from "@/services/typesense/schema";
 
 const prismaMock = prisma as unknown as {
   mission: {
@@ -51,8 +38,6 @@ describe("missionIndexService.upsert", () => {
     prismaMock.mission.findUnique.mockReset();
     upsertDocumentMock.mockReset();
     deleteDocumentMock.mockReset();
-    ensureMissionCollectionMock.mockReset();
-    vi.mocked(typesenseClient.collections).mockClear();
   });
 
   it("supprime les missions non acceptées de l'index", async () => {
@@ -61,8 +46,7 @@ describe("missionIndexService.upsert", () => {
 
     await missionIndexService.upsert("mission-1");
 
-    expect(ensureMissionCollection).toHaveBeenCalledTimes(1);
-    expect(deleteDocumentMock).toHaveBeenCalledTimes(1);
+    expect(deleteDocumentMock).toHaveBeenCalledWith("mission-1");
     expect(upsertDocumentMock).not.toHaveBeenCalled();
   });
 

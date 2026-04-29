@@ -1,8 +1,6 @@
-import { TYPESENSE_MISSION_COLLECTION } from "@/config";
 import { missionService } from "@/services/mission";
-import { typesenseClient } from "@/services/typesense/client";
+import { missionTypesenseClient } from "@/services/typesense/mission-client";
 import { INDEXED_TAXONOMY_KEYS, IndexedTaxonomyKey } from "@/services/typesense/mission-fields";
-import { ensureMissionCollection } from "@/services/typesense/schema";
 import { MissionRecord } from "@/types/mission";
 
 const FACET_FIELDS = [...INDEXED_TAXONOMY_KEYS, "departmentCodes"];
@@ -82,18 +80,14 @@ export const missionBrowseService = {
 
     const tsResult = await (async () => {
       try {
-        await ensureMissionCollection();
-        return await typesenseClient
-          .collections(TYPESENSE_MISSION_COLLECTION)
-          .documents()
-          .search({
-            q: "*",
-            query_by: "publisherId",
-            filter_by: filterBy || undefined,
-            facet_by: FACET_FIELDS.join(","),
-            per_page: params.pageSize,
-            page: params.page,
-          });
+        return await missionTypesenseClient.search({
+          q: "*",
+          query_by: "publisherId",
+          filter_by: filterBy || undefined,
+          facet_by: FACET_FIELDS.join(","),
+          per_page: params.pageSize,
+          page: params.page,
+        });
       } catch (error) {
         throw new MissionBrowseIndexUnavailableError(error);
       }
