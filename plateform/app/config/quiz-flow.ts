@@ -9,7 +9,7 @@ export type StepId =
   | "localisation"
   | "duree"
   | "motivation"
-  | "precision_domaine_aide"
+  | "precision_thematique"
   | "precision_parcoursup_formation"
   | "precision_parcoursup_formation_nom"
   | "precision_domaine"
@@ -45,8 +45,8 @@ export const QUIZ_FLOW: StepDef[] = [
   // Étape 7 — précisions sur la motivation (embranchement).
   // → me_sentir_utile (toutes branches) : mapping référentiel `engagement_intent`.
   {
-    id: "precision_domaine_aide",
-    route: "/quiz/precision-domaine-aide",
+    id: "precision_thematique",
+    route: "/quiz/precision-thematique",
     condition: screenAnswer("motivation", "motivation.me_sentir_utile"),
   },
   // → booster_parcoursup (lyceen) : 2 sous-steps avant le step domaine commun.

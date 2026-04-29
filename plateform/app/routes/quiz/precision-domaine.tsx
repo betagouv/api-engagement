@@ -22,20 +22,9 @@ const STEP_OPTIONS = [
   OPTIONS["domaine.je_ne_sais_pas"],
 ];
 
-const TITLE_BY_MOTIVATION: Record<string, string> = {
-  "motivation.booster_parcoursup": "Dans quel domaine aimerais-tu avoir une expérience ?",
-  "motivation.ne_sais_pas": "Est-ce qu'un domaine te plaît plus qu'un autre ?",
-};
-
-const DEFAULT_TITLE = "Quel domaine t'attire le plus ?";
-
 export default function PrecisionDomaineStep() {
-  const { answers, setAnswer } = useQuizStore();
+  const { setAnswer } = useQuizStore();
   const { goNext, goBack } = useOutletContext<QuizOutletContext>();
-
-  const motivation = answers.motivation;
-  const selected = motivation?.type === "options" ? motivation.option_ids[0] : "";
-  const title = TITLE_BY_MOTIVATION[selected] ?? DEFAULT_TITLE;
 
   const handleSelect = (value: string) => {
     setAnswer(STEP_ID, { type: "options", option_ids: [value] });
@@ -44,7 +33,7 @@ export default function PrecisionDomaineStep() {
 
   return (
     <>
-      <Title>{title}</Title>
+      <Title>Dans quel domaine veux-tu aider / avoir une expérience ?</Title>
       <SingleSelect onChange={handleSelect} options={STEP_OPTIONS} />
       <div className="fr-mt-4w tw:flex tw:flex-col tw:sm:flex-row tw:gap-4 tw:items-center">
         <button type="button" className="fr-btn tw:w-full! tw:sm:w-auto! tw:justify-center!" onClick={goNext}>

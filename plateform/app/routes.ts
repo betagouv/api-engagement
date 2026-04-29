@@ -12,7 +12,7 @@ export default [
     route("localisation", "routes/quiz/localisation.tsx"),
     route("duree", "routes/quiz/duree.tsx"),
     route("motivation", "routes/quiz/motivation.tsx"),
-    route("precision-domaine-aide", "routes/quiz/precision-domaine-aide.tsx"),
+    route("precision-thematique", "routes/quiz/precision-thematique.tsx"),
     route("precision-parcoursup-formation", "routes/quiz/precision-parcoursup-formation.tsx"),
     route("precision-parcoursup-formation-nom", "routes/quiz/precision-parcoursup-formation-nom.tsx"),
     route("precision-domaine", "routes/quiz/precision-domaine.tsx"),

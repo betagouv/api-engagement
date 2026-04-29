@@ -5,7 +5,7 @@ import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
 import type { QuizOutletContext } from "./_layout";
 
-const STEP_ID = "precision_domaine_aide";
+const STEP_ID = "precision_thematique";
 
 // Mapping référentiel `engagement_intent` (voir Notion — Étape 7 lycéen / me_sentir_utile).
 const STEP_OPTIONS = [
@@ -19,7 +19,7 @@ const STEP_OPTIONS = [
   OPTIONS["engagement_intent.exploration"],
 ];
 
-export default function PrecisionDomaineAideStep() {
+export default function PrecisionThematiqueStep() {
   const { setAnswer } = useQuizStore();
   const { goNext, goBack } = useOutletContext<QuizOutletContext>();
 
