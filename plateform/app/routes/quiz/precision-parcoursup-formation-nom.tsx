@@ -1,8 +1,8 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState, type SubmitEvent } from "react";
 import { useOutletContext } from "react-router";
 import Title from "~/components/quiz/title";
-import type { QuizOutletContext } from "./_layout";
 import { useQuizStore } from "~/stores/quiz";
+import type { QuizOutletContext } from "./_layout";
 
 const STEP_ID = "precision_parcoursup_formation_nom";
 
@@ -21,7 +21,7 @@ export default function PrecisionParcoursupFormationNomStep() {
 
   const valid = value.trim().length > 0;
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = (e: SubmitEvent) => {
     e.preventDefault();
     if (!valid) return;
     setAnswer(STEP_ID, { type: "text", value: value.trim() });
