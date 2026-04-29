@@ -5,9 +5,10 @@ import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
 import type { QuizOutletContext } from "./_layout";
 
-const STEP_ID = "precision_reconversion";
+const STEP_ID = "precision_formation_onisep";
 
-// Mapping ONISEP — même grille que precision_experience_terrain.
+// Catégories simplifiées dérivées du référentiel ONISEP — 9 domaines.
+// Couvre 3 branches motivation (tester_orientation, experience_terrain, preparer_reconversion).
 const STEP_OPTIONS = [
   OPTIONS["formation_onisep.environnement_nature_sciences"],
   OPTIONS["formation_onisep.numerique_communication"],
@@ -20,9 +21,20 @@ const STEP_OPTIONS = [
   OPTIONS["formation_onisep.je_ne_sais_pas"],
 ];
 
-export default function PrecisionReconversionStep() {
-  const { setAnswer } = useQuizStore();
+const TITLE_BY_MOTIVATION: Record<string, string> = {
+  "motivation.experience_terrain": "Dans quel domaine réalises-tu tes études ?",
+  "motivation.preparer_reconversion": "Dans quel domaine souhaites-tu préparer ta reconversion ?",
+};
+
+const DEFAULT_TITLE = "Vers quoi veux-tu t'orienter ?";
+
+export default function PrecisionFormationOnisepStep() {
+  const { answers, setAnswer } = useQuizStore();
   const { goNext, goBack } = useOutletContext<QuizOutletContext>();
+
+  const motivation = answers.motivation;
+  const selected = motivation?.type === "options" ? motivation.option_ids[0] : "";
+  const title = TITLE_BY_MOTIVATION[selected] ?? DEFAULT_TITLE;
 
   const handleSelect = (value: string) => {
     setAnswer(STEP_ID, { type: "options", option_ids: [value] });
@@ -31,7 +43,7 @@ export default function PrecisionReconversionStep() {
 
   return (
     <>
-      <Title>Dans quel domaine souhaites-tu préparer ta reconversion ?</Title>
+      <Title>{title}</Title>
       <SingleSelect onChange={handleSelect} options={STEP_OPTIONS} />
       <div className="fr-mt-4w tw:flex tw:flex-col tw:sm:flex-row tw:gap-4 tw:items-center">
         <button type="button" className="fr-btn tw:w-full! tw:sm:w-auto! tw:justify-center!" onClick={goNext}>

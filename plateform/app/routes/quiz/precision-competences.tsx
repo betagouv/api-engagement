@@ -8,7 +8,8 @@ import type { QuizOutletContext } from "./_layout";
 const STEP_ID = "precision_competences";
 
 // Mapping référentiel ROME — 7 domaines de compétences.
-// Voir Notion — Étape 7 étudiant / booster_cv.
+// La sémantique varie selon la motivation : "ce que je veux développer" (booster_cv / enrichir_cv)
+// vs. "ce que je sais déjà faire" (competences_interet_general). Même grille, titre adapté.
 const STEP_OPTIONS = [
   OPTIONS["competence_rome.management_social_soin"],
   OPTIONS["competence_rome.communication_creation_numerique"],
@@ -19,9 +20,19 @@ const STEP_OPTIONS = [
   OPTIONS["competence_rome.securite_environnement_action_publique"],
 ];
 
+const TITLE_BY_MOTIVATION: Record<string, string> = {
+  "motivation.competences_interet_general": "Quel est ton domaine de compétences ?",
+};
+
+const DEFAULT_TITLE = "Quel domaine de compétences t'attire le plus ?";
+
 export default function PrecisionCompetencesStep() {
-  const { setAnswer } = useQuizStore();
+  const { answers, setAnswer } = useQuizStore();
   const { goNext, goBack } = useOutletContext<QuizOutletContext>();
+
+  const motivation = answers.motivation;
+  const selected = motivation?.type === "options" ? motivation.option_ids[0] : "";
+  const title = TITLE_BY_MOTIVATION[selected] ?? DEFAULT_TITLE;
 
   const handleSelect = (value: string) => {
     setAnswer(STEP_ID, { type: "options", option_ids: [value] });
@@ -30,7 +41,7 @@ export default function PrecisionCompetencesStep() {
 
   return (
     <>
-      <Title>Quel domaine de compétences t'attire le plus ?</Title>
+      <Title>{title}</Title>
       <SingleSelect onChange={handleSelect} options={STEP_OPTIONS} />
       <div className="fr-mt-4w tw:flex tw:flex-col tw:sm:flex-row tw:gap-4 tw:items-center">
         <button type="button" className="fr-btn tw:w-full! tw:sm:w-auto! tw:justify-center!" onClick={goNext}>
