@@ -1,0 +1,113 @@
+{
+  "ok": true,
+  "total": 3,
+  "hits": [
+    {
+      "_id": "mission-paris-001",
+      "id": "mission-paris-001",
+      "clientId": "partner-source-paris-001",
+      "title": "Animer des ateliers numeriques pour des seniors",
+      "description": "<p>Accompagner des seniors dans la prise en main d'outils numeriques du quotidien.</p>",
+      "applicationUrl": "https://example.org/missions/ateliers-numeriques",
+      "domain": "solidarite-insertion",
+      "activity": "animation",
+      "activities": ["animation", "enseignement-formation"],
+      "type": "benevolat",
+      "remote": "no",
+      "statusCode": "ACCEPTED",
+      "openToMinors": "no",
+      "reducedMobilityAccessible": "yes",
+      "publisherId": "publisher-demo-01",
+      "publisherName": "Partenaire Demo Solidarite",
+      "organizationName": "Association Demo Paris",
+      "organizationRNA": "W751000001",
+      "city": "Paris",
+      "postalCode": "75011",
+      "departmentCode": "75",
+      "departmentName": "Paris",
+      "country": "France",
+      "location": {
+        "lat": 48.8566,
+        "lon": 2.3522
+      },
+      "_distance": null
+    },
+    {
+      "_id": "mission-lyon-002",
+      "id": "mission-lyon-002",
+      "clientId": "partner-source-lyon-002",
+      "title": "Participer a une collecte alimentaire",
+      "description": "<p>Renforcer une equipe benevole pendant une collecte alimentaire locale.</p>",
+      "applicationUrl": "https://example.org/missions/collecte-alimentaire",
+      "domain": "humanitaire",
+      "activity": "collecte",
+      "activities": ["collecte", "distribution"],
+      "type": "benevolat",
+      "remote": "no",
+      "statusCode": "ACCEPTED",
+      "openToMinors": "yes",
+      "reducedMobilityAccessible": "no",
+      "publisherId": "publisher-demo-02",
+      "publisherName": "Partenaire Demo Humanitaire",
+      "organizationName": "Banque Alimentaire Demo",
+      "organizationRNA": "W691000002",
+      "city": "Lyon",
+      "postalCode": "69003",
+      "departmentCode": "69",
+      "departmentName": "Rhone",
+      "country": "France",
+      "location": {
+        "lat": 45.7578,
+        "lon": 4.832
+      },
+      "_distance": null
+    },
+    {
+      "_id": "mission-marseille-003",
+      "id": "mission-marseille-003",
+      "clientId": "partner-source-marseille-003",
+      "title": "Sensibiliser a la protection du littoral",
+      "description": "<p>Informer le public et participer a une action de ramassage de dechets.</p>",
+      "applicationUrl": "https://example.com/missions/protection-littoral",
+      "domain": "environnement",
+      "activity": "ramassage-dechets",
+      "activities": ["ramassage-dechets", "sensibilisation"],
+      "type": "benevolat",
+      "remote": "possible",
+      "statusCode": "ACCEPTED",
+      "openToMinors": "yes",
+      "reducedMobilityAccessible": "yes",
+      "publisherId": "publisher-demo-03",
+      "publisherName": "Partenaire Demo Environnement",
+      "organizationName": "Littoral Demo",
+      "organizationRNA": "W131000003",
+      "city": "Marseille",
+      "postalCode": "13007",
+      "departmentCode": "13",
+      "departmentName": "Bouches-du-Rhone",
+      "country": "France",
+      "location": {
+        "lat": 43.2965,
+        "lon": 5.3698
+      },
+      "_distance": null
+    }
+  ],
+  "facets": {
+    "domains": [
+      { "key": "solidarite-insertion", "doc_count": 1 },
+      { "key": "humanitaire", "doc_count": 1 },
+      { "key": "environnement", "doc_count": 1 }
+    ],
+    "activities": [
+      { "key": "animation", "doc_count": 1 },
+      { "key": "collecte", "doc_count": 1 },
+      { "key": "ramassage-dechets", "doc_count": 1 }
+    ],
+    "departmentName": [
+      { "key": "Paris", "doc_count": 1 },
+      { "key": "Rhone", "doc_count": 1 },
+      { "key": "Bouches-du-Rhone", "doc_count": 1 }
+    ]
+  }
+}
