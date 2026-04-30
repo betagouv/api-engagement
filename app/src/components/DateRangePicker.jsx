@@ -59,7 +59,7 @@ const DateRangePicker = ({ value, onChange }) => {
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-wrap gap-4 sm:items-center">
       <fieldset className="m-0 border-0 p-0">
         <legend className="sr-only">Période</legend>
         <div className="border-grey-border flex flex-col items-stretch gap-2 rounded-sm border sm:w-fit sm:flex-row sm:items-center sm:gap-x-2" role="radiogroup">
