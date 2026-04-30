@@ -1,5 +1,5 @@
 import { getTaxonomyList, type TaxonomyListItem } from "@engagement/taxonomy";
-import { useState } from "react";
+import { useState, type SubmitEvent } from "react";
 import { CityAutocomplete } from "./CityAutocomplete";
 
 type Geo = { lat: number; lon: number } | null;
@@ -47,7 +47,7 @@ export function QuizForm({ onSubmit, loading }: Props) {
     }
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: SubmitEvent) {
     e.preventDefault();
     const taxonomyAnswers = Array.from(selected).map((key) => ({ taxonomy_value_key: key }));
     const ageAnswers = computeAgeKeys(age !== "" ? age : null, hasDisability).map((key) => ({
