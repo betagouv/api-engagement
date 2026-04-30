@@ -76,7 +76,7 @@ jobs:
       - name: Build and push plateform image
         uses: docker/build-push-action@v7
         with:
-          context: ./plateform
+          context: .
           file: ./plateform/Dockerfile.production
           push: true
           provenance: false

@@ -1,25 +1,21 @@
 FROM node:24-slim AS builder
-
-WORKDIR /app
-
-COPY package*.json ./
+WORKDIR /workspace
+COPY plateform/package*.json ./plateform/
+COPY packages/taxonomy ./packages/taxonomy
+WORKDIR /workspace/plateform
 RUN npm ci
-
-COPY . .
+WORKDIR /workspace
+COPY plateform ./plateform
+WORKDIR /workspace/plateform
 RUN npm run build
 
-# Image de production
 FROM node:24-slim AS runner
-
-WORKDIR /app
-
-ENV NODE_ENV=production
-
-COPY --from=builder /app/package*.json ./
+WORKDIR /workspace
+COPY plateform/package*.json ./plateform/
+COPY packages/taxonomy ./packages/taxonomy
+WORKDIR /workspace/plateform
 RUN npm ci --omit=dev
-
-COPY --from=builder /app/build ./build
-
+COPY --from=builder /workspace/plateform/build ./build
+ENV NODE_ENV=production
 EXPOSE 8080
-
 CMD ["npm", "run", "start"]
