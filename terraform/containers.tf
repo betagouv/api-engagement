@@ -1,18 +1,19 @@
 resource "scaleway_container" "api" {
-  name            = "${var.workspace}-api"
-  description     = "API ${var.workspace} container"
-  namespace_id    = scaleway_container_namespace.main.id
-  registry_image  = "ghcr.io/${var.github_repository}/api:${var.env}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
-  port            = 8080
-  cpu_limit       = var.api_cpu_limit
-  memory_limit    = var.api_memory_limit
-  min_scale       = var.api_min_scale
-  max_scale       = var.api_max_scale
-  timeout         = 60
-  privacy         = "public"
-  protocol        = "http1"
-  http_option     = "redirected" # https only
-  deploy          = true
+  name                = "${var.workspace}-api"
+  description         = "API ${var.workspace} container"
+  namespace_id        = scaleway_container_namespace.main.id
+  registry_image      = "ghcr.io/${var.github_repository}/api:${var.env}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
+  port                = 8080
+  cpu_limit           = var.api_cpu_limit
+  memory_limit        = var.api_memory_limit
+  min_scale           = var.api_min_scale
+  max_scale           = var.api_max_scale
+  timeout             = 60
+  privacy             = "public"
+  protocol            = "http1"
+  http_option         = "redirected" # https only
+  deploy              = true
+  private_network_id  = scaleway_vpc_private_network.main.id
 
   health_check {
     http {
@@ -27,19 +28,21 @@ resource "scaleway_container" "api" {
   }
 
   environment_variables = {
-    "ENV"                               = var.env
-    "IMAGE_VERSION"                     = var.image_tag
-    "API_URL"                           = var.api_hostname != "" ? "https://${var.api_hostname}" : ""
-    "APP_URL"                           = var.app_hostname != "" ? "https://${var.app_hostname}" : ""
-    "BENEVOLAT_URL"                     = var.benevolat_hostname != "" ? "https://${var.benevolat_hostname}" : ""
-    "VOLONTARIAT_URL"                   = var.volontariat_hostname != "" ? "https://${var.volontariat_hostname}" : ""
-    "PILOTY_BASE_URL"                   = var.piloty_hostname
-    "BUCKET_NAME"                       = var.bucket_name
-    "SLACK_JOBTEASER_CHANNEL_ID"        = var.slack_jobteaser_channel_id
-    "PRISMA_POOL_SIZE_CORE"             = "20"
-    "PRISMA_POOL_TIMEOUT"               = "20"
-    "PRISMA_CONNECT_TIMEOUT"            = "10"
-    "COCKPIT_METRICS_OTLP_URL"          = var.cockpit_metrics_otlp_url
+    "ENV"                        = var.env
+    "IMAGE_VERSION"              = var.image_tag
+    "API_URL"                    = var.api_hostname != "" ? "https://${var.api_hostname}" : ""
+    "APP_URL"                    = var.app_hostname != "" ? "https://${var.app_hostname}" : ""
+    "BENEVOLAT_URL"              = var.benevolat_hostname != "" ? "https://${var.benevolat_hostname}" : ""
+    "VOLONTARIAT_URL"            = var.volontariat_hostname != "" ? "https://${var.volontariat_hostname}" : ""
+    "PILOTY_BASE_URL"            = var.piloty_hostname
+    "BUCKET_NAME"                = var.bucket_name
+    "SLACK_JOBTEASER_CHANNEL_ID" = var.slack_jobteaser_channel_id
+    "PRISMA_POOL_SIZE_CORE"      = "20"
+    "PRISMA_POOL_TIMEOUT"        = "20"
+    "PRISMA_CONNECT_TIMEOUT"     = "10"
+    "COCKPIT_METRICS_OTLP_URL"   = var.cockpit_metrics_otlp_url
+    "TYPESENSE_HOST"             = var.typesense_load_balancer_private_ip
+    "TYPESENSE_PORT"             = "8108"
 
     # Feature flags ES migration
     "WRITE_STATS_DUAL" = "true"
@@ -65,6 +68,7 @@ resource "scaleway_container" "api" {
     "METABASE_API_KEY"       = lookup(local.secrets, "METABASE_API_KEY", "")
     "METABASE_URL"           = lookup(local.secrets, "METABASE_URL", "")
     "COCKPIT_METRICS_TOKEN"  = lookup(local.secrets, "COCKPIT_METRICS_TOKEN", "")
+    "TYPESENSE_API_KEY"      = lookup(local.secrets, "TYPESENSE_API_KEY", "")
   }
 }
 

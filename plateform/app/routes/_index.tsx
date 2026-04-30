@@ -11,13 +11,13 @@ export function meta(): Route.MetaDescriptors {
   ];
 }
 
-export default function Landing(_: Route.ComponentProps) {
+export default function Landing() {
   return (
     <main className="fr-container fr-py-6w">
       <h1>Trouvez votre mission de bénévolat</h1>
       <p className="fr-text--lead">Répondez à quelques questions et découvrez les missions faites pour vous.</p>
 
-      <Link to="/quiz" className="fr-btn fr-btn--lg fr-mb-6w">
+      <Link to="/quiz/age" className="fr-btn fr-btn--lg fr-mb-6w">
         Commencer le quiz
       </Link>
     </main>

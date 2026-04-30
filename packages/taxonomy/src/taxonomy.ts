@@ -9,6 +9,7 @@
 //
 // Champs par valeur :
 //   label      — libellé affiché
+//   sublabel   — aide contextuelle optionnelle pour les UIs
 //   icon       — emoji optionnel
 //   enrichable — false pour les valeurs exclues de l'enrichissement (ex : je_ne_sais_pas)
 
@@ -127,6 +128,105 @@ export const TAXONOMY = {
       technique_industrie_construction: { label: "Technique, industrie et construction", icon: "🛠️", enrichable: true },
       securite_defense_logistique: { label: "Sécurité, défense et logistique", icon: "🚓", enrichable: true },
       je_ne_sais_pas: { label: "Je ne sais pas encore", icon: "🤷", enrichable: false },
+    },
+  },
+
+  // ─── Taxonomies déclaratives côté quiz, non enrichies par LLM ─────────────
+
+  statut: {
+    label: "Statut utilisateur",
+    type: "categorical",
+    enrichable: false,
+    gate: false,
+    values: {
+      lyceen: { label: "Lycéen", icon: null, enrichable: false },
+      etudiant: { label: "Étudiant", icon: null, enrichable: false },
+      demandeur_emploi: { label: "Demandeur d'emploi", icon: null, enrichable: false },
+      actif: { label: "En activité", icon: null, enrichable: false },
+      retraite: { label: "Retraité", icon: null, enrichable: false },
+      autre: { label: "Autre", icon: null, enrichable: false },
+    },
+  },
+
+  handicap: {
+    label: "Situation de handicap",
+    type: "categorical",
+    enrichable: false,
+    gate: false,
+    values: {
+      oui: { label: "Oui", icon: null, enrichable: false },
+      non: { label: "Non", icon: null, enrichable: false },
+      ne_se_prononce_pas: { label: "Je préfère ne pas répondre", icon: null, enrichable: false },
+    },
+  },
+
+  motivation: {
+    label: "Motivation utilisateur",
+    type: "categorical",
+    enrichable: false,
+    gate: false,
+    values: {
+      me_sentir_utile: { label: "Me sentir utile, rencontrer de nouvelles personnes", icon: null, enrichable: false },
+      booster_parcoursup: { label: "Booster mon dossier Parcoursup", icon: null, enrichable: false },
+      tester_orientation: { label: "Tester une orientation", icon: null, enrichable: false },
+      servir_le_pays: { label: "Servir le pays", icon: null, enrichable: false },
+      ne_sais_pas: { label: "Je ne sais pas encore", icon: null, enrichable: false },
+      booster_cv: {
+        label: "Booster mon CV",
+        sublabel: "Acquérir des compétences en rapport avec mes études",
+        icon: null,
+        enrichable: false,
+      },
+      decouvrir_domaine: {
+        label: "Découvrir un nouveau domaine",
+        sublabel: "Pour me ré-orienter, avoir une expérience pour tester...",
+        icon: null,
+        enrichable: false,
+      },
+      experience_terrain: { label: "Avoir une 1ère expérience terrain", icon: null, enrichable: false },
+      partir_etranger: { label: "Partir à l'étranger", icon: null, enrichable: false },
+      competences_interet_general: { label: "Utiliser mes compétences pour l'intérêt général", icon: null, enrichable: false },
+      faire_vivre_valeurs: { label: "Faire vivre mes valeurs", icon: null, enrichable: false },
+      reprendre_confiance: { label: "Reprendre confiance en moi", icon: null, enrichable: false },
+      reprendre_activite: { label: "Garder / reprendre une activité", icon: null, enrichable: false },
+      enrichir_cv: {
+        label: "Enrichir mon CV",
+        sublabel: "Acquérir des compétences en rapport avec mon métier",
+        icon: null,
+        enrichable: false,
+      },
+      preparer_reconversion: {
+        label: "Préparer une reconversion professionnelle",
+        sublabel: "Tester un nouveau domaine / métier",
+        icon: null,
+        enrichable: false,
+      },
+    },
+  },
+
+  parcoursup_formation: {
+    label: "Formation Parcoursup identifiée",
+    type: "categorical",
+    enrichable: false,
+    gate: false,
+    values: {
+      oui: { label: "Oui", icon: null, enrichable: false },
+      non: { label: "Non", icon: null, enrichable: false },
+    },
+  },
+
+  servir_pays: {
+    label: "Cadre de service du pays",
+    type: "categorical",
+    enrichable: false,
+    gate: false,
+    values: {
+      armee: { label: "Armée", sublabel: "Marine, Air, Santé...", icon: null, enrichable: false },
+      pompiers: { label: "Pompiers", icon: null, enrichable: false },
+      gendarmerie: { label: "Gendarmerie", icon: null, enrichable: false },
+      police: { label: "Police", icon: null, enrichable: false },
+      ne_sais_pas: { label: "Je ne sais pas", icon: null, enrichable: false },
+      aucun: { label: "Aucun de ces choix", icon: null, enrichable: false },
     },
   },
 

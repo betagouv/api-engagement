@@ -16,14 +16,15 @@
     "printWidth": 180
   },
   "dependencies": {
+    "@engagement/taxonomy": "file:../packages/taxonomy",
     "@gouvfr/dsfr": "1.14.4",
     "@react-router/node": "7.14.2",
     "@react-router/serve": "7.14.2",
     "@sentry/react": "10.50.0",
     "@tailwindcss/vite": "4.2.4",
     "isbot": "5.1.39",
-    "react": "19.2.5",
-    "react-dom": "19.2.5",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
     "react-router": "7.14.2",
     "tailwindcss": "4.2.4",
     "zustand": "5.0.12"

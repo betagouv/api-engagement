@@ -95,6 +95,24 @@ describe("POST /user-scoring", () => {
     expect(values.map((value) => `${value.taxonomyKey}.${value.valueKey}`)).toEqual(["domaine.social_solidarite", "type_mission.ponctuelle"]);
   });
 
+  it("should create a user scoring with distinctId and missionAlertEnabled", async () => {
+    const res = await request(app)
+      .post("/user-scoring")
+      .send({
+        answers: [{ taxonomy_value_key: taxonomyValueKey }],
+        distinctId: "distinct-user-1",
+        missionAlertEnabled: true,
+      });
+
+    expect(res.status).toBe(201);
+
+    const userScoring = await prisma.userScoring.findUniqueOrThrow({
+      where: { id: res.body.data.id },
+    });
+    expect(userScoring.distinctId).toBe("distinct-user-1");
+    expect(userScoring.missionAlertEnabled).toBe(true);
+  });
+
   it("should deduplicate answers with repeated taxonomy_value_key", async () => {
     const res = await request(app)
       .post("/user-scoring")
@@ -207,6 +225,206 @@ describe("POST /user-scoring", () => {
         geo: { lat: 48.8566, lon: 999 },
       });
     expect(res.status).toBe(400);
+    expect(res.body.ok).toBe(false);
+  });
+});
+
+describe("PUT /user-scoring/:userScoringId", () => {
+  const distinctId = "distinct-user-1";
+  let taxonomyValueKey: string;
+  let secondaryTaxonomyValueKey: string;
+
+  beforeEach(async () => {
+    taxonomyValueKey = "domaine.social_solidarite" satisfies TaxonomyValueKey;
+    secondaryTaxonomyValueKey = "type_mission.ponctuelle" satisfies TaxonomyValueKey;
+  });
+
+  const createUserScoring = async (params: { distinctId?: string } = { distinctId }) => {
+    const res = await request(app)
+      .post("/user-scoring")
+      .send({ answers: [{ taxonomy_value_key: taxonomyValueKey }], distinctId: params.distinctId });
+
+    expect(res.status).toBe(201);
+    return res.body.data.id as string;
+  };
+
+  it("should add answers to an existing user scoring", async () => {
+    const userScoringId = await createUserScoring();
+
+    const res = await request(app)
+      .put(`/user-scoring/${userScoringId}`)
+      .send({ distinctId, answers: [{ taxonomy_value_key: secondaryTaxonomyValueKey }] });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({
+      ok: true,
+      data: { user_scoring_id: userScoringId, created_count: 1, mission_alert_enabled: false },
+    });
+
+    const values = await prisma.userScoringValue.findMany({
+      where: { userScoringId },
+      orderBy: [{ taxonomyKey: "asc" }, { valueKey: "asc" }],
+    });
+    expect(values).toHaveLength(2);
+    expect(values.map((value) => `${value.taxonomyKey}.${value.valueKey}`)).toEqual(["domaine.social_solidarite", "type_mission.ponctuelle"]);
+  });
+
+  it("should update missionAlertEnabled without adding answers", async () => {
+    const userScoringId = await createUserScoring();
+
+    const res = await request(app).put(`/user-scoring/${userScoringId}`).send({ distinctId, missionAlertEnabled: true });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({
+      ok: true,
+      data: { user_scoring_id: userScoringId, created_count: 0, mission_alert_enabled: true },
+    });
+
+    const userScoring = await prisma.userScoring.findUniqueOrThrow({
+      where: { id: userScoringId },
+    });
+    expect(userScoring.missionAlertEnabled).toBe(true);
+
+    const values = await prisma.userScoringValue.findMany({
+      where: { userScoringId },
+    });
+    expect(values).toHaveLength(1);
+  });
+
+  it("should add answers and update missionAlertEnabled in the same request", async () => {
+    const userScoringId = await createUserScoring();
+
+    const res = await request(app)
+      .put(`/user-scoring/${userScoringId}`)
+      .send({
+        distinctId,
+        missionAlertEnabled: true,
+        answers: [{ taxonomy_value_key: secondaryTaxonomyValueKey }],
+      });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({
+      ok: true,
+      data: { user_scoring_id: userScoringId, created_count: 1, mission_alert_enabled: true },
+    });
+
+    const userScoring = await prisma.userScoring.findUniqueOrThrow({
+      where: { id: userScoringId },
+    });
+    expect(userScoring.missionAlertEnabled).toBe(true);
+
+    const values = await prisma.userScoringValue.findMany({
+      where: { userScoringId },
+    });
+    expect(values).toHaveLength(2);
+  });
+
+  it("should skip duplicate answers when adding answers", async () => {
+    const userScoringId = await createUserScoring();
+
+    const res = await request(app)
+      .put(`/user-scoring/${userScoringId}`)
+      .send({
+        distinctId,
+        answers: [{ taxonomy_value_key: taxonomyValueKey }, { taxonomy_value_key: secondaryTaxonomyValueKey }, { taxonomy_value_key: secondaryTaxonomyValueKey }],
+      });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.created_count).toBe(1);
+
+    const values = await prisma.userScoringValue.findMany({
+      where: { userScoringId },
+    });
+    expect(values).toHaveLength(2);
+  });
+
+  it("should silently skip invalid answers when adding answers", async () => {
+    const userScoringId = await createUserScoring();
+
+    const res = await request(app)
+      .put(`/user-scoring/${userScoringId}`)
+      .send({
+        distinctId,
+        answers: [{ taxonomy_value_key: secondaryTaxonomyValueKey }, { taxonomy_value_key: "domaine.does_not_exist" }],
+      });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.created_count).toBe(1);
+  });
+
+  it("should return 400 when all added answers are invalid", async () => {
+    const userScoringId = await createUserScoring();
+
+    const res = await request(app)
+      .put(`/user-scoring/${userScoringId}`)
+      .send({ distinctId, answers: [{ taxonomy_value_key: "domaine.does_not_exist" }] });
+
+    expect(res.status).toBe(400);
+    expect(res.body.ok).toBe(false);
+  });
+
+  it("should return 400 when no update field is provided", async () => {
+    const userScoringId = await createUserScoring();
+
+    const res = await request(app).put(`/user-scoring/${userScoringId}`).send({ distinctId });
+
+    expect(res.status).toBe(400);
+    expect(res.body.ok).toBe(false);
+  });
+
+  it("should return 400 when distinctId is missing", async () => {
+    const userScoringId = await createUserScoring();
+
+    const res = await request(app)
+      .put(`/user-scoring/${userScoringId}`)
+      .send({ answers: [{ taxonomy_value_key: secondaryTaxonomyValueKey }] });
+
+    expect(res.status).toBe(400);
+    expect(res.body.ok).toBe(false);
+  });
+
+  it("should return 403 when distinctId does not match the user scoring", async () => {
+    const userScoringId = await createUserScoring();
+
+    const res = await request(app)
+      .put(`/user-scoring/${userScoringId}`)
+      .send({ distinctId: "another-distinct-user", answers: [{ taxonomy_value_key: secondaryTaxonomyValueKey }] });
+
+    expect(res.status).toBe(403);
+    expect(res.body.ok).toBe(false);
+
+    const values = await prisma.userScoringValue.findMany({
+      where: { userScoringId },
+    });
+    expect(values).toHaveLength(1);
+  });
+
+  it("should return 403 when user scoring has no distinctId", async () => {
+    const userScoringId = await createUserScoring({ distinctId: undefined });
+
+    const res = await request(app)
+      .put(`/user-scoring/${userScoringId}`)
+      .send({ distinctId, answers: [{ taxonomy_value_key: secondaryTaxonomyValueKey }] });
+
+    expect(res.status).toBe(403);
+    expect(res.body.ok).toBe(false);
+  });
+
+  it("should return 400 when userScoringId is not a uuid", async () => {
+    const res = await request(app)
+      .put("/user-scoring/not-a-uuid")
+      .send({ distinctId, answers: [{ taxonomy_value_key: taxonomyValueKey }] });
+
+    expect(res.status).toBe(400);
+    expect(res.body.ok).toBe(false);
+  });
+
+  it("should return 404 when user scoring does not exist", async () => {
+    const res = await request(app)
+      .put("/user-scoring/00000000-0000-4000-8000-000000000000")
+      .send({ distinctId, answers: [{ taxonomy_value_key: taxonomyValueKey }] });
+
+    expect(res.status).toBe(404);
     expect(res.body.ok).toBe(false);
   });
 });
