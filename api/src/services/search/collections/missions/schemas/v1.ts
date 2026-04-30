@@ -5,7 +5,8 @@ import { TYPESENSE_MISSION_COLLECTION } from "@/config";
 
 // Snapshot statique des champs indexés à l'instant de la v1.
 // Pour ajouter/retirer des taxonomies, créer un v2.ts — ne pas modifier ce fichier.
-const taxonomyFields: TaxonomyKey[] = ["domaine", "secteur_activite", "type_mission", "tranche_age"];
+export const MISSION_TAXONOMY_FIELDS_V1: TaxonomyKey[] = ["domaine", "secteur_activite", "type_mission", "tranche_age"];
+const taxonomyFields = MISSION_TAXONOMY_FIELDS_V1;
 
 const schema: CollectionCreateSchema = {
   name: TYPESENSE_MISSION_COLLECTION,
