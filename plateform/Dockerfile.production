@@ -1,21 +1,20 @@
 FROM node:24-slim AS builder
 WORKDIR /workspace
-COPY plateform/package*.json ./plateform/
+COPY package*.json ./
+COPY plateform/package.json ./plateform/
 COPY packages/taxonomy ./packages/taxonomy
-WORKDIR /workspace/plateform
-RUN npm ci
-WORKDIR /workspace
+RUN npm ci --workspace=plateform
 COPY plateform ./plateform
-WORKDIR /workspace/plateform
-RUN npm run build
+RUN npm --workspace=plateform run build
 
 FROM node:24-slim AS runner
 WORKDIR /workspace
-COPY plateform/package*.json ./plateform/
+COPY package*.json ./
+COPY plateform/package.json ./plateform/
 COPY packages/taxonomy ./packages/taxonomy
-WORKDIR /workspace/plateform
-RUN npm ci --omit=dev
-COPY --from=builder /workspace/plateform/build ./build
+RUN npm ci --workspace=plateform --omit=dev
+COPY --from=builder /workspace/plateform/build ./plateform/build
 ENV NODE_ENV=production
 EXPOSE 8080
+WORKDIR /workspace/plateform
 CMD ["npm", "run", "start"]
