@@ -17,6 +17,8 @@ const bodySchema = zod.object({
       radius_km: zod.number().positive().optional(),
     })
     .optional(),
+  distinctId: zod.string().optional(),
+  missionAlertEnabled: zod.boolean().default(false),
 });
 
 router.post("/", async (req, res, next) => {

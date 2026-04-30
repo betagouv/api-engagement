@@ -11,6 +11,8 @@ interface CreateUserScoringInput {
     lon: number;
     radius_km?: number;
   };
+  distinctId?: string;
+  missionAlertEnabled: boolean;
 }
 
 export const userScoringService = {
@@ -40,6 +42,8 @@ export const userScoringService = {
       expiresAt,
       values: valuesToPersist,
       geo: input.geo ? { lat: input.geo.lat, lon: input.geo.lon, radiusKm: input.geo.radius_km } : undefined,
+      distinctId: input?.distinctId,
+      missionAlertEnabled: input.missionAlertEnabled,
     });
 
     return { id: userScoring.id, created_at: userScoring.createdAt };
