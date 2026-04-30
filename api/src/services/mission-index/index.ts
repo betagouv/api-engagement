@@ -1,8 +1,9 @@
 import { isValidTaxonomyValueKey } from "@engagement/taxonomy";
 
 import { prisma } from "@/db/postgres";
-import { MissionIndexDocument, missionTypesenseClient } from "@/services/typesense/mission-client";
-import { INDEXED_TAXONOMY_KEYS, IndexedTaxonomyKey } from "@/services/typesense/mission-fields";
+import { missionSearchClient } from "@/services/search/collections/missions/client";
+import { INDEXED_TAXONOMY_KEYS, IndexedTaxonomyKey } from "@/services/search/collections/missions/fields";
+import { MissionIndexDocument } from "@/services/search/collections/missions/types";
 
 const buildEmptyTaxonomyIndex = (): Record<IndexedTaxonomyKey, string[]> => {
   return Object.fromEntries(INDEXED_TAXONOMY_KEYS.map((key) => [key, []])) as unknown as Record<IndexedTaxonomyKey, string[]>;
@@ -73,12 +74,12 @@ export const missionIndexService = {
       ...taxonomyIndex,
     };
 
-    await missionTypesenseClient.upsert(document);
+    await missionSearchClient.upsert(document);
   },
 
   async delete(missionId: string): Promise<void> {
     try {
-      await missionTypesenseClient.delete(missionId);
+      await missionSearchClient.delete(missionId);
     } catch (err: unknown) {
       if ((err as { httpStatus?: number }).httpStatus !== 404) {
         throw err;

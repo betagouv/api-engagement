@@ -30,7 +30,6 @@ services:
       context: .
       dockerfile: api/Dockerfile
     depends_on:
-      - postgres-analytics
       - postgres-core
     environment:
       PORT: 3002
@@ -107,13 +106,35 @@ services:
       - "3003:3003"
 
   typesense:
-    image: typesense/typesense:28.0
+    image: typesense/typesense:30.2
     restart: always
     command: --data-dir /data --api-key=xyz --enable-cors
     ports:
       - "8108:8108"
     volumes:
       - typesense-data:/data
+
+  typesense-setup:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    depends_on:
+      typesense:
+        condition: service_started
+      postgres-core:
+        condition: service_started
+    environment:
+      DATABASE_URL_CORE: postgres://user:password@postgres-core:5432/api-engagement-core
+      TYPESENSE_HOST: typesense
+      TYPESENSE_PORT: 8108
+      TYPESENSE_API_KEY: xyz
+      TYPESENSE_MISSION_COLLECTION: missions
+    volumes:
+      - ./api:/workspace/api
+      - /workspace/api/node_modules
+      - ./packages/taxonomy:/workspace/packages/taxonomy
+    command: ["sh", "-c", "sleep 20 && npx ts-node src/jobs/run-job.ts setup-search-collections"]
+    restart: "no"
 
 volumes:
   postgres-analytics-data:

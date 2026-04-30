@@ -1,6 +1,6 @@
 import { missionService } from "@/services/mission";
-import { missionTypesenseClient } from "@/services/typesense/mission-client";
-import { INDEXED_TAXONOMY_KEYS, IndexedTaxonomyKey } from "@/services/typesense/mission-fields";
+import { missionSearchClient } from "@/services/search/collections/missions/client";
+import { INDEXED_TAXONOMY_KEYS, IndexedTaxonomyKey } from "@/services/search/collections/missions/fields";
 import { MissionRecord } from "@/types/mission";
 
 const FACET_FIELDS = [...INDEXED_TAXONOMY_KEYS, "departmentCodes"];
@@ -80,7 +80,7 @@ export const missionBrowseService = {
 
     const tsResult = await (async () => {
       try {
-        return await missionTypesenseClient.search({
+        return await missionSearchClient.search({
           q: "*",
           query_by: "publisherId",
           filter_by: filterBy || undefined,

@@ -3,8 +3,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const upsertDocumentMock = vi.hoisted(() => vi.fn());
 const deleteDocumentMock = vi.hoisted(() => vi.fn());
 
-vi.mock("@/services/typesense/mission-client", () => ({
-  missionTypesenseClient: {
+vi.mock("@/services/search/collections/missions/client", () => ({
+  missionSearchClient: {
     upsert: upsertDocumentMock,
     delete: deleteDocumentMock,
   },

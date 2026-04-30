@@ -3,7 +3,7 @@ import zod from "zod";
 
 import { INVALID_QUERY, SERVICE_UNAVAILABLE, captureException } from "@/error";
 import { MissionBrowseIndexUnavailableError, missionBrowseService } from "@/services/mission-browse";
-import { INDEXED_TAXONOMY_KEYS } from "@/services/typesense/mission-fields";
+import { INDEXED_TAXONOMY_KEYS } from "@/services/search/collections/missions/fields";
 
 const router = Router();
 
