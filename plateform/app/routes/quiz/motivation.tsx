@@ -37,21 +37,37 @@ export default function MotivationStep() {
   const { answers, setAnswer } = useQuizStore();
   const { goNext } = useOutletContext<QuizOutletContext>();
   const [options, setOptions] = useState<StepOption[]>([]);
+  const [transitioning, setTransitioning] = useState(false);
 
   useEffect(() => {
     const visibleOptions = STEP_OPTIONS.filter((o) => !o.hiddenIf || !evalCondition(o.hiddenIf, answers));
     setOptions(visibleOptions);
   }, [answers]);
 
+  useEffect(() => {
+    if (!transitioning) return;
+    const timer = setTimeout(() => goNext(), 2000);
+    return () => clearTimeout(timer);
+  }, [transitioning, goNext]);
+
   const handleChange = (value: string) => {
     setAnswer(STEP_ID, { type: "options", option_ids: [value] });
   };
+
+  if (transitioning) {
+    return (
+      <div className="tw:flex tw:flex-col tw:items-center tw:justify-center tw:gap-6 tw:py-20">
+        <div className="tw:size-12 tw:border-4 tw:border-blue-france-sun tw:border-t-transparent tw:rounded-full tw:animate-spin" />
+        <p className="fr-h3 tw:mb-0!">On affine ta sélection…</p>
+      </div>
+    );
+  }
 
   return (
     <>
       <Title subtitle="Choisis une motivation importantes pour toi.">Qu’est-ce qui te motive le plus ?</Title>
       <SingleSelectIcon onChange={handleChange} options={options} />
-      <button type="button" onClick={goNext} className="fr-btn fr-btn--lg">
+      <button type="button" onClick={() => setTransitioning(true)} className="fr-btn fr-btn--lg">
         Continuer
       </button>
     </>
