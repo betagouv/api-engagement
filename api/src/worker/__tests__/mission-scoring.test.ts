@@ -6,12 +6,23 @@ vi.mock("@/services/mission-scoring", () => ({
   },
 }));
 
+vi.mock("@/services/async-task", () => ({
+  asyncTaskBus: {
+    publish: vi.fn(),
+  },
+}));
+
+import { asyncTaskBus } from "@/services/async-task";
 import { missionScoringService } from "@/services/mission-scoring";
 import { handleMissionScoring } from "@/worker/handlers/mission-scoring";
 import { missionScoringPayloadSchema } from "@/worker/types";
 
 const missionScoringServiceMock = missionScoringService as unknown as {
   score: ReturnType<typeof vi.fn>;
+};
+
+const asyncTaskBusMock = asyncTaskBus as unknown as {
+  publish: ReturnType<typeof vi.fn>;
 };
 
 describe("mission scoring worker", () => {
@@ -31,6 +42,7 @@ describe("mission scoring worker", () => {
 
   it("forwards the payload to the mission scoring service", async () => {
     missionScoringServiceMock.score.mockResolvedValue(undefined);
+    asyncTaskBusMock.publish.mockResolvedValue(undefined);
 
     await handleMissionScoring({
       missionId: "mission-1",
@@ -43,5 +55,17 @@ describe("mission scoring worker", () => {
       missionEnrichmentId: "enrichment-1",
       force: true,
     });
+    expect(asyncTaskBusMock.publish).toHaveBeenCalledWith({
+      type: "mission.index",
+      payload: { missionId: "mission-1", action: "upsert" },
+    });
+  });
+
+  it("does not publish mission.index when scoring throws", async () => {
+    missionScoringServiceMock.score.mockRejectedValue(new Error("scoring failed"));
+
+    await expect(handleMissionScoring({ missionId: "mission-1" })).rejects.toThrow("scoring failed");
+
+    expect(asyncTaskBusMock.publish).not.toHaveBeenCalled();
   });
 });

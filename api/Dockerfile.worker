@@ -6,12 +6,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /workspace
 
+COPY package.json package-lock.json ./
 COPY api/package*.json ./api/
 COPY packages/taxonomy ./packages/taxonomy
 
 WORKDIR /workspace/api
 
-RUN npm ci
+RUN npm ci --workspace=api
 
 EXPOSE 3004
 
