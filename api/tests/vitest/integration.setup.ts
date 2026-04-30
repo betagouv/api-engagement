@@ -14,6 +14,8 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   await prisma.$transaction([
+    prisma.missionScoringValue.deleteMany({}),
+    prisma.missionScoring.deleteMany({}),
     prisma.missionEnrichmentValue.deleteMany({}),
     prisma.missionEnrichment.deleteMany({}),
     prisma.statEvent.deleteMany({}),

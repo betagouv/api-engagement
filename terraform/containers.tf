@@ -51,6 +51,7 @@ resource "scaleway_container" "api" {
     "SCW_QUEUE_ENDPOINT"               = var.enable_async_tasks ? "https://sqs.mnq.fr-par.scaleway.com" : ""
     "SCW_QUEUE_URL_MISSION_ENRICHMENT" = var.enable_async_tasks ? module.async_task_queues["mission_enrichment"].url : ""
     "SCW_QUEUE_URL_MISSION_SCORING"    = var.enable_async_tasks ? module.async_task_queues["mission_scoring"].url : ""
+    "SCW_QUEUE_URL_MISSION_INDEX"      = var.enable_async_tasks ? module.async_task_queues["mission_index"].url : ""
   }
 
   secret_environment_variables = {
@@ -102,13 +103,17 @@ resource "scaleway_container" "api_worker" {
     "PRISMA_POOL_SIZE_CORE"             = "20"
     "PRISMA_POOL_TIMEOUT"               = "20"
     "PRISMA_CONNECT_TIMEOUT"            = "10"
+    "SCW_QUEUE_ENDPOINT"                = "https://sqs.mnq.fr-par.scaleway.com"
     "SCW_QUEUE_URL_MISSION_ENRICHMENT"  = module.async_task_queues["mission_enrichment"].url
     "SCW_QUEUE_URL_MISSION_SCORING"     = module.async_task_queues["mission_scoring"].url
+    "SCW_QUEUE_URL_MISSION_INDEX"       = module.async_task_queues["mission_index"].url
     "ALBERT_BASE_URL"                   = lookup(local.secrets, "ALBERT_BASE_URL", "https://albert.api.etalab.gouv.fr")
   }
 
   secret_environment_variables = {
-    "DATABASE_URL_CORE" = local.secrets.DATABASE_URL_CORE
+    "DATABASE_URL_CORE"    = local.secrets.DATABASE_URL_CORE
+    "SCW_QUEUE_ACCESS_KEY" = scaleway_mnq_sqs_credentials.async_task_publisher[0].access_key
+    "SCW_QUEUE_SECRET_KEY" = scaleway_mnq_sqs_credentials.async_task_publisher[0].secret_key
     "MISTRAL_API_KEY"   = lookup(local.secrets, "MISTRAL_API_KEY", "")
     "ALBERT_API_KEY"    = lookup(local.secrets, "ALBERT_API_KEY", "")
   }

@@ -94,3 +94,9 @@ export const ASC_100_LOGO_URL = "https://api-engagement-bucket.s3.fr-par.scw.clo
 // Piloty job boards
 export const PILOTY_BASE_URL = process.env.PILOTY_BASE_URL || "https://sandbox-api.piloty.fr";
 export const LETUDIANT_PILOTY_TOKEN = process.env.LETUDIANT_PILOTY_TOKEN || "";
+
+// Typesense
+export const TYPESENSE_HOST = process.env.TYPESENSE_HOST || "localhost";
+export const TYPESENSE_PORT = parseInt(process.env.TYPESENSE_PORT || "8108", 10);
+export const TYPESENSE_API_KEY = process.env.TYPESENSE_API_KEY || "xyz";
+export const TYPESENSE_MISSION_COLLECTION = process.env.TYPESENSE_MISSION_COLLECTION || "missions";

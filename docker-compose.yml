@@ -30,11 +30,12 @@ services:
       context: .
       dockerfile: api/Dockerfile
     depends_on:
-      - postgres-analytics
       - postgres-core
     environment:
       PORT: 3002
       DATABASE_URL_CORE: postgres://user:password@postgres-core:5432/api-engagement-core
+      WORKER_URL: http://worker:3004
+      TYPESENSE_HOST: typesense
     volumes:
       - ./api:/workspace/api
       - /workspace/api/node_modules
@@ -52,6 +53,8 @@ services:
       PORT_WORKER: 3004
       ENV: development
       DATABASE_URL_CORE: postgres://user:password@postgres-core:5432/api-engagement-core
+      WORKER_URL: http://worker:3004
+      TYPESENSE_HOST: typesense
     volumes:
       - ./api:/workspace/api
       - /workspace/api/node_modules
@@ -73,31 +76,67 @@ services:
       - "3005:3005"
 
   app:
-    build: ./app
+    build:
+      context: .
+      dockerfile: app/Dockerfile
     depends_on:
       - api
     environment:
       PORT: 3000
       VITE_API_URL: http://localhost:3002
     volumes:
-      - ./app:/app
-      - /app/node_modules
+      - ./app:/workspace/app
+      - /workspace/app/node_modules
     ports:
       - "3000:3000"
 
   widget:
-    build: ./widget
+    build:
+      context: .
+      dockerfile: widget/Dockerfile
     depends_on:
       - api
     environment:
       API_URL: http://localhost:3002
       ENV: development
     volumes:
-      - ./widget:/app
-      - /app/node_modules
+      - ./widget:/workspace/widget
+      - /workspace/widget/node_modules
     ports:
       - "3003:3003"
+
+  typesense:
+    image: typesense/typesense:30.2
+    restart: always
+    command: --data-dir /data --api-key=xyz --enable-cors
+    ports:
+      - "8108:8108"
+    volumes:
+      - typesense-data:/data
+
+  typesense-setup:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    depends_on:
+      typesense:
+        condition: service_started
+      postgres-core:
+        condition: service_started
+    environment:
+      DATABASE_URL_CORE: postgres://user:password@postgres-core:5432/api-engagement-core
+      TYPESENSE_HOST: typesense
+      TYPESENSE_PORT: 8108
+      TYPESENSE_API_KEY: xyz
+      TYPESENSE_MISSION_COLLECTION: missions
+    volumes:
+      - ./api:/workspace/api
+      - /workspace/api/node_modules
+      - ./packages/taxonomy:/workspace/packages/taxonomy
+    command: ["sh", "-c", "sleep 20 && npx ts-node src/jobs/run-job.ts setup-search-collections"]
+    restart: "no"
 
 volumes:
   postgres-analytics-data:
   postgres-core-data:
+  typesense-data:
