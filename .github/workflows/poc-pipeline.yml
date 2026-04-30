@@ -63,6 +63,16 @@ jobs:
             ghcr.io/${{ github.repository }}/api:poc
             ghcr.io/${{ github.repository }}/api:poc-${{ steps.tag.outputs.image_tag }}
 
+      - name: Build and push API worker image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ./api/Dockerfile.worker.production
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}/api-worker:poc
+            ghcr.io/${{ github.repository }}/api-worker:poc-${{ steps.tag.outputs.image_tag }}
+
       - name: Build and push poc-quiz image
         uses: docker/build-push-action@v7
         with:
