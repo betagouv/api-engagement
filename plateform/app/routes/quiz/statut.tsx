@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useOutletContext } from "react-router";
-import SingleSelect from "~/components/quiz/single-select";
+import SingleSelectIcon from "~/components/quiz/single-select-icon";
 import Title from "~/components/quiz/title";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
@@ -21,7 +21,7 @@ const STEP_OPTIONS: StepOption[] = [
 
 export default function StatutStep() {
   const { answers, setAnswer } = useQuizStore();
-  const { goNext, goBack } = useOutletContext<QuizOutletContext>();
+  const { goNext } = useOutletContext<QuizOutletContext>();
   const [options, setOptions] = useState<StepOption[]>([]);
 
   useEffect(() => {
@@ -31,21 +31,15 @@ export default function StatutStep() {
 
   const handleSelect = (value: string) => {
     setAnswer(STEP_ID, { type: "options", option_ids: [value] });
-    goNext();
   };
 
   return (
     <>
-      <Title>Quel est ton statut ?</Title>
-      <SingleSelect onChange={handleSelect} options={options} />
-      <div className="fr-mt-4w tw:flex tw:flex-col tw:sm:flex-row tw:gap-4 tw:items-center">
-        <button type="button" className="fr-btn tw:w-full! tw:sm:w-auto! tw:justify-center!" onClick={goNext}>
-          Continuer
-        </button>
-        <button type="button" className="fr-btn fr-btn--secondary tw:w-full! tw:sm:w-auto! tw:justify-center!" onClick={goBack}>
-          Retour
-        </button>
-      </div>
+      <Title subtitle="Ça nous aide à te proposer des missions adaptées à ton quotidien.">Que fais-tu en ce moment ?</Title>
+      <SingleSelectIcon onChange={handleSelect} options={options} />
+      <button type="button" onClick={goNext} className="fr-btn fr-btn--lg">
+        Continuer
+      </button>
     </>
   );
 }

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
+import BackButton from "~/components/quiz/back";
 import QuizHeader from "~/components/quiz/header";
 import { QUIZ_FLOW, type StepDef } from "~/config/quiz-flow";
 import { useQuizStore } from "~/stores/quiz";
@@ -65,9 +66,12 @@ export default function QuizLayout() {
   return (
     <div className="tw:flex tw:flex-col tw:flex-1">
       <QuizHeader step={currentIndex + 1} stepCount={steps.length} />
-      <main className="fr-container fr-py-2w tw:flex-1">
-        {/* `goNext` / `goBack` exposés aux routes enfants via Outlet context — elles les appellent après validation. */}
-        <Outlet context={{ goNext, goBack } satisfies QuizOutletContext} />
+      <main className="tw:flex-1 tw:bg-gradient-to-l tw:from-blue-france-950 tw:to-transparent tw:py-10">
+        <div className="fr-container tw:flex tw:flex-col tw:gap-10">
+          <BackButton href={currentIndex > 0 ? steps[currentIndex - 1].route : "/"} />
+          {/* `goNext` / `goBack` exposés aux routes enfants via Outlet context — elles les appellent après validation. */}
+          <Outlet context={{ goNext, goBack } satisfies QuizOutletContext} />
+        </div>
       </main>
     </div>
   );

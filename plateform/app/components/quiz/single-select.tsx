@@ -5,22 +5,21 @@ type Props = {
   options: StepOption[];
 };
 
-// Composant générique : un choix → navigation immédiate vers le step suivant.
 export default function SingleSelect({ onChange, options }: Props) {
   return (
-    <ul className="fr-btns-group fr-mt-4w tw:gap-4">
-      {options.map((o) => (
-        <li key={o.taxonomyKey}>
-          <button
-            type="button"
-            className="tw:h-16 tw:px-4 tw:w-full tw:flex tw:items-center tw:justify-between tw:bg-info-950! tw:text-blue-france-sun! tw:font-bold"
-            onClick={() => onChange(o.taxonomyKey)}
-          >
-            {o.label}
-            {o.sublabel && <span className="fr-hint-text">{o.sublabel}</span>}
-          </button>
-        </li>
-      ))}
-    </ul>
+    <fieldset className="fr-fieldset">
+      <div className="fr-fieldset__content tw:flex tw:flex-col tw:gap-4">
+        {options.map((o) => (
+          <div key={o.taxonomyKey} className="fr-radio-group tw:bg-white tw:border tw:border-border-default-grey tw:px-4 tw:h-12 tw:w-full tw:max-w-80!">
+            <input className="tw:ml-1" type="radio" id={`single-select-${o.taxonomyKey}`} name="single-select" value={o.taxonomyKey} onChange={() => onChange(o.taxonomyKey)} />
+            <label className="fr-label" htmlFor={`single-select-${o.taxonomyKey}`}>
+              {o.icon ? `${o.icon} ` : ""}
+              {o.label}
+              {o.sublabel && <span className="fr-hint-text">{o.sublabel}</span>}
+            </label>
+          </div>
+        ))}
+      </div>
+    </fieldset>
   );
 }

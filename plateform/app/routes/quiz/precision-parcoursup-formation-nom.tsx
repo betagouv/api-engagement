@@ -11,7 +11,7 @@ const STEP_ID = "precision_parcoursup_formation_nom";
 // (ex: V1, matching avec une base de formations).
 export default function PrecisionParcoursupFormationNomStep() {
   const { answers, setAnswer } = useQuizStore();
-  const { goNext, goBack } = useOutletContext<QuizOutletContext>();
+  const { goNext } = useOutletContext<QuizOutletContext>();
   const [value, setValue] = useState<string>("");
 
   useEffect(() => {
@@ -39,14 +39,9 @@ export default function PrecisionParcoursupFormationNomStep() {
         <input id="formation-input" className="fr-input" type="text" value={value} onChange={(e) => setValue(e.target.value)} autoFocus />
       </div>
 
-      <div className="fr-mt-2w">
-        <button type="button" className="fr-btn fr-btn--secondary fr-mr-2w" onClick={goBack}>
-          Retour
-        </button>
-        <button type="submit" className="fr-btn" disabled={!valid}>
-          Continuer
-        </button>
-      </div>
+      <button type="submit" className="fr-btn fr-btn--lg">
+        Continuer
+      </button>
     </form>
   );
 }

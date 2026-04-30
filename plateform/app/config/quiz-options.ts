@@ -9,9 +9,7 @@ export const OPTIONS = Object.fromEntries(
   getTaxonomyList().flatMap((taxonomy) =>
     taxonomy.values.map((value) => {
       const key = `${taxonomy.key}.${value.key}` as TaxonomyValueKey;
-      const label = value.icon ? `${value.icon} ${value.label}` : value.label;
-
-      return [key, { label, sublabel: value.sublabel, taxonomyKey: key }];
+      return [key, { label: value.label, sublabel: value.sublabel, icon: value.icon, taxonomyKey: key }];
     }),
   ),
 ) as Record<TaxonomyValueKey, StepOption>;

@@ -1,14 +1,14 @@
 import { useState, type FormEvent } from "react";
 import { useOutletContext } from "react-router";
 import Title from "~/components/quiz/title";
-import type { QuizOutletContext } from "./_layout";
 import { useQuizStore } from "~/stores/quiz";
+import type { QuizOutletContext } from "./_layout";
 
 // Stub : adresse saisie libre, coords factices. TODO : brancher api-adresse.data.gouv.fr.
 export default function LocalisationStep() {
   const setAnswer = useQuizStore((s) => s.setAnswer);
   const setGeo = useQuizStore((s) => s.setGeo);
-  const { goNext, goBack } = useOutletContext<QuizOutletContext>();
+  const { goNext } = useOutletContext<QuizOutletContext>();
 
   const [value, setValue] = useState("");
 
@@ -32,14 +32,9 @@ export default function LocalisationStep() {
         <input id="localisation-input" className="fr-input" type="text" value={value} onChange={(e) => setValue(e.target.value)} autoFocus />
       </div>
 
-      <div className="fr-mt-2w">
-        <button type="button" className="fr-btn fr-btn--secondary fr-mr-2w" onClick={goBack}>
-          Retour
-        </button>
-        <button type="submit" className="fr-btn" disabled={!value.trim()}>
-          Continuer
-        </button>
-      </div>
+      <button type="submit" className="fr-btn fr-btn--lg" disabled={!value.trim()}>
+        Continuer
+      </button>
     </form>
   );
 }

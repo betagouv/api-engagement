@@ -34,7 +34,7 @@ export default function QuizHeader({ step = 0, stepCount }: QuizHeaderProps) {
       </div>
 
       <div className="tw:relative tw:flex tw:lg:hidden tw:items-center tw:px-4 tw:h-14">
-        <Link to="/" title="Retour à l'accueil" className="fr-icon-arrow-left-line fr-btn--icon-left tw:text-sm tw:text-blue-france-sun! tw:font-semi-bold!">
+        <Link to="/" title="Retour à l'accueil" className="fr-icon-arrow-left-line fr-btn--icon-left fr-btn--tertiary-no-outline tw:font-semi-bold!">
           Retour
         </Link>
         <p className="fr-h6 tw:absolute tw:left-1/2 tw:-translate-x-1/2 tw:mb-0">Trouve ta mission</p>

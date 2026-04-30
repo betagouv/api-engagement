@@ -11,25 +11,19 @@ const STEP_OPTIONS = [OPTIONS["handicap.oui"], OPTIONS["handicap.non"], OPTIONS[
 
 export default function HandicapStep() {
   const { setAnswer } = useQuizStore();
-  const { goNext, goBack } = useOutletContext<QuizOutletContext>();
+  const { goNext } = useOutletContext<QuizOutletContext>();
 
   const handleSelect = (value: string) => {
     setAnswer(STEP_ID, { type: "options", option_ids: [value] });
-    goNext();
   };
 
   return (
     <>
-      <Title>Es-tu reconnu en situation de handicap ?</Title>
+      <Title subtitle="Certaines missions sont accessibles jusqu’à 30 ans pour les personnes en situation de handicap.">Es-tu reconnu en situation de handicap ?</Title>
       <SingleSelect onChange={handleSelect} options={STEP_OPTIONS} />
-      <div className="fr-mt-4w tw:flex tw:flex-col tw:sm:flex-row tw:gap-4 tw:items-center">
-        <button type="button" className="fr-btn tw:w-full! tw:sm:w-auto! tw:justify-center!" onClick={goNext}>
-          Continuer
-        </button>
-        <button type="button" className="fr-btn fr-btn--secondary tw:w-full! tw:sm:w-auto! tw:justify-center!" onClick={goBack}>
-          Retour
-        </button>
-      </div>
+      <button type="button" onClick={goNext} className="fr-btn fr-btn--lg">
+        Continuer
+      </button>
     </>
   );
 }
