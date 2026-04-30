@@ -28,6 +28,13 @@ vi.mock("@/services/mission-enrichment/prompts", () => ({
       buildSystemPrompt: () => "system",
       buildUserMessage: () => "user",
     },
+    v3: {
+      MODEL: {},
+      TEMPERATURE: 0,
+      ENRICHMENT_SCHEMA: {},
+      buildSystemPrompt: () => "system",
+      buildUserMessage: () => "user",
+    },
   },
   buildMissionBlock: () => "mission block",
   buildTaxonomyBlock: () => "taxonomy block",
