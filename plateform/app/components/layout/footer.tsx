@@ -1,4 +1,13 @@
+import { useLocation } from "react-router";
+
 export default function Footer() {
+  const location = useLocation();
+  const isQuiz = location.pathname.startsWith("/quiz");
+
+  if (isQuiz) {
+    return null;
+  }
+
   return (
     <footer className="fr-footer" role="contentinfo" id="footer">
       <div className="fr-container">

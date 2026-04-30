@@ -7,14 +7,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /workspace
 
-COPY api/package*.json ./api/
+COPY package.json package-lock.json ./
+COPY api/package.json ./api/
 COPY packages/taxonomy ./packages/taxonomy
 
-WORKDIR /workspace/api
-
-RUN npm ci
-
-WORKDIR /workspace
+RUN npm ci --workspace=api
 
 COPY api ./api
 
@@ -32,12 +29,13 @@ WORKDIR /workspace
 
 ENV NODE_ENV=production
 
-COPY api/package*.json ./api/
+COPY package.json package-lock.json ./
+COPY api/package.json ./api/
 COPY --from=builder /workspace/packages/taxonomy ./packages/taxonomy
 
-WORKDIR /workspace/api
+RUN npm ci --workspace=api --omit=dev
 
-RUN npm ci --omit=dev
+WORKDIR /workspace/api
 
 COPY --from=builder /workspace/api/dist ./dist
 COPY --from=builder /workspace/api/src/db ./dist/db

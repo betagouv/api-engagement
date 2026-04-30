@@ -9,5 +9,8 @@ export default defineConfig({
       errorRecovery: true,
     },
   },
+  resolve: {
+    dedupe: ["react", "react-dom", "react-router"],
+  },
   plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
 });
