@@ -28,6 +28,10 @@ const buildTaxonomyIndex = (
     }
 
     const taxonomyKey = value.taxonomyKey as IndexedTaxonomyKey;
+    if (!(taxonomyKey in indexedValues)) {
+      continue;
+    }
+
     indexedValues[taxonomyKey].push(value.valueKey);
   }
 
