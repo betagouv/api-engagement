@@ -21,6 +21,8 @@ enable_intern_jobs    = false
 enable_analytics_jobs = false
 enable_mission_jobs   = false
 enable_poc_quiz       = true
+enable_plateform      = true
+plateform_hostname    = ""
 enable_typesense      = true
 
 typesense_load_balancer_private_ip = "10.43.2.10"

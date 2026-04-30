@@ -73,6 +73,17 @@ jobs:
             ghcr.io/${{ github.repository }}/api-worker:poc
             ghcr.io/${{ github.repository }}/api-worker:poc-${{ steps.tag.outputs.image_tag }}
 
+      - name: Build and push plateform image
+        uses: docker/build-push-action@v7
+        with:
+          context: ./plateform
+          file: ./plateform/Dockerfile.production
+          push: true
+          provenance: false
+          tags: |
+            ghcr.io/${{ github.repository }}/plateform:poc
+            ghcr.io/${{ github.repository }}/plateform:poc-${{ steps.tag.outputs.image_tag }}
+
       - name: Build and push poc-quiz image
         uses: docker/build-push-action@v7
         with:
