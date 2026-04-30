@@ -47,7 +47,7 @@ export const QUIZ_FLOW: StepDef[] = [
   {
     id: "precision_thematique",
     route: "/quiz/precision-thematique",
-    condition: screenAnswer("motivation", "motivation.me_sentir_utile"),
+    condition: or(screenAnswer("motivation", "motivation.me_sentir_utile"), screenAnswer("motivation", "motivation.reprendre_confiance")),
   },
   // → booster_parcoursup (lyceen) : 2 sous-steps avant le step domaine commun.
   {

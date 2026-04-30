@@ -186,7 +186,6 @@ export const TAXONOMY = {
       experience_terrain: { label: "Avoir une 1ère expérience terrain", icon: null, enrichable: false },
       partir_etranger: { label: "Partir à l'étranger", icon: null, enrichable: false },
       competences_interet_general: { label: "Utiliser mes compétences pour l'intérêt général", icon: null, enrichable: false },
-      faire_vivre_valeurs: { label: "Faire vivre mes valeurs", icon: null, enrichable: false },
       reprendre_confiance: { label: "Reprendre confiance en moi", icon: null, enrichable: false },
       reprendre_activite: { label: "Garder / reprendre une activité", icon: null, enrichable: false },
       enrichir_cv: {

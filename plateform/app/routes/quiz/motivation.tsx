@@ -14,6 +14,7 @@ const lyceen = screenAnswer("statut", "statut.lyceen");
 const etudiant = screenAnswer("statut", "statut.etudiant");
 const demandeurEmploi = screenAnswer("statut", "statut.demandeur_emploi");
 const actif = screenAnswer("statut", "statut.actif");
+const retraite = screenAnswer("statut", "statut.retraite");
 
 const STEP_OPTIONS: StepOption[] = [
   OPTIONS["motivation.me_sentir_utile"],
@@ -23,14 +24,13 @@ const STEP_OPTIONS: StepOption[] = [
   { ...OPTIONS["motivation.decouvrir_domaine"], hiddenIf: or(lyceen, demandeurEmploi) },
   { ...OPTIONS["motivation.experience_terrain"], hiddenIf: not(etudiant) },
   { ...OPTIONS["motivation.partir_etranger"], hiddenIf: not(or(etudiant, actif)) },
-  { ...OPTIONS["motivation.competences_interet_general"], hiddenIf: not(actif) },
-  { ...OPTIONS["motivation.faire_vivre_valeurs"], hiddenIf: not(actif) },
+  { ...OPTIONS["motivation.competences_interet_general"], hiddenIf: not(or(actif, retraite)) },
   { ...OPTIONS["motivation.reprendre_confiance"], hiddenIf: not(demandeurEmploi) },
   { ...OPTIONS["motivation.reprendre_activite"], hiddenIf: not(demandeurEmploi) },
   { ...OPTIONS["motivation.enrichir_cv"], hiddenIf: not(demandeurEmploi) },
   { ...OPTIONS["motivation.preparer_reconversion"], hiddenIf: not(demandeurEmploi) },
-  { ...OPTIONS["motivation.servir_le_pays"], hiddenIf: demandeurEmploi },
-  { ...OPTIONS["motivation.ne_sais_pas"], hiddenIf: demandeurEmploi },
+  { ...OPTIONS["motivation.servir_le_pays"] },
+  { ...OPTIONS["motivation.ne_sais_pas"] },
 ];
 
 export default function MotivationStep() {

@@ -1,5 +1,5 @@
 import { useOutletContext } from "react-router";
-import SingleSelect from "~/components/quiz/single-select";
+import MultiSelectIcon from "~/components/quiz/multi-select-icon";
 import Title from "~/components/quiz/title";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
@@ -33,17 +33,17 @@ export default function PrecisionFormationOnisepStep() {
   const { goNext } = useOutletContext<QuizOutletContext>();
 
   const motivation = answers.motivation;
-  const selected = motivation?.type === "options" ? motivation.option_ids[0] : "";
-  const title = TITLE_BY_MOTIVATION[selected] ?? DEFAULT_TITLE;
+  const selected = motivation?.type === "options" ? motivation.option_ids : [];
+  const title = TITLE_BY_MOTIVATION[selected[0]] ?? DEFAULT_TITLE;
 
-  const handleSelect = (value: string) => {
-    setAnswer(STEP_ID, { type: "options", option_ids: [value] });
+  const handleSelect = (value: string[]) => {
+    setAnswer(STEP_ID, { type: "options", option_ids: value });
   };
 
   return (
     <>
       <Title>{title}</Title>
-      <SingleSelect onChange={handleSelect} options={STEP_OPTIONS} />
+      <MultiSelectIcon onChange={handleSelect} options={STEP_OPTIONS} selected={selected} />
       <button type="button" onClick={goNext} className="fr-btn fr-btn--lg">
         Continuer
       </button>

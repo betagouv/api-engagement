@@ -1,5 +1,5 @@
 import { useOutletContext } from "react-router";
-import SingleSelect from "~/components/quiz/single-select";
+import MultiSelectIcon from "~/components/quiz/multi-select-icon";
 import Title from "~/components/quiz/title";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
@@ -17,17 +17,18 @@ const STEP_OPTIONS = [
 ];
 
 export default function PrecisionInternationalStep() {
-  const { setAnswer } = useQuizStore();
+  const { answers, setAnswer } = useQuizStore();
   const { goNext } = useOutletContext<QuizOutletContext>();
 
-  const handleSelect = (value: string) => {
-    setAnswer(STEP_ID, { type: "options", option_ids: [value] });
+  const handleSelect = (value: string[]) => {
+    setAnswer(STEP_ID, { type: "options", option_ids: value });
   };
+  const selected = answers[STEP_ID]?.type === "options" ? answers[STEP_ID].option_ids : [];
 
   return (
     <>
       <Title>Dans quelle région du monde souhaiterais-tu partir ?</Title>
-      <SingleSelect onChange={handleSelect} options={STEP_OPTIONS} />
+      <MultiSelectIcon onChange={handleSelect} options={STEP_OPTIONS} selected={selected} />
       <button type="button" onClick={goNext} className="fr-btn fr-btn--lg">
         Continuer
       </button>

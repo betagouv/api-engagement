@@ -1,5 +1,5 @@
 import { useOutletContext } from "react-router";
-import SingleSelect from "~/components/quiz/single-select";
+import MultiSelectIcon from "~/components/quiz/multi-select-icon";
 import Title from "~/components/quiz/title";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
@@ -20,18 +20,29 @@ const STEP_OPTIONS = [
   OPTIONS["competence_rome.securite_environnement_action_publique"],
 ];
 
+const TITLE_BY_MOTIVATION: Record<string, string> = {
+  "motivation.competences_interet_general": "Quel est ton domaine de compétences ?",
+  "motivation.booster_cv": "Dans quel domaine souhaites-tu booster tes compétences",
+};
+
+const DEFAULT_TITLE = "Quel type de compétences t'attire le plus ?";
+
 export default function PrecisionCompetencesStep() {
-  const { setAnswer } = useQuizStore();
+  const { answers, setAnswer } = useQuizStore();
   const { goNext } = useOutletContext<QuizOutletContext>();
 
-  const handleSelect = (value: string) => {
-    setAnswer(STEP_ID, { type: "options", option_ids: [value] });
+  const motivation = answers.motivation;
+  const selected = motivation?.type === "options" ? motivation.option_ids : [];
+  const title = TITLE_BY_MOTIVATION[selected[0]] ?? DEFAULT_TITLE;
+
+  const handleSelect = (value: string[]) => {
+    setAnswer(STEP_ID, { type: "options", option_ids: value });
   };
 
   return (
     <>
-      <Title>Quel type de compétences t'attire le plus ?</Title>
-      <SingleSelect onChange={handleSelect} options={STEP_OPTIONS} />
+      <Title>{title}</Title>
+      <MultiSelectIcon onChange={handleSelect} options={STEP_OPTIONS} selected={selected} />
       <button type="button" onClick={goNext} className="fr-btn fr-btn--lg">
         Continuer
       </button>

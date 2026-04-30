@@ -29,10 +29,10 @@ export default function PrecisionParcoursupFormationNomStep() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <Title>Quelle formation as-tu en tête ?</Title>
+    <form onSubmit={handleSubmit} className="tw:flex tw:flex-col tw:gap-10">
+      <Title>Dans quel domaine aimerais-tu avoir une expérience ?</Title>
 
-      <div className="fr-input-group">
+      <div className="fr-input-group tw:max-w-md!">
         <label className="fr-label" htmlFor="formation-input">
           Nom de la formation
         </label>
