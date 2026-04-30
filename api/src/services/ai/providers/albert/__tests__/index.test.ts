@@ -27,10 +27,10 @@ const baseOptions = {
 
 const importAlbert = async () => {
   vi.resetModules();
-  return import("@/services/albert");
+  return import("@/services/ai/providers/albert");
 };
 
-describe("albert", () => {
+describe("AlbertProvider", () => {
   afterEach(() => {
     vi.restoreAllMocks();
     process.env = { ...originalEnv };
@@ -54,8 +54,8 @@ describe("albert", () => {
     );
     vi.stubGlobal("fetch", fetchMock);
 
-    const { albert } = await importAlbert();
-    const result = await albert("mistral-test").doGenerate(baseOptions);
+    const { AlbertProvider } = await importAlbert();
+    const result = await new AlbertProvider().languageModel("mistral-test").doGenerate(baseOptions);
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(fetchMock).toHaveBeenCalledWith(
@@ -98,9 +98,9 @@ describe("albert", () => {
     delete process.env.ALBERT_API_KEY;
     vi.stubGlobal("fetch", vi.fn());
 
-    const { albert } = await importAlbert();
+    const { AlbertProvider } = await importAlbert();
 
-    await expect(albert("mistral-test").doGenerate(baseOptions)).rejects.toBeInstanceOf(LoadAPIKeyError);
+    await expect(new AlbertProvider().languageModel("mistral-test").doGenerate(baseOptions)).rejects.toBeInstanceOf(LoadAPIKeyError);
   });
 
   it("throws a retryable APICallError on network/transport errors", async () => {
@@ -108,9 +108,9 @@ describe("albert", () => {
     process.env.ALBERT_BASE_URL = "https://albert.test";
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("fetch failed")));
 
-    const { albert } = await importAlbert();
+    const { AlbertProvider } = await importAlbert();
 
-    await expect(albert("mistral-test").doGenerate(baseOptions)).rejects.toMatchObject({
+    await expect(new AlbertProvider().languageModel("mistral-test").doGenerate(baseOptions)).rejects.toMatchObject({
       message: expect.stringContaining("network error"),
       isRetryable: true,
     } satisfies Partial<APICallError>);
@@ -122,9 +122,9 @@ describe("albert", () => {
     const abort = Object.assign(new Error("aborted"), { name: "AbortError" });
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(abort));
 
-    const { albert } = await importAlbert();
+    const { AlbertProvider } = await importAlbert();
 
-    await expect(albert("mistral-test").doGenerate(baseOptions)).rejects.toMatchObject({ name: "AbortError" });
+    await expect(new AlbertProvider().languageModel("mistral-test").doGenerate(baseOptions)).rejects.toMatchObject({ name: "AbortError" });
   });
 
   it("throws a retryable APICallError on Albert HTTP errors", async () => {
@@ -132,9 +132,9 @@ describe("albert", () => {
     process.env.ALBERT_BASE_URL = "https://albert.test";
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("busy", { status: 503 })));
 
-    const { albert } = await importAlbert();
+    const { AlbertProvider } = await importAlbert();
 
-    await expect(albert("mistral-test").doGenerate(baseOptions)).rejects.toMatchObject({
+    await expect(new AlbertProvider().languageModel("mistral-test").doGenerate(baseOptions)).rejects.toMatchObject({
       statusCode: 503,
       responseBody: "busy",
       isRetryable: true,
@@ -146,9 +146,9 @@ describe("albert", () => {
     process.env.ALBERT_BASE_URL = "https://albert.test";
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({ id: "x", choices: [] }), { status: 200, headers: { "content-type": "application/json" } })));
 
-    const { albert } = await importAlbert();
+    const { AlbertProvider } = await importAlbert();
 
-    await expect(albert("mistral-test").doGenerate(baseOptions)).rejects.toMatchObject({
+    await expect(new AlbertProvider().languageModel("mistral-test").doGenerate(baseOptions)).rejects.toMatchObject({
       message: "Albert returned no content",
       isRetryable: false,
     } satisfies Partial<APICallError>);
@@ -159,9 +159,9 @@ describe("albert", () => {
     process.env.ALBERT_BASE_URL = "https://albert.test";
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("<html>Gateway Timeout</html>", { status: 200 })));
 
-    const { albert } = await importAlbert();
+    const { AlbertProvider } = await importAlbert();
 
-    await expect(albert("mistral-test").doGenerate(baseOptions)).rejects.toMatchObject({
+    await expect(new AlbertProvider().languageModel("mistral-test").doGenerate(baseOptions)).rejects.toMatchObject({
       message: expect.stringContaining("non-JSON"),
       isRetryable: false,
     } satisfies Partial<APICallError>);
@@ -169,8 +169,8 @@ describe("albert", () => {
 
   it("rejects streaming and tools", async () => {
     process.env.ALBERT_API_KEY = "test-key";
-    const { albert } = await importAlbert();
-    const model = albert("mistral-test");
+    const { AlbertProvider } = await importAlbert();
+    const model = new AlbertProvider().languageModel("mistral-test");
 
     await expect(model.doStream(baseOptions)).rejects.toBeInstanceOf(UnsupportedFunctionalityError);
     await expect(
