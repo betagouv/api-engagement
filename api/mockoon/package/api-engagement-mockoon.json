@@ -20,7 +20,7 @@
           "body": "{\n  \"ok\": false,\n  \"code\": \"UNAUTHORIZED\",\n  \"message\": \"Missing API key\"\n}",
           "latency": 0,
           "statusCode": 401,
-          "label": "Header x-api-key absent",
+          "label": "Header x-api-key absent, vide ou invalide",
           "headers": [{ "key": "Content-Type", "value": "application/json" }],
           "bodyType": "INLINE",
           "filePath": "",
@@ -28,7 +28,8 @@
           "sendFileAsBody": false,
           "rules": [
             { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "null" },
-            { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "equals" }
+            { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "equals" },
+            { "target": "header", "modifier": "x-api-key", "value": "mock-api-key", "invert": true, "operator": "equals" }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
@@ -73,7 +74,7 @@
           "body": "{\n  \"ok\": false,\n  \"code\": \"UNAUTHORIZED\",\n  \"message\": \"Missing API key\"\n}",
           "latency": 0,
           "statusCode": 401,
-          "label": "Header x-api-key absent",
+          "label": "Header x-api-key absent, vide ou invalide",
           "headers": [{ "key": "Content-Type", "value": "application/json" }],
           "bodyType": "INLINE",
           "filePath": "",
@@ -81,7 +82,8 @@
           "sendFileAsBody": false,
           "rules": [
             { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "null" },
-            { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "equals" }
+            { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "equals" },
+            { "target": "header", "modifier": "x-api-key", "value": "mock-api-key", "invert": true, "operator": "equals" }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
@@ -126,7 +128,7 @@
           "body": "{\n  \"ok\": false,\n  \"code\": \"UNAUTHORIZED\",\n  \"message\": \"Missing API key\"\n}",
           "latency": 0,
           "statusCode": 401,
-          "label": "Header x-api-key absent",
+          "label": "Header x-api-key absent, vide ou invalide",
           "headers": [{ "key": "Content-Type", "value": "application/json" }],
           "bodyType": "INLINE",
           "filePath": "",
@@ -134,7 +136,8 @@
           "sendFileAsBody": false,
           "rules": [
             { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "null" },
-            { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "equals" }
+            { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "equals" },
+            { "target": "header", "modifier": "x-api-key", "value": "mock-api-key", "invert": true, "operator": "equals" }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
@@ -198,7 +201,7 @@
           "body": "{\n  \"ok\": false,\n  \"code\": \"UNAUTHORIZED\",\n  \"message\": \"Missing API key\"\n}",
           "latency": 0,
           "statusCode": 401,
-          "label": "Header x-api-key absent",
+          "label": "Header x-api-key absent, vide ou invalide",
           "headers": [{ "key": "Content-Type", "value": "application/json" }],
           "bodyType": "INLINE",
           "filePath": "",
@@ -206,7 +209,8 @@
           "sendFileAsBody": false,
           "rules": [
             { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "null" },
-            { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "equals" }
+            { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "equals" },
+            { "target": "header", "modifier": "x-api-key", "value": "mock-api-key", "invert": true, "operator": "equals" }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
@@ -308,7 +312,7 @@
           "body": "{\n  \"ok\": false,\n  \"code\": \"UNAUTHORIZED\",\n  \"message\": \"Missing API key\"\n}",
           "latency": 0,
           "statusCode": 401,
-          "label": "Header x-api-key absent",
+          "label": "Header x-api-key absent, vide ou invalide",
           "headers": [{ "key": "Content-Type", "value": "application/json" }],
           "bodyType": "INLINE",
           "filePath": "",
@@ -316,7 +320,8 @@
           "sendFileAsBody": false,
           "rules": [
             { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "null" },
-            { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "equals" }
+            { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "equals" },
+            { "target": "header", "modifier": "x-api-key", "value": "mock-api-key", "invert": true, "operator": "equals" }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
@@ -361,7 +366,7 @@
           "body": "{\n  \"ok\": false,\n  \"code\": \"UNAUTHORIZED\",\n  \"message\": \"Missing API key\"\n}",
           "latency": 0,
           "statusCode": 401,
-          "label": "Header x-api-key absent",
+          "label": "Header x-api-key absent, vide ou invalide",
           "headers": [{ "key": "Content-Type", "value": "application/json" }],
           "bodyType": "INLINE",
           "filePath": "",
@@ -369,7 +374,8 @@
           "sendFileAsBody": false,
           "rules": [
             { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "null" },
-            { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "equals" }
+            { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "equals" },
+            { "target": "header", "modifier": "x-api-key", "value": "mock-api-key", "invert": true, "operator": "equals" }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
@@ -433,7 +439,7 @@
           "body": "{\n  \"ok\": false,\n  \"code\": \"UNAUTHORIZED\",\n  \"message\": \"Missing API key\"\n}",
           "latency": 0,
           "statusCode": 401,
-          "label": "Header x-api-key absent",
+          "label": "Header x-api-key absent, vide ou invalide",
           "headers": [{ "key": "Content-Type", "value": "application/json" }],
           "bodyType": "INLINE",
           "filePath": "",
@@ -441,7 +447,8 @@
           "sendFileAsBody": false,
           "rules": [
             { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "null" },
-            { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "equals" }
+            { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "equals" },
+            { "target": "header", "modifier": "x-api-key", "value": "mock-api-key", "invert": true, "operator": "equals" }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
@@ -486,7 +493,7 @@
           "body": "{\n  \"ok\": false,\n  \"code\": \"UNAUTHORIZED\",\n  \"message\": \"Missing API key\"\n}",
           "latency": 0,
           "statusCode": 401,
-          "label": "Header x-api-key absent",
+          "label": "Header x-api-key absent, vide ou invalide",
           "headers": [{ "key": "Content-Type", "value": "application/json" }],
           "bodyType": "INLINE",
           "filePath": "",
@@ -494,7 +501,8 @@
           "sendFileAsBody": false,
           "rules": [
             { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "null" },
-            { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "equals" }
+            { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "equals" },
+            { "target": "header", "modifier": "x-api-key", "value": "mock-api-key", "invert": true, "operator": "equals" }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
