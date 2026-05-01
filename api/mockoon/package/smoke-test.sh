@@ -76,6 +76,24 @@ request_with_authorization_only() {
   echo "OK $method $path avec Authorization seul -> $status"
 }
 
+request_with_empty_api_key() {
+  method="$1"
+  path="$2"
+  expected_status="$3"
+  output_file="$tmp_dir/response.json"
+
+  status="$(curl -sS -o "$output_file" -w "%{http_code}" -X "$method" "$BASE_URL$path" \
+    -H "x-api-key;")"
+
+  if [ "$status" != "$expected_status" ]; then
+    echo "KO $method $path avec x-api-key vide: statut $status, attendu $expected_status"
+    cat "$output_file"
+    exit 1
+  fi
+
+  echo "OK $method $path avec x-api-key vide -> $status"
+}
+
 assert_contains() {
   pattern="$1"
   file="$tmp_dir/response.json"
@@ -100,13 +118,16 @@ assert_contains 'mission-paris-001'
 
 request_without_api_key GET "/v0/mission" 401
 request_with_authorization_only GET "/v0/mission" 401
+request_with_empty_api_key GET "/v0/mission" 401
 
 request POST "/v2/mission" 201 "$SCRIPT_DIR/examples/v2-create-mission.json"
 assert_contains '"ok"'
 assert_contains 'partner-mission-001'
+assert_contains '"places": 3'
 
 request PUT "/v2/mission/partner-mission-001" 200 "$SCRIPT_DIR/examples/v2-update-mission.json"
 assert_contains 'partner-mission-001'
+assert_contains '"places": 5'
 
 request DELETE "/v2/mission/partner-mission-001" 200
 assert_contains '"deletedAt"'

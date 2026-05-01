@@ -26,7 +26,10 @@
           "filePath": "",
           "databucketID": "",
           "sendFileAsBody": false,
-          "rules": [{ "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "null" }],
+          "rules": [
+            { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "null" },
+            { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "equals" }
+          ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
@@ -76,7 +79,10 @@
           "filePath": "",
           "databucketID": "",
           "sendFileAsBody": false,
-          "rules": [{ "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "null" }],
+          "rules": [
+            { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "null" },
+            { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "equals" }
+          ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
@@ -126,7 +132,10 @@
           "filePath": "",
           "databucketID": "",
           "sendFileAsBody": false,
-          "rules": [{ "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "null" }],
+          "rules": [
+            { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "null" },
+            { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "equals" }
+          ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
@@ -195,7 +204,10 @@
           "filePath": "",
           "databucketID": "",
           "sendFileAsBody": false,
-          "rules": [{ "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "null" }],
+          "rules": [
+            { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "null" },
+            { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "equals" }
+          ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
@@ -262,7 +274,7 @@
         },
         {
           "uuid": "0da934af-b3e7-4f8f-a8fd-30d701446405",
-          "body": "{\n  \"ok\": true,\n  \"data\": {\n    \"id\": \"{{faker 'string.uuid'}}\",\n    \"clientId\": \"{{body 'clientId'}}\",\n    \"publisherId\": \"publisher-mock-v2\",\n    \"statusCode\": \"ACCEPTED\",\n    \"statusComment\": null,\n    \"createdAt\": \"2026-04-30T12:00:00.000Z\",\n    \"updatedAt\": \"2026-04-30T12:00:00.000Z\",\n    \"deletedAt\": null,\n    \"title\": \"{{body 'title'}}\",\n    \"description\": \"{{body 'description'}}\",\n    \"applicationUrl\": \"{{body 'applicationUrl'}}\",\n    \"domain\": \"{{body 'domain'}}\",\n    \"type\": \"{{body 'type'}}\",\n    \"remote\": \"{{body 'remote'}}\",\n    \"places\": \"{{body 'places'}}\",\n    \"organizationName\": \"{{body 'organizationName'}}\",\n    \"organizationRNA\": \"{{body 'organizationRNA'}}\"\n  }\n}",
+          "body": "{\n  \"ok\": true,\n  \"data\": {\n    \"id\": \"{{faker 'string.uuid'}}\",\n    \"clientId\": \"{{body 'clientId'}}\",\n    \"publisherId\": \"publisher-mock-v2\",\n    \"statusCode\": \"ACCEPTED\",\n    \"statusComment\": null,\n    \"createdAt\": \"2026-04-30T12:00:00.000Z\",\n    \"updatedAt\": \"2026-04-30T12:00:00.000Z\",\n    \"deletedAt\": null,\n    \"title\": \"{{body 'title'}}\",\n    \"description\": \"{{body 'description'}}\",\n    \"applicationUrl\": \"{{body 'applicationUrl'}}\",\n    \"domain\": \"{{body 'domain'}}\",\n    \"type\": \"{{body 'type'}}\",\n    \"remote\": \"{{body 'remote'}}\",\n    \"places\": {{body 'places' 1}},\n    \"organizationName\": \"{{body 'organizationName'}}\",\n    \"organizationRNA\": \"{{body 'organizationRNA'}}\"\n  }\n}",
           "latency": 0,
           "statusCode": 201,
           "label": "Mission creee",
@@ -302,7 +314,10 @@
           "filePath": "",
           "databucketID": "",
           "sendFileAsBody": false,
-          "rules": [{ "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "null" }],
+          "rules": [
+            { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "null" },
+            { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "equals" }
+          ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
@@ -352,7 +367,10 @@
           "filePath": "",
           "databucketID": "",
           "sendFileAsBody": false,
-          "rules": [{ "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "null" }],
+          "rules": [
+            { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "null" },
+            { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "equals" }
+          ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
@@ -381,7 +399,7 @@
         },
         {
           "uuid": "0da934af-b3e7-4f8f-a8fd-30d701446603",
-          "body": "{\n  \"ok\": true,\n  \"data\": {\n    \"id\": \"mock-{{urlParam 'clientId'}}\",\n    \"clientId\": \"{{urlParam 'clientId'}}\",\n    \"publisherId\": \"publisher-mock-v2\",\n    \"statusCode\": \"ACCEPTED\",\n    \"statusComment\": null,\n    \"createdAt\": \"2026-04-30T12:00:00.000Z\",\n    \"updatedAt\": \"2026-04-30T12:05:00.000Z\",\n    \"deletedAt\": null,\n    \"title\": \"{{body 'title'}}\",\n    \"description\": \"{{body 'description'}}\",\n    \"domain\": \"{{body 'domain'}}\",\n    \"type\": \"{{body 'type'}}\",\n    \"remote\": \"{{body 'remote'}}\",\n    \"places\": \"{{body 'places'}}\"\n  }\n}",
+          "body": "{\n  \"ok\": true,\n  \"data\": {\n    \"id\": \"mock-{{urlParam 'clientId'}}\",\n    \"clientId\": \"{{urlParam 'clientId'}}\",\n    \"publisherId\": \"publisher-mock-v2\",\n    \"statusCode\": \"ACCEPTED\",\n    \"statusComment\": null,\n    \"createdAt\": \"2026-04-30T12:00:00.000Z\",\n    \"updatedAt\": \"2026-04-30T12:05:00.000Z\",\n    \"deletedAt\": null,\n    \"title\": \"{{body 'title'}}\",\n    \"description\": \"{{body 'description'}}\",\n    \"domain\": \"{{body 'domain'}}\",\n    \"type\": \"{{body 'type'}}\",\n    \"remote\": \"{{body 'remote'}}\",\n    \"places\": {{body 'places' 1}}\n  }\n}",
           "latency": 0,
           "statusCode": 200,
           "label": "Mission mise a jour",
@@ -421,7 +439,10 @@
           "filePath": "",
           "databucketID": "",
           "sendFileAsBody": false,
-          "rules": [{ "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "null" }],
+          "rules": [
+            { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "null" },
+            { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "equals" }
+          ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
@@ -471,7 +492,10 @@
           "filePath": "",
           "databucketID": "",
           "sendFileAsBody": false,
-          "rules": [{ "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "null" }],
+          "rules": [
+            { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "null" },
+            { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "equals" }
+          ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
