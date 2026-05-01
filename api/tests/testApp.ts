@@ -12,6 +12,7 @@ import PublisherController from "@/controllers/publisher";
 import RedirectController from "@/controllers/redirect";
 import StatsController from "@/controllers/stats";
 import UserController from "@/controllers/user";
+import UserScoringController from "@/controllers/user-scoring";
 import WarningController from "@/controllers/warning";
 import WidgetController from "@/controllers/widget";
 import bodyParserErrorHandler from "@/middlewares/body-parser-error-handler";
@@ -48,6 +49,7 @@ export const createTestApp = ({ metricsRecorder }: { metricsRecorder?: HttpMetri
   app.use("/widget", WidgetController);
   app.use("/mission", MissionController);
   app.use("/moderation", ModerationController);
+  app.use("/user-scoring", UserScoringController);
   app.use("/import", ImportController);
   app.use("/stats", StatsController);
   app.use("/warning", WarningController);

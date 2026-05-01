@@ -5,6 +5,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"),
+      "@engagement/taxonomy": path.resolve(__dirname, "../packages/taxonomy/src/index.ts"),
     },
   },
   test: {

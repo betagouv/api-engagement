@@ -1,0 +1,49 @@
+{
+  "name": "plateform",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "react-router dev --port 3005",
+    "build": "react-router build",
+    "start": "react-router-serve ./build/server/index.js",
+    "typecheck": "react-router typegen && tsc --noEmit",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "prettier": "prettier --write . --plugin=prettier-plugin-organize-imports"
+  },
+  "prettier": {
+    "printWidth": 180
+  },
+  "dependencies": {
+    "@engagement/taxonomy": "file:../packages/taxonomy",
+    "@gouvfr/dsfr": "1.14.4",
+    "@react-router/node": "7.14.2",
+    "@react-router/serve": "7.14.2",
+    "@sentry/react": "10.50.0",
+    "@tailwindcss/vite": "4.2.4",
+    "isbot": "5.1.39",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "react-router": "7.14.2",
+    "tailwindcss": "4.2.4",
+    "zustand": "5.0.12"
+  },
+  "devDependencies": {
+    "@react-router/dev": "7.14.2",
+    "@types/node": "22.15.3",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "@typescript-eslint/eslint-plugin": "8.59.0",
+    "@typescript-eslint/parser": "8.59.0",
+    "@vitejs/plugin-react": "6.0.1",
+    "eslint": "9.39.4",
+    "globals": "17.5.0",
+    "postcss": "8.5.10",
+    "prettier": "3.8.3",
+    "prettier-plugin-organize-imports": "4.3.0",
+    "typescript": "6.0.3",
+    "vite": "8.0.10",
+    "vite-tsconfig-paths": "6.1.1"
+  }
+}

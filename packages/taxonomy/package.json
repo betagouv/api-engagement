@@ -1,0 +1,14 @@
+{
+  "name": "@engagement/taxonomy",
+  "version": "0.1.0",
+  "description": "Source unique de vérité pour les clés et valeurs de taxonomie",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
+  }
+}

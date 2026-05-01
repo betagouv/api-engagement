@@ -1,15 +1,17 @@
 {
   "name": "api-engagement",
   "version": "1.4.1",
+  "workspaces": ["packages/*", "api", "app", "widget", "analytics", "plateform", "poc-quiz"],
   "scripts": {
-    "lint": "npm run lint:api && npm run lint:app && npm run lint:analytics && npm run lint:widget",
+    "lint": "npm run lint:api && npm run lint:app && npm run lint:analytics && npm run lint:widget && npm run lint:plateform",
     "lint:api": "cd api && npm run lint",
     "lint:app": "cd app && npm run lint",
     "lint:analytics": "cd analytics && npm run lint",
     "lint:widget": "cd widget && npm run lint",
-    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,yml}\" --ignore-path .prettierignore",
+    "lint:plateform": "cd plateform && npm run lint",
+    "format": "sh -c 'test -x node_modules/.bin/prettier || { echo \"prettier introuvable. Lance npm install depuis la racine du dépôt.\"; exit 1; }; node_modules/.bin/prettier --write \"**/*.{js,jsx,ts,tsx,json,md,yml}\" --ignore-path .prettierignore \"$@\"' --",
     "commit": "cz",
-    "prepare": "husky"
+    "prepare": "command -v husky >/dev/null 2>&1 && husky || true"
   },
   "config": {
     "commitizen": {

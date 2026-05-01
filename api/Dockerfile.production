@@ -5,13 +5,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libcurl4 \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+WORKDIR /workspace
 
-COPY package*.json ./
+COPY package.json package-lock.json ./
+COPY api/package.json ./api/
+COPY packages/taxonomy ./packages/taxonomy
 
-RUN npm ci
+RUN npm ci --workspace=api
 
-COPY . .
+COPY api ./api
+
+WORKDIR /workspace/api
 
 RUN npm run build
 
@@ -21,21 +25,25 @@ FROM node:24-bookworm-slim
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends openssl && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+WORKDIR /workspace
 
 ENV NODE_ENV=production
 
-COPY package*.json ./
+COPY package.json package-lock.json ./
+COPY api/package.json ./api/
+COPY --from=builder /workspace/packages/taxonomy ./packages/taxonomy
 
-RUN npm ci --omit=dev
+RUN npm ci --workspace=api --omit=dev
 
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/src/db ./dist/db
-COPY --from=builder /app/src/static ./dist/static
-COPY --from=builder /app/prisma ./prisma
-COPY docker-entrypoint.sh /app/docker-entrypoint.sh
-RUN chmod +x /app/docker-entrypoint.sh
+WORKDIR /workspace/api
+
+COPY --from=builder /workspace/api/dist ./dist
+COPY --from=builder /workspace/api/src/db ./dist/db
+COPY --from=builder /workspace/api/src/static ./dist/static
+COPY --from=builder /workspace/api/prisma ./prisma
+COPY api/docker-entrypoint.sh /workspace/api/docker-entrypoint.sh
+RUN chmod +x /workspace/api/docker-entrypoint.sh
 
 EXPOSE 8080
 
-CMD ["/app/docker-entrypoint.sh"]
+CMD ["/workspace/api/docker-entrypoint.sh"]

@@ -1,0 +1,46 @@
+# Build
+FROM node:24-bookworm-slim AS builder
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libcurl4 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /workspace
+
+COPY package.json package-lock.json ./
+COPY api/package.json ./api/
+COPY packages/taxonomy ./packages/taxonomy
+
+RUN npm ci --workspace=api
+
+COPY api ./api
+
+WORKDIR /workspace/api
+
+RUN npm run build
+
+
+# Run
+FROM node:24-bookworm-slim
+
+RUN apt-get update -y && apt-get install -y --no-install-recommends openssl && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /workspace
+
+ENV NODE_ENV=production
+
+COPY package.json package-lock.json ./
+COPY api/package.json ./api/
+COPY --from=builder /workspace/packages/taxonomy ./packages/taxonomy
+
+RUN npm ci --workspace=api --omit=dev
+
+WORKDIR /workspace/api
+
+COPY --from=builder /workspace/api/dist ./dist
+COPY --from=builder /workspace/api/src/db ./dist/db
+COPY --from=builder /workspace/api/prisma ./prisma
+
+EXPOSE 8080
+
+CMD ["node", "/workspace/api/dist/worker/index.js"]

@@ -1,6 +1,7 @@
 process.env.TZ = "Europe/Paris";
 
 export const PORT = process.env.PORT || 4000;
+export const PORT_WORKER = process.env.PORT_WORKER || 4001;
 export const ENV = process.env.ENV || "development";
 export const SECRET = process.env.SECRET || "not-so-secret";
 export const IMAGE_VERSION = process.env.IMAGE_VERSION || "unknown";
@@ -37,6 +38,11 @@ export const RDB_BACKUP_INSTANCE_ID = process.env.RDB_BACKUP_INSTANCE_ID || "";
 export const RDB_BACKUP_DATABASE_NAME = process.env.RDB_BACKUP_DATABASE_NAME || "";
 export const RDB_BACKUP_RETENTION_DAYS = Number.parseInt(process.env.RDB_BACKUP_RETENTION_DAYS || "7", 10);
 
+// Worker Queue
+export const SCW_QUEUE_ENDPOINT = process.env.SCW_QUEUE_ENDPOINT || "https://sqs.mnq.fr-par.scaleway.com";
+export const SCW_QUEUE_ACCESS_KEY = process.env.SCW_QUEUE_ACCESS_KEY ?? SCW_ACCESS_KEY ?? "";
+export const SCW_QUEUE_SECRET_KEY = process.env.SCW_QUEUE_SECRET_KEY ?? SCW_SECRET_KEY ?? "";
+
 // Slack
 export const SLACK_TOKEN = process.env.SLACK_TOKEN;
 export const SLACK_WARNING_CHANNEL_ID = process.env.SLACK_WARNING_CHANNEL_ID || "C052V2UF918";
@@ -45,6 +51,10 @@ export const SLACK_CRON_CHANNEL_ID = process.env.SLACK_CRON_CHANNEL_ID || "C085S
 export const SLACK_JOBTEASER_CHANNEL_ID = process.env.SLACK_JOBTEASER_CHANNEL_ID || "C080H9MH56W";
 
 export const DATA_SUBVENTION_TOKEN = process.env.DATA_SUBVENTION_TOKEN;
+
+// Albert API
+export const ALBERT_API_KEY = process.env.ALBERT_API_KEY;
+export const ALBERT_BASE_URL = process.env.ALBERT_BASE_URL || "https://albert.api.etalab.gouv.fr";
 
 // Rate limit
 export const RATE_LIMIT_PUBLISHER_MAX = Number(process.env.RATE_LIMIT_PUBLISHER_MAX) || 600;
@@ -84,3 +94,9 @@ export const ASC_100_LOGO_URL = "https://api-engagement-bucket.s3.fr-par.scw.clo
 // Piloty job boards
 export const PILOTY_BASE_URL = process.env.PILOTY_BASE_URL || "https://sandbox-api.piloty.fr";
 export const LETUDIANT_PILOTY_TOKEN = process.env.LETUDIANT_PILOTY_TOKEN || "";
+
+// Typesense
+export const TYPESENSE_HOST = process.env.TYPESENSE_HOST || "localhost";
+export const TYPESENSE_PORT = parseInt(process.env.TYPESENSE_PORT || "8108", 10);
+export const TYPESENSE_API_KEY = process.env.TYPESENSE_API_KEY || "xyz";
+export const TYPESENSE_MISSION_COLLECTION = process.env.TYPESENSE_MISSION_COLLECTION || "missions";
