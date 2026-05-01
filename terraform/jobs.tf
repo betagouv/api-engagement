@@ -277,7 +277,6 @@ resource "scaleway_job_definition" "import-missions" {
 
 # Job Definition for the 'update-mission-enrichment' task (on-demand only, no cron)
 resource "scaleway_job_definition" "update-mission-enrichment" {
-  count                  = var.enable_intern_jobs ? 1 : 0
   name                   = "${terraform.workspace}-update-mission-enrichment"
   project_id             = var.project_id
   cpu_limit              = 1000
@@ -293,7 +292,6 @@ resource "scaleway_job_definition" "update-mission-enrichment" {
 
 # Job Definition for the 'update-mission-scoring' task (on-demand only, no cron)
 resource "scaleway_job_definition" "update-mission-scoring" {
-  count                  = var.enable_intern_jobs ? 1 : 0
   name                   = "${terraform.workspace}-update-mission-scoring"
   project_id             = var.project_id
   cpu_limit              = 1000
@@ -302,6 +300,21 @@ resource "scaleway_job_definition" "update-mission-scoring" {
   image_uri              = local.image_uri
   startup_command        = ["node"]
   args                   = ["dist/jobs/run-job.js", "update-mission-scoring"]
+  timeout                = "24h"
+
+  env = local.all_env_vars
+}
+
+# Job Definition for the 'update-mission-index' task (on-demand only, no cron)
+resource "scaleway_job_definition" "update-mission-index" {
+  name                   = "${terraform.workspace}-update-mission-index"
+  project_id             = var.project_id
+  cpu_limit              = 1000
+  memory_limit           = 2048
+  local_storage_capacity = 1024
+  image_uri              = local.image_uri
+  startup_command        = ["node"]
+  args                   = ["dist/jobs/run-job.js", "update-mission-index"]
   timeout                = "24h"
 
   env = local.all_env_vars
