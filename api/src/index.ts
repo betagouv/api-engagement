@@ -60,6 +60,7 @@ import IframeController from "@/controllers/iframe";
 import ImportController from "@/controllers/import";
 import MetabaseController from "@/controllers/metabase";
 import MissionController from "@/controllers/mission";
+import MissionBrowseController from "@/controllers/mission-browse";
 import ModerationController from "@/controllers/moderation";
 import ModerationEventController from "@/controllers/moderation-event";
 import OrganizationController from "@/controllers/organization";
@@ -136,6 +137,7 @@ const main = async () => {
   app.use("/poc", corsPoc, PocController);
   app.use("/user-scoring", corsPublic, UserScoringController);
   app.use("/brevo-webhook", corsPublic, BrevoWebhookController);
+  app.use("/missions", corsPublic, MissionBrowseController);
 
   // Interal routes
   app.use("/admin-report", AdminReportController);

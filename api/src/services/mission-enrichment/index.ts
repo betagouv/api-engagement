@@ -4,6 +4,7 @@ import { generateObject } from "ai";
 
 import { missionRepository } from "@/repositories/mission";
 import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
+import { asyncTaskBus } from "@/services/async-task";
 import { CONFIDENCE_THRESHOLD, CURRENT_PROMPT_VERSION, LLM_MAX_RETRIES } from "./config";
 import { validateEnrichmentClassifications, type ClassificationInput, type TaxonomyLookup } from "./parser";
 import { buildMissionBlock, buildTaxonomyBlock, PROMPT_REGISTRY } from "./prompts";
@@ -105,12 +106,17 @@ export const missionEnrichmentService = {
   async enrich(missionId: string, options: { force?: boolean } = {}) {
     // 1. Load mission (needed before idempotence check for updatedAt comparison)
     const mission = await missionRepository.findUnique({
-      where: { id: missionId, deletedAt: null },
+      where: { id: missionId },
       include: missionInclude,
     });
 
     if (!mission) {
-      console.log(`${LOG_PREFIX} skipping ${missionId} — not found or deleted`);
+      console.log(`${LOG_PREFIX} skipping ${missionId} — not found`);
+      return;
+    }
+
+    if (mission.deletedAt !== null) {
+      await asyncTaskBus.publish({ type: "mission.scoring", payload: { missionId } });
       return;
     }
 
@@ -245,7 +251,6 @@ export const missionEnrichmentService = {
     }
 
     // 10. Trigger scoring (outside try/catch — enrichment is already completed)
-    // TODO
-    // await asyncTaskBus.publish({ type: "mission.scoring", payload: { missionId } });
+    await asyncTaskBus.publish({ type: "mission.scoring", payload: { missionId } });
   },
 };

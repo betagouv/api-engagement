@@ -1039,8 +1039,8 @@ model MissionEnrichmentValue {
   missionScoringValues MissionScoringValue[]
 
   @@unique([enrichmentId, taxonomyValueId], map: "mission_enrichment_value_unique")
-  @@index([taxonomyValueId], map: "mission_enrichment_value_taxonomy_value_id_idx")
   @@unique([enrichmentId, taxonomyKey, valueKey], map: "mission_enrichment_value_taxonomy_value_unique")
+  @@index([taxonomyValueId], map: "mission_enrichment_value_taxonomy_value_id_idx")
   @@index([taxonomyKey, valueKey], map: "mission_enrichment_value_taxonomy_value_idx")
   @@map("mission_enrichment_value")
 }
@@ -1088,10 +1088,12 @@ model MissionScoringValue {
 }
 
 model UserScoring {
-  id        String    @id @default(uuid())
-  createdAt DateTime  @default(now()) @map("created_at")
-  expiresAt DateTime? @map("expires_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
+  id                  String    @id @default(uuid())
+  distinctId          String?   @map("distinct_id")
+  missionAlertEnabled Boolean   @default(false) @map("mission_alert_enabled")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  expiresAt           DateTime? @map("expires_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
 
   values          UserScoringValue[]
   geo             UserScoringGeo?
@@ -1125,7 +1127,7 @@ model UserScoringValue {
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")
 
-  userScoring   UserScoring   @relation(fields: [userScoringId], references: [id], onDelete: Cascade)
+  userScoring   UserScoring    @relation(fields: [userScoringId], references: [id], onDelete: Cascade)
   taxonomyValue TaxonomyValue? @relation(fields: [taxonomyValueId], references: [id], onDelete: Restrict)
 
   @@unique([userScoringId, taxonomyValueId], map: "user_scoring_value_user_scoring_taxonomy_value_key")

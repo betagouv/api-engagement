@@ -1,5 +1,5 @@
 import { TAXONOMY } from "./taxonomy";
-import { type TaxonomyKey, TaxonomyListItem, TaxonomyValueKey } from "./types";
+import type { TaxonomyKey, TaxonomyListItem, TaxonomyValueKey } from "./types";
 
 export const ENRICHABLE_TAXONOMIES = (Object.entries(TAXONOMY) as [TaxonomyKey, (typeof TAXONOMY)[TaxonomyKey]][]).filter(([, d]) => d.enrichable).map(([k]) => k);
 
@@ -46,9 +46,10 @@ export function getTaxonomyList(): TaxonomyListItem[] {
     type: dim.type,
     enrichable: dim.enrichable,
     gate: dim.gate,
-    values: (Object.entries(dim.values) as [string, { label: string; icon: string | null; enrichable: boolean }][]).map(([vKey, val], i) => ({
+    values: (Object.entries(dim.values) as [string, { label: string; sublabel?: string; icon: string | null; enrichable: boolean }][]).map(([vKey, val], i) => ({
       key: vKey,
       label: val.label,
+      sublabel: val.sublabel,
       icon: val.icon,
       order: i,
       enrichable: val.enrichable,
