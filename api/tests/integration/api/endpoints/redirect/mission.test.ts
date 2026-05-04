@@ -182,4 +182,87 @@ describe("RedirectController /:missionId/:publisherId", () => {
     expect(redirectUrl.searchParams.get("mtm_medium")).toBe("api");
     expect(redirectUrl.searchParams.get("mtm_campaign")).toBe("from-publisher");
   });
+
+  it("records email user scoring click stats and appends email tracking parameters", async () => {
+    const apiPublisher = await publisherService.createPublisher({ id: PUBLISHER_IDS.API_ENGAGEMENT, name: "API Engagement" });
+    const missionPublisher = await publisherService.createPublisher({ name: "Mission Publisher" });
+    const userScoring = await prisma.userScoring.create({
+      data: { distinctId: "distinct-user-1" },
+    });
+
+    const mission = await createTestMission({
+      addresses: [
+        {
+          postalCode: "75001",
+          departmentName: "Paris",
+          city: "Paris",
+        },
+      ],
+      applicationUrl: "https://mission.example.com/apply",
+      clientId: "mission-client-id",
+      lastSyncAt: new Date(),
+      publisherId: missionPublisher.id,
+      title: "Mission Title",
+    });
+
+    const identity = {
+      user: "mission-user",
+      referer: "https://email.example.com",
+      userAgent: "Mozilla/5.0",
+    };
+
+    vi.spyOn(utils, "identify").mockReturnValue(identity);
+    vi.spyOn(statBotService, "findStatBotByUser").mockResolvedValue(null);
+
+    const response = await request(app).get(`/r/user-scoring/${userScoring.id}/${mission.id}`).set("Host", "redirect.test").set("Origin", "https://email.example.com");
+
+    expect(response.status).toBe(302);
+    const redirectUrl = new URL(response.headers.location);
+    expect(`${redirectUrl.origin}${redirectUrl.pathname}`).toBe("https://mission.example.com/apply");
+    const clickId = redirectUrl.searchParams.get("apiengagement_id");
+    expect(clickId).toBeTruthy();
+    expect(redirectUrl.searchParams.get("utm_source")).toBe("plateforme_engagement");
+    expect(redirectUrl.searchParams.get("utm_medium")).toBe("email");
+    expect(redirectUrl.searchParams.get("utm_campaign")).toBe("user_scoring");
+
+    const storedClick = await prisma.statEvent.findUnique({ where: { id: clickId! } });
+    expect(storedClick).toMatchObject({
+      type: "click",
+      user: identity.user,
+      referer: identity.referer,
+      userAgent: identity.userAgent,
+      host: "redirect.test",
+      origin: "https://email.example.com",
+      source: "email_user_scoring",
+      sourceId: userScoring.id,
+      sourceName: "email_user_scoring",
+      missionId: mission.id,
+      toPublisherId: mission.publisherId,
+      fromPublisherId: apiPublisher.id,
+      isBot: false,
+    });
+  });
+
+  it("redirects without creating stats when email user scoring is not found", async () => {
+    const missionPublisher = await publisherService.createPublisher({ name: "Mission Publisher" });
+    const mission = await createTestMission({
+      applicationUrl: "https://mission.example.com/apply",
+      clientId: "mission-client-id",
+      lastSyncAt: new Date(),
+      publisherId: missionPublisher.id,
+      title: "Mission Title",
+    });
+
+    vi.spyOn(utils, "identify").mockReturnValue({
+      user: "mission-user",
+      referer: "https://email.example.com",
+      userAgent: "Mozilla/5.0",
+    });
+
+    const response = await request(app).get(`/r/user-scoring/${randomUUID()}/${mission.id}`);
+
+    expect(response.status).toBe(302);
+    expect(response.headers.location).toBe("https://mission.example.com/apply");
+    expect(await prisma.statEvent.count()).toBe(0);
+  });
 });

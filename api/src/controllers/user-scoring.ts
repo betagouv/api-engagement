@@ -1,8 +1,8 @@
 import { Router } from "express";
 import zod from "zod";
 
-import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, NOT_FOUND } from "@/error";
-import { UserScoringAnswerValidationError, userScoringService } from "@/services/user-scoring";
+import { EMAIL_SEND_FAILED, FORBIDDEN, INVALID_BODY, INVALID_PARAMS, NOT_FOUND } from "@/error";
+import { userScoringService } from "@/services/user-scoring";
 
 const router = Router();
 
@@ -17,6 +17,7 @@ const answerSchema = zod
   });
 const answersSchema = zod.array(answerSchema).min(1);
 const distinctIdSchema = zod.string().trim().min(1);
+const emailSchema = zod.preprocess((value) => (typeof value === "string" ? value.trim().toLowerCase() : value), zod.email());
 
 const bodySchema = zod.object({
   answers: answersSchema,
@@ -28,11 +29,16 @@ const updateBodySchema = zod
   .object({
     answers: answersSchema.optional(),
     distinctId: distinctIdSchema,
+    email: emailSchema.optional(),
+    missionId: zod.string().uuid().optional(),
     missionAlertEnabled: zod.boolean().optional(),
   })
-  .strict()
-  .refine((body) => body.answers !== undefined || body.missionAlertEnabled !== undefined, {
-    message: "answers or missionAlertEnabled is required",
+  .refine((body) => body.answers !== undefined || body.missionAlertEnabled !== undefined || body.email !== undefined, {
+    message: "answers, missionAlertEnabled or email is required",
+  })
+  .refine((body) => body.missionId === undefined || body.email !== undefined, {
+    message: "email is required when missionId is provided",
+    path: ["email"],
   });
 
 const userScoringParamsSchema = zod.object({
@@ -72,7 +78,9 @@ router.put("/:userScoringId", async (req, res, next) => {
     const data = await userScoringService.update({
       userScoringId: params.data.userScoringId,
       distinctId: body.data.distinctId,
-      answers: body.data.answers,
+      answers: validAnswers,
+      email: body.data.email,
+      missionId: body.data.missionId,
       missionAlertEnabled: body.data.missionAlertEnabled,
     });
 
@@ -82,6 +90,10 @@ router.put("/:userScoringId", async (req, res, next) => {
 
     if (data.status === "forbidden") {
       return res.status(403).send({ ok: false, code: FORBIDDEN, message: "Invalid distinctId" });
+    }
+
+    if (data.status === "email_failed") {
+      return res.status(502).send({ ok: false, code: EMAIL_SEND_FAILED, message: "Email send failed", data: data.data });
     }
 
     return res.status(200).send({ ok: true, data: data.data });

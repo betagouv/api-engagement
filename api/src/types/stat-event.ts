@@ -1,4 +1,4 @@
-export type StatEventSource = "api" | "widget" | "campaign" | "seo" | "jstag" | "publisher";
+export type StatEventSource = "api" | "widget" | "campaign" | "seo" | "jstag" | "publisher" | "email_user_scoring";
 export type StatEventType = "print" | "apply" | "click" | "account";
 export type StatEventStatus = "PENDING" | "VALIDATED" | "CANCEL" | "CANCELED" | "REFUSED" | "CARRIED_OUT" | undefined;
 export type StatEventExportStatus = "SUCCESS" | "FAILURE";
