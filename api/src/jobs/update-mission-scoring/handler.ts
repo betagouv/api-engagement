@@ -2,8 +2,8 @@ import { prisma } from "@/db/postgres";
 import { captureException } from "@/error";
 import { BaseHandler } from "@/jobs/base/handler";
 import { JobResult } from "@/jobs/types";
-import { missionScoringService } from "@/services/mission-scoring";
 import { CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/config";
+import { missionScoringService } from "@/services/mission-scoring";
 
 const LOG_PREFIX = "[update-mission-scoring-job]";
 
@@ -47,9 +47,7 @@ export class UpdateMissionScoringHandler implements BaseHandler<UpdateMissionSco
         orderBy: { createdAt: "desc" },
       });
 
-      console.log(
-        `${LOG_PREFIX} ${enrichments.length} enrichments to score (publisher: ${publisherId ?? "all"}, version: ${version}, force: ${force ?? false})`
-      );
+      console.log(`${LOG_PREFIX} ${enrichments.length} enrichments to score (publisher: ${publisherId ?? "all"}, version: ${version}, force: ${force ?? false})`);
 
       let processed = 0;
       let failed = 0;
@@ -57,6 +55,7 @@ export class UpdateMissionScoringHandler implements BaseHandler<UpdateMissionSco
       for (const enrichment of enrichments) {
         try {
           await missionScoringService.score({ missionId: enrichment.missionId, missionEnrichmentId: enrichment.id, force });
+          await asyncTaskBus.publish({ type: "mission.index", payload: { missionId: enrichment.missionId, action: "upsert" } });
           processed++;
           console.log(`${LOG_PREFIX} [${processed}/${enrichments.length}] scored mission=${enrichment.missionId}`);
         } catch (error) {
