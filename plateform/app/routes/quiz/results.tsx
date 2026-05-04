@@ -1,8 +1,8 @@
 import type { TaxonomyValueKey } from "@engagement/taxonomy";
 import { useState } from "react";
 import { Link } from "react-router";
+import Label from "~/components/quiz/label";
 import LoadingRecap from "~/components/quiz/loading-recap";
-import Title from "~/components/quiz/title";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
 import { buildPayload } from "~/utils/quiz";
@@ -24,7 +24,7 @@ export default function ResultsPage() {
 
   return (
     <div>
-      <Title>Quiz terminé</Title>
+      <Label>Quiz terminé</Label>
       <p className="fr-text--sm fr-mb-4w">Tes réponses ont été enregistrées. La page de résultats arrivera dans une prochaine itération.</p>
 
       <details className="fr-mb-4w">

@@ -13,7 +13,7 @@
   --color-raised-grey-hover: var(--background-raised-grey-hover);
   --color-beige-gris-galet: var(--beige-gris-galet-925-125);
   --color-title-grey: var(--text-title-grey);
-  --color-blue-france-950: var(--blue-france-950-100);
+  --color-blue-france-950: var(--blue-france-950-100); /* #ECECFE00 */
   --color-border-default-grey: var(--border-default-grey);
   --color-background-default-grey-hover: var(--background-default-grey-hover);
 }

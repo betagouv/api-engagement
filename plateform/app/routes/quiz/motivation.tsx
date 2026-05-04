@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { useOutletContext } from "react-router";
+import { useNavigate, useOutletContext } from "react-router";
+import Label from "~/components/quiz/label";
 import SingleSelectIcon from "~/components/quiz/single-select-icon";
-import Title from "~/components/quiz/title";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
 import type { StepOption } from "~/types/quiz";
@@ -34,6 +34,7 @@ const STEP_OPTIONS: StepOption[] = [
 ];
 
 export default function MotivationStep() {
+  const navigate = useNavigate();
   const { answers, setAnswer } = useQuizStore();
   const { goNext } = useOutletContext<QuizOutletContext>();
   const [options, setOptions] = useState<StepOption[]>([]);
@@ -65,11 +66,17 @@ export default function MotivationStep() {
 
   return (
     <>
-      <Title subtitle="Choisis une motivation importantes pour toi.">Qu’est-ce qui te motive le plus ?</Title>
+      <Label subtitle="Choisis une motivation importantes pour toi.">Qu’est-ce qui te motive le plus ?</Label>
       <SingleSelectIcon onChange={handleChange} options={options} />
-      <button type="button" onClick={() => setTransitioning(true)} className="fr-btn fr-btn--lg">
-        Continuer
-      </button>
+
+      <div className="tw:flex tw:flex-col tw:md:flex-row tw:gap-6">
+        <button type="button" onClick={() => setTransitioning(true)} className="fr-btn fr-btn--lg">
+          Continuer
+        </button>
+        <button type="button" onClick={() => navigate("/quiz/results")} className="fr-btn fr-btn--lg fr-btn--tertiary">
+          Voir les missions sans répondre à toutes les questions
+        </button>
+      </div>
     </>
   );
 }

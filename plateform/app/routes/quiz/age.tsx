@@ -1,6 +1,6 @@
 import { useEffect, useState, type SubmitEvent } from "react";
 import { useOutletContext } from "react-router";
-import Title from "~/components/quiz/title";
+import Label from "~/components/quiz/label";
 import { useQuizStore } from "~/stores/quiz";
 import type { QuizOutletContext } from "./_layout";
 
@@ -31,19 +31,18 @@ export default function AgeStep() {
 
   return (
     <form onSubmit={handleSubmit} className="tw:flex tw:flex-col tw:gap-10">
-      <Title subtitle="Certaines missions dépendent de l'âge.">Quel âge as-tu ?</Title>
+      <Label subtitle="Certaines missions dépendent de l'âge." htmlFor="age-input">
+        Quel âge as-tu ?
+      </Label>
 
-      <input
-        id="age-input"
-        className="fr-input tw:max-w-80!"
-        type="number"
-        inputMode="numeric"
-        min={MIN_AGE}
-        max={MAX_AGE}
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        autoFocus
-      />
+      <select id="age-input" className="fr-select tw:max-w-80!" value={value} onChange={(e) => setValue(e.target.value)}>
+        <option value="">Sélectionnez votre âge</option>
+        {Array.from({ length: MAX_AGE - MIN_AGE + 1 }, (_, i) => (
+          <option key={i} value={i + MIN_AGE}>
+            {i + MIN_AGE}
+          </option>
+        ))}
+      </select>
 
       <button type="submit" className="fr-btn fr-btn--lg" disabled={!valid}>
         Continuer

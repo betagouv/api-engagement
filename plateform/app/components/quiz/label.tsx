@@ -1,12 +1,15 @@
 type Props = {
   subtitle?: string;
   children: React.ReactNode;
+  htmlFor?: string;
 };
 
-export default function Title({ subtitle, children }: Props) {
+export default function Label({ subtitle, children, htmlFor }: Props) {
   return (
     <div className="tw:flex tw:flex-col tw:gap-4">
-      <h1 className="fr-h1 tw:mb-0!">{children}</h1>
+      <label className="fr-h1 tw:mb-0!" htmlFor={htmlFor}>
+        {children}
+      </label>
       {subtitle && <p className="fr-text--lead">{subtitle}</p>}
     </div>
   );

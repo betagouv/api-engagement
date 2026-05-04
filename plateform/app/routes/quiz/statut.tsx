@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useOutletContext } from "react-router";
+import Label from "~/components/quiz/label";
 import SingleSelectIcon from "~/components/quiz/single-select-icon";
-import Title from "~/components/quiz/title";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
 import type { StepOption } from "~/types/quiz";
@@ -35,7 +35,7 @@ export default function StatutStep() {
 
   return (
     <>
-      <Title subtitle="Ça nous aide à te proposer des missions adaptées à ton quotidien.">Que fais-tu en ce moment ?</Title>
+      <Label subtitle="Ça nous aide à te proposer des missions adaptées à ton quotidien.">Que fais-tu en ce moment ?</Label>
       <SingleSelectIcon onChange={handleSelect} options={options} />
       <button type="button" onClick={goNext} className="fr-btn fr-btn--lg">
         Continuer

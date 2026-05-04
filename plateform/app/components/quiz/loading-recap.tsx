@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import Title from "~/components/quiz/title";
+import Label from "~/components/quiz/label";
 
 type Props = {
   items: string[];
@@ -23,11 +23,11 @@ export default function LoadingRecap({ items, durationMs = 4000, onComplete }: P
 
   return (
     <div className="tw:flex tw:flex-col tw:gap-10">
-      <Title>
+      <Label>
         Parfait.
         <br />
         On recherche des missions pour toi !
-      </Title>
+      </Label>
       <ul className="tw:list-none! tw:p-0! tw:m-0! tw:flex tw:flex-col tw:gap-3">
         {items.map((label, i) => (
           <li

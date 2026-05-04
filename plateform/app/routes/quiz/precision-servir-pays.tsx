@@ -1,6 +1,6 @@
 import { useOutletContext } from "react-router";
+import Label from "~/components/quiz/label";
 import MultiSelectIcon from "~/components/quiz/multi-select-icon";
-import Title from "~/components/quiz/title";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
 import type { QuizOutletContext } from "./_layout";
@@ -29,7 +29,7 @@ export default function PrecisionServirPaysStep() {
 
   return (
     <>
-      <Title>Quel type d'engagement pourrait t'intéresser le plus ?</Title>
+      <Label>Quel type d'engagement pourrait t'intéresser le plus ?</Label>
       <MultiSelectIcon onChange={handleSelect} options={STEP_OPTIONS} selected={selected} />
       <button type="button" onClick={goNext} className="fr-btn fr-btn--lg">
         Continuer

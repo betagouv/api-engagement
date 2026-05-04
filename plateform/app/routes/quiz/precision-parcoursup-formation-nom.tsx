@@ -1,6 +1,6 @@
 import { useEffect, useState, type SubmitEvent } from "react";
 import { useOutletContext } from "react-router";
-import Title from "~/components/quiz/title";
+import Label from "~/components/quiz/label";
 import { useQuizStore } from "~/stores/quiz";
 import type { QuizOutletContext } from "./_layout";
 
@@ -30,7 +30,7 @@ export default function PrecisionParcoursupFormationNomStep() {
 
   return (
     <form onSubmit={handleSubmit} className="tw:flex tw:flex-col tw:gap-10">
-      <Title>Dans quel domaine aimerais-tu avoir une expérience ?</Title>
+      <Label>Dans quel domaine aimerais-tu avoir une expérience ?</Label>
 
       <div className="fr-input-group tw:max-w-md!">
         <label className="fr-label" htmlFor="formation-input">

@@ -1,6 +1,6 @@
 import { useOutletContext } from "react-router";
+import Label from "~/components/quiz/label";
 import SingleSelect from "~/components/quiz/single-select";
-import Title from "~/components/quiz/title";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
 import type { QuizOutletContext } from "./_layout";
@@ -19,7 +19,7 @@ export default function HandicapStep() {
 
   return (
     <>
-      <Title subtitle="Certaines missions sont accessibles jusqu’à 30 ans pour les personnes en situation de handicap.">Es-tu reconnu en situation de handicap ?</Title>
+      <Label subtitle="Certaines missions sont accessibles jusqu’à 30 ans pour les personnes en situation de handicap.">Es-tu en situation de handicap reconnue ?</Label>
       <SingleSelect onChange={handleSelect} options={STEP_OPTIONS} />
       <button type="button" onClick={goNext} className="fr-btn fr-btn--lg">
         Continuer

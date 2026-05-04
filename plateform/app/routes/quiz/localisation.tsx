@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type SubmitEvent } from "react";
 import { useOutletContext } from "react-router";
-import Title from "~/components/quiz/title";
+import Highlight from "~/components/quiz/highlight";
+import Label from "~/components/quiz/label";
 import { useQuizStore } from "~/stores/quiz";
 import type { QuizOutletContext } from "./_layout";
 
@@ -21,6 +22,7 @@ export default function LocalisationStep() {
   const [selected, setSelected] = useState<Suggestion | null>(null);
   const [showOptions, setShowOptions] = useState(false);
   const [locating, setLocating] = useState(false);
+  const [transitioning, setTransitioning] = useState(true);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -83,19 +85,36 @@ export default function LocalisationStep() {
     );
   };
 
+  useEffect(() => {
+    if (!transitioning) return;
+    const timer = setTimeout(() => goNext(), 2000);
+    return () => clearTimeout(timer);
+  }, [transitioning, goNext]);
+
   const handleSubmit = (e: SubmitEvent) => {
     e.preventDefault();
     if (!selected) return;
     setGeo({ lat: selected.lat, lon: selected.lon });
     setAnswer("localisation", { type: "location", lat: selected.lat, lon: selected.lon });
-    goNext();
+    setTransitioning(true);
   };
+
+  if (transitioning) {
+    return (
+      <div className="tw:flex tw:gap-6">
+        <Label subtitle="Maintenant, aide-nous à comprendre ce qui te donnerait envie de t'engager.">
+          On a trouvé des missions <Highlight>pour toi</Highlight>
+        </Label>
+        <div className="w-1/2 tw:bg-blue-france-950 tw:h-[400px]" />
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="tw:flex tw:flex-col tw:gap-10">
-      <Title subtitle="Entre ton adresse pour découvrir les missions près de chez toi. Certaines missions peuvent aussi se faire à distance.">
+      <Label subtitle="Entre ton adresse pour découvrir les missions près de chez toi. Certaines missions peuvent aussi se faire à distance.">
         Où veux-tu chercher des missions ?
-      </Title>
+      </Label>
 
       <div className="tw:flex tw:flex-col tw:gap-4 tw:max-w-md!">
         <div className="tw:relative" ref={wrapperRef}>
