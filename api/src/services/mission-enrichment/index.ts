@@ -196,6 +196,8 @@ export const missionEnrichmentService = {
         }
       }
 
+      if (!llmResult) {throw new Error(`${LOG_PREFIX} ${missionId}: no LLM result after retries`);}
+
       const { inputTokens, outputTokens, totalTokens } = llmResult.usage;
       console.log(`${LOG_PREFIX} ${missionId}: LLM response received — tokens: ${inputTokens} in / ${outputTokens} out / ${totalTokens} total`);
 
