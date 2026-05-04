@@ -41,6 +41,7 @@ export default function MotivationStep() {
   const { answers, setAnswer } = useQuizStore();
   const { goNext, transitioning, setTransitioning } = useOutletContext<QuizOutletContext>();
   const [options, setOptions] = useState<StepOption[]>([]);
+  const [error, setError] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     const visibleOptions = STEP_OPTIONS.filter((o) => !o.hiddenIf || !evalCondition(o.hiddenIf, answers));
@@ -54,7 +55,17 @@ export default function MotivationStep() {
   }, [transitioning, goNext]);
 
   const handleChange = (value: string) => {
+    setError(undefined);
     setAnswer(STEP_ID, { type: "options", option_ids: [value] });
+  };
+
+  const handleNext = () => {
+    const answer = answers[STEP_ID];
+    if (answer?.type !== "options" || answer.option_ids.length === 0) {
+      setError("Sélectionne une réponse");
+      return;
+    }
+    setTransitioning(true);
   };
 
   if (transitioning) {
@@ -83,8 +94,8 @@ export default function MotivationStep() {
   return (
     <>
       <Label subtitle="Choisis une motivation importantes pour toi.">Qu’est-ce qui te motive le plus ?</Label>
-      <SingleSelectIcon onChange={handleChange} options={options} />
-      <NextButton onClick={() => setTransitioning(true)} skip />
+      <SingleSelectIcon onChange={handleChange} options={options} error={error} />
+      <NextButton onClick={handleNext} skip />
     </>
   );
 }

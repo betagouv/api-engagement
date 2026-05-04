@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useOutletContext } from "react-router";
 import Label from "~/components/quiz/label";
 import MultiSelectIcon from "~/components/quiz/multi-select-icon";
@@ -20,17 +21,27 @@ const STEP_OPTIONS = [
 export default function PrecisionInternationalStep() {
   const { answers, setAnswer } = useQuizStore();
   const { goNext } = useOutletContext<QuizOutletContext>();
+  const [error, setError] = useState<string | undefined>(undefined);
 
   const handleSelect = (value: string[]) => {
+    setError(undefined);
     setAnswer(STEP_ID, { type: "options", option_ids: value });
   };
   const selected = answers[STEP_ID]?.type === "options" ? answers[STEP_ID].option_ids : [];
 
+  const handleNext = () => {
+    if (selected.length === 0) {
+      setError("Sélectionne une réponse");
+      return;
+    }
+    goNext();
+  };
+
   return (
     <>
       <Label>Dans quelle région du monde souhaiterais-tu partir ?</Label>
-      <MultiSelectIcon onChange={handleSelect} options={STEP_OPTIONS} selected={selected} />
-      <NextButton onClick={goNext} skip />
+      <MultiSelectIcon onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} />
+      <NextButton onClick={handleNext} skip />
     </>
   );
 }

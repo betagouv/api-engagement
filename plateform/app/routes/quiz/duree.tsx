@@ -22,6 +22,7 @@ export default function DureeStep() {
   const { answers, setAnswer } = useQuizStore();
   const { goNext } = useOutletContext<QuizOutletContext>();
   const [options, setOptions] = useState<StepOption[]>([]);
+  const [error, setError] = useState<string | undefined>(undefined);
   const selected = answers[STEP_ID]?.type === "options" ? answers[STEP_ID].option_ids : [];
 
   useEffect(() => {
@@ -30,14 +31,23 @@ export default function DureeStep() {
   }, [answers]);
 
   const handleSelect = (value: string[]) => {
+    setError(undefined);
     setAnswer(STEP_ID, { type: "options", option_ids: value });
+  };
+
+  const handleNext = () => {
+    if (selected.length === 0) {
+      setError("Sélectionne une réponse");
+      return;
+    }
+    goNext();
   };
 
   return (
     <>
       <Label subtitle="Choisis ce qui te correspond le mieux.">Combien de temps aimerais-tu consacrer à ta mission ?</Label>
-      <MultiSelectIcon onChange={handleSelect} options={options} selected={selected} />
-      <NextButton onClick={goNext} skip />
+      <MultiSelectIcon onChange={handleSelect} options={options} selected={selected} error={error} />
+      <NextButton onClick={handleNext} skip />
     </>
   );
 }

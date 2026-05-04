@@ -15,6 +15,7 @@
   --color-title-grey: var(--text-title-grey);
   --color-blue-france-950: var(--blue-france-950-100); /* #ECECFE00 */
   --color-border-default-grey: var(--border-default-grey);
+  --color-border-plain-error: var(--border-plain-error);
   --color-background-default-grey-hover: var(--background-default-grey-hover);
   --color-background-default-grey-active: var(--background-default-grey-active);
 }

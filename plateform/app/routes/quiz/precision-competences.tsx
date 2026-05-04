@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useOutletContext } from "react-router";
 import Label from "~/components/quiz/label";
 import MultiSelectIcon from "~/components/quiz/multi-select-icon";
@@ -31,20 +32,31 @@ const DEFAULT_TITLE = "Quel type de compétences t'attire le plus ?";
 export default function PrecisionCompetencesStep() {
   const { answers, setAnswer } = useQuizStore();
   const { goNext } = useOutletContext<QuizOutletContext>();
+  const [error, setError] = useState<string | undefined>(undefined);
 
   const motivation = answers.motivation;
   const selected = motivation?.type === "options" ? motivation.option_ids : [];
   const title = TITLE_BY_MOTIVATION[selected[0]] ?? DEFAULT_TITLE;
 
   const handleSelect = (value: string[]) => {
+    setError(undefined);
     setAnswer(STEP_ID, { type: "options", option_ids: value });
+  };
+
+  const handleNext = () => {
+    const answer = answers[STEP_ID];
+    if (answer?.type !== "options" || answer.option_ids.length === 0) {
+      setError("Sélectionne une réponse");
+      return;
+    }
+    goNext();
   };
 
   return (
     <>
       <Label>{title}</Label>
-      <MultiSelectIcon onChange={handleSelect} options={STEP_OPTIONS} selected={selected} />
-      <NextButton onClick={goNext} skip />
+      <MultiSelectIcon onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} />
+      <NextButton onClick={handleNext} skip />
     </>
   );
 }
