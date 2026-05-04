@@ -2,6 +2,7 @@ import { prisma } from "@/db/postgres";
 import { captureException } from "@/error";
 import { BaseHandler } from "@/jobs/base/handler";
 import { JobResult } from "@/jobs/types";
+import { asyncTaskBus } from "@/services/async-task";
 import { CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/config";
 import { missionScoringService } from "@/services/mission-scoring";
 
