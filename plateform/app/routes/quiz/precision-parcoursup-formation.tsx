@@ -15,6 +15,7 @@ export default function PrecisionParcoursupFormationStep() {
   const { answers, setAnswer } = useQuizStore();
   const { goNext } = useOutletContext<QuizOutletContext>();
   const [error, setError] = useState<string | undefined>(undefined);
+  const selected = answers[STEP_ID]?.type === "options" ? answers[STEP_ID].option_ids[0] : undefined;
 
   const handleSelect = (value: string) => {
     setError(undefined);
@@ -33,7 +34,7 @@ export default function PrecisionParcoursupFormationStep() {
   return (
     <>
       <Label>As-tu déjà une formation précise en tête ?</Label>
-      <SingleSelect onChange={handleSelect} options={STEP_OPTIONS} error={error} />
+      <SingleSelect onChange={handleSelect} options={STEP_OPTIONS} error={error} selected={selected} />
       <NextButton onClick={handleNext} skip />
     </>
   );

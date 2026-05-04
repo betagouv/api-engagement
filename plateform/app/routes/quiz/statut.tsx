@@ -25,6 +25,7 @@ export default function StatutStep() {
   const { goNext } = useOutletContext<QuizOutletContext>();
   const [options, setOptions] = useState<StepOption[]>([]);
   const [error, setError] = useState<string | undefined>(undefined);
+  const selected = answers[STEP_ID]?.type === "options" ? answers[STEP_ID].option_ids[0] : undefined;
 
   useEffect(() => {
     const visibleOptions = STEP_OPTIONS.filter((o) => !o.hiddenIf || !evalCondition(o.hiddenIf, answers));
@@ -48,7 +49,7 @@ export default function StatutStep() {
   return (
     <>
       <Label subtitle="Ça nous aide à te proposer des missions adaptées à ton quotidien.">Que fais-tu en ce moment ?</Label>
-      <SingleSelectIcon onChange={handleSelect} options={options} error={error} />
+      <SingleSelectIcon onChange={handleSelect} options={options} selected={selected} error={error} />
       <NextButton onClick={handleNext} />
     </>
   );

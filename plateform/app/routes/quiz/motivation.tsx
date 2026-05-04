@@ -42,6 +42,7 @@ export default function MotivationStep() {
   const { goNext, transitioning, setTransitioning } = useOutletContext<QuizOutletContext>();
   const [options, setOptions] = useState<StepOption[]>([]);
   const [error, setError] = useState<string | undefined>(undefined);
+  const selected = answers[STEP_ID]?.type === "options" ? answers[STEP_ID].option_ids[0] : undefined;
 
   useEffect(() => {
     const visibleOptions = STEP_OPTIONS.filter((o) => !o.hiddenIf || !evalCondition(o.hiddenIf, answers));
@@ -94,7 +95,7 @@ export default function MotivationStep() {
   return (
     <>
       <Label subtitle="Choisis une motivation importantes pour toi.">Qu’est-ce qui te motive le plus ?</Label>
-      <SingleSelectIcon onChange={handleChange} options={options} error={error} />
+      <SingleSelectIcon onChange={handleChange} options={options} error={error} selected={selected} />
       <NextButton onClick={handleNext} skip />
     </>
   );

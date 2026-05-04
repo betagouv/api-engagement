@@ -3,10 +3,11 @@ import type { StepOption } from "~/types/quiz";
 type Props = {
   onChange: (taxonomyKey: string) => void;
   options: StepOption[];
+  selected?: string;
   error?: string;
 };
 
-export default function SingleSelectIcon({ onChange, options, error }: Props) {
+export default function SingleSelectIcon({ onChange, options, selected, error }: Props) {
   return (
     <div className="flex flex-col gap-2">
       <fieldset className={`fr-fieldset ${error ? "fr-fieldset--error" : ""}`}>
@@ -14,7 +15,14 @@ export default function SingleSelectIcon({ onChange, options, error }: Props) {
           {options.map((o) => (
             <div key={o.taxonomyKey} className="fr-fieldset__element m-0! p-0!">
               <div className="fr-radio-group fr-radio-rich m-0!">
-                <input value={o.taxonomyKey} type="radio" id={`single-select-icon-${o.taxonomyKey}`} name="single-select-icon" onChange={() => onChange(o.taxonomyKey)} />
+                <input
+                  value={o.taxonomyKey}
+                  type="radio"
+                  id={`single-select-icon-${o.taxonomyKey}`}
+                  name="single-select-icon"
+                  onChange={() => onChange(o.taxonomyKey)}
+                  checked={selected === o.taxonomyKey}
+                />
                 <label className="fr-label text-base" htmlFor={`single-select-icon-${o.taxonomyKey}`}>
                   {o.label}
                   {o.sublabel && <span className="fr-hint-text">{o.sublabel}</span>}
