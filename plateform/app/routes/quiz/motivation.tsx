@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useOutletContext } from "react-router";
+import { useOutletContext } from "react-router";
 import Label from "~/components/quiz/label";
+import NextButton from "~/components/quiz/next-button";
 import SingleSelectIcon from "~/components/quiz/single-select-icon";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
@@ -34,7 +35,6 @@ const STEP_OPTIONS: StepOption[] = [
 ];
 
 export default function MotivationStep() {
-  const navigate = useNavigate();
   const { answers, setAnswer } = useQuizStore();
   const { goNext } = useOutletContext<QuizOutletContext>();
   const [options, setOptions] = useState<StepOption[]>([]);
@@ -57,9 +57,9 @@ export default function MotivationStep() {
 
   if (transitioning) {
     return (
-      <div className="tw:flex tw:flex-col tw:items-center tw:justify-center tw:gap-6 tw:py-20">
-        <div className="tw:size-12 tw:border-4 tw:border-blue-france-sun tw:border-t-transparent tw:rounded-full tw:animate-spin" />
-        <p className="fr-h3 tw:mb-0!">On affine ta sélection…</p>
+      <div className="flex flex-col items-center justify-center gap-6 py-20">
+        <div className="size-12 border-4 border-blue-france-sun border-t-transparent rounded-full animate-spin" />
+        <p className="fr-h3 mb-0!">On affine ta sélection…</p>
       </div>
     );
   }
@@ -68,15 +68,7 @@ export default function MotivationStep() {
     <>
       <Label subtitle="Choisis une motivation importantes pour toi.">Qu’est-ce qui te motive le plus ?</Label>
       <SingleSelectIcon onChange={handleChange} options={options} />
-
-      <div className="tw:flex tw:flex-col tw:md:flex-row tw:gap-6">
-        <button type="button" onClick={() => setTransitioning(true)} className="fr-btn fr-btn--lg">
-          Continuer
-        </button>
-        <button type="button" onClick={() => navigate("/quiz/results")} className="fr-btn fr-btn--lg fr-btn--tertiary">
-          Voir les missions sans répondre à toutes les questions
-        </button>
-      </div>
+      <NextButton onClick={() => setTransitioning(true)} skip />
     </>
   );
 }

@@ -22,21 +22,16 @@ export default function LoadingRecap({ items, durationMs = 4000, onComplete }: P
   }, [revealed, items.length]);
 
   return (
-    <div className="tw:flex tw:flex-col tw:gap-10">
+    <div className="flex flex-col gap-10">
       <Label>
         Parfait.
         <br />
         On recherche des missions pour toi !
       </Label>
-      <ul className="tw:list-none! tw:p-0! tw:m-0! tw:flex tw:flex-col tw:gap-3">
+      <ul className="list-none! p-0! m-0! flex flex-col gap-3">
         {items.map((label, i) => (
-          <li
-            key={i}
-            className={`tw:flex tw:items-center tw:gap-3 tw:text-sm tw:transition-all tw:duration-700 tw:ease-out ${
-              i < revealed ? "tw:opacity-100 tw:translate-y-0" : "tw:opacity-0 tw:translate-y-2"
-            }`}
-          >
-            <span className="fr-icon-arrow-right-line tw:opacity-50" aria-hidden="true" />
+          <li key={i} className={`flex items-center gap-3 text-sm transition-all duration-700 ease-out ${i < revealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}>
+            <span className="fr-icon-arrow-right-line opacity-50" aria-hidden="true" />
             {label}
           </li>
         ))}

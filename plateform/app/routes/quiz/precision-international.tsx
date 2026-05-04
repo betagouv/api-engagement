@@ -1,6 +1,7 @@
 import { useOutletContext } from "react-router";
 import Label from "~/components/quiz/label";
 import MultiSelectIcon from "~/components/quiz/multi-select-icon";
+import NextButton from "~/components/quiz/next-button";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
 import type { QuizOutletContext } from "./_layout";
@@ -29,9 +30,7 @@ export default function PrecisionInternationalStep() {
     <>
       <Label>Dans quelle région du monde souhaiterais-tu partir ?</Label>
       <MultiSelectIcon onChange={handleSelect} options={STEP_OPTIONS} selected={selected} />
-      <button type="button" onClick={goNext} className="fr-btn fr-btn--lg">
-        Continuer
-      </button>
+      <NextButton onClick={goNext} skip />
     </>
   );
 }

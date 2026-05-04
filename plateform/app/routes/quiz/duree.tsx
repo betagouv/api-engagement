@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useOutletContext } from "react-router";
+import { useOutletContext } from "react-router";
 import Label from "~/components/quiz/label";
 import MultiSelectIcon from "~/components/quiz/multi-select-icon";
+import NextButton from "~/components/quiz/next-button";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
 import type { StepOption } from "~/types/quiz";
@@ -18,7 +19,6 @@ const STEP_OPTIONS: StepOption[] = [
 ];
 
 export default function DureeStep() {
-  const navigate = useNavigate();
   const { answers, setAnswer } = useQuizStore();
   const { goNext } = useOutletContext<QuizOutletContext>();
   const [options, setOptions] = useState<StepOption[]>([]);
@@ -37,14 +37,7 @@ export default function DureeStep() {
     <>
       <Label subtitle="Choisis ce qui te correspond le mieux.">Combien de temps aimerais-tu consacrer à ta mission ?</Label>
       <MultiSelectIcon onChange={handleSelect} options={options} selected={selected} />
-      <div className="tw:flex tw:flex-col tw:md:flex-row tw:gap-6">
-        <button type="button" onClick={goNext} className="fr-btn fr-btn--lg">
-          Continuer
-        </button>
-        <button type="button" onClick={() => navigate("/quiz/results")} className="fr-btn fr-btn--lg fr-btn--tertiary">
-          Voir les missions sans répondre à toutes les questions
-        </button>
-      </div>
+      <NextButton onClick={goNext} skip />
     </>
   );
 }

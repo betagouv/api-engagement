@@ -1,6 +1,7 @@
 import { useEffect, useState, type SubmitEvent } from "react";
 import { useOutletContext } from "react-router";
 import Label from "~/components/quiz/label";
+import NextButton from "~/components/quiz/next-button";
 import { useQuizStore } from "~/stores/quiz";
 import type { QuizOutletContext } from "./_layout";
 
@@ -29,19 +30,17 @@ export default function PrecisionParcoursupFormationNomStep() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="tw:flex tw:flex-col tw:gap-10">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-10">
       <Label>Dans quel domaine aimerais-tu avoir une expérience ?</Label>
 
-      <div className="fr-input-group tw:max-w-md!">
+      <div className="fr-input-group max-w-md!">
         <label className="fr-label" htmlFor="formation-input">
           Nom de la formation
         </label>
         <input id="formation-input" className="fr-input" type="text" value={value} onChange={(e) => setValue(e.target.value)} autoFocus />
       </div>
 
-      <button type="submit" className="fr-btn fr-btn--lg">
-        Continuer
-      </button>
+      <NextButton onClick={goNext} type="submit" disabled={!valid} />
     </form>
   );
 }

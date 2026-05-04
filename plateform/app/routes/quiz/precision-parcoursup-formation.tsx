@@ -1,5 +1,6 @@
 import { useOutletContext } from "react-router";
 import Label from "~/components/quiz/label";
+import NextButton from "~/components/quiz/next-button";
 import SingleSelect from "~/components/quiz/single-select";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
@@ -21,9 +22,7 @@ export default function PrecisionParcoursupFormationStep() {
     <>
       <Label>As-tu déjà une formation précise en tête ?</Label>
       <SingleSelect onChange={handleSelect} options={STEP_OPTIONS} />
-      <button type="button" onClick={goNext} className="fr-btn fr-btn--lg">
-        Continuer
-      </button>
+      <NextButton onClick={goNext} skip />
     </>
   );
 }
