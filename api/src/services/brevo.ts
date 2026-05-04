@@ -27,6 +27,7 @@ interface EmailBody {
 export const TEMPLATE_IDS = {
   INVITATION: 1,
   FORGOT_PASSWORD: 5,
+  MISSION_MATCHING_RESULTS: 27,
 };
 
 const api = async (path: string, body = {}, method = "POST"): Promise<{ ok: boolean; data: any }> => {
@@ -51,6 +52,59 @@ const api = async (path: string, body = {}, method = "POST"): Promise<{ ok: bool
     return { ok: res.ok, data: await res.json() };
   }
   return { ok: res.ok, data: res };
+};
+
+const redactEmail = () => "[redacted-email]";
+
+const sanitizeEmailOptions = (options: EmailOptions) => ({
+  ...options,
+  emailTo: options.emailTo.map(redactEmail),
+  emailBcc: options.emailBcc?.map(redactEmail),
+});
+
+export const createOrUpdateContact = async (params: { email: string; userScoringId?: string, distinctId: string; missionAlertEnabled: boolean; listId: number }): Promise<{ ok: boolean; data?: any }> => {
+  const body = {
+    email: params.email,
+    updateEnabled: true,
+    listIds: [params.listId],
+    attributes: {
+      DISTINCT_ID: params.distinctId,
+      MISSION_ALERT_ENABLED: params.missionAlertEnabled,
+      USER_SCORING_ID: params.userScoringId,
+    },
+  };
+
+  try {
+    if (!SENDINBLUE_APIKEY) {
+      console.log(`---- BREVO CONTACT ----`);
+      console.log(`[email]: ${redactEmail()}`);
+      console.log(`[ext_id]: ${params.distinctId}`);
+      console.log(`[listIds]: ${JSON.stringify(body.listIds)}`);
+      console.log(`[attributes]: ${JSON.stringify(body.attributes, null, 2)}`);
+      console.log(`---- BREVO CONTACT ----`);
+      return { ok: true, data: { dev: true } };
+    }
+
+    const res = await api("/contacts", body);
+    if (!res.ok) {
+      captureException(res.data, {
+        extra: {
+          ...body,
+          email: redactEmail(),
+        },
+      });
+      return { ok: false, data: res.data };
+    }
+    return { ok: true, data: res.data };
+  } catch (error) {
+    captureException(error, {
+      extra: {
+        ...body,
+        email: redactEmail(),
+      },
+    });
+    return { ok: false };
+  }
 };
 
 export const sendTemplate = async (templateId: number, options: EmailOptions): Promise<{ ok: boolean; data?: any }> => {
@@ -78,7 +132,13 @@ export const sendTemplate = async (templateId: number, options: EmailOptions): P
 
     if (!SENDINBLUE_APIKEY) {
       console.log(`---- EMAIL ----`);
-      console.log(`[to]: ${JSON.stringify(body.to, null, 2)}`);
+      console.log(
+        `[to]: ${JSON.stringify(
+          body.to.map(() => ({ email: redactEmail() })),
+          null,
+          2
+        )}`
+      );
       console.log(`[template]: ${body.templateId}`);
       console.log(`[subject]: ${body.subject}`);
       console.log(`[params]: ${JSON.stringify(body.params, null, 2)}`);
@@ -87,12 +147,12 @@ export const sendTemplate = async (templateId: number, options: EmailOptions): P
     }
     const res = await api("/smtp/email", body);
     if (!res.ok) {
-      captureException(res.data, { extra: { templateId, options } });
+      captureException(res.data, { extra: { templateId, options: sanitizeEmailOptions(options) } });
       return { ok: false, data: res.data };
     }
     return { ok: true, data: res.data };
   } catch (error) {
-    captureException(error, { extra: { templateId, options } });
+    captureException(error, { extra: { templateId, options: sanitizeEmailOptions(options) } });
     return { ok: false };
   }
 };
@@ -111,4 +171,4 @@ export const downloadAttachment = async (token: string) => {
   }
 };
 
-export default { api, sendTemplate, downloadAttachment };
+export default { api, createOrUpdateContact, sendTemplate, downloadAttachment };

@@ -4,14 +4,15 @@ import zod from "zod";
 
 import { JVA_URL, PUBLISHER_IDS } from "@/config";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, SERVER_ERROR, captureException } from "@/error";
+import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { campaignService } from "@/services/campaign";
 import { missionService } from "@/services/mission";
 import { publisherService } from "@/services/publisher";
 import { statBotService } from "@/services/stat-bot";
 import { statEventService } from "@/services/stat-event";
+import { userScoringService } from "@/services/user-scoring";
 import { widgetService } from "@/services/widget";
 import { MissionRecord, StatEventRecord } from "@/types";
-import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { cleanIdParam, identify, slugify } from "@/utils";
 
 const router = Router();
@@ -503,6 +504,95 @@ router.get("/seo/:id", cors({ origin: "*" }), async (req: Request, res: Response
   } catch (error: any) {
     captureException(error);
     res.status(500).send({ ok: false, code: SERVER_ERROR, message: error.message });
+  }
+});
+
+router.get("/user-scoring/:userScoringId/:missionId", cors({ origin: "*" }), async (req, res) => {
+  let href: string | null = null;
+  let redirected = false;
+
+  try {
+    const params = zod
+      .object({
+        userScoringId: zod.string().uuid(),
+        missionId: zod.string(),
+      })
+      .safeParse(req.params);
+
+    if (!params.success) {
+      return res.redirect(302, JVA_URL);
+    }
+
+    const mission = await missionService.findOneMission(params.data.missionId);
+    if (!mission) {
+      return res.redirect(302, JVA_URL);
+    }
+    href = mission.applicationUrl || JVA_URL;
+
+    const identity = identify(req);
+    if (!identity) {
+      return res.redirect(302, href);
+    }
+
+    const userScoringExists = await userScoringService.exists(params.data.userScoringId);
+    if (!userScoringExists) {
+      return res.redirect(302, href);
+    }
+
+    // TODO Replace with Plateforme de l'Engagement publisherId
+    const fromPublisher = await publisherService.findOnePublisherById(PUBLISHER_IDS.API_ENGAGEMENT);
+    if (!fromPublisher) {
+      return res.redirect(302, href);
+    }
+
+    const obj = {
+      type: "click",
+      host: req.get("host") || "",
+      origin: req.get("origin") || "",
+      referer: identity.referer,
+      userAgent: identity.userAgent,
+      user: identity.user,
+      source: "email_user_scoring",
+      sourceId: params.data.userScoringId,
+      sourceName: "email_user_scoring",
+      createdAt: new Date(),
+      missionId: mission.id,
+      toPublisherId: mission.publisherId,
+      toPublisherName: mission.publisherName || "",
+      fromPublisherId: fromPublisher.id,
+      fromPublisherName: fromPublisher.name || "Plateforme de l'Engagement",
+      isBot: false,
+    } as StatEventRecord;
+
+    const clickId = await statEventService.createStatEvent(obj);
+
+    let targetUrl = href;
+    if (targetUrl.indexOf("http://") === -1 && targetUrl.indexOf("https://") === -1) {
+      targetUrl = "https://" + targetUrl;
+    }
+
+    const url = new URL(targetUrl || JVA_URL);
+    url.searchParams.set("apiengagement_id", clickId);
+    url.searchParams.set("utm_source", "plateforme_engagement");
+    url.searchParams.set("utm_medium", "email");
+    url.searchParams.set("utm_campaign", "user_scoring");
+
+    res.redirect(302, url.href);
+    redirected = true;
+
+    const statBot = await statBotService.findStatBotByUser(identity.user);
+    if (statBot) {
+      await statEventService.updateStatEvent(clickId, { isBot: true });
+    }
+  } catch (error: any) {
+    captureException(error);
+    if (redirected) {
+      return;
+    }
+    if (href) {
+      return res.redirect(302, href);
+    }
+    return res.redirect(302, JVA_URL);
   }
 });
 
