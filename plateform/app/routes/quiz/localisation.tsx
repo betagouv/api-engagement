@@ -175,9 +175,11 @@ export default function LocalisationStep() {
         </button>
       </div>
 
-      <button type="submit" className="fr-btn fr-btn--lg" disabled={!selected}>
-        Continuer
-      </button>
+      <div className="fixed inset-x-0 bottom-0 z-10 bg-white p-4 md:static md:bg-transparent md:p-0">
+        <button type="submit" className="fr-btn fr-btn--lg w-full! justify-center! md:w-auto" disabled={!selected}>
+          Continuer
+        </button>
+      </div>
     </form>
   );
 }

@@ -90,7 +90,7 @@ export default function QuizLayout() {
   return (
     <div className="flex flex-col flex-1">
       <QuizHeader step={loadingResults ? steps.length + 1 : currentIndex + 1} stepCount={steps.length + 1} transitioning={transitioning} />
-      <main className="flex-1 bg-gradient-to-l from-blue-france-950 to-transparent py-10">
+      <main className="flex-1 bg-gradient-to-l from-blue-france-950/40 md:from-blue-france-950 to-transparent pt-10 pb-24 md:pb-10">
         <div className="fr-container flex flex-col gap-10">
           {!transitioning && !loadingResults && <BackButton href={currentIndex > 0 ? steps[currentIndex - 1].route : "/"} />}
           {loadingResults ? (
