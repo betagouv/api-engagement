@@ -1,3 +1,4 @@
+import React from "react";
 import { useNavigate } from "react-router";
 
 interface NextButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {

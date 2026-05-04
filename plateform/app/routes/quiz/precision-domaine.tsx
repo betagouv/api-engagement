@@ -53,8 +53,6 @@ export default function PrecisionDomaineStep() {
     goNext();
   };
 
-  console.log("selected", selected);
-
   return (
     <>
       <Label>{title}</Label>
