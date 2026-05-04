@@ -142,7 +142,7 @@ const TAXONOMY_GUIDANCE_MAP = {
   },
 } satisfies TaxonomyGuidanceMap;
 
-const buildTaxonomyGuidanceBlock = (): string =>
+export const buildTaxonomyGuidanceBlock = (): string =>
   Object.entries(TAXONOMY_GUIDANCE_MAP)
     .map(([taxonomyKey, guidance]) =>
       [
