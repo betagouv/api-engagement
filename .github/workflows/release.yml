@@ -94,7 +94,7 @@ jobs:
 
       - name: Generate Release Notes
         if: steps.release_mode.outputs.should_release == 'true'
-        uses: orhun/git-cliff-action@v4
+        uses: orhun/git-cliff-action@v4.7.1
         with:
           config: cliff.toml
           args: --unreleased --strip header --output /tmp/release-notes.md
