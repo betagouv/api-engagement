@@ -12,6 +12,8 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+import { getTaxonomyList } from "@engagement/taxonomy";
+
 import { prisma } from "@/db/postgres";
 import { matchingEngineService } from "@/services/matching-engine";
 import { CURRENT_MATCHING_ENGINE_VERSION } from "@/services/matching-engine/config";
@@ -36,24 +38,27 @@ type OverlapSignal = {
 };
 
 type UserTaxonomySummary = {
-  taxonomyKey: MatchingEngineTaxonomy;
+  taxonomyKey: string;
   taxonomyLabel: string;
   values: string[];
 };
 
-type UserScoringValueWithTaxonomy = {
-  taxonomyValue: {
-    label: string;
-    taxonomy: {
-      key: string;
-      label: string;
-    };
-  };
+type ScoringValueWithKeys = {
+  taxonomyKey: string | null;
+  valueKey: string | null;
+  score: number;
 };
 
 type RankedMissionExplanationItem = MatchMissionItem & {
   title: string;
 };
+
+type TaxonomyLabelLookup = {
+  taxonomyLabels: Map<string, string>;
+  valueLabels: Map<string, string>;
+};
+
+const buildScoringValueKey = (taxonomyKey: string, valueKey: string): string => `${taxonomyKey}.${valueKey}`;
 
 const parseStoredResults = (value: unknown): StoredMissionMatchingResultItem[] => {
   if (!Array.isArray(value)) {
@@ -68,9 +73,9 @@ const parseStoredResults = (value: unknown): StoredMissionMatchingResultItem[] =
     );
 };
 
-const buildTaxonomyExplanation = (params: { taxonomyKey: MatchingEngineTaxonomy; taxonomyScore: number; overlaps: OverlapSignal[] }): string => {
+const buildTaxonomyExplanation = (params: { taxonomyKey: MatchingEngineTaxonomy; taxonomyScore: number; overlaps: OverlapSignal[]; lookup: TaxonomyLabelLookup }): string => {
   if (params.overlaps.length === 0) {
-    return `- ${params.taxonomyKey} (${params.taxonomyScore.toFixed(3)}): recouvrement détecté mais non résolu en libellé`;
+    return `- ${getTaxonomyLabel(params.lookup, params.taxonomyKey)} (${params.taxonomyScore.toFixed(3)}): recouvrement détecté mais non résolu en libellé`;
   }
 
   const topLabels = params.overlaps
@@ -85,23 +90,47 @@ const buildTaxonomyExplanation = (params: { taxonomyKey: MatchingEngineTaxonomy;
   return `- ${params.overlaps[0].taxonomyLabel} (${params.taxonomyScore.toFixed(3)}): match sur ${preview}${suffix}`;
 };
 
-const buildUserTaxonomySummary = (params: { values: UserScoringValueWithTaxonomy[] }): UserTaxonomySummary[] => {
-  const byTaxonomy = new Map<MatchingEngineTaxonomy, UserTaxonomySummary>();
+const buildTaxonomyLabelLookup = (): TaxonomyLabelLookup => {
+  const taxonomyLabels = new Map<string, string>();
+  const valueLabels = new Map<string, string>();
+
+  for (const taxonomy of getTaxonomyList()) {
+    taxonomyLabels.set(taxonomy.key, taxonomy.label);
+    for (const value of taxonomy.values) {
+      valueLabels.set(buildScoringValueKey(taxonomy.key, value.key), value.label);
+    }
+  }
+
+  return { taxonomyLabels, valueLabels };
+};
+
+const getTaxonomyLabel = (lookup: TaxonomyLabelLookup, taxonomyKey: string): string => lookup.taxonomyLabels.get(taxonomyKey) ?? taxonomyKey;
+
+const getValueLabel = (lookup: TaxonomyLabelLookup, taxonomyKey: string, valueKey: string): string =>
+  lookup.valueLabels.get(buildScoringValueKey(taxonomyKey, valueKey)) ?? valueKey;
+
+const buildUserTaxonomySummary = (params: { values: ScoringValueWithKeys[]; lookup: TaxonomyLabelLookup }): UserTaxonomySummary[] => {
+  const byTaxonomy = new Map<string, UserTaxonomySummary>();
 
   for (const value of params.values) {
-    const taxonomyKey = value.taxonomyValue.taxonomy.key as MatchingEngineTaxonomy;
+    if (!value.taxonomyKey || !value.valueKey) {
+      continue;
+    }
+
+    const taxonomyKey = value.taxonomyKey;
+    const valueLabel = getValueLabel(params.lookup, taxonomyKey, value.valueKey);
     const existing = byTaxonomy.get(taxonomyKey);
 
     if (!existing) {
       byTaxonomy.set(taxonomyKey, {
         taxonomyKey,
-        taxonomyLabel: value.taxonomyValue.taxonomy.label,
-        values: [value.taxonomyValue.label],
+        taxonomyLabel: getTaxonomyLabel(params.lookup, taxonomyKey),
+        values: [valueLabel],
       });
       continue;
     }
 
-    existing.values.push(value.taxonomyValue.label);
+    existing.values.push(valueLabel);
   }
 
   return Array.from(byTaxonomy.values())
@@ -120,6 +149,8 @@ const run = async () => {
   if (!Number.isInteger(limit) || limit <= 0) {
     throw new Error(`'--limit' doit être un entier strictement positif. Reçu: ${limit}`);
   }
+
+  const taxonomyLabels = buildTaxonomyLabelLookup();
 
   const ranking = await matchingEngineService.rankMissionsByUserScoring({
     userScoringId,
@@ -152,14 +183,10 @@ const run = async () => {
   const [userScoringValues, missionScorings] = await Promise.all([
     prisma.userScoringValue.findMany({
       where: { userScoringId },
-      include: {
-        taxonomyValue: {
-          include: {
-            taxonomy: {
-              select: { key: true, label: true },
-            },
-          },
-        },
+      select: {
+        taxonomyKey: true,
+        valueKey: true,
+        score: true,
       },
     }),
     prisma.missionScoring.findMany({
@@ -169,32 +196,30 @@ const run = async () => {
           select: { id: true, title: true },
         },
         missionScoringValues: {
-          include: {
-            taxonomyValue: {
-              include: {
-                taxonomy: {
-                  select: { key: true, label: true },
-                },
-              },
-            },
+          select: {
+            taxonomyKey: true,
+            valueKey: true,
+            score: true,
           },
         },
       },
     }),
   ]);
 
-  const userValuesByTaxonomyValueId = new Map(
-    userScoringValues.map((value) => [
-      value.taxonomyValueId,
-      {
-        score: value.score,
-        taxonomyKey: value.taxonomyValue.taxonomy.key as MatchingEngineTaxonomy,
-        taxonomyLabel: value.taxonomyValue.taxonomy.label,
-        valueLabel: value.taxonomyValue.label,
-      },
-    ])
+  const userValuesByTaxonomyValueKey = new Map(
+    userScoringValues
+      .filter((value): value is ScoringValueWithKeys & { taxonomyKey: string; valueKey: string } => value.taxonomyKey !== null && value.valueKey !== null)
+      .map((value) => [
+        buildScoringValueKey(value.taxonomyKey, value.valueKey),
+        {
+          score: value.score,
+          taxonomyKey: value.taxonomyKey as MatchingEngineTaxonomy,
+          taxonomyLabel: getTaxonomyLabel(taxonomyLabels, value.taxonomyKey),
+          valueLabel: getValueLabel(taxonomyLabels, value.taxonomyKey, value.valueKey),
+        },
+      ])
   );
-  const userTaxonomySummaries = buildUserTaxonomySummary({ values: userScoringValues });
+  const userTaxonomySummaries = buildUserTaxonomySummary({ values: userScoringValues, lookup: taxonomyLabels });
 
   const missionScoringsById = new Map(missionScorings.map((missionScoring) => [missionScoring.id, missionScoring]));
   const explainedItems: RankedMissionExplanationItem[] = ranking.items
@@ -244,16 +269,20 @@ const run = async () => {
     const overlapsByTaxonomy = new Map<MatchingEngineTaxonomy, OverlapSignal[]>();
 
     for (const missionValue of missionScoring.missionScoringValues) {
-      const userValue = userValuesByTaxonomyValueId.get(missionValue.taxonomyValueId);
+      if (!missionValue.taxonomyKey || !missionValue.valueKey) {
+        continue;
+      }
+
+      const userValue = userValuesByTaxonomyValueKey.get(buildScoringValueKey(missionValue.taxonomyKey, missionValue.valueKey));
       if (!userValue) {
         continue;
       }
 
-      const taxonomyKey = missionValue.taxonomyValue.taxonomy.key as MatchingEngineTaxonomy;
+      const taxonomyKey = missionValue.taxonomyKey as MatchingEngineTaxonomy;
       const overlap: OverlapSignal = {
         taxonomyKey,
-        taxonomyLabel: missionValue.taxonomyValue.taxonomy.label,
-        valueLabel: missionValue.taxonomyValue.label,
+        taxonomyLabel: getTaxonomyLabel(taxonomyLabels, missionValue.taxonomyKey),
+        valueLabel: getValueLabel(taxonomyLabels, missionValue.taxonomyKey, missionValue.valueKey),
         userScore: userValue.score,
         missionScore: missionValue.score,
       };
@@ -279,7 +308,7 @@ const run = async () => {
     }
 
     for (const [taxonomyKey, taxonomyScore] of taxonomyEntries) {
-      console.log(`   ${buildTaxonomyExplanation({ taxonomyKey, taxonomyScore, overlaps: overlapsByTaxonomy.get(taxonomyKey) ?? [] })}`);
+      console.log(`   ${buildTaxonomyExplanation({ taxonomyKey, taxonomyScore, overlaps: overlapsByTaxonomy.get(taxonomyKey) ?? [], lookup: taxonomyLabels })}`);
     }
   }
 };
