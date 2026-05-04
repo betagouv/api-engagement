@@ -1,10 +1,10 @@
-import { parseTaxonomyValueKey } from "@engagement/taxonomy";
 import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
 import { missionScoringRepository } from "@/repositories/mission-scoring";
 import { computeMissionScoringValues } from "@/services/mission-scoring/calculator";
 import { missionScoringEnrichmentInclude, toScoringInputValues } from "@/services/mission-scoring/data";
 import { PUBLISHER_SCORING_RULES } from "@/services/mission-scoring/publisher-rules";
 import type { ComputedMissionScoringValue } from "@/services/mission-scoring/types";
+import { parseTaxonomyValueKey } from "@engagement/taxonomy";
 
 const LOG_PREFIX = "[mission-scoring]";
 
@@ -73,9 +73,7 @@ export const missionScoringService = {
     });
 
     // Merge: start with enrichment values, publisher rules override on same taxonomy key
-    const mergedValuesMap = new Map<string, ComputedMissionScoringValue>(
-      result.values.map((value) => [`${value.taxonomyKey}.${value.valueKey}`, value] as const)
-    );
+    const mergedValuesMap = new Map<string, ComputedMissionScoringValue>(result.values.map((value) => [`${value.taxonomyKey}.${value.valueKey}`, value] as const));
     for (const pv of publisherValues) {
       mergedValuesMap.set(`${pv.taxonomyKey}.${pv.valueKey}`, pv);
     }
@@ -86,16 +84,24 @@ export const missionScoringService = {
       return;
     }
 
-    await missionScoringRepository.replaceForEnrichment({
-      missionId: params.missionId,
-      missionEnrichmentId: enrichmentId,
-      values: allValues.map((value) => ({
-        missionEnrichmentValueId: value.missionEnrichmentValueId,
-        taxonomyKey: value.taxonomyKey,
-        valueKey: value.valueKey,
-        score: value.score,
-      })),
-    });
+    try {
+      await missionScoringRepository.replaceForEnrichment({
+        missionId: params.missionId,
+        missionEnrichmentId: enrichmentId,
+        values: allValues.map((value) => ({
+          missionEnrichmentValueId: value.missionEnrichmentValueId,
+          taxonomyKey: value.taxonomyKey,
+          valueKey: value.valueKey,
+          score: value.score,
+        })),
+      });
+    } catch (error) {
+      if ((error as { code?: string }).code === "P2002") {
+        console.log(`${LOG_PREFIX} skipping mission=${params.missionId} enrichment=${enrichmentId} — lost race to concurrent scorer`);
+        return;
+      }
+      throw error;
+    }
 
     console.log(
       `${LOG_PREFIX} mission=${params.missionId} enrichment=${enrichmentId} completed — ${allValues.length} value(s) persisted (${result.values.length} enrichment + ${publisherValues.length} publisher rules), ${result.ignored.length} ignored`

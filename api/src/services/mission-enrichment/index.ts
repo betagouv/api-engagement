@@ -5,7 +5,7 @@ import { generateObject } from "ai";
 import { missionRepository } from "@/repositories/mission";
 import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
 import { asyncTaskBus } from "@/services/async-task";
-import { CONFIDENCE_THRESHOLD, CURRENT_PROMPT_VERSION, LLM_MAX_RETRIES } from "./config";
+import { CONFIDENCE_THRESHOLD, CURRENT_PROMPT_VERSION, LLM_MAX_RETRIES, LLM_NO_OBJECT_MAX_RETRIES } from "./config";
 import { validateEnrichmentClassifications, type ClassificationInput, type TaxonomyLookup } from "./parser";
 import { buildMissionBlock, buildTaxonomyBlock, PROMPT_REGISTRY } from "./prompts";
 import type { MissionForPrompt, TaxonomyForPrompt } from "./prompts/types";
@@ -174,15 +174,27 @@ export const missionEnrichmentService = {
       const systemPrompt = promptVersion.buildSystemPrompt(buildTaxonomyBlock(toTaxonomyForPrompt(taxonomies)));
       const userMessage = promptVersion.buildUserMessage(buildMissionBlock(toMissionForPrompt(mission)));
 
-      // 7. Call LLM with structured output
-      llmResult = await generateObject({
-        model: promptVersion.MODEL,
-        schema: promptVersion.ENRICHMENT_SCHEMA,
-        system: systemPrompt,
-        prompt: userMessage,
-        maxRetries: LLM_MAX_RETRIES,
-        temperature: promptVersion.TEMPERATURE,
-      });
+      // 7. Call LLM with structured output (retry on AI_NoObjectGeneratedError)
+      for (let attempt = 1; attempt <= LLM_NO_OBJECT_MAX_RETRIES; attempt++) {
+        try {
+          llmResult = await generateObject({
+            model: promptVersion.MODEL,
+            schema: promptVersion.ENRICHMENT_SCHEMA,
+            system: systemPrompt,
+            prompt: userMessage,
+            maxRetries: LLM_MAX_RETRIES,
+            temperature: promptVersion.TEMPERATURE,
+          });
+          break;
+        } catch (error) {
+          const isNoObject = (error as { name?: string })?.name === "AI_NoObjectGeneratedError";
+          if (isNoObject && attempt < LLM_NO_OBJECT_MAX_RETRIES) {
+            console.warn(`${LOG_PREFIX} ${missionId}: AI_NoObjectGeneratedError — retry ${attempt}/${LLM_NO_OBJECT_MAX_RETRIES}`);
+            continue;
+          }
+          throw error;
+        }
+      }
 
       const { inputTokens, outputTokens, totalTokens } = llmResult.usage;
       console.log(`${LOG_PREFIX} ${missionId}: LLM response received — tokens: ${inputTokens} in / ${outputTokens} out / ${totalTokens} total`);
