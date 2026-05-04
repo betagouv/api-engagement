@@ -52,6 +52,10 @@ export const SLACK_JOBTEASER_CHANNEL_ID = process.env.SLACK_JOBTEASER_CHANNEL_ID
 
 export const DATA_SUBVENTION_TOKEN = process.env.DATA_SUBVENTION_TOKEN;
 
+// Albert API
+export const ALBERT_API_KEY = process.env.ALBERT_API_KEY;
+export const ALBERT_BASE_URL = process.env.ALBERT_BASE_URL || "https://albert.api.etalab.gouv.fr";
+
 // Rate limit
 export const RATE_LIMIT_PUBLISHER_MAX = Number(process.env.RATE_LIMIT_PUBLISHER_MAX) || 600;
 export const RATE_LIMIT_IP_MAX = Number(process.env.RATE_LIMIT_IP_MAX) || 120;
@@ -90,3 +94,9 @@ export const ASC_100_LOGO_URL = "https://api-engagement-bucket.s3.fr-par.scw.clo
 // Piloty job boards
 export const PILOTY_BASE_URL = process.env.PILOTY_BASE_URL || "https://sandbox-api.piloty.fr";
 export const LETUDIANT_PILOTY_TOKEN = process.env.LETUDIANT_PILOTY_TOKEN || "";
+
+// Typesense
+export const TYPESENSE_HOST = process.env.TYPESENSE_HOST || "localhost";
+export const TYPESENSE_PORT = parseInt(process.env.TYPESENSE_PORT || "8108", 10);
+export const TYPESENSE_API_KEY = process.env.TYPESENSE_API_KEY || "xyz";
+export const TYPESENSE_MISSION_COLLECTION = process.env.TYPESENSE_MISSION_COLLECTION || "missions";

@@ -1,3 +1,4 @@
+import { captureException } from "@/error";
 import { taskRegistry, TaskType } from "@/worker/registry";
 
 export type QueueProvider = {
@@ -16,12 +17,17 @@ export class AsyncTaskBus {
     const entry = taskRegistry[type];
     const parsedPayload = entry.schema.parse(payload);
 
-    await this.queueProvider.publish(
-      entry.queueUrl,
-      JSON.stringify({
-        type,
-        payload: parsedPayload,
-      })
-    );
+    try {
+      await this.queueProvider.publish(
+        entry.queueUrl,
+        JSON.stringify({
+          type,
+          payload: parsedPayload,
+        })
+      );
+    } catch (error) {
+      captureException(error, { extra: { taskType: type, queueUrl: entry.queueUrl } });
+      throw error;
+    }
   }
 }

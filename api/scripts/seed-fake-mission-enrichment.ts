@@ -11,10 +11,14 @@
  *   --publisher-id X     Filtre par publisher
  *   --prompt-version V   Version du prompt à utiliser pour le seed/reset (défaut : CURRENT_PROMPT_VERSION)
  *   --dry-run            Log sans écrire en base
+ *
+ * Les taxonomies/valeurs seedées proviennent de @engagement/taxonomy.
  */
 
 import dotenv from "dotenv";
 dotenv.config();
+
+import { getTaxonomyList } from "@engagement/taxonomy";
 
 import { prisma } from "@/db/postgres";
 import { CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/config";
@@ -42,45 +46,93 @@ function pickRandom<T>(arr: T[], n: number): T[] {
 }
 
 function randomConfidence(): number {
-  return parseFloat((Math.random() * 0.58 + 0.40).toFixed(4));
+  return parseFloat((Math.random() * 0.58 + 0.4).toFixed(4));
 }
 
-type TaxonomyWithValues = {
-  id: string;
-  key: string;
-  type: string;
-  values: { id: string; key: string }[];
+type SeedTaxonomyValue = {
+  taxonomyKey: string;
+  valueKey: string;
+  taxonomyValueId: string | null;
 };
 
-function generateValues(taxonomies: TaxonomyWithValues[]): { taxonomyValueId: string; confidence: number }[] {
-  const result: { taxonomyValueId: string; confidence: number }[] = [];
+type SeedTaxonomy = {
+  key: string;
+  type: string;
+  values: SeedTaxonomyValue[];
+};
+
+type GeneratedValue = SeedTaxonomyValue & {
+  confidence: number;
+};
+
+function generateValues(taxonomies: SeedTaxonomy[]): GeneratedValue[] {
+  const result: GeneratedValue[] = [];
 
   for (const taxonomy of taxonomies) {
     const activeValues = taxonomy.values;
-    if (activeValues.length === 0) continue;
+    if (activeValues.length === 0) {
+      continue;
+    }
 
     if (taxonomy.type === "categorical") {
-      if (Math.random() < 0.80) {
+      if (Math.random() < 0.8) {
         const picked = pickRandom(activeValues, 1)[0];
-        result.push({ taxonomyValueId: picked.id, confidence: randomConfidence() });
+        result.push({ ...picked, confidence: randomConfidence() });
       }
     } else if (taxonomy.type === "gate") {
-      if (Math.random() < 0.30) {
+      if (Math.random() < 0.3) {
         const picked = pickRandom(activeValues, 1)[0];
-        result.push({ taxonomyValueId: picked.id, confidence: randomConfidence() });
+        result.push({ ...picked, confidence: randomConfidence() });
       }
     } else {
       // multi_value / ordered
       const count = Math.floor(Math.random() * 3) + 1;
       const picked = pickRandom(activeValues, Math.min(count, activeValues.length));
       for (const v of picked) {
-        result.push({ taxonomyValueId: v.id, confidence: randomConfidence() });
+        result.push({ ...v, confidence: randomConfidence() });
       }
     }
   }
 
   return result;
 }
+
+const buildTaxonomyValueKey = (taxonomyKey: string, valueKey: string) => `${taxonomyKey}.${valueKey}`;
+
+async function buildTaxonomyValueIdLookup(): Promise<Map<string, string>> {
+  const values = await prisma.taxonomyValue.findMany({
+    where: { active: true },
+    select: {
+      id: true,
+      key: true,
+      taxonomy: { select: { key: true } },
+    },
+  });
+
+  return new Map(values.map((value) => [buildTaxonomyValueKey(value.taxonomy.key, value.key), value.id]));
+}
+
+function buildSeedTaxonomies(taxonomyValueIdByKey: Map<string, string>): SeedTaxonomy[] {
+  return getTaxonomyList()
+    .filter((taxonomy) => taxonomy.enrichable)
+    .map((taxonomy) => ({
+      key: taxonomy.key,
+      type: taxonomy.type,
+      values: taxonomy.values
+        .filter((value) => value.enrichable)
+        .map((value) => ({
+          taxonomyKey: taxonomy.key,
+          valueKey: value.key,
+          taxonomyValueId: taxonomyValueIdByKey.get(buildTaxonomyValueKey(taxonomy.key, value.key)) ?? null,
+        })),
+    }))
+    .filter((taxonomy) => taxonomy.values.length > 0);
+}
+
+const buildFakeEvidence = () => ({
+  extract: "Extrait synthétique",
+  reasoning: "Données générées pour tests de scoring",
+});
 
 // ── Reset ─────────────────────────────────────────────────────────────────────
 
@@ -106,18 +158,20 @@ async function reset() {
 // ── Seed ──────────────────────────────────────────────────────────────────────
 
 async function seed() {
-  // Load all active taxonomy values
-  const taxonomies = await prisma.taxonomy.findMany({
-    include: { values: { where: { active: true }, select: { id: true, key: true } } },
-  });
+  const taxonomyValueIdByKey = await buildTaxonomyValueIdLookup();
+  const taxonomies = buildSeedTaxonomies(taxonomyValueIdByKey);
+  const valueCount = taxonomies.reduce((sum, taxonomy) => sum + taxonomy.values.length, 0);
+  const resolvedValueIdCount = taxonomies.reduce((sum, taxonomy) => sum + taxonomy.values.filter((value) => value.taxonomyValueId !== null).length, 0);
 
   if (taxonomies.length === 0) {
-    console.error("[seed-fake-mission-enrichment] Aucune taxonomie trouvée — lancer seed-taxonomy d'abord");
+    console.error("[seed-fake-mission-enrichment] Aucune taxonomie enrichissable trouvée dans @engagement/taxonomy");
     process.exit(1);
   }
 
   const seedVersion = promptVersion ?? CURRENT_PROMPT_VERSION;
-  console.log(`[seed-fake-mission-enrichment] ${taxonomies.length} taxonomies chargées (version: ${seedVersion})`);
+  console.log(
+    `[seed-fake-mission-enrichment] ${taxonomies.length} taxonomies enrichissables chargées depuis @engagement/taxonomy (${valueCount} valeurs, ${resolvedValueIdCount} ids DB résolus, version: ${seedVersion})`
+  );
 
   // Query missions without a completed enrichment for the target version
   const missions = await prisma.mission.findMany({
@@ -154,9 +208,10 @@ async function seed() {
           const rawResponse = {
             _fake: true,
             classifications: values.map((v) => ({
-              taxonomyValueId: v.taxonomyValueId,
+              taxonomy_key: v.taxonomyKey,
+              value_key: v.valueKey,
               confidence: v.confidence,
-              evidence: { extract: "Extrait synthétique", reasoning: "Données générées pour tests de scoring" },
+              evidence: buildFakeEvidence(),
             })),
           };
 
@@ -180,8 +235,10 @@ async function seed() {
                 data: values.map((v) => ({
                   enrichmentId: enrichment.id,
                   taxonomyValueId: v.taxonomyValueId,
+                  taxonomyKey: v.taxonomyKey,
+                  valueKey: v.valueKey,
                   confidence: v.confidence,
-                  evidence: { extract: "Extrait synthétique", reasoning: "Données générées pour tests de scoring" },
+                  evidence: buildFakeEvidence(),
                 })),
                 skipDuplicates: true,
               });
@@ -208,7 +265,9 @@ const run = async () => {
   await prisma.$connect();
   console.log("[seed-fake-mission-enrichment] Connecté à PostgreSQL");
   const versionDisplay = promptVersion ?? (isReset ? "toutes versions" : `${CURRENT_PROMPT_VERSION} (défaut)`);
-  console.log(`[seed-fake-mission-enrichment] Options — reset: ${isReset}, limit: ${limit ?? "all"}, publisher: ${publisherId ?? "all"}, prompt-version: ${versionDisplay}, dry-run: ${isDryRun}`);
+  console.log(
+    `[seed-fake-mission-enrichment] Options — reset: ${isReset}, limit: ${limit ?? "all"}, publisher: ${publisherId ?? "all"}, prompt-version: ${versionDisplay}, dry-run: ${isDryRun}`
+  );
 
   if (isReset) {
     await reset();

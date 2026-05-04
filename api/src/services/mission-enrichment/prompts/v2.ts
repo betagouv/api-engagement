@@ -1,4 +1,4 @@
-import { mistral } from "@ai-sdk/mistral";
+import { ai } from "@/services/ai";
 import { TAXONOMY } from "@engagement/taxonomy";
 import { z } from "zod";
 import type { TaxonomyGuidanceMap } from "./types";
@@ -161,7 +161,7 @@ const buildTaxonomyGuidanceBlock = (): string =>
 
 export const VERSION = "v2";
 export const TEMPERATURE = 0;
-export const MODEL = mistral("mistral-small-2603");
+export const MODEL = ai.model("mistral", "mistral-small-2603");
 export const ENRICHMENT_SCHEMA = z.object({
   classifications: z.array(
     z.object({

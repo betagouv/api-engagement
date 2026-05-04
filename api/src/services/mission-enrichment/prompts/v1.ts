@@ -1,9 +1,9 @@
-import { mistral } from "@ai-sdk/mistral";
+import { ai } from "@/services/ai";
 import { z } from "zod";
 
 export const VERSION = "v1";
 export const TEMPERATURE = 0;
-export const MODEL = mistral("mistral-small-2603");
+export const MODEL = ai.model("mistral", "mistral-small-2603");
 export const ENRICHMENT_SCHEMA = z.object({
   classifications: z.array(
     z.object({

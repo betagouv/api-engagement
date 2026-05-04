@@ -3,6 +3,7 @@ import { importService } from "@/services/import";
 import type { ImportCreateInput } from "@/types/import";
 
 export { createTestMission } from "./mission";
+export { createTestMissionEnrichment, createTestMissionScoring } from "./mission-scoring";
 export { createTestPublisher } from "./publisher";
 export { createTestPublisherOrganization } from "./publisher-organization";
 export { createTestWidget, createTestWidgetRule } from "./widget";

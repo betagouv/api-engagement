@@ -168,6 +168,7 @@ variable "enable_mission_jobs" {
   type        = bool
   default     = true
   description = "Enable always-on mission jobs (import-missions, enrich-missions-geoloc, verify-publisher-organization)"
+}
 
 variable "enable_rdb_backup_job" {
   type        = bool
@@ -232,4 +233,70 @@ variable "plateform_min_scale" {
 variable "plateform_max_scale" {
   type    = number
   default = 1
+}
+
+# Network
+
+variable "private_network_cidr" {
+  type        = string
+  description = "CIDR block used by the workspace Private Network."
+}
+
+variable "enable_public_gateway" {
+  type        = bool
+  default     = false
+  description = "Enable a Public Gateway with SSH bastion for this workspace."
+}
+
+variable "public_gateway_zone" {
+  type        = string
+  default     = "fr-par-1"
+  description = "Zone used by the Public Gateway."
+}
+
+variable "public_gateway_type" {
+  type        = string
+  default     = "VPC-GW-S"
+  description = "The type of the Public Gateway"
+}
+
+variable "public_gateway_bastion_port" {
+  type        = number
+  default     = 61000
+  description = "SSH bastion port exposed by the Public Gateway."
+}
+
+# Typesense
+
+variable "enable_typesense" {
+  type        = bool
+  default     = false
+  description = "Enable the self-hosted Typesense HA cluster."
+}
+
+variable "typesense_nodes" {
+  type = map(object({
+    zone              = string
+    private_ip        = string
+    instance_type     = string
+    typesense_version = string
+  }))
+  description = "Typesense nodes keyed by stable node name, with one private IP per node."
+}
+
+variable "typesense_load_balancer_private_ip" {
+  type        = string
+  default     = ""
+  description = "Private IP used by the Typesense load balancer."
+
+  validation {
+    condition     = var.typesense_load_balancer_private_ip == "" || can(regex("^([0-9]{1,3}\\.){3}[0-9]{1,3}$", var.typesense_load_balancer_private_ip))
+    error_message = "typesense_load_balancer_private_ip must be empty or an IPv4 address without CIDR suffix, for example 10.43.2.10."
+  }
+}
+
+variable "typesense_load_balancer_type" {
+  type        = string
+  default     = "LB-S"
+  description = "Scaleway Load Balancer type used by Typesense."
 }
