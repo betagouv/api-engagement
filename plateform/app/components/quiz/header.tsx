@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import ExitModal from "./exit-modal";
 
 interface QuizHeaderProps {
   step: number;
@@ -9,7 +10,8 @@ export default function QuizHeader({ step = 0, stepCount }: QuizHeaderProps) {
   const progress = stepCount > 0 ? Math.min(100, Math.max(0, (step / stepCount) * 100)) : 0;
 
   return (
-    <header role="banner" className="fr-header filter-none!">
+    <header role="banner" className="fr-header filter-none! relative">
+      <ExitModal className="fr-icon-close-line text-blue-france-sun! absolute top-2 right-4 p-2 z-10 hidden lg:block" />
       <div className="fr-container hidden lg:block">
         <div className="fr-header__body-row items-start">
           <div className="fr-enlarge-link hover:bg-raised-grey-hover -my-4 flex items-center">
@@ -29,7 +31,6 @@ export default function QuizHeader({ step = 0, stepCount }: QuizHeaderProps) {
               <p className="fr-header__service-tagline">Service public pour trouver une mission d'engagement</p>
             </div>
           </div>
-          <Link to="/" title="Fermer" aria-label="Fermer" className="fr-icon-close-line text-blue-france-sun! ml-auto p-2" />
         </div>
       </div>
 
