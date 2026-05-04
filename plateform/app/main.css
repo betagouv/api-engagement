@@ -71,7 +71,7 @@
   --active: var(--background-default-grey-active);
 }
 
-.fr-checkbox-rich input[type="checkbox"] + label::before {
+.fr-fieldset__content .fr-checkbox-rich input[type="checkbox"] + label::before {
   left: 1rem;
   top: 50%;
   transform: translateY(-50%);
