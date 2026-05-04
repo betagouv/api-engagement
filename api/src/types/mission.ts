@@ -27,6 +27,50 @@ export type MissionAddress = {
   geolocStatus?: string | null;
 };
 
+export type MissionAdminEnrichmentValue = {
+  id: string;
+  taxonomyKey: string | null;
+  taxonomyLabel: string | null;
+  valueKey: string | null;
+  valueLabel: string | null;
+  confidence: number;
+  reason: string | null;
+};
+
+export type MissionAdminEnrichment = {
+  id: string;
+  promptVersion: string;
+  status: string;
+  inputTokens: number | null;
+  outputTokens: number | null;
+  totalTokens: number | null;
+  completedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+  values: MissionAdminEnrichmentValue[];
+};
+
+export type MissionAdminScoringValue = {
+  id: string;
+  taxonomyKey: string | null;
+  taxonomyLabel: string | null;
+  valueKey: string | null;
+  valueLabel: string | null;
+  score: number;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type MissionAdminScoring = {
+  id: string;
+  missionEnrichmentId: string;
+  createdAt: Date;
+  updatedAt: Date;
+  values: MissionAdminScoringValue[];
+};
+
+export type MissionAdminEnrichmentScoringStatus = "processed" | "enriched_not_scored" | "not_enriched";
+
 export type MissionFacets = {
   domain: { key: string; count: number }[];
   activity: { key: string; count: number }[];
@@ -134,6 +178,10 @@ export type MissionRecord = {
     Record<JobBoardId, { status: string | null; syncStatus: MissionJobBoardSyncStatus | null; comment: string | null; url: string | null; updatedAt: Date | null }>
   >;
   lastExportedToPgAt: Date | null;
+  adminEnrichment?: MissionAdminEnrichment | null;
+  adminScoring?: MissionAdminScoring | null;
+  adminHasEnrichmentAndScoring?: boolean;
+  adminEnrichmentScoringStatus?: MissionAdminEnrichmentScoringStatus;
   distanceKm?: number;
   createdAt: Date;
   updatedAt: Date;
@@ -183,6 +231,7 @@ export type MissionSearchFilters = {
   limit: number;
   skip: number;
   directFilters?: Prisma.MissionWhereInput;
+  enrichmentScoringStatus?: MissionAdminEnrichmentScoringStatus | "unprocessed";
 };
 
 export type MissionCreateInput = Partial<Omit<MissionRecord, "_id" | "publisherName" | "publisherLogo" | "publisherUrl" | "statusCode">> & {

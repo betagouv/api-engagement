@@ -1,4 +1,3 @@
-const path = require("path");
 const { withSentryConfig } = require("@sentry/nextjs");
 const { withPlausibleProxy } = require("next-plausible");
 
@@ -16,7 +15,7 @@ const nextConfig = {
     ],
   },
   turbopack: {
-    root: path.resolve(__dirname, ".."),
+    root: __dirname,
   },
 };
 

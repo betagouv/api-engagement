@@ -104,7 +104,7 @@ const Tabs = ({ tabs, ariaLabel, panelId, className = "", variant = "primary", t
   };
 
   return (
-    <div role="tablist" aria-label={ariaLabel} className={`flex flex-nowrap overflow-x-auto ${className}`}>
+    <div role="tablist" aria-label={ariaLabel} className={`flex flex-nowrap overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${className}`}>
       {tabs.map((tab, index) => (
         <Tab
           key={tab.key}
