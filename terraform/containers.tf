@@ -84,9 +84,10 @@ resource "scaleway_container" "api_worker" {
   min_scale      = var.worker_min_scale
   max_scale      = var.worker_max_scale
   timeout        = 300
-  privacy        = "private"
-  protocol       = "http1"
-  deploy         = true
+  privacy            = "private"
+  protocol           = "http1"
+  deploy             = true
+  private_network_id = scaleway_vpc_private_network.main.id
 
   health_check {
     http {
