@@ -1,12 +1,16 @@
-FROM node:24 AS builder
+FROM node:24
 
-WORKDIR /app
+WORKDIR /workspace
 
-COPY package*.json ./
+COPY package.json package-lock.json ./
+COPY plateform/package*.json ./plateform/
+COPY packages/taxonomy ./packages/taxonomy
 
-RUN npm ci
+WORKDIR /workspace/plateform
 
-COPY . .
+RUN npm ci --workspace=plateform
+
+COPY plateform/ .
 
 EXPOSE 3005
 

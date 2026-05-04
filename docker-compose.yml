@@ -63,15 +63,18 @@ services:
       - "3004:3004"
 
   plateform:
-    build: ./plateform
+    build:
+      context: .
+      dockerfile: plateform/Dockerfile
     depends_on:
       - api
     environment:
       VITE_API_URL: http://localhost:3002
       VITE_ENV: development
     volumes:
-      - ./plateform:/app
-      - /app/node_modules
+      - ./plateform:/workspace/plateform
+      - /workspace/plateform/node_modules
+      - ./packages/taxonomy:/workspace/packages/taxonomy
     ports:
       - "3005:3005"
 
