@@ -10,11 +10,14 @@ interface ExitModalProps {
 export default function ExitModal({ className }: ExitModalProps) {
   const navigate = useNavigate();
   const answers = useQuizStore((s) => s.answers);
+  const reset = useQuizStore((s) => s.reset);
   const [exitOpen, setExitOpen] = useState(false);
+
   const handleClose = () => {
     if (answers.age) {
       setExitOpen(true);
     } else {
+      reset();
       navigate("/");
     }
   };

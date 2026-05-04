@@ -8,9 +8,9 @@ import { buildPayload } from "~/utils/quiz";
 export default function ResultsPage() {
   const answers = useQuizStore((s) => s.answers);
   const geo = useQuizStore((s) => s.geo);
-
+  const reset = useQuizStore((s) => s.reset);
   return (
-    <div>
+    <main className="fr-container fr-py-6w">
       <Label>Quiz terminé</Label>
       <p className="fr-text--sm fr-mb-4w">Tes réponses ont été enregistrées. La page de résultats arrivera dans une prochaine itération.</p>
 
@@ -19,9 +19,9 @@ export default function ResultsPage() {
         <pre className="fr-mt-2w">{JSON.stringify(buildPayload(answers, geo), null, 2)}</pre>
       </details>
 
-      <Link to="/quiz/age" className="fr-btn fr-btn--secondary">
+      <Link to="/quiz/age" onClick={() => reset()} className="fr-btn fr-btn--secondary">
         Recommencer le quiz
       </Link>
-    </div>
+    </main>
   );
 }
