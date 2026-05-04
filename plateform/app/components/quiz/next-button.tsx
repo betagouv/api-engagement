@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router";
 
 interface NextButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  onClick: () => void;
+  onClick?: () => void;
   skip?: boolean;
 }
 

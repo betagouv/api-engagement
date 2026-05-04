@@ -11,6 +11,7 @@ import { evalCondition, not, or, screenAnswer } from "~/utils/conditions";
 import type { QuizOutletContext } from "./_layout";
 
 import Photo1 from "~/assets/images/humanitaire-02.jpeg";
+import { QUIZ_TRANSITION_MS } from "~/services/config";
 
 const STEP_ID = "motivation";
 
@@ -49,12 +50,6 @@ export default function MotivationStep() {
     setOptions(visibleOptions);
   }, [answers]);
 
-  useEffect(() => {
-    if (!transitioning) return;
-    const timer = setTimeout(() => goNext(), 2000);
-    return () => clearTimeout(timer);
-  }, [transitioning, goNext]);
-
   const handleChange = (value: string) => {
     setError(undefined);
     setAnswer(STEP_ID, { type: "options", option_ids: [value] });
@@ -70,26 +65,7 @@ export default function MotivationStep() {
   };
 
   if (transitioning) {
-    return (
-      <div className="flex flex-col items-center justify-center gap-6 py-20">
-        <div className="h-[360px] relative gap-4">
-          <MissionCard
-            imageSrc={Photo1}
-            title="Participer à l'information du public concernant l'accès aux droits…"
-            size="sm"
-            className="absolute -top-12 left-1/2 -translate-x-[40%] rotate-[8deg]"
-          />
-          <MissionCard
-            imageSrc={Photo1}
-            title="Améliorer la qualité de vie des personnes en situation de handicap"
-            size="sm"
-            className="absolute top-0 left-1/2 -translate-x-[80%] rotate-[-4deg]"
-          />
-          <MissionCard imageSrc={Photo1} title="Je deviens infirmier pompier volontaire 🚒" size="sm" className="absolute top-16 left-1/2 -translate-x-1/2 rotate-[3deg]" />
-        </div>
-        <p className="fr-h1 mb-0!">On affine ta sélection</p>
-      </div>
-    );
+    return <MotivationTransition onComplete={goNext} />;
   }
 
   return (
@@ -98,5 +74,43 @@ export default function MotivationStep() {
       <SingleSelectIcon onChange={handleChange} options={options} error={error} selected={selected} />
       <NextButton onClick={handleNext} skip />
     </>
+  );
+}
+
+function MotivationTransition({ onComplete }: { onComplete: () => void }) {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const enterFrame = requestAnimationFrame(() => setVisible(true));
+    const exitTimer = setTimeout(() => setVisible(false), QUIZ_TRANSITION_MS - 700);
+    const completeTimer = setTimeout(onComplete, QUIZ_TRANSITION_MS);
+    return () => {
+      cancelAnimationFrame(enterFrame);
+      clearTimeout(exitTimer);
+      clearTimeout(completeTimer);
+    };
+  }, [onComplete]);
+
+  return (
+    <div
+      className={`flex flex-col items-center justify-center gap-6 py-20 transition-all duration-700 ease-in ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+    >
+      <div className="h-[360px] relative gap-4">
+        <MissionCard
+          imageSrc={Photo1}
+          title="Participer à l'information du public concernant l'accès aux droits…"
+          size="sm"
+          className="absolute -top-12 left-1/2 -translate-x-[30%] rotate-[8deg]"
+        />
+        <MissionCard
+          imageSrc={Photo1}
+          title="Améliorer la qualité de vie des personnes en situation de handicap"
+          size="sm"
+          className="absolute top-0 left-1/2 -translate-x-[70%] rotate-[-4deg]"
+        />
+        <MissionCard imageSrc={Photo1} title="Je deviens infirmier pompier volontaire 🚒" size="sm" className="absolute top-16 left-1/2 -translate-x-1/2 rotate-[3deg]" />
+      </div>
+      <p className="fr-h1 mb-0!">On affine ta sélection</p>
+    </div>
   );
 }
