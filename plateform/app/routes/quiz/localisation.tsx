@@ -16,7 +16,7 @@ type AddressFeature = {
 };
 
 export default function LocalisationStep() {
-  const setAnswer = useQuizStore((s) => s.setAnswer);
+  const geo = useQuizStore((s) => s.geo);
   const setGeo = useQuizStore((s) => s.setGeo);
   const { goNext, transitioning, setTransitioning } = useOutletContext<QuizOutletContext>();
 
@@ -28,6 +28,13 @@ export default function LocalisationStep() {
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (geo) {
+      setSelected({ label: geo.label, lat: geo.lat, lon: geo.lon });
+      setValue(geo.label || "");
+      setShowOptions(false);
+      return;
+    }
+
     const handleClickOutside = (event: MouseEvent) => {
       if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
         setShowOptions(false);
@@ -39,7 +46,7 @@ export default function LocalisationStep() {
 
   useEffect(() => {
     async function fetchOptions() {
-      if (value.length < 3) {
+      if (value.length < 3 || selected?.label === value) {
         setOptions([]);
         setShowOptions(false);
         return;
@@ -76,11 +83,15 @@ export default function LocalisationStep() {
     if (!navigator.geolocation) return;
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
-      ({ coords }) => {
-        const here: Suggestion = { label: "Ma position", lat: coords.latitude, lon: coords.longitude };
+      async (res) => {
+        const feature = await fetch(`https://data.geopf.fr/geocodage/reverse?lon=${res.coords.longitude}&lat=${res.coords.latitude}&limit=1`);
+        const data: { features?: AddressFeature[] } = await feature.json();
+
+        if (!data.features) return;
+        const here: Suggestion = { label: data.features[0].properties.name, lat: data.features[0].geometry.coordinates[1], lon: data.features[0].geometry.coordinates[0] };
         setSelected(here);
-        setValue(here.label);
         setShowOptions(false);
+        setValue(here.label);
         setLocating(false);
       },
       () => setLocating(false),
@@ -96,8 +107,8 @@ export default function LocalisationStep() {
   const handleSubmit = (e: SubmitEvent) => {
     e.preventDefault();
     if (!selected) return;
-    setGeo({ lat: selected.lat, lon: selected.lon });
-    setAnswer("localisation", { type: "location", lat: selected.lat, lon: selected.lon });
+    setGeo(selected);
+    setValue(selected.label);
     setTransitioning(true);
   };
 

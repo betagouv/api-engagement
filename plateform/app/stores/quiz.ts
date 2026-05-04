@@ -5,9 +5,9 @@ import type { QuizAnswers, ScreenAnswer } from "~/types/quiz";
 
 interface QuizStore {
   answers: QuizAnswers;
-  geo?: { lat: number; lon: number };
+  geo?: { lat: number; lon: number; label: string };
   setAnswer: (stepId: StepId, answer: ScreenAnswer) => void;
-  setGeo: (geo: { lat: number; lon: number }) => void;
+  setGeo: (geo: { lat: number; lon: number; label: string }) => void;
   reset: () => void;
 }
 
