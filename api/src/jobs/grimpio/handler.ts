@@ -62,17 +62,17 @@ export class GrimpioHandler implements BaseHandler<GrimpioJobPayload, GrimpioJob
       result.counter.expired += jvaJobs.expired;
 
       // TODO: Uncomment when Service Civique is available
-      // console.log(`[Grimpio Job] Querying and processing missions of Service Civique`);
-      // const scMissionsCursor = getMissionsCursor({
-      //   publisherIds: [PUBLISHER_IDS.SERVICE_CIVIQUE],
-      // });
+      console.log(`[Grimpio Job] Querying and processing missions of Service Civique`);
+      const scMissionsCursor = getMissionsCursor({
+        publisherIds: [PUBLISHER_IDS.SERVICE_CIVIQUE],
+      });
 
-      // const scJobs = await generateJobs(scMissionsCursor);
-      // console.log(`[Grimpio Job] ${scJobs.processed} Service Civique missions processed, ${scJobs.jobs.length} jobs added to the feed`);
-      // jobs.push(...scJobs.jobs);
-      // result.counter.processed += scJobs.processed;
-      // result.counter.sent += scJobs.jobs.length;
-      // result.counter.expired += scJobs.expired;
+      const scJobs = await generateJobs(scMissionsCursor);
+      console.log(`[Grimpio Job] ${scJobs.processed} Service Civique missions processed, ${scJobs.jobs.length} jobs added to the feed`);
+      jobs.push(...scJobs.jobs);
+      result.counter.processed += scJobs.processed;
+      result.counter.sent += scJobs.jobs.length;
+      result.counter.expired += scJobs.expired;
 
       console.log(`[Grimpio Job] Generating XML for ${jobs.length} jobs`);
       const xml = generateXML(jobs);
@@ -116,6 +116,14 @@ export class GrimpioHandler implements BaseHandler<GrimpioJobPayload, GrimpioJob
       };
     } catch (error) {
       captureException(error);
+      if (error instanceof Error && error.message.includes("Grimpio publisher not found")) {
+        return {
+          success: false,
+          timestamp: new Date(),
+          url: "",
+          counter: { processed: 0, sent: 0, expired: 0 },
+        };
+      }
 
       await importService.createImport({
         name: `GRIMPIO`,
