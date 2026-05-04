@@ -33,8 +33,10 @@ export default function HandicapStep() {
 
   return (
     <>
-      <Label subtitle="Certaines missions sont accessibles jusqu’à 30 ans pour les personnes en situation de handicap.">Es-tu en situation de handicap reconnue ?</Label>
-      <SingleSelect onChange={handleSelect} options={STEP_OPTIONS} error={error} selected={selected} />
+      <Label subtitle="Certaines missions sont accessibles jusqu’à 30 ans pour les personnes en situation de handicap." htmlFor="single-select" id="handicap-question">
+        Es-tu en situation de handicap reconnue ?
+      </Label>
+      <SingleSelect onChange={handleSelect} options={STEP_OPTIONS} error={error} selected={selected} labelId="handicap-question" />
       <NextButton onClick={handleNext} />
     </>
   );
