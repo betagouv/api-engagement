@@ -4,7 +4,7 @@ import { Mission, Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
 import { missionRepository } from "@/repositories/mission";
 import { activityService } from "@/services/activity";
-import { asyncTaskBus } from "@/services/async-task";
+import { buildMissionEnrichmentScoringWhere, missionEnrichmentService } from "@/services/mission-enrichment";
 import type {
   MissionCreateInput,
   MissionFacets,
@@ -19,7 +19,6 @@ import { PublisherOrganizationWithRelations } from "@/types/publisher-organizati
 import { calculateBoundingBox } from "@/utils";
 import { buildJobBoardMap, computeAddressHash, deriveMissionLocation, normalizeMissionAddresses } from "@/utils/mission";
 import { normalizeOptionalString, normalizeStringList } from "@/utils/normalize";
-import { TAXONOMY } from "@engagement/taxonomy";
 import { publisherService } from "./publisher";
 import publisherOrganizationService from "./publisher-organization";
 
@@ -57,34 +56,6 @@ type MissionWithRelations = Mission & {
     updatedAt: Date | null;
     missionAddressId: string | null;
   }>;
-};
-
-type TaxonomyDefinition = {
-  label: string;
-  values: Record<string, { label: string }>;
-};
-
-const taxonomyByKey = TAXONOMY as Record<string, TaxonomyDefinition>;
-
-const buildAdminTaxonomyValue = (value: { taxonomyKey: string | null; valueKey: string | null }) => {
-  const taxonomy = value.taxonomyKey ? taxonomyByKey[value.taxonomyKey] : undefined;
-  const taxonomyValue = value.valueKey ? taxonomy?.values[value.valueKey] : undefined;
-
-  return {
-    taxonomyKey: value.taxonomyKey,
-    taxonomyLabel: taxonomy?.label ?? value.taxonomyKey,
-    valueKey: value.valueKey,
-    valueLabel: taxonomyValue?.label ?? value.valueKey,
-  };
-};
-
-const extractEnrichmentReason = (evidence: Prisma.JsonValue | null): string | null => {
-  if (!evidence || typeof evidence !== "object" || Array.isArray(evidence)) {
-    return null;
-  }
-
-  const reasoning = (evidence as { reasoning?: unknown }).reasoning;
-  return typeof reasoning === "string" && reasoning.trim() ? reasoning : null;
 };
 
 const resolveDomainId = async (domainName: string): Promise<string> => {
@@ -386,19 +357,7 @@ export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereIn
   }
 
   if (filters.enrichmentScoringStatus) {
-    const completedEnrichmentWhere: Prisma.MissionEnrichmentListRelationFilter = { some: { status: "completed" } };
-    const completedScoringWhere: Prisma.MissionScoringListRelationFilter = { some: { missionEnrichment: { status: "completed" } } };
-
-    if (filters.enrichmentScoringStatus === "processed") {
-      where.missionScorings = completedScoringWhere;
-    } else if (filters.enrichmentScoringStatus === "enriched_not_scored") {
-      where.enrichments = completedEnrichmentWhere;
-      where.missionScorings = { none: completedScoringWhere.some };
-    } else if (filters.enrichmentScoringStatus === "not_enriched") {
-      where.enrichments = { none: completedEnrichmentWhere.some };
-    } else {
-      where.missionScorings = { none: completedScoringWhere.some };
-    }
+    Object.assign(where, buildMissionEnrichmentScoringWhere(filters.enrichmentScoringStatus));
   }
 
   if (filters.keywords) {
@@ -610,15 +569,7 @@ const baseInclude: MissionInclude = {
 
 export const missionService = {
   async enqueueMissionProcessing(missionId: string): Promise<void> {
-    await this.enqueueMissionEnrichment(missionId);
-  },
-
-  async enqueueMissionEnrichment(missionId: string, options: { force?: boolean } = {}): Promise<void> {
-    await asyncTaskBus.publish({ type: "mission.enrichment", payload: { missionId, ...(options.force !== undefined ? { force: options.force } : {}) } });
-  },
-
-  async enqueueMissionScoring(missionId: string, options: { force?: boolean } = {}): Promise<void> {
-    await asyncTaskBus.publish({ type: "mission.scoring", payload: { missionId, ...(options.force !== undefined ? { force: options.force } : {}) } });
+    await missionEnrichmentService.enqueue(missionId);
   },
 
   async findMissionsByIds(ids: string[]): Promise<MissionRecord[]> {
@@ -642,128 +593,6 @@ export const missionService = {
       include: baseInclude,
     });
     return mission ? toMissionRecord(mission as MissionWithRelations, moderatedBy) : null;
-  },
-
-  async findMissionAdminData(missionId: string): Promise<Pick<MissionRecord, "adminEnrichment" | "adminScoring">> {
-    const enrichment = await prisma.missionEnrichment.findFirst({
-      where: { missionId, status: "completed" },
-      orderBy: { createdAt: "desc" },
-      include: {
-        values: {
-          orderBy: [{ taxonomyKey: "asc" }, { valueKey: "asc" }],
-        },
-      },
-    });
-
-    if (!enrichment) {
-      return { adminEnrichment: null, adminScoring: null };
-    }
-
-    const scoring = await prisma.missionScoring.findUnique({
-      where: {
-        missionId_missionEnrichmentId: {
-          missionId,
-          missionEnrichmentId: enrichment.id,
-        },
-      },
-      include: {
-        missionScoringValues: {
-          orderBy: [{ taxonomyKey: "asc" }, { valueKey: "asc" }],
-        },
-      },
-    });
-
-    return {
-      adminEnrichment: {
-        id: enrichment.id,
-        promptVersion: enrichment.promptVersion,
-        status: enrichment.status,
-        inputTokens: enrichment.inputTokens,
-        outputTokens: enrichment.outputTokens,
-        totalTokens: enrichment.totalTokens,
-        completedAt: enrichment.completedAt,
-        createdAt: enrichment.createdAt,
-        updatedAt: enrichment.updatedAt,
-        values: enrichment.values.map((value) => ({
-          id: value.id,
-          ...buildAdminTaxonomyValue(value),
-          confidence: value.confidence,
-          reason: extractEnrichmentReason(value.evidence),
-        })),
-      },
-      adminScoring: scoring
-        ? {
-            id: scoring.id,
-            missionEnrichmentId: scoring.missionEnrichmentId,
-            createdAt: scoring.createdAt,
-            updatedAt: scoring.updatedAt,
-            values: scoring.missionScoringValues.map((value) => ({
-              id: value.id,
-              ...buildAdminTaxonomyValue(value),
-              score: value.score,
-              createdAt: value.createdAt,
-              updatedAt: value.updatedAt,
-            })),
-          }
-        : null,
-    };
-  },
-
-  async findMissionAdminProcessingStatuses(missionIds: string[]): Promise<Map<string, NonNullable<MissionRecord["adminEnrichmentScoringStatus"]>>> {
-    if (!missionIds.length) {
-      return new Map();
-    }
-
-    const [enrichments, scorings] = await Promise.all([
-      prisma.missionEnrichment.findMany({
-        where: {
-          missionId: { in: missionIds },
-          status: "completed",
-        },
-        select: { missionId: true },
-        distinct: ["missionId"],
-      }),
-      prisma.missionScoring.findMany({
-        where: {
-          missionId: { in: missionIds },
-          missionEnrichment: { status: "completed" },
-        },
-        select: { missionId: true },
-        distinct: ["missionId"],
-      }),
-    ]);
-
-    const enrichedMissionIds = new Set(enrichments.map((row) => row.missionId));
-    const scoredMissionIds = new Set(scorings.map((row) => row.missionId));
-
-    return new Map(
-      missionIds.map((missionId) => {
-        if (scoredMissionIds.has(missionId)) {
-          return [missionId, "processed"];
-        }
-        if (enrichedMissionIds.has(missionId)) {
-          return [missionId, "enriched_not_scored"];
-        }
-        return [missionId, "not_enriched"];
-      }),
-    );
-  },
-
-  async findMissionIdsWithCompletedEnrichmentAndScoring(missionIds: string[]): Promise<Set<string>> {
-    if (!missionIds.length) {
-      return new Set();
-    }
-
-    const rows = await prisma.missionScoring.findMany({
-      where: {
-        missionId: { in: missionIds },
-        missionEnrichment: { status: "completed" },
-      },
-      select: { missionId: true },
-      distinct: ["missionId"],
-    });
-
-    return new Set(rows.map((row) => row.missionId));
   },
 
   async findOneMissionBy(where: Prisma.MissionWhereInput, moderatedBy: string | null = null): Promise<MissionRecord | null> {

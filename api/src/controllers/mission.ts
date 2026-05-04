@@ -4,9 +4,11 @@ import zod from "zod";
 
 import { PUBLISHER_IDS } from "@/config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
-import { missionService } from "@/services/mission";
-import type { UserRequest } from "@/types/passport";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
+import { missionService } from "@/services/mission";
+import { missionEnrichmentService } from "@/services/mission-enrichment";
+import { missionScoringService } from "@/services/mission-scoring";
+import type { UserRequest } from "@/types/passport";
 import { applyWidgetRules, getDistanceKm } from "@/utils";
 
 const router = Router();
@@ -159,7 +161,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
         return data;
       }
 
-      const processingStatuses = await missionService.findMissionAdminProcessingStatuses(data.map((mission) => mission.id));
+      const processingStatuses = await missionEnrichmentService.findAdminProcessingStatuses(data.map((mission) => mission.id));
       return data.map((mission) => ({
         ...mission,
         adminEnrichmentScoringStatus: processingStatuses.get(mission.id) ?? "not_enriched",
@@ -236,7 +238,7 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
     }
 
     if (req.user.role === "admin") {
-      const adminData = await missionService.findMissionAdminData(params.data.id);
+      const adminData = await missionEnrichmentService.findAdminData(params.data.id);
       return res.status(200).send({ ok: true, data: { ...data, ...adminData } });
     }
 
@@ -263,7 +265,7 @@ router.post("/:id/enrichment", passport.authenticate("admin", { session: false }
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    await missionService.enqueueMissionEnrichment(params.data.id, { force: true });
+    await missionEnrichmentService.enqueue(params.data.id, { force: true });
     return res.status(200).send({ ok: true });
   } catch (error: any) {
     next(error);
@@ -287,7 +289,7 @@ router.post("/:id/scoring", passport.authenticate("admin", { session: false }), 
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    await missionService.enqueueMissionScoring(params.data.id, { force: true });
+    await missionScoringService.enqueue(params.data.id, { force: true });
     return res.status(200).send({ ok: true });
   } catch (error: any) {
     next(error);
