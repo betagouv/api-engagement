@@ -35,9 +35,9 @@ export default function PrecisionDomaineStep() {
   const { goNext } = useOutletContext<QuizOutletContext>();
   const [error, setError] = useState<string | undefined>(undefined);
 
-  const motivation = answers.motivation;
-  const selected = motivation?.type === "options" ? motivation.option_ids : [];
-  const title = TITLE_BY_MOTIVATION[selected[0]] ?? DEFAULT_TITLE;
+  const motivationId = answers.motivation?.type === "options" ? answers.motivation.option_ids[0] : "";
+  const title = TITLE_BY_MOTIVATION[motivationId] ?? DEFAULT_TITLE;
+  const selected = answers[STEP_ID]?.type === "options" ? answers[STEP_ID].option_ids : [];
 
   const handleSelect = (value: string[]) => {
     setError(undefined);
@@ -52,6 +52,8 @@ export default function PrecisionDomaineStep() {
     }
     goNext();
   };
+
+  console.log("selected", selected);
 
   return (
     <>
