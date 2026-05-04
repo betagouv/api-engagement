@@ -2,12 +2,11 @@ import { useEffect, useRef, useState, type SubmitEvent } from "react";
 import { useOutletContext } from "react-router";
 import Highlight from "~/components/quiz/highlight";
 import Label from "~/components/quiz/label";
+import MissionCard from "~/components/quiz/mission-card";
 import { useQuizStore } from "~/stores/quiz";
 import type { QuizOutletContext } from "./_layout";
 
-import MissionCard1Png from "~/assets/png/mission-card-1.png";
-import MissionCard2Png from "~/assets/png/mission-card-2.png";
-import MissionCard3Png from "~/assets/png/mission-card-3.png";
+import Photo1 from "~/assets/images/humanitaire-02.jpeg";
 
 type Suggestion = { label: string; lat: number; lon: number };
 
@@ -19,14 +18,13 @@ type AddressFeature = {
 export default function LocalisationStep() {
   const setAnswer = useQuizStore((s) => s.setAnswer);
   const setGeo = useQuizStore((s) => s.setGeo);
-  const { goNext } = useOutletContext<QuizOutletContext>();
+  const { goNext, transitioning, setTransitioning } = useOutletContext<QuizOutletContext>();
 
   const [value, setValue] = useState("");
   const [options, setOptions] = useState<Suggestion[]>([]);
   const [selected, setSelected] = useState<Suggestion | null>(null);
   const [showOptions, setShowOptions] = useState(false);
   const [locating, setLocating] = useState(false);
-  const [transitioning, setTransitioning] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -105,7 +103,7 @@ export default function LocalisationStep() {
 
   if (transitioning) {
     return (
-      <div className="flex gap-6">
+      <div className="flex gap-6 pt-20">
         <div className="flex-1 flex flex-col gap-6 flex-1 pt-16">
           <h1 className="fr-h1 mb-0!">
             On a trouvé des missions <Highlight>pour toi</Highlight>
@@ -113,9 +111,17 @@ export default function LocalisationStep() {
           <p className="fr-text--lead">Maintenant, aide-nous à comprendre ce qui te donnerait envie de t'engager.</p>
         </div>
         <div className="flex-1 relative gap-4">
-          <img src={MissionCard1Png} className="absolute top-0 left-0 object-cover" />
-          <img src={MissionCard2Png} className="absolute top-10 left-0 object-cover" />
-          <img src={MissionCard3Png} className="absolute top-20 left-0 object-cover" />
+          <MissionCard
+            imageSrc={Photo1}
+            title="Participer à l'information du public concernant l'accès aux droits…"
+            className="absolute -top-12 left-1/2 -translate-x-[40%] rotate-[8deg]"
+          />
+          <MissionCard
+            imageSrc={Photo1}
+            title="Améliorer la qualité de vie des personnes en situation de handicap"
+            className="absolute top-0 left-1/2 -translate-x-[80%] rotate-[-4deg]"
+          />
+          <MissionCard imageSrc={Photo1} title="Je deviens infirmier pompier volontaire 🚒" className="absolute top-16 left-1/2 -translate-x-1/2 rotate-[3deg]" />
         </div>
       </div>
     );

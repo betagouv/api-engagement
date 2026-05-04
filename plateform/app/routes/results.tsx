@@ -1,9 +1,5 @@
-import type { TaxonomyValueKey } from "@engagement/taxonomy";
-import { useState } from "react";
 import { Link } from "react-router";
 import Label from "~/components/quiz/label";
-import LoadingRecap from "~/components/quiz/loading-recap";
-import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
 import { buildPayload } from "~/utils/quiz";
 
@@ -12,15 +8,6 @@ import { buildPayload } from "~/utils/quiz";
 export default function ResultsPage() {
   const answers = useQuizStore((s) => s.answers);
   const geo = useQuizStore((s) => s.geo);
-  const [loading, setLoading] = useState(true);
-
-  if (loading) {
-    const recap = Object.values(answers).flatMap((answer) => {
-      if (!answer || answer.type !== "options") return [];
-      return answer.option_ids.map((id) => OPTIONS[id as TaxonomyValueKey]?.label).filter(Boolean) as string[];
-    });
-    return <LoadingRecap items={recap} onComplete={() => setLoading(false)} />;
-  }
 
   return (
     <div>

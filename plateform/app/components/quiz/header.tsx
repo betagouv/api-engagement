@@ -4,10 +4,12 @@ import ExitModal from "./exit-modal";
 interface QuizHeaderProps {
   step: number;
   stepCount: number;
+  transitioning?: boolean;
 }
 
-export default function QuizHeader({ step = 0, stepCount }: QuizHeaderProps) {
-  const progress = stepCount > 0 ? Math.min(100, Math.max(0, (step / stepCount) * 100)) : 0;
+export default function QuizHeader({ step = 0, stepCount, transitioning = false }: QuizHeaderProps) {
+  const effectiveStep = transitioning ? step + 1 : step;
+  const progress = stepCount > 0 ? Math.min(100, Math.max(0, (effectiveStep / stepCount) * 100)) : 0;
 
   return (
     <header role="banner" className="fr-header filter-none! relative">
@@ -42,7 +44,7 @@ export default function QuizHeader({ step = 0, stepCount }: QuizHeaderProps) {
       </div>
 
       <div className="h-2 bg-beige-gris-galet">
-        <div className="h-full bg-blue-france-sun transition-[width] duration-500 ease-out" style={{ width: `${progress}%` }} />
+        <div className={`h-full bg-blue-france-sun transition-[width] ease-out ${transitioning ? "duration-[2000ms]" : "duration-500"}`} style={{ width: `${progress}%` }} />
       </div>
     </header>
   );

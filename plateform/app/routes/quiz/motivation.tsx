@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useOutletContext } from "react-router";
 import Label from "~/components/quiz/label";
+import MissionCard from "~/components/quiz/mission-card";
 import NextButton from "~/components/quiz/next-button";
 import SingleSelectIcon from "~/components/quiz/single-select-icon";
 import { OPTIONS } from "~/config/quiz-options";
@@ -8,6 +9,8 @@ import { useQuizStore } from "~/stores/quiz";
 import type { StepOption } from "~/types/quiz";
 import { evalCondition, not, or, screenAnswer } from "~/utils/conditions";
 import type { QuizOutletContext } from "./_layout";
+
+import Photo1 from "~/assets/images/humanitaire-02.jpeg";
 
 const STEP_ID = "motivation";
 
@@ -36,9 +39,8 @@ const STEP_OPTIONS: StepOption[] = [
 
 export default function MotivationStep() {
   const { answers, setAnswer } = useQuizStore();
-  const { goNext } = useOutletContext<QuizOutletContext>();
+  const { goNext, transitioning, setTransitioning } = useOutletContext<QuizOutletContext>();
   const [options, setOptions] = useState<StepOption[]>([]);
-  const [transitioning, setTransitioning] = useState(false);
 
   useEffect(() => {
     const visibleOptions = STEP_OPTIONS.filter((o) => !o.hiddenIf || !evalCondition(o.hiddenIf, answers));
@@ -58,8 +60,22 @@ export default function MotivationStep() {
   if (transitioning) {
     return (
       <div className="flex flex-col items-center justify-center gap-6 py-20">
-        <div className="size-12 border-4 border-blue-france-sun border-t-transparent rounded-full animate-spin" />
-        <p className="fr-h3 mb-0!">On affine ta sélection…</p>
+        <div className="h-[360px] relative gap-4">
+          <MissionCard
+            imageSrc={Photo1}
+            title="Participer à l'information du public concernant l'accès aux droits…"
+            size="sm"
+            className="absolute -top-12 left-1/2 -translate-x-[40%] rotate-[8deg]"
+          />
+          <MissionCard
+            imageSrc={Photo1}
+            title="Améliorer la qualité de vie des personnes en situation de handicap"
+            size="sm"
+            className="absolute top-0 left-1/2 -translate-x-[80%] rotate-[-4deg]"
+          />
+          <MissionCard imageSrc={Photo1} title="Je deviens infirmier pompier volontaire 🚒" size="sm" className="absolute top-16 left-1/2 -translate-x-1/2 rotate-[3deg]" />
+        </div>
+        <p className="fr-h1 mb-0!">On affine ta sélection</p>
       </div>
     );
   }

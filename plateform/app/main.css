@@ -16,6 +16,7 @@
   --color-blue-france-950: var(--blue-france-950-100); /* #ECECFE00 */
   --color-border-default-grey: var(--border-default-grey);
   --color-background-default-grey-hover: var(--background-default-grey-hover);
+  --color-background-default-grey-active: var(--background-default-grey-active);
 }
 
 .header-shadow {
