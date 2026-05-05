@@ -36,7 +36,7 @@ export function HydrateFallback() {
 export default function QuizLayout() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { answers, userScoringId, distinctId, setUserScoringId } = useQuizStore();
+  const { answers, setUserScoringId } = useQuizStore();
   const [steps, setSteps] = useState<StepDef[]>(QUIZ_FLOW.filter((s) => !s.condition || evalCondition(s.condition, answers)));
   const [transitioning, setTransitioning] = useState(false);
   const [loadingResults, setLoadingResults] = useState(false);
