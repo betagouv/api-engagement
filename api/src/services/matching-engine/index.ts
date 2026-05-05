@@ -37,6 +37,8 @@ const clampScore = (value: number | null): number => {
   return Number(Math.max(0, Math.min(1, value as number)).toFixed(6));
 };
 
+const nullableNumber = (value: number | null | undefined): number | null => (value == null ? null : Number(value));
+
 const TAXONOMY_CANDIDATE_MULTIPLIER = 100;
 const MIN_TAXONOMY_CANDIDATE_LIMIT = 1000;
 const GEO_CANDIDATE_MULTIPLIER = 50;
@@ -571,9 +573,9 @@ export const matchingEngineService = {
           totalScore: clampScore(Number(row.total_score)),
           taxonomyScore: clampScore(Number(row.taxonomy_score)),
           geoScore: row.geo_score === null ? null : clampScore(Number(row.geo_score)),
-          distanceKm: row.distance_km === null ? null : Number(row.distance_km),
-          closestLat: row.closest_lat === null ? null : Number(row.closest_lat),
-          closestLon: row.closest_lon === null ? null : Number(row.closest_lon),
+          distanceKm: nullableNumber(row.distance_km),
+          closestLat: nullableNumber(row.closest_lat),
+          closestLon: nullableNumber(row.closest_lon),
           closestCity: row.closest_city ?? null,
           closestAddress: row.closest_address ?? null,
           taxonomyScores: taxonomyScoresByMissionScoringId[row.mission_scoring_id] ?? {},
