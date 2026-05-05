@@ -1,7 +1,7 @@
-import { GATE_TAXONOMIES } from "@engagement/taxonomy";
 import { Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
 import { missionMatchingResultRepository } from "@/repositories/mission-matching-result";
+import { GATE_TAXONOMIES } from "@engagement/taxonomy";
 import { CURRENT_MATCHING_ENGINE_VERSION, MATCHING_ENGINE_TAXONOMIES, MATCHING_ENGINE_TOP_RESULTS_LIMIT, MATCHING_ENGINE_VERSIONS } from "./config";
 import type { MatchMissionItem, MatchingEngineTaxonomy, MissionMatchingResultItem, RankMissionsByUserScoringInput, RankMissionsByUserScoringResult } from "./types";
 
@@ -12,6 +12,10 @@ type DbRankRow = {
   taxonomy_score: number;
   geo_score: number | null;
   distance_km: number | null;
+  closest_lat: number | null;
+  closest_lon: number | null;
+  closest_city: string | null;
+  closest_address: string | null;
 };
 
 type DbTaxonomyScoreRow = {
@@ -332,26 +336,41 @@ const buildRanking = (params: {
   geo_scores AS (
     SELECT
       cm."mission_scoring_id",
-      COALESCE(cm."distance_km", geo."distance_km") AS "distance_km"
+      COALESCE(cm."distance_km", closest."distance_km") AS "distance_km",
+      closest."closest_lat",
+      closest."closest_lon",
+      closest."closest_city",
+      closest."closest_address"
     FROM candidate_missions cm
     LEFT JOIN LATERAL (
       SELECT
-        MIN(
-          6371.0 * 2.0 * ASIN(
-            SQRT(
-              POWER(SIN(RADIANS(ma."location_lat" - ug."lat") / 2.0), 2) +
-              COS(RADIANS(ug."lat")) * COS(RADIANS(ma."location_lat")) *
-              POWER(SIN(RADIANS(ma."location_lon" - ug."lon") / 2.0), 2)
-            )
+        6371.0 * 2.0 * ASIN(
+          SQRT(
+            POWER(SIN(RADIANS(ma."location_lat" - ug."lat") / 2.0), 2) +
+            COS(RADIANS(ug."lat")) * COS(RADIANS(ma."location_lat")) *
+            POWER(SIN(RADIANS(ma."location_lon" - ug."lon") / 2.0), 2)
           )
-        ) AS "distance_km"
+        ) AS "distance_km",
+        ma."location_lat" AS "closest_lat",
+        ma."location_lon" AS "closest_lon",
+        ma."city" AS "closest_city",
+        NULLIF(
+          CONCAT_WS(
+            ', ',
+            NULLIF(ma."street", ''),
+            NULLIF(CONCAT_WS(' ', NULLIF(ma."postal_code", ''), NULLIF(ma."city", '')), ''),
+            NULLIF(ma."country", '')
+          ),
+          ''
+        ) AS "closest_address"
       FROM user_geo ug
-      JOIN "mission_address" ma
-        ON ma."mission_id" = cm."mission_id"
-       AND ma."location_lat" IS NOT NULL
-       AND ma."location_lon" IS NOT NULL
-      WHERE cm."distance_km" IS NULL
-    ) geo ON TRUE
+      CROSS JOIN "mission_address" ma
+      WHERE ma."mission_id" = cm."mission_id"
+        AND ma."location_lat" IS NOT NULL
+        AND ma."location_lon" IS NOT NULL
+      ORDER BY "distance_km" ASC
+      LIMIT 1
+    ) closest ON TRUE
   ),
   ranked AS (
     SELECT
@@ -369,7 +388,11 @@ const buildRanking = (params: {
           END
         ELSE NULL
       END AS "geo_score",
-      gs."distance_km"
+      gs."distance_km",
+      gs."closest_lat",
+      gs."closest_lon",
+      gs."closest_city",
+      gs."closest_address"
     FROM candidate_missions cm
     CROSS JOIN weighted_user_totals ut
     LEFT JOIN taxonomy_scores ts
@@ -392,7 +415,11 @@ const buildRanking = (params: {
     END AS "total_score",
     r."taxonomy_score",
     r."geo_score",
-    r."distance_km"
+    r."distance_km",
+    r."closest_lat",
+    r."closest_lon",
+    r."closest_city",
+    r."closest_address"
   FROM ranked r
   ORDER BY "total_score" DESC, r."mission_id" ASC
   LIMIT ${params.limit}
@@ -537,6 +564,10 @@ export const matchingEngineService = {
           taxonomyScore: clampScore(Number(row.taxonomy_score)),
           geoScore: row.geo_score === null ? null : clampScore(Number(row.geo_score)),
           distanceKm: row.distance_km === null ? null : Number(row.distance_km),
+          closestLat: row.closest_lat === null ? null : Number(row.closest_lat),
+          closestLon: row.closest_lon === null ? null : Number(row.closest_lon),
+          closestCity: row.closest_city ?? null,
+          closestAddress: row.closest_address ?? null,
           taxonomyScores: taxonomyScoresByMissionScoringId[row.mission_scoring_id] ?? {},
         })
       ),

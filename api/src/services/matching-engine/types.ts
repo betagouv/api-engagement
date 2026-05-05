@@ -28,6 +28,10 @@ export type MatchMissionItem = {
   taxonomyScore: number;
   geoScore: number | null;
   distanceKm: number | null;
+  closestLat: number | null;
+  closestLon: number | null;
+  closestCity: string | null;
+  closestAddress: string | null;
   taxonomyScores: Partial<Record<MatchingEngineTaxonomy, number>>;
 };
 

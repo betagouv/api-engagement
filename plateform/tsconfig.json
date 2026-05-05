@@ -18,7 +18,8 @@
       "~/*": ["./app/*"]
     },
     "rootDirs": [".", "./.react-router/types"],
-    "verbatimModuleSyntax": true
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true
   },
   "include": ["**/*.ts", "**/*.tsx", ".react-router/types/**/*"],
   "exclude": ["node_modules", "dist"]
