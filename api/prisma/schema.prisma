@@ -108,6 +108,7 @@ enum StatSource {
   seo
   jstag
   publisher
+  email_user_scoring
 }
 
 enum StatEventStatus {

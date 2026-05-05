@@ -1,11 +1,44 @@
 import request from "supertest";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { prisma } from "@/db/postgres";
 import { type TaxonomyValueKey } from "@engagement/taxonomy";
+import { createTestMission, createTestPublisher } from "../../fixtures";
 import { createTestApp } from "../../testApp";
 
+const brevoMock = vi.hoisted(() => ({
+  createOrUpdateContact: vi.fn(),
+  sendTemplate: vi.fn(),
+}));
+
+vi.mock("@/services/brevo", () => ({
+  TEMPLATE_IDS: {
+    INVITATION: 1,
+    FORGOT_PASSWORD: 5,
+    MISSION_MATCHING_RESULTS: 0,
+  },
+  LIST_IDS: {
+    MISSION_MATCHING_RESULTS: 22,
+  },
+  createOrUpdateContact: brevoMock.createOrUpdateContact,
+  sendTemplate: brevoMock.sendTemplate,
+  default: {
+    createOrUpdateContact: brevoMock.createOrUpdateContact,
+    sendTemplate: brevoMock.sendTemplate,
+    LIST_IDS: {
+      MISSION_MATCHING_RESULTS: 22,
+    },
+  },
+}));
+
 const app = createTestApp();
+
+beforeEach(() => {
+  brevoMock.createOrUpdateContact.mockReset();
+  brevoMock.createOrUpdateContact.mockResolvedValue({ ok: true, data: { id: 1 } });
+  brevoMock.sendTemplate.mockReset();
+  brevoMock.sendTemplate.mockResolvedValue({ ok: true, data: { messageId: "message-id" } });
+});
 
 describe("POST /user-scoring", () => {
   let taxonomyValueKey: string;
@@ -248,6 +281,54 @@ describe("PUT /user-scoring/:userScoringId", () => {
     return res.body.data.id as string;
   };
 
+  const createStoredMatchingResult = async (userScoringId: string, missionCount = 6) => {
+    const publisher = await createTestPublisher({ name: "Matching Publisher" });
+    const missionScoringIds: string[] = [];
+    const missions: Array<{ id: string; title: string; city: string; organizationName: string }> = [];
+
+    for (let index = 0; index < missionCount; index++) {
+      const mission = await createTestMission({
+        compensationAmount: 620,
+        compensationUnit: "month",
+        duration: 8,
+        endAt: new Date("2026-01-10T00:00:00.000Z"),
+        organizationName: `Matching Organization ${index + 1}`,
+        organizationClientId: `matching-organization-${index + 1}`,
+        publisherId: publisher.id,
+        startAt: new Date("2026-02-02T00:00:00.000Z"),
+        title: `Matching Mission ${index + 1}`,
+        city: `City ${index + 1}`,
+      });
+      const enrichment = await prisma.missionEnrichment.create({
+        data: {
+          missionId: mission.id,
+          status: "completed",
+          promptVersion: `test-${index + 1}`,
+          completedAt: new Date(),
+        },
+      });
+      const scoring = await prisma.missionScoring.create({
+        data: {
+          missionId: mission.id,
+          missionEnrichmentId: enrichment.id,
+        },
+      });
+
+      missionScoringIds.push(scoring.id);
+      missions.push({ id: mission.id, title: mission.title, city: `City ${index + 1}`, organizationName: `Matching Organization ${index + 1}` });
+    }
+
+    await prisma.missionMatchingResult.create({
+      data: {
+        userScoringId,
+        matchingEngineVersion: "m1",
+        results: missionScoringIds.map((missionScoringId) => ({ missionScoringId, taxonomyScores: {} })),
+      },
+    });
+
+    return { missionScoringIds, missions };
+  };
+
   it("should add answers to an existing user scoring", async () => {
     const userScoringId = await createUserScoring();
 
@@ -267,6 +348,8 @@ describe("PUT /user-scoring/:userScoringId", () => {
     });
     expect(values).toHaveLength(2);
     expect(values.map((value) => `${value.taxonomyKey}.${value.valueKey}`)).toEqual(["domaine.social_solidarite", "type_mission.ponctuelle"]);
+    expect(brevoMock.createOrUpdateContact).not.toHaveBeenCalled();
+    expect(brevoMock.sendTemplate).not.toHaveBeenCalled();
   });
 
   it("should update missionAlertEnabled without adding answers", async () => {
@@ -317,6 +400,230 @@ describe("PUT /user-scoring/:userScoringId", () => {
       where: { userScoringId },
     });
     expect(values).toHaveLength(2);
+  });
+
+  it("should create or update Brevo contact and send matching email when email and matching result are available", async () => {
+    const userScoringId = await createUserScoring();
+    const matching = await createStoredMatchingResult(userScoringId);
+
+    const res = await request(app).put(`/user-scoring/${userScoringId}`).send({
+      distinctId,
+      email: " USER@EXAMPLE.COM ",
+      missionAlertEnabled: true,
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({
+      ok: true,
+      data: {
+        user_scoring_id: userScoringId,
+        created_count: 0,
+        mission_alert_enabled: true,
+        email_sent: true,
+      },
+    });
+
+    expect(brevoMock.createOrUpdateContact).toHaveBeenCalledWith({
+      email: "user@example.com",
+      distinctId,
+      userScoringId,
+      missionAlertEnabled: true,
+      listId: 22,
+    });
+    expect(brevoMock.sendTemplate).toHaveBeenCalledTimes(1);
+    expect(brevoMock.sendTemplate).toHaveBeenCalledWith(0, {
+      emailTo: ["user@example.com"],
+      params: {
+        missions: matching.missions.slice(0, 5).map((mission) => ({
+          title: mission.title,
+          durationLabel: "8 mois",
+          startAtLabel: "à partir du 2 février",
+          compensationLabel: "620€ par mois",
+          applicationDeadlineLabel: "Candidatures ouvertes jusqu'au 10 janvier",
+          publisherLogo: "https://example.com/logo.png",
+          publisherName: "Matching Publisher",
+          publisherOrganizationName: mission.organizationName,
+          city: mission.city,
+          url: `http://localhost:4000/r/user-scoring/${userScoringId}/${mission.id}`,
+        })),
+      },
+      tags: ["user-scoring", "mission-matching-results"],
+    });
+
+    const userScoring = await prisma.userScoring.findUniqueOrThrow({
+      where: { id: userScoringId },
+    });
+    expect(userScoring.distinctId).toBe(distinctId);
+    expect("email" in userScoring).toBe(false);
+  });
+
+  it("should send a single mission email when missionId is provided", async () => {
+    const userScoringId = await createUserScoring();
+    const publisher = await createTestPublisher({ name: "Single Mission Publisher" });
+    const mission = await createTestMission({
+      compensationAmount: 620,
+      compensationUnit: "month",
+      duration: 8,
+      endAt: new Date("2026-01-10T00:00:00.000Z"),
+      organizationName: "Single Mission Organization",
+      organizationClientId: "single-mission-organization",
+      publisherId: publisher.id,
+      startAt: new Date("2026-02-02T00:00:00.000Z"),
+      title: "Single Mission",
+      city: "Paris",
+    });
+
+    const res = await request(app).put(`/user-scoring/${userScoringId}`).send({
+      distinctId,
+      email: "user@example.com",
+      missionId: mission.id,
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({
+      ok: true,
+      data: {
+        user_scoring_id: userScoringId,
+        created_count: 0,
+        mission_alert_enabled: false,
+        email_sent: true,
+      },
+    });
+
+    expect(brevoMock.createOrUpdateContact).toHaveBeenCalledWith({
+      email: "user@example.com",
+      distinctId,
+      userScoringId,
+      missionAlertEnabled: false,
+      listId: 22,
+    });
+    expect(brevoMock.sendTemplate).toHaveBeenCalledTimes(1);
+    expect(brevoMock.sendTemplate).toHaveBeenCalledWith(0, {
+      emailTo: ["user@example.com"],
+      params: {
+        missions: [
+          {
+            title: mission.title,
+            durationLabel: "8 mois",
+            startAtLabel: "à partir du 2 février",
+            compensationLabel: "620€ par mois",
+            applicationDeadlineLabel: "Candidatures ouvertes jusqu'au 10 janvier",
+            publisherLogo: "https://example.com/logo.png",
+            publisherName: "Single Mission Publisher",
+            publisherOrganizationName: "Single Mission Organization",
+            city: "Paris",
+            url: `http://localhost:4000/r/user-scoring/${userScoringId}/${mission.id}`,
+          },
+        ],
+      },
+      tags: ["user-scoring", "mission-matching-results"],
+    });
+  });
+
+  it("should skip single mission email when missionId is not found", async () => {
+    const userScoringId = await createUserScoring();
+
+    const res = await request(app).put(`/user-scoring/${userScoringId}`).send({
+      distinctId,
+      email: "user@example.com",
+      missionId: "00000000-0000-0000-0000-000000000000",
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({
+      ok: true,
+      data: {
+        user_scoring_id: userScoringId,
+        created_count: 0,
+        mission_alert_enabled: false,
+        email_sent: false,
+        email_skip_reason: "MISSION_NOT_FOUND",
+      },
+    });
+    expect(brevoMock.createOrUpdateContact).toHaveBeenCalledTimes(1);
+    expect(brevoMock.sendTemplate).not.toHaveBeenCalled();
+  });
+
+  it("should skip matching email when no matching result is stored", async () => {
+    const userScoringId = await createUserScoring();
+
+    const res = await request(app).put(`/user-scoring/${userScoringId}`).send({
+      distinctId,
+      email: "user@example.com",
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({
+      ok: true,
+      data: {
+        user_scoring_id: userScoringId,
+        created_count: 0,
+        mission_alert_enabled: false,
+        email_sent: false,
+        email_skip_reason: "NO_MATCHING_RESULT",
+      },
+    });
+    expect(brevoMock.createOrUpdateContact).toHaveBeenCalledTimes(1);
+    expect(brevoMock.sendTemplate).not.toHaveBeenCalled();
+  });
+
+  it("should return 502 when Brevo contact creation fails", async () => {
+    const userScoringId = await createUserScoring();
+    await createStoredMatchingResult(userScoringId);
+    brevoMock.createOrUpdateContact.mockResolvedValueOnce({ ok: false, data: { message: "contact failed" } });
+
+    const res = await request(app).put(`/user-scoring/${userScoringId}`).send({
+      distinctId,
+      email: "user@example.com",
+      missionAlertEnabled: true,
+    });
+
+    expect(res.status).toBe(502);
+    expect(res.body).toMatchObject({
+      ok: false,
+      code: "EMAIL_SEND_FAILED",
+      data: {
+        user_scoring_id: userScoringId,
+        mission_alert_enabled: true,
+        email_sent: false,
+      },
+    });
+    expect(brevoMock.sendTemplate).not.toHaveBeenCalled();
+
+    const userScoring = await prisma.userScoring.findUniqueOrThrow({
+      where: { id: userScoringId },
+    });
+    expect(userScoring.missionAlertEnabled).toBe(true);
+  });
+
+  it("should return 502 when Brevo transactional email fails", async () => {
+    const userScoringId = await createUserScoring();
+    await createStoredMatchingResult(userScoringId);
+    brevoMock.sendTemplate.mockResolvedValueOnce({ ok: false, data: { message: "template failed" } });
+
+    const res = await request(app).put(`/user-scoring/${userScoringId}`).send({
+      distinctId,
+      email: "user@example.com",
+      missionAlertEnabled: true,
+    });
+
+    expect(res.status).toBe(502);
+    expect(res.body).toMatchObject({
+      ok: false,
+      code: "EMAIL_SEND_FAILED",
+      data: {
+        user_scoring_id: userScoringId,
+        mission_alert_enabled: true,
+        email_sent: false,
+      },
+    });
+    expect(brevoMock.createOrUpdateContact).toHaveBeenCalledTimes(1);
+    expect(brevoMock.sendTemplate).toHaveBeenCalledTimes(1);
+
+    const userScoring = await prisma.userScoring.findUniqueOrThrow({
+      where: { id: userScoringId },
+    });
+    expect(userScoring.missionAlertEnabled).toBe(true);
   });
 
   it("should skip duplicate answers when adding answers", async () => {
@@ -372,6 +679,17 @@ describe("PUT /user-scoring/:userScoringId", () => {
     expect(res.body.ok).toBe(false);
   });
 
+  it("should return 400 when email is invalid", async () => {
+    const userScoringId = await createUserScoring();
+
+    const res = await request(app).put(`/user-scoring/${userScoringId}`).send({ distinctId, email: "not-an-email" });
+
+    expect(res.status).toBe(400);
+    expect(res.body.ok).toBe(false);
+    expect(brevoMock.createOrUpdateContact).not.toHaveBeenCalled();
+    expect(brevoMock.sendTemplate).not.toHaveBeenCalled();
+  });
+
   it("should return 400 when distinctId is missing", async () => {
     const userScoringId = await createUserScoring();
 
@@ -392,6 +710,8 @@ describe("PUT /user-scoring/:userScoringId", () => {
 
     expect(res.status).toBe(403);
     expect(res.body.ok).toBe(false);
+    expect(brevoMock.createOrUpdateContact).not.toHaveBeenCalled();
+    expect(brevoMock.sendTemplate).not.toHaveBeenCalled();
 
     const values = await prisma.userScoringValue.findMany({
       where: { userScoringId },
