@@ -40,6 +40,7 @@ export default function QuizLayout() {
   const [steps, setSteps] = useState<StepDef[]>(QUIZ_FLOW.filter((s) => !s.condition || evalCondition(s.condition, answers)));
   const [transitioning, setTransitioning] = useState(false);
   const [loadingResults, setLoadingResults] = useState(false);
+  const [scoringError, setScoringError] = useState<string | null>(null);
   const currentStep = useMemo(() => steps.find((s) => s.route === location.pathname) ?? null, [location.pathname, steps]);
 
   const currentIndex = currentStep ? steps.findIndex((s) => s.id === currentStep.id) : -1;
@@ -55,7 +56,7 @@ export default function QuizLayout() {
     }
   }, [location.pathname, currentStep]);
 
-  const saveCurrentScoring = async () => {
+  const saveCurrentScoring = async (): Promise<boolean> => {
     const freshAnswers = useQuizStore.getState().answers;
     const freshGeo = useQuizStore.getState().geo;
     const freshUserScoringId = useQuizStore.getState().userScoringId;
@@ -63,27 +64,35 @@ export default function QuizLayout() {
     const payload = buildPayload(freshAnswers, freshGeo);
 
     if (payload.answers.length === 0) {
-      return;
+      return true;
     }
 
     try {
       if (!freshUserScoringId) {
         const id = await createUserScoring(payload, freshDistinctId);
         setUserScoringId(id);
-        return;
+        return true;
       }
 
       await updateUserScoring(freshUserScoringId, payload, freshDistinctId);
+      return true;
     } catch (err) {
       console.error("[quiz] saveCurrentScoring failed", err);
+      return false;
     }
   };
 
   const goNext = async () => {
     if (!currentStep) return;
     setTransitioning(false);
+    setScoringError(null);
     const freshAnswers = useQuizStore.getState().answers;
-    await saveCurrentScoring();
+    const scoringSaved = await saveCurrentScoring();
+
+    if (!scoringSaved) {
+      setScoringError("Impossible d'enregistrer tes réponses. Réessaie dans quelques instants.");
+      return;
+    }
 
     const { next, steps } = refreshSteps(QUIZ_FLOW, currentStep.id, freshAnswers);
     setSteps(steps);
@@ -121,6 +130,11 @@ export default function QuizLayout() {
       <main className="flex-1 bg-gradient-to-l from-blue-france-950/40 md:from-blue-france-950 to-transparent pt-10 pb-24 md:pb-10">
         <div className="fr-container flex flex-col gap-10">
           {!transitioning && !loadingResults && <BackButton href={currentIndex > 0 ? steps[currentIndex - 1].route : "/"} />}
+          {scoringError && !loadingResults && (
+            <div className="fr-alert fr-alert--error">
+              <p>{scoringError}</p>
+            </div>
+          )}
           {loadingResults ? (
             <LoadingRecap items={recapItems} onComplete={handleLoadingComplete} />
           ) : (
