@@ -1,17 +1,50 @@
 import { Link } from "react-router";
+import ExitModal from "./exit-modal";
 
-export default function QuizHeader() {
+interface QuizHeaderProps {
+  step: number;
+  stepCount: number;
+  transitioning?: boolean;
+}
+
+export default function QuizHeader({ step = 0, stepCount, transitioning = false }: QuizHeaderProps) {
+  const effectiveStep = transitioning ? step + 1 : step;
+  const progress = stepCount > 0 ? Math.min(100, Math.max(0, (effectiveStep / stepCount) * 100)) : 0;
+
   return (
-    <header role="banner" className="fr-header">
-      <div className="header-shadow tw:flex tw:items-center! tw:gap-4 tw:justify-center! tw:relative tw:py-3 tw:bg-raised-grey">
-        <Link
-          to="/"
-          title="Retour à l'accueil"
-          className="fr-icon-arrow-left-line fr-btn--icon-left tw:p-4 tw:text-sm tw:text-blue-france-sun! tw:font-semi-bold! tw:absolute tw:left-0 tw:top-0"
-        >
+    <header role="banner" className="fr-header filter-none! relative">
+      <ExitModal className="fr-icon-close-line text-blue-france-sun! absolute top-2 right-4 p-2 z-10 hidden lg:block" />
+      <div className="fr-container hidden lg:block">
+        <div className="fr-header__body-row items-start">
+          <div className="fr-enlarge-link hover:bg-raised-grey-hover -my-4 flex items-center">
+            <div className="fr-header__brand-top">
+              <div className="fr-header__logo">
+                <p className="fr-logo">
+                  République
+                  <br />
+                  Française
+                </p>
+              </div>
+            </div>
+            <div className="p-4 text-title-grey">
+              <Link to="/" title="Trouve ta mission">
+                <p className="fr-header__service-title">Trouve ta mission</p>
+              </Link>
+              <p className="fr-header__service-tagline">Service public pour trouver une mission d'engagement</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="relative flex lg:hidden items-center px-4 h-14">
+        <Link to="/" title="Retour à l'accueil" className="fr-icon-arrow-left-line fr-btn--icon-left fr-btn--tertiary-no-outline font-semi-bold!">
           Retour
         </Link>
-        <p className="fr-h5 tw:after:none">Trouve ta mission</p>
+        <p className="fr-h6 absolute left-1/2 -translate-x-1/2 mb-0">Trouve ta mission</p>
+      </div>
+
+      <div className="h-2 bg-beige-gris-galet">
+        <div className={`h-full bg-blue-france-sun transition-[width] ease-out ${transitioning ? "duration-[2000ms]" : "duration-500"}`} style={{ width: `${progress}%` }} />
       </div>
     </header>
   );

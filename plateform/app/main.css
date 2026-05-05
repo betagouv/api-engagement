@@ -1,15 +1,23 @@
 /* Tailwind v4 — préfixe `tw` pour éviter les collisions avec les classes DSFR (`fr-*`).
    ATTENTION : en v4, le séparateur de préfixe est `:` (pas `-` comme en v3).
-   Les classes s'écrivent donc `tw:text-red-500`, `tw:flex`, etc.
+   Les classes s'écrivent donc `text-red-500`, `flex`, etc.
 
    Preflight reste inclus mais est placé dans @layer base : le CSS DSFR n'utilise
    aucun @layer donc il gagne la cascade et le reset DSFR reste en place. */
-@import "tailwindcss" prefix(tw);
+@import "tailwindcss";
 
 @theme {
   --color-info-950: var(--info-950-100);
   --color-blue-france-sun: var(--blue-france-sun-113-625);
   --color-raised-grey: var(--background-raised-grey);
+  --color-raised-grey-hover: var(--background-raised-grey-hover);
+  --color-beige-gris-galet: var(--beige-gris-galet-925-125);
+  --color-title-grey: var(--text-title-grey);
+  --color-blue-france-950: var(--blue-france-950-100); /* #ECECFE00 */
+  --color-border-default-grey: var(--border-default-grey);
+  --color-border-plain-error: var(--border-plain-error);
+  --color-background-default-grey-hover: var(--background-default-grey-hover);
+  --color-background-default-grey-active: var(--background-default-grey-active);
 }
 
 .header-shadow {
@@ -23,4 +31,119 @@
   padding-right: 0.25rem;
   width: 100%;
   z-index: calc(var(--ground) + 750);
+}
+
+/* Variante "rich" pour les cases à cocher : DSFR 1.14 ne fournit que `fr-radio-rich`,
+   on reproduit la même mise en page (carte + pictogramme à droite) pour les checkboxes. */
+.fr-checkbox-rich {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  max-width: 100%;
+}
+
+.fr-checkbox-rich input[type="checkbox"] + label {
+  margin-left: 0;
+  padding: 0.75rem 1rem 0.75rem 2.75rem;
+  align-self: stretch;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  background-size:
+    100% 1px,
+    1px 100%,
+    100% 1px,
+    1px 100%;
+  background-repeat: no-repeat;
+  background-position:
+    0 0,
+    100% 0,
+    0 100%,
+    0 0;
+  background-image:
+    linear-gradient(0deg, var(--border-default-grey), var(--border-default-grey)), linear-gradient(0deg, var(--border-default-grey), var(--border-default-grey)),
+    linear-gradient(0deg, var(--border-default-grey), var(--border-default-grey)), linear-gradient(0deg, var(--border-default-grey), var(--border-default-grey));
+  background-color: var(--background-default-grey);
+  --hover: var(--background-default-grey-hover);
+  --active: var(--background-default-grey-active);
+}
+
+.fr-fieldset__content .fr-checkbox-rich input[type="checkbox"] + label::before {
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.fr-checkbox-rich input[type="checkbox"] + label .fr-hint-text {
+  margin-left: 0;
+}
+
+.fr-checkbox-rich input[type="checkbox"]:not(:disabled) ~ label:hover {
+  background-color: var(--hover);
+}
+
+.fr-checkbox-rich input[type="checkbox"]:not(:disabled) ~ label:active {
+  background-color: var(--active);
+}
+
+.fr-checkbox-rich input[type="checkbox"]:not(:disabled) ~ label:hover + .fr-checkbox-rich__pictogram {
+  background-color: var(--hover);
+}
+
+.fr-checkbox-rich input[type="checkbox"]:not(:disabled) ~ label:active + .fr-checkbox-rich__pictogram {
+  background-color: var(--active);
+}
+
+.fr-checkbox-rich input[type="checkbox"]:checked + label {
+  background-image:
+    linear-gradient(0deg, var(--border-active-blue-france), var(--border-active-blue-france)),
+    linear-gradient(0deg, var(--border-active-blue-france), var(--border-active-blue-france)),
+    linear-gradient(0deg, var(--border-active-blue-france), var(--border-active-blue-france)),
+    linear-gradient(0deg, var(--border-active-blue-france), var(--border-active-blue-france));
+}
+
+.fr-checkbox-rich input[type="checkbox"]:checked ~ .fr-checkbox-rich__pictogram {
+  background-image:
+    linear-gradient(0deg, var(--background-action-high-blue-france), var(--background-action-high-blue-france)),
+    linear-gradient(0deg, var(--background-action-high-blue-france), var(--background-action-high-blue-france)),
+    linear-gradient(0deg, var(--background-action-high-blue-france), var(--background-action-high-blue-france)),
+    linear-gradient(0deg, var(--border-default-grey), var(--border-default-grey));
+}
+
+.fr-checkbox-rich__pictogram {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  margin-left: -1px;
+  padding: 0.25rem;
+  width: 5.5rem;
+  min-width: 5.5rem;
+  min-height: 5.5rem;
+  align-self: stretch;
+  pointer-events: none;
+  background-size:
+    100% 1px,
+    100% 1px,
+    1px 100%,
+    1px calc(100% - 0.5rem);
+  background-repeat: no-repeat;
+  background-position:
+    0 0,
+    0 100%,
+    100% 0,
+    0 0.25rem;
+  background-image:
+    linear-gradient(0deg, var(--border-default-grey), var(--border-default-grey)), linear-gradient(0deg, var(--border-default-grey), var(--border-default-grey)),
+    linear-gradient(0deg, var(--border-default-grey), var(--border-default-grey)), linear-gradient(0deg, var(--border-default-grey), var(--border-default-grey));
+  background-color: var(--background-default-grey);
+}
+
+.fr-checkbox-rich__pictogram img,
+.fr-checkbox-rich__pictogram svg {
+  max-width: 3.5rem;
+  max-height: 3.5rem;
 }

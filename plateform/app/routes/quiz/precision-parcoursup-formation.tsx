@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { useOutletContext } from "react-router";
+import Label from "~/components/quiz/label";
+import NextButton from "~/components/quiz/next-button";
 import SingleSelect from "~/components/quiz/single-select";
-import Title from "~/components/quiz/title";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
 import type { QuizOutletContext } from "./_layout";
@@ -10,26 +12,30 @@ const STEP_ID = "precision_parcoursup_formation";
 const STEP_OPTIONS = [OPTIONS["parcoursup_formation.oui"], OPTIONS["parcoursup_formation.non"]];
 
 export default function PrecisionParcoursupFormationStep() {
-  const { setAnswer } = useQuizStore();
-  const { goNext, goBack } = useOutletContext<QuizOutletContext>();
+  const { answers, setAnswer } = useQuizStore();
+  const { goNext } = useOutletContext<QuizOutletContext>();
+  const [error, setError] = useState<string | undefined>(undefined);
+  const selected = answers[STEP_ID]?.type === "options" ? answers[STEP_ID].option_ids[0] : undefined;
 
   const handleSelect = (value: string) => {
+    setError(undefined);
     setAnswer(STEP_ID, { type: "options", option_ids: [value] });
+  };
+
+  const handleNext = () => {
+    const answer = answers[STEP_ID];
+    if (answer?.type !== "options" || answer.option_ids.length === 0) {
+      setError("Sélectionne une réponse");
+      return;
+    }
     goNext();
   };
 
   return (
     <>
-      <Title>As-tu déjà une formation précise en tête ?</Title>
-      <SingleSelect onChange={handleSelect} options={STEP_OPTIONS} />
-      <div className="fr-mt-4w tw:flex tw:flex-col tw:sm:flex-row tw:gap-4 tw:items-center">
-        <button type="button" className="fr-btn tw:w-full! tw:sm:w-auto! tw:justify-center!" onClick={goNext}>
-          Continuer
-        </button>
-        <button type="button" className="fr-btn fr-btn--secondary tw:w-full! tw:sm:w-auto! tw:justify-center!" onClick={goBack}>
-          Retour
-        </button>
-      </div>
+      <Label>As-tu déjà une formation précise en tête ?</Label>
+      <SingleSelect onChange={handleSelect} options={STEP_OPTIONS} error={error} selected={selected} />
+      <NextButton onClick={handleNext} skip />
     </>
   );
 }

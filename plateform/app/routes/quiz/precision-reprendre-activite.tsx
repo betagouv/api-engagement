@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { useOutletContext } from "react-router";
-import SingleSelect from "~/components/quiz/single-select";
-import Title from "~/components/quiz/title";
+import Label from "~/components/quiz/label";
+import MultiSelectIcon from "~/components/quiz/multi-select-icon";
+import NextButton from "~/components/quiz/next-button";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
 import type { QuizOutletContext } from "./_layout";
@@ -21,26 +23,29 @@ const STEP_OPTIONS = [
 ];
 
 export default function PrecisionReprendreActiviteStep() {
-  const { setAnswer } = useQuizStore();
-  const { goNext, goBack } = useOutletContext<QuizOutletContext>();
+  const { answers, setAnswer } = useQuizStore();
+  const { goNext } = useOutletContext<QuizOutletContext>();
+  const [error, setError] = useState<string | undefined>(undefined);
 
-  const handleSelect = (value: string) => {
-    setAnswer(STEP_ID, { type: "options", option_ids: [value] });
+  const handleSelect = (value: string[]) => {
+    setError(undefined);
+    setAnswer(STEP_ID, { type: "options", option_ids: value });
+  };
+  const selected = answers[STEP_ID]?.type === "options" ? answers[STEP_ID].option_ids : [];
+
+  const handleNext = () => {
+    if (selected.length === 0) {
+      setError("Sélectionne une réponse");
+      return;
+    }
     goNext();
   };
 
   return (
     <>
-      <Title>Quel secteur d'activité t'attirerait le plus ?</Title>
-      <SingleSelect onChange={handleSelect} options={STEP_OPTIONS} />
-      <div className="fr-mt-4w tw:flex tw:flex-col tw:sm:flex-row tw:gap-4 tw:items-center">
-        <button type="button" className="fr-btn tw:w-full! tw:sm:w-auto! tw:justify-center!" onClick={goNext}>
-          Continuer
-        </button>
-        <button type="button" className="fr-btn fr-btn--secondary tw:w-full! tw:sm:w-auto! tw:justify-center!" onClick={goBack}>
-          Retour
-        </button>
-      </div>
+      <Label>Quel secteur d'activité t'attirerait le plus ?</Label>
+      <MultiSelectIcon onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} />
+      <NextButton onClick={handleNext} skip />
     </>
   );
 }

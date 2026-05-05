@@ -23,7 +23,7 @@ export function Layout({ children }: { children: ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body className="tw:flex tw:flex-col tw:min-h-screen">
+      <body className="flex flex-col min-h-screen">
         {children}
         <ScrollRestoration />
         <Scripts />

@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { useOutletContext } from "react-router";
-import SingleSelect from "~/components/quiz/single-select";
-import Title from "~/components/quiz/title";
+import Label from "~/components/quiz/label";
+import MultiSelectIcon from "~/components/quiz/multi-select-icon";
+import NextButton from "~/components/quiz/next-button";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
 import type { QuizOutletContext } from "./_layout";
@@ -20,27 +22,41 @@ const STEP_OPTIONS = [
   OPTIONS["competence_rome.securite_environnement_action_publique"],
 ];
 
-export default function PrecisionCompetencesStep() {
-  const { setAnswer } = useQuizStore();
-  const { goNext, goBack } = useOutletContext<QuizOutletContext>();
+const TITLE_BY_MOTIVATION: Record<string, string> = {
+  "motivation.competences_interet_general": "Quel est ton domaine de compétences ?",
+  "motivation.booster_cv": "Dans quel domaine souhaites-tu booster tes compétences",
+};
 
-  const handleSelect = (value: string) => {
-    setAnswer(STEP_ID, { type: "options", option_ids: [value] });
+const DEFAULT_TITLE = "Quel type de compétences t'attire le plus ?";
+
+export default function PrecisionCompetencesStep() {
+  const { answers, setAnswer } = useQuizStore();
+  const { goNext } = useOutletContext<QuizOutletContext>();
+  const [error, setError] = useState<string | undefined>(undefined);
+
+  const motivationId = answers.motivation?.type === "options" ? answers.motivation.option_ids[0] : "";
+  const title = TITLE_BY_MOTIVATION[motivationId] ?? DEFAULT_TITLE;
+  const selected = answers[STEP_ID]?.type === "options" ? answers[STEP_ID].option_ids : [];
+
+  const handleSelect = (value: string[]) => {
+    setError(undefined);
+    setAnswer(STEP_ID, { type: "options", option_ids: value });
+  };
+
+  const handleNext = () => {
+    const answer = answers[STEP_ID];
+    if (answer?.type !== "options" || answer.option_ids.length === 0) {
+      setError("Sélectionne une réponse");
+      return;
+    }
     goNext();
   };
 
   return (
     <>
-      <Title>Quel type de compétences t'attire le plus ?</Title>
-      <SingleSelect onChange={handleSelect} options={STEP_OPTIONS} />
-      <div className="fr-mt-4w tw:flex tw:flex-col tw:sm:flex-row tw:gap-4 tw:items-center">
-        <button type="button" className="fr-btn tw:w-full! tw:sm:w-auto! tw:justify-center!" onClick={goNext}>
-          Continuer
-        </button>
-        <button type="button" className="fr-btn fr-btn--secondary tw:w-full! tw:sm:w-auto! tw:justify-center!" onClick={goBack}>
-          Retour
-        </button>
-      </div>
+      <Label>{title}</Label>
+      <MultiSelectIcon onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} />
+      <NextButton onClick={handleNext} skip />
     </>
   );
 }

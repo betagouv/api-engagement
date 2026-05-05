@@ -1,7 +1,9 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState, type SubmitEvent } from "react";
 import { useOutletContext } from "react-router";
-import type { QuizOutletContext } from "./_layout";
+import Label from "~/components/quiz/label";
+import NextButton from "~/components/quiz/next-button";
 import { useQuizStore } from "~/stores/quiz";
+import type { QuizOutletContext } from "./_layout";
 
 const MIN_AGE = 16;
 const MAX_AGE = 99;
@@ -11,7 +13,7 @@ const STEP_ID = "age";
 // Utilisée uniquement dans les conditions des steps suivants (ex: handicap).
 export default function AgeStep() {
   const { answers, setAnswer } = useQuizStore();
-  const { goNext, goBack } = useOutletContext<QuizOutletContext>();
+  const { goNext } = useOutletContext<QuizOutletContext>();
   const [value, setValue] = useState<string>("");
 
   useEffect(() => {
@@ -21,7 +23,7 @@ export default function AgeStep() {
   const numeric = Number(value);
   const valid = value !== "" && Number.isFinite(numeric) && numeric >= MIN_AGE && numeric <= MAX_AGE;
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = (e: SubmitEvent) => {
     e.preventDefault();
     if (!valid) return;
     setAnswer(STEP_ID, { type: "numeric", value: numeric });
@@ -29,37 +31,20 @@ export default function AgeStep() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h1 className="fr-h3">Quel âge as-tu ?</h1>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-10">
+      <Label subtitle="Certaines missions dépendent de l'âge." htmlFor="age-input">
+        Quel âge as-tu ?
+      </Label>
 
-      <div className="fr-input-group">
-        <label className="fr-label" htmlFor="age-input">
-          Âge
-          <span className="fr-hint-text">
-            Entre {MIN_AGE} et {MAX_AGE} ans
-          </span>
-        </label>
-        <input
-          id="age-input"
-          className="fr-input"
-          type="number"
-          inputMode="numeric"
-          min={MIN_AGE}
-          max={MAX_AGE}
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          autoFocus
-        />
-      </div>
-
-      <div className="fr-mt-2w">
-        <button type="button" className="fr-btn fr-btn--secondary fr-mr-2w" onClick={goBack}>
-          Retour
-        </button>
-        <button type="submit" className="fr-btn" disabled={!valid}>
-          Continuer
-        </button>
-      </div>
+      <select id="age-input" className="fr-select max-w-80!" value={value} onChange={(e) => setValue(e.target.value)}>
+        <option value="">Sélectionnez votre âge</option>
+        {Array.from({ length: MAX_AGE - MIN_AGE + 1 }, (_, i) => (
+          <option key={i} value={i + MIN_AGE}>
+            {i + MIN_AGE}
+          </option>
+        ))}
+      </select>
+      <NextButton onClick={goNext} type="submit" disabled={!valid} />
     </form>
   );
 }

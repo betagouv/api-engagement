@@ -12,7 +12,6 @@
     "strict": true,
     "allowImportingTsExtensions": true,
     "noEmit": true,
-    "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": {
       "@engagement/taxonomy": ["../packages/taxonomy/src/index"],
