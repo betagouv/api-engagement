@@ -6,9 +6,10 @@ import QuizHeader from "~/components/quiz/header";
 import LoadingRecap from "~/components/quiz/loading-recap";
 import { QUIZ_FLOW, type StepDef } from "~/config/quiz-flow";
 import { OPTIONS } from "~/config/quiz-options";
+import { createUserScoring, updateUserScoring } from "~/services/user-scoring";
 import { useQuizStore } from "~/stores/quiz";
 import { evalCondition } from "~/utils/conditions";
-import { refreshSteps } from "~/utils/quiz";
+import { buildPayload, refreshSteps } from "~/utils/quiz";
 import type { Route } from "./+types/_layout";
 
 // Contexte partagé avec les steps enfants via `useOutletContext<QuizOutletContext>()`.
@@ -35,7 +36,7 @@ export function HydrateFallback() {
 export default function QuizLayout() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { answers } = useQuizStore();
+  const { answers, userScoringId, distinctId, setUserScoringId } = useQuizStore();
   const [steps, setSteps] = useState<StepDef[]>(QUIZ_FLOW.filter((s) => !s.condition || evalCondition(s.condition, answers)));
   const [transitioning, setTransitioning] = useState(false);
   const [loadingResults, setLoadingResults] = useState(false);
@@ -54,10 +55,28 @@ export default function QuizLayout() {
     }
   }, [location.pathname, currentStep]);
 
-  const goNext = () => {
+  const goNext = async () => {
     if (!currentStep) return;
     setTransitioning(false);
     const freshAnswers = useQuizStore.getState().answers;
+    const freshGeo = useQuizStore.getState().geo;
+    const freshUserScoringId = useQuizStore.getState().userScoringId;
+    const freshDistinctId = useQuizStore.getState().distinctId;
+    const payload = buildPayload(freshAnswers, freshGeo);
+
+    if (payload.answers.length > 0) {
+      if (!freshUserScoringId) {
+        try {
+          const id = await createUserScoring(payload, freshDistinctId);
+          setUserScoringId(id);
+        } catch (err) {
+          console.error("[quiz] createUserScoring failed", err);
+        }
+      } else {
+        updateUserScoring(freshUserScoringId, payload, freshDistinctId).catch((err) => console.error("[quiz] updateUserScoring failed", err));
+      }
+    }
+
     const { next, steps } = refreshSteps(QUIZ_FLOW, currentStep.id, freshAnswers);
     setSteps(steps);
     if (next) {
@@ -69,7 +88,8 @@ export default function QuizLayout() {
 
   const handleLoadingComplete = () => {
     setLoadingResults(false);
-    navigate("/results");
+    const id = useQuizStore.getState().userScoringId;
+    navigate(id ? `/results/${id}` : "/");
   };
 
   const recapItems = (["statut", "duree", "motivation"] as const).flatMap((stepId) => {
