@@ -119,6 +119,10 @@ jobs:
           git tag -a "$TAG_NAME" -m "Release $TAG_NAME"
           git push origin $TAG_NAME
 
+      - name: Build Mockoon partner archive
+        if: steps.commit.outputs.changes_detected == 'true'
+        run: api/mockoon/build-archive.sh
+
       - name: Create GitHub Release
         if: steps.commit.outputs.changes_detected == 'true'
         uses: softprops/action-gh-release@v3
@@ -127,3 +131,4 @@ jobs:
           tag_name: v${{ env.RELEASE_VERSION }}
           target_commitish: main
           body_path: /tmp/release-notes.md
+          files: api/docs/mockoon/api-engagement-latest.tar.gz
