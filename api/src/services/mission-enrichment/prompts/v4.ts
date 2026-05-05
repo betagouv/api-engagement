@@ -1,33 +1,18 @@
-import { ai } from "@/services/ai";
-import { TAXONOMY } from "@engagement/taxonomy";
-import { z } from "zod";
 import type { TaxonomyGuidanceMap } from "./types";
+import { ENRICHMENT_SCHEMA, MODEL, TEMPERATURE, buildFilteredTaxonomyBlock, buildTaxonomyGuidanceBlock, buildUserMessage } from "./v2";
 
-// Toutes les valeurs avec enrichable: false sont exclues
-// (ex: "je_ne_sais_pas", etc.)
-const NON_ENRICHABLE_VALUE_KEYS = new Set(
-  Object.values(TAXONOMY).flatMap((dim) =>
-    Object.entries(dim.values)
-      .filter(([, v]) => !v.enrichable)
-      .map(([k]) => k)
-  )
-);
+export const VERSION = "v4";
+export { ENRICHMENT_SCHEMA, MODEL, TEMPERATURE, buildUserMessage };
 
-export const buildFilteredTaxonomyBlock = (taxonomyBlock: string): string =>
-  taxonomyBlock
-    .split("\n")
-    .filter((line) => {
-      const trimmed = line.trim();
-      if (!trimmed.startsWith("- ")) {
-        return true;
-      }
+// ─── Guidance V4 ─────────────────────────────────────────────────────────────
+// Modifications par rapport à V2 :
+//   - type_mission : distingue durée totale vs intensité hebdomadaire ; régulière = valeur par défaut
+//   - domaine.gestion_projet : exclut les tâches périphériques (tutorat, réunions)
+//   - competence_rome.communication_creation_numerique : exige un ancrage textuel explicite
+//   - engagement_intent.cadre_engage : liste d'exclusions explicites (SC, VSI, SNU)
+//   - engagement_intent.support_organisation : distingue de aide_directe sur les missions de médiation
 
-      const key = trimmed.slice(2).split(" : ")[0]?.trim();
-      return key === undefined || !NON_ENRICHABLE_VALUE_KEYS.has(key);
-    })
-    .join("\n");
-
-export const TAXONOMY_GUIDANCE_MAP = {
+const TAXONOMY_GUIDANCE_MAP = {
   domaine: {
     taxonomy:
       "Correspond au sujet principal de la mission. Priorise ce que la personne va réellement faire dans ses tâches principales. Ne choisis pas un domaine uniquement à partir du type de structure, du vocabulaire institutionnel, du public bénéficiaire ou de la finalité sociale générale du projet si les tâches décrites relèvent surtout d'un autre domaine.",
@@ -44,8 +29,9 @@ export const TAXONOMY_GUIDANCE_MAP = {
       securite_defense: "À utiliser pour les missions liées à la protection, la sécurité civile, la défense, l'ordre public ou les interventions structurées de sécurité.",
       international_humanitaire:
         "À utiliser lorsque la mission concerne principalement l'action humanitaire, la solidarité internationale ou un projet à dimension internationale explicite.",
+      // V4 : exclut les tâches périphériques (tutorat, réunions d'équipe, rapport de bilan)
       gestion_projet:
-        "À utiliser quand la mission consiste principalement à coordonner, planifier, organiser, suivre un projet, des ressources, des partenaires, un planning ou des livrables. Si les tâches décrites portent surtout sur la coordination, les partenariats, le reporting, l'organisation ou le pilotage, cette valeur doit remonter même si le projet a une finalité sociale ou associative.",
+        "À utiliser quand la mission consiste principalement à coordonner, planifier, organiser, suivre un projet, des ressources, des partenaires, un planning ou des livrables. Le cœur des tâches décrites doit être le pilotage ou la planification. Ne pas attribuer si les éléments de gestion sont périphériques : lien avec le tuteur, rapport de bilan, participation aux réunions d'équipe ou remontée d'informations ne suffisent pas.",
     },
   },
   secteur_activite: {
@@ -64,15 +50,19 @@ export const TAXONOMY_GUIDANCE_MAP = {
     },
   },
   type_mission: {
+    // V4 : le résumé intègre la notion d'intensité hebdomadaire vs durée totale
     taxonomy:
-      "Décrit le format temporel ou l'intensité de la mission. Se baser sur les indices explicites de fréquence, de volume horaire, de période ou de rythme d'engagement. Utiliser les définitions suivantes : ponctuelle = de quelques heures à deux jours sans notion de répétition ; régulière = mission sur plusieurs jours ou semaines, répétée à intervalles réguliers ou irréguliers sur plusieurs semaines, ou mission en dessous de 20h par semaine sur plusieurs semaines avec une durée d'au moins 2 semaines ; temps plein = mission sur plusieurs semaines d'au moins 3 semaines ou sur plusieurs mois avec au moins 20h par semaine.",
+      "Décrit le format temporel ou l'intensité de la mission. Se baser sur les indices explicites de fréquence, de volume horaire, de période ou de rythme d'engagement. Le critère déterminant pour distinguer régulière de temps_plein est l'intensité HEBDOMADAIRE, pas la durée totale. Si une durée totale est indiquée sans précision hebdomadaire, estime l'intensité en divisant par le nombre de semaines. En l'absence d'information sur le rythme, régulière est la valeur par défaut pour tout engagement s'étalant dans le temps.",
     values: {
+      // V4 : ajoute le cas du volume horaire total faible
       ponctuelle:
-        "À utiliser si la mission dure de quelques heures à deux jours maximum, sans notion de répétition. Une action unique, un événement, une date précise ou un week-end isolé relèvent de cette catégorie.",
+        "À utiliser si la mission dure de quelques heures à deux jours maximum, sans notion de répétition. Une action unique, un événement, une date précise, un week-end isolé ou un volume horaire total très faible (moins de 10h) sans rythme régulier relèvent de cette catégorie.",
+      // V4 : ajoute la logique durée totale / intensité hebdomadaire + valeur par défaut
       reguliere:
-        "À utiliser si la mission s'étale sur plusieurs jours ou plusieurs semaines, avec des interventions répétées à intervalles réguliers ou irréguliers sur une durée d'au moins 2 semaines, ou si elle dure plusieurs semaines avec moins de 20h par semaine.",
+        "À utiliser si la mission s'étale sur plusieurs semaines ou mois, avec des interventions répétées, ou si le volume hebdomadaire est inférieur à 20h sur une durée d'au moins 2 semaines. Si une durée totale est indiquée sans précision hebdomadaire (ex : « 24h au total sur 6 mois »), estime l'intensité en divisant par le nombre de semaines — si le résultat est inférieur à 20h/semaine, c'est régulière. C'est la valeur par défaut pour tout engagement qui s'étale dans le temps sans intensité temps plein explicite.",
+      // V4 : clarifie que le critère est l'intensité hebdomadaire, pas la durée totale
       temps_plein:
-        "À utiliser si la mission dure au moins 3 semaines ou plusieurs mois avec un volume explicite d'au moins 20h par semaine. Ne pas l'utiliser pour une mission courte, même dense, ni pour une mission suivie mais en dessous de 20h hebdomadaires.",
+        "À utiliser si la mission dure au moins 3 semaines ET implique explicitement au moins 20h par semaine. Le critère déterminant est l'intensité HEBDOMADAIRE, pas la durée totale : « 30h au total sur 3 mois » ne suffit pas (ce serait régulière). Mots-clés indicateurs : « temps plein », « 35h/semaine », « 24h/semaine » (Service Civique temps plein), « temps complet ».",
     },
   },
   competence_rome: {
@@ -81,8 +71,9 @@ export const TAXONOMY_GUIDANCE_MAP = {
     values: {
       management_social_soin:
         "Catégorie Management, social, soin. À utiliser quand la mission implique aider, accompagner, encadrer ou prendre soin des autres, avec une dimension humaine, sociale, éducative ou de soin. Ne pas l'utiliser trop haut pour une simple médiation ou animation auprès de publics variés s'il n'y a pas de relation d'aide, d'accompagnement ou de soin suffisamment directe.",
+      // V4 : exige un ancrage textuel explicite, interdit la déduction contextuelle
       communication_creation_numerique:
-        "Catégorie Communication, création, innovation, nouvelles technologies. À utiliser pour les missions de communication, création de contenus, numérique, innovation, outils digitaux, développement ou animation de supports. Ne pas l'utiliser pour de la simple vulgarisation, animation ou médiation orale si aucune composante numérique, média, contenu digital ou technologie n'est explicitement décrite.",
+        "Catégorie Communication, création, innovation, nouvelles technologies. À utiliser pour les missions de communication, création de contenus, numérique, innovation, outils digitaux, développement ou animation de supports. Exige un ancrage textuel explicite : au moins un terme comme développement, design, web, réseaux sociaux, production audiovisuelle, graphisme, photographie numérique, animation digitale ou création de contenus en ligne doit apparaître. Ne pas déduire cette compétence du type d'organisation ou du contexte général ; ne pas l'attribuer pour une simple médiation ou animation orale sans composante numérique ou médiatique explicite.",
       production_construction_qualite_logistique:
         "Catégorie Production, construction, qualité, logistique. À utiliser pour les missions manuelles, techniques, de fabrication, de conception, d'installation, de maintenance, d'atelier, de qualité ou de logistique matérielle.",
       gestion_pilotage_juridique:
@@ -116,10 +107,12 @@ export const TAXONOMY_GUIDANCE_MAP = {
       action_terrain:
         "À utiliser pour les missions d'exécution concrète sur le terrain : collecte, distribution, installation, manutention, fabrication, maraude ou actions pratiques.",
       secours: "À utiliser si la mission implique une réponse d'urgence, une intervention opérationnelle, du secours ou un appui direct en situation de risque.",
+      // V4 : exclusions explicites SC / VSI / SNU ; remplace la formulation v2 trop permissive
       cadre_engage:
-        "À utiliser pour des missions exercées dans un cadre institutionnel, hiérarchique ou organisationnel fortement structuré : armée, réserve, police, gendarmerie, pompiers, administration, établissement public, école, ou structure support / siège de réseau associatif. Le simple fait qu'une mission soit en service civique, qu'elle comporte un tutorat ou des formations obligatoires ne suffit pas à lui seul. Pour une association classique, ne l'utiliser que si les tâches et l'environnement décrivent clairement un cadre de coordination centrale, de représentation institutionnelle ou de fonctionnement très structuré.",
+        "À utiliser exclusivement pour des missions exercées dans un cadre institutionnel militaire, de sécurité civile ou d'ordre public : sapeurs-pompiers volontaires, réservistes de l'armée (réserve opérationnelle), réservistes de la police nationale ou de la gendarmerie, protection civile, défense nationale. Exclusions explicites : Service Civique, Volontariat de Solidarité Internationale (VSI), Service National Universel (SNU), bénévolat associatif avec tutorat ou accompagnement encadré. Le tutorat, les formations obligatoires ou l'accompagnement formalisé d'un volontaire ne constituent pas en eux-mêmes un cadre engage.",
+      // V4 : distingue explicitement de aide_directe sur les missions de médiation
       support_organisation:
-        "À utiliser si la contribution principale consiste à coordonner, organiser, communiquer, suivre des partenariats ou soutenir le fonctionnement du projet.",
+        "À utiliser si la contribution principale consiste à coordonner, organiser, communiquer, suivre des partenariats ou soutenir le fonctionnement interne de l'organisation (pas celui de ses bénéficiaires). Distinguer de aide_directe : si le volontaire agit auprès de bénéficiaires finaux (usagers, publics, personnes accompagnées), c'est aide_directe même si son rôle comporte une dimension organisationnelle secondaire. Exemple : médiateur numérique qui accompagne des usagers dans leurs démarches = aide_directe, pas support_organisation.",
       exploration: "N'utiliser que si la manière concrète de contribuer ne peut pas être déterminée dans le texte.",
     },
   },
@@ -142,36 +135,7 @@ export const TAXONOMY_GUIDANCE_MAP = {
   },
 } satisfies TaxonomyGuidanceMap;
 
-export const buildTaxonomyGuidanceBlock = (map: typeof TAXONOMY_GUIDANCE_MAP = TAXONOMY_GUIDANCE_MAP): string =>
-  Object.entries(map)
-    .map(([taxonomyKey, guidance]) =>
-      [
-        `### ${taxonomyKey}`,
-        `- Taxonomy : ${guidance.taxonomy}`,
-        guidance.values
-          ? Object.entries(guidance.values)
-              .map(([valueKey, valueGuidance]) => `- ${valueKey} : ${valueGuidance}`)
-              .join("\n")
-          : null,
-      ]
-        .filter(Boolean)
-        .join("\n")
-    )
-    .join("\n\n");
-
-export const VERSION = "v2";
-export const TEMPERATURE = 0;
-export const MODEL = ai.model("mistral", "mistral-small-2603");
-export const ENRICHMENT_SCHEMA = z.object({
-  classifications: z.array(
-    z.object({
-      taxonomy_key: z.string(),
-      value_key: z.string(),
-      confidence: z.number().min(0).max(1),
-      evidence: z.object({ extract: z.string(), reasoning: z.string() }),
-    })
-  ),
-});
+// ─── Prompt ───────────────────────────────────────────────────────────────────
 
 export const buildSystemPrompt = (taxonomyBlock: string): string => `\
 Tu es un classificateur de missions d'engagement bénévole et civique.
@@ -208,10 +172,9 @@ Ta tâche est d'analyser une mission et de la classifier selon un référentiel 
    - N'utilise pas des scores artificiellement précis sans justification ; le score doit refléter la force du lien entre le texte et la valeur
 
 6. Certaines taxonomies ne s'appliquent qu'à des cas spécifiques :
-   - \`engagement_civique\` : uniquement pour des missions liées à l'armée, aux pompiers,
-     à la gendarmerie ou à la police. Ne l'utilise pas pour du bénévolat associatif classique.
    - \`region_internationale\` : uniquement si la mission se déroule explicitement à l'étranger. Les DOM-TOM et autres territoires français ne doivent pas être considérés comme internationaux pour cette dimension.
-   - \`engagement_intent=cadre_engage\` : le simple fait qu'une mission soit en service civique est un indice faible de cadre structuré, pas une preuve suffisante. Dans une association classique, ne l'attribue pas automatiquement. Réserve les scores supérieurs à \`0.8\` aux cas où le cadre institutionnel ou organisationnel très structuré est explicite.
+   - \`engagement_intent=cadre_engage\` : exclusivement pour des missions militaires, pompiers, gendarmerie, police nationale ou protection civile. Service Civique, VSI, SNU et bénévolat associatif encadré ne sont pas cadre_engage. Le tutorat et les formations obligatoires ne suffisent pas.
+   - \`type_mission\` : le critère pour \`temps_plein\` est l'intensité hebdomadaire (≥ 20h/semaine), pas la durée totale. Une durée totale mentionnée sans volume hebdomadaire ne suffit pas à qualifier une mission de temps_plein. En l'absence d'information sur le rythme, \`reguliere\` est la valeur par défaut pour tout engagement s'étalant sur plusieurs semaines ou mois.
 
 7. Pour l'evidence, fournis un OBJET avec exactement deux champs — jamais une chaîne simple :
    - \`extract\` : un extrait textuel LITTÉRAL tiré du texte de la mission (titre, description, tâches…).
@@ -227,13 +190,13 @@ Ta tâche est d'analyser une mission et de la classifier selon un référentiel 
    "evidence": "...", "reasoning": "..."
    \`\`\`
 
-## Guides de classification V2
+## Guides de classification V4
 
 Ces guides sont versionnés avec ce prompt. Ils servent à désambiguïser les taxonomies quand plusieurs labels semblent plausibles.
 
---- DÉBUT GUIDES V2 ---
-${buildTaxonomyGuidanceBlock()}
---- FIN GUIDES V2 ---
+--- DÉBUT GUIDES V4 ---
+${buildTaxonomyGuidanceBlock(TAXONOMY_GUIDANCE_MAP)}
+--- FIN GUIDES V4 ---
 
 ## Taxonomie active
 
@@ -376,8 +339,3 @@ ${buildFilteredTaxonomyBlock(taxonomyBlock)}
 \`\`\`
 
 Si aucune valeur n'est applicable pour une dimension, ne l'inclus pas dans le tableau.`;
-
-export const buildUserMessage = (missionBlock: string): string => `\
-## Mission à classifier
-
-${missionBlock}`;
