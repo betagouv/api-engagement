@@ -83,6 +83,7 @@ export const PUBLISHER_IDS = {
   TALENT: ENV === "production" ? "6891e7994a3ae7f2f0c9d71a" : "6891e7ecb804a451c68368eb",
   VACANCES_ET_FAMILLES: "619fb1e17d373e07aea8be32",
   VILLE_DE_NANTES: "6347be8883b660072d4c1c53",
+  ROC: "65d7715cc0d3764cbed3afaf",
 };
 
 export const DEFAULT_AVATAR = "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/default.jpg";
