@@ -122,6 +122,7 @@ jobs:
           echo "API_URL=${{ vars.API_URL }}" >> $GITHUB_OUTPUT
           echo "BENEVOLAT_URL=${{ vars.BENEVOLAT_URL }}" >> $GITHUB_OUTPUT
           echo "VOLONTARIAT_URL=${{ vars.VOLONTARIAT_URL }}" >> $GITHUB_OUTPUT
+          echo "VITE_MAPTILER_API_KEY=${{ vars.VITE_MAPTILER_API_KEY }}" >> $GITHUB_OUTPUT
 
       - name: Build and push ${{ matrix.image_name }} image
         if: ${{ matrix.variant != 'sandbox' || needs.set-env.outputs.environment_name == 'production' }}
@@ -144,3 +145,4 @@ jobs:
             VOLONTARIAT_URL=${{ steps.app_args.outputs.VOLONTARIAT_URL }}
             SENTRY_DNS_APP=${{ steps.app_args.outputs.SENTRY_DNS_APP }}
             SENTRY_HOST=${{ steps.app_args.outputs.SENTRY_HOST }}
+            VITE_MAPTILER_API_KEY=${{ steps.app_args.outputs.VITE_MAPTILER_API_KEY }}

@@ -1,11 +1,15 @@
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useEffect, useMemo } from "react";
-import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
+import { MapContainer, Marker, Popup, TileLayer, ZoomControl, useMap } from "react-leaflet";
+import { MAPTILER_API_KEY } from "~/services/config";
 import type { MatchResultItem } from "~/types/matching";
 
 const CLASSIC_MARKER = "📍";
 const REMOTE_MARKER = "👨‍💻";
+const MAPTILER_BASIC_URL = MAPTILER_API_KEY ? `https://api.maptiler.com/maps/basic-v2/256/{z}/{x}/{y}.png?key=${MAPTILER_API_KEY}` : null;
+const MAPTILER_ATTRIBUTION =
+  '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>';
 
 type MapMission = {
   item: MatchResultItem;
@@ -17,20 +21,20 @@ const createEmojiIcon = (emoji: string) =>
   L.divIcon({
     className: "",
     html: `<div style="
-      width: 54px;
-      height: 54px;
+      width: 28px;
+      height: 28px;
       display: grid;
       place-items: center;
-      border: 4px solid #fff;
+      border: 3px solid #fff;
       border-radius: 9999px;
       background: rgba(246, 246, 255, 0.92);
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
-      font-size: 26px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.16);
+      font-size: 13px;
       line-height: 1;
     ">${emoji}</div>`,
-    iconSize: [54, 54],
-    iconAnchor: [27, 27],
-    popupAnchor: [0, -28],
+    iconSize: [28, 28],
+    iconAnchor: [14, 14],
+    popupAnchor: [0, -16],
   });
 
 const classicIcon = createEmojiIcon(CLASSIC_MARKER);
@@ -60,7 +64,7 @@ function BoundsFitter({ positions }: { positions: [number, number][] }) {
   const map = useMap();
   useEffect(() => {
     if (positions.length === 0) return;
-    map.fitBounds(L.latLngBounds(positions), { padding: [40, 40] });
+    map.fitBounds(L.latLngBounds(positions), { padding: [64, 64], maxZoom: 13 });
   }, [map, positions]);
   return null;
 }
@@ -91,8 +95,15 @@ export default function MissionMap({ items, center }: Props) {
   const boundsPositions = missions.length > 0 ? missions.map((mission) => mission.position) : [center];
 
   return (
-    <MapContainer center={center} zoom={12} style={{ height: "100%", width: "100%" }} zoomControl={true}>
-      <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+    <MapContainer center={center} zoom={12} style={{ height: "100%", width: "100%" }} zoomControl={false}>
+      <TileLayer
+        attribution={MAPTILER_API_KEY ? MAPTILER_ATTRIBUTION : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}
+        crossOrigin={true}
+        maxZoom={20}
+        minZoom={1}
+        url={MAPTILER_BASIC_URL ?? "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"}
+      />
+      <ZoomControl position="bottomright" />
       <BoundsFitter positions={boundsPositions} />
       {missions.map(({ item, position, hasRealAddress }) => (
         <Marker key={item.mission.id} position={position} icon={hasRealAddress ? classicIcon : remoteIcon}>

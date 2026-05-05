@@ -1,5 +1,7 @@
 FROM node:24-slim AS builder
 WORKDIR /workspace
+ARG VITE_MAPTILER_API_KEY=
+ENV VITE_MAPTILER_API_KEY=$VITE_MAPTILER_API_KEY
 COPY package*.json ./
 COPY plateform/package.json ./plateform/
 COPY packages/taxonomy ./packages/taxonomy
