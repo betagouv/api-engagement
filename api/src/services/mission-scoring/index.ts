@@ -1,5 +1,6 @@
 import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
 import { missionScoringRepository } from "@/repositories/mission-scoring";
+import { asyncTaskBus } from "@/services/async-task";
 import { computeMissionScoringValues } from "@/services/mission-scoring/calculator";
 import { missionScoringEnrichmentInclude, toScoringInputValues } from "@/services/mission-scoring/data";
 import { PUBLISHER_SCORING_RULES } from "@/services/mission-scoring/publisher-rules";
@@ -18,6 +19,10 @@ const parsePublisherRuleKey = (key: string): { taxonomyKey: string; valueKey: st
 };
 
 export const missionScoringService = {
+  async enqueue(missionId: string, options: { force?: boolean } = {}): Promise<void> {
+    await asyncTaskBus.publish({ type: "mission.scoring", payload: { missionId, ...(options.force !== undefined ? { force: options.force } : {}) } });
+  },
+
   async score(params: { missionId: string; missionEnrichmentId?: string; force?: boolean }) {
     const enrichment = await missionEnrichmentRepository.findFirst({
       where: {

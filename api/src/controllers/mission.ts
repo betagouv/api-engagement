@@ -4,9 +4,11 @@ import zod from "zod";
 
 import { PUBLISHER_IDS } from "@/config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
-import { missionService } from "@/services/mission";
-import type { UserRequest } from "@/types/passport";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
+import { missionService } from "@/services/mission";
+import { missionEnrichmentService } from "@/services/mission-enrichment";
+import { missionScoringService } from "@/services/mission-scoring";
+import type { UserRequest } from "@/types/passport";
 import { applyWidgetRules, getDistanceKm } from "@/utils";
 
 const router = Router();
@@ -35,6 +37,7 @@ const searchSchema = zod.object({
   location: zod.string().optional(),
   distance: zod.string().optional(),
   type: zod.array(zod.string()).optional(),
+  enrichmentScoringStatus: zod.enum(["processed", "enriched_not_scored", "not_enriched", "unprocessed"]).optional(),
   rules: zod
     .array(
       zod.object({
@@ -98,6 +101,10 @@ const findFilters = (user: UserRequest["user"], body: zod.infer<typeof searchSch
     type: body.type,
   };
 
+  if (user.role === "admin" && body.enrichmentScoringStatus) {
+    filters.enrichmentScoringStatus = body.enrichmentScoringStatus;
+  }
+
   if (body.status) {
     filters.statusCode = Array.isArray(body.status) ? (body.status[0] as any) : (body.status as any);
   }
@@ -149,13 +156,26 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       filters.directFilters = applyWidgetRules(body.data.rules);
     }
 
+    const withAdminProcessingFlags = async (data: Awaited<ReturnType<typeof missionService.findMissions>>["data"]) => {
+      if (req.user.role !== "admin") {
+        return data;
+      }
+
+      const processingStatuses = await missionEnrichmentService.findAdminProcessingStatuses(data.map((mission) => mission.id));
+      return data.map((mission) => ({
+        ...mission,
+        adminEnrichmentScoringStatus: processingStatuses.get(mission.id) ?? "not_enriched",
+        adminHasEnrichmentAndScoring: processingStatuses.get(mission.id) === "processed",
+      }));
+    };
+
     if (body.data.aggs) {
       const { data, total, aggs } = await missionService.findMissionsWithAggregations(filters);
-      return res.status(200).send({ ok: true, data, total, aggs });
-    } else {
-      const { data, total } = await missionService.findMissions(filters);
-      return res.status(200).send({ ok: true, data, total });
+      return res.status(200).send({ ok: true, data: await withAdminProcessingFlags(data), total, aggs });
     }
+
+    const { data, total } = await missionService.findMissions(filters);
+    return res.status(200).send({ ok: true, data: await withAdminProcessingFlags(data), total });
   } catch (error) {
     next(error);
   }
@@ -217,7 +237,60 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
+    if (req.user.role === "admin") {
+      const adminData = await missionEnrichmentService.findAdminData(params.data.id);
+      return res.status(200).send({ ok: true, data: { ...data, ...adminData } });
+    }
+
     return res.status(200).send({ ok: true, data });
+  } catch (error: any) {
+    next(error);
+  }
+});
+
+router.post("/:id/enrichment", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+  try {
+    const params = zod
+      .object({
+        id: zod.string(),
+      })
+      .safeParse(req.params);
+
+    if (!params.success) {
+      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
+    }
+
+    const mission = await missionService.findOneMission(params.data.id);
+    if (!mission) {
+      return res.status(404).send({ ok: false, code: NOT_FOUND });
+    }
+
+    await missionEnrichmentService.enqueue(params.data.id, { force: true });
+    return res.status(200).send({ ok: true });
+  } catch (error: any) {
+    next(error);
+  }
+});
+
+router.post("/:id/scoring", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+  try {
+    const params = zod
+      .object({
+        id: zod.string(),
+      })
+      .safeParse(req.params);
+
+    if (!params.success) {
+      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
+    }
+
+    const mission = await missionService.findOneMission(params.data.id);
+    if (!mission) {
+      return res.status(404).send({ ok: false, code: NOT_FOUND });
+    }
+
+    await missionScoringService.enqueue(params.data.id, { force: true });
+    return res.status(200).send({ ok: true });
   } catch (error: any) {
     next(error);
   }

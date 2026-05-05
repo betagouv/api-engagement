@@ -4,7 +4,7 @@ import { Mission, Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
 import { missionRepository } from "@/repositories/mission";
 import { activityService } from "@/services/activity";
-import { asyncTaskBus } from "@/services/async-task";
+import { buildMissionEnrichmentScoringWhere, missionEnrichmentService } from "@/services/mission-enrichment";
 import type {
   MissionCreateInput,
   MissionFacets,
@@ -356,6 +356,10 @@ export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereIn
     where.moderationStatuses = { some: moderationWhere };
   }
 
+  if (filters.enrichmentScoringStatus) {
+    Object.assign(where, buildMissionEnrichmentScoringWhere(filters.enrichmentScoringStatus));
+  }
+
   if (filters.keywords) {
     const keywords = filters.keywords;
     const existingAnd = Array.isArray(where.AND) ? where.AND : where.AND ? [where.AND] : [];
@@ -565,7 +569,7 @@ const baseInclude: MissionInclude = {
 
 export const missionService = {
   async enqueueMissionProcessing(missionId: string): Promise<void> {
-    await asyncTaskBus.publish({ type: "mission.enrichment", payload: { missionId } });
+    await missionEnrichmentService.enqueue(missionId);
   },
 
   async findMissionsByIds(ids: string[]): Promise<MissionRecord[]> {
