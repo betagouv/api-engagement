@@ -9,6 +9,7 @@ on:
       - "api/**"
       - "packages/**"
       - "poc-quiz/**"
+      - "app/**"
       - "terraform/**"
 
   workflow_dispatch:
@@ -83,6 +84,22 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository }}/plateform:poc
             ghcr.io/${{ github.repository }}/plateform:poc-${{ steps.tag.outputs.image_tag }}
+
+      - name: Build and push app image
+        uses: docker/build-push-action@v7
+        with:
+          context: ./app
+          file: ./app/Dockerfile.production
+          push: true
+          provenance: false
+          tags: |
+            ghcr.io/${{ github.repository }}/app:poc
+            ghcr.io/${{ github.repository }}/app:poc-${{ steps.tag.outputs.image_tag }}
+          secrets: |
+            "sentry_auth_token=${{ secrets.SENTRY_AUTH_TOKEN }}"
+          build-args: |
+            ENV=poc
+            API_URL=${{ vars.API_URL }}
 
       - name: Build and push poc-quiz image
         uses: docker/build-push-action@v7
