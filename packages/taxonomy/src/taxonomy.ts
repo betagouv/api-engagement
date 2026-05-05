@@ -241,6 +241,7 @@ export const TAXONOMY = {
       moins_26_ans: { label: "Moins de 26 ans", icon: null, enrichable: false },
       moins_31_ans_handicap: { label: "Moins de 31 ans — situation de handicap", icon: null, enrichable: false },
       entre_17_72_ans: { label: "Être âgé de 17 à 72 ans", icon: null, enrichable: false },
+      entre_16_67_ans: { label: "Avoir au minimum 16 ans (avec autorisation parentale pour les mineurs) et moins de 67 ans", icon: null, enrichable: false }
     },
   },
 } as const;

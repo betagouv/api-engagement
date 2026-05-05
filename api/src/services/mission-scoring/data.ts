@@ -3,7 +3,7 @@ import { Prisma } from "@/db/core";
 import type { ScoringInputValue } from "@/services/mission-scoring/types";
 
 export const missionScoringEnrichmentInclude = {
-  mission: { select: { publisherId: true } },
+  mission: { select: { publisherId: true, type: true } },
   values: true,
 } satisfies Prisma.MissionEnrichmentInclude;
 
