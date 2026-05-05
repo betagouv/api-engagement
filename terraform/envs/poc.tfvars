@@ -14,12 +14,12 @@ api_max_scale    = 1
 private_network_cidr = "10.43.0.0/22"
 
 enable_public_gateway = true
-enable_app            = false
+enable_app            = true
 enable_widget         = false
 enable_async_tasks    = true
 enable_intern_jobs    = false
 enable_analytics_jobs = false
-enable_mission_jobs   = false
+enable_mission_jobs   = true
 enable_poc_quiz       = true
 enable_plateform      = true
 plateform_hostname    = ""

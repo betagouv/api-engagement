@@ -1,10 +1,12 @@
 import { Prisma } from "@/db/core";
+import { prisma } from "@/db/postgres";
 import { ENRICHABLE_TAXONOMIES, TAXONOMY } from "@engagement/taxonomy";
 import { generateObject } from "ai";
 
 import { missionRepository } from "@/repositories/mission";
 import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
 import { asyncTaskBus } from "@/services/async-task";
+import type { MissionRecord, MissionSearchFilters } from "@/types/mission";
 import { CONFIDENCE_THRESHOLD, CURRENT_PROMPT_VERSION, LLM_MAX_RETRIES, LLM_NO_OBJECT_MAX_RETRIES } from "./config";
 import { validateEnrichmentClassifications, type ClassificationInput, type TaxonomyLookup } from "./parser";
 import { buildMissionBlock, buildTaxonomyBlock, PROMPT_REGISTRY } from "./prompts";
@@ -13,6 +15,52 @@ import type { MissionForPrompt, TaxonomyForPrompt } from "./prompts/types";
 const LOG_PREFIX = "[mission-enrichment]";
 
 type TaxonomyWithValues = { key: string; type: string; label: string; values: Array<{ key: string; label: string }> };
+type TaxonomyDefinition = {
+  label: string;
+  values: Record<string, { label: string }>;
+};
+
+const taxonomyByKey = TAXONOMY as Record<string, TaxonomyDefinition>;
+
+const buildAdminTaxonomyValue = (value: { taxonomyKey: string | null; valueKey: string | null }) => {
+  const taxonomy = value.taxonomyKey ? taxonomyByKey[value.taxonomyKey] : undefined;
+  const taxonomyValue = value.valueKey ? taxonomy?.values[value.valueKey] : undefined;
+
+  return {
+    taxonomyKey: value.taxonomyKey,
+    taxonomyLabel: taxonomy?.label ?? value.taxonomyKey,
+    valueKey: value.valueKey,
+    valueLabel: taxonomyValue?.label ?? value.valueKey,
+  };
+};
+
+const extractEnrichmentReason = (evidence: Prisma.JsonValue | null): string | null => {
+  if (!evidence || typeof evidence !== "object" || Array.isArray(evidence)) {
+    return null;
+  }
+
+  const reasoning = (evidence as { reasoning?: unknown }).reasoning;
+  return typeof reasoning === "string" && reasoning.trim() ? reasoning : null;
+};
+
+export const buildMissionEnrichmentScoringWhere = (status: NonNullable<MissionSearchFilters["enrichmentScoringStatus"]>): Prisma.MissionWhereInput => {
+  const completedEnrichmentWhere: Prisma.MissionEnrichmentListRelationFilter = { some: { status: "completed" } };
+  const completedScoringWhere: Prisma.MissionScoringListRelationFilter = { some: { missionEnrichment: { status: "completed" } } };
+
+  if (status === "processed") {
+    return { missionScorings: completedScoringWhere };
+  }
+  if (status === "enriched_not_scored") {
+    return {
+      enrichments: completedEnrichmentWhere,
+      missionScorings: { none: completedScoringWhere.some },
+    };
+  }
+  if (status === "not_enriched") {
+    return { enrichments: { none: completedEnrichmentWhere.some } };
+  }
+  return { missionScorings: { none: completedScoringWhere.some } };
+};
 
 const buildTaxonomyLookup = (taxonomies: TaxonomyWithValues[]): TaxonomyLookup => {
   const lookup: TaxonomyLookup = new Map();
@@ -103,6 +151,115 @@ const getTaxonomies = (): TaxonomyWithValues[] =>
   }));
 
 export const missionEnrichmentService = {
+  async enqueue(missionId: string, options: { force?: boolean } = {}): Promise<void> {
+    await asyncTaskBus.publish({ type: "mission.enrichment", payload: { missionId, ...(options.force !== undefined ? { force: options.force } : {}) } });
+  },
+
+  async findAdminData(missionId: string): Promise<Pick<MissionRecord, "adminEnrichment" | "adminScoring">> {
+    const enrichment = await prisma.missionEnrichment.findFirst({
+      where: { missionId, status: "completed" },
+      orderBy: { createdAt: "desc" },
+      include: {
+        values: {
+          orderBy: [{ taxonomyKey: "asc" }, { valueKey: "asc" }],
+        },
+      },
+    });
+
+    if (!enrichment) {
+      return { adminEnrichment: null, adminScoring: null };
+    }
+
+    const scoring = await prisma.missionScoring.findUnique({
+      where: {
+        missionId_missionEnrichmentId: {
+          missionId,
+          missionEnrichmentId: enrichment.id,
+        },
+      },
+      include: {
+        missionScoringValues: {
+          orderBy: [{ taxonomyKey: "asc" }, { valueKey: "asc" }],
+        },
+      },
+    });
+
+    return {
+      adminEnrichment: {
+        id: enrichment.id,
+        promptVersion: enrichment.promptVersion,
+        status: enrichment.status,
+        inputTokens: enrichment.inputTokens,
+        outputTokens: enrichment.outputTokens,
+        totalTokens: enrichment.totalTokens,
+        completedAt: enrichment.completedAt,
+        createdAt: enrichment.createdAt,
+        updatedAt: enrichment.updatedAt,
+        values: enrichment.values.map((value) => ({
+          id: value.id,
+          ...buildAdminTaxonomyValue(value),
+          confidence: value.confidence,
+          reason: extractEnrichmentReason(value.evidence),
+        })),
+      },
+      adminScoring: scoring
+        ? {
+            id: scoring.id,
+            missionEnrichmentId: scoring.missionEnrichmentId,
+            createdAt: scoring.createdAt,
+            updatedAt: scoring.updatedAt,
+            values: scoring.missionScoringValues.map((value) => ({
+              id: value.id,
+              ...buildAdminTaxonomyValue(value),
+              score: value.score,
+              createdAt: value.createdAt,
+              updatedAt: value.updatedAt,
+            })),
+          }
+        : null,
+    };
+  },
+
+  async findAdminProcessingStatuses(missionIds: string[]): Promise<Map<string, NonNullable<MissionRecord["adminEnrichmentScoringStatus"]>>> {
+    if (!missionIds.length) {
+      return new Map();
+    }
+
+    const [enrichments, scorings] = await Promise.all([
+      prisma.missionEnrichment.findMany({
+        where: {
+          missionId: { in: missionIds },
+          status: "completed",
+        },
+        select: { missionId: true },
+        distinct: ["missionId"],
+      }),
+      prisma.missionScoring.findMany({
+        where: {
+          missionId: { in: missionIds },
+          missionEnrichment: { status: "completed" },
+        },
+        select: { missionId: true },
+        distinct: ["missionId"],
+      }),
+    ]);
+
+    const enrichedMissionIds = new Set(enrichments.map((row) => row.missionId));
+    const scoredMissionIds = new Set(scorings.map((row) => row.missionId));
+
+    return new Map(
+      missionIds.map((missionId) => {
+        if (scoredMissionIds.has(missionId)) {
+          return [missionId, "processed"];
+        }
+        if (enrichedMissionIds.has(missionId)) {
+          return [missionId, "enriched_not_scored"];
+        }
+        return [missionId, "not_enriched"];
+      })
+    );
+  },
+
   async enrich(missionId: string, options: { force?: boolean } = {}) {
     // 1. Load mission (needed before idempotence check for updatedAt comparison)
     const mission = await missionRepository.findUnique({
@@ -196,7 +353,9 @@ export const missionEnrichmentService = {
         }
       }
 
-      if (!llmResult) {throw new Error(`${LOG_PREFIX} ${missionId}: no LLM result after retries`);}
+      if (!llmResult) {
+        throw new Error(`${LOG_PREFIX} ${missionId}: no LLM result after retries`);
+      }
 
       const { inputTokens, outputTokens, totalTokens } = llmResult.usage;
       console.log(`${LOG_PREFIX} ${missionId}: LLM response received — tokens: ${inputTokens} in / ${outputTokens} out / ${totalTokens} total`);

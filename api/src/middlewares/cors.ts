@@ -12,6 +12,9 @@ const origin = [
   // SNU admin staging
   "https://app-735c50af-69c1-4a10-ac30-7ba11d1112f7.cleverapps.io",
   "https://app-ec11b799-95d0-4770-8e41-701b4becf64a.cleverapps.io",
+  // POC
+  "https://pocbd543737-poc-app.functions.fnc.fr-par.scw.cloud", // App
+  "https://pocbd543737-poc-plateform.functions.fnc.fr-par.scw.cloud", // Plateform
 ];
 
 export const corsOptions = { credentials: true, origin };
