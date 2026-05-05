@@ -43,26 +43,14 @@ router.get("/match", async (req, res, next) => {
     const missionIds = result.items.map((item) => item.missionId);
     const missionScoringIds = result.items.map((item) => item.missionScoringId);
 
-    const [missionRows, scoringValueRows, userScoringValues] = await Promise.all([
+    const [missionRows, scoringValueRows] = await Promise.all([
       prisma.mission.findMany({
         where: { id: { in: missionIds } },
         select: {
           id: true,
           title: true,
-          description: true,
-          tasks: true,
-          audience: true,
-          softSkills: true,
-          requirements: true,
-          tags: true,
-          type: true,
           remote: true,
-          openToMinors: true,
-          reducedMobilityAccessible: true,
-          duration: true,
           schedule: true,
-          startAt: true,
-          endAt: true,
           domainOriginal: true,
           domainLogo: true,
           domain: { select: { name: true } },
@@ -97,38 +85,15 @@ router.get("/match", async (req, res, next) => {
           },
         },
       }),
-      prisma.userScoringValue.findMany({
-        where: { userScoringId },
-        select: {
-          taxonomyKey: true,
-          taxonomyValue: { select: { taxonomy: { select: { key: true } } } },
-        },
-      }),
     ]);
-
-    const selectedTaxonomies = [
-      ...new Set(userScoringValues.map((value) => value.taxonomyKey ?? value.taxonomyValue?.taxonomy.key ?? null).filter((value): value is string => typeof value === "string")),
-    ];
 
     const missionIndex: Record<
       string,
       {
         title: string;
         city: string | null;
-        description: string | null;
-        tasks: string[];
-        audience: string[];
-        softSkills: string[];
-        requirements: string[];
-        tags: string[];
-        type: string | null;
         remote: string | null;
-        openToMinors: boolean | null;
-        reducedMobilityAccessible: boolean | null;
-        duration: number | null;
         schedule: string | null;
-        startAt: Date | null;
-        endAt: Date | null;
         domain: string | null;
         domainOriginal: string | null;
         domainLogo: string | null;
@@ -143,20 +108,8 @@ router.get("/match", async (req, res, next) => {
       missionIndex[m.id] = {
         title: m.title,
         city: m.addresses[0]?.city ?? null,
-        description: m.description ?? null,
-        tasks: m.tasks,
-        audience: m.audience,
-        softSkills: m.softSkills,
-        requirements: m.requirements,
-        tags: m.tags,
-        type: m.type ?? null,
         remote: m.remote ?? null,
-        openToMinors: m.openToMinors ?? null,
-        reducedMobilityAccessible: m.reducedMobilityAccessible ?? null,
-        duration: m.duration ?? null,
         schedule: m.schedule ?? null,
-        startAt: m.startAt ?? null,
-        endAt: m.endAt ?? null,
         domain: m.domain?.name ?? null,
         domainOriginal: m.domainOriginal ?? null,
         domainLogo: m.domainLogo ?? null,
@@ -201,24 +154,12 @@ router.get("/match", async (req, res, next) => {
         mission: {
           id: item.missionId,
           title: mission?.title ?? "(unknown)",
-          description: mission?.description ?? null,
-          tasks: mission?.tasks ?? [],
-          audience: mission?.audience ?? [],
-          softSkills: mission?.softSkills ?? [],
-          requirements: mission?.requirements ?? [],
-          tags: mission?.tags ?? [],
-          type: mission?.type ?? null,
           remote: mission?.remote ?? null,
           schedule: mission?.schedule ?? null,
-          duration: mission?.duration ?? null,
-          startAt: mission?.startAt ?? null,
-          endAt: mission?.endAt ?? null,
           domain: mission?.domain ?? mission?.domainOriginal ?? null,
           domainOriginal: mission?.domainOriginal ?? null,
           organizationName: mission?.organizationName ?? null,
           publisherName: mission?.publisherName ?? null,
-          openToMinors: mission?.openToMinors ?? null,
-          reducedMobilityAccessible: mission?.reducedMobilityAccessible ?? null,
           media: {
             photo,
             domainLogo: mission?.domainLogo ?? null,
@@ -243,7 +184,7 @@ router.get("/match", async (req, res, next) => {
       };
     });
 
-    return res.status(200).send({ ok: true, data: { tookMs: result.tookMs, selectedTaxonomies, items } });
+    return res.status(200).send({ ok: true, data: { tookMs: result.tookMs, items } });
   } catch (error) {
     next(error);
   }

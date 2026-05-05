@@ -55,27 +55,35 @@ export default function QuizLayout() {
     }
   }, [location.pathname, currentStep]);
 
-  const goNext = async () => {
-    if (!currentStep) return;
-    setTransitioning(false);
+  const saveCurrentScoring = async () => {
     const freshAnswers = useQuizStore.getState().answers;
     const freshGeo = useQuizStore.getState().geo;
     const freshUserScoringId = useQuizStore.getState().userScoringId;
     const freshDistinctId = useQuizStore.getState().distinctId;
     const payload = buildPayload(freshAnswers, freshGeo);
 
-    if (payload.answers.length > 0) {
-      if (!freshUserScoringId) {
-        try {
-          const id = await createUserScoring(payload, freshDistinctId);
-          setUserScoringId(id);
-        } catch (err) {
-          console.error("[quiz] createUserScoring failed", err);
-        }
-      } else {
-        updateUserScoring(freshUserScoringId, payload, freshDistinctId).catch((err) => console.error("[quiz] updateUserScoring failed", err));
-      }
+    if (payload.answers.length === 0) {
+      return;
     }
+
+    try {
+      if (!freshUserScoringId) {
+        const id = await createUserScoring(payload, freshDistinctId);
+        setUserScoringId(id);
+        return;
+      }
+
+      await updateUserScoring(freshUserScoringId, payload, freshDistinctId);
+    } catch (err) {
+      console.error("[quiz] saveCurrentScoring failed", err);
+    }
+  };
+
+  const goNext = async () => {
+    if (!currentStep) return;
+    setTransitioning(false);
+    const freshAnswers = useQuizStore.getState().answers;
+    await saveCurrentScoring();
 
     const { next, steps } = refreshSteps(QUIZ_FLOW, currentStep.id, freshAnswers);
     setSteps(steps);

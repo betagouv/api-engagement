@@ -1,24 +1,12 @@
 export type MatchMission = {
   id: string;
   title: string;
-  description: string | null;
-  tasks: string[];
-  audience: string[];
-  softSkills: string[];
-  requirements: string[];
-  tags: string[];
-  type: string | null;
   remote: "no" | "possible" | "full" | null;
   schedule: string | null;
-  duration: number | null;
-  startAt: string | null;
-  endAt: string | null;
   domain: string | null;
   domainOriginal: string | null;
   organizationName: string | null;
   publisherName: string | null;
-  openToMinors: boolean | null;
-  reducedMobilityAccessible: boolean | null;
   media: {
     photo: string | null;
     domainLogo: string | null;
@@ -56,6 +44,5 @@ export type MatchResultItem = {
 
 export type MatchResponse = {
   tookMs: number;
-  selectedTaxonomies: string[];
   items: MatchResultItem[];
 };

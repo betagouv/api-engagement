@@ -147,3 +147,119 @@
   max-width: 3.5rem;
   max-height: 3.5rem;
 }
+
+.results-surface {
+  background-color: #ffffff;
+  color: #1e1e1e;
+}
+
+.results-surface,
+.results-surface h1,
+.results-surface h2,
+.results-surface h3 {
+  color: #1e1e1e;
+}
+
+.results-link,
+.results-title-accent {
+  color: #000091;
+}
+
+.results-mobile-panel {
+  z-index: 1200;
+}
+
+.results-page button,
+.results-page button:hover:not(:disabled) {
+  --hover: #f5f5ff;
+  --active: #ececff;
+}
+
+.results-page button:hover:not(:disabled) {
+  background-color: var(--hover) !important;
+}
+
+.results-page button:active:not(:disabled) {
+  background-color: var(--active) !important;
+}
+
+.results-page button[aria-current="page"] {
+  --hover: #000091;
+  --active: #000091;
+}
+
+.mission-card {
+  background-color: #ffffff;
+  border: 1px solid #dddddd;
+  color: #1e1e1e;
+  box-shadow: 0 6px 18px rgb(0 0 0 / 8%);
+}
+
+.mission-card__media {
+  background-color: #f6f6f6;
+}
+
+.mission-card__body {
+  background-color: #ffffff;
+  color: #1e1e1e;
+  position: relative;
+}
+
+.mission-card__title {
+  color: #1e1e1e;
+}
+
+.mission-card__badge {
+  background-color: #eeeeee;
+  color: #1e1e1e;
+}
+
+.mission-card__meta,
+.mission-card__publisher {
+  color: #6a6a6a;
+}
+
+.mission-card__debug-button {
+  align-items: center;
+  background-color: #eeeeee;
+  border-radius: 9999px;
+  bottom: 1.75rem;
+  color: #3a3a3a;
+  display: inline-flex;
+  height: 2rem;
+  justify-content: center;
+  left: 1.25rem;
+  position: absolute;
+  --hover: #dddddd;
+  --active: #d6d6d6;
+  width: 2rem;
+}
+
+.mission-card__debug-button:hover {
+  background-color: #dddddd;
+  color: #3a3a3a;
+}
+
+.mission-card__debug-button:active {
+  background-color: #d6d6d6;
+  color: #3a3a3a;
+}
+
+.mission-map {
+  height: 100%;
+  width: 100%;
+}
+
+.mission-map__emoji-marker {
+  align-items: center;
+  background: rgb(246 246 255 / 92%);
+  border: 3px solid #ffffff;
+  border-radius: 9999px;
+  box-shadow: 0 3px 10px rgb(0 0 0 / 16%);
+  display: grid;
+  font-size: 13px;
+  height: 28px;
+  justify-items: center;
+  line-height: 1;
+  width: 28px;
+}

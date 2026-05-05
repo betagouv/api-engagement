@@ -20,18 +20,7 @@ type MapMission = {
 const createEmojiIcon = (emoji: string) =>
   L.divIcon({
     className: "",
-    html: `<div style="
-      width: 28px;
-      height: 28px;
-      display: grid;
-      place-items: center;
-      border: 3px solid #fff;
-      border-radius: 9999px;
-      background: rgba(246, 246, 255, 0.92);
-      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.16);
-      font-size: 13px;
-      line-height: 1;
-    ">${emoji}</div>`,
+    html: `<div class="mission-map__emoji-marker">${emoji}</div>`,
     iconSize: [28, 28],
     iconAnchor: [14, 14],
     popupAnchor: [0, -16],
@@ -95,7 +84,7 @@ export default function MissionMap({ items, center }: Props) {
   const boundsPositions = missions.length > 0 ? missions.map((mission) => mission.position) : [center];
 
   return (
-    <MapContainer center={center} zoom={12} style={{ height: "100%", width: "100%" }} zoomControl={false}>
+    <MapContainer center={center} zoom={12} className="mission-map" zoomControl={false}>
       <TileLayer
         attribution={MAPTILER_API_KEY ? MAPTILER_ATTRIBUTION : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}
         crossOrigin={true}

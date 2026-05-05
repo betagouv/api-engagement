@@ -1,7 +1,9 @@
-import { Suspense, lazy, useEffect, useState } from "react";
+import { Suspense, lazy, useMemo, useState } from "react";
 import { Link, useParams } from "react-router";
+import MatchingDebugModal, { type MatchingDebugUserValue } from "~/components/results/MatchingDebugModal";
 import MissionCard from "~/components/results/MissionCard";
-import { fetchMatches } from "~/services/matching";
+import { OPTIONS } from "~/config/quiz-options";
+import { OTHER_RESULTS_PAGE_SIZE, PINNED_RESULTS_LIMIT, useMissionResults } from "~/hooks/useMissionResults";
 import { useQuizStore } from "~/stores/quiz";
 import type { MatchResultItem } from "~/types/matching";
 
@@ -9,116 +11,56 @@ import type { MatchResultItem } from "~/types/matching";
 const MissionMap = lazy(() => import("~/components/results/MissionMap"));
 
 const FRANCE_CENTER: [number, number] = [46.6, 2.3];
-const PINNED_RESULTS_LIMIT = 5;
-const OTHER_RESULTS_PAGE_SIZE = 8;
 
 export default function ResultsPage() {
   const { userScoringId } = useParams<{ userScoringId: string }>();
   const reset = useQuizStore((s) => s.reset);
+  const answers = useQuizStore((s) => s.answers);
   const geo = useQuizStore((s) => s.geo);
-  const [pinnedItems, setPinnedItems] = useState<MatchResultItem[]>([]);
-  const [otherItems, setOtherItems] = useState<MatchResultItem[]>([]);
-  const [page, setPage] = useState(1);
-  const [hasNextPage, setHasNextPage] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [pageLoading, setPageLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { pinnedItems, otherItems, page, setPage, hasNextPage, loading, pageLoading, error, visiblePageNumbers } = useMissionResults(userScoringId);
+  const [debugItem, setDebugItem] = useState<MatchResultItem | null>(null);
 
   const mapCenter: [number, number] = geo ? [geo.lat, geo.lon] : FRANCE_CENTER;
-  const firstVisiblePage = Math.max(1, page - 5);
-  const visiblePageNumbers = Array.from({ length: 6 }, (_, i) => firstVisiblePage + i);
+  const userValues = useMemo<MatchingDebugUserValue[]>(
+    () =>
+      Object.values(answers).flatMap((answer) => {
+        if (answer?.type !== "options") {
+          return [];
+        }
 
-  useEffect(() => {
-    if (!userScoringId) {
-      setError("Identifiant de scoring manquant.");
-      setPinnedItems([]);
-      setOtherItems([]);
-      setLoading(false);
-      return;
-    }
-
-    let active = true;
-
-    setLoading(true);
-    setError(null);
-    setPage(1);
-    setPinnedItems([]);
-    setOtherItems([]);
-    setHasNextPage(false);
-
-    Promise.all([fetchMatches(userScoringId, PINNED_RESULTS_LIMIT), fetchMatches(userScoringId, OTHER_RESULTS_PAGE_SIZE, PINNED_RESULTS_LIMIT)])
-      .then(([pinnedRes, otherRes]) => {
-        if (!active) return;
-        setPinnedItems(pinnedRes.items);
-        setOtherItems(otherRes.items);
-        setHasNextPage(otherRes.items.length === OTHER_RESULTS_PAGE_SIZE);
-      })
-      .catch(() => {
-        if (!active) return;
-        setError("Impossible de charger les missions. Réessaie plus tard.");
-      })
-      .finally(() => {
-        if (!active) return;
-        setLoading(false);
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [userScoringId]);
-
-  useEffect(() => {
-    if (!userScoringId || page === 1) {
-      return;
-    }
-
-    let active = true;
-
-    setPageLoading(true);
-    setOtherItems([]);
-    fetchMatches(userScoringId, OTHER_RESULTS_PAGE_SIZE, PINNED_RESULTS_LIMIT + (page - 1) * OTHER_RESULTS_PAGE_SIZE)
-      .then((res) => {
-        if (!active) return;
-        setOtherItems(res.items);
-        setHasNextPage(res.items.length === OTHER_RESULTS_PAGE_SIZE);
-      })
-      .catch(() => {
-        if (!active) return;
-        setError("Impossible de charger les missions. Réessaie plus tard.");
-      })
-      .finally(() => {
-        if (!active) return;
-        setPageLoading(false);
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [page, userScoringId]);
+        return answer.option_ids.map((optionId) => {
+          const [taxonomyKey, taxonomyValueKey] = optionId.split(".", 2);
+          return {
+            taxonomyKey: taxonomyKey ?? "unknown",
+            taxonomyValueKey: taxonomyValueKey ?? optionId,
+            taxonomyValueLabel: OPTIONS[optionId as keyof typeof OPTIONS]?.label ?? optionId,
+            userScore: 1,
+          };
+        });
+      }),
+    [answers],
+  );
 
   return (
-    <div className="min-h-screen bg-[#f6f6f6] md:bg-white">
+    <div className="results-page min-h-screen bg-[#f6f6f6] md:bg-white">
       <section className="flex flex-col md:flex-row">
         <div className="flex flex-col md:w-7/12">
           <div className="h-72 w-full md:hidden">
             <Suspense fallback={<div className="h-full bg-gray-100" />}>{!loading && pinnedItems.length > 0 && <MissionMap items={pinnedItems} center={mapCenter} />}</Suspense>
           </div>
 
-          <div
-            className="relative z-[1200] -mt-12 w-full rounded-t-[1.5rem] bg-white pt-7 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] md:mt-0 md:rounded-none md:pt-0 md:shadow-none"
-            style={{ backgroundColor: "#ffffff", color: "#1e1e1e" }}
-          >
+          <div className="results-mobile-panel results-surface relative -mt-12 w-full rounded-t-[1.5rem] pt-7 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] md:mt-0 md:rounded-none md:pt-0 md:shadow-none">
             <div className="px-5 pb-2 md:px-6 md:pt-6">
               {!loading && !error && (
-                <h1 className="text-2xl font-bold" style={{ color: "#1e1e1e" }}>
-                  <span style={{ color: "#000091" }}>
+                <h1 className="text-2xl font-bold">
+                  <span className="results-title-accent">
                     {pinnedItems.length} mission{pinnedItems.length > 1 ? "s" : ""}
                   </span>{" "}
                   pour toi
                 </h1>
               )}
 
-              <Link to="/quiz/age" onClick={() => reset()} className="mt-1 inline-flex items-center gap-1 text-sm hover:underline md:mt-3" style={{ color: "#000091" }}>
+              <Link to="/quiz/age" onClick={() => reset()} className="results-link mt-1 inline-flex items-center gap-1 text-sm hover:underline md:mt-3">
                 <i className="fr-icon-arrow-left-line fr-icon--sm" aria-hidden="true" />
                 Changer mes réponses
               </Link>
@@ -140,7 +82,7 @@ export default function ResultsPage() {
               <>
                 <div className="grid gap-4 px-5 pb-5 md:grid-cols-2 md:gap-5 md:px-6">
                   {pinnedItems.map((item, i) => (
-                    <MissionCard key={item.mission.id} item={item} index={i} />
+                    <MissionCard key={item.mission.id} item={item} index={i} onDebugClick={setDebugItem} />
                   ))}
                 </div>
 
@@ -170,7 +112,7 @@ export default function ResultsPage() {
             ) : (
               <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
                 {otherItems.map((item, i) => (
-                  <MissionCard key={item.mission.id} item={item} index={PINNED_RESULTS_LIMIT + (page - 1) * OTHER_RESULTS_PAGE_SIZE + i} />
+                  <MissionCard key={item.mission.id} item={item} index={PINNED_RESULTS_LIMIT + (page - 1) * OTHER_RESULTS_PAGE_SIZE + i} onDebugClick={setDebugItem} />
                 ))}
               </div>
             )}
@@ -210,6 +152,8 @@ export default function ResultsPage() {
           </section>
         )}
       </div>
+
+      <MatchingDebugModal item={debugItem} userValues={userValues} onClose={() => setDebugItem(null)} />
     </div>
   );
 }
