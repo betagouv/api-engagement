@@ -308,30 +308,38 @@ const buildRanking = (params: {
     ORDER BY ems."mission_id" ASC
     LIMIT ${params.offset + params.limit}
   ),
-  candidate_missions AS (
+  candidate_mission_rows AS (
     SELECT
       tc."mission_id",
       tc."mission_scoring_id",
       CAST(NULL AS double precision) AS "distance_km"
     FROM taxonomy_candidates tc
-    UNION
+    UNION ALL
     SELECT
       gc."mission_id",
       gc."mission_scoring_id",
       gc."distance_km"
     FROM geo_candidates gc
-    UNION
+    UNION ALL
     SELECT
       fgc."mission_id",
       fgc."mission_scoring_id",
       fgc."distance_km"
     FROM fallback_geo_candidates fgc
-    UNION
+    UNION ALL
     SELECT
       fc."mission_id",
       fc."mission_scoring_id",
       CAST(NULL AS double precision) AS "distance_km"
     FROM fallback_candidates fc
+  ),
+  candidate_missions AS (
+    SELECT
+      cmr."mission_id",
+      cmr."mission_scoring_id",
+      MIN(cmr."distance_km") AS "distance_km"
+    FROM candidate_mission_rows cmr
+    GROUP BY cmr."mission_id", cmr."mission_scoring_id"
   ),
   geo_scores AS (
     SELECT

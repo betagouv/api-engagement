@@ -15,30 +15,30 @@ interface Props {
 
 export default function MissionCard({ item, index }: Props) {
   const gradientClass = DOMAIN_COLORS[index % DOMAIN_COLORS.length];
-  const organizationName = item.organizationName ?? item.publisherName;
+  const organizationName = item.mission.organizationName ?? item.mission.publisherName;
 
   return (
     <div className="flex flex-col overflow-hidden rounded-xl bg-white shadow-md">
       <div className={`relative h-44 bg-gradient-to-br ${gradientClass}`}>
-        {item.photo && <img src={item.photo} alt="" className="h-full w-full object-cover" loading="lazy" />}
-        {item.domain && <span className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-gray-700">{item.domain}</span>}
+        {item.mission.media.photo && <img src={item.mission.media.photo} alt="" className="h-full w-full object-cover" loading="lazy" />}
+        {item.mission.domain && <span className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-gray-700">{item.mission.domain}</span>}
       </div>
 
       {/* Card body */}
       <div className="flex flex-1 flex-col gap-2 p-4">
-        <p className="line-clamp-3 text-base font-bold leading-snug text-gray-900">{item.title}</p>
+        <p className="line-clamp-3 text-base font-bold leading-snug text-gray-900">{item.mission.title}</p>
 
         <div className="flex flex-col gap-1 text-sm text-gray-600">
-          {item.city && (
+          {item.mission.location.city && (
             <span className="flex items-center gap-1.5">
               <i className="fr-icon-map-pin-2-line fr-icon--sm" aria-hidden="true" />
-              {item.city}
+              {item.mission.location.city}
             </span>
           )}
-          {item.schedule && (
+          {item.mission.schedule && (
             <span className="flex items-center gap-1.5">
               <i className="fr-icon-time-line fr-icon--sm" aria-hidden="true" />
-              {item.schedule}
+              {item.mission.schedule}
             </span>
           )}
           {organizationName && (
@@ -48,9 +48,6 @@ export default function MissionCard({ item, index }: Props) {
             </span>
           )}
         </div>
-
-        {/* Publisher footer */}
-        {item.distanceKm != null && <p className="mt-auto pt-2 text-xs text-gray-400">{Math.round(item.distanceKm)} km</p>}
       </div>
     </div>
   );

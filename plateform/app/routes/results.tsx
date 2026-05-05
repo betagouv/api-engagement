@@ -46,12 +46,12 @@ export default function ResultsPage() {
     setOtherItems([]);
     setHasNextPage(false);
 
-    Promise.all([fetchMatches(userScoringId, PINNED_RESULTS_LIMIT), fetchMatches(userScoringId, OTHER_RESULTS_PAGE_SIZE + 1, PINNED_RESULTS_LIMIT)])
+    Promise.all([fetchMatches(userScoringId, PINNED_RESULTS_LIMIT), fetchMatches(userScoringId, OTHER_RESULTS_PAGE_SIZE, PINNED_RESULTS_LIMIT)])
       .then(([pinnedRes, otherRes]) => {
         if (!active) return;
         setPinnedItems(pinnedRes.items);
-        setOtherItems(otherRes.items.slice(0, OTHER_RESULTS_PAGE_SIZE));
-        setHasNextPage(otherRes.items.length > OTHER_RESULTS_PAGE_SIZE);
+        setOtherItems(otherRes.items);
+        setHasNextPage(otherRes.items.length === OTHER_RESULTS_PAGE_SIZE);
       })
       .catch(() => {
         if (!active) return;
@@ -76,11 +76,11 @@ export default function ResultsPage() {
 
     setPageLoading(true);
     setOtherItems([]);
-    fetchMatches(userScoringId, OTHER_RESULTS_PAGE_SIZE + 1, PINNED_RESULTS_LIMIT + (page - 1) * OTHER_RESULTS_PAGE_SIZE)
+    fetchMatches(userScoringId, OTHER_RESULTS_PAGE_SIZE, PINNED_RESULTS_LIMIT + (page - 1) * OTHER_RESULTS_PAGE_SIZE)
       .then((res) => {
         if (!active) return;
-        setOtherItems(res.items.slice(0, OTHER_RESULTS_PAGE_SIZE));
-        setHasNextPage(res.items.length > OTHER_RESULTS_PAGE_SIZE);
+        setOtherItems(res.items);
+        setHasNextPage(res.items.length === OTHER_RESULTS_PAGE_SIZE);
       })
       .catch(() => {
         if (!active) return;
@@ -136,7 +136,7 @@ export default function ResultsPage() {
             <>
               <div className="grid gap-5 px-6 pb-5 md:grid-cols-2">
                 {pinnedItems.map((item, i) => (
-                  <MissionCard key={item.missionId} item={item} index={i} />
+                  <MissionCard key={item.mission.id} item={item} index={i} />
                 ))}
               </div>
 
@@ -165,7 +165,7 @@ export default function ResultsPage() {
             ) : (
               <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
                 {otherItems.map((item, i) => (
-                  <MissionCard key={item.missionId} item={item} index={PINNED_RESULTS_LIMIT + (page - 1) * OTHER_RESULTS_PAGE_SIZE + i} />
+                  <MissionCard key={item.mission.id} item={item} index={PINNED_RESULTS_LIMIT + (page - 1) * OTHER_RESULTS_PAGE_SIZE + i} />
                 ))}
               </div>
             )}

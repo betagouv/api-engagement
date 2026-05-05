@@ -93,7 +93,6 @@ router.get("/match", async (req, res, next) => {
             select: {
               confidence: true,
               evidence: true,
-              enrichment: { select: { rawResponse: true } },
             },
           },
         },
@@ -173,7 +172,6 @@ router.get("/match", async (req, res, next) => {
       string,
       { taxonomyKey: string; taxonomyValueKey: string; taxonomyValueLabel: string; enrichmentConfidence: number; scoringScore: number; evidence: unknown }[]
     > = {};
-    const fakeIndex: Record<string, boolean> = {};
     for (const row of scoringValueRows) {
       const taxonomyKey = row.taxonomyKey ?? row.taxonomyValue?.taxonomy.key ?? "unknown";
       const taxonomyValueKey = row.valueKey ?? row.taxonomyValue?.key ?? "unknown";
@@ -188,62 +186,62 @@ router.get("/match", async (req, res, next) => {
         evidence: row.missionEnrichmentValue?.evidence ?? null,
       };
       (valuesIndex[row.missionScoringId] ??= []).push(entry);
-      if (!fakeIndex[row.missionScoringId] && row.missionEnrichmentValue?.enrichment?.rawResponse) {
-        const raw = row.missionEnrichmentValue.enrichment.rawResponse as any;
-        if (raw._fake === true) {
-          fakeIndex[row.missionScoringId] = true;
-        }
-      }
     }
 
-    const items = result.items.map((item) => ({
-      missionId: item.missionId,
-      missionScoringId: item.missionScoringId,
-      title: missionIndex[item.missionId]?.title ?? "(unknown)",
-      publisherName: missionIndex[item.missionId]?.publisherName ?? null,
-      organizationName: missionIndex[item.missionId]?.organizationName ?? null,
-      schedule: missionIndex[item.missionId]?.schedule ?? null,
-      remote: missionIndex[item.missionId]?.remote ?? null,
-      domain: missionIndex[item.missionId]?.domain ?? missionIndex[item.missionId]?.domainOriginal ?? null,
-      photo:
+    const items = result.items.map((item) => {
+      const mission = missionIndex[item.missionId];
+      const photo =
         missionIndex[item.missionId]?.domainLogo ??
         missionIndex[item.missionId]?.organizationLogo ??
         missionIndex[item.missionId]?.publisherDefaultMissionLogo ??
         missionIndex[item.missionId]?.publisherLogo ??
-        null,
-      city: item.closestCity ?? missionIndex[item.missionId]?.city ?? null,
-      mission: missionIndex[item.missionId]
-        ? {
-            description: missionIndex[item.missionId].description,
-            tasks: missionIndex[item.missionId].tasks,
-            audience: missionIndex[item.missionId].audience,
-            softSkills: missionIndex[item.missionId].softSkills,
-            requirements: missionIndex[item.missionId].requirements,
-            tags: missionIndex[item.missionId].tags,
-            type: missionIndex[item.missionId].type,
-            remote: missionIndex[item.missionId].remote,
-            openToMinors: missionIndex[item.missionId].openToMinors,
-            reducedMobilityAccessible: missionIndex[item.missionId].reducedMobilityAccessible,
-            duration: missionIndex[item.missionId].duration,
-            schedule: missionIndex[item.missionId].schedule,
-            startAt: missionIndex[item.missionId].startAt,
-            endAt: missionIndex[item.missionId].endAt,
-            domain: missionIndex[item.missionId].domain,
-            domainOriginal: missionIndex[item.missionId].domainOriginal,
-            domainLogo: missionIndex[item.missionId].domainLogo,
-          }
-        : null,
-      isFake: fakeIndex[item.missionScoringId] ?? false,
-      totalScore: item.totalScore,
-      taxonomyScore: item.taxonomyScore,
-      geoScore: item.geoScore,
-      distanceKm: item.distanceKm,
-      closestLat: item.closestLat,
-      closestLon: item.closestLon,
-      closestAddress: item.closestAddress,
-      taxonomyScores: item.taxonomyScores,
-      values: valuesIndex[item.missionScoringId] ?? [],
-    }));
+        null;
+
+      return {
+        mission: {
+          id: item.missionId,
+          title: mission?.title ?? "(unknown)",
+          description: mission?.description ?? null,
+          tasks: mission?.tasks ?? [],
+          audience: mission?.audience ?? [],
+          softSkills: mission?.softSkills ?? [],
+          requirements: mission?.requirements ?? [],
+          tags: mission?.tags ?? [],
+          type: mission?.type ?? null,
+          remote: mission?.remote ?? null,
+          schedule: mission?.schedule ?? null,
+          duration: mission?.duration ?? null,
+          startAt: mission?.startAt ?? null,
+          endAt: mission?.endAt ?? null,
+          domain: mission?.domain ?? mission?.domainOriginal ?? null,
+          domainOriginal: mission?.domainOriginal ?? null,
+          organizationName: mission?.organizationName ?? null,
+          publisherName: mission?.publisherName ?? null,
+          openToMinors: mission?.openToMinors ?? null,
+          reducedMobilityAccessible: mission?.reducedMobilityAccessible ?? null,
+          media: {
+            photo,
+            domainLogo: mission?.domainLogo ?? null,
+            organizationLogo: mission?.organizationLogo ?? null,
+            publisherLogo: mission?.publisherLogo ?? null,
+          },
+          location: {
+            city: item.closestCity ?? mission?.city ?? null,
+            closestLat: item.closestLat,
+            closestLon: item.closestLon,
+            closestAddress: item.closestAddress,
+          },
+        },
+        match: {
+          missionScoringId: item.missionScoringId,
+          totalScore: item.totalScore,
+          taxonomyScore: item.taxonomyScore,
+          geoScore: item.geoScore,
+          taxonomyScores: item.taxonomyScores,
+          values: valuesIndex[item.missionScoringId] ?? [],
+        },
+      };
+    });
 
     return res.status(200).send({ ok: true, data: { tookMs: result.tookMs, selectedTaxonomies, items } });
   } catch (error) {

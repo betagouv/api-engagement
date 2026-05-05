@@ -54,7 +54,7 @@ const getNearbyPosition = (center: [number, number], seed: string, index: number
   return [center[0] + latDelta, center[1] + lonDelta];
 };
 
-const getAddressLabel = (item: MatchResultItem): string | null => item.closestAddress ?? item.city;
+const getAddressLabel = (item: MatchResultItem): string | null => item.mission.location.closestAddress ?? item.mission.location.city;
 
 function BoundsFitter({ positions }: { positions: [number, number][] }) {
   const map = useMap();
@@ -74,8 +74,10 @@ export default function MissionMap({ items, center }: Props) {
   const missions = useMemo<MapMission[]>(
     () =>
       items.map((item, index) => {
-        const hasRealAddress = item.remote !== "full" && item.closestLat !== null && item.closestLon !== null;
-        const position: [number, number] = hasRealAddress ? [item.closestLat!, item.closestLon!] : getNearbyPosition(center, item.missionId, index);
+        const hasRealAddress = item.mission.remote !== "full" && item.mission.location.closestLat !== null && item.mission.location.closestLon !== null;
+        const position: [number, number] = hasRealAddress
+          ? [item.mission.location.closestLat!, item.mission.location.closestLon!]
+          : getNearbyPosition(center, item.mission.id, index);
 
         return {
           item,
@@ -93,9 +95,9 @@ export default function MissionMap({ items, center }: Props) {
       <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
       <BoundsFitter positions={boundsPositions} />
       {missions.map(({ item, position, hasRealAddress }) => (
-        <Marker key={item.missionId} position={position} icon={hasRealAddress ? classicIcon : remoteIcon}>
+        <Marker key={item.mission.id} position={position} icon={hasRealAddress ? classicIcon : remoteIcon}>
           <Popup>
-            <strong>{item.title}</strong>
+            <strong>{item.mission.title}</strong>
             {hasRealAddress && getAddressLabel(item) && (
               <>
                 <br />
