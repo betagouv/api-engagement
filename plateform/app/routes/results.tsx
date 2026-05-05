@@ -97,57 +97,62 @@ export default function ResultsPage() {
   }, [page, userScoringId]);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-[#f6f6f6] md:bg-white">
       <section className="flex flex-col md:flex-row">
         <div className="flex flex-col md:w-7/12">
-          <div className="h-64 w-full md:hidden">
+          <div className="h-72 w-full md:hidden">
             <Suspense fallback={<div className="h-full bg-gray-100" />}>{!loading && pinnedItems.length > 0 && <MissionMap items={pinnedItems} center={mapCenter} />}</Suspense>
           </div>
 
-          <div className="px-6 pb-2 pt-6">
-            <Link to="/quiz/age" onClick={() => reset()} className="mb-3 inline-flex items-center gap-1 text-sm text-[#000091] hover:underline">
-              <i className="fr-icon-arrow-left-line fr-icon--sm" aria-hidden="true" />
-              Changer mes réponses
-            </Link>
+          <div
+            className="relative z-[1200] -mt-12 w-full rounded-t-[1.5rem] bg-white pt-7 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] md:mt-0 md:rounded-none md:pt-0 md:shadow-none"
+            style={{ backgroundColor: "#ffffff", color: "#1e1e1e" }}
+          >
+            <div className="px-5 pb-2 md:px-6 md:pt-6">
+              {!loading && !error && (
+                <h1 className="text-2xl font-bold" style={{ color: "#1e1e1e" }}>
+                  <span style={{ color: "#000091" }}>
+                    {pinnedItems.length} mission{pinnedItems.length > 1 ? "s" : ""}
+                  </span>{" "}
+                  pour toi
+                </h1>
+              )}
 
-            {!loading && !error && (
-              <h1 className="text-2xl font-bold">
-                <span className="text-[#000091]">
-                  {pinnedItems.length} mission{pinnedItems.length > 1 ? "s" : ""}
-                </span>{" "}
-                pour toi
-              </h1>
+              <Link to="/quiz/age" onClick={() => reset()} className="mt-1 inline-flex items-center gap-1 text-sm hover:underline md:mt-3" style={{ color: "#000091" }}>
+                <i className="fr-icon-arrow-left-line fr-icon--sm" aria-hidden="true" />
+                Changer mes réponses
+              </Link>
+            </div>
+
+            <div className="px-5 py-4 md:px-6">
+              {loading && <p className="text-sm text-gray-500">Chargement…</p>}
+
+              {error && (
+                <div className="fr-alert fr-alert--error">
+                  <p>{error}</p>
+                </div>
+              )}
+
+              {!loading && !error && pinnedItems.length === 0 && otherItems.length === 0 && <p className="text-sm text-gray-500">Aucune mission trouvée pour ce profil.</p>}
+            </div>
+
+            {!loading && !error && pinnedItems.length > 0 && (
+              <>
+                <div className="grid gap-4 px-5 pb-5 md:grid-cols-2 md:gap-5 md:px-6">
+                  {pinnedItems.map((item, i) => (
+                    <MissionCard key={item.mission.id} item={item} index={i} />
+                  ))}
+                </div>
+
+                <div className="px-5 pb-8 md:px-6">
+                  <button type="button" className="w-full border border-[#000091] px-4 py-3 text-sm font-semibold text-[#000091] hover:bg-[#f5f5ff]">
+                    <i className="fr-icon-mail-line fr-icon--sm mr-2" aria-hidden="true" />
+                    Recevoir ces 5 missions par e-mail
+                  </button>
+                </div>
+              </>
             )}
           </div>
-
-          <div className="px-6 py-4">
-            {loading && <p className="text-sm text-gray-500">Chargement…</p>}
-
-            {error && (
-              <div className="fr-alert fr-alert--error">
-                <p>{error}</p>
-              </div>
-            )}
-
-            {!loading && !error && pinnedItems.length === 0 && otherItems.length === 0 && <p className="text-sm text-gray-500">Aucune mission trouvée pour ce profil.</p>}
-          </div>
-
-          {!loading && !error && pinnedItems.length > 0 && (
-            <>
-              <div className="grid gap-5 px-6 pb-5 md:grid-cols-2">
-                {pinnedItems.map((item, i) => (
-                  <MissionCard key={item.mission.id} item={item} index={i} />
-                ))}
-              </div>
-
-              <div className="px-6 pb-8">
-                <button type="button" className="w-full border border-[#000091] px-4 py-3 text-sm font-semibold text-[#000091] hover:bg-[#f5f5ff]">
-                  <i className="fr-icon-mail-line fr-icon--sm mr-2" aria-hidden="true" />
-                  Recevoir ces 5 missions par e-mail
-                </button>
-              </div>
-            </>
-          )}
         </div>
 
         <div className="sticky top-0 hidden h-screen md:block md:w-5/12">

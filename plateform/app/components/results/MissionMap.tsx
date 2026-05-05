@@ -1,7 +1,7 @@
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useEffect, useMemo } from "react";
-import { MapContainer, Marker, Popup, TileLayer, ZoomControl, useMap } from "react-leaflet";
+import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import { MAPTILER_API_KEY } from "~/services/config";
 import type { MatchResultItem } from "~/types/matching";
 
@@ -89,7 +89,7 @@ export default function MissionMap({ items, center }: Props) {
           position,
         };
       }),
-    [center, items]
+    [center, items],
   );
 
   const boundsPositions = missions.length > 0 ? missions.map((mission) => mission.position) : [center];
@@ -103,7 +103,6 @@ export default function MissionMap({ items, center }: Props) {
         minZoom={1}
         url={MAPTILER_BASIC_URL ?? "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"}
       />
-      <ZoomControl position="bottomright" />
       <BoundsFitter positions={boundsPositions} />
       {missions.map(({ item, position, hasRealAddress }) => (
         <Marker key={item.mission.id} position={position} icon={hasRealAddress ? classicIcon : remoteIcon}>
