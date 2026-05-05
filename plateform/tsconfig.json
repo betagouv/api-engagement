@@ -10,11 +10,13 @@
     "resolveJsonModule": true,
     "target": "ES2022",
     "strict": true,
+    "ignoreDeprecations": "6.0",
     "allowImportingTsExtensions": true,
     "noEmit": true,
     "baseUrl": ".",
     "paths": {
       "@engagement/taxonomy": ["../packages/taxonomy/src/index"],
+      "@react-leaflet/core/lib/*": ["../node_modules/@react-leaflet/core/lib/*"],
       "~/*": ["./app/*"]
     },
     "rootDirs": [".", "./.react-router/types"],

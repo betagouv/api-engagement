@@ -48,6 +48,7 @@ export const userScoringRepository = {
   update(params: {
     userScoringId: string;
     values: Array<{ taxonomyKey: string; valueKey: string; score?: number }>;
+    geo?: { lat: number; lon: number; radiusKm?: number };
     missionAlertEnabled?: boolean;
   }): Promise<{ createdCount: number; missionAlertEnabled: boolean }> {
     return prisma.$transaction(async (tx) => {
@@ -65,7 +66,27 @@ export const userScoringRepository = {
 
       const userScoring = await tx.userScoring.update({
         where: { id: params.userScoringId },
-        data: params.missionAlertEnabled === undefined ? { updatedAt: new Date() } : { missionAlertEnabled: params.missionAlertEnabled },
+        data: {
+          ...(params.missionAlertEnabled === undefined ? { updatedAt: new Date() } : { missionAlertEnabled: params.missionAlertEnabled }),
+          ...(params.geo
+            ? {
+                geo: {
+                  upsert: {
+                    create: {
+                      lat: params.geo.lat,
+                      lon: params.geo.lon,
+                      radiusKm: params.geo.radiusKm,
+                    },
+                    update: {
+                      lat: params.geo.lat,
+                      lon: params.geo.lon,
+                      radiusKm: params.geo.radiusKm,
+                    },
+                  },
+                },
+              }
+            : {}),
+        },
         select: { missionAlertEnabled: true },
       });
 

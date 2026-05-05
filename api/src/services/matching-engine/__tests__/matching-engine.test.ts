@@ -116,6 +116,10 @@ describe("matchingEngineService", () => {
           taxonomyScore: 0,
           geoScore: 0.712346,
           distanceKm: 12.345,
+          closestLat: null,
+          closestLon: null,
+          closestCity: null,
+          closestAddress: null,
           taxonomyScores: {
             domaine: 1,
           },
@@ -208,6 +212,10 @@ describe("matchingEngineService", () => {
           taxonomyScore: 0.8,
           geoScore: null,
           distanceKm: null,
+          closestLat: null,
+          closestLon: null,
+          closestCity: null,
+          closestAddress: null,
           taxonomyScores: {
             domaine: 0.8,
           },
@@ -267,6 +275,10 @@ describe("matchingEngineService", () => {
           taxonomyScore: 0.7,
           geoScore: null,
           distanceKm: null,
+          closestLat: null,
+          closestLon: null,
+          closestCity: null,
+          closestAddress: null,
           taxonomyScores: {
             domaine: 0.7,
           },
@@ -314,6 +326,10 @@ describe("matchingEngineService", () => {
           taxonomyScore: 0.6,
           geoScore: null,
           distanceKm: null,
+          closestLat: null,
+          closestLon: null,
+          closestCity: null,
+          closestAddress: null,
           taxonomyScores: {
             domaine: 0.6,
           },

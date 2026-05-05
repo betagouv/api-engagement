@@ -8,6 +8,7 @@ on:
       - ".github/workflows/poc-pipeline.yml"
       - "api/**"
       - "packages/**"
+      - "plateform/**"
       - "poc-quiz/**"
       - "app/**"
       - "terraform/**"
@@ -81,6 +82,8 @@ jobs:
           file: ./plateform/Dockerfile.production
           push: true
           provenance: false
+          build-args: |
+            VITE_MAPTILER_API_KEY=${{ vars.VITE_MAPTILER_API_KEY }}
           tags: |
             ghcr.io/${{ github.repository }}/plateform:poc
             ghcr.io/${{ github.repository }}/plateform:poc-${{ steps.tag.outputs.image_tag }}

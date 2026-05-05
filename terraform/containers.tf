@@ -187,6 +187,10 @@ resource "scaleway_container" "plateform" {
   environment_variables = {
     "VITE_API_URL" = var.api_hostname != "" ? "https://${var.api_hostname}" : ""
   }
+
+  secret_environment_variables = {
+    "VITE_MAPTILER_API_KEY" = lookup(local.secrets, "VITE_MAPTILER_API_KEY", "")
+  }
 }
 
 # Widget Container

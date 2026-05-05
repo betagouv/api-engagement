@@ -6,9 +6,10 @@ import QuizHeader from "~/components/quiz/header";
 import LoadingRecap from "~/components/quiz/loading-recap";
 import { QUIZ_FLOW, type StepDef } from "~/config/quiz-flow";
 import { OPTIONS } from "~/config/quiz-options";
+import { createUserScoring, updateUserScoring } from "~/services/user-scoring";
 import { useQuizStore } from "~/stores/quiz";
 import { evalCondition } from "~/utils/conditions";
-import { refreshSteps } from "~/utils/quiz";
+import { buildPayload, refreshSteps } from "~/utils/quiz";
 import type { Route } from "./+types/_layout";
 
 // Contexte partagé avec les steps enfants via `useOutletContext<QuizOutletContext>()`.
@@ -35,10 +36,11 @@ export function HydrateFallback() {
 export default function QuizLayout() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { answers } = useQuizStore();
+  const { answers, setUserScoringId } = useQuizStore();
   const [steps, setSteps] = useState<StepDef[]>(QUIZ_FLOW.filter((s) => !s.condition || evalCondition(s.condition, answers)));
   const [transitioning, setTransitioning] = useState(false);
   const [loadingResults, setLoadingResults] = useState(false);
+  const [scoringError, setScoringError] = useState<string | null>(null);
   const currentStep = useMemo(() => steps.find((s) => s.route === location.pathname) ?? null, [location.pathname, steps]);
 
   const currentIndex = currentStep ? steps.findIndex((s) => s.id === currentStep.id) : -1;
@@ -54,10 +56,44 @@ export default function QuizLayout() {
     }
   }, [location.pathname, currentStep]);
 
-  const goNext = () => {
+  const saveCurrentScoring = async (): Promise<boolean> => {
+    const freshAnswers = useQuizStore.getState().answers;
+    const freshGeo = useQuizStore.getState().geo;
+    const freshUserScoringId = useQuizStore.getState().userScoringId;
+    const freshDistinctId = useQuizStore.getState().distinctId;
+    const payload = buildPayload(freshAnswers, freshGeo);
+
+    if (payload.answers.length === 0) {
+      return true;
+    }
+
+    try {
+      if (!freshUserScoringId) {
+        const id = await createUserScoring(payload, freshDistinctId);
+        setUserScoringId(id);
+        return true;
+      }
+
+      await updateUserScoring(freshUserScoringId, payload, freshDistinctId);
+      return true;
+    } catch (err) {
+      console.error("[quiz] saveCurrentScoring failed", err);
+      return false;
+    }
+  };
+
+  const goNext = async () => {
     if (!currentStep) return;
     setTransitioning(false);
+    setScoringError(null);
     const freshAnswers = useQuizStore.getState().answers;
+    const scoringSaved = await saveCurrentScoring();
+
+    if (!scoringSaved) {
+      setScoringError("Impossible d'enregistrer tes réponses. Réessaie dans quelques instants.");
+      return;
+    }
+
     const { next, steps } = refreshSteps(QUIZ_FLOW, currentStep.id, freshAnswers);
     setSteps(steps);
     if (next) {
@@ -69,7 +105,8 @@ export default function QuizLayout() {
 
   const handleLoadingComplete = () => {
     setLoadingResults(false);
-    navigate("/results");
+    const id = useQuizStore.getState().userScoringId;
+    navigate(id ? `/results/${id}` : "/");
   };
 
   const recapItems = (["statut", "duree", "motivation"] as const).flatMap((stepId) => {
@@ -93,6 +130,11 @@ export default function QuizLayout() {
       <main className="flex-1 bg-gradient-to-l from-blue-france-950/40 md:from-blue-france-950 to-transparent pt-10 pb-24 md:pb-10">
         <div className="fr-container flex flex-col gap-10">
           {!transitioning && !loadingResults && <BackButton href={currentIndex > 0 ? steps[currentIndex - 1].route : "/"} />}
+          {scoringError && !loadingResults && (
+            <div className="fr-alert fr-alert--error">
+              <p>{scoringError}</p>
+            </div>
+          )}
           {loadingResults ? (
             <LoadingRecap items={recapItems} onComplete={handleLoadingComplete} />
           ) : (

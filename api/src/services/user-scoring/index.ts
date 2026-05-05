@@ -19,6 +19,11 @@ interface UpdateUserScoringInput {
   userScoringId: string;
   distinctId: string;
   answers?: Array<{ taxonomy_value_key: string }>;
+  geo?: {
+    lat: number;
+    lon: number;
+    radius_km?: number;
+  };
   missionAlertEnabled?: boolean;
 }
 
@@ -72,6 +77,7 @@ export const userScoringService = {
     const result = await userScoringRepository.update({
       userScoringId: input.userScoringId,
       values: valuesToPersist,
+      geo: input.geo ? { lat: input.geo.lat, lon: input.geo.lon, radiusKm: input.geo.radius_km } : undefined,
       missionAlertEnabled: input.missionAlertEnabled,
     });
 

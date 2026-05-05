@@ -23,6 +23,6 @@ export default [
     route("precision-international", "routes/quiz/precision-international.tsx"),
   ]),
 
-  route("results", "routes/results.tsx"),
+  route("results/:userScoringId", "routes/results.tsx"),
   route("missions", "routes/missions.tsx"),
 ] satisfies RouteConfig;
