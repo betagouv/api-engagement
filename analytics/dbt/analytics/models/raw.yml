@@ -698,3 +698,136 @@ sources:
             description: Timestamp de création du rattachement.
           - name: updated_at
             description: Timestamp de dernière mise à jour (curseur d'export).
+      - name: user_scoring
+        description: >-
+          Profils de scoring utilisateur synchronisés depuis la base opérationnelle. Chaque ligne représente une
+          demande de scoring, éventuellement rattachée à un identifiant anonyme et à une alerte mission.
+        columns:
+          - name: id
+            description: Identifiant unique du scoring utilisateur.
+          - name: distinct_id
+            description: Identifiant anonyme ou technique permettant de rattacher plusieurs interactions utilisateur.
+          - name: mission_alert_enabled
+            description: Indique si l'utilisateur a activé l'alerte mission associée à ce scoring.
+          - name: created_at
+            description: Timestamp de création du scoring.
+          - name: expires_at
+            description: Timestamp d'expiration du scoring, si défini.
+          - name: updated_at
+            description: Timestamp de dernière mise à jour, utilisé comme curseur d'export.
+      - name: user_scoring_value
+        description: >-
+          Scores utilisateur calculés par valeur de taxonomie. Chaque ligne rattache un scoring utilisateur à un couple
+          `taxonomy_key` / `value_key` et expose le score associé.
+        columns:
+          - name: id
+            description: Identifiant unique de la valeur de scoring utilisateur.
+          - name: user_scoring_id
+            description: Identifiant du scoring utilisateur parent.
+          - name: taxonomy_key
+            description: Clé de la taxonomie scorée.
+          - name: value_key
+            description: Clé de la valeur de taxonomie scorée.
+          - name: score
+            description: Score utilisateur calculé.
+          - name: created_at
+            description: Timestamp de création de la valeur de scoring.
+          - name: updated_at
+            description: Timestamp de dernière mise à jour, utilisé comme curseur d'export.
+      - name: matching_engine_result
+        description: >-
+          Résultats persistés du moteur de matching, exportés depuis la table opérationnelle `mission_matching_result`.
+          Chaque ligne conserve le résultat JSON produit pour un scoring utilisateur et une version de l'algorithme.
+        columns:
+          - name: id
+            description: Identifiant unique du résultat de matching.
+          - name: user_scoring_id
+            description: Identifiant du scoring utilisateur utilisé comme entrée.
+          - name: matching_engine_version
+            description: Version du moteur de matching ayant produit le résultat.
+          - name: results
+            description: Résultats détaillés au format JSON.
+          - name: created_at
+            description: Timestamp de création du résultat.
+      - name: mission_enrichment
+        description: >-
+          Enrichissements de mission synchronisés depuis la base opérationnelle. Chaque ligne trace une tentative
+          d'enrichissement pour une mission et une version de prompt, avec statut et métriques de tokens.
+        columns:
+          - name: id
+            description: Identifiant unique de l'enrichissement.
+          - name: mission_id
+            description: Identifiant de la mission enrichie.
+          - name: status
+            description: Statut de l'enrichissement (`pending`, `processing`, `completed`, `failed`).
+          - name: prompt_version
+            description: Version du prompt utilisée.
+          - name: input_tokens
+            description: Nombre de tokens d'entrée consommés, si disponible.
+          - name: output_tokens
+            description: Nombre de tokens de sortie produits, si disponible.
+          - name: total_tokens
+            description: Nombre total de tokens consommés, si disponible.
+          - name: completed_at
+            description: Timestamp de fin de traitement lorsque l'enrichissement est terminé.
+          - name: created_at
+            description: Timestamp de création de l'enrichissement.
+          - name: updated_at
+            description: Timestamp de dernière mise à jour, utilisé comme curseur d'export.
+      - name: mission_enrichment_value
+        description: >-
+          Valeurs de taxonomie extraites lors de l'enrichissement des missions, avec score de confiance et éléments de
+          preuve éventuels.
+        columns:
+          - name: id
+            description: Identifiant unique de la valeur d'enrichissement.
+          - name: enrichment_id
+            description: Identifiant de l'enrichissement parent.
+          - name: taxonomy_key
+            description: Clé de la taxonomie détectée.
+          - name: value_key
+            description: Clé de la valeur de taxonomie détectée.
+          - name: confidence
+            description: Score de confiance de la valeur détectée.
+          - name: evidence
+            description: Éléments de preuve ou justification au format JSON.
+          - name: created_at
+            description: Timestamp de création de la valeur d'enrichissement.
+          - name: updated_at
+            description: Timestamp de dernière mise à jour, utilisé comme curseur d'export.
+      - name: mission_scoring
+        description: >-
+          Scorings de mission dérivés des enrichissements. Chaque ligne relie une mission à l'enrichissement utilisé
+          pour produire ses valeurs de scoring.
+        columns:
+          - name: id
+            description: Identifiant unique du scoring de mission.
+          - name: mission_id
+            description: Identifiant de la mission scorée.
+          - name: mission_enrichment_id
+            description: Identifiant de l'enrichissement utilisé comme base du scoring.
+          - name: created_at
+            description: Timestamp de création du scoring.
+          - name: updated_at
+            description: Timestamp de dernière mise à jour, utilisé comme curseur d'export.
+      - name: mission_scoring_value
+        description: >-
+          Scores de mission calculés par valeur de taxonomie. Chaque ligne correspond au score d'une mission pour un
+          couple `taxonomy_key` / `value_key`.
+        columns:
+          - name: id
+            description: Identifiant unique de la valeur de scoring mission.
+          - name: mission_scoring_id
+            description: Identifiant du scoring de mission parent.
+          - name: mission_enrichment_value_id
+            description: Identifiant de la valeur d'enrichissement liée, si applicable.
+          - name: taxonomy_key
+            description: Clé de la taxonomie scorée.
+          - name: value_key
+            description: Clé de la valeur de taxonomie scorée.
+          - name: score
+            description: Score de mission calculé.
+          - name: created_at
+            description: Timestamp de création de la valeur de scoring.
+          - name: updated_at
+            description: Timestamp de dernière mise à jour, utilisé comme curseur d'export.

@@ -629,4 +629,116 @@ export const exportDefinitions: ExportDefinition[] = [
       conflictColumns: ["id"],
     },
   },
+  {
+    key: "user_scoring",
+    batchSize: 2000,
+    source: {
+      table: "user_scoring",
+      cursor: {
+        field: "updated_at",
+        idField: "id",
+      },
+      columns: ["id", "distinct_id", "mission_alert_enabled", "created_at", "expires_at", "updated_at"],
+    },
+    destination: {
+      table: "user_scoring",
+      conflictColumns: ["id"],
+    },
+  },
+  {
+    key: "user_scoring_value",
+    batchSize: 2000,
+    source: {
+      table: "user_scoring_value",
+      cursor: {
+        field: "updated_at",
+        idField: "id",
+      },
+      columns: ["id", "user_scoring_id", "taxonomy_key", "value_key", "score", "created_at", "updated_at"],
+    },
+    destination: {
+      table: "user_scoring_value",
+      conflictColumns: ["id"],
+    },
+  },
+  {
+    key: "matching_engine_result",
+    batchSize: 2000,
+    source: {
+      table: "mission_matching_result",
+      cursor: {
+        field: "created_at",
+        idField: "id",
+      },
+      columns: ["id", "user_scoring_id", "matching_engine_version", "results", "created_at"],
+    },
+    destination: {
+      table: "matching_engine_result",
+      conflictColumns: ["id"],
+    },
+  },
+  {
+    key: "mission_scoring",
+    batchSize: 2000,
+    source: {
+      table: "mission_scoring",
+      cursor: {
+        field: "updated_at",
+        idField: "id",
+      },
+      columns: ["id", "mission_id", "mission_enrichment_id", "created_at", "updated_at"],
+    },
+    destination: {
+      table: "mission_scoring",
+      conflictColumns: ["id"],
+    },
+  },
+  {
+    key: "mission_scoring_value",
+    batchSize: 2000,
+    source: {
+      table: "mission_scoring_value",
+      cursor: {
+        field: "updated_at",
+        idField: "id",
+      },
+      columns: ["id", "mission_scoring_id", "mission_enrichment_value_id", "taxonomy_key", "value_key", "score", "created_at", "updated_at"],
+    },
+    destination: {
+      table: "mission_scoring_value",
+      conflictColumns: ["id"],
+    },
+  },
+  {
+    key: "mission_enrichment",
+    batchSize: 2000,
+    source: {
+      table: "mission_enrichment",
+      cursor: {
+        field: "updated_at",
+        idField: "id",
+      },
+      columns: ["id", "mission_id", "status", "prompt_version", "input_tokens", "output_tokens", "total_tokens", "completed_at", "created_at", "updated_at"],
+    },
+    destination: {
+      table: "mission_enrichment",
+      conflictColumns: ["id"],
+    },
+  },
+  {
+    key: "mission_enrichment_value",
+    batchSize: 2000,
+    source: {
+      table: "mission_enrichment_value",
+      cursor: {
+        field: "updated_at",
+        idField: "id",
+      },
+      columns: ["id", "enrichment_id", "taxonomy_key", "value_key", "confidence", "evidence"],
+    },
+    destination: {
+      table: "mission_enrichment_value",
+      conflictColumns: ["id"],
+    },
+  },
 ];
