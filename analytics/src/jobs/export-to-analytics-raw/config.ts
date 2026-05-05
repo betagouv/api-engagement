@@ -672,6 +672,10 @@ export const exportDefinitions: ExportDefinition[] = [
       },
       columns: ["id", "user_scoring_id", "matching_engine_version", "results", "created_at"],
     },
+    transform: (row) => ({
+      ...row,
+      results: row.results === null || row.results === undefined ? null : JSON.stringify(row.results),
+    }),
     destination: {
       table: "matching_engine_result",
       conflictColumns: ["id"],
@@ -734,7 +738,7 @@ export const exportDefinitions: ExportDefinition[] = [
         field: "updated_at",
         idField: "id",
       },
-      columns: ["id", "enrichment_id", "taxonomy_key", "value_key", "confidence", "evidence"],
+      columns: ["id", "enrichment_id", "taxonomy_key", "value_key", "confidence", "evidence", "created_at", "updated_at"],
     },
     destination: {
       table: "mission_enrichment_value",
