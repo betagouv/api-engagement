@@ -83,6 +83,7 @@ jobs:
           push: true
           provenance: false
           build-args: |
+            VITE_API_URL=${{ vars.API_URL }}
             VITE_MAPTILER_API_KEY=${{ vars.VITE_MAPTILER_API_KEY }}
           tags: |
             ghcr.io/${{ github.repository }}/plateform:poc
