@@ -59,8 +59,10 @@ jobs:
         include:
           - service: app
             image_name: app
+            context: .
           - service: app
             image_name: app
+            context: .
             variant: sandbox
             github_env: sandbox
           - service: widget
