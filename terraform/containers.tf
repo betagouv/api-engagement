@@ -185,7 +185,7 @@ resource "scaleway_container" "plateform" {
   deploy         = true
 
   environment_variables = {
-    "API_URL" = var.api_hostname != "" ? "https://${var.api_hostname}" : ""
+    "VITE_API_URL" = var.api_hostname != "" ? "https://${var.api_hostname}" : ""
   }
 }
 
