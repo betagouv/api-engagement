@@ -61,3 +61,64 @@ models:
           - not_null
       - name: created_at
         description: Timestamp de création de l'entrée.
+  - name: stg_user_scoring
+    description: >
+      Staging des profils de scoring utilisateur exportés depuis `analytics_raw.user_scoring`. Chaque ligne représente
+      une demande de scoring utilisateur, avec ses dates de création, d'expiration et de dernière mise à jour.
+    columns:
+      - name: id
+        description: Identifiant unique du scoring utilisateur.
+        tests:
+          - not_null
+          - unique
+      - name: distinct_id
+        description: Identifiant anonyme ou technique permettant de rattacher plusieurs interactions utilisateur.
+      - name: mission_alert_enabled
+        description: Indique si l'utilisateur a activé l'alerte mission associée à ce scoring.
+        tests:
+          - not_null
+      - name: created_at
+        description: Timestamp de création du scoring utilisateur.
+        tests:
+          - not_null
+      - name: expires_at
+        description: Timestamp d'expiration du scoring, si une limite de validité est définie.
+      - name: updated_at
+        description: Timestamp de dernière mise à jour, utilisé comme curseur d'export.
+        tests:
+          - not_null
+  - name: stg_user_scoring_value
+    description: >
+      Staging des valeurs de scoring utilisateur par taxonomie exportées depuis
+      `analytics_raw.user_scoring_value`. Chaque ligne décrit le score calculé pour un couple `taxonomy_key` /
+      `value_key` rattaché à un scoring utilisateur.
+    columns:
+      - name: id
+        description: Identifiant unique de la valeur de scoring utilisateur.
+        tests:
+          - not_null
+          - unique
+      - name: user_scoring_id
+        description: Identifiant du scoring utilisateur parent.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_user_scoring')
+                field: id
+      - name: taxonomy_key
+        description: Clé de la taxonomie utilisée pour qualifier le scoring.
+      - name: value_key
+        description: Clé de la valeur de taxonomie scorée.
+      - name: score
+        description: Score utilisateur calculé pour cette valeur de taxonomie.
+        tests:
+          - not_null
+      - name: created_at
+        description: Timestamp de création de la valeur de scoring.
+        tests:
+          - not_null
+      - name: updated_at
+        description: Timestamp de dernière mise à jour, utilisé comme curseur d'export.
+        tests:
+          - not_null
