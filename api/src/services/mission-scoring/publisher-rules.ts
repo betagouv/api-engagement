@@ -9,4 +9,5 @@ import { PUBLISHER_IDS } from "@/config";
  */
 export const PUBLISHER_SCORING_RULES: Record<string, TaxonomyValueKey[]> = {
   [PUBLISHER_IDS.SERVICE_CIVIQUE]: ["tranche_age.moins_26_ans", "tranche_age.moins_31_ans_handicap"],
+  [PUBLISHER_IDS.ROC]: ["tranche_age.entre_17_72_ans"],
 };
