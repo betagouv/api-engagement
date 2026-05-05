@@ -16,16 +16,14 @@ api/mockoon/build-archive.sh
 
 Le script :
 
-- lit la version dans `api/package.json` ;
-- conserve uniquement la version majeure ;
 - exporte l'image Docker `mockoon/cli:9.6.1` ;
 - ajoute `api/docs/openapi.yaml` au livrable ;
 - genere l'archive dans `api/docs/mockoon/`.
 
-Avec `api/package.json` en `1.0.0`, le fichier produit est :
+Le fichier produit est :
 
 ```text
-api/docs/mockoon/api-engagement-mockoon-api-v1.tar.gz
+api/docs/mockoon/api-engagement-latest.tar.gz
 ```
 
 ## Tester localement

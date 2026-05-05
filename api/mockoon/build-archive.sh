@@ -8,10 +8,7 @@ SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 API_DIR="$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)"
 PACKAGE_DIR="$SCRIPT_DIR/package"
 OUTPUT_DIR="$API_DIR/docs/mockoon"
-
-API_VERSION="$(node -p "require('$API_DIR/package.json').version")"
-API_MAJOR_VERSION="${API_VERSION%%.*}"
-ARCHIVE_NAME="api-engagement-mockoon-api-v${API_MAJOR_VERSION}.tar.gz"
+ARCHIVE_NAME="api-engagement-latest.tar.gz"
 ARCHIVE_PATH="$OUTPUT_DIR/$ARCHIVE_NAME"
 
 if [ ! -d "$PACKAGE_DIR" ]; then

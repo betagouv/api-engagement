@@ -131,4 +131,4 @@ jobs:
           tag_name: v${{ env.RELEASE_VERSION }}
           target_commitish: main
           body_path: /tmp/release-notes.md
-          files: api/docs/mockoon/api-engagement-mockoon-api-v*.tar.gz
+          files: api/docs/mockoon/api-engagement-latest.tar.gz

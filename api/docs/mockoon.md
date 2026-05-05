@@ -13,10 +13,10 @@ Elle contient un mock local de l'API publique, les fichiers necessaires au lance
 La derniere archive est publiee avec les releases GitHub :
 
 ```text
-https://github.com/betagouv/api-engagement/releases/latest/download/api-engagement-mockoon-api-v1.tar.gz
+https://github.com/betagouv/api-engagement/releases/latest/download/api-engagement-latest.tar.gz
 ```
 
-Le nom de l'archive est versionne par version majeure de l'API, lue depuis `api/package.json`.
+Chaque release conserve son propre artefact. Le nom de fichier reste donc stable pour faciliter le telechargement de la derniere version.
 
 ## Contrat API
 
