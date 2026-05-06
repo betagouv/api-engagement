@@ -20,6 +20,10 @@ export default function HandicapStep() {
   const handleSelect = (value: string) => {
     setError(undefined);
     setAnswer(STEP_ID, { type: "options", option_ids: [value] });
+    const existing = answers["tranche_age"];
+    if (existing?.type === "age_params") {
+      setAnswer("tranche_age", { ...existing, handicap: value === "handicap.oui" });
+    }
   };
 
   const handleNext = () => {

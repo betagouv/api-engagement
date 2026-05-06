@@ -16,13 +16,27 @@ export function refreshSteps(
 }
 
 // Construit le payload /user-scoring à partir des réponses stockées.
-// Les `option_ids` sont déjà des taxonomy keys (format `namespace.key`) depuis la migration
-// vers le catalogue `config/quiz-options` — pas de lookup intermédiaire nécessaire.
-// On projette explicitement { lat, lon } pour ne pas envoyer label (champ UI uniquement).
-export const buildPayload = (answers: QuizAnswers, geo: { lat: number; lon: number; label?: string } | undefined) => {
-  const taxonomyKeys = Object.values(answers).flatMap((a) => (a?.type === "options" ? a.option_ids : []));
-  return {
-    answers: taxonomyKeys.map((key) => ({ taxonomy_value_key: key })),
-    geo: geo ? { lat: geo.lat, lon: geo.lon } : undefined,
-  };
+// Format de sortie : { taxonomy, value } pour les options, { taxonomy, params } pour les entrées paramétrées.
+export const buildPayload = (answers: QuizAnswers, geo: { lat: number; lon: number; label: string } | undefined) => {
+  const apiAnswers: Array<{ taxonomy: string; value: string } | { taxonomy: string; params: object }> = [];
+
+  for (const [stepId, answer] of Object.entries(answers)) {
+    if (stepId === "age" || stepId === "handicap") continue;
+    if (answer?.type === "age_params") {
+      apiAnswers.push({ taxonomy: "tranche_age", params: { age: answer.age, handicap: answer.handicap } });
+    } else if (answer?.type === "options") {
+      for (const optionId of answer.option_ids) {
+        const dotIndex = optionId.indexOf(".");
+        const taxonomy = optionId.slice(0, dotIndex);
+        const value = optionId.slice(dotIndex + 1);
+        apiAnswers.push({ taxonomy, value });
+      }
+    }
+  }
+
+  if (geo) {
+    apiAnswers.push({ taxonomy: "location", params: { lat: geo.lat, lon: geo.lon, label: geo.label } });
+  }
+
+  return { answers: apiAnswers };
 };

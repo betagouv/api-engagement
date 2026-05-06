@@ -30,6 +30,6 @@ export const useQuizStore = create<QuizStore>()(
       // reset efface les réponses et le scoring mais conserve distinctId.
       reset: () => set({ answers: {}, geo: undefined, userScoringId: undefined }),
     }),
-    { name: "quiz-answers", version: 3 },
+    { name: "quiz-answers", version: 4 },
   ),
 );

@@ -4,6 +4,7 @@ import { and, not, numericRange, or, screenAnswer, type Condition } from "~/util
 // À étendre au fil des PR (autres precision_*, etc.).
 export type StepId =
   | "age"
+  | "tranche_age"
   | "handicap"
   | "statut"
   | "localisation"
