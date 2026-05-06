@@ -15,16 +15,10 @@ export function refreshSteps(
   return { next, prev, current, steps: freshSteps };
 }
 
-// Construit le payload /user-scoring à partir des réponses stockées.
-// - "params"  → { taxonomy, params } (taxonomy inscrite par le step lui-même)
-// - "options" → une entrée { taxonomy, value } par option_id (taxonomy inscrite par le step)
-// - autres    → non envoyés (numeric = conditions UI, text = champs libres non scorés)
-// "handicap" est exclu : sa sémantique est capturée dans answers["tranche_age"].params.handicap.
 export const buildPayload = (answers: QuizAnswers) => {
   const apiAnswers: Array<{ taxonomy: string; value: string } | { taxonomy: string; params: Record<string, unknown> }> = [];
 
-  for (const [stepId, answer] of Object.entries(answers)) {
-    if (stepId === "handicap") continue;
+  for (const [, answer] of Object.entries(answers)) {
     if (answer?.type === "params") {
       apiAnswers.push({ taxonomy: answer.taxonomy, params: answer.params });
     } else if (answer?.type === "options") {
