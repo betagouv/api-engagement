@@ -1,6 +1,6 @@
-import type { EnrichableTaxonomyKey } from "@engagement/taxonomy";
+import type { EnrichableTaxonomyKey, GateTaxonomyKey } from "@engagement/taxonomy";
 
-export type MatchingEngineTaxonomy = EnrichableTaxonomyKey;
+export type MatchingEngineTaxonomy = EnrichableTaxonomyKey | GateTaxonomyKey;
 
 export type MatchingEngineTaxonomyWeights = Record<MatchingEngineTaxonomy, number>;
 
