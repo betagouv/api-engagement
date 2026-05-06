@@ -16,7 +16,6 @@
     "target": "es2021",
     "module": "commonjs",
     "sourceMap": true,
-    "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
       "@engagement/taxonomy": ["../packages/taxonomy/src/index"]

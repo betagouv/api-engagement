@@ -1,0 +1,27 @@
+{
+  "clientId": "partner-mission-001",
+  "title": "Accompagner des jeunes dans leurs devoirs",
+  "description": "<p>Aide aux devoirs pour des collegiens deux soirs par semaine.</p>",
+  "applicationUrl": "https://partner.example/missions/partner-mission-001",
+  "domain": "education",
+  "activities": ["soutien-scolaire"],
+  "type": "benevolat",
+  "remote": "no",
+  "places": 3,
+  "openToMinors": false,
+  "reducedMobilityAccessible": true,
+  "addresses": [
+    {
+      "street": "4 rue de l'Ecole",
+      "postalCode": "33000",
+      "city": "Bordeaux",
+      "departmentCode": "33",
+      "departmentName": "Gironde",
+      "region": "Nouvelle-Aquitaine",
+      "country": "France"
+    }
+  ],
+  "organizationClientId": "partner-org-001",
+  "organizationName": "Association Partenaire Demo",
+  "organizationRNA": "W332000001"
+}

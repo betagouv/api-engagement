@@ -53,7 +53,7 @@ const Moderation = () => {
   useEffect(() => {
     const fetchData = async () => {
       const query = {
-        publisherId: publisher.id,
+        publisherIds: [publisher.id],
         status: filters.status,
         comment: filters.comment,
         domain: filters.domain,
@@ -79,7 +79,7 @@ const Moderation = () => {
     };
     const fetchAggs = async () => {
       const query = {
-        publisherId: publisher.id,
+        publisherIds: [publisher.id],
         status: filters.status,
         comment: filters.comment,
         domain: filters.domain,
@@ -149,6 +149,7 @@ const Moderation = () => {
             value={filters.status}
             onChange={(e) => setFilters({ ...filters, status: e.value })}
             placeholder="Statut"
+            className="w-full sm:w-80"
           />
           <Select
             options={options.comments.map((e) => ({
@@ -159,12 +160,14 @@ const Moderation = () => {
             value={filters.comment}
             onChange={(e) => setFilters({ ...filters, comment: e.value })}
             placeholder="Motif de refus"
+            className="w-full sm:w-80"
           />
           <Select
             options={options.domains.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseigné" : DOMAINS_LABELS[e.key], count: e.doc_count }))}
             value={filters.domain}
             onChange={(e) => setFilters({ ...filters, domain: e.value })}
             placeholder="Domaine"
+            className="w-full sm:w-80"
           />
           <Select
             options={options.departments.map((e) => ({
@@ -175,12 +178,15 @@ const Moderation = () => {
             value={filters.department}
             onChange={(e) => setFilters({ ...filters, department: e.value })}
             placeholder="Département"
+            className="w-full sm:w-80"
           />
           <Select
-            options={options.organizations.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseigné" : e.key, count: e.doc_count }))}
+            options={options.organizations.map((e) => ({ value: e.key === "" ? "none" : e.key, label: e.key === "" ? "Non renseigné" : e.label, count: e.doc_count }))}
             value={filters.organization}
             onChange={(e) => setFilters({ ...filters, organization: e.value })}
             placeholder="Organisation"
+            className="w-full sm:w-80"
+            anchor="bottom end"
           />
         </div>
       </div>
@@ -190,7 +196,7 @@ const Moderation = () => {
           {Object.keys(filters)
             .filter((key) => filters[key] && key !== "page")
             .map((key, i) => {
-              let label = filters[key] === "" ? "Non renseigné" : FILTERS[key] || key;
+              let label = filters[key] === "" ? "Non renseigné" : filters[key];
 
               if (key === "comment") {
                 label = JVA_MODERATION_COMMENTS_LABELS[filters[key]] || filters[key];

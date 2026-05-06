@@ -1,4 +1,5 @@
 import { ASC_100_LOGO_URL, JVA_100_LOGO_URL, PUBLISHER_IDS } from "@/config";
+import { ASC_CONTRACT_TYPE, JVA_CONTRACT_TYPE } from "@/jobs/grimpio/config";
 import { missionToGrimpioJob, missionToGrimpioJobASC, missionToGrimpioJobJVA } from "@/jobs/grimpio/transformers";
 import { MissionRecord } from "@/types/mission";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -80,7 +81,7 @@ describe("missionToGrimpioJobJVA", () => {
     const job = missionToGrimpioJobJVA(mission);
 
     expect(job.title).toBe(`Bénévolat - ${mission.title}`);
-    expect(job.contractType).toBe("bénévolat");
+    expect(job.contractType).toBe(JVA_CONTRACT_TYPE);
     expect(job.enterpriseName).toBe(mission.organizationName);
     expect(job.enterpriseIndustry).toBe("Association ONG");
     expect(job.externalId).toBe(mission.clientId);
@@ -147,7 +148,7 @@ describe("missionToGrimpioJobASC", () => {
     const job = missionToGrimpioJobASC(mission);
 
     expect(job.title).toBe(`Service Civique - ${mission.title}`);
-    expect(job.contractType).toBe("service_civique");
+    expect(job.contractType).toBe(ASC_CONTRACT_TYPE);
     expect(job.enterpriseName).toBe(mission.organizationName);
     expect(job.enterpriseIndustry).toBe("Association - ONG");
     expect(job.externalId).toBe(mission.clientId);
@@ -194,7 +195,7 @@ describe("missionToGrimpioJob", () => {
     const job = missionToGrimpioJob(mission);
 
     expect(job.title).toBe(`Bénévolat - ${mission.title}`);
-    expect(job.contractType).toBe("bénévolat");
+    expect(job.contractType).toBe(JVA_CONTRACT_TYPE);
     expect(job.enterpriseIndustry).toBe("Association ONG");
   });
 
@@ -203,7 +204,7 @@ describe("missionToGrimpioJob", () => {
     const job = missionToGrimpioJob(mission);
 
     expect(job.title).toBe(`Service Civique - ${mission.title}`);
-    expect(job.contractType).toBe("service_civique");
+    expect(job.contractType).toBe(ASC_CONTRACT_TYPE);
     expect(job.enterpriseIndustry).toBe("Association - ONG");
   });
 
