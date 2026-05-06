@@ -2,6 +2,7 @@ import { TAXONOMY } from "@engagement/taxonomy";
 import { useEffect, useState } from "react";
 import MissionFiltersBar, { type FilterDef } from "~/components/missions/filters";
 import Newsletter from "~/components/missions/newsletter";
+import Partners from "~/components/missions/partners";
 import GradientBg from "~/components/ui/gradient-bg";
 import Pagination from "~/components/ui/pagination";
 import { browseMissions, type BrowseFilters, type BrowseMission, type FacetCount } from "~/services/mission-browse";
@@ -478,7 +479,14 @@ export default function MissionsPage() {
         </div>
       </GradientBg>
 
-      <Newsletter />
+      <Newsletter
+        title="Inscris-toi à la newsletter"
+        subtitle="1 email par mois avec les missions qui pourraient t'intéresser."
+        ctaText="Je m'inscris"
+        hintText="Tu peux te désinscrire à tout moment"
+      />
+
+      <Partners />
     </main>
   );
 }
