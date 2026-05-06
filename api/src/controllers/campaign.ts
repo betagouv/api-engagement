@@ -3,7 +3,7 @@ import passport from "passport";
 import zod from "zod";
 
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "@/error";
-import { authorizePublisherAccess } from "@/middlewares/authorization";
+import { readRequiredParam, requireAllPublisherAccess } from "@/middlewares/authorization";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { campaignService, InvalidUrlError } from "@/services/campaign";
 import { CampaignCreateInput, CampaignSearchParams, CampaignUpdatePatch } from "@/types/campaign";
@@ -70,29 +70,22 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
 router.get(
   "/:id",
   passport.authenticate("user", { session: false }),
-  authorizePublisherAccess({
+  requireAllPublisherAccess({
     resolvePublisherIds: async (req, _res) => {
-      const campaignId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const campaignId = readRequiredParam(req, _res, "id");
+      if (!campaignId) {
+        return { publisherIds: [] };
+      }
       const campaign = await campaignService.findCampaignById(campaignId);
       if (!campaign) {
         return null;
       }
+      // Le détail d'une campagne est piloté par l'annonceur source.
       return { publisherIds: [campaign.fromPublisherId], locals: { campaign } };
     },
   }),
-  async (req: UserRequest, res: Response, next: NextFunction) => {
+  async (_req: UserRequest, res: Response, next: NextFunction) => {
     try {
-      const params = zod
-        .object({
-          id: zod.string(),
-        })
-        .required()
-        .safeParse(req.params);
-
-      if (!params.success) {
-        return res.status(400).send({ ok: false, code: INVALID_PARAMS, error: params.error });
-      }
-
       const data = res.locals.campaign;
 
       return res.status(200).send({ ok: true, data });

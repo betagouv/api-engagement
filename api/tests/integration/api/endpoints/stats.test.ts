@@ -36,4 +36,13 @@ describe("Dashboard stats controller", () => {
 
     expect(res.status).toBe(403);
   });
+
+  it("rejects POST /stats/search when only one of two publishers is accessible", async () => {
+    const otherPublisher = await createTestPublisher();
+    await createStatEventFixture({ fromPublisherId: publisherId, toPublisherId: otherPublisher.id });
+
+    const res = await request(app).post("/stats/search").set(authHeader()).send({ fromPublisherId: publisherId, toPublisherId: otherPublisher.id });
+
+    expect(res.status).toBe(403);
+  });
 });

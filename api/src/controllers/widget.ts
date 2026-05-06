@@ -3,7 +3,7 @@ import passport from "passport";
 import zod from "zod";
 
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "@/error";
-import { authorizePublisherAccess } from "@/middlewares/authorization";
+import { readRequiredParam, requireAllPublisherAccess } from "@/middlewares/authorization";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { publisherService } from "@/services/publisher";
 import { widgetService } from "@/services/widget";
@@ -118,29 +118,22 @@ router.get("/", passport.authenticate("user", { session: false }), async (req: U
 router.get(
   "/:id",
   passport.authenticate("user", { session: false }),
-  authorizePublisherAccess({
+  requireAllPublisherAccess({
     resolvePublisherIds: async (req, _res) => {
-      const widgetId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const widgetId = readRequiredParam(req, _res, "id");
+      if (!widgetId) {
+        return { publisherIds: [] };
+      }
       const widget = await widgetService.findOneWidgetById(widgetId, { includeDeleted: true });
       if (!widget) {
         return null;
       }
+      // Le détail d'un widget est piloté par son publisher source.
       return { publisherIds: [widget.fromPublisherId], locals: { widget } };
     },
   }),
-  async (req: UserRequest, res: Response, next: NextFunction) => {
+  async (_req: UserRequest, res: Response, next: NextFunction) => {
     try {
-      const params = zod
-        .object({
-          id: zod.string(),
-        })
-        .required()
-        .safeParse(req.params);
-
-      if (!params.success) {
-        return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
-      }
-
       const data = res.locals.widget;
 
       return res.status(200).send({ ok: true, data });

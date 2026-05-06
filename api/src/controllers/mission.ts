@@ -3,8 +3,8 @@ import passport from "passport";
 import zod from "zod";
 
 import { PUBLISHER_IDS } from "@/config";
-import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY } from "@/error";
-import { authorizePublisherAccess, canAccessPublisher, getUserPublisherIds, isAdmin } from "@/middlewares/authorization";
+import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
+import { hasAdminOrDirectPublisherAccess, getUserPublisherIds, isAdmin, readRequiredParam } from "@/middlewares/authorization";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { missionService } from "@/services/mission";
 import type { UserRequest } from "@/types/passport";
@@ -173,7 +173,7 @@ router.get("/autocomplete", passport.authenticate("user", { session: false }), a
     const publisherIds = isAdmin(req.user)
       ? requestedPublisherIds
       : requestedPublisherIds.length
-        ? requestedPublisherIds.filter((publisherId) => canAccessPublisher(req.user, publisherId))
+        ? requestedPublisherIds.filter((publisherId) => hasAdminOrDirectPublisherAccess(req.user, publisherId))
         : getUserPublisherIds(req.user);
 
     if (!publisherIds.length && !isAdmin(req.user)) {
@@ -212,45 +212,29 @@ router.get("/autocomplete", passport.authenticate("user", { session: false }), a
   }
 });
 
-const getMissionPublisherIds = (mission: Record<string, unknown>) => {
-  const publisherIds = [mission.publisherId].filter((publisherId): publisherId is string => typeof publisherId === "string" && publisherId.length > 0);
-  Object.keys(mission).forEach((key) => {
-    const match = key.match(/^moderation_(.+)_status$/);
-    if (match?.[1]) {
-      publisherIds.push(match[1]);
-    }
-  });
-  return Array.from(new Set(publisherIds));
-};
-
 router.get(
   "/:id",
   passport.authenticate("user", { session: false }),
-  authorizePublisherAccess({
-    resolvePublisherIds: async (req, _res) => {
-      const missionId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-      const mission = await missionService.findOneMission(missionId);
-      if (!mission) {
-        return null;
-      }
-      return { publisherIds: getMissionPublisherIds(mission), locals: { mission } };
-    },
-  }),
   async (req: UserRequest, res: Response, next: NextFunction) => {
     try {
-      const params = zod
-        .object({
-          id: zod.string(),
-        })
-        .safeParse(req.params);
-
-      if (!params.success) {
-        return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
+      const missionId = readRequiredParam(req, res, "id");
+      if (!missionId) {
+        return;
       }
 
-      const data = res.locals.mission;
+      const access = await missionService.findOneMissionWithAccess(missionId);
+      if (!access) {
+        return res.status(404).send({ ok: false, code: NOT_FOUND });
+      }
 
-      return res.status(200).send({ ok: true, data });
+      const canRead =
+        hasAdminOrDirectPublisherAccess(req.user, access.ownerPublisherId) ||
+        access.moderatorPublisherIds.some((publisherId) => hasAdminOrDirectPublisherAccess(req.user, publisherId));
+      if (!canRead) {
+        return res.status(403).send({ ok: false, code: FORBIDDEN, message: "Not allowed" });
+      }
+
+      return res.status(200).send({ ok: true, data: access.mission });
     } catch (error: any) {
       next(error);
     }

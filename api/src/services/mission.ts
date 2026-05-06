@@ -571,6 +571,23 @@ export const missionService = {
     return mission ? toMissionRecord(mission as MissionWithRelations, moderatedBy) : null;
   },
 
+  async findOneMissionWithAccess(id: string): Promise<{ mission: MissionRecord; ownerPublisherId: string; moderatorPublisherIds: string[] } | null> {
+    const mission = await missionRepository.findFirst({
+      where: { id },
+      include: baseInclude,
+    });
+    if (!mission) {
+      return null;
+    }
+
+    const missionWithRelations = mission as MissionWithRelations;
+    return {
+      mission: toMissionRecord(missionWithRelations),
+      ownerPublisherId: missionWithRelations.publisherId,
+      moderatorPublisherIds: Array.from(new Set(missionWithRelations.moderationStatuses?.map((moderation) => moderation.publisherId) ?? [])),
+    };
+  },
+
   async findOneMissionBy(where: Prisma.MissionWhereInput, moderatedBy: string | null = null): Promise<MissionRecord | null> {
     const mission = await missionRepository.findFirst({
       where,
