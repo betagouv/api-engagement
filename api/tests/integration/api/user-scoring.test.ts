@@ -395,16 +395,21 @@ describe("PUT /user-scoring/:userScoringId", () => {
     secondaryTaxonomyAnswer = { taxonomy: "type_mission", value: "ponctuelle" };
   });
 
-  const createUserScoring = async (params: { distinctId?: string } = { distinctId }) => {
+  const createUserScoring = async (
+    params: {
+      distinctId?: string;
+      answers?: Array<{ taxonomy: string; value?: string; params?: Record<string, unknown> }>;
+    } = { distinctId },
+  ) => {
     const res = await request(app)
       .post("/user-scoring")
-      .send({ answers: [taxonomyAnswer], distinctId: params.distinctId });
+      .send({ answers: params.answers ?? [taxonomyAnswer], distinctId: params.distinctId });
 
     expect(res.status).toBe(201);
     return res.body.data.id as string;
   };
 
-  it("should add answers to an existing user scoring", async () => {
+  it("should replace existing answers on an existing user scoring", async () => {
     const userScoringId = await createUserScoring();
 
     const res = await request(app)
@@ -421,8 +426,8 @@ describe("PUT /user-scoring/:userScoringId", () => {
       where: { userScoringId },
       orderBy: [{ taxonomyKey: "asc" }, { valueKey: "asc" }],
     });
-    expect(values).toHaveLength(2);
-    expect(values.map((value) => `${value.taxonomyKey}.${value.valueKey}`)).toEqual(["domaine.social_solidarite", "type_mission.ponctuelle"]);
+    expect(values).toHaveLength(1);
+    expect(values.map((value) => `${value.taxonomyKey}.${value.valueKey}`)).toEqual(["type_mission.ponctuelle"]);
   });
 
   it("should update missionAlertEnabled without adding answers", async () => {
@@ -447,7 +452,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
     expect(values).toHaveLength(1);
   });
 
-  it("should add answers and update missionAlertEnabled in the same request", async () => {
+  it("should replace answers and update missionAlertEnabled in the same request", async () => {
     const userScoringId = await createUserScoring();
 
     const res = await request(app)
@@ -472,10 +477,10 @@ describe("PUT /user-scoring/:userScoringId", () => {
     const values = await prisma.userScoringValue.findMany({
       where: { userScoringId },
     });
-    expect(values).toHaveLength(2);
+    expect(values).toHaveLength(1);
   });
 
-  it("should skip duplicate answers when adding answers", async () => {
+  it("should replace all existing values with payload values and deduplicate answers", async () => {
     const userScoringId = await createUserScoring();
 
     const res = await request(app)
@@ -486,15 +491,38 @@ describe("PUT /user-scoring/:userScoringId", () => {
       });
 
     expect(res.status).toBe(200);
+    expect(res.body.data.created_count).toBe(2);
+
+    const values = await prisma.userScoringValue.findMany({
+      where: { userScoringId },
+      orderBy: [{ taxonomyKey: "asc" }, { valueKey: "asc" }],
+    });
+    expect(values).toHaveLength(2);
+    expect(values.map((value) => `${value.taxonomyKey}.${value.valueKey}`)).toEqual(["domaine.social_solidarite", "type_mission.ponctuelle"]);
+  });
+
+  it("should replace existing values for a direct taxonomy", async () => {
+    const userScoringId = await createUserScoring();
+
+    const res = await request(app)
+      .put(`/user-scoring/${userScoringId}`)
+      .send({
+        distinctId,
+        answers: [{ taxonomy: "domaine", value: "sante_soins" }],
+      });
+
+    expect(res.status).toBe(200);
     expect(res.body.data.created_count).toBe(1);
 
     const values = await prisma.userScoringValue.findMany({
       where: { userScoringId },
     });
-    expect(values).toHaveLength(2);
+    expect(values).toHaveLength(1);
+    expect(values[0].taxonomyKey).toBe("domaine");
+    expect(values[0].valueKey).toBe("sante_soins");
   });
 
-  it("should add resolved tranche_age answers", async () => {
+  it("should replace existing values with resolved tranche_age answers", async () => {
     const userScoringId = await createUserScoring();
 
     const res = await request(app)
@@ -510,7 +538,76 @@ describe("PUT /user-scoring/:userScoringId", () => {
     const values = await prisma.userScoringValue.findMany({
       where: { userScoringId },
     });
-    expect(values).toHaveLength(4);
+    expect(values).toHaveLength(3);
+  });
+
+  it("should replace existing tranche_age values when age changes", async () => {
+    const userScoringId = await createUserScoring();
+
+    const firstRes = await request(app)
+      .put(`/user-scoring/${userScoringId}`)
+      .send({
+        distinctId,
+        answers: [{ taxonomy: "tranche_age", params: { age: 18, handicap: false } }],
+      });
+    expect(firstRes.status).toBe(200);
+    expect(firstRes.body.data.created_count).toBe(3);
+
+    const secondRes = await request(app)
+      .put(`/user-scoring/${userScoringId}`)
+      .send({
+        distinctId,
+        answers: [{ taxonomy: "tranche_age", params: { age: 70, handicap: false } }],
+      });
+
+    expect(secondRes.status).toBe(200);
+    expect(secondRes.body.data.created_count).toBe(1);
+
+    const values = await prisma.userScoringValue.findMany({
+      where: { userScoringId },
+      orderBy: [{ taxonomyKey: "asc" }, { valueKey: "asc" }],
+    });
+    expect(values.map((value) => `${value.taxonomyKey}.${value.valueKey}`)).toEqual(["tranche_age.entre_17_72_ans"]);
+  });
+
+  it("should delete existing geo when answers do not include location", async () => {
+    const userScoringId = await createUserScoring({
+      distinctId,
+      answers: [taxonomyAnswer, { taxonomy: "location", params: { lat: 48.8566, lon: 2.3522 } }],
+    });
+
+    const res = await request(app)
+      .put(`/user-scoring/${userScoringId}`)
+      .send({
+        distinctId,
+        answers: [secondaryTaxonomyAnswer],
+      });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.created_count).toBe(1);
+
+    const geo = await prisma.userScoringGeo.findUnique({
+      where: { userScoringId },
+    });
+    expect(geo).toBeNull();
+  });
+
+  it("should keep existing geo when update does not include answers", async () => {
+    const userScoringId = await createUserScoring({
+      distinctId,
+      answers: [taxonomyAnswer, { taxonomy: "location", params: { lat: 48.8566, lon: 2.3522 } }],
+    });
+
+    const res = await request(app).put(`/user-scoring/${userScoringId}`).send({ distinctId, missionAlertEnabled: true });
+
+    expect(res.status).toBe(200);
+
+    const geo = await prisma.userScoringGeo.findUnique({
+      where: { userScoringId },
+    });
+    expect(geo).not.toBeNull();
+    expect(geo!.lat).toBe(48.8566);
+    expect(geo!.lon).toBe(2.3522);
   });
 
   it("should update geo from location params", async () => {
@@ -534,6 +631,11 @@ describe("PUT /user-scoring/:userScoringId", () => {
     expect(geo!.lon).toBe(2.3522);
     expect(geo!.radiusKm).toBe(25);
     expect(geo!.countryCode).toBe("FR");
+
+    const values = await prisma.userScoringValue.findMany({
+      where: { userScoringId },
+    });
+    expect(values).toHaveLength(0);
   });
 
   it("should accept an update with only location params", async () => {

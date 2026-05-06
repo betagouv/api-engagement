@@ -174,6 +174,7 @@ export const userScoringService = {
     const result = await userScoringRepository.update({
       userScoringId: input.userScoringId,
       values: scoringData.values,
+      replaceAnswers: input.answers !== undefined,
       geo: scoringData.geo,
       missionAlertEnabled: input.missionAlertEnabled,
     });
