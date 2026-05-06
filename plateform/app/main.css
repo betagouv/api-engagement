@@ -18,6 +18,7 @@
   --color-border-plain-error: var(--border-plain-error);
   --color-background-default-grey-hover: var(--background-default-grey-hover);
   --color-background-default-grey-active: var(--background-default-grey-active);
+  --color-background: var(--background-default-grey);
 }
 
 .header-shadow {

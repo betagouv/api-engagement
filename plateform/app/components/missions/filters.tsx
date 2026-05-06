@@ -17,7 +17,7 @@ interface MissionFiltersBarProps {
 
 export default function MissionFiltersBar({ filters, onChange }: MissionFiltersBarProps) {
   return (
-    <div className="flex flex-col py-4 divide-y divide-border-default-grey shadow-lg md:flex-row md:divide-x md:divide-y-0">
+    <div className="fr-container bg-background flex flex-col py-4 divide-y divide-border-default-grey shadow-lg md:flex-row md:divide-x md:divide-y-0">
       {filters.map((filter) => (
         <div key={filter.key} className="min-w-0 flex-1">
           <Combobox label={filter.label} placeholder={filter.placeholder} options={filter.options} selected={filter.selected} onChange={(next) => onChange(filter.key, next)} />

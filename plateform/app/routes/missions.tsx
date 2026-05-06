@@ -1,6 +1,7 @@
 import { TAXONOMY } from "@engagement/taxonomy";
 import { useEffect, useMemo, useState } from "react";
 import MissionFiltersBar, { type FilterDef } from "~/components/missions/filters";
+import GradientBg from "~/components/ui/gradient-bg";
 import { browseMissions, type BrowseFilters, type BrowseMission, type FacetCount } from "~/services/mission-browse";
 import type { Route } from "./+types/missions";
 
@@ -203,132 +204,129 @@ export default function MissionsPage() {
 
   return (
     <main>
-      <div className="bg-beige-gris-galet">
+      <GradientBg>
         <div className="fr-container fr-py-8w">
           <h1 className="fr-h1 fr-mb-2w">Trouve ta mission</h1>
-          <p className="fr-text--lead fr-mb-0">
+          <p className="fr-text--lead fr-mb-4w">
             {loading && total === 0 ? "Chargement…" : `${total.toLocaleString("fr-FR")} mission${total > 1 ? "s" : ""} disponible${total > 1 ? "s" : ""}`}
           </p>
-        </div>
-      </div>
-
-      <div className="fr-container fr-py-6w">
-        <div className="fr-mb-4w">
           <MissionFiltersBar filters={filterDefs} onChange={handleFilterChange} />
         </div>
 
-        {error && (
-          <div className="fr-alert fr-alert--error fr-mb-4w">
-            <p>Erreur lors du chargement des missions : {error}</p>
-          </div>
-        )}
+        <div className="fr-container fr-py-6w">
+          {error && (
+            <div className="fr-alert fr-alert--error fr-mb-4w">
+              <p>Erreur lors du chargement des missions : {error}</p>
+            </div>
+          )}
 
-        {loading && items.length === 0 && <p className="fr-text--sm">Chargement des missions…</p>}
+          {loading && items.length === 0 && <p className="fr-text--sm">Chargement des missions…</p>}
 
-        {!loading && !error && items.length === 0 && (
-          <div className="fr-alert fr-alert--info">
-            <p>Aucune mission ne correspond à ces filtres.</p>
-          </div>
-        )}
+          {!loading && !error && items.length === 0 && (
+            <div className="fr-alert fr-alert--info">
+              <p>Aucune mission ne correspond à ces filtres.</p>
+            </div>
+          )}
 
-        {items.length > 0 && (
-          <div className="fr-grid-row fr-grid-row--gutters">
-            {items.map((mission) => {
-              const cardImage = mission.organizationLogo ?? mission.domainLogo;
-              const domainLabel = mission.domain ? filterTaxonomyLabel("domaine", mission.domain) : null;
-              return (
-                <div key={mission._id} className="fr-col-12 fr-col-md-6 fr-col-lg-4">
-                  <div className="fr-card fr-enlarge-link h-full">
-                    <div className="fr-card__body">
-                      <div className="fr-card__content">
-                        <h3 className="fr-card__title">
-                          <a href={mission.applicationUrl ?? "#"} target="_blank" rel="noopener noreferrer">
-                            {mission.title}
-                          </a>
-                        </h3>
-                        <div className="fr-card__end">
-                          <ul className="fr-mb-0 list-none p-0 text-sm text-title-grey">
-                            {mission.city && (
-                              <li className="flex items-center gap-2 py-0.5">
-                                <i className="fr-icon-map-pin-2-line fr-icon--sm" aria-hidden="true" />
-                                <span>{mission.city}</span>
-                              </li>
-                            )}
-                            {mission.schedule && (
-                              <li className="flex items-center gap-2 py-0.5">
-                                <i className="fr-icon-time-line fr-icon--sm" aria-hidden="true" />
-                                <span>{mission.schedule}</span>
-                              </li>
-                            )}
-                            {mission.organizationName && (
-                              <li className="flex items-center gap-2 py-0.5">
-                                <i className="fr-icon-building-line fr-icon--sm" aria-hidden="true" />
-                                <span className="line-clamp-1">{mission.organizationName}</span>
-                              </li>
-                            )}
-                          </ul>
-                        </div>
-                        {(mission.publisherName ?? mission.publisherLogo) && (
-                          <div className="mt-4 flex items-center justify-end gap-2 border-t border-border-default-grey pt-3 text-xs text-title-grey">
-                            {mission.publisherName && <span className="line-clamp-1">{mission.publisherName}</span>}
-                            {mission.publisherLogo && <img src={mission.publisherLogo} alt="" className="max-h-6 max-w-16 object-contain" loading="lazy" />}
+          {items.length > 0 && (
+            <div className="fr-grid-row fr-grid-row--gutters">
+              {items.map((mission) => {
+                const cardImage = mission.organizationLogo ?? mission.domainLogo;
+                const domainLabel = mission.domain ? filterTaxonomyLabel("domaine", mission.domain) : null;
+                return (
+                  <div key={mission._id} className="fr-col-12 fr-col-md-6 fr-col-lg-4">
+                    <div className="fr-card fr-enlarge-link h-full">
+                      <div className="fr-card__body">
+                        <div className="fr-card__content">
+                          <h3 className="fr-card__title">
+                            <a href={mission.applicationUrl ?? "#"} target="_blank" rel="noopener noreferrer">
+                              {mission.title}
+                            </a>
+                          </h3>
+                          <div className="fr-card__end">
+                            <ul className="fr-mb-0 list-none p-0 text-sm text-title-grey">
+                              {mission.city && (
+                                <li className="flex items-center gap-2 py-0.5">
+                                  <i className="fr-icon-map-pin-2-line fr-icon--sm" aria-hidden="true" />
+                                  <span>{mission.city}</span>
+                                </li>
+                              )}
+                              {mission.schedule && (
+                                <li className="flex items-center gap-2 py-0.5">
+                                  <i className="fr-icon-time-line fr-icon--sm" aria-hidden="true" />
+                                  <span>{mission.schedule}</span>
+                                </li>
+                              )}
+                              {mission.organizationName && (
+                                <li className="flex items-center gap-2 py-0.5">
+                                  <i className="fr-icon-building-line fr-icon--sm" aria-hidden="true" />
+                                  <span className="line-clamp-1">{mission.organizationName}</span>
+                                </li>
+                              )}
+                            </ul>
                           </div>
-                        )}
+                          {(mission.publisherName ?? mission.publisherLogo) && (
+                            <div className="mt-4 flex items-center justify-end gap-2 border-t border-border-default-grey pt-3 text-xs text-title-grey">
+                              {mission.publisherName && <span className="line-clamp-1">{mission.publisherName}</span>}
+                              {mission.publisherLogo && <img src={mission.publisherLogo} alt="" className="max-h-6 max-w-16 object-contain" loading="lazy" />}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                    <div className="fr-card__header">
-                      <div className="fr-card__img relative">
-                        {cardImage ? <img className="fr-responsive-img" src={cardImage} alt="" loading="lazy" /> : <div className="aspect-[16/9] w-full bg-beige-gris-galet" />}
-                        {domainLabel && (
-                          <ul className="fr-tags-group absolute left-3 top-3">
-                            <li>
-                              <p className="fr-tag fr-tag--sm">{domainLabel}</p>
-                            </li>
-                          </ul>
-                        )}
+                      <div className="fr-card__header">
+                        <div className="fr-card__img relative">
+                          {cardImage ? <img className="fr-responsive-img" src={cardImage} alt="" loading="lazy" /> : <div className="aspect-[16/9] w-full bg-beige-gris-galet" />}
+                          {domainLabel && (
+                            <ul className="fr-tags-group absolute left-3 top-3">
+                              <li>
+                                <p className="fr-tag fr-tag--sm">{domainLabel}</p>
+                              </li>
+                            </ul>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+                );
+              })}
+            </div>
+          )}
 
-        {totalPages > 1 && (
-          <nav className="fr-pagination fr-mt-6w" aria-label="Pagination des missions">
-            <ul className="fr-pagination__list">
-              <li>
-                <button type="button" className="fr-pagination__link fr-pagination__link--first" disabled={page === 1} onClick={() => handlePageChange(1)}>
-                  Première page
-                </button>
-              </li>
-              <li>
-                <button type="button" className="fr-pagination__link fr-pagination__link--prev" disabled={page === 1} onClick={() => handlePageChange(page - 1)}>
-                  Page précédente
-                </button>
-              </li>
-              {visiblePageNumbers.map((pageNumber) => (
-                <li key={pageNumber}>
-                  <button type="button" className="fr-pagination__link" aria-current={pageNumber === page ? "page" : undefined} onClick={() => handlePageChange(pageNumber)}>
-                    {pageNumber}
+          {totalPages > 1 && (
+            <nav className="fr-pagination fr-mt-6w" aria-label="Pagination des missions">
+              <ul className="fr-pagination__list">
+                <li>
+                  <button type="button" className="fr-pagination__link fr-pagination__link--first" disabled={page === 1} onClick={() => handlePageChange(1)}>
+                    Première page
                   </button>
                 </li>
-              ))}
-              <li>
-                <button type="button" className="fr-pagination__link fr-pagination__link--next" disabled={page === totalPages} onClick={() => handlePageChange(page + 1)}>
-                  Page suivante
-                </button>
-              </li>
-              <li>
-                <button type="button" className="fr-pagination__link fr-pagination__link--last" disabled={page === totalPages} onClick={() => handlePageChange(totalPages)}>
-                  Dernière page
-                </button>
-              </li>
-            </ul>
-          </nav>
-        )}
-      </div>
+                <li>
+                  <button type="button" className="fr-pagination__link fr-pagination__link--prev" disabled={page === 1} onClick={() => handlePageChange(page - 1)}>
+                    Page précédente
+                  </button>
+                </li>
+                {visiblePageNumbers.map((pageNumber) => (
+                  <li key={pageNumber}>
+                    <button type="button" className="fr-pagination__link" aria-current={pageNumber === page ? "page" : undefined} onClick={() => handlePageChange(pageNumber)}>
+                      {pageNumber}
+                    </button>
+                  </li>
+                ))}
+                <li>
+                  <button type="button" className="fr-pagination__link fr-pagination__link--next" disabled={page === totalPages} onClick={() => handlePageChange(page + 1)}>
+                    Page suivante
+                  </button>
+                </li>
+                <li>
+                  <button type="button" className="fr-pagination__link fr-pagination__link--last" disabled={page === totalPages} onClick={() => handlePageChange(totalPages)}>
+                    Dernière page
+                  </button>
+                </li>
+              </ul>
+            </nav>
+          )}
+        </div>
+      </GradientBg>
     </main>
   );
 }
