@@ -3,8 +3,8 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import { prisma } from "@/db/postgres";
 import { missionService } from "@/services/mission";
-import { createTestMission, createTestPublisher } from "../../../fixtures";
-import { createTestApp } from "../../../testApp";
+import { createTestMission, createTestPublisher } from "../../../../fixtures";
+import { createTestApp } from "../../../../testApp";
 
 describe("Mission V2 Write API Integration Tests", () => {
   const app = createTestApp();

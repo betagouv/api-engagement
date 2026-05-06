@@ -3,10 +3,10 @@ import passport from "passport";
 import zod from "zod";
 
 import { INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
+import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { organizationService } from "@/services/organization";
 import { OrganizationUpdatePatch } from "@/types/organization";
 import { UserRequest } from "@/types/passport";
-import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { slugify } from "@/utils/string";
 
 const router = Router();
@@ -42,7 +42,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
   }
 });
 
-router.get("/:id", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+router.get("/:id", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
     const params = zod
       .object({
@@ -66,7 +66,7 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
   }
 });
 
-router.put("/:id", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+router.put("/:id", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
     const params = zod.object({ id: zod.string() }).safeParse(req.params);
     const body = zod.object({ name: zod.string().optional(), unnamed: zod.string().optional(), rna: zod.string().optional(), siren: zod.string().optional() }).safeParse(req.body);

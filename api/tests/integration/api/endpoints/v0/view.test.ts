@@ -1,8 +1,8 @@
 import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
 
-import { createTestPublisher } from "../../../fixtures";
-import { createTestApp } from "../../../testApp";
+import { createTestPublisher } from "../../../../fixtures";
+import { createTestApp } from "../../../../testApp";
 
 describe("View API Integration Tests", () => {
   const app = createTestApp();

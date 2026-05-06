@@ -3,10 +3,11 @@ import passport from "passport";
 import zod from "zod";
 
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "@/error";
+import { authorizePublisherAccess } from "@/middlewares/authorization";
+import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { publisherService } from "@/services/publisher";
 import { widgetService } from "@/services/widget";
 import { UserRequest } from "@/types/passport";
-import { ipRateLimiter } from "@/middlewares/rate-limit";
 import type { WidgetCreateInput, WidgetSearchParams } from "@/types/widget";
 
 const router = Router();
@@ -114,29 +115,40 @@ router.get("/", passport.authenticate("user", { session: false }), async (req: U
   }
 });
 
-router.get("/:id", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
-  try {
-    const params = zod
-      .object({
-        id: zod.string(),
-      })
-      .required()
-      .safeParse(req.params);
+router.get(
+  "/:id",
+  passport.authenticate("user", { session: false }),
+  authorizePublisherAccess({
+    resolvePublisherIds: async (req, _res) => {
+      const widgetId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const widget = await widgetService.findOneWidgetById(widgetId, { includeDeleted: true });
+      if (!widget) {
+        return null;
+      }
+      return { publisherIds: [widget.fromPublisherId], locals: { widget } };
+    },
+  }),
+  async (req: UserRequest, res: Response, next: NextFunction) => {
+    try {
+      const params = zod
+        .object({
+          id: zod.string(),
+        })
+        .required()
+        .safeParse(req.params);
 
-    if (!params.success) {
-      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
+      if (!params.success) {
+        return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
+      }
+
+      const data = res.locals.widget;
+
+      return res.status(200).send({ ok: true, data });
+    } catch (error: any) {
+      next(error);
     }
-
-    const data = await widgetService.findOneWidgetById(params.data.id, { includeDeleted: true });
-    if (!data) {
-      return res.status(404).send({ ok: false, code: NOT_FOUND });
-    }
-
-    return res.status(200).send({ ok: true, data });
-  } catch (error: any) {
-    next(error);
   }
-});
+);
 
 router.post("/", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {

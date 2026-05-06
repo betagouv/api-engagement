@@ -1,10 +1,10 @@
-import request from "supertest";
-import { beforeEach, describe, expect, it } from "vitest";
 import type { MissionRecord } from "@/types/mission";
 import type { PublisherRecord } from "@/types/publisher";
 import type { WidgetRecord } from "@/types/widget";
-import { createTestMission, createTestPublisher, createTestWidget, createTestWidgetRule } from "../../../fixtures";
-import { createTestApp } from "../../../testApp";
+import request from "supertest";
+import { beforeEach, describe, expect, it } from "vitest";
+import { createTestMission, createTestPublisher, createTestWidget, createTestWidgetRule } from "../../../../fixtures";
+import { createTestApp } from "../../../../testApp";
 
 describe("GET /iframe/:id/search", () => {
   const app = createTestApp();

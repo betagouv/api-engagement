@@ -3,9 +3,9 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import { PUBLISHER_IDS } from "@/config";
 import { prisma } from "@/db/postgres";
-import { createTestMission, createTestPublisher } from "../../fixtures";
-import { createTestUser } from "../../fixtures/user";
-import { createTestApp } from "../../testApp";
+import { createTestMissionWithModeration as createMissionWithModeration, createTestMission, createTestPublisher } from "../../../fixtures";
+import { createTestUser } from "../../../fixtures/user";
+import { createTestApp } from "../../../testApp";
 
 const app = createTestApp();
 
@@ -34,27 +34,6 @@ describe("Moderation API endpoints (integration test)", () => {
     adminToken = adminResult.token;
   });
 
-  // Helper: create mission with a given moderation state via factory overrides
-  const createMissionWithModeration = async (opts: { status?: string; comment?: string } = {}) => {
-    const mission = await createTestMission({
-      publisherId: partner.id,
-      statusCode: "ACCEPTED",
-      description: "D".repeat(350),
-      moderationStatus: (opts.status ?? "PENDING") as any,
-      moderationComment: (opts.comment ?? null) as any,
-    });
-
-    // Fetch the moderation record created by the factory
-    const moderation = await prisma.missionModerationStatus.findFirst({
-      where: { missionId: mission.id, publisherId: PUBLISHER_IDS.JEVEUXAIDER },
-    });
-    if (!moderation) {
-      throw new Error("Moderation record not found after createTestMission");
-    }
-
-    return { mission, moderation };
-  };
-
   // ─── POST /moderation/search ──────────────────────────────────────────────
 
   describe("POST /moderation/search", () => {
@@ -79,9 +58,18 @@ describe("Moderation API endpoints (integration test)", () => {
       expect(res.body.total).toBe(0);
     });
 
+    it("allows a user attached to the moderator publisher", async () => {
+      const { token } = await createTestUser({ role: "user", publishers: [jva.id] });
+
+      const res = await request(app).post("/moderation/search").set("Authorization", `jwt ${token}`).send({ moderatorId: jva.id });
+
+      expect(res.status).not.toBe(401);
+      expect(res.status).not.toBe(403);
+    });
+
     it("should return moderation records for a given moderatorId", async () => {
-      await createMissionWithModeration();
-      await createMissionWithModeration();
+      await createMissionWithModeration({ publisherId: partner.id });
+      await createMissionWithModeration({ publisherId: partner.id });
 
       const res = await request(app).post("/moderation/search").set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id });
 
@@ -91,8 +79,8 @@ describe("Moderation API endpoints (integration test)", () => {
     });
 
     it("should filter by status", async () => {
-      await createMissionWithModeration({ status: "REFUSED", comment: "CONTENT_INSUFFICIENT" });
-      await createMissionWithModeration({ status: "PENDING" });
+      await createMissionWithModeration({ publisherId: partner.id, moderationStatus: "REFUSED", moderationComment: "CONTENT_INSUFFICIENT" });
+      await createMissionWithModeration({ publisherId: partner.id, moderationStatus: "PENDING" });
 
       const res = await request(app).post("/moderation/search").set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id, status: "REFUSED" });
 
@@ -102,8 +90,8 @@ describe("Moderation API endpoints (integration test)", () => {
     });
 
     it("should filter by comment", async () => {
-      await createMissionWithModeration({ status: "REFUSED", comment: "CONTENT_INSUFFICIENT" });
-      await createMissionWithModeration({ status: "REFUSED", comment: "MISSION_CREATION_DATE_TOO_OLD" });
+      await createMissionWithModeration({ publisherId: partner.id, moderationStatus: "REFUSED", moderationComment: "CONTENT_INSUFFICIENT" });
+      await createMissionWithModeration({ publisherId: partner.id, moderationStatus: "REFUSED", moderationComment: "MISSION_CREATION_DATE_TOO_OLD" });
 
       const res = await request(app).post("/moderation/search").set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id, comment: "CONTENT_INSUFFICIENT" });
 
@@ -134,7 +122,7 @@ describe("Moderation API endpoints (integration test)", () => {
 
     it("should paginate results with from and size", async () => {
       for (let i = 0; i < 5; i++) {
-        await createMissionWithModeration();
+        await createMissionWithModeration({ publisherId: partner.id });
       }
 
       const res = await request(app).post("/moderation/search").set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id, size: 2, from: 0 });
@@ -145,7 +133,7 @@ describe("Moderation API endpoints (integration test)", () => {
     });
 
     it("should include mission fields in response (flattened record)", async () => {
-      await createMissionWithModeration();
+      await createMissionWithModeration({ publisherId: partner.id });
 
       const res = await request(app).post("/moderation/search").set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id });
 
@@ -168,8 +156,8 @@ describe("Moderation API endpoints (integration test)", () => {
     });
 
     it("should return aggregations with correct keys", async () => {
-      await createMissionWithModeration({ status: "REFUSED", comment: "CONTENT_INSUFFICIENT" });
-      await createMissionWithModeration({ status: "PENDING" });
+      await createMissionWithModeration({ publisherId: partner.id, moderationStatus: "REFUSED", moderationComment: "CONTENT_INSUFFICIENT" });
+      await createMissionWithModeration({ publisherId: partner.id, moderationStatus: "PENDING" });
 
       const res = await request(app).post("/moderation/aggs").set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id });
 
@@ -183,9 +171,9 @@ describe("Moderation API endpoints (integration test)", () => {
     });
 
     it("should reflect actual status distribution in status aggregation", async () => {
-      await createMissionWithModeration({ status: "REFUSED", comment: "CONTENT_INSUFFICIENT" });
-      await createMissionWithModeration({ status: "PENDING" });
-      await createMissionWithModeration({ status: "PENDING" });
+      await createMissionWithModeration({ publisherId: partner.id, moderationStatus: "REFUSED", moderationComment: "CONTENT_INSUFFICIENT" });
+      await createMissionWithModeration({ publisherId: partner.id, moderationStatus: "PENDING" });
+      await createMissionWithModeration({ publisherId: partner.id, moderationStatus: "PENDING" });
 
       const res = await request(app).post("/moderation/aggs").set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id });
 
@@ -197,8 +185,8 @@ describe("Moderation API endpoints (integration test)", () => {
     });
 
     it("should reduce aggregations when a status filter is active", async () => {
-      await createMissionWithModeration({ status: "REFUSED", comment: "CONTENT_INSUFFICIENT" });
-      await createMissionWithModeration({ status: "PENDING" });
+      await createMissionWithModeration({ publisherId: partner.id, moderationStatus: "REFUSED", moderationComment: "CONTENT_INSUFFICIENT" });
+      await createMissionWithModeration({ publisherId: partner.id, moderationStatus: "PENDING" });
 
       const res = await request(app).post("/moderation/aggs").set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id, status: "REFUSED" });
 
@@ -224,7 +212,7 @@ describe("Moderation API endpoints (integration test)", () => {
     });
 
     it("should return 403 when the moderatorId is not a moderator", async () => {
-      const { moderation } = await createMissionWithModeration();
+      const { moderation } = await createMissionWithModeration({ publisherId: partner.id });
       const nonModerator = await createTestPublisher({ moderator: false });
 
       const res = await request(app).get(`/moderation/${moderation.id}`).set("Authorization", `jwt ${adminToken}`).query({ moderatorId: nonModerator.id });
@@ -233,7 +221,7 @@ describe("Moderation API endpoints (integration test)", () => {
     });
 
     it("should return 403 when user does not have access to the moderator publisher", async () => {
-      const { moderation } = await createMissionWithModeration();
+      const { moderation } = await createMissionWithModeration({ publisherId: partner.id });
       const { token } = await createTestUser({ role: "user", publishers: [partner.id] });
 
       const res = await request(app).get(`/moderation/${moderation.id}`).set("Authorization", `jwt ${token}`).query({ moderatorId: jva.id });
@@ -242,7 +230,7 @@ describe("Moderation API endpoints (integration test)", () => {
     });
 
     it("should return the moderation record with flattened mission fields", async () => {
-      const { moderation, mission } = await createMissionWithModeration();
+      const { moderation, mission } = await createMissionWithModeration({ publisherId: partner.id });
 
       const res = await request(app).get(`/moderation/${moderation.id}`).set("Authorization", `jwt ${adminToken}`).query({ moderatorId: jva.id });
 
@@ -263,7 +251,7 @@ describe("Moderation API endpoints (integration test)", () => {
     });
 
     it("should return 400 for invalid body (invalid status)", async () => {
-      const { moderation } = await createMissionWithModeration();
+      const { moderation } = await createMissionWithModeration({ publisherId: partner.id });
 
       const res = await request(app).put(`/moderation/${moderation.id}`).set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id, status: "NOT_A_STATUS" });
 
@@ -271,7 +259,7 @@ describe("Moderation API endpoints (integration test)", () => {
     });
 
     it("should return 403 when user does not have access to the moderator publisher", async () => {
-      const { moderation } = await createMissionWithModeration();
+      const { moderation } = await createMissionWithModeration({ publisherId: partner.id });
       const { token } = await createTestUser({ role: "user", publishers: [partner.id] });
 
       const res = await request(app).put(`/moderation/${moderation.id}`).set("Authorization", `jwt ${token}`).send({ moderatorId: jva.id, status: "ACCEPTED" });
@@ -280,7 +268,7 @@ describe("Moderation API endpoints (integration test)", () => {
     });
 
     it("should update the status and persist it in the database", async () => {
-      const { moderation } = await createMissionWithModeration();
+      const { moderation } = await createMissionWithModeration({ publisherId: partner.id });
 
       const res = await request(app).put(`/moderation/${moderation.id}`).set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id, status: "ACCEPTED" });
 
@@ -292,7 +280,7 @@ describe("Moderation API endpoints (integration test)", () => {
     });
 
     it("should create a ModerationEvent when status changes", async () => {
-      const { moderation } = await createMissionWithModeration();
+      const { moderation } = await createMissionWithModeration({ publisherId: partner.id });
 
       await request(app).put(`/moderation/${moderation.id}`).set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id, status: "ACCEPTED" });
 
@@ -304,7 +292,7 @@ describe("Moderation API endpoints (integration test)", () => {
     });
 
     it("should clear the comment when changing from REFUSED to ACCEPTED", async () => {
-      const { moderation } = await createMissionWithModeration({ status: "REFUSED", comment: "CONTENT_INSUFFICIENT" });
+      const { moderation } = await createMissionWithModeration({ publisherId: partner.id, moderationStatus: "REFUSED", moderationComment: "CONTENT_INSUFFICIENT" });
 
       const res = await request(app).put(`/moderation/${moderation.id}`).set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id, status: "ACCEPTED" });
 
@@ -316,7 +304,7 @@ describe("Moderation API endpoints (integration test)", () => {
     });
 
     it("should update note without changing status", async () => {
-      const { moderation } = await createMissionWithModeration();
+      const { moderation } = await createMissionWithModeration({ publisherId: partner.id });
 
       const res = await request(app).put(`/moderation/${moderation.id}`).set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id, note: "Note interne" });
 
@@ -327,7 +315,7 @@ describe("Moderation API endpoints (integration test)", () => {
     });
 
     it("should create a ModerationEvent when only the comment changes within the same REFUSED status", async () => {
-      const { moderation } = await createMissionWithModeration({ status: "REFUSED", comment: "CONTENT_INSUFFICIENT" });
+      const { moderation } = await createMissionWithModeration({ publisherId: partner.id, moderationStatus: "REFUSED", moderationComment: "CONTENT_INSUFFICIENT" });
 
       await request(app)
         .put(`/moderation/${moderation.id}`)
@@ -343,7 +331,7 @@ describe("Moderation API endpoints (integration test)", () => {
     });
 
     it("should create a ModerationEvent with RNA fields when RNA is set on the publisher organization", async () => {
-      const { moderation, mission } = await createMissionWithModeration();
+      const { moderation, mission } = await createMissionWithModeration({ publisherId: partner.id });
 
       const res = await request(app).put(`/moderation/${moderation.id}`).set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id, rna: "W123456789" });
 
@@ -355,7 +343,7 @@ describe("Moderation API endpoints (integration test)", () => {
     });
 
     it("should create a ModerationEvent with SIREN fields when SIREN is set on the publisher organization", async () => {
-      const { moderation, mission } = await createMissionWithModeration();
+      const { moderation, mission } = await createMissionWithModeration({ publisherId: partner.id });
 
       const res = await request(app).put(`/moderation/${moderation.id}`).set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id, siren: "123456789" });
 
@@ -368,8 +356,8 @@ describe("Moderation API endpoints (integration test)", () => {
 
     it("should propagate RNA change to all missions sharing the same publisherOrganization", async () => {
       // Both calls use the same partner.id + default organizationClientId ("6789"), so they share the same PublisherOrganization
-      const { moderation: mod1 } = await createMissionWithModeration();
-      const { mission: mission2 } = await createMissionWithModeration();
+      const { moderation: mod1 } = await createMissionWithModeration({ publisherId: partner.id });
+      const { mission: mission2 } = await createMissionWithModeration({ publisherId: partner.id });
 
       await request(app).put(`/moderation/${mod1.id}`).set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id, rna: "W123456789" });
 
@@ -381,7 +369,7 @@ describe("Moderation API endpoints (integration test)", () => {
     });
 
     it("should persist REFUSED status in the database", async () => {
-      const { moderation } = await createMissionWithModeration();
+      const { moderation } = await createMissionWithModeration({ publisherId: partner.id });
 
       const res = await request(app)
         .put(`/moderation/${moderation.id}`)
@@ -396,7 +384,7 @@ describe("Moderation API endpoints (integration test)", () => {
     });
 
     it("should return 400 when status is REFUSED without a comment", async () => {
-      const { moderation } = await createMissionWithModeration();
+      const { moderation } = await createMissionWithModeration({ publisherId: partner.id });
 
       const res = await request(app).put(`/moderation/${moderation.id}`).set("Authorization", `jwt ${adminToken}`).send({ moderatorId: jva.id, status: "REFUSED" });
 
@@ -440,8 +428,8 @@ describe("Moderation API endpoints (integration test)", () => {
     });
 
     it("should update multiple moderation records by ids", async () => {
-      const { moderation: mod1 } = await createMissionWithModeration();
-      const { moderation: mod2 } = await createMissionWithModeration();
+      const { moderation: mod1 } = await createMissionWithModeration({ publisherId: partner.id });
+      const { moderation: mod2 } = await createMissionWithModeration({ publisherId: partner.id });
 
       const res = await request(app)
         .put("/moderation/many")
@@ -461,8 +449,8 @@ describe("Moderation API endpoints (integration test)", () => {
     });
 
     it("should create one ModerationEvent per updated record", async () => {
-      const { moderation: mod1 } = await createMissionWithModeration();
-      const { moderation: mod2 } = await createMissionWithModeration();
+      const { moderation: mod1 } = await createMissionWithModeration({ publisherId: partner.id });
+      const { moderation: mod2 } = await createMissionWithModeration({ publisherId: partner.id });
 
       await request(app)
         .put("/moderation/many")
@@ -481,9 +469,27 @@ describe("Moderation API endpoints (integration test)", () => {
     });
 
     it("should update all moderation records for a given organization id", async () => {
-      const mission1 = await createTestMission({ publisherId: partner.id, statusCode: "ACCEPTED", organizationName: "Croix Rouge", organizationClientId: "croix-rouge", moderationStatus: "PENDING" as any });
-      const mission2 = await createTestMission({ publisherId: partner.id, statusCode: "ACCEPTED", organizationName: "Croix Rouge", organizationClientId: "croix-rouge", moderationStatus: "PENDING" as any });
-      const otherMission = await createTestMission({ publisherId: partner.id, statusCode: "ACCEPTED", organizationName: "SAMU Social", organizationClientId: "samu-social", moderationStatus: "PENDING" as any });
+      const mission1 = await createTestMission({
+        publisherId: partner.id,
+        statusCode: "ACCEPTED",
+        organizationName: "Croix Rouge",
+        organizationClientId: "croix-rouge",
+        moderationStatus: "PENDING" as any,
+      });
+      const mission2 = await createTestMission({
+        publisherId: partner.id,
+        statusCode: "ACCEPTED",
+        organizationName: "Croix Rouge",
+        organizationClientId: "croix-rouge",
+        moderationStatus: "PENDING" as any,
+      });
+      const otherMission = await createTestMission({
+        publisherId: partner.id,
+        statusCode: "ACCEPTED",
+        organizationName: "SAMU Social",
+        organizationClientId: "samu-social",
+        moderationStatus: "PENDING" as any,
+      });
 
       const croixRougeOrg = await prisma.publisherOrganization.findFirst({ where: { publisherId: partner.id, clientId: "croix-rouge" } });
       expect(croixRougeOrg).toBeTruthy();

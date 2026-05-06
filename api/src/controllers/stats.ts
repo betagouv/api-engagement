@@ -3,14 +3,15 @@ import passport from "passport";
 import zod from "zod";
 
 import { INVALID_BODY } from "@/error";
-import { UserRequest } from "@/types/passport";
+import { authorizeStatsSearch } from "@/middlewares/authorization";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { statEventService } from "@/services/stat-event";
+import { UserRequest } from "@/types/passport";
 
 const router = Router();
 router.use(ipRateLimiter);
 
-router.post("/search", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+router.post("/search", passport.authenticate("user", { session: false }), authorizeStatsSearch(), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
     const body = zod
       .object({
@@ -27,14 +28,6 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
     if (!body.success) {
       return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
     }
-    if (!body.data.fromPublisherId && !body.data.toPublisherId) {
-      return res.status(400).send({
-        ok: false,
-        code: INVALID_BODY,
-        error: "Missing fromPublisherId or toPublisherId",
-      });
-    }
-
     const events = await statEventService.findStatEvents({
       fromPublisherId: body.data.fromPublisherId,
       toPublisherId: body.data.toPublisherId,

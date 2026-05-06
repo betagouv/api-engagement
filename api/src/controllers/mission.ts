@@ -3,10 +3,11 @@ import passport from "passport";
 import zod from "zod";
 
 import { PUBLISHER_IDS } from "@/config";
-import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
+import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY } from "@/error";
+import { authorizePublisherAccess, canAccessPublisher, getUserPublisherIds, isAdmin } from "@/middlewares/authorization";
+import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { missionService } from "@/services/mission";
 import type { UserRequest } from "@/types/passport";
-import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { applyWidgetRules, getDistanceKm } from "@/utils";
 
 const router = Router();
@@ -168,8 +169,19 @@ router.get("/autocomplete", passport.authenticate("user", { session: false }), a
       return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
     }
 
+    const requestedPublisherIds = Array.isArray(query.data.publishers) ? query.data.publishers : query.data.publishers ? [query.data.publishers] : [];
+    const publisherIds = isAdmin(req.user)
+      ? requestedPublisherIds
+      : requestedPublisherIds.length
+        ? requestedPublisherIds.filter((publisherId) => canAccessPublisher(req.user, publisherId))
+        : getUserPublisherIds(req.user);
+
+    if (!publisherIds.length && !isAdmin(req.user)) {
+      return res.status(403).send({ ok: false, code: FORBIDDEN });
+    }
+
     const missions = await missionService.findMissions({
-      publisherIds: Array.isArray(query.data.publishers) ? query.data.publishers : query.data.publishers ? [query.data.publishers] : [],
+      publisherIds,
       limit: 1000,
       skip: 0,
       domain: undefined,
@@ -200,28 +212,50 @@ router.get("/autocomplete", passport.authenticate("user", { session: false }), a
   }
 });
 
-router.get("/:id", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
-  try {
-    const params = zod
-      .object({
-        id: zod.string(),
-      })
-      .safeParse(req.params);
-
-    if (!params.success) {
-      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
+const getMissionPublisherIds = (mission: Record<string, unknown>) => {
+  const publisherIds = [mission.publisherId].filter((publisherId): publisherId is string => typeof publisherId === "string" && publisherId.length > 0);
+  Object.keys(mission).forEach((key) => {
+    const match = key.match(/^moderation_(.+)_status$/);
+    if (match?.[1]) {
+      publisherIds.push(match[1]);
     }
+  });
+  return Array.from(new Set(publisherIds));
+};
 
-    const data = await missionService.findOneMission(params.data.id);
-    if (!data) {
-      return res.status(404).send({ ok: false, code: NOT_FOUND });
+router.get(
+  "/:id",
+  passport.authenticate("user", { session: false }),
+  authorizePublisherAccess({
+    resolvePublisherIds: async (req, _res) => {
+      const missionId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const mission = await missionService.findOneMission(missionId);
+      if (!mission) {
+        return null;
+      }
+      return { publisherIds: getMissionPublisherIds(mission), locals: { mission } };
+    },
+  }),
+  async (req: UserRequest, res: Response, next: NextFunction) => {
+    try {
+      const params = zod
+        .object({
+          id: zod.string(),
+        })
+        .safeParse(req.params);
+
+      if (!params.success) {
+        return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
+      }
+
+      const data = res.locals.mission;
+
+      return res.status(200).send({ ok: true, data });
+    } catch (error: any) {
+      next(error);
     }
-
-    return res.status(200).send({ ok: true, data });
-  } catch (error: any) {
-    next(error);
   }
-});
+);
 
 router.delete("/:id", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
