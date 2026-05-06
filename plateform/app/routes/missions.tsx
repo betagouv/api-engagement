@@ -1,6 +1,7 @@
 import { TAXONOMY } from "@engagement/taxonomy";
 import { useEffect, useState } from "react";
 import MissionFiltersBar, { type FilterDef } from "~/components/missions/filters";
+import Newsletter from "~/components/missions/newsletter";
 import GradientBg from "~/components/ui/gradient-bg";
 import Pagination from "~/components/ui/pagination";
 import { browseMissions, type BrowseFilters, type BrowseMission, type FacetCount } from "~/services/mission-browse";
@@ -476,6 +477,8 @@ export default function MissionsPage() {
           </div>
         </div>
       </GradientBg>
+
+      <Newsletter />
     </main>
   );
 }
