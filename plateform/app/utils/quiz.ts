@@ -16,11 +16,10 @@ export function refreshSteps(
 }
 
 // Construit le payload /user-scoring à partir des réponses stockées.
-// Règles de sérialisation par type :
-//   - "params"  → { taxonomy, params } (chaque step inscrit sa propre taxonomy)
-//   - "options" → une entrée { taxonomy, value } par option_id (split sur le premier ".")
-//   - autres    → non envoyés (numeric = conditions UI, text = champs libres non scorés)
-// "handicap" est exclu : sa sémantique est déjà capturée dans answers["tranche_age"].params.handicap.
+// - "params"  → { taxonomy, params } (taxonomy inscrite par le step lui-même)
+// - "options" → une entrée { taxonomy, value } par option_id (taxonomy inscrite par le step)
+// - autres    → non envoyés (numeric = conditions UI, text = champs libres non scorés)
+// "handicap" est exclu : sa sémantique est capturée dans answers["tranche_age"].params.handicap.
 export const buildPayload = (answers: QuizAnswers) => {
   const apiAnswers: Array<{ taxonomy: string; value: string } | { taxonomy: string; params: Record<string, unknown> }> = [];
 
@@ -29,9 +28,8 @@ export const buildPayload = (answers: QuizAnswers) => {
     if (answer?.type === "params") {
       apiAnswers.push({ taxonomy: answer.taxonomy, params: answer.params });
     } else if (answer?.type === "options") {
-      for (const optionId of answer.option_ids) {
-        const dot = optionId.indexOf(".");
-        apiAnswers.push({ taxonomy: optionId.slice(0, dot), value: optionId.slice(dot + 1) });
+      for (const value of answer.option_ids) {
+        apiAnswers.push({ taxonomy: answer.taxonomy, value });
       }
     }
   }

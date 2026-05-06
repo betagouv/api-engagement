@@ -6,7 +6,7 @@ import type { Condition } from "~/utils/conditions";
 // - numeric  : valeur brute (ex: age), utilisée uniquement dans les conditions
 // - location : coordonnées géographiques (LocalisationStep)
 export type ScreenAnswer =
-  | { type: "options"; option_ids: string[] }
+  | { type: "options"; taxonomy: string; option_ids: string[] }
   | { type: "numeric"; value: number }
   | { type: "params"; taxonomy: string; params: Record<string, unknown> }
   | { type: "text"; value: string };
@@ -14,14 +14,13 @@ export type ScreenAnswer =
 export type QuizAnswers = Partial<Record<StepId, ScreenAnswer>>;
 
 // Option d'un step de type select (single ou multi).
-// `taxonomyKey` est l'identifiant canonique (namespace.key) utilisé à la fois
-// comme clé React, valeur stockée dans `option_ids`, et payload /user-scoring.
 // Le catalogue des options vit dans `~/config/quiz-options`.
 export interface StepOption {
   label: string;
   sublabel?: string;
   icon?: string;
-  taxonomyKey: string;
+  taxonomy: string;
+  value: string;
   hiddenIf?: Condition;
 }
 

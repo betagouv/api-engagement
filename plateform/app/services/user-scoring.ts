@@ -1,6 +1,6 @@
 import api from "~/services/api";
 
-type ApiAnswer = { taxonomy: string; value: string } | { taxonomy: string; params: object };
+type ApiAnswer = { taxonomy: string; value: string } | { taxonomy: string; params: Record<string, unknown> };
 
 type UserScoringPayload = {
   answers: ApiAnswer[];

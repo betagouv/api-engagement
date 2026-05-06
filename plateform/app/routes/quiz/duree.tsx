@@ -32,7 +32,7 @@ export default function DureeStep() {
 
   const handleSelect = (value: string[]) => {
     setError(undefined);
-    setAnswer(STEP_ID, { type: "options", option_ids: value });
+    setAnswer(STEP_ID, { type: "options", taxonomy: "type_mission", option_ids: value });
   };
 
   const handleNext = () => {

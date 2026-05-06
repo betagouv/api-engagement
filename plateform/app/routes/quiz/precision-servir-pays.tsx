@@ -27,7 +27,7 @@ export default function PrecisionServirPaysStep() {
 
   const handleSelect = (value: string[]) => {
     setError(undefined);
-    setAnswer(STEP_ID, { type: "options", option_ids: value });
+    setAnswer(STEP_ID, { type: "options", taxonomy: "servir_pays", option_ids: value });
   };
   const selected = answers[STEP_ID]?.type === "options" ? answers[STEP_ID].option_ids : [];
 

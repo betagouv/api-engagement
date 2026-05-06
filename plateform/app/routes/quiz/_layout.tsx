@@ -111,7 +111,7 @@ export default function QuizLayout() {
   const recapItems = (["statut", "duree", "motivation"] as const).flatMap((stepId) => {
     const answer = answers[stepId];
     if (!answer || answer.type !== "options") return [];
-    return answer.option_ids.map((id) => OPTIONS[id as TaxonomyValueKey]?.label).filter(Boolean) as string[];
+    return answer.option_ids.map((id) => OPTIONS[`${answer.taxonomy}.${id}` as TaxonomyValueKey]?.label).filter(Boolean) as string[];
   });
 
   const goBack = () => {

@@ -17,20 +17,17 @@ export default function MultiSelectIcon({ onChange, options, selected, error }: 
     <fieldset className={`fr-fieldset ${error ? "fr-fieldset--error" : ""}`}>
       <div className="fr-fieldset__content grid grid-cols-1 md:grid-cols-2 max-w-4xl! mx-0! gap-x-6 gap-y-4!">
         {options.map((o) => (
-          <div key={o.taxonomyKey} className="fr-fieldset__element mb-0!">
+          <div key={o.value} className="fr-fieldset__element mb-0!">
             <div className="fr-checkbox-group fr-checkbox-rich mt-0! mb-0!">
               <input
-                value={o.taxonomyKey}
+                value={o.value}
                 type="checkbox"
-                id={`multi-select-icon-${o.taxonomyKey}`}
+                id={`multi-select-icon-${o.value}`}
                 name="multi-select-icon"
-                onChange={() => toggle(o.taxonomyKey)}
-                checked={selected.includes(o.taxonomyKey)}
+                onChange={() => toggle(o.value)}
+                checked={selected.includes(o.value)}
               />
-              <label
-                className="fr-label text-base before:size-4! after:absolute after:inset-0 after:right-[-5.5rem] after:content-['']"
-                htmlFor={`multi-select-icon-${o.taxonomyKey}`}
-              >
+              <label className="fr-label text-base before:size-4! after:absolute after:inset-0 after:right-[-5.5rem] after:content-['']" htmlFor={`multi-select-icon-${o.value}`}>
                 {o.label}
                 {o.sublabel && <span className="fr-hint-text">{o.sublabel}</span>}
               </label>
