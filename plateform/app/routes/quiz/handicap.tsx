@@ -21,8 +21,8 @@ export default function HandicapStep() {
     setError(undefined);
     setAnswer(STEP_ID, { type: "options", option_ids: [value] });
     const existing = answers["tranche_age"];
-    if (existing?.type === "age_params") {
-      setAnswer("tranche_age", { ...existing, handicap: value === "handicap.oui" });
+    if (existing?.type === "params") {
+      setAnswer("tranche_age", { ...existing, params: { ...existing.params, handicap: value === "handicap.oui" } });
     }
   };
 

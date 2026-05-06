@@ -8,8 +8,7 @@ import type { Condition } from "~/utils/conditions";
 export type ScreenAnswer =
   | { type: "options"; option_ids: string[] }
   | { type: "numeric"; value: number }
-  | { type: "age_params"; age: number; handicap: boolean }
-  | { type: "location"; lat: number; lon: number }
+  | { type: "params"; taxonomy: string; params: Record<string, unknown> }
   | { type: "text"; value: string };
 
 export type QuizAnswers = Partial<Record<StepId, ScreenAnswer>>;

@@ -28,7 +28,7 @@ export default function AgeStep() {
     if (!valid) return;
     setAnswer(STEP_ID, { type: "numeric", value: numeric });
     const existingHandicap = answers["handicap"]?.type === "options" ? answers["handicap"].option_ids[0] === "handicap.oui" : false;
-    setAnswer("tranche_age", { type: "age_params", age: numeric, handicap: existingHandicap });
+    setAnswer("tranche_age", { type: "params", taxonomy: "tranche_age", params: { age: numeric, handicap: existingHandicap } });
     goNext();
   };
 

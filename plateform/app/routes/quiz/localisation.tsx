@@ -18,25 +18,20 @@ type AddressFeature = {
 };
 
 export default function LocalisationStep() {
-  const geo = useQuizStore((s) => s.geo);
-  const setGeo = useQuizStore((s) => s.setGeo);
+  const { answers, setAnswer } = useQuizStore();
   const { goNext, transitioning, setTransitioning } = useOutletContext<QuizOutletContext>();
 
-  const [value, setValue] = useState("");
+  const locAnswer = answers["localisation"];
+  const savedLocation = locAnswer?.type === "params" ? (locAnswer.params as { lat: number; lon: number; label: string }) : null;
+
+  const [value, setValue] = useState(savedLocation?.label ?? "");
   const [options, setOptions] = useState<Suggestion[]>([]);
-  const [selected, setSelected] = useState<Suggestion | null>(null);
+  const [selected, setSelected] = useState<Suggestion | null>(savedLocation);
   const [showOptions, setShowOptions] = useState(false);
   const [locating, setLocating] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (geo) {
-      setSelected({ label: geo.label, lat: geo.lat, lon: geo.lon });
-      setValue(geo.label || "");
-      setShowOptions(false);
-      return;
-    }
-
     const handleClickOutside = (event: MouseEvent) => {
       if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
         setShowOptions(false);
@@ -103,7 +98,7 @@ export default function LocalisationStep() {
   const handleSubmit = (e: SubmitEvent) => {
     e.preventDefault();
     if (!selected) return;
-    setGeo(selected);
+    setAnswer("localisation", { type: "params", taxonomy: "location", params: { lat: selected.lat, lon: selected.lon, label: selected.label } });
     setValue(selected.label);
     setTransitioning(true);
   };

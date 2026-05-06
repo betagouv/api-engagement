@@ -16,26 +16,24 @@ export function refreshSteps(
 }
 
 // Construit le payload /user-scoring à partir des réponses stockées.
-// Format de sortie : { taxonomy, value } pour les options, { taxonomy, params } pour les entrées paramétrées.
-export const buildPayload = (answers: QuizAnswers, geo: { lat: number; lon: number; label: string } | undefined) => {
-  const apiAnswers: Array<{ taxonomy: string; value: string } | { taxonomy: string; params: object }> = [];
+// Règles de sérialisation par type :
+//   - "params"  → { taxonomy, params } (chaque step inscrit sa propre taxonomy)
+//   - "options" → une entrée { taxonomy, value } par option_id (split sur le premier ".")
+//   - autres    → non envoyés (numeric = conditions UI, text = champs libres non scorés)
+// "handicap" est exclu : sa sémantique est déjà capturée dans answers["tranche_age"].params.handicap.
+export const buildPayload = (answers: QuizAnswers) => {
+  const apiAnswers: Array<{ taxonomy: string; value: string } | { taxonomy: string; params: Record<string, unknown> }> = [];
 
   for (const [stepId, answer] of Object.entries(answers)) {
-    if (stepId === "age" || stepId === "handicap") continue;
-    if (answer?.type === "age_params") {
-      apiAnswers.push({ taxonomy: "tranche_age", params: { age: answer.age, handicap: answer.handicap } });
+    if (stepId === "handicap") continue;
+    if (answer?.type === "params") {
+      apiAnswers.push({ taxonomy: answer.taxonomy, params: answer.params });
     } else if (answer?.type === "options") {
       for (const optionId of answer.option_ids) {
-        const dotIndex = optionId.indexOf(".");
-        const taxonomy = optionId.slice(0, dotIndex);
-        const value = optionId.slice(dotIndex + 1);
-        apiAnswers.push({ taxonomy, value });
+        const dot = optionId.indexOf(".");
+        apiAnswers.push({ taxonomy: optionId.slice(0, dot), value: optionId.slice(dot + 1) });
       }
     }
-  }
-
-  if (geo) {
-    apiAnswers.push({ taxonomy: "location", params: { lat: geo.lat, lon: geo.lon, label: geo.label } });
   }
 
   return { answers: apiAnswers };

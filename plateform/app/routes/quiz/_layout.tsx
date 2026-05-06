@@ -58,10 +58,9 @@ export default function QuizLayout() {
 
   const saveCurrentScoring = async (): Promise<boolean> => {
     const freshAnswers = useQuizStore.getState().answers;
-    const freshGeo = useQuizStore.getState().geo;
     const freshUserScoringId = useQuizStore.getState().userScoringId;
     const freshDistinctId = useQuizStore.getState().distinctId;
-    const payload = buildPayload(freshAnswers, freshGeo);
+    const payload = buildPayload(freshAnswers);
 
     if (payload.answers.length === 0) {
       return true;
