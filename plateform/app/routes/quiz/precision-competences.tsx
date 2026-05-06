@@ -23,8 +23,8 @@ const STEP_OPTIONS = [
 ];
 
 const TITLE_BY_MOTIVATION: Record<string, string> = {
-  "motivation.competences_interet_general": "Quel est ton domaine de compétences ?",
-  "motivation.booster_cv": "Dans quel domaine souhaites-tu booster tes compétences",
+  "competences_interet_general": "Quel est ton domaine de compétences ?",
+  "booster_cv": "Dans quel domaine souhaites-tu booster tes compétences",
 };
 
 const DEFAULT_TITLE = "Quel type de compétences t'attire le plus ?";
@@ -40,7 +40,7 @@ export default function PrecisionCompetencesStep() {
 
   const handleSelect = (value: string[]) => {
     setError(undefined);
-    setAnswer(STEP_ID, { type: "options", option_ids: value });
+    setAnswer(STEP_ID, { type: "options", taxonomy: "competence_rome", option_ids: value });
   };
 
   const handleNext = () => {

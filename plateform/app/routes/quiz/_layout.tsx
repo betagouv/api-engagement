@@ -58,10 +58,9 @@ export default function QuizLayout() {
 
   const saveCurrentScoring = async (): Promise<boolean> => {
     const freshAnswers = useQuizStore.getState().answers;
-    const freshGeo = useQuizStore.getState().geo;
     const freshUserScoringId = useQuizStore.getState().userScoringId;
     const freshDistinctId = useQuizStore.getState().distinctId;
-    const payload = buildPayload(freshAnswers, freshGeo);
+    const payload = buildPayload(freshAnswers);
 
     if (payload.answers.length === 0) {
       return true;
@@ -112,7 +111,7 @@ export default function QuizLayout() {
   const recapItems = (["statut", "duree", "motivation"] as const).flatMap((stepId) => {
     const answer = answers[stepId];
     if (!answer || answer.type !== "options") return [];
-    return answer.option_ids.map((id) => OPTIONS[id as TaxonomyValueKey]?.label).filter(Boolean) as string[];
+    return answer.option_ids.map((id) => OPTIONS[`${answer.taxonomy}.${id}` as TaxonomyValueKey]?.label).filter(Boolean) as string[];
   });
 
   const goBack = () => {

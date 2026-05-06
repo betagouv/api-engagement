@@ -25,7 +25,7 @@ export default function PrecisionInternationalStep() {
 
   const handleSelect = (value: string[]) => {
     setError(undefined);
-    setAnswer(STEP_ID, { type: "options", option_ids: value });
+    setAnswer(STEP_ID, { type: "options", taxonomy: "region_internationale", option_ids: value });
   };
   const selected = answers[STEP_ID]?.type === "options" ? answers[STEP_ID].option_ids : [];
 
