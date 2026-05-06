@@ -20,32 +20,19 @@ const distinctIdSchema = zod.string().trim().min(1);
 
 const bodySchema = zod.object({
   answers: answersSchema,
-  geo: zod
-    .object({
-      lat: zod.number().min(-90).max(90),
-      lon: zod.number().min(-180).max(180),
-      radius_km: zod.number().positive().optional(),
-    })
-    .optional(),
   distinctId: distinctIdSchema.optional(),
   missionAlertEnabled: zod.boolean().default(false),
-});
+}).strict();
 
 const updateBodySchema = zod
   .object({
     answers: answersSchema.optional(),
     distinctId: distinctIdSchema,
-    geo: zod
-      .object({
-        lat: zod.number().min(-90).max(90),
-        lon: zod.number().min(-180).max(180),
-        radius_km: zod.number().positive().optional(),
-      })
-      .optional(),
     missionAlertEnabled: zod.boolean().optional(),
   })
-  .refine((body) => body.answers !== undefined || body.geo !== undefined || body.missionAlertEnabled !== undefined, {
-    message: "answers, geo or missionAlertEnabled is required",
+  .strict()
+  .refine((body) => body.answers !== undefined || body.missionAlertEnabled !== undefined, {
+    message: "answers or missionAlertEnabled is required",
   });
 
 const userScoringParamsSchema = zod.object({
@@ -86,7 +73,6 @@ router.put("/:userScoringId", async (req, res, next) => {
       userScoringId: params.data.userScoringId,
       distinctId: body.data.distinctId,
       answers: body.data.answers,
-      geo: body.data.geo,
       missionAlertEnabled: body.data.missionAlertEnabled,
     });
 

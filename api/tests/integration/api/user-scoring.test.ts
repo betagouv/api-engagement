@@ -42,12 +42,11 @@ describe("POST /user-scoring", () => {
     expect(geo).toBeNull();
   });
 
-  it("should create a user scoring with geo (lat/lon only)", async () => {
+  it("should create a user scoring with location params (lat/lon only)", async () => {
     const res = await request(app)
       .post("/user-scoring")
       .send({
-        answers: [taxonomyAnswer],
-        geo: { lat: 48.8566, lon: 2.3522 },
+        answers: [taxonomyAnswer, { taxonomy: "location", params: { lat: 48.8566, lon: 2.3522 } }],
       });
 
     expect(res.status).toBe(201);
@@ -61,12 +60,11 @@ describe("POST /user-scoring", () => {
     expect(geo!.radiusKm).toBeNull();
   });
 
-  it("should create a user scoring with geo including radius_km", async () => {
+  it("should create a user scoring with location params including radius_km and country_code", async () => {
     const res = await request(app)
       .post("/user-scoring")
       .send({
-        answers: [taxonomyAnswer],
-        geo: { lat: 48.8566, lon: 2.3522, radius_km: 50 },
+        answers: [taxonomyAnswer, { taxonomy: "location", params: { lat: 48.8566, lon: 2.3522, radius_km: 50, country_code: "fr" } }],
       });
 
     expect(res.status).toBe(201);
@@ -75,6 +73,29 @@ describe("POST /user-scoring", () => {
       where: { userScoringId: res.body.data.id },
     });
     expect(geo!.radiusKm).toBe(50);
+    expect(geo!.countryCode).toBe("FR");
+  });
+
+  it("should create a user scoring with only location params", async () => {
+    const res = await request(app)
+      .post("/user-scoring")
+      .send({
+        answers: [{ taxonomy: "location", params: { lat: 48.8566, lon: 2.3522 } }],
+      });
+
+    expect(res.status).toBe(201);
+
+    const values = await prisma.userScoringValue.findMany({
+      where: { userScoringId: res.body.data.id },
+    });
+    expect(values).toHaveLength(0);
+
+    const geo = await prisma.userScoringGeo.findUnique({
+      where: { userScoringId: res.body.data.id },
+    });
+    expect(geo).not.toBeNull();
+    expect(geo!.lat).toBe(48.8566);
+    expect(geo!.lon).toBe(2.3522);
   });
 
   it("should create a user scoring with multiple answers", async () => {
@@ -268,24 +289,97 @@ describe("POST /user-scoring", () => {
     expect(responses.every((res) => res.body.ok === false)).toBe(true);
   });
 
-  it("should return 400 when geo.lat is out of range", async () => {
+  it("should create a user scoring with direct values, tranche_age and location params", async () => {
     const res = await request(app)
       .post("/user-scoring")
       .send({
-        answers: [taxonomyAnswer],
-        geo: { lat: 999, lon: 2.3522 },
+        answers: [
+          taxonomyAnswer,
+          { taxonomy: "tranche_age", params: { age: 18, handicap: false } },
+          { taxonomy: "location", params: { lat: 48.8566, lon: 2.3522 } },
+        ],
+      });
+
+    expect(res.status).toBe(201);
+
+    const values = await prisma.userScoringValue.findMany({
+      where: { userScoringId: res.body.data.id },
+    });
+    expect(values).toHaveLength(4);
+
+    const geo = await prisma.userScoringGeo.findUnique({
+      where: { userScoringId: res.body.data.id },
+    });
+    expect(geo).not.toBeNull();
+  });
+
+  it("should return 400 when location lat is out of range", async () => {
+    const res = await request(app)
+      .post("/user-scoring")
+      .send({
+        answers: [{ taxonomy: "location", params: { lat: 999, lon: 2.3522 } }],
       });
     expect(res.status).toBe(400);
     expect(res.body.ok).toBe(false);
   });
 
-  it("should return 400 when geo.lon is out of range", async () => {
+  it("should return 400 when location lon is out of range", async () => {
+    const res = await request(app)
+      .post("/user-scoring")
+      .send({
+        answers: [{ taxonomy: "location", params: { lat: 48.8566, lon: 999 } }],
+      });
+    expect(res.status).toBe(400);
+    expect(res.body.ok).toBe(false);
+  });
+
+  it("should return 400 when location radius_km is invalid", async () => {
+    const res = await request(app)
+      .post("/user-scoring")
+      .send({
+        answers: [{ taxonomy: "location", params: { lat: 48.8566, lon: 2.3522, radius_km: 0 } }],
+      });
+    expect(res.status).toBe(400);
+    expect(res.body.ok).toBe(false);
+  });
+
+  it("should return 400 when location country_code is invalid", async () => {
+    const res = await request(app)
+      .post("/user-scoring")
+      .send({
+        answers: [{ taxonomy: "location", params: { lat: 48.8566, lon: 2.3522, country_code: "FRA" } }],
+      });
+    expect(res.status).toBe(400);
+    expect(res.body.ok).toBe(false);
+  });
+
+  it("should return 400 when location uses a value or is duplicated", async () => {
+    const responses = await Promise.all([
+      request(app)
+        .post("/user-scoring")
+        .send({ answers: [{ taxonomy: "location", value: "paris" }] }),
+      request(app)
+        .post("/user-scoring")
+        .send({
+          answers: [
+            { taxonomy: "location", params: { lat: 48.8566, lon: 2.3522 } },
+            { taxonomy: "location", params: { lat: 45.764, lon: 4.8357 } },
+          ],
+        }),
+    ]);
+
+    expect(responses.map((res) => res.status)).toEqual([400, 400]);
+    expect(responses.every((res) => res.body.ok === false)).toBe(true);
+  });
+
+  it("should return 400 when top-level geo is provided", async () => {
     const res = await request(app)
       .post("/user-scoring")
       .send({
         answers: [taxonomyAnswer],
-        geo: { lat: 48.8566, lon: 999 },
+        geo: { lat: 48.8566, lon: 2.3522 },
       });
+
     expect(res.status).toBe(400);
     expect(res.body.ok).toBe(false);
   });
@@ -419,6 +513,46 @@ describe("PUT /user-scoring/:userScoringId", () => {
     expect(values).toHaveLength(4);
   });
 
+  it("should update geo from location params", async () => {
+    const userScoringId = await createUserScoring();
+
+    const res = await request(app)
+      .put(`/user-scoring/${userScoringId}`)
+      .send({
+        distinctId,
+        answers: [{ taxonomy: "location", params: { lat: 48.8566, lon: 2.3522, radius_km: 25, country_code: "FR" } }],
+      });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.created_count).toBe(0);
+
+    const geo = await prisma.userScoringGeo.findUnique({
+      where: { userScoringId },
+    });
+    expect(geo).not.toBeNull();
+    expect(geo!.lat).toBe(48.8566);
+    expect(geo!.lon).toBe(2.3522);
+    expect(geo!.radiusKm).toBe(25);
+    expect(geo!.countryCode).toBe("FR");
+  });
+
+  it("should accept an update with only location params", async () => {
+    const userScoringId = await createUserScoring();
+
+    const res = await request(app)
+      .put(`/user-scoring/${userScoringId}`)
+      .send({
+        distinctId,
+        answers: [{ taxonomy: "location", params: { lat: 45.764, lon: 4.8357 } }],
+      });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({
+      ok: true,
+      data: { user_scoring_id: userScoringId, created_count: 0, mission_alert_enabled: false },
+    });
+  });
+
   it("should return 400 when added answers are invalid", async () => {
     const userScoringId = await createUserScoring();
 
@@ -434,6 +568,17 @@ describe("PUT /user-scoring/:userScoringId", () => {
     const userScoringId = await createUserScoring();
 
     const res = await request(app).put(`/user-scoring/${userScoringId}`).send({ distinctId });
+
+    expect(res.status).toBe(400);
+    expect(res.body.ok).toBe(false);
+  });
+
+  it("should return 400 when top-level geo is provided on update", async () => {
+    const userScoringId = await createUserScoring();
+
+    const res = await request(app)
+      .put(`/user-scoring/${userScoringId}`)
+      .send({ distinctId, geo: { lat: 48.8566, lon: 2.3522 } });
 
     expect(res.status).toBe(400);
     expect(res.body.ok).toBe(false);

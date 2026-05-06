@@ -10,18 +10,27 @@ type UserScoringAnswerInput = {
   params?: Record<string, unknown>;
 };
 
+type UserScoringGeoInput = {
+  lat: number;
+  lon: number;
+  radiusKm?: number;
+  countryCode?: string;
+};
+
+type TaxonomyTransformerResult =
+  | string[]
+  | {
+      values?: string[];
+      geo?: UserScoringGeoInput;
+    };
+
 type TaxonomyDefinitionWithTransformer = {
   values: Record<string, unknown>;
-  transformer?: (params: unknown) => string[];
+  transformer?: (params: unknown) => TaxonomyTransformerResult;
 };
 
 interface CreateUserScoringInput {
   answers: UserScoringAnswerInput[];
-  geo?: {
-    lat: number;
-    lon: number;
-    radius_km?: number;
-  };
   distinctId?: string;
   missionAlertEnabled: boolean;
 }
@@ -30,11 +39,6 @@ interface UpdateUserScoringInput {
   userScoringId: string;
   distinctId: string;
   answers?: UserScoringAnswerInput[];
-  geo?: {
-    lat: number;
-    lon: number;
-    radius_km?: number;
-  };
   missionAlertEnabled?: boolean;
 }
 
@@ -53,7 +57,23 @@ const getTaxonomyDefinition = (taxonomyKey: string): TaxonomyDefinitionWithTrans
   return TAXONOMY[taxonomyKey as keyof typeof TAXONOMY] as TaxonomyDefinitionWithTransformer;
 };
 
-const resolveAnswerValueKeys = (answer: UserScoringAnswerInput): string[] => {
+type ResolvedAnswer = {
+  values: string[];
+  geo?: UserScoringGeoInput;
+};
+
+const normalizeTransformerResult = (result: TaxonomyTransformerResult): ResolvedAnswer => {
+  if (Array.isArray(result)) {
+    return { values: result };
+  }
+
+  return {
+    values: result.values ?? [],
+    geo: result.geo,
+  };
+};
+
+const resolveAnswer = (answer: UserScoringAnswerInput): ResolvedAnswer => {
   const taxonomy = getTaxonomyDefinition(answer.taxonomy);
   if (!taxonomy) {
     throw new UserScoringAnswerValidationError(`Unknown taxonomy: ${answer.taxonomy}`);
@@ -64,35 +84,44 @@ const resolveAnswerValueKeys = (answer: UserScoringAnswerInput): string[] => {
       throw new UserScoringAnswerValidationError(`Unknown taxonomy value: ${answer.taxonomy}.${answer.value}`);
     }
 
-    return [answer.value];
+    return { values: [answer.value] };
   }
 
   if (!taxonomy.transformer) {
     throw new UserScoringAnswerValidationError(`No transformer configured for taxonomy: ${answer.taxonomy}`);
   }
 
-  let resolvedValues: string[];
+  let resolvedAnswer: ResolvedAnswer;
   try {
-    resolvedValues = taxonomy.transformer(answer.params);
+    resolvedAnswer = normalizeTransformerResult(taxonomy.transformer(answer.params));
   } catch (error) {
     const message = error instanceof Error ? error.message : "Invalid taxonomy params";
     throw new UserScoringAnswerValidationError(message);
   }
 
-  for (const value of resolvedValues) {
+  for (const value of resolvedAnswer.values) {
     if (!Object.prototype.hasOwnProperty.call(taxonomy.values, value)) {
       throw new UserScoringAnswerValidationError(`Transformer returned unknown taxonomy value: ${answer.taxonomy}.${value}`);
     }
   }
 
-  return resolvedValues;
+  return resolvedAnswer;
 };
 
 const buildValuesToPersist = (answers: UserScoringAnswerInput[]) => {
   const seen = new Set<string>();
   const uniquePairs: Array<{ taxonomyKey: string; valueKey: string }> = [];
+  let geo: UserScoringGeoInput | undefined;
   for (const answer of answers) {
-    for (const valueKey of resolveAnswerValueKeys(answer)) {
+    const resolvedAnswer = resolveAnswer(answer);
+    if (resolvedAnswer.geo) {
+      if (geo) {
+        throw new UserScoringAnswerValidationError("Multiple location answers are not supported");
+      }
+      geo = resolvedAnswer.geo;
+    }
+
+    for (const valueKey of resolvedAnswer.values) {
       const key = `${answer.taxonomy}.${valueKey}`;
       if (!seen.has(key)) {
         seen.add(key);
@@ -101,26 +130,29 @@ const buildValuesToPersist = (answers: UserScoringAnswerInput[]) => {
     }
   }
 
-  if (uniquePairs.length === 0) {
+  if (uniquePairs.length === 0 && !geo) {
     throw new UserScoringAnswerValidationError("No taxonomy value resolved from answers");
   }
 
-  return uniquePairs.map(({ taxonomyKey, valueKey }) => ({
-    taxonomyKey,
-    valueKey,
-    score: 1.0,
-  }));
+  return {
+    values: uniquePairs.map(({ taxonomyKey, valueKey }) => ({
+      taxonomyKey,
+      valueKey,
+      score: 1.0,
+    })),
+    geo,
+  };
 };
 
 export const userScoringService = {
   async create(input: CreateUserScoringInput) {
-    const valuesToPersist = buildValuesToPersist(input.answers);
+    const scoringData = buildValuesToPersist(input.answers);
     const expiresAt = new Date(Date.now() + USER_SCORING_TTL_DAYS * 24 * 60 * 60 * 1000);
 
     const userScoring = await userScoringRepository.create({
       expiresAt,
-      values: valuesToPersist,
-      geo: input.geo ? { lat: input.geo.lat, lon: input.geo.lon, radiusKm: input.geo.radius_km } : undefined,
+      values: scoringData.values,
+      geo: scoringData.geo,
       distinctId: input?.distinctId,
       missionAlertEnabled: input.missionAlertEnabled,
     });
@@ -138,11 +170,11 @@ export const userScoringService = {
       return { status: "forbidden" as const };
     }
 
-    const valuesToPersist = input.answers ? buildValuesToPersist(input.answers) : [];
+    const scoringData = input.answers ? buildValuesToPersist(input.answers) : { values: [], geo: undefined };
     const result = await userScoringRepository.update({
       userScoringId: input.userScoringId,
-      values: valuesToPersist,
-      geo: input.geo ? { lat: input.geo.lat, lon: input.geo.lon, radiusKm: input.geo.radius_km } : undefined,
+      values: scoringData.values,
+      geo: scoringData.geo,
       missionAlertEnabled: input.missionAlertEnabled,
     });
 

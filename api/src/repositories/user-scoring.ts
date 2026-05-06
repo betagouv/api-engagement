@@ -12,7 +12,7 @@ export const userScoringRepository = {
   create(params: {
     expiresAt: Date;
     values: Array<{ taxonomyKey: string; valueKey: string; score?: number }>;
-    geo?: { lat: number; lon: number; radiusKm?: number };
+    geo?: { lat: number; lon: number; radiusKm?: number; countryCode?: string };
     distinctId?: string;
     missionAlertEnabled: boolean;
   }): Promise<UserScoring> {
@@ -21,15 +21,19 @@ export const userScoringRepository = {
         expiresAt: params.expiresAt,
         distinctId: params.distinctId,
         missionAlertEnabled: params.missionAlertEnabled,
-        values: {
-          createMany: {
-            data: params.values.map((value) => ({
-              taxonomyKey: value.taxonomyKey,
-              valueKey: value.valueKey,
-              score: value.score ?? 1.0,
-            })),
-          },
-        },
+        ...(params.values.length
+          ? {
+              values: {
+                createMany: {
+                  data: params.values.map((value) => ({
+                    taxonomyKey: value.taxonomyKey,
+                    valueKey: value.valueKey,
+                    score: value.score ?? 1.0,
+                  })),
+                },
+              },
+            }
+          : {}),
         ...(params.geo
           ? {
               geo: {
@@ -37,6 +41,7 @@ export const userScoringRepository = {
                   lat: params.geo.lat,
                   lon: params.geo.lon,
                   radiusKm: params.geo.radiusKm,
+                  countryCode: params.geo.countryCode,
                 },
               },
             }
@@ -48,7 +53,7 @@ export const userScoringRepository = {
   update(params: {
     userScoringId: string;
     values: Array<{ taxonomyKey: string; valueKey: string; score?: number }>;
-    geo?: { lat: number; lon: number; radiusKm?: number };
+    geo?: { lat: number; lon: number; radiusKm?: number; countryCode?: string };
     missionAlertEnabled?: boolean;
   }): Promise<{ createdCount: number; missionAlertEnabled: boolean }> {
     return prisma.$transaction(async (tx) => {
@@ -76,11 +81,13 @@ export const userScoringRepository = {
                       lat: params.geo.lat,
                       lon: params.geo.lon,
                       radiusKm: params.geo.radiusKm,
+                      countryCode: params.geo.countryCode,
                     },
                     update: {
                       lat: params.geo.lat,
                       lon: params.geo.lon,
                       radiusKm: params.geo.radiusKm,
+                      countryCode: params.geo.countryCode,
                     },
                   },
                 },

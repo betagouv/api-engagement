@@ -3,7 +3,7 @@
 //
 // Champs par taxonomy :
 //   label     — libellé affiché en UI / logs
-//   type      — "multi_value" | "categorical" | "gate" (correspond au TaxonomyType Prisma)
+//   type      — "multi_value" | "categorical" | "gate" | "value"
 //   enrichable — true si la taxonomy est classifiée par le LLM (mission-enrichment)
 //   gate        — true si la taxonomy est un filtre dur dans le matching engine
 //   transformer — fonction optionnelle qui calcule des value keys depuis des params utilisateur
@@ -14,6 +14,7 @@
 //   icon       — emoji optionnel
 //   enrichable — false pour les valeurs exclues de l'enrichissement (ex : je_ne_sais_pas)
 
+import { resolveLocationValues } from "./transformers/location";
 import { resolveTrancheAgeValues } from "./transformers/tranche-age";
 
 export const TAXONOMY = {
@@ -280,6 +281,15 @@ export const TAXONOMY = {
       ne_sais_pas: { label: "Je ne sais pas", icon: null, enrichable: false },
       aucun: { label: "Aucun de ces choix", icon: null, enrichable: false },
     },
+  },
+
+  location: {
+    label: "Localisation",
+    type: "value",
+    enrichable: false,
+    gate: false,
+    transformer: resolveLocationValues,
+    values: {},
   },
 
   // ─── taxonomy gate (filtre dur dans le matching) ────────────────────────
