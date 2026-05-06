@@ -172,13 +172,13 @@ function LocationTransition({ onComplete }: { onComplete: () => void }) {
     <div
       className={`flex flex-col-reverse md:flex-row gap-6 pt-0 md:pt-20 transition-all duration-700 ease-in ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
     >
-      <div className="w-full md:w-auto flex flex-col gap-6">
+      <div className="w-full md:flex-1 flex flex-col gap-6">
         <h1 className="fr-h1 mb-0! text-center md:text-left">
           On a trouvé des missions <Highlight>pour toi</Highlight>
         </h1>
         <p className="fr-text--lead text-center md:text-left">Maintenant, aide-nous à comprendre ce qui te donnerait envie de t'engager.</p>
       </div>
-      <div className="w-full md:w-auto relative gap-4 h-[400px] md:h-auto">
+      <div className="w-full md:flex-1 relative gap-4 h-[400px] md:h-auto">
         <MissionCard
           imageSrc={Photo1}
           title="Participer à l'information du public concernant l'accès aux droits…"
