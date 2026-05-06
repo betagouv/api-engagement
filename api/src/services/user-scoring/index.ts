@@ -1,11 +1,22 @@
-import { parseTaxonomyValueKey } from "@engagement/taxonomy";
+import { TAXONOMY } from "@engagement/taxonomy";
 
 import { userScoringRepository } from "@/repositories/user-scoring";
 
 const USER_SCORING_TTL_DAYS = 7;
 
+type UserScoringAnswerInput = {
+  taxonomy: string;
+  value?: string;
+  params?: Record<string, unknown>;
+};
+
+type TaxonomyDefinitionWithTransformer = {
+  values: Record<string, unknown>;
+  transformer?: (params: unknown) => string[];
+};
+
 interface CreateUserScoringInput {
-  answers: Array<{ taxonomy_value_key: string }>;
+  answers: UserScoringAnswerInput[];
   geo?: {
     lat: number;
     lon: number;
@@ -18,7 +29,7 @@ interface CreateUserScoringInput {
 interface UpdateUserScoringInput {
   userScoringId: string;
   distinctId: string;
-  answers?: Array<{ taxonomy_value_key: string }>;
+  answers?: UserScoringAnswerInput[];
   geo?: {
     lat: number;
     lon: number;
@@ -27,20 +38,74 @@ interface UpdateUserScoringInput {
   missionAlertEnabled?: boolean;
 }
 
-const buildValuesToPersist = (answers: Array<{ taxonomy_value_key: string }>) => {
-  const seen = new Set<string>();
-  const uniqueKeys: string[] = [];
-  for (const answer of answers) {
-    const key = answer.taxonomy_value_key;
-    if (!seen.has(key)) {
-      seen.add(key);
-      uniqueKeys.push(key);
+export class UserScoringAnswerValidationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "UserScoringAnswerValidationError";
+  }
+}
+
+const getTaxonomyDefinition = (taxonomyKey: string): TaxonomyDefinitionWithTransformer | null => {
+  if (!Object.prototype.hasOwnProperty.call(TAXONOMY, taxonomyKey)) {
+    return null;
+  }
+
+  return TAXONOMY[taxonomyKey as keyof typeof TAXONOMY] as TaxonomyDefinitionWithTransformer;
+};
+
+const resolveAnswerValueKeys = (answer: UserScoringAnswerInput): string[] => {
+  const taxonomy = getTaxonomyDefinition(answer.taxonomy);
+  if (!taxonomy) {
+    throw new UserScoringAnswerValidationError(`Unknown taxonomy: ${answer.taxonomy}`);
+  }
+
+  if (answer.value !== undefined) {
+    if (!Object.prototype.hasOwnProperty.call(taxonomy.values, answer.value)) {
+      throw new UserScoringAnswerValidationError(`Unknown taxonomy value: ${answer.taxonomy}.${answer.value}`);
+    }
+
+    return [answer.value];
+  }
+
+  if (!taxonomy.transformer) {
+    throw new UserScoringAnswerValidationError(`No transformer configured for taxonomy: ${answer.taxonomy}`);
+  }
+
+  let resolvedValues: string[];
+  try {
+    resolvedValues = taxonomy.transformer(answer.params);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Invalid taxonomy params";
+    throw new UserScoringAnswerValidationError(message);
+  }
+
+  for (const value of resolvedValues) {
+    if (!Object.prototype.hasOwnProperty.call(taxonomy.values, value)) {
+      throw new UserScoringAnswerValidationError(`Transformer returned unknown taxonomy value: ${answer.taxonomy}.${value}`);
     }
   }
 
-  // Caller (controller) is responsible for filtering invalid keys before reaching here.
-  const pairs = uniqueKeys.map((key) => parseTaxonomyValueKey(key)!);
-  return pairs.map(({ taxonomyKey, valueKey }) => ({
+  return resolvedValues;
+};
+
+const buildValuesToPersist = (answers: UserScoringAnswerInput[]) => {
+  const seen = new Set<string>();
+  const uniquePairs: Array<{ taxonomyKey: string; valueKey: string }> = [];
+  for (const answer of answers) {
+    for (const valueKey of resolveAnswerValueKeys(answer)) {
+      const key = `${answer.taxonomy}.${valueKey}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        uniquePairs.push({ taxonomyKey: answer.taxonomy, valueKey });
+      }
+    }
+  }
+
+  if (uniquePairs.length === 0) {
+    throw new UserScoringAnswerValidationError("No taxonomy value resolved from answers");
+  }
+
+  return uniquePairs.map(({ taxonomyKey, valueKey }) => ({
     taxonomyKey,
     valueKey,
     score: 1.0,

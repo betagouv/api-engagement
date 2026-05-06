@@ -5,13 +5,16 @@
 //   label     — libellé affiché en UI / logs
 //   type      — "multi_value" | "categorical" | "gate" (correspond au TaxonomyType Prisma)
 //   enrichable — true si la taxonomy est classifiée par le LLM (mission-enrichment)
-//   gate       — true si la taxonomy est un filtre dur dans le matching engine
+//   gate        — true si la taxonomy est un filtre dur dans le matching engine
+//   transformer — fonction optionnelle qui calcule des value keys depuis des params utilisateur
 //
 // Champs par valeur :
 //   label      — libellé affiché
 //   sublabel   — aide contextuelle optionnelle pour les UIs
 //   icon       — emoji optionnel
 //   enrichable — false pour les valeurs exclues de l'enrichissement (ex : je_ne_sais_pas)
+
+import { resolveTrancheAgeValues } from "./transformers/tranche-age";
 
 export const TAXONOMY = {
   // ─── Taxonomies enrichissables ────────────────────────────────────────────
@@ -286,11 +289,12 @@ export const TAXONOMY = {
     type: "gate",
     enrichable: false, // pas enrichie par le LLM — calculée côté client (âge saisi)
     gate: true,
+    transformer: resolveTrancheAgeValues,
     values: {
       moins_26_ans: { label: "Moins de 26 ans", icon: null, enrichable: false },
       moins_31_ans_handicap: { label: "Moins de 31 ans — situation de handicap", icon: null, enrichable: false },
       entre_17_72_ans: { label: "Être âgé de 17 à 72 ans", icon: null, enrichable: false },
-      entre_16_67_ans: { label: "Avoir au minimum 16 ans (avec autorisation parentale pour les mineurs) et moins de 67 ans", icon: null, enrichable: false }
+      entre_16_67_ans: { label: "Avoir au minimum 16 ans (avec autorisation parentale pour les mineurs) et moins de 67 ans", icon: null, enrichable: false },
     },
   },
 } as const;

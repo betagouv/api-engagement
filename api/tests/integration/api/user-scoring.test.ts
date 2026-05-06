@@ -2,18 +2,17 @@ import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { prisma } from "@/db/postgres";
-import { type TaxonomyValueKey } from "@engagement/taxonomy";
 import { createTestApp } from "../../testApp";
 
 const app = createTestApp();
 
 describe("POST /user-scoring", () => {
-  let taxonomyValueKey: string;
-  let secondaryTaxonomyValueKey: string;
+  let taxonomyAnswer: { taxonomy: string; value: string };
+  let secondaryTaxonomyAnswer: { taxonomy: string; value: string };
 
   beforeEach(async () => {
-    taxonomyValueKey = "domaine.social_solidarite" satisfies TaxonomyValueKey;
-    secondaryTaxonomyValueKey = "type_mission.ponctuelle" satisfies TaxonomyValueKey;
+    taxonomyAnswer = { taxonomy: "domaine", value: "social_solidarite" };
+    secondaryTaxonomyAnswer = { taxonomy: "type_mission", value: "ponctuelle" };
   });
 
   // ─── Success cases ──────────────────────────────────────────────────────────
@@ -21,7 +20,7 @@ describe("POST /user-scoring", () => {
   it("should create a user scoring with one answer (no geo)", async () => {
     const res = await request(app)
       .post("/user-scoring")
-      .send({ answers: [{ taxonomy_value_key: taxonomyValueKey }] });
+      .send({ answers: [taxonomyAnswer] });
 
     expect(res.status).toBe(201);
     expect(res.body.ok).toBe(true);
@@ -47,7 +46,7 @@ describe("POST /user-scoring", () => {
     const res = await request(app)
       .post("/user-scoring")
       .send({
-        answers: [{ taxonomy_value_key: taxonomyValueKey }],
+        answers: [taxonomyAnswer],
         geo: { lat: 48.8566, lon: 2.3522 },
       });
 
@@ -66,7 +65,7 @@ describe("POST /user-scoring", () => {
     const res = await request(app)
       .post("/user-scoring")
       .send({
-        answers: [{ taxonomy_value_key: taxonomyValueKey }],
+        answers: [taxonomyAnswer],
         geo: { lat: 48.8566, lon: 2.3522, radius_km: 50 },
       });
 
@@ -82,7 +81,7 @@ describe("POST /user-scoring", () => {
     const res = await request(app)
       .post("/user-scoring")
       .send({
-        answers: [{ taxonomy_value_key: taxonomyValueKey }, { taxonomy_value_key: secondaryTaxonomyValueKey }],
+        answers: [taxonomyAnswer, secondaryTaxonomyAnswer],
       });
 
     expect(res.status).toBe(201);
@@ -99,7 +98,7 @@ describe("POST /user-scoring", () => {
     const res = await request(app)
       .post("/user-scoring")
       .send({
-        answers: [{ taxonomy_value_key: taxonomyValueKey }],
+        answers: [taxonomyAnswer],
         distinctId: "distinct-user-1",
         missionAlertEnabled: true,
       });
@@ -113,11 +112,11 @@ describe("POST /user-scoring", () => {
     expect(userScoring.missionAlertEnabled).toBe(true);
   });
 
-  it("should deduplicate answers with repeated taxonomy_value_key", async () => {
+  it("should deduplicate repeated answers", async () => {
     const res = await request(app)
       .post("/user-scoring")
       .send({
-        answers: [{ taxonomy_value_key: taxonomyValueKey }, { taxonomy_value_key: taxonomyValueKey }],
+        answers: [taxonomyAnswer, taxonomyAnswer],
       });
 
     expect(res.status).toBe(201);
@@ -132,7 +131,7 @@ describe("POST /user-scoring", () => {
     const before = Date.now();
     const res = await request(app)
       .post("/user-scoring")
-      .send({ answers: [{ taxonomy_value_key: taxonomyValueKey }] });
+      .send({ answers: [taxonomyAnswer] });
 
     const userScoring = await prisma.userScoring.findUniqueOrThrow({
       where: { id: res.body.data.id },
@@ -159,11 +158,54 @@ describe("POST /user-scoring", () => {
     expect(res.body.ok).toBe(false);
   });
 
-  it("should silently skip invalid answers and return 201 when at least one is valid", async () => {
+  it("should create a user scoring from tranche_age params", async () => {
     const res = await request(app)
       .post("/user-scoring")
       .send({
-        answers: [{ taxonomy_value_key: taxonomyValueKey }, { taxonomy_value_key: "domaine.does_not_exist" }, { taxonomy_value_key: "nodotinkey" }],
+        answers: [{ taxonomy: "tranche_age", params: { age: 18, handicap: false } }],
+      });
+
+    expect(res.status).toBe(201);
+
+    const values = await prisma.userScoringValue.findMany({
+      where: { userScoringId: res.body.data.id },
+      orderBy: [{ valueKey: "asc" }],
+    });
+    expect(values.map((value) => `${value.taxonomyKey}.${value.valueKey}`)).toEqual([
+      "tranche_age.entre_16_67_ans",
+      "tranche_age.entre_17_72_ans",
+      "tranche_age.moins_26_ans",
+    ]);
+  });
+
+  it("should create a user scoring with handicap tranche_age params", async () => {
+    const res = await request(app)
+      .post("/user-scoring")
+      .send({
+        answers: [{ taxonomy: "tranche_age", params: { age: 30, handicap: true } }],
+      });
+
+    expect(res.status).toBe(201);
+
+    const values = await prisma.userScoringValue.findMany({
+      where: { userScoringId: res.body.data.id },
+      orderBy: [{ valueKey: "asc" }],
+    });
+    expect(values.map((value) => `${value.taxonomyKey}.${value.valueKey}`)).toEqual([
+      "tranche_age.entre_16_67_ans",
+      "tranche_age.entre_17_72_ans",
+      "tranche_age.moins_31_ans_handicap",
+    ]);
+  });
+
+  it("should deduplicate direct and resolved answers", async () => {
+    const res = await request(app)
+      .post("/user-scoring")
+      .send({
+        answers: [
+          { taxonomy: "tranche_age", value: "moins_26_ans" },
+          { taxonomy: "tranche_age", params: { age: 18, handicap: false } },
+        ],
       });
 
     expect(res.status).toBe(201);
@@ -171,35 +213,55 @@ describe("POST /user-scoring", () => {
     const values = await prisma.userScoringValue.findMany({
       where: { userScoringId: res.body.data.id },
     });
-    expect(values).toHaveLength(1);
-    expect(values[0].taxonomyKey).toBe("domaine");
-    expect(values[0].valueKey).toBe("social_solidarite");
+    expect(values).toHaveLength(3);
   });
 
-  it("should return 400 when all answers are invalid (no dot separator)", async () => {
+  it("should return 400 when taxonomy is unknown", async () => {
     const res = await request(app)
       .post("/user-scoring")
-      .send({ answers: [{ taxonomy_value_key: "nodotinkey" }] });
+      .send({ answers: [{ taxonomy: "unknown", value: "sante_soins" }] });
     expect(res.status).toBe(400);
     expect(res.body.ok).toBe(false);
   });
 
-  it("should return 400 when all answers reference unknown taxonomy values", async () => {
+  it("should return 400 when taxonomy value is unknown", async () => {
     const res = await request(app)
       .post("/user-scoring")
-      .send({ answers: [{ taxonomy_value_key: "domaine.does_not_exist" }] });
+      .send({ answers: [{ taxonomy: "domaine", value: "does_not_exist" }] });
     expect(res.status).toBe(400);
     expect(res.body.ok).toBe(false);
   });
 
-  it("should return 400 when taxonomy_value_key targets inherited object properties", async () => {
+  it("should return 400 when params target a taxonomy without transformer", async () => {
+    const res = await request(app)
+      .post("/user-scoring")
+      .send({ answers: [{ taxonomy: "domaine", params: { age: 18 } }] });
+    expect(res.status).toBe(400);
+    expect(res.body.ok).toBe(false);
+  });
+
+  it("should return 400 when tranche_age params are invalid", async () => {
     const responses = await Promise.all([
       request(app)
         .post("/user-scoring")
-        .send({ answers: [{ taxonomy_value_key: "domaine.toString" }] }),
+        .send({ answers: [{ taxonomy: "tranche_age", params: { age: 121, handicap: false } }] }),
       request(app)
         .post("/user-scoring")
-        .send({ answers: [{ taxonomy_value_key: "__proto__.x" }] }),
+        .send({ answers: [{ taxonomy: "tranche_age", params: { age: 18, handicap: "false" } }] }),
+    ]);
+
+    expect(responses.map((res) => res.status)).toEqual([400, 400]);
+    expect(responses.every((res) => res.body.ok === false)).toBe(true);
+  });
+
+  it("should return 400 when answer has both value and params or neither", async () => {
+    const responses = await Promise.all([
+      request(app)
+        .post("/user-scoring")
+        .send({ answers: [{ taxonomy: "domaine", value: "social_solidarite", params: { age: 18 } }] }),
+      request(app)
+        .post("/user-scoring")
+        .send({ answers: [{ taxonomy: "domaine" }] }),
     ]);
 
     expect(responses.map((res) => res.status)).toEqual([400, 400]);
@@ -210,7 +272,7 @@ describe("POST /user-scoring", () => {
     const res = await request(app)
       .post("/user-scoring")
       .send({
-        answers: [{ taxonomy_value_key: taxonomyValueKey }],
+        answers: [taxonomyAnswer],
         geo: { lat: 999, lon: 2.3522 },
       });
     expect(res.status).toBe(400);
@@ -221,7 +283,7 @@ describe("POST /user-scoring", () => {
     const res = await request(app)
       .post("/user-scoring")
       .send({
-        answers: [{ taxonomy_value_key: taxonomyValueKey }],
+        answers: [taxonomyAnswer],
         geo: { lat: 48.8566, lon: 999 },
       });
     expect(res.status).toBe(400);
@@ -231,18 +293,18 @@ describe("POST /user-scoring", () => {
 
 describe("PUT /user-scoring/:userScoringId", () => {
   const distinctId = "distinct-user-1";
-  let taxonomyValueKey: string;
-  let secondaryTaxonomyValueKey: string;
+  let taxonomyAnswer: { taxonomy: string; value: string };
+  let secondaryTaxonomyAnswer: { taxonomy: string; value: string };
 
   beforeEach(async () => {
-    taxonomyValueKey = "domaine.social_solidarite" satisfies TaxonomyValueKey;
-    secondaryTaxonomyValueKey = "type_mission.ponctuelle" satisfies TaxonomyValueKey;
+    taxonomyAnswer = { taxonomy: "domaine", value: "social_solidarite" };
+    secondaryTaxonomyAnswer = { taxonomy: "type_mission", value: "ponctuelle" };
   });
 
   const createUserScoring = async (params: { distinctId?: string } = { distinctId }) => {
     const res = await request(app)
       .post("/user-scoring")
-      .send({ answers: [{ taxonomy_value_key: taxonomyValueKey }], distinctId: params.distinctId });
+      .send({ answers: [taxonomyAnswer], distinctId: params.distinctId });
 
     expect(res.status).toBe(201);
     return res.body.data.id as string;
@@ -253,7 +315,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
 
     const res = await request(app)
       .put(`/user-scoring/${userScoringId}`)
-      .send({ distinctId, answers: [{ taxonomy_value_key: secondaryTaxonomyValueKey }] });
+      .send({ distinctId, answers: [secondaryTaxonomyAnswer] });
 
     expect(res.status).toBe(200);
     expect(res.body).toMatchObject({
@@ -299,7 +361,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
       .send({
         distinctId,
         missionAlertEnabled: true,
-        answers: [{ taxonomy_value_key: secondaryTaxonomyValueKey }],
+        answers: [secondaryTaxonomyAnswer],
       });
 
     expect(res.status).toBe(200);
@@ -326,7 +388,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
       .put(`/user-scoring/${userScoringId}`)
       .send({
         distinctId,
-        answers: [{ taxonomy_value_key: taxonomyValueKey }, { taxonomy_value_key: secondaryTaxonomyValueKey }, { taxonomy_value_key: secondaryTaxonomyValueKey }],
+        answers: [taxonomyAnswer, secondaryTaxonomyAnswer, secondaryTaxonomyAnswer],
       });
 
     expect(res.status).toBe(200);
@@ -338,26 +400,31 @@ describe("PUT /user-scoring/:userScoringId", () => {
     expect(values).toHaveLength(2);
   });
 
-  it("should silently skip invalid answers when adding answers", async () => {
+  it("should add resolved tranche_age answers", async () => {
     const userScoringId = await createUserScoring();
 
     const res = await request(app)
       .put(`/user-scoring/${userScoringId}`)
       .send({
         distinctId,
-        answers: [{ taxonomy_value_key: secondaryTaxonomyValueKey }, { taxonomy_value_key: "domaine.does_not_exist" }],
+        answers: [{ taxonomy: "tranche_age", params: { age: 18, handicap: false } }],
       });
 
     expect(res.status).toBe(200);
-    expect(res.body.data.created_count).toBe(1);
+    expect(res.body.data.created_count).toBe(3);
+
+    const values = await prisma.userScoringValue.findMany({
+      where: { userScoringId },
+    });
+    expect(values).toHaveLength(4);
   });
 
-  it("should return 400 when all added answers are invalid", async () => {
+  it("should return 400 when added answers are invalid", async () => {
     const userScoringId = await createUserScoring();
 
     const res = await request(app)
       .put(`/user-scoring/${userScoringId}`)
-      .send({ distinctId, answers: [{ taxonomy_value_key: "domaine.does_not_exist" }] });
+      .send({ distinctId, answers: [{ taxonomy: "domaine", value: "does_not_exist" }] });
 
     expect(res.status).toBe(400);
     expect(res.body.ok).toBe(false);
@@ -377,7 +444,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
 
     const res = await request(app)
       .put(`/user-scoring/${userScoringId}`)
-      .send({ answers: [{ taxonomy_value_key: secondaryTaxonomyValueKey }] });
+      .send({ answers: [secondaryTaxonomyAnswer] });
 
     expect(res.status).toBe(400);
     expect(res.body.ok).toBe(false);
@@ -388,7 +455,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
 
     const res = await request(app)
       .put(`/user-scoring/${userScoringId}`)
-      .send({ distinctId: "another-distinct-user", answers: [{ taxonomy_value_key: secondaryTaxonomyValueKey }] });
+      .send({ distinctId: "another-distinct-user", answers: [secondaryTaxonomyAnswer] });
 
     expect(res.status).toBe(403);
     expect(res.body.ok).toBe(false);
@@ -404,7 +471,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
 
     const res = await request(app)
       .put(`/user-scoring/${userScoringId}`)
-      .send({ distinctId, answers: [{ taxonomy_value_key: secondaryTaxonomyValueKey }] });
+      .send({ distinctId, answers: [secondaryTaxonomyAnswer] });
 
     expect(res.status).toBe(403);
     expect(res.body.ok).toBe(false);
@@ -413,7 +480,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
   it("should return 400 when userScoringId is not a uuid", async () => {
     const res = await request(app)
       .put("/user-scoring/not-a-uuid")
-      .send({ distinctId, answers: [{ taxonomy_value_key: taxonomyValueKey }] });
+      .send({ distinctId, answers: [taxonomyAnswer] });
 
     expect(res.status).toBe(400);
     expect(res.body.ok).toBe(false);
@@ -422,7 +489,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
   it("should return 404 when user scoring does not exist", async () => {
     const res = await request(app)
       .put("/user-scoring/00000000-0000-4000-8000-000000000000")
-      .send({ distinctId, answers: [{ taxonomy_value_key: taxonomyValueKey }] });
+      .send({ distinctId, answers: [taxonomyAnswer] });
 
     expect(res.status).toBe(404);
     expect(res.body.ok).toBe(false);
