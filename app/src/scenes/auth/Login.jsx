@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { RiErrorWarningFill } from "react-icons/ri";
 import { Link, useNavigate } from "react-router-dom";
 
-import { toast } from "@/services/toast";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
+import { toast } from "@/services/toast";
 import { isValidEmail } from "@/services/utils";
 
 const Login = () => {
@@ -83,7 +83,14 @@ const Login = () => {
         </div>
       )}
 
-      <div className="mt-2 mb-6 text-right text-xs">
+      <ul className="text-text-mention mt-2 mb-4 space-y-1 text-xs">
+        <li>Au moins 12 caractères</li>
+        <li>Au moins une lettre</li>
+        <li>Au moins un chiffre</li>
+        <li>Au moins un caractère spécial</li>
+      </ul>
+
+      <div className="mb-6 text-right text-xs">
         <Link to="/forgot-password" className="text-back underline">
           Mot de passe oublié ?
         </Link>
