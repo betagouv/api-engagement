@@ -1,7 +1,8 @@
 import { TAXONOMY } from "@engagement/taxonomy";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import MissionFiltersBar, { type FilterDef } from "~/components/missions/filters";
 import GradientBg from "~/components/ui/gradient-bg";
+import Pagination from "~/components/ui/pagination";
 import { browseMissions, type BrowseFilters, type BrowseMission, type FacetCount } from "~/services/mission-browse";
 import type { Route } from "./+types/missions";
 
@@ -78,6 +79,188 @@ const FAKE_FACETS: Record<string, FacetCount[]> = {
   ],
 };
 
+const FAKE_MISSION_TEMPLATES: Array<Pick<BrowseMission, "title" | "city" | "domain" | "organizationName" | "publisherName" | "schedule">> = [
+  {
+    title: "Améliorer la qualité de vie des personnes en situation de handicap",
+    city: "Paris",
+    domain: "social_solidarite",
+    organizationName: "APF France handicap",
+    publisherName: "JeVeuxAider",
+    schedule: "30j/an",
+  },
+  {
+    title: "Aide soignant militaire",
+    city: "Lyon",
+    domain: "sante_soins",
+    organizationName: "Service de santé des armées",
+    publisherName: "Service Civique",
+    schedule: "Temps plein",
+  },
+  {
+    title: "Participer à l'information du public concernant l'accès aux soins",
+    city: "Marseille",
+    domain: "sante_soins",
+    organizationName: "ARS PACA",
+    publisherName: "JeVeuxAider",
+    schedule: "Quelques heures par semaine",
+  },
+  {
+    title: "Devenir infirmier pompier volontaire",
+    city: "Bordeaux",
+    domain: "securite_defense",
+    organizationName: "SDIS 33",
+    publisherName: "Réserve Civique",
+    schedule: "1 jour par semaine",
+  },
+  {
+    title: "Accompagner des jeunes dans leurs projets scolaires",
+    city: "Nantes",
+    domain: "education_transmission",
+    organizationName: "Afev",
+    publisherName: "Service Civique",
+    schedule: "2 demi-journées par semaine",
+  },
+  {
+    title: "Distribuer des repas aux personnes en précarité",
+    city: "Toulouse",
+    domain: "social_solidarite",
+    organizationName: "Restos du Cœur",
+    publisherName: "JeVeuxAider",
+    schedule: "Quelques heures par semaine",
+  },
+  {
+    title: "Sensibiliser à la protection des océans",
+    city: "Nice",
+    domain: "environnement_nature",
+    organizationName: "Surfrider Foundation",
+    publisherName: "JeVeuxAider",
+    schedule: "Mission ponctuelle",
+  },
+  {
+    title: "Animer des ateliers culturels en maison de retraite",
+    city: "Lille",
+    domain: "culture_arts",
+    organizationName: "Les Petits Frères des Pauvres",
+    publisherName: "JeVeuxAider",
+    schedule: "1 demi-journée par semaine",
+  },
+  {
+    title: "Coacher des sportifs amateurs en quartier prioritaire",
+    city: "Strasbourg",
+    domain: "sport_animation",
+    organizationName: "Sport dans la Ville",
+    publisherName: "Service Civique",
+    schedule: "10h par semaine",
+  },
+  {
+    title: "Participer à une mission humanitaire en Afrique",
+    city: "Montpellier",
+    domain: "international_humanitaire",
+    organizationName: "Médecins du Monde",
+    publisherName: "JeVeuxAider",
+    schedule: "6 mois",
+  },
+  {
+    title: "Trier et redistribuer des denrées alimentaires",
+    city: "Rennes",
+    domain: "social_solidarite",
+    organizationName: "Banque Alimentaire",
+    publisherName: "JeVeuxAider",
+    schedule: "Quelques heures par mois",
+  },
+  {
+    title: "Apprendre à lire à des adultes en difficulté",
+    city: "Grenoble",
+    domain: "education_transmission",
+    organizationName: "Secours Catholique",
+    publisherName: "JeVeuxAider",
+    schedule: "2h par semaine",
+  },
+  {
+    title: "Soutenir le maintien à domicile des personnes âgées",
+    city: "Reims",
+    domain: "sante_soins",
+    organizationName: "Croix-Rouge française",
+    publisherName: "JeVeuxAider",
+    schedule: "Quelques heures par semaine",
+  },
+  {
+    title: "Restaurer un sentier en parc national",
+    city: "Annecy",
+    domain: "environnement_nature",
+    organizationName: "Parcs nationaux de France",
+    publisherName: "Service Civique",
+    schedule: "Mission ponctuelle",
+  },
+  {
+    title: "Accompagner un mineur isolé dans ses démarches",
+    city: "Le Havre",
+    domain: "social_solidarite",
+    organizationName: "France Terre d'Asile",
+    publisherName: "JeVeuxAider",
+    schedule: "1 jour par semaine",
+  },
+  {
+    title: "Co-animer un club de lecture avec des collégiens",
+    city: "Dijon",
+    domain: "education_transmission",
+    organizationName: "Lire et faire lire",
+    publisherName: "JeVeuxAider",
+    schedule: "1h par semaine",
+  },
+  {
+    title: "Participer à des maraudes auprès des sans-abris",
+    city: "Paris",
+    domain: "social_solidarite",
+    organizationName: "Emmaüs Solidarité",
+    publisherName: "JeVeuxAider",
+    schedule: "Soirée hebdomadaire",
+  },
+  {
+    title: "Encadrer un groupe d'enfants pendant les vacances",
+    city: "Marseille",
+    domain: "sport_animation",
+    organizationName: "UFOLEP",
+    publisherName: "Service Civique",
+    schedule: "2 semaines",
+  },
+  {
+    title: "Accueillir et orienter des visiteurs dans un musée",
+    city: "Lyon",
+    domain: "culture_arts",
+    organizationName: "Musée des Beaux-Arts",
+    publisherName: "JeVeuxAider",
+    schedule: "Week-end",
+  },
+  {
+    title: "Aider à la collecte de données sur la biodiversité locale",
+    city: "Bordeaux",
+    domain: "environnement_nature",
+    organizationName: "LPO France",
+    publisherName: "JeVeuxAider",
+    schedule: "Mission ponctuelle",
+  },
+];
+
+const FAKE_MISSIONS: BrowseMission[] = FAKE_MISSION_TEMPLATES.map((template, index) => ({
+  _id: `fake-${index}`,
+  id: `fake-${index}`,
+  title: template.title,
+  description: null,
+  city: template.city,
+  departmentCode: null,
+  departmentName: null,
+  domain: template.domain,
+  domainOriginal: null,
+  domainLogo: null,
+  organizationName: template.organizationName,
+  organizationLogo: null,
+  publisherName: template.publisherName,
+  publisherLogo: null,
+  applicationUrl: null,
+  schedule: template.schedule,
+}));
+
 export default function MissionsPage() {
   const [filterValues, setFilterValues] = useState<Record<FilterKey, string[]>>({
     departmentCode: [],
@@ -87,8 +270,8 @@ export default function MissionsPage() {
     domaine: [],
   });
   const [page, setPage] = useState(1);
-  const [items, setItems] = useState<BrowseMission[]>([]);
-  const [total, setTotal] = useState(0);
+  const [items, setItems] = useState<BrowseMission[]>(FAKE_MISSIONS.slice(0, PAGE_SIZE));
+  const [total, setTotal] = useState(FAKE_MISSIONS.length);
   const [facets, setFacets] = useState<Record<string, FacetCount[]>>(FAKE_FACETS);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -97,6 +280,10 @@ export default function MissionsPage() {
     const controller = new AbortController();
     setLoading(true);
     setError(null);
+
+    const start = (page - 1) * PAGE_SIZE;
+    setItems(FAKE_MISSIONS.slice(start, start + PAGE_SIZE));
+    setTotal(FAKE_MISSIONS.length);
 
     const browseInput: BrowseFilters = { page, pageSize: PAGE_SIZE };
     if (filterValues.departmentCode.length) browseInput.departmentCode = filterValues.departmentCode;
@@ -124,13 +311,6 @@ export default function MissionsPage() {
   }, [filterValues, page]);
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-
-  const visiblePageNumbers = useMemo(() => {
-    const window = 5;
-    const start = Math.max(1, Math.min(page - Math.floor(window / 2), totalPages - window + 1));
-    const length = Math.min(window, totalPages);
-    return Array.from({ length }, (_, i) => start + i);
-  }, [page, totalPages]);
 
   const filterDefs: FilterDef[] = [
     {
@@ -197,7 +377,6 @@ export default function MissionsPage() {
   };
 
   const handlePageChange = (newPage: number) => {
-    if (newPage < 1 || newPage > totalPages || newPage === page) return;
     setPage(newPage);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -292,39 +471,9 @@ export default function MissionsPage() {
             </div>
           )}
 
-          {totalPages > 1 && (
-            <nav className="fr-pagination fr-mt-6w" aria-label="Pagination des missions">
-              <ul className="fr-pagination__list">
-                <li>
-                  <button type="button" className="fr-pagination__link fr-pagination__link--first" disabled={page === 1} onClick={() => handlePageChange(1)}>
-                    Première page
-                  </button>
-                </li>
-                <li>
-                  <button type="button" className="fr-pagination__link fr-pagination__link--prev" disabled={page === 1} onClick={() => handlePageChange(page - 1)}>
-                    Page précédente
-                  </button>
-                </li>
-                {visiblePageNumbers.map((pageNumber) => (
-                  <li key={pageNumber}>
-                    <button type="button" className="fr-pagination__link" aria-current={pageNumber === page ? "page" : undefined} onClick={() => handlePageChange(pageNumber)}>
-                      {pageNumber}
-                    </button>
-                  </li>
-                ))}
-                <li>
-                  <button type="button" className="fr-pagination__link fr-pagination__link--next" disabled={page === totalPages} onClick={() => handlePageChange(page + 1)}>
-                    Page suivante
-                  </button>
-                </li>
-                <li>
-                  <button type="button" className="fr-pagination__link fr-pagination__link--last" disabled={page === totalPages} onClick={() => handlePageChange(totalPages)}>
-                    Dernière page
-                  </button>
-                </li>
-              </ul>
-            </nav>
-          )}
+          <div className="fr-mt-6w">
+            <Pagination page={page} totalPages={totalPages} onPageChange={handlePageChange} />
+          </div>
         </div>
       </GradientBg>
     </main>

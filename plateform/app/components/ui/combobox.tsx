@@ -50,14 +50,14 @@ export default function Combobox({ label, placeholder, options, selected, onChan
     <div className="relative" ref={wrapperRef}>
       <button
         type="button"
-        className="w-full gap-2 px-4 py-3 text-left transition-colors hover:bg-background-default-grey-hover"
+        className="w-full px-4 text-left transition-colors hover:bg-background-default-grey-hover"
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
       >
-        <span className="text-xs text-title-grey">{label}</span>
+        <span className="fr-text text-title-grey">{label}</span>
 
         <div className="relative flex items-center justify-between gap-2">
-          <span className={`truncate text-sm ${hasSelection ? "font-bold text-black" : "italic text-title-grey"}`}>{summaryLabel}</span>
+          <span className={`truncate fr-text ${hasSelection ? "font-bold text-title-grey" : "italic text-mention-grey"}`}>{summaryLabel}</span>
           <i className={`fr-icon-arrow-down-s-line fr-icon--sm shrink-0 transition-transform ${open ? "rotate-180" : ""}`} aria-hidden="true" />
         </div>
       </button>
