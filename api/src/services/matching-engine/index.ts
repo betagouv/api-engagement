@@ -44,6 +44,7 @@ const MIN_TAXONOMY_CANDIDATE_LIMIT = 1000;
 const GEO_CANDIDATE_MULTIPLIER = 50;
 const MIN_GEO_CANDIDATE_LIMIT = 1000;
 const GEO_PREFILTER_RADIUS_MULTIPLIER = 6;
+const TAXONOMY_OR_BASE_SCORE = 0.8;
 
 const getTaxonomyCandidateLimit = (params: { limit: number; offset: number }): number =>
   Math.max(params.offset + params.limit, params.limit * TAXONOMY_CANDIDATE_MULTIPLIER, MIN_TAXONOMY_CANDIDATE_LIMIT);
@@ -106,7 +107,7 @@ const buildRanking = (params: {
   ),
   weighted_user_totals AS (
     SELECT
-      COALESCE(SUM(udt."taxonomy_total" * COALESCE(dw."taxonomy_weight", 1.0)), 0) AS "taxonomy_total"
+      COALESCE(SUM(COALESCE(dw."taxonomy_weight", 1.0)), 0) AS "taxonomy_total"
     FROM user_taxonomy_totals udt
     LEFT JOIN taxonomy_weights dw
       ON dw."taxonomy_key" = udt."taxonomy_key"
@@ -196,8 +197,15 @@ const buildRanking = (params: {
   taxonomy_scores AS (
     SELECT
       mv."mission_scoring_id",
-      SUM(mv."taxonomy_sum" * COALESCE(dw."taxonomy_weight", 1.0)) AS "weighted_sum"
+      SUM(
+        (
+          CAST(${TAXONOMY_OR_BASE_SCORE} AS double precision) +
+          ((1.0 - CAST(${TAXONOMY_OR_BASE_SCORE} AS double precision)) * LEAST(mv."taxonomy_sum" / NULLIF(udt."taxonomy_total", 0), 1.0))
+        ) * COALESCE(dw."taxonomy_weight", 1.0)
+      ) AS "weighted_sum"
     FROM matched_values mv
+    JOIN user_taxonomy_totals udt
+      ON udt."taxonomy_key" = mv."taxonomy_key"
     LEFT JOIN taxonomy_weights dw
       ON dw."taxonomy_key" = mv."taxonomy_key"
     GROUP BY mv."mission_scoring_id"
@@ -467,7 +475,9 @@ const buildTaxonomyScoresSql = (params: { userScoringId: string; missionScoringI
     mv."mission_scoring_id",
     mv."taxonomy_key",
     CASE
-      WHEN udt."taxonomy_total" > 0 THEN mv."taxonomy_sum" / udt."taxonomy_total"
+      WHEN udt."taxonomy_total" > 0 THEN
+        CAST(${TAXONOMY_OR_BASE_SCORE} AS double precision) +
+        ((1.0 - CAST(${TAXONOMY_OR_BASE_SCORE} AS double precision)) * LEAST(mv."taxonomy_sum" / udt."taxonomy_total", 1.0))
       ELSE 0
     END AS "taxonomy_score"
   FROM matched_values mv
