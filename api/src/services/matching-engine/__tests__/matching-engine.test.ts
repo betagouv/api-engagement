@@ -19,6 +19,22 @@ const missionMatchingResultRepositoryMock = missionMatchingResultRepository as u
   createForUserScoringVersion: ReturnType<typeof vi.fn>;
 };
 
+const getSqlText = (query: unknown): string => {
+  if (typeof query === "object" && query !== null && "sql" in query && typeof query.sql === "string") {
+    return query.sql;
+  }
+
+  if (typeof query === "object" && query !== null && "text" in query && typeof query.text === "string") {
+    return query.text;
+  }
+
+  if (typeof query === "object" && query !== null && "strings" in query && Array.isArray(query.strings)) {
+    return query.strings.join("");
+  }
+
+  return String(query);
+};
+
 describe("matchingEngineService", () => {
   beforeEach(() => {
     prismaMock.$queryRaw.mockReset();
@@ -203,7 +219,11 @@ describe("matchingEngineService", () => {
         userScoringId: "user-scoring-gate-filtered",
       });
 
+      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[1][0]);
       expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(3);
+      expect(rankingSql).toContain("user_gate_values");
+      expect(rankingSql).toContain("matched_gate_taxonomies");
+      expect(rankingSql).not.toContain('AND usv."taxonomy_key" NOT IN');
       expect(result.items).toEqual([
         {
           missionId: "mission-eligible",
@@ -281,6 +301,7 @@ describe("matchingEngineService", () => {
           closestAddress: null,
           taxonomyScores: {
             domaine: 0.7,
+            tranche_age: 1,
           },
         },
       ]);

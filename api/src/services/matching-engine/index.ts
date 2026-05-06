@@ -96,7 +96,6 @@ const buildRanking = (params: {
       usv."score"::double precision AS "user_score"
     FROM "user_scoring_value" usv
     WHERE usv."user_scoring_id" = ${params.userScoringId}
-      AND usv."taxonomy_key" NOT IN (${buildGateTaxonomiesSql()})
   ),
   user_taxonomy_totals AS (
     SELECT
@@ -444,7 +443,6 @@ const buildTaxonomyScoresSql = (params: { userScoringId: string; missionScoringI
       usv."score"::double precision AS "user_score"
     FROM "user_scoring_value" usv
     WHERE usv."user_scoring_id" = ${params.userScoringId}
-      AND usv."taxonomy_key" NOT IN (${buildGateTaxonomiesSql()})
   ),
   user_taxonomy_totals AS (
     SELECT
