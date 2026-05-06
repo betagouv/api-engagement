@@ -10,7 +10,7 @@ import Photo1 from "~/assets/images/humanitaire-02.jpeg";
 import NextButton from "~/components/quiz/next-button";
 import { QUIZ_TRANSITION_MS } from "~/services/config";
 
-type Suggestion = { label: string; lat: number; lon: number };
+type Suggestion = { label: string; lat: number; lon: number; country_code?: string };
 
 type AddressFeature = {
   properties: { name: string; postcode: string; id: string };
@@ -22,11 +22,11 @@ export default function LocalisationStep() {
   const { goNext, transitioning, setTransitioning } = useOutletContext<QuizOutletContext>();
 
   const locAnswer = answers["localisation"];
-  const savedLocation = locAnswer?.type === "params" ? (locAnswer.params as { lat: number; lon: number; label: string }) : null;
+  const savedLocation = locAnswer?.type === "params" ? (locAnswer.params as { lat: number; lon: number; country_code?: string }) : null;
 
-  const [value, setValue] = useState(savedLocation?.label ?? "");
+  const [value, setValue] = useState("");
   const [options, setOptions] = useState<Suggestion[]>([]);
-  const [selected, setSelected] = useState<Suggestion | null>(savedLocation);
+  const [selected, setSelected] = useState<Suggestion | null>(savedLocation ? { label: "", ...savedLocation } : null);
   const [showOptions, setShowOptions] = useState(false);
   const [locating, setLocating] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -58,6 +58,7 @@ export default function LocalisationStep() {
             label: `${f.properties.name} (${f.properties.postcode})`,
             lat: f.geometry.coordinates[1],
             lon: f.geometry.coordinates[0],
+            country_code: "fr",
           })),
         );
         setShowOptions(true);
@@ -85,7 +86,12 @@ export default function LocalisationStep() {
         const data: { features?: AddressFeature[] } = await feature.json();
 
         if (!data.features) return;
-        const here: Suggestion = { label: data.features[0].properties.name, lat: data.features[0].geometry.coordinates[1], lon: data.features[0].geometry.coordinates[0] };
+        const here: Suggestion = {
+          label: data.features[0].properties.name,
+          lat: data.features[0].geometry.coordinates[1],
+          lon: data.features[0].geometry.coordinates[0],
+          country_code: "fr",
+        };
         setSelected(here);
         setShowOptions(false);
         setValue(here.label);
@@ -98,7 +104,11 @@ export default function LocalisationStep() {
   const handleSubmit = (e: SubmitEvent) => {
     e.preventDefault();
     if (!selected) return;
-    setAnswer("localisation", { type: "params", taxonomy: "location", params: { lat: selected.lat, lon: selected.lon, label: selected.label } });
+    setAnswer("localisation", {
+      type: "params",
+      taxonomy: "location",
+      params: { lat: selected.lat, lon: selected.lon, ...(selected.country_code ? { country_code: selected.country_code } : {}) },
+    });
     setValue(selected.label);
     setTransitioning(true);
   };
