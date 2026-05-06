@@ -31,10 +31,17 @@ const updateBodySchema = zod
     distinctId: distinctIdSchema,
     email: emailSchema.optional(),
     missionId: zod.string().uuid().optional(),
+    geo: zod
+      .object({
+        lat: zod.number().min(-90).max(90),
+        lon: zod.number().min(-180).max(180),
+        radius_km: zod.number().positive().optional(),
+      })
+      .optional(),
     missionAlertEnabled: zod.boolean().optional(),
   })
-  .refine((body) => body.answers !== undefined || body.missionAlertEnabled !== undefined || body.email !== undefined, {
-    message: "answers, missionAlertEnabled or email is required",
+  .refine((body) => body.answers !== undefined || body.geo !== undefined || body.missionAlertEnabled !== undefined || body.email !== undefined, {
+    message: "answers, geo, email or missionAlertEnabled is required",
   })
   .refine((body) => body.missionId === undefined || body.email !== undefined, {
     message: "email is required when missionId is provided",
