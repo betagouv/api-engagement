@@ -82,3 +82,15 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
   - Options:
     - `--limit N` : nombre max de missions affichées (défaut: 5)
     - `--version V` : version du matching engine à analyser (défaut: version courante)
+
+- **benchmark-matching-engine.ts**
+
+  - Exécution: `npx ts-node scripts/benchmark-matching-engine.ts -- [options]`
+  - Usage: Mesure les temps de réponse du `matching-engine` sur les données PostgreSQL disponibles.
+  - Options principales:
+    - `--user-scoring-id ID` : profil à benchmarker (répétable). Sans id, le script échantillonne des profils actifs variés.
+    - `--sample-size N` : nombre de profils auto-sélectionnés (défaut: 8).
+    - `--iterations N` / `--warmup N` : répétitions mesurées et préchauffage (défauts: 5 et 1).
+    - `--limits 20,100,500` / `--offsets 1,100` : volumes de résultats et offsets à tester. Par défaut, l'offset `1` évite l'écriture `mission_matching_result` déclenchée par le service sur `offset=0`.
+    - `--taxonomy-weight N`, `--geo-weight N`, `--geo-half-decay-km N` : variantes de scoring à comparer.
+    - `--json` : sortie exploitable en comparaison automatisée.
