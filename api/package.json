@@ -25,6 +25,7 @@
     "dependencies": {
         "@aws-sdk/client-s3": "3.1036.0",
         "@aws-sdk/lib-storage": "3.1036.0",
+        "@aws-sdk/s3-request-presigner": "3.1036.0",
         "@opentelemetry/exporter-metrics-otlp-http": "0.215.0",
         "@opentelemetry/resources": "2.7.0",
         "@opentelemetry/sdk-metrics": "2.7.0",

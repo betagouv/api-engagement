@@ -10,6 +10,7 @@ import MissionController from "@/controllers/mission";
 import ModerationController from "@/controllers/moderation";
 import PublisherController from "@/controllers/publisher";
 import RedirectController from "@/controllers/redirect";
+import ReportController from "@/controllers/report";
 import StatsController from "@/controllers/stats";
 import UserController from "@/controllers/user";
 import WarningController from "@/controllers/warning";
@@ -49,6 +50,7 @@ export const createTestApp = ({ metricsRecorder }: { metricsRecorder?: HttpMetri
   app.use("/mission", MissionController);
   app.use("/moderation", ModerationController);
   app.use("/import", ImportController);
+  app.use("/report", ReportController);
   app.use("/stats", StatsController);
   app.use("/warning", WarningController);
   app.use("/v0/myorganization", MyOrganizationV0Controller);

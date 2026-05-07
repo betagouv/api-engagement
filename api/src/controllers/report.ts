@@ -1,15 +1,18 @@
 import { NextFunction, Request, Response, Router } from "express";
 import zod from "zod";
 
-import { captureException, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
+import { captureException, FORBIDDEN, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
+import passport from "@/middlewares/passport";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { reportService } from "@/services/report";
+import { getPresignedUrl } from "@/services/s3";
+import type { UserRecord } from "@/types/user";
 
 const router = Router();
 router.use(ipRateLimiter);
 
 // Keep because old version of the report
-router.get("/pdf/:publisherId", async (req: Request, res: Response, next: NextFunction) => {
+router.get("/pdf/:publisherId", passport.authenticate("user", { session: false }), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const params = zod
       .object({
@@ -31,6 +34,11 @@ router.get("/pdf/:publisherId", async (req: Request, res: Response, next: NextFu
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
 
+    const user = req.user as UserRecord;
+    if (user.role !== "admin" && !user.publishers.includes(params.data.publisherId)) {
+      return res.status(403).send({ ok: false, code: FORBIDDEN, message: "Forbidden" });
+    }
+
     const report = await reportService.findOneReportByPublisherAndPeriod(params.data.publisherId, query.data.year, query.data.month);
     if (!report) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Report not found" });
@@ -38,6 +46,11 @@ router.get("/pdf/:publisherId", async (req: Request, res: Response, next: NextFu
     if (!report.url) {
       captureException(new Error(`Report ${report.id} has no url`), `Report ${report.id} has no url`);
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Report not found" });
+    }
+
+    if (report.objectName) {
+      const signedUrl = await getPresignedUrl(report.objectName);
+      return res.redirect(signedUrl);
     }
     res.redirect(report.url);
   } catch (error) {
@@ -66,6 +79,10 @@ router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Report not found" });
     }
 
+    if (report.objectName) {
+      const signedUrl = await getPresignedUrl(report.objectName);
+      return res.redirect(signedUrl);
+    }
     res.redirect(report.url);
   } catch (error) {
     next(error);
