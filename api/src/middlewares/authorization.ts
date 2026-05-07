@@ -39,13 +39,8 @@ export const hasAdminOrDirectPublisherAccess = (user: UserRequest["user"], publi
   return hasDirectPublisherAccess(user, publisherId);
 };
 
-export const hasAnyPublisherAccess = (user: UserRequest["user"], publisherIds: string[]): boolean =>
-  publisherIds.some((publisherId) => hasAdminOrDirectPublisherAccess(user, publisherId));
-
 export const hasAllPublisherAccess = (user: UserRequest["user"], publisherIds: string[]): boolean =>
   publisherIds.every((publisherId) => hasAdminOrDirectPublisherAccess(user, publisherId));
-
-export const canManageApiKey = (user: UserRequest["user"], publisherId: string): boolean => hasAdminOrDirectPublisherAccess(user, publisherId);
 
 export const readRequiredParam = (req: UserRequest, res: Response, paramName: string): string | null => {
   const value = normalizePublisherId(req.params[paramName]);
@@ -82,9 +77,6 @@ const requirePublisherAccess =
       next(error);
     }
   };
-
-export const requireAnyPublisherAccess = ({ resolvePublisherIds }: { resolvePublisherIds: ResolvePublisherIds }) =>
-  requirePublisherAccess({ resolvePublisherIds, canAccess: hasAnyPublisherAccess });
 
 export const requireAllPublisherAccess = ({ resolvePublisherIds }: { resolvePublisherIds: ResolvePublisherIds }) =>
   requirePublisherAccess({ resolvePublisherIds, canAccess: hasAllPublisherAccess });

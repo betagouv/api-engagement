@@ -1,12 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 
 import {
-  canManageApiKey,
   hasAdminOrDirectPublisherAccess,
   hasAllPublisherAccess,
-  hasAnyPublisherAccess,
   requireAllPublisherAccess,
-  requireAnyPublisherAccess,
   requireDirectPublisherAccess,
 } from "@/middlewares/authorization";
 import { publisherService } from "@/services/publisher";
@@ -52,19 +49,6 @@ describe("authorization middleware", () => {
     expect(res.status).not.toHaveBeenCalled();
   });
 
-  it("allows any-access when at least one resolved publisher is accessible", async () => {
-    const req = createRequest();
-    const res = createResponse();
-    const next = vi.fn();
-
-    await requireAnyPublisherAccess({
-      resolvePublisherIds: async () => ({ publisherIds: ["publisher-2", "publisher-1"], locals: { resource: { id: "resource-1" } } }),
-    })(req, res, next);
-
-    expect(next).toHaveBeenCalledOnce();
-    expect(res.locals.resource).toEqual({ id: "resource-1" });
-  });
-
   it("rejects all-access when only one resolved publisher is accessible", async () => {
     const req = createRequest();
     const res = createResponse();
@@ -78,20 +62,6 @@ describe("authorization middleware", () => {
     expect(res.status).toHaveBeenCalledWith(403);
     expect(res.send).toHaveBeenCalledWith(expect.objectContaining({ ok: false, code: "FORBIDDEN" }));
     expect(res.locals.resource).toBeUndefined();
-  });
-
-  it("rejects a user when no resolved publisher is accessible", async () => {
-    const req = createRequest();
-    const res = createResponse();
-    const next = vi.fn();
-
-    await requireAnyPublisherAccess({
-      resolvePublisherIds: async () => ({ publisherIds: ["publisher-2"] }),
-    })(req, res, next);
-
-    expect(next).not.toHaveBeenCalled();
-    expect(res.status).toHaveBeenCalledWith(403);
-    expect(res.send).toHaveBeenCalledWith(expect.objectContaining({ ok: false, code: "FORBIDDEN" }));
   });
 
   it("returns 404 when the loaded object does not exist", async () => {
@@ -151,8 +121,6 @@ describe("authorization middleware", () => {
     expect(hasAdminOrDirectPublisherAccess({ role: "admin", publishers: [] }, "publisher-1")).toBe(true);
     expect(hasAdminOrDirectPublisherAccess({ role: "user", publishers: ["publisher-1"] }, "publisher-1")).toBe(true);
     expect(hasAdminOrDirectPublisherAccess({ role: "user", publishers: ["publisher-1"] }, "publisher-2")).toBe(false);
-    expect(hasAnyPublisherAccess({ role: "user", publishers: ["publisher-1"] }, ["publisher-2", "publisher-1"])).toBe(true);
     expect(hasAllPublisherAccess({ role: "user", publishers: ["publisher-1"] }, ["publisher-2", "publisher-1"])).toBe(false);
-    expect(canManageApiKey({ role: "user", publishers: ["publisher-1"] }, "publisher-1")).toBe(true);
   });
 });
