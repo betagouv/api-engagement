@@ -1,5 +1,4 @@
-import { randomBytes } from "crypto";
-import { v4 as uuid } from "uuid";
+import { randomBytes, randomUUID } from "crypto";
 
 import { MissionType, Prisma, Publisher, PublisherDiffusion, PublisherDiffusionExclusion } from "@/db/core";
 import { publisherRepository } from "@/repositories/publisher";
@@ -289,7 +288,7 @@ export const publisherService = (() => {
   };
 
   const regenerateApiKey = async (id: string): Promise<{ apikey: string; publisher: PublisherRecord }> => {
-    const apikey = uuid();
+    const apikey = randomUUID();
     const updated = await publisherRepository.update({
       where: { id },
       data: { apikey },
