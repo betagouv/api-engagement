@@ -295,9 +295,6 @@ export default function MissionsPage() {
     if (filterValues.secteur_activite.length) browseInput.secteur_activite = filterValues.secteur_activite;
     if (filterValues.domaine.length) browseInput.domaine = filterValues.domaine;
 
-    // TODO
-    return;
-
     browseMissions(browseInput, controller.signal)
       .then((res) => {
         setItems(res.data);
