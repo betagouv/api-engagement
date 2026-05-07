@@ -7,8 +7,8 @@ import { campaignService } from "@/services/campaign";
 import { statBotService } from "@/services/stat-bot";
 import { PublisherRecord } from "@/types/publisher";
 import * as utils from "@/utils";
-import { createTestPublisher } from "../../../fixtures";
-import { createTestApp } from "../../../testApp";
+import { createTestPublisher } from "../../../../fixtures";
+import { createTestApp } from "../../../../testApp";
 
 describe("RedirectController /campaign/:id", () => {
   const app = createTestApp();
@@ -96,7 +96,7 @@ describe("RedirectController /campaign/:id", () => {
         const row = await prisma.statEvent.findUnique({ where: { id: clickId! } });
         expect(row?.isBot).toBe(true);
       },
-      { timeout: 2000, interval: 50 },
+      { timeout: 2000, interval: 50 }
     );
 
     const storedClick = await prisma.statEvent.findUnique({ where: { id: clickId! } });

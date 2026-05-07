@@ -4,9 +4,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { prisma } from "@/db/postgres";
 import { statBotService } from "@/services/stat-bot";
 import * as utils from "@/utils";
-import { createTestMission, createTestPublisher } from "../../../fixtures";
-import { createClickStat } from "../../../fixtures/stat-event";
-import { createTestApp } from "../../../testApp";
+import { createTestMission, createTestPublisher } from "../../../../fixtures";
+import { createClickStat } from "../../../../fixtures/stat-event";
+import { createTestApp } from "../../../../testApp";
 
 const app = createTestApp();
 

@@ -7,6 +7,7 @@ export * from "@/utils/mission-moderation-status";
 export * from "@/utils/normalize";
 export * from "@/utils/organization";
 export * from "@/utils/parser";
+export * from "@/utils/publisher-access";
 export * from "@/utils/request";
 export * from "@/utils/string";
 export * from "@/utils/url";

@@ -1,12 +1,12 @@
-import request from "supertest";
-import { beforeEach, describe, expect, it } from "vitest";
 import { publisherDiffusionExclusionService } from "@/services/publisher-diffusion-exclusion";
 import publisherOrganizationService from "@/services/publisher-organization";
 import { MissionRecord, PublisherMissionType, PublisherRecord } from "@/types";
 import { PublisherOrganizationRecord } from "@/types/publisher-organization";
-import { createTestMission, createTestPublisher } from "../../../fixtures";
-import { createStatEventFixture } from "../../../fixtures/stat-event";
-import { createTestApp } from "../../../testApp";
+import request from "supertest";
+import { beforeEach, describe, expect, it } from "vitest";
+import { createTestMission, createTestPublisher } from "../../../../fixtures";
+import { createStatEventFixture } from "../../../../fixtures/stat-event";
+import { createTestApp } from "../../../../testApp";
 
 describe("MyOrganization API Integration Tests", () => {
   const app = createTestApp();
@@ -115,7 +115,9 @@ describe("MyOrganization API Integration Tests", () => {
    */
   describe("PUT /v0/myorganization/:organizationClientId", () => {
     it("should return 401 if not authenticated", async () => {
-      const response = await request(app).put(`/v0/myorganization/${orgId}`).send({ publisherIds: [publisher1.id] });
+      const response = await request(app)
+        .put(`/v0/myorganization/${orgId}`)
+        .send({ publisherIds: [publisher1.id] });
       expect(response.status).toBe(401);
     });
 
@@ -150,8 +152,16 @@ describe("MyOrganization API Integration Tests", () => {
 
     it("should remove exclusions when publisher is included", async () => {
       // Seed both partners as excluded
-      await publisherDiffusionExclusionService.createExclusion({ excludedByAnnonceurId: publisher.id, excludedForDiffuseurId: publisher1.id, publisherOrganizationId: publisherOrganization.id });
-      await publisherDiffusionExclusionService.createExclusion({ excludedByAnnonceurId: publisher.id, excludedForDiffuseurId: publisher2.id, publisherOrganizationId: publisherOrganization.id });
+      await publisherDiffusionExclusionService.createExclusion({
+        excludedByAnnonceurId: publisher.id,
+        excludedForDiffuseurId: publisher1.id,
+        publisherOrganizationId: publisherOrganization.id,
+      });
+      await publisherDiffusionExclusionService.createExclusion({
+        excludedByAnnonceurId: publisher.id,
+        excludedForDiffuseurId: publisher2.id,
+        publisherOrganizationId: publisherOrganization.id,
+      });
 
       const response = await request(app)
         .put(`/v0/myorganization/${orgId}`)

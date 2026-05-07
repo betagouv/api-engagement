@@ -3,8 +3,8 @@ import request from "supertest";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { createIpRateLimiter, createPublisherRateLimiter } from "@/middlewares/rate-limit";
-import { createTestPublisher } from "../../fixtures";
-import { createTestApp } from "../../testApp";
+import { createTestPublisher } from "../../../fixtures";
+import { createTestApp } from "../../../testApp";
 
 const createRateLimitedApp = ({ publisherMax, ipMax }: { publisherMax?: number; ipMax?: number } = {}) => {
   const wrapper = express();

@@ -1,11 +1,11 @@
 import { randomUUID } from "crypto";
 import request from "supertest";
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import { missionModerationStatusService } from "@/services/mission-moderation-status";
 import type { MissionRecord, PublisherRecord } from "@/types";
-import { createTestMission, createTestPublisher } from "../../../fixtures";
-import { createTestApp } from "../../../testApp";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { createTestMission, createTestPublisher } from "../../../../fixtures";
+import { createTestApp } from "../../../../testApp";
 
 describe("Mission API Integration Tests", () => {
   const app = createTestApp();

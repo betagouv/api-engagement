@@ -5,13 +5,15 @@ import zod from "zod";
 
 import { DEFAULT_AVATAR, PUBLISHER_IDS } from "@/config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, NOT_FOUND, RESSOURCE_ALREADY_EXIST, captureException } from "@/error";
+import { requireDirectPublisherAccess, requirePublisherRelationAccess } from "@/middlewares/authorization";
+import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { PublisherNotFoundError, publisherService } from "@/services/publisher";
 import { publisherDiffusionExclusionService } from "@/services/publisher-diffusion-exclusion";
 import { OBJECT_ACL, putObject } from "@/services/s3";
 import { userService } from "@/services/user";
 import { UserRequest } from "@/types/passport";
-import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { PublisherMissionType, type PublisherDiffusionInput, type PublisherRoleFilter } from "@/types/publisher";
+import { readRequiredParam } from "@/utils/publisher-access";
 
 const upload = multer();
 const router = Router();
@@ -83,30 +85,12 @@ router.post("/search", passport.authenticate(["user", "admin"], { session: false
   }
 });
 
-router.get("/:id", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+const requirePublisherReadAccess = requirePublisherRelationAccess({ idParam: "id" });
+const requirePublisherWriteAccess = requireDirectPublisherAccess({ idParam: "id" });
+
+router.get("/:id", passport.authenticate("user", { session: false }), requirePublisherReadAccess, async (_req: UserRequest, res: Response, next: NextFunction) => {
   try {
-    const params = zod
-      .object({
-        id: zod.string(),
-      })
-      .safeParse(req.params);
-
-    if (!params.success) {
-      return res.status(400).send({ ok: false, code: INVALID_PARAMS, error: params.error });
-    }
-
-    const publisher = await publisherService.findOnePublisherById(params.data.id);
-    if (!publisher) {
-      return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
-    }
-
-    const userPublisherIds = req.user.publishers.map((value: string) => value.toString());
-    const hasAccess =
-      req.user.role === "admin" || userPublisherIds.includes(params.data.id) || publisher.publishers.some((diffuseur) => userPublisherIds.includes(diffuseur.diffuseurPublisherId));
-
-    if (!hasAccess) {
-      return res.status(403).send({ ok: false, code: FORBIDDEN, message: `Not allowed` });
-    }
+    const publisher = res.locals.publisher;
 
     return res.status(200).send({ ok: true, publisher, data: publisher });
   } catch (error) {
@@ -114,16 +98,11 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
   }
 });
 
-router.get("/:id/moderated", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+router.get("/:id/moderated", passport.authenticate("user", { session: false }), requirePublisherReadAccess, async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
-    const params = zod
-      .object({
-        id: zod.string(),
-      })
-      .safeParse(req.params);
-
-    if (!params.success) {
-      return res.status(400).send({ ok: false, code: INVALID_PARAMS, error: params.error });
+    const publisherId = readRequiredParam(req, res, "id");
+    if (!publisherId) {
+      return;
     }
 
     const jva = await publisherService.findOnePublisherById(PUBLISHER_IDS.JEVEUXAIDER);
@@ -132,7 +111,7 @@ router.get("/:id/moderated", passport.authenticate("user", { session: false }), 
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "JVA not found" });
     }
 
-    if (jva.publishers.some((p) => p.diffuseurPublisherId === params.data.id)) {
+    if (jva.publishers.some((p) => p.diffuseurPublisherId === publisherId)) {
       return res.status(200).send({ ok: true, data: true });
     }
 
@@ -142,30 +121,22 @@ router.get("/:id/moderated", passport.authenticate("user", { session: false }), 
   }
 });
 
-router.get("/:id/excluded-organizations", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
-  try {
-    const params = zod
-      .object({
-        id: zod.string(),
-      })
-      .safeParse(req.params);
+router.get(
+  "/:id/excluded-organizations",
+  passport.authenticate("user", { session: false }),
+  requirePublisherReadAccess,
+  async (_req: UserRequest, res: Response, next: NextFunction) => {
+    try {
+      const publisher = res.locals.publisher;
 
-    if (!params.success) {
-      return res.status(400).send({ ok: false, code: INVALID_PARAMS, error: params.error });
+      const diffusionExclusions = await publisherDiffusionExclusionService.findExclusionsForDiffuseurId(publisher.id);
+
+      return res.status(200).send({ ok: true, data: diffusionExclusions });
+    } catch (error) {
+      next(error);
     }
-
-    const publisher = await publisherService.findOnePublisherById(params.data.id);
-    if (!publisher) {
-      return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
-    }
-
-    const diffusionExclusions = await publisherDiffusionExclusionService.findExclusionsForDiffuseurId(publisher.id);
-
-    return res.status(200).send({ ok: true, data: diffusionExclusions });
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 router.post("/", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
@@ -236,69 +207,65 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
   }
 });
 
-router.post("/:id/image", passport.authenticate("user", { session: false }), upload.any(), async (req: UserRequest, res: Response, next: NextFunction) => {
-  try {
-    const params = zod
-      .object({
-        id: zod.string(),
-      })
-      .safeParse(req.params);
-
-    if (!params.success) {
-      return res.status(400).send({ ok: false, code: INVALID_PARAMS, error: params.error });
-    }
-    if (!req.files) {
-      return res.status(400).send({ ok: false, code: INVALID_BODY, message: "No file uploaded" });
-    }
-
-    const publisher = await publisherService.findOnePublisherById(params.data.id);
-    if (!publisher) {
-      return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
-    }
-
-    const files = req.files as Express.Multer.File[];
-    if (files.length === 0) {
-      return res.status(400).send({ ok: false, code: INVALID_BODY, message: "No file uploaded" });
-    }
-    const objectName = `publishers/${publisher.id}/${files[0].originalname}`;
-
-    const response = await putObject(objectName, files[0].buffer, {
-      ACL: OBJECT_ACL.PUBLIC_READ,
-    });
-
-    const updated = await publisherService.updatePublisher(params.data.id, { logo: response.Location });
-
-    return res.status(200).send({ ok: true, data: updated });
-  } catch (error) {
-    next(error);
-  }
-});
-
-router.post("/:id/apikey", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
-  try {
-    const params = zod
-      .object({
-        id: zod.string(),
-      })
-      .safeParse(req.params);
-
-    if (!params.success) {
-      return res.status(400).send({ ok: false, code: INVALID_PARAMS, error: params.error });
-    }
-
+router.post(
+  "/:id/image",
+  passport.authenticate("user", { session: false }),
+  requirePublisherWriteAccess,
+  upload.any(),
+  async (req: UserRequest, res: Response, next: NextFunction) => {
     try {
-      const { apikey } = await publisherService.regenerateApiKey(params.data.id);
-      return res.status(200).send({ ok: true, data: apikey });
-    } catch (error) {
-      if (error instanceof PublisherNotFoundError) {
-        return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
+      const publisherId = readRequiredParam(req, res, "id");
+      if (!publisherId) {
+        return;
       }
-      throw error;
+      if (!req.files) {
+        return res.status(400).send({ ok: false, code: INVALID_BODY, message: "No file uploaded" });
+      }
+
+      const files = req.files as Express.Multer.File[];
+      if (files.length === 0) {
+        return res.status(400).send({ ok: false, code: INVALID_BODY, message: "No file uploaded" });
+      }
+      const objectName = `publishers/${publisherId}/${files[0].originalname}`;
+
+      const response = await putObject(objectName, files[0].buffer, {
+        ACL: OBJECT_ACL.PUBLIC_READ,
+      });
+
+      const updated = await publisherService.updatePublisher(publisherId, { logo: response.Location });
+
+      return res.status(200).send({ ok: true, data: updated });
+    } catch (error) {
+      next(error);
     }
-  } catch (error) {
-    next(error);
   }
-});
+);
+
+router.post(
+  "/:id/apikey",
+  passport.authenticate("user", { session: false }),
+  requirePublisherWriteAccess,
+  async (req: UserRequest, res: Response, next: NextFunction) => {
+    try {
+      const publisherId = readRequiredParam(req, res, "id");
+      if (!publisherId) {
+        return;
+      }
+
+      try {
+        const { apikey } = await publisherService.regenerateApiKey(publisherId);
+        return res.status(200).send({ ok: true, data: apikey });
+      } catch (error) {
+        if (error instanceof PublisherNotFoundError) {
+          return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
+        }
+        throw error;
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 router.put("/:id", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
