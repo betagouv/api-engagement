@@ -52,14 +52,7 @@ export const requireDirectPublisherAccess =
         return;
       }
 
-      const publisher = await publisherService.findOnePublisherById(publisherId);
-      if (!publisher) {
-        return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
-      }
-
-      res.locals.publisher = publisher;
-
-      if (!hasAdminOrDirectPublisherAccess(req.user, publisher.id)) {
+      if (!hasAdminOrDirectPublisherAccess(req.user, publisherId)) {
         return res.status(403).send({ ok: false, code: FORBIDDEN, message: "Not allowed" });
       }
 

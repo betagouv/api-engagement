@@ -222,13 +222,11 @@ router.post(
         return res.status(400).send({ ok: false, code: INVALID_BODY, message: "No file uploaded" });
       }
 
-      const publisher = res.locals.publisher;
-
       const files = req.files as Express.Multer.File[];
       if (files.length === 0) {
         return res.status(400).send({ ok: false, code: INVALID_BODY, message: "No file uploaded" });
       }
-      const objectName = `publishers/${publisher.id}/${files[0].originalname}`;
+      const objectName = `publishers/${publisherId}/${files[0].originalname}`;
 
       const response = await putObject(objectName, files[0].buffer, {
         ACL: OBJECT_ACL.PUBLIC_READ,

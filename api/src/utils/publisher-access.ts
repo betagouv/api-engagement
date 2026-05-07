@@ -16,7 +16,7 @@ export const getUserPublisherIds = (user: UserRequest["user"]): string[] => {
   if (!user?.publishers || !Array.isArray(user.publishers)) {
     return [];
   }
-  return user.publishers.map((publisherId: string) => publisherId.toString());
+  return user.publishers;
 };
 
 export const isAdmin = (user: UserRequest["user"]): boolean => user?.role === "admin";

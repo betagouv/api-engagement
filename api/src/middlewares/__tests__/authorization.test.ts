@@ -1,17 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
-import {
-  requireAllPublisherAccess,
-  requireDirectPublisherAccess,
-} from "@/middlewares/authorization";
-import { publisherService } from "@/services/publisher";
+import { requireAllPublisherAccess, requireDirectPublisherAccess } from "@/middlewares/authorization";
 import { hasAdminOrDirectPublisherAccess, hasAllPublisherAccess } from "@/utils/publisher-access";
-
-vi.mock("@/services/publisher", () => ({
-  publisherService: {
-    findOnePublisherById: vi.fn(),
-  },
-}));
 
 const createResponse = () => {
   const res: any = {
@@ -92,8 +82,7 @@ describe("authorization middleware", () => {
     expect(next).toHaveBeenCalledWith(error);
   });
 
-  it("applies the dedicated API key rule", async () => {
-    vi.mocked(publisherService.findOnePublisherById).mockResolvedValueOnce({ id: "publisher-1" } as any);
+  it("applies the dedicated API key rule without loading the publisher", async () => {
     const req = createRequest({ params: { id: "publisher-1" } });
     const res = createResponse();
     const next = vi.fn();
@@ -101,11 +90,10 @@ describe("authorization middleware", () => {
     await requireDirectPublisherAccess({ idParam: "id" })(req, res, next);
 
     expect(next).toHaveBeenCalledOnce();
-    expect(res.locals.publisher).toEqual({ id: "publisher-1" });
+    expect(res.locals.publisher).toBeUndefined();
   });
 
   it("rejects API key access when the publisher is not directly attached", async () => {
-    vi.mocked(publisherService.findOnePublisherById).mockResolvedValueOnce({ id: "publisher-2" } as any);
     const req = createRequest({ params: { id: "publisher-2" } });
     const res = createResponse();
     const next = vi.fn();
