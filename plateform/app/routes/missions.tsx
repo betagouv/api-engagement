@@ -1,8 +1,9 @@
 import { TAXONOMY } from "@engagement/taxonomy";
 import { useEffect, useState } from "react";
-import MissionFiltersBar, { type FilterDef } from "~/components/missions/filters";
-import Newsletter from "~/components/missions/newsletter";
-import Partners from "~/components/missions/partners";
+import Newsletter from "~/components/layout/newsletter";
+import Partners from "~/components/layout/partners";
+import MissionFiltersBar, { MissionFiltersTrigger, type FilterDef } from "~/components/missions/filters";
+import MissionCard from "~/components/missions/mission-card";
 import GradientBg from "~/components/ui/gradient-bg";
 import Pagination from "~/components/ui/pagination";
 import { browseMissions, type BrowseFilters, type BrowseMission, type FacetCount } from "~/services/mission-browse";
@@ -294,6 +295,9 @@ export default function MissionsPage() {
     if (filterValues.secteur_activite.length) browseInput.secteur_activite = filterValues.secteur_activite;
     if (filterValues.domaine.length) browseInput.domaine = filterValues.domaine;
 
+    // TODO
+    return;
+
     browseMissions(browseInput, controller.signal)
       .then((res) => {
         setItems(res.data);
@@ -317,8 +321,8 @@ export default function MissionsPage() {
   const filterDefs: FilterDef[] = [
     {
       key: "departmentCode",
-      label: "Lieu de la mission",
-      placeholder: "Tous",
+      label: "Département",
+      placeholder: "Sélectionner un département",
       selected: filterValues.departmentCode,
       options: sortFacets(facets.departmentCodes).map((facet) => ({
         value: facet.key,
@@ -331,6 +335,7 @@ export default function MissionsPage() {
       label: "Tranche d'âge",
       placeholder: "Toutes",
       selected: filterValues.tranche_age,
+      single: true,
       options: sortFacets(facets.tranche_age).map((facet) => ({
         value: facet.key,
         label: filterTaxonomyLabel("tranche_age", facet.key),
@@ -386,15 +391,18 @@ export default function MissionsPage() {
   return (
     <main>
       <GradientBg>
-        <div className="fr-container fr-py-8w">
-          <h1 className="fr-h1 fr-mb-2w">Trouve ta mission</h1>
-          <p className="fr-text--lead fr-mb-4w">
+        <div className="fr-container pt-4 md:pt-16">
+          <div className="flex items-center justify-between gap-4">
+            <h1 className="fr-h1 m-0!">Trouve ta mission</h1>
+            <MissionFiltersTrigger filters={filterDefs} onChange={handleFilterChange} />
+          </div>
+          <p className="fr-text--lead hidden md:block">
             {loading && total === 0 ? "Chargement…" : `${total.toLocaleString("fr-FR")} mission${total > 1 ? "s" : ""} disponible${total > 1 ? "s" : ""}`}
           </p>
           <MissionFiltersBar filters={filterDefs} onChange={handleFilterChange} />
         </div>
 
-        <div className="fr-container fr-py-6w">
+        <div className="fr-container my-4 md:my-8">
           {error && (
             <div className="fr-alert fr-alert--error fr-mb-4w">
               <p>Erreur lors du chargement des missions : {error}</p>
@@ -410,66 +418,10 @@ export default function MissionsPage() {
           )}
 
           {items.length > 0 && (
-            <div className="fr-grid-row fr-grid-row--gutters">
-              {items.map((mission) => {
-                const cardImage = mission.organizationLogo ?? mission.domainLogo;
-                const domainLabel = mission.domain ? filterTaxonomyLabel("domaine", mission.domain) : null;
-                return (
-                  <div key={mission._id} className="fr-col-12 fr-col-md-6 fr-col-lg-4">
-                    <div className="fr-card fr-enlarge-link h-full">
-                      <div className="fr-card__body">
-                        <div className="fr-card__content">
-                          <h3 className="fr-card__title">
-                            <a href={mission.applicationUrl ?? "#"} target="_blank" rel="noopener noreferrer">
-                              {mission.title}
-                            </a>
-                          </h3>
-                          <div className="fr-card__end">
-                            <ul className="fr-mb-0 list-none p-0 text-sm text-title-grey">
-                              {mission.city && (
-                                <li className="flex items-center gap-2 py-0.5">
-                                  <i className="fr-icon-map-pin-2-line fr-icon--sm" aria-hidden="true" />
-                                  <span>{mission.city}</span>
-                                </li>
-                              )}
-                              {mission.schedule && (
-                                <li className="flex items-center gap-2 py-0.5">
-                                  <i className="fr-icon-time-line fr-icon--sm" aria-hidden="true" />
-                                  <span>{mission.schedule}</span>
-                                </li>
-                              )}
-                              {mission.organizationName && (
-                                <li className="flex items-center gap-2 py-0.5">
-                                  <i className="fr-icon-building-line fr-icon--sm" aria-hidden="true" />
-                                  <span className="line-clamp-1">{mission.organizationName}</span>
-                                </li>
-                              )}
-                            </ul>
-                          </div>
-                          {(mission.publisherName ?? mission.publisherLogo) && (
-                            <div className="mt-4 flex items-center justify-end gap-2 border-t border-border-default-grey pt-3 text-xs text-title-grey">
-                              {mission.publisherName && <span className="line-clamp-1">{mission.publisherName}</span>}
-                              {mission.publisherLogo && <img src={mission.publisherLogo} alt="" className="max-h-6 max-w-16 object-contain" loading="lazy" />}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <div className="fr-card__header">
-                        <div className="fr-card__img relative">
-                          {cardImage ? <img className="fr-responsive-img" src={cardImage} alt="" loading="lazy" /> : <div className="aspect-[16/9] w-full bg-beige-gris-galet" />}
-                          {domainLabel && (
-                            <ul className="fr-tags-group absolute left-3 top-3">
-                              <li>
-                                <p className="fr-tag fr-tag--sm">{domainLabel}</p>
-                              </li>
-                            </ul>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mx-auto gap-6 w-fit">
+              {items.map((mission) => (
+                <MissionCard key={mission._id} mission={mission} />
+              ))}
             </div>
           )}
 
