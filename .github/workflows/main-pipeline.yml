@@ -68,3 +68,9 @@ jobs:
       branch: main
       environment: sandbox
     secrets: inherit
+
+  sync-docs:
+    needs: deploy
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/docs-sync.yml
+    secrets: inherit
