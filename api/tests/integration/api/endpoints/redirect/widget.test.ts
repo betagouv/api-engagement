@@ -7,8 +7,8 @@ import { prisma } from "@/db/postgres";
 import { statBotService } from "@/services/stat-bot";
 import { widgetService } from "@/services/widget";
 import * as utils from "@/utils";
-import { createTestMission } from "../../../fixtures";
-import { createTestApp } from "../../../testApp";
+import { createTestMission } from "../../../../fixtures";
+import { createTestApp } from "../../../../testApp";
 
 const app = createTestApp();
 

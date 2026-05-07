@@ -2,9 +2,9 @@ import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { HttpMetricsRecorder, RecordedHttpRequestMetric } from "@/services/observability/metrics";
-import { createTestPublisher } from "../../fixtures";
-import { createTestUser } from "../../fixtures/user";
-import { createTestApp } from "../../testApp";
+import { createTestPublisher } from "../../../fixtures";
+import { createTestUser } from "../../../fixtures/user";
+import { createTestApp } from "../../../testApp";
 
 class MockHttpMetricsRecorder implements HttpMetricsRecorder {
   environment = "test";

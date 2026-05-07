@@ -3,9 +3,9 @@ import { describe, expect, it } from "vitest";
 
 import { publisherService } from "@/services/publisher";
 import { statEventService } from "@/services/stat-event";
-import { createTestMission } from "../../../fixtures";
-import { createClickStat, createStatEventFixture } from "../../../fixtures/stat-event";
-import { createTestApp } from "../../../testApp";
+import { createTestMission } from "../../../../fixtures";
+import { createClickStat, createStatEventFixture } from "../../../../fixtures/stat-event";
+import { createTestApp } from "../../../../testApp";
 
 const app = createTestApp();
 

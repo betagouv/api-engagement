@@ -4,8 +4,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { prisma } from "@/db/postgres";
 import { asyncTaskBus } from "@/services/async-task";
 import { missionService } from "@/services/mission";
-import { createTestMission, createTestPublisher } from "../../../fixtures";
-import { createTestApp } from "../../../testApp";
+import { createTestMission, createTestPublisher } from "../../../../fixtures";
+import { createTestApp } from "../../../../testApp";
 
 describe("Mission V2 Write API Integration Tests", () => {
   const app = createTestApp();

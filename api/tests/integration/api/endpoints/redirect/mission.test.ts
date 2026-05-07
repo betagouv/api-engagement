@@ -7,8 +7,8 @@ import { prisma } from "@/db/postgres";
 import { publisherService } from "@/services/publisher";
 import { statBotService } from "@/services/stat-bot";
 import * as utils from "@/utils";
-import { createTestMission } from "../../../fixtures";
-import { createTestApp } from "../../../testApp";
+import { createTestMission } from "../../../../fixtures";
+import { createTestApp } from "../../../../testApp";
 
 const app = createTestApp();
 
@@ -117,7 +117,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
         const row = await prisma.statEvent.findUnique({ where: { id: clickId! } });
         expect(row?.isBot).toBe(true);
       },
-      { timeout: 2000, interval: 50 },
+      { timeout: 2000, interval: 50 }
     );
 
     const storedClick = await prisma.statEvent.findUnique({ where: { id: clickId! } });
