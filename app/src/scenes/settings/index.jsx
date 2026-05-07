@@ -2,6 +2,7 @@ import { Route, Routes, useLocation } from "react-router-dom";
 
 import Tabs from "@/components/Tabs";
 import useStore from "@/services/store";
+import ApiAnnonceur from "./ApiAnnonceur";
 import Flux from "./Flux";
 import RealTime from "./RealTime";
 import TrackingAnnounce from "./TrackingAnnounce";
@@ -18,6 +19,12 @@ const Settings = () => {
       label: "Flux de missions",
       route: "",
       isActive: currentRoute === "",
+    },
+    {
+      key: "api",
+      label: "Flux API",
+      route: "api",
+      isActive: currentRoute === "api",
     },
     {
       key: "tracking",
@@ -85,6 +92,7 @@ const Settings = () => {
         <section id="settings-panel" role="tabpanel" aria-labelledby={activeTabId || undefined} className="bg-white shadow-lg">
           <Routes>
             <Route path="/" element={<Flux />} />
+            <Route path="/api" element={<ApiAnnonceur />} />
             <Route path="/tracking" element={<TrackingAnnounce />} />
             <Route path="/real-time" element={<RealTime />} />
           </Routes>
