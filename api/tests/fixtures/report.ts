@@ -8,6 +8,7 @@ export const createTestReport = async (data: Partial<ReportCreateInput> & { publ
     year: new Date().getFullYear(),
     url: `https://bucket.example.com/publishers/${data.publisherId}/reports/test.pdf`,
     objectName: `publishers/${data.publisherId}/reports/test.pdf`,
+    publisherId: data.publisherId,
     publisherName: "Test Publisher",
     dataTemplate: null,
     sentAt: null,
