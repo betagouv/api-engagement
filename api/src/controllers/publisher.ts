@@ -13,6 +13,7 @@ import { OBJECT_ACL, putObject } from "@/services/s3";
 import { userService } from "@/services/user";
 import { UserRequest } from "@/types/passport";
 import { PublisherMissionType, type PublisherDiffusionInput, type PublisherRoleFilter } from "@/types/publisher";
+import { appendAuditEvent } from "@/utils/audit-log";
 import { readRequiredParam } from "@/utils/publisher-access";
 
 const upload = multer();
@@ -254,6 +255,11 @@ router.post(
 
       try {
         const { apikey } = await publisherService.regenerateApiKey(publisherId);
+        appendAuditEvent(req, {
+          action: "publisher.api_key.regenerate",
+          outcome: "success",
+          target: { type: "publisher", id: publisherId },
+        });
         return res.status(200).send({ ok: true, data: apikey });
       } catch (error) {
         if (error instanceof PublisherNotFoundError) {
@@ -334,6 +340,14 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
 
     try {
       const updated = await publisherService.updatePublisher(params.data.id, patch);
+      appendAuditEvent(req, {
+        action: "publisher.update",
+        outcome: "success",
+        target: { type: "publisher", id: params.data.id },
+        metadata: {
+          fields: Object.keys(patch).filter((key) => patch[key as keyof typeof patch] !== undefined),
+        },
+      });
       res.status(200).send({ ok: true, data: updated });
     } catch (error) {
       if (error instanceof PublisherNotFoundError) {

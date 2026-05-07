@@ -1,17 +1,22 @@
 import request from "supertest";
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createTestPublisher } from "../../../fixtures";
 import { createTestUser } from "../../../fixtures/user";
 import { createTestApp } from "../../../testApp";
 
-const app = createTestApp();
+const app = createTestApp({ auditLogs: true });
+
+const getAuditLogs = (spy: ReturnType<typeof vi.spyOn>) =>
+  spy.mock.calls.map((call: unknown[]) => JSON.parse(String(call[0]))).filter((log: { type?: string }) => log.type === "security_audit");
 
 describe("Dashboard publisher controller", () => {
+  let consoleInfoSpy: ReturnType<typeof vi.spyOn>;
   let token: string;
   let publisherId: string;
 
   beforeEach(async () => {
+    consoleInfoSpy = vi.spyOn(console, "info").mockImplementation(() => undefined);
     const publisher = await createTestPublisher({ moderator: true });
     publisherId = publisher.id;
     const { token: userToken } = await createTestUser({ role: "user", publishers: [publisherId] });
@@ -19,6 +24,10 @@ describe("Dashboard publisher controller", () => {
   });
 
   const authHeader = () => ({ Authorization: `jwt ${token}` });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
 
   it("allows POST /publisher/search for an authenticated user", async () => {
     const res = await request(app).post("/publisher/search").set(authHeader()).send({});
@@ -64,5 +73,45 @@ describe("Dashboard publisher controller", () => {
     const res = await request(app).get(`/publisher/${otherPublisher.id}/moderated`).set(authHeader());
 
     expect(res.status).toBe(403);
+  });
+
+  it("logs an audit event when regenerating a publisher API key", async () => {
+    const res = await request(app).post(`/publisher/${publisherId}/apikey`).set(authHeader()).set("x-request-id", "request-api-key");
+
+    expect(res.status).toBe(200);
+    expect(JSON.stringify(getAuditLogs(consoleInfoSpy))).not.toContain(res.body.data);
+    expect(getAuditLogs(consoleInfoSpy)).toContainEqual(
+      expect.objectContaining({
+        type: "security_audit",
+        action: "publisher.api_key.regenerate",
+        outcome: "success",
+        actor: expect.objectContaining({ type: "user" }),
+        target: { type: "publisher", id: publisherId },
+        request_id: "request-api-key",
+        status: 200,
+      })
+    );
+  });
+
+  it("logs an audit event when updating a publisher", async () => {
+    const { token: adminToken } = await createTestUser({ role: "admin" });
+
+    const res = await request(app).put(`/publisher/${publisherId}`).set({ Authorization: `jwt ${adminToken}` }).set("x-request-id", "request-publisher-update").send({
+      name: "Updated publisher",
+    });
+
+    expect(res.status).toBe(200);
+    expect(getAuditLogs(consoleInfoSpy)).toContainEqual(
+      expect.objectContaining({
+        type: "security_audit",
+        action: "publisher.update",
+        outcome: "success",
+        actor: expect.objectContaining({ type: "user", role: "admin" }),
+        target: { type: "publisher", id: publisherId },
+        request_id: "request-publisher-update",
+        status: 200,
+        metadata: { fields: ["name"] },
+      })
+    );
   });
 });
