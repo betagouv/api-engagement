@@ -3,12 +3,13 @@ import passport from "passport";
 import zod from "zod";
 
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "@/error";
-import { readRequiredParam, requireAllPublisherAccess } from "@/middlewares/authorization";
+import { requireAllPublisherAccess } from "@/middlewares/authorization";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { publisherService } from "@/services/publisher";
 import { widgetService } from "@/services/widget";
 import { UserRequest } from "@/types/passport";
 import type { WidgetCreateInput, WidgetSearchParams } from "@/types/widget";
+import { readRequiredParam } from "@/utils/publisher-access";
 
 const router = Router();
 router.use(ipRateLimiter);

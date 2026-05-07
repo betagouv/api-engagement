@@ -1,12 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 
 import {
-  hasAdminOrDirectPublisherAccess,
-  hasAllPublisherAccess,
   requireAllPublisherAccess,
   requireDirectPublisherAccess,
 } from "@/middlewares/authorization";
 import { publisherService } from "@/services/publisher";
+import { hasAdminOrDirectPublisherAccess, hasAllPublisherAccess } from "@/utils/publisher-access";
 
 vi.mock("@/services/publisher", () => ({
   publisherService: {

@@ -4,11 +4,11 @@ import zod from "zod";
 
 import { PUBLISHER_IDS } from "@/config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
-import { hasAdminOrDirectPublisherAccess, getUserPublisherIds, isAdmin, readRequiredParam } from "@/middlewares/authorization";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { missionService } from "@/services/mission";
 import type { UserRequest } from "@/types/passport";
 import { applyWidgetRules, getDistanceKm } from "@/utils";
+import { getUserPublisherIds, hasAdminOrDirectPublisherAccess, isAdmin, readRequiredParam } from "@/utils/publisher-access";
 
 const router = Router();
 router.use(ipRateLimiter);

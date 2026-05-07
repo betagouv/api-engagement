@@ -3,11 +3,12 @@ import passport from "passport";
 import zod from "zod";
 
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "@/error";
-import { readRequiredParam, requireAllPublisherAccess } from "@/middlewares/authorization";
+import { requireAllPublisherAccess } from "@/middlewares/authorization";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { campaignService, InvalidUrlError } from "@/services/campaign";
 import { CampaignCreateInput, CampaignSearchParams, CampaignUpdatePatch } from "@/types/campaign";
 import { UserRequest } from "@/types/passport";
+import { readRequiredParam } from "@/utils/publisher-access";
 
 const router = Router();
 router.use(ipRateLimiter);

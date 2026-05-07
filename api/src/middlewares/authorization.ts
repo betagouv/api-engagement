@@ -1,9 +1,9 @@
 import { NextFunction, Response } from "express";
 
-import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, NOT_FOUND } from "@/error";
+import { FORBIDDEN, INVALID_BODY, NOT_FOUND } from "@/error";
 import { publisherService } from "@/services/publisher";
 import { UserRequest } from "@/types/passport";
-import type { PublisherRecord } from "@/types/publisher";
+import { hasAdminOrDirectPublisherAccess, hasAllPublisherAccess, hasPublisherRelationAccess, normalizePublisherId, readRequiredParam } from "@/utils/publisher-access";
 
 type PublisherAccessResolution = {
   publisherIds: string[];
@@ -12,44 +12,6 @@ type PublisherAccessResolution = {
 
 type ResolvePublisherIds = (req: UserRequest, res: Response) => Promise<PublisherAccessResolution>;
 type PublisherAccessPredicate = (user: UserRequest["user"], publisherIds: string[]) => boolean;
-
-const normalizePublisherId = (publisherId: unknown): string | null => {
-  if (typeof publisherId !== "string") {
-    return null;
-  }
-  const value = publisherId.trim();
-  return value || null;
-};
-
-export const getUserPublisherIds = (user: UserRequest["user"]): string[] => {
-  if (!user?.publishers || !Array.isArray(user.publishers)) {
-    return [];
-  }
-  return user.publishers.map((publisherId: string) => publisherId.toString());
-};
-
-export const isAdmin = (user: UserRequest["user"]): boolean => user?.role === "admin";
-
-export const hasDirectPublisherAccess = (user: UserRequest["user"], publisherId: string): boolean => getUserPublisherIds(user).includes(publisherId);
-
-export const hasAdminOrDirectPublisherAccess = (user: UserRequest["user"], publisherId: string): boolean => {
-  if (isAdmin(user)) {
-    return true;
-  }
-  return hasDirectPublisherAccess(user, publisherId);
-};
-
-export const hasAllPublisherAccess = (user: UserRequest["user"], publisherIds: string[]): boolean =>
-  publisherIds.every((publisherId) => hasAdminOrDirectPublisherAccess(user, publisherId));
-
-export const readRequiredParam = (req: UserRequest, res: Response, paramName: string): string | null => {
-  const value = normalizePublisherId(req.params[paramName]);
-  if (!value) {
-    res.status(400).send({ ok: false, code: INVALID_PARAMS });
-    return null;
-  }
-  return value;
-};
 
 const requirePublisherAccess =
   ({ resolvePublisherIds, canAccess }: { resolvePublisherIds: ResolvePublisherIds; canAccess: PublisherAccessPredicate }) =>
@@ -106,13 +68,6 @@ export const requireDirectPublisherAccess =
       next(error);
     }
   };
-
-const hasPublisherRelationAccess = (user: UserRequest["user"], publisher: PublisherRecord): boolean => {
-  if (hasAdminOrDirectPublisherAccess(user, publisher.id)) {
-    return true;
-  }
-  return publisher.publishers.some((diffusion) => hasDirectPublisherAccess(user, diffusion.diffuseurPublisherId));
-};
 
 export const requirePublisherRelationAccess =
   ({ idParam }: { idParam: string }) =>

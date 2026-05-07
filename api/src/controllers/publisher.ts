@@ -5,7 +5,7 @@ import zod from "zod";
 
 import { DEFAULT_AVATAR, PUBLISHER_IDS } from "@/config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, NOT_FOUND, RESSOURCE_ALREADY_EXIST, captureException } from "@/error";
-import { readRequiredParam, requireDirectPublisherAccess, requirePublisherRelationAccess } from "@/middlewares/authorization";
+import { requireDirectPublisherAccess, requirePublisherRelationAccess } from "@/middlewares/authorization";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { PublisherNotFoundError, publisherService } from "@/services/publisher";
 import { publisherDiffusionExclusionService } from "@/services/publisher-diffusion-exclusion";
@@ -13,6 +13,7 @@ import { OBJECT_ACL, putObject } from "@/services/s3";
 import { userService } from "@/services/user";
 import { UserRequest } from "@/types/passport";
 import { PublisherMissionType, type PublisherDiffusionInput, type PublisherRoleFilter } from "@/types/publisher";
+import { readRequiredParam } from "@/utils/publisher-access";
 
 const upload = multer();
 const router = Router();
