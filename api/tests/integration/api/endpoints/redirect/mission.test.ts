@@ -239,7 +239,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
       origin: "https://email.example.com",
       source: "email",
       sourceId: userScoring.id,
-      sourceName: "email",
+      sourceName: "email_user_scoring",
       missionId: mission.id,
       toPublisherId: mission.publisherId,
       fromPublisherId: apiPublisher.id,
