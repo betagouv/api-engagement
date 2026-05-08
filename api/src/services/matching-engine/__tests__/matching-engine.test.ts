@@ -307,6 +307,49 @@ describe("matchingEngineService", () => {
       ]);
     });
 
+    it("uses bounded OR taxonomy scoring with multi-value bonus", async () => {
+      prismaMock.$queryRaw
+        .mockResolvedValueOnce([
+          {
+            id: "user-scoring-or-taxonomy",
+            expires_at: null,
+          },
+        ])
+        .mockResolvedValueOnce([
+          {
+            mission_id: "mission-1",
+            mission_scoring_id: "mission-scoring-1",
+            total_score: 0.866667,
+            taxonomy_score: 0.866667,
+            geo_score: null,
+            distance_km: null,
+          },
+        ])
+        .mockResolvedValueOnce([
+          {
+            mission_scoring_id: "mission-scoring-1",
+            taxonomy_key: "tranche_age",
+            taxonomy_score: 0.866667,
+          },
+        ]);
+      missionMatchingResultRepositoryMock.createForUserScoringVersion.mockResolvedValue({
+        id: "mission-matching-result-or-taxonomy",
+      });
+
+      const result = await matchingEngineService.rankMissionsByUserScoring({
+        userScoringId: "user-scoring-or-taxonomy",
+      });
+
+      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[1][0]);
+      const taxonomyScoresSql = getSqlText(prismaMock.$queryRaw.mock.calls[2][0]);
+
+      expect(result.items[0].taxonomyScores.tranche_age).toBe(0.866667);
+      expect(rankingSql).toContain('COALESCE(SUM(COALESCE(dw."taxonomy_weight", 1.0)), 0) AS "taxonomy_total"');
+      expect(rankingSql).not.toContain('SUM(udt."taxonomy_total" * COALESCE(dw."taxonomy_weight", 1.0))');
+      expect(rankingSql).toContain('LEAST(mv."taxonomy_sum" / NULLIF(udt."taxonomy_total", 0), 1.0)');
+      expect(taxonomyScoresSql).toContain('LEAST(mv."taxonomy_sum" / udt."taxonomy_total", 1.0)');
+    });
+
     it("does not persist a snapshot when the caller requests an offset page", async () => {
       prismaMock.$queryRaw
         .mockResolvedValueOnce([
