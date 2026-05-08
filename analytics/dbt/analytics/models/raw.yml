@@ -37,7 +37,7 @@ sources:
           - name: is_human
             description: Indique si l'événement est classé comme humain (`true`).
           - name: source
-            description: Origine de la collecte (`api`, `widget`, `campaign`, `seo`, `jstag`, `publisher`).
+            description: Origine de la collecte (`api`, `widget`, `campaign`, `seo`, `jstag`, `publisher`, `email`).
           - name: source_id
             description: Identifiant métier associé à la source (id widget, campagne, etc.).
           - name: from_publisher_id
