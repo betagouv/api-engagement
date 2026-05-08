@@ -2,10 +2,10 @@ import type { UserScoring } from "@/db/core";
 import { prisma } from "@/db/postgres";
 
 export const userScoringRepository = {
-  findById(id: string): Promise<Pick<UserScoring, "id" | "distinctId"> | null> {
+  findById(id: string): Promise<Pick<UserScoring, "id" | "distinctId" | "missionAlertEnabled"> | null> {
     return prisma.userScoring.findUnique({
       where: { id },
-      select: { id: true, distinctId: true },
+      select: { id: true, distinctId: true, missionAlertEnabled: true },
     });
   },
 

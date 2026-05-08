@@ -507,21 +507,28 @@ router.get("/seo/:id", cors({ origin: "*" }), async (req: Request, res: Response
   }
 });
 
-router.get("/user-scoring/:userScoringId/:missionId", cors({ origin: "*" }), async (req, res) => {
+router.get("/email/:missionId", cors({ origin: "*" }), async (req, res) => {
   let href: string | null = null;
   let redirected = false;
 
   try {
     const params = zod
       .object({
-        userScoringId: zod.string().uuid(),
         missionId: zod.string(),
       })
       .safeParse(req.params);
 
-    if (!params.success) {
+    const query = zod
+      .object({
+        user_scoring_id: zod.string().uuid().optional(),
+      })
+      .safeParse(req.query);
+
+    if (!params.success || !query.success) {
       return res.redirect(302, JVA_URL);
     }
+
+    const userScoringId = query.data.user_scoring_id;
 
     const mission = await missionService.findOneMission(params.data.missionId);
     if (!mission) {
@@ -534,9 +541,11 @@ router.get("/user-scoring/:userScoringId/:missionId", cors({ origin: "*" }), asy
       return res.redirect(302, href);
     }
 
-    const userScoringExists = await userScoringService.exists(params.data.userScoringId);
-    if (!userScoringExists) {
-      return res.redirect(302, href);
+    if (userScoringId) {
+      const userScoringExists = await userScoringService.exists(userScoringId);
+      if (!userScoringExists) {
+        return res.redirect(302, href);
+      }
     }
 
     // TODO Replace with Plateforme de l'Engagement publisherId
@@ -552,9 +561,9 @@ router.get("/user-scoring/:userScoringId/:missionId", cors({ origin: "*" }), asy
       referer: identity.referer,
       userAgent: identity.userAgent,
       user: identity.user,
-      source: "email_user_scoring",
-      sourceId: params.data.userScoringId,
-      sourceName: "email_user_scoring",
+      source: "email",
+      sourceId: userScoringId ?? "",
+      sourceName: userScoringId ? "email_user_scoring" : "email",
       createdAt: new Date(),
       missionId: mission.id,
       toPublisherId: mission.publisherId,
@@ -575,7 +584,7 @@ router.get("/user-scoring/:userScoringId/:missionId", cors({ origin: "*" }), asy
     url.searchParams.set("apiengagement_id", clickId);
     url.searchParams.set("utm_source", "plateforme_engagement");
     url.searchParams.set("utm_medium", "email");
-    url.searchParams.set("utm_campaign", "user_scoring");
+    url.searchParams.set("utm_campaign", userScoringId ? "user_scoring" : "mission_email");
 
     res.redirect(302, url.href);
     redirected = true;

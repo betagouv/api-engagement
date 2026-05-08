@@ -1,8 +1,8 @@
 import { Router } from "express";
 import zod from "zod";
 
-import { EMAIL_SEND_FAILED, FORBIDDEN, INVALID_BODY, INVALID_PARAMS, NOT_FOUND } from "@/error";
-import { userScoringService } from "@/services/user-scoring";
+import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, NOT_FOUND } from "@/error";
+import { UserScoringAnswerValidationError, userScoringService } from "@/services/user-scoring";
 
 const router = Router();
 
@@ -17,35 +17,24 @@ const answerSchema = zod
   });
 const answersSchema = zod.array(answerSchema).min(1);
 const distinctIdSchema = zod.string().trim().min(1);
-const emailSchema = zod.preprocess((value) => (typeof value === "string" ? value.trim().toLowerCase() : value), zod.email());
 
-const bodySchema = zod.object({
-  answers: answersSchema,
-  distinctId: distinctIdSchema.optional(),
-  missionAlertEnabled: zod.boolean().default(false),
-}).strict();
+const bodySchema = zod
+  .object({
+    answers: answersSchema,
+    distinctId: distinctIdSchema.optional(),
+    missionAlertEnabled: zod.boolean().default(false),
+  })
+  .strict();
 
 const updateBodySchema = zod
   .object({
     answers: answersSchema.optional(),
     distinctId: distinctIdSchema,
-    email: emailSchema.optional(),
-    missionId: zod.string().uuid().optional(),
-    geo: zod
-      .object({
-        lat: zod.number().min(-90).max(90),
-        lon: zod.number().min(-180).max(180),
-        radius_km: zod.number().positive().optional(),
-      })
-      .optional(),
     missionAlertEnabled: zod.boolean().optional(),
   })
-  .refine((body) => body.answers !== undefined || body.geo !== undefined || body.missionAlertEnabled !== undefined || body.email !== undefined, {
-    message: "answers, geo, email or missionAlertEnabled is required",
-  })
-  .refine((body) => body.missionId === undefined || body.email !== undefined, {
-    message: "email is required when missionId is provided",
-    path: ["email"],
+  .strict()
+  .refine((body) => body.answers !== undefined || body.missionAlertEnabled !== undefined, {
+    message: "answers or missionAlertEnabled is required",
   });
 
 const userScoringParamsSchema = zod.object({
@@ -85,9 +74,7 @@ router.put("/:userScoringId", async (req, res, next) => {
     const data = await userScoringService.update({
       userScoringId: params.data.userScoringId,
       distinctId: body.data.distinctId,
-      answers: validAnswers,
-      email: body.data.email,
-      missionId: body.data.missionId,
+      answers: body.data.answers,
       missionAlertEnabled: body.data.missionAlertEnabled,
     });
 
@@ -97,10 +84,6 @@ router.put("/:userScoringId", async (req, res, next) => {
 
     if (data.status === "forbidden") {
       return res.status(403).send({ ok: false, code: FORBIDDEN, message: "Invalid distinctId" });
-    }
-
-    if (data.status === "email_failed") {
-      return res.status(502).send({ ok: false, code: EMAIL_SEND_FAILED, message: "Email send failed", data: data.data });
     }
 
     return res.status(200).send({ ok: true, data: data.data });
