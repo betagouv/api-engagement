@@ -482,6 +482,8 @@ describe("PUT /user-scoring/:userScoringId", () => {
     return { missionScoringIds, missions };
   };
 
+  const createEmailPublisher = () => createTestPublisher({ name: "Email Publisher" });
+
   it("should replace existing answers on an existing user scoring", async () => {
     const userScoringId = await createUserScoring();
 
@@ -592,12 +594,14 @@ describe("PUT /user-scoring/:userScoringId", () => {
   it("should create or update Brevo contact and send matching email from the dedicated endpoint", async () => {
     const userScoringId = await createUserScoring();
     const matching = await createStoredMatchingResult(userScoringId);
+    const emailPublisher = await createEmailPublisher();
 
     await request(app).put(`/user-scoring/${userScoringId}`).send({ distinctId, missionAlertEnabled: true }).expect(200);
 
     const res = await request(app).post("/missions/email").send({
       distinctId,
       email: " USER@EXAMPLE.COM ",
+      publisherId: emailPublisher.id,
       userScoringId,
     });
 
@@ -631,7 +635,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
           publisherName: "Matching Publisher",
           publisherOrganizationName: mission.organizationName,
           city: mission.city,
-          url: `http://localhost:4000/r/email/${mission.id}?user_scoring_id=${userScoringId}`,
+          url: `http://localhost:4000/r/email/${mission.id}/${emailPublisher.id}?user_scoring_id=${userScoringId}`,
         })),
       },
       tags: ["user-scoring", "mission-matching-results"],
@@ -646,6 +650,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
 
   it("should send mission emails without user scoring when missionIds are provided", async () => {
     const publisher = await createTestPublisher({ name: "Single Mission Publisher" });
+    const emailPublisher = await createEmailPublisher();
     const mission = await createTestMission({
       compensationAmount: 620,
       compensationUnit: "month",
@@ -663,6 +668,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
       .post("/missions/email")
       .send({
         email: "user@example.com",
+        publisherId: emailPublisher.id,
         missionIds: [mission.id],
       });
 
@@ -690,7 +696,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
             publisherName: "Single Mission Publisher",
             publisherOrganizationName: "Single Mission Organization",
             city: "Paris",
-            url: `http://localhost:4000/r/email/${mission.id}`,
+            url: `http://localhost:4000/r/email/${mission.id}/${emailPublisher.id}`,
           },
         ],
       },
@@ -699,10 +705,13 @@ describe("PUT /user-scoring/:userScoringId", () => {
   });
 
   it("should skip mission email when missionIds are not found", async () => {
+    const emailPublisher = await createEmailPublisher();
+
     const res = await request(app)
       .post("/missions/email")
       .send({
         email: "user@example.com",
+        publisherId: emailPublisher.id,
         missionIds: ["00000000-0000-0000-0000-000000000000"],
       });
 
@@ -720,10 +729,12 @@ describe("PUT /user-scoring/:userScoringId", () => {
 
   it("should skip matching email when no matching result is stored", async () => {
     const userScoringId = await createUserScoring();
+    const emailPublisher = await createEmailPublisher();
 
     const res = await request(app).post("/missions/email").send({
       distinctId,
       email: "user@example.com",
+      publisherId: emailPublisher.id,
       userScoringId,
     });
 
@@ -743,10 +754,12 @@ describe("PUT /user-scoring/:userScoringId", () => {
   it("should return 403 when sending an email with an invalid distinctId", async () => {
     const userScoringId = await createUserScoring();
     await createStoredMatchingResult(userScoringId);
+    const emailPublisher = await createEmailPublisher();
 
     const res = await request(app).post("/missions/email").send({
       distinctId: "another-distinct-user",
       email: "user@example.com",
+      publisherId: emailPublisher.id,
       userScoringId,
     });
 
@@ -759,11 +772,13 @@ describe("PUT /user-scoring/:userScoringId", () => {
   it("should return 502 when Brevo contact creation fails", async () => {
     const userScoringId = await createUserScoring();
     await createStoredMatchingResult(userScoringId);
+    const emailPublisher = await createEmailPublisher();
     brevoMock.createOrUpdateContact.mockResolvedValueOnce({ ok: false, data: { message: "contact failed" } });
 
     const res = await request(app).post("/missions/email").send({
       distinctId,
       email: "user@example.com",
+      publisherId: emailPublisher.id,
       userScoringId,
     });
 
@@ -785,11 +800,13 @@ describe("PUT /user-scoring/:userScoringId", () => {
   it("should return 502 when Brevo transactional email fails", async () => {
     const userScoringId = await createUserScoring();
     await createStoredMatchingResult(userScoringId);
+    const emailPublisher = await createEmailPublisher();
     brevoMock.sendTemplate.mockResolvedValueOnce({ ok: false, data: { message: "template failed" } });
 
     const res = await request(app).post("/missions/email").send({
       distinctId,
       email: "user@example.com",
+      publisherId: emailPublisher.id,
       userScoringId,
     });
 
@@ -981,9 +998,11 @@ describe("PUT /user-scoring/:userScoringId", () => {
   });
 
   it("should return 400 when email is invalid", async () => {
+    const emailPublisher = await createEmailPublisher();
+
     const res = await request(app)
       .post("/missions/email")
-      .send({ email: "not-an-email", missionIds: ["00000000-0000-0000-0000-000000000000"] });
+      .send({ email: "not-an-email", publisherId: emailPublisher.id, missionIds: ["00000000-0000-0000-0000-000000000000"] });
 
     expect(res.status).toBe(400);
     expect(res.body.ok).toBe(false);

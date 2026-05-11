@@ -12,6 +12,7 @@ const emailSchema = zod.preprocess((value) => (typeof value === "string" ? value
 const missionEmailBodySchema = zod
   .object({
     email: emailSchema,
+    publisherId: zod.string().trim().min(1),
     distinctId: distinctIdSchema.optional(),
     userScoringId: zod.string().uuid().optional(),
     missionIds: zod.array(zod.string().uuid()).min(1).max(5).optional(),

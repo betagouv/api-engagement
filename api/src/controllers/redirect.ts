@@ -14,6 +14,7 @@ import { userScoringService } from "@/services/user-scoring";
 import { widgetService } from "@/services/widget";
 import { MissionRecord, StatEventRecord } from "@/types";
 import { cleanIdParam, identify, slugify } from "@/utils";
+import { buildTrackedApplicationUrl, updateBotFlagAfterRedirect } from "@/utils/redirect";
 
 const router = Router();
 router.use(ipRateLimiter);
@@ -405,32 +406,15 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
     } as StatEventRecord;
     const clickId = await statEventService.createStatEvent(obj);
 
-    let targetUrl = href;
-    if (targetUrl.indexOf("http://") === -1 && targetUrl.indexOf("https://") === -1) {
-      targetUrl = "https://" + targetUrl;
-    }
-
-    const url = new URL(targetUrl || JVA_URL);
-    url.searchParams.set("apiengagement_id", clickId);
-
-    // Service ask for mtm
-    if (mission.publisherId === PUBLISHER_IDS.SERVICE_CIVIQUE) {
-      url.searchParams.set("mtm_source", "api_engagement");
-      url.searchParams.set("mtm_medium", "widget");
-      url.searchParams.set("mtm_campaign", slugify(widget.name));
-    } else {
-      url.searchParams.set("utm_source", "api_engagement");
-      url.searchParams.set("utm_medium", "widget");
-      url.searchParams.set("utm_campaign", slugify(widget.name));
-    }
+    const url = buildTrackedApplicationUrl(href, mission.publisherId, clickId, {
+      source: "api_engagement",
+      medium: "widget",
+      campaign: slugify(widget.name),
+    });
 
     res.redirect(302, url.href);
     redirected = true;
-    // Update stats just created to add isBot (do it after redirect to avoid delay)
-    const statBot = await statBotService.findStatBotByUser(identity.user);
-    if (statBot) {
-      await statEventService.updateStatEvent(clickId, { isBot: true });
-    }
+    await updateBotFlagAfterRedirect(identity.user, clickId);
   } catch (error: any) {
     captureException(error);
     if (redirected) {
@@ -507,7 +491,7 @@ router.get("/seo/:id", cors({ origin: "*" }), async (req: Request, res: Response
   }
 });
 
-router.get("/email/:missionId", cors({ origin: "*" }), async (req, res) => {
+router.get("/email/:missionId/:publisherId", cors({ origin: "*" }), async (req, res) => {
   let href: string | null = null;
   let redirected = false;
 
@@ -515,6 +499,7 @@ router.get("/email/:missionId", cors({ origin: "*" }), async (req, res) => {
     const params = zod
       .object({
         missionId: zod.string(),
+        publisherId: zod.string(),
       })
       .safeParse(req.params);
 
@@ -548,8 +533,7 @@ router.get("/email/:missionId", cors({ origin: "*" }), async (req, res) => {
       }
     }
 
-    // TODO Replace with Plateforme de l'Engagement publisherId
-    const fromPublisher = await publisherService.findOnePublisherById(PUBLISHER_IDS.API_ENGAGEMENT);
+    const fromPublisher = await publisherService.findOnePublisherById(params.data.publisherId);
     if (!fromPublisher) {
       return res.redirect(302, href);
     }
@@ -569,30 +553,22 @@ router.get("/email/:missionId", cors({ origin: "*" }), async (req, res) => {
       toPublisherId: mission.publisherId,
       toPublisherName: mission.publisherName || "",
       fromPublisherId: fromPublisher.id,
-      fromPublisherName: fromPublisher.name || "Plateforme de l'Engagement",
+      fromPublisherName: fromPublisher.name || "",
       isBot: false,
     } as StatEventRecord;
 
     const clickId = await statEventService.createStatEvent(obj);
 
-    let targetUrl = href;
-    if (targetUrl.indexOf("http://") === -1 && targetUrl.indexOf("https://") === -1) {
-      targetUrl = "https://" + targetUrl;
-    }
-
-    const url = new URL(targetUrl || JVA_URL);
-    url.searchParams.set("apiengagement_id", clickId);
-    url.searchParams.set("utm_source", "plateforme_engagement");
-    url.searchParams.set("utm_medium", "email");
-    url.searchParams.set("utm_campaign", userScoringId ? "user_scoring" : "mission_email");
+    const url = buildTrackedApplicationUrl(href, mission.publisherId, clickId, {
+      source: slugify(fromPublisher.name || fromPublisher.id || "email"),
+      medium: "email",
+      campaign: userScoringId ? "user_scoring" : "mission_email",
+    });
 
     res.redirect(302, url.href);
     redirected = true;
 
-    const statBot = await statBotService.findStatBotByUser(identity.user);
-    if (statBot) {
-      await statEventService.updateStatEvent(clickId, { isBot: true });
-    }
+    await updateBotFlagAfterRedirect(identity.user, clickId);
   } catch (error: any) {
     captureException(error);
     if (redirected) {
@@ -713,32 +689,15 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async (req, res) =
 
     const clickId = await statEventService.createStatEvent(obj);
 
-    let targetUrl = href;
-    if (targetUrl.indexOf("http://") === -1 && targetUrl.indexOf("https://") === -1) {
-      targetUrl = "https://" + targetUrl;
-    }
-
-    const url = new URL(targetUrl || JVA_URL);
-    url.searchParams.set("apiengagement_id", clickId);
-
-    // Service ask for mtm
-    if (mission.publisherId === PUBLISHER_IDS.SERVICE_CIVIQUE) {
-      url.searchParams.set("mtm_source", "api_engagement");
-      url.searchParams.set("mtm_medium", "api");
-      url.searchParams.set("mtm_campaign", slugify(fromPublisher?.name || "unknown"));
-    } else {
-      url.searchParams.set("utm_source", "api_engagement");
-      url.searchParams.set("utm_medium", "api");
-      url.searchParams.set("utm_campaign", slugify(fromPublisher?.name || "unknown"));
-    }
+    const url = buildTrackedApplicationUrl(href, mission.publisherId, clickId, {
+      source: "api_engagement",
+      medium: "api",
+      campaign: slugify(fromPublisher?.name || "unknown"),
+    });
 
     res.redirect(302, url.href);
 
-    // Update stats just created to add isBot (do it after redirect to avoid delay)
-    const statBot = await statBotService.findStatBotByUser(identity.user);
-    if (statBot) {
-      await statEventService.updateStatEvent(clickId, { isBot: true });
-    }
+    await updateBotFlagAfterRedirect(identity.user, clickId);
   } catch (error: any) {
     captureException(error);
     if (href) {

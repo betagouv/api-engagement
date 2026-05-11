@@ -49,6 +49,7 @@ type MissionEmailParams = {
 
 type SendMissionEmailInput = {
   email: string;
+  publisherId: string;
   distinctId?: string;
   userScoringId?: string;
   missionIds?: string[];
@@ -67,8 +68,8 @@ const extractMissionScoringIds = (results: unknown): string[] => {
     .slice(0, USER_SCORING_EMAIL_MISSION_LIMIT);
 };
 
-const buildMissionEmailUrl = (missionId: string, userScoringId?: string) => {
-  const url = new URL(`/r/email/${encodeURIComponent(missionId)}`, API_URL);
+const buildMissionEmailUrl = (missionId: string, publisherId: string, userScoringId?: string) => {
+  const url = new URL(`/r/email/${encodeURIComponent(missionId)}/${encodeURIComponent(publisherId)}`, API_URL);
   if (userScoringId) {
     url.searchParams.set("user_scoring_id", userScoringId);
   }
@@ -120,7 +121,7 @@ const formatApplicationDeadlineLabel = (endAt?: Date | null) => {
   return `Candidatures ouvertes jusqu'au ${formatFrenchDayMonth(endAt)}`;
 };
 
-const buildMissionEmailItem = (mission: EmailMission, userScoringId?: string): MissionEmailItem => ({
+const buildMissionEmailItem = (mission: EmailMission, publisherId: string, userScoringId?: string): MissionEmailItem => ({
   title: mission.title,
   durationLabel: formatDurationLabel(mission.duration),
   startAtLabel: formatStartAtLabel(mission.startAt),
@@ -130,10 +131,10 @@ const buildMissionEmailItem = (mission: EmailMission, userScoringId?: string): M
   publisherName: mission.publisherName ?? "",
   publisherOrganizationName: mission.publisherOrganizationName ?? mission.organizationName ?? "",
   city: mission.city ?? "",
-  url: buildMissionEmailUrl(mission.id, userScoringId),
+  url: buildMissionEmailUrl(mission.id, publisherId, userScoringId),
 });
 
-const buildMissionMatchingEmailParams = async (userScoringId: string): Promise<MissionEmailParams | null> => {
+const buildMissionMatchingEmailParams = async (userScoringId: string, publisherId: string): Promise<MissionEmailParams | null> => {
   const matchingResult = await missionMatchingResultRepository.findLatestForUserScoring(userScoringId);
   if (!matchingResult) {
     return null;
@@ -153,7 +154,7 @@ const buildMissionMatchingEmailParams = async (userScoringId: string): Promise<M
   }
 
   return {
-    missions: orderedMissions.map(({ mission }) => buildMissionEmailItem(mission, userScoringId)),
+    missions: orderedMissions.map(({ mission }) => buildMissionEmailItem(mission, publisherId, userScoringId)),
   };
 };
 
@@ -161,7 +162,7 @@ const normalizeMissionIds = (missionIds: string[]) => {
   return Array.from(new Set(missionIds)).slice(0, USER_SCORING_EMAIL_MISSION_LIMIT);
 };
 
-const buildMissionIdsEmailParams = async (missionIds: string[], userScoringId?: string): Promise<MissionEmailParams | null> => {
+const buildMissionIdsEmailParams = async (missionIds: string[], publisherId: string, userScoringId?: string): Promise<MissionEmailParams | null> => {
   const uniqueMissionIds = normalizeMissionIds(missionIds);
   const missions = await missionService.findMissionsByIds(uniqueMissionIds);
   const missionsById = new Map(missions.map((mission) => [mission.id, mission]));
@@ -172,19 +173,19 @@ const buildMissionIdsEmailParams = async (missionIds: string[], userScoringId?: 
   }
 
   return {
-    missions: orderedMissions.map((mission) => buildMissionEmailItem(mission, userScoringId)),
+    missions: orderedMissions.map((mission) => buildMissionEmailItem(mission, publisherId, userScoringId)),
   };
 };
 
-export const buildMissionEmailParams = async (params: { userScoringId?: string; missionIds?: string[] }): Promise<MissionEmailParams | null> => {
+export const buildMissionEmailParams = async (params: { publisherId: string; userScoringId?: string; missionIds?: string[] }): Promise<MissionEmailParams | null> => {
   if (params.missionIds?.length) {
-    return buildMissionIdsEmailParams(params.missionIds, params.userScoringId);
+    return buildMissionIdsEmailParams(params.missionIds, params.publisherId, params.userScoringId);
   }
 
   if (!params.userScoringId) {
     return null;
   }
-  return buildMissionMatchingEmailParams(params.userScoringId);
+  return buildMissionMatchingEmailParams(params.userScoringId, params.publisherId);
 };
 
 export const getMissionEmailSkipReason = (missionIds?: string[]): MissionEmailSkipReason => {
@@ -216,6 +217,7 @@ export const sendMissionEmail = async (input: SendMissionEmailInput): Promise<Se
   }
 
   const emailParams = await buildMissionEmailParams({
+    publisherId: input.publisherId,
     userScoringId: input.userScoringId,
     missionIds: input.missionIds,
   });
