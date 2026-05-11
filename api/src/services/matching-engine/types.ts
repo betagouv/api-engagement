@@ -24,6 +24,7 @@ export type RankMissionsByUserScoringInput = {
 export type MatchMissionItem = {
   missionId: string;
   missionScoringId: string;
+  missionAddressId: string | null;
   totalScore: number;
   taxonomyScore: number;
   geoScore: number | null;
@@ -37,6 +38,7 @@ export type MatchMissionItem = {
 
 export type MissionMatchingResultItem = {
   missionScoringId: string;
+  missionAddressId?: string | null;
   taxonomyScores: Partial<Record<MatchingEngineTaxonomy, number>>;
 };
 

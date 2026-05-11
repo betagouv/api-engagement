@@ -20,7 +20,67 @@ export type MissionMatchingEmailMission = {
   };
 };
 
+const buildMissionMatchingResultItemsFromScoringIds = (missionScoringIds: string[]): MissionMatchingResultItem[] =>
+  missionScoringIds.map((missionScoringId) => ({ missionScoringId, missionAddressId: null, taxonomyScores: {} }));
+
 const isUniqueConstraintError = (error: unknown): error is { code: string } => typeof error === "object" && error !== null && "code" in error && error.code === "P2002";
+
+const findMissionsByMatchingResultItems = async (items: MissionMatchingResultItem[]): Promise<MissionMatchingEmailMission[]> => {
+  if (items.length === 0) {
+    return [];
+  }
+
+  const missionScoringIds = items.map((item) => item.missionScoringId);
+  const itemsByMissionScoringId = new Map(items.map((item) => [item.missionScoringId, item]));
+  const missionScorings = await prisma.missionScoring.findMany({
+    where: { id: { in: missionScoringIds } },
+    select: {
+      id: true,
+      mission: {
+        select: {
+          id: true,
+          title: true,
+          duration: true,
+          startAt: true,
+          endAt: true,
+          compensationAmount: true,
+          compensationAmountMax: true,
+          compensationUnit: true,
+          publisher: { select: { logo: true, name: true } },
+          publisherOrganization: { select: { name: true } },
+          addresses: {
+            select: { id: true, city: true },
+            orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+          },
+        },
+      },
+    },
+  });
+
+  return missionScorings.map((missionScoring) => {
+    const item = itemsByMissionScoringId.get(missionScoring.id);
+    const matchedAddress = item?.missionAddressId ? missionScoring.mission.addresses.find((address) => address.id === item.missionAddressId) : null;
+    const fallbackAddress = missionScoring.mission.addresses[0] ?? null;
+
+    return {
+      missionScoringId: missionScoring.id,
+      mission: {
+        id: missionScoring.mission.id,
+        title: missionScoring.mission.title,
+        duration: missionScoring.mission.duration,
+        startAt: missionScoring.mission.startAt,
+        endAt: missionScoring.mission.endAt,
+        compensationAmount: missionScoring.mission.compensationAmount,
+        compensationAmountMax: missionScoring.mission.compensationAmountMax,
+        compensationUnit: missionScoring.mission.compensationUnit,
+        publisherLogo: missionScoring.mission.publisher?.logo ?? null,
+        publisherName: missionScoring.mission.publisher?.name ?? null,
+        publisherOrganizationName: missionScoring.mission.publisherOrganization?.name ?? null,
+        city: matchedAddress?.city ?? fallbackAddress?.city ?? null,
+      },
+    };
+  });
+};
 
 export const missionMatchingResultRepository = {
   async createForUserScoringVersion(params: {
@@ -66,50 +126,10 @@ export const missionMatchingResultRepository = {
     });
   },
 
-  async findMissionsByScoringIds(missionScoringIds: string[]): Promise<MissionMatchingEmailMission[]> {
-    const missionScorings = await prisma.missionScoring.findMany({
-      where: { id: { in: missionScoringIds } },
-      select: {
-        id: true,
-        mission: {
-          select: {
-            id: true,
-            title: true,
-            duration: true,
-            startAt: true,
-            endAt: true,
-            compensationAmount: true,
-            compensationAmountMax: true,
-            compensationUnit: true,
-            publisher: { select: { logo: true, name: true } },
-            publisherOrganization: { select: { name: true } },
-            addresses: {
-              select: { city: true },
-              take: 1,
-              orderBy: { createdAt: "asc" },
-            },
-          },
-        },
-      },
-    });
+  findMissionsByMatchingResultItems,
 
-    return missionScorings.map((missionScoring) => ({
-      missionScoringId: missionScoring.id,
-      mission: {
-        id: missionScoring.mission.id,
-        title: missionScoring.mission.title,
-        duration: missionScoring.mission.duration,
-        startAt: missionScoring.mission.startAt,
-        endAt: missionScoring.mission.endAt,
-        compensationAmount: missionScoring.mission.compensationAmount,
-        compensationAmountMax: missionScoring.mission.compensationAmountMax,
-        compensationUnit: missionScoring.mission.compensationUnit,
-        publisherLogo: missionScoring.mission.publisher?.logo ?? null,
-        publisherName: missionScoring.mission.publisher?.name ?? null,
-        publisherOrganizationName: missionScoring.mission.publisherOrganization?.name ?? null,
-        city: missionScoring.mission.addresses[0]?.city ?? null,
-      },
-    }));
+  async findMissionsByScoringIds(missionScoringIds: string[]): Promise<MissionMatchingEmailMission[]> {
+    return findMissionsByMatchingResultItems(buildMissionMatchingResultItemsFromScoringIds(missionScoringIds));
   },
 };
 

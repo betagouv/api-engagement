@@ -2,6 +2,7 @@ import { API_URL } from "@/config";
 import { missionMatchingResultRepository } from "@/repositories/mission-matching-result";
 import { userScoringRepository } from "@/repositories/user-scoring";
 import { createOrUpdateContact, sendTemplate, TEMPLATE_IDS } from "@/services/brevo";
+import type { MissionMatchingResultItem } from "@/services/matching-engine/types";
 import { missionService } from "@/services/mission";
 
 const BREVO_CONTACT_LIST_ID = 22;
@@ -57,14 +58,24 @@ type SendMissionEmailInput = {
 
 type SendMissionEmailResult = { status: "sent" } | { status: "skipped"; reason: MissionEmailSkipReason } | { status: "failed" } | { status: "forbidden" } | { status: "not_found" };
 
-const extractMissionScoringIds = (results: unknown): string[] => {
+const extractMissionMatchingResultItems = (results: unknown): MissionMatchingResultItem[] => {
   if (!Array.isArray(results)) {
     return [];
   }
 
   return results
-    .map((item) => (typeof item === "object" && item !== null && "missionScoringId" in item ? item.missionScoringId : null))
-    .filter((missionScoringId): missionScoringId is string => typeof missionScoringId === "string" && missionScoringId.length > 0)
+    .map((item): MissionMatchingResultItem | null => {
+      if (typeof item !== "object" || item === null || !("missionScoringId" in item) || typeof item.missionScoringId !== "string" || item.missionScoringId.length === 0) {
+        return null;
+      }
+
+      return {
+        missionScoringId: item.missionScoringId,
+        missionAddressId: "missionAddressId" in item && typeof item.missionAddressId === "string" ? item.missionAddressId : null,
+        taxonomyScores: {},
+      };
+    })
+    .filter((item): item is MissionMatchingResultItem => item !== null)
     .slice(0, USER_SCORING_EMAIL_MISSION_LIMIT);
 };
 
@@ -140,14 +151,14 @@ const buildMissionMatchingEmailParams = async (userScoringId: string, publisherI
     return null;
   }
 
-  const missionScoringIds = extractMissionScoringIds(matchingResult.results);
-  if (missionScoringIds.length === 0) {
+  const matchingItems = extractMissionMatchingResultItems(matchingResult.results);
+  if (matchingItems.length === 0) {
     return null;
   }
 
-  const missions = await missionMatchingResultRepository.findMissionsByScoringIds(missionScoringIds);
+  const missions = await missionMatchingResultRepository.findMissionsByMatchingResultItems(matchingItems);
   const missionsByScoringId = new Map(missions.map((item) => [item.missionScoringId, item]));
-  const orderedMissions = missionScoringIds.map((missionScoringId) => missionsByScoringId.get(missionScoringId)).filter((item): item is NonNullable<typeof item> => Boolean(item));
+  const orderedMissions = matchingItems.map((item) => missionsByScoringId.get(item.missionScoringId)).filter((item): item is NonNullable<typeof item> => Boolean(item));
 
   if (orderedMissions.length === 0) {
     return null;

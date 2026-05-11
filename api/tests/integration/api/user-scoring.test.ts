@@ -648,6 +648,73 @@ describe("PUT /user-scoring/:userScoringId", () => {
     expect("email" in userScoring).toBe(false);
   });
 
+  it("should send matching email with the city from the matched mission address", async () => {
+    const userScoringId = await createUserScoring();
+    const publisher = await createTestPublisher({ name: "Matching Publisher" });
+    const emailPublisher = await createEmailPublisher();
+    const mission = await createTestMission({
+      compensationAmount: 620,
+      compensationUnit: "month",
+      duration: 8,
+      endAt: new Date("2026-01-10T00:00:00.000Z"),
+      organizationName: "Multi Address Organization",
+      organizationClientId: "multi-address-organization",
+      publisherId: publisher.id,
+      startAt: new Date("2026-02-02T00:00:00.000Z"),
+      title: "Multi Address Mission",
+      addresses: [
+        {
+          city: "Oldest City",
+          country: "France",
+          location: { lat: 48.8566, lon: 2.3522 },
+        },
+        {
+          city: "Matched City",
+          country: "France",
+          location: { lat: 45.764, lon: 4.8357 },
+        },
+      ],
+    });
+    const addresses = await prisma.missionAddress.findMany({ where: { missionId: mission.id } });
+    const matchedAddress = addresses.find((address) => address.city === "Matched City");
+    if (!matchedAddress) {
+      throw new Error("Expected matched address to be created");
+    }
+
+    const enrichment = await prisma.missionEnrichment.create({
+      data: {
+        missionId: mission.id,
+        status: "completed",
+        promptVersion: "test-matched-address",
+        completedAt: new Date(),
+      },
+    });
+    const scoring = await prisma.missionScoring.create({
+      data: {
+        missionId: mission.id,
+        missionEnrichmentId: enrichment.id,
+      },
+    });
+    await prisma.missionMatchingResult.create({
+      data: {
+        userScoringId,
+        matchingEngineVersion: "m1",
+        results: [{ missionScoringId: scoring.id, missionAddressId: matchedAddress.id, taxonomyScores: {} }],
+      },
+    });
+
+    const res = await request(app).post("/missions/email").send({
+      distinctId,
+      email: "user@example.com",
+      publisherId: emailPublisher.id,
+      userScoringId,
+    });
+
+    expect(res.status).toBe(200);
+    expect(brevoMock.sendTemplate).toHaveBeenCalledTimes(1);
+    expect(brevoMock.sendTemplate.mock.calls[0][1].params.missions[0].city).toBe("Matched City");
+  });
+
   it("should send mission emails without user scoring when missionIds are provided", async () => {
     const publisher = await createTestPublisher({ name: "Single Mission Publisher" });
     const emailPublisher = await createEmailPublisher();

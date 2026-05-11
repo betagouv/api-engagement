@@ -14,6 +14,7 @@ type DbRankRow = {
   distance_km: number | null;
   closest_lat: number | null;
   closest_lon: number | null;
+  closest_address_id: string | null;
   closest_city: string | null;
   closest_address: string | null;
 };
@@ -356,6 +357,7 @@ const buildRanking = (params: {
       COALESCE(cm."distance_km", closest."distance_km") AS "distance_km",
       closest."closest_lat",
       closest."closest_lon",
+      closest."closest_address_id",
       closest."closest_city",
       closest."closest_address"
     FROM candidate_missions cm
@@ -370,6 +372,7 @@ const buildRanking = (params: {
         ) AS "distance_km",
         ma."location_lat" AS "closest_lat",
         ma."location_lon" AS "closest_lon",
+        ma."id" AS "closest_address_id",
         ma."city" AS "closest_city",
         NULLIF(
           CONCAT_WS(
@@ -385,7 +388,7 @@ const buildRanking = (params: {
       WHERE ma."mission_id" = cm."mission_id"
         AND ma."location_lat" IS NOT NULL
         AND ma."location_lon" IS NOT NULL
-      ORDER BY "distance_km" ASC
+      ORDER BY "distance_km" ASC, ma."created_at" ASC, ma."id" ASC
       LIMIT 1
     ) closest ON TRUE
   ),
@@ -408,6 +411,7 @@ const buildRanking = (params: {
       gs."distance_km",
       gs."closest_lat",
       gs."closest_lon",
+      gs."closest_address_id",
       gs."closest_city",
       gs."closest_address"
     FROM candidate_missions cm
@@ -435,6 +439,7 @@ const buildRanking = (params: {
     r."distance_km",
     r."closest_lat",
     r."closest_lon",
+    r."closest_address_id",
     r."closest_city",
     r."closest_address"
   FROM ranked r
@@ -513,6 +518,7 @@ const buildMissionMatchingResultItems = (params: {
 }): MissionMatchingResultItem[] =>
   params.rows.map((row) => ({
     missionScoringId: row.mission_scoring_id,
+    missionAddressId: row.closest_address_id ?? null,
     taxonomyScores: params.taxonomyScoresByMissionScoringId[row.mission_scoring_id] ?? {},
   }));
 
@@ -578,6 +584,7 @@ export const matchingEngineService = {
         (row): MatchMissionItem => ({
           missionId: row.mission_id,
           missionScoringId: row.mission_scoring_id,
+          missionAddressId: row.closest_address_id ?? null,
           totalScore: clampScore(Number(row.total_score)),
           taxonomyScore: clampScore(Number(row.taxonomy_score)),
           geoScore: row.geo_score === null ? null : clampScore(Number(row.geo_score)),
