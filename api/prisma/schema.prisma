@@ -1033,6 +1033,8 @@ model MissionEnrichmentValue {
   valueKey        String? @map("value_key")
   confidence      Float
   evidence        Json?
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
 
   enrichment           MissionEnrichment     @relation(fields: [enrichmentId], references: [id], onDelete: Cascade)
   taxonomyValue        TaxonomyValue?        @relation(fields: [taxonomyValueId], references: [id], onDelete: Cascade)
