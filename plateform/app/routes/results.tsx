@@ -23,6 +23,7 @@ function toBrowseMission(item: MatchResultItem): BrowseMission {
     domainLogo: item.mission.media.domainLogo,
     organizationName: item.mission.organizationName,
     organizationLogo: item.mission.media.organizationLogo,
+    photo: item.mission.media.photo,
     publisherName: item.mission.publisherName,
     publisherLogo: item.mission.media.publisherLogo,
     applicationUrl: null,

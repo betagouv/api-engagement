@@ -26,4 +26,5 @@ export default [
   route("results/:userScoringId", "routes/results.tsx"),
   route("results/:userScoringId/missions/:missionId", "routes/mission-detail.tsx", { id: "mission-detail-from-results" }),
   route("missions/:missionId", "routes/mission-detail.tsx", { id: "mission-detail-standalone" }),
+  route("missions", "routes/missions.tsx"),
 ] satisfies RouteConfig;

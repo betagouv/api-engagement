@@ -1,10 +1,12 @@
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, Suspense, lazy, useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
+
+const LocationMap = lazy(() => import("~/components/ui/location-map"));
 
 import SimilarMissions from "~/components/mission-detail/similar-missions";
 import { fetchMissionDetail } from "~/services/mission-browse";
 import type { MissionDetailResponse } from "~/types/mission-detail";
-import { buildGoogleMapsUrl, formatCompensation, formatStartDate } from "~/utils/mission";
+import { formatCompensation, formatMissionType, formatStartDate } from "~/utils/mission";
 
 // ── Sub-components ──────────────────────────────────────────────────────────
 
@@ -15,7 +17,7 @@ function Card({ children, className = "" }: { children: ReactNode; className?: s
 function InfoRow({ icon, children }: { icon: string; children: ReactNode }) {
   return (
     <div className="flex items-start gap-3 py-4">
-      <i className={`${icon} mt-0.5 flex-none text-[1.35rem] text-[#000091]`} aria-hidden="true" />
+      <i className={`${icon} fr-icon--sm mt-0.5 flex-none text-mention-grey`} aria-hidden="true" />
       <div className="flex flex-col gap-0.5">{children}</div>
     </div>
   );
@@ -41,39 +43,6 @@ export default function MissionDetailPage() {
   const backPath = userScoringId ? `/results/${userScoringId}` : "/";
   const backLabel = userScoringId ? "Retour aux résultats" : "Accueil";
 
-  const durationLabel = mission ? formatStartDate(mission.startAt, mission.duration) : null;
-  const compensationLabel = mission?.compensation ? formatCompensation(mission.compensation) : null;
-  const locationDisplay = mission?.location?.address ?? mission?.location?.city ?? null;
-
-  // ── CTA block ───────────────────────────────────────────────────────────
-  const ctaBlock = mission && (
-    <div className="flex flex-col gap-0 bg-white p-6 shadow-[0_2px_12px_rgba(0,0,0,0.08)]">
-      {(durationLabel || mission.schedule) && (
-        <InfoRow icon="fr-icon-time-line">
-          {durationLabel && <span className="font-bold">{durationLabel}</span>}
-          {mission.schedule && <span className="text-sm text-mention-grey">{mission.schedule}</span>}
-        </InfoRow>
-      )}
-
-      {compensationLabel && (
-        <>
-          <hr className="border-[#DDD]" />
-          <InfoRow icon="fr-icon-money-euro-circle-line">
-            <span className="font-bold">{compensationLabel}</span>
-          </InfoRow>
-        </>
-      )}
-
-      <a href={mission.applicationUrl} target="_blank" rel="noopener noreferrer" className="fr-btn mt-4! w-full! justify-center!">
-        Découvrir la mission
-      </a>
-
-      <button type="button" className="fr-btn fr-btn--secondary fr-icon-mail-line fr-btn--icon-left mt-3! w-full! justify-center!">
-        Recevoir cette mission par e-mail
-      </button>
-    </div>
-  );
-
   // ── Loading / error ──────────────────────────────────────────────────────
   if (loading) {
     return (
@@ -81,7 +50,7 @@ export default function MissionDetailPage() {
         <Link to={backPath} className="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-left-line fr-btn--icon-left mb-8">
           {backLabel}
         </Link>
-        <p className="text-sm text-gray-500">Chargement…</p>
+        <p className="text-sm text-mention-grey">Chargement…</p>
       </div>
     );
   }
@@ -99,7 +68,10 @@ export default function MissionDetailPage() {
     );
   }
 
-  const publisherTypeLabel = mission.type ? `Mission ${mission.type} proposée par` : "Mission proposée par";
+  const durationLabel = formatStartDate(mission.startAt, mission.duration);
+  const compensationLabel = mission.compensation ? formatCompensation(mission.compensation) : null;
+  const locationDisplay = mission.location?.address ?? mission.location?.city ?? null;
+  const publisherTypeLabel = formatMissionType(mission.type);
   const orgDisplayName = mission.organizationName ?? mission.publisherName;
 
   return (
@@ -135,10 +107,10 @@ export default function MissionDetailPage() {
             {orgDisplayName && (
               <div className="flex items-center gap-3">
                 {(mission.organizationLogo ?? mission.publisherLogo) && (
-                  <img src={(mission.organizationLogo ?? mission.publisherLogo)!} alt="" className="h-10 w-10 flex-none rounded object-contain" loading="eager" />
+                  <img src={(mission.organizationLogo ?? mission.publisherLogo)!} alt="" className="h-10 w-10 flex-none rounded object-contain vert" loading="eager" />
                 )}
-                <p className="text-sm text-mention-grey">
-                  {publisherTypeLabel} <span className="font-semibold text-title-grey">{orgDisplayName}</span>
+                <p className="text-sm mb-0! text-mention-grey">
+                  {publisherTypeLabel} proposée par <span className="font-semibold text-title-grey">{orgDisplayName}</span>
                 </p>
               </div>
             )}
@@ -146,20 +118,17 @@ export default function MissionDetailPage() {
 
           {/* Block 2 — Localisation */}
           {locationDisplay && (
-            <Card className="p-6">
-              <div className="flex items-start gap-4">
-                <i className="fr-icon-map-pin-2-line mt-0.5 flex-none text-[1.5rem] text-[#000091]" aria-hidden="true" />
+            <Card className="overflow-hidden">
+              {mission.location?.lat && mission.location?.lon && (
+                <Suspense fallback={<div className="h-[180px] w-full bg-[#f0f0f0]" />}>
+                  <LocationMap lat={mission.location.lat} lon={mission.location.lon} />
+                </Suspense>
+              )}
+              <div className="flex items-start gap-4 p-6">
+                <i className="fr-icon-map-pin-2-line fr-icon--sm mt-0.5 flex-none text-mention-grey" aria-hidden="true" />
                 <div className="flex flex-col gap-2">
                   {mission.location?.city && <span className="font-bold text-title-grey">{mission.location.city}</span>}
                   {mission.location?.address && <span className="text-sm text-mention-grey">{mission.location.address}</span>}
-                  <a
-                    href={buildGoogleMapsUrl(locationDisplay)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="fr-btn fr-btn--secondary fr-btn--sm fr-icon-external-link-line fr-btn--icon-right mt-1 w-fit!"
-                  >
-                    Ouvrir sur Google Maps
-                  </a>
                 </div>
               </div>
             </Card>
@@ -185,7 +154,7 @@ export default function MissionDetailPage() {
             <a href={mission.applicationUrl} target="_blank" rel="noopener noreferrer" className="fr-btn w-full! justify-center!">
               Découvrir la mission
             </a>
-            <button type="button" className="fr-btn fr-btn--secondary fr-icon-mail-line fr-btn--icon-left w-full! justify-center!">
+            <button type="button" className="fr-btn fr-btn--secondary w-full! justify-center!">
               Recevoir cette mission par e-mail
             </button>
           </div>
@@ -210,7 +179,32 @@ export default function MissionDetailPage() {
               <img src={mission.photo} alt="" className="h-full w-full object-cover" />
             </div>
           )}
-          <div className="sticky top-4">{ctaBlock}</div>
+          <div className="sticky top-4 flex flex-col gap-0 bg-white p-6 shadow-[0_2px_12px_rgba(0,0,0,0.08)]">
+            {(durationLabel || mission.schedule) && (
+              <InfoRow icon="fr-icon-time-line">
+                {durationLabel && <span className="font-bold">{durationLabel}</span>}
+                {mission.schedule && <span className="text-sm text-mention-grey">{mission.schedule}</span>}
+              </InfoRow>
+            )}
+
+            {compensationLabel && (
+              <>
+                <InfoRow icon="fr-icon-money-euro-circle-line">
+                  <span className="font-bold">{compensationLabel}</span>
+                </InfoRow>
+              </>
+            )}
+
+            <hr className="border-[#DDD]" />
+
+            <a href={mission.applicationUrl} target="_blank" rel="noopener noreferrer" className="fr-btn mt-4! w-full! justify-center!">
+              Découvrir la mission
+            </a>
+
+            <button type="button" className="fr-btn fr-btn--secondary mt-3! w-full! justify-center!">
+              Recevoir cette mission par e-mail
+            </button>
+          </div>
         </div>
       </div>
 
