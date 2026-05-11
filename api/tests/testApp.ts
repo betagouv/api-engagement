@@ -4,6 +4,7 @@ import cors from "cors";
 import express from "express";
 
 import CampaignController from "@/controllers/campaign";
+import EmailController from "@/controllers/email";
 import IframeController from "@/controllers/iframe";
 import ImportController from "@/controllers/import";
 import MissionController from "@/controllers/mission";
@@ -52,6 +53,7 @@ export const createTestApp = ({ metricsRecorder }: { metricsRecorder?: HttpMetri
   app.use("/widget", WidgetController);
   app.use("/mission", MissionController);
   app.use("/missions", MissionBrowseController);
+  app.use("/missions", EmailController);
   app.use("/moderation", ModerationController);
   app.use("/user-scoring", UserScoringController);
   app.use("/organization", OrganizationController);
