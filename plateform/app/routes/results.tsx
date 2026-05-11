@@ -88,7 +88,7 @@ export default function ResultsPage() {
               <>
                 <div className="grid gap-4 px-5 pb-5 md:grid-cols-2 md:gap-5 md:px-6">
                   {pinnedItems.map((item, i) => (
-                    <MissionCard key={item.mission.id} item={item} index={i} onDebugClick={setDebugItem} />
+                    <MissionCard key={item.mission.id} item={item} index={i} userScoringId={userScoringId} onDebugClick={setDebugItem} />
                   ))}
                 </div>
 
@@ -118,7 +118,13 @@ export default function ResultsPage() {
             ) : (
               <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
                 {otherItems.map((item, i) => (
-                  <MissionCard key={item.mission.id} item={item} index={PINNED_RESULTS_LIMIT + (page - 1) * OTHER_RESULTS_PAGE_SIZE + i} onDebugClick={setDebugItem} />
+                  <MissionCard
+                    key={item.mission.id}
+                    item={item}
+                    index={PINNED_RESULTS_LIMIT + (page - 1) * OTHER_RESULTS_PAGE_SIZE + i}
+                    userScoringId={userScoringId}
+                    onDebugClick={setDebugItem}
+                  />
                 ))}
               </div>
             )}
