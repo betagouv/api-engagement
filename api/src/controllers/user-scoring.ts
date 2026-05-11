@@ -18,11 +18,13 @@ const answerSchema = zod
 const answersSchema = zod.array(answerSchema).min(1);
 const distinctIdSchema = zod.string().trim().min(1);
 
-const bodySchema = zod.object({
-  answers: answersSchema,
-  distinctId: distinctIdSchema.optional(),
-  missionAlertEnabled: zod.boolean().default(false),
-}).strict();
+const bodySchema = zod
+  .object({
+    answers: answersSchema,
+    distinctId: distinctIdSchema.optional(),
+    missionAlertEnabled: zod.boolean().default(false),
+  })
+  .strict();
 
 const updateBodySchema = zod
   .object({

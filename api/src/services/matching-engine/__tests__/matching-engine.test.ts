@@ -87,6 +87,7 @@ describe("matchingEngineService", () => {
             taxonomy_score: -0.2,
             geo_score: 0.71234567,
             distance_km: 12.345,
+            closest_address_id: "mission-address-1",
           },
           {
             mission_id: "mission-2",
@@ -95,6 +96,7 @@ describe("matchingEngineService", () => {
             taxonomy_score: 0.8765432,
             geo_score: null,
             distance_km: null,
+            closest_address_id: null,
           },
         ])
         .mockResolvedValueOnce([
@@ -124,10 +126,14 @@ describe("matchingEngineService", () => {
       });
 
       expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(3);
+      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[1][0]);
+      expect(rankingSql).toContain('ma."id" AS "closest_address_id"');
+      expect(rankingSql).toContain('ORDER BY "distance_km" ASC, ma."created_at" ASC, ma."id" ASC');
       expect(result.items).toEqual([
         {
           missionId: "mission-1",
           missionScoringId: "mission-scoring-1",
+          missionAddressId: "mission-address-1",
           totalScore: 1,
           taxonomyScore: 0,
           geoScore: 0.712346,
@@ -147,12 +153,14 @@ describe("matchingEngineService", () => {
         results: [
           {
             missionScoringId: "mission-scoring-1",
+            missionAddressId: "mission-address-1",
             taxonomyScores: {
               domaine: 1,
             },
           },
           {
             missionScoringId: "mission-scoring-2",
+            missionAddressId: null,
             taxonomyScores: {},
           },
         ],
@@ -202,6 +210,7 @@ describe("matchingEngineService", () => {
             taxonomy_score: 0.8,
             geo_score: null,
             distance_km: null,
+            closest_address_id: null,
           },
         ])
         .mockResolvedValueOnce([
@@ -228,6 +237,7 @@ describe("matchingEngineService", () => {
         {
           missionId: "mission-eligible",
           missionScoringId: "mission-scoring-eligible",
+          missionAddressId: null,
           totalScore: 0.8,
           taxonomyScore: 0.8,
           geoScore: null,
@@ -259,6 +269,7 @@ describe("matchingEngineService", () => {
             taxonomy_score: 0.7,
             geo_score: null,
             distance_km: null,
+            closest_address_id: null,
           },
         ])
         .mockResolvedValueOnce([
@@ -291,6 +302,7 @@ describe("matchingEngineService", () => {
         {
           missionId: "mission-1",
           missionScoringId: "mission-scoring-1",
+          missionAddressId: null,
           totalScore: 0.7,
           taxonomyScore: 0.7,
           geoScore: null,
@@ -323,6 +335,7 @@ describe("matchingEngineService", () => {
             taxonomy_score: 0.866667,
             geo_score: null,
             distance_km: null,
+            closest_address_id: null,
           },
         ])
         .mockResolvedValueOnce([
@@ -366,6 +379,7 @@ describe("matchingEngineService", () => {
             taxonomy_score: 0.6,
             geo_score: null,
             distance_km: null,
+            closest_address_id: null,
           },
         ])
         .mockResolvedValueOnce([
@@ -386,6 +400,7 @@ describe("matchingEngineService", () => {
         {
           missionId: "mission-2",
           missionScoringId: "mission-scoring-2",
+          missionAddressId: null,
           totalScore: 0.6,
           taxonomyScore: 0.6,
           geoScore: null,

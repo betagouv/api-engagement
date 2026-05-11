@@ -4,9 +4,11 @@ import cors from "cors";
 import express from "express";
 
 import CampaignController from "@/controllers/campaign";
+import EmailController from "@/controllers/email";
 import IframeController from "@/controllers/iframe";
 import ImportController from "@/controllers/import";
 import MissionController from "@/controllers/mission";
+import MissionBrowseController from "@/controllers/mission-browse";
 import ModerationController from "@/controllers/moderation";
 import OrganizationController from "@/controllers/organization";
 import PublisherController from "@/controllers/publisher";
@@ -50,6 +52,8 @@ export const createTestApp = ({ metricsRecorder }: { metricsRecorder?: HttpMetri
   app.use("/campaign", CampaignController);
   app.use("/widget", WidgetController);
   app.use("/mission", MissionController);
+  app.use("/missions", MissionBrowseController);
+  app.use("/email", EmailController);
   app.use("/moderation", ModerationController);
   app.use("/user-scoring", UserScoringController);
   app.use("/organization", OrganizationController);

@@ -145,6 +145,10 @@ const buildValuesToPersist = (answers: UserScoringAnswerInput[]) => {
 };
 
 export const userScoringService = {
+  async exists(userScoringId: string) {
+    return Boolean(await userScoringRepository.findById(userScoringId));
+  },
+
   async create(input: CreateUserScoringInput) {
     const scoringData = buildValuesToPersist(input.answers);
     const expiresAt = new Date(Date.now() + USER_SCORING_TTL_DAYS * 24 * 60 * 60 * 1000);
@@ -179,13 +183,15 @@ export const userScoringService = {
       missionAlertEnabled: input.missionAlertEnabled,
     });
 
+    const data = {
+      user_scoring_id: input.userScoringId,
+      created_count: result.createdCount,
+      mission_alert_enabled: result.missionAlertEnabled,
+    };
+
     return {
       status: "success" as const,
-      data: {
-        user_scoring_id: input.userScoringId,
-        created_count: result.createdCount,
-        mission_alert_enabled: result.missionAlertEnabled,
-      },
+      data,
     };
   },
 };
