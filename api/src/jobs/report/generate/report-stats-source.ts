@@ -223,17 +223,16 @@ async function getMonthlyBuckets(
 async function getTopPublishers(publisherId: string, columns: ReportColumnDefinitions, start: Date, end: Date) {
   const rows = await prisma.$queryRaw<{ key: string | null; doc_count: bigint }[]>(
     Prisma.sql`
-      SELECT ${columns.publisherNameColumnSql} AS key,
+      SELECT p."name" AS key,
              COUNT(*)::bigint AS doc_count
       FROM "stat_event"
-      WHERE is_bot is NOT true
+      JOIN "publisher" p ON p."id" = ${columns.peerPublisherIdColumnSql}
+      WHERE "stat_event"."is_bot" IS NOT TRUE
         AND ${columns.publisherIdColumnSql} = ${publisherId}
-        AND type = 'click'
-        AND created_at >= ${start}
-        AND created_at < ${end}
-        AND ${columns.publisherNameColumnSql} IS NOT NULL
-        AND ${columns.publisherNameColumnSql} <> ''
-      GROUP BY ${columns.publisherNameColumnSql}
+        AND "stat_event"."type" = 'click'
+        AND "stat_event"."created_at" >= ${start}
+        AND "stat_event"."created_at" < ${end}
+      GROUP BY p."name"
       ORDER BY doc_count DESC
       LIMIT 5
     `
@@ -250,11 +249,11 @@ async function getTopOrganizations(publisherId: string, columns: ReportColumnDef
       FROM "stat_event"
       JOIN "mission" m ON m."id" = "stat_event"."mission_id"
       JOIN "publisher_organization" po ON po."id" = m."publisher_organization_id"
-      WHERE is_bot is NOT true
+      WHERE "stat_event"."is_bot" IS NOT TRUE
         AND ${columns.publisherIdColumnSql} = ${publisherId}
-        AND type = 'click'
-        AND created_at >= ${start}
-        AND created_at < ${end}
+        AND "stat_event"."type" = 'click'
+        AND "stat_event"."created_at" >= ${start}
+        AND "stat_event"."created_at" < ${end}
         AND po."name" IS NOT NULL
         AND po."name" <> ''
       GROUP BY po."name"
@@ -300,17 +299,17 @@ async function getLastSixMonthsBuckets({
   const perOrg = topKeys.length
     ? await prisma.$queryRaw<{ month: Date; key: string | null; doc_count: bigint }[]>(
         Prisma.sql`
-          SELECT date_trunc('month', created_at) AS month,
+          SELECT date_trunc('month', "stat_event"."created_at") AS month,
                  po."name" AS key,
                  COUNT(*)::bigint AS doc_count
           FROM "stat_event"
           JOIN "mission" m ON m."id" = "stat_event"."mission_id"
           JOIN "publisher_organization" po ON po."id" = m."publisher_organization_id"
-          WHERE is_bot IS NOT TRUE
+          WHERE "stat_event"."is_bot" IS NOT TRUE
             AND ${columns.publisherIdColumnSql} = ${publisherId}
-            AND type = 'click'
-            AND created_at >= ${start}
-            AND created_at < ${end}
+            AND "stat_event"."type" = 'click'
+            AND "stat_event"."created_at" >= ${start}
+            AND "stat_event"."created_at" < ${end}
             AND po."name" = ANY(${Prisma.sql`ARRAY[${Prisma.join(topKeys)}]`})
           GROUP BY month, po."name"
           ORDER BY month
@@ -367,25 +366,22 @@ function isSameMonth(a: Date, b: Date) {
 
 interface ReportColumnDefinitions {
   publisherIdField: "from_publisher_id" | "to_publisher_id";
-  publisherNameField: "from_publisher_name" | "to_publisher_name";
   publisherIdColumnSql: Sql;
-  publisherNameColumnSql: Sql;
+  peerPublisherIdColumnSql: Sql;
 }
 
 function getReportColumnDefinitions(flux: ReportFlux): ReportColumnDefinitions {
   if (flux === "to") {
     return {
       publisherIdField: "to_publisher_id",
-      publisherNameField: "from_publisher_name",
       publisherIdColumnSql: Prisma.sql`"to_publisher_id"`,
-      publisherNameColumnSql: Prisma.sql`"from_publisher_name"`,
+      peerPublisherIdColumnSql: Prisma.sql`"from_publisher_id"`,
     };
   }
   return {
     publisherIdField: "from_publisher_id",
-    publisherNameField: "to_publisher_name",
     publisherIdColumnSql: Prisma.sql`"from_publisher_id"`,
-    publisherNameColumnSql: Prisma.sql`"to_publisher_name"`,
+    peerPublisherIdColumnSql: Prisma.sql`"to_publisher_id"`,
   };
 }
 

@@ -96,7 +96,7 @@ export const generateReport = async (publisher: PublisherRecord, year: number, m
     // Save and upload file
     const objectName = `publishers/${publisher.id}/reports/${year}${month + 1 < 10 ? `0${month + 1}` : month + 1}.pdf`;
     const buffer = Buffer.from(doc.output("arraybuffer"));
-    await putObject(objectName, buffer, { ACL: OBJECT_ACL.PUBLIC_READ });
+    await putObject(objectName, buffer, { ACL: OBJECT_ACL.PRIVATE });
 
     return {
       data,

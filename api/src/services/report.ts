@@ -175,11 +175,8 @@ export const reportService = {
     if ("objectName" in patch) {
       data.objectName = patch.objectName ?? undefined;
     }
-    if ("publisherId" in patch) {
-      data.publisherId = patch.publisherId ?? undefined;
-    }
-    if ("publisherName" in patch) {
-      data.publisherName = patch.publisherName ?? undefined;
+    if ("publisherId" in patch && patch.publisherId) {
+      data.publisher = { connect: { id: patch.publisherId } };
     }
     if ("dataTemplate" in patch) {
       data.dataTemplate = patch.dataTemplate ?? undefined;

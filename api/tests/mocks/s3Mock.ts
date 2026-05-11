@@ -14,6 +14,7 @@ const s3Mock = {
   putObject: vi.fn().mockResolvedValue({}),
   getObject: vi.fn().mockResolvedValue({}),
   deleteObject: vi.fn().mockResolvedValue({}),
+  getPresignedUrl: vi.fn().mockResolvedValue("https://mock-bucket.example.com/signed-url?token=mock"),
 };
 
 export default s3Mock;

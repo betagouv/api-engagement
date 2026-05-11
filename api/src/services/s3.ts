@@ -2,6 +2,7 @@ import { Readable } from "stream";
 
 import { CompleteMultipartUploadCommandOutput, DeleteObjectCommand, GetObjectCommand, ObjectCannedACL, S3Client } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 import { BUCKET_NAME, REGION, SCW_ACCESS_KEY, SCW_HOST, SCW_SECRET_KEY } from "@/config";
 
@@ -63,4 +64,9 @@ export const getObject = async (objectName: string, bucketName = BUCKET_NAME): P
 
 export const deleteObject = async (objectName: string, bucketName = BUCKET_NAME): Promise<void> => {
   await bucket.send(new DeleteObjectCommand({ Bucket: bucketName, Key: objectName }));
+};
+
+export const getPresignedUrl = async (objectName: string, expiresIn = 900): Promise<string> => {
+  const command = new GetObjectCommand({ Bucket: BUCKET_NAME, Key: objectName });
+  return getSignedUrl(bucket, command, { expiresIn });
 };
