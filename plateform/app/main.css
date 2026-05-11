@@ -13,11 +13,14 @@
   --color-raised-grey-hover: var(--background-raised-grey-hover);
   --color-beige-gris-galet: var(--beige-gris-galet-925-125);
   --color-title-grey: var(--text-title-grey);
+  /* Backgrounds */
   --color-blue-france-950: var(--blue-france-950-100); /* #ECECFE00 */
+  --color-beige-gris-galet-975: var(--beige-gris-galet-975-75); /* #F9F6F2 */
   --color-border-default-grey: var(--border-default-grey);
   --color-border-plain-error: var(--border-plain-error);
   --color-background-default-grey-hover: var(--background-default-grey-hover);
   --color-background-default-grey-active: var(--background-default-grey-active);
+  --color-background: var(--background-default-grey);
 }
 
 .header-shadow {
@@ -148,44 +151,24 @@
   max-height: 3.5rem;
 }
 
-.results-surface {
-  background-color: #ffffff;
-  color: #1e1e1e;
+.text-highlighted {
+  background-image: linear-gradient(transparent 50%, #e3e3fd 50%);
+  padding: 0 0.25rem;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 }
 
-.results-surface,
-.results-surface h1,
-.results-surface h2,
-.results-surface h3 {
-  color: #1e1e1e;
+.slider-arrow {
+  border-radius: 9999px !important;
 }
 
-.results-link,
-.results-title-accent {
-  color: #000091;
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
-.results-mobile-panel {
-  z-index: 1200;
-}
-
-.results-page button,
-.results-page button:hover:not(:disabled) {
-  --hover: #f5f5ff;
-  --active: #ececff;
-}
-
-.results-page button:hover:not(:disabled) {
-  background-color: var(--hover) !important;
-}
-
-.results-page button:active:not(:disabled) {
-  background-color: var(--active) !important;
-}
-
-.results-page button[aria-current="page"] {
-  --hover: #000091;
-  --active: #000091;
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
 }
 
 .mission-card {
@@ -223,16 +206,17 @@
   align-items: center;
   background-color: #eeeeee;
   border-radius: 9999px;
-  bottom: 1.75rem;
+  bottom: 0.5rem;
   color: #3a3a3a;
   display: inline-flex;
   height: 2rem;
   justify-content: center;
-  left: 1.25rem;
+  left: 0.5rem;
   position: absolute;
   --hover: #dddddd;
   --active: #d6d6d6;
   width: 2rem;
+  z-index: 10;
 }
 
 .mission-card__debug-button:hover {

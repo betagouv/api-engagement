@@ -1,6 +1,6 @@
 import Modal from "~/components/layout/modal";
 import type { MatchResultItem } from "~/types/matching";
-import "./MatchingDebugModal.css";
+import "./matching-debug-modal.css";
 
 const formatScore = (score: number | null): string => (score === null ? "—" : score.toFixed(3));
 

@@ -10,7 +10,7 @@ export default function Header() {
 
   return (
     <header role="banner" className="fr-header">
-      <div className="fr-header__body">
+      <div className="fr-header__body hidden lg:block">
         <div className="fr-container">
           <div className="fr-header__body-row">
             <div className="fr-header__brand fr-enlarge-link">
@@ -32,6 +32,13 @@ export default function Header() {
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="relative flex h-14 items-center px-4 lg:hidden">
+        <Link to="/" title="Retour à l'accueil" className="fr-icon-arrow-left-line fr-btn--icon-left fr-btn--tertiary-no-outline font-semi-bold!">
+          Retour
+        </Link>
+        <p className="fr-h6 absolute left-1/2 mb-0 -translate-x-1/2">Trouve ta mission</p>
       </div>
     </header>
   );
