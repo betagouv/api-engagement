@@ -46,6 +46,18 @@ const CODE_NAME_THEME = {
   examples: "Clovis, Pépin, Dagobert, Childebert, Caribert, Mérovée, Sigebert, Gontran, Thierry, Chilpéric",
 } as const;
 
+// ---------------------------------------------------------------------------
+// ⚙️  Limites de contexte OpenAI — ajuster si la limite TPM change
+// ---------------------------------------------------------------------------
+const OPENAI_LIMITS = {
+  /** Caractères max par source PR (ticket Notion ou body PR) — ~375 tokens */
+  maxCharsPerSource: 1_500,
+  /** Caractères max pour l'ensemble du bloc prContext — ~5 000 tokens */
+  maxTotalPrContextChars: 20_000,
+  /** Caractères max pour la liste des commits — ~1 500 tokens */
+  maxCommitListChars: 6_000,
+} as const;
+
 const GITHUB_REPO = "betagouv/api-engagement";
 
 // ---------------------------------------------------------------------------
@@ -300,14 +312,22 @@ async function getContextsForPRs(prs: PR[], notion: NotionClient): Promise<PRCon
 async function synthesizeWithOpenAI(tag: string, commits: Commit[], contexts: PRContext[], openai: OpenAI): Promise<ChangelogResult> {
   const appLabels = APPS.map((a) => `"${a.label}" (scope: ${a.scope})`).join(", ");
 
-  const commitList = commits.map((c) => `- [scope:${c.scope ?? "?"}] ${c.message}`).join("\n");
+  const rawCommitList = commits.map((c) => `- [scope:${c.scope ?? "?"}] ${c.message}`).join("\n");
+  const commitList = rawCommitList.length > OPENAI_LIMITS.maxCommitListChars ? rawCommitList.slice(0, OPENAI_LIMITS.maxCommitListChars) + `\n[…liste tronquée]` : rawCommitList;
 
-  const prContext = contexts
+  const rawPrContext = contexts
     .map(({ pr, notionContent }) => {
-      const source = notionContent ?? pr.body;
-      return `### PR #${pr.number} : ${pr.title}\n${source || "(pas de description)"}`;
+      const raw = notionContent ?? pr.body;
+      const source =
+        raw && raw.length > OPENAI_LIMITS.maxCharsPerSource
+          ? raw.slice(0, OPENAI_LIMITS.maxCharsPerSource) + `\n[…contenu tronqué, ${raw.length - OPENAI_LIMITS.maxCharsPerSource} caractères omis]`
+          : raw || "(pas de description)";
+      return `### PR #${pr.number} : ${pr.title}\n${source}`;
     })
     .join("\n\n");
+
+  const prContext =
+    rawPrContext.length > OPENAI_LIMITS.maxTotalPrContextChars ? rawPrContext.slice(0, OPENAI_LIMITS.maxTotalPrContextChars) + `\n[…contexte global tronqué]` : rawPrContext;
 
   const prompt = `Tu rédiges le changelog de la version ${tag} d'"API Engagement" \
 (plateforme de mise en relation bénévoles / associations).
