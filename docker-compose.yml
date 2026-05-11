@@ -38,7 +38,7 @@ services:
       TYPESENSE_HOST: typesense
     volumes:
       - ./api:/workspace/api
-      - /workspace/api/node_modules
+      - api-node-modules:/workspace/api/node_modules
       - ./packages/taxonomy:/workspace/packages/taxonomy
     ports:
       - "3002:3002"
@@ -57,7 +57,7 @@ services:
       TYPESENSE_HOST: typesense
     volumes:
       - ./api:/workspace/api
-      - /workspace/api/node_modules
+      - api-node-modules:/workspace/api/node_modules
       - ./packages/taxonomy:/workspace/packages/taxonomy
     ports:
       - "3004:3004"
@@ -135,12 +135,13 @@ services:
       TYPESENSE_MISSION_COLLECTION: missions
     volumes:
       - ./api:/workspace/api
-      - /workspace/api/node_modules
+      - api-node-modules:/workspace/api/node_modules
       - ./packages/taxonomy:/workspace/packages/taxonomy
     command: ["sh", "-c", "sleep 20 && npx ts-node src/jobs/run-job.ts setup-search-collections"]
     restart: "no"
 
 volumes:
+  api-node-modules:
   postgres-analytics-data:
   postgres-core-data:
   typesense-data:
