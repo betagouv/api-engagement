@@ -26,7 +26,7 @@ const missionEmailBodySchema = zod
     path: ["distinctId"],
   });
 
-router.post("/email", async (req: Request, res: Response, next: NextFunction) => {
+router.post("/mission", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const body = missionEmailBodySchema.safeParse(req.body);
     if (!body.success) {

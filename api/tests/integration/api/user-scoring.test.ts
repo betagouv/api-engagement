@@ -598,7 +598,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
 
     await request(app).put(`/user-scoring/${userScoringId}`).send({ distinctId, missionAlertEnabled: true }).expect(200);
 
-    const res = await request(app).post("/missions/email").send({
+    const res = await request(app).post("/email/mission").send({
       distinctId,
       email: " USER@EXAMPLE.COM ",
       publisherId: emailPublisher.id,
@@ -703,7 +703,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
       },
     });
 
-    const res = await request(app).post("/missions/email").send({
+    const res = await request(app).post("/email/mission").send({
       distinctId,
       email: "user@example.com",
       publisherId: emailPublisher.id,
@@ -732,7 +732,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
     });
 
     const res = await request(app)
-      .post("/missions/email")
+      .post("/email/mission")
       .send({
         email: "user@example.com",
         publisherId: emailPublisher.id,
@@ -775,7 +775,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
     const emailPublisher = await createEmailPublisher();
 
     const res = await request(app)
-      .post("/missions/email")
+      .post("/email/mission")
       .send({
         email: "user@example.com",
         publisherId: emailPublisher.id,
@@ -798,7 +798,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
     const userScoringId = await createUserScoring();
     const emailPublisher = await createEmailPublisher();
 
-    const res = await request(app).post("/missions/email").send({
+    const res = await request(app).post("/email/mission").send({
       distinctId,
       email: "user@example.com",
       publisherId: emailPublisher.id,
@@ -823,7 +823,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
     await createStoredMatchingResult(userScoringId);
     const emailPublisher = await createEmailPublisher();
 
-    const res = await request(app).post("/missions/email").send({
+    const res = await request(app).post("/email/mission").send({
       distinctId: "another-distinct-user",
       email: "user@example.com",
       publisherId: emailPublisher.id,
@@ -842,7 +842,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
     const emailPublisher = await createEmailPublisher();
     brevoMock.createOrUpdateContact.mockResolvedValueOnce({ ok: false, data: { message: "contact failed" } });
 
-    const res = await request(app).post("/missions/email").send({
+    const res = await request(app).post("/email/mission").send({
       distinctId,
       email: "user@example.com",
       publisherId: emailPublisher.id,
@@ -870,7 +870,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
     const emailPublisher = await createEmailPublisher();
     brevoMock.sendTemplate.mockResolvedValueOnce({ ok: false, data: { message: "template failed" } });
 
-    const res = await request(app).post("/missions/email").send({
+    const res = await request(app).post("/email/mission").send({
       distinctId,
       email: "user@example.com",
       publisherId: emailPublisher.id,
@@ -1068,7 +1068,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
     const emailPublisher = await createEmailPublisher();
 
     const res = await request(app)
-      .post("/missions/email")
+      .post("/email/mission")
       .send({ email: "not-an-email", publisherId: emailPublisher.id, missionIds: ["00000000-0000-0000-0000-000000000000"] });
 
     expect(res.status).toBe(400);

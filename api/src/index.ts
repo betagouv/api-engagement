@@ -139,7 +139,7 @@ const main = async () => {
   app.use("/user-scoring", corsPublic, UserScoringController);
   app.use("/brevo-webhook", corsPublic, BrevoWebhookController);
   app.use("/missions", corsPublic, MissionBrowseController);
-  app.use("/missions", corsPublic, EmailController);
+  app.use("/email", corsPublic, EmailController);
 
   // Interal routes
   app.use("/admin-report", AdminReportController);
