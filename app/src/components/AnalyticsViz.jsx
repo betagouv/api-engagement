@@ -48,6 +48,8 @@ const AnalyticsViz = ({
   const effectiveAdapter = adapter || analyticsProvider?.adapters?.[type];
   const chartDataKey = chartProps?.dataKey || "value";
   const chartNameKey = chartProps?.nameKey || "name";
+  const chartNameFormatter = chartProps?.nameFormatter;
+  const chartValueFormatter = chartProps?.tooltipValueFormatter;
   const generatedDescriptionId = `${generatedId}-chart-description`;
   const internalDescriptionId = chartDescriptionMode === "visible" || chartDescriptionMode === "sr-only" ? generatedDescriptionId : undefined;
   const describedById = chartDescriptionMode === "external" ? chartDescriptionId : internalDescriptionId;
@@ -298,6 +300,8 @@ const AnalyticsViz = ({
             data={data}
             dataKey={chartDataKey}
             nameKey={chartNameKey}
+            nameFormatter={chartNameFormatter}
+            valueFormatter={chartValueFormatter}
           />
         )}
       </figure>
@@ -319,6 +323,8 @@ const AnalyticsViz = ({
           data={data}
           dataKey={chartDataKey}
           nameKey={chartNameKey}
+          nameFormatter={chartNameFormatter}
+          valueFormatter={chartValueFormatter}
         />
       </figure>
     );
@@ -341,6 +347,7 @@ const AnalyticsViz = ({
           nameKey={chartNameKey}
           stackedKeys={stackedKeys}
           seriesLabelMap={chartProps?.seriesLabelMap}
+          nameFormatter={chartNameFormatter}
         />
       </figure>
     );

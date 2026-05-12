@@ -12,6 +12,8 @@ const ChartDetailsTable = ({
   stackedKeys = [],
   seriesLabelMap = {},
   className = "",
+  nameFormatter,
+  valueFormatter,
 }) => {
   if (mode === "none" || mode === "external" || !id || !data.length) {
     return null;
@@ -21,6 +23,8 @@ const ChartDetailsTable = ({
   const tableClassName = `${visibilityClass} ${className}`.trim();
   const caption = title ? `Description détaillée du graphique : ${title}` : "Description détaillée du graphique";
   const captionText = description ? `${caption}. ${description}` : caption;
+  const formatName = (value) => (nameFormatter ? nameFormatter(value) : value);
+  const formatValue = (value) => (valueFormatter ? valueFormatter(value) : formatChartValue(value));
 
   if (type === "stacked") {
     return (
@@ -43,14 +47,14 @@ const ChartDetailsTable = ({
             return (
               <tr key={`${entry?.[nameKey] || "categorie"}-${index}`}>
                 <th scope="row" className="px-2 py-1 text-left font-normal">
-                  {entry?.[nameKey]}
+                  {formatName(entry?.[nameKey])}
                 </th>
                 {stackedKeys.map((key) => (
                   <td key={key} className="px-2 py-1 text-right">
-                    {formatChartValue(getChartValue(entry, key))}
+                    {formatValue(getChartValue(entry, key))}
                   </td>
                 ))}
-                <td className="px-2 py-1 text-right">{formatChartValue(total)}</td>
+                <td className="px-2 py-1 text-right">{formatValue(total)}</td>
               </tr>
             );
           })}
@@ -72,9 +76,9 @@ const ChartDetailsTable = ({
         {data.map((entry, index) => (
           <tr key={`${entry?.[nameKey] || "valeur"}-${index}`}>
             <th scope="row" className="px-2 py-1 text-left font-normal">
-              {entry?.[nameKey]}
+              {formatName(entry?.[nameKey])}
             </th>
-            <td className="px-2 py-1 text-right">{formatChartValue(getChartValue(entry, dataKey))}</td>
+            <td className="px-2 py-1 text-right">{formatValue(getChartValue(entry, dataKey))}</td>
           </tr>
         ))}
       </tbody>
