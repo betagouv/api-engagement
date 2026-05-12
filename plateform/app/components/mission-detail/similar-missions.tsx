@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 import MissionCard from "~/components/missions/mission-card";
 import { fetchMatches } from "~/services/matching";
-import type { BrowseMission } from "~/services/mission-browse";
+import type { BrowseMission } from "~/types/api";
 import type { MatchResultItem } from "~/types/matching";
 
 interface Props {
@@ -12,7 +12,6 @@ interface Props {
 
 function toBrowseMission(item: MatchResultItem): BrowseMission {
   return {
-    _id: item.mission.id,
     id: item.mission.id,
     title: item.mission.title,
     description: null,
