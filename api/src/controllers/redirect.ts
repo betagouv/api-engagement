@@ -4,15 +4,17 @@ import zod from "zod";
 
 import { JVA_URL, PUBLISHER_IDS } from "@/config";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, SERVER_ERROR, captureException } from "@/error";
+import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { campaignService } from "@/services/campaign";
 import { missionService } from "@/services/mission";
 import { publisherService } from "@/services/publisher";
 import { statBotService } from "@/services/stat-bot";
 import { statEventService } from "@/services/stat-event";
+import { userScoringService } from "@/services/user-scoring";
 import { widgetService } from "@/services/widget";
 import { MissionRecord, StatEventRecord } from "@/types";
-import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { cleanIdParam, identify, slugify } from "@/utils";
+import { buildTrackedApplicationUrl, updateBotFlagAfterRedirect } from "@/utils/redirect";
 
 const router = Router();
 router.use(ipRateLimiter);
@@ -404,32 +406,15 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
     } as StatEventRecord;
     const clickId = await statEventService.createStatEvent(obj);
 
-    let targetUrl = href;
-    if (targetUrl.indexOf("http://") === -1 && targetUrl.indexOf("https://") === -1) {
-      targetUrl = "https://" + targetUrl;
-    }
-
-    const url = new URL(targetUrl || JVA_URL);
-    url.searchParams.set("apiengagement_id", clickId);
-
-    // Service ask for mtm
-    if (mission.publisherId === PUBLISHER_IDS.SERVICE_CIVIQUE) {
-      url.searchParams.set("mtm_source", "api_engagement");
-      url.searchParams.set("mtm_medium", "widget");
-      url.searchParams.set("mtm_campaign", slugify(widget.name));
-    } else {
-      url.searchParams.set("utm_source", "api_engagement");
-      url.searchParams.set("utm_medium", "widget");
-      url.searchParams.set("utm_campaign", slugify(widget.name));
-    }
+    const url = buildTrackedApplicationUrl(href, mission.publisherId, clickId, {
+      source: "api_engagement",
+      medium: "widget",
+      campaign: slugify(widget.name),
+    });
 
     res.redirect(302, url.href);
     redirected = true;
-    // Update stats just created to add isBot (do it after redirect to avoid delay)
-    const statBot = await statBotService.findStatBotByUser(identity.user);
-    if (statBot) {
-      await statEventService.updateStatEvent(clickId, { isBot: true });
-    }
+    await updateBotFlagAfterRedirect(identity.user, clickId);
   } catch (error: any) {
     captureException(error);
     if (redirected) {
@@ -503,6 +488,96 @@ router.get("/seo/:id", cors({ origin: "*" }), async (req: Request, res: Response
   } catch (error: any) {
     captureException(error);
     res.status(500).send({ ok: false, code: SERVER_ERROR, message: error.message });
+  }
+});
+
+router.get("/email/:missionId/:publisherId", cors({ origin: "*" }), async (req, res) => {
+  let href: string | null = null;
+  let redirected = false;
+
+  try {
+    const params = zod
+      .object({
+        missionId: zod.string(),
+        publisherId: zod.string(),
+      })
+      .safeParse(req.params);
+
+    const query = zod
+      .object({
+        user_scoring_id: zod.string().uuid().optional(),
+      })
+      .safeParse(req.query);
+
+    if (!params.success || !query.success) {
+      return res.redirect(302, JVA_URL);
+    }
+
+    const userScoringId = query.data.user_scoring_id;
+
+    const mission = await missionService.findOneMission(params.data.missionId);
+    if (!mission) {
+      return res.redirect(302, JVA_URL);
+    }
+    href = mission.applicationUrl || JVA_URL;
+
+    const identity = identify(req);
+    if (!identity) {
+      return res.redirect(302, href);
+    }
+
+    if (userScoringId) {
+      const userScoringExists = await userScoringService.exists(userScoringId);
+      if (!userScoringExists) {
+        return res.redirect(302, href);
+      }
+    }
+
+    const fromPublisher = await publisherService.findOnePublisherById(params.data.publisherId);
+    if (!fromPublisher) {
+      return res.redirect(302, href);
+    }
+
+    const obj = {
+      type: "click",
+      host: req.get("host") || "",
+      origin: req.get("origin") || "",
+      referer: identity.referer,
+      userAgent: identity.userAgent,
+      user: identity.user,
+      source: "email",
+      sourceId: userScoringId ?? "",
+      sourceName: userScoringId ? "email_user_scoring" : "email",
+      createdAt: new Date(),
+      missionId: mission.id,
+      toPublisherId: mission.publisherId,
+      toPublisherName: mission.publisherName || "",
+      fromPublisherId: fromPublisher.id,
+      fromPublisherName: fromPublisher.name || "",
+      isBot: false,
+    } as StatEventRecord;
+
+    const clickId = await statEventService.createStatEvent(obj);
+
+    const url = buildTrackedApplicationUrl(href, mission.publisherId, clickId, {
+      source: slugify(fromPublisher.name || fromPublisher.id || "email"),
+      medium: "email",
+      campaign: userScoringId ? "user_scoring" : "mission_email",
+    });
+
+    res.redirect(302, url.href);
+    redirected = true;
+
+    await updateBotFlagAfterRedirect(identity.user, clickId);
+  } catch (error: any) {
+    captureException(error);
+    if (redirected) {
+      return;
+    }
+    if (href) {
+      return res.redirect(302, href);
+    }
+    return res.redirect(302, JVA_URL);
   }
 });
 
@@ -614,32 +689,15 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async (req, res) =
 
     const clickId = await statEventService.createStatEvent(obj);
 
-    let targetUrl = href;
-    if (targetUrl.indexOf("http://") === -1 && targetUrl.indexOf("https://") === -1) {
-      targetUrl = "https://" + targetUrl;
-    }
-
-    const url = new URL(targetUrl || JVA_URL);
-    url.searchParams.set("apiengagement_id", clickId);
-
-    // Service ask for mtm
-    if (mission.publisherId === PUBLISHER_IDS.SERVICE_CIVIQUE) {
-      url.searchParams.set("mtm_source", "api_engagement");
-      url.searchParams.set("mtm_medium", "api");
-      url.searchParams.set("mtm_campaign", slugify(fromPublisher?.name || "unknown"));
-    } else {
-      url.searchParams.set("utm_source", "api_engagement");
-      url.searchParams.set("utm_medium", "api");
-      url.searchParams.set("utm_campaign", slugify(fromPublisher?.name || "unknown"));
-    }
+    const url = buildTrackedApplicationUrl(href, mission.publisherId, clickId, {
+      source: "api_engagement",
+      medium: "api",
+      campaign: slugify(fromPublisher?.name || "unknown"),
+    });
 
     res.redirect(302, url.href);
 
-    // Update stats just created to add isBot (do it after redirect to avoid delay)
-    const statBot = await statBotService.findStatBotByUser(identity.user);
-    if (statBot) {
-      await statEventService.updateStatEvent(clickId, { isBot: true });
-    }
+    await updateBotFlagAfterRedirect(identity.user, clickId);
   } catch (error: any) {
     captureException(error);
     if (href) {

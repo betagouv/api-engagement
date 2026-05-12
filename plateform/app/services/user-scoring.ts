@@ -1,8 +1,9 @@
 import api from "~/services/api";
 
+type ApiAnswer = { taxonomy: string; value: string } | { taxonomy: string; params: Record<string, unknown> };
+
 type UserScoringPayload = {
-  answers: Array<{ taxonomy_value_key: string }>;
-  geo?: { lat: number; lon: number };
+  answers: ApiAnswer[];
 };
 
 type UserScoringCreateResponse = {

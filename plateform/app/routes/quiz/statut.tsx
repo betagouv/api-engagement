@@ -34,7 +34,7 @@ export default function StatutStep() {
 
   const handleSelect = (value: string) => {
     setError(undefined);
-    setAnswer(STEP_ID, { type: "options", option_ids: [value] });
+    setAnswer(STEP_ID, { type: "options", taxonomy: "statut", option_ids: [value] });
   };
 
   const handleNext = () => {

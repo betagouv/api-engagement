@@ -1,10 +1,12 @@
 import { randomUUID } from "node:crypto";
 
+import { PUBLISHER_IDS } from "@/config";
+import type { MissionModerationStatus } from "@/db/core";
+import { MissionType } from "@/db/core";
 import { prisma } from "@/db/postgres";
 import { missionService } from "@/services/mission";
 import { missionModerationStatusService } from "@/services/mission-moderation-status";
 import { organizationService } from "@/services/organization";
-import { MissionType } from "@/db/core";
 import { type MissionCreateInput, type MissionRecord } from "@/types";
 import type { MissionAddress } from "@/types/mission";
 import { createTestPublisher } from "./publisher";
@@ -185,4 +187,46 @@ export const createTestMission = async (
   const missionWithModeration = await missionService.findOneMission(mission.id);
 
   return missionWithModeration ?? mission;
+};
+
+export const createTestMissionWithModeration = async (
+  data: Partial<
+    MissionCreateInput & {
+      deleted?: boolean;
+      moderationStatus?: string;
+      moderationComment?: string | null;
+      moderationNote?: string | null;
+      moderationTitle?: string | null;
+      moderatorPublisherId?: string;
+    }
+  > = {}
+): Promise<{ mission: MissionRecord; moderation: MissionModerationStatus }> => {
+  const moderatorPublisherId = data.moderatorPublisherId ?? PUBLISHER_IDS.JEVEUXAIDER;
+  const mission = await createTestMission({
+    statusCode: "ACCEPTED",
+    description: "D".repeat(350),
+    moderationStatus: data.moderationStatus ?? "PENDING",
+    moderationComment: data.moderationComment ?? null,
+    ...data,
+  });
+
+  if (moderatorPublisherId !== PUBLISHER_IDS.JEVEUXAIDER) {
+    await missionModerationStatusService.create({
+      mission: { connect: { id: mission.id } },
+      publisherId: moderatorPublisherId,
+      status: data.moderationStatus ?? "PENDING",
+      comment: data.moderationComment ?? null,
+      note: data.moderationNote ?? null,
+      title: data.moderationTitle ?? null,
+    });
+  }
+
+  const moderation = await prisma.missionModerationStatus.findFirst({
+    where: { missionId: mission.id, publisherId: moderatorPublisherId },
+  });
+  if (!moderation) {
+    throw new Error("Moderation record not found after createTestMission");
+  }
+
+  return { mission, moderation };
 };

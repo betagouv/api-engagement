@@ -1,0 +1,180 @@
+{
+  "ok": true,
+  "total": 3,
+  "limit": 25,
+  "skip": 0,
+  "data": [
+    {
+      "_id": "mission-paris-001",
+      "id": "mission-paris-001",
+      "clientId": "partner-source-paris-001",
+      "title": "Animer des ateliers numeriques pour des seniors",
+      "description": "<p>Accompagner des seniors dans la prise en main d'outils numeriques du quotidien.</p>",
+      "descriptionHtml": "<p>Accompagner des seniors dans la prise en main d'outils numeriques du quotidien.</p>",
+      "applicationUrl": "https://example.org/missions/ateliers-numeriques",
+      "domain": "solidarite-insertion",
+      "domainLogo": "https://example.org/images/solidarite.png",
+      "activity": "animation",
+      "activities": ["animation", "enseignement-formation"],
+      "type": "benevolat",
+      "remote": "no",
+      "schedule": "2 heures par semaine",
+      "startAt": "2026-06-01T00:00:00.000Z",
+      "endAt": "2026-12-31T00:00:00.000Z",
+      "postedAt": "2026-04-15T09:00:00.000Z",
+      "createdAt": "2026-04-15T09:00:00.000Z",
+      "updatedAt": "2026-04-20T10:30:00.000Z",
+      "deletedAt": null,
+      "deleted": false,
+      "statusCode": "ACCEPTED",
+      "statusComment": null,
+      "places": 4,
+      "openToMinors": "no",
+      "reducedMobilityAccessible": "yes",
+      "closeToTransport": true,
+      "publisherId": "publisher-demo-01",
+      "publisherName": "Partenaire Demo Solidarite",
+      "organizationName": "Association Demo Paris",
+      "organizationRNA": "W751000001",
+      "organizationStatusJuridique": "Association declaree",
+      "city": "Paris",
+      "postalCode": "75011",
+      "departmentCode": "75",
+      "departmentName": "Paris",
+      "country": "France",
+      "location": {
+        "lat": 48.8566,
+        "lon": 2.3522
+      },
+      "addresses": [
+        {
+          "street": "10 rue de la Solidarite",
+          "city": "Paris",
+          "postalCode": "75011",
+          "departmentCode": "75",
+          "departmentName": "Paris",
+          "region": "Ile-de-France",
+          "country": "France",
+          "location": {
+            "lat": 48.8566,
+            "lon": 2.3522
+          }
+        }
+      ],
+      "tags": ["numerique", "seniors"],
+      "metadata": "fixture-v0-paris"
+    },
+    {
+      "_id": "mission-lyon-002",
+      "id": "mission-lyon-002",
+      "clientId": "partner-source-lyon-002",
+      "title": "Participer a une collecte alimentaire",
+      "description": "<p>Renforcer une equipe benevole pendant une collecte alimentaire locale.</p>",
+      "descriptionHtml": "<p>Renforcer une equipe benevole pendant une collecte alimentaire locale.</p>",
+      "applicationUrl": "https://example.org/missions/collecte-alimentaire",
+      "domain": "humanitaire",
+      "activity": "collecte",
+      "activities": ["collecte", "distribution"],
+      "type": "benevolat",
+      "remote": "no",
+      "startAt": "2026-07-05T00:00:00.000Z",
+      "endAt": "2026-07-05T00:00:00.000Z",
+      "createdAt": "2026-04-18T09:00:00.000Z",
+      "updatedAt": "2026-04-20T10:30:00.000Z",
+      "deletedAt": null,
+      "deleted": false,
+      "statusCode": "ACCEPTED",
+      "statusComment": null,
+      "places": 10,
+      "openToMinors": "yes",
+      "reducedMobilityAccessible": "no",
+      "publisherId": "publisher-demo-02",
+      "publisherName": "Partenaire Demo Humanitaire",
+      "organizationName": "Banque Alimentaire Demo",
+      "organizationRNA": "W691000002",
+      "organizationStatusJuridique": "Association declaree",
+      "city": "Lyon",
+      "postalCode": "69003",
+      "departmentCode": "69",
+      "departmentName": "Rhone",
+      "country": "France",
+      "location": {
+        "lat": 45.7578,
+        "lon": 4.832
+      },
+      "addresses": [
+        {
+          "street": "25 avenue des Benevoles",
+          "city": "Lyon",
+          "postalCode": "69003",
+          "departmentCode": "69",
+          "departmentName": "Rhone",
+          "region": "Auvergne-Rhone-Alpes",
+          "country": "France",
+          "location": {
+            "lat": 45.7578,
+            "lon": 4.832
+          }
+        }
+      ],
+      "tags": ["collecte", "solidarite"],
+      "metadata": "fixture-v0-lyon"
+    },
+    {
+      "_id": "mission-marseille-003",
+      "id": "mission-marseille-003",
+      "clientId": "partner-source-marseille-003",
+      "title": "Sensibiliser a la protection du littoral",
+      "description": "<p>Informer le public et participer a une action de ramassage de dechets.</p>",
+      "descriptionHtml": "<p>Informer le public et participer a une action de ramassage de dechets.</p>",
+      "applicationUrl": "https://example.com/missions/protection-littoral",
+      "domain": "environnement",
+      "activity": "ramassage-dechets",
+      "activities": ["ramassage-dechets", "sensibilisation"],
+      "type": "benevolat",
+      "remote": "possible",
+      "startAt": "2026-08-01T00:00:00.000Z",
+      "endAt": "2026-10-31T00:00:00.000Z",
+      "createdAt": "2026-04-21T09:00:00.000Z",
+      "updatedAt": "2026-04-22T10:30:00.000Z",
+      "deletedAt": null,
+      "deleted": false,
+      "statusCode": "ACCEPTED",
+      "statusComment": null,
+      "places": 8,
+      "openToMinors": "yes",
+      "reducedMobilityAccessible": "yes",
+      "publisherId": "publisher-demo-03",
+      "publisherName": "Partenaire Demo Environnement",
+      "organizationName": "Littoral Demo",
+      "organizationRNA": "W131000003",
+      "organizationStatusJuridique": "Association declaree",
+      "city": "Marseille",
+      "postalCode": "13007",
+      "departmentCode": "13",
+      "departmentName": "Bouches-du-Rhone",
+      "country": "France",
+      "location": {
+        "lat": 43.2965,
+        "lon": 5.3698
+      },
+      "addresses": [
+        {
+          "street": "2 quai du Port",
+          "city": "Marseille",
+          "postalCode": "13007",
+          "departmentCode": "13",
+          "departmentName": "Bouches-du-Rhone",
+          "region": "Provence-Alpes-Cote d'Azur",
+          "country": "France",
+          "location": {
+            "lat": 43.2965,
+            "lon": 5.3698
+          }
+        }
+      ],
+      "tags": ["environnement", "littoral"],
+      "metadata": "fixture-v0-marseille"
+    }
+  ]
+}

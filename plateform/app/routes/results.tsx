@@ -24,19 +24,25 @@ export default function ResultsPage() {
   const userValues = useMemo<MatchingDebugUserValue[]>(
     () =>
       Object.values(answers).flatMap((answer) => {
-        if (answer?.type !== "options") {
-          return [];
-        }
-
-        return answer.option_ids.map((optionId) => {
-          const [taxonomyKey, taxonomyValueKey] = optionId.split(".", 2);
-          return {
-            taxonomyKey: taxonomyKey ?? "unknown",
-            taxonomyValueKey: taxonomyValueKey ?? optionId,
-            taxonomyValueLabel: OPTIONS[optionId as keyof typeof OPTIONS]?.label ?? optionId,
+        if (answer?.type === "options") {
+          return answer.option_ids.map((optionId) => ({
+            taxonomyKey: answer.taxonomy,
+            taxonomyValueKey: optionId,
+            taxonomyValueLabel: OPTIONS[`${answer.taxonomy}.${optionId}` as keyof typeof OPTIONS]?.label ?? optionId,
             userScore: 1,
-          };
-        });
+          }));
+        }
+        if (answer?.type === "params") {
+          return [
+            {
+              taxonomyKey: answer.taxonomy,
+              taxonomyValueKey: JSON.stringify(answer.params),
+              taxonomyValueLabel: JSON.stringify(answer.params),
+              userScore: 1,
+            },
+          ];
+        }
+        return [];
       }),
     [answers],
   );

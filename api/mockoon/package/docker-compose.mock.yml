@@ -1,0 +1,15 @@
+services:
+  api-engagement-mockoon:
+    image: mockoon/cli:9.6.1
+    command:
+      - "--data"
+      - "/data/api-engagement-mockoon.json"
+      - "--port"
+      - "3002"
+      - "--hostname"
+      - "0.0.0.0"
+    ports:
+      - "3002:3002"
+    volumes:
+      - ./:/data:ro
+    restart: unless-stopped

@@ -13,17 +13,17 @@ export default function SingleSelectIcon({ onChange, options, selected, error, l
     <fieldset className={`fr-fieldset ${error ? "fr-fieldset--error" : ""}`} aria-labelledby={`single-select-icon-messages ${labelId}`}>
       <div className="fr-fieldset__content grid grid-cols-1 md:grid-cols-2 max-w-4xl! mx-0! gap-x-6 gap-y-4!">
         {options.map((o) => (
-          <div key={o.taxonomyKey} className="fr-fieldset__element mb-0!">
+          <div key={o.value} className="fr-fieldset__element mb-0!">
             <div className="fr-radio-group fr-radio-rich mb-0!">
               <input
-                value={o.taxonomyKey}
+                value={o.value}
                 type="radio"
-                id={`single-select-icon-${o.taxonomyKey}`}
+                id={`single-select-icon-${o.value}`}
                 name="single-select-icon"
-                onChange={() => onChange(o.taxonomyKey)}
-                checked={selected === o.taxonomyKey}
+                onChange={() => onChange(o.value)}
+                checked={selected === o.value}
               />
-              <label className="fr-label text-base" htmlFor={`single-select-icon-${o.taxonomyKey}`}>
+              <label className="fr-label text-base" htmlFor={`single-select-icon-${o.value}`}>
                 {o.label}
                 {o.sublabel && <span className="fr-hint-text">{o.sublabel}</span>}
               </label>

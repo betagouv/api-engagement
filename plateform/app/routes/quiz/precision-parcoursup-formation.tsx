@@ -19,7 +19,7 @@ export default function PrecisionParcoursupFormationStep() {
 
   const handleSelect = (value: string) => {
     setError(undefined);
-    setAnswer(STEP_ID, { type: "options", option_ids: [value] });
+    setAnswer(STEP_ID, { type: "options", taxonomy: "parcoursup_formation", option_ids: [value] });
   };
 
   const handleNext = () => {

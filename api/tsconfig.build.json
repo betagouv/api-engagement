@@ -2,9 +2,8 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "rootDir": "./src",
-    "baseUrl": "./src",
     "paths": {
-      "@/*": ["./*"],
+      "@/*": ["./src/*"],
       "@engagement/taxonomy": ["../../packages/taxonomy/dist/index"]
     },
     "outDir": "./dist"

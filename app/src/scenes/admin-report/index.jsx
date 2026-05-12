@@ -6,6 +6,7 @@ import Select from "@/components/Select";
 import Table from "@/components/Table";
 import { MONTHS, REPORT_STATUS, YEARS } from "@/constants";
 import api from "@/services/api";
+import { API_URL } from "@/services/config";
 import { captureError } from "@/services/error";
 import { RiDownload2Line } from "react-icons/ri";
 
@@ -141,19 +142,27 @@ const AdminReport = () => {
                     {item.data?.receive !== undefined && item.data?.receive.general !== undefined && <p className="text-xs">Pas de statistiques disponibles</p>}
                     {item.data?.receive !== undefined && (
                       <>
-                        <p className="text-xs">Redirections reçues : <span className="font-bold">{(item.data.receive.general?.traffic || item.data.receive.click || 0).toLocaleString("fr")}</span></p>
-                        <p className="text-xs">Candidatures reçues : <span className="font-bold">{(item.data.receive.general?.apply || item.data.receive.apply || 0).toLocaleString("fr")}</span></p>
+                        <p className="text-xs">
+                          Redirections reçues : <span className="font-bold">{(item.data.receive.general?.traffic || item.data.receive.click || 0).toLocaleString("fr")}</span>
+                        </p>
+                        <p className="text-xs">
+                          Candidatures reçues : <span className="font-bold">{(item.data.receive.general?.apply || item.data.receive.apply || 0).toLocaleString("fr")}</span>
+                        </p>
                       </>
                     )}
                     {item.data?.send !== undefined && (
                       <>
-                        <p className="text-xs">Redirections envoyées : <span className="font-bold">{(item.data.send.general?.traffic || item.data.send.click || 0).toLocaleString("fr")}</span></p>
-                        <p className="text-xs">Candidatures envoyées : <span className="font-bold">{(item.data.send.general?.apply || item.data.send.apply || 0).toLocaleString("fr")}</span></p>
+                        <p className="text-xs">
+                          Redirections envoyées : <span className="font-bold">{(item.data.send.general?.traffic || item.data.send.click || 0).toLocaleString("fr")}</span>
+                        </p>
+                        <p className="text-xs">
+                          Candidatures envoyées : <span className="font-bold">{(item.data.send.general?.apply || item.data.send.apply || 0).toLocaleString("fr")}</span>
+                        </p>
                       </>
                     )}
                   </div>
-                  {item.url !== null && (
-                    <a className="border-blue-france text-blue-france shrink-0 border p-2" href={item.url} target="_blank" rel="noreferrer">
+                  {item.id && (
+                    <a className="border-blue-france text-blue-france shrink-0 border p-2" href={`${API_URL}/report/${item.id}`} target="_blank" rel="noreferrer">
                       <RiDownload2Line className="text-blue-france" role="img" aria-label="Télécharger le rapport" />
                     </a>
                   )}

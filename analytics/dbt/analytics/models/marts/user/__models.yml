@@ -78,3 +78,62 @@ models:
         description: Timestamp de la connexion rapportée par l'application.
         tests:
           - not_null
+  - name: user_scoring
+    description: >
+      Vue d'exposition des scorings utilisateur, dérivée de `stg_user_scoring`. Chaque ligne représente une demande de
+      scoring utilisateur avec son état d'alerte mission et ses dates de validité.
+    columns:
+      - name: id
+        description: Identifiant unique du scoring utilisateur.
+        tests:
+          - not_null
+          - unique
+      - name: distinct_id
+        description: Identifiant anonyme ou technique permettant de rattacher plusieurs interactions utilisateur.
+      - name: mission_alert_enabled
+        description: Indique si l'utilisateur a activé l'alerte mission associée à ce scoring.
+        tests:
+          - not_null
+      - name: created_at
+        description: Timestamp de création du scoring utilisateur.
+        tests:
+          - not_null
+      - name: expires_at
+        description: Timestamp d'expiration du scoring, si une limite de validité est définie.
+      - name: updated_at
+        description: Timestamp de dernière mise à jour du scoring utilisateur.
+        tests:
+          - not_null
+  - name: user_scoring_value
+    description: >
+      Vue d'exposition des scores utilisateur par valeur de taxonomie, dérivée de `stg_user_scoring_value`.
+    columns:
+      - name: id
+        description: Identifiant unique de la valeur de scoring utilisateur.
+        tests:
+          - not_null
+          - unique
+      - name: user_scoring_id
+        description: Identifiant du scoring utilisateur parent.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('user_scoring')
+                field: id
+      - name: taxonomy_key
+        description: Clé de la taxonomie utilisée pour qualifier le scoring.
+      - name: value_key
+        description: Clé de la valeur de taxonomie scorée.
+      - name: score
+        description: Score utilisateur calculé pour cette valeur de taxonomie.
+        tests:
+          - not_null
+      - name: created_at
+        description: Timestamp de création de la valeur de scoring.
+        tests:
+          - not_null
+      - name: updated_at
+        description: Timestamp de dernière mise à jour de la valeur de scoring.
+        tests:
+          - not_null

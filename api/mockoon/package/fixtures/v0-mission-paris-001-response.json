@@ -1,0 +1,63 @@
+{
+  "ok": true,
+  "data": {
+    "_id": "mission-paris-001",
+    "id": "mission-paris-001",
+    "clientId": "partner-source-paris-001",
+    "title": "Animer des ateliers numeriques pour des seniors",
+    "description": "<p>Accompagner des seniors dans la prise en main d'outils numeriques du quotidien.</p>",
+    "descriptionHtml": "<p>Accompagner des seniors dans la prise en main d'outils numeriques du quotidien.</p>",
+    "applicationUrl": "https://example.org/missions/ateliers-numeriques",
+    "domain": "solidarite-insertion",
+    "domainLogo": "https://example.org/images/solidarite.png",
+    "activity": "animation",
+    "activities": ["animation", "enseignement-formation"],
+    "type": "benevolat",
+    "remote": "no",
+    "schedule": "2 heures par semaine",
+    "startAt": "2026-06-01T00:00:00.000Z",
+    "endAt": "2026-12-31T00:00:00.000Z",
+    "postedAt": "2026-04-15T09:00:00.000Z",
+    "createdAt": "2026-04-15T09:00:00.000Z",
+    "updatedAt": "2026-04-20T10:30:00.000Z",
+    "deletedAt": null,
+    "deleted": false,
+    "statusCode": "ACCEPTED",
+    "statusComment": null,
+    "places": 4,
+    "openToMinors": "no",
+    "reducedMobilityAccessible": "yes",
+    "closeToTransport": true,
+    "publisherId": "publisher-demo-01",
+    "publisherName": "Partenaire Demo Solidarite",
+    "organizationName": "Association Demo Paris",
+    "organizationRNA": "W751000001",
+    "organizationStatusJuridique": "Association declaree",
+    "city": "Paris",
+    "postalCode": "75011",
+    "departmentCode": "75",
+    "departmentName": "Paris",
+    "country": "France",
+    "location": {
+      "lat": 48.8566,
+      "lon": 2.3522
+    },
+    "addresses": [
+      {
+        "street": "10 rue de la Solidarite",
+        "city": "Paris",
+        "postalCode": "75011",
+        "departmentCode": "75",
+        "departmentName": "Paris",
+        "region": "Ile-de-France",
+        "country": "France",
+        "location": {
+          "lat": 48.8566,
+          "lon": 2.3522
+        }
+      }
+    ],
+    "tags": ["numerique", "seniors"],
+    "metadata": "fixture-v0-paris"
+  }
+}

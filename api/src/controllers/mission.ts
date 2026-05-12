@@ -10,6 +10,7 @@ import { missionEnrichmentService } from "@/services/mission-enrichment";
 import { missionScoringService } from "@/services/mission-scoring";
 import type { UserRequest } from "@/types/passport";
 import { applyWidgetRules, getDistanceKm } from "@/utils";
+import { getUserPublisherIds, hasAdminOrDirectPublisherAccess, isAdmin, readRequiredParam } from "@/utils/publisher-access";
 
 const router = Router();
 router.use(ipRateLimiter);
@@ -188,8 +189,19 @@ router.get("/autocomplete", passport.authenticate("user", { session: false }), a
       return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
     }
 
+    const requestedPublisherIds = Array.isArray(query.data.publishers) ? query.data.publishers : query.data.publishers ? [query.data.publishers] : [];
+    const publisherIds = isAdmin(req.user)
+      ? requestedPublisherIds
+      : requestedPublisherIds.length
+        ? requestedPublisherIds.filter((publisherId) => hasAdminOrDirectPublisherAccess(req.user, publisherId))
+        : getUserPublisherIds(req.user);
+
+    if (!publisherIds.length && !isAdmin(req.user)) {
+      return res.status(403).send({ ok: false, code: FORBIDDEN });
+    }
+
     const missions = await missionService.findMissions({
-      publisherIds: Array.isArray(query.data.publishers) ? query.data.publishers : query.data.publishers ? [query.data.publishers] : [],
+      publisherIds,
       limit: 1000,
       skip: 0,
       domain: undefined,
@@ -222,27 +234,29 @@ router.get("/autocomplete", passport.authenticate("user", { session: false }), a
 
 router.get("/:id", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
-    const params = zod
-      .object({
-        id: zod.string(),
-      })
-      .safeParse(req.params);
-
-    if (!params.success) {
-      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
+    const missionId = readRequiredParam(req, res, "id");
+    if (!missionId) {
+      return;
     }
 
-    const data = await missionService.findOneMission(params.data.id);
-    if (!data) {
+    const access = await missionService.findOneMissionWithAccess(missionId);
+    if (!access) {
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    if (req.user.role === "admin") {
-      const adminData = await missionEnrichmentService.findAdminData(params.data.id);
-      return res.status(200).send({ ok: true, data: { ...data, ...adminData } });
+    const canRead =
+      hasAdminOrDirectPublisherAccess(req.user, access.ownerPublisherId) ||
+      access.moderatorPublisherIds.some((publisherId) => hasAdminOrDirectPublisherAccess(req.user, publisherId));
+    if (!canRead) {
+      return res.status(403).send({ ok: false, code: FORBIDDEN, message: "Not allowed" });
     }
 
-    return res.status(200).send({ ok: true, data });
+    if (req.user.role === "admin") {
+      const adminData = await missionEnrichmentService.findAdminData(missionId);
+      return res.status(200).send({ ok: true, data: { ...access.mission, ...adminData } });
+    }
+
+    return res.status(200).send({ ok: true, data: access.mission });
   } catch (error: any) {
     next(error);
   }

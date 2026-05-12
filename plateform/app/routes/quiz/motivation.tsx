@@ -15,11 +15,11 @@ import { QUIZ_TRANSITION_MS } from "~/services/config";
 
 const STEP_ID = "motivation";
 
-const lyceen = screenAnswer("statut", "statut.lyceen");
-const etudiant = screenAnswer("statut", "statut.etudiant");
-const demandeurEmploi = screenAnswer("statut", "statut.demandeur_emploi");
-const actif = screenAnswer("statut", "statut.actif");
-const retraite = screenAnswer("statut", "statut.retraite");
+const lyceen = screenAnswer("statut", "lyceen");
+const etudiant = screenAnswer("statut", "etudiant");
+const demandeurEmploi = screenAnswer("statut", "demandeur_emploi");
+const actif = screenAnswer("statut", "actif");
+const retraite = screenAnswer("statut", "retraite");
 
 const STEP_OPTIONS: StepOption[] = [
   OPTIONS["motivation.me_sentir_utile"],
@@ -52,7 +52,7 @@ export default function MotivationStep() {
 
   const handleChange = (value: string) => {
     setError(undefined);
-    setAnswer(STEP_ID, { type: "options", option_ids: [value] });
+    setAnswer(STEP_ID, { type: "options", taxonomy: "motivation", option_ids: [value] });
   };
 
   const handleNext = () => {

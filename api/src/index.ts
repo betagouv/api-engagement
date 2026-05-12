@@ -56,6 +56,7 @@ import { initHttpMetrics, shutdownHttpMetrics } from "@/services/observability/m
 import AdminReportController from "@/controllers/admin-report";
 import BrevoWebhookController from "@/controllers/brevo-webhook/controller";
 import CampaignController from "@/controllers/campaign";
+import EmailController from "@/controllers/email";
 import IframeController from "@/controllers/iframe";
 import ImportController from "@/controllers/import";
 import MetabaseController from "@/controllers/metabase";
@@ -138,6 +139,7 @@ const main = async () => {
   app.use("/user-scoring", corsPublic, UserScoringController);
   app.use("/brevo-webhook", corsPublic, BrevoWebhookController);
   app.use("/missions", corsPublic, MissionBrowseController);
+  app.use("/email", corsPublic, EmailController);
 
   // Interal routes
   app.use("/admin-report", AdminReportController);

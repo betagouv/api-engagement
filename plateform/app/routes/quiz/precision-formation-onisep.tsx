@@ -24,8 +24,8 @@ const STEP_OPTIONS = [
 ];
 
 const TITLE_BY_MOTIVATION: Record<string, string> = {
-  "motivation.experience_terrain": "Dans quel domaine réalises-tu tes études ?",
-  "motivation.preparer_reconversion": "Dans quel domaine souhaites-tu préparer ta reconversion ?",
+  "experience_terrain": "Dans quel domaine réalises-tu tes études ?",
+  "preparer_reconversion": "Dans quel domaine souhaites-tu préparer ta reconversion ?",
 };
 
 const DEFAULT_TITLE = "Vers quoi veux-tu t'orienter ?";
@@ -41,7 +41,7 @@ export default function PrecisionFormationOnisepStep() {
 
   const handleSelect = (value: string[]) => {
     setError(undefined);
-    setAnswer(STEP_ID, { type: "options", option_ids: value });
+    setAnswer(STEP_ID, { type: "options", taxonomy: "formation_onisep", option_ids: value });
   };
 
   const handleNext = () => {

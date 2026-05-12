@@ -16,7 +16,7 @@ import { getTaxonomyList } from "@engagement/taxonomy";
 
 import { prisma } from "@/db/postgres";
 import { matchingEngineService } from "@/services/matching-engine";
-import { CURRENT_MATCHING_ENGINE_VERSION } from "@/services/matching-engine/config";
+import { CURRENT_MATCHING_ENGINE_VERSION, MATCHING_ENGINE_TAXONOMIES } from "@/services/matching-engine/config";
 import type { MatchMissionItem, MatchingEngineTaxonomy, MatchingEngineVersion, MissionMatchingResultItem } from "@/services/matching-engine/types";
 
 const args = process.argv.slice(2);
@@ -26,6 +26,7 @@ const versionArgIndex = args.indexOf("--version");
 
 const limit = limitArgIndex !== -1 ? parseInt(args[limitArgIndex + 1], 10) : 5;
 const version = (versionArgIndex !== -1 ? args[versionArgIndex + 1] : CURRENT_MATCHING_ENGINE_VERSION) as MatchingEngineVersion;
+const matchingEngineTaxonomySet = new Set<string>(MATCHING_ENGINE_TAXONOMIES);
 
 type StoredMissionMatchingResultItem = MissionMatchingResultItem;
 
@@ -38,7 +39,7 @@ type OverlapSignal = {
 };
 
 type UserTaxonomySummary = {
-  taxonomyKey: string;
+  taxonomyKey: MatchingEngineTaxonomy;
   taxonomyLabel: string;
   values: string[];
 };
@@ -59,6 +60,9 @@ type TaxonomyLabelLookup = {
 };
 
 const buildScoringValueKey = (taxonomyKey: string, valueKey: string): string => `${taxonomyKey}.${valueKey}`;
+
+const isMatchingEngineTaxonomy = (taxonomyKey: string | null): taxonomyKey is MatchingEngineTaxonomy =>
+  typeof taxonomyKey === "string" && matchingEngineTaxonomySet.has(taxonomyKey);
 
 const parseStoredResults = (value: unknown): StoredMissionMatchingResultItem[] => {
   if (!Array.isArray(value)) {
@@ -113,7 +117,7 @@ const buildUserTaxonomySummary = (params: { values: ScoringValueWithKeys[]; look
   const byTaxonomy = new Map<string, UserTaxonomySummary>();
 
   for (const value of params.values) {
-    if (!value.taxonomyKey || !value.valueKey) {
+    if (!isMatchingEngineTaxonomy(value.taxonomyKey) || !value.valueKey) {
       continue;
     }
 
@@ -208,12 +212,14 @@ const run = async () => {
 
   const userValuesByTaxonomyValueKey = new Map(
     userScoringValues
-      .filter((value): value is ScoringValueWithKeys & { taxonomyKey: string; valueKey: string } => value.taxonomyKey !== null && value.valueKey !== null)
+      .filter(
+        (value): value is ScoringValueWithKeys & { taxonomyKey: MatchingEngineTaxonomy; valueKey: string } => isMatchingEngineTaxonomy(value.taxonomyKey) && value.valueKey !== null
+      )
       .map((value) => [
         buildScoringValueKey(value.taxonomyKey, value.valueKey),
         {
           score: value.score,
-          taxonomyKey: value.taxonomyKey as MatchingEngineTaxonomy,
+          taxonomyKey: value.taxonomyKey,
           taxonomyLabel: getTaxonomyLabel(taxonomyLabels, value.taxonomyKey),
           valueLabel: getValueLabel(taxonomyLabels, value.taxonomyKey, value.valueKey),
         },
@@ -233,7 +239,7 @@ const run = async () => {
 
       return {
         ...item,
-        title: missionScoring.mission.title,
+        title: missionScoring.mission?.title ?? `Mission introuvable ${item.missionId}`,
         taxonomyScores: storedResult?.taxonomyScores ?? item.taxonomyScores,
       };
     })
@@ -266,10 +272,10 @@ const run = async () => {
       continue;
     }
 
-    const overlapsByTaxonomy = new Map<MatchingEngineTaxonomy, OverlapSignal[]>();
+    const overlapsByTaxonomy = new Map<string, OverlapSignal[]>();
 
     for (const missionValue of missionScoring.missionScoringValues) {
-      if (!missionValue.taxonomyKey || !missionValue.valueKey) {
+      if (!isMatchingEngineTaxonomy(missionValue.taxonomyKey) || !missionValue.valueKey) {
         continue;
       }
 
@@ -278,7 +284,7 @@ const run = async () => {
         continue;
       }
 
-      const taxonomyKey = missionValue.taxonomyKey as MatchingEngineTaxonomy;
+      const taxonomyKey = missionValue.taxonomyKey;
       const overlap: OverlapSignal = {
         taxonomyKey,
         taxonomyLabel: getTaxonomyLabel(taxonomyLabels, missionValue.taxonomyKey),
@@ -299,7 +305,7 @@ const run = async () => {
     );
 
     const taxonomyEntries = Object.entries(rankedItem.taxonomyScores)
-      .filter((entry): entry is [MatchingEngineTaxonomy, number] => typeof entry[1] === "number")
+      .filter((entry): entry is [MatchingEngineTaxonomy, number] => isMatchingEngineTaxonomy(entry[0]) && typeof entry[1] === "number")
       .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0], "fr"));
 
     if (taxonomyEntries.length === 0) {

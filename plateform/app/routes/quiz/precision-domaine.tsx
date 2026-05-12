@@ -24,8 +24,8 @@ const STEP_OPTIONS = [
   OPTIONS["domaine.je_ne_sais_pas"],
 ];
 const TITLE_BY_MOTIVATION: Record<string, string> = {
-  "motivation.ne_sais_pas": "Est-ce qu'un domaine te plaît plus qu'un autre ?",
-  "motivation.decouvrir_domaine": "Quel domaine t'attirerait le plus ?",
+  "ne_sais_pas": "Est-ce qu'un domaine te plaît plus qu'un autre ?",
+  "decouvrir_domaine": "Quel domaine t'attirerait le plus ?",
 };
 
 const DEFAULT_TITLE = "Dans quel domaine aimerais-tu avoir une expérience ?";
@@ -41,7 +41,7 @@ export default function PrecisionDomaineStep() {
 
   const handleSelect = (value: string[]) => {
     setError(undefined);
-    setAnswer(STEP_ID, { type: "options", option_ids: value });
+    setAnswer(STEP_ID, { type: "options", taxonomy: "domaine", option_ids: value });
   };
 
   const handleNext = () => {

@@ -14,6 +14,7 @@ type DbRankRow = {
   distance_km: number | null;
   closest_lat: number | null;
   closest_lon: number | null;
+  closest_address_id: string | null;
   closest_city: string | null;
   closest_address: string | null;
 };
@@ -44,6 +45,7 @@ const MIN_TAXONOMY_CANDIDATE_LIMIT = 1000;
 const GEO_CANDIDATE_MULTIPLIER = 50;
 const MIN_GEO_CANDIDATE_LIMIT = 1000;
 const GEO_PREFILTER_RADIUS_MULTIPLIER = 6;
+const TAXONOMY_OR_BASE_SCORE = 0.8;
 
 const getTaxonomyCandidateLimit = (params: { limit: number; offset: number }): number =>
   Math.max(params.offset + params.limit, params.limit * TAXONOMY_CANDIDATE_MULTIPLIER, MIN_TAXONOMY_CANDIDATE_LIMIT);
@@ -96,7 +98,6 @@ const buildRanking = (params: {
       usv."score"::double precision AS "user_score"
     FROM "user_scoring_value" usv
     WHERE usv."user_scoring_id" = ${params.userScoringId}
-      AND usv."taxonomy_key" NOT IN (${buildGateTaxonomiesSql()})
   ),
   user_taxonomy_totals AS (
     SELECT
@@ -107,7 +108,7 @@ const buildRanking = (params: {
   ),
   weighted_user_totals AS (
     SELECT
-      COALESCE(SUM(udt."taxonomy_total" * COALESCE(dw."taxonomy_weight", 1.0)), 0) AS "taxonomy_total"
+      COALESCE(SUM(COALESCE(dw."taxonomy_weight", 1.0)), 0) AS "taxonomy_total"
     FROM user_taxonomy_totals udt
     LEFT JOIN taxonomy_weights dw
       ON dw."taxonomy_key" = udt."taxonomy_key"
@@ -197,8 +198,15 @@ const buildRanking = (params: {
   taxonomy_scores AS (
     SELECT
       mv."mission_scoring_id",
-      SUM(mv."taxonomy_sum" * COALESCE(dw."taxonomy_weight", 1.0)) AS "weighted_sum"
+      SUM(
+        (
+          CAST(${TAXONOMY_OR_BASE_SCORE} AS double precision) +
+          ((1.0 - CAST(${TAXONOMY_OR_BASE_SCORE} AS double precision)) * LEAST(mv."taxonomy_sum" / NULLIF(udt."taxonomy_total", 0), 1.0))
+        ) * COALESCE(dw."taxonomy_weight", 1.0)
+      ) AS "weighted_sum"
     FROM matched_values mv
+    JOIN user_taxonomy_totals udt
+      ON udt."taxonomy_key" = mv."taxonomy_key"
     LEFT JOIN taxonomy_weights dw
       ON dw."taxonomy_key" = mv."taxonomy_key"
     GROUP BY mv."mission_scoring_id"
@@ -349,6 +357,7 @@ const buildRanking = (params: {
       COALESCE(cm."distance_km", closest."distance_km") AS "distance_km",
       closest."closest_lat",
       closest."closest_lon",
+      closest."closest_address_id",
       closest."closest_city",
       closest."closest_address"
     FROM candidate_missions cm
@@ -363,6 +372,7 @@ const buildRanking = (params: {
         ) AS "distance_km",
         ma."location_lat" AS "closest_lat",
         ma."location_lon" AS "closest_lon",
+        ma."id" AS "closest_address_id",
         ma."city" AS "closest_city",
         NULLIF(
           CONCAT_WS(
@@ -378,7 +388,7 @@ const buildRanking = (params: {
       WHERE ma."mission_id" = cm."mission_id"
         AND ma."location_lat" IS NOT NULL
         AND ma."location_lon" IS NOT NULL
-      ORDER BY "distance_km" ASC
+      ORDER BY "distance_km" ASC, ma."created_at" ASC, ma."id" ASC
       LIMIT 1
     ) closest ON TRUE
   ),
@@ -401,6 +411,7 @@ const buildRanking = (params: {
       gs."distance_km",
       gs."closest_lat",
       gs."closest_lon",
+      gs."closest_address_id",
       gs."closest_city",
       gs."closest_address"
     FROM candidate_missions cm
@@ -428,6 +439,7 @@ const buildRanking = (params: {
     r."distance_km",
     r."closest_lat",
     r."closest_lon",
+    r."closest_address_id",
     r."closest_city",
     r."closest_address"
   FROM ranked r
@@ -444,7 +456,6 @@ const buildTaxonomyScoresSql = (params: { userScoringId: string; missionScoringI
       usv."score"::double precision AS "user_score"
     FROM "user_scoring_value" usv
     WHERE usv."user_scoring_id" = ${params.userScoringId}
-      AND usv."taxonomy_key" NOT IN (${buildGateTaxonomiesSql()})
   ),
   user_taxonomy_totals AS (
     SELECT
@@ -469,7 +480,9 @@ const buildTaxonomyScoresSql = (params: { userScoringId: string; missionScoringI
     mv."mission_scoring_id",
     mv."taxonomy_key",
     CASE
-      WHEN udt."taxonomy_total" > 0 THEN mv."taxonomy_sum" / udt."taxonomy_total"
+      WHEN udt."taxonomy_total" > 0 THEN
+        CAST(${TAXONOMY_OR_BASE_SCORE} AS double precision) +
+        ((1.0 - CAST(${TAXONOMY_OR_BASE_SCORE} AS double precision)) * LEAST(mv."taxonomy_sum" / udt."taxonomy_total", 1.0))
       ELSE 0
     END AS "taxonomy_score"
   FROM matched_values mv
@@ -505,6 +518,7 @@ const buildMissionMatchingResultItems = (params: {
 }): MissionMatchingResultItem[] =>
   params.rows.map((row) => ({
     missionScoringId: row.mission_scoring_id,
+    missionAddressId: row.closest_address_id ?? null,
     taxonomyScores: params.taxonomyScoresByMissionScoringId[row.mission_scoring_id] ?? {},
   }));
 
@@ -570,6 +584,7 @@ export const matchingEngineService = {
         (row): MatchMissionItem => ({
           missionId: row.mission_id,
           missionScoringId: row.mission_scoring_id,
+          missionAddressId: row.closest_address_id ?? null,
           totalScore: clampScore(Number(row.total_score)),
           taxonomyScore: clampScore(Number(row.taxonomy_score)),
           geoScore: row.geo_score === null ? null : clampScore(Number(row.geo_score)),

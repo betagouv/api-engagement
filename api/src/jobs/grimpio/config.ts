@@ -36,4 +36,4 @@ export const AUDIENCE_MAPPING: { [key: string]: string } = {
 
 // Contract type mappings
 export const JVA_CONTRACT_TYPE = "bénévolat";
-export const ASC_CONTRACT_TYPE = "service_civique";
+export const ASC_CONTRACT_TYPE = "CIVIC_SERVICE";

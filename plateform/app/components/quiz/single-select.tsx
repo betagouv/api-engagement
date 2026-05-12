@@ -1,7 +1,7 @@
 import type { StepOption } from "~/types/quiz";
 
 type Props = {
-  onChange: (taxonomyKey: string) => void;
+  onChange: (value: string) => void;
   options: StepOption[];
   selected?: string;
   error?: string;
@@ -16,19 +16,19 @@ export default function SingleSelect({ onChange, options, selected, error, label
         {options.map((o) => (
           <div className="fr-fieldset__element">
             <div
-              key={o.taxonomyKey}
+              key={o.value}
               className={`fr-radio-group flex items-center bg-white border px-4 h-12 w-full max-w-80! ${error ? "border-border-plain-error" : "border-border-default-grey"}`}
             >
               <input
                 className="ml-1"
                 type="radio"
-                id={`single-select-${o.taxonomyKey}`}
+                id={`single-select-${o.value}`}
                 name="single-select"
-                value={o.taxonomyKey}
-                onChange={() => onChange(o.taxonomyKey)}
-                checked={selected === o.taxonomyKey}
+                value={o.value}
+                onChange={() => onChange(o.value)}
+                checked={selected === o.value}
               />
-              <label className="fr-label" htmlFor={`single-select-${o.taxonomyKey}`}>
+              <label className="fr-label" htmlFor={`single-select-${o.value}`}>
                 {o.label}
               </label>
             </div>
