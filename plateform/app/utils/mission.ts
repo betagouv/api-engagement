@@ -1,4 +1,4 @@
-import type { MissionDetailCompensation } from "~/types/mission-detail";
+import type { MissionDetailCompensation } from "~/types/api";
 
 const MONTHS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
 

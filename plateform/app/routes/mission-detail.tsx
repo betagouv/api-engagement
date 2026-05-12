@@ -5,7 +5,7 @@ const LocationMap = lazy(() => import("~/components/ui/location-map"));
 
 import SimilarMissions from "~/components/mission-detail/similar-missions";
 import { fetchMissionDetail } from "~/services/mission-browse";
-import type { MissionDetailResponse } from "~/types/mission-detail";
+import type { MissionDetailResponse } from "~/types/api";
 import { formatCompensation, formatMissionType, formatStartDate } from "~/utils/mission";
 
 // ── Sub-components ──────────────────────────────────────────────────────────

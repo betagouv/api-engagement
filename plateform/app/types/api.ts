@@ -10,6 +10,7 @@ export type BrowseMission = {
   domain: string | null;
   domainOriginal: string | null;
   domainLogo: string | null;
+  photo: string | null;
   organizationName: string | null;
   organizationLogo: string | null;
   publisherName: string | null;

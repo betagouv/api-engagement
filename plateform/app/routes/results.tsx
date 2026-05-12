@@ -5,13 +5,12 @@ import MatchingDebugModal, { type MatchingDebugUserValue } from "~/components/re
 import GradientBg from "~/components/ui/gradient-bg";
 import { OPTIONS } from "~/config/quiz-options";
 import { useMissionResults } from "~/hooks/useMissionResults";
-import type { BrowseMission } from "~/services/mission-browse";
 import { useQuizStore } from "~/stores/quiz";
+import type { BrowseMission } from "~/types/api";
 import type { MatchResultItem } from "~/types/matching";
 
 function toBrowseMission(item: MatchResultItem): BrowseMission {
   return {
-    _id: item.mission.id,
     id: item.mission.id,
     title: item.mission.title,
     description: null,

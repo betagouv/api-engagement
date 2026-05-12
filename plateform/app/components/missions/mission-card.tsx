@@ -1,11 +1,15 @@
+<<<<<<< HEAD
 import type { ReactNode } from "react";
 import { Link } from "react-router";
 
+=======
+>>>>>>> feature/plateforme-engagement
 import { TAXONOMY } from "@engagement/taxonomy";
 import type { BrowseMission } from "~/services/mission-browse";
 
 interface MissionCardProps {
   mission: BrowseMission;
+<<<<<<< HEAD
   to?: string;
   debugButton?: ReactNode;
 }
@@ -16,6 +20,15 @@ export default function MissionCard({ mission, to, debugButton }: MissionCardPro
 
   const card = (
     <div className="fr-card relative h-full w-full md:max-w-[330px]">
+=======
+}
+
+export default function MissionCard({ mission }: MissionCardProps) {
+  const domainLabel = mission.domain ? ((TAXONOMY.domaine.values as Record<string, { label: string }>)[mission.domain]?.label ?? mission.domain) : null;
+
+  return (
+    <div className="fr-card fr-enlarge-link h-full w-full md:max-w-[330px]">
+>>>>>>> feature/plateforme-engagement
       <div className="fr-card__body">
         <div className="fr-card__content">
           {domainLabel && (
@@ -25,7 +38,13 @@ export default function MissionCard({ mission, to, debugButton }: MissionCardPro
           )}
 
           <h3 className="fr-card__title">
+<<<<<<< HEAD
             <span className="text-title-grey! fr-h6!">{mission.title}</span>
+=======
+            <a href={mission.applicationUrl ?? "#"} target="_blank" rel="noopener noreferrer" className="text-title-grey! fr-h6! bg-none!">
+              {mission.title}
+            </a>
+>>>>>>> feature/plateforme-engagement
           </h3>
 
           <div className="fr-card__end flex flex-col gap-2">
@@ -45,6 +64,7 @@ export default function MissionCard({ mission, to, debugButton }: MissionCardPro
 
       <div className="fr-card__header">
         <div className="fr-card__img">
+<<<<<<< HEAD
           {cardImage ? <img className="fr-responsive-img" src={cardImage} alt="" loading="lazy" /> : <div className="bg-beige-gris-galet aspect-video w-full" />}
         </div>
       </div>
@@ -66,4 +86,11 @@ export default function MissionCard({ mission, to, debugButton }: MissionCardPro
       {card}
     </a>
   );
+=======
+          {mission.domainLogo ? <img className="fr-responsive-img" src={mission.domainLogo} alt="" loading="lazy" /> : <div className="bg-beige-gris-galet aspect-video w-full" />}
+        </div>
+      </div>
+    </div>
+  );
+>>>>>>> feature/plateforme-engagement
 }
