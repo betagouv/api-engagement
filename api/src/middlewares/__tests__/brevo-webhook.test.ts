@@ -1,19 +1,18 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const loadMiddleware = async ({ token = "test-token", allowlist = "1.179.112.0/20" } = {}) => {
+const loadMiddleware = async ({ token = "test-token" } = {}) => {
   vi.resetModules();
   process.env.BREVO_WEBHOOK_TOKEN = token;
-  process.env.BREVO_WEBHOOK_IP_ALLOWLIST = allowlist;
 
   const { brevoWebhookSecurity } = await import("@/middlewares/brevo-webhook");
   return brevoWebhookSecurity;
 };
 
-const callMiddleware = async ({ authorization, ip = "1.179.112.1" }: { authorization?: string; ip?: string }) => {
+const callMiddleware = async ({ authorization }: { authorization?: string }) => {
   const brevoWebhookSecurity = await loadMiddleware();
+  const headers: Record<string, string | undefined> = { authorization };
   const req = {
-    header: (name: string) => (name.toLowerCase() === "authorization" ? authorization : undefined),
-    ip,
+    header: (name: string) => headers[name.toLowerCase()],
     originalUrl: "/brevo-webhook",
   } as any;
   const res = {
@@ -38,7 +37,6 @@ const callMiddleware = async ({ authorization, ip = "1.179.112.1" }: { authoriza
 describe("brevoWebhookSecurity", () => {
   beforeEach(() => {
     delete process.env.BREVO_WEBHOOK_TOKEN;
-    delete process.env.BREVO_WEBHOOK_IP_ALLOWLIST;
   });
 
   it("returns 401 when Authorization header is missing", async () => {
@@ -55,22 +53,8 @@ describe("brevoWebhookSecurity", () => {
     expect(res.body).toMatchObject({ ok: false, code: "ACCESS_DENIED" });
   });
 
-  it("returns 403 when source IP is not allowlisted", async () => {
-    const { res } = await callMiddleware({ authorization: "Bearer test-token", ip: "203.0.113.10" });
-
-    expect(res.statusCode).toBe(403);
-    expect(res.body).toMatchObject({ ok: false, code: "FORBIDDEN" });
-  });
-
-  it("accepts a valid bearer token from an allowlisted Brevo IP", async () => {
+  it("accepts a valid bearer token without checking the source IP", async () => {
     const { next, res } = await callMiddleware({ authorization: "Bearer test-token" });
-
-    expect(res.status).not.toHaveBeenCalled();
-    expect(next).toHaveBeenCalledTimes(1);
-  });
-
-  it("accepts IPv4-mapped IPv6 addresses when the IPv4 is allowlisted", async () => {
-    const { next, res } = await callMiddleware({ authorization: "Bearer test-token", ip: "::ffff:1.179.112.1" });
 
     expect(res.status).not.toHaveBeenCalled();
     expect(next).toHaveBeenCalledTimes(1);
