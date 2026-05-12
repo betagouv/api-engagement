@@ -46,36 +46,39 @@ export default function MissionDetailPage() {
   // ── Loading / error ──────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="min-h-screen fr-background-alt--grey px-5 py-10 md:px-6">
+      <main className="min-h-screen fr-background-alt--grey px-5 py-10 md:px-6">
         <Link to={backPath} className="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-left-line fr-btn--icon-left mb-8">
           {backLabel}
         </Link>
         <p className="text-sm text-mention-grey">Chargement…</p>
-      </div>
+      </main>
     );
   }
 
   if (error || !mission) {
     return (
-      <div className="min-h-screen fr-background-alt--grey px-5 py-10 md:px-6">
+      <main className="min-h-screen fr-background-alt--grey px-5 py-10 md:px-6">
         <Link to={backPath} className="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-left-line fr-btn--icon-left mb-8">
           {backLabel}
         </Link>
         <div className="fr-alert fr-alert--error">
           <p>{error ?? "Mission introuvable."}</p>
         </div>
-      </div>
+      </main>
     );
   }
 
   const durationLabel = formatStartDate(mission.startAt, mission.duration);
   const compensationLabel = mission.compensation ? formatCompensation(mission.compensation) : null;
   const locationDisplay = mission.location?.address ?? mission.location?.city ?? null;
+  const locationLat = mission.location?.lat;
+  const locationLon = mission.location?.lon;
+  const hasLocationCoordinates = locationLat != null && locationLon != null;
   const publisherTypeLabel = formatMissionType(mission.type);
   const orgDisplayName = mission.organizationName ?? mission.publisherName;
 
   return (
-    <div className="min-h-screen fr-background-alt--grey">
+    <main className="min-h-screen fr-background-alt--grey">
       {/* Back link */}
       <div className="bg-white px-5 py-4 md:px-6">
         <Link to={backPath} className="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-left-line fr-btn--icon-left">
@@ -119,9 +122,9 @@ export default function MissionDetailPage() {
           {/* Block 2 — Localisation */}
           {locationDisplay && (
             <Card className="overflow-hidden">
-              {mission.location?.lat && mission.location?.lon && (
+              {hasLocationCoordinates && (
                 <Suspense fallback={<div className="h-[180px] w-full bg-[#f0f0f0]" />}>
-                  <LocationMap lat={mission.location.lat} lon={mission.location.lon} />
+                  <LocationMap lat={locationLat} lon={locationLon} />
                 </Suspense>
               )}
               <div className="flex items-start gap-4 p-6">
@@ -217,6 +220,6 @@ export default function MissionDetailPage() {
           Postuler
         </a>
       </div>
-    </div>
+    </main>
   );
 }

@@ -14,8 +14,20 @@ export default function MissionCard({ mission, to, debugButton }: MissionCardPro
   const domainLabel = mission.domain ? ((TAXONOMY.domaine.values as Record<string, { label: string }>)[mission.domain]?.label ?? mission.domain) : null;
   const cardImage = mission.photo ?? mission.organizationLogo ?? mission.domainLogo;
 
-  const card = (
-    <div className="fr-card relative h-full w-full md:max-w-[330px]">
+  const title = to ? (
+    <Link to={to} className="text-title-grey! fr-h6! bg-none!">
+      {mission.title}
+    </Link>
+  ) : mission.applicationUrl ? (
+    <a href={mission.applicationUrl} target="_blank" rel="noopener noreferrer" className="text-title-grey! fr-h6! bg-none!">
+      {mission.title}
+    </a>
+  ) : (
+    <span className="text-title-grey! fr-h6!">{mission.title}</span>
+  );
+
+  return (
+    <div className="fr-card fr-enlarge-link relative h-full w-full md:max-w-[330px]">
       <div className="fr-card__body">
         <div className="fr-card__content">
           {domainLabel && (
@@ -24,11 +36,7 @@ export default function MissionCard({ mission, to, debugButton }: MissionCardPro
             </div>
           )}
 
-          <h3 className="fr-card__title">
-            <a href={mission.applicationUrl ?? "#"} target="_blank" rel="noopener noreferrer" className="text-title-grey! fr-h6! bg-none!">
-              {mission.title}
-            </a>
-          </h3>
+          <h3 className="fr-card__title">{title}</h3>
 
           <div className="fr-card__end flex flex-col gap-2">
             {mission.city && <p className="fr-card__detail fr-icon-map-pin-2-line">{mission.city}</p>}
@@ -53,19 +61,5 @@ export default function MissionCard({ mission, to, debugButton }: MissionCardPro
 
       {debugButton}
     </div>
-  );
-
-  if (to) {
-    return (
-      <Link to={to} className="block bg-none">
-        {card}
-      </Link>
-    );
-  }
-
-  return (
-    <a href={mission.applicationUrl ?? "#"} target="_blank" rel="noopener noreferrer" className="block bg-none">
-      {card}
-    </a>
   );
 }
