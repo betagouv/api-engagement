@@ -93,6 +93,21 @@ const isIpAllowed = (ip?: string) => {
   return BREVO_WEBHOOK_IP_ALLOWLIST.split(",").some((cidr) => isIpInCidr(normalizedIp, cidr));
 };
 
+export const getBrevoWebhookSourceIp = (req: Request) => {
+  const xForwardedFor = req.header("x-forwarded-for");
+  const forwardedSourceIp = xForwardedFor?.split(",")[0]?.trim();
+  if (forwardedSourceIp) {
+    return normalizeIpv4(forwardedSourceIp);
+  }
+
+  const envoyExternalAddress = req.header("x-envoy-external-address")?.trim();
+  if (envoyExternalAddress) {
+    return normalizeIpv4(envoyExternalAddress);
+  }
+
+  return normalizeIpv4(req.ip);
+};
+
 export const brevoWebhookSecurity = (req: Request, res: Response, next: NextFunction) => {
   if (!isTokenValid(req.header("authorization"))) {
     appendAuditEvent(req, {
@@ -102,12 +117,16 @@ export const brevoWebhookSecurity = (req: Request, res: Response, next: NextFunc
     return res.status(401).send({ ok: false, code: ACCESS_DENIED, message: "Not allowed" });
   }
 
-  if (!isIpAllowed(req.ip)) {
+  const sourceIp = getBrevoWebhookSourceIp(req);
+  if (!isIpAllowed(sourceIp ?? undefined)) {
     appendAuditEvent(req, {
       action: "webhook.brevo.ip_not_allowed",
       outcome: "denied",
       metadata: {
-        ip: req.ip,
+        sourceIp,
+        proxyIp: req.ip,
+        xForwardedFor: req.header("x-forwarded-for"),
+        xEnvoyExternalAddress: req.header("x-envoy-external-address"),
       },
     });
     return res.status(403).send({ ok: false, code: FORBIDDEN, message: "Not allowed" });
