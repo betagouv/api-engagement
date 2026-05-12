@@ -1,13 +1,20 @@
 import { useNavigate } from "react-router";
+import Newsletter from "~/components/layout/newsletter";
+import Partners from "~/components/layout/partners";
+import Hero from "~/components/landing/hero";
+import HowItWorks from "~/components/landing/how-it-works";
+import MissionExamples from "~/components/landing/mission-examples";
+import ProSpace from "~/components/landing/pro-space";
+import Testimonials from "~/components/landing/testimonials";
 import { useQuizStore } from "~/stores/quiz";
 import type { Route } from "./+types/_index";
-// Balises <head> générées côté serveur → OG tags visibles par les crawlers sociaux
+
 export function meta(): Route.MetaDescriptors {
   return [
-    { title: "Quiz Engagement — Trouvez votre mission de bénévolat" },
-    { name: "description", content: "Répondez à quelques questions et découvrez les missions de bénévolat faites pour vous." },
-    { property: "og:title", content: "Quiz Engagement" },
-    { property: "og:description", content: "Trouvez votre mission de bénévolat en quelques clics." },
+    { title: "Trouve ta mission d'engagement — API Engagement" },
+    { name: "description", content: "À chacun sa façon d'agir. Bénévolat, service civique, réserve : trouve la mission d'engagement qui te ressemble près de chez toi." },
+    { property: "og:title", content: "Trouve ta mission d'engagement" },
+    { property: "og:description", content: "Bénévolat, service civique, réserve : trouve la mission qui te ressemble." },
     { property: "og:type", content: "website" },
   ];
 }
@@ -20,14 +27,21 @@ export default function Landing() {
     reset();
     navigate("/quiz/age");
   };
-  return (
-    <main className="fr-container fr-py-6w">
-      <h1>Trouvez votre mission de bénévolat</h1>
-      <p className="fr-text--lead">Répondez à quelques questions et découvrez les missions faites pour vous.</p>
 
-      <button type="button" onClick={handleStartQuiz} className="fr-btn fr-btn--lg fr-mb-6w">
-        Commencer le quiz
-      </button>
+  return (
+    <main>
+      <Hero onStartQuiz={handleStartQuiz} />
+      <MissionExamples />
+      <HowItWorks />
+      <Testimonials />
+      <ProSpace />
+      <Partners />
+      <Newsletter
+        title="Inscris-toi à la newsletter"
+        subtitle="1 email par mois avec les missions qui pourraient t'intéresser."
+        ctaText="Je m'inscris"
+        hintText="Tu peux te désinscrire à tout moment"
+      />
     </main>
   );
 }
