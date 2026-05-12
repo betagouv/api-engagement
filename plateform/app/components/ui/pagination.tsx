@@ -2,6 +2,10 @@ interface PaginationProps {
   page: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  ariaLabel?: string;
+  disabled?: boolean;
+  hasNextPage?: boolean;
+  pageItems?: number[];
 }
 
 const ELLIPSIS = "…";
@@ -19,26 +23,29 @@ function buildPageItems(page: number, totalPages: number): Array<number | typeof
   return [1, ELLIPSIS, page - 1, page, page + 1, ELLIPSIS, totalPages];
 }
 
-export default function Pagination({ page, totalPages, onPageChange }: PaginationProps) {
+export default function Pagination({ page, totalPages, onPageChange, ariaLabel = "Pagination", disabled = false, hasNextPage, pageItems }: PaginationProps) {
   if (totalPages <= 1) return null;
 
   const goTo = (target: number) => {
-    if (target < 1 || target > totalPages || target === page) return;
+    if (disabled || target < 1 || target === page) return;
+    if (hasNextPage === undefined && target > totalPages) return;
+    if (hasNextPage !== undefined && target > page && !hasNextPage) return;
     onPageChange(target);
   };
 
-  const pageItems = buildPageItems(page, totalPages);
+  const items = pageItems ?? buildPageItems(page, totalPages);
+  const nextDisabled = disabled || (hasNextPage === undefined ? page === totalPages : !hasNextPage);
 
   return (
-    <nav role="navigation" className="fr-pagination" aria-label="Pagination">
+    <nav role="navigation" className="fr-pagination" aria-label={ariaLabel}>
       <ul className="fr-pagination__list justify-center!">
         <li>
-          <button type="button" className="fr-pagination__link fr-pagination__link--prev fr-pagination__link--lg-label" disabled={page === 1} onClick={() => goTo(page - 1)}>
+          <button type="button" className="fr-pagination__link fr-pagination__link--prev fr-pagination__link--lg-label" disabled={disabled || page === 1} onClick={() => goTo(page - 1)}>
             Précédent
           </button>
         </li>
 
-        {pageItems.map((item, index) =>
+        {items.map((item, index) =>
           item === ELLIPSIS ? (
             <li key={`ellipsis-${index}`}>
               <span className="fr-pagination__link" aria-hidden="true">
@@ -52,6 +59,7 @@ export default function Pagination({ page, totalPages, onPageChange }: Paginatio
                 className="fr-pagination__link"
                 aria-current={item === page ? "page" : undefined}
                 aria-label={`Page ${item}${item === page ? ", page actuelle" : ""}${item === totalPages ? ", dernière page" : ""}`}
+                disabled={disabled || (hasNextPage !== undefined && item > page && !hasNextPage)}
                 onClick={() => goTo(item)}
               >
                 {item}
@@ -64,7 +72,7 @@ export default function Pagination({ page, totalPages, onPageChange }: Paginatio
           <button
             type="button"
             className="fr-pagination__link fr-pagination__link--next fr-pagination__link--lg-label"
-            disabled={page === totalPages}
+            disabled={nextDisabled}
             onClick={() => goTo(page + 1)}
           >
             Suivant
