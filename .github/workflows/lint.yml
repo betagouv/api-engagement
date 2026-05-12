@@ -57,8 +57,8 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install sqlfluff
-        run: pip install --no-cache-dir sqlfluff==3.5.0
+      - name: Install SQLFluff
+        run: pip install --no-cache-dir -r analytics/dbt/analytics/requirements.txt
 
       - name: Lint dbt project
         run: sqlfluff lint --config analytics/dbt/analytics/.sqlfluff analytics/dbt/analytics/models

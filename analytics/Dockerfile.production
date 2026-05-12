@@ -19,7 +19,8 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 RUN apk add --no-cache python3 py3-pip
-RUN pip install --no-cache-dir --break-system-packages dbt-postgres==1.8.2 dbt-metabase
+COPY dbt/analytics/requirements.txt ./dbt/analytics/requirements.txt
+RUN pip install --no-cache-dir --break-system-packages -r dbt/analytics/requirements.txt
 
 COPY package*.json ./
 
