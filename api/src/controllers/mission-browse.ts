@@ -26,7 +26,7 @@ router.get("/browse", async (req: Request, res: Response, next: NextFunction) =>
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
     const result = await missionBrowseService.browse(query.data);
-    return res.status(200).send({ ok: true, ...result });
+    return res.status(200).send({ ok: true, data: result });
   } catch (error) {
     if (error instanceof MissionBrowseIndexUnavailableError) {
       captureException(error);

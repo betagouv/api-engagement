@@ -1,44 +1,5 @@
-import { API_URL } from "~/services/config";
-
-export type FacetCount = { key: string; count: number };
-
-export type BrowseMission = {
-  _id: string;
-  id: string;
-  title: string;
-  description: string | null;
-  city: string | null;
-  departmentCode: string | null;
-  departmentName: string | null;
-  domain: string | null;
-  domainOriginal: string | null;
-  domainLogo: string | null;
-  organizationName: string | null;
-  organizationLogo: string | null;
-  publisherName: string | null;
-  publisherLogo: string | null;
-  applicationUrl: string | null;
-  schedule: string | null;
-};
-
-export type BrowseResponse = {
-  data: BrowseMission[];
-  total: number;
-  page: number;
-  pageSize: number;
-  facets: Record<string, FacetCount[]>;
-};
-
-export type BrowseFilters = {
-  page?: number;
-  pageSize?: number;
-  publisherId?: string[];
-  departmentCode?: string[];
-  domaine?: string[];
-  secteur_activite?: string[];
-  type_mission?: string[];
-  tranche_age?: string[];
-};
+import api from "~/services/api";
+import type { BrowseFilters, BrowseResponse } from "~/types/api";
 
 const appendMulti = (params: URLSearchParams, key: string, values?: string[]) => {
   if (!values?.length) return;
@@ -56,10 +17,5 @@ export async function browseMissions(filters: BrowseFilters, signal?: AbortSigna
   appendMulti(params, "type_mission", filters.type_mission);
   appendMulti(params, "tranche_age", filters.tranche_age);
 
-  const response = await fetch(`${API_URL}/missions/browse?${params.toString()}`, { signal });
-  if (!response.ok) throw new Error(`API error ${response.status} on /missions/browse`);
-
-  const json = (await response.json()) as BrowseResponse & { ok: boolean; code?: string };
-  if (!json.ok) throw new Error(json.code ?? "API error on /missions/browse");
-  return json;
+  return api.get<BrowseResponse>(`/missions/browse?${params.toString()}`, signal);
 }
