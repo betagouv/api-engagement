@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import type { MatchResultItem } from "~/types/matching";
 import { matchResultToBrowseMission } from "~/utils/mission";
 
-interface OtherMissionsSectionProps {
+interface OtherMissionsProps {
   items: MatchResultItem[];
   page: number;
   pageLoading: boolean;
@@ -15,7 +15,7 @@ interface OtherMissionsSectionProps {
   renderAction: (item: MatchResultItem) => ReactNode;
 }
 
-export default function OtherMissionsSection({ items, page, pageLoading, hasNextPage, pageItems, userScoringId, onPageChange, renderAction }: OtherMissionsSectionProps) {
+export default function OtherMissions({ items, page, pageLoading, hasNextPage, pageItems, userScoringId, onPageChange, renderAction }: OtherMissionsProps) {
   if (items.length === 0 && page === 1) return null;
 
   return (

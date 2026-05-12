@@ -7,7 +7,7 @@ import { matchResultToBrowseMission } from "~/utils/mission";
 
 const MissionMap = lazy(() => import("~/components/results/mission-map"));
 
-interface PinnedMissionsSectionProps {
+interface PinnedMissionsProps {
   pinnedItems: MatchResultItem[];
   otherItems: MatchResultItem[];
   mapCenter: [number, number];
@@ -18,7 +18,7 @@ interface PinnedMissionsSectionProps {
   renderAction: (item: MatchResultItem) => ReactNode;
 }
 
-export default function PinnedMissionsSection({ pinnedItems, otherItems, mapCenter, loading, error, userScoringId, onResetAnswers, renderAction }: PinnedMissionsSectionProps) {
+export default function PinnedMissions({ pinnedItems, otherItems, mapCenter, loading, error, userScoringId, onResetAnswers, renderAction }: PinnedMissionsProps) {
   return (
     <section className="flex flex-col md:flex-row">
       <div className="flex flex-col md:w-7/12">
