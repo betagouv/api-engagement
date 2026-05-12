@@ -192,7 +192,7 @@ export default function MissionsPage() {
           {items.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mx-auto gap-6 w-fit">
               {items.map((mission) => (
-                <MissionCard key={mission._id} mission={mission} />
+                <MissionCard key={mission.id} mission={mission} />
               ))}
             </div>
           )}
