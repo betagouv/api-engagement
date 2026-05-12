@@ -16,17 +16,18 @@ export default function MissionCard({ mission, link, action }: MissionCardProps)
   const domainLabel = mission.domain ? ((TAXONOMY.domaine.values as Record<string, { label: string }>)[mission.domain]?.label ?? mission.domain) : null;
   const cardImage = mission.photo ?? mission.organizationLogo ?? mission.domainLogo;
 
-  const title = link?.type === "internal" ? (
-    <Link to={link.to} className="text-title-grey! fr-h6! bg-none!">
-      {mission.title}
-    </Link>
-  ) : link?.type === "external" ? (
-    <a href={link.href} target="_blank" rel="noopener noreferrer" className="text-title-grey! fr-h6! bg-none!">
-      {mission.title}
-    </a>
-  ) : (
-    <span className="text-title-grey! fr-h6!">{mission.title}</span>
-  );
+  const title =
+    link?.type === "internal" ? (
+      <Link to={link.to} className="text-title-grey! fr-h6! bg-none!">
+        {mission.title}
+      </Link>
+    ) : link?.type === "external" ? (
+      <a href={link.href} target="_blank" rel="noopener noreferrer" className="text-title-grey! fr-h6! bg-none!">
+        {mission.title}
+      </a>
+    ) : (
+      <span className="text-title-grey! fr-h6!">{mission.title}</span>
+    );
 
   return (
     <div className="mission-card fr-card fr-card--no-icon fr-enlarge-link relative h-full w-full md:max-w-[330px]">
