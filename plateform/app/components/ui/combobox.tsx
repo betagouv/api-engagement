@@ -77,9 +77,10 @@ export default function Combobox({ label, placeholder, options, selected, onChan
             <i className="fr-icon-search-line fr-icon--sm pointer-events-none absolute top-1/2 right-3 -translate-y-1/2" aria-hidden="true" />
           </div>
 
-          <fieldset className="fr-fieldset mx-2!">
+          <fieldset className="fr-fieldset mx-2! max-h-60 overflow-y-auto" tabIndex={-1}>
             <legend className="fr-fieldset__legend sr-only">Sélectionner {label.toLowerCase()}</legend>
-            <div className="fr-fieldset__content max-h-60">
+
+            <div className="fr-fieldset__content">
               {visibleOptions.length === 0 ? (
                 <p className="px-3 py-4 text-center text-sm text-title-grey">Aucune option disponible</p>
               ) : (
