@@ -1,5 +1,5 @@
 import { TAXONOMY } from "@engagement/taxonomy";
-import type { BrowseMission } from "~/services/mission-browse";
+import type { BrowseMission } from "~/types/api";
 
 interface MissionCardProps {
   mission: BrowseMission;
