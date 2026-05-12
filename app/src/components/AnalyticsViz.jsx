@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { RiInformationFill } from "react-icons/ri";
 
+import ChartDescription from "@/components/ChartDescription";
 import Tooltip from "@/components/Tooltip";
 
 import EmptySVG from "@/assets/svg/empty-info.svg";
@@ -28,7 +29,12 @@ const AnalyticsViz = ({
   kpiIcon,
   kpiTooltip,
   caption,
+  chartTitle,
+  chartDescription,
+  chartDescriptionMode = "none",
+  chartDescriptionId,
 }) => {
+  const generatedId = useId();
   const analyticsProvider = useAnalyticsProvider();
   const [data, setData] = useState([]);
   const [stackedKeys, setStackedKeys] = useState([]);
@@ -40,6 +46,18 @@ const AnalyticsViz = ({
 
   const variablesKey = useMemo(() => JSON.stringify(variables || {}), [variables]);
   const effectiveAdapter = adapter || analyticsProvider?.adapters?.[type];
+  const chartDataKey = chartProps?.dataKey || "value";
+  const chartNameKey = chartProps?.nameKey || "name";
+  const generatedDescriptionId = `${generatedId}-chart-description`;
+  const internalDescriptionId = chartDescriptionMode === "visible" || chartDescriptionMode === "sr-only" ? generatedDescriptionId : undefined;
+  const describedById = chartDescriptionMode === "external" ? chartDescriptionId : internalDescriptionId;
+  const chartAriaProps = chartTitle
+    ? {
+        role: "img",
+        "aria-label": chartTitle,
+        "aria-describedby": describedById,
+      }
+    : {};
 
   useEffect(() => {
     if (!cardId) {
@@ -226,12 +244,21 @@ const AnalyticsViz = ({
   }
 
   if (type === "pie") {
+    const shouldUseLegendAsDescription = showLegend && chartDescriptionMode === "visible";
+    const descriptionId = shouldUseLegendAsDescription ? internalDescriptionId : describedById;
+
     return (
-      <div className={className}>
+      <figure className={className}>
         <div className={showLegend ? "flex flex-col gap-4 md:flex-row" : ""}>
           {showLegend && (
             <div className="md:w-5/12">
-              <table className="w-full table-auto text-xs">
+              <table id={shouldUseLegendAsDescription ? internalDescriptionId : undefined} className="w-full table-auto text-xs">
+                {chartTitle ? (
+                  <caption className={shouldUseLegendAsDescription ? "mb-2 text-left font-semibold" : "sr-only"}>
+                    Description détaillée du graphique : {chartTitle}
+                    {chartDescription ? `. ${chartDescription}` : ""}
+                  </caption>
+                ) : null}
                 <thead className="text-text-mention text-left text-[10px] uppercase">
                   <tr>
                     <th className="px-2">Légende</th>
@@ -257,28 +284,65 @@ const AnalyticsViz = ({
               </table>
             </div>
           )}
-          <div className={showLegend ? "md:w-7/12" : ""} style={{ height: loaderHeight }}>
+          <div className={showLegend ? "md:w-7/12" : ""} style={{ height: loaderHeight }} {...chartAriaProps} aria-describedby={descriptionId}>
             <Pie data={data} {...chartProps} innerRadius="0%" />
           </div>
         </div>
-      </div>
+        {!shouldUseLegendAsDescription && (
+          <ChartDescription
+            id={internalDescriptionId}
+            title={chartTitle}
+            description={chartDescription}
+            mode={chartDescriptionMode}
+            type={type}
+            data={data}
+            dataKey={chartDataKey}
+            nameKey={chartNameKey}
+          />
+        )}
+      </figure>
     );
   }
 
   if (type === "bar") {
     return (
-      <div className={className} style={{ height: loaderHeight }}>
-        <SimpleBarChart data={data} {...chartProps} />
-      </div>
+      <figure className={className}>
+        <div style={{ height: loaderHeight }} {...chartAriaProps}>
+          <SimpleBarChart data={data} {...chartProps} />
+        </div>
+        <ChartDescription
+          id={internalDescriptionId}
+          title={chartTitle}
+          description={chartDescription}
+          mode={chartDescriptionMode}
+          type={type}
+          data={data}
+          dataKey={chartDataKey}
+          nameKey={chartNameKey}
+        />
+      </figure>
     );
   }
 
   if (type === "stacked") {
     const { dataKey: _ignored, ...restChartProps } = chartProps || {};
     return (
-      <div className={className} style={{ height: loaderHeight }}>
-        <StackedBarchart data={data} dataKey={stackedKeys} {...restChartProps} />
-      </div>
+      <figure className={className}>
+        <div style={{ height: loaderHeight }} {...chartAriaProps}>
+          <StackedBarchart data={data} dataKey={stackedKeys} {...restChartProps} />
+        </div>
+        <ChartDescription
+          id={internalDescriptionId}
+          title={chartTitle}
+          description={chartDescription}
+          mode={chartDescriptionMode}
+          type={type}
+          data={data}
+          nameKey={chartNameKey}
+          stackedKeys={stackedKeys}
+          seriesLabelMap={chartProps?.seriesLabelMap}
+        />
+      </figure>
     );
   }
 

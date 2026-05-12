@@ -1,4 +1,5 @@
 import EmptySVG from "@/assets/svg/empty-info.svg";
+import ChartDescription from "@/components/ChartDescription";
 import { Pie, StackedBarchart } from "@/components/Chart";
 import DateRangePicker from "@/components/DateRangePicker";
 import Loader from "@/components/Loader";
@@ -299,9 +300,20 @@ const Evolution = ({ filters }) => {
               <p className="text-color-gray-425 text-base">Aucune donnée disponible pour la période</p>
             </div>
           ) : (
-            <div className="h-[424px] w-full">
-              <StackedBarchart data={histogram} dataKey={keys} />
-            </div>
+            <figure>
+              <div className="h-[424px] w-full" role="img" aria-label={`Évolution des ${TYPE[type].toLowerCase()} reçues`} aria-describedby="announce-evolution-description">
+                <StackedBarchart data={histogram} dataKey={keys} />
+              </div>
+              <ChartDescription
+                id="announce-evolution-description"
+                title={`Évolution des ${TYPE[type].toLowerCase()} reçues`}
+                description="Trafic reçu grâce aux partenaires diffuseurs sur la période sélectionnée."
+                mode="sr-only"
+                type="stacked"
+                data={histogram}
+                stackedKeys={keys}
+              />
+            </figure>
           )}
         </div>
       </div>
@@ -437,7 +449,7 @@ const Announcers = ({ filters }) => {
             ) : (
               <div className="flex flex-col justify-between gap-4 lg:flex-row">
                 <div className="w-2/3">
-                  <table className="w-full table-auto">
+                  <table id="announce-top-diffuseurs-description" className="w-full table-auto">
                     <caption className="sr-only">Top partenaires diffuseurs en {TYPE[type]}</caption>
                     <thead className="text-left">
                       <tr className="text-text-mention text-xs uppercase">
@@ -462,7 +474,12 @@ const Announcers = ({ filters }) => {
                     </tbody>
                   </table>
                 </div>
-                <div className="mr-8 ml-24 flex w-1/3 items-center justify-center">
+                <div
+                  className="mr-8 ml-24 flex w-1/3 items-center justify-center"
+                  role="img"
+                  aria-label={`Top partenaires diffuseurs en ${TYPE[type].toLowerCase()}`}
+                  aria-describedby="announce-top-diffuseurs-description"
+                >
                   <div className="h-56 w-full">
                     <Pie
                       data={data?.slice(0, 6).map((d, i) => ({ name: d.key, value: d.doc_count || 0, color: COLORS[i % COLORS.length] }))}

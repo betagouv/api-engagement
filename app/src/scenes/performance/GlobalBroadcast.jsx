@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import EmptySVG from "@/assets/svg/empty-info.svg";
+import ChartDescription from "@/components/ChartDescription";
 import { Pie, StackedBarchart } from "@/components/Chart";
 import DateRangePicker from "@/components/DateRangePicker";
 import Loader from "@/components/Loader";
@@ -206,7 +207,8 @@ const DistributionMean = ({ filters }) => {
           ) : (
             <div className="flex h-64 flex-col justify-between gap-4 p-2 lg:flex-row">
               <div className="w-2/3">
-                <table className="w-full table-auto">
+                <table id="broadcast-distribution-description" className="w-full table-auto">
+                  <caption className="sr-only">Répartition par moyen de diffusion pour les {TYPE[type].toLowerCase()}s</caption>
                   <thead className="text-left">
                     <tr className="text-text-mention text-xs uppercase">
                       <th colSpan={3} className="px-4">
@@ -230,7 +232,12 @@ const DistributionMean = ({ filters }) => {
                   </tbody>
                 </table>
               </div>
-              <div className="mr-8 ml-0 flex h-56 w-full items-center justify-center lg:ml-24 lg:w-1/3">
+              <div
+                className="mr-8 ml-0 flex h-56 w-full items-center justify-center lg:ml-24 lg:w-1/3"
+                role="img"
+                aria-label={`Répartition par moyen de diffusion pour les ${TYPE[type].toLowerCase()}s`}
+                aria-describedby="broadcast-distribution-description"
+              >
                 <Pie
                   data={data.map((d, i) => ({ name: KEYS[d.key], value: d.doc_count, color: COLORS[i % COLORS.length] }))}
                   innerRadius="0%"
@@ -418,9 +425,20 @@ const Evolution = ({ filters }) => {
               <p className="text-color-gray-425 text-base">Aucune donnée disponible pour la période</p>
             </div>
           ) : (
-            <div className="h-[420px] w-full">
-              <StackedBarchart data={histogram} dataKey={keys} />
-            </div>
+            <figure>
+              <div className="h-[420px] w-full" role="img" aria-label={`Évolution des ${TYPE[type].toLowerCase()}s générées`} aria-describedby="broadcast-evolution-description">
+                <StackedBarchart data={histogram} dataKey={keys} />
+              </div>
+              <ChartDescription
+                id="broadcast-evolution-description"
+                title={`Évolution des ${TYPE[type].toLowerCase()}s générées`}
+                description="Trafic généré pour les partenaires annonceurs sur la période sélectionnée."
+                mode="sr-only"
+                type="stacked"
+                data={histogram}
+                stackedKeys={keys}
+              />
+            </figure>
           )}
         </div>
       </div>
@@ -618,7 +636,8 @@ const Announcers = ({ filters }) => {
               ) : (
                 <div className="flex justify-between gap-4">
                   <div className="w-2/3">
-                    <table className="w-full table-auto">
+                    <table id="broadcast-announcers-missions-description" className="w-full table-auto">
+                      <caption className="sr-only">Annonceurs avec le plus grand nombre de missions diffusées</caption>
                       <thead className="text-left">
                         <tr className="text-text-mention text-xs uppercase">
                           <th colSpan={3} className="px-4">
@@ -642,7 +661,12 @@ const Announcers = ({ filters }) => {
                       </tbody>
                     </table>
                   </div>
-                  <div className="mr-8 ml-24 flex w-1/3 items-center justify-center">
+                  <div
+                    className="mr-8 ml-24 flex w-1/3 items-center justify-center"
+                    role="img"
+                    aria-label="Annonceurs avec le plus grand nombre de missions diffusées"
+                    aria-describedby="broadcast-announcers-missions-description"
+                  >
                     <div className="h-56 w-full">
                       <Pie
                         data={missionData?.slice(0, 6).map((d, i) => ({ name: d.key, value: d.doc_count, color: COLORS[i % COLORS.length] }))}
