@@ -6,7 +6,8 @@ import MissionFiltersBar, { MissionFiltersTrigger, type FilterDef } from "~/comp
 import MissionCard from "~/components/missions/mission-card";
 import GradientBg from "~/components/ui/gradient-bg";
 import Pagination from "~/components/ui/pagination";
-import { browseMissions, type BrowseFilters, type BrowseMission, type FacetCount } from "~/services/mission-browse";
+import { browseMissions } from "~/services/mission-browse";
+import type { BrowseFilters, BrowseMission, FacetCount } from "~/types/api";
 import type { Route } from "./+types/missions";
 
 const PAGE_SIZE = 9;
