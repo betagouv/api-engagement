@@ -29,7 +29,6 @@ const UNIT_LABELS: Record<string, string> = {
 
 const COMPENSATION_TYPE_LABELS: Record<string, string> = {
   gross: "brut",
-  brut: "brut",
   net: "net",
 };
 
