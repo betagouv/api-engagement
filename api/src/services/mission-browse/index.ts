@@ -196,7 +196,7 @@ export const missionBrowseService = {
   },
 
   async findById(id: string): Promise<MissionDetailPayload | null> {
-    const mission = await missionService.findOneMission(id);
+    const mission = await missionService.findOneMissionBy({ id, deletedAt: null, statusCode: "ACCEPTED" });
     if (!mission) {
       return null;
     }

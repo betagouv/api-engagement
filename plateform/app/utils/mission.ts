@@ -27,11 +27,17 @@ const UNIT_LABELS: Record<string, string> = {
   an: "an",
 };
 
+const COMPENSATION_TYPE_LABELS: Record<string, string> = {
+  gross: "brut",
+  brut: "brut",
+  net: "net",
+};
+
 export function formatCompensation(compensation: MissionDetailCompensation): string | null {
   if (compensation.amount == null) return null;
   const amount = compensation.amountMax ? `${compensation.amount} – ${compensation.amountMax}` : `${compensation.amount}`;
   const unit = compensation.unit ? ` par ${UNIT_LABELS[compensation.unit] ?? compensation.unit}` : "";
-  const type = compensation.type === "brut" || compensation.type === "net" ? ` ${compensation.type}` : "";
+  const type = compensation.type ? ` ${COMPENSATION_TYPE_LABELS[compensation.type] ?? compensation.type}` : "";
   return `${amount}€${type}${unit}`;
 }
 
