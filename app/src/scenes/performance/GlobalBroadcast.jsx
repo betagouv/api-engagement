@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import EmptySVG from "@/assets/svg/empty-info.svg";
-import ChartDescription from "@/components/ChartDescription";
+import ChartDetailsTable from "@/components/ChartDetailsTable";
 import { Pie, StackedBarchart } from "@/components/Chart";
 import DateRangePicker from "@/components/DateRangePicker";
 import Loader from "@/components/Loader";
@@ -429,7 +429,7 @@ const Evolution = ({ filters }) => {
               <div className="h-[420px] w-full" role="img" aria-label={`Évolution des ${TYPE[type].toLowerCase()}s générées`} aria-describedby="broadcast-evolution-description">
                 <StackedBarchart data={histogram} dataKey={keys} />
               </div>
-              <ChartDescription
+              <ChartDetailsTable
                 id="broadcast-evolution-description"
                 title={`Évolution des ${TYPE[type].toLowerCase()}s générées`}
                 description="Trafic généré pour les partenaires annonceurs sur la période sélectionnée."

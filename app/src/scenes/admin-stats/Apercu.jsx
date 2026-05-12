@@ -2,13 +2,14 @@ import { useEffect, useState } from "react";
 import { HiChevronRight } from "react-icons/hi";
 import { Link, useSearchParams } from "react-router-dom";
 
-import ChartDescription from "@/components/ChartDescription";
+import ChartDetailsTable from "@/components/ChartDetailsTable";
 import DateRangePicker from "@/components/DateRangePicker";
 import { StackedBarchart } from "@/components/Chart";
 import Loader from "@/components/Loader";
 import AnalyticsCard from "@/scenes/performance/AnalyticsCard";
 import { useAnalyticsProvider } from "@/services/analytics/provider";
 import { captureError } from "@/services/error";
+import { slugify } from "@/utils/string";
 import EmptySVG from "@/assets/svg/empty-info.svg";
 import { METABASE_CARD_ID, MISSION_TYPE_OPTIONS } from "@/constants";
 
@@ -225,7 +226,7 @@ const TrafficByAnnouncerChart = ({ filters, cardId, title, subtitle }) => {
   };
 
   const { histogram, keys } = buildHistogram(rows);
-  const descriptionId = `admin-stats-traffic-${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-description`;
+  const descriptionId = `admin-stats-traffic-${slugify(title)}-description`;
 
   return (
     <div className="overflow-x-auto border border-gray-900 p-4">
@@ -248,7 +249,7 @@ const TrafficByAnnouncerChart = ({ filters, cardId, title, subtitle }) => {
             <div className="h-[420px] w-full" role="img" aria-label={title} aria-describedby={descriptionId}>
               <StackedBarchart data={histogram} dataKey={keys} />
             </div>
-            <ChartDescription
+            <ChartDetailsTable
               id={descriptionId}
               title={title}
               description={subtitle}

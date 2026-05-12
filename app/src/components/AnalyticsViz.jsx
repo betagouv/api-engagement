@@ -1,7 +1,7 @@
 import { useEffect, useId, useMemo, useState } from "react";
 import { RiInformationFill } from "react-icons/ri";
 
-import ChartDescription from "@/components/ChartDescription";
+import ChartDetailsTable from "@/components/ChartDetailsTable";
 import Tooltip from "@/components/Tooltip";
 
 import EmptySVG from "@/assets/svg/empty-info.svg";
@@ -289,7 +289,7 @@ const AnalyticsViz = ({
           </div>
         </div>
         {!shouldUseLegendAsDescription && (
-          <ChartDescription
+          <ChartDetailsTable
             id={internalDescriptionId}
             title={chartTitle}
             description={chartDescription}
@@ -310,7 +310,7 @@ const AnalyticsViz = ({
         <div style={{ height: loaderHeight }} {...chartAriaProps}>
           <SimpleBarChart data={data} {...chartProps} />
         </div>
-        <ChartDescription
+        <ChartDetailsTable
           id={internalDescriptionId}
           title={chartTitle}
           description={chartDescription}
@@ -331,7 +331,7 @@ const AnalyticsViz = ({
         <div style={{ height: loaderHeight }} {...chartAriaProps}>
           <StackedBarchart data={data} dataKey={stackedKeys} {...restChartProps} />
         </div>
-        <ChartDescription
+        <ChartDetailsTable
           id={internalDescriptionId}
           title={chartTitle}
           description={chartDescription}

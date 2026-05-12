@@ -1,5 +1,5 @@
 import EmptySVG from "@/assets/svg/empty-info.svg";
-import ChartDescription from "@/components/ChartDescription";
+import ChartDetailsTable from "@/components/ChartDetailsTable";
 import { Pie, StackedBarchart } from "@/components/Chart";
 import DateRangePicker from "@/components/DateRangePicker";
 import Loader from "@/components/Loader";
@@ -304,7 +304,7 @@ const Evolution = ({ filters }) => {
               <div className="h-[424px] w-full" role="img" aria-label={`Évolution des ${TYPE[type].toLowerCase()} reçues`} aria-describedby="announce-evolution-description">
                 <StackedBarchart data={histogram} dataKey={keys} />
               </div>
-              <ChartDescription
+              <ChartDetailsTable
                 id="announce-evolution-description"
                 title={`Évolution des ${TYPE[type].toLowerCase()} reçues`}
                 description="Trafic reçu grâce aux partenaires diffuseurs sur la période sélectionnée."

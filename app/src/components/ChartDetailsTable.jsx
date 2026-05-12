@@ -1,23 +1,6 @@
-const formatNumber = (value) => {
-  const number = Number(value);
-  if (!Number.isFinite(number)) {
-    return value ?? "";
-  }
-  return number.toLocaleString("fr");
-};
+import { formatChartValue, getChartSeriesLabel, getChartValue } from "@/utils/chart";
 
-const getValue = (item, key) => {
-  if (!item || key === undefined || key === null) {
-    return undefined;
-  }
-  return item[key];
-};
-
-const getSeriesLabel = (key, seriesLabelMap = {}) => {
-  return seriesLabelMap[key] || key;
-};
-
-const ChartDescription = ({
+const ChartDetailsTable = ({
   id,
   title,
   description,
@@ -48,7 +31,7 @@ const ChartDescription = ({
             <th className="px-2 py-1">Catégorie</th>
             {stackedKeys.map((key) => (
               <th key={key} className="px-2 py-1 text-right">
-                {getSeriesLabel(key, seriesLabelMap)}
+                {getChartSeriesLabel(key, seriesLabelMap)}
               </th>
             ))}
             <th className="px-2 py-1 text-right">Total</th>
@@ -56,7 +39,7 @@ const ChartDescription = ({
         </thead>
         <tbody>
           {data.map((entry, index) => {
-            const total = stackedKeys.reduce((sum, key) => sum + (Number(getValue(entry, key)) || 0), 0);
+            const total = stackedKeys.reduce((sum, key) => sum + (Number(getChartValue(entry, key)) || 0), 0);
             return (
               <tr key={`${entry?.[nameKey] || "categorie"}-${index}`}>
                 <th scope="row" className="px-2 py-1 text-left font-normal">
@@ -64,10 +47,10 @@ const ChartDescription = ({
                 </th>
                 {stackedKeys.map((key) => (
                   <td key={key} className="px-2 py-1 text-right">
-                    {formatNumber(getValue(entry, key))}
+                    {formatChartValue(getChartValue(entry, key))}
                   </td>
                 ))}
-                <td className="px-2 py-1 text-right">{formatNumber(total)}</td>
+                <td className="px-2 py-1 text-right">{formatChartValue(total)}</td>
               </tr>
             );
           })}
@@ -91,7 +74,7 @@ const ChartDescription = ({
             <th scope="row" className="px-2 py-1 text-left font-normal">
               {entry?.[nameKey]}
             </th>
-            <td className="px-2 py-1 text-right">{formatNumber(getValue(entry, dataKey))}</td>
+            <td className="px-2 py-1 text-right">{formatChartValue(getChartValue(entry, dataKey))}</td>
           </tr>
         ))}
       </tbody>
@@ -99,4 +82,4 @@ const ChartDescription = ({
   );
 };
 
-export default ChartDescription;
+export default ChartDetailsTable;
