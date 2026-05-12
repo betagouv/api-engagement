@@ -9,6 +9,7 @@ import { publisherService } from "@/services/publisher";
 import { widgetService } from "@/services/widget";
 import { UserRequest } from "@/types/passport";
 import type { WidgetCreateInput, WidgetSearchParams } from "@/types/widget";
+import { appendAuditEvent } from "@/utils/audit-log";
 import { readRequiredParam } from "@/utils/publisher-access";
 
 const router = Router();
@@ -293,6 +294,16 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
       publishers: body.data.publishers,
       jvaModeration: body.data.jvaModeration,
       location: body.data.location,
+    });
+
+    appendAuditEvent(req, {
+      action: "widget.update",
+      outcome: "success",
+      target: { type: "widget", id: params.data.id },
+      metadata: {
+        fields: Object.keys(body.data),
+        fromPublisherId: widget.fromPublisherId,
+      },
     });
 
     return res.status(200).json({ ok: true, data: updated });

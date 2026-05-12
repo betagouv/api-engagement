@@ -11,6 +11,7 @@ import { loginHistoryService } from "@/services/login-history";
 import { publisherService } from "@/services/publisher";
 import { userService } from "@/services/user";
 import { UserRequest } from "@/types/passport";
+import { appendAuditEvent } from "@/utils/audit-log";
 import type { UserUpdatePatch } from "@/types/user";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { hasLetter, hasNumber, hasSpecialChar } from "@/utils";
@@ -133,6 +134,14 @@ router.get("/loginas/:id", passport.authenticate("admin", { session: false }), a
 
     const token = jwt.sign({ _id: user.id }, SECRET, {
       expiresIn: AUTH_TOKEN_EXPIRATION,
+    });
+    appendAuditEvent(req, {
+      action: "user.login_as",
+      outcome: "success",
+      target: { type: "user", id: user.id },
+      metadata: {
+        publisherId: publisher.id,
+      },
     });
     return res.status(200).send({ ok: true, data: { user, publisher, token } });
   } catch (error) {
