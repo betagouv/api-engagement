@@ -1,29 +1,13 @@
-import { type ReactNode, Suspense, lazy, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 
-const LocationMap = lazy(() => import("~/components/ui/location-map"));
-
+import MissionCtaPanel from "~/components/mission-detail/cta-panel";
+import MissionDescriptionCard from "~/components/mission-detail/description-card";
+import MissionHeroCard from "~/components/mission-detail/hero-card";
+import MissionLocationCard from "~/components/mission-detail/location-card";
 import SimilarMissions from "~/components/mission-detail/similar-missions";
 import { fetchMissionDetail } from "~/services/mission-browse";
 import type { MissionDetailResponse } from "~/types/api";
-import { formatCompensation, formatMissionType, formatStartDate } from "~/utils/mission";
-
-// ── Sub-components ──────────────────────────────────────────────────────────
-
-function Card({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return <div className={`bg-white shadow-[0_2px_12px_rgba(0,0,0,0.08)] ${className}`}>{children}</div>;
-}
-
-function InfoRow({ icon, children }: { icon: string; children: ReactNode }) {
-  return (
-    <div className="flex items-start gap-3 py-4">
-      <i className={`${icon} fr-icon--sm mt-0.5 flex-none text-mention-grey`} aria-hidden="true" />
-      <div className="flex flex-col gap-0.5">{children}</div>
-    </div>
-  );
-}
-
-// ── Main page ───────────────────────────────────────────────────────────────
 
 export default function MissionDetailPage() {
   const { missionId, userScoringId } = useParams<{ missionId: string; userScoringId?: string }>();
@@ -68,153 +52,42 @@ export default function MissionDetailPage() {
     );
   }
 
-  const durationLabel = formatStartDate(mission.startAt, mission.duration);
-  const compensationLabel = mission.compensation ? formatCompensation(mission.compensation) : null;
-  const locationDisplay = mission.location?.address ?? mission.location?.city ?? null;
-  const locationLat = mission.location?.lat;
-  const locationLon = mission.location?.lon;
-  const hasLocationCoordinates = locationLat != null && locationLon != null;
-  const publisherTypeLabel = formatMissionType(mission.type);
-  const orgDisplayName = mission.organizationName ?? mission.publisherName;
-
   return (
     <main className="min-h-screen fr-background-alt--grey">
-      {/* Back link */}
       <div className="bg-white px-5 py-4 md:px-6">
         <Link to={backPath} className="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-left-line fr-btn--icon-left">
           {backLabel}
         </Link>
       </div>
 
-      {/* Mobile hero image */}
       {mission.photo && (
         <div className="h-[216px] w-full overflow-hidden md:hidden">
           <img src={mission.photo} alt="" className="h-full w-full object-cover" />
         </div>
       )}
 
-      {/* Main layout */}
       <div className="flex flex-col md:flex-row md:items-start">
-        {/* ── Left column ─────────────────────────────────────────────── */}
         <div className="flex flex-1 flex-col gap-4 p-5 md:gap-5 md:p-8 md:pr-10">
-          {/* Block 1 — Tags + Titre + Organisation */}
-          <Card className="p-6">
-            {mission.domain && (
-              <div className="fr-mb-3w flex flex-wrap gap-2">
-                <p className="fr-tag fr-tag--sm">{mission.domain}</p>
-              </div>
-            )}
-
-            <h1 className="mb-5 text-[1.5rem] font-bold leading-snug text-title-grey md:text-[2.5rem]">{mission.title}</h1>
-
-            {orgDisplayName && (
-              <div className="flex items-center gap-3">
-                {(mission.organizationLogo ?? mission.publisherLogo) && (
-                  <img src={(mission.organizationLogo ?? mission.publisherLogo)!} alt="" className="h-10 w-10 flex-none rounded object-contain vert" loading="eager" />
-                )}
-                <p className="text-sm mb-0! text-mention-grey">
-                  {publisherTypeLabel} proposée par <span className="font-semibold text-title-grey">{orgDisplayName}</span>
-                </p>
-              </div>
-            )}
-          </Card>
-
-          {/* Block 2 — Localisation */}
-          {locationDisplay && (
-            <Card className="overflow-hidden">
-              {hasLocationCoordinates && (
-                <Suspense fallback={<div className="h-[180px] w-full bg-[#f0f0f0]" />}>
-                  <LocationMap lat={locationLat} lon={locationLon} />
-                </Suspense>
-              )}
-              <div className="flex items-start gap-4 p-6">
-                <i className="fr-icon-map-pin-2-line fr-icon--sm mt-0.5 flex-none text-mention-grey" aria-hidden="true" />
-                <div className="flex flex-col gap-2">
-                  {mission.location?.city && <span className="font-bold text-title-grey">{mission.location.city}</span>}
-                  {mission.location?.address && <span className="text-sm text-mention-grey">{mission.location.address}</span>}
-                </div>
-              </div>
-            </Card>
-          )}
-
-          {/* Mobile CTA blocks */}
-          <div className="flex flex-col gap-3 md:hidden">
-            {(durationLabel || mission.schedule) && (
-              <Card className="p-5">
-                <InfoRow icon="fr-icon-time-line">
-                  {durationLabel && <span className="font-bold">{durationLabel}</span>}
-                  {mission.schedule && <span className="text-sm text-mention-grey">{mission.schedule}</span>}
-                </InfoRow>
-              </Card>
-            )}
-            {compensationLabel && (
-              <Card className="p-5">
-                <InfoRow icon="fr-icon-money-euro-circle-line">
-                  <span className="font-bold">{compensationLabel}</span>
-                </InfoRow>
-              </Card>
-            )}
-            <a href={mission.applicationUrl} target="_blank" rel="noopener noreferrer" className="fr-btn w-full! justify-center!">
-              Découvrir la mission
-            </a>
-            <button type="button" className="fr-btn fr-btn--secondary w-full! justify-center!">
-              Recevoir cette mission par e-mail
-            </button>
+          <MissionHeroCard mission={mission} />
+          {mission.location && <MissionLocationCard location={mission.location} />}
+          <div className="md:hidden">
+            <MissionCtaPanel mission={mission} />
           </div>
-
-          {/* Block 3 — Présentation de la mission */}
-          {(mission.descriptionHtml || mission.description) && (
-            <Card className="p-6">
-              <h2 className="mb-5 text-xl font-bold text-title-grey md:text-2xl">Présentation de la mission</h2>
-              {mission.descriptionHtml ? (
-                <div className="mission-description prose max-w-none text-title-grey" dangerouslySetInnerHTML={{ __html: mission.descriptionHtml }} />
-              ) : (
-                <p className="whitespace-pre-line text-title-grey">{mission.description}</p>
-              )}
-            </Card>
-          )}
+          <MissionDescriptionCard mission={mission} />
         </div>
 
-        {/* ── Right column (desktop only) ─────────────────────────────── */}
         <div className="hidden w-[400px] flex-none p-8 pl-0 md:block">
           {mission.photo && (
-            <div className="mb-4 h-[216px] overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.08)]">
+            <div className="fr-card fr-card--no-arrow fr-mb-3w h-[216px] overflow-hidden">
               <img src={mission.photo} alt="" className="h-full w-full object-cover" />
             </div>
           )}
-          <div className="sticky top-4 flex flex-col gap-0 bg-white p-6 shadow-[0_2px_12px_rgba(0,0,0,0.08)]">
-            {(durationLabel || mission.schedule) && (
-              <InfoRow icon="fr-icon-time-line">
-                {durationLabel && <span className="font-bold">{durationLabel}</span>}
-                {mission.schedule && <span className="text-sm text-mention-grey">{mission.schedule}</span>}
-              </InfoRow>
-            )}
-
-            {compensationLabel && (
-              <>
-                <InfoRow icon="fr-icon-money-euro-circle-line">
-                  <span className="font-bold">{compensationLabel}</span>
-                </InfoRow>
-              </>
-            )}
-
-            <hr className="border-[#DDD]" />
-
-            <a href={mission.applicationUrl} target="_blank" rel="noopener noreferrer" className="fr-btn mt-4! w-full! justify-center!">
-              Découvrir la mission
-            </a>
-
-            <button type="button" className="fr-btn fr-btn--secondary mt-3! w-full! justify-center!">
-              Recevoir cette mission par e-mail
-            </button>
-          </div>
+          <MissionCtaPanel mission={mission} className="sticky top-4" />
         </div>
       </div>
 
-      {/* Similar missions */}
       {userScoringId && <SimilarMissions userScoringId={userScoringId} currentMissionId={mission.id} />}
 
-      {/* Mobile sticky footer */}
       <div className="fixed bottom-0 left-0 right-0 z-10 border-t border-[#DDD] bg-white px-5 py-4 md:hidden">
         <a href={mission.applicationUrl} target="_blank" rel="noopener noreferrer" className="fr-btn w-full! justify-center!">
           Postuler

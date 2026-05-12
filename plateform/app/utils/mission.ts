@@ -1,4 +1,5 @@
-import type { MissionDetailCompensation } from "~/types/api";
+import type { BrowseMission, MissionDetailCompensation } from "~/types/api";
+import type { MatchResultItem } from "~/types/matching";
 
 const MONTHS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
 
@@ -45,4 +46,25 @@ const MISSION_TYPE_LABELS: Record<string, string> = {
 export function formatMissionType(type: string | null): string {
   if (!type) return "Mission";
   return MISSION_TYPE_LABELS[type] ?? "Mission";
+}
+
+export function matchResultToBrowseMission(item: MatchResultItem): BrowseMission {
+  return {
+    id: item.mission.id,
+    title: item.mission.title,
+    description: null,
+    city: item.mission.location.city,
+    departmentCode: null,
+    departmentName: null,
+    domain: item.mission.domain,
+    domainOriginal: item.mission.domainOriginal ?? null,
+    domainLogo: item.mission.media.domainLogo,
+    organizationName: item.mission.organizationName,
+    organizationLogo: item.mission.media.organizationLogo,
+    photo: item.mission.media.photo,
+    publisherName: item.mission.publisherName,
+    publisherLogo: item.mission.media.publisherLogo,
+    applicationUrl: null,
+    schedule: item.mission.schedule,
+  };
 }

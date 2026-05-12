@@ -6,29 +6,8 @@ import GradientBg from "~/components/ui/gradient-bg";
 import { OPTIONS } from "~/config/quiz-options";
 import { useMissionResults } from "~/hooks/useMissionResults";
 import { useQuizStore } from "~/stores/quiz";
-import type { BrowseMission } from "~/types/api";
 import type { MatchResultItem } from "~/types/matching";
-
-function toBrowseMission(item: MatchResultItem): BrowseMission {
-  return {
-    id: item.mission.id,
-    title: item.mission.title,
-    description: null,
-    city: item.mission.location.city,
-    departmentCode: null,
-    departmentName: null,
-    domain: item.mission.domain,
-    domainOriginal: item.mission.domainOriginal ?? null,
-    domainLogo: item.mission.media.domainLogo,
-    organizationName: item.mission.organizationName,
-    organizationLogo: item.mission.media.organizationLogo,
-    photo: item.mission.media.photo,
-    publisherName: item.mission.publisherName,
-    publisherLogo: item.mission.media.publisherLogo,
-    applicationUrl: null,
-    schedule: item.mission.schedule,
-  };
-}
+import { matchResultToBrowseMission } from "~/utils/mission";
 
 // Lazy-load the map to avoid SSR issues with Leaflet
 const MissionMap = lazy(() => import("~/components/results/mission-map"));
@@ -69,6 +48,21 @@ export default function ResultsPage() {
         return [];
       }),
     [answers],
+  );
+
+  const renderDebugAction = (item: MatchResultItem) => (
+    <button
+      type="button"
+      className="fr-btn fr-btn--tertiary fr-btn--icon-only absolute bottom-2 left-2 z-10"
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDebugItem(item);
+      }}
+      aria-label={`Débuguer le matching de ${item.mission.title}`}
+    >
+      <i className="fr-icon-settings-5-line fr-icon--sm" aria-hidden="true" />
+    </button>
   );
 
   return (
@@ -116,22 +110,9 @@ export default function ResultsPage() {
                     {pinnedItems.map((item) => (
                       <MissionCard
                         key={item.mission.id}
-                        mission={toBrowseMission(item)}
-                        to={userScoringId ? `/results/${userScoringId}/missions/${item.mission.id}` : `/missions/${item.mission.id}`}
-                        debugButton={
-                          <button
-                            type="button"
-                            className="mission-card__debug-button"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              setDebugItem(item);
-                            }}
-                            aria-label={`Débuguer le matching de ${item.mission.title}`}
-                          >
-                            <i className="fr-icon-settings-5-line fr-icon--sm" aria-hidden="true" />
-                          </button>
-                        }
+                        mission={matchResultToBrowseMission(item)}
+                        link={{ type: "internal", to: userScoringId ? `/results/${userScoringId}/missions/${item.mission.id}` : `/missions/${item.mission.id}` }}
+                        action={renderDebugAction(item)}
                       />
                     ))}
                   </div>
@@ -165,22 +146,9 @@ export default function ResultsPage() {
                   {otherItems.map((item) => (
                     <MissionCard
                       key={item.mission.id}
-                      mission={toBrowseMission(item)}
-                      to={userScoringId ? `/results/${userScoringId}/missions/${item.mission.id}` : `/missions/${item.mission.id}`}
-                      debugButton={
-                        <button
-                          type="button"
-                          className="mission-card__debug-button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setDebugItem(item);
-                          }}
-                          aria-label={`Débuguer le matching de ${item.mission.title}`}
-                        >
-                          <i className="fr-icon-settings-5-line fr-icon--sm" aria-hidden="true" />
-                        </button>
-                      }
+                      mission={matchResultToBrowseMission(item)}
+                      link={{ type: "internal", to: userScoringId ? `/results/${userScoringId}/missions/${item.mission.id}` : `/missions/${item.mission.id}` }}
+                      action={renderDebugAction(item)}
                     />
                   ))}
                 </div>

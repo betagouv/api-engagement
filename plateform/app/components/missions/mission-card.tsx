@@ -4,22 +4,24 @@ import { Link } from "react-router";
 import { TAXONOMY } from "@engagement/taxonomy";
 import type { BrowseMission } from "~/types/api";
 
+type MissionCardLink = { type: "internal"; to: string } | { type: "external"; href: string };
+
 interface MissionCardProps {
   mission: BrowseMission;
-  to?: string;
-  debugButton?: ReactNode;
+  link?: MissionCardLink;
+  action?: ReactNode;
 }
 
-export default function MissionCard({ mission, to, debugButton }: MissionCardProps) {
+export default function MissionCard({ mission, link, action }: MissionCardProps) {
   const domainLabel = mission.domain ? ((TAXONOMY.domaine.values as Record<string, { label: string }>)[mission.domain]?.label ?? mission.domain) : null;
   const cardImage = mission.photo ?? mission.organizationLogo ?? mission.domainLogo;
 
-  const title = to ? (
-    <Link to={to} className="text-title-grey! fr-h6! bg-none!">
+  const title = link?.type === "internal" ? (
+    <Link to={link.to} className="text-title-grey! fr-h6! bg-none!">
       {mission.title}
     </Link>
-  ) : mission.applicationUrl ? (
-    <a href={mission.applicationUrl} target="_blank" rel="noopener noreferrer" className="text-title-grey! fr-h6! bg-none!">
+  ) : link?.type === "external" ? (
+    <a href={link.href} target="_blank" rel="noopener noreferrer" className="text-title-grey! fr-h6! bg-none!">
       {mission.title}
     </a>
   ) : (
@@ -27,7 +29,7 @@ export default function MissionCard({ mission, to, debugButton }: MissionCardPro
   );
 
   return (
-    <div className="fr-card fr-enlarge-link relative h-full w-full md:max-w-[330px]">
+    <div className="mission-card fr-card fr-card--no-icon fr-enlarge-link relative h-full w-full md:max-w-[330px]">
       <div className="fr-card__body">
         <div className="fr-card__content">
           {domainLabel && (
@@ -59,7 +61,7 @@ export default function MissionCard({ mission, to, debugButton }: MissionCardPro
         </div>
       </div>
 
-      {debugButton}
+      {action}
     </div>
   );
 }

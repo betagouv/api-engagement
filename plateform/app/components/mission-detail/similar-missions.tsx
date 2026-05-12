@@ -2,33 +2,12 @@ import { useEffect, useRef, useState } from "react";
 
 import MissionCard from "~/components/missions/mission-card";
 import { fetchMatches } from "~/services/matching";
-import type { BrowseMission } from "~/types/api";
 import type { MatchResultItem } from "~/types/matching";
+import { matchResultToBrowseMission } from "~/utils/mission";
 
 interface Props {
   userScoringId: string;
   currentMissionId: string;
-}
-
-function toBrowseMission(item: MatchResultItem): BrowseMission {
-  return {
-    id: item.mission.id,
-    title: item.mission.title,
-    description: null,
-    city: item.mission.location.city,
-    departmentCode: null,
-    departmentName: null,
-    domain: item.mission.domain,
-    domainOriginal: item.mission.domainOriginal ?? null,
-    domainLogo: item.mission.media.domainLogo,
-    organizationName: item.mission.organizationName,
-    organizationLogo: item.mission.media.organizationLogo,
-    photo: item.mission.media.photo,
-    publisherName: item.mission.publisherName,
-    publisherLogo: item.mission.media.publisherLogo,
-    applicationUrl: null,
-    schedule: item.mission.schedule,
-  };
 }
 
 export default function SimilarMissions({ userScoringId, currentMissionId }: Props) {
@@ -58,17 +37,17 @@ export default function SimilarMissions({ userScoringId, currentMissionId }: Pro
             <button
               type="button"
               onClick={() => scrollBy(-1)}
-              className="slider-arrow fr-btn fr-btn--secondary fr-btn--icon-only fr-icon-arrow-left-s-line"
+              className="fr-btn fr-btn--secondary fr-btn--icon-only fr-icon-arrow-left-s-line rounded-full!"
               aria-label="Précédent"
             />
-            <button type="button" onClick={() => scrollBy(1)} className="slider-arrow fr-btn fr-btn--secondary fr-btn--icon-only fr-icon-arrow-right-s-line" aria-label="Suivant" />
+            <button type="button" onClick={() => scrollBy(1)} className="fr-btn fr-btn--secondary fr-btn--icon-only fr-icon-arrow-right-s-line rounded-full!" aria-label="Suivant" />
           </div>
         </div>
 
         <div ref={scrollRef} className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2 scrollbar-none">
           {items.map((item) => (
             <div key={item.mission.id} className="w-[280px] flex-none snap-start md:w-[283px]">
-              <MissionCard mission={toBrowseMission(item)} to={`/results/${userScoringId}/missions/${item.mission.id}`} />
+              <MissionCard mission={matchResultToBrowseMission(item)} link={{ type: "internal", to: `/results/${userScoringId}/missions/${item.mission.id}` }} />
             </div>
           ))}
         </div>
