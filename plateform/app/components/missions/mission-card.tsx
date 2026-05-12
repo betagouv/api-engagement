@@ -7,7 +7,6 @@ interface MissionCardProps {
 
 export default function MissionCard({ mission }: MissionCardProps) {
   const domainLabel = mission.domain ? ((TAXONOMY.domaine.values as Record<string, { label: string }>)[mission.domain]?.label ?? mission.domain) : null;
-  const cardImage = mission.organizationLogo ?? mission.domainLogo;
 
   return (
     <div className="fr-card fr-enlarge-link h-full w-full md:max-w-[330px]">
@@ -42,7 +41,7 @@ export default function MissionCard({ mission }: MissionCardProps) {
 
       <div className="fr-card__header">
         <div className="fr-card__img">
-          {cardImage ? <img className="fr-responsive-img" src={cardImage} alt="" loading="lazy" /> : <div className="bg-beige-gris-galet aspect-video w-full" />}
+          {mission.domainLogo ? <img className="fr-responsive-img" src={mission.domainLogo} alt="" loading="lazy" /> : <div className="bg-beige-gris-galet aspect-video w-full" />}
         </div>
       </div>
     </div>
