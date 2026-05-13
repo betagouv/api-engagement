@@ -1,13 +1,16 @@
 import { useNavigate } from "react-router";
-import Newsletter from "~/components/layout/newsletter";
-import Partners from "~/components/layout/partners";
 import Hero from "~/components/landing/hero";
 import HowItWorks from "~/components/landing/how-it-works";
 import MissionExamples from "~/components/landing/mission-examples";
 import ProSpace from "~/components/landing/pro-space";
 import Testimonials from "~/components/landing/testimonials";
+import Newsletter from "~/components/layout/newsletter";
+import Partners from "~/components/layout/partners";
+import GradientBg from "~/components/ui/gradient-bg";
 import { useQuizStore } from "~/stores/quiz";
 import type { Route } from "./+types/_index";
+
+import PeoplePng from "~/assets/images/people-landing.png";
 
 export function meta(): Route.MetaDescriptors {
   return [
@@ -30,8 +33,11 @@ export default function Landing() {
 
   return (
     <main>
-      <Hero onStartQuiz={handleStartQuiz} />
-      <MissionExamples />
+      <GradientBg className="bg-size-[100%_640px] relative">
+        <img src={PeoplePng} alt="" className="absolute right-0 top-0 h-[640px] max-w-[1024px] object-contain" />
+        <Hero onStartQuiz={handleStartQuiz} />
+        <MissionExamples />
+      </GradientBg>
       <HowItWorks />
       <Testimonials />
       <ProSpace />

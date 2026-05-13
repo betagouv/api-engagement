@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState, type SubmitEvent } from "react";
 import { useOutletContext } from "react-router";
-import Highlight from "~/components/quiz/highlight";
 import Label from "~/components/quiz/label";
 import MissionCard from "~/components/quiz/mission-card";
+import Highlight from "~/components/ui/highlight";
 import { useQuizStore } from "~/stores/quiz";
 import type { QuizOutletContext } from "./_layout";
 

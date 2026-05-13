@@ -7,13 +7,14 @@ import SelfTrainingSvg from "@gouvfr/dsfr/dist/artwork/pictograms/digital/self-t
 type Feature = {
   icon: string;
   title: string;
+  subtitle: string;
 };
 
 const FEATURES: Feature[] = [
-  { icon: CalendarSvg, title: "D'un jour ponctuel à un engagement régulier" },
-  { icon: MoneySvg, title: "Indemnisées ou bénévoles, à toi de choisir" },
-  { icon: LocationFranceSvg, title: "Partout en France et en Outre-mer" },
-  { icon: SelfTrainingSvg, title: "Expérience valorisante, compétences réelles" },
+  { icon: CalendarSvg, title: "À ton rythme", subtitle: "Ponctuel ou régulier" },
+  { icon: MoneySvg, title: "Avec ou sans indemnité", subtitle: "selon les missions" },
+  { icon: LocationFranceSvg, title: "Partout en France", subtitle: "et à l'étranger" },
+  { icon: SelfTrainingSvg, title: "Compatible sans diplôme", subtitle: "études ou emploi" },
 ];
 
 export default function HowItWorks() {
@@ -21,25 +22,30 @@ export default function HowItWorks() {
     <section>
       <div className="fr-container fr-py-12w">
         <div className="text-center fr-mb-6w">
-          <p className="fr-text--sm fr-mb-2w text-blue-france-sun font-bold uppercase">À propos des missions</p>
-          <h2 className="fr-h2 fr-mb-3w">Des missions qui s'adaptent à toi</h2>
-          <p className="fr-text--lead text-title-grey mx-auto max-w-2xl">Trouve la mission qui te ressemble : durée, lieu, type d'engagement, on a forcément ce qu'il te faut.</p>
+          <p className="fr-text--sm fr-mb-2w text-mention-grey">Comment ça marche ?</p>
+          <h2 className="fr-h2 fr-mb-2w">
+            Des missions qui <span className="bg-[#fceeac] px-1">s'adaptent à toi</span>
+          </h2>
+          <p className="fr-text--lead text-title-grey fr-mb-0">Il existe plein de façons de s'engager, selon tes besoins et tes disponibilités.</p>
         </div>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4 fr-mb-6w">
           {FEATURES.map((feature) => (
-            <div key={feature.title} className="flex flex-col items-center text-center">
-              <img src={feature.icon} alt="" className="size-20 fr-mb-3w" aria-hidden="true" />
-              <p className="text-title-grey font-bold fr-mb-0">{feature.title}</p>
+            <div key={feature.title} className="bg-background flex flex-col items-center gap-4 rounded-lg p-6 text-center shadow-sm">
+              <img src={feature.icon} alt="" className="size-16" aria-hidden="true" />
+              <div>
+                <p className="text-title-grey font-bold fr-mb-1w">{feature.title}</p>
+                <p className="text-title-grey fr-text--sm fr-mb-0">{feature.subtitle}</p>
+              </div>
             </div>
           ))}
         </div>
 
         <div className="flex flex-col items-center gap-3">
-          <Link to="/missions" className="fr-btn fr-btn--lg">
-            Trouve ta mission
+          <Link to="/missions" className="fr-btn fr-btn--secondary fr-btn--lg">
+            Je découvre les missions
           </Link>
-          <p className="fr-text--sm text-mention-grey fr-mb-0">…ou commence par le quiz si tu hésites encore.</p>
+          <p className="fr-text--sm text-mention-grey fr-mb-0">+25 000 missions disponibles partout en France</p>
         </div>
       </div>
     </section>
