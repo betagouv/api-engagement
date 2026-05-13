@@ -1,3 +1,5 @@
+import Highlight from "../ui/highlight";
+
 type Benefit = {
   icon: string;
   title: string;
@@ -6,53 +8,53 @@ type Benefit = {
 
 const BENEFITS: Benefit[] = [
   {
-    icon: "fr-icon-team-line",
-    title: "Accompagner vos jeunes",
-    body: "Outils pédagogiques et missions adaptées pour soutenir les jeunes vers l'engagement.",
+    icon: "🧭",
+    title: "Orienter facilement",
+    body: "Accédez à une sélection de missions correspondant aux centres d'intérêt et aux disponibilités des jeunes.",
   },
   {
-    icon: "fr-icon-checkbox-circle-line",
-    title: "Faciliter le parcours",
-    body: "Filtres avancés, fiches missions claires et suivi des candidatures en un coup d'œil.",
+    icon: "🐝",
+    title: "Découvrir des opportunités",
+    body: "Trouvez rapidement des opportunités d'engagement locales ou à distance.",
   },
   {
-    icon: "fr-icon-search-line",
-    title: "Découvrir l'engagement",
-    body: "Explorer toutes les formes d'engagement civique disponibles près de chez vous.",
+    icon: "🚀",
+    title: "Faciliter le passage à l'action",
+    body: "Un parcours simple qui les guide pour trouver une mission qui leur correspond.",
   },
   {
-    icon: "fr-icon-medal-line",
-    title: "Valoriser l'expérience",
-    body: "Reconnaître les compétences acquises et certifier l'engagement de vos jeunes.",
+    icon: "🌱",
+    title: "Valoriser leur engagement",
+    body: "Accompagnez-les dans des expériences utiles pour les autres et enrichissantes pour leur parcours.",
   },
 ];
 
 export default function ProSpace() {
   return (
-    <section>
-      <div className="fr-container fr-py-12w">
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
-          <div>
-            <p className="fr-text--sm fr-mb-2w text-blue-france-sun font-bold uppercase">Espace professionnel</p>
-            <h2 className="fr-h2 fr-mb-3w">Vous accompagnez des jeunes ?</h2>
-            <p className="fr-text--lead text-title-grey fr-mb-4w">
-              Vous êtes enseignant, conseiller d'orientation, animateur ou éducateur ? Cet espace vous donne accès à des outils dédiés pour faire découvrir l'engagement à vos
-              jeunes.
-            </p>
-            <a href="#" className="fr-btn fr-btn--lg">
-              Découvrir l'espace pro
-            </a>
-          </div>
+    <section className="fr-container fr-py-12w fr-px-6w">
+      <p className="fr-text--lg font-medium text-default-grey fr-mb-3w">Il existe mille façons de s'engager</p>
+      <div className="flex items-start gap-16">
+        <div className="w-full md:w-[40%]">
+          <h2 className="fr-h1 fr-mb-3w">
+            Vous <Highlight className="bg-yellow-tournesol-925">accompagnez</Highlight> des jeunes ?
+          </h2>
+          <p className="fr-text--lead text-default-grey fr-mb-4w">
+            Professionnels de l'éducation, conseillers, associations, parents ou tuteurs : cet outil vous aide à orienter facilement les jeunes vers des missions d'engagement
+            adaptées à leurs envies, à leur rythme et à leur situation.
+          </p>
+          <a href="#" className="fr-btn fr-btn--secondary">
+            Trouver des ressources
+          </a>
+        </div>
 
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
-            {BENEFITS.map((benefit) => (
-              <div key={benefit.title} className="flex flex-col gap-3">
-                <span className={`${benefit.icon} text-blue-france-sun text-3xl`} aria-hidden="true" />
-                <h3 className="fr-h6 fr-mb-0">{benefit.title}</h3>
-                <p className="fr-text--sm text-title-grey fr-mb-0">{benefit.body}</p>
-              </div>
-            ))}
-          </div>
+        <div className="flex-1 grid grid-cols-1 gap-8 sm:grid-cols-2">
+          {BENEFITS.map((benefit) => (
+            <div key={benefit.title} className="flex flex-col gap-2">
+              <div className="bg-yellow-tournesol-925 flex size-12 items-center justify-center rounded-full text-2xl">{benefit.icon}</div>
+              <h5 className="fr-h5 fr-mb-0">{benefit.title}</h5>
+              <p className="fr-text--lead text-default-grey fr-mb-0">{benefit.body}</p>
+            </div>
+          ))}
         </div>
       </div>
     </section>
