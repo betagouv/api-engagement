@@ -2,14 +2,8 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useEffect, useMemo } from "react";
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
-import { MAPTILER_API_KEY } from "~/services/config";
+import { TILE_LAYER_PROPS, createEmojiIcon } from "~/components/ui/location-map";
 import type { MatchResultItem } from "~/types/matching";
-
-const CLASSIC_MARKER = "📍";
-const REMOTE_MARKER = "👨‍💻";
-const MAPTILER_BASIC_URL = MAPTILER_API_KEY ? `https://api.maptiler.com/maps/basic-v2/256/{z}/{x}/{y}.png?key=${MAPTILER_API_KEY}` : null;
-const MAPTILER_ATTRIBUTION =
-  '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>';
 
 type MapMission = {
   item: MatchResultItem;
@@ -17,17 +11,8 @@ type MapMission = {
   hasRealAddress: boolean;
 };
 
-const createEmojiIcon = (emoji: string) =>
-  L.divIcon({
-    className: "",
-    html: `<div class="mission-map__emoji-marker">${emoji}</div>`,
-    iconSize: [28, 28],
-    iconAnchor: [14, 14],
-    popupAnchor: [0, -16],
-  });
-
-const classicIcon = createEmojiIcon(CLASSIC_MARKER);
-const remoteIcon = createEmojiIcon(REMOTE_MARKER);
+const classicIcon = createEmojiIcon("📍");
+const remoteIcon = createEmojiIcon("👨‍💻");
 
 const hashString = (value: string): number => {
   let hash = 0;
@@ -85,13 +70,7 @@ export default function MissionMap({ items, center }: Props) {
 
   return (
     <MapContainer center={center} zoom={12} className="mission-map" zoomControl={false}>
-      <TileLayer
-        attribution={MAPTILER_API_KEY ? MAPTILER_ATTRIBUTION : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}
-        crossOrigin={true}
-        maxZoom={20}
-        minZoom={1}
-        url={MAPTILER_BASIC_URL ?? "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"}
-      />
+      <TileLayer {...TILE_LAYER_PROPS} />
       <BoundsFitter positions={boundsPositions} />
       {missions.map(({ item, position, hasRealAddress }) => (
         <Marker key={item.mission.id} position={position} icon={hasRealAddress ? classicIcon : remoteIcon}>

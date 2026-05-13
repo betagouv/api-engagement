@@ -8,6 +8,7 @@ export const IMAGE_VERSION = process.env.IMAGE_VERSION || "unknown";
 
 export const APP_URL = process.env.APP_URL || "http://localhost:3000";
 export const API_URL = process.env.API_URL || "http://localhost:4000";
+export const PLATEFORM_URL = process.env.PLATEFORM_URL || "http://localhost:3005";
 export const BENEVOLAT_URL = process.env.BENEVOLAT_URL || "http://localhost:3001";
 export const VOLONTARIAT_URL = process.env.VOLONTARIAT_URL || "http://localhost:3001";
 export const ASSOCIATION_URL = process.env.ASSOCIATION_URL || "http://localhost:4001";

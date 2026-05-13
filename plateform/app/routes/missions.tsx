@@ -7,7 +7,7 @@ import MissionCard from "~/components/missions/mission-card";
 import GradientBg from "~/components/ui/gradient-bg";
 import Pagination from "~/components/ui/pagination";
 import { browseMissions } from "~/services/mission-browse";
-import type { BrowseFilters, BrowseMission, FacetCount } from "~/types/api";
+import { type BrowseFilters, type BrowseMission, type FacetCount } from "~/types/api";
 import type { Route } from "./+types/missions";
 
 const PAGE_SIZE = 9;
@@ -192,7 +192,7 @@ export default function MissionsPage() {
           {items.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mx-auto gap-6 w-fit">
               {items.map((mission) => (
-                <MissionCard key={mission.id} mission={mission} />
+                <MissionCard key={mission.id} mission={mission} link={mission.applicationUrl ? { type: "external", href: mission.applicationUrl } : undefined} />
               ))}
             </div>
           )}

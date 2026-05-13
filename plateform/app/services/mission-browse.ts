@@ -1,5 +1,5 @@
 import api from "~/services/api";
-import type { BrowseFilters, BrowseResponse } from "~/types/api";
+import type { BrowseFilters, BrowseResponse, MissionDetailResponse } from "~/types/api";
 
 const appendMulti = (params: URLSearchParams, key: string, values?: string[]) => {
   if (!values?.length) return;
@@ -19,3 +19,5 @@ export async function browseMissions(filters: BrowseFilters, signal?: AbortSigna
 
   return api.get<BrowseResponse>(`/missions/browse?${params.toString()}`, signal);
 }
+
+export const fetchMissionDetail = (id: string): Promise<MissionDetailResponse> => api.get<MissionDetailResponse>(`/missions/browse/${id}`);

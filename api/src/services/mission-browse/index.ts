@@ -1,7 +1,9 @@
+import { PUBLISHER_IDS } from "@/config";
 import { missionService } from "@/services/mission";
 import { missionSearchClient } from "@/services/search/collections/missions/client";
 import { INDEXED_TAXONOMY_KEYS, IndexedTaxonomyKey } from "@/services/search/collections/missions/fields";
 import { MissionRecord } from "@/types/mission";
+import { getMissionTrackedApplicationUrl } from "@/utils/mission";
 
 const FACET_FIELDS = [...INDEXED_TAXONOMY_KEYS, "departmentCodes"];
 
@@ -26,6 +28,46 @@ export interface BrowseResult {
   pageSize: number;
   facets: Record<string, FacetCount[]>;
 }
+
+export type MissionDetailLocation = {
+  city: string | null;
+  address: string | null;
+  lat: number | null;
+  lon: number | null;
+};
+
+export type MissionDetailCompensation = {
+  amount: number | null;
+  amountMax: number | null;
+  unit: string | null;
+  type: string | null;
+};
+
+export type MissionDetailPayload = {
+  id: string;
+  title: string;
+  domain: string | null;
+  domainLogo: string | null;
+  type: string | null;
+  publisherName: string | null;
+  publisherLogo: string | null;
+  organizationName: string | null;
+  organizationLogo: string | null;
+  location: MissionDetailLocation | null;
+  startAt: string | null;
+  endAt: string | null;
+  duration: number | null;
+  schedule: string | null;
+  compensation: MissionDetailCompensation | null;
+  descriptionHtml: string | null;
+  description: string | null;
+  applicationUrl: string;
+  photo: string | null;
+  remote: "no" | "possible" | "full" | null;
+  openToMinors: boolean | null;
+  reducedMobilityAccessible: boolean | null;
+  places: number | null;
+};
 
 export class MissionBrowseIndexUnavailableError extends Error {
   cause?: unknown;
@@ -74,6 +116,53 @@ const buildFilterBy = (params: BrowseParams): string => {
   return parts.join(" && ");
 };
 
+const toMissionDetailPayload = (mission: MissionRecord): MissionDetailPayload => {
+  const addr = mission.addresses[0] ?? null;
+  const addressParts = [addr?.street, addr?.postalCode && addr?.city ? `${addr.postalCode} ${addr.city}` : (addr?.city ?? null)].filter(Boolean);
+
+  const hasCompensation = mission.compensationAmount != null || mission.compensationAmountMax != null;
+
+  return {
+    id: mission.id,
+    title: mission.title,
+    domain: mission.domain ?? mission.domainOriginal ?? null,
+    domainLogo: mission.domainLogo ?? null,
+    type: mission.type ?? null,
+    publisherName: mission.publisherName ?? null,
+    publisherLogo: mission.publisherLogo ?? null,
+    organizationName: mission.organizationName ?? null,
+    organizationLogo: mission.organizationLogo ?? null,
+    location: addr
+      ? {
+          city: addr.city ?? null,
+          address: addressParts.length > 0 ? addressParts.join(", ") : null,
+          lat: addr.location?.lat ?? null,
+          lon: addr.location?.lon ?? null,
+        }
+      : null,
+    startAt: mission.startAt ? mission.startAt.toISOString() : null,
+    endAt: mission.endAt ? mission.endAt.toISOString() : null,
+    duration: mission.duration ?? null,
+    schedule: mission.schedule ?? null,
+    compensation: hasCompensation
+      ? {
+          amount: mission.compensationAmount ?? null,
+          amountMax: mission.compensationAmountMax ?? null,
+          unit: mission.compensationUnit ?? null,
+          type: mission.compensationType ?? null,
+        }
+      : null,
+    descriptionHtml: mission.descriptionHtml ?? null,
+    description: mission.description ?? null,
+    applicationUrl: getMissionTrackedApplicationUrl(mission, PUBLISHER_IDS.API_ENGAGEMENT),
+    photo: mission.domainLogo ?? mission.organizationLogo ?? mission.publisherLogo ?? null,
+    remote: mission.remote ?? null,
+    openToMinors: mission.openToMinors ?? null,
+    reducedMobilityAccessible: mission.reducedMobilityAccessible ?? null,
+    places: mission.places ?? null,
+  };
+};
+
 export const missionBrowseService = {
   async browse(params: BrowseParams): Promise<BrowseResult> {
     const filterBy = buildFilterBy(params);
@@ -104,5 +193,13 @@ export const missionBrowseService = {
     }
 
     return { data, total, page: params.page, pageSize: params.pageSize, facets };
+  },
+
+  async findById(id: string): Promise<MissionDetailPayload | null> {
+    const mission = await missionService.findOneMissionBy({ id, deletedAt: null, statusCode: "ACCEPTED" });
+    if (!mission) {
+      return null;
+    }
+    return toMissionDetailPayload(mission);
   },
 };
