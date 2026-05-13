@@ -46,7 +46,7 @@ process.on("unhandledRejection", (reason) => {
 import express from "express";
 import path from "path";
 
-import { corsPoc, corsPublic } from "@/middlewares/cors";
+import { corsPublic } from "@/middlewares/cors";
 import errorHandler from "@/middlewares/error-handler";
 
 import { pgConnected, pgDisconnect } from "@/db/postgres";
@@ -65,7 +65,6 @@ import MissionBrowseController from "@/controllers/mission-browse";
 import ModerationController from "@/controllers/moderation";
 import ModerationEventController from "@/controllers/moderation-event";
 import OrganizationController from "@/controllers/organization";
-import PocController from "@/controllers/poc";
 import PublisherController from "@/controllers/publisher";
 import RedirectController from "@/controllers/redirect";
 import ReportController from "@/controllers/report";
@@ -100,10 +99,6 @@ const main = async () => {
     otlpUrl: COCKPIT_METRICS_OTLP_URL,
     token: COCKPIT_METRICS_TOKEN,
   });
-
-  // OPTIONS preflights POC enregistrés AVANT le cors global (middlewares) qui bloquerait les origines inconnues
-  app.options(/^\/user-scoring/, corsPoc);
-  app.options(/^\/poc/, corsPoc);
 
   middlewares(app);
 
