@@ -103,7 +103,7 @@ export default function MissionExamples() {
                 role="group"
                 aria-roledescription="slide"
                 aria-label={`Mission ${i + 1} sur ${MISSIONS.length}`}
-                className="bg-background flex w-[360px] shrink-0 overflow-hidden rounded shadow-sm"
+                className="bg-background flex w-[360px] shrink-0 overflow-hidden rounded shadow-lg"
               >
                 <img src={mission.image} alt="" className="w-28 shrink-0 object-cover" loading="lazy" />
                 <div className="flex flex-1 flex-col gap-2 p-4">
