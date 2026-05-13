@@ -42,7 +42,7 @@ export default function Newsletter({
               <label className="fr-label sr-only" htmlFor="newsletter-email">
                 Adresse email
               </label>
-              <input id="newsletter-email" type="email" required className="fr-input" placeholder="nom@email.fr" />
+              <input id="newsletter-email" type="email" required className="fr-input bg-background!" placeholder="nom@email.fr" />
             </div>
             <button type="submit" className="fr-btn">
               {ctaText}

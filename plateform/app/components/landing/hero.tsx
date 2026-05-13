@@ -1,5 +1,7 @@
 import Highlight from "../ui/highlight";
 
+import ZigZagArrowSvg from "~/assets/svg/zig-zag-arrow.svg";
+
 interface HeroProps {
   onStartQuiz: () => void;
 }
@@ -16,11 +18,12 @@ export default function Hero({ onStartQuiz }: HeroProps) {
           Aide les autres, protège la nature, participe à des projets solidaires… Réponds à quelques questions et découvre les missions d'engagement faites pour toi.
         </p>
 
-        <div className="flex flex-col items-center gap-2 w-fit">
+        <div className="flex flex-col items-center gap-2 w-fit relative">
           <button type="button" onClick={onStartQuiz} className="fr-btn fr-btn--lg">
             Je commence le quiz
           </button>
           <p className="fr-text--md text-mention-grey fr-mb-0">3 min pour t'engager</p>
+          <img src={ZigZagArrowSvg} alt="Zigzag arrow" className="hidden md:block size-16 absolute left-1/2 -translate-x-full -bottom-0 translate-y-full" aria-hidden="true" />
         </div>
       </div>
     </section>
