@@ -91,12 +91,12 @@ export default function MissionExamples() {
           ref={scrollRef}
           id="missions-carousel"
           onScroll={updateScrollState}
-          className="overflow-x-auto"
+          className="overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           style={{ marginRight: "calc(50% - 50vw)" }}
           aria-live="polite"
           aria-atomic="false"
         >
-          <div className="flex w-max gap-4 pr-8">
+          <div className="flex w-max gap-4 pr-8 pb-4">
             {MISSIONS.map((mission, i) => (
               <article
                 key={mission.id}
