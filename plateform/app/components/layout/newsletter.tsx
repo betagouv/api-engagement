@@ -1,8 +1,6 @@
 import type { SubmitEvent } from "react";
 
-// TODO check to use the svg from the dsfr (not working)
-// import MailSendSvg from "@gouvfr/dsfr/dist/artwork/pictograms/mail-send.svg";
-import MailSendSvg from "~/assets/svg/mail-send.svg";
+import MailSendSvg from "@gouvfr/dsfr/dist/artwork/pictograms/digital/mail-send.svg?url";
 import TraceSvg from "~/assets/svg/trace.svg";
 
 interface NewsletterProps {

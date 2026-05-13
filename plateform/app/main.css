@@ -21,6 +21,8 @@
   --color-background-default-grey-hover: var(--background-default-grey-hover);
   --color-background-default-grey-active: var(--background-default-grey-active);
   --color-background: var(--background-default-grey);
+  --color-yellow-moutarde-975: var(--yellow-moutarde-925-125);
+  --color-yellow-moutarde-850: var(--yellow-moutarde-850-200);
 }
 
 .header-shadow {
