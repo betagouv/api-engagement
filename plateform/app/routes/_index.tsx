@@ -10,6 +10,7 @@ import GradientBg from "~/components/ui/gradient-bg";
 import { useQuizStore } from "~/stores/quiz";
 import type { Route } from "./+types/_index";
 
+import PeopleMobilePng from "~/assets/images/people-landing-mobile.png";
 import PeoplePng from "~/assets/images/people-landing.png";
 
 export function meta(): Route.MetaDescriptors {
@@ -33,10 +34,13 @@ export default function Landing() {
 
   return (
     <main>
-      <GradientBg className="bg-size-[100%_640px] relative">
-        <img src={PeoplePng} alt="" className="absolute right-0 top-0 h-[640px] max-w-[1024px] object-contain" />
-        <Hero onStartQuiz={handleStartQuiz} />
-        <MissionExamples />
+      <GradientBg className="bg-size-[100%_640px]">
+        <div className="relative">
+          <img src={PeoplePng} alt="" className="absolute hidden md:block right-0 bottom-0 object-contain md:bottom-auto md:top-0 md:h-[640px] md:w-auto md:max-w-[1024px]" />
+          <Hero onStartQuiz={handleStartQuiz} />
+          <img src={PeopleMobilePng} alt="" className="block md:hidden right-0 bottom-0 object-contain h-[420px] w-full" />
+        </div>
+        <MissionExamples className="-mt-14 md:mt-0" />
       </GradientBg>
       <HowItWorks />
       <Testimonials />

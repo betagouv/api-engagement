@@ -62,7 +62,7 @@ const MISSIONS: MissionExample[] = [
   },
 ];
 
-export default function MissionExamples() {
+export default function MissionExamples({ className }: { className?: string }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
@@ -85,7 +85,7 @@ export default function MissionExamples() {
   };
 
   return (
-    <section className="fr-pb-8w relative z-10" aria-roledescription="carousel" aria-label="Exemples de missions d'engagement">
+    <section className={`fr-pb-8w relative z-10 ${className}`} aria-roledescription="carousel" aria-label="Exemples de missions d'engagement">
       <div className="fr-container relative">
         <div
           ref={scrollRef}
@@ -120,13 +120,32 @@ export default function MissionExamples() {
           </div>
         </div>
 
+        <div className="mt-6 flex justify-center gap-3 md:hidden">
+          <button
+            type="button"
+            onClick={() => handleScroll("left")}
+            disabled={!canScrollLeft}
+            aria-label="Voir les missions précédentes"
+            aria-controls="missions-carousel"
+            className="fr-btn fr-btn--secondary fr-icon-arrow-left-line fr-icon--md rounded-full"
+          ></button>
+          <button
+            type="button"
+            onClick={() => handleScroll("right")}
+            disabled={!canScrollRight}
+            aria-label="Voir les missions suivantes"
+            aria-controls="missions-carousel"
+            className="fr-btn fr-btn--secondary fr-icon-arrow-right-line fr-icon--md rounded-full"
+          ></button>
+        </div>
+
         {canScrollLeft && (
           <button
             type="button"
             onClick={() => handleScroll("left")}
             aria-label="Voir les missions précédentes"
             aria-controls="missions-carousel"
-            className="bg-background! text-title-grey absolute left-0 top-1/2 flex size-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full shadow-md"
+            className="bg-background! text-title-grey absolute left-0 top-1/2 hidden size-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full shadow-md md:flex"
           >
             <span aria-hidden className="fr-icon-arrow-left-s-line" />
           </button>
@@ -137,7 +156,7 @@ export default function MissionExamples() {
             onClick={() => handleScroll("right")}
             aria-label="Voir les missions suivantes"
             aria-controls="missions-carousel"
-            className="bg-background! text-title-grey absolute right-0 top-1/2 flex size-12 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full shadow-md"
+            className="bg-background! text-title-grey absolute right-0 top-1/2 hidden size-12 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full shadow-md md:flex"
           >
             <span aria-hidden className="fr-icon-arrow-right-s-line" />
           </button>

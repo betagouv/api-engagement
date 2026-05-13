@@ -80,10 +80,10 @@ export default function Testimonials() {
     <section className="fr-container" aria-roledescription="carousel" aria-label="Témoignages d'engagés">
       <div className="bg-yellow-moutarde-975 fr-py-8w px-8">
         <div className="flex flex-col items-center fr-mb-6w">
-          <h2 className="fr-h1 fr-mb-3w">
+          <h2 className="fr-h1 mb-0! md:mb-3!">
             Ils se sont engagés. <Highlight className="bg-yellow-moutarde-850">Pourquoi pas toi ?</Highlight>
           </h2>
-          <p className="fr-text--lead text-default-grey mx-auto max-w-3xl fr-mb-0 text-center">
+          <p className="fr-text--lead text-default-grey mx-auto max-w-3xl fr-mb-0 text-center hidden! md:block!">
             Accompagner un public en difficulté, protéger la nature, organiser des événements, aider des personnes isolées, s'engager pour son pays…
             <br />
             Découvre les missions qui correspondent à <strong>ce qui t'anime</strong>.
@@ -94,7 +94,7 @@ export default function Testimonials() {
           ref={scrollRef}
           id="testimonials-carousel"
           onScroll={updateScrollState}
-          className="overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden fr-mb-6w"
+          className="overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden mb-0! md:mb-6!"
           style={{ marginRight: "calc(50% - 50vw)" }}
           aria-live="polite"
           aria-atomic="false"
@@ -125,24 +125,26 @@ export default function Testimonials() {
           </div>
         </div>
 
-        <div className="flex items-center justify-center gap-3">
-          <button
-            type="button"
-            onClick={() => handleScroll("left")}
-            disabled={!canScrollLeft}
-            aria-label="Voir les témoignages précédents"
-            aria-controls="testimonials-carousel"
-            className="fr-btn fr-btn--secondary rounded-full fr-icon-arrow-left-line fr-icon--md"
-          ></button>
-          <button
-            type="button"
-            onClick={() => handleScroll("right")}
-            disabled={!canScrollRight}
-            aria-label="Voir les témoignages suivants"
-            aria-controls="testimonials-carousel"
-            className="fr-btn fr-btn--secondary rounded-full fr-icon-arrow-right-line fr-icon--md"
-          ></button>
-          <Link to="/missions" className="fr-btn fr-btn--secondary">
+        <div className="flex flex-col items-center gap-4 md:flex-row md:justify-center md:gap-3">
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => handleScroll("left")}
+              disabled={!canScrollLeft}
+              aria-label="Voir les témoignages précédents"
+              aria-controls="testimonials-carousel"
+              className="fr-btn fr-btn--secondary fr-icon-arrow-left-line fr-icon--md rounded-full"
+            ></button>
+            <button
+              type="button"
+              onClick={() => handleScroll("right")}
+              disabled={!canScrollRight}
+              aria-label="Voir les témoignages suivants"
+              aria-controls="testimonials-carousel"
+              className="fr-btn fr-btn--secondary fr-icon-arrow-right-line fr-icon--md rounded-full"
+            ></button>
+          </div>
+          <Link to="/missions" className="fr-btn fr-btn--secondary w-full justify-center md:w-auto">
             Je veux trouver ma mission
           </Link>
         </div>

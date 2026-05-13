@@ -40,11 +40,11 @@ const PARTNERS: Partner[] = [
 export default function Partners({ style = "default" }: { style?: "default" | "compact" }) {
   return (
     <section className="bg-beige-gris-galet-975">
-      <div className={`fr-container ${style === "compact" ? "fr-py-4w max-w-7xl!" : "fr-py-8w"}`}>
+      <div className={`fr-container ${style === "compact" ? "py-4! px-6! md:px-0! max-w-7xl!" : "fr-py-8w"}`}>
         <h2 className="fr-h2 fr-mb-2w">Il y a plein d'autres missions…</h2>
         <p className="fr-mb-6w text-title-grey fr-text--lead">…directement sur les sites qui les proposent, jettes-y un coup d'oeil !</p>
 
-        <div className={`${style === "compact" ? "flex items-start justify-between gap-2" : "grid grid-cols-1 gap-4 md:grid-cols-2"}`}>
+        <div className={`${style === "compact" ? "flex flex-col md:flex-row items-start justify-between gap-4 md:gap-2" : "grid grid-cols-1 gap-4 md:grid-cols-2"}`}>
           {PARTNERS.map((partner) => (
             <div key={partner.name} className={`flex items-start gap-2 ${style === "compact" ? "flex-1" : "gap-4"}`}>
               <div className="flex items-center justify-center bg-white rounded-sm p-1">
