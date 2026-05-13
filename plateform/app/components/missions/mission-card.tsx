@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router";
 
-import { TAXONOMY } from "@engagement/taxonomy";
 import type { BrowseMission } from "~/types/api";
+import { DOMAIN_LABELS } from "~/utils/domains";
 
 type MissionCardLink = { type: "internal"; to: string } | { type: "external"; href: string };
 
@@ -13,7 +13,7 @@ interface MissionCardProps {
 }
 
 export default function MissionCard({ mission, link, action }: MissionCardProps) {
-  const domainLabel = mission.domain ? ((TAXONOMY.domaine.values as Record<string, { label: string }>)[mission.domain]?.label ?? mission.domain) : null;
+  const domainLabel = mission.domain ? (DOMAIN_LABELS[mission.domain] ?? mission.domain) : null;
   const cardImage = mission.photo ?? mission.organizationLogo ?? mission.domainLogo;
 
   const title =
