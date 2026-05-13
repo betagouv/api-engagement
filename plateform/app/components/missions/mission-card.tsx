@@ -1,12 +1,12 @@
-import { TAXONOMY } from "@engagement/taxonomy";
 import type { BrowseMission } from "~/types/api";
+import { DOMAIN_LABELS } from "~/utils/domains";
 
 interface MissionCardProps {
   mission: BrowseMission;
 }
 
 export default function MissionCard({ mission }: MissionCardProps) {
-  const domainLabel = mission.domain ? ((TAXONOMY.domaine.values as Record<string, { label: string }>)[mission.domain]?.label ?? mission.domain) : null;
+  const domainLabel = mission.domain ? (DOMAIN_LABELS[mission.domain] ?? mission.domain) : null;
 
   return (
     <div className="fr-card fr-enlarge-link h-full w-full md:max-w-[330px]">
