@@ -41,7 +41,7 @@ export default function Landing() {
       <HowItWorks />
       <Testimonials />
       <ProSpace />
-      <Partners />
+      <Partners style="compact" />
       <Newsletter
         title="Inscris-toi à la newsletter"
         subtitle="1 email par mois avec les missions qui pourraient t'intéresser."
