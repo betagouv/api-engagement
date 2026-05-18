@@ -23,8 +23,6 @@ export type MissionMatchingEmailMission = {
 const buildMissionMatchingResultItemsFromScoringIds = (missionScoringIds: string[]): MissionMatchingResultItem[] =>
   missionScoringIds.map((missionScoringId) => ({ missionScoringId, missionAddressId: null, taxonomyScores: {} }));
 
-const isUniqueConstraintError = (error: unknown): error is { code: string } => typeof error === "object" && error !== null && "code" in error && error.code === "P2002";
-
 const findMissionsByMatchingResultItems = async (items: MissionMatchingResultItem[]): Promise<MissionMatchingEmailMission[]> => {
   if (items.length === 0) {
     return [];
@@ -88,34 +86,20 @@ export const missionMatchingResultRepository = {
     matchingEngineVersion: MatchingEngineVersion;
     results: MissionMatchingResultItem[];
   }): Promise<MissionMatchingResult> {
-    try {
-      return await prisma.missionMatchingResult.create({
-        data: {
+    return prisma.missionMatchingResult.upsert({
+      where: {
+        userScoringId_matchingEngineVersion: {
           userScoringId: params.userScoringId,
           matchingEngineVersion: params.matchingEngineVersion,
-          results: params.results as Prisma.InputJsonValue,
         },
-      });
-    } catch (error) {
-      if (!isUniqueConstraintError(error)) {
-        throw error;
-      }
-
-      const existingResult = await prisma.missionMatchingResult.findUnique({
-        where: {
-          userScoringId_matchingEngineVersion: {
-            userScoringId: params.userScoringId,
-            matchingEngineVersion: params.matchingEngineVersion,
-          },
-        },
-      });
-
-      if (!existingResult) {
-        throw error;
-      }
-
-      return existingResult;
-    }
+      },
+      create: {
+        userScoringId: params.userScoringId,
+        matchingEngineVersion: params.matchingEngineVersion,
+        results: params.results as Prisma.InputJsonValue,
+      },
+      update: {},
+    });
   },
 
   findLatestForUserScoring(userScoringId: string): Promise<Pick<MissionMatchingResult, "id" | "results"> | null> {
