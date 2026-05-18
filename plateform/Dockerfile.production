@@ -7,6 +7,7 @@ ENV VITE_MAPTILER_API_KEY=$VITE_MAPTILER_API_KEY
 COPY package*.json ./
 COPY plateform/package.json ./plateform/
 COPY packages/taxonomy ./packages/taxonomy
+COPY packages/dto ./packages/dto
 RUN npm ci --workspace=plateform
 COPY plateform ./plateform
 RUN npm --workspace=plateform run build
@@ -16,6 +17,7 @@ WORKDIR /workspace
 COPY package*.json ./
 COPY plateform/package.json ./plateform/
 COPY packages/taxonomy ./packages/taxonomy
+COPY packages/dto ./packages/dto
 RUN npm ci --workspace=plateform --omit=dev
 COPY --from=builder /workspace/plateform/build ./plateform/build
 ENV NODE_ENV=production

@@ -1,4 +1,4 @@
-import type { BrowseMission, MissionDetailCompensation } from "~/types/api";
+import type { MissionBrowse, MissionDetailCompensation } from "@engagement/dto";
 import type { MatchResultItem } from "~/types/matching";
 
 const MONTHS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
@@ -53,7 +53,7 @@ export function formatMissionType(type: string | null): string {
   return MISSION_TYPE_LABELS[type] ?? "Mission";
 }
 
-export function matchResultToBrowseMission(item: MatchResultItem): BrowseMission {
+export function matchResultToBrowseMission(item: MatchResultItem): MissionBrowse {
   return {
     id: item.mission.id,
     title: item.mission.title,

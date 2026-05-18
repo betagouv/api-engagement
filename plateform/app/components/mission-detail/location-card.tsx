@@ -1,5 +1,5 @@
 import { Suspense, lazy } from "react";
-import type { MissionDetailLocation } from "~/types/api";
+import type { MissionDetailLocation } from "@engagement/dto";
 
 const LocationMap = lazy(() => import("~/components/ui/location-map"));
 

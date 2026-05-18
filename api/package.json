@@ -5,7 +5,8 @@
     "main": "src/index.js",
     "scripts": {
         "taxonomy:build": "tsc -p ../packages/taxonomy/tsconfig.json",
-        "build": "npm run taxonomy:build && npm run prisma:generate && npx tsc --build --clean && npx tsc -p tsconfig.build.json && npx tsc-alias -p tsconfig.build.json",
+        "dto:build": "tsc -p ../packages/dto/tsconfig.json",
+        "build": "npm run taxonomy:build && npm run dto:build && npm run prisma:generate && npx tsc --build --clean && npx tsc -p tsconfig.build.json && npx tsc-alias -p tsconfig.build.json",
         "dev": "nodemon",
         "dev:worker": "nodemon --exec \"ts-node src/worker/index.ts\"",
         "start": "npm run build && node dist/index.js",
@@ -27,6 +28,7 @@
     },
     "dependencies": {
         "@engagement/taxonomy": "file:../packages/taxonomy",
+        "@engagement/dto": "file:../packages/dto",
         "@ai-sdk/mistral": "3.0.30",
         "@aws-sdk/client-s3": "3.1036.0",
         "@aws-sdk/client-sqs": "3.1023.0",

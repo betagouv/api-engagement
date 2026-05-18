@@ -1,9 +1,9 @@
+import type { MissionDetailPayload } from "@engagement/dto";
 import type { ReactNode } from "react";
-import type { MissionDetailResponse } from "~/types/api";
 import { formatCompensation, formatStartDate } from "~/utils/mission";
 
 interface MissionCtaPanelProps {
-  mission: MissionDetailResponse;
+  mission: MissionDetailPayload;
   className?: string;
 }
 

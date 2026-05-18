@@ -1,6 +1,20 @@
-export type FacetCount = { key: string; count: number };
+export type MissionBrowseFacetCount = {
+  key: string;
+  count: number;
+};
 
-export type BrowseMission = {
+export type MissionBrowseTaxonomyKey = "domaine" | "secteur_activite" | "type_mission" | "tranche_age" | "competence_rome";
+
+export type MissionBrowseTaxonomyParams = Partial<Record<MissionBrowseTaxonomyKey, string | string[]>>;
+
+export type MissionBrowseFilters = MissionBrowseTaxonomyParams & {
+  page?: number;
+  pageSize?: number;
+  publisherId?: string | string[];
+  departmentCode?: string | string[];
+};
+
+export type MissionBrowse = {
   id: string;
   title: string;
   description: string | null;
@@ -19,23 +33,12 @@ export type BrowseMission = {
   schedule: string | null;
 };
 
-export type BrowseResponse = {
-  data: BrowseMission[];
+export type MissionBrowseResponse = {
+  data: MissionBrowse[];
   total: number;
   page: number;
   pageSize: number;
-  facets: Record<string, FacetCount[]>;
-};
-
-export type BrowseFilters = {
-  page?: number;
-  pageSize?: number;
-  publisherId?: string[];
-  departmentCode?: string[];
-  domaine?: string[];
-  secteur_activite?: string[];
-  type_mission?: string[];
-  tranche_age?: string[];
+  facets: Record<string, MissionBrowseFacetCount[]>;
 };
 
 export type MissionDetailLocation = {
@@ -52,7 +55,7 @@ export type MissionDetailCompensation = {
   type: string | null;
 };
 
-export type MissionDetailResponse = {
+export type MissionDetailPayload = {
   id: string;
   title: string;
   domain: string | null;

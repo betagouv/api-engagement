@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@engagement/taxonomy": "file:../packages/taxonomy",
+    "@engagement/dto": "file:../packages/dto",
     "@gouvfr/dsfr": "1.14.4",
     "@react-router/node": "7.14.2",
     "@react-router/serve": "7.14.2",

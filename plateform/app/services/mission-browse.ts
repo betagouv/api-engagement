@@ -1,12 +1,13 @@
-import api from "~/services/api";
-import type { BrowseFilters, BrowseResponse, MissionDetailResponse } from "~/types/api";
+import type { MissionBrowseFilters, MissionBrowseResponse, MissionDetailPayload } from "@engagement/dto";
 
-const appendMulti = (params: URLSearchParams, key: string, values?: string[]) => {
+import api from "~/services/api";
+
+const appendMulti = (params: URLSearchParams, key: string, values?: string | string[]) => {
   if (!values?.length) return;
-  for (const value of values) params.append(key, value);
+  for (const value of Array.isArray(values) ? values : [values]) params.append(key, value);
 };
 
-export async function browseMissions(filters: BrowseFilters, signal?: AbortSignal): Promise<BrowseResponse> {
+export async function browseMissions(filters: MissionBrowseFilters, signal?: AbortSignal): Promise<MissionBrowseResponse> {
   const params = new URLSearchParams();
   if (filters.page) params.set("page", String(filters.page));
   if (filters.pageSize) params.set("pageSize", String(filters.pageSize));
@@ -17,7 +18,7 @@ export async function browseMissions(filters: BrowseFilters, signal?: AbortSigna
   appendMulti(params, "type_mission", filters.type_mission);
   appendMulti(params, "tranche_age", filters.tranche_age);
 
-  return api.get<BrowseResponse>(`/missions/browse?${params.toString()}`, signal);
+  return api.get<MissionBrowseResponse>(`/missions/browse?${params.toString()}`, signal);
 }
 
-export const fetchMissionDetail = (id: string): Promise<MissionDetailResponse> => api.get<MissionDetailResponse>(`/missions/browse/${id}`);
+export const fetchMissionDetail = (id: string): Promise<MissionDetailPayload> => api.get<MissionDetailPayload>(`/missions/browse/${id}`);

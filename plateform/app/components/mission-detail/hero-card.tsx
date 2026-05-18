@@ -1,8 +1,8 @@
-import type { MissionDetailResponse } from "~/types/api";
+import type { MissionDetailPayload } from "@engagement/dto";
 import { formatMissionType } from "~/utils/mission";
 
 interface MissionHeroCardProps {
-  mission: MissionDetailResponse;
+  mission: MissionDetailPayload;
 }
 
 export default function MissionHeroCard({ mission }: MissionHeroCardProps) {

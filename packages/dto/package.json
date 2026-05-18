@@ -1,0 +1,14 @@
+{
+  "name": "@engagement/dto",
+  "version": "0.1.0",
+  "description": "DTO partagés entre l'API et les clients front",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3"
+  }
+}
