@@ -34,12 +34,21 @@ export default function EmailMissionModal({ missionId, userScoringId }: EmailMis
     setSubmitting(true);
     setError(null);
 
-    try {
-      if (userScoringId) {
+    if (userScoringId) {
+      try {
         await updateUserScoring(userScoringId, { missionAlertEnabled }, distinctId);
+      } catch {
+        // Échec non bloquant : le scoring peut être expiré ou appartenir à un autre navigateur
       }
-      await sendMissionEmail({ email, publisherId: PUBLISHER_ID_API_ENGAGEMENT, missionIds: [missionId] });
-      setSuccess(true);
+    }
+
+    try {
+      const result = await sendMissionEmail({ email, publisherId: PUBLISHER_ID_API_ENGAGEMENT, missionIds: [missionId] });
+      if (!result.email_sent) {
+        setError("La mission est introuvable et n'a pas pu être envoyée.");
+      } else {
+        setSuccess(true);
+      }
     } catch {
       setError("Une erreur est survenue. Merci de réessayer.");
     } finally {

@@ -38,8 +38,12 @@ export default function EmailMissionsModal({ userScoringId }: EmailMissionsModal
 
     try {
       await updateUserScoring(userScoringId, { missionAlertEnabled }, distinctId);
-      await sendMissionEmail({ email, publisherId: PUBLISHER_ID_API_ENGAGEMENT, userScoringId, distinctId });
-      setSuccess(true);
+      const result = await sendMissionEmail({ email, publisherId: PUBLISHER_ID_API_ENGAGEMENT, userScoringId, distinctId });
+      if (!result.email_sent) {
+        setError("Aucune mission n'a pu être envoyée. Réessaie depuis la page de résultats.");
+      } else {
+        setSuccess(true);
+      }
     } catch {
       setError("Une erreur est survenue. Merci de réessayer.");
     } finally {
