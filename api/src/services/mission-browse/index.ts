@@ -1,4 +1,4 @@
-import type { MissionBrowse, MissionBrowseFacetCount, MissionBrowseFilters, MissionBrowseResponse, MissionDetailPayload } from "@engagement/dto";
+import type { MissionBrowse, MissionBrowseFacetCount, MissionBrowseFilters, MissionBrowseResponse, MissionDetailResponse } from "@engagement/dto";
 
 import { PUBLISHER_IDS } from "@/config";
 import { missionService } from "@/services/mission";
@@ -89,7 +89,7 @@ const toMissionBrowse = (mission: MissionRecord): MissionBrowse => {
   };
 };
 
-const toMissionDetailPayload = (mission: MissionRecord): MissionDetailPayload => {
+const toMissionDetailPayload = (mission: MissionRecord): MissionDetailResponse => {
   const addr = mission.addresses[0] ?? null;
   const addressParts = [addr?.street, addr?.postalCode && addr?.city ? `${addr.postalCode} ${addr.city}` : (addr?.city ?? null)].filter(Boolean);
 
@@ -169,7 +169,7 @@ export const missionBrowseService = {
     return { data, total, page: params.page, pageSize: params.pageSize, facets };
   },
 
-  async findById(id: string): Promise<MissionDetailPayload | null> {
+  async findById(id: string): Promise<MissionDetailResponse | null> {
     const mission = await missionService.findOneMissionBy({ id, deletedAt: null, statusCode: "ACCEPTED" });
     if (!mission) {
       return null;

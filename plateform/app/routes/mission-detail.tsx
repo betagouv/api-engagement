@@ -1,4 +1,4 @@
-import type { MissionDetailPayload } from "@engagement/dto";
+import type { MissionDetailResponse } from "@engagement/dto";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 
@@ -11,7 +11,7 @@ import { fetchMissionDetail } from "~/services/mission-browse";
 
 export default function MissionDetailPage() {
   const { missionId, userScoringId } = useParams<{ missionId: string; userScoringId?: string }>();
-  const [mission, setMission] = useState<MissionDetailPayload | null>(null);
+  const [mission, setMission] = useState<MissionDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

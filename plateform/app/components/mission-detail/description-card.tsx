@@ -1,7 +1,7 @@
-import type { MissionDetailPayload } from "@engagement/dto";
+import type { MissionDetailResponse } from "@engagement/dto";
 
 interface MissionDescriptionCardProps {
-  mission: MissionDetailPayload;
+  mission: MissionDetailResponse;
 }
 
 export default function MissionDescriptionCard({ mission }: MissionDescriptionCardProps) {

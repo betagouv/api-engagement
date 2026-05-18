@@ -1,4 +1,4 @@
-import type { MissionBrowseFilters, MissionBrowseResponse, MissionDetailPayload } from "@engagement/dto";
+import type { MissionBrowseFilters, MissionBrowseResponse, MissionDetailResponse } from "@engagement/dto";
 
 import api from "~/services/api";
 
@@ -21,4 +21,4 @@ export async function browseMissions(filters: MissionBrowseFilters, signal?: Abo
   return api.get<MissionBrowseResponse>(`/missions/browse?${params.toString()}`, signal);
 }
 
-export const fetchMissionDetail = (id: string): Promise<MissionDetailPayload> => api.get<MissionDetailPayload>(`/missions/browse/${id}`);
+export const fetchMissionDetail = (id: string): Promise<MissionDetailResponse> => api.get<MissionDetailResponse>(`/missions/browse/${id}`);

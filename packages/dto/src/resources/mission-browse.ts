@@ -55,7 +55,7 @@ export type MissionDetailCompensation = {
   type: string | null;
 };
 
-export type MissionDetailPayload = {
+export type MissionDetailResponse = {
   id: string;
   title: string;
   domain: string | null;
