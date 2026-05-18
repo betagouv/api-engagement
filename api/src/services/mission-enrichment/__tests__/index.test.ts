@@ -42,6 +42,7 @@ vi.mock("@/services/mission-enrichment/prompts", () => ({
 
 import { missionRepository } from "@/repositories/mission";
 import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
+import { MissionType } from "@/db/core";
 import { asyncTaskBus } from "@/services/async-task";
 import { missionEnrichmentService } from "@/services/mission-enrichment";
 import { getMissionEnrichmentProvider } from "@/services/mission-enrichment/providers";
@@ -55,7 +56,7 @@ const baseMission = {
   softSkills: [],
   requirements: [],
   tags: [],
-  type: null,
+  type: MissionType.volontariat_sapeurs_pompiers,
   remote: null,
   openToMinors: null,
   reducedMobilityAccessible: null,
@@ -140,6 +141,17 @@ describe("missionEnrichmentService.enrich — chain propagation", () => {
 
     expect(asyncTaskBus.publish).not.toHaveBeenCalled();
     expect(providerGenerate).not.toHaveBeenCalled();
+  });
+
+  it("stops the chain when mission is not eligible for platform enrichment", async () => {
+    (missionRepository.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({ ...baseMission, type: MissionType.benevolat, publisherId: "publisher-1" });
+
+    await missionEnrichmentService.enrich("mission-1");
+
+    expect(missionEnrichmentRepository.findFirst).not.toHaveBeenCalled();
+    expect(missionEnrichmentRepository.create).not.toHaveBeenCalled();
+    expect(asyncTaskBus.publish).not.toHaveBeenCalled();
+    expect(generateObject).not.toHaveBeenCalled();
   });
 
   it("calls LLM and forwards to scoring after successful enrichment", async () => {
