@@ -24,7 +24,7 @@ const matchQuerySchema = zod.object({
   offset: zod.coerce.number().int().min(0).default(0),
 });
 
-// GET /poc/match?userScoringId=<uuid>&limit=20 — ranked missions with debug info
+// GET /missions/match?userScoringId=<uuid>&limit=20 — ranked missions with scoring
 router.get("/match", async (req, res, next) => {
   try {
     const query = matchQuerySchema.safeParse(req.query);
