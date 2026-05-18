@@ -13,8 +13,8 @@ import Modal from "@/components/Modal";
 import Table from "@/components/Table";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
-import { isValidEmail } from "@/services/utils";
 import { withLegacyPublishers } from "@/utils/publisher";
+import { isValidEmail } from "@/utils/string";
 
 const TABLE_HEADER = [{ title: "Nom" }, { title: "Rôles", position: "center" }];
 

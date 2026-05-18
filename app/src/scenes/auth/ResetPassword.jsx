@@ -8,7 +8,7 @@ import ErrorAlert from "@/components/ErrorAlert";
 import WarningAlert from "@/components/WarningAlert";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
-import { hasLetter, hasNumber, hasSpecialChar } from "@/services/utils";
+import { hasLetter, hasNumber, hasSpecialChar } from "@/utils/string";
 
 const ResetPassword = () => {
   const [searchParams] = useSearchParams();
@@ -151,7 +151,11 @@ const ResetPasswordForm = ({ user, token }) => {
       </div>
       <div className="mt-2 flex flex-col gap-2">
         <div className="flex items-center gap-2">
-          {(values.password || "").length >= 12 ? <AiFillCloseCircle className="text-success" aria-hidden="true" /> : <AiFillCloseCircle className="text-text-mention" aria-hidden="true" />}
+          {(values.password || "").length >= 12 ? (
+            <AiFillCloseCircle className="text-success" aria-hidden="true" />
+          ) : (
+            <AiFillCloseCircle className="text-text-mention" aria-hidden="true" />
+          )}
           <span className={`align-middle text-sm ${values.password && (values.password || "").length >= 12 ? "text-success" : "text-text-mention"}`}>Au moins 12 caractères</span>
         </div>
         <div className="flex items-center gap-2">
@@ -163,7 +167,11 @@ const ResetPasswordForm = ({ user, token }) => {
           <span className={`align-middle text-sm ${values.password && hasNumber(values.password) ? "text-success" : "text-text-mention"}`}>Au moins un chiffre</span>
         </div>
         <div className="flex items-center gap-2">
-          {hasSpecialChar(values.password) ? <AiFillCloseCircle className="text-success" aria-hidden="true" /> : <AiFillCloseCircle className="text-text-mention" aria-hidden="true" />}
+          {hasSpecialChar(values.password) ? (
+            <AiFillCloseCircle className="text-success" aria-hidden="true" />
+          ) : (
+            <AiFillCloseCircle className="text-text-mention" aria-hidden="true" />
+          )}
           <span className={`align-middle text-sm ${values.password && hasSpecialChar(values.password) ? "text-success" : "text-text-mention"}`}>Au moins un caractère spécial</span>
         </div>
       </div>

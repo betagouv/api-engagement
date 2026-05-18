@@ -8,7 +8,7 @@ import { DAYS, MONTHS, WARNINGS, YEARS } from "@/constants";
 import Bots from "@/scenes/admin-warning/components/Bots";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
-import { slugify } from "@/services/utils";
+import { slugify } from "@/utils/string";
 import { withLegacyPublishers } from "@/utils/publisher";
 
 const Index = () => {
