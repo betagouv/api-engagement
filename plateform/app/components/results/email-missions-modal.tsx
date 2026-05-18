@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { type FormEvent, useId, useState } from "react";
 import Modal from "~/components/layout/modal";
 import { sendMissionEmail } from "~/services/email";
 import { PUBLISHER_ID_API_ENGAGEMENT } from "~/services/config";
@@ -25,7 +25,7 @@ export default function EmailMissionsModal({ userScoringId }: EmailMissionsModal
     setSuccess(false);
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!userScoringId) return;
 
@@ -53,7 +53,7 @@ export default function EmailMissionsModal({ userScoringId }: EmailMissionsModal
         Recevoir ces 5 missions par e-mail
       </button>
 
-      <Modal open={open} onClose={handleClose} title="Reçois tes missions par email" showTitleIcon={false} beforeTitle={<MailIllustration className="mb-4 h-[120px]" />}>
+      <Modal open={open} onClose={handleClose} title="Reçois tes missions par email" beforeTitle={<MailIllustration className="mb-4 h-[120px]" />}>
         {success ? (
           <div className="flex flex-col items-center gap-4 py-4 text-center">
             <div className="fr-alert fr-alert--success w-full">

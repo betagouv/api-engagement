@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { type FormEvent, useId, useState } from "react";
 import Modal from "~/components/layout/modal";
 import { sendMissionEmail } from "~/services/email";
 import { PUBLISHER_ID_API_ENGAGEMENT } from "~/services/config";
@@ -25,7 +25,7 @@ export default function EmailMissionModal({ missionId, userScoringId }: EmailMis
     setSuccess(false);
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.currentTarget;
     const email = (form.elements.namedItem("email") as HTMLInputElement).value;
@@ -53,7 +53,7 @@ export default function EmailMissionModal({ missionId, userScoringId }: EmailMis
         Recevoir cette mission par e-mail
       </button>
 
-      <Modal open={open} onClose={handleClose} title="Reçois ta mission par email" titleIconClass="fr-icon-mail-line">
+      <Modal open={open} onClose={handleClose} title="Reçois ta mission par email" titleIcon="fr-icon-mail-line">
         {success ? (
           <div className="fr-alert fr-alert--success">
             <p>La mission a bien été envoyée ! Vérifie ta boîte mail.</p>

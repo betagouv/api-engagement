@@ -25,7 +25,7 @@ export default function ExitModal({ className }: ExitModalProps) {
     <>
       <button type="button" onClick={handleClose} title="Fermer" aria-label="Fermer" aria-controls="exit-modal" className={className} />
 
-      <Modal open={exitOpen} onClose={() => setExitOpen(false)} title="Quitter le questionnaire ?" id="exit-modal">
+      <Modal open={exitOpen} onClose={() => setExitOpen(false)} title="Quitter le questionnaire ?" titleIcon="fr-icon-arrow-right-line" id="exit-modal">
         <p className="mb-2!">Si tu quittes maintenant, ta progression ne sera pas enregistrée.</p>
         <p className="mb-6!">Tu peux retourner à l'accueil ou voir directement toutes les missions.</p>
         <div className="flex justify-end gap-3 flex-wrap">

@@ -19,7 +19,7 @@ interface Props {
 
 export default function MatchingDebugModal({ item, userValues, onClose }: Props) {
   return (
-    <Modal open={item !== null} onClose={onClose} title="Debug matching">
+    <Modal open={item !== null} onClose={onClose} title="Debug matching" titleIcon="fr-icon-arrow-right-line">
       {item && (
         <div className="matching-debug flex flex-col gap-6">
           <section>
