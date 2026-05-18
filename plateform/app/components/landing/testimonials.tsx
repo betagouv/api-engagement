@@ -1,60 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
-import AscPng from "~/assets/images/asc-logo.png";
-import RocPng from "~/assets/images/roc-logo.png";
-import SpvPng from "~/assets/images/spv-logo.png";
+import MissionCard from "~/components/missions/mission-card";
+import type { BrowseMission } from "~/types/api";
 import Highlight from "../ui/highlight";
 
-type Testimonial = {
-  id: string;
-  image: string;
-  category: string;
-  action: string;
-  title: string;
-  publisherName: string;
-  publisherLogo: string;
+type Props = {
+  missions: BrowseMission[];
 };
 
-const TESTIMONIALS: Testimonial[] = [
-  {
-    id: "1",
-    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80",
-    category: "Sécurité",
-    action: "❤️ Aider les autres",
-    title: "Infirmière 2 fois par semaine depuis 3 mois",
-    publisherName: "La réserve des armées",
-    publisherLogo: RocPng,
-  },
-  {
-    id: "2",
-    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
-    category: "Solidarité",
-    action: "💡 Développe tes compétences",
-    title: "Améliore la qualité de vie des personnes en situation de handicap depuis 6 mois",
-    publisherName: "Service Civique",
-    publisherLogo: AscPng,
-  },
-  {
-    id: "3",
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80",
-    category: "Solidarité",
-    action: "💡 Développe tes compétences",
-    title: "Améliore la qualité de vie des personnes isolées depuis 6 mois",
-    publisherName: "Service Civique",
-    publisherLogo: AscPng,
-  },
-  {
-    id: "4",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
-    category: "Solidarité",
-    action: "❤️ Aider les autres",
-    title: "Pompier 2 fois par semaine depuis 7 mois",
-    publisherName: "Sapeurs pompiers volontaires",
-    publisherLogo: SpvPng,
-  },
-];
-
-export default function Testimonials() {
+export default function Testimonials({ missions }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
@@ -68,13 +22,15 @@ export default function Testimonials() {
 
   useEffect(() => {
     updateScrollState();
-  }, []);
+  }, [missions]);
 
   const handleScroll = (direction: "left" | "right") => {
     if (!scrollRef.current) return;
     const offset = direction === "left" ? -352 : 352;
     scrollRef.current.scrollBy({ left: offset, behavior: "smooth" });
   };
+
+  if (!missions.length) return null;
 
   return (
     <section className="fr-container" aria-roledescription="carousel" aria-label="Témoignages d'engagés">
@@ -99,28 +55,11 @@ export default function Testimonials() {
           aria-live="polite"
           aria-atomic="false"
         >
-          <div className="flex w-max gap-6 pr-8 pb-4">
-            {TESTIMONIALS.map((testimonial, i) => (
-              <article
-                key={testimonial.id}
-                role="group"
-                aria-roledescription="slide"
-                aria-label={`Témoignage ${i + 1} sur ${TESTIMONIALS.length}`}
-                className="bg-background flex w-[328px] shrink-0 flex-col overflow-hidden border border-[#ddd] shadow-sm"
-              >
-                <img src={testimonial.image} alt="" className="h-[235px] w-full object-cover" loading="lazy" />
-                <div className="flex flex-1 flex-col gap-3 p-6">
-                  <div className="flex flex-wrap gap-2">
-                    <span className="bg-blue-france-950 text-blue-france-sun rounded-full px-2 text-sm font-bold">{testimonial.category}</span>
-                    <span className="bg-blue-france-950 text-blue-france-sun rounded-full px-2 text-sm font-bold">{testimonial.action}</span>
-                  </div>
-                  <p className="text-title-grey fr-mb-0 flex-1 text-xl font-bold leading-7">{testimonial.title}</p>
-                  <div className="flex items-center gap-2">
-                    <img src={testimonial.publisherLogo} alt="" className="size-8 rounded object-contain" />
-                    <span className="fr-text--xs text-mention-grey">{testimonial.publisherName}</span>
-                  </div>
-                </div>
-              </article>
+          <div className="flex w-max gap-6 pr-8 pb-4 items-stretch">
+            {missions.map((mission, i) => (
+              <div key={mission.id} role="group" aria-roledescription="slide" aria-label={`Témoignage ${i + 1} sur ${missions.length}`} className="w-[330px] shrink-0">
+                <MissionCard mission={mission} />
+              </div>
             ))}
           </div>
         </div>

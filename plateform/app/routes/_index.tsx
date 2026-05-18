@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router";
+import { useLoaderData, useNavigate } from "react-router";
 import Hero from "~/components/landing/hero";
 import HowItWorks from "~/components/landing/how-it-works";
 import MissionExamples from "~/components/landing/mission-examples";
@@ -7,11 +7,16 @@ import Testimonials from "~/components/landing/testimonials";
 import Newsletter from "~/components/layout/newsletter";
 import Partners from "~/components/layout/partners";
 import GradientBg from "~/components/ui/gradient-bg";
+import { browseMissions } from "~/services/mission-browse";
 import { useQuizStore } from "~/stores/quiz";
+import type { BrowseMission } from "~/types/api";
 import type { Route } from "./+types/_index";
 
 import PeopleMobilePng from "~/assets/images/people-landing-mobile.png";
 import PeoplePng from "~/assets/images/people-landing.png";
+
+const EXAMPLES_COUNT = 5;
+const TESTIMONIALS_COUNT = 4;
 
 export function meta(): Route.MetaDescriptors {
   return [
@@ -23,7 +28,20 @@ export function meta(): Route.MetaDescriptors {
   ];
 }
 
+export async function loader(): Promise<{ examples: BrowseMission[]; testimonials: BrowseMission[] }> {
+  try {
+    const res = await browseMissions({ pageSize: EXAMPLES_COUNT + TESTIMONIALS_COUNT });
+    return {
+      examples: res.data.slice(0, EXAMPLES_COUNT),
+      testimonials: res.data.slice(EXAMPLES_COUNT, EXAMPLES_COUNT + TESTIMONIALS_COUNT),
+    };
+  } catch {
+    return { examples: [], testimonials: [] };
+  }
+}
+
 export default function Landing() {
+  const { examples, testimonials } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const reset = useQuizStore((s) => s.reset);
 
@@ -35,15 +53,15 @@ export default function Landing() {
   return (
     <main>
       <GradientBg className="bg-size-[100%_640px]">
-        <div className="relative">
+        <div className="relative md:min-h-[640px]">
           <img src={PeoplePng} alt="" className="absolute hidden md:block right-0 bottom-0 object-contain md:bottom-auto md:top-0 md:h-[640px] md:w-auto md:max-w-[1024px]" />
           <Hero onStartQuiz={handleStartQuiz} />
           <img src={PeopleMobilePng} alt="" className="block md:hidden right-0 bottom-0 object-contain h-[420px] w-full" />
         </div>
-        <MissionExamples className="-mt-14 md:mt-0" />
+        <MissionExamples missions={examples} className="-mt-14 md:-mt-24" />
       </GradientBg>
       <HowItWorks />
-      <Testimonials />
+      <Testimonials missions={testimonials} />
       <ProSpace />
       <Partners style="compact" />
       <Newsletter
