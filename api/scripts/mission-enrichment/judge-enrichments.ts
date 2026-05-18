@@ -436,11 +436,16 @@ const buildMissionIdsPath = (filePath: string): string => {
   return path.join(parsed.dir, `${parsed.name}-mission-ids.txt`);
 };
 
-const exportDataset = (missionIdsPath: string) => {
+const buildEnrichmentIdsPath = (filePath: string): string => {
+  const parsed = path.parse(filePath);
+  return path.join(parsed.dir, `${parsed.name}-enrichment-ids.txt`);
+};
+
+const exportDataset = (enrichmentIdsPath: string) => {
   const exportScriptPath = path.resolve(__dirname, "export-dataset.ts");
   const result = spawnSync(
     process.execPath,
-    ["-r", "ts-node/register", "-r", "tsconfig-paths/register", exportScriptPath, "--version", version, "--ids-file", missionIdsPath, "--output", datasetOutputPath],
+    ["-r", "ts-node/register", "-r", "tsconfig-paths/register", exportScriptPath, "--version", version, "--enrichment-ids-file", enrichmentIdsPath, "--output", datasetOutputPath],
     { cwd: path.resolve(__dirname, "../.."), env: process.env, stdio: "inherit" }
   );
 
@@ -532,9 +537,11 @@ async function main() {
 
   if (shouldExportDataset) {
     const missionIdsPath = buildMissionIdsPath(outputPath);
+    const enrichmentIdsPath = buildEnrichmentIdsPath(outputPath);
     fs.writeFileSync(missionIdsPath, results.map((r) => r.missionId).join("\n"), "utf-8");
-    console.log(`[judge-enrichments] export dataset sur le même échantillon — ids: ${missionIdsPath}`);
-    exportDataset(missionIdsPath);
+    fs.writeFileSync(enrichmentIdsPath, results.map((r) => r.enrichmentId).join("\n"), "utf-8");
+    console.log(`[judge-enrichments] export dataset sur le même échantillon — ids: ${enrichmentIdsPath}`);
+    exportDataset(enrichmentIdsPath);
   }
 
   const successful = results.filter((r) => r.result);
