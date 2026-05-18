@@ -1,6 +1,7 @@
 import { isValidTaxonomyValueKey } from "@engagement/taxonomy";
 
 import { prisma } from "@/db/postgres";
+import { isMissionEligibleForPlatform } from "@/services/mission-platform-eligibility";
 import { missionSearchClient } from "@/services/search/collections/missions/client";
 import { INDEXED_TAXONOMY_KEYS, IndexedTaxonomyKey } from "@/services/search/collections/missions/fields";
 import { MissionIndexDocument } from "@/services/search/collections/missions/types";
@@ -45,6 +46,7 @@ export const missionIndexService = {
       select: {
         id: true,
         publisherId: true,
+        type: true,
         deletedAt: true,
         statusCode: true,
         addresses: {
@@ -63,7 +65,7 @@ export const missionIndexService = {
       },
     });
 
-    if (!mission || mission.deletedAt !== null || mission.statusCode !== "ACCEPTED") {
+    if (!mission || mission.deletedAt !== null || mission.statusCode !== "ACCEPTED" || !isMissionEligibleForPlatform(mission)) {
       await this.delete(missionId);
       return;
     }

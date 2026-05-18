@@ -4,6 +4,7 @@ import { BaseHandler } from "@/jobs/base/handler";
 import { JobResult } from "@/jobs/types";
 import { missionEnrichmentService } from "@/services/mission-enrichment";
 import { CURRENT_PROMPT_VERSION, JOB_ENRICH_SLEEP_MS } from "@/services/mission-enrichment/config";
+import { buildMissionPlatformEligibilityWhere } from "@/services/mission-platform-eligibility";
 import { setTimeout as sleep } from "timers/promises";
 
 const LOG_PREFIX = "[update-mission-enrichment-job]";
@@ -26,6 +27,7 @@ export class UpdateMissionEnrichmentHandler implements BaseHandler<UpdateMission
       const missions = await prisma.mission.findMany({
         where: {
           ...(publisherId ? { publisherId } : {}),
+          ...buildMissionPlatformEligibilityWhere(),
           deletedAt: null,
           enrichments: {
             none: { promptVersion: CURRENT_PROMPT_VERSION, status: "completed" },

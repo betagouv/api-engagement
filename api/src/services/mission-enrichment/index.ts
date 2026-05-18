@@ -5,6 +5,7 @@ import { ENRICHABLE_TAXONOMIES, TAXONOMY } from "@engagement/taxonomy";
 import { missionRepository } from "@/repositories/mission";
 import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
 import { asyncTaskBus } from "@/services/async-task";
+import { isMissionEligibleForPlatform } from "@/services/mission-platform-eligibility";
 import type { MissionRecord, MissionSearchFilters } from "@/types/mission";
 import { CONFIDENCE_THRESHOLD, CURRENT_PROMPT_VERSION } from "./config";
 import { validateEnrichmentClassifications, type ClassificationInput, type TaxonomyLookup } from "./parser";
@@ -275,6 +276,11 @@ export const missionEnrichmentService = {
 
     if (mission.deletedAt !== null) {
       await asyncTaskBus.publish({ type: "mission.scoring", payload: { missionId } });
+      return;
+    }
+
+    if (!isMissionEligibleForPlatform(mission)) {
+      console.log(`${LOG_PREFIX} skipping ${missionId} — mission is not eligible for platform enrichment`);
       return;
     }
 

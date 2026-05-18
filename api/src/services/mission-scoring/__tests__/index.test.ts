@@ -35,6 +35,8 @@ const buildEnrichmentValue = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 });
 
+const eligibleMission = { publisherId: PUBLISHER_IDS.JEVEUXAIDER, type: null };
+
 describe("missionScoringService.score", () => {
   beforeEach(() => {
     missionEnrichmentRepositoryMock.findFirst.mockReset();
@@ -58,7 +60,7 @@ describe("missionScoringService.score", () => {
     missionEnrichmentRepositoryMock.findFirst.mockResolvedValue({
       id: "enrichment-1",
       missionId: "mission-1",
-      mission: { publisherId: null, type: null },
+      mission: eligibleMission,
       values: [buildEnrichmentValue()],
     });
     missionScoringRepositoryMock.findUnique.mockResolvedValue({ id: "mission-scoring-1" });
@@ -75,7 +77,7 @@ describe("missionScoringService.score", () => {
     missionEnrichmentRepositoryMock.findFirst.mockResolvedValue({
       id: "enrichment-1",
       missionId: "mission-1",
-      mission: { publisherId: null, type: null },
+      mission: eligibleMission,
       values: [buildEnrichmentValue()],
     });
     missionScoringRepositoryMock.findUnique.mockResolvedValue({ id: "mission-scoring-1" });
@@ -104,7 +106,7 @@ describe("missionScoringService.score", () => {
     missionEnrichmentRepositoryMock.findFirst.mockResolvedValue({
       id: "enrichment-1",
       missionId: "mission-1",
-      mission: { publisherId: null, type: null },
+      mission: eligibleMission,
       values: [
         buildEnrichmentValue({
           taxonomyKey: "accessibilite",
@@ -131,7 +133,7 @@ describe("missionScoringService.score", () => {
     missionEnrichmentRepositoryMock.findFirst.mockResolvedValue({
       id: "enrichment-1",
       missionId: "mission-1",
-      mission: { publisherId: null, type: null },
+      mission: eligibleMission,
       values: [buildEnrichmentValue({ confidence: 0.54 })],
     });
     missionScoringRepositoryMock.findUnique.mockResolvedValue(null);
@@ -141,6 +143,23 @@ describe("missionScoringService.score", () => {
       missionEnrichmentId: "enrichment-1",
     });
 
+    expect(missionScoringRepositoryMock.replaceForEnrichment).not.toHaveBeenCalled();
+  });
+
+  it("skips scoring when mission is not eligible for platform", async () => {
+    missionEnrichmentRepositoryMock.findFirst.mockResolvedValue({
+      id: "enrichment-1",
+      missionId: "mission-1",
+      mission: { publisherId: "publisher-1", type: "benevolat" },
+      values: [buildEnrichmentValue()],
+    });
+
+    await missionScoringService.score({
+      missionId: "mission-1",
+      missionEnrichmentId: "enrichment-1",
+    });
+
+    expect(missionScoringRepositoryMock.findUnique).not.toHaveBeenCalled();
     expect(missionScoringRepositoryMock.replaceForEnrichment).not.toHaveBeenCalled();
   });
 
