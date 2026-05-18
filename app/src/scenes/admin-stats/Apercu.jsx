@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import { HiChevronRight } from "react-icons/hi";
 import { Link, useSearchParams } from "react-router-dom";
 
+import ChartDetailsTable from "@/components/ChartDetailsTable";
 import DateRangePicker from "@/components/DateRangePicker";
 import { StackedBarchart } from "@/components/Chart";
 import Loader from "@/components/Loader";
 import AnalyticsCard from "@/scenes/performance/AnalyticsCard";
 import { useAnalyticsProvider } from "@/services/analytics/provider";
 import { captureError } from "@/services/error";
+import { slugify } from "@/utils/string";
 import EmptySVG from "@/assets/svg/empty-info.svg";
 import { METABASE_CARD_ID, MISSION_TYPE_OPTIONS } from "@/constants";
 
@@ -63,7 +65,19 @@ const ChartFallback = ({ title }) => (
   </div>
 );
 
-const ChartBlock = ({ title, subtitle, cardId, filters, type = "stacked", chartProps, adapterOptions, showLegend = false, loaderHeight = "420px", includeMissionTypeFilter = true }) => {
+const ChartBlock = ({
+  title,
+  subtitle,
+  cardId,
+  filters,
+  type = "stacked",
+  chartProps,
+  adapterOptions,
+  showLegend = false,
+  loaderHeight = "420px",
+  includeMissionTypeFilter = true,
+  chartDescriptionMode = "none",
+}) => {
   const variables = {};
   if (includeMissionTypeFilter && filters.type) {
     variables.type = filters.type;
@@ -86,6 +100,9 @@ const ChartBlock = ({ title, subtitle, cardId, filters, type = "stacked", chartP
             adapterOptions={adapterOptions}
             showLegend={showLegend}
             loaderHeight={loaderHeight}
+            chartTitle={title}
+            chartDescription={subtitle}
+            chartDescriptionMode={chartDescriptionMode}
           />
         ) : (
           <ChartFallback title={title} />
@@ -209,6 +226,7 @@ const TrafficByAnnouncerChart = ({ filters, cardId, title, subtitle }) => {
   };
 
   const { histogram, keys } = buildHistogram(rows);
+  const descriptionId = `admin-stats-traffic-${slugify(title)}-description`;
 
   return (
     <div className="overflow-x-auto border border-gray-900 p-4">
@@ -227,9 +245,20 @@ const TrafficByAnnouncerChart = ({ filters, cardId, title, subtitle }) => {
             <p className="text-base text-[#666]">Aucune donnée disponible pour la période</p>
           </div>
         ) : (
-          <div className="h-[420px] w-full">
-            <StackedBarchart data={histogram} dataKey={keys} />
-          </div>
+          <figure>
+            <div className="h-[420px] w-full" role="img" aria-label={title} aria-describedby={descriptionId}>
+              <StackedBarchart data={histogram} dataKey={keys} />
+            </div>
+            <ChartDetailsTable
+              id={descriptionId}
+              title={title}
+              description={subtitle}
+              mode="sr-only"
+              type="stacked"
+              data={histogram}
+              stackedKeys={keys}
+            />
+          </figure>
         )}
       </div>
     </div>
@@ -271,6 +300,7 @@ const MissionsSection = ({ filters }) => {
           legend: true,
           seriesLabelMap: { mission_active_count: "Total Missions" },
         }}
+        chartDescriptionMode="sr-only"
       />
       <ChartBlock
         title="Missions créées"
@@ -279,6 +309,7 @@ const MissionsSection = ({ filters }) => {
         filters={filters}
         type="stacked"
         chartProps={{ color: CHART_COLORS.slice(0, 2), legend: false }}
+        chartDescriptionMode="sr-only"
       />
     </div>
   );
@@ -297,6 +328,7 @@ const PartnersSection = ({ filters }) => {
           type="pie"
           showLegend={true}
           loaderHeight="22rem"
+          chartDescriptionMode="visible"
         />
         <ChartBlock
           title="Top annonceurs"
@@ -306,6 +338,7 @@ const PartnersSection = ({ filters }) => {
           type="pie"
           showLegend={true}
           loaderHeight="22rem"
+          chartDescriptionMode="visible"
         />
       </div>
       <div className="flex flex-wrap gap-4">

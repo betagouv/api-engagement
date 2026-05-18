@@ -8,7 +8,7 @@ import Table from "@/components/Table";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
-import { timeSince } from "@/services/utils";
+import { timeSince } from "@/utils/date";
 
 const MAX_EVENTS = 25;
 

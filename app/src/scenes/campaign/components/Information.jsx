@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import Combobox from "@/components/combobox";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
-import { slugify } from "@/services/utils";
+import { slugify } from "@/utils/string";
 import { withLegacyPublishers } from "@/utils/publisher";
 
 const buildDefaultUtm = (name) => [
