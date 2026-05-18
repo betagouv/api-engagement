@@ -35,7 +35,7 @@ export type TaxonomyValueItem = {
 export type TaxonomyListItem = {
   key: TaxonomyKey;
   label: string;
-  type: "categorical" | "multi_value" | "gate";
+  type: "categorical" | "multi_value" | "gate" | "value";
   enrichable: boolean;
   gate: boolean;
   values: TaxonomyValueItem[];

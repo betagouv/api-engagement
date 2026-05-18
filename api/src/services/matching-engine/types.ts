@@ -1,6 +1,6 @@
-import type { EnrichableTaxonomyKey } from "@engagement/taxonomy";
+import type { EnrichableTaxonomyKey, GateTaxonomyKey } from "@engagement/taxonomy";
 
-export type MatchingEngineTaxonomy = EnrichableTaxonomyKey;
+export type MatchingEngineTaxonomy = EnrichableTaxonomyKey | GateTaxonomyKey;
 
 export type MatchingEngineTaxonomyWeights = Record<MatchingEngineTaxonomy, number>;
 
@@ -24,15 +24,21 @@ export type RankMissionsByUserScoringInput = {
 export type MatchMissionItem = {
   missionId: string;
   missionScoringId: string;
+  missionAddressId: string | null;
   totalScore: number;
   taxonomyScore: number;
   geoScore: number | null;
   distanceKm: number | null;
+  closestLat: number | null;
+  closestLon: number | null;
+  closestCity: string | null;
+  closestAddress: string | null;
   taxonomyScores: Partial<Record<MatchingEngineTaxonomy, number>>;
 };
 
 export type MissionMatchingResultItem = {
   missionScoringId: string;
+  missionAddressId?: string | null;
   taxonomyScores: Partial<Record<MatchingEngineTaxonomy, number>>;
 };
 

@@ -53,7 +53,7 @@ jobs:
 
       - name: Setup Node.js
         if: steps.release_mode.outputs.should_release == 'true'
-        uses: actions/setup-node@v6.3.0
+        uses: actions/setup-node@v6.4.0
         with:
           node-version: "24"
           cache: "npm"
@@ -94,7 +94,7 @@ jobs:
 
       - name: Generate Release Notes
         if: steps.release_mode.outputs.should_release == 'true'
-        uses: orhun/git-cliff-action@v4
+        uses: orhun/git-cliff-action@v4.8.0
         with:
           config: cliff.toml
           args: --unreleased --strip header --output /tmp/release-notes.md
@@ -119,6 +119,10 @@ jobs:
           git tag -a "$TAG_NAME" -m "Release $TAG_NAME"
           git push origin $TAG_NAME
 
+      - name: Build Mockoon partner archive
+        if: steps.commit.outputs.changes_detected == 'true'
+        run: api/mockoon/build-archive.sh
+
       - name: Create GitHub Release
         if: steps.commit.outputs.changes_detected == 'true'
         uses: softprops/action-gh-release@v3
@@ -127,3 +131,4 @@ jobs:
           tag_name: v${{ env.RELEASE_VERSION }}
           target_commitish: main
           body_path: /tmp/release-notes.md
+          files: api/docs/mockoon/api-engagement-latest.tar.gz

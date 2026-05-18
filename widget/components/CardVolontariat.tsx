@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { RiBuildingFill, RiCalendarEventFill } from "react-icons/ri";
 
-import { Mission, Widget } from "types";
+import { Mission, Widget } from "@/types";
 import { DOMAINS } from "@/config";
 import LogoSCE from "@/public/images/logo-sce.svg";
 

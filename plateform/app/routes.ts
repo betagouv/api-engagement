@@ -21,8 +21,10 @@ export default [
     route("precision-reprendre-activite", "routes/quiz/precision-reprendre-activite.tsx"),
     route("precision-servir-pays", "routes/quiz/precision-servir-pays.tsx"),
     route("precision-international", "routes/quiz/precision-international.tsx"),
-    route("results", "routes/quiz/results.tsx"),
   ]),
 
+  route("results/:userScoringId", "routes/results.tsx"),
+  route("results/:userScoringId/missions/:missionId", "routes/mission-detail.tsx", { id: "mission-detail-from-results" }),
+  route("missions/:missionId", "routes/mission-detail.tsx", { id: "mission-detail-standalone" }),
   route("missions", "routes/missions.tsx"),
 ] satisfies RouteConfig;

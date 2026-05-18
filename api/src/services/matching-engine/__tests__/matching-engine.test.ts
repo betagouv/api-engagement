@@ -19,6 +19,22 @@ const missionMatchingResultRepositoryMock = missionMatchingResultRepository as u
   createForUserScoringVersion: ReturnType<typeof vi.fn>;
 };
 
+const getSqlText = (query: unknown): string => {
+  if (typeof query === "object" && query !== null && "sql" in query && typeof query.sql === "string") {
+    return query.sql;
+  }
+
+  if (typeof query === "object" && query !== null && "text" in query && typeof query.text === "string") {
+    return query.text;
+  }
+
+  if (typeof query === "object" && query !== null && "strings" in query && Array.isArray(query.strings)) {
+    return query.strings.join("");
+  }
+
+  return String(query);
+};
+
 describe("matchingEngineService", () => {
   beforeEach(() => {
     prismaMock.$queryRaw.mockReset();
@@ -71,6 +87,7 @@ describe("matchingEngineService", () => {
             taxonomy_score: -0.2,
             geo_score: 0.71234567,
             distance_km: 12.345,
+            closest_address_id: "mission-address-1",
           },
           {
             mission_id: "mission-2",
@@ -79,6 +96,7 @@ describe("matchingEngineService", () => {
             taxonomy_score: 0.8765432,
             geo_score: null,
             distance_km: null,
+            closest_address_id: null,
           },
         ])
         .mockResolvedValueOnce([
@@ -108,14 +126,22 @@ describe("matchingEngineService", () => {
       });
 
       expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(3);
+      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[1][0]);
+      expect(rankingSql).toContain('ma."id" AS "closest_address_id"');
+      expect(rankingSql).toContain('ORDER BY "distance_km" ASC, ma."created_at" ASC, ma."id" ASC');
       expect(result.items).toEqual([
         {
           missionId: "mission-1",
           missionScoringId: "mission-scoring-1",
+          missionAddressId: "mission-address-1",
           totalScore: 1,
           taxonomyScore: 0,
           geoScore: 0.712346,
           distanceKm: 12.345,
+          closestLat: null,
+          closestLon: null,
+          closestCity: null,
+          closestAddress: null,
           taxonomyScores: {
             domaine: 1,
           },
@@ -127,12 +153,14 @@ describe("matchingEngineService", () => {
         results: [
           {
             missionScoringId: "mission-scoring-1",
+            missionAddressId: "mission-address-1",
             taxonomyScores: {
               domaine: 1,
             },
           },
           {
             missionScoringId: "mission-scoring-2",
+            missionAddressId: null,
             taxonomyScores: {},
           },
         ],
@@ -182,6 +210,7 @@ describe("matchingEngineService", () => {
             taxonomy_score: 0.8,
             geo_score: null,
             distance_km: null,
+            closest_address_id: null,
           },
         ])
         .mockResolvedValueOnce([
@@ -199,15 +228,24 @@ describe("matchingEngineService", () => {
         userScoringId: "user-scoring-gate-filtered",
       });
 
+      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[1][0]);
       expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(3);
+      expect(rankingSql).toContain("user_gate_values");
+      expect(rankingSql).toContain("matched_gate_taxonomies");
+      expect(rankingSql).not.toContain('AND usv."taxonomy_key" NOT IN');
       expect(result.items).toEqual([
         {
           missionId: "mission-eligible",
           missionScoringId: "mission-scoring-eligible",
+          missionAddressId: null,
           totalScore: 0.8,
           taxonomyScore: 0.8,
           geoScore: null,
           distanceKm: null,
+          closestLat: null,
+          closestLon: null,
+          closestCity: null,
+          closestAddress: null,
           taxonomyScores: {
             domaine: 0.8,
           },
@@ -231,6 +269,7 @@ describe("matchingEngineService", () => {
             taxonomy_score: 0.7,
             geo_score: null,
             distance_km: null,
+            closest_address_id: null,
           },
         ])
         .mockResolvedValueOnce([
@@ -263,15 +302,65 @@ describe("matchingEngineService", () => {
         {
           missionId: "mission-1",
           missionScoringId: "mission-scoring-1",
+          missionAddressId: null,
           totalScore: 0.7,
           taxonomyScore: 0.7,
           geoScore: null,
           distanceKm: null,
+          closestLat: null,
+          closestLon: null,
+          closestCity: null,
+          closestAddress: null,
           taxonomyScores: {
             domaine: 0.7,
+            tranche_age: 1,
           },
         },
       ]);
+    });
+
+    it("uses bounded OR taxonomy scoring with multi-value bonus", async () => {
+      prismaMock.$queryRaw
+        .mockResolvedValueOnce([
+          {
+            id: "user-scoring-or-taxonomy",
+            expires_at: null,
+          },
+        ])
+        .mockResolvedValueOnce([
+          {
+            mission_id: "mission-1",
+            mission_scoring_id: "mission-scoring-1",
+            total_score: 0.866667,
+            taxonomy_score: 0.866667,
+            geo_score: null,
+            distance_km: null,
+            closest_address_id: null,
+          },
+        ])
+        .mockResolvedValueOnce([
+          {
+            mission_scoring_id: "mission-scoring-1",
+            taxonomy_key: "tranche_age",
+            taxonomy_score: 0.866667,
+          },
+        ]);
+      missionMatchingResultRepositoryMock.createForUserScoringVersion.mockResolvedValue({
+        id: "mission-matching-result-or-taxonomy",
+      });
+
+      const result = await matchingEngineService.rankMissionsByUserScoring({
+        userScoringId: "user-scoring-or-taxonomy",
+      });
+
+      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[1][0]);
+      const taxonomyScoresSql = getSqlText(prismaMock.$queryRaw.mock.calls[2][0]);
+
+      expect(result.items[0].taxonomyScores.tranche_age).toBe(0.866667);
+      expect(rankingSql).toContain('COALESCE(SUM(COALESCE(dw."taxonomy_weight", 1.0)), 0) AS "taxonomy_total"');
+      expect(rankingSql).not.toContain('SUM(udt."taxonomy_total" * COALESCE(dw."taxonomy_weight", 1.0))');
+      expect(rankingSql).toContain('LEAST(mv."taxonomy_sum" / NULLIF(udt."taxonomy_total", 0), 1.0)');
+      expect(taxonomyScoresSql).toContain('LEAST(mv."taxonomy_sum" / udt."taxonomy_total", 1.0)');
     });
 
     it("does not persist a snapshot when the caller requests an offset page", async () => {
@@ -290,6 +379,7 @@ describe("matchingEngineService", () => {
             taxonomy_score: 0.6,
             geo_score: null,
             distance_km: null,
+            closest_address_id: null,
           },
         ])
         .mockResolvedValueOnce([
@@ -310,10 +400,15 @@ describe("matchingEngineService", () => {
         {
           missionId: "mission-2",
           missionScoringId: "mission-scoring-2",
+          missionAddressId: null,
           totalScore: 0.6,
           taxonomyScore: 0.6,
           geoScore: null,
           distanceKm: null,
+          closestLat: null,
+          closestLon: null,
+          closestCity: null,
+          closestAddress: null,
           taxonomyScores: {
             domaine: 0.6,
           },

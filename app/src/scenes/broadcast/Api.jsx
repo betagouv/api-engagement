@@ -3,15 +3,16 @@ import { useEffect, useState } from "react";
 import { RiBookletFill, RiFileCopyFill } from "react-icons/ri";
 
 import api from "@/services/api";
+import { API_URL } from "@/services/config";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
 
 const Api = () => {
   const { publisher, setPublisher } = useStore();
-  const [curl, setCurl] = useState(`curl --location --request GET 'https://api.api-engagement.beta.gouv.fr/v0/mission' --header 'apikey: ${publisher.apikey || "<apikey>"}'`);
+  const [curl, setCurl] = useState(`curl --location --request GET '${API_URL}/v0/mission' --header 'apikey: ${publisher.apikey || "<apikey>"}'`);
 
   useEffect(() => {
-    setCurl(`curl --location --request GET 'https://api.api-engagement.beta.gouv.fr/v0/mission' --header 'apikey: ${publisher.apikey || "<apikey>"}'`);
+    setCurl(`curl --location --request GET '${API_URL}/v0/mission' --header 'apikey: ${publisher.apikey || "<apikey>"}'`);
   }, [publisher]);
 
   const handleNewApiKey = async () => {

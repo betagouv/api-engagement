@@ -8,7 +8,7 @@ import { z } from "zod";
 export const buildAsyncWorkerApp = () => {
   const app = express();
 
-  app.use(express.json({ limit: "1mb" }));
+  app.use(express.json({ limit: "1mb", type: "*/*" }));
   app.use(requestId);
 
   app.get("/", (_req, res) => {

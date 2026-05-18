@@ -26,6 +26,7 @@ beforeEach(async () => {
     prisma.missionAddress.deleteMany({}),
     prisma.missionEvent.deleteMany({}),
     prisma.mission.deleteMany({}),
+    prisma.report.deleteMany({}),
     prisma.publisherOrganization.deleteMany({}),
     prisma.organization.deleteMany({}),
     prisma.publisherDiffusion.deleteMany({}),

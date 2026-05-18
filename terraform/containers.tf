@@ -84,9 +84,10 @@ resource "scaleway_container" "api_worker" {
   min_scale      = var.worker_min_scale
   max_scale      = var.worker_max_scale
   timeout        = 300
-  privacy        = "private"
-  protocol       = "http1"
-  deploy         = true
+  privacy            = "private"
+  protocol           = "http1"
+  deploy             = true
+  private_network_id = scaleway_vpc_private_network.main.id
 
   health_check {
     http {
@@ -108,14 +109,17 @@ resource "scaleway_container" "api_worker" {
     "SCW_QUEUE_URL_MISSION_SCORING"     = module.async_task_queues["mission_scoring"].url
     "SCW_QUEUE_URL_MISSION_INDEX"       = module.async_task_queues["mission_index"].url
     "ALBERT_BASE_URL"                   = lookup(local.secrets, "ALBERT_BASE_URL", "https://albert.api.etalab.gouv.fr")
+    "TYPESENSE_HOST"                    = var.typesense_load_balancer_private_ip
+    "TYPESENSE_PORT"                    = "8108"
   }
 
   secret_environment_variables = {
     "DATABASE_URL_CORE"    = local.secrets.DATABASE_URL_CORE
     "SCW_QUEUE_ACCESS_KEY" = scaleway_mnq_sqs_credentials.async_task_publisher[0].access_key
     "SCW_QUEUE_SECRET_KEY" = scaleway_mnq_sqs_credentials.async_task_publisher[0].secret_key
-    "MISTRAL_API_KEY"   = lookup(local.secrets, "MISTRAL_API_KEY", "")
-    "ALBERT_API_KEY"    = lookup(local.secrets, "ALBERT_API_KEY", "")
+    "MISTRAL_API_KEY"      = lookup(local.secrets, "MISTRAL_API_KEY", "")
+    "ALBERT_API_KEY"       = lookup(local.secrets, "ALBERT_API_KEY", "")
+    "TYPESENSE_API_KEY"    = lookup(local.secrets, "TYPESENSE_API_KEY", "")
   }
 }
 
@@ -181,7 +185,11 @@ resource "scaleway_container" "plateform" {
   deploy         = true
 
   environment_variables = {
-    "API_URL" = var.api_hostname != "" ? "https://${var.api_hostname}" : ""
+    "VITE_API_URL" = var.api_hostname != "" ? "https://${var.api_hostname}" : "https://${scaleway_container.api.domain_name}"
+  }
+
+  secret_environment_variables = {
+    "VITE_MAPTILER_API_KEY" = lookup(local.secrets, "VITE_MAPTILER_API_KEY", "")
   }
 }
 

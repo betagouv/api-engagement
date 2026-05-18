@@ -1,14 +1,15 @@
-import { parseTaxonomyValueKey } from "@engagement/taxonomy";
 import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
 import { missionScoringRepository } from "@/repositories/mission-scoring";
+import { asyncTaskBus } from "@/services/async-task";
 import { computeMissionScoringValues } from "@/services/mission-scoring/calculator";
 import { missionScoringEnrichmentInclude, toScoringInputValues } from "@/services/mission-scoring/data";
-import { PUBLISHER_SCORING_RULES } from "@/services/mission-scoring/publisher-rules";
+import { getMissionScoringRuleKeys } from "@/services/mission-scoring/scoring-rules";
 import type { ComputedMissionScoringValue } from "@/services/mission-scoring/types";
+import { parseTaxonomyValueKey } from "@engagement/taxonomy";
 
 const LOG_PREFIX = "[mission-scoring]";
 
-const parsePublisherRuleKey = (key: string): { taxonomyKey: string; valueKey: string } => {
+const parseScoringRuleKey = (key: string): { taxonomyKey: string; valueKey: string } => {
   const parsedKey = parseTaxonomyValueKey(key);
   if (!parsedKey) {
     throw new Error(`[mission-scoring] invalid prefixed taxonomy key '${key}'`);
@@ -18,6 +19,10 @@ const parsePublisherRuleKey = (key: string): { taxonomyKey: string; valueKey: st
 };
 
 export const missionScoringService = {
+  async enqueue(missionId: string, options: { force?: boolean } = {}): Promise<void> {
+    await asyncTaskBus.publish({ type: "mission.scoring", payload: { missionId, ...(options.force !== undefined ? { force: options.force } : {}) } });
+  },
+
   async score(params: { missionId: string; missionEnrichmentId?: string; force?: boolean }) {
     const enrichment = await missionEnrichmentRepository.findFirst({
       where: {
@@ -50,19 +55,18 @@ export const missionScoringService = {
       return;
     }
 
-    const hasPublisherRules = (PUBLISHER_SCORING_RULES[enrichment.mission.publisherId ?? ""]?.length ?? 0) > 0;
-    if (enrichment.values.length === 0 && !hasPublisherRules && !existingScoring) {
-      console.log(`${LOG_PREFIX} skipping mission=${params.missionId} enrichment=${enrichmentId} — no enrichment values and no publisher rules`);
+    const missionRuleKeys = getMissionScoringRuleKeys(enrichment.mission);
+    if (enrichment.values.length === 0 && missionRuleKeys.length === 0 && !existingScoring) {
+      console.log(`${LOG_PREFIX} skipping mission=${params.missionId} enrichment=${enrichmentId} — no enrichment values and no mission rules`);
       return;
     }
 
     const inputValues = toScoringInputValues(enrichment);
     const result = computeMissionScoringValues(inputValues);
 
-    // Publisher rules: inject gate/publisher-specific values (bypass LLM enrichment)
-    const publisherRuleKeys = PUBLISHER_SCORING_RULES[enrichment.mission.publisherId ?? ""] ?? [];
-    const publisherValues: ComputedMissionScoringValue[] = publisherRuleKeys.map((prefixedKey) => {
-      const { taxonomyKey, valueKey } = parsePublisherRuleKey(prefixedKey);
+    // Mission rules: inject gate/specific values (bypass LLM enrichment)
+    const missionRuleValues: ComputedMissionScoringValue[] = missionRuleKeys.map((prefixedKey) => {
+      const { taxonomyKey, valueKey } = parseScoringRuleKey(prefixedKey);
 
       return {
         missionEnrichmentValueId: null,
@@ -72,11 +76,9 @@ export const missionScoringService = {
       };
     });
 
-    // Merge: start with enrichment values, publisher rules override on same taxonomy key
-    const mergedValuesMap = new Map<string, ComputedMissionScoringValue>(
-      result.values.map((value) => [`${value.taxonomyKey}.${value.valueKey}`, value] as const)
-    );
-    for (const pv of publisherValues) {
+    // Merge: start with enrichment values, mission rules override on same taxonomy key
+    const mergedValuesMap = new Map<string, ComputedMissionScoringValue>(result.values.map((value) => [`${value.taxonomyKey}.${value.valueKey}`, value] as const));
+    for (const pv of missionRuleValues) {
       mergedValuesMap.set(`${pv.taxonomyKey}.${pv.valueKey}`, pv);
     }
     const allValues = Array.from(mergedValuesMap.values());
@@ -86,19 +88,27 @@ export const missionScoringService = {
       return;
     }
 
-    await missionScoringRepository.replaceForEnrichment({
-      missionId: params.missionId,
-      missionEnrichmentId: enrichmentId,
-      values: allValues.map((value) => ({
-        missionEnrichmentValueId: value.missionEnrichmentValueId,
-        taxonomyKey: value.taxonomyKey,
-        valueKey: value.valueKey,
-        score: value.score,
-      })),
-    });
+    try {
+      await missionScoringRepository.replaceForEnrichment({
+        missionId: params.missionId,
+        missionEnrichmentId: enrichmentId,
+        values: allValues.map((value) => ({
+          missionEnrichmentValueId: value.missionEnrichmentValueId,
+          taxonomyKey: value.taxonomyKey,
+          valueKey: value.valueKey,
+          score: value.score,
+        })),
+      });
+    } catch (error) {
+      if ((error as { code?: string }).code === "P2002") {
+        console.log(`${LOG_PREFIX} skipping mission=${params.missionId} enrichment=${enrichmentId} — lost race to concurrent scorer`);
+        return;
+      }
+      throw error;
+    }
 
     console.log(
-      `${LOG_PREFIX} mission=${params.missionId} enrichment=${enrichmentId} completed — ${allValues.length} value(s) persisted (${result.values.length} enrichment + ${publisherValues.length} publisher rules), ${result.ignored.length} ignored`
+      `${LOG_PREFIX} mission=${params.missionId} enrichment=${enrichmentId} completed — ${allValues.length} value(s) persisted (${result.values.length} enrichment + ${missionRuleValues.length} mission rules), ${result.ignored.length} ignored`
     );
   },
 };

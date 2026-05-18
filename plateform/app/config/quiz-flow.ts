@@ -4,6 +4,7 @@ import { and, not, numericRange, or, screenAnswer, type Condition } from "~/util
 // À étendre au fil des PR (autres precision_*, etc.).
 export type StepId =
   | "age"
+  | "tranche_age"
   | "handicap"
   | "statut"
   | "localisation"
@@ -47,65 +48,53 @@ export const QUIZ_FLOW: StepDef[] = [
   {
     id: "precision_thematique",
     route: "/quiz/precision-thematique",
-    condition: screenAnswer("motivation", "motivation.me_sentir_utile"),
+    condition: or(screenAnswer("motivation", "me_sentir_utile"), screenAnswer("motivation", "reprendre_confiance")),
   },
   // → booster_parcoursup (lyceen) : 2 sous-steps avant le step domaine commun.
   {
     id: "precision_parcoursup_formation",
     route: "/quiz/precision-parcoursup-formation",
-    condition: screenAnswer("motivation", "motivation.booster_parcoursup"),
+    condition: screenAnswer("motivation", "booster_parcoursup"),
   },
   {
     id: "precision_parcoursup_formation_nom",
     route: "/quiz/precision-parcoursup-formation-nom",
-    condition: and(screenAnswer("motivation", "motivation.booster_parcoursup"), screenAnswer("precision_parcoursup_formation", "parcoursup_formation.oui")),
+    condition: and(screenAnswer("motivation", "booster_parcoursup"), screenAnswer("precision_parcoursup_formation", "oui")),
   },
   // → step `domaine` partagé : decouvrir_domaine, booster_parcoursup, ne_sais_pas. Titre adapté au contexte dans le step.
   {
     id: "precision_domaine",
     route: "/quiz/precision-domaine",
-    condition: or(
-      screenAnswer("motivation", "motivation.decouvrir_domaine"),
-      screenAnswer("motivation", "motivation.booster_parcoursup"),
-      screenAnswer("motivation", "motivation.ne_sais_pas"),
-    ),
+    condition: or(screenAnswer("motivation", "decouvrir_domaine"), screenAnswer("motivation", "booster_parcoursup"), screenAnswer("motivation", "ne_sais_pas")),
   },
   // → step `formation_onisep` partagé : tester_orientation, experience_terrain, preparer_reconversion.
   {
     id: "precision_formation_onisep",
     route: "/quiz/precision-formation-onisep",
-    condition: or(
-      screenAnswer("motivation", "motivation.tester_orientation"),
-      screenAnswer("motivation", "motivation.experience_terrain"),
-      screenAnswer("motivation", "motivation.preparer_reconversion"),
-    ),
+    condition: or(screenAnswer("motivation", "tester_orientation"), screenAnswer("motivation", "experience_terrain"), screenAnswer("motivation", "preparer_reconversion")),
   },
   // → step `competence_rome` partagé : booster_cv, enrichir_cv, competences_interet_general.
   {
     id: "precision_competences",
     route: "/quiz/precision-competences",
-    condition: or(
-      screenAnswer("motivation", "motivation.booster_cv"),
-      screenAnswer("motivation", "motivation.enrichir_cv"),
-      screenAnswer("motivation", "motivation.competences_interet_general"),
-    ),
+    condition: or(screenAnswer("motivation", "booster_cv"), screenAnswer("motivation", "enrichir_cv"), screenAnswer("motivation", "competences_interet_general")),
   },
   // → reprendre_activite (demandeur d'emploi) : mapping référentiel ROME (secteurs d'activité).
   {
     id: "precision_reprendre_activite",
     route: "/quiz/precision-reprendre-activite",
-    condition: screenAnswer("motivation", "motivation.reprendre_activite"),
+    condition: screenAnswer("motivation", "reprendre_activite"),
   },
   // → servir_le_pays (toutes branches applicables).
   {
     id: "precision_servir_pays",
     route: "/quiz/precision-servir-pays",
-    condition: screenAnswer("motivation", "motivation.servir_le_pays"),
+    condition: screenAnswer("motivation", "servir_le_pays"),
   },
   // → partir_etranger (étudiant + actif), masqué si `type_mission = ponctuelle` (règle produit).
   {
     id: "precision_international",
     route: "/quiz/precision-international",
-    condition: and(screenAnswer("motivation", "motivation.partir_etranger"), not(screenAnswer("duree", "type_mission.ponctuelle"))),
+    condition: and(screenAnswer("motivation", "partir_etranger"), not(screenAnswer("duree", "ponctuelle"))),
   },
 ];

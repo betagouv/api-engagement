@@ -49,7 +49,9 @@ export class UpdateMissionEnrichmentHandler implements BaseHandler<UpdateMission
         } catch (error) {
           failed++;
           console.error(`${LOG_PREFIX} failed to enrich ${mission.id}`, error);
-          captureException(error, { extra: { missionId: mission.id } });
+          if ((error as { name?: string })?.name !== "AI_NoObjectGeneratedError") {
+            captureException(error, { extra: { missionId: mission.id } });
+          }
         }
 
         await sleep(JOB_ENRICH_SLEEP_MS);

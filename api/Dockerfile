@@ -10,9 +10,11 @@ COPY package.json package-lock.json ./
 COPY api/package*.json ./api/
 COPY packages/taxonomy ./packages/taxonomy
 
-WORKDIR /workspace/api
-
 RUN npm ci --workspace=api
+
+COPY api ./api
+
+WORKDIR /workspace/api
 
 EXPOSE 3002
 

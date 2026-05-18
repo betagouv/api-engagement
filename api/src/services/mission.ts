@@ -4,7 +4,7 @@ import { Mission, Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
 import { missionRepository } from "@/repositories/mission";
 import { activityService } from "@/services/activity";
-import { asyncTaskBus } from "@/services/async-task";
+import { buildMissionEnrichmentScoringWhere, missionEnrichmentService } from "@/services/mission-enrichment";
 import type {
   MissionCreateInput,
   MissionFacets,
@@ -356,6 +356,10 @@ export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereIn
     where.moderationStatuses = { some: moderationWhere };
   }
 
+  if (filters.enrichmentScoringStatus) {
+    Object.assign(where, buildMissionEnrichmentScoringWhere(filters.enrichmentScoringStatus));
+  }
+
   if (filters.keywords) {
     const keywords = filters.keywords;
     const existingAnd = Array.isArray(where.AND) ? where.AND : where.AND ? [where.AND] : [];
@@ -565,7 +569,7 @@ const baseInclude: MissionInclude = {
 
 export const missionService = {
   async enqueueMissionProcessing(missionId: string): Promise<void> {
-    await asyncTaskBus.publish({ type: "mission.enrichment", payload: { missionId } });
+    await missionEnrichmentService.enqueue(missionId);
   },
 
   async findMissionsByIds(ids: string[]): Promise<MissionRecord[]> {
@@ -589,6 +593,23 @@ export const missionService = {
       include: baseInclude,
     });
     return mission ? toMissionRecord(mission as MissionWithRelations, moderatedBy) : null;
+  },
+
+  async findOneMissionWithAccess(id: string): Promise<{ mission: MissionRecord; ownerPublisherId: string; moderatorPublisherIds: string[] } | null> {
+    const mission = await missionRepository.findFirst({
+      where: { id },
+      include: baseInclude,
+    });
+    if (!mission) {
+      return null;
+    }
+
+    const missionWithRelations = mission as MissionWithRelations;
+    return {
+      mission: toMissionRecord(missionWithRelations),
+      ownerPublisherId: missionWithRelations.publisherId,
+      moderatorPublisherIds: Array.from(new Set(missionWithRelations.moderationStatuses?.map((moderation) => moderation.publisherId) ?? [])),
+    };
   },
 
   async findOneMissionBy(where: Prisma.MissionWhereInput, moderatedBy: string | null = null): Promise<MissionRecord | null> {

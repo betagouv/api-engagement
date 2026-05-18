@@ -1,6 +1,7 @@
 import { useEffect, useState, type SubmitEvent } from "react";
 import { useOutletContext } from "react-router";
-import Title from "~/components/quiz/title";
+import Label from "~/components/quiz/label";
+import NextButton from "~/components/quiz/next-button";
 import { useQuizStore } from "~/stores/quiz";
 import type { QuizOutletContext } from "./_layout";
 
@@ -11,7 +12,7 @@ const STEP_ID = "precision_parcoursup_formation_nom";
 // (ex: V1, matching avec une base de formations).
 export default function PrecisionParcoursupFormationNomStep() {
   const { answers, setAnswer } = useQuizStore();
-  const { goNext, goBack } = useOutletContext<QuizOutletContext>();
+  const { goNext } = useOutletContext<QuizOutletContext>();
   const [value, setValue] = useState<string>("");
 
   useEffect(() => {
@@ -29,24 +30,17 @@ export default function PrecisionParcoursupFormationNomStep() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <Title>Quelle formation as-tu en tête ?</Title>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-10">
+      <Label>Dans quel domaine aimerais-tu avoir une expérience ?</Label>
 
-      <div className="fr-input-group">
+      <div className="fr-input-group max-w-md!">
         <label className="fr-label" htmlFor="formation-input">
           Nom de la formation
         </label>
         <input id="formation-input" className="fr-input" type="text" value={value} onChange={(e) => setValue(e.target.value)} autoFocus />
       </div>
 
-      <div className="fr-mt-2w">
-        <button type="button" className="fr-btn fr-btn--secondary fr-mr-2w" onClick={goBack}>
-          Retour
-        </button>
-        <button type="submit" className="fr-btn" disabled={!valid}>
-          Continuer
-        </button>
-      </div>
+      <NextButton onClick={goNext} type="submit" disabled={!valid} />
     </form>
   );
 }

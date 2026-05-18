@@ -1,19 +1,51 @@
 import request from "supertest";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { prisma } from "@/db/postgres";
-import { type TaxonomyValueKey } from "@engagement/taxonomy";
+import { createTestMission, createTestPublisher } from "../../fixtures";
 import { createTestApp } from "../../testApp";
+
+const brevoMock = vi.hoisted(() => ({
+  createOrUpdateContact: vi.fn(),
+  sendTemplate: vi.fn(),
+}));
+
+vi.mock("@/services/brevo", () => ({
+  TEMPLATE_IDS: {
+    INVITATION: 1,
+    FORGOT_PASSWORD: 5,
+    MISSION_MATCHING_RESULTS: 0,
+  },
+  LIST_IDS: {
+    MISSION_MATCHING_RESULTS: 22,
+  },
+  createOrUpdateContact: brevoMock.createOrUpdateContact,
+  sendTemplate: brevoMock.sendTemplate,
+  default: {
+    createOrUpdateContact: brevoMock.createOrUpdateContact,
+    sendTemplate: brevoMock.sendTemplate,
+    LIST_IDS: {
+      MISSION_MATCHING_RESULTS: 22,
+    },
+  },
+}));
 
 const app = createTestApp();
 
+beforeEach(() => {
+  brevoMock.createOrUpdateContact.mockReset();
+  brevoMock.createOrUpdateContact.mockResolvedValue({ ok: true, data: { id: 1 } });
+  brevoMock.sendTemplate.mockReset();
+  brevoMock.sendTemplate.mockResolvedValue({ ok: true, data: { messageId: "message-id" } });
+});
+
 describe("POST /user-scoring", () => {
-  let taxonomyValueKey: string;
-  let secondaryTaxonomyValueKey: string;
+  let taxonomyAnswer: { taxonomy: string; value: string };
+  let secondaryTaxonomyAnswer: { taxonomy: string; value: string };
 
   beforeEach(async () => {
-    taxonomyValueKey = "domaine.social_solidarite" satisfies TaxonomyValueKey;
-    secondaryTaxonomyValueKey = "type_mission.ponctuelle" satisfies TaxonomyValueKey;
+    taxonomyAnswer = { taxonomy: "domaine", value: "social_solidarite" };
+    secondaryTaxonomyAnswer = { taxonomy: "type_mission", value: "ponctuelle" };
   });
 
   // ─── Success cases ──────────────────────────────────────────────────────────
@@ -21,7 +53,7 @@ describe("POST /user-scoring", () => {
   it("should create a user scoring with one answer (no geo)", async () => {
     const res = await request(app)
       .post("/user-scoring")
-      .send({ answers: [{ taxonomy_value_key: taxonomyValueKey }] });
+      .send({ answers: [taxonomyAnswer] });
 
     expect(res.status).toBe(201);
     expect(res.body.ok).toBe(true);
@@ -43,12 +75,11 @@ describe("POST /user-scoring", () => {
     expect(geo).toBeNull();
   });
 
-  it("should create a user scoring with geo (lat/lon only)", async () => {
+  it("should create a user scoring with location params (lat/lon only)", async () => {
     const res = await request(app)
       .post("/user-scoring")
       .send({
-        answers: [{ taxonomy_value_key: taxonomyValueKey }],
-        geo: { lat: 48.8566, lon: 2.3522 },
+        answers: [taxonomyAnswer, { taxonomy: "location", params: { lat: 48.8566, lon: 2.3522 } }],
       });
 
     expect(res.status).toBe(201);
@@ -62,12 +93,11 @@ describe("POST /user-scoring", () => {
     expect(geo!.radiusKm).toBeNull();
   });
 
-  it("should create a user scoring with geo including radius_km", async () => {
+  it("should create a user scoring with location params including radius_km and country_code", async () => {
     const res = await request(app)
       .post("/user-scoring")
       .send({
-        answers: [{ taxonomy_value_key: taxonomyValueKey }],
-        geo: { lat: 48.8566, lon: 2.3522, radius_km: 50 },
+        answers: [taxonomyAnswer, { taxonomy: "location", params: { lat: 48.8566, lon: 2.3522, radius_km: 50, country_code: "fr" } }],
       });
 
     expect(res.status).toBe(201);
@@ -76,13 +106,36 @@ describe("POST /user-scoring", () => {
       where: { userScoringId: res.body.data.id },
     });
     expect(geo!.radiusKm).toBe(50);
+    expect(geo!.countryCode).toBe("FR");
+  });
+
+  it("should create a user scoring with only location params", async () => {
+    const res = await request(app)
+      .post("/user-scoring")
+      .send({
+        answers: [{ taxonomy: "location", params: { lat: 48.8566, lon: 2.3522 } }],
+      });
+
+    expect(res.status).toBe(201);
+
+    const values = await prisma.userScoringValue.findMany({
+      where: { userScoringId: res.body.data.id },
+    });
+    expect(values).toHaveLength(0);
+
+    const geo = await prisma.userScoringGeo.findUnique({
+      where: { userScoringId: res.body.data.id },
+    });
+    expect(geo).not.toBeNull();
+    expect(geo!.lat).toBe(48.8566);
+    expect(geo!.lon).toBe(2.3522);
   });
 
   it("should create a user scoring with multiple answers", async () => {
     const res = await request(app)
       .post("/user-scoring")
       .send({
-        answers: [{ taxonomy_value_key: taxonomyValueKey }, { taxonomy_value_key: secondaryTaxonomyValueKey }],
+        answers: [taxonomyAnswer, secondaryTaxonomyAnswer],
       });
 
     expect(res.status).toBe(201);
@@ -99,7 +152,7 @@ describe("POST /user-scoring", () => {
     const res = await request(app)
       .post("/user-scoring")
       .send({
-        answers: [{ taxonomy_value_key: taxonomyValueKey }],
+        answers: [taxonomyAnswer],
         distinctId: "distinct-user-1",
         missionAlertEnabled: true,
       });
@@ -113,11 +166,11 @@ describe("POST /user-scoring", () => {
     expect(userScoring.missionAlertEnabled).toBe(true);
   });
 
-  it("should deduplicate answers with repeated taxonomy_value_key", async () => {
+  it("should deduplicate repeated answers", async () => {
     const res = await request(app)
       .post("/user-scoring")
       .send({
-        answers: [{ taxonomy_value_key: taxonomyValueKey }, { taxonomy_value_key: taxonomyValueKey }],
+        answers: [taxonomyAnswer, taxonomyAnswer],
       });
 
     expect(res.status).toBe(201);
@@ -132,7 +185,7 @@ describe("POST /user-scoring", () => {
     const before = Date.now();
     const res = await request(app)
       .post("/user-scoring")
-      .send({ answers: [{ taxonomy_value_key: taxonomyValueKey }] });
+      .send({ answers: [taxonomyAnswer] });
 
     const userScoring = await prisma.userScoring.findUniqueOrThrow({
       where: { id: res.body.data.id },
@@ -159,11 +212,50 @@ describe("POST /user-scoring", () => {
     expect(res.body.ok).toBe(false);
   });
 
-  it("should silently skip invalid answers and return 201 when at least one is valid", async () => {
+  it("should create a user scoring from tranche_age params", async () => {
     const res = await request(app)
       .post("/user-scoring")
       .send({
-        answers: [{ taxonomy_value_key: taxonomyValueKey }, { taxonomy_value_key: "domaine.does_not_exist" }, { taxonomy_value_key: "nodotinkey" }],
+        answers: [{ taxonomy: "tranche_age", params: { age: 18, handicap: false } }],
+      });
+
+    expect(res.status).toBe(201);
+
+    const values = await prisma.userScoringValue.findMany({
+      where: { userScoringId: res.body.data.id },
+      orderBy: [{ valueKey: "asc" }],
+    });
+    expect(values.map((value) => `${value.taxonomyKey}.${value.valueKey}`)).toEqual(["tranche_age.entre_16_67_ans", "tranche_age.entre_17_72_ans", "tranche_age.moins_26_ans"]);
+  });
+
+  it("should create a user scoring with handicap tranche_age params", async () => {
+    const res = await request(app)
+      .post("/user-scoring")
+      .send({
+        answers: [{ taxonomy: "tranche_age", params: { age: 30, handicap: true } }],
+      });
+
+    expect(res.status).toBe(201);
+
+    const values = await prisma.userScoringValue.findMany({
+      where: { userScoringId: res.body.data.id },
+      orderBy: [{ valueKey: "asc" }],
+    });
+    expect(values.map((value) => `${value.taxonomyKey}.${value.valueKey}`)).toEqual([
+      "tranche_age.entre_16_67_ans",
+      "tranche_age.entre_17_72_ans",
+      "tranche_age.moins_31_ans_handicap",
+    ]);
+  });
+
+  it("should deduplicate direct and resolved answers", async () => {
+    const res = await request(app)
+      .post("/user-scoring")
+      .send({
+        answers: [
+          { taxonomy: "tranche_age", value: "moins_26_ans" },
+          { taxonomy: "tranche_age", params: { age: 18, handicap: false } },
+        ],
       });
 
     expect(res.status).toBe(201);
@@ -171,59 +263,148 @@ describe("POST /user-scoring", () => {
     const values = await prisma.userScoringValue.findMany({
       where: { userScoringId: res.body.data.id },
     });
-    expect(values).toHaveLength(1);
-    expect(values[0].taxonomyKey).toBe("domaine");
-    expect(values[0].valueKey).toBe("social_solidarite");
+    expect(values).toHaveLength(3);
   });
 
-  it("should return 400 when all answers are invalid (no dot separator)", async () => {
+  it("should return 400 when taxonomy is unknown", async () => {
     const res = await request(app)
       .post("/user-scoring")
-      .send({ answers: [{ taxonomy_value_key: "nodotinkey" }] });
+      .send({ answers: [{ taxonomy: "unknown", value: "sante_soins" }] });
     expect(res.status).toBe(400);
     expect(res.body.ok).toBe(false);
   });
 
-  it("should return 400 when all answers reference unknown taxonomy values", async () => {
+  it("should return 400 when taxonomy value is unknown", async () => {
     const res = await request(app)
       .post("/user-scoring")
-      .send({ answers: [{ taxonomy_value_key: "domaine.does_not_exist" }] });
+      .send({ answers: [{ taxonomy: "domaine", value: "does_not_exist" }] });
     expect(res.status).toBe(400);
     expect(res.body.ok).toBe(false);
   });
 
-  it("should return 400 when taxonomy_value_key targets inherited object properties", async () => {
+  it("should return 400 when params target a taxonomy without transformer", async () => {
+    const res = await request(app)
+      .post("/user-scoring")
+      .send({ answers: [{ taxonomy: "domaine", params: { age: 18 } }] });
+    expect(res.status).toBe(400);
+    expect(res.body.ok).toBe(false);
+  });
+
+  it("should return 400 when tranche_age params are invalid", async () => {
     const responses = await Promise.all([
       request(app)
         .post("/user-scoring")
-        .send({ answers: [{ taxonomy_value_key: "domaine.toString" }] }),
+        .send({ answers: [{ taxonomy: "tranche_age", params: { age: 121, handicap: false } }] }),
       request(app)
         .post("/user-scoring")
-        .send({ answers: [{ taxonomy_value_key: "__proto__.x" }] }),
+        .send({ answers: [{ taxonomy: "tranche_age", params: { age: 18, handicap: "false" } }] }),
     ]);
 
     expect(responses.map((res) => res.status)).toEqual([400, 400]);
     expect(responses.every((res) => res.body.ok === false)).toBe(true);
   });
 
-  it("should return 400 when geo.lat is out of range", async () => {
+  it("should return 400 when answer has both value and params or neither", async () => {
+    const responses = await Promise.all([
+      request(app)
+        .post("/user-scoring")
+        .send({ answers: [{ taxonomy: "domaine", value: "social_solidarite", params: { age: 18 } }] }),
+      request(app)
+        .post("/user-scoring")
+        .send({ answers: [{ taxonomy: "domaine" }] }),
+    ]);
+
+    expect(responses.map((res) => res.status)).toEqual([400, 400]);
+    expect(responses.every((res) => res.body.ok === false)).toBe(true);
+  });
+
+  it("should create a user scoring with direct values, tranche_age and location params", async () => {
     const res = await request(app)
       .post("/user-scoring")
       .send({
-        answers: [{ taxonomy_value_key: taxonomyValueKey }],
-        geo: { lat: 999, lon: 2.3522 },
+        answers: [taxonomyAnswer, { taxonomy: "tranche_age", params: { age: 18, handicap: false } }, { taxonomy: "location", params: { lat: 48.8566, lon: 2.3522 } }],
+      });
+
+    expect(res.status).toBe(201);
+
+    const values = await prisma.userScoringValue.findMany({
+      where: { userScoringId: res.body.data.id },
+    });
+    expect(values).toHaveLength(4);
+
+    const geo = await prisma.userScoringGeo.findUnique({
+      where: { userScoringId: res.body.data.id },
+    });
+    expect(geo).not.toBeNull();
+  });
+
+  it("should return 400 when location lat is out of range", async () => {
+    const res = await request(app)
+      .post("/user-scoring")
+      .send({
+        answers: [{ taxonomy: "location", params: { lat: 999, lon: 2.3522 } }],
       });
     expect(res.status).toBe(400);
     expect(res.body.ok).toBe(false);
   });
 
-  it("should return 400 when geo.lon is out of range", async () => {
+  it("should return 400 when location lon is out of range", async () => {
     const res = await request(app)
       .post("/user-scoring")
       .send({
-        answers: [{ taxonomy_value_key: taxonomyValueKey }],
-        geo: { lat: 48.8566, lon: 999 },
+        answers: [{ taxonomy: "location", params: { lat: 48.8566, lon: 999 } }],
       });
+    expect(res.status).toBe(400);
+    expect(res.body.ok).toBe(false);
+  });
+
+  it("should return 400 when location radius_km is invalid", async () => {
+    const res = await request(app)
+      .post("/user-scoring")
+      .send({
+        answers: [{ taxonomy: "location", params: { lat: 48.8566, lon: 2.3522, radius_km: 0 } }],
+      });
+    expect(res.status).toBe(400);
+    expect(res.body.ok).toBe(false);
+  });
+
+  it("should return 400 when location country_code is invalid", async () => {
+    const res = await request(app)
+      .post("/user-scoring")
+      .send({
+        answers: [{ taxonomy: "location", params: { lat: 48.8566, lon: 2.3522, country_code: "FRA" } }],
+      });
+    expect(res.status).toBe(400);
+    expect(res.body.ok).toBe(false);
+  });
+
+  it("should return 400 when location uses a value or is duplicated", async () => {
+    const responses = await Promise.all([
+      request(app)
+        .post("/user-scoring")
+        .send({ answers: [{ taxonomy: "location", value: "paris" }] }),
+      request(app)
+        .post("/user-scoring")
+        .send({
+          answers: [
+            { taxonomy: "location", params: { lat: 48.8566, lon: 2.3522 } },
+            { taxonomy: "location", params: { lat: 45.764, lon: 4.8357 } },
+          ],
+        }),
+    ]);
+
+    expect(responses.map((res) => res.status)).toEqual([400, 400]);
+    expect(responses.every((res) => res.body.ok === false)).toBe(true);
+  });
+
+  it("should return 400 when top-level geo is provided", async () => {
+    const res = await request(app)
+      .post("/user-scoring")
+      .send({
+        answers: [taxonomyAnswer],
+        geo: { lat: 48.8566, lon: 2.3522 },
+      });
+
     expect(res.status).toBe(400);
     expect(res.body.ok).toBe(false);
   });
@@ -231,29 +412,84 @@ describe("POST /user-scoring", () => {
 
 describe("PUT /user-scoring/:userScoringId", () => {
   const distinctId = "distinct-user-1";
-  let taxonomyValueKey: string;
-  let secondaryTaxonomyValueKey: string;
+  let taxonomyAnswer: { taxonomy: string; value: string };
+  let secondaryTaxonomyAnswer: { taxonomy: string; value: string };
 
   beforeEach(async () => {
-    taxonomyValueKey = "domaine.social_solidarite" satisfies TaxonomyValueKey;
-    secondaryTaxonomyValueKey = "type_mission.ponctuelle" satisfies TaxonomyValueKey;
+    taxonomyAnswer = { taxonomy: "domaine", value: "social_solidarite" };
+    secondaryTaxonomyAnswer = { taxonomy: "type_mission", value: "ponctuelle" };
   });
 
-  const createUserScoring = async (params: { distinctId?: string } = { distinctId }) => {
+  const createUserScoring = async (
+    params: {
+      distinctId?: string;
+      answers?: Array<{ taxonomy: string; value?: string; params?: Record<string, unknown> }>;
+    } = { distinctId }
+  ) => {
     const res = await request(app)
       .post("/user-scoring")
-      .send({ answers: [{ taxonomy_value_key: taxonomyValueKey }], distinctId: params.distinctId });
+      .send({ answers: params.answers ?? [taxonomyAnswer], distinctId: params.distinctId });
 
     expect(res.status).toBe(201);
     return res.body.data.id as string;
   };
 
-  it("should add answers to an existing user scoring", async () => {
+  const createStoredMatchingResult = async (userScoringId: string, missionCount = 6) => {
+    const publisher = await createTestPublisher({ name: "Matching Publisher" });
+    const missionScoringIds: string[] = [];
+    const missions: Array<{ id: string; title: string; city: string; organizationName: string }> = [];
+
+    for (let index = 0; index < missionCount; index++) {
+      const mission = await createTestMission({
+        compensationAmount: 620,
+        compensationUnit: "month",
+        duration: 8,
+        endAt: new Date("2026-01-10T00:00:00.000Z"),
+        organizationName: `Matching Organization ${index + 1}`,
+        organizationClientId: `matching-organization-${index + 1}`,
+        publisherId: publisher.id,
+        startAt: new Date("2026-02-02T00:00:00.000Z"),
+        title: `Matching Mission ${index + 1}`,
+        city: `City ${index + 1}`,
+      });
+      const enrichment = await prisma.missionEnrichment.create({
+        data: {
+          missionId: mission.id,
+          status: "completed",
+          promptVersion: `test-${index + 1}`,
+          completedAt: new Date(),
+        },
+      });
+      const scoring = await prisma.missionScoring.create({
+        data: {
+          missionId: mission.id,
+          missionEnrichmentId: enrichment.id,
+        },
+      });
+
+      missionScoringIds.push(scoring.id);
+      missions.push({ id: mission.id, title: mission.title, city: `City ${index + 1}`, organizationName: `Matching Organization ${index + 1}` });
+    }
+
+    await prisma.missionMatchingResult.create({
+      data: {
+        userScoringId,
+        matchingEngineVersion: "m1",
+        results: missionScoringIds.map((missionScoringId) => ({ missionScoringId, taxonomyScores: {} })),
+      },
+    });
+
+    return { missionScoringIds, missions };
+  };
+
+  const createEmailPublisher = () => createTestPublisher({ name: "Email Publisher" });
+
+  it("should replace existing answers on an existing user scoring", async () => {
     const userScoringId = await createUserScoring();
 
     const res = await request(app)
       .put(`/user-scoring/${userScoringId}`)
-      .send({ distinctId, answers: [{ taxonomy_value_key: secondaryTaxonomyValueKey }] });
+      .send({ distinctId, answers: [secondaryTaxonomyAnswer] });
 
     expect(res.status).toBe(200);
     expect(res.body).toMatchObject({
@@ -265,8 +501,10 @@ describe("PUT /user-scoring/:userScoringId", () => {
       where: { userScoringId },
       orderBy: [{ taxonomyKey: "asc" }, { valueKey: "asc" }],
     });
-    expect(values).toHaveLength(2);
-    expect(values.map((value) => `${value.taxonomyKey}.${value.valueKey}`)).toEqual(["domaine.social_solidarite", "type_mission.ponctuelle"]);
+    expect(brevoMock.createOrUpdateContact).not.toHaveBeenCalled();
+    expect(brevoMock.sendTemplate).not.toHaveBeenCalled();
+    expect(values).toHaveLength(1);
+    expect(values.map((value) => `${value.taxonomyKey}.${value.valueKey}`)).toEqual(["type_mission.ponctuelle"]);
   });
 
   it("should update missionAlertEnabled without adding answers", async () => {
@@ -291,7 +529,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
     expect(values).toHaveLength(1);
   });
 
-  it("should add answers and update missionAlertEnabled in the same request", async () => {
+  it("should replace answers and update missionAlertEnabled in the same request", async () => {
     const userScoringId = await createUserScoring();
 
     const res = await request(app)
@@ -299,7 +537,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
       .send({
         distinctId,
         missionAlertEnabled: true,
-        answers: [{ taxonomy_value_key: secondaryTaxonomyValueKey }],
+        answers: [secondaryTaxonomyAnswer],
       });
 
     expect(res.status).toBe(200);
@@ -316,17 +554,350 @@ describe("PUT /user-scoring/:userScoringId", () => {
     const values = await prisma.userScoringValue.findMany({
       where: { userScoringId },
     });
-    expect(values).toHaveLength(2);
+    expect(values).toHaveLength(1);
   });
 
-  it("should skip duplicate answers when adding answers", async () => {
+  it("should replace all existing values with payload values and deduplicate answers", async () => {
     const userScoringId = await createUserScoring();
 
     const res = await request(app)
       .put(`/user-scoring/${userScoringId}`)
       .send({
         distinctId,
-        answers: [{ taxonomy_value_key: taxonomyValueKey }, { taxonomy_value_key: secondaryTaxonomyValueKey }, { taxonomy_value_key: secondaryTaxonomyValueKey }],
+        answers: [taxonomyAnswer, secondaryTaxonomyAnswer, secondaryTaxonomyAnswer],
+      });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.created_count).toBe(2);
+
+    const values = await prisma.userScoringValue.findMany({
+      where: { userScoringId },
+      orderBy: [{ taxonomyKey: "asc" }, { valueKey: "asc" }],
+    });
+    expect(values).toHaveLength(2);
+  });
+
+  it("should reject email fields on the update endpoint", async () => {
+    const userScoringId = await createUserScoring();
+
+    const res = await request(app).put(`/user-scoring/${userScoringId}`).send({
+      distinctId,
+      email: "user@example.com",
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.ok).toBe(false);
+    expect(brevoMock.createOrUpdateContact).not.toHaveBeenCalled();
+    expect(brevoMock.sendTemplate).not.toHaveBeenCalled();
+  });
+
+  it("should create or update Brevo contact and send matching email from the dedicated endpoint", async () => {
+    const userScoringId = await createUserScoring();
+    const matching = await createStoredMatchingResult(userScoringId);
+    const emailPublisher = await createEmailPublisher();
+
+    await request(app).put(`/user-scoring/${userScoringId}`).send({ distinctId, missionAlertEnabled: true }).expect(200);
+
+    const res = await request(app).post("/email/mission").send({
+      distinctId,
+      email: " USER@EXAMPLE.COM ",
+      publisherId: emailPublisher.id,
+      userScoringId,
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({
+      ok: true,
+      data: {
+        user_scoring_id: userScoringId,
+        email_sent: true,
+      },
+    });
+
+    expect(brevoMock.createOrUpdateContact).toHaveBeenCalledWith({
+      email: "user@example.com",
+      distinctId,
+      userScoringId,
+      missionAlertEnabled: true,
+      listId: 22,
+    });
+    expect(brevoMock.sendTemplate).toHaveBeenCalledTimes(1);
+    expect(brevoMock.sendTemplate).toHaveBeenCalledWith(0, {
+      emailTo: ["user@example.com"],
+      params: {
+        missions: matching.missions.slice(0, 5).map((mission) => ({
+          title: mission.title,
+          durationLabel: "8 mois",
+          startAtLabel: "à partir du 2 février",
+          compensationLabel: "620€ par mois",
+          applicationDeadlineLabel: "Candidatures ouvertes jusqu'au 10 janvier",
+          publisherLogo: "https://example.com/logo.png",
+          publisherName: "Matching Publisher",
+          publisherOrganizationName: mission.organizationName,
+          city: mission.city,
+          url: `http://localhost:4000/r/email/${mission.id}/${emailPublisher.id}?user_scoring_id=${userScoringId}`,
+        })),
+      },
+      tags: ["user-scoring", "mission-matching-results"],
+    });
+
+    const userScoring = await prisma.userScoring.findUniqueOrThrow({
+      where: { id: userScoringId },
+    });
+    expect(userScoring.distinctId).toBe(distinctId);
+    expect("email" in userScoring).toBe(false);
+  });
+
+  it("should send matching email with the city from the matched mission address", async () => {
+    const userScoringId = await createUserScoring();
+    const publisher = await createTestPublisher({ name: "Matching Publisher" });
+    const emailPublisher = await createEmailPublisher();
+    const mission = await createTestMission({
+      compensationAmount: 620,
+      compensationUnit: "month",
+      duration: 8,
+      endAt: new Date("2026-01-10T00:00:00.000Z"),
+      organizationName: "Multi Address Organization",
+      organizationClientId: "multi-address-organization",
+      publisherId: publisher.id,
+      startAt: new Date("2026-02-02T00:00:00.000Z"),
+      title: "Multi Address Mission",
+      addresses: [
+        {
+          city: "Oldest City",
+          country: "France",
+          location: { lat: 48.8566, lon: 2.3522 },
+        },
+        {
+          city: "Matched City",
+          country: "France",
+          location: { lat: 45.764, lon: 4.8357 },
+        },
+      ],
+    });
+    const addresses = await prisma.missionAddress.findMany({ where: { missionId: mission.id } });
+    const matchedAddress = addresses.find((address) => address.city === "Matched City");
+    if (!matchedAddress) {
+      throw new Error("Expected matched address to be created");
+    }
+
+    const enrichment = await prisma.missionEnrichment.create({
+      data: {
+        missionId: mission.id,
+        status: "completed",
+        promptVersion: "test-matched-address",
+        completedAt: new Date(),
+      },
+    });
+    const scoring = await prisma.missionScoring.create({
+      data: {
+        missionId: mission.id,
+        missionEnrichmentId: enrichment.id,
+      },
+    });
+    await prisma.missionMatchingResult.create({
+      data: {
+        userScoringId,
+        matchingEngineVersion: "m1",
+        results: [{ missionScoringId: scoring.id, missionAddressId: matchedAddress.id, taxonomyScores: {} }],
+      },
+    });
+
+    const res = await request(app).post("/email/mission").send({
+      distinctId,
+      email: "user@example.com",
+      publisherId: emailPublisher.id,
+      userScoringId,
+    });
+
+    expect(res.status).toBe(200);
+    expect(brevoMock.sendTemplate).toHaveBeenCalledTimes(1);
+    expect(brevoMock.sendTemplate.mock.calls[0][1].params.missions[0].city).toBe("Matched City");
+  });
+
+  it("should send mission emails without user scoring when missionIds are provided", async () => {
+    const publisher = await createTestPublisher({ name: "Single Mission Publisher" });
+    const emailPublisher = await createEmailPublisher();
+    const mission = await createTestMission({
+      compensationAmount: 620,
+      compensationUnit: "month",
+      duration: 8,
+      endAt: new Date("2026-01-10T00:00:00.000Z"),
+      organizationName: "Single Mission Organization",
+      organizationClientId: "single-mission-organization",
+      publisherId: publisher.id,
+      startAt: new Date("2026-02-02T00:00:00.000Z"),
+      title: "Single Mission",
+      city: "Paris",
+    });
+
+    const res = await request(app)
+      .post("/email/mission")
+      .send({
+        email: "user@example.com",
+        publisherId: emailPublisher.id,
+        missionIds: [mission.id],
+      });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({
+      ok: true,
+      data: {
+        email_sent: true,
+      },
+    });
+
+    expect(brevoMock.createOrUpdateContact).not.toHaveBeenCalled();
+    expect(brevoMock.sendTemplate).toHaveBeenCalledTimes(1);
+    expect(brevoMock.sendTemplate).toHaveBeenCalledWith(0, {
+      emailTo: ["user@example.com"],
+      params: {
+        missions: [
+          {
+            title: mission.title,
+            durationLabel: "8 mois",
+            startAtLabel: "à partir du 2 février",
+            compensationLabel: "620€ par mois",
+            applicationDeadlineLabel: "Candidatures ouvertes jusqu'au 10 janvier",
+            publisherLogo: "https://example.com/logo.png",
+            publisherName: "Single Mission Publisher",
+            publisherOrganizationName: "Single Mission Organization",
+            city: "Paris",
+            url: `http://localhost:4000/r/email/${mission.id}/${emailPublisher.id}`,
+          },
+        ],
+      },
+      tags: ["user-scoring", "mission-matching-results"],
+    });
+  });
+
+  it("should skip mission email when missionIds are not found", async () => {
+    const emailPublisher = await createEmailPublisher();
+
+    const res = await request(app)
+      .post("/email/mission")
+      .send({
+        email: "user@example.com",
+        publisherId: emailPublisher.id,
+        missionIds: ["00000000-0000-0000-0000-000000000000"],
+      });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({
+      ok: true,
+      data: {
+        email_sent: false,
+        email_skip_reason: "MISSION_NOT_FOUND",
+      },
+    });
+    expect(brevoMock.createOrUpdateContact).not.toHaveBeenCalled();
+    expect(brevoMock.sendTemplate).not.toHaveBeenCalled();
+  });
+
+  it("should skip matching email when no matching result is stored", async () => {
+    const userScoringId = await createUserScoring();
+    const emailPublisher = await createEmailPublisher();
+
+    const res = await request(app).post("/email/mission").send({
+      distinctId,
+      email: "user@example.com",
+      publisherId: emailPublisher.id,
+      userScoringId,
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({
+      ok: true,
+      data: {
+        user_scoring_id: userScoringId,
+        email_sent: false,
+        email_skip_reason: "NO_MATCHING_RESULT",
+      },
+    });
+    expect(brevoMock.createOrUpdateContact).toHaveBeenCalledTimes(1);
+    expect(brevoMock.sendTemplate).not.toHaveBeenCalled();
+  });
+
+  it("should return 403 when sending an email with an invalid distinctId", async () => {
+    const userScoringId = await createUserScoring();
+    await createStoredMatchingResult(userScoringId);
+    const emailPublisher = await createEmailPublisher();
+
+    const res = await request(app).post("/email/mission").send({
+      distinctId: "another-distinct-user",
+      email: "user@example.com",
+      publisherId: emailPublisher.id,
+      userScoringId,
+    });
+
+    expect(res.status).toBe(403);
+    expect(res.body.ok).toBe(false);
+    expect(brevoMock.createOrUpdateContact).not.toHaveBeenCalled();
+    expect(brevoMock.sendTemplate).not.toHaveBeenCalled();
+  });
+
+  it("should return 502 when Brevo contact creation fails", async () => {
+    const userScoringId = await createUserScoring();
+    await createStoredMatchingResult(userScoringId);
+    const emailPublisher = await createEmailPublisher();
+    brevoMock.createOrUpdateContact.mockResolvedValueOnce({ ok: false, data: { message: "contact failed" } });
+
+    const res = await request(app).post("/email/mission").send({
+      distinctId,
+      email: "user@example.com",
+      publisherId: emailPublisher.id,
+      userScoringId,
+    });
+
+    expect(res.status).toBe(502);
+    expect(res.body).toMatchObject({
+      ok: false,
+      code: "EMAIL_SEND_FAILED",
+      data: {
+        user_scoring_id: userScoringId,
+        email_sent: false,
+      },
+    });
+    expect(brevoMock.sendTemplate).not.toHaveBeenCalled();
+
+    const userScoring = await prisma.userScoring.findUniqueOrThrow({ where: { id: userScoringId } });
+    expect(userScoring.distinctId).toBe(distinctId);
+  });
+
+  it("should return 502 when Brevo transactional email fails", async () => {
+    const userScoringId = await createUserScoring();
+    await createStoredMatchingResult(userScoringId);
+    const emailPublisher = await createEmailPublisher();
+    brevoMock.sendTemplate.mockResolvedValueOnce({ ok: false, data: { message: "template failed" } });
+
+    const res = await request(app).post("/email/mission").send({
+      distinctId,
+      email: "user@example.com",
+      publisherId: emailPublisher.id,
+      userScoringId,
+    });
+
+    expect(res.status).toBe(502);
+    expect(res.body).toMatchObject({
+      ok: false,
+      code: "EMAIL_SEND_FAILED",
+      data: {
+        user_scoring_id: userScoringId,
+        email_sent: false,
+      },
+    });
+    expect(brevoMock.createOrUpdateContact).toHaveBeenCalledTimes(1);
+    expect(brevoMock.sendTemplate).toHaveBeenCalledTimes(1);
+  });
+
+  it("should replace existing values for a direct taxonomy", async () => {
+    const userScoringId = await createUserScoring();
+
+    const res = await request(app)
+      .put(`/user-scoring/${userScoringId}`)
+      .send({
+        distinctId,
+        answers: [{ taxonomy: "domaine", value: "sante_soins" }],
       });
 
     expect(res.status).toBe(200);
@@ -335,29 +906,150 @@ describe("PUT /user-scoring/:userScoringId", () => {
     const values = await prisma.userScoringValue.findMany({
       where: { userScoringId },
     });
-    expect(values).toHaveLength(2);
+    expect(values).toHaveLength(1);
+    expect(values[0].taxonomyKey).toBe("domaine");
+    expect(values[0].valueKey).toBe("sante_soins");
   });
 
-  it("should silently skip invalid answers when adding answers", async () => {
+  it("should replace existing values with resolved tranche_age answers", async () => {
     const userScoringId = await createUserScoring();
 
     const res = await request(app)
       .put(`/user-scoring/${userScoringId}`)
       .send({
         distinctId,
-        answers: [{ taxonomy_value_key: secondaryTaxonomyValueKey }, { taxonomy_value_key: "domaine.does_not_exist" }],
+        answers: [{ taxonomy: "tranche_age", params: { age: 18, handicap: false } }],
+      });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.created_count).toBe(3);
+
+    const values = await prisma.userScoringValue.findMany({
+      where: { userScoringId },
+    });
+    expect(values).toHaveLength(3);
+  });
+
+  it("should replace existing tranche_age values when age changes", async () => {
+    const userScoringId = await createUserScoring();
+
+    const firstRes = await request(app)
+      .put(`/user-scoring/${userScoringId}`)
+      .send({
+        distinctId,
+        answers: [{ taxonomy: "tranche_age", params: { age: 18, handicap: false } }],
+      });
+    expect(firstRes.status).toBe(200);
+    expect(firstRes.body.data.created_count).toBe(3);
+
+    const secondRes = await request(app)
+      .put(`/user-scoring/${userScoringId}`)
+      .send({
+        distinctId,
+        answers: [{ taxonomy: "tranche_age", params: { age: 70, handicap: false } }],
+      });
+
+    expect(secondRes.status).toBe(200);
+    expect(secondRes.body.data.created_count).toBe(1);
+
+    const values = await prisma.userScoringValue.findMany({
+      where: { userScoringId },
+      orderBy: [{ taxonomyKey: "asc" }, { valueKey: "asc" }],
+    });
+    expect(values.map((value) => `${value.taxonomyKey}.${value.valueKey}`)).toEqual(["tranche_age.entre_17_72_ans"]);
+  });
+
+  it("should delete existing geo when answers do not include location", async () => {
+    const userScoringId = await createUserScoring({
+      distinctId,
+      answers: [taxonomyAnswer, { taxonomy: "location", params: { lat: 48.8566, lon: 2.3522 } }],
+    });
+
+    const res = await request(app)
+      .put(`/user-scoring/${userScoringId}`)
+      .send({
+        distinctId,
+        answers: [secondaryTaxonomyAnswer],
       });
 
     expect(res.status).toBe(200);
     expect(res.body.data.created_count).toBe(1);
+
+    const geo = await prisma.userScoringGeo.findUnique({
+      where: { userScoringId },
+    });
+    expect(geo).toBeNull();
   });
 
-  it("should return 400 when all added answers are invalid", async () => {
+  it("should keep existing geo when update does not include answers", async () => {
+    const userScoringId = await createUserScoring({
+      distinctId,
+      answers: [taxonomyAnswer, { taxonomy: "location", params: { lat: 48.8566, lon: 2.3522 } }],
+    });
+
+    const res = await request(app).put(`/user-scoring/${userScoringId}`).send({ distinctId, missionAlertEnabled: true });
+
+    expect(res.status).toBe(200);
+
+    const geo = await prisma.userScoringGeo.findUnique({
+      where: { userScoringId },
+    });
+    expect(geo).not.toBeNull();
+    expect(geo!.lat).toBe(48.8566);
+    expect(geo!.lon).toBe(2.3522);
+  });
+
+  it("should update geo from location params", async () => {
     const userScoringId = await createUserScoring();
 
     const res = await request(app)
       .put(`/user-scoring/${userScoringId}`)
-      .send({ distinctId, answers: [{ taxonomy_value_key: "domaine.does_not_exist" }] });
+      .send({
+        distinctId,
+        answers: [{ taxonomy: "location", params: { lat: 48.8566, lon: 2.3522, radius_km: 25, country_code: "FR" } }],
+      });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.created_count).toBe(0);
+
+    const geo = await prisma.userScoringGeo.findUnique({
+      where: { userScoringId },
+    });
+    expect(geo).not.toBeNull();
+    expect(geo!.lat).toBe(48.8566);
+    expect(geo!.lon).toBe(2.3522);
+    expect(geo!.radiusKm).toBe(25);
+    expect(geo!.countryCode).toBe("FR");
+
+    const values = await prisma.userScoringValue.findMany({
+      where: { userScoringId },
+    });
+    expect(values).toHaveLength(0);
+  });
+
+  it("should accept an update with only location params", async () => {
+    const userScoringId = await createUserScoring();
+
+    const res = await request(app)
+      .put(`/user-scoring/${userScoringId}`)
+      .send({
+        distinctId,
+        answers: [{ taxonomy: "location", params: { lat: 45.764, lon: 4.8357 } }],
+      });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({
+      ok: true,
+      data: { user_scoring_id: userScoringId, created_count: 0, mission_alert_enabled: false },
+    });
+  });
+
+  it("should return 400 when added answers are invalid", async () => {
+    const userScoringId = await createUserScoring();
+
+    const res = await request(app)
+      .put(`/user-scoring/${userScoringId}`)
+      .send({ distinctId, answers: [{ taxonomy: "domaine", value: "does_not_exist" }] });
 
     expect(res.status).toBe(400);
     expect(res.body.ok).toBe(false);
@@ -372,12 +1064,36 @@ describe("PUT /user-scoring/:userScoringId", () => {
     expect(res.body.ok).toBe(false);
   });
 
+  it("should return 400 when email is invalid", async () => {
+    const emailPublisher = await createEmailPublisher();
+
+    const res = await request(app)
+      .post("/email/mission")
+      .send({ email: "not-an-email", publisherId: emailPublisher.id, missionIds: ["00000000-0000-0000-0000-000000000000"] });
+
+    expect(res.status).toBe(400);
+    expect(res.body.ok).toBe(false);
+    expect(brevoMock.createOrUpdateContact).not.toHaveBeenCalled();
+    expect(brevoMock.sendTemplate).not.toHaveBeenCalled();
+  });
+
+  it("should return 400 when top-level geo is provided on update", async () => {
+    const userScoringId = await createUserScoring();
+
+    const res = await request(app)
+      .put(`/user-scoring/${userScoringId}`)
+      .send({ distinctId, geo: { lat: 48.8566, lon: 2.3522 } });
+
+    expect(res.status).toBe(400);
+    expect(res.body.ok).toBe(false);
+  });
+
   it("should return 400 when distinctId is missing", async () => {
     const userScoringId = await createUserScoring();
 
     const res = await request(app)
       .put(`/user-scoring/${userScoringId}`)
-      .send({ answers: [{ taxonomy_value_key: secondaryTaxonomyValueKey }] });
+      .send({ answers: [secondaryTaxonomyAnswer] });
 
     expect(res.status).toBe(400);
     expect(res.body.ok).toBe(false);
@@ -388,10 +1104,12 @@ describe("PUT /user-scoring/:userScoringId", () => {
 
     const res = await request(app)
       .put(`/user-scoring/${userScoringId}`)
-      .send({ distinctId: "another-distinct-user", answers: [{ taxonomy_value_key: secondaryTaxonomyValueKey }] });
+      .send({ distinctId: "another-distinct-user", answers: [secondaryTaxonomyAnswer] });
 
     expect(res.status).toBe(403);
     expect(res.body.ok).toBe(false);
+    expect(brevoMock.createOrUpdateContact).not.toHaveBeenCalled();
+    expect(brevoMock.sendTemplate).not.toHaveBeenCalled();
 
     const values = await prisma.userScoringValue.findMany({
       where: { userScoringId },
@@ -404,7 +1122,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
 
     const res = await request(app)
       .put(`/user-scoring/${userScoringId}`)
-      .send({ distinctId, answers: [{ taxonomy_value_key: secondaryTaxonomyValueKey }] });
+      .send({ distinctId, answers: [secondaryTaxonomyAnswer] });
 
     expect(res.status).toBe(403);
     expect(res.body.ok).toBe(false);
@@ -413,7 +1131,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
   it("should return 400 when userScoringId is not a uuid", async () => {
     const res = await request(app)
       .put("/user-scoring/not-a-uuid")
-      .send({ distinctId, answers: [{ taxonomy_value_key: taxonomyValueKey }] });
+      .send({ distinctId, answers: [taxonomyAnswer] });
 
     expect(res.status).toBe(400);
     expect(res.body.ok).toBe(false);
@@ -422,7 +1140,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
   it("should return 404 when user scoring does not exist", async () => {
     const res = await request(app)
       .put("/user-scoring/00000000-0000-4000-8000-000000000000")
-      .send({ distinctId, answers: [{ taxonomy_value_key: taxonomyValueKey }] });
+      .send({ distinctId, answers: [taxonomyAnswer] });
 
     expect(res.status).toBe(404);
     expect(res.body.ok).toBe(false);

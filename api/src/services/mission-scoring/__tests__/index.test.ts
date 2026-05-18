@@ -13,6 +13,7 @@ vi.mock("@/repositories/mission-scoring", () => ({
   },
 }));
 
+import { PUBLISHER_IDS } from "@/config";
 import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
 import { missionScoringRepository } from "@/repositories/mission-scoring";
 import { missionScoringService } from "@/services/mission-scoring";
@@ -57,7 +58,7 @@ describe("missionScoringService.score", () => {
     missionEnrichmentRepositoryMock.findFirst.mockResolvedValue({
       id: "enrichment-1",
       missionId: "mission-1",
-      mission: { publisherId: null },
+      mission: { publisherId: null, type: null },
       values: [buildEnrichmentValue()],
     });
     missionScoringRepositoryMock.findUnique.mockResolvedValue({ id: "mission-scoring-1" });
@@ -74,7 +75,7 @@ describe("missionScoringService.score", () => {
     missionEnrichmentRepositoryMock.findFirst.mockResolvedValue({
       id: "enrichment-1",
       missionId: "mission-1",
-      mission: { publisherId: null },
+      mission: { publisherId: null, type: null },
       values: [buildEnrichmentValue()],
     });
     missionScoringRepositoryMock.findUnique.mockResolvedValue({ id: "mission-scoring-1" });
@@ -103,7 +104,7 @@ describe("missionScoringService.score", () => {
     missionEnrichmentRepositoryMock.findFirst.mockResolvedValue({
       id: "enrichment-1",
       missionId: "mission-1",
-      mission: { publisherId: null },
+      mission: { publisherId: null, type: null },
       values: [
         buildEnrichmentValue({
           taxonomyKey: "accessibilite",
@@ -130,7 +131,7 @@ describe("missionScoringService.score", () => {
     missionEnrichmentRepositoryMock.findFirst.mockResolvedValue({
       id: "enrichment-1",
       missionId: "mission-1",
-      mission: { publisherId: null },
+      mission: { publisherId: null, type: null },
       values: [buildEnrichmentValue({ confidence: 0.54 })],
     });
     missionScoringRepositoryMock.findUnique.mockResolvedValue(null);
@@ -141,5 +142,67 @@ describe("missionScoringService.score", () => {
     });
 
     expect(missionScoringRepositoryMock.replaceForEnrichment).not.toHaveBeenCalled();
+  });
+
+  it("persists scoring values from publisher rules without enrichment values", async () => {
+    missionEnrichmentRepositoryMock.findFirst.mockResolvedValue({
+      id: "enrichment-1",
+      missionId: "mission-1",
+      mission: { publisherId: PUBLISHER_IDS.SERVICE_CIVIQUE, type: null },
+      values: [],
+    });
+    missionScoringRepositoryMock.findUnique.mockResolvedValue(null);
+
+    await missionScoringService.score({
+      missionId: "mission-1",
+      missionEnrichmentId: "enrichment-1",
+    });
+
+    expect(missionScoringRepositoryMock.replaceForEnrichment).toHaveBeenCalledWith({
+      missionId: "mission-1",
+      missionEnrichmentId: "enrichment-1",
+      values: [
+        {
+          missionEnrichmentValueId: null,
+          taxonomyKey: "tranche_age",
+          valueKey: "moins_26_ans",
+          score: 1,
+        },
+        {
+          missionEnrichmentValueId: null,
+          taxonomyKey: "tranche_age",
+          valueKey: "moins_31_ans_handicap",
+          score: 1,
+        },
+      ],
+    });
+  });
+
+  it("persists scoring values from mission type rules without enrichment values", async () => {
+    missionEnrichmentRepositoryMock.findFirst.mockResolvedValue({
+      id: "enrichment-1",
+      missionId: "mission-1",
+      mission: { publisherId: null, type: "volontariat_sapeurs_pompiers" },
+      values: [],
+    });
+    missionScoringRepositoryMock.findUnique.mockResolvedValue(null);
+
+    await missionScoringService.score({
+      missionId: "mission-1",
+      missionEnrichmentId: "enrichment-1",
+    });
+
+    expect(missionScoringRepositoryMock.replaceForEnrichment).toHaveBeenCalledWith({
+      missionId: "mission-1",
+      missionEnrichmentId: "enrichment-1",
+      values: [
+        {
+          missionEnrichmentValueId: null,
+          taxonomyKey: "tranche_age",
+          valueKey: "entre_16_67_ans",
+          score: 1,
+        },
+      ],
+    });
   });
 });

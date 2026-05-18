@@ -537,6 +537,188 @@ models:
         description: Date de dernière mise à jour (curseur incrémental).
         tests:
           - not_null
+  - name: matching_engine_result
+    description: >
+      Vue d'exposition des résultats persistés du moteur de matching, dérivée de `stg_matching_engine_result`. Chaque
+      ligne conserve le résultat JSON calculé pour un scoring utilisateur et une version donnée de l'algorithme.
+    columns:
+      - name: id
+        description: Identifiant unique du résultat de matching.
+        tests:
+          - not_null
+          - unique
+      - name: user_scoring_id
+        description: Identifiant du scoring utilisateur utilisé comme entrée du matching.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('user_scoring')
+                field: id
+      - name: matching_engine_version
+        description: Version du moteur de matching ayant produit le résultat.
+        tests:
+          - not_null
+      - name: results
+        description: Résultats détaillés du matching au format JSON.
+        tests:
+          - not_null
+      - name: created_at
+        description: Timestamp de création du résultat.
+        tests:
+          - not_null
+  - name: mission_enrichment
+    description: >
+      Vue d'exposition des enrichissements de mission, dérivée de `stg_mission_enrichment`. Chaque ligne représente une
+      tentative d'enrichissement pour une mission et une version de prompt.
+    columns:
+      - name: id
+        description: Identifiant unique de l'enrichissement.
+        tests:
+          - not_null
+          - unique
+      - name: mission_id
+        description: Identifiant de la mission enrichie.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('mission')
+                field: id
+      - name: status
+        description: Statut de l'enrichissement (`pending`, `processing`, `completed`, `failed`).
+        tests:
+          - not_null
+      - name: prompt_version
+        description: Version du prompt utilisée pour produire l'enrichissement.
+        tests:
+          - not_null
+      - name: input_tokens
+        description: Nombre de tokens d'entrée consommés, si disponible.
+      - name: output_tokens
+        description: Nombre de tokens de sortie produits, si disponible.
+      - name: total_tokens
+        description: Nombre total de tokens consommés, si disponible.
+      - name: completed_at
+        description: Timestamp de fin de traitement lorsque l'enrichissement est terminé.
+      - name: created_at
+        description: Timestamp de création de l'enrichissement.
+        tests:
+          - not_null
+      - name: updated_at
+        description: Timestamp de dernière mise à jour de l'enrichissement.
+        tests:
+          - not_null
+  - name: mission_enrichment_value
+    description: >
+      Vue d'exposition des valeurs extraites lors de l'enrichissement des missions, dérivée de
+      `stg_mission_enrichment_value`.
+    columns:
+      - name: id
+        description: Identifiant unique de la valeur d'enrichissement.
+        tests:
+          - not_null
+          - unique
+      - name: enrichment_id
+        description: Identifiant de l'enrichissement parent.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('mission_enrichment')
+                field: id
+      - name: taxonomy_key
+        description: Clé de la taxonomie détectée.
+      - name: value_key
+        description: Clé de la valeur de taxonomie détectée.
+      - name: confidence
+        description: Score de confiance associé à la valeur détectée.
+        tests:
+          - not_null
+      - name: evidence
+        description: Éléments de preuve ou justification de l'enrichissement au format JSON.
+      - name: created_at
+        description: Timestamp de création de la valeur d'enrichissement.
+        tests:
+          - not_null
+      - name: updated_at
+        description: Timestamp de dernière mise à jour de la valeur d'enrichissement.
+        tests:
+          - not_null
+  - name: mission_scoring
+    description: >
+      Vue d'exposition des scorings de mission, dérivée de `stg_mission_scoring`. Chaque ligne relie une mission à
+      l'enrichissement utilisé pour calculer ses valeurs de scoring.
+    columns:
+      - name: id
+        description: Identifiant unique du scoring de mission.
+        tests:
+          - not_null
+          - unique
+      - name: mission_id
+        description: Identifiant de la mission scorée.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('mission')
+                field: id
+      - name: mission_enrichment_id
+        description: Identifiant de l'enrichissement utilisé comme base du scoring.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('mission_enrichment')
+                field: id
+      - name: created_at
+        description: Timestamp de création du scoring de mission.
+        tests:
+          - not_null
+      - name: updated_at
+        description: Timestamp de dernière mise à jour du scoring de mission.
+        tests:
+          - not_null
+  - name: mission_scoring_value
+    description: >
+      Vue d'exposition des valeurs de scoring des missions par taxonomie, dérivée de `stg_mission_scoring_value`.
+    columns:
+      - name: id
+        description: Identifiant unique de la valeur de scoring mission.
+        tests:
+          - not_null
+          - unique
+      - name: mission_scoring_id
+        description: Identifiant du scoring de mission parent.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('mission_scoring')
+                field: id
+      - name: mission_enrichment_value_id
+        description: Identifiant de la valeur d'enrichissement ayant servi au scoring, si applicable.
+        tests:
+          - relationships:
+              arguments:
+                to: ref('mission_enrichment_value')
+                field: id
+      - name: taxonomy_key
+        description: Clé de la taxonomie scorée.
+      - name: value_key
+        description: Clé de la valeur de taxonomie scorée.
+      - name: score
+        description: Score de mission calculé pour cette valeur de taxonomie.
+        tests:
+          - not_null
+      - name: created_at
+        description: Timestamp de création de la valeur de scoring.
+        tests:
+          - not_null
+      - name: updated_at
+        description: Timestamp de dernière mise à jour de la valeur de scoring.
+        tests:
+          - not_null
   - name: mission_moderation_status
     description: >
       Mart des statuts de modération par mission. Le modèle expose l'historique

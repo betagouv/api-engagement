@@ -38,7 +38,7 @@ services:
       TYPESENSE_HOST: typesense
     volumes:
       - ./api:/workspace/api
-      - /workspace/api/node_modules
+      - api-node-modules:/workspace/api/node_modules
       - ./packages/taxonomy:/workspace/packages/taxonomy
     ports:
       - "3002:3002"
@@ -57,21 +57,24 @@ services:
       TYPESENSE_HOST: typesense
     volumes:
       - ./api:/workspace/api
-      - /workspace/api/node_modules
+      - api-node-modules:/workspace/api/node_modules
       - ./packages/taxonomy:/workspace/packages/taxonomy
     ports:
       - "3004:3004"
 
   plateform:
-    build: ./plateform
+    build:
+      context: .
+      dockerfile: plateform/Dockerfile
     depends_on:
       - api
     environment:
       VITE_API_URL: http://localhost:3002
       VITE_ENV: development
     volumes:
-      - ./plateform:/app
-      - /app/node_modules
+      - ./plateform:/workspace/plateform
+      - /workspace/plateform/node_modules
+      - ./packages/taxonomy:/workspace/packages/taxonomy
     ports:
       - "3005:3005"
 
@@ -89,6 +92,7 @@ services:
       - /workspace/app/node_modules
     ports:
       - "3000:3000"
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
 
   widget:
     build:
@@ -131,12 +135,13 @@ services:
       TYPESENSE_MISSION_COLLECTION: missions
     volumes:
       - ./api:/workspace/api
-      - /workspace/api/node_modules
+      - api-node-modules:/workspace/api/node_modules
       - ./packages/taxonomy:/workspace/packages/taxonomy
     command: ["sh", "-c", "sleep 20 && npx ts-node src/jobs/run-job.ts setup-search-collections"]
     restart: "no"
 
 volumes:
+  api-node-modules:
   postgres-analytics-data:
   postgres-core-data:
   typesense-data:

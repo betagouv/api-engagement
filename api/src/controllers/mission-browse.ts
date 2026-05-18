@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response, Router } from "express";
 import zod from "zod";
 
-import { INVALID_QUERY, SERVICE_UNAVAILABLE, captureException } from "@/error";
+import { INVALID_QUERY, NOT_FOUND, SERVICE_UNAVAILABLE, captureException } from "@/error";
 import { MissionBrowseIndexUnavailableError, missionBrowseService } from "@/services/mission-browse";
 import { INDEXED_TAXONOMY_KEYS } from "@/services/search/collections/missions/fields";
 
@@ -26,12 +26,30 @@ router.get("/browse", async (req: Request, res: Response, next: NextFunction) =>
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
     const result = await missionBrowseService.browse(query.data);
-    return res.status(200).send({ ok: true, ...result });
+    return res.status(200).send({ ok: true, data: result });
   } catch (error) {
     if (error instanceof MissionBrowseIndexUnavailableError) {
       captureException(error);
       return res.status(503).send({ ok: false, code: SERVICE_UNAVAILABLE, message: "Mission browse index is unavailable" });
     }
+    next(error);
+  }
+});
+
+const missionIdSchema = zod.object({ id: zod.string() });
+
+router.get("/browse/:id", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const params = missionIdSchema.safeParse(req.params);
+    if (!params.success) {
+      return res.status(400).send({ ok: false, code: INVALID_QUERY, message: params.error });
+    }
+    const result = await missionBrowseService.findById(params.data.id);
+    if (!result) {
+      return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Mission not found" });
+    }
+    return res.status(200).send({ ok: true, data: result });
+  } catch (error) {
     next(error);
   }
 });

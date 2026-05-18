@@ -3,15 +3,19 @@
 //
 // Champs par taxonomy :
 //   label     — libellé affiché en UI / logs
-//   type      — "multi_value" | "categorical" | "gate" (correspond au TaxonomyType Prisma)
+//   type      — "multi_value" | "categorical" | "gate" | "value"
 //   enrichable — true si la taxonomy est classifiée par le LLM (mission-enrichment)
-//   gate       — true si la taxonomy est un filtre dur dans le matching engine
+//   gate        — true si la taxonomy est un filtre dur dans le matching engine
+//   transformer — fonction optionnelle qui calcule des value keys depuis des params utilisateur
 //
 // Champs par valeur :
 //   label      — libellé affiché
 //   sublabel   — aide contextuelle optionnelle pour les UIs
 //   icon       — emoji optionnel
 //   enrichable — false pour les valeurs exclues de l'enrichissement (ex : je_ne_sais_pas)
+
+import { resolveLocationValues } from "./transformers/location";
+import { resolveTrancheAgeValues } from "./transformers/tranche-age";
 
 export const TAXONOMY = {
   // ─── Taxonomies enrichissables ────────────────────────────────────────────
@@ -59,10 +63,30 @@ export const TAXONOMY = {
     enrichable: true,
     gate: false,
     values: {
-      ponctuelle: { label: "Mission ponctuelle", icon: null, enrichable: true },
-      reguliere: { label: "Mission régulière", icon: null, enrichable: true },
-      temps_plein: { label: "Mission à temps plein", icon: null, enrichable: true },
-      je_ne_sais_pas: { label: "Je ne sais pas encore", icon: null, enrichable: false },
+      ponctuelle: {
+        label: "Mission ponctuelle",
+        sublabel: "Quelques heures ou quelques jours, une fois.",
+        icon: "😇‍",
+        enrichable: true,
+      },
+      reguliere: {
+        label: "Mission régulière",
+        sublabel: "Quelques heures par semaine ou par mois. Certaines missions peuvent être indemnisées",
+        icon: "😇‍",
+        enrichable: true,
+      },
+      temps_plein: {
+        label: "Mission à temps plein",
+        sublabel: "Plusieurs jours par semaine pendant plusieurs mois, les missions sont souvent indemnisées",
+        icon: "🤠‍",
+        enrichable: true,
+      },
+      je_ne_sais_pas: {
+        label: "Je ne sais pas encore",
+        sublabel: "Je déciderai en découvrant les missions",
+        icon: "🤔‍",
+        enrichable: false,
+      },
     },
   },
 
@@ -139,12 +163,12 @@ export const TAXONOMY = {
     enrichable: false,
     gate: false,
     values: {
-      lyceen: { label: "Lycéen", icon: null, enrichable: false },
-      etudiant: { label: "Étudiant", icon: null, enrichable: false },
-      demandeur_emploi: { label: "Demandeur d'emploi", icon: null, enrichable: false },
-      actif: { label: "En activité", icon: null, enrichable: false },
-      retraite: { label: "Retraité", icon: null, enrichable: false },
-      autre: { label: "Autre", icon: null, enrichable: false },
+      lyceen: { label: "Je suis au lycée", icon: "🧑‍", enrichable: false },
+      etudiant: { label: "Je fais des études", icon: "🎓", enrichable: false },
+      demandeur_emploi: { label: "Je recherche un emploi", icon: "🕵️‍♂️", enrichable: false },
+      actif: { label: "J’ai une activité professionnelle", icon: "💼", enrichable: false },
+      retraite: { label: "Je suis à la retraite", icon: "👴", enrichable: false },
+      autre: { label: "Autre situation", icon: "🤷", enrichable: false },
     },
   },
 
@@ -166,11 +190,36 @@ export const TAXONOMY = {
     enrichable: false,
     gate: false,
     values: {
-      me_sentir_utile: { label: "Me sentir utile, rencontrer de nouvelles personnes", icon: null, enrichable: false },
-      booster_parcoursup: { label: "Booster mon dossier Parcoursup", icon: null, enrichable: false },
-      tester_orientation: { label: "Tester une orientation", icon: null, enrichable: false },
-      servir_le_pays: { label: "Servir le pays", icon: null, enrichable: false },
-      ne_sais_pas: { label: "Je ne sais pas encore", icon: null, enrichable: false },
+      me_sentir_utile: {
+        label: "Aider les autres",
+        sublabel: "Être utile à des personnes ou à une cause",
+        icon: "🙏🏻",
+        enrichable: false,
+      },
+      booster_parcoursup: {
+        label: "Booster mon dossier Parcoursup",
+        sublabel: "Apprendre des compétences",
+        icon: "🎓",
+        enrichable: false,
+      },
+      tester_orientation: {
+        label: "Tester une orientation",
+        sublabel: "Explorer un secteur ou un métier",
+        icon: "🧭",
+        enrichable: false,
+      },
+      servir_le_pays: {
+        label: "Servir le pays",
+        sublabel: "Participer à des missions d'intérêt général",
+        icon: "🇫🇷",
+        enrichable: false,
+      },
+      ne_sais_pas: {
+        label: "Je ne sais pas encore",
+        sublabel: "Je déciderai en découvrant les missions",
+        icon: "🤔‍",
+        enrichable: false,
+      },
       booster_cv: {
         label: "Booster mon CV",
         sublabel: "Acquérir des compétences en rapport avec mes études",
@@ -184,9 +233,13 @@ export const TAXONOMY = {
         enrichable: false,
       },
       experience_terrain: { label: "Avoir une 1ère expérience terrain", icon: null, enrichable: false },
-      partir_etranger: { label: "Partir à l'étranger", icon: null, enrichable: false },
+      partir_etranger: {
+        label: "Partir à l'étranger",
+        sublabel: "Vivre une expérience d'engagement dans un autre pays",
+        icon: "🌍",
+        enrichable: false,
+      },
       competences_interet_general: { label: "Utiliser mes compétences pour l'intérêt général", icon: null, enrichable: false },
-      faire_vivre_valeurs: { label: "Faire vivre mes valeurs", icon: null, enrichable: false },
       reprendre_confiance: { label: "Reprendre confiance en moi", icon: null, enrichable: false },
       reprendre_activite: { label: "Garder / reprendre une activité", icon: null, enrichable: false },
       enrichir_cv: {
@@ -230,6 +283,15 @@ export const TAXONOMY = {
     },
   },
 
+  location: {
+    label: "Localisation",
+    type: "value",
+    enrichable: false,
+    gate: false,
+    transformer: resolveLocationValues,
+    values: {},
+  },
+
   // ─── taxonomy gate (filtre dur dans le matching) ────────────────────────
 
   tranche_age: {
@@ -237,9 +299,12 @@ export const TAXONOMY = {
     type: "gate",
     enrichable: false, // pas enrichie par le LLM — calculée côté client (âge saisi)
     gate: true,
+    transformer: resolveTrancheAgeValues,
     values: {
       moins_26_ans: { label: "Moins de 26 ans", icon: null, enrichable: false },
       moins_31_ans_handicap: { label: "Moins de 31 ans — situation de handicap", icon: null, enrichable: false },
+      entre_17_72_ans: { label: "Être âgé de 17 à 72 ans", icon: null, enrichable: false },
+      entre_16_67_ans: { label: "Avoir au minimum 16 ans (avec autorisation parentale pour les mineurs) et moins de 67 ans", icon: null, enrichable: false },
     },
   },
 } as const;

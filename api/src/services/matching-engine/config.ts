@@ -1,7 +1,7 @@
-import { ENRICHABLE_TAXONOMIES } from "@engagement/taxonomy";
+import { ENRICHABLE_TAXONOMIES, GATE_TAXONOMIES } from "@engagement/taxonomy";
 import type { MatchingEngineTaxonomyWeights, MatchingEngineVersion, MatchingEngineVersionConfig } from "./types";
 
-export const MATCHING_ENGINE_TAXONOMIES = ENRICHABLE_TAXONOMIES as readonly (keyof MatchingEngineTaxonomyWeights)[];
+export const MATCHING_ENGINE_TAXONOMIES = [...ENRICHABLE_TAXONOMIES, ...GATE_TAXONOMIES] as readonly (keyof MatchingEngineTaxonomyWeights)[];
 
 export const MATCHING_ENGINE_TOP_RESULTS_LIMIT = 20;
 
@@ -17,6 +17,7 @@ export const MATCHING_ENGINE_VERSIONS = {
       region_internationale: 1,
       engagement_intent: 1,
       formation_onisep: 1,
+      tranche_age: 1,
     } satisfies MatchingEngineTaxonomyWeights,
   },
 } as const satisfies Record<MatchingEngineVersion, MatchingEngineVersionConfig>;

@@ -9,6 +9,9 @@ export default defineConfig({
       errorRecovery: true,
     },
   },
+  server: {
+    host: true,
+  },
   resolve: {
     dedupe: ["react", "react-dom", "react-router"],
   },

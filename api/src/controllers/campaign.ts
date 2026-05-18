@@ -3,10 +3,12 @@ import passport from "passport";
 import zod from "zod";
 
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "@/error";
+import { requireAllPublisherAccess } from "@/middlewares/authorization";
+import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { campaignService, InvalidUrlError } from "@/services/campaign";
 import { CampaignCreateInput, CampaignSearchParams, CampaignUpdatePatch } from "@/types/campaign";
-import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { UserRequest } from "@/types/passport";
+import { readRequiredParam } from "@/utils/publisher-access";
 
 const router = Router();
 router.use(ipRateLimiter);
@@ -66,29 +68,33 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
   }
 });
 
-router.get("/:id", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
-  try {
-    const params = zod
-      .object({
-        id: zod.string(),
-      })
-      .required()
-      .safeParse(req.params);
+router.get(
+  "/:id",
+  passport.authenticate("user", { session: false }),
+  requireAllPublisherAccess({
+    resolvePublisherIds: async (req, _res) => {
+      const campaignId = readRequiredParam(req, _res, "id");
+      if (!campaignId) {
+        return { publisherIds: [] };
+      }
+      const campaign = await campaignService.findCampaignById(campaignId);
+      if (!campaign) {
+        return null;
+      }
+      // Le détail d'une campagne est piloté par l'annonceur source.
+      return { publisherIds: [campaign.fromPublisherId], locals: { campaign } };
+    },
+  }),
+  async (_req: UserRequest, res: Response, next: NextFunction) => {
+    try {
+      const data = res.locals.campaign;
 
-    if (!params.success) {
-      return res.status(400).send({ ok: false, code: INVALID_PARAMS, error: params.error });
+      return res.status(200).send({ ok: true, data });
+    } catch (error) {
+      next(error);
     }
-
-    const data = await campaignService.findCampaignById(params.data.id);
-    if (!data) {
-      return res.status(404).send({ ok: false, code: NOT_FOUND });
-    }
-
-    return res.status(200).send({ ok: true, data });
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 router.post("/", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {

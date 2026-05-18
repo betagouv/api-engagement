@@ -5,7 +5,7 @@ resource "scaleway_container_domain" "api" {
 }
 
 resource "scaleway_container_domain" "app" {
-  count        = var.enable_app ? 1 : 0
+  count        = var.enable_app && var.app_hostname != "" ? 1 : 0
   container_id = scaleway_container.app[0].id
   hostname     = var.app_hostname
 }

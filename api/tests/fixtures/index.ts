@@ -2,7 +2,7 @@ import { Import as PrismaImport } from "@/db/core";
 import { importService } from "@/services/import";
 import type { ImportCreateInput } from "@/types/import";
 
-export { createTestMission } from "./mission";
+export { createTestMission, createTestMissionWithModeration } from "./mission";
 export { createTestMissionEnrichment, createTestMissionScoring } from "./mission-scoring";
 export { createTestPublisher } from "./publisher";
 export { createTestPublisherOrganization } from "./publisher-organization";
