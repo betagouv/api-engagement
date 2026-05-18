@@ -32,7 +32,7 @@ const BENEFITS: Benefit[] = [
 
 export default function ProSpace() {
   return (
-    <section className="fr-container py-6! md:py-12! px-6! md:px-6!">
+    <section className="fr-container py-6! md:py-12! px-6!">
       <p className="fr-text--lg font-medium text-default-grey fr-mb-0 md:fr-mb-3w text-center md:text-left">Il existe mille façons de s'engager</p>
       <div className="flex items-start flex-col md:flex-row gap-8 md:gap-16">
         <div className="w-full md:w-[40%]">
