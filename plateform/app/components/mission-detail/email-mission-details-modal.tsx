@@ -29,7 +29,7 @@ export default function EmailMissionModal({ missionId, userScoringId }: EmailMis
     e.preventDefault();
     const form = e.currentTarget;
     const email = (form.elements.namedItem("email") as HTMLInputElement).value;
-    const missionAlertEnabled = (form.elements.namedItem("nearby") as HTMLInputElement).checked;
+    const missionAlertEnabled = (form.elements.namedItem("nearby") as HTMLInputElement | null)?.checked ?? false;
 
     setSubmitting(true);
     setError(null);
