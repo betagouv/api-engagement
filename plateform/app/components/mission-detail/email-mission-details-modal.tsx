@@ -84,15 +84,17 @@ export default function EmailMissionModal({ missionId, userScoringId }: EmailMis
               <input id={emailId} name="email" type="email" required className="fr-input" placeholder="nom@email.fr" />
             </div>
 
-            <div className="fr-checkbox-group fr-mb-2w">
-              <input id={nearbyId} name="nearby" type="checkbox" />
-              <label className="fr-label" htmlFor={nearbyId}>
-                Recevoir aussi les nouvelles missions près de chez moi
-              </label>
-              <div className="fr-messages-group">
-                <p className="fr-hint-text">1 email maximum par semaine. Ton adresse sera uniquement utilisée pour t'envoyer ces missions.</p>
+            {userScoringId && (
+              <div className="fr-checkbox-group fr-mb-2w">
+                <input id={nearbyId} name="nearby" type="checkbox" />
+                <label className="fr-label" htmlFor={nearbyId}>
+                  Recevoir aussi les nouvelles missions près de chez moi
+                </label>
+                <div className="fr-messages-group">
+                  <p className="fr-hint-text">1 email maximum par semaine. Ton adresse sera uniquement utilisée pour t'envoyer ces missions.</p>
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="flex justify-end">
               <button type="submit" disabled={submitting} className="fr-btn">
