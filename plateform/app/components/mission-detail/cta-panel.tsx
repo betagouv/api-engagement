@@ -1,9 +1,11 @@
 import type { MissionDetailResponse } from "@engagement/dto";
 import type { ReactNode } from "react";
+import EmailMissionModal from "~/components/mission-detail/email-mission-modal";
 import { formatCompensation, formatStartDate } from "~/utils/mission";
 
 interface MissionCtaPanelProps {
   mission: MissionDetailResponse;
+  userScoringId?: string;
   className?: string;
 }
 
@@ -16,7 +18,7 @@ function InfoRow({ icon, children }: { icon: string; children: ReactNode }) {
   );
 }
 
-export default function MissionCtaPanel({ mission, className = "" }: MissionCtaPanelProps) {
+export default function MissionCtaPanel({ mission, userScoringId, className = "" }: MissionCtaPanelProps) {
   const durationLabel = formatStartDate(mission.startAt, mission.duration);
   const compensationLabel = mission.compensation ? formatCompensation(mission.compensation) : null;
 
@@ -43,9 +45,7 @@ export default function MissionCtaPanel({ mission, className = "" }: MissionCtaP
             Découvrir la mission
           </a>
 
-          <button type="button" className="fr-btn fr-btn--secondary fr-mt-2w w-full! justify-center!">
-            Recevoir cette mission par e-mail
-          </button>
+          <EmailMissionModal missionId={mission.id} userScoringId={userScoringId} />
         </div>
       </div>
     </aside>

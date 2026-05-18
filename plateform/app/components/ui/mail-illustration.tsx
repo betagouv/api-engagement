@@ -1,4 +1,4 @@
-import MailSendSvg from "~/assets/svg/mail-send.svg";
+import MailSendSvg from "@gouvfr/dsfr/dist/artwork/pictograms/digital/mail-send.svg?url";
 import TraceSvg from "~/assets/svg/trace.svg";
 
 interface MailIllustrationProps {
@@ -7,9 +7,15 @@ interface MailIllustrationProps {
 
 export default function MailIllustration({ className }: MailIllustrationProps) {
   return (
-    <div className={`relative flex items-center justify-center${className ? ` ${className}` : ""}`} aria-hidden="true">
-      <img src={TraceSvg} alt="" className="absolute top-0 left-0 w-2/3 opacity-60" />
-      <img src={MailSendSvg} alt="" className="-rotate-[11deg] w-[113px] relative z-10" />
+    <div className={className ? `${className}` : ""}>
+      <img src={TraceSvg} alt="Trace" className="absolute top-20 left-0 w-1/5" />
+      <div className="fr-container py-6! md:py-12! px-6! flex flex-col md:flex-row gap-4 md:gap-2 items-center justify-center">
+        <div className="flex-1 z-10" aria-hidden="true">
+          <div className="flex items-center justify-center gap-4">
+            <img src={MailSendSvg} alt="" className="hidden md:block rotate-12" />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

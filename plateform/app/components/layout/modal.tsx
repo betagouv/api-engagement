@@ -8,9 +8,10 @@ interface ModalProps extends React.HTMLAttributes<HTMLDivElement> {
   title: string;
   beforeTitle?: React.ReactNode;
   showTitleIcon?: boolean;
+  titleIconClass?: string;
 }
 
-export default function Modal({ open, children, onClose, title, beforeTitle, showTitleIcon = true, ...props }: ModalProps) {
+export default function Modal({ open, children, onClose, title, beforeTitle, showTitleIcon = true, titleIconClass = "fr-icon-arrow-right-line", ...props }: ModalProps) {
   const titleId = useId();
   const [mounted, setMounted] = useState(false);
 
@@ -45,7 +46,7 @@ export default function Modal({ open, children, onClose, title, beforeTitle, sho
               <div className="fr-modal__content">
                 {beforeTitle}
                 <h2 id={titleId} className="fr-modal__title">
-                  {showTitleIcon && <span className="fr-icon-arrow-right-line fr-icon--lg" aria-hidden="true" />}
+                  {showTitleIcon && <span className={`${titleIconClass} fr-icon--lg`} aria-hidden="true" />}
                   {title}
                 </h2>
                 {children}

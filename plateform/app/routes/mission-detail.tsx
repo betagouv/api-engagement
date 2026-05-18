@@ -71,7 +71,7 @@ export default function MissionDetailPage() {
           <MissionHeroCard mission={mission} />
           {mission.location && <MissionLocationCard location={mission.location} />}
           <div className="md:hidden">
-            <MissionCtaPanel mission={mission} />
+            <MissionCtaPanel mission={mission} userScoringId={userScoringId} />
           </div>
           <MissionDescriptionCard mission={mission} />
         </div>
@@ -82,7 +82,7 @@ export default function MissionDetailPage() {
               <img src={mission.photo} alt="" className="h-full w-full object-cover" />
             </div>
           )}
-          <MissionCtaPanel mission={mission} className="sticky top-4" />
+          <MissionCtaPanel mission={mission} userScoringId={userScoringId} className="sticky top-4" />
         </div>
       </div>
 

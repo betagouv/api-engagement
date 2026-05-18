@@ -3,8 +3,9 @@ import api from "~/services/api";
 type SendMissionEmailPayload = {
   email: string;
   publisherId: string;
-  userScoringId: string;
-  distinctId: string;
+  userScoringId?: string;
+  distinctId?: string;
+  missionIds?: string[];
 };
 
 type SendMissionEmailResponse = {
