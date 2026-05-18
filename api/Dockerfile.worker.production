@@ -10,6 +10,7 @@ WORKDIR /workspace
 COPY package.json package-lock.json ./
 COPY api/package.json ./api/
 COPY packages/taxonomy ./packages/taxonomy
+COPY packages/dto ./packages/dto
 
 RUN npm ci --workspace=api
 
@@ -32,6 +33,7 @@ ENV NODE_ENV=production
 COPY package.json package-lock.json ./
 COPY api/package.json ./api/
 COPY --from=builder /workspace/packages/taxonomy ./packages/taxonomy
+COPY --from=builder /workspace/packages/dto ./packages/dto
 
 RUN npm ci --workspace=api --omit=dev
 

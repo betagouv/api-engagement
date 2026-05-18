@@ -1,4 +1,6 @@
+import type { MissionBrowse, MissionBrowseFacetCount, MissionBrowseFilters } from "@engagement/dto";
 import { TAXONOMY } from "@engagement/taxonomy";
+
 import { useEffect, useState } from "react";
 import Newsletter from "~/components/layout/newsletter";
 import Partners from "~/components/layout/partners";
@@ -7,12 +9,15 @@ import MissionCard from "~/components/missions/mission-card";
 import GradientBg from "~/components/ui/gradient-bg";
 import Pagination from "~/components/ui/pagination";
 import { browseMissions } from "~/services/mission-browse";
-import { type BrowseFilters, type BrowseMission, type FacetCount } from "~/types/api";
 import type { Route } from "./+types/missions";
 
 const PAGE_SIZE = 9;
 
-type TaxonomyFilterKey = "domaine" | "secteur_activite" | "type_mission" | "tranche_age";
+const FILTER_KEYS = ["departmentCode", "tranche_age", "type_mission", "secteur_activite", "domaine"] as const satisfies readonly (keyof MissionBrowseFilters)[];
+
+type FilterKey = (typeof FILTER_KEYS)[number];
+type TaxonomyFilterKey = Exclude<FilterKey, "departmentCode">;
+type BrowseParams = MissionBrowseFilters;
 
 const filterTaxonomyLabel = (key: TaxonomyFilterKey, value: string): string => {
   const taxonomyValues = TAXONOMY[key].values as Record<string, { label: string }>;
@@ -21,7 +26,7 @@ const filterTaxonomyLabel = (key: TaxonomyFilterKey, value: string): string => {
 
 const formatDepartmentLabel = (code: string): string => code.replace(/^FR-/, "");
 
-const sortFacets = (facets: FacetCount[] | undefined) =>
+const sortFacets = (facets: MissionBrowseFacetCount[] | undefined) =>
   (facets ?? [])
     .filter((f) => f.count > 0)
     .slice()
@@ -39,10 +44,6 @@ export function meta(): Route.MetaDescriptors {
   return [{ title: "Trouve ta mission — API Engagement" }];
 }
 
-type FilterKey = "departmentCode" | "tranche_age" | "type_mission" | "secteur_activite" | "domaine";
-
-const FILTER_KEYS: FilterKey[] = ["departmentCode", "tranche_age", "type_mission", "secteur_activite", "domaine"];
-
 export default function MissionsPage() {
   const [filterValues, setFilterValues] = useState<Record<FilterKey, string[]>>({
     departmentCode: [],
@@ -52,9 +53,9 @@ export default function MissionsPage() {
     domaine: [],
   });
   const [page, setPage] = useState(1);
-  const [items, setItems] = useState<BrowseMission[]>([]);
+  const [items, setItems] = useState<MissionBrowse[]>([]);
   const [total, setTotal] = useState(0);
-  const [facets, setFacets] = useState<Record<string, FacetCount[]>>({});
+  const [facets, setFacets] = useState<Record<string, MissionBrowseFacetCount[]>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -63,7 +64,7 @@ export default function MissionsPage() {
     setLoading(true);
     setError(null);
 
-    const browseInput: BrowseFilters = { page, pageSize: PAGE_SIZE };
+    const browseInput: BrowseParams = { page, pageSize: PAGE_SIZE };
     if (filterValues.departmentCode.length) browseInput.departmentCode = filterValues.departmentCode;
     if (filterValues.tranche_age.length) browseInput.tranche_age = filterValues.tranche_age;
     if (filterValues.type_mission.length) browseInput.type_mission = filterValues.type_mission;

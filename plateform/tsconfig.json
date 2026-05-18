@@ -16,6 +16,7 @@
     "baseUrl": ".",
     "paths": {
       "@engagement/taxonomy": ["../packages/taxonomy/src/index"],
+      "@engagement/dto": ["../packages/dto/src/index"],
       "@react-leaflet/core/lib/*": ["../node_modules/@react-leaflet/core/lib/*"],
       "~/*": ["./app/*"]
     },

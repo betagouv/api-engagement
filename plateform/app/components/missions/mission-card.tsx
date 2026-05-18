@@ -1,13 +1,13 @@
+import type { MissionBrowse } from "@engagement/dto";
 import type { ReactNode } from "react";
 import { Link } from "react-router";
 
-import type { BrowseMission } from "~/types/api";
 import { DOMAIN_LABELS } from "~/utils/domains";
 
 type MissionCardLink = { type: "internal"; to: string } | { type: "external"; href: string };
 
 interface MissionCardProps {
-  mission: BrowseMission;
+  mission: MissionBrowse;
   link?: MissionCardLink;
   action?: ReactNode;
 }

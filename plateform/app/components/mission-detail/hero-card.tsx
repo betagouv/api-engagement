@@ -1,4 +1,4 @@
-import type { MissionDetailResponse } from "~/types/api";
+import type { MissionDetailResponse } from "@engagement/dto";
 import { formatMissionType } from "~/utils/mission";
 
 interface MissionHeroCardProps {

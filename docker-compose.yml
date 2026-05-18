@@ -40,6 +40,7 @@ services:
       - ./api:/workspace/api
       - api-node-modules:/workspace/api/node_modules
       - ./packages/taxonomy:/workspace/packages/taxonomy
+      - ./packages/dto:/workspace/packages/dto
     ports:
       - "3002:3002"
 
@@ -75,6 +76,7 @@ services:
       - ./plateform:/workspace/plateform
       - /workspace/plateform/node_modules
       - ./packages/taxonomy:/workspace/packages/taxonomy
+      - ./packages/dto:/workspace/packages/dto
     ports:
       - "3005:3005"
 
@@ -137,7 +139,13 @@ services:
       - ./api:/workspace/api
       - api-node-modules:/workspace/api/node_modules
       - ./packages/taxonomy:/workspace/packages/taxonomy
-    command: ["sh", "-c", "sleep 20 && npx ts-node src/jobs/run-job.ts setup-search-collections"]
+      - ./packages/dto:/workspace/packages/dto
+    command:
+      [
+        "sh",
+        "-c",
+        "sleep 20 && npx ts-node src/jobs/run-job.ts setup-search-collections",
+      ]
     restart: "no"
 
 volumes:

@@ -3,8 +3,9 @@ FROM node:24
 WORKDIR /workspace
 
 COPY package.json package-lock.json ./
-COPY plateform/package*.json ./plateform/
+COPY plateform/package.json ./plateform/
 COPY packages/taxonomy ./packages/taxonomy
+COPY packages/dto ./packages/dto
 
 WORKDIR /workspace/plateform
 

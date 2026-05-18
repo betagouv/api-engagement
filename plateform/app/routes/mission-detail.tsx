@@ -1,3 +1,4 @@
+import type { MissionDetailResponse } from "@engagement/dto";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 
@@ -7,7 +8,6 @@ import MissionHeroCard from "~/components/mission-detail/hero-card";
 import MissionLocationCard from "~/components/mission-detail/location-card";
 import SimilarMissions from "~/components/mission-detail/similar-missions";
 import { fetchMissionDetail } from "~/services/mission-browse";
-import type { MissionDetailResponse } from "~/types/api";
 
 export default function MissionDetailPage() {
   const { missionId, userScoringId } = useParams<{ missionId: string; userScoringId?: string }>();
