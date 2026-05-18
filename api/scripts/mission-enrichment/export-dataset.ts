@@ -24,14 +24,21 @@ const version = getArg("--version") ?? CURRENT_PROMPT_VERSION;
 const limit = getArg("--limit") ? parseInt(getArg("--limit")!, 10) : undefined;
 const outputPath = getArg("--output") ?? "./enrichment-export.csv";
 
+const parseIds = (): string[] => {
+  const idsArg = getArg("--ids");
+  const idsFile = getArg("--ids-file");
+
+  const ids = [...(idsArg ? idsArg.split(",") : []), ...(idsFile ? fs.readFileSync(idsFile, "utf-8").split(/\r?\n|,/) : [])].map((id) => id.trim()).filter(Boolean);
+
+  return [...new Set(ids)];
+};
+
 // ─── Taxonomy lookup ─────────────────────────────────────────────────────────
 
 type TaxonomyMeta = { type: string; label: string; values: Map<string, { label: string }> };
 type FullTaxonomyLookup = Map<string, TaxonomyMeta>;
 
-const buildFullLookup = (
-  taxonomies: Array<{ key: string; type: string; label: string; values: Array<{ key: string; label: string; active: boolean }> }>
-): FullTaxonomyLookup => {
+const buildFullLookup = (taxonomies: Array<{ key: string; type: string; label: string; values: Array<{ key: string; label: string; active: boolean }> }>): FullTaxonomyLookup => {
   const fullLookup: FullTaxonomyLookup = new Map();
 
   for (const dim of taxonomies) {
@@ -150,7 +157,8 @@ const rowToCsv = (row: CsvRow): string => HEADERS.map((h) => csvEscape(row[h as 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function main() {
-  console.log(`[export-dataset] version=${version} limit=${limit ?? "all"} output=${outputPath}`);
+  const ids = parseIds();
+  console.log(`[export-dataset] version=${version} limit=${limit ?? "all"} ids=${ids.length || "all"} output=${outputPath}`);
 
   const taxonomies = await prisma.taxonomy.findMany({
     orderBy: { key: "asc" },
@@ -167,7 +175,11 @@ async function main() {
   );
 
   const enrichments = await prisma.missionEnrichment.findMany({
-    where: { status: "completed", promptVersion: version },
+    where: {
+      status: "completed",
+      promptVersion: version,
+      ...(ids.length > 0 ? { missionId: { in: ids } } : {}),
+    },
     take: limit,
     orderBy: { completedAt: "desc" },
     include: {

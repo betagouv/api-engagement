@@ -10,6 +10,7 @@ import type { MissionForPrompt, TaxonomyForPrompt } from "@/services/mission-enr
 import { buildTaxonomyGuidanceBlock } from "@/services/mission-enrichment/prompts/v2";
 import { ENRICHABLE_TAXONOMIES, TAXONOMY } from "@engagement/taxonomy";
 import { generateObject } from "ai";
+import { spawnSync } from "child_process";
 import fs from "fs";
 import path from "path";
 import { performance } from "perf_hooks";
@@ -23,8 +24,9 @@ const JUDGE_MODEL = ai.model("openai", JUDGE_MODEL_ID);
 const DEFAULT_VERSION = CURRENT_PROMPT_VERSION;
 const DEFAULT_LIMIT = 100;
 const DEFAULT_SLEEP_MS = 500;
-const DEFAULT_OUTPUT = "./judge-enrichments.jsonl";
+const DEFAULT_OUTPUT = "./judge-enrichments.csv";
 const DEFAULT_REPORT = "./judge-enrichments-report.md";
+const DEFAULT_DATASET_OUTPUT = "./enrichment-export.csv";
 
 // ─── CLI args ────────────────────────────────────────────────────────────────
 
@@ -45,6 +47,33 @@ const limit = parsePositiveInteger(getArg("--limit"), DEFAULT_LIMIT, "--limit");
 const sleepMs = parsePositiveInteger(getArg("--sleep-ms"), DEFAULT_SLEEP_MS, "--sleep-ms");
 const outputPath = getArg("--output") ?? DEFAULT_OUTPUT;
 const reportPath = getArg("--report") ?? DEFAULT_REPORT;
+const datasetOutputPath = getArg("--dataset-output") ?? DEFAULT_DATASET_OUTPUT;
+const shouldExportDataset = !args.includes("--skip-dataset-export");
+
+// ─── CSV helpers ─────────────────────────────────────────────────────────────
+
+const csvEscape = (value: string | number | null | undefined): string => {
+  const str = String(value ?? "")
+    .replace(/\n/g, " ")
+    .replace(/\r/g, "");
+  return `"${str.replace(/"/g, '""')}"`;
+};
+
+const CSV_HEADERS = [
+  "enrichmentId",
+  "missionId",
+  "promptVersion",
+  "durationMs",
+  "inputTokens",
+  "outputTokens",
+  "totalTokens",
+  "verdict",
+  "summary",
+  "classificationsReview",
+  "missingValues",
+  "failurePatterns",
+  "errorMessage",
+];
 
 // ─── Judge schema ─────────────────────────────────────────────────────────────
 
@@ -227,6 +256,25 @@ type JudgeRunResult = {
   error?: { message: string };
 };
 
+const resultToCsv = (result: JudgeRunResult): string =>
+  [
+    result.enrichmentId,
+    result.missionId,
+    result.promptVersion,
+    result.durationMs,
+    result.inputTokens,
+    result.outputTokens,
+    result.totalTokens,
+    result.result?.verdict,
+    result.result?.summary,
+    result.result ? JSON.stringify(result.result.classifications_review) : "",
+    result.result ? JSON.stringify(result.result.missing_values) : "",
+    result.result ? JSON.stringify(result.result.failure_patterns) : "",
+    result.error?.message,
+  ]
+    .map(csvEscape)
+    .join(",");
+
 const runJudge = async (params: {
   enrichmentId: string;
   missionId: string;
@@ -383,8 +431,26 @@ const ensureParentDir = (filePath: string) => {
   fs.mkdirSync(path.dirname(path.resolve(filePath)), { recursive: true });
 };
 
+const buildMissionIdsPath = (filePath: string): string => {
+  const parsed = path.parse(filePath);
+  return path.join(parsed.dir, `${parsed.name}-mission-ids.txt`);
+};
+
+const exportDataset = (missionIdsPath: string) => {
+  const exportScriptPath = path.resolve(__dirname, "export-dataset.ts");
+  const result = spawnSync(
+    process.execPath,
+    ["-r", "ts-node/register", "-r", "tsconfig-paths/register", exportScriptPath, "--version", version, "--ids-file", missionIdsPath, "--output", datasetOutputPath],
+    { cwd: path.resolve(__dirname, "../.."), env: process.env, stdio: "inherit" }
+  );
+
+  if (result.status !== 0) {
+    throw new Error(`export-dataset a échoué avec le code ${result.status ?? "inconnu"}`);
+  }
+};
+
 async function main() {
-  console.log(`[judge-enrichments] version=${version} limit=${limit} output=${outputPath} report=${reportPath} judgeModel=${JUDGE_MODEL_ID}`);
+  console.log(`[judge-enrichments] version=${version} limit=${limit} output=${outputPath} report=${reportPath} datasetOutput=${datasetOutputPath} judgeModel=${JUDGE_MODEL_ID}`);
 
   await pgConnected();
 
@@ -411,7 +477,7 @@ async function main() {
 
   ensureParentDir(outputPath);
   ensureParentDir(reportPath);
-  fs.writeFileSync(outputPath, "", "utf-8");
+  fs.writeFileSync(outputPath, `${CSV_HEADERS.join(",")}\n`, "utf-8");
 
   const results: JudgeRunResult[] = [];
 
@@ -446,7 +512,7 @@ async function main() {
     });
 
     results.push(runResult);
-    fs.appendFileSync(outputPath, `${JSON.stringify(runResult)}\n`, "utf-8");
+    fs.appendFileSync(outputPath, `${resultToCsv(runResult)}\n`, "utf-8");
 
     if (runResult.error) {
       console.error(`[judge-enrichments] error enrichmentId=${enrichment.id}: ${runResult.error.message}`);
@@ -464,9 +530,18 @@ async function main() {
   const report = generateReport(results, version, JUDGE_MODEL_ID);
   fs.writeFileSync(reportPath, report, "utf-8");
 
+  if (shouldExportDataset) {
+    const missionIdsPath = buildMissionIdsPath(outputPath);
+    fs.writeFileSync(missionIdsPath, results.map((r) => r.missionId).join("\n"), "utf-8");
+    console.log(`[judge-enrichments] export dataset sur le même échantillon — ids: ${missionIdsPath}`);
+    exportDataset(missionIdsPath);
+  }
+
   const successful = results.filter((r) => r.result);
   const errors = results.filter((r) => r.error);
-  console.log(`[judge-enrichments] terminé — ${successful.length} succès / ${errors.length} erreurs — détails: ${outputPath}, rapport: ${reportPath}`);
+  console.log(
+    `[judge-enrichments] terminé — ${successful.length} succès / ${errors.length} erreurs — détails: ${outputPath}, rapport: ${reportPath}, dataset: ${datasetOutputPath}`
+  );
 }
 
 main()
