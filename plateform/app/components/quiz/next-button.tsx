@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router";
+import { useQuizStore } from "~/stores/quiz";
 
 interface NextButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   onClick?: () => void;
@@ -8,10 +9,15 @@ interface NextButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> 
 
 export default function NextButton({ onClick, skip = false, ...props }: NextButtonProps) {
   const navigate = useNavigate();
+  const userScoringId = useQuizStore((s) => s.userScoringId);
+  const handleSkip = () => {
+    navigate(userScoringId ? `/results/${userScoringId}` : "/");
+  };
+
   return (
     <>
       {skip && (
-        <button type="button" onClick={() => navigate("/quiz/results")} className="fr-btn fr-btn--lg fr-btn--tertiary md:hidden! w-full! justify-center!">
+        <button type="button" onClick={handleSkip} className="fr-btn fr-btn--lg fr-btn--tertiary md:hidden! w-full! justify-center!">
           Voir les missions sans répondre à toutes les questions
         </button>
       )}
@@ -20,7 +26,7 @@ export default function NextButton({ onClick, skip = false, ...props }: NextButt
           Continuer
         </button>
         {skip && (
-          <button type="button" onClick={() => navigate("/quiz/results")} className="fr-btn fr-btn--lg fr-btn--tertiary hidden! md:inline-flex!">
+          <button type="button" onClick={handleSkip} className="fr-btn fr-btn--lg fr-btn--tertiary hidden! md:inline-flex!">
             Voir les missions sans répondre à toutes les questions
           </button>
         )}
