@@ -1,5 +1,7 @@
 import type { SubmitEvent } from "react";
-import MailIllustration from "~/components/ui/mail-illustration";
+
+import MailSendSvg from "@gouvfr/dsfr/dist/artwork/pictograms/digital/mail-send.svg?url";
+import TraceSvg from "~/assets/svg/trace.svg";
 
 interface NewsletterProps {
   title: string;
@@ -20,10 +22,12 @@ export default function Newsletter({
 
   return (
     <section className="bg-blue-france-950 relative">
-      <div className="fr-container fr-py-8w flex items-center justify-center">
-        <div className="flex-1 hidden md:block z-10">
+      <img src={TraceSvg} alt="Trace" className="absolute top-20 left-0 w-1/5" />
+      <div className="fr-container py-6! md:py-12! px-6! flex flex-col md:flex-row gap-4 md:gap-2 items-center justify-center">
+        <div className="flex-1 z-10" aria-hidden="true">
+          {/* SVG illustration à venir */}
           <div className="flex items-center justify-center gap-4">
-            <MailIllustration className="w-32 h-32 shrink-0" />
+            <img src={MailSendSvg} alt="" className="hidden md:block rotate-12" />
 
             <div className="flex-1 max-w-md">
               <h2 className="fr-h2 fr-mb-2w">{title}</h2>
