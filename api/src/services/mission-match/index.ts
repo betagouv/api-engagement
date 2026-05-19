@@ -11,7 +11,7 @@ export type MissionMatchInput = {
 };
 
 export const missionMatchService = {
-  async match(input: MissionMatchInput): Promise<MissionMatchResponse> {
+  async getMatchedMissions(input: MissionMatchInput): Promise<MissionMatchResponse> {
     const result = await matchingEngineService.rankMissionsByUserScoring(input);
 
     if (result.items.length === 0) {

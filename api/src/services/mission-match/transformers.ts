@@ -1,12 +1,13 @@
 import type { MissionMatchItem, MissionMatchValue } from "@engagement/dto";
 import { TAXONOMY } from "@engagement/taxonomy";
 
+import type { MissionRemote } from "@/db/core";
 import type { MatchMissionItem } from "@/services/matching-engine/types";
 
 export type MissionMatchDbRow = {
   id: string;
   title: string;
-  remote: string | null;
+  remote: MissionRemote | null;
   schedule: string | null;
   domainOriginal: string | null;
   domainLogo: string | null;
@@ -35,7 +36,7 @@ export type MissionScoringValueDbRow = {
 type MissionIndexEntry = {
   title: string;
   city: string | null;
-  remote: string | null;
+  remote: MissionRemote | null;
   schedule: string | null;
   domain: string | null;
   domainOriginal: string | null;
@@ -96,6 +97,16 @@ export const buildValuesIndex = (scoringValueRows: MissionScoringValueDbRow[]): 
   return index;
 };
 
+const toTaxonomyScoresDto = (taxonomyScores: MatchMissionItem["taxonomyScores"]): Record<string, number> => {
+  const result: Record<string, number> = {};
+  for (const [taxonomyKey, score] of Object.entries(taxonomyScores)) {
+    if (score !== undefined) {
+      result[taxonomyKey] = score;
+    }
+  }
+  return result;
+};
+
 export const toMissionMatchItem = (item: MatchMissionItem, missionIndex: Record<string, MissionIndexEntry>, valuesIndex: Record<string, MissionMatchValue[]>): MissionMatchItem => {
   const mission = missionIndex[item.missionId];
   const photo = mission?.domainLogo ?? mission?.organizationLogo ?? mission?.publisherDefaultMissionLogo ?? mission?.publisherLogo ?? null;
@@ -104,7 +115,7 @@ export const toMissionMatchItem = (item: MatchMissionItem, missionIndex: Record<
     mission: {
       id: item.missionId,
       title: mission?.title ?? "(unknown)",
-      remote: (mission?.remote ?? null) as "no" | "possible" | "full" | null,
+      remote: mission?.remote ?? null,
       schedule: mission?.schedule ?? null,
       domain: mission?.domain ?? mission?.domainOriginal ?? null,
       domainOriginal: mission?.domainOriginal ?? null,
@@ -128,7 +139,7 @@ export const toMissionMatchItem = (item: MatchMissionItem, missionIndex: Record<
       totalScore: item.totalScore,
       taxonomyScore: item.taxonomyScore,
       geoScore: item.geoScore,
-      taxonomyScores: item.taxonomyScores as Record<string, number>,
+      taxonomyScores: toTaxonomyScoresDto(item.taxonomyScores),
       values: valuesIndex[item.missionScoringId] ?? [],
     },
   };

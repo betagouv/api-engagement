@@ -18,7 +18,7 @@ router.get("/match", async (req, res, next) => {
     if (!query.success) {
       return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
     }
-    const data = await missionMatchService.match(query.data);
+    const data = await missionMatchService.getMatchedMissions(query.data);
     return res.status(200).send({ ok: true, data });
   } catch (error) {
     next(error);
