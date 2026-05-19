@@ -77,6 +77,22 @@ const Annonceur = ({ values, onChange, errors, setErrors }) => {
             ))}
           </Table>
           <DiffuseurModal data={data} />
+          <div className="h-px w-full bg-gray-900" />
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="self-hosted-script"
+              label="Script de tracking des conversions auto-hébergé"
+              value={values.selfHostedScript}
+              onChange={(e) => onChange({ ...values, selfHostedScript: e.target.checked })}
+            />
+            <Tooltip
+              id="tooltip-self-hosted-script"
+              ariaLabel="En savoir plus sur l'auto-hébergement du script"
+              content="Par défaut ce paramètre doit rester décoché. Le partenaire n'auto-héberge pas le script. Se rapprocher de l'équipe technique pour en savoir plus."
+            >
+              <RiInformationLine className="h-4 w-4 text-gray-500" aria-hidden="true" />
+            </Tooltip>
+          </div>
         </>
       )}
     </div>

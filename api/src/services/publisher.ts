@@ -60,6 +60,7 @@ export const publisherService = (() => {
     description: publisher.description ?? "",
     missionType: (publisher.missionType as PublisherMissionType) ?? null,
     isAnnonceur: publisher.isAnnonceur,
+    selfHostedScript: publisher.selfHostedScript,
     hasApiRights: publisher.hasApiRights,
     hasWidgetRights: publisher.hasWidgetRights,
     hasCampaignRights: publisher.hasCampaignRights,
@@ -189,6 +190,7 @@ export const publisherService = (() => {
       description: normalizeOptionalString(input.description) ?? "",
       missionType: (normalizeOptionalString(input.missionType) as PublisherMissionType) ?? null,
       isAnnonceur: input.isAnnonceur ?? false,
+      selfHostedScript: input.selfHostedScript ?? false,
       hasApiRights: input.hasApiRights ?? false,
       hasWidgetRights: input.hasWidgetRights ?? false,
       hasCampaignRights: input.hasCampaignRights ?? false,
@@ -372,6 +374,9 @@ export const publisherService = (() => {
     }
     if (patch.isAnnonceur !== undefined) {
       data.isAnnonceur = patch.isAnnonceur;
+    }
+    if (patch.selfHostedScript !== undefined) {
+      data.selfHostedScript = patch.selfHostedScript;
     }
     if (patch.hasApiRights !== undefined) {
       data.hasApiRights = patch.hasApiRights;

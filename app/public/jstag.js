@@ -1,8 +1,17 @@
+/* jstag v1
+ *
+ * ATTENTION — Partenaires auto-hébergeurs
+ * Ce script est auto-hébergé par certains partenaires annonceurs.
+ * Toute modification ici ne leur sera PAS automatiquement répercutée.
+ * Avant de modifier ce fichier, vérifier la liste des partenaires avec
+ * selfHostedScript = true et les en informer manuellement.
+ * Incrémenter le numéro de version (v1, v2, v3…) à chaque changement notable.
+ */
 "use strict";
-((window._apieng = window._apieng || {}),
+(window._apieng = window._apieng || {}),
   (window.apieng = window.apieng || {}),
   (function () {
-    ((window._apieng.cookieDomain = "www." === window.location.hostname.slice(0, 4) ? window.location.hostname.slice(4) : window.location.hostname),
+    (window._apieng.cookieDomain = "www." === window.location.hostname.slice(0, 4) ? window.location.hostname.slice(4) : window.location.hostname),
       (window._apieng.eventHost = "https://api.api-engagement.beta.gouv.fr"),
       // Configuration
       (window._apieng.config = function (e) {
@@ -215,7 +224,7 @@
         if (i) o.append("clientEventId", i);
         fetch(window._apieng.eventHost + n + "?" + o);
       }),
-      (window.apieng.q = window.apieng.q || []));
+      (window.apieng.q = window.apieng.q || []);
 
     // Setup interaction tracking
     window._apieng.setupInteractionTracking();
@@ -234,4 +243,4 @@
     };
     let e = window._apieng.getQueryParameter("apiengagement_id");
     null != e && window._apieng.setCookieValue("apiengagement", e);
-  })());
+  })();

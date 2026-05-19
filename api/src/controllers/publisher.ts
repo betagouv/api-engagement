@@ -146,6 +146,7 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
         sendReport: zod.boolean().default(false),
         sendReportTo: zod.array(zod.string()).default([]),
         isAnnonceur: zod.boolean().default(false),
+        selfHostedScript: zod.boolean().default(false),
         missionType: zod.enum(PublisherMissionType).nullable().default(null),
         hasApiRights: zod.boolean().default(false),
         hasWidgetRights: zod.boolean().default(false),
@@ -185,6 +186,7 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
       sendReport: body.data.sendReport,
       sendReportTo: body.data.sendReportTo,
       isAnnonceur: body.data.isAnnonceur,
+      selfHostedScript: body.data.selfHostedScript,
       missionType: body.data.missionType,
       hasApiRights: body.data.hasApiRights,
       hasWidgetRights: body.data.hasWidgetRights,
@@ -242,36 +244,31 @@ router.post(
   }
 );
 
-router.post(
-  "/:id/apikey",
-  passport.authenticate("user", { session: false }),
-  requirePublisherWriteAccess,
-  async (req: UserRequest, res: Response, next: NextFunction) => {
-    try {
-      const publisherId = readRequiredParam(req, res, "id");
-      if (!publisherId) {
-        return;
-      }
-
-      try {
-        const { apikey } = await publisherService.regenerateApiKey(publisherId);
-        appendAuditEvent(req, {
-          action: "publisher.api_key.regenerate",
-          outcome: "success",
-          target: { type: "publisher", id: publisherId },
-        });
-        return res.status(200).send({ ok: true, data: apikey });
-      } catch (error) {
-        if (error instanceof PublisherNotFoundError) {
-          return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
-        }
-        throw error;
-      }
-    } catch (error) {
-      next(error);
+router.post("/:id/apikey", passport.authenticate("user", { session: false }), requirePublisherWriteAccess, async (req: UserRequest, res: Response, next: NextFunction) => {
+  try {
+    const publisherId = readRequiredParam(req, res, "id");
+    if (!publisherId) {
+      return;
     }
+
+    try {
+      const { apikey } = await publisherService.regenerateApiKey(publisherId);
+      appendAuditEvent(req, {
+        action: "publisher.api_key.regenerate",
+        outcome: "success",
+        target: { type: "publisher", id: publisherId },
+      });
+      return res.status(200).send({ ok: true, data: apikey });
+    } catch (error) {
+      if (error instanceof PublisherNotFoundError) {
+        return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
+      }
+      throw error;
+    }
+  } catch (error) {
+    next(error);
   }
-);
+});
 
 router.put("/:id", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
@@ -287,6 +284,7 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
         sendReport: zod.boolean().optional(),
         sendReportTo: zod.array(zod.string()).optional(),
         isAnnonceur: zod.boolean().optional(),
+        selfHostedScript: zod.boolean().optional(),
         missionType: zod.enum(PublisherMissionType).nullable().optional(),
         hasApiRights: zod.boolean().optional(),
         hasWidgetRights: zod.boolean().optional(),
@@ -323,6 +321,7 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
       sendReport: body.data.sendReport,
       sendReportTo: body.data.sendReportTo,
       isAnnonceur: body.data.isAnnonceur,
+      selfHostedScript: body.data.selfHostedScript,
       missionType: body.data.missionType,
       hasApiRights: body.data.hasApiRights,
       hasWidgetRights: body.data.hasWidgetRights,
