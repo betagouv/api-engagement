@@ -43,7 +43,12 @@ export default function EmailMissionModal({ missionId, userScoringId }: EmailMis
     }
 
     try {
-      const result = await sendMissionEmail({ email, publisherId: PUBLISHER_ID_API_ENGAGEMENT, missionIds: [missionId] });
+      const result = await sendMissionEmail({
+        email,
+        publisherId: PUBLISHER_ID_API_ENGAGEMENT,
+        missionIds: [missionId],
+        ...(userScoringId ? { userScoringId, distinctId } : {}),
+      });
       if (!result.email_sent) {
         setError("La mission est introuvable et n'a pas pu être envoyée.");
       } else {
