@@ -38,6 +38,19 @@ Structure notable :
 - `scripts/` : scripts **one-shot** (opérations ponctuelles, rattrapage/backfill, maintenance exceptionnelle) ; à distinguer des jobs (voir section dédiée).
 - `tests/` : outillage, mocks, fixtures, tests d’intégration (Postgres via testcontainers + migrations Prisma).
 
+### Package `@engagement/dto`
+
+Les types DTO partagés entre l’API et les clients front sont définis dans `packages/dto/src/resources/`. Les services importent ces types via `@engagement/dto` (alias workspace).
+
+Pattern attendu :
+1. Définir les types de réponse dans `packages/dto/src/resources/<feature>.ts`
+2. Exporter depuis `packages/dto/src/resources/index.ts`
+3. Importer dans le service : `import type { ... } from "@engagement/dto"`
+4. Le transformer (si mapping complexe) mappe types internes → DTOs
+5. Le controller reçoit et envoie des DTOs, sans connaître les types internes
+
+Référence : `api/src/services/mission-browse/` (pattern complet avec transformers).
+
 ## Conventions de code
 
 - TypeScript `strict: true` : éviter `any`, préférer des types dédiés dans `src/types/`.

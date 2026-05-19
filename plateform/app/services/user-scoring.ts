@@ -1,3 +1,5 @@
+import type { UserScoringCreateResponse } from "@engagement/dto";
+
 import api from "~/services/api";
 
 type ApiAnswer = { taxonomy: string; value: string } | { taxonomy: string; params: Record<string, unknown> };
@@ -9,10 +11,6 @@ type UserScoringCreatePayload = {
 type UserScoringUpdatePayload = {
   answers?: ApiAnswer[];
   missionAlertEnabled?: boolean;
-};
-
-type UserScoringCreateResponse = {
-  id: string;
 };
 
 export async function createUserScoring(payload: UserScoringCreatePayload, distinctId: string): Promise<string> {

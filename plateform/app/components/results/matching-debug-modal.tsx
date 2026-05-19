@@ -1,5 +1,5 @@
 import Modal from "~/components/layout/modal";
-import type { MatchResultItem } from "~/types/matching";
+import type { MissionMatchItem } from "@engagement/dto";
 import "./matching-debug-modal.css";
 
 const formatScore = (score: number | null): string => (score === null ? "—" : score.toFixed(3));
@@ -12,7 +12,7 @@ export type MatchingDebugUserValue = {
 };
 
 interface Props {
-  item: MatchResultItem | null;
+  item: MissionMatchItem | null;
   userValues: MatchingDebugUserValue[];
   onClose: () => void;
 }
