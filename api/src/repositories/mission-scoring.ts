@@ -6,6 +6,20 @@ export const missionScoringRepository = {
     return prisma.missionScoring.findUnique(params);
   },
 
+  async findMany<T extends Prisma.MissionScoringFindManyArgs>(
+    params: Prisma.SelectSubset<T, Prisma.MissionScoringFindManyArgs>
+  ): Promise<Prisma.MissionScoringGetPayload<T>[]> {
+    return prisma.missionScoring.findMany(params) as Promise<Prisma.MissionScoringGetPayload<T>[]>;
+  },
+
+  async count(params: Prisma.MissionScoringCountArgs = {}): Promise<number> {
+    return prisma.missionScoring.count(params);
+  },
+
+  async deleteMany(params: Prisma.MissionScoringDeleteManyArgs): Promise<Prisma.BatchPayload> {
+    return prisma.missionScoring.deleteMany(params);
+  },
+
   async replaceForEnrichment(params: {
     missionId: string;
     missionEnrichmentId: string;

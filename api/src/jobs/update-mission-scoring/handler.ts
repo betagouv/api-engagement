@@ -4,6 +4,7 @@ import { BaseHandler } from "@/jobs/base/handler";
 import { JobResult } from "@/jobs/types";
 import { asyncTaskBus } from "@/services/async-task";
 import { CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/config";
+import { buildMissionPlatformEligibilityWhere } from "@/services/mission-platform-eligibility";
 import { missionScoringService } from "@/services/mission-scoring";
 
 const LOG_PREFIX = "[update-mission-scoring-job]";
@@ -34,6 +35,7 @@ export class UpdateMissionScoringHandler implements BaseHandler<UpdateMissionSco
           mission: {
             deletedAt: null,
             ...(publisherId ? { publisherId } : {}),
+            ...buildMissionPlatformEligibilityWhere(),
           },
           ...(!force
             ? {
