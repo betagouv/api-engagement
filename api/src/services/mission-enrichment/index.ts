@@ -1,16 +1,17 @@
 import { Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
 import { ENRICHABLE_TAXONOMIES, TAXONOMY } from "@engagement/taxonomy";
-import { generateObject } from "ai";
 
 import { missionRepository } from "@/repositories/mission";
 import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
 import { asyncTaskBus } from "@/services/async-task";
 import type { MissionRecord, MissionSearchFilters } from "@/types/mission";
-import { CONFIDENCE_THRESHOLD, CURRENT_PROMPT_VERSION, LLM_MAX_RETRIES, LLM_NO_OBJECT_MAX_RETRIES } from "./config";
+import { CONFIDENCE_THRESHOLD, CURRENT_PROMPT_VERSION } from "./config";
 import { validateEnrichmentClassifications, type ClassificationInput, type TaxonomyLookup } from "./parser";
 import { buildMissionBlock, buildTaxonomyBlock, PROMPT_REGISTRY } from "./prompts";
 import type { MissionForPrompt, TaxonomyForPrompt } from "./prompts/types";
+import { getMissionEnrichmentProvider } from "./providers";
+import type { MissionEnrichmentProviderResult } from "./providers/types";
 
 const LOG_PREFIX = "[mission-enrichment]";
 
@@ -317,7 +318,7 @@ export const missionEnrichmentService = {
     }
 
     // Declared outside try/catch so the catch block can persist them on failure
-    let llmResult: Awaited<ReturnType<typeof generateObject>> | undefined;
+    let providerResult: MissionEnrichmentProviderResult | undefined;
 
     try {
       // 5. Mark as processing
@@ -331,38 +332,15 @@ export const missionEnrichmentService = {
       const systemPrompt = promptVersion.buildSystemPrompt(buildTaxonomyBlock(toTaxonomyForPrompt(taxonomies)));
       const userMessage = promptVersion.buildUserMessage(buildMissionBlock(toMissionForPrompt(mission)));
 
-      // 7. Call LLM with structured output (retry on AI_NoObjectGeneratedError)
-      for (let attempt = 1; attempt <= LLM_NO_OBJECT_MAX_RETRIES; attempt++) {
-        try {
-          llmResult = await generateObject({
-            model: promptVersion.MODEL,
-            schema: promptVersion.ENRICHMENT_SCHEMA,
-            system: systemPrompt,
-            prompt: userMessage,
-            maxRetries: LLM_MAX_RETRIES,
-            temperature: promptVersion.TEMPERATURE,
-          });
-          break;
-        } catch (error) {
-          const isNoObject = (error as { name?: string })?.name === "AI_NoObjectGeneratedError";
-          if (isNoObject && attempt < LLM_NO_OBJECT_MAX_RETRIES) {
-            console.warn(`${LOG_PREFIX} ${missionId}: AI_NoObjectGeneratedError — retry ${attempt}/${LLM_NO_OBJECT_MAX_RETRIES}`);
-            continue;
-          }
-          throw error;
-        }
-      }
+      // 7. Generate enrichment with the configured provider.
+      providerResult = await getMissionEnrichmentProvider().generate({ systemPrompt, userMessage, promptVersion });
 
-      if (!llmResult) {
-        throw new Error(`${LOG_PREFIX} ${missionId}: no LLM result after retries`);
-      }
-
-      const { inputTokens, outputTokens, totalTokens } = llmResult.usage;
-      console.log(`${LOG_PREFIX} ${missionId}: LLM response received — tokens: ${inputTokens} in / ${outputTokens} out / ${totalTokens} total`);
+      const { inputTokens, outputTokens, totalTokens } = providerResult.usage;
+      console.log(`${LOG_PREFIX} ${missionId}: enrichment provider response received — tokens: ${inputTokens} in / ${outputTokens} out / ${totalTokens} total`);
 
       // 8. Normalize + validate classifications against taxonomy rules
       const { valid, skipped } = validateEnrichmentClassifications(
-        (llmResult.object as { classifications: ClassificationInput[] }).classifications,
+        (providerResult.object as { classifications: ClassificationInput[] }).classifications,
         buildTaxonomyLookup(taxonomies),
         CONFIDENCE_THRESHOLD
       );
@@ -387,21 +365,21 @@ export const missionEnrichmentService = {
           enrichmentId: enrichment.id,
           missionId,
           promptVersion: CURRENT_PROMPT_VERSION,
-          rawResponse: JSON.stringify(llmResult.object),
+          rawResponse: JSON.stringify(providerResult.object),
           tokenUsage: { inputTokens, outputTokens, totalTokens },
           values: persistedValues,
         });
       } else {
-        await missionEnrichmentRepository.completeWithValues(enrichment.id, JSON.stringify(llmResult.object), { inputTokens, outputTokens, totalTokens }, persistedValues);
+        await missionEnrichmentRepository.completeWithValues(enrichment.id, JSON.stringify(providerResult.object), { inputTokens, outputTokens, totalTokens }, persistedValues);
       }
 
       console.log(`${LOG_PREFIX} ${missionId}: enrichment completed — ${valid.length} values persisted`);
     } catch (error) {
       // NoObjectGeneratedError (schema validation failure) exposes the raw LLM text and usage
-      // directly on the error — llmResult may never have been assigned in this case.
+      // directly on the error — providerResult may never have been assigned in this case.
       const errPayload = error as { text?: string; usage?: { inputTokens?: number; outputTokens?: number; totalTokens?: number } };
-      const rawResponse = llmResult ? JSON.stringify(llmResult.object) : (errPayload.text ?? null);
-      const usage = llmResult?.usage ?? errPayload.usage;
+      const rawResponse = providerResult ? JSON.stringify(providerResult.object) : (errPayload.text ?? null);
+      const usage = providerResult?.usage ?? errPayload.usage;
 
       await missionEnrichmentRepository
         .update({

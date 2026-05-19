@@ -14,8 +14,8 @@ vi.mock("@/repositories/mission-enrichment", () => ({
   },
 }));
 
-vi.mock("ai", () => ({
-  generateObject: vi.fn(),
+vi.mock("@/services/mission-enrichment/providers", () => ({
+  getMissionEnrichmentProvider: vi.fn(),
 }));
 
 // Prevent loading @ai-sdk/mistral (not installed) and avoid real LLM model instantiation
@@ -44,7 +44,7 @@ import { missionRepository } from "@/repositories/mission";
 import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
 import { asyncTaskBus } from "@/services/async-task";
 import { missionEnrichmentService } from "@/services/mission-enrichment";
-import { generateObject } from "ai";
+import { getMissionEnrichmentProvider } from "@/services/mission-enrichment/providers";
 
 const baseMission = {
   id: "mission-1",
@@ -71,13 +71,20 @@ const baseMission = {
 };
 
 describe("missionEnrichmentService.enrich — chain propagation", () => {
+  const providerGenerate = vi.fn();
+
+  beforeEach(() => {
+    providerGenerate.mockReset();
+    (getMissionEnrichmentProvider as ReturnType<typeof vi.fn>).mockReturnValue({ generate: providerGenerate });
+  });
+
   it("stops the chain when mission is not found", async () => {
     (missionRepository.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(null);
 
     await missionEnrichmentService.enrich("mission-1");
 
     expect(asyncTaskBus.publish).not.toHaveBeenCalled();
-    expect(generateObject).not.toHaveBeenCalled();
+    expect(providerGenerate).not.toHaveBeenCalled();
   });
 
   it("forwards to scoring without calling LLM when mission is deleted", async () => {
@@ -90,7 +97,7 @@ describe("missionEnrichmentService.enrich — chain propagation", () => {
       type: "mission.scoring",
       payload: { missionId: "mission-1" },
     });
-    expect(generateObject).not.toHaveBeenCalled();
+    expect(providerGenerate).not.toHaveBeenCalled();
   });
 
   it("stops the chain when a completed enrichment is already up-to-date", async () => {
@@ -104,7 +111,7 @@ describe("missionEnrichmentService.enrich — chain propagation", () => {
     await missionEnrichmentService.enrich("mission-1");
 
     expect(asyncTaskBus.publish).not.toHaveBeenCalled();
-    expect(generateObject).not.toHaveBeenCalled();
+    expect(providerGenerate).not.toHaveBeenCalled();
   });
 
   it("stops the chain when an enrichment is already in-flight (pending)", async () => {
@@ -118,7 +125,7 @@ describe("missionEnrichmentService.enrich — chain propagation", () => {
     await missionEnrichmentService.enrich("mission-1");
 
     expect(asyncTaskBus.publish).not.toHaveBeenCalled();
-    expect(generateObject).not.toHaveBeenCalled();
+    expect(providerGenerate).not.toHaveBeenCalled();
   });
 
   it("stops the chain when an enrichment is already in-flight (processing)", async () => {
@@ -132,7 +139,7 @@ describe("missionEnrichmentService.enrich — chain propagation", () => {
     await missionEnrichmentService.enrich("mission-1");
 
     expect(asyncTaskBus.publish).not.toHaveBeenCalled();
-    expect(generateObject).not.toHaveBeenCalled();
+    expect(providerGenerate).not.toHaveBeenCalled();
   });
 
   it("calls LLM and forwards to scoring after successful enrichment", async () => {
@@ -141,14 +148,18 @@ describe("missionEnrichmentService.enrich — chain propagation", () => {
     (missionEnrichmentRepository.create as ReturnType<typeof vi.fn>).mockResolvedValue({ id: "enrichment-new" });
     (missionEnrichmentRepository.update as ReturnType<typeof vi.fn>).mockResolvedValue({});
     (missionEnrichmentRepository.completeWithValues as ReturnType<typeof vi.fn>).mockResolvedValue({});
-    (generateObject as ReturnType<typeof vi.fn>).mockResolvedValue({
+    providerGenerate.mockResolvedValue({
       object: { classifications: [] },
       usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
     });
 
     await missionEnrichmentService.enrich("mission-1");
 
-    expect(generateObject).toHaveBeenCalled();
+    expect(providerGenerate).toHaveBeenCalledWith({
+      systemPrompt: "system",
+      userMessage: "user",
+      promptVersion: expect.objectContaining({ TEMPERATURE: 0 }),
+    });
     expect(asyncTaskBus.publish).toHaveBeenCalledOnce();
     expect(asyncTaskBus.publish).toHaveBeenCalledWith({
       type: "mission.scoring",
