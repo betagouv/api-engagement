@@ -36,7 +36,7 @@ export default function EmailMissionModal({ missionId, userScoringId }: EmailMis
 
     if (userScoringId) {
       try {
-        await updateUserScoring(userScoringId, { missionAlertEnabled }, distinctId);
+        await updateUserScoring(userScoringId, { missionAlertEnabled, distinctId });
       } catch {
         // Échec non bloquant : le scoring peut être expiré ou appartenir à un autre navigateur
       }
