@@ -327,6 +327,7 @@ model Publisher {
   description        String       @default("") @map("description")
   missionType        MissionType? @map("mission_type")
   isAnnonceur        Boolean      @default(false) @map("is_annonceur")
+  selfHostedScript   Boolean      @default(false) @map("self_hosted_script")
   hasApiRights       Boolean      @default(false) @map("has_api_rights")
   hasWidgetRights    Boolean      @default(false) @map("has_widget_rights")
   hasCampaignRights  Boolean      @default(false) @map("has_campaign_rights")
