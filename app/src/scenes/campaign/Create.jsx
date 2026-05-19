@@ -11,7 +11,7 @@ import api from "@/services/api";
 import { API_URL } from "@/services/config";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
-import { isValidUrl } from "@/services/utils";
+import { isValidUrl } from "@/utils/url";
 
 const Create = () => {
   const { publisher } = useStore();

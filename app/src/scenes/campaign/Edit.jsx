@@ -15,8 +15,8 @@ import Trackers from "@/scenes/campaign/components/Trackers";
 import api from "@/services/api";
 import { API_URL } from "@/services/config";
 import { captureError } from "@/services/error";
-import { isValidUrl } from "@/services/utils";
 import { withLegacyPublishers } from "@/utils/publisher";
+import { isValidUrl } from "@/utils/url";
 
 const Edit = () => {
   const { id } = useParams();

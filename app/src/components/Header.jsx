@@ -9,7 +9,7 @@ import { WARNINGS } from "@/constants";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
-import { slugify } from "@/services/utils";
+import { slugify } from "@/utils/string";
 
 import deviseSrc from "@/assets/svg/gouv-devise.svg";
 import marianneBanner from "@/assets/svg/marianne-banner.svg";

@@ -110,11 +110,15 @@ const Distribution = ({ filters, onFiltersChange }) => {
               filters={filters}
               variables={metabaseVariablesDomain}
               type="pie"
+              chartTitle="Répartition des missions par domaine d'action"
+              chartDescription="Le tableau adjacent détaille les missions, redirections et candidatures par domaine."
+              chartDescriptionMode="external"
+              chartDescriptionId="missions-domain-table"
               chartProps={{ unit: "missions", innerRadius: "40%" }}
               loaderHeight="22rem"
             />
           </div>
-          <div className="lg:w-7/12">
+          <div id="missions-domain-table" className="lg:w-7/12">
             <AnalyticsCard
               cardId={METABASE_CARD_ID.PUBLIC_STATS_MISSIONS_DOMAIN}
               filters={filters}
@@ -164,13 +168,17 @@ const Distribution = ({ filters, onFiltersChange }) => {
               variables={metabaseVariablesDepartment}
               type="pie"
               showLegend={false}
+              chartTitle="Répartition des missions par département"
+              chartDescription="Le tableau adjacent détaille les missions, redirections et candidatures par département."
+              chartDescriptionMode="external"
+              chartDescriptionId="missions-department-table"
               adapterOptions={{ labelColumn: "department_name", valueColumn: "missions_count" }}
               chartProps={{ unit: "missions", innerRadius: "40%" }}
               loaderHeight="22rem"
-              caption="Domaine d'action des missions"
+              caption="Département des missions"
             />
           </div>
-          <div className="lg:w-7/12">
+          <div id="missions-department-table" className="lg:w-7/12">
             <AnalyticsCard
               cardId={METABASE_CARD_ID.PUBLIC_STATS_MISSIONS_DEPARTMENT}
               filters={filters}

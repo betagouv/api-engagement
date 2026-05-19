@@ -16,7 +16,7 @@ import api from "@/services/api";
 import { captureError } from "@/services/error";
 import { compactMissionFilters, searchMissions } from "@/services/mission";
 import useStore from "@/services/store";
-import exportCSV from "@/services/utils";
+import exportCSV from "@/utils/csv";
 
 const TABLE_HEADER = [
   { title: "Mission", key: "title.keyword", width: "35%" },

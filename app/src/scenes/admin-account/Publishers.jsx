@@ -8,7 +8,7 @@ import Table from "@/components/Table";
 import { MISSION_TYPES } from "@/constants";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
-import exportCSV from "@/services/utils";
+import exportCSV from "@/utils/csv";
 import { withLegacyPublishers } from "@/utils/publisher";
 
 const TABLE_HEADER = [

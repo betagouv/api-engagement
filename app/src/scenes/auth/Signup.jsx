@@ -1,15 +1,15 @@
+import { toast } from "@/services/toast";
 import { useEffect, useState } from "react";
 import { AiFillCloseCircle } from "react-icons/ai";
 import { IoMdEye, IoMdEyeOff } from "react-icons/io";
 import { RiErrorWarningFill } from "react-icons/ri";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { toast } from "@/services/toast";
 
 import ErrorAlert from "@/components/ErrorAlert";
 import WarningAlert from "@/components/WarningAlert";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
-import { hasLetter, hasNumber, hasSpecialChar } from "@/services/utils";
+import { hasLetter, hasNumber, hasSpecialChar } from "@/utils/string";
 
 const Signup = () => {
   const [searchParams] = useSearchParams();
@@ -194,7 +194,11 @@ const SignupForm = ({ user }) => {
       </div>
       <div className="mt-1 flex flex-col gap-2">
         <div className="flex items-center gap-2">
-          {values.password.length >= 12 ? <AiFillCloseCircle className="text-success" aria-hidden="true" /> : <AiFillCloseCircle className="text-text-mention" aria-hidden="true" />}
+          {values.password.length >= 12 ? (
+            <AiFillCloseCircle className="text-success" aria-hidden="true" />
+          ) : (
+            <AiFillCloseCircle className="text-text-mention" aria-hidden="true" />
+          )}
           <span className={`align-middle text-sm ${values.password.length >= 12 ? "text-success" : "text-text-mention"}`}>Au moins 12 caractères</span>
         </div>
         <div className="flex items-center gap-2">
@@ -207,7 +211,11 @@ const SignupForm = ({ user }) => {
         </div>
 
         <div className="flex items-center gap-2">
-          {hasSpecialChar(values.password) ? <AiFillCloseCircle className="text-success" aria-hidden="true" /> : <AiFillCloseCircle className="text-text-mention" aria-hidden="true" />}
+          {hasSpecialChar(values.password) ? (
+            <AiFillCloseCircle className="text-success" aria-hidden="true" />
+          ) : (
+            <AiFillCloseCircle className="text-text-mention" aria-hidden="true" />
+          )}
           <span className={`align-middle text-sm ${hasSpecialChar(values.password) ? "text-success" : "text-text-mention"}`}>Au moins un caractère spécial</span>
         </div>
       </div>

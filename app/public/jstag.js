@@ -1,3 +1,12 @@
+/* jstag v1
+ *
+ * ATTENTION — Partenaires auto-hébergeurs
+ * Ce script est auto-hébergé par certains partenaires annonceurs.
+ * Toute modification ici ne leur sera PAS automatiquement répercutée.
+ * Avant de modifier ce fichier, vérifier la liste des partenaires avec
+ * selfHostedScript = true et les en informer manuellement.
+ * Incrémenter le numéro de version (v1, v2, v3…) à chaque changement notable.
+ */
 "use strict";
 ((window._apieng = window._apieng || {}),
   (window.apieng = window.apieng || {}),

@@ -20,6 +20,7 @@ import UserScoringController from "@/controllers/user-scoring";
 import WarningController from "@/controllers/warning";
 import WidgetController from "@/controllers/widget";
 import bodyParserErrorHandler from "@/middlewares/body-parser-error-handler";
+import { auditLogger } from "@/middlewares/logger";
 import passport from "@/middlewares/passport";
 import requestId from "@/middlewares/request-id";
 import { createHttpMetricsMiddleware, HttpMetricsRecorder } from "@/services/observability/metrics";
@@ -31,7 +32,7 @@ import ActivityV2Controller from "@/v2/activity";
 import MissionV2WriteController from "@/v2/mission/controller";
 
 // Create a test Express app with minimal configuration
-export const createTestApp = ({ metricsRecorder }: { metricsRecorder?: HttpMetricsRecorder } = {}) => {
+export const createTestApp = ({ auditLogs = false, metricsRecorder }: { auditLogs?: boolean; metricsRecorder?: HttpMetricsRecorder } = {}) => {
   const app = express();
 
   app.set("trust proxy", true);
@@ -44,6 +45,9 @@ export const createTestApp = ({ metricsRecorder }: { metricsRecorder?: HttpMetri
   app.use(cookieParser());
   app.use(requestId);
   app.use(createHttpMetricsMiddleware(metricsRecorder));
+  if (auditLogs) {
+    app.use(auditLogger);
+  }
   app.use(passport.initialize());
 
   // Mount the controllers

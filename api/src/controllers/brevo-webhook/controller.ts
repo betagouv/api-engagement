@@ -1,13 +1,45 @@
-import { Router } from "express";
-import { INVALID_BODY } from "@/error";
-import { emailService } from "@/services/email";
-import { BrevoInboundEmail } from "@/types/brevo";
-import { EmailCreateInput } from "@/types/email";
-import { publisherRateLimiter } from "@/middlewares/rate-limit";
 import { downloadFile } from "@/controllers/brevo-webhook/helpers/download-file";
+import { INVALID_BODY } from "@/error";
+import { brevoWebhookSecurity } from "@/middlewares/brevo-webhook";
+import { publisherRateLimiter } from "@/middlewares/rate-limit";
+import { emailService } from "@/services/email";
+import { EmailCreateInput } from "@/types/email";
+import { Router } from "express";
+import { z } from "zod";
 
 const router = Router();
 router.use(publisherRateLimiter);
+router.use(brevoWebhookSecurity);
+
+const mailboxSchema = z.object({
+  Name: z.string(),
+  Address: z.string().email(),
+});
+
+const attachmentSchema = z.object({
+  Name: z.string(),
+  ContentType: z.string(),
+  ContentLength: z.number(),
+  ContentId: z.string(),
+  DownloadToken: z.string(),
+});
+
+const brevoInboundEmailSchema = z.object({
+  MessageId: z.string(),
+  InReplyTo: z.string().optional(),
+  From: mailboxSchema,
+  To: z.array(mailboxSchema),
+  SentAtDate: z.string(),
+  Subject: z.string(),
+  RawHtmlBody: z.string().optional(),
+  RawTextBody: z.string().optional(),
+  ExtractedMarkdownMessage: z.string().optional(),
+  Attachments: z.array(attachmentSchema),
+});
+
+const brevoWebhookSchema = z.object({
+  items: z.array(brevoInboundEmailSchema).min(1),
+});
 
 /**
  * Webhook for Brevo
@@ -17,14 +49,14 @@ router.use(publisherRateLimiter);
  */
 router.post("/", async (req, res, next) => {
   try {
-    const body = req.body as { items: BrevoInboundEmail[] };
+    const body = brevoWebhookSchema.safeParse(req.body);
 
-    if (!body.items || !Array.isArray(body.items)) {
+    if (!body.success) {
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: "Invalid body" });
     }
 
-    for (let i = 0; i < body.items.length; i++) {
-      const item = body.items[i];
+    for (let i = 0; i < body.data.items.length; i++) {
+      const item = body.data.items[i];
 
       if (!item["Subject"].includes("Rapport LinkedIn")) {
         continue;

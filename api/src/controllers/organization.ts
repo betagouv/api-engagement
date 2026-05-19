@@ -7,6 +7,7 @@ import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { organizationService } from "@/services/organization";
 import { OrganizationUpdatePatch } from "@/types/organization";
 import { UserRequest } from "@/types/passport";
+import { appendAuditEvent } from "@/utils/audit-log";
 import { slugify } from "@/utils/string";
 
 const router = Router();
@@ -121,6 +122,15 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
     }
 
     const data = await organizationService.updateOrganization(organization.id, patch);
+
+    appendAuditEvent(req, {
+      action: "organization.update",
+      outcome: "success",
+      target: { type: "organization", id: organization.id },
+      metadata: {
+        fields: Object.keys(patch),
+      },
+    });
 
     return res.status(200).send({ ok: true, data });
   } catch (error: any) {
