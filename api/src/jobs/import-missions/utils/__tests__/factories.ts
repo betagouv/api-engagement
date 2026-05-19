@@ -27,6 +27,7 @@ export const buildPublisher = (overrides: Partial<PublisherRecord> = {}): Publis
   description: "",
   missionType: PublisherMissionType.BENEVOLAT,
   isAnnonceur: true,
+  selfHostedScript: false,
   hasApiRights: false,
   hasWidgetRights: false,
   hasCampaignRights: false,

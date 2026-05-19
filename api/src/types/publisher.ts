@@ -49,6 +49,7 @@ export interface PublisherRecord {
   description: string;
   missionType: PublisherMissionType | null;
   isAnnonceur: boolean;
+  selfHostedScript: boolean;
   hasApiRights: boolean;
   hasWidgetRights: boolean;
   hasCampaignRights: boolean;
@@ -96,6 +97,7 @@ export interface PublisherCreateInput {
   apikey?: string | null;
   missionType?: PublisherMissionType | null;
   isAnnonceur?: boolean;
+  selfHostedScript?: boolean;
   hasApiRights?: boolean;
   hasWidgetRights?: boolean;
   hasCampaignRights?: boolean;

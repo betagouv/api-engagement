@@ -34,6 +34,7 @@ const Edit = () => {
     missionType: null,
     category: null,
     isAnnonceur: false,
+    selfHostedScript: false,
     isDiffuseur: false,
     hasApiRights: false,
     hasWidgetRights: false,
