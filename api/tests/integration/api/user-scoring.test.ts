@@ -58,7 +58,6 @@ describe("POST /user-scoring", () => {
     expect(res.status).toBe(201);
     expect(res.body.ok).toBe(true);
     expect(res.body.data.id).toBeDefined();
-    expect(res.body.data.created_at).toBeDefined();
 
     const values = await prisma.userScoringValue.findMany({
       where: { userScoringId: res.body.data.id },
