@@ -1,42 +1,54 @@
 import type { MissionMatchItem, MissionMatchValue } from "@engagement/dto";
 import { TAXONOMY } from "@engagement/taxonomy";
 
-import type { MissionRemote } from "@/db/core";
+import type { Prisma } from "@/db/core";
 import type { MatchMissionItem } from "@/services/matching-engine/types";
 
-export type MissionMatchDbRow = {
-  id: string;
-  title: string;
-  remote: MissionRemote | null;
-  schedule: string | null;
-  domainOriginal: string | null;
-  domainLogo: string | null;
-  domain: { name: string } | null;
-  publisher: { name: string; logo: string | null; defaultMissionLogo: string | null } | null;
-  publisherOrganization: { name: string | null; logo: string | null } | null;
-  addresses: Array<{ city: string | null }>;
-};
+export const missionMatchMissionSelect = {
+  id: true,
+  title: true,
+  remote: true,
+  schedule: true,
+  domainOriginal: true,
+  domainLogo: true,
+  domain: { select: { name: true } },
+  publisher: { select: { name: true, logo: true, defaultMissionLogo: true } },
+  publisherOrganization: { select: { name: true, logo: true } },
+  addresses: {
+    select: { city: true },
+    take: 1,
+    orderBy: { createdAt: "asc" },
+  },
+} satisfies Prisma.MissionSelect;
 
-export type MissionScoringValueDbRow = {
-  missionScoringId: string;
-  taxonomyKey: string | null;
-  valueKey: string | null;
-  score: number;
+export type MissionMatchDbRow = Prisma.MissionGetPayload<{ select: typeof missionMatchMissionSelect }>;
+
+export const missionMatchScoringValueSelect = {
+  missionScoringId: true,
+  taxonomyKey: true,
+  valueKey: true,
+  score: true,
   taxonomyValue: {
-    key: string;
-    label: string;
-    taxonomy: { key: string };
-  } | null;
+    select: {
+      key: true,
+      label: true,
+      taxonomy: { select: { key: true } },
+    },
+  },
   missionEnrichmentValue: {
-    confidence: number;
-    evidence: unknown;
-  } | null;
-};
+    select: {
+      confidence: true,
+      evidence: true,
+    },
+  },
+} satisfies Prisma.MissionScoringValueSelect;
+
+export type MissionScoringValueDbRow = Prisma.MissionScoringValueGetPayload<{ select: typeof missionMatchScoringValueSelect }>;
 
 type MissionIndexEntry = {
   title: string;
   city: string | null;
-  remote: MissionRemote | null;
+  remote: MissionMatchDbRow["remote"];
   schedule: string | null;
   domain: string | null;
   domainOriginal: string | null;

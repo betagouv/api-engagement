@@ -2,7 +2,7 @@ import type { MissionMatchResponse } from "@engagement/dto";
 
 import { prisma } from "@/db/postgres";
 import { matchingEngineService } from "@/services/matching-engine";
-import { buildMissionIndex, buildValuesIndex, toMissionMatchItem } from "./transformers";
+import { buildMissionIndex, buildValuesIndex, missionMatchMissionSelect, missionMatchScoringValueSelect, toMissionMatchItem } from "./transformers";
 
 export type MissionMatchInput = {
   userScoringId: string;
@@ -24,44 +24,11 @@ export const missionMatchService = {
     const [missionRows, scoringValueRows] = await Promise.all([
       prisma.mission.findMany({
         where: { id: { in: missionIds } },
-        select: {
-          id: true,
-          title: true,
-          remote: true,
-          schedule: true,
-          domainOriginal: true,
-          domainLogo: true,
-          domain: { select: { name: true } },
-          publisher: { select: { name: true, logo: true, defaultMissionLogo: true } },
-          publisherOrganization: { select: { name: true, logo: true } },
-          addresses: {
-            select: { city: true },
-            take: 1,
-            orderBy: { createdAt: "asc" },
-          },
-        },
+        select: missionMatchMissionSelect,
       }),
       prisma.missionScoringValue.findMany({
         where: { missionScoringId: { in: missionScoringIds } },
-        select: {
-          missionScoringId: true,
-          taxonomyKey: true,
-          valueKey: true,
-          score: true,
-          taxonomyValue: {
-            select: {
-              key: true,
-              label: true,
-              taxonomy: { select: { key: true } },
-            },
-          },
-          missionEnrichmentValue: {
-            select: {
-              confidence: true,
-              evidence: true,
-            },
-          },
-        },
+        select: missionMatchScoringValueSelect,
       }),
     ]);
 
