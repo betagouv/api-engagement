@@ -2,6 +2,7 @@ import { Suspense, lazy } from "react";
 import type { ReactNode } from "react";
 import { Link } from "react-router";
 import MissionCard from "~/components/missions/mission-card";
+import EmailMissionsModal from "~/components/results/email-missions-modal";
 import type { MatchResultItem } from "~/types/matching";
 import { matchResultToBrowseMission } from "~/utils/mission";
 
@@ -70,9 +71,7 @@ export default function PinnedMissions({ pinnedItems, otherItems, mapCenter, loa
               </div>
 
               <div className="px-5 pb-8 md:px-6">
-                <button type="button" className="fr-btn fr-btn--secondary fr-icon-mail-line fr-btn--icon-left w-full! justify-center!">
-                  Recevoir ces 5 missions par e-mail
-                </button>
+                <EmailMissionsModal userScoringId={userScoringId} />
               </div>
             </>
           )}
