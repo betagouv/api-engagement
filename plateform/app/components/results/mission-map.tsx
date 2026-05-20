@@ -3,10 +3,10 @@ import "leaflet/dist/leaflet.css";
 import { useEffect, useMemo } from "react";
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import { TILE_LAYER_PROPS, createEmojiIcon } from "~/components/ui/location-map";
-import type { MatchResultItem } from "~/types/matching";
+import type { MissionMatchItem } from "@engagement/dto";
 
 type MapMission = {
-  item: MatchResultItem;
+  item: MissionMatchItem;
   position: [number, number];
   hasRealAddress: boolean;
 };
@@ -32,7 +32,7 @@ const getNearbyPosition = (center: [number, number], seed: string, index: number
   return [center[0] + latDelta, center[1] + lonDelta];
 };
 
-const getAddressLabel = (item: MatchResultItem): string | null => item.mission.location.closestAddress ?? item.mission.location.city;
+const getAddressLabel = (item: MissionMatchItem): string | null => item.mission.location.closestAddress ?? item.mission.location.city;
 
 function BoundsFitter({ positions }: { positions: [number, number][] }) {
   const map = useMap();
@@ -44,7 +44,7 @@ function BoundsFitter({ positions }: { positions: [number, number][] }) {
 }
 
 interface Props {
-  items: MatchResultItem[];
+  items: MissionMatchItem[];
   center: [number, number];
 }
 

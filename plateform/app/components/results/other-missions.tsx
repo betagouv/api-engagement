@@ -1,18 +1,18 @@
 import MissionCard from "~/components/missions/mission-card";
 import Pagination from "~/components/ui/pagination";
 import type { ReactNode } from "react";
-import type { MatchResultItem } from "~/types/matching";
+import type { MissionMatchItem } from "@engagement/dto";
 import { matchResultToBrowseMission } from "~/utils/mission";
 
 interface OtherMissionsProps {
-  items: MatchResultItem[];
+  items: MissionMatchItem[];
   page: number;
   pageLoading: boolean;
   hasNextPage: boolean;
   pageItems: number[];
   userScoringId: string | undefined;
   onPageChange: (page: number) => void;
-  renderAction: (item: MatchResultItem) => ReactNode;
+  renderAction: (item: MissionMatchItem) => ReactNode;
 }
 
 export default function OtherMissions({ items, page, pageLoading, hasNextPage, pageItems, userScoringId, onPageChange, renderAction }: OtherMissionsProps) {

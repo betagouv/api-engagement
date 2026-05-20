@@ -1,22 +1,22 @@
-import { Suspense, lazy } from "react";
+import type { MissionMatchItem } from "@engagement/dto";
 import type { ReactNode } from "react";
+import { Suspense, lazy } from "react";
 import { Link } from "react-router";
 import MissionCard from "~/components/missions/mission-card";
 import EmailMissionsModal from "~/components/results/email-missions-modal";
-import type { MatchResultItem } from "~/types/matching";
 import { matchResultToBrowseMission } from "~/utils/mission";
 
 const MissionMap = lazy(() => import("~/components/results/mission-map"));
 
 interface PinnedMissionsProps {
-  pinnedItems: MatchResultItem[];
-  otherItems: MatchResultItem[];
+  pinnedItems: MissionMatchItem[];
+  otherItems: MissionMatchItem[];
   mapCenter: [number, number];
   loading: boolean;
   error: string | null;
   userScoringId: string | undefined;
   onResetAnswers: () => void;
-  renderAction: (item: MatchResultItem) => ReactNode;
+  renderAction: (item: MissionMatchItem) => ReactNode;
 }
 
 export default function PinnedMissions({ pinnedItems, otherItems, mapCenter, loading, error, userScoringId, onResetAnswers, renderAction }: PinnedMissionsProps) {

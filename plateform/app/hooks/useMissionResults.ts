@@ -1,15 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
+import type { MissionMatchItem } from "@engagement/dto";
 import { fetchMatches } from "~/services/matching";
-import type { MatchResultItem } from "~/types/matching";
 
 export const PINNED_RESULTS_LIMIT = 5;
 export const OTHER_RESULTS_PAGE_SIZE = 8;
 export const VISIBLE_PAGE_COUNT = 6;
 
 export function useMissionResults(userScoringId: string | undefined) {
-  const [pinnedItems, setPinnedItems] = useState<MatchResultItem[]>([]);
-  const [firstOtherItems, setFirstOtherItems] = useState<MatchResultItem[]>([]);
-  const [otherItems, setOtherItems] = useState<MatchResultItem[]>([]);
+  const [pinnedItems, setPinnedItems] = useState<MissionMatchItem[]>([]);
+  const [firstOtherItems, setFirstOtherItems] = useState<MissionMatchItem[]>([]);
+  const [otherItems, setOtherItems] = useState<MissionMatchItem[]>([]);
   const [page, setPage] = useState(1);
   const [hasNextPage, setHasNextPage] = useState(false);
   const [loading, setLoading] = useState(true);

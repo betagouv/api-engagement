@@ -1,3 +1,4 @@
+import type { UserScoringCreateResponse, UserScoringUpdateResponse } from "@engagement/dto";
 import { TAXONOMY } from "@engagement/taxonomy";
 
 import { userScoringRepository } from "@/repositories/user-scoring";
@@ -161,7 +162,7 @@ export const userScoringService = {
       missionAlertEnabled: input.missionAlertEnabled,
     });
 
-    return { id: userScoring.id, created_at: userScoring.createdAt };
+    return { id: userScoring.id } satisfies UserScoringCreateResponse;
   },
 
   async update(input: UpdateUserScoringInput) {
@@ -183,7 +184,7 @@ export const userScoringService = {
       missionAlertEnabled: input.missionAlertEnabled,
     });
 
-    const data = {
+    const data: UserScoringUpdateResponse = {
       user_scoring_id: input.userScoringId,
       created_count: result.createdCount,
       mission_alert_enabled: result.missionAlertEnabled,
