@@ -26,7 +26,6 @@ COPY app/package.json ./app/
 COPY widget/package.json ./widget/
 COPY analytics/package.json ./analytics/
 COPY plateform/package.json ./plateform/
-COPY poc-quiz/package.json ./poc-quiz/
 
 RUN npm ci --workspace app
 

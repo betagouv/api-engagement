@@ -9,8 +9,6 @@ widget/.next/
 widget/out/
 plateform/dist/
 plateform/.next/
-poc-quiz/.next/
-poc-quiz/out/
 packages/taxonomy/dist/
 
 # Tests

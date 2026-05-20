@@ -1,7 +1,7 @@
 {
   "name": "api-engagement",
   "version": "1.7.0",
-  "workspaces": ["packages/*", "api", "app", "widget", "analytics", "plateform", "poc-quiz"],
+  "workspaces": ["packages/*", "api", "app", "widget", "analytics", "plateform"],
   "scripts": {
     "lint": "npm run lint:api && npm run lint:app && npm run lint:analytics && npm run lint:widget && npm run lint:plateform",
     "lint:api": "cd api && npm run lint",
