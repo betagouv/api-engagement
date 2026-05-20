@@ -1,7 +1,8 @@
+import { PUBLISHER_IDS } from "@/config";
 import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
 import { missionScoringRepository } from "@/repositories/mission-scoring";
 import { asyncTaskBus } from "@/services/async-task";
-import { isMissionEligibleForPlatform } from "@/services/mission-platform-eligibility";
+import { missionDiffusionEligibilityService } from "@/services/mission-diffusion-eligibility";
 import { computeMissionScoringValues } from "@/services/mission-scoring/calculator";
 import { missionScoringEnrichmentInclude, toScoringInputValues } from "@/services/mission-scoring/data";
 import { getMissionScoringRuleKeys } from "@/services/mission-scoring/scoring-rules";
@@ -42,7 +43,7 @@ export const missionScoringService = {
 
     const enrichmentId = enrichment.id;
 
-    if (!isMissionEligibleForPlatform(enrichment.mission)) {
+    if (!(await missionDiffusionEligibilityService.isEligible({ mission: enrichment.mission, diffuseurPublisherId: PUBLISHER_IDS.PLATEFORM }))) {
       console.log(`${LOG_PREFIX} skipping mission=${params.missionId} enrichment=${enrichmentId} — mission is not eligible for platform scoring`);
       return;
     }

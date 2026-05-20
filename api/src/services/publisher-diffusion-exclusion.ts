@@ -62,6 +62,18 @@ export const publisherDiffusionExclusionService = (() => {
     return exclusions.map(toPublisherDiffusionExclusionRecord);
   };
 
+  const hasExclusionForMissionDiffusion = async (params: { excludedByAnnonceurId: string; excludedForDiffuseurId: string; publisherOrganizationId: string }): Promise<boolean> => {
+    const exclusion = await publisherDiffusionExclusionRepository.findFirst({
+      where: {
+        excludedByAnnonceurId: params.excludedByAnnonceurId,
+        excludedForDiffuseurId: params.excludedForDiffuseurId,
+        publisherOrganizationId: params.publisherOrganizationId,
+      },
+    });
+
+    return exclusion !== null;
+  };
+
   const createExclusion = async (input: PublisherDiffusionExclusionCreateInput): Promise<PublisherDiffusionExclusionRecord> => {
     const exclusion = (await publisherDiffusionExclusionRepository.create({
       data: mapCreateInput(input),
@@ -97,6 +109,7 @@ export const publisherDiffusionExclusionService = (() => {
   };
   return {
     findExclusionsForDiffuseurId,
+    hasExclusionForMissionDiffusion,
     createExclusion,
     updateExclusionsForPublisherOrganization,
   };
