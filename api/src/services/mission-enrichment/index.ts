@@ -280,7 +280,7 @@ export const missionEnrichmentService = {
       return;
     }
 
-    if (!(await missionDiffusionEligibilityService.isEligible({ mission, diffuseurPublisherId: PUBLISHER_IDS.PLATEFORM }))) {
+    if (!(await missionDiffusionEligibilityService.isEligible({ mission, annonceurPublisherId: PUBLISHER_IDS.PLATEFORM }))) {
       console.log(`${LOG_PREFIX} skipping ${missionId} — mission is not eligible for platform enrichment`);
       return;
     }

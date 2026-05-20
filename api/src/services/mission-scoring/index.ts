@@ -43,7 +43,7 @@ export const missionScoringService = {
 
     const enrichmentId = enrichment.id;
 
-    if (!(await missionDiffusionEligibilityService.isEligible({ mission: enrichment.mission, diffuseurPublisherId: PUBLISHER_IDS.PLATEFORM }))) {
+    if (!(await missionDiffusionEligibilityService.isEligible({ mission: enrichment.mission, annonceurPublisherId: PUBLISHER_IDS.PLATEFORM }))) {
       console.log(`${LOG_PREFIX} skipping mission=${params.missionId} enrichment=${enrichmentId} — mission is not eligible for platform scoring`);
       return;
     }

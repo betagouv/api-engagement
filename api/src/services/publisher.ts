@@ -221,6 +221,25 @@ export const publisherService = (() => {
     return count > 0;
   };
 
+  const hasDiffusionFromAnnonceur = async (params: { annonceurPublisherId: string; diffuseurPublisherId: string }): Promise<boolean> => {
+    if (!params.annonceurPublisherId || !params.diffuseurPublisherId) {
+      return false;
+    }
+
+    const count = await publisherRepository.count({
+      where: {
+        id: params.diffuseurPublisherId,
+        diffusionsAsDiffuseur: {
+          some: {
+            annonceurPublisherId: params.annonceurPublisherId,
+          },
+        },
+      },
+    });
+
+    return count > 0;
+  };
+
   const findOnePublisherByApiKey = async (apikey: string, publisherId?: string): Promise<PublisherRecordWithRelations | null> => {
     const publisher = await publisherRepository.findFirst({
       where: { apikey, ...(publisherId ? { id: publisherId } : {}) },
@@ -440,6 +459,7 @@ export const publisherService = (() => {
     createPublisher,
     updatePublisher,
     publisherExistsByName,
+    hasDiffusionFromAnnonceur,
     findOnePublisherByApiKey,
     findOnePublisherById,
     findOnePublisherByName,

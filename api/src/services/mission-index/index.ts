@@ -71,7 +71,7 @@ export const missionIndexService = {
       !mission ||
       mission.deletedAt !== null ||
       mission.statusCode !== "ACCEPTED" ||
-      !(await missionDiffusionEligibilityService.isEligible({ mission, diffuseurPublisherId: PUBLISHER_IDS.PLATEFORM }))
+      !(await missionDiffusionEligibilityService.isEligible({ mission, annonceurPublisherId: PUBLISHER_IDS.PLATEFORM }))
     ) {
       await this.delete(missionId);
       return;

@@ -13,9 +13,16 @@ vi.mock("@/repositories/mission-scoring", () => ({
   },
 }));
 
+vi.mock("@/services/mission-diffusion-eligibility", () => ({
+  missionDiffusionEligibilityService: {
+    isEligible: vi.fn(),
+  },
+}));
+
 import { PUBLISHER_IDS } from "@/config";
 import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
 import { missionScoringRepository } from "@/repositories/mission-scoring";
+import { missionDiffusionEligibilityService } from "@/services/mission-diffusion-eligibility";
 import { missionScoringService } from "@/services/mission-scoring";
 
 const missionEnrichmentRepositoryMock = missionEnrichmentRepository as unknown as {
@@ -42,6 +49,7 @@ describe("missionScoringService.score", () => {
     missionEnrichmentRepositoryMock.findFirst.mockReset();
     missionScoringRepositoryMock.findUnique.mockReset();
     missionScoringRepositoryMock.replaceForEnrichment.mockReset();
+    (missionDiffusionEligibilityService.isEligible as ReturnType<typeof vi.fn>).mockResolvedValue(true);
   });
 
   it("ignores missing completed enrichments", async () => {
@@ -147,6 +155,7 @@ describe("missionScoringService.score", () => {
   });
 
   it("skips scoring when mission is not eligible for platform", async () => {
+    (missionDiffusionEligibilityService.isEligible as ReturnType<typeof vi.fn>).mockResolvedValue(false);
     missionEnrichmentRepositoryMock.findFirst.mockResolvedValue({
       id: "enrichment-1",
       missionId: "mission-1",
