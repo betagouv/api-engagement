@@ -185,10 +185,6 @@ resource "scaleway_container" "plateform" {
   http_option    = "redirected"
   deploy         = true
 
-  environment_variables = {
-    "VITE_API_URL" = var.api_hostname != "" ? "https://${var.api_hostname}" : "https://${scaleway_container.api.domain_name}"
-  }
-
   secret_environment_variables = {
     "VITE_MAPTILER_API_KEY" = lookup(local.secrets, "VITE_MAPTILER_API_KEY", "")
   }
