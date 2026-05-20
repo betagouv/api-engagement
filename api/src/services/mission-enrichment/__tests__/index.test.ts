@@ -20,6 +20,12 @@ vi.mock("@/services/mission-enrichment/providers", () => ({
   getMissionEnrichmentProvider: vi.fn(),
 }));
 
+vi.mock("@/services/mission-diffusion-eligibility", () => ({
+  missionDiffusionEligibilityService: {
+    isEligible: vi.fn(),
+  },
+}));
+
 // Prevent loading @ai-sdk/mistral (not installed) and avoid real LLM model instantiation
 vi.mock("@/services/mission-enrichment/prompts", () => ({
   PROMPT_REGISTRY: {
@@ -46,6 +52,7 @@ import { MissionType } from "@/db/core";
 import { missionRepository } from "@/repositories/mission";
 import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
 import { asyncTaskBus } from "@/services/async-task";
+import { missionDiffusionEligibilityService } from "@/services/mission-diffusion-eligibility";
 import { missionEnrichmentService } from "@/services/mission-enrichment";
 import { getMissionEnrichmentProvider } from "@/services/mission-enrichment/providers";
 
@@ -79,6 +86,7 @@ describe("missionEnrichmentService.enrich — chain propagation", () => {
   beforeEach(() => {
     providerGenerate.mockReset();
     (getMissionEnrichmentProvider as ReturnType<typeof vi.fn>).mockReturnValue({ generate: providerGenerate });
+    (missionDiffusionEligibilityService.isEligible as ReturnType<typeof vi.fn>).mockResolvedValue(true);
   });
 
   it("stops the chain when mission is not found", async () => {
@@ -146,6 +154,7 @@ describe("missionEnrichmentService.enrich — chain propagation", () => {
   });
 
   it("stops the chain when mission is not eligible for platform enrichment", async () => {
+    (missionDiffusionEligibilityService.isEligible as ReturnType<typeof vi.fn>).mockResolvedValue(false);
     (missionRepository.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({ ...baseMission, type: MissionType.benevolat, publisherId: "publisher-1" });
 
     await missionEnrichmentService.enrich("mission-1");
