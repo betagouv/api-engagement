@@ -83,7 +83,31 @@ write_files:
       [Install]
       WantedBy=multi-user.target
 
+  #%{ if monitoring_enabled }
+  - path: /etc/alloy/config.alloy
+    permissions: "0644"
+    owner: root:root
+    content: |
+      ${alloy_config}
+  #%{ endif }
+
 runcmd:
   - systemctl enable --now docker
   - systemctl daemon-reload
   - systemctl enable --now typesense
+  #%{ if monitoring_enabled }
+  - install -d -m 0755 /etc/apt/keyrings
+  - curl -fsSL https://apt.grafana.com/gpg-full.key -o /etc/apt/keyrings/grafana.asc
+  - chmod 0644 /etc/apt/keyrings/grafana.asc
+  - sh -c 'echo "deb [signed-by=/etc/apt/keyrings/grafana.asc] https://apt.grafana.com stable main" > /etc/apt/sources.list.d/grafana.list'
+  - apt-get update
+  - apt-get install -y alloy
+  - install -d -m 0750 /etc/alloy
+  - sh -c 'printf "COCKPIT_METRICS_REMOTE_WRITE_URL=%s\n" "${monitoring_metrics_remote_write_url}" > /etc/alloy/cockpit.env'
+  - sh -c 'printf "COCKPIT_METRICS_TOKEN=%s\n" "$(printf "%s" "${monitoring_cockpit_token_b64}" | base64 -d)" >> /etc/alloy/cockpit.env'
+  - chmod 0600 /etc/alloy/cockpit.env
+  - install -d -m 0755 /etc/systemd/system/alloy.service.d
+  - sh -c 'printf "[Service]\nEnvironmentFile=/etc/alloy/cockpit.env\n" > /etc/systemd/system/alloy.service.d/cockpit.conf'
+  - systemctl daemon-reload
+  - systemctl enable --now alloy
+#%{ endif }

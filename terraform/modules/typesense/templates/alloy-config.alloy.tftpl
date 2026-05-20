@@ -1,0 +1,95 @@
+logging {
+  level  = "info"
+  format = "logfmt"
+}
+
+prometheus.remote_write "cockpit" {
+  external_labels = {
+    cluster   = "${cluster}",
+    env       = "${workspace}",
+    node      = "${node}",
+    service   = "typesense",
+    workspace = "${workspace}",
+  }
+
+  endpoint {
+    url = sys.env("COCKPIT_METRICS_REMOTE_WRITE_URL")
+
+    authorization {
+      type        = "Bearer"
+      credentials = sys.env("COCKPIT_METRICS_TOKEN")
+    }
+  }
+}
+
+prometheus.exporter.unix "node" {
+  disable_collectors = ["ipvs", "btrfs", "infiniband", "xfs", "zfs"]
+  enable_collectors  = ["meminfo"]
+
+  filesystem {
+    fs_types_exclude     = "^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|tmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$"
+    mount_points_exclude = "^/(dev|proc|run/credentials/.+|sys|var/lib/docker/.+)($|/)"
+    mount_timeout        = "5s"
+  }
+
+  netclass {
+    ignored_devices = "^(veth.*|docker.*|br-.*|lo)$"
+  }
+
+  netdev {
+    device_exclude = "^(veth.*|docker.*|br-.*|lo)$"
+  }
+}
+
+discovery.relabel "node" {
+  targets = prometheus.exporter.unix.node.targets
+
+  rule {
+    target_label = "job"
+    replacement  = "typesense/node"
+  }
+
+  rule {
+    target_label = "instance"
+    replacement  = "${node}"
+  }
+}
+
+prometheus.scrape "node" {
+  scrape_interval = "30s"
+  targets         = discovery.relabel.node.output
+  forward_to      = [prometheus.remote_write.cockpit.receiver]
+}
+
+prometheus.exporter.blackbox "typesense_health" {
+  config = "{ modules: { http_2xx: { prober: http, timeout: 5s } } }"
+
+  target {
+    name    = "typesense-health"
+    address = "http://127.0.0.1:${api_port}/health"
+    module  = "http_2xx"
+    labels = {
+      component = "typesense",
+    }
+  }
+}
+
+discovery.relabel "typesense_health" {
+  targets = prometheus.exporter.blackbox.typesense_health.targets
+
+  rule {
+    target_label = "job"
+    replacement  = "typesense/health"
+  }
+
+  rule {
+    target_label = "instance"
+    replacement  = "${node}"
+  }
+}
+
+prometheus.scrape "typesense_health" {
+  scrape_interval = "30s"
+  targets         = discovery.relabel.typesense_health.output
+  forward_to      = [prometheus.remote_write.cockpit.receiver]
+}
