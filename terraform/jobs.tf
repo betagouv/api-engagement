@@ -330,16 +330,16 @@ resource "scaleway_job_definition" "update-mission-index" {
   env = local.all_env_vars
 }
 
-# Job Definition for the 'reconcile-mission-platform-eligibility' task (on-demand only, no cron)
-resource "scaleway_job_definition" "update-mission-scoring" {
-  name                   = "${terraform.workspace}-reconcile-mission-platform-eligibility"
+# Job Definition for the 'reconcile-mission-diffusion-eligibility' task (on-demand only, no cron)
+resource "scaleway_job_definition" "reconcile-mission-diffusion-eligibility" {
+  name                   = "${terraform.workspace}-reconcile-mission-diffusion-eligibility"
   project_id             = var.project_id
   cpu_limit              = 1000
   memory_limit           = 2048
   local_storage_capacity = 1024
   image_uri              = local.image_uri
   startup_command        = ["node"]
-  args                   = ["dist/jobs/run-job.js", "reconcile-mission-platform-eligibility"]
+  args                   = ["dist/jobs/run-job.js", "reconcile-mission-diffusion-eligibility"]
   timeout                = "24h"
 
   env = local.all_env_vars
