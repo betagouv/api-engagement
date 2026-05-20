@@ -23,7 +23,7 @@ prometheus.remote_write "cockpit" {
 }
 
 prometheus.exporter.unix "node" {
-  disable_collectors = ["ipvs", "btrfs", "infiniband", "xfs", "zfs"]
+  disable_collectors = ["ipvs", "btrfs", "infiniband", "thermal_zone", "xfs", "zfs"]
   enable_collectors  = ["meminfo"]
 
   filesystem {
@@ -38,6 +38,16 @@ prometheus.exporter.unix "node" {
 
   netdev {
     device_exclude = "^(veth.*|docker.*|br-.*|lo)$"
+  }
+}
+
+prometheus.relabel "node_metrics_filter" {
+  forward_to = [prometheus.remote_write.cockpit.receiver]
+
+  rule {
+    action        = "keep"
+    source_labels = ["__name__"]
+    regex         = "node_boot_time_seconds|node_cpu_seconds_total|node_disk_io_time_seconds_total|node_disk_read_bytes_total|node_disk_reads_completed_total|node_disk_written_bytes_total|node_disk_writes_completed_total|node_filesystem_avail_bytes|node_filesystem_readonly|node_filesystem_size_bytes|node_load1|node_load5|node_load15|node_memory_MemAvailable_bytes|node_memory_MemTotal_bytes|node_network_receive_bytes_total|node_network_transmit_bytes_total|node_network_up|node_time_seconds"
   }
 }
 
@@ -58,7 +68,7 @@ discovery.relabel "node" {
 prometheus.scrape "node" {
   scrape_interval = "30s"
   targets         = discovery.relabel.node.output
-  forward_to      = [prometheus.remote_write.cockpit.receiver]
+  forward_to      = [prometheus.relabel.node_metrics_filter.receiver]
 }
 
 prometheus.exporter.blackbox "typesense_health" {
