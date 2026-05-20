@@ -77,3 +77,22 @@ variable "typesense_api_key" {
     error_message = "typesense_api_key must not be empty when the Typesense module is enabled."
   }
 }
+
+variable "monitoring_enabled" {
+  type        = bool
+  default     = false
+  description = "Install and configure Grafana Alloy to push Typesense node metrics to Cockpit."
+}
+
+variable "monitoring_metrics_remote_write_url" {
+  type        = string
+  default     = ""
+  description = "Cockpit metrics Prometheus Remote Write URL."
+}
+
+variable "monitoring_cockpit_token" {
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "Cockpit token used by Alloy to push metrics."
+}

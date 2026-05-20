@@ -13,4 +13,8 @@ module "typesense" {
   load_balancer_type       = var.typesense_load_balancer_type
   load_balancer_zone       = var.public_gateway_zone
   typesense_api_key        = lookup(local.secrets, "TYPESENSE_API_KEY", "")
+
+  monitoring_enabled                  = lookup(local.secrets, "COCKPIT_METRICS_OTLP_URL", "") != "" && lookup(local.secrets, "COCKPIT_METRICS_TOKEN", "") != ""
+  monitoring_metrics_remote_write_url = replace(lookup(local.secrets, "COCKPIT_METRICS_OTLP_URL", ""), "/otlp/v1/metrics", "/api/v1/push")
+  monitoring_cockpit_token            = lookup(local.secrets, "COCKPIT_METRICS_TOKEN", "")
 }
