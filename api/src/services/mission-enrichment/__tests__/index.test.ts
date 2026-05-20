@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
+const generateObjectMock = vi.hoisted(() => vi.fn());
+
 vi.mock("@/repositories/mission", () => ({
   missionRepository: { findUnique: vi.fn() },
 }));
@@ -40,9 +42,9 @@ vi.mock("@/services/mission-enrichment/prompts", () => ({
   buildTaxonomyBlock: () => "taxonomy block",
 }));
 
+import { MissionType } from "@/db/core";
 import { missionRepository } from "@/repositories/mission";
 import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
-import { MissionType } from "@/db/core";
 import { asyncTaskBus } from "@/services/async-task";
 import { missionEnrichmentService } from "@/services/mission-enrichment";
 import { getMissionEnrichmentProvider } from "@/services/mission-enrichment/providers";
@@ -151,7 +153,7 @@ describe("missionEnrichmentService.enrich — chain propagation", () => {
     expect(missionEnrichmentRepository.findFirst).not.toHaveBeenCalled();
     expect(missionEnrichmentRepository.create).not.toHaveBeenCalled();
     expect(asyncTaskBus.publish).not.toHaveBeenCalled();
-    expect(generateObject).not.toHaveBeenCalled();
+    expect(generateObjectMock).not.toHaveBeenCalled();
   });
 
   it("calls LLM and forwards to scoring after successful enrichment", async () => {
