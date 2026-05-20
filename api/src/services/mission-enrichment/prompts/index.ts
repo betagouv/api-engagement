@@ -4,6 +4,7 @@ import type { ZodTypeAny } from "zod";
 import * as v1 from "./v1";
 import * as v2 from "./v2";
 import * as v3 from "./v3";
+import * as v4 from "./v4";
 
 export { buildMissionBlock, buildTaxonomyBlock } from "./builder";
 export type { MissionForPrompt, TaxonomyForPrompt } from "./types";
@@ -21,6 +22,7 @@ export const PROMPT_REGISTRY: Record<string, PromptEntry> = {
   [v1.VERSION]: v1,
   [v2.VERSION]: v2,
   [v3.VERSION]: v3,
+  [v4.VERSION]: v4,
 };
 
 export type PromptVersion = keyof typeof PROMPT_REGISTRY;

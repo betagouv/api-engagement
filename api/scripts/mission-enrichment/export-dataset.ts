@@ -24,14 +24,21 @@ const version = getArg("--version") ?? CURRENT_PROMPT_VERSION;
 const limit = getArg("--limit") ? parseInt(getArg("--limit")!, 10) : undefined;
 const outputPath = getArg("--output") ?? "./enrichment-export.csv";
 
+const parseIds = (idsFlag: string, idsFileFlag: string): string[] => {
+  const idsArg = getArg(idsFlag);
+  const idsFile = getArg(idsFileFlag);
+
+  const ids = [...(idsArg ? idsArg.split(",") : []), ...(idsFile ? fs.readFileSync(idsFile, "utf-8").split(/\r?\n|,/) : [])].map((id) => id.trim()).filter(Boolean);
+
+  return [...new Set(ids)];
+};
+
 // ─── Taxonomy lookup ─────────────────────────────────────────────────────────
 
 type TaxonomyMeta = { type: string; label: string; values: Map<string, { label: string }> };
 type FullTaxonomyLookup = Map<string, TaxonomyMeta>;
 
-const buildFullLookup = (
-  taxonomies: Array<{ key: string; type: string; label: string; values: Array<{ key: string; label: string; active: boolean }> }>
-): FullTaxonomyLookup => {
+const buildFullLookup = (taxonomies: Array<{ key: string; type: string; label: string; values: Array<{ key: string; label: string; active: boolean }> }>): FullTaxonomyLookup => {
   const fullLookup: FullTaxonomyLookup = new Map();
 
   for (const dim of taxonomies) {
@@ -150,7 +157,11 @@ const rowToCsv = (row: CsvRow): string => HEADERS.map((h) => csvEscape(row[h as 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function main() {
-  console.log(`[export-dataset] version=${version} limit=${limit ?? "all"} output=${outputPath}`);
+  const missionIds = parseIds("--ids", "--ids-file");
+  const enrichmentIds = parseIds("--enrichment-ids", "--enrichment-ids-file");
+  console.log(
+    `[export-dataset] version=${version} limit=${limit ?? "all"} missionIds=${missionIds.length || "all"} enrichmentIds=${enrichmentIds.length || "all"} output=${outputPath}`
+  );
 
   const taxonomies = await prisma.taxonomy.findMany({
     orderBy: { key: "asc" },
@@ -167,7 +178,12 @@ async function main() {
   );
 
   const enrichments = await prisma.missionEnrichment.findMany({
-    where: { status: "completed", promptVersion: version },
+    where: {
+      status: "completed",
+      promptVersion: version,
+      ...(missionIds.length > 0 ? { missionId: { in: missionIds } } : {}),
+      ...(enrichmentIds.length > 0 ? { id: { in: enrichmentIds } } : {}),
+    },
     take: limit,
     orderBy: { completedAt: "desc" },
     include: {
@@ -225,14 +241,15 @@ async function main() {
     // Valid classifications from DB
     for (const v of enrichment.values) {
       const evidence = v.evidence as { reasoning?: string } | null;
+      const taxonomyValue = v.taxonomyValue;
       rows.push({
         ...base,
-        status: "valid",
-        skipReason: "",
-        taxonomy: v.taxonomyValue!.taxonomy.key,
-        taxonomyLabel: v.taxonomyValue!.taxonomy.label,
-        value: v.taxonomyValue!.key,
-        valueLabel: v.taxonomyValue!.label,
+        status: taxonomyValue ? "valid" : "skipped",
+        skipReason: taxonomyValue ? "" : "missing_taxonomy_value_relation",
+        taxonomy: taxonomyValue?.taxonomy.key ?? v.taxonomyKey ?? "",
+        taxonomyLabel: taxonomyValue?.taxonomy.label ?? "",
+        value: taxonomyValue?.key ?? v.valueKey ?? "",
+        valueLabel: taxonomyValue?.label ?? "",
         confidence: String(v.confidence),
         reasoning: evidence?.reasoning ?? "",
       });
