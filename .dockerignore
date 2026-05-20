@@ -1,0 +1,31 @@
+# Dépendances
+node_modules/
+**/node_modules/
+
+# Artefacts de build
+api/dist/
+app/dist/
+widget/.next/
+widget/out/
+plateform/dist/
+plateform/.next/
+poc-quiz/.next/
+poc-quiz/out/
+packages/taxonomy/dist/
+
+# Tests
+**/coverage/
+widget/tests/e2e/_test-results/
+widget/tests/e2e/_playwright-report/
+app/tests/e2e/_test-results/
+app/tests/e2e/_playwright-report/
+
+# Variables d'environnement
+**/.env
+**/.env.*
+
+# Logs
+**/*.log
+
+# Divers
+**/.DS_Store

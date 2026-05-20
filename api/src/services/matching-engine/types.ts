@@ -1,0 +1,48 @@
+import type { EnrichableTaxonomyKey, GateTaxonomyKey } from "@engagement/taxonomy";
+
+export type MatchingEngineTaxonomy = EnrichableTaxonomyKey | GateTaxonomyKey;
+
+export type MatchingEngineTaxonomyWeights = Record<MatchingEngineTaxonomy, number>;
+
+export type MatchingEngineVersion = "m1";
+
+export type MatchingEngineVersionConfig = {
+  taxonomyWeights: MatchingEngineTaxonomyWeights;
+};
+
+export type RankMissionsByUserScoringInput = {
+  userScoringId: string;
+  version?: MatchingEngineVersion;
+  limit?: number;
+  offset?: number;
+  taxonomyWeight?: number;
+  geoWeight?: number;
+  geoHalfDecayKm?: number;
+  missingGeoScore?: number;
+};
+
+export type MatchMissionItem = {
+  missionId: string;
+  missionScoringId: string;
+  missionAddressId: string | null;
+  totalScore: number;
+  taxonomyScore: number;
+  geoScore: number | null;
+  distanceKm: number | null;
+  closestLat: number | null;
+  closestLon: number | null;
+  closestCity: string | null;
+  closestAddress: string | null;
+  taxonomyScores: Partial<Record<MatchingEngineTaxonomy, number>>;
+};
+
+export type MissionMatchingResultItem = {
+  missionScoringId: string;
+  missionAddressId?: string | null;
+  taxonomyScores: Partial<Record<MatchingEngineTaxonomy, number>>;
+};
+
+export type RankMissionsByUserScoringResult = {
+  items: MatchMissionItem[];
+  tookMs: number;
+};

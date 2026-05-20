@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { RiCheckboxCircleFill, RiFileDownloadLine, RiInformationLine } from "react-icons/ri";
+import { RiCheckboxCircleFill, RiErrorWarningFill, RiFileDownloadLine, RiInformationLine } from "react-icons/ri";
 import { Link, useSearchParams } from "react-router-dom";
 
 import ErrorIconSvg from "@/assets/svg/error-icon.svg?react";
@@ -21,8 +21,27 @@ const TABLE_HEADER = [
   { title: "Places disponibles", key: "places" },
   { title: "Ville", key: "city.keyword", width: "20%" },
   { title: "Créée le", key: "createdAt" },
+  { title: "Traitement", position: "center" },
   { title: "Statut", key: "statusCode.keyword" },
 ];
+
+const TREATMENT_STATUS_CONFIG = {
+  processed: {
+    Icon: RiCheckboxCircleFill,
+    className: "text-success",
+    label: "Mission enrichie et scorée",
+  },
+  enriched_not_scored: {
+    Icon: RiErrorWarningFill,
+    className: "text-warning",
+    label: "Mission enrichie, scoring manquant",
+  },
+  not_enriched: {
+    Icon: RiErrorWarningFill,
+    className: "text-warning",
+    label: "Mission non enrichie, scoring manquant",
+  },
+};
 
 const AdminMission = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -37,6 +56,7 @@ const AdminMission = () => {
     department: searchParams.get("department") || null,
     city: searchParams.get("city") || null,
     organization: searchParams.get("organization") || null,
+    enrichmentScoringStatus: searchParams.get("enrichmentScoringStatus") || null,
     search: searchParams.get("search") || "",
   });
   const [options, setOptions] = useState({
@@ -191,6 +211,16 @@ const AdminMission = () => {
             onChange={(e) => setFilters({ ...filters, organization: e.value })}
             placeholder="Organisation"
           />
+          <Select
+            options={[
+              { value: "processed", label: "Enrichies + scorées" },
+              { value: "enriched_not_scored", label: "Enrichies non scorées" },
+              { value: "not_enriched", label: "Non enrichies" },
+            ]}
+            value={filters.enrichmentScoringStatus}
+            onChange={(e) => setFilters({ ...filters, enrichmentScoringStatus: e.value })}
+            placeholder="Traitement"
+          />
         </div>
       </div>
 
@@ -237,6 +267,22 @@ const AdminMission = () => {
               <td className="px-4">{item.places}</td>
               <td className="px-4">{item.city}</td>
               <td className="px-4">{new Date(item.createdAt).toLocaleDateString("fr")}</td>
+              <td className="px-4 text-center">
+                {(() => {
+                  const treatmentStatus = TREATMENT_STATUS_CONFIG[item.adminEnrichmentScoringStatus] ?? TREATMENT_STATUS_CONFIG.not_enriched;
+                  const TreatmentIcon = treatmentStatus.Icon;
+                  return (
+                    <Tooltip
+                      ariaLabel={treatmentStatus.label}
+                      triggerClassName={`${treatmentStatus.className} inline-flex justify-center`}
+                      tooltipClassName="border-grey-border border bg-white p-4 text-sm shadow-lg"
+                      content={treatmentStatus.label}
+                    >
+                      <TreatmentIcon role="img" aria-label={treatmentStatus.label} className={`${treatmentStatus.className} text-2xl`} />
+                    </Tooltip>
+                  );
+                })()}
+              </td>
               <td className="px-6">
                 <div className="flex items-center gap-1">
                   {item.statusCode === "ACCEPTED" ? (

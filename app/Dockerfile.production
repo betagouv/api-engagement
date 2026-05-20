@@ -5,7 +5,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+WORKDIR /workspace
 
 ARG ENV=development
 ARG API_URL=http://localhost:9001
@@ -20,13 +20,20 @@ ENV VITE_VOLONTARIAT_URL=$VOLONTARIAT_URL
 ENV VITE_SENTRY_DSN=$SENTRY_DNS_APP
 
 COPY package*.json ./
+COPY packages/taxonomy/package.json ./packages/taxonomy/
+COPY api/package.json ./api/
+COPY app/package.json ./app/
+COPY widget/package.json ./widget/
+COPY analytics/package.json ./analytics/
+COPY plateform/package.json ./plateform/
+COPY poc-quiz/package.json ./poc-quiz/
 
-RUN npm ci
+RUN npm ci --workspace app
 
-COPY . .
+COPY app ./app
 
 RUN --mount=type=secret,id=sentry_auth_token,env=SENTRY_AUTH_TOKEN \
-    NODE_TLS_REJECT_UNAUTHORIZED=0 npm run build
+    NODE_TLS_REJECT_UNAUTHORIZED=0 npm --workspace app run build
 
 # Run
 FROM node:24-bookworm-slim
@@ -35,13 +42,12 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-COPY server ./server
+COPY --from=builder /workspace/app/server ./server
+COPY --from=builder /workspace/app/package.json ./
 
-COPY package*.json ./
+RUN npm install --omit=dev --ignore-scripts
 
-RUN npm ci --omit=dev
-
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /workspace/app/dist ./dist
 
 EXPOSE 8080
 

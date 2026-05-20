@@ -1,0 +1,62 @@
+import { useState } from "react";
+import { useOutletContext } from "react-router";
+import Label from "~/components/quiz/label";
+import MultiSelectIcon from "~/components/quiz/multi-select-icon";
+import NextButton from "~/components/quiz/next-button";
+import { OPTIONS } from "~/config/quiz-options";
+import { useQuizStore } from "~/stores/quiz";
+import type { QuizOutletContext } from "./_layout";
+
+const STEP_ID = "precision_competences";
+
+// Mapping référentiel ROME — 7 domaines de compétences.
+// La sémantique varie selon la motivation : "ce que je veux développer" (booster_cv / enrichir_cv)
+// vs. "ce que je sais déjà faire" (competences_interet_general). Même grille, titre adapté.
+const STEP_OPTIONS = [
+  OPTIONS["competence_rome.management_social_soin"],
+  OPTIONS["competence_rome.communication_creation_numerique"],
+  OPTIONS["competence_rome.production_construction_qualite_logistique"],
+  OPTIONS["competence_rome.gestion_pilotage_juridique"],
+  OPTIONS["competence_rome.relation_client_commerce_strategie"],
+  OPTIONS["competence_rome.cooperation_organisation_soft_skills"],
+  OPTIONS["competence_rome.securite_environnement_action_publique"],
+];
+
+const TITLE_BY_MOTIVATION: Record<string, string> = {
+  "competences_interet_general": "Quel est ton domaine de compétences ?",
+  "booster_cv": "Dans quel domaine souhaites-tu booster tes compétences",
+};
+
+const DEFAULT_TITLE = "Quel type de compétences t'attire le plus ?";
+
+export default function PrecisionCompetencesStep() {
+  const { answers, setAnswer } = useQuizStore();
+  const { goNext } = useOutletContext<QuizOutletContext>();
+  const [error, setError] = useState<string | undefined>(undefined);
+
+  const motivationId = answers.motivation?.type === "options" ? answers.motivation.option_ids[0] : "";
+  const title = TITLE_BY_MOTIVATION[motivationId] ?? DEFAULT_TITLE;
+  const selected = answers[STEP_ID]?.type === "options" ? answers[STEP_ID].option_ids : [];
+
+  const handleSelect = (value: string[]) => {
+    setError(undefined);
+    setAnswer(STEP_ID, { type: "options", taxonomy: "competence_rome", option_ids: value });
+  };
+
+  const handleNext = () => {
+    const answer = answers[STEP_ID];
+    if (answer?.type !== "options" || answer.option_ids.length === 0) {
+      setError("Sélectionne une réponse");
+      return;
+    }
+    goNext();
+  };
+
+  return (
+    <>
+      <Label>{title}</Label>
+      <MultiSelectIcon onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} />
+      <NextButton onClick={handleNext} skip />
+    </>
+  );
+}

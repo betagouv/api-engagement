@@ -19,3 +19,9 @@ vi.mock("@/services/api-datasubvention", () => ({
 vi.mock("@/services/s3", () => ({
   ...s3Mock,
 }));
+
+vi.mock("@/services/async-task", () => ({
+  asyncTaskBus: {
+    publish: vi.fn().mockResolvedValue(undefined),
+  },
+}));

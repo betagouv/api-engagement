@@ -64,3 +64,33 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
 
   - Scripts d’initialisation/d’échantillonnage de données (voir `scripts/fixtures/README.md`), dont:
     - `populate-stat-events-from-missions.ts`: génère des `StatEvent` réalistes pour un ou plusieurs publishers à partir de missions Mongo.
+
+- **seed-fake-user-scoring.ts**
+
+  - Exécution: `npx ts-node scripts/seed-fake-user-scoring.ts [--count N] [--with-geo] [--expires-in-hours N] [--dry-run]`
+  - Usage: Crée des `user_scoring` fake en base pour tester le `matching-engine`.
+  - Options:
+    - `--count N` : nombre de profils à créer (défaut: 10)
+    - `--with-geo` : ajoute une géolocalisation fake en France
+    - `--expires-in-hours N` : expiration des profils créés (défaut: 72h)
+    - `--dry-run` : simule la création et loggue les ids/volumes sans écrire en base
+
+- **explain-matching-result.ts**
+
+  - Exécution: `npx ts-node scripts/explain-matching-result.ts <userScoringId> [--limit N] [--version V]`
+  - Usage: Exécute le `matching-engine`, vérifie la persistance du `mission_matching_result`, affiche les dimensions du `user_scoring`, puis explique mission par mission pourquoi le matching est pertinent par taxonomy.
+  - Options:
+    - `--limit N` : nombre max de missions affichées (défaut: 5)
+    - `--version V` : version du matching engine à analyser (défaut: version courante)
+
+- **benchmark-matching-engine.ts**
+
+  - Exécution: `npx ts-node scripts/benchmark-matching-engine.ts -- [options]`
+  - Usage: Mesure les temps de réponse du `matching-engine` sur les données PostgreSQL disponibles.
+  - Options principales:
+    - `--user-scoring-id ID` : profil à benchmarker (répétable). Sans id, le script échantillonne des profils actifs variés.
+    - `--sample-size N` : nombre de profils auto-sélectionnés (défaut: 8).
+    - `--iterations N` / `--warmup N` : répétitions mesurées et préchauffage (défauts: 5 et 1).
+    - `--limits 20,100,500` / `--offsets 1,100` : volumes de résultats et offsets à tester. Par défaut, l'offset `1` évite l'écriture `mission_matching_result` déclenchée par le service sur `offset=0`.
+    - `--taxonomy-weight N`, `--geo-weight N`, `--geo-half-decay-km N` : variantes de scoring à comparer.
+    - `--json` : sortie exploitable en comparaison automatisée.

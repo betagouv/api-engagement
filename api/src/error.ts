@@ -1,5 +1,5 @@
-import * as Sentry from "@sentry/node";
 import { ENV } from "@/config";
+import * as Sentry from "@sentry/node";
 
 export const INVALID_ID = "INVALID_ID";
 export const INVALID_PARAMS = "INVALID_PARAMS";
@@ -12,7 +12,9 @@ export const FORBIDDEN = "FORBIDDEN";
 export const MISSING_ELEMENT = "MISSING_ELEMENT";
 export const BAD_REQUEST = "BAD_REQUEST";
 export const NOT_FOUND = "NOT_FOUND";
+export const EMAIL_SEND_FAILED = "EMAIL_SEND_FAILED";
 export const SERVER_ERROR = "SERVER_ERROR";
+export const SERVICE_UNAVAILABLE = "SERVICE_UNAVAILABLE";
 export const DEPRECATED = "DEPRECATED";
 
 export const captureException = (error: any, context?: string | { extra: any }) => {

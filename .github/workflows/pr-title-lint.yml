@@ -25,6 +25,7 @@ jobs:
             analytics
             widget
             jobs
+            plateform
             ci
             deps
             deps-dev

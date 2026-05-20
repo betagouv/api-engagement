@@ -27,3 +27,20 @@ widget_max_scale           = 1
 enable_widget              = true
 enable_intern_jobs         = true
 enable_analytics_jobs      = true
+enable_typesense           = true
+
+private_network_cidr       = "10.41.0.0/22"
+
+enable_plateform           = true
+plateform_hostname         = "plateform.api-engagement-dev.fr"
+
+typesense_load_balancer_private_ip = "10.41.2.10"
+
+typesense_nodes = {
+  node-1 = {
+    zone              = "fr-par-1"
+    private_ip        = "10.41.2.11"
+    instance_type     = "PLAY2-PICO"
+    typesense_version = "30.2"
+  }
+}

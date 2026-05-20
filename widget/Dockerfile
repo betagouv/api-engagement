@@ -1,13 +1,15 @@
-# Build
-FROM node:24 AS builder
+FROM node:24
 
-WORKDIR /app
+WORKDIR /workspace
 
-COPY package*.json ./
+COPY package.json package-lock.json ./
+COPY widget/package.json ./widget/
 
-RUN npm ci
+RUN npm ci --workspace=widget
 
-COPY . .
+WORKDIR /workspace/widget
+
+COPY widget/ .
 
 EXPOSE 3003
 

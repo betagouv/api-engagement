@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { capitalizeFirstLetter, hasLetter, hasNumber, hasSpecialChar, slugify } from "@/utils/string";
+import { capitalizeFirstLetter, fuzzyMatchKey, hasLetter, hasNumber, hasSpecialChar, jaccardSimilarity, slugify } from "@/utils/string";
 
 describe("String Utils", () => {
   describe("slugify", () => {
@@ -100,6 +100,88 @@ describe("String Utils", () => {
 
     it("should return false for an empty string", () => {
       expect(hasNumber("")).toBe(false);
+    });
+  });
+
+  describe("jaccardSimilarity", () => {
+    it("returns 1.0 for identical keys", () => {
+      expect(jaccardSimilarity("sante_social", "sante_social")).toBe(1);
+    });
+
+    it("returns 1.0 for reordered tokens", () => {
+      expect(jaccardSimilarity("sante_social", "social_sante")).toBe(1);
+    });
+
+    it("returns 1.0 despite case differences", () => {
+      expect(jaccardSimilarity("Production_construction", "production_construction")).toBe(1);
+    });
+
+    it("returns 1.0 despite diacritic differences", () => {
+      expect(jaccardSimilarity("qualite_logistique", "qualité_logistique")).toBe(1);
+    });
+
+    it("returns 1.0 for reordered tokens with mixed case and diacritics", () => {
+      // Simulates: LLM outputs normalized form, taxonomy has legacy casing
+      expect(jaccardSimilarity("production_construction_qualite_logistique", "Production_construction_qualité_logistique")).toBe(1);
+    });
+
+    it("returns 0 for fully disjoint tokens", () => {
+      expect(jaccardSimilarity("sante_social", "culture_arts")).toBe(0);
+    });
+
+    it("returns partial score for overlapping tokens", () => {
+      // intersection: {sante}, union: {sante, social, soin} → 1/3
+      expect(jaccardSimilarity("sante_social", "sante_soin")).toBeCloseTo(1 / 3);
+    });
+  });
+
+  describe("fuzzyMatchKey", () => {
+    const keys = ["sante_social_aide_personne", "education_formation_animation", "culture_creation_medias"];
+
+    it("returns exact match at score 1.0", () => {
+      const result = fuzzyMatchKey("sante_social_aide_personne", keys, 0.6);
+      expect(result).toEqual({ key: "sante_social_aide_personne", score: 1 });
+    });
+
+    it("matches reordered tokens", () => {
+      const result = fuzzyMatchKey("social_sante_aide_personne", keys, 0.6);
+      expect(result?.key).toBe("sante_social_aide_personne");
+      expect(result?.score).toBe(1);
+    });
+
+    it("matches despite diacritics and casing", () => {
+      const keysWithAccent = ["Production_construction_qualité_logistique"];
+      const result = fuzzyMatchKey("production_construction_qualite_logistique", keysWithAccent, 0.6);
+      expect(result?.key).toBe("Production_construction_qualité_logistique");
+      expect(result?.score).toBe(1);
+    });
+
+    it("returns null when best score is below threshold", () => {
+      const result = fuzzyMatchKey("numerique_communication", keys, 0.6);
+      expect(result).toBeNull();
+    });
+
+    it("returns null for empty candidates list", () => {
+      const result = fuzzyMatchKey("sante_social", [], 0.6);
+      expect(result).toBeNull();
+    });
+
+    it("returns the best match among multiple candidates", () => {
+      const result = fuzzyMatchKey("formation_education_animation", keys, 0.6);
+      expect(result?.key).toBe("education_formation_animation");
+    });
+
+    it("breaks ties by lexical order (lowest key wins)", () => {
+      // "alpha_beta" and "beta_alpha" both score 1.0 against "alpha_beta" — "alpha_beta" < "beta_alpha"
+      const tiedKeys = ["beta_alpha", "alpha_beta"];
+      const result = fuzzyMatchKey("alpha_beta", tiedKeys, 0.6);
+      expect(result?.key).toBe("alpha_beta");
+    });
+
+    it("tie-break is stable regardless of iteration order", () => {
+      const tiedKeys1 = ["beta_alpha", "alpha_beta"];
+      const tiedKeys2 = ["alpha_beta", "beta_alpha"];
+      expect(fuzzyMatchKey("alpha_beta", tiedKeys1, 0.6)?.key).toBe(fuzzyMatchKey("alpha_beta", tiedKeys2, 0.6)?.key);
     });
   });
 

@@ -5,16 +5,14 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"),
+      "@engagement/taxonomy": path.resolve(__dirname, "../packages/taxonomy/src/index.ts"),
     },
   },
   test: {
     globals: true,
     environment: "node",
     setupFiles: ["./tests/vitest/unit.setup.ts"],
-    include: [
-      "src/**/__tests__/**/*.{test,spec}.ts",
-      "src/**/__tests__/**/*.{test,spec}.tsx",
-    ],
+    include: ["src/**/__tests__/**/*.{test,spec}.ts", "src/**/__tests__/**/*.{test,spec}.tsx"],
     exclude: ["tests/integration/**", "node_modules", "dist"],
     hookTimeout: 30000,
   },

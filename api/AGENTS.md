@@ -38,6 +38,19 @@ Structure notable :
 - `scripts/` : scripts **one-shot** (opérations ponctuelles, rattrapage/backfill, maintenance exceptionnelle) ; à distinguer des jobs (voir section dédiée).
 - `tests/` : outillage, mocks, fixtures, tests d’intégration (Postgres via testcontainers + migrations Prisma).
 
+### Package `@engagement/dto`
+
+Les types DTO partagés entre l’API et les clients front sont définis dans `packages/dto/src/resources/`. Les services importent ces types via `@engagement/dto` (alias workspace).
+
+Pattern attendu :
+1. Définir les types de réponse dans `packages/dto/src/resources/<feature>.ts`
+2. Exporter depuis `packages/dto/src/resources/index.ts`
+3. Importer dans le service : `import type { ... } from "@engagement/dto"`
+4. Le transformer (si mapping complexe) mappe types internes → DTOs
+5. Le controller reçoit et envoie des DTOs, sans connaître les types internes
+
+Référence : `api/src/services/mission-browse/` (pattern complet avec transformers).
+
 ## Conventions de code
 
 - TypeScript `strict: true` : éviter `any`, préférer des types dédiés dans `src/types/`.
@@ -131,6 +144,57 @@ Conventions :
 - Exécution : privilégier des jobs **idempotents** et relançables ; journaliser des étapes (compteurs, durées, ids), éviter la donnée sensible.
 - DB/IO : réutiliser la même discipline que l’API (service/repository) et éviter la logique SQL/Mongo “inline” dans le runner.
 - Sécurité : ne pas introduire de comportement destructeur non gardé (suppression massive, backfill) sans dry-run/confirmation si le prompt ne le demande pas.
+
+## Architecture async worker
+
+Le projet dispose d'un système de traitement asynchrone basé sur une file de messages SQS (Scaleway). Il repose sur deux processus distincts : l'API principale et un worker Express dédié.
+
+### Vue d'ensemble
+
+```
+API principale                     Worker (processus séparé)
+─────────────────                  ─────────────────────────
+asyncTaskBus.publish(type, payload)
+  → valide via registry schema
+  → publie { type, payload } ──→  SQS ──→  POST /
+                                            → valide l'enveloppe
+                                            → résout le handler via registry
+                                            → exécute le handler
+```
+
+En dev/test, le worker peut être appelé directement en HTTP (sans SQS) via `npm run worker:run`.
+
+### Côté émetteur — `src/services/async-task/`
+
+- `bus.ts` : `AsyncTaskBus` — valide le payload via le schéma du registry, publie `{ type, payload }` sur la queue SQS associée au type
+- `providers/scaleway.ts` : `ScalewayQueueProvider` — client AWS SQS pointant sur l'endpoint Scaleway
+- `index.ts` : singleton `asyncTaskBus` à importer dans les services/controllers pour publier des tâches
+
+### Côté worker — `src/worker/`
+
+- `index.ts` : bootstrap (connexion Postgres, écoute sur `PORT_WORKER`, shutdown propre sur SIGTERM/SIGINT)
+- `app.ts` : Express app — `GET /` healthcheck, `POST /` réception d'un message (validation enveloppe → résolution handler → exécution)
+- `registry.ts` : `taskRegistry` — map `type → { queueUrl, schema, handler }` ; c'est ici qu'on enregistre chaque nouvelle tâche
+- `types.ts` : `TaskRegistryEntry`, `TaskEnvelope`, schémas zod de base, helper `defineTask()`
+- `handlers/` : un fichier par type de tâche (ex. `mission-enrichment.ts`, `mission-scoring.ts`)
+
+### Ajouter un nouveau type de tâche
+
+1. Définir le schéma zod dans `src/worker/types.ts` (ou inline si propre au handler)
+2. Créer le handler dans `src/worker/handlers/<nom>.ts`
+3. Enregistrer dans `src/worker/registry.ts` via `defineTask()`
+4. Configurer la variable d'env `SCW_QUEUE_URL_<NOM>` dans `.env`
+
+### Scripts
+
+- `npm run dev:worker` — lance le worker en watch mode (nodemon + ts-node), écoute sur `PORT_WORKER` (défaut 8080)
+- `npm run worker:run -- <type> '<json>'` — exécute un handler directement sans SQS (utile en dev)
+
+```bash
+# Exemples
+npm run worker:run -- mission.enrichment '{"missionId":"abc123"}'
+npm run worker:run -- mission.scoring '{"missionId":"abc123"}'
+```
 
 ## Scripts (one-shot)
 

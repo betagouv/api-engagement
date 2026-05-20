@@ -56,10 +56,13 @@ import { initHttpMetrics, shutdownHttpMetrics } from "@/services/observability/m
 import AdminReportController from "@/controllers/admin-report";
 import BrevoWebhookController from "@/controllers/brevo-webhook/controller";
 import CampaignController from "@/controllers/campaign";
+import EmailController from "@/controllers/email";
 import IframeController from "@/controllers/iframe";
 import ImportController from "@/controllers/import";
 import MetabaseController from "@/controllers/metabase";
 import MissionController from "@/controllers/mission";
+import MissionBrowseController from "@/controllers/mission-browse";
+import MissionMatchController from "@/controllers/mission-match";
 import ModerationController from "@/controllers/moderation";
 import ModerationEventController from "@/controllers/moderation-event";
 import OrganizationController from "@/controllers/organization";
@@ -69,6 +72,7 @@ import ReportController from "@/controllers/report";
 import StatsController from "@/controllers/stats";
 import StatsMeanController from "@/controllers/stats-mean/controller";
 import UserController from "@/controllers/user";
+import UserScoringController from "@/controllers/user-scoring";
 import WarningController from "@/controllers/warning";
 import WarningBotController from "@/controllers/warning-bot";
 import WidgetController from "@/controllers/widget";
@@ -127,7 +131,11 @@ const main = async () => {
   app.use("/v2/activity", corsPublic, ActivityV2Controller);
   app.use("/v2/leboncoin", corsPublic, LeboncoinV2Controller);
   app.use("/v2/jobteaser", corsPublic, JobTeaserV2Controller);
+  app.use("/user-scoring", corsPublic, UserScoringController);
   app.use("/brevo-webhook", corsPublic, BrevoWebhookController);
+  app.use("/missions", corsPublic, MissionBrowseController);
+  app.use("/missions", corsPublic, MissionMatchController);
+  app.use("/email", corsPublic, EmailController);
 
   // Interal routes
   app.use("/admin-report", AdminReportController);

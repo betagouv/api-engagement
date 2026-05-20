@@ -1,0 +1,66 @@
+.matching-debug {
+  background-color: #ffffff;
+  color: #1e1e1e;
+}
+
+.matching-debug :where(p, span, strong, h2, h3, th, td) {
+  color: #1e1e1e;
+}
+
+.fr-modal:has(.matching-debug) .fr-modal__body,
+.fr-modal:has(.matching-debug) .fr-modal__content,
+.fr-modal:has(.matching-debug) .fr-modal__title,
+.fr-modal:has(.matching-debug) .fr-modal__title::before {
+  background-color: #ffffff;
+  color: #1e1e1e;
+}
+
+.fr-modal:has(.matching-debug) button {
+  --hover: #f5f5ff;
+  --active: #ececff;
+}
+
+.fr-modal:has(.matching-debug) button:hover:not(:disabled) {
+  background-color: var(--hover) !important;
+}
+
+.fr-modal:has(.matching-debug) button:active:not(:disabled) {
+  background-color: var(--active) !important;
+}
+
+.matching-debug__title {
+  color: #1e1e1e;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.matching-debug__table {
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  width: 100%;
+}
+
+.matching-debug__table th,
+.matching-debug__table td {
+  border: 1px solid #dddddd;
+  padding: 0.5rem 0.625rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.matching-debug__table th {
+  background-color: #f6f6f6;
+  color: #1e1e1e;
+  font-weight: 700;
+}
+
+.matching-debug__table td {
+  background-color: #ffffff;
+  color: #1e1e1e;
+}
+
+.matching-debug__table-wrapper {
+  max-height: 60vh;
+  overflow: auto;
+}

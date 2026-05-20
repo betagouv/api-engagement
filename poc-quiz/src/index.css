@@ -1,0 +1,5 @@
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: #f9fafb; }
+@keyframes spin { to { transform: rotate(360deg); } }
+details > summary { list-style: none; }
+details > summary::-webkit-details-marker { display: none; }

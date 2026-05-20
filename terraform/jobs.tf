@@ -12,9 +12,19 @@ locals {
     "PRISMA_CONNECT_TIMEOUT"     = "10"
   }
 
+  async_task_env_vars = {
+    "SCW_QUEUE_ENDPOINT"               = var.enable_async_tasks ? "https://sqs.mnq.fr-par.scaleway.com" : ""
+    "SCW_QUEUE_URL_MISSION_ENRICHMENT" = var.enable_async_tasks ? module.async_task_queues["mission_enrichment"].url : ""
+    "SCW_QUEUE_URL_MISSION_SCORING"    = var.enable_async_tasks ? module.async_task_queues["mission_scoring"].url : ""
+    "SCW_QUEUE_URL_MISSION_INDEX"      = var.enable_async_tasks ? module.async_task_queues["mission_index"].url : ""
+    "SCW_QUEUE_ACCESS_KEY"             = var.enable_async_tasks ? scaleway_mnq_sqs_credentials.async_task_publisher[0].access_key : ""
+    "SCW_QUEUE_SECRET_KEY"             = var.enable_async_tasks ? scaleway_mnq_sqs_credentials.async_task_publisher[0].secret_key : ""
+  }
+
   all_env_vars = merge(
     local.common_env_vars,
-    tomap(local.secrets)
+    tomap(local.secrets),
+    local.async_task_env_vars
   )
 
   image_uri = "ghcr.io/${var.github_repository}/api:${var.env}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
@@ -27,9 +37,11 @@ locals {
 #   project_id   = var.project_id
 #   cpu_limit    = 1000
 #   memory_limit = 2048
+#   local_storage_capacity = 1024
 #   image_uri    = local.image_uri
 #   # Max old space workaround: https://stackoverflow.com/questions/48387040/how-do-i-determine-the-correct-max-old-space-size-for-node-js
-#   command      = "node --max-old-space-size=1800 dist/jobs/run-job.js letudiant"
+#   startup_command = ["node"]
+#   args            = ["--max-old-space-size=1800", "dist/jobs/run-job.js", "letudiant"]
 #   timeout      = "45m"
 #
 #   cron {
@@ -42,15 +54,17 @@ locals {
 
 # Job Definition for the 'talent' task
 resource "scaleway_job_definition" "talent" {
-  count        = var.enable_intern_jobs ? 1 : 0
-  name         = "${terraform.workspace}-talent"
-  project_id   = var.project_id
-  cpu_limit    = 1000
-  memory_limit = 2048
-  image_uri    = local.image_uri
+  count                  = var.enable_intern_jobs ? 1 : 0
+  name                   = "${terraform.workspace}-talent"
+  project_id             = var.project_id
+  cpu_limit              = 1000
+  memory_limit           = 2048
+  local_storage_capacity = 1024
+  image_uri              = local.image_uri
   # Max old space workaround: https://stackoverflow.com/questions/48387040/how-do-i-determine-the-correct-max-old-space-size-for-node-js
-  command = "node --max-old-space-size=1800 dist/jobs/run-job.js talent"
-  timeout = "45m"
+  startup_command = ["node"]
+  args            = ["--max-old-space-size=1800", "dist/jobs/run-job.js", "talent"]
+  timeout         = "45m"
 
   cron {
     schedule = "0 */3 * * *" # Every 3 hours
@@ -62,15 +76,17 @@ resource "scaleway_job_definition" "talent" {
 
 # Job Definition for the 'grimpio' task
 resource "scaleway_job_definition" "grimpio" {
-  count        = var.enable_intern_jobs ? 1 : 0
-  name         = "${terraform.workspace}-grimpio"
-  project_id   = var.project_id
-  cpu_limit    = 1000
-  memory_limit = 2048
-  image_uri    = local.image_uri
+  count                  = var.enable_intern_jobs ? 1 : 0
+  name                   = "${terraform.workspace}-grimpio"
+  project_id             = var.project_id
+  cpu_limit              = 1000
+  memory_limit           = 2048
+  local_storage_capacity = 1024
+  image_uri              = local.image_uri
   # Max old space workaround: https://stackoverflow.com/questions/48387040/how-do-i-determine-the-correct-max-old-space-size-for-node-js
-  command = "node --max-old-space-size=1800 dist/jobs/run-job.js grimpio"
-  timeout = "45m"
+  startup_command = ["node"]
+  args            = ["--max-old-space-size=1800", "dist/jobs/run-job.js", "grimpio"]
+  timeout         = "45m"
 
   cron {
     schedule = "0 1 * * *" # Every day at 1:00 AM
@@ -82,14 +98,16 @@ resource "scaleway_job_definition" "grimpio" {
 
 # Job Definition for the 'linkedin' task
 resource "scaleway_job_definition" "linkedin" {
-  count        = var.enable_intern_jobs ? 1 : 0
-  name         = "${terraform.workspace}-linkedin"
-  project_id   = var.project_id
-  cpu_limit    = 1500
-  memory_limit = 2048
-  image_uri    = local.image_uri
-  command      = "node --max-old-space-size=1800 dist/jobs/run-job.js linkedin"
-  timeout      = "30m"
+  count                  = var.enable_intern_jobs ? 1 : 0
+  name                   = "${terraform.workspace}-linkedin"
+  project_id             = var.project_id
+  cpu_limit              = 1500
+  memory_limit           = 2048
+  local_storage_capacity = 1024
+  image_uri              = local.image_uri
+  startup_command        = ["node"]
+  args                   = ["--max-old-space-size=1800", "dist/jobs/run-job.js", "linkedin"]
+  timeout                = "30m"
 
   cron {
     schedule = "0 */6 * * *" # Every 6 hours
@@ -101,14 +119,16 @@ resource "scaleway_job_definition" "linkedin" {
 
 # Job Definition for the 'import-organizations' task
 resource "scaleway_job_definition" "import-organizations" {
-  count        = var.enable_intern_jobs ? 1 : 0
-  name         = "${terraform.workspace}-import-organizations"
-  project_id   = var.project_id
-  cpu_limit    = 2000
-  memory_limit = 4096
-  image_uri    = local.image_uri
-  command      = "node --max-old-space-size=1800 dist/jobs/run-job.js import-organizations"
-  timeout      = "45m"
+  count                  = var.enable_intern_jobs ? 1 : 0
+  name                   = "${terraform.workspace}-import-organizations"
+  project_id             = var.project_id
+  cpu_limit              = 2000
+  memory_limit           = 4096
+  local_storage_capacity = 1024
+  image_uri              = local.image_uri
+  startup_command        = ["node"]
+  args                   = ["--max-old-space-size=1800", "dist/jobs/run-job.js", "import-organizations"]
+  timeout                = "45m"
 
   cron {
     schedule = "0 0 2 * *" # At 00:00 on day-of-month 2
@@ -120,14 +140,16 @@ resource "scaleway_job_definition" "import-organizations" {
 
 # Job Definition for the 'warnings' task
 resource "scaleway_job_definition" "warnings" {
-  count        = var.enable_intern_jobs ? 1 : 0
-  name         = "${terraform.workspace}-warnings"
-  project_id   = var.project_id
-  cpu_limit    = 1000
-  memory_limit = 2048
-  image_uri    = local.image_uri
-  command      = "node dist/jobs/run-job.js warnings"
-  timeout      = "15m"
+  count                  = var.enable_intern_jobs ? 1 : 0
+  name                   = "${terraform.workspace}-warnings"
+  project_id             = var.project_id
+  cpu_limit              = 1000
+  memory_limit           = 2048
+  local_storage_capacity = 1024
+  image_uri              = local.image_uri
+  startup_command        = ["node"]
+  args                   = ["dist/jobs/run-job.js", "warnings"]
+  timeout                = "15m"
 
   cron {
     schedule = "30 */3 * * *" # Every 3 hours at 30 minutes
@@ -139,14 +161,16 @@ resource "scaleway_job_definition" "warnings" {
 
 # Job Definition for the 'linkedin-stats' task
 resource "scaleway_job_definition" "linkedin-stats" {
-  count        = var.enable_intern_jobs ? 1 : 0
-  name         = "${terraform.workspace}-linkedin-stats"
-  project_id   = var.project_id
-  cpu_limit    = 1000
-  memory_limit = 2048
-  image_uri    = local.image_uri
-  command      = "node dist/jobs/run-job.js linkedin-stats"
-  timeout      = "15m"
+  count                  = var.enable_intern_jobs ? 1 : 0
+  name                   = "${terraform.workspace}-linkedin-stats"
+  project_id             = var.project_id
+  cpu_limit              = 1000
+  memory_limit           = 2048
+  local_storage_capacity = 1024
+  image_uri              = local.image_uri
+  startup_command        = ["node"]
+  args                   = ["dist/jobs/run-job.js", "linkedin-stats"]
+  timeout                = "15m"
 
   cron {
     schedule = "0 9 * * 5" # Every friday at 09:00 AM
@@ -158,14 +182,16 @@ resource "scaleway_job_definition" "linkedin-stats" {
 
 # Job Definition for the 'leboncoin' task
 resource "scaleway_job_definition" "leboncoin" {
-  count        = var.enable_intern_jobs ? 1 : 0
-  name         = "${terraform.workspace}-leboncoin"
-  project_id   = var.project_id
-  cpu_limit    = 1000
-  memory_limit = 2048
-  image_uri    = local.image_uri
-  command      = "node dist/jobs/run-job.js leboncoin"
-  timeout      = "15m"
+  count                  = var.enable_intern_jobs ? 1 : 0
+  name                   = "${terraform.workspace}-leboncoin"
+  project_id             = var.project_id
+  cpu_limit              = 1000
+  memory_limit           = 2048
+  local_storage_capacity = 1024
+  image_uri              = local.image_uri
+  startup_command        = ["node"]
+  args                   = ["dist/jobs/run-job.js", "leboncoin"]
+  timeout                = "15m"
 
   cron {
     schedule = "0 10 * * *" # Every day at 10:00 AM
@@ -177,14 +203,16 @@ resource "scaleway_job_definition" "leboncoin" {
 
 # Job Definition for the 'brevo' task
 resource "scaleway_job_definition" "brevo" {
-  count        = var.enable_intern_jobs ? 1 : 0
-  name         = "${terraform.workspace}-brevo"
-  project_id   = var.project_id
-  cpu_limit    = 1000
-  memory_limit = 2048
-  image_uri    = local.image_uri
-  command      = "node dist/jobs/run-job.js brevo"
-  timeout      = "15m"
+  count                  = var.enable_intern_jobs ? 1 : 0
+  name                   = "${terraform.workspace}-brevo"
+  project_id             = var.project_id
+  cpu_limit              = 1000
+  memory_limit           = 2048
+  local_storage_capacity = 1024
+  image_uri              = local.image_uri
+  startup_command        = ["node"]
+  args                   = ["dist/jobs/run-job.js", "brevo"]
+  timeout                = "15m"
 
   cron {
     schedule = "0 1 * * *" # Every day at 1 AM
@@ -196,14 +224,16 @@ resource "scaleway_job_definition" "brevo" {
 
 # Job Definition for the 'moderation' task
 resource "scaleway_job_definition" "moderation" {
-  count        = var.enable_intern_jobs ? 1 : 0
-  name         = "${terraform.workspace}-moderation"
-  project_id   = var.project_id
-  cpu_limit    = 1000
-  memory_limit = 2048
-  image_uri    = local.image_uri
-  command      = "node dist/jobs/run-job.js moderation"
-  timeout      = "15m"
+  count                  = var.enable_intern_jobs ? 1 : 0
+  name                   = "${terraform.workspace}-moderation"
+  project_id             = var.project_id
+  cpu_limit              = 1000
+  memory_limit           = 2048
+  local_storage_capacity = 1024
+  image_uri              = local.image_uri
+  startup_command        = ["node"]
+  args                   = ["dist/jobs/run-job.js", "moderation"]
+  timeout                = "15m"
 
   cron {
     schedule = "55 */3 * * *" # Every 3 hours at 55 minutes (after import-missions)
@@ -215,13 +245,16 @@ resource "scaleway_job_definition" "moderation" {
 
 # Job Definition for the 'enrich-missions-geoloc' task
 resource "scaleway_job_definition" "enrich-missions-geoloc" {
-  name         = "${terraform.workspace}-enrich-missions-geoloc"
-  project_id   = var.project_id
-  cpu_limit    = 1000
-  memory_limit = 2048
-  image_uri    = local.image_uri
-  command      = "node dist/jobs/run-job.js enrich-missions-geoloc"
-  timeout      = "30m"
+  count                  = var.enable_mission_jobs ? 1 : 0
+  name                   = "${terraform.workspace}-enrich-missions-geoloc"
+  project_id             = var.project_id
+  cpu_limit              = 1000
+  memory_limit           = 2048
+  local_storage_capacity = 1024
+  image_uri              = local.image_uri
+  startup_command        = ["node"]
+  args                   = ["dist/jobs/run-job.js", "enrich-missions-geoloc"]
+  timeout                = "30m"
 
   cron {
     schedule = "30 */2 * * *" # Every 2 hours at 30 minutes (after import-missions)
@@ -233,13 +266,16 @@ resource "scaleway_job_definition" "enrich-missions-geoloc" {
 
 # Job Definition for the 'import-missions' task (all environments)
 resource "scaleway_job_definition" "import-missions" {
-  name         = "${terraform.workspace}-import-missions"
-  project_id   = var.project_id
-  cpu_limit    = 1000
-  memory_limit = 2048
-  image_uri    = local.image_uri
-  command      = "node dist/jobs/run-job.js import-missions"
-  timeout      = "60m"
+  count                  = var.enable_mission_jobs ? 1 : 0
+  name                   = "${terraform.workspace}-import-missions"
+  project_id             = var.project_id
+  cpu_limit              = 1000
+  memory_limit           = 2048
+  local_storage_capacity = 1024
+  image_uri              = local.image_uri
+  startup_command        = ["node"]
+  args                   = ["dist/jobs/run-job.js", "import-missions"]
+  timeout                = "60m"
 
   cron {
     schedule = "15 */6 * * *" # Every 6 hours at 15 minutes
@@ -249,15 +285,63 @@ resource "scaleway_job_definition" "import-missions" {
   env = local.all_env_vars
 }
 
+# Job Definition for the 'update-mission-enrichment' task (on-demand only, no cron)
+resource "scaleway_job_definition" "update-mission-enrichment" {
+  name                   = "${terraform.workspace}-update-mission-enrichment"
+  project_id             = var.project_id
+  cpu_limit              = 1000
+  memory_limit           = 2048
+  local_storage_capacity = 1024
+  image_uri              = local.image_uri
+  startup_command        = ["node"]
+  args                   = ["dist/jobs/run-job.js", "update-mission-enrichment"]
+  timeout                = "24h"
+
+  env = local.all_env_vars
+}
+
+# Job Definition for the 'update-mission-scoring' task (on-demand only, no cron)
+resource "scaleway_job_definition" "update-mission-scoring" {
+  name                   = "${terraform.workspace}-update-mission-scoring"
+  project_id             = var.project_id
+  cpu_limit              = 1000
+  memory_limit           = 2048
+  local_storage_capacity = 1024
+  image_uri              = local.image_uri
+  startup_command        = ["node"]
+  args                   = ["dist/jobs/run-job.js", "update-mission-scoring"]
+  timeout                = "24h"
+
+  env = local.all_env_vars
+}
+
+# Job Definition for the 'update-mission-index' task (on-demand only, no cron)
+resource "scaleway_job_definition" "update-mission-index" {
+  name                   = "${terraform.workspace}-update-mission-index"
+  project_id             = var.project_id
+  cpu_limit              = 1000
+  memory_limit           = 2048
+  local_storage_capacity = 1024
+  image_uri              = local.image_uri
+  startup_command        = ["node"]
+  args                   = ["dist/jobs/run-job.js", "update-mission-index"]
+  timeout                = "24h"
+
+  env = local.all_env_vars
+}
+
 # Job Definition for the 'verify-publisher-organization' task
 resource "scaleway_job_definition" "verify-publisher-organization" {
-  name         = "${terraform.workspace}-verify-publisher-organization"
-  project_id   = var.project_id
-  cpu_limit    = 1000
-  memory_limit = 2048
-  image_uri    = local.image_uri
-  command      = "node dist/jobs/run-job.js verify-publisher-organization"
-  timeout      = "60m"
+  count                  = var.enable_mission_jobs ? 1 : 0
+  name                   = "${terraform.workspace}-verify-publisher-organization"
+  project_id             = var.project_id
+  cpu_limit              = 1000
+  memory_limit           = 2048
+  local_storage_capacity = 1024
+  image_uri              = local.image_uri
+  startup_command        = ["node"]
+  args                   = ["dist/jobs/run-job.js", "verify-publisher-organization"]
+  timeout                = "60m"
 
   cron {
     schedule = "45 */6 * * *" # Every 6 hours at 45 minutes
@@ -268,14 +352,16 @@ resource "scaleway_job_definition" "verify-publisher-organization" {
 }
 
 resource "scaleway_job_definition" "rdb-backup" {
-  count        = var.enable_rdb_backup_job ? 1 : 0
-  name         = "${terraform.workspace}-rdb-backup"
-  project_id   = var.project_id
-  cpu_limit    = 250
-  memory_limit = 512
-  image_uri    = local.image_uri
-  command      = "node dist/jobs/run-job.js rdb-backup"
-  timeout      = "10m"
+  count                  = var.enable_rdb_backup_job ? 1 : 0
+  name                   = "${terraform.workspace}-rdb-backup"
+  project_id             = var.project_id
+  cpu_limit              = 250
+  memory_limit           = 512
+  local_storage_capacity = 1024
+  image_uri              = local.image_uri
+  startup_command        = ["node"]
+  args                   = ["dist/jobs/run-job.js", "rdb-backup"]
+  timeout                = "10m"
 
   cron {
     schedule = "0 3 * * *"

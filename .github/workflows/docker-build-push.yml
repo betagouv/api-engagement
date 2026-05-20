@@ -58,12 +58,27 @@ jobs:
       matrix:
         include:
           - service: app
+            image_name: app
+            context: .
           - service: app
+            image_name: app
+            context: .
             variant: sandbox
             github_env: sandbox
           - service: widget
+            image_name: widget
           - service: api
+            image_name: api
+            context: .
+          - service: api
+            image_name: api-worker
+            dockerfile: ./api/Dockerfile.worker.production
+            context: .
           - service: analytics
+            image_name: analytics
+          - service: plateform
+            image_name: plateform
+            context: .
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -109,18 +124,19 @@ jobs:
           echo "API_URL=${{ vars.API_URL }}" >> $GITHUB_OUTPUT
           echo "BENEVOLAT_URL=${{ vars.BENEVOLAT_URL }}" >> $GITHUB_OUTPUT
           echo "VOLONTARIAT_URL=${{ vars.VOLONTARIAT_URL }}" >> $GITHUB_OUTPUT
+          echo "VITE_MAPTILER_API_KEY=${{ vars.VITE_MAPTILER_API_KEY }}" >> $GITHUB_OUTPUT
 
-      - name: Build and push ${{ matrix.service }} image
+      - name: Build and push ${{ matrix.image_name }} image
         if: ${{ matrix.variant != 'sandbox' || needs.set-env.outputs.environment_name == 'production' }}
         uses: docker/build-push-action@v7
         with:
-          context: ./${{ matrix.service }}
-          file: ./${{ matrix.service }}/Dockerfile.production
+          context: ${{ matrix.context || format('./{0}', matrix.service) }}
+          file: ${{ matrix.dockerfile || format('./{0}/Dockerfile.production', matrix.service) }}
           push: true
           tags: |
-            ${{ format('ghcr.io/{0}/{1}:{2}', github.repository, matrix.service, steps.vars.outputs.tag) }}
-            ${{ format('ghcr.io/{0}/{1}:{2}-latest', github.repository, matrix.service, steps.vars.outputs.tag) }}
-            ${{ format('ghcr.io/{0}/{1}:{2}-{3}', github.repository, matrix.service, steps.vars.outputs.tag, steps.image_tag.outputs.image_tag) }}
+            ${{ format('ghcr.io/{0}/{1}:{2}', github.repository, matrix.image_name, steps.vars.outputs.tag) }}
+            ${{ format('ghcr.io/{0}/{1}:{2}-latest', github.repository, matrix.image_name, steps.vars.outputs.tag) }}
+            ${{ format('ghcr.io/{0}/{1}:{2}-{3}', github.repository, matrix.image_name, steps.vars.outputs.tag, steps.image_tag.outputs.image_tag) }}
           secrets: |
             "sentry_auth_token=${{ secrets.SENTRY_AUTH_TOKEN }}"
             "test_secret=${{ secrets.TEST_SECRET }}"
@@ -131,3 +147,4 @@ jobs:
             VOLONTARIAT_URL=${{ steps.app_args.outputs.VOLONTARIAT_URL }}
             SENTRY_DNS_APP=${{ steps.app_args.outputs.SENTRY_DNS_APP }}
             SENTRY_HOST=${{ steps.app_args.outputs.SENTRY_HOST }}
+            VITE_MAPTILER_API_KEY=${{ steps.app_args.outputs.VITE_MAPTILER_API_KEY }}

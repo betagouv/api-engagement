@@ -1,4 +1,11 @@
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
+#!/usr/bin/env sh
 
-npx --no-install commitlint --edit "$1"
+ROOT_DIR="$(git rev-parse --show-toplevel)"
+cd "$ROOT_DIR" || exit 1
+
+if [ ! -x "node_modules/.bin/commitlint" ]; then
+  echo "commitlint introuvable. Lance 'npm install' depuis la racine du dépôt."
+  exit 1
+fi
+
+node_modules/.bin/commitlint --edit "$1"

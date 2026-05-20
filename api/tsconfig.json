@@ -16,10 +16,13 @@
     "target": "es2021",
     "module": "commonjs",
     "sourceMap": true,
-    "rootDir": ".",
+    "rootDir": "..",
+    "baseUrl": ".",
     "ignoreDeprecations": "6.0",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["src/*"],
+      "@engagement/taxonomy": ["../packages/taxonomy/src/index"],
+      "@engagement/dto": ["../packages/dto/src/index"]
     },
     "outDir": "./dist" /* Specify an output folder for all emitted files. */,
     "esModuleInterop": true /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */,

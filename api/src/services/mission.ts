@@ -4,6 +4,7 @@ import { Mission, Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
 import { missionRepository } from "@/repositories/mission";
 import { activityService } from "@/services/activity";
+import { buildMissionEnrichmentScoringWhere, missionEnrichmentService } from "@/services/mission-enrichment";
 import type {
   MissionCreateInput,
   MissionFacets,
@@ -355,6 +356,10 @@ export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereIn
     where.moderationStatuses = { some: moderationWhere };
   }
 
+  if (filters.enrichmentScoringStatus) {
+    Object.assign(where, buildMissionEnrichmentScoringWhere(filters.enrichmentScoringStatus));
+  }
+
   if (filters.keywords) {
     const keywords = filters.keywords;
     const existingAnd = Array.isArray(where.AND) ? where.AND : where.AND ? [where.AND] : [];
@@ -563,6 +568,25 @@ const baseInclude: MissionInclude = {
 };
 
 export const missionService = {
+  async enqueueMissionProcessing(missionId: string): Promise<void> {
+    await missionEnrichmentService.enqueue(missionId);
+  },
+
+  async findMissionsByIds(ids: string[]): Promise<MissionRecord[]> {
+    if (!ids.length) {
+      return [];
+    }
+    const missions = await missionRepository.findMany({
+      where: { id: { in: ids }, deletedAt: null, statusCode: "ACCEPTED" },
+      include: baseInclude,
+    });
+    const missionMap = new Map(missions.map((m) => [m.id, m]));
+    return ids
+      .map((id) => missionMap.get(id))
+      .filter(Boolean)
+      .map((m) => toMissionRecord(m as MissionWithRelations));
+  },
+
   async findOneMission(id: string, moderatedBy: string | null = null): Promise<MissionRecord | null> {
     const mission = await missionRepository.findFirst({
       where: { id },
@@ -757,6 +781,7 @@ export const missionService = {
     await missionRepository.createUnchecked(data);
 
     await activityService.addMissionActivities(id, activityIds);
+    await this.enqueueMissionProcessing(id);
 
     const mission = await missionRepository.findFirst({ where: { id }, include: baseInclude });
     if (!mission) {
@@ -921,6 +946,9 @@ export const missionService = {
     if (!mission) {
       throw new Error(`[missionService] Mission ${id} not found after update`);
     }
+
+    await this.enqueueMissionProcessing(id);
+
     return toMissionRecord(mission as MissionWithRelations);
   },
 };

@@ -1,0 +1,7 @@
+node_modules
+build
+.env
+.env.sentry-build-plugin
+!.env.example
+
+.react-router/

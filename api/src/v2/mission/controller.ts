@@ -278,31 +278,37 @@ router.put("/:clientId", passport.authenticate(["apikey", "api"], { session: fal
 // DELETE /v2/mission/:clientId — Soft delete
 // ──────────────────────────────────────────────────────────────────────────────
 
-router.delete("/:clientId", passport.authenticate(["apikey", "api"], { session: false }), publisherRateLimiter, async (req: PublisherRequest, res: Response, next: NextFunction) => {
-  try {
-    const publisher = req.user as PublisherRecord;
+router.delete(
+  "/:clientId",
+  passport.authenticate(["apikey", "api"], { session: false }),
+  publisherRateLimiter,
+  async (req: PublisherRequest, res: Response, next: NextFunction) => {
+    try {
+      const publisher = req.user as PublisherRecord;
 
-    const params = missionClientIdParamSchema.safeParse(req.params);
-    if (!params.success) {
-      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
+      const params = missionClientIdParamSchema.safeParse(req.params);
+      if (!params.success) {
+        return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
+      }
+
+      const existing = await missionService.findMissionByClientAndPublisher(params.data.clientId, publisher.id);
+      if (!existing) {
+        return res.status(404).send({ ok: false, code: NOT_FOUND });
+      }
+
+      // Idempotent: already deleted
+      if (existing.deletedAt) {
+        await missionService.enqueueMissionProcessing(existing.id);
+        return res.status(200).send({ ok: true, data: { clientId: existing.clientId, deletedAt: existing.deletedAt } });
+      }
+
+      const deletedAt = new Date();
+      await missionService.update(existing.id, { deletedAt });
+      return res.status(200).send({ ok: true, data: { clientId: existing.clientId, deletedAt } });
+    } catch (error) {
+      next(error);
     }
-
-    const existing = await missionService.findMissionByClientAndPublisher(params.data.clientId, publisher.id);
-    if (!existing) {
-      return res.status(404).send({ ok: false, code: NOT_FOUND });
-    }
-
-    // Idempotent: already deleted
-    if (existing.deletedAt) {
-      return res.status(200).send({ ok: true, data: { clientId: existing.clientId, deletedAt: existing.deletedAt } });
-    }
-
-    const deletedAt = new Date();
-    await missionService.update(existing.id, { deletedAt });
-    return res.status(200).send({ ok: true, data: { clientId: existing.clientId, deletedAt } });
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 export default router;
