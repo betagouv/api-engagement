@@ -4,6 +4,7 @@ import zod from "zod";
 
 import { PUBLISHER_IDS } from "@/config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
+import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { missionModerationStatusService } from "@/services/mission-moderation-status";
 import { moderationEventService } from "@/services/moderation-event";
 import { publisherService } from "@/services/publisher";
@@ -11,7 +12,6 @@ import publisherOrganizationService from "@/services/publisher-organization";
 import { UserRecord } from "@/types";
 import { MissionModerationRecord, ModerationFilters } from "@/types/mission-moderation-status";
 import type { UserRequest } from "@/types/passport";
-import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { getModerationEvents, getModerationUpdates, getOrganizationUpdates } from "@/utils/mission-moderation-status";
 
 const router = Router();
@@ -204,12 +204,17 @@ router.put("/many", passport.authenticate("user", { session: false }), async (re
           organizationId: zod.string().optional(),
           status: zod.enum(["PENDING"]).optional(),
         }),
-        update: zod.object({
-          status: zod.enum(["ACCEPTED", "REFUSED", "PENDING", "ONGOING"]).optional(),
-          comment: zod.string().nullable().optional(),
-          note: zod.string().nullable().optional(),
-          title: zod.string().nullable().optional(),
-        }),
+        update: zod
+          .object({
+            status: zod.enum(["ACCEPTED", "REFUSED", "PENDING", "ONGOING"]).optional(),
+            comment: zod.string().nullable().optional(),
+            note: zod.string().nullable().optional(),
+            title: zod.string().nullable().optional(),
+          })
+          .refine((data) => data.status !== "REFUSED" || !!data.comment, {
+            message: "comment is required when status is REFUSED",
+            path: ["comment"],
+          }),
       })
       .safeParse(req.body);
 
