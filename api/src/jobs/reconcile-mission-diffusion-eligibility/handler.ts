@@ -1,16 +1,17 @@
+import { PUBLISHER_IDS } from "@/config";
 import { prisma } from "@/db/postgres";
 import { captureException } from "@/error";
 import { BaseHandler } from "@/jobs/base/handler";
 import { JobResult } from "@/jobs/types";
 import { missionScoringRepository } from "@/repositories/mission-scoring";
 import { asyncTaskBus } from "@/services/async-task";
+import { missionDiffusionEligibilityService } from "@/services/mission-diffusion-eligibility";
 import { CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/config";
-import { buildMissionPlatformEligibilityWhere } from "@/services/mission-platform-eligibility";
 
-const LOG_PREFIX = "[reconcile-mission-platform-eligibility-job]";
+const LOG_PREFIX = "[reconcile-mission-diffusion-eligibility-job]";
 const DEFAULT_BATCH_SIZE = 50;
 
-export interface ReconcileMissionPlatformEligibilityJobPayload {
+export interface ReconcileMissionDiffusionEligibilityJobPayload {
   publisherId?: string;
   limit?: number;
   batchSize?: number;
@@ -18,8 +19,9 @@ export interface ReconcileMissionPlatformEligibilityJobPayload {
   force?: boolean;
 }
 
-export interface ReconcileMissionPlatformEligibilityJobResult extends JobResult {
+export interface ReconcileMissionDiffusionEligibilityJobResult extends JobResult {
   eligibleEnrichmentQueued: number;
+  eligibleScoringQueued: number;
   ineligibleScoringsDeleted: number;
   ineligibleIndexDeletesQueued: number;
   failed: number;
@@ -32,9 +34,7 @@ const getNextTake = (params: { limit?: number; processed: number; batchSize: num
   return Math.max(0, Math.min(params.batchSize, params.limit - params.processed));
 };
 
-export class ReconcileMissionPlatformEligibilityHandler
-  implements BaseHandler<ReconcileMissionPlatformEligibilityJobPayload, ReconcileMissionPlatformEligibilityJobResult>
-{
+export class ReconcileMissionDiffusionEligibilityHandler implements BaseHandler<ReconcileMissionDiffusionEligibilityJobPayload, ReconcileMissionDiffusionEligibilityJobResult> {
   name = "Réconciliation de l'éligibilité Plateforme des missions";
 
   async handle({
@@ -43,20 +43,22 @@ export class ReconcileMissionPlatformEligibilityHandler
     batchSize = DEFAULT_BATCH_SIZE,
     dryRun = false,
     force = false,
-  }: ReconcileMissionPlatformEligibilityJobPayload = {}): Promise<ReconcileMissionPlatformEligibilityJobResult> {
+  }: ReconcileMissionDiffusionEligibilityJobPayload = {}): Promise<ReconcileMissionDiffusionEligibilityJobResult> {
     if (batchSize <= 0) {
       batchSize = DEFAULT_BATCH_SIZE;
     }
 
     let eligibleEnrichmentQueued = 0;
+    let eligibleScoringQueued = 0;
     let ineligibleScoringsDeleted = 0;
     let ineligibleIndexDeletesQueued = 0;
     let failed = 0;
     let eligibleProcessed = 0;
+    let eligibleScoringProcessed = 0;
     let ineligibleProcessed = 0;
 
     try {
-      const eligibilityWhere = buildMissionPlatformEligibilityWhere();
+      const eligibilityWhere = missionDiffusionEligibilityService.buildMissionDiffusionEligibilityWhere(PUBLISHER_IDS.PLATEFORM);
 
       console.log(`${LOG_PREFIX} starting (publisher: ${publisherId ?? "all"}, dryRun: ${dryRun}, force: ${force}, limit: ${limit ?? "none"}, batchSize: ${batchSize})`);
 
@@ -112,6 +114,59 @@ export class ReconcileMissionPlatformEligibilityHandler
         );
 
         console.log(`${LOG_PREFIX} eligible enrichment batch done — ${eligibleEnrichmentQueued} queued${dryRun ? " (dry-run)" : ""}`);
+      }
+
+      let eligibleScoringCursor: string | undefined;
+      while (true) {
+        const take = getNextTake({ limit, processed: eligibleScoringProcessed, batchSize });
+        if (take <= 0) {
+          break;
+        }
+
+        const enrichments = await prisma.missionEnrichment.findMany({
+          where: {
+            promptVersion: CURRENT_PROMPT_VERSION,
+            status: "completed",
+            missionScorings: { none: {} },
+            mission: {
+              ...(publisherId ? { publisherId } : {}),
+              ...eligibilityWhere,
+              deletedAt: null,
+              statusCode: "ACCEPTED",
+            },
+          },
+          select: { id: true, missionId: true },
+          take,
+          ...(eligibleScoringCursor ? { cursor: { id: eligibleScoringCursor }, skip: 1 } : {}),
+          orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        });
+
+        if (!enrichments.length) {
+          break;
+        }
+
+        eligibleScoringCursor = enrichments[enrichments.length - 1].id;
+        eligibleScoringProcessed += enrichments.length;
+
+        await Promise.all(
+          enrichments.map(async ({ id, missionId }) => {
+            try {
+              if (!dryRun) {
+                await asyncTaskBus.publish({
+                  type: "mission.scoring",
+                  payload: { missionId, missionEnrichmentId: id, ...(force ? { force: true } : {}) },
+                });
+              }
+              eligibleScoringQueued++;
+            } catch (error) {
+              failed++;
+              console.error(`${LOG_PREFIX} failed to enqueue scoring mission=${missionId} enrichment=${id}`, error);
+              captureException(error, { extra: { missionId, missionEnrichmentId: id } });
+            }
+          })
+        );
+
+        console.log(`${LOG_PREFIX} eligible scoring batch done — ${eligibleScoringQueued} queued${dryRun ? " (dry-run)" : ""}`);
       }
 
       let ineligibleSkip = 0;
@@ -171,11 +226,14 @@ export class ReconcileMissionPlatformEligibilityHandler
           })
         );
 
-        console.log(`${LOG_PREFIX} ineligible purge batch done — ${ineligibleScoringsDeleted} scorings deleted, ${ineligibleIndexDeletesQueued} index deletes queued${dryRun ? " (dry-run)" : ""}`);
+        console.log(
+          `${LOG_PREFIX} ineligible purge batch done — ${ineligibleScoringsDeleted} scorings deleted, ${ineligibleIndexDeletesQueued} index deletes queued${dryRun ? " (dry-run)" : ""}`
+        );
       }
 
       const message =
         `${eligibleEnrichmentQueued} enrichissements enqueued, ` +
+        `${eligibleScoringQueued} scorings enqueued, ` +
         `${ineligibleScoringsDeleted} scorings supprimés, ` +
         `${ineligibleIndexDeletesQueued} suppressions d'index enqueued, ${failed} échecs${dryRun ? " (dry-run)" : ""}`;
 
@@ -185,6 +243,7 @@ export class ReconcileMissionPlatformEligibilityHandler
         success: failed === 0,
         timestamp: new Date(),
         eligibleEnrichmentQueued,
+        eligibleScoringQueued,
         ineligibleScoringsDeleted,
         ineligibleIndexDeletesQueued,
         failed,
@@ -196,6 +255,7 @@ export class ReconcileMissionPlatformEligibilityHandler
         success: false,
         timestamp: new Date(),
         eligibleEnrichmentQueued,
+        eligibleScoringQueued,
         ineligibleScoringsDeleted,
         ineligibleIndexDeletesQueued,
         failed,

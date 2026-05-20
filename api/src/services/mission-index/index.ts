@@ -1,7 +1,8 @@
 import { isValidTaxonomyValueKey } from "@engagement/taxonomy";
 
+import { PUBLISHER_IDS } from "@/config";
 import { prisma } from "@/db/postgres";
-import { isMissionEligibleForPlatform } from "@/services/mission-platform-eligibility";
+import { missionDiffusionEligibilityService } from "@/services/mission-diffusion-eligibility";
 import { missionSearchClient } from "@/services/search/collections/missions/client";
 import { INDEXED_TAXONOMY_KEYS, IndexedTaxonomyKey } from "@/services/search/collections/missions/fields";
 import { MissionIndexDocument } from "@/services/search/collections/missions/types";
@@ -46,6 +47,7 @@ export const missionIndexService = {
       select: {
         id: true,
         publisherId: true,
+        publisherOrganizationId: true,
         type: true,
         deletedAt: true,
         statusCode: true,
@@ -65,7 +67,12 @@ export const missionIndexService = {
       },
     });
 
-    if (!mission || mission.deletedAt !== null || mission.statusCode !== "ACCEPTED" || !isMissionEligibleForPlatform(mission)) {
+    if (
+      !mission ||
+      mission.deletedAt !== null ||
+      mission.statusCode !== "ACCEPTED" ||
+      !(await missionDiffusionEligibilityService.isEligible({ mission, diffuseurPublisherId: PUBLISHER_IDS.PLATEFORM }))
+    ) {
       await this.delete(missionId);
       return;
     }

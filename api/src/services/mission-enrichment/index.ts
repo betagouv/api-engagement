@@ -2,10 +2,11 @@ import { Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
 import { ENRICHABLE_TAXONOMIES, TAXONOMY } from "@engagement/taxonomy";
 
+import { PUBLISHER_IDS } from "@/config";
 import { missionRepository } from "@/repositories/mission";
 import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
 import { asyncTaskBus } from "@/services/async-task";
-import { isMissionEligibleForPlatform } from "@/services/mission-platform-eligibility";
+import { missionDiffusionEligibilityService } from "@/services/mission-diffusion-eligibility";
 import type { MissionRecord, MissionSearchFilters } from "@/types/mission";
 import { CONFIDENCE_THRESHOLD, CURRENT_PROMPT_VERSION } from "./config";
 import { validateEnrichmentClassifications, type ClassificationInput, type TaxonomyLookup } from "./parser";
@@ -279,7 +280,7 @@ export const missionEnrichmentService = {
       return;
     }
 
-    if (!isMissionEligibleForPlatform(mission)) {
+    if (!(await missionDiffusionEligibilityService.isEligible({ mission, diffuseurPublisherId: PUBLISHER_IDS.PLATEFORM }))) {
       console.log(`${LOG_PREFIX} skipping ${missionId} — mission is not eligible for platform enrichment`);
       return;
     }
