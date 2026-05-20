@@ -6,7 +6,7 @@ resource "scaleway_container_trigger" "api_worker_async_tasks" {
   description  = "Trigger ${each.value.task_type} for API worker"
 
   sqs {
-    project_id = scaleway_mnq_sqs.main[0].project_id
+    project_id = data.scaleway_mnq_sqs.main.project_id
     queue      = module.async_task_queues[each.key].name
     region     = "fr-par"
   }
