@@ -67,6 +67,15 @@ resource "scaleway_instance_server" "node" {
       typesense_version      = each.value.typesense_version
       typesense_docker_image = "typesense/typesense"
       typesense_container    = "typesense"
+      monitoring_enabled     = var.monitoring_enabled
+      alloy_config_b64 = base64encode(templatefile("${path.module}/templates/alloy-config.alloy.tftpl", {
+        api_port  = local.api_port
+        node      = each.key
+        cluster   = var.name_prefix
+        workspace = var.workspace
+      }))
+      monitoring_metrics_remote_write_url = var.monitoring_metrics_remote_write_url
+      monitoring_cockpit_token_b64        = base64encode(var.monitoring_cockpit_token)
     })
   }
 }

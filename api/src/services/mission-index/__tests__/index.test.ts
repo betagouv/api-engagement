@@ -1,4 +1,3 @@
-import { PUBLISHER_IDS } from "@/config";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const upsertDocumentMock = vi.hoisted(() => vi.fn());
@@ -29,8 +28,7 @@ const prismaMock = prisma as unknown as {
 
 const buildMission = (overrides: Record<string, unknown> = {}) => ({
   id: "mission-1",
-  publisherId: PUBLISHER_IDS.JEVEUXAIDER,
-  type: null,
+  publisherId: "publisher-1",
   deletedAt: null,
   statusCode: "ACCEPTED",
   addresses: [{ departmentCode: "75" }],
@@ -62,7 +60,7 @@ describe("missionIndexService.upsert", () => {
 
   it("supprime les missions non éligibles de l'index", async () => {
     (missionDiffusionEligibilityService.isEligible as ReturnType<typeof vi.fn>).mockResolvedValue(false);
-    prismaMock.mission.findUnique.mockResolvedValue(buildMission({ publisherId: "publisher-1", type: "benevolat" }));
+    prismaMock.mission.findUnique.mockResolvedValue(buildMission());
     deleteDocumentMock.mockResolvedValue(undefined);
 
     await missionIndexService.upsert("mission-1");
@@ -80,7 +78,7 @@ describe("missionIndexService.upsert", () => {
     expect(upsertDocumentMock).toHaveBeenCalledWith(
       expect.objectContaining({
         id: "mission-1",
-        publisherId: PUBLISHER_IDS.JEVEUXAIDER,
+        publisherId: "publisher-1",
         departmentCodes: ["75"],
         domaine: ["social_solidarite"],
       })

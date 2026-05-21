@@ -6,9 +6,7 @@ export const missionScoringRepository = {
     return prisma.missionScoring.findUnique(params);
   },
 
-  async findMany<T extends Prisma.MissionScoringFindManyArgs>(
-    params: Prisma.SelectSubset<T, Prisma.MissionScoringFindManyArgs>
-  ): Promise<Prisma.MissionScoringGetPayload<T>[]> {
+  async findMany<T extends Prisma.MissionScoringFindManyArgs>(params: Prisma.SelectSubset<T, Prisma.MissionScoringFindManyArgs>): Promise<Prisma.MissionScoringGetPayload<T>[]> {
     return prisma.missionScoring.findMany(params) as Promise<Prisma.MissionScoringGetPayload<T>[]>;
   },
 

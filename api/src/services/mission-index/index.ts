@@ -47,8 +47,6 @@ export const missionIndexService = {
       select: {
         id: true,
         publisherId: true,
-        publisherOrganizationId: true,
-        type: true,
         deletedAt: true,
         statusCode: true,
         addresses: {

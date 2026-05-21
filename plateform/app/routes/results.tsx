@@ -5,7 +5,7 @@ import GradientBg from "~/components/ui/gradient-bg";
 import { OPTIONS } from "~/config/quiz-options";
 import { useMissionResults } from "~/hooks/useMissionResults";
 import { useQuizStore } from "~/stores/quiz";
-import type { MatchResultItem } from "~/types/matching";
+import type { MissionMatchItem } from "@engagement/dto";
 import { useMemo, useState } from "react";
 import { useParams } from "react-router";
 
@@ -16,7 +16,7 @@ export default function ResultsPage() {
   const reset = useQuizStore((s) => s.reset);
   const answers = useQuizStore((s) => s.answers);
   const { pinnedItems, otherItems, page, setPage, hasNextPage, loading, pageLoading, error, visiblePageNumbers } = useMissionResults(userScoringId);
-  const [debugItem, setDebugItem] = useState<MatchResultItem | null>(null);
+  const [debugItem, setDebugItem] = useState<MissionMatchItem | null>(null);
 
   const locAnswer = answers["localisation"];
   const geo = locAnswer?.type === "params" ? (locAnswer.params as { lat: number; lon: number }) : null;
@@ -47,7 +47,7 @@ export default function ResultsPage() {
     [answers],
   );
 
-  const renderDebugAction = (item: MatchResultItem) => (
+  const renderDebugAction = (item: MissionMatchItem) => (
     <button
       type="button"
       className="fr-btn fr-btn--tertiary fr-btn--icon-only absolute bottom-2 left-2 z-10"

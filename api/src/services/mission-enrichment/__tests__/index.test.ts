@@ -1,7 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
 
-const generateObjectMock = vi.hoisted(() => vi.fn());
-
 vi.mock("@/repositories/mission", () => ({
   missionRepository: { findUnique: vi.fn() },
 }));
@@ -48,7 +46,6 @@ vi.mock("@/services/mission-enrichment/prompts", () => ({
   buildTaxonomyBlock: () => "taxonomy block",
 }));
 
-import { MissionType } from "@/db/core";
 import { missionRepository } from "@/repositories/mission";
 import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
 import { asyncTaskBus } from "@/services/async-task";
@@ -65,7 +62,7 @@ const baseMission = {
   softSkills: [],
   requirements: [],
   tags: [],
-  type: MissionType.volontariat_sapeurs_pompiers,
+  type: null,
   remote: null,
   openToMinors: null,
   reducedMobilityAccessible: null,
@@ -155,14 +152,14 @@ describe("missionEnrichmentService.enrich — chain propagation", () => {
 
   it("stops the chain when mission is not eligible for platform enrichment", async () => {
     (missionDiffusionEligibilityService.isEligible as ReturnType<typeof vi.fn>).mockResolvedValue(false);
-    (missionRepository.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({ ...baseMission, type: MissionType.benevolat, publisherId: "publisher-1" });
+    (missionRepository.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({ ...baseMission, publisherId: "publisher-1" });
 
     await missionEnrichmentService.enrich("mission-1");
 
     expect(missionEnrichmentRepository.findFirst).not.toHaveBeenCalled();
     expect(missionEnrichmentRepository.create).not.toHaveBeenCalled();
     expect(asyncTaskBus.publish).not.toHaveBeenCalled();
-    expect(generateObjectMock).not.toHaveBeenCalled();
+    expect(providerGenerate).not.toHaveBeenCalled();
   });
 
   it("calls LLM and forwards to scoring after successful enrichment", async () => {

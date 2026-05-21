@@ -37,7 +37,7 @@ export default function EmailMissionsModal({ userScoringId }: EmailMissionsModal
     setError(null);
 
     try {
-      await updateUserScoring(userScoringId, { missionAlertEnabled }, distinctId);
+      await updateUserScoring(userScoringId, { missionAlertEnabled, distinctId });
       const result = await sendMissionEmail({ email, publisherId: PUBLISHER_ID_API_ENGAGEMENT, userScoringId, distinctId });
       if (!result.email_sent) {
         setError("Aucune mission n'a pu être envoyée. Réessaie depuis la page de résultats.");

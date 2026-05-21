@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 
+import type { MissionMatchItem } from "@engagement/dto";
 import MissionCard from "~/components/missions/mission-card";
 import { fetchMatches } from "~/services/matching";
-import type { MatchResultItem } from "~/types/matching";
 import { matchResultToBrowseMission } from "~/utils/mission";
 
 interface Props {
@@ -11,7 +11,7 @@ interface Props {
 }
 
 export default function SimilarMissions({ userScoringId, currentMissionId }: Props) {
-  const [items, setItems] = useState<MatchResultItem[]>([]);
+  const [items, setItems] = useState<MissionMatchItem[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -40,7 +40,12 @@ export default function SimilarMissions({ userScoringId, currentMissionId }: Pro
               className="fr-btn fr-btn--secondary fr-btn--icon-only fr-icon-arrow-left-s-line rounded-full!"
               aria-label="Précédent"
             />
-            <button type="button" onClick={() => scrollBy(1)} className="fr-btn fr-btn--secondary fr-btn--icon-only fr-icon-arrow-right-s-line rounded-full!" aria-label="Suivant" />
+            <button
+              type="button"
+              onClick={() => scrollBy(1)}
+              className="fr-btn fr-btn--secondary fr-btn--icon-only fr-icon-arrow-right-s-line rounded-full!"
+              aria-label="Suivant"
+            />
           </div>
         </div>
 

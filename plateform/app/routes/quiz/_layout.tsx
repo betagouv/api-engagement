@@ -68,12 +68,12 @@ export default function QuizLayout() {
 
     try {
       if (!freshUserScoringId) {
-        const id = await createUserScoring(payload, freshDistinctId);
+        const id = await createUserScoring({ ...payload, distinctId: freshDistinctId });
         setUserScoringId(id);
         return true;
       }
 
-      await updateUserScoring(freshUserScoringId, payload, freshDistinctId);
+      await updateUserScoring(freshUserScoringId, { ...payload, distinctId: freshDistinctId });
       return true;
     } catch (err) {
       console.error("[quiz] saveCurrentScoring failed", err);

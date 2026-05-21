@@ -1,19 +1,19 @@
 resource "scaleway_container" "api" {
-  name                = "${var.workspace}-api"
-  description         = "API ${var.workspace} container"
-  namespace_id        = scaleway_container_namespace.main.id
-  registry_image      = "ghcr.io/${var.github_repository}/api:${var.env}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
-  port                = 8080
-  cpu_limit           = var.api_cpu_limit
-  memory_limit        = var.api_memory_limit
-  min_scale           = var.api_min_scale
-  max_scale           = var.api_max_scale
-  timeout             = 60
-  privacy             = "public"
-  protocol            = "http1"
-  http_option         = "redirected" # https only
-  deploy              = true
-  private_network_id  = scaleway_vpc_private_network.main.id
+  name               = "${var.workspace}-api"
+  description        = "API ${var.workspace} container"
+  namespace_id       = scaleway_container_namespace.main.id
+  registry_image     = "ghcr.io/${var.github_repository}/api:${var.env}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
+  port               = 8080
+  cpu_limit          = var.api_cpu_limit
+  memory_limit       = var.api_memory_limit
+  min_scale          = var.api_min_scale
+  max_scale          = var.api_max_scale
+  timeout            = 60
+  privacy            = "public"
+  protocol           = "http1"
+  http_option        = "redirected" # https only
+  deploy             = true
+  private_network_id = scaleway_vpc_private_network.main.id
 
   health_check {
     http {
@@ -32,6 +32,7 @@ resource "scaleway_container" "api" {
     "IMAGE_VERSION"              = var.image_tag
     "API_URL"                    = var.api_hostname != "" ? "https://${var.api_hostname}" : ""
     "APP_URL"                    = var.app_hostname != "" ? "https://${var.app_hostname}" : ""
+    "PLATEFORM_URL"              = var.plateform_hostname != "" ? "https://${var.plateform_hostname}" : var.enable_plateform ? "https://${scaleway_container.plateform[0].domain_name}" : ""
     "BENEVOLAT_URL"              = var.benevolat_hostname != "" ? "https://${var.benevolat_hostname}" : ""
     "VOLONTARIAT_URL"            = var.volontariat_hostname != "" ? "https://${var.volontariat_hostname}" : ""
     "PILOTY_BASE_URL"            = var.piloty_hostname
@@ -40,7 +41,6 @@ resource "scaleway_container" "api" {
     "PRISMA_POOL_SIZE_CORE"      = "20"
     "PRISMA_POOL_TIMEOUT"        = "20"
     "PRISMA_CONNECT_TIMEOUT"     = "10"
-    "COCKPIT_METRICS_OTLP_URL"   = var.cockpit_metrics_otlp_url
     "TYPESENSE_HOST"             = var.typesense_load_balancer_private_ip
     "TYPESENSE_PORT"             = "8108"
 
@@ -55,36 +55,37 @@ resource "scaleway_container" "api" {
   }
 
   secret_environment_variables = {
-    "SECRET"                 = local.secrets.SECRET
-    "DATABASE_URL_CORE"      = local.secrets.DATABASE_URL_CORE
-    "SENTRY_DSN_API"         = local.secrets.SENTRY_DSN_API
-    "SENDINBLUE_APIKEY"      = local.secrets.SENDINBLUE_APIKEY
-    "BREVO_WEBHOOK_TOKEN"    = local.secrets.BREVO_WEBHOOK_TOKEN
-    "SLACK_TOKEN"            = local.secrets.SLACK_TOKEN
-    "SCW_ACCESS_KEY"         = local.secrets.SCW_ACCESS_KEY
-    "SCW_SECRET_KEY"         = local.secrets.SCW_SECRET_KEY
-    "SCW_QUEUE_ACCESS_KEY"   = var.enable_async_tasks ? scaleway_mnq_sqs_credentials.async_task_publisher[0].access_key : ""
-    "SCW_QUEUE_SECRET_KEY"   = var.enable_async_tasks ? scaleway_mnq_sqs_credentials.async_task_publisher[0].secret_key : ""
-    "LETUDIANT_PILOTY_TOKEN" = lookup(local.secrets, "LETUDIANT_PILOTY_TOKEN", "")
-    "METABASE_API_KEY"       = lookup(local.secrets, "METABASE_API_KEY", "")
-    "METABASE_URL"           = lookup(local.secrets, "METABASE_URL", "")
-    "COCKPIT_METRICS_TOKEN"  = lookup(local.secrets, "COCKPIT_METRICS_TOKEN", "")
-    "TYPESENSE_API_KEY"      = lookup(local.secrets, "TYPESENSE_API_KEY", "")
+    "SECRET"                   = local.secrets.SECRET
+    "DATABASE_URL_CORE"        = local.secrets.DATABASE_URL_CORE
+    "SENTRY_DSN_API"           = local.secrets.SENTRY_DSN_API
+    "SENDINBLUE_APIKEY"        = local.secrets.SENDINBLUE_APIKEY
+    "BREVO_WEBHOOK_TOKEN"      = local.secrets.BREVO_WEBHOOK_TOKEN
+    "SLACK_TOKEN"              = local.secrets.SLACK_TOKEN
+    "SCW_ACCESS_KEY"           = local.secrets.SCW_ACCESS_KEY
+    "SCW_SECRET_KEY"           = local.secrets.SCW_SECRET_KEY
+    "SCW_QUEUE_ACCESS_KEY"     = var.enable_async_tasks ? scaleway_mnq_sqs_credentials.async_task_publisher[0].access_key : ""
+    "SCW_QUEUE_SECRET_KEY"     = var.enable_async_tasks ? scaleway_mnq_sqs_credentials.async_task_publisher[0].secret_key : ""
+    "LETUDIANT_PILOTY_TOKEN"   = lookup(local.secrets, "LETUDIANT_PILOTY_TOKEN", "")
+    "METABASE_API_KEY"         = lookup(local.secrets, "METABASE_API_KEY", "")
+    "METABASE_URL"             = lookup(local.secrets, "METABASE_URL", "")
+    "COCKPIT_METRICS_OTLP_URL" = lookup(local.secrets, "COCKPIT_METRICS_OTLP_URL", "")
+    "COCKPIT_METRICS_TOKEN"    = lookup(local.secrets, "COCKPIT_METRICS_TOKEN", "")
+    "TYPESENSE_API_KEY"        = lookup(local.secrets, "TYPESENSE_API_KEY", "")
   }
 }
 
 resource "scaleway_container" "api_worker" {
-  count          = var.enable_async_tasks ? 1 : 0
-  name           = "${var.workspace}-api-worker"
-  description    = "API worker ${var.workspace} container"
-  namespace_id   = scaleway_container_namespace.main.id
-  registry_image = "ghcr.io/${var.github_repository}/api-worker:${var.env}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
-  port           = 8080
-  cpu_limit      = var.worker_cpu_limit
-  memory_limit   = var.worker_memory_limit
-  min_scale      = var.worker_min_scale
-  max_scale      = var.worker_max_scale
-  timeout        = 300
+  count              = var.enable_async_tasks ? 1 : 0
+  name               = "${var.workspace}-api-worker"
+  description        = "API worker ${var.workspace} container"
+  namespace_id       = scaleway_container_namespace.main.id
+  registry_image     = "ghcr.io/${var.github_repository}/api-worker:${var.env}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
+  port               = 8080
+  cpu_limit          = var.worker_cpu_limit
+  memory_limit       = var.worker_memory_limit
+  min_scale          = var.worker_min_scale
+  max_scale          = var.worker_max_scale
+  timeout            = 300
   privacy            = "private"
   protocol           = "http1"
   deploy             = true
@@ -99,19 +100,19 @@ resource "scaleway_container" "api_worker" {
   }
 
   environment_variables = {
-    "ENV"                               = var.env
-    "IMAGE_VERSION"                     = var.image_tag
-    "PORT_WORKER"                       = "8080"
-    "PRISMA_POOL_SIZE_CORE"             = "20"
-    "PRISMA_POOL_TIMEOUT"               = "20"
-    "PRISMA_CONNECT_TIMEOUT"            = "10"
-    "SCW_QUEUE_ENDPOINT"                = "https://sqs.mnq.fr-par.scaleway.com"
-    "SCW_QUEUE_URL_MISSION_ENRICHMENT"  = module.async_task_queues["mission_enrichment"].url
-    "SCW_QUEUE_URL_MISSION_SCORING"     = module.async_task_queues["mission_scoring"].url
-    "SCW_QUEUE_URL_MISSION_INDEX"       = module.async_task_queues["mission_index"].url
-    "ALBERT_BASE_URL"                   = lookup(local.secrets, "ALBERT_BASE_URL", "https://albert.api.etalab.gouv.fr")
-    "TYPESENSE_HOST"                    = var.typesense_load_balancer_private_ip
-    "TYPESENSE_PORT"                    = "8108"
+    "ENV"                              = var.env
+    "IMAGE_VERSION"                    = var.image_tag
+    "PORT_WORKER"                      = "8080"
+    "PRISMA_POOL_SIZE_CORE"            = "20"
+    "PRISMA_POOL_TIMEOUT"              = "20"
+    "PRISMA_CONNECT_TIMEOUT"           = "10"
+    "SCW_QUEUE_ENDPOINT"               = "https://sqs.mnq.fr-par.scaleway.com"
+    "SCW_QUEUE_URL_MISSION_ENRICHMENT" = module.async_task_queues["mission_enrichment"].url
+    "SCW_QUEUE_URL_MISSION_SCORING"    = module.async_task_queues["mission_scoring"].url
+    "SCW_QUEUE_URL_MISSION_INDEX"      = module.async_task_queues["mission_index"].url
+    "ALBERT_BASE_URL"                  = lookup(local.secrets, "ALBERT_BASE_URL", "https://albert.api.etalab.gouv.fr")
+    "TYPESENSE_HOST"                   = var.typesense_load_balancer_private_ip
+    "TYPESENSE_PORT"                   = "8108"
   }
 
   secret_environment_variables = {
@@ -184,10 +185,6 @@ resource "scaleway_container" "plateform" {
   protocol       = "http1"
   http_option    = "redirected"
   deploy         = true
-
-  environment_variables = {
-    "VITE_API_URL" = var.api_hostname != "" ? "https://${var.api_hostname}" : "https://${scaleway_container.api.domain_name}"
-  }
 
   secret_environment_variables = {
     "VITE_MAPTILER_API_KEY" = lookup(local.secrets, "VITE_MAPTILER_API_KEY", "")

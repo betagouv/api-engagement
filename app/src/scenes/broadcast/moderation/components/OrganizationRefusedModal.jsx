@@ -13,6 +13,11 @@ const OrganizationRefusedModal = ({ open, onClose, data, update, onChange, total
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
+    if (!update.comment) {
+      toast.error("Un motif est requis pour refuser des missions", { position: "bottom-right" });
+      return;
+    }
+
     setLoading(true);
     try {
       const where = { moderatorId: publisher.id, organizationId: data.missionPublisherOrganizationId, status: "PENDING" };

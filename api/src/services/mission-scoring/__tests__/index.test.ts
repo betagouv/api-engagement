@@ -42,8 +42,6 @@ const buildEnrichmentValue = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 });
 
-const eligibleMission = { publisherId: PUBLISHER_IDS.JEVEUXAIDER, type: null };
-
 describe("missionScoringService.score", () => {
   beforeEach(() => {
     missionEnrichmentRepositoryMock.findFirst.mockReset();
@@ -68,7 +66,7 @@ describe("missionScoringService.score", () => {
     missionEnrichmentRepositoryMock.findFirst.mockResolvedValue({
       id: "enrichment-1",
       missionId: "mission-1",
-      mission: eligibleMission,
+      mission: { publisherId: null, type: null },
       values: [buildEnrichmentValue()],
     });
     missionScoringRepositoryMock.findUnique.mockResolvedValue({ id: "mission-scoring-1" });
@@ -85,7 +83,7 @@ describe("missionScoringService.score", () => {
     missionEnrichmentRepositoryMock.findFirst.mockResolvedValue({
       id: "enrichment-1",
       missionId: "mission-1",
-      mission: eligibleMission,
+      mission: { publisherId: null, type: null },
       values: [buildEnrichmentValue()],
     });
     missionScoringRepositoryMock.findUnique.mockResolvedValue({ id: "mission-scoring-1" });
@@ -114,7 +112,7 @@ describe("missionScoringService.score", () => {
     missionEnrichmentRepositoryMock.findFirst.mockResolvedValue({
       id: "enrichment-1",
       missionId: "mission-1",
-      mission: eligibleMission,
+      mission: { publisherId: null, type: null },
       values: [
         buildEnrichmentValue({
           taxonomyKey: "accessibilite",
@@ -141,7 +139,7 @@ describe("missionScoringService.score", () => {
     missionEnrichmentRepositoryMock.findFirst.mockResolvedValue({
       id: "enrichment-1",
       missionId: "mission-1",
-      mission: eligibleMission,
+      mission: { publisherId: null, type: null },
       values: [buildEnrichmentValue({ confidence: 0.54 })],
     });
     missionScoringRepositoryMock.findUnique.mockResolvedValue(null);

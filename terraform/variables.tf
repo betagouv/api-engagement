@@ -182,11 +182,6 @@ variable "core_database_id" {
   description = "ID of the managed PostgreSQL instance to back up"
 }
 
-variable "cockpit_metrics_otlp_url" {
-  type    = string
-  default = ""
-}
-
 variable "enable_app" {
   type        = bool
   default     = true

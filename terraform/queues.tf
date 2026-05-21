@@ -1,11 +1,10 @@
-resource "scaleway_mnq_sqs" "main" {
-  count      = var.enable_async_tasks ? 1 : 0
+data "scaleway_mnq_sqs" "main" {
   project_id = var.project_id
 }
 
 resource "scaleway_mnq_sqs_credentials" "async_task_manager" {
   count      = var.enable_async_tasks ? 1 : 0
-  project_id = scaleway_mnq_sqs.main[0].project_id
+  project_id = data.scaleway_mnq_sqs.main.project_id
   name       = "${var.workspace}-async-task-manager"
 
   permissions {
@@ -17,7 +16,7 @@ resource "scaleway_mnq_sqs_credentials" "async_task_manager" {
 
 resource "scaleway_mnq_sqs_credentials" "async_task_publisher" {
   count      = var.enable_async_tasks ? 1 : 0
-  project_id = scaleway_mnq_sqs.main[0].project_id
+  project_id = data.scaleway_mnq_sqs.main.project_id
   name       = "${var.workspace}-async-task-publisher"
 
   permissions {
@@ -29,7 +28,7 @@ resource "scaleway_mnq_sqs_credentials" "async_task_publisher" {
 
 resource "scaleway_mnq_sqs_credentials" "async_task_trigger" {
   count      = var.enable_async_tasks ? 1 : 0
-  project_id = scaleway_mnq_sqs.main[0].project_id
+  project_id = data.scaleway_mnq_sqs.main.project_id
   name       = "${var.workspace}-async-task-trigger"
 
   permissions {
