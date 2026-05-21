@@ -1,4 +1,5 @@
 import api from "~/services/api";
+import { API_URL } from "~/services/config";
 
 type SendMissionEmailPayload = {
   email: string;
@@ -14,5 +15,5 @@ type SendMissionEmailResponse = {
 };
 
 export async function sendMissionEmail(payload: SendMissionEmailPayload): Promise<SendMissionEmailResponse> {
-  return api.post<SendMissionEmailResponse>("/email/mission", payload);
+  return api.post<SendMissionEmailResponse>(`${API_URL}/email/mission`, payload);
 }

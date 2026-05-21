@@ -18,7 +18,7 @@ export async function browseMissions(filters: MissionBrowseFilters, signal?: Abo
   appendMulti(params, "type_mission", filters.type_mission);
   appendMulti(params, "tranche_age", filters.tranche_age);
 
-  return api.get<MissionBrowseResponse>(`/missions/browse?${params.toString()}`, signal);
+  return api.get<MissionBrowseResponse>(`/api/missions/browse?${params.toString()}`, signal);
 }
 
-export const fetchMissionDetail = (id: string): Promise<MissionDetailResponse> => api.get<MissionDetailResponse>(`/missions/browse/${id}`);
+export const fetchMissionDetail = (id: string): Promise<MissionDetailResponse> => api.get<MissionDetailResponse>(`/api/missions/browse/${id}`);
