@@ -48,7 +48,6 @@ import path from "path";
 
 import { corsPublic } from "@/middlewares/cors";
 import errorHandler from "@/middlewares/error-handler";
-import passport from "@/middlewares/passport";
 
 import { pgConnected, pgDisconnect } from "@/db/postgres";
 import middlewares from "@/middlewares";
@@ -132,11 +131,11 @@ const main = async () => {
   app.use("/v2/activity", corsPublic, ActivityV2Controller);
   app.use("/v2/leboncoin", corsPublic, LeboncoinV2Controller);
   app.use("/v2/jobteaser", corsPublic, JobTeaserV2Controller);
-  app.use("/user-scoring", corsPublic, passport.authenticate(["apikey", "api"], { session: false }), UserScoringController);
+  app.use("/user-scoring", corsPublic, UserScoringController);
   app.use("/brevo-webhook", corsPublic, BrevoWebhookController);
-  app.use("/missions", corsPublic, passport.authenticate(["apikey", "api"], { session: false }), MissionBrowseController);
-  app.use("/missions", corsPublic, passport.authenticate(["apikey", "api"], { session: false }), MissionMatchController);
-  app.use("/email", corsPublic, passport.authenticate(["apikey", "api"], { session: false }), EmailController);
+  app.use("/missions", corsPublic, MissionBrowseController);
+  app.use("/missions", corsPublic, MissionMatchController);
+  app.use("/email", corsPublic, EmailController);
 
   // Interal routes
   app.use("/admin-report", AdminReportController);

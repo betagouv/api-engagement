@@ -1,10 +1,12 @@
 import { NextFunction, Request, Response, Router } from "express";
+import passport from "passport";
 import zod from "zod";
 
 import { EMAIL_SEND_FAILED, FORBIDDEN, INVALID_BODY, NOT_FOUND } from "@/error";
 import { sendMissionEmail } from "@/services/mission-email";
 
 const router = Router();
+router.use(passport.authenticate(["apikey", "api"], { session: false }));
 
 const distinctIdSchema = zod.string().trim().min(1);
 const emailSchema = zod.preprocess((value) => (typeof value === "string" ? value.trim().toLowerCase() : value), zod.email());

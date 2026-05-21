@@ -24,7 +24,7 @@ async function serverRequest<T>(method: string, path: string, body?: unknown, si
   return json.data as T;
 }
 
-export const serverApi = {
+export const api = {
   get: <T>(path: string, signal?: AbortSignal) => serverRequest<T>("GET", path, undefined, signal),
   post: <T>(path: string, body?: unknown, signal?: AbortSignal) => serverRequest<T>("POST", path, body, signal),
   put: <T>(path: string, body?: unknown, signal?: AbortSignal) => serverRequest<T>("PUT", path, body, signal),
