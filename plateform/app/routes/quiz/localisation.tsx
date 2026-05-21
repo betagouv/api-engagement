@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type SubmitEvent } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent, type SubmitEvent } from "react";
 import { useOutletContext } from "react-router";
 import Label from "~/components/quiz/label";
 import MissionCard from "~/components/quiz/mission-card";
@@ -17,6 +17,8 @@ type AddressFeature = {
   geometry: { coordinates: [number, number] };
 };
 
+const LISTBOX_ID = "localisation-listbox";
+
 export default function LocalisationStep() {
   const { answers, setAnswer } = useQuizStore();
   const { goNext, transitioning, setTransitioning } = useOutletContext<QuizOutletContext>();
@@ -28,6 +30,7 @@ export default function LocalisationStep() {
   const [options, setOptions] = useState<Suggestion[]>([]);
   const [selected, setSelected] = useState<Suggestion | null>(savedLocation ? { label: "", ...savedLocation } : null);
   const [showOptions, setShowOptions] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
   const [locating, setLocating] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -46,6 +49,7 @@ export default function LocalisationStep() {
       if (value.length < 3 || selected?.label === value) {
         setOptions([]);
         setShowOptions(false);
+        setActiveIndex(-1);
         return;
       }
 
@@ -62,10 +66,12 @@ export default function LocalisationStep() {
           })),
         );
         setShowOptions(true);
+        setActiveIndex(-1);
       } catch (error) {
         console.error("Error fetching locations:", error);
         setOptions([]);
         setShowOptions(false);
+        setActiveIndex(-1);
       }
     }
     fetchOptions();
@@ -75,6 +81,50 @@ export default function LocalisationStep() {
     setSelected(option);
     setValue(option.label);
     setShowOptions(false);
+    setActiveIndex(-1);
+  };
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "ArrowDown") {
+      if (options.length === 0) return;
+      e.preventDefault();
+      if (!showOptions) {
+        setShowOptions(true);
+        setActiveIndex(0);
+        return;
+      }
+      setActiveIndex((i) => (i + 1) % options.length);
+    } else if (e.key === "ArrowUp") {
+      if (options.length === 0) return;
+      e.preventDefault();
+      if (!showOptions) {
+        setShowOptions(true);
+        setActiveIndex(options.length - 1);
+        return;
+      }
+      setActiveIndex((i) => (i <= 0 ? options.length - 1 : i - 1));
+    } else if (e.key === "Enter") {
+      if (showOptions && activeIndex >= 0 && activeIndex < options.length) {
+        e.preventDefault();
+        handleSelect(options[activeIndex]);
+      }
+    } else if (e.key === "Escape") {
+      if (showOptions) {
+        e.preventDefault();
+        setShowOptions(false);
+        setActiveIndex(-1);
+      }
+    } else if (e.key === "Home") {
+      if (showOptions) {
+        e.preventDefault();
+        setActiveIndex(0);
+      }
+    } else if (e.key === "End") {
+      if (showOptions) {
+        e.preventDefault();
+        setActiveIndex(options.length - 1);
+      }
+    }
   };
 
   const handleUseMyLocation = () => {
@@ -127,18 +177,39 @@ export default function LocalisationStep() {
         <div className="relative" ref={wrapperRef}>
           <input
             id="localisation-input"
+            role="combobox"
+            aria-expanded={showOptions && options.length > 0}
+            aria-controls={LISTBOX_ID}
+            aria-autocomplete="list"
+            aria-activedescendant={activeIndex >= 0 ? `${LISTBOX_ID}-option-${activeIndex}` : undefined}
             className="fr-input pr-10! mt-0!"
             type="text"
             placeholder="Adresse, ville ou code postal"
             value={value}
             onChange={(e) => setValue(e.target.value)}
+            onKeyDown={handleKeyDown}
             autoComplete="off"
           />
           <span className="fr-icon-map-pin-2-line absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" aria-hidden="true" />
           {showOptions && options.length > 0 && (
-            <ul className="absolute z-50 top-full left-0 right-0 mt-1 bg-white border border-border-default-grey max-h-60 overflow-auto shadow-md list-none! p-0! m-0!">
-              {options.map((option) => (
-                <li key={`${option.lat}-${option.lon}`} onClick={() => handleSelect(option)} className="py-2 px-3 cursor-pointer hover:bg-background-default-grey-hover text-sm">
+            <ul
+              id={LISTBOX_ID}
+              role="listbox"
+              className="absolute z-50 top-full left-0 right-0 mt-1 bg-white border border-border-default-grey max-h-60 overflow-auto shadow-md list-none! p-0! m-0!"
+            >
+              {options.map((option, index) => (
+                <li
+                  key={`${option.lat}-${option.lon}`}
+                  id={`${LISTBOX_ID}-option-${index}`}
+                  role="option"
+                  aria-selected={index === activeIndex}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    handleSelect(option);
+                  }}
+                  onMouseEnter={() => setActiveIndex(index)}
+                  className={`py-2 px-3 cursor-pointer text-sm ${index === activeIndex ? "bg-background-default-grey-hover" : "hover:bg-background-default-grey-hover"}`}
+                >
                   {option.label}
                 </li>
               ))}
