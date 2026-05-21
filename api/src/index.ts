@@ -132,11 +132,11 @@ const main = async () => {
   app.use("/v2/activity", corsPublic, ActivityV2Controller);
   app.use("/v2/leboncoin", corsPublic, LeboncoinV2Controller);
   app.use("/v2/jobteaser", corsPublic, JobTeaserV2Controller);
-  app.use("/user-scoring", corsPublic, UserScoringController);
+  app.use("/user-scoring", corsPublic, passport.authenticate(["apikey", "api"], { session: false }), UserScoringController);
   app.use("/brevo-webhook", corsPublic, BrevoWebhookController);
   app.use("/missions", corsPublic, passport.authenticate(["apikey", "api"], { session: false }), MissionBrowseController);
   app.use("/missions", corsPublic, passport.authenticate(["apikey", "api"], { session: false }), MissionMatchController);
-  app.use("/email", corsPublic, EmailController);
+  app.use("/email", corsPublic, passport.authenticate(["apikey", "api"], { session: false }), EmailController);
 
   // Interal routes
   app.use("/admin-report", AdminReportController);

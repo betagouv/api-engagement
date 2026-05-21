@@ -3,10 +3,13 @@ import { type RouteConfig, index, route } from "@react-router/dev/routes";
 export default [
   index("routes/_index.tsx"),
 
-  // Resource routes proxy : les appels missions transitent par le SSR pour signer avec x-api-key
+  // Resource routes proxy : tous les appels API transitent par le SSR pour signer avec x-api-key
   route("api/missions/browse", "routes/api.missions.browse.ts"),
   route("api/missions/browse/:id", "routes/api.missions.browse.$id.ts"),
   route("api/missions/match", "routes/api.missions.match.ts"),
+  route("api/user-scoring", "routes/api.user-scoring.ts"),
+  route("api/user-scoring/:id", "routes/api.user-scoring.$id.ts"),
+  route("api/email/mission", "routes/api.email.mission.ts"),
 
   // Nouveau quiz — flow conditionnel, un step = une route, layout partagé.
   route("quiz", "routes/quiz/_layout.tsx", [

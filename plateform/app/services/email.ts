@@ -1,6 +1,3 @@
-import api from "~/services/api";
-import { API_URL } from "~/services/config";
-
 type SendMissionEmailPayload = {
   email: string;
   publisherId: string;
@@ -15,5 +12,12 @@ type SendMissionEmailResponse = {
 };
 
 export async function sendMissionEmail(payload: SendMissionEmailPayload): Promise<SendMissionEmailResponse> {
-  return api.post<SendMissionEmailResponse>(`${API_URL}/email/mission`, payload);
+  const res = await fetch("/api/email/mission", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const json = (await res.json()) as { ok: boolean; data?: SendMissionEmailResponse; code?: string };
+  if (!res.ok || !json.ok) throw new Error(json.code ?? "fetch error on POST /api/email/mission");
+  return json.data as SendMissionEmailResponse;
 }

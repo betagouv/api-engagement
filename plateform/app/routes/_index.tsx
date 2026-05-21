@@ -8,7 +8,7 @@ import Newsletter from "~/components/layout/newsletter";
 import Partners from "~/components/layout/partners";
 import GradientBg from "~/components/ui/gradient-bg";
 import type { MissionBrowseResponse } from "@engagement/dto";
-import { serverApi } from "~/services/api.server";
+import { serverApi } from "~/services/api";
 import { useQuizStore } from "~/stores/quiz";
 import type { BrowseMission } from "~/types/api";
 import type { Route } from "./+types/_index";

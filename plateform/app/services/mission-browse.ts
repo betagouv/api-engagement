@@ -1,11 +1,16 @@
 import type { MissionBrowseFilters, MissionBrowseResponse, MissionDetailResponse } from "@engagement/dto";
 
-import api from "~/services/api";
-
 const appendMulti = (params: URLSearchParams, key: string, values?: string | string[]) => {
   if (!values?.length) return;
   for (const value of Array.isArray(values) ? values : [values]) params.append(key, value);
 };
+
+async function get<T>(path: string, signal?: AbortSignal): Promise<T> {
+  const res = await fetch(path, { signal });
+  const json = (await res.json()) as { ok: boolean; data?: T; code?: string };
+  if (!res.ok || !json.ok) throw new Error(json.code ?? `fetch error on GET ${path}`);
+  return json.data as T;
+}
 
 export async function browseMissions(filters: MissionBrowseFilters, signal?: AbortSignal): Promise<MissionBrowseResponse> {
   const params = new URLSearchParams();
@@ -18,7 +23,7 @@ export async function browseMissions(filters: MissionBrowseFilters, signal?: Abo
   appendMulti(params, "type_mission", filters.type_mission);
   appendMulti(params, "tranche_age", filters.tranche_age);
 
-  return api.get<MissionBrowseResponse>(`/api/missions/browse?${params.toString()}`, signal);
+  return get<MissionBrowseResponse>(`/api/missions/browse?${params.toString()}`, signal);
 }
 
-export const fetchMissionDetail = (id: string): Promise<MissionDetailResponse> => api.get<MissionDetailResponse>(`/api/missions/browse/${id}`);
+export const fetchMissionDetail = (id: string): Promise<MissionDetailResponse> => get<MissionDetailResponse>(`/api/missions/browse/${id}`);
