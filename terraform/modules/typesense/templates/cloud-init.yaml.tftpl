@@ -83,14 +83,6 @@ write_files:
       [Install]
       WantedBy=multi-user.target
 
-  #%{ if monitoring_enabled }
-  - path: /etc/alloy/config.alloy
-    permissions: "0644"
-    owner: root:root
-    content: |
-      ${alloy_config}
-  #%{ endif }
-
 runcmd:
   - systemctl enable --now docker
   - systemctl daemon-reload
@@ -103,6 +95,8 @@ runcmd:
   - apt-get update
   - apt-get install -y alloy
   - install -d -m 0750 /etc/alloy
+  - sh -c 'printf "%s" "${alloy_config_b64}" | base64 -d > /etc/alloy/config.alloy'
+  - chmod 0644 /etc/alloy/config.alloy
   - sh -c 'printf "COCKPIT_METRICS_REMOTE_WRITE_URL=%s\n" "${monitoring_metrics_remote_write_url}" > /etc/alloy/cockpit.env'
   - sh -c 'printf "COCKPIT_METRICS_TOKEN=%s\n" "$(printf "%s" "${monitoring_cockpit_token_b64}" | base64 -d)" >> /etc/alloy/cockpit.env'
   - chmod 0600 /etc/alloy/cockpit.env
