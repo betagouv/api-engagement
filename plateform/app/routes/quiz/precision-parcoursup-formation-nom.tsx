@@ -31,12 +31,11 @@ export default function PrecisionParcoursupFormationNomStep() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-10">
-      <Label>Dans quel domaine aimerais-tu avoir une expérience ?</Label>
+      <Label subtitle="Indique le nom de la formation." htmlFor="formation-input">
+        Dans quel domaine aimerais-tu avoir une expérience ?
+      </Label>
 
       <div className="fr-input-group max-w-md!">
-        <label className="fr-label" htmlFor="formation-input">
-          Nom de la formation
-        </label>
         <input id="formation-input" className="fr-input" type="text" value={value} onChange={(e) => setValue(e.target.value)} autoFocus />
       </div>
 

@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useOutletContext } from "react-router";
-import Label from "~/components/quiz/label";
 import NextButton from "~/components/quiz/next-button";
-import SingleSelect from "~/components/quiz/single-select";
+import RadioGroup from "~/components/quiz/radio-group";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
 import type { QuizOutletContext } from "./_layout";
@@ -37,10 +36,14 @@ export default function HandicapStep() {
 
   return (
     <>
-      <Label subtitle="Certaines missions sont accessibles jusqu’à 30 ans pour les personnes en situation de handicap." htmlFor="single-select" id="handicap-question">
-        Es-tu en situation de handicap reconnue ?
-      </Label>
-      <SingleSelect onChange={handleSelect} options={STEP_OPTIONS} error={error} selected={selected} labelId="handicap-question" />
+      <RadioGroup
+        title="Es-tu en situation de handicap reconnue ?"
+        subtitle="Certaines missions sont accessibles jusqu’à 30 ans pour les personnes en situation de handicap."
+        onChange={handleSelect}
+        options={STEP_OPTIONS}
+        error={error}
+        selected={selected}
+      />
       <NextButton onClick={handleNext} />
     </>
   );

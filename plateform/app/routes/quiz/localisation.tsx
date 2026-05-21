@@ -119,15 +119,12 @@ export default function LocalisationStep() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-10">
-      <Label subtitle="Entre ton adresse pour découvrir les missions près de chez toi. Certaines missions peuvent aussi se faire à distance.">
+      <Label subtitle="Entre ton adresse pour découvrir les missions près de chez toi. Certaines missions peuvent aussi se faire à distance." htmlFor="localisation-input">
         Où veux-tu chercher des missions ?
       </Label>
 
       <div className="flex flex-col gap-4 max-w-md!">
         <div className="relative" ref={wrapperRef}>
-          <label className="fr-label fr-sr-only" htmlFor="localisation-input">
-            Adresse, ville ou code postal
-          </label>
           <input
             id="localisation-input"
             className="fr-input pr-10! mt-0!"

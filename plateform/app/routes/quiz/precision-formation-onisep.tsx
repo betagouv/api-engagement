@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useOutletContext } from "react-router";
-import Label from "~/components/quiz/label";
-import MultiSelectIcon from "~/components/quiz/multi-select-icon";
+import CheckboxGroupRich from "~/components/quiz/checkbox-group-rich";
 import NextButton from "~/components/quiz/next-button";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
@@ -24,8 +23,8 @@ const STEP_OPTIONS = [
 ];
 
 const TITLE_BY_MOTIVATION: Record<string, string> = {
-  "experience_terrain": "Dans quel domaine réalises-tu tes études ?",
-  "preparer_reconversion": "Dans quel domaine souhaites-tu préparer ta reconversion ?",
+  experience_terrain: "Dans quel domaine réalises-tu tes études ?",
+  preparer_reconversion: "Dans quel domaine souhaites-tu préparer ta reconversion ?",
 };
 
 const DEFAULT_TITLE = "Vers quoi veux-tu t'orienter ?";
@@ -55,8 +54,7 @@ export default function PrecisionFormationOnisepStep() {
 
   return (
     <>
-      <Label>{title}</Label>
-      <MultiSelectIcon onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} />
+      <CheckboxGroupRich title={title} onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} />
       <NextButton onClick={handleNext} skip />
     </>
   );

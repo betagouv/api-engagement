@@ -1,19 +1,18 @@
-import React from "react";
+import type { ReactNode } from "react";
 
 type Props = {
   subtitle?: string;
-  children: React.ReactNode;
-  htmlFor?: string;
-  id?: string;
+  children: ReactNode;
+  htmlFor: string;
 };
 
-export default function Label({ subtitle, children, htmlFor, id }: Props) {
+export default function Label({ subtitle, children, htmlFor }: Props) {
   return (
     <div className="flex flex-col gap-4">
-      <label className="fr-h1 mb-0!" htmlFor={htmlFor} id={id}>
+      <label className="fr-h1 mb-0!" htmlFor={htmlFor}>
         {children}
       </label>
-      {subtitle && <p className="fr-text--lead">{subtitle}</p>}
+      {subtitle && <p className="fr-text--lead mb-0!">{subtitle}</p>}
     </div>
   );
 }

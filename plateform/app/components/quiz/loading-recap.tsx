@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import Label from "~/components/quiz/label";
 
 type Props = {
   items: string[];
@@ -28,11 +27,11 @@ export default function LoadingRecap({ items, onComplete }: Props) {
 
   return (
     <div className={`flex flex-col gap-10 transition-all duration-700 ease-in ${exiting ? "opacity-0 translate-y-8" : "opacity-100 translate-y-0"}`}>
-      <Label>
+      <h1 className="fr-h1 mb-0!">
         Parfait.
         <br />
         On recherche des missions pour toi !
-      </Label>
+      </h1>
       <ul className="list-none! p-0! m-0! flex flex-col gap-3">
         {items.map((label, i) => (
           <li

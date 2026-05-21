@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useOutletContext } from "react-router";
-import Label from "~/components/quiz/label";
-import MultiSelectIcon from "~/components/quiz/multi-select-icon";
+import CheckboxGroupRich from "~/components/quiz/checkbox-group-rich";
 import NextButton from "~/components/quiz/next-button";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
@@ -24,8 +23,8 @@ const STEP_OPTIONS = [
   OPTIONS["domaine.je_ne_sais_pas"],
 ];
 const TITLE_BY_MOTIVATION: Record<string, string> = {
-  "ne_sais_pas": "Est-ce qu'un domaine te plaît plus qu'un autre ?",
-  "decouvrir_domaine": "Quel domaine t'attirerait le plus ?",
+  ne_sais_pas: "Est-ce qu'un domaine te plaît plus qu'un autre ?",
+  decouvrir_domaine: "Quel domaine t'attirerait le plus ?",
 };
 
 const DEFAULT_TITLE = "Dans quel domaine aimerais-tu avoir une expérience ?";
@@ -55,8 +54,7 @@ export default function PrecisionDomaineStep() {
 
   return (
     <>
-      <Label>{title}</Label>
-      <MultiSelectIcon onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} />
+      <CheckboxGroupRich title={title} onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} />
       <NextButton onClick={handleNext} skip />
     </>
   );
