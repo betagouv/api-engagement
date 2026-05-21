@@ -68,7 +68,7 @@ resource "scaleway_instance_server" "node" {
       typesense_docker_image = "typesense/typesense"
       typesense_container    = "typesense"
       monitoring_enabled     = var.monitoring_enabled
-      alloy_config = indent(6, templatefile("${path.module}/templates/alloy-config.alloy.tftpl", {
+      alloy_config_b64 = base64encode(templatefile("${path.module}/templates/alloy-config.alloy.tftpl", {
         api_port  = local.api_port
         node      = each.key
         cluster   = var.name_prefix
