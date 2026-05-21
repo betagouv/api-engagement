@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { useOutletContext } from "react-router";
-import Label from "~/components/quiz/label";
 import MissionCard from "~/components/quiz/mission-card";
 import NextButton from "~/components/quiz/next-button";
-import SingleSelectIcon from "~/components/quiz/single-select-icon";
+import RadioGroupRich from "~/components/quiz/radio-group-rich";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
 import type { StepOption } from "~/types/quiz";
@@ -70,8 +69,14 @@ export default function MotivationStep() {
 
   return (
     <>
-      <Label subtitle="Choisis une motivation importantes pour toi.">Qu’est-ce qui te motive le plus ?</Label>
-      <SingleSelectIcon onChange={handleChange} options={options} error={error} selected={selected} />
+      <RadioGroupRich
+        title="Qu’est-ce qui te motive le plus ?"
+        subtitle="Choisis une motivation importantes pour toi."
+        onChange={handleChange}
+        options={options}
+        error={error}
+        selected={selected}
+      />
       <NextButton onClick={handleNext} skip />
     </>
   );

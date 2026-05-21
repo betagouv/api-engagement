@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useOutletContext } from "react-router";
-import Label from "~/components/quiz/label";
-import MultiSelectIcon from "~/components/quiz/multi-select-icon";
+import CheckboxGroupRich from "~/components/quiz/checkbox-group-rich";
 import NextButton from "~/components/quiz/next-button";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
@@ -45,8 +44,14 @@ export default function DureeStep() {
 
   return (
     <>
-      <Label subtitle="Choisis ce qui te correspond le mieux.">Combien de temps aimerais-tu consacrer à ta mission ?</Label>
-      <MultiSelectIcon onChange={handleSelect} options={options} selected={selected} error={error} />
+      <CheckboxGroupRich
+        title="Combien de temps aimerais-tu consacrer à ta mission ?"
+        subtitle="Choisis ce qui te correspond le mieux."
+        onChange={handleSelect}
+        options={options}
+        selected={selected}
+        error={error}
+      />
       <NextButton onClick={handleNext} skip />
     </>
   );

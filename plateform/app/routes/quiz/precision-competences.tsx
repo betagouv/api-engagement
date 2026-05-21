@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useOutletContext } from "react-router";
-import Label from "~/components/quiz/label";
-import MultiSelectIcon from "~/components/quiz/multi-select-icon";
+import CheckboxGroupRich from "~/components/quiz/checkbox-group-rich";
 import NextButton from "~/components/quiz/next-button";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
@@ -23,8 +22,8 @@ const STEP_OPTIONS = [
 ];
 
 const TITLE_BY_MOTIVATION: Record<string, string> = {
-  "competences_interet_general": "Quel est ton domaine de compétences ?",
-  "booster_cv": "Dans quel domaine souhaites-tu booster tes compétences",
+  competences_interet_general: "Quel est ton domaine de compétences ?",
+  booster_cv: "Dans quel domaine souhaites-tu booster tes compétences",
 };
 
 const DEFAULT_TITLE = "Quel type de compétences t'attire le plus ?";
@@ -54,8 +53,7 @@ export default function PrecisionCompetencesStep() {
 
   return (
     <>
-      <Label>{title}</Label>
-      <MultiSelectIcon onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} />
+      <CheckboxGroupRich title={title} onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} />
       <NextButton onClick={handleNext} skip />
     </>
   );

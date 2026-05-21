@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useOutletContext } from "react-router";
-import Label from "~/components/quiz/label";
 import NextButton from "~/components/quiz/next-button";
-import SingleSelect from "~/components/quiz/single-select";
+import RadioGroup from "~/components/quiz/radio-group";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
 import type { QuizOutletContext } from "./_layout";
@@ -33,8 +32,7 @@ export default function PrecisionParcoursupFormationStep() {
 
   return (
     <>
-      <Label>As-tu déjà une formation précise en tête ?</Label>
-      <SingleSelect onChange={handleSelect} options={STEP_OPTIONS} error={error} selected={selected} />
+      <RadioGroup title="As-tu déjà une formation précise en tête ?" onChange={handleSelect} options={STEP_OPTIONS} error={error} selected={selected} />
       <NextButton onClick={handleNext} skip />
     </>
   );

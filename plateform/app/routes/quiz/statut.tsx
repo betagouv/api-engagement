@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { useOutletContext } from "react-router";
-import Label from "~/components/quiz/label";
 import NextButton from "~/components/quiz/next-button";
-import SingleSelectIcon from "~/components/quiz/single-select-icon";
+import RadioGroupRich from "~/components/quiz/radio-group-rich";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
 import type { StepOption } from "~/types/quiz";
@@ -48,8 +47,14 @@ export default function StatutStep() {
 
   return (
     <>
-      <Label subtitle="Ça nous aide à te proposer des missions adaptées à ton quotidien.">Que fais-tu en ce moment ?</Label>
-      <SingleSelectIcon onChange={handleSelect} options={options} selected={selected} error={error} />
+      <RadioGroupRich
+        title="Que fais-tu en ce moment ?"
+        subtitle="Ça nous aide à te proposer des missions adaptées à ton quotidien."
+        onChange={handleSelect}
+        options={options}
+        selected={selected}
+        error={error}
+      />
       <NextButton onClick={handleNext} />
     </>
   );
