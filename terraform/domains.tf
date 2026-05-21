@@ -10,12 +10,6 @@ resource "scaleway_container_domain" "app" {
   hostname     = var.app_hostname
 }
 
-resource "scaleway_container_domain" "poc_quiz" {
-  count        = var.enable_poc_quiz && var.poc_quiz_hostname != "" ? 1 : 0
-  container_id = scaleway_container.poc_quiz[0].id
-  hostname     = var.poc_quiz_hostname
-}
-
 resource "scaleway_container_domain" "plateform" {
   count        = var.enable_plateform && var.plateform_hostname != "" ? 1 : 0
   container_id = scaleway_container.plateform[0].id
