@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Combobox from "~/components/ui/combobox";
 
@@ -51,6 +51,8 @@ interface MobileFiltersSheetProps {
 }
 
 function MobileFiltersSheet({ filters, onChange, onClose }: MobileFiltersSheetProps) {
+  const titleId = useId();
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
   const [mounted, setMounted] = useState(false);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {};
@@ -74,6 +76,10 @@ function MobileFiltersSheet({ filters, onChange, onClose }: MobileFiltersSheetPr
     };
   }, [onClose]);
 
+  useEffect(() => {
+    if (mounted) closeButtonRef.current?.focus();
+  }, [mounted]);
+
   if (!mounted) return null;
 
   const [selectFilter, ...accordionFilters] = filters;
@@ -85,19 +91,25 @@ function MobileFiltersSheet({ filters, onChange, onClose }: MobileFiltersSheetPr
       className="fixed inset-0 z-[1750] flex items-end"
       role="dialog"
       aria-modal="true"
-      aria-label="Filtres des missions"
+      aria-labelledby={titleId}
       onClick={(event) => event.target === event.currentTarget && onClose()}
     >
       <div className="absolute inset-0 bg-black/50" />
 
       <div className="relative flex max-h-[90vh] w-full flex-col bg-background px-4 pt-4 pb-14">
         <div className="flex justify-end">
-          <button type="button" className="fr-btn fr-btn--tertiary-no-outline fr-btn--icon-right fr-icon-close-line" onClick={onClose}>
+          <button
+            ref={closeButtonRef}
+            type="button"
+            className="fr-btn fr-btn--tertiary-no-outline fr-btn--icon-right fr-icon-close-line"
+            aria-label="Fermer les filtres"
+            onClick={onClose}
+          >
             Fermer
           </button>
         </div>
 
-        <h2 className="fr-h4">
+        <h2 id={titleId} className="fr-h4">
           <i className="fr-icon-filter-fill fr-icon--lg mr-2" aria-hidden="true" />
           Filtres des missions
         </h2>
