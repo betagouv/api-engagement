@@ -41,7 +41,15 @@ export default function QuizHeader({ step = 0, stepCount }: QuizHeaderProps) {
         <p className="fr-h6 absolute left-1/2 -translate-x-1/2 mb-0">Trouve ta mission</p>
       </div>
 
-      <div className="h-2 bg-beige-gris-galet">
+      <div
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={stepCount}
+        aria-valuenow={step}
+        aria-valuetext={`Étape ${step} sur ${stepCount}`}
+        className="h-2 bg-beige-gris-galet"
+      >
+        <span className="sr-only">{`Étape ${step} sur ${stepCount}`}</span>
         <div className="h-full bg-blue-france-sun transition-[width] ease-out duration-500" style={{ width: `${progress}%` }} />
       </div>
     </header>
