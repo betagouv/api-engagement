@@ -27,7 +27,10 @@ const readJsonEnvelope = async <T>(response: Response): Promise<ApiEnvelope<T>> 
   try {
     return (await response.json()) as ApiEnvelope<T>;
   } catch {
-    throw new UpstreamApiError(502, { ok: false, code: "upstream_error", message: "Invalid upstream response" });
+    if (response.status === 401) {
+      return { ok: false, code: "UNAUTHORIZED", message: "Unauthorized" };
+    }
+    return { ok: false, code: "upstream_error", message: "Invalid upstream response" };
   }
 };
 
