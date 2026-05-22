@@ -1,7 +1,7 @@
 import type { UserScoringCreateRequest, UserScoringCreateResponse } from "@engagement/dto";
 import type { ActionFunctionArgs } from "react-router";
 
-import { api } from "~/services/api.server";
+import { api } from "~/services/api";
 
 export async function action({ request }: ActionFunctionArgs) {
   try {

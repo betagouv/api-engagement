@@ -1,7 +1,7 @@
 import type { MissionBrowseResponse } from "@engagement/dto";
 import type { LoaderFunctionArgs } from "react-router";
 
-import { api } from "~/services/api.server";
+import { api } from "~/services/api";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);

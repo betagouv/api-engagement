@@ -1,6 +1,6 @@
 import type { ActionFunctionArgs } from "react-router";
 
-import { api } from "~/services/api.server";
+import { api } from "~/services/api";
 
 export async function action({ params, request }: ActionFunctionArgs) {
   const { id } = params;

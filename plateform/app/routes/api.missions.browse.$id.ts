@@ -1,7 +1,7 @@
 import type { MissionDetailResponse } from "@engagement/dto";
 import type { LoaderFunctionArgs } from "react-router";
 
-import { api } from "~/services/api.server";
+import { api } from "~/services/api";
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
   const { id } = params;

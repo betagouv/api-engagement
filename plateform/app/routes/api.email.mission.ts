@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs } from "react-router";
-import { api } from "~/services/api.server";
+import { api } from "~/services/api";
 import type { SendMissionEmailPayload, SendMissionEmailResponse } from "~/services/email";
 
 export async function action({ request }: ActionFunctionArgs) {

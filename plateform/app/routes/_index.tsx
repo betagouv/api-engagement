@@ -1,4 +1,3 @@
-import type { MissionBrowseResponse } from "@engagement/dto";
 import { useLoaderData, useNavigate } from "react-router";
 import Hero from "~/components/landing/hero";
 import HowItWorks from "~/components/landing/how-it-works";
@@ -8,7 +7,7 @@ import Testimonials from "~/components/landing/testimonials";
 import Newsletter from "~/components/layout/newsletter";
 import Partners from "~/components/layout/partners";
 import GradientBg from "~/components/ui/gradient-bg";
-import { api } from "~/services/api.server";
+import { browseMissions } from "~/services/api/missions";
 import { useQuizStore } from "~/stores/quiz";
 import type { BrowseMission } from "~/types/api";
 import type { Route } from "./+types/_index";
@@ -31,7 +30,7 @@ export function meta(): Route.MetaDescriptors {
 
 export async function loader(): Promise<{ examples: BrowseMission[]; testimonials: BrowseMission[] }> {
   try {
-    const res = await api.get<MissionBrowseResponse>(`/missions/browse?pageSize=${EXAMPLES_COUNT + TESTIMONIALS_COUNT}`);
+    const res = await browseMissions({ pageSize: EXAMPLES_COUNT + TESTIMONIALS_COUNT });
     return {
       examples: res.data.slice(0, EXAMPLES_COUNT),
       testimonials: res.data.slice(EXAMPLES_COUNT, EXAMPLES_COUNT + TESTIMONIALS_COUNT),
