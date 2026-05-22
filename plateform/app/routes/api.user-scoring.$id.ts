@@ -1,6 +1,6 @@
 import type { ActionFunctionArgs } from "react-router";
 
-import { api } from "~/services/api";
+import { api, upstreamErrorResponse } from "~/services/api";
 
 export async function action({ params, request }: ActionFunctionArgs) {
   const { id } = params;
@@ -10,6 +10,6 @@ export async function action({ params, request }: ActionFunctionArgs) {
     await api.put(`/user-scoring/${id}`, body, request.signal);
     return Response.json({ ok: true, data: null });
   } catch (error) {
-    return Response.json({ ok: false, code: error instanceof Error ? error.message : "upstream_error" }, { status: 502 });
+    return upstreamErrorResponse(error);
   }
 }
