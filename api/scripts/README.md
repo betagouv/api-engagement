@@ -23,6 +23,12 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
   - Usage: Crée/met à jour les `PublisherOrganization` à partir des champs `organization*` encore présents sur `Mission`.
   - Notes: À exécuter avant la suppression des colonnes `organization*` côté `mission`.
 
+- **backfill-publisher-diffusion-rules.ts**
+
+  - Exécution: `npx ts-node scripts/backfill-publisher-diffusion-rules.ts [--dry-run]`
+  - Usage: Copie les anciennes lignes `publisher_diffusion` vers `publisher_diffusion_rule` sous forme de règles compatibles
+  - Notes: Idempotent, le script peut être rejoué. À exécuter après la migration Prisma qui crée la table `publisher_diffusion_rule`.
+
 - **backfill-organization-search-text.ts**
 
   - Exécution: `npx ts-node scripts/backfill-organization-search-text.ts [--batch <taille>] [--last-id <id>] [--only-null]`
