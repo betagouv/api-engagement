@@ -9,14 +9,14 @@ import Partners from "~/components/layout/partners";
 import GradientBg from "~/components/ui/gradient-bg";
 import { browseMissions } from "~/services/mission-browse";
 import { useQuizStore } from "~/stores/quiz";
-import type { BrowseMission } from "~/types/api";
+
 import type { Route } from "./+types/_index";
 
+import type { MissionBrowse } from "@engagement/dto";
 import PeopleMobilePng from "~/assets/images/people-landing-mobile.png";
 import PeoplePng from "~/assets/images/people-landing.png";
 
 const EXAMPLES_COUNT = 5;
-const TESTIMONIALS_COUNT = 4;
 
 export function meta(): Route.MetaDescriptors {
   return [
@@ -28,20 +28,17 @@ export function meta(): Route.MetaDescriptors {
   ];
 }
 
-export async function loader(): Promise<{ examples: BrowseMission[]; testimonials: BrowseMission[] }> {
+export async function loader(): Promise<{ examples: MissionBrowse[] }> {
   try {
-    const res = await browseMissions({ pageSize: EXAMPLES_COUNT + TESTIMONIALS_COUNT });
-    return {
-      examples: res.data.slice(0, EXAMPLES_COUNT),
-      testimonials: res.data.slice(EXAMPLES_COUNT, EXAMPLES_COUNT + TESTIMONIALS_COUNT),
-    };
+    const res = await browseMissions({ pageSize: EXAMPLES_COUNT });
+    return { examples: res.data.slice(0, EXAMPLES_COUNT) };
   } catch {
-    return { examples: [], testimonials: [] };
+    return { examples: [] };
   }
 }
 
 export default function Landing() {
-  const { examples, testimonials } = useLoaderData<typeof loader>();
+  const { examples } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const reset = useQuizStore((s) => s.reset);
 
@@ -61,7 +58,7 @@ export default function Landing() {
         <MissionExamples missions={examples} className="-mt-14 md:-mt-24" />
       </GradientBg>
       <HowItWorks />
-      <Testimonials missions={testimonials} />
+      <Testimonials />
       <ProSpace />
       <Partners style="compact" />
       <Newsletter

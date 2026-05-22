@@ -12,14 +12,22 @@ import Highlight from "../ui/highlight";
 
 type Feature = {
   icon: string;
-  title: string;
+  title: string | React.ReactNode;
 };
 
 const FEATURES: Feature[] = [
-  { icon: CalendarSvg, title: "À ton rythme Ponctuel ou régulier" },
+  {
+    icon: CalendarSvg,
+    title: (
+      <>
+        À ton rythme <br />
+        Ponctuel ou régulier
+      </>
+    ),
+  },
   { icon: MoneySvg, title: "Avec ou sans indemnité selon les missions" },
   { icon: LocationFranceSvg, title: "Partout en France et à l'étranger" },
-  { icon: SelfTrainingSvg, title: "Compatible sans diplôme études ou emploi" },
+  { icon: SelfTrainingSvg, title: "Sans diplôme ni expérience requis" },
 ];
 
 export default function HowItWorks() {
@@ -67,13 +75,13 @@ export default function HowItWorks() {
           aria-atomic="false"
         >
           <div className="flex w-max gap-6 pr-8 pb-4 md:grid md:w-auto md:grid-cols-2 md:pr-0 md:pb-0 lg:grid-cols-4">
-            {FEATURES.map((feature) => (
+            {FEATURES.map((feature, index) => (
               <div
-                key={feature.title}
-                className="bg-background flex w-[calc(100vw-2rem)] shrink-0 flex-col items-center gap-4 p-6 text-center shadow-lg md:mx-auto md:w-auto md:max-w-60"
+                key={`how-it-works-${index}`}
+                className="bg-background flex w-[calc(100vw-2rem)] shrink-0 flex-col items-center gap-4 py-6 px-8 text-center shadow-lg md:mx-auto md:w-auto md:w-72!"
               >
                 <img src={feature.icon} alt="" className="size-16" aria-hidden="true" />
-                <p className="fr-text--lead text-title-grey font-bold mb-0!">{feature.title}</p>
+                <p className="fr-text--lead text-title-grey font-bold mb-0! mt-4!">{feature.title}</p>
               </div>
             ))}
           </div>
@@ -99,10 +107,10 @@ export default function HowItWorks() {
         </div>
 
         <div className="flex flex-col items-center gap-3">
-          <Link to="/missions" className="fr-btn fr-btn--secondary fr-btn--lg w-full justify-center md:w-auto">
+          <Link to="/missions" className="fr-btn fr-btn--secondary fr-btn--lg w-full! justify-center! md:w-auto!">
             Je découvre les missions
           </Link>
-          <p className="fr-text--sm text-mention-grey fr-mb-0 text-center">+25 000 missions disponibles partout en France</p>
+          <p className="fr-text--sm text-mention-grey fr-mb-0! text-center!">+25 000 missions disponibles partout en France</p>
         </div>
       </div>
     </section>
