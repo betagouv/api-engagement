@@ -10,6 +10,7 @@ router.use(passport.authenticate(["apikey", "api"], { session: false }));
 
 const matchQuerySchema = zod.object({
   userScoringId: zod.string().uuid(),
+  publisherId: zod.string().optional(),
   limit: zod.coerce.number().int().min(1).max(100).default(20),
   offset: zod.coerce.number().int().min(0).default(0),
 });
