@@ -9,6 +9,7 @@ export default defineConfig({
     env: {
       PUBLISHER_API_KEY: "test-key",
       SERVER_API_URL: "http://fake-api.test",
+      TZ: "UTC",
     },
   },
 });
