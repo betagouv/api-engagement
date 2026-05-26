@@ -165,7 +165,13 @@ describe("missionScoringService.score", () => {
         {
           missionEnrichmentValueId: null,
           taxonomyKey: "tranche_age",
-          valueKey: "moins_26_ans",
+          valueKey: "moins_18_ans",
+          score: 1,
+        },
+        {
+          missionEnrichmentValueId: null,
+          taxonomyKey: "tranche_age",
+          valueKey: "entre_18_25_ans",
           score: 1,
         },
         {
@@ -199,7 +205,31 @@ describe("missionScoringService.score", () => {
         {
           missionEnrichmentValueId: null,
           taxonomyKey: "tranche_age",
-          valueKey: "entre_16_67_ans",
+          valueKey: "moins_18_ans",
+          score: 1,
+        },
+        {
+          missionEnrichmentValueId: null,
+          taxonomyKey: "tranche_age",
+          valueKey: "entre_18_25_ans",
+          score: 1,
+        },
+        {
+          missionEnrichmentValueId: null,
+          taxonomyKey: "tranche_age",
+          valueKey: "entre_25_30_ans",
+          score: 1,
+        },
+        {
+          missionEnrichmentValueId: null,
+          taxonomyKey: "tranche_age",
+          valueKey: "entre_30_45_ans",
+          score: 1,
+        },
+        {
+          missionEnrichmentValueId: null,
+          taxonomyKey: "tranche_age",
+          valueKey: "entre_46_67_ans",
           score: 1,
         },
       ],

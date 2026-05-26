@@ -67,8 +67,7 @@ describe("POST /user-scoring", () => {
   // ─── Success cases ──────────────────────────────────────────────────────────
 
   it("should create a user scoring with one answer (no geo)", async () => {
-    const res = await postUserScoringRequest()
-      .send({ answers: [taxonomyAnswer] });
+    const res = await postUserScoringRequest().send({ answers: [taxonomyAnswer] });
 
     expect(res.status).toBe(201);
     expect(res.body.ok).toBe(true);
@@ -90,10 +89,9 @@ describe("POST /user-scoring", () => {
   });
 
   it("should create a user scoring with location params (lat/lon only)", async () => {
-    const res = await postUserScoringRequest()
-      .send({
-        answers: [taxonomyAnswer, { taxonomy: "location", params: { lat: 48.8566, lon: 2.3522 } }],
-      });
+    const res = await postUserScoringRequest().send({
+      answers: [taxonomyAnswer, { taxonomy: "location", params: { lat: 48.8566, lon: 2.3522 } }],
+    });
 
     expect(res.status).toBe(201);
 
@@ -107,10 +105,9 @@ describe("POST /user-scoring", () => {
   });
 
   it("should create a user scoring with location params including radius_km and country_code", async () => {
-    const res = await postUserScoringRequest()
-      .send({
-        answers: [taxonomyAnswer, { taxonomy: "location", params: { lat: 48.8566, lon: 2.3522, radius_km: 50, country_code: "fr" } }],
-      });
+    const res = await postUserScoringRequest().send({
+      answers: [taxonomyAnswer, { taxonomy: "location", params: { lat: 48.8566, lon: 2.3522, radius_km: 50, country_code: "fr" } }],
+    });
 
     expect(res.status).toBe(201);
 
@@ -122,10 +119,9 @@ describe("POST /user-scoring", () => {
   });
 
   it("should create a user scoring with only location params", async () => {
-    const res = await postUserScoringRequest()
-      .send({
-        answers: [{ taxonomy: "location", params: { lat: 48.8566, lon: 2.3522 } }],
-      });
+    const res = await postUserScoringRequest().send({
+      answers: [{ taxonomy: "location", params: { lat: 48.8566, lon: 2.3522 } }],
+    });
 
     expect(res.status).toBe(201);
 
@@ -143,10 +139,9 @@ describe("POST /user-scoring", () => {
   });
 
   it("should create a user scoring with multiple answers", async () => {
-    const res = await postUserScoringRequest()
-      .send({
-        answers: [taxonomyAnswer, secondaryTaxonomyAnswer],
-      });
+    const res = await postUserScoringRequest().send({
+      answers: [taxonomyAnswer, secondaryTaxonomyAnswer],
+    });
 
     expect(res.status).toBe(201);
 
@@ -159,12 +154,11 @@ describe("POST /user-scoring", () => {
   });
 
   it("should create a user scoring with distinctId and missionAlertEnabled", async () => {
-    const res = await postUserScoringRequest()
-      .send({
-        answers: [taxonomyAnswer],
-        distinctId: "distinct-user-1",
-        missionAlertEnabled: true,
-      });
+    const res = await postUserScoringRequest().send({
+      answers: [taxonomyAnswer],
+      distinctId: "distinct-user-1",
+      missionAlertEnabled: true,
+    });
 
     expect(res.status).toBe(201);
 
@@ -176,10 +170,9 @@ describe("POST /user-scoring", () => {
   });
 
   it("should deduplicate repeated answers", async () => {
-    const res = await postUserScoringRequest()
-      .send({
-        answers: [taxonomyAnswer, taxonomyAnswer],
-      });
+    const res = await postUserScoringRequest().send({
+      answers: [taxonomyAnswer, taxonomyAnswer],
+    });
 
     expect(res.status).toBe(201);
 
@@ -191,8 +184,7 @@ describe("POST /user-scoring", () => {
 
   it("should set expiresAt on the created user scoring", async () => {
     const before = Date.now();
-    const res = await postUserScoringRequest()
-      .send({ answers: [taxonomyAnswer] });
+    const res = await postUserScoringRequest().send({ answers: [taxonomyAnswer] });
 
     const userScoring = await prisma.userScoring.findUniqueOrThrow({
       where: { id: res.body.data.id },
@@ -220,10 +212,9 @@ describe("POST /user-scoring", () => {
   });
 
   it("should create a user scoring from tranche_age params", async () => {
-    const res = await postUserScoringRequest()
-      .send({
-        answers: [{ taxonomy: "tranche_age", params: { age: 18, handicap: false } }],
-      });
+    const res = await postUserScoringRequest().send({
+      answers: [{ taxonomy: "tranche_age", params: { age: 18, handicap: false } }],
+    });
 
     expect(res.status).toBe(201);
 
@@ -231,14 +222,13 @@ describe("POST /user-scoring", () => {
       where: { userScoringId: res.body.data.id },
       orderBy: [{ valueKey: "asc" }],
     });
-    expect(values.map((value) => `${value.taxonomyKey}.${value.valueKey}`)).toEqual(["tranche_age.entre_16_67_ans", "tranche_age.entre_17_72_ans", "tranche_age.moins_26_ans"]);
+    expect(values.map((value) => `${value.taxonomyKey}.${value.valueKey}`)).toEqual(["tranche_age.entre_18_25_ans"]);
   });
 
   it("should create a user scoring with handicap tranche_age params", async () => {
-    const res = await postUserScoringRequest()
-      .send({
-        answers: [{ taxonomy: "tranche_age", params: { age: 30, handicap: true } }],
-      });
+    const res = await postUserScoringRequest().send({
+      answers: [{ taxonomy: "tranche_age", params: { age: 30, handicap: true } }],
+    });
 
     expect(res.status).toBe(201);
 
@@ -246,57 +236,47 @@ describe("POST /user-scoring", () => {
       where: { userScoringId: res.body.data.id },
       orderBy: [{ valueKey: "asc" }],
     });
-    expect(values.map((value) => `${value.taxonomyKey}.${value.valueKey}`)).toEqual([
-      "tranche_age.entre_16_67_ans",
-      "tranche_age.entre_17_72_ans",
-      "tranche_age.moins_31_ans_handicap",
-    ]);
+    expect(values.map((value) => `${value.taxonomyKey}.${value.valueKey}`)).toEqual(["tranche_age.entre_25_30_ans", "tranche_age.moins_31_ans_handicap"]);
   });
 
   it("should deduplicate direct and resolved answers", async () => {
-    const res = await postUserScoringRequest()
-      .send({
-        answers: [
-          { taxonomy: "tranche_age", value: "moins_26_ans" },
-          { taxonomy: "tranche_age", params: { age: 18, handicap: false } },
-        ],
-      });
+    const res = await postUserScoringRequest().send({
+      answers: [
+        { taxonomy: "tranche_age", value: "entre_18_25_ans" },
+        { taxonomy: "tranche_age", params: { age: 18, handicap: false } },
+      ],
+    });
 
     expect(res.status).toBe(201);
 
     const values = await prisma.userScoringValue.findMany({
       where: { userScoringId: res.body.data.id },
     });
-    expect(values).toHaveLength(3);
+    expect(values).toHaveLength(1);
   });
 
   it("should return 400 when taxonomy is unknown", async () => {
-    const res = await postUserScoringRequest()
-      .send({ answers: [{ taxonomy: "unknown", value: "sante_soins" }] });
+    const res = await postUserScoringRequest().send({ answers: [{ taxonomy: "unknown", value: "sante_soins" }] });
     expect(res.status).toBe(400);
     expect(res.body.ok).toBe(false);
   });
 
   it("should return 400 when taxonomy value is unknown", async () => {
-    const res = await postUserScoringRequest()
-      .send({ answers: [{ taxonomy: "domaine", value: "does_not_exist" }] });
+    const res = await postUserScoringRequest().send({ answers: [{ taxonomy: "domaine", value: "does_not_exist" }] });
     expect(res.status).toBe(400);
     expect(res.body.ok).toBe(false);
   });
 
   it("should return 400 when params target a taxonomy without transformer", async () => {
-    const res = await postUserScoringRequest()
-      .send({ answers: [{ taxonomy: "domaine", params: { age: 18 } }] });
+    const res = await postUserScoringRequest().send({ answers: [{ taxonomy: "domaine", params: { age: 18 } }] });
     expect(res.status).toBe(400);
     expect(res.body.ok).toBe(false);
   });
 
   it("should return 400 when tranche_age params are invalid", async () => {
     const responses = await Promise.all([
-      postUserScoringRequest()
-        .send({ answers: [{ taxonomy: "tranche_age", params: { age: 121, handicap: false } }] }),
-      postUserScoringRequest()
-        .send({ answers: [{ taxonomy: "tranche_age", params: { age: 18, handicap: "false" } }] }),
+      postUserScoringRequest().send({ answers: [{ taxonomy: "tranche_age", params: { age: 121, handicap: false } }] }),
+      postUserScoringRequest().send({ answers: [{ taxonomy: "tranche_age", params: { age: 18, handicap: "false" } }] }),
     ]);
 
     expect(responses.map((res) => res.status)).toEqual([400, 400]);
@@ -305,10 +285,8 @@ describe("POST /user-scoring", () => {
 
   it("should return 400 when answer has both value and params or neither", async () => {
     const responses = await Promise.all([
-      postUserScoringRequest()
-        .send({ answers: [{ taxonomy: "domaine", value: "social_solidarite", params: { age: 18 } }] }),
-      postUserScoringRequest()
-        .send({ answers: [{ taxonomy: "domaine" }] }),
+      postUserScoringRequest().send({ answers: [{ taxonomy: "domaine", value: "social_solidarite", params: { age: 18 } }] }),
+      postUserScoringRequest().send({ answers: [{ taxonomy: "domaine" }] }),
     ]);
 
     expect(responses.map((res) => res.status)).toEqual([400, 400]);
@@ -316,10 +294,9 @@ describe("POST /user-scoring", () => {
   });
 
   it("should create a user scoring with direct values, tranche_age and location params", async () => {
-    const res = await postUserScoringRequest()
-      .send({
-        answers: [taxonomyAnswer, { taxonomy: "tranche_age", params: { age: 18, handicap: false } }, { taxonomy: "location", params: { lat: 48.8566, lon: 2.3522 } }],
-      });
+    const res = await postUserScoringRequest().send({
+      answers: [taxonomyAnswer, { taxonomy: "tranche_age", params: { age: 18, handicap: false } }, { taxonomy: "location", params: { lat: 48.8566, lon: 2.3522 } }],
+    });
 
     expect(res.status).toBe(201);
 
@@ -335,52 +312,46 @@ describe("POST /user-scoring", () => {
   });
 
   it("should return 400 when location lat is out of range", async () => {
-    const res = await postUserScoringRequest()
-      .send({
-        answers: [{ taxonomy: "location", params: { lat: 999, lon: 2.3522 } }],
-      });
+    const res = await postUserScoringRequest().send({
+      answers: [{ taxonomy: "location", params: { lat: 999, lon: 2.3522 } }],
+    });
     expect(res.status).toBe(400);
     expect(res.body.ok).toBe(false);
   });
 
   it("should return 400 when location lon is out of range", async () => {
-    const res = await postUserScoringRequest()
-      .send({
-        answers: [{ taxonomy: "location", params: { lat: 48.8566, lon: 999 } }],
-      });
+    const res = await postUserScoringRequest().send({
+      answers: [{ taxonomy: "location", params: { lat: 48.8566, lon: 999 } }],
+    });
     expect(res.status).toBe(400);
     expect(res.body.ok).toBe(false);
   });
 
   it("should return 400 when location radius_km is invalid", async () => {
-    const res = await postUserScoringRequest()
-      .send({
-        answers: [{ taxonomy: "location", params: { lat: 48.8566, lon: 2.3522, radius_km: 0 } }],
-      });
+    const res = await postUserScoringRequest().send({
+      answers: [{ taxonomy: "location", params: { lat: 48.8566, lon: 2.3522, radius_km: 0 } }],
+    });
     expect(res.status).toBe(400);
     expect(res.body.ok).toBe(false);
   });
 
   it("should return 400 when location country_code is invalid", async () => {
-    const res = await postUserScoringRequest()
-      .send({
-        answers: [{ taxonomy: "location", params: { lat: 48.8566, lon: 2.3522, country_code: "FRA" } }],
-      });
+    const res = await postUserScoringRequest().send({
+      answers: [{ taxonomy: "location", params: { lat: 48.8566, lon: 2.3522, country_code: "FRA" } }],
+    });
     expect(res.status).toBe(400);
     expect(res.body.ok).toBe(false);
   });
 
   it("should return 400 when location uses a value or is duplicated", async () => {
     const responses = await Promise.all([
-      postUserScoringRequest()
-        .send({ answers: [{ taxonomy: "location", value: "paris" }] }),
-      postUserScoringRequest()
-        .send({
-          answers: [
-            { taxonomy: "location", params: { lat: 48.8566, lon: 2.3522 } },
-            { taxonomy: "location", params: { lat: 45.764, lon: 4.8357 } },
-          ],
-        }),
+      postUserScoringRequest().send({ answers: [{ taxonomy: "location", value: "paris" }] }),
+      postUserScoringRequest().send({
+        answers: [
+          { taxonomy: "location", params: { lat: 48.8566, lon: 2.3522 } },
+          { taxonomy: "location", params: { lat: 45.764, lon: 4.8357 } },
+        ],
+      }),
     ]);
 
     expect(responses.map((res) => res.status)).toEqual([400, 400]);
@@ -388,11 +359,10 @@ describe("POST /user-scoring", () => {
   });
 
   it("should return 400 when top-level geo is provided", async () => {
-    const res = await postUserScoringRequest()
-      .send({
-        answers: [taxonomyAnswer],
-        geo: { lat: 48.8566, lon: 2.3522 },
-      });
+    const res = await postUserScoringRequest().send({
+      answers: [taxonomyAnswer],
+      geo: { lat: 48.8566, lon: 2.3522 },
+    });
 
     expect(res.status).toBe(400);
     expect(res.body.ok).toBe(false);
@@ -415,8 +385,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
       answers?: Array<{ taxonomy: string; value?: string; params?: Record<string, unknown> }>;
     } = { distinctId }
   ) => {
-    const res = await postUserScoringRequest()
-      .send({ answers: params.answers ?? [taxonomyAnswer], distinctId: params.distinctId });
+    const res = await postUserScoringRequest().send({ answers: params.answers ?? [taxonomyAnswer], distinctId: params.distinctId });
 
     expect(res.status).toBe(201);
     return res.body.data.id as string;
@@ -487,8 +456,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
   it("should replace existing answers on an existing user scoring", async () => {
     const userScoringId = await createUserScoring();
 
-    const res = await putUserScoringRequest(userScoringId)
-      .send({ distinctId, answers: [secondaryTaxonomyAnswer] });
+    const res = await putUserScoringRequest(userScoringId).send({ distinctId, answers: [secondaryTaxonomyAnswer] });
 
     expect(res.status).toBe(200);
     expect(res.body).toMatchObject({
@@ -531,12 +499,11 @@ describe("PUT /user-scoring/:userScoringId", () => {
   it("should replace answers and update missionAlertEnabled in the same request", async () => {
     const userScoringId = await createUserScoring();
 
-    const res = await putUserScoringRequest(userScoringId)
-      .send({
-        distinctId,
-        missionAlertEnabled: true,
-        answers: [secondaryTaxonomyAnswer],
-      });
+    const res = await putUserScoringRequest(userScoringId).send({
+      distinctId,
+      missionAlertEnabled: true,
+      answers: [secondaryTaxonomyAnswer],
+    });
 
     expect(res.status).toBe(200);
     expect(res.body).toMatchObject({
@@ -558,11 +525,10 @@ describe("PUT /user-scoring/:userScoringId", () => {
   it("should replace all existing values with payload values and deduplicate answers", async () => {
     const userScoringId = await createUserScoring();
 
-    const res = await putUserScoringRequest(userScoringId)
-      .send({
-        distinctId,
-        answers: [taxonomyAnswer, secondaryTaxonomyAnswer, secondaryTaxonomyAnswer],
-      });
+    const res = await putUserScoringRequest(userScoringId).send({
+      distinctId,
+      answers: [taxonomyAnswer, secondaryTaxonomyAnswer, secondaryTaxonomyAnswer],
+    });
 
     expect(res.status).toBe(200);
     expect(res.body.data.created_count).toBe(2);
@@ -728,12 +694,11 @@ describe("PUT /user-scoring/:userScoringId", () => {
       city: "Paris",
     });
 
-    const res = await postMissionEmailRequest()
-      .send({
-        email: "user@example.com",
-        publisherId: emailPublisher.id,
-        missionIds: [mission.id],
-      });
+    const res = await postMissionEmailRequest().send({
+      email: "user@example.com",
+      publisherId: emailPublisher.id,
+      missionIds: [mission.id],
+    });
 
     expect(res.status).toBe(200);
     expect(res.body).toMatchObject({
@@ -770,12 +735,11 @@ describe("PUT /user-scoring/:userScoringId", () => {
   it("should skip mission email when missionIds are not found", async () => {
     const emailPublisher = await createEmailPublisher();
 
-    const res = await postMissionEmailRequest()
-      .send({
-        email: "user@example.com",
-        publisherId: emailPublisher.id,
-        missionIds: ["00000000-0000-0000-0000-000000000000"],
-      });
+    const res = await postMissionEmailRequest().send({
+      email: "user@example.com",
+      publisherId: emailPublisher.id,
+      missionIds: ["00000000-0000-0000-0000-000000000000"],
+    });
 
     expect(res.status).toBe(200);
     expect(res.body).toMatchObject({
@@ -888,11 +852,10 @@ describe("PUT /user-scoring/:userScoringId", () => {
   it("should replace existing values for a direct taxonomy", async () => {
     const userScoringId = await createUserScoring();
 
-    const res = await putUserScoringRequest(userScoringId)
-      .send({
-        distinctId,
-        answers: [{ taxonomy: "domaine", value: "sante_soins" }],
-      });
+    const res = await putUserScoringRequest(userScoringId).send({
+      distinctId,
+      answers: [{ taxonomy: "domaine", value: "sante_soins" }],
+    });
 
     expect(res.status).toBe(200);
     expect(res.body.data.created_count).toBe(1);
@@ -908,11 +871,10 @@ describe("PUT /user-scoring/:userScoringId", () => {
   it("should replace existing values with resolved tranche_age answers", async () => {
     const userScoringId = await createUserScoring();
 
-    const res = await putUserScoringRequest(userScoringId)
-      .send({
-        distinctId,
-        answers: [{ taxonomy: "tranche_age", params: { age: 18, handicap: false } }],
-      });
+    const res = await putUserScoringRequest(userScoringId).send({
+      distinctId,
+      answers: [{ taxonomy: "tranche_age", params: { age: 18, handicap: false } }],
+    });
 
     expect(res.status).toBe(200);
     expect(res.body.data.created_count).toBe(3);
@@ -926,19 +888,17 @@ describe("PUT /user-scoring/:userScoringId", () => {
   it("should replace existing tranche_age values when age changes", async () => {
     const userScoringId = await createUserScoring();
 
-    const firstRes = await putUserScoringRequest(userScoringId)
-      .send({
-        distinctId,
-        answers: [{ taxonomy: "tranche_age", params: { age: 18, handicap: false } }],
-      });
+    const firstRes = await putUserScoringRequest(userScoringId).send({
+      distinctId,
+      answers: [{ taxonomy: "tranche_age", params: { age: 18, handicap: false } }],
+    });
     expect(firstRes.status).toBe(200);
     expect(firstRes.body.data.created_count).toBe(3);
 
-    const secondRes = await putUserScoringRequest(userScoringId)
-      .send({
-        distinctId,
-        answers: [{ taxonomy: "tranche_age", params: { age: 70, handicap: false } }],
-      });
+    const secondRes = await putUserScoringRequest(userScoringId).send({
+      distinctId,
+      answers: [{ taxonomy: "tranche_age", params: { age: 70, handicap: false } }],
+    });
 
     expect(secondRes.status).toBe(200);
     expect(secondRes.body.data.created_count).toBe(1);
@@ -956,11 +916,10 @@ describe("PUT /user-scoring/:userScoringId", () => {
       answers: [taxonomyAnswer, { taxonomy: "location", params: { lat: 48.8566, lon: 2.3522 } }],
     });
 
-    const res = await putUserScoringRequest(userScoringId)
-      .send({
-        distinctId,
-        answers: [secondaryTaxonomyAnswer],
-      });
+    const res = await putUserScoringRequest(userScoringId).send({
+      distinctId,
+      answers: [secondaryTaxonomyAnswer],
+    });
 
     expect(res.status).toBe(200);
     expect(res.body.data.created_count).toBe(1);
@@ -992,11 +951,10 @@ describe("PUT /user-scoring/:userScoringId", () => {
   it("should update geo from location params", async () => {
     const userScoringId = await createUserScoring();
 
-    const res = await putUserScoringRequest(userScoringId)
-      .send({
-        distinctId,
-        answers: [{ taxonomy: "location", params: { lat: 48.8566, lon: 2.3522, radius_km: 25, country_code: "FR" } }],
-      });
+    const res = await putUserScoringRequest(userScoringId).send({
+      distinctId,
+      answers: [{ taxonomy: "location", params: { lat: 48.8566, lon: 2.3522, radius_km: 25, country_code: "FR" } }],
+    });
 
     expect(res.status).toBe(200);
     expect(res.body.data.created_count).toBe(0);
@@ -1019,11 +977,10 @@ describe("PUT /user-scoring/:userScoringId", () => {
   it("should accept an update with only location params", async () => {
     const userScoringId = await createUserScoring();
 
-    const res = await putUserScoringRequest(userScoringId)
-      .send({
-        distinctId,
-        answers: [{ taxonomy: "location", params: { lat: 45.764, lon: 4.8357 } }],
-      });
+    const res = await putUserScoringRequest(userScoringId).send({
+      distinctId,
+      answers: [{ taxonomy: "location", params: { lat: 45.764, lon: 4.8357 } }],
+    });
 
     expect(res.status).toBe(200);
     expect(res.body).toMatchObject({
@@ -1035,8 +992,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
   it("should return 400 when added answers are invalid", async () => {
     const userScoringId = await createUserScoring();
 
-    const res = await putUserScoringRequest(userScoringId)
-      .send({ distinctId, answers: [{ taxonomy: "domaine", value: "does_not_exist" }] });
+    const res = await putUserScoringRequest(userScoringId).send({ distinctId, answers: [{ taxonomy: "domaine", value: "does_not_exist" }] });
 
     expect(res.status).toBe(400);
     expect(res.body.ok).toBe(false);
@@ -1054,8 +1010,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
   it("should return 400 when email is invalid", async () => {
     const emailPublisher = await createEmailPublisher();
 
-    const res = await postMissionEmailRequest()
-      .send({ email: "not-an-email", publisherId: emailPublisher.id, missionIds: ["00000000-0000-0000-0000-000000000000"] });
+    const res = await postMissionEmailRequest().send({ email: "not-an-email", publisherId: emailPublisher.id, missionIds: ["00000000-0000-0000-0000-000000000000"] });
 
     expect(res.status).toBe(400);
     expect(res.body.ok).toBe(false);
@@ -1066,8 +1021,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
   it("should return 400 when top-level geo is provided on update", async () => {
     const userScoringId = await createUserScoring();
 
-    const res = await putUserScoringRequest(userScoringId)
-      .send({ distinctId, geo: { lat: 48.8566, lon: 2.3522 } });
+    const res = await putUserScoringRequest(userScoringId).send({ distinctId, geo: { lat: 48.8566, lon: 2.3522 } });
 
     expect(res.status).toBe(400);
     expect(res.body.ok).toBe(false);
@@ -1076,8 +1030,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
   it("should return 400 when distinctId is missing", async () => {
     const userScoringId = await createUserScoring();
 
-    const res = await putUserScoringRequest(userScoringId)
-      .send({ answers: [secondaryTaxonomyAnswer] });
+    const res = await putUserScoringRequest(userScoringId).send({ answers: [secondaryTaxonomyAnswer] });
 
     expect(res.status).toBe(400);
     expect(res.body.ok).toBe(false);
@@ -1086,8 +1039,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
   it("should return 403 when distinctId does not match the user scoring", async () => {
     const userScoringId = await createUserScoring();
 
-    const res = await putUserScoringRequest(userScoringId)
-      .send({ distinctId: "another-distinct-user", answers: [secondaryTaxonomyAnswer] });
+    const res = await putUserScoringRequest(userScoringId).send({ distinctId: "another-distinct-user", answers: [secondaryTaxonomyAnswer] });
 
     expect(res.status).toBe(403);
     expect(res.body.ok).toBe(false);
@@ -1103,24 +1055,21 @@ describe("PUT /user-scoring/:userScoringId", () => {
   it("should return 403 when user scoring has no distinctId", async () => {
     const userScoringId = await createUserScoring({ distinctId: undefined });
 
-    const res = await putUserScoringRequest(userScoringId)
-      .send({ distinctId, answers: [secondaryTaxonomyAnswer] });
+    const res = await putUserScoringRequest(userScoringId).send({ distinctId, answers: [secondaryTaxonomyAnswer] });
 
     expect(res.status).toBe(403);
     expect(res.body.ok).toBe(false);
   });
 
   it("should return 400 when userScoringId is not a uuid", async () => {
-    const res = await putUserScoringRequest("not-a-uuid")
-      .send({ distinctId, answers: [taxonomyAnswer] });
+    const res = await putUserScoringRequest("not-a-uuid").send({ distinctId, answers: [taxonomyAnswer] });
 
     expect(res.status).toBe(400);
     expect(res.body.ok).toBe(false);
   });
 
   it("should return 404 when user scoring does not exist", async () => {
-    const res = await putUserScoringRequest("00000000-0000-4000-8000-000000000000")
-      .send({ distinctId, answers: [taxonomyAnswer] });
+    const res = await putUserScoringRequest("00000000-0000-4000-8000-000000000000").send({ distinctId, answers: [taxonomyAnswer] });
 
     expect(res.status).toBe(404);
     expect(res.body.ok).toBe(false);

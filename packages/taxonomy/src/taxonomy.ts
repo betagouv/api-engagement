@@ -301,10 +301,14 @@ export const TAXONOMY = {
     gate: true,
     transformer: resolveTrancheAgeValues,
     values: {
-      moins_26_ans: { label: "Moins de 26 ans", icon: null, enrichable: false },
-      moins_31_ans_handicap: { label: "Moins de 31 ans — situation de handicap", icon: null, enrichable: false },
-      entre_17_72_ans: { label: "Être âgé de 17 à 72 ans", icon: null, enrichable: false },
-      entre_16_67_ans: { label: "Avoir au minimum 16 ans (avec autorisation parentale pour les mineurs) et moins de 67 ans", icon: null, enrichable: false },
+      moins_18_ans: { label: "Moins de 18 ans", icon: null, enrichable: false },
+      entre_18_25_ans: { label: "18-25 ans", icon: null, enrichable: false },
+      entre_25_30_ans: { label: "25-30 ans", icon: null, enrichable: false },
+      entre_30_45_ans: { label: "30-45 ans", icon: null, enrichable: false },
+      entre_46_67_ans: { label: "46-67 ans", icon: null, enrichable: false },
+      entre_68_72_ans: { label: "68-72 ans", icon: null, enrichable: false },
+      plus_72_ans: { label: "72 ans et plus", icon: null, enrichable: false },
+      moins_31_ans_handicap: { label: "Moins de 31 ans — situation de handicap", icon: null, enrichable: false, hidden: true },
     },
   },
 } as const;

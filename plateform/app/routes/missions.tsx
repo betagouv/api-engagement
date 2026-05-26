@@ -24,6 +24,11 @@ const filterTaxonomyLabel = (key: TaxonomyFilterKey, value: string): string => {
   return taxonomyValues[value]?.label ?? value;
 };
 
+const isTaxonomyValueHidden = (key: TaxonomyFilterKey, value: string): boolean => {
+  const taxonomyValues = TAXONOMY[key].values as Record<string, { hidden?: boolean }>;
+  return taxonomyValues[value]?.hidden === true;
+};
+
 const formatDepartmentLabel = (code: string): string => code.replace(/^FR-/, "");
 
 const sortFacets = (facets: MissionBrowseFacetCount[] | undefined) =>
@@ -109,11 +114,13 @@ export default function MissionsPage() {
       placeholder: "Toutes",
       selected: filterValues.tranche_age,
       single: true,
-      options: sortFacets(facets.tranche_age).map((facet) => ({
-        value: facet.key,
-        label: filterTaxonomyLabel("tranche_age", facet.key),
-        count: facet.count,
-      })),
+      options: sortFacets(facets.tranche_age)
+        .filter((facet) => !isTaxonomyValueHidden("tranche_age", facet.key))
+        .map((facet) => ({
+          value: facet.key,
+          label: filterTaxonomyLabel("tranche_age", facet.key),
+          count: facet.count,
+        })),
     },
     {
       key: "type_mission",
