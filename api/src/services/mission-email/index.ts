@@ -4,6 +4,7 @@ import { userScoringRepository } from "@/repositories/user-scoring";
 import { createOrUpdateContact, sendTemplate, TEMPLATE_IDS } from "@/services/brevo";
 import type { MissionMatchingResultItem } from "@/services/matching-engine/types";
 import { missionService } from "@/services/mission";
+import type { MissionEmailSkipReason, SendMissionEmailRequest } from "@engagement/dto";
 
 const BREVO_CONTACT_LIST_ID = 22;
 const USER_SCORING_EMAIL_MISSION_LIMIT = 5;
@@ -11,9 +12,7 @@ const USER_SCORING_EMAIL_MISSION_LIMIT = 5;
 export const MISSION_EMAIL_SKIP_REASONS = {
   NO_MATCHING_RESULT: "NO_MATCHING_RESULT",
   MISSION_NOT_FOUND: "MISSION_NOT_FOUND",
-} as const;
-
-export type MissionEmailSkipReason = (typeof MISSION_EMAIL_SKIP_REASONS)[keyof typeof MISSION_EMAIL_SKIP_REASONS];
+} as const satisfies Record<MissionEmailSkipReason, MissionEmailSkipReason>;
 
 type EmailMission = {
   id: string;
@@ -46,14 +45,6 @@ type MissionEmailItem = {
 
 type MissionEmailParams = {
   missions: MissionEmailItem[];
-};
-
-type SendMissionEmailInput = {
-  email: string;
-  publisherId: string;
-  distinctId?: string;
-  userScoringId?: string;
-  missionIds?: string[];
 };
 
 type SendMissionEmailResult = { status: "sent" } | { status: "skipped"; reason: MissionEmailSkipReason } | { status: "failed" } | { status: "forbidden" } | { status: "not_found" };
@@ -203,7 +194,7 @@ export const getMissionEmailSkipReason = (missionIds?: string[]): MissionEmailSk
   return missionIds?.length ? MISSION_EMAIL_SKIP_REASONS.MISSION_NOT_FOUND : MISSION_EMAIL_SKIP_REASONS.NO_MATCHING_RESULT;
 };
 
-export const sendMissionEmail = async (input: SendMissionEmailInput): Promise<SendMissionEmailResult> => {
+export const sendMissionEmail = async (input: SendMissionEmailRequest): Promise<SendMissionEmailResult> => {
   if (input.userScoringId) {
     const userScoring = await userScoringRepository.findById(input.userScoringId);
     if (!userScoring) {
