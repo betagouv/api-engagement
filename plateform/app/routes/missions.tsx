@@ -2,6 +2,7 @@ import type { MissionBrowse, MissionBrowseFacetCount, MissionBrowseFilters } fro
 import { TAXONOMY } from "@engagement/taxonomy";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router";
 import Newsletter from "~/components/layout/newsletter";
 import Partners from "~/components/layout/partners";
 import MissionFiltersBar, { MissionFiltersTrigger, type FilterDef } from "~/components/missions/filters";
@@ -45,14 +46,17 @@ export function meta(): Route.MetaDescriptors {
 }
 
 export default function MissionsPage() {
-  const [filterValues, setFilterValues] = useState<Record<FilterKey, string[]>>({
-    departmentCode: [],
-    tranche_age: [],
-    type_mission: [],
-    secteur_activite: [],
-    domaine: [],
-  });
-  const [page, setPage] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10));
+  const filterValues: Record<FilterKey, string[]> = {
+    departmentCode: searchParams.getAll("departmentCode"),
+    tranche_age: searchParams.getAll("tranche_age"),
+    type_mission: searchParams.getAll("type_mission"),
+    secteur_activite: searchParams.getAll("secteur_activite"),
+    domaine: searchParams.getAll("domaine"),
+  };
+
   const [items, setItems] = useState<MissionBrowse[]>([]);
   const [total, setTotal] = useState(0);
   const [facets, setFacets] = useState<Record<string, MissionBrowseFacetCount[]>>({});
@@ -87,7 +91,7 @@ export default function MissionsPage() {
       });
 
     return () => controller.abort();
-  }, [filterValues, page]);
+  }, [searchParams]);
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
@@ -152,12 +156,22 @@ export default function MissionsPage() {
 
   const handleFilterChange = (key: string, next: string[]) => {
     if (!FILTER_KEYS.includes(key as FilterKey)) return;
-    setPage(1);
-    setFilterValues((prev) => ({ ...prev, [key as FilterKey]: next }));
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+      params.delete(key);
+      params.delete("page");
+      for (const val of next) params.append(key, val);
+      return params;
+    });
   };
 
   const handlePageChange = (newPage: number) => {
-    setPage(newPage);
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+      if (newPage === 1) params.delete("page");
+      else params.set("page", String(newPage));
+      return params;
+    });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
