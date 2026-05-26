@@ -1,7 +1,7 @@
+import type { MissionMatchItem } from "@engagement/dto";
+import type { ReactNode } from "react";
 import MissionCard from "~/components/missions/mission-card";
 import Pagination from "~/components/ui/pagination";
-import type { ReactNode } from "react";
-import type { MissionMatchItem } from "@engagement/dto";
 import { matchResultToBrowseMission } from "~/utils/mission";
 
 interface OtherMissionsProps {
@@ -26,14 +26,15 @@ export default function OtherMissions({ items, page, pageLoading, hasNextPage, p
         {pageLoading ? (
           <p className="text-mention-grey py-8 text-sm">Chargement…</p>
         ) : (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 mx-auto">
             {items.map((item) => (
-              <MissionCard
-                key={item.mission.id}
-                mission={matchResultToBrowseMission(item)}
-                link={{ type: "internal", to: userScoringId ? `/results/${userScoringId}/missions/${item.mission.id}` : `/missions/${item.mission.id}` }}
-                action={renderAction(item)}
-              />
+              <div key={item.mission.id} className="relative">
+                <MissionCard
+                  mission={matchResultToBrowseMission(item)}
+                  link={{ type: "internal", to: userScoringId ? `/results/${userScoringId}/missions/${item.mission.id}` : `/missions/${item.mission.id}` }}
+                />
+                {renderAction(item)}
+              </div>
             ))}
           </div>
         )}

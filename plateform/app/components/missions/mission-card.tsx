@@ -1,5 +1,4 @@
 import type { MissionBrowse } from "@engagement/dto";
-import type { ReactNode } from "react";
 import { Link } from "react-router";
 
 import { DOMAIN_LABELS } from "~/utils/domains";
@@ -9,10 +8,9 @@ type MissionCardLink = { type: "internal"; to: string } | { type: "external"; hr
 interface MissionCardProps {
   mission: MissionBrowse;
   link?: MissionCardLink;
-  action?: ReactNode;
 }
 
-export default function MissionCard({ mission, link, action }: MissionCardProps) {
+export default function MissionCard({ mission, link }: MissionCardProps) {
   const domainLabel = mission.domain ? (DOMAIN_LABELS[mission.domain] ?? mission.domain) : null;
   const cardImage = mission.photo ?? mission.organizationLogo ?? mission.domainLogo;
 
@@ -61,8 +59,6 @@ export default function MissionCard({ mission, link, action }: MissionCardProps)
           {cardImage ? <img className="fr-responsive-img" src={cardImage} alt="" loading="lazy" /> : <div className="bg-beige-gris-galet aspect-video w-full" />}
         </div>
       </div>
-
-      {action}
     </div>
   );
 }

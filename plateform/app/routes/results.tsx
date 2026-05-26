@@ -1,3 +1,4 @@
+import LazyMissionMap from "~/components/results/lazy-mission-map";
 import MatchingDebugModal, { type MatchingDebugUserValue } from "~/components/results/matching-debug-modal";
 import OtherMissions from "~/components/results/other-missions";
 import PinnedMissions from "~/components/results/pinned-missions";
@@ -62,19 +63,20 @@ export default function ResultsPage() {
     </button>
   );
 
+  const showMap = !loading && pinnedItems.length > 0;
+
   return (
     <GradientBg fixed>
       <main>
-        <PinnedMissions
-          pinnedItems={pinnedItems}
-          otherItems={otherItems}
-          mapCenter={mapCenter}
-          loading={loading}
-          error={error}
-          userScoringId={userScoringId}
-          onResetAnswers={reset}
-          renderAction={renderDebugAction}
-        />
+        <section className="flex flex-col md:flex-row">
+          <div className="flex flex-col md:w-7/12">
+            <div className="h-72 w-full md:hidden">{showMap && <LazyMissionMap items={pinnedItems} center={mapCenter} />}</div>
+
+            <PinnedMissions items={pinnedItems} loading={loading} error={error} userScoringId={userScoringId} onResetAnswers={reset} renderAction={renderDebugAction} />
+          </div>
+
+          <div className="sticky top-0 hidden h-screen md:block md:w-5/12">{showMap && <LazyMissionMap items={pinnedItems} center={mapCenter} />}</div>
+        </section>
 
         {!loading && !error && (otherItems.length > 0 || page > 1) && (
           <OtherMissions

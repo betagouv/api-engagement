@@ -54,7 +54,7 @@ export default function EmailMissionsModal({ userScoringId }: EmailMissionsModal
   return (
     <>
       <button type="button" onClick={() => setOpen(true)} className="fr-btn fr-btn--secondary fr-icon-mail-line fr-btn--icon-left w-full! justify-center!">
-        Recevoir ces 5 missions par e-mail
+        Recevoir ces 5 missions par email
       </button>
 
       <Modal open={open} onClose={handleClose} title="Reçois tes missions par email" beforeTitle={<MailIllustration className="mb-4 h-[120px]" />}>
