@@ -48,7 +48,8 @@ export function meta(): Route.MetaDescriptors {
 export default function MissionsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10));
+  const rawPage = parseInt(searchParams.get("page") ?? "1", 10);
+  const page = Number.isNaN(rawPage) ? 1 : Math.max(1, rawPage);
   const filterValues: Record<FilterKey, string[]> = {
     departmentCode: searchParams.getAll("departmentCode"),
     tranche_age: searchParams.getAll("tranche_age"),
