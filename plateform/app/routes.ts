@@ -3,6 +3,14 @@ import { type RouteConfig, index, route } from "@react-router/dev/routes";
 export default [
   index("routes/_index.tsx"),
 
+  // Facade publique SSR : ces routes signent les appels backend avec PUBLISHER_API_KEY sans exposer la cle au navigateur.
+  route("api/missions/browse", "routes/api.missions.browse.ts"),
+  route("api/missions/browse/:id", "routes/api.missions.browse.$id.ts"),
+  route("api/missions/match", "routes/api.missions.match.ts"),
+  route("api/user-scoring", "routes/api.user-scoring.ts"),
+  route("api/user-scoring/:id", "routes/api.user-scoring.$id.ts"),
+  route("api/email/mission", "routes/api.email.mission.ts"),
+
   // Nouveau quiz — flow conditionnel, un step = une route, layout partagé.
   route("quiz", "routes/quiz/_layout.tsx", [
     index("routes/quiz/_index.tsx"),

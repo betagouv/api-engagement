@@ -1,7 +1,6 @@
 import type { MissionMatchResponse } from "@engagement/dto";
+import { client } from "~/services/client";
 
-import api from "~/services/api";
-
-export async function fetchMatches(userScoringId: string, limit = 5, offset = 0): Promise<MissionMatchResponse> {
-  return api.get<MissionMatchResponse>(`/missions/match?userScoringId=${encodeURIComponent(userScoringId)}&limit=${limit}&offset=${offset}`);
+export async function fetchMatches(userScoringId: string, limit = 5, offset = 0, signal?: AbortSignal): Promise<MissionMatchResponse> {
+  return client.get<MissionMatchResponse>(`/api/missions/match?userScoringId=${encodeURIComponent(userScoringId)}&limit=${limit}&offset=${offset}`, signal);
 }

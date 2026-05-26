@@ -7,7 +7,7 @@ import Testimonials from "~/components/landing/testimonials";
 import Newsletter from "~/components/layout/newsletter";
 import Partners from "~/components/layout/partners";
 import GradientBg from "~/components/ui/gradient-bg";
-import { browseMissions } from "~/services/mission-browse";
+import { browseMissions } from "~/services/api/missions";
 import { useQuizStore } from "~/stores/quiz";
 import type { BrowseMission } from "~/types/api";
 import type { Route } from "./+types/_index";

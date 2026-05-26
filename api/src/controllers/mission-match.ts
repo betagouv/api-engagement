@@ -1,10 +1,12 @@
 import { Router } from "express";
+import passport from "passport";
 import zod from "zod";
 
 import { INVALID_QUERY } from "@/error";
 import { missionMatchService } from "@/services/mission-match";
 
 const router = Router();
+router.use(passport.authenticate(["apikey", "api"], { session: false }));
 
 const matchQuerySchema = zod.object({
   userScoringId: zod.string().uuid(),

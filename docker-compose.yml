@@ -69,8 +69,11 @@ services:
       dockerfile: plateform/Dockerfile
     depends_on:
       - api
+    env_file:
+      - ./plateform/.env
     environment:
       VITE_API_URL: http://localhost:3002
+      SERVER_API_URL: http://api:3002
       VITE_ENV: development
     volumes:
       - ./plateform:/workspace/plateform

@@ -1,6 +1,6 @@
-import api from "~/services/api";
+import { client } from "~/services/client";
 
-type SendMissionEmailPayload = {
+export type SendMissionEmailPayload = {
   email: string;
   publisherId: string;
   userScoringId?: string;
@@ -8,11 +8,11 @@ type SendMissionEmailPayload = {
   missionIds?: string[];
 };
 
-type SendMissionEmailResponse = {
+export type SendMissionEmailResponse = {
   email_sent: boolean;
   email_skip_reason?: string;
 };
 
 export async function sendMissionEmail(payload: SendMissionEmailPayload): Promise<SendMissionEmailResponse> {
-  return api.post<SendMissionEmailResponse>("/email/mission", payload);
+  return client.post<SendMissionEmailResponse>("/api/email/mission", payload);
 }

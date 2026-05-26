@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response, Router } from "express";
+import passport from "passport";
 import zod from "zod";
 
 import { INVALID_QUERY, NOT_FOUND, SERVICE_UNAVAILABLE, captureException } from "@/error";
@@ -6,6 +7,7 @@ import { MissionBrowseIndexUnavailableError, missionBrowseService } from "@/serv
 import { INDEXED_TAXONOMY_KEYS } from "@/services/search/collections/missions/fields";
 
 const router = Router();
+router.use(passport.authenticate(["apikey", "api"], { session: false }));
 
 const stringOrStringArraySchema = zod.union([zod.string(), zod.array(zod.string())]);
 

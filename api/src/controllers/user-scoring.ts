@@ -1,10 +1,12 @@
 import { Router } from "express";
+import passport from "passport";
 import zod from "zod";
 
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, NOT_FOUND } from "@/error";
 import { UserScoringAnswerValidationError, userScoringService } from "@/services/user-scoring";
 
 const router = Router();
+router.use(passport.authenticate(["apikey", "api"], { session: false }));
 
 const answerSchema = zod
   .object({
