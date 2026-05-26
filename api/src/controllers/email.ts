@@ -4,6 +4,7 @@ import zod from "zod";
 
 import { EMAIL_SEND_FAILED, FORBIDDEN, INVALID_BODY, NOT_FOUND } from "@/error";
 import { sendMissionEmail } from "@/services/mission-email";
+import type { SendMissionEmailResponse } from "@engagement/dto";
 
 const router = Router();
 router.use(passport.authenticate(["apikey", "api"], { session: false }));
@@ -36,7 +37,7 @@ router.post("/mission", async (req: Request, res: Response, next: NextFunction) 
     }
 
     const result = await sendMissionEmail(body.data);
-    const data = {
+    const data: Pick<SendMissionEmailResponse, "user_scoring_id"> = {
       ...(body.data.userScoringId ? { user_scoring_id: body.data.userScoringId } : {}),
     };
 
@@ -49,7 +50,7 @@ router.post("/mission", async (req: Request, res: Response, next: NextFunction) 
     }
 
     if (result.status === "failed") {
-      return res.status(502).send({ ok: false, code: EMAIL_SEND_FAILED, message: "Email send failed", data: { ...data, email_sent: false } });
+      return res.status(502).send({ ok: false, code: EMAIL_SEND_FAILED, message: "Email send failed", data: { ...data, email_sent: false } satisfies SendMissionEmailResponse });
     }
 
     if (result.status === "skipped") {
@@ -63,7 +64,7 @@ router.post("/mission", async (req: Request, res: Response, next: NextFunction) 
       });
     }
 
-    return res.status(200).send({ ok: true, data: { ...data, email_sent: true } });
+    return res.status(200).send({ ok: true, data: { ...data, email_sent: true } satisfies SendMissionEmailResponse });
   } catch (error) {
     next(error);
   }
