@@ -181,7 +181,7 @@ describe("matchingEngineService", () => {
       expect(result.tookMs).toBeGreaterThanOrEqual(0);
     });
 
-    it("injecte le filtre SQL des règles publisher dans les missions candidates", async () => {
+    it("injects the SQL filter from the publisher rules into the candidate jobs", async () => {
       prismaMock.$queryRaw
         .mockResolvedValueOnce([
           {
