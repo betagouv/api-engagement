@@ -129,7 +129,7 @@ jobs:
 
       - name: Build and push ${{ matrix.image_name }} image
         if: ${{ matrix.variant != 'sandbox' || needs.set-env.outputs.environment_name == 'production' }}
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@v7.1.0
         with:
           context: ${{ matrix.context || format('./{0}', matrix.service) }}
           file: ${{ matrix.dockerfile || format('./{0}/Dockerfile.production', matrix.service) }}
