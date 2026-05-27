@@ -5,6 +5,7 @@ import { FooterContent } from "~/components/layout/footer";
 import Newsletter from "~/components/layout/newsletter";
 import Partners from "~/components/layout/partners";
 import MissionCard from "~/components/missions/mission-card";
+import EmailMissionsModal from "~/components/results/email-missions-modal";
 import LazyMissionMap from "~/components/results/lazy-mission-map";
 import MatchingDebugModal, { type MatchingDebugUserValue } from "~/components/results/matching-debug-modal";
 import OtherMissions from "~/components/results/other-missions";
@@ -28,6 +29,7 @@ export default function ResultsPage() {
   const [expanded, setExpanded] = useState(false);
   const [selectedMission, setSelectedMission] = useState<MissionMatchItem | null>(null);
   const [isClosingCard, setIsClosingCard] = useState(false);
+  const [emailModalOpen, setEmailModalOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const locAnswer = answers["localisation"];
@@ -108,18 +110,32 @@ export default function ResultsPage() {
                   mission={matchResultToBrowseMission(selectedMission)}
                   link={{ type: "internal", to: userScoringId ? `/results/${userScoringId}/missions/${selectedMission.mission.id}` : `/missions/${selectedMission.mission.id}` }}
                 />
-                <button
-                  type="button"
-                  className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-background! shadow-md"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setIsClosingCard(true);
-                  }}
-                  aria-label="Fermer la carte"
-                >
-                  <i className="fr-icon-close-line fr-icon--sm" aria-hidden="true" />
-                </button>
+                <div className="absolute right-3 top-3 z-10 flex items-center gap-2">
+                  <button
+                    type="button"
+                    className="flex h-8 w-8 items-center justify-center rounded-full bg-background! shadow-md"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setEmailModalOpen(true);
+                    }}
+                    aria-label="Recevoir par email"
+                  >
+                    <i className="fr-icon-mail-send-line fr-icon--sm" aria-hidden="true" />
+                  </button>
+                  <button
+                    type="button"
+                    className="flex h-8 w-8 items-center justify-center rounded-full bg-background! shadow-md"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setIsClosingCard(true);
+                    }}
+                    aria-label="Fermer la carte"
+                  >
+                    <i className="fr-icon-close-line fr-icon--sm" aria-hidden="true" />
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -177,6 +193,7 @@ export default function ResultsPage() {
         </section>
 
         <MatchingDebugModal items={[...pinnedItems, ...otherItems]} userValues={userValues} />
+        <EmailMissionsModal userScoringId={userScoringId} open={emailModalOpen} onOpenChange={setEmailModalOpen} hideTrigger />
       </main>
     );
   }

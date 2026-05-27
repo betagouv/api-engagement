@@ -1,23 +1,32 @@
-import { type FormEvent, useId, useState } from "react";
-import Modal from "~/components/layout/modal";
-import { sendMissionEmail } from "~/services/email";
+import { type SubmitEvent, useId, useState } from "react";
+import MailIllustration from "~/components/ui/mail-illustration";
 import { PUBLISHER_ID_API_ENGAGEMENT } from "~/services/config";
+import { sendMissionEmail } from "~/services/email";
 import { updateUserScoring } from "~/services/user-scoring";
 import { useQuizStore } from "~/stores/quiz";
-import MailIllustration from "~/components/ui/mail-illustration";
 
 interface EmailMissionsModalProps {
   userScoringId: string | undefined;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  hideTrigger?: boolean;
 }
 
-export default function EmailMissionsModal({ userScoringId }: EmailMissionsModalProps) {
+export default function EmailMissionsModal({ userScoringId, open: controlledOpen, onOpenChange, hideTrigger }: EmailMissionsModalProps) {
   const distinctId = useQuizStore((s) => s.distinctId);
-  const [open, setOpen] = useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const emailId = useId();
   const nearbyId = useId();
+
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : uncontrolledOpen;
+  const setOpen = (value: boolean) => {
+    if (isControlled) onOpenChange?.(value);
+    else setUncontrolledOpen(value);
+  };
 
   const handleClose = () => {
     setOpen(false);
@@ -25,7 +34,7 @@ export default function EmailMissionsModal({ userScoringId }: EmailMissionsModal
     setSuccess(false);
   };
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!userScoringId) return;
 
@@ -53,61 +62,77 @@ export default function EmailMissionsModal({ userScoringId }: EmailMissionsModal
 
   return (
     <>
-      <button type="button" onClick={() => setOpen(true)} className="fr-btn fr-btn--secondary fr-icon-mail-line fr-btn--icon-left w-full! justify-center!">
-        Recevoir ces 5 missions par email
-      </button>
+      {!hideTrigger && (
+        <button type="button" onClick={() => setOpen(true)} className="fr-btn fr-btn--secondary fr-icon-mail-line fr-btn--icon-left w-full! justify-center!">
+          Recevoir ces 5 missions par email
+        </button>
+      )}
 
-      <Modal open={open} onClose={handleClose} title="Reçois tes missions par email" beforeTitle={<MailIllustration className="mb-4 h-[120px]" />}>
-        {success ? (
-          <div className="flex flex-col items-center gap-4 py-4 text-center">
-            <div className="fr-alert fr-alert--success w-full">
-              <p>Tes missions ont bien été envoyées ! Vérifie ta boîte mail.</p>
+      {open && (
+        <div className="fixed inset-x-0 bottom-0 z-[2000] max-h-[calc(100dvh-3.5rem)] overflow-y-auto rounded-t-3xl bg-blue-france-975 px-6 py-10">
+          <button
+            type="button"
+            onClick={handleClose}
+            aria-label="Fermer"
+            className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-background! shadow-md"
+          >
+            <i className="fr-icon-close-line" aria-hidden="true" />
+          </button>
+
+          <MailIllustration className="mx-auto mb-6 h-[120px]" />
+          <h2 className="mb-4">Reçois tes missions par email</h2>
+
+          {success ? (
+            <div className="flex flex-col items-center gap-4 py-4 text-center">
+              <div className="fr-alert fr-alert--success w-full">
+                <p>Tes missions ont bien été envoyées ! Vérifie ta boîte mail.</p>
+              </div>
+              <button type="button" onClick={handleClose} className="fr-btn fr-btn--secondary w-full! justify-center!">
+                Fermer
+              </button>
             </div>
-            <button type="button" onClick={handleClose} className="fr-btn fr-btn--secondary w-full! justify-center!">
-              Fermer
-            </button>
-          </div>
-        ) : (
-          <>
-            <p className="fr-text--lead fr-mb-2w">On t'envoie ta sélection de 5 missions pour que tu puisses les retrouver facilement.</p>
+          ) : (
+            <>
+              <p className="fr-text--lead fr-mb-2w">On t'envoie ta sélection de 5 missions pour que tu puisses les retrouver facilement.</p>
 
-            <form onSubmit={handleSubmit}>
-              {error && (
-                <div className="fr-alert fr-alert--error fr-mb-2w">
-                  <p>{error}</p>
+              <form onSubmit={handleSubmit}>
+                {error && (
+                  <div className="fr-alert fr-alert--error fr-mb-2w">
+                    <p>{error}</p>
+                  </div>
+                )}
+
+                <div className="fr-input-group fr-mb-2w">
+                  <label className="fr-label" htmlFor={emailId}>
+                    Adresse email
+                  </label>
+                  <input id={emailId} name="email" type="email" required className="fr-input" placeholder="nom@email.fr" />
                 </div>
-              )}
 
-              <div className="fr-input-group fr-mb-2w">
-                <label className="fr-label" htmlFor={emailId}>
-                  Adresse email
-                </label>
-                <input id={emailId} name="email" type="email" required className="fr-input" placeholder="nom@email.fr" />
-              </div>
-
-              <div className="fr-checkbox-group fr-mb-2w">
-                <input id={nearbyId} name="nearby" type="checkbox" />
-                <label className="fr-label" htmlFor={nearbyId}>
-                  Recevoir aussi les nouvelles missions près de chez moi
-                </label>
-                <div className="fr-messages-group">
-                  <p className="fr-hint-text">1 email maximum par semaine. Ton adresse sera uniquement utilisée pour t'envoyer ces missions.</p>
+                <div className="fr-checkbox-group fr-mb-2w">
+                  <input id={nearbyId} name="nearby" type="checkbox" />
+                  <label className="fr-label" htmlFor={nearbyId}>
+                    Recevoir aussi les nouvelles missions près de chez moi
+                  </label>
+                  <div className="fr-messages-group pl-8">
+                    <p className="fr-hint-text">1 email maximum par semaine. Ton adresse sera uniquement utilisée pour t'envoyer ces missions.</p>
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex flex-col gap-2">
-                <button type="submit" disabled={submitting} className="fr-btn w-full! justify-center!">
-                  {submitting ? "Envoi en cours…" : "Recevoir mes missions"}
-                </button>
-                <button type="button" onClick={handleClose} disabled={submitting} className="fr-btn fr-btn--secondary w-full! justify-center!">
-                  Continuer sans recevoir ma sélection
-                </button>
-                <p className="fr-hint-text text-center fr-mb-0!">Tu peux te désinscrire à tout moment</p>
-              </div>
-            </form>
-          </>
-        )}
-      </Modal>
+                <div className="flex flex-col gap-2">
+                  <button type="submit" disabled={submitting} className="fr-btn w-full! justify-center!">
+                    {submitting ? "Envoi en cours…" : "Recevoir mes missions"}
+                  </button>
+                  <button type="button" onClick={handleClose} disabled={submitting} className="fr-btn fr-btn--secondary w-full! justify-center!">
+                    Continuer sans recevoir ma sélection
+                  </button>
+                  <p className="fr-hint-text text-center fr-mb-0!">Tu peux te désinscrire à tout moment</p>
+                </div>
+              </form>
+            </>
+          )}
+        </div>
+      )}
     </>
   );
 }
