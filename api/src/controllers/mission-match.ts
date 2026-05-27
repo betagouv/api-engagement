@@ -3,11 +3,13 @@ import passport from "passport";
 import zod from "zod";
 
 import { INVALID_QUERY } from "@/error";
+import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { missionMatchService } from "@/services/mission-match";
 import type { PublisherRequest } from "@/types/passport";
 
 const router = Router();
 router.use(passport.authenticate(["apikey", "api"], { session: false }));
+router.use(ipRateLimiter);
 
 const matchQuerySchema = zod.object({
   userScoringId: zod.string().uuid(),
