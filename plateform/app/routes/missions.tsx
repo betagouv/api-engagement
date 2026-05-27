@@ -18,22 +18,30 @@ const FILTER_KEYS = ["departmentCode", "tranche_age", "type_mission", "secteur_a
 
 type FilterKey = (typeof FILTER_KEYS)[number];
 type BrowseParams = MissionBrowseFilters;
-
-const filterTaxonomyLabel = (key: FilterKey, value: string): string => {
-  const taxonomyValues = TAXONOMY[key].values as Record<string, { label: string }>;
-  return taxonomyValues[value]?.label ?? value;
-};
-
-const isTaxonomyValueHidden = (key: FilterKey, value: string): boolean => {
-  const taxonomyValues = TAXONOMY[key].values as Record<string, { hidden?: boolean }>;
-  return taxonomyValues[value]?.hidden === true;
-};
+type TaxonomyFilterValue = { label: string; hidden?: boolean };
 
 const sortFacets = (facets: MissionBrowseFacetCount[] | undefined) =>
   (facets ?? [])
     .filter((f) => f.count > 0)
     .slice()
     .sort((a, b) => b.count - a.count);
+
+const buildTaxonomyFilterOptions = (key: FilterKey, facets: MissionBrowseFacetCount[] | undefined) => {
+  const taxonomyValues = TAXONOMY[key].values as Record<string, TaxonomyFilterValue>;
+
+  return sortFacets(facets).flatMap((facet) => {
+    const taxonomyValue = taxonomyValues[facet.key];
+    if (taxonomyValue?.hidden === true) return [];
+
+    return [
+      {
+        value: facet.key,
+        label: taxonomyValue?.label ?? facet.key,
+        count: facet.count,
+      },
+    ];
+  });
+};
 
 export async function clientLoader() {
   return {};
@@ -104,11 +112,7 @@ export default function MissionsPage() {
       label: "Département",
       placeholder: "Sélectionner un département",
       selected: filterValues.departmentCode,
-      options: sortFacets(facets.departmentCodes).map((facet) => ({
-        value: facet.key,
-        label: filterTaxonomyLabel("departmentCode", facet.key),
-        count: facet.count,
-      })),
+      options: buildTaxonomyFilterOptions("departmentCode", facets.departmentCodes),
     },
     {
       key: "tranche_age",
@@ -116,46 +120,28 @@ export default function MissionsPage() {
       placeholder: "Toutes",
       selected: filterValues.tranche_age,
       single: true,
-      options: sortFacets(facets.tranche_age)
-        .filter((facet) => !isTaxonomyValueHidden("tranche_age", facet.key))
-        .map((facet) => ({
-          value: facet.key,
-          label: filterTaxonomyLabel("tranche_age", facet.key),
-          count: facet.count,
-        })),
+      options: buildTaxonomyFilterOptions("tranche_age", facets.tranche_age),
     },
     {
       key: "type_mission",
       label: "Disponibilités",
       placeholder: "Toutes",
       selected: filterValues.type_mission,
-      options: sortFacets(facets.type_mission).map((facet) => ({
-        value: facet.key,
-        label: filterTaxonomyLabel("type_mission", facet.key),
-        count: facet.count,
-      })),
+      options: buildTaxonomyFilterOptions("type_mission", facets.type_mission),
     },
     {
       key: "secteur_activite",
       label: "Activités",
       placeholder: "Toutes",
       selected: filterValues.secteur_activite,
-      options: sortFacets(facets.secteur_activite).map((facet) => ({
-        value: facet.key,
-        label: filterTaxonomyLabel("secteur_activite", facet.key),
-        count: facet.count,
-      })),
+      options: buildTaxonomyFilterOptions("secteur_activite", facets.secteur_activite),
     },
     {
       key: "domaine",
       label: "Domaine",
       placeholder: "Tous",
       selected: filterValues.domaine,
-      options: sortFacets(facets.domaine).map((facet) => ({
-        value: facet.key,
-        label: filterTaxonomyLabel("domaine", facet.key),
-        count: facet.count,
-      })),
+      options: buildTaxonomyFilterOptions("domaine", facets.domaine),
     },
   ];
 
