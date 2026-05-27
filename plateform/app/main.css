@@ -180,6 +180,36 @@
   width: 100%;
 }
 
+@keyframes slide-up-fade {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-down-fade {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+.animate-slide-up-fade {
+  animation: slide-up-fade 200ms ease-out;
+}
+
+.animate-slide-down-fade {
+  animation: slide-down-fade 200ms ease-out forwards;
+}
+
 .mission-map__emoji-marker {
   align-items: center;
   background: rgb(246 246 255 / 92%);

@@ -46,9 +46,10 @@ function BoundsFitter({ positions }: { positions: [number, number][] }) {
 interface Props {
   items: MissionMatchItem[];
   center: [number, number];
+  onMarkerClick?: (item: MissionMatchItem) => void;
 }
 
-export default function MissionMap({ items, center }: Props) {
+export default function MissionMap({ items, center, onMarkerClick }: Props) {
   const missions = useMemo<MapMission[]>(
     () =>
       items.map((item, index) => {
@@ -73,22 +74,29 @@ export default function MissionMap({ items, center }: Props) {
       <TileLayer {...TILE_LAYER_PROPS} />
       <BoundsFitter positions={boundsPositions} />
       {missions.map(({ item, position, hasRealAddress }) => (
-        <Marker key={item.mission.id} position={position} icon={hasRealAddress ? classicIcon : remoteIcon}>
-          <Popup>
-            <strong>{item.mission.title}</strong>
-            {hasRealAddress && getAddressLabel(item) && (
-              <>
-                <br />
-                {getAddressLabel(item)}
-              </>
-            )}
-            {!hasRealAddress && (
-              <>
-                <br />
-                Mission à distance ou sans adresse précise
-              </>
-            )}
-          </Popup>
+        <Marker
+          key={item.mission.id}
+          position={position}
+          icon={hasRealAddress ? classicIcon : remoteIcon}
+          eventHandlers={onMarkerClick ? { click: () => onMarkerClick(item) } : undefined}
+        >
+          {!onMarkerClick && (
+            <Popup>
+              <strong>{item.mission.title}</strong>
+              {hasRealAddress && getAddressLabel(item) && (
+                <>
+                  <br />
+                  {getAddressLabel(item)}
+                </>
+              )}
+              {!hasRealAddress && (
+                <>
+                  <br />
+                  Mission à distance ou sans adresse précise
+                </>
+              )}
+            </Popup>
+          )}
         </Marker>
       ))}
     </MapContainer>

@@ -1,8 +1,10 @@
+import type { MissionMatchItem } from "@engagement/dto";
 import { useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router";
 import { FooterContent } from "~/components/layout/footer";
 import Newsletter from "~/components/layout/newsletter";
 import Partners from "~/components/layout/partners";
+import MissionCard from "~/components/missions/mission-card";
 import LazyMissionMap from "~/components/results/lazy-mission-map";
 import MatchingDebugModal, { type MatchingDebugUserValue } from "~/components/results/matching-debug-modal";
 import OtherMissions from "~/components/results/other-missions";
@@ -13,6 +15,7 @@ import { OPTIONS } from "~/config/quiz-options";
 import { useIsMobile } from "~/hooks/useIsMobile";
 import { useMissionResults } from "~/hooks/useMissionResults";
 import { useQuizStore } from "~/stores/quiz";
+import { matchResultToBrowseMission } from "~/utils/mission";
 
 const FRANCE_CENTER: [number, number] = [46.6, 2.3];
 
@@ -23,6 +26,8 @@ export default function ResultsPage() {
   const answers = useQuizStore((s) => s.answers);
   const { pinnedItems, otherItems, page, setPage, hasNextPage, loading, pageLoading, error, visiblePageNumbers } = useMissionResults(userScoringId);
   const [expanded, setExpanded] = useState(false);
+  const [selectedMission, setSelectedMission] = useState<MissionMatchItem | null>(null);
+  const [isClosingCard, setIsClosingCard] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const locAnswer = answers["localisation"];
@@ -63,9 +68,19 @@ export default function ResultsPage() {
   };
 
   const handleCollapseSheet = () => {
+    if (selectedMission) setIsClosingCard(true);
     if (!expanded) return;
     if (scrollRef.current) scrollRef.current.scrollTop = 0;
     setExpanded(false);
+  };
+
+  const handleMarkerClick = (item: MissionMatchItem) => {
+    setIsClosingCard(false);
+    setSelectedMission(item);
+    if (expanded) {
+      if (scrollRef.current) scrollRef.current.scrollTop = 0;
+      setExpanded(false);
+    }
   };
 
   if (isMobile) {
@@ -74,12 +89,43 @@ export default function ResultsPage() {
         <section className="relative h-[calc(100dvh-3.5rem)] overflow-hidden">
           {showMap && (
             <div className="absolute inset-0 z-0" onClickCapture={handleCollapseSheet}>
-              <LazyMissionMap items={pinnedItems} center={mapCenter} />
+              <LazyMissionMap items={pinnedItems} center={mapCenter} onMarkerClick={handleMarkerClick} />
+            </div>
+          )}
+
+          {selectedMission && !expanded && (
+            <div
+              key={selectedMission.mission.id}
+              className={`absolute inset-x-3 bottom-3 z-[500] ${isClosingCard ? "animate-slide-down-fade" : "animate-slide-up-fade"}`}
+              onAnimationEnd={() => {
+                if (!isClosingCard) return;
+                setSelectedMission(null);
+                setIsClosingCard(false);
+              }}
+            >
+              <div className="relative">
+                <MissionCard
+                  mission={matchResultToBrowseMission(selectedMission)}
+                  link={{ type: "internal", to: userScoringId ? `/results/${userScoringId}/missions/${selectedMission.mission.id}` : `/missions/${selectedMission.mission.id}` }}
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-background! shadow-md"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsClosingCard(true);
+                  }}
+                  aria-label="Fermer la carte"
+                >
+                  <i className="fr-icon-close-line fr-icon--sm" aria-hidden="true" />
+                </button>
+              </div>
             </div>
           )}
 
           <div
-            className={`absolute inset-x-0 bottom-0 z-[1000] flex flex-col rounded-t-3xl bg-white shadow-2xl transition-[top] duration-300 ${expanded ? "top-12" : "top-[calc(100%-5rem)]"}`}
+            className={`absolute inset-x-0 bottom-0 z-[1000] flex flex-col rounded-t-3xl bg-white shadow-2xl transition-[top] duration-300 ${expanded ? "top-12" : "top-[calc(100%-5rem)]"} ${selectedMission ? "hidden" : ""}`}
           >
             <div className={`flex flex-col gap-2 px-6 py-4 ${expanded ? "items-start!" : "items-center! justify-center! h-full"}`} onClick={handleToggleSheet}>
               {!loading && !error && (
