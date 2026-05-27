@@ -1029,6 +1029,7 @@ model MissionEnrichment {
   missionId     String                  @map("mission_id")
   status        MissionEnrichmentStatus @default(pending)
   promptVersion String                  @map("prompt_version")
+  enrichmentCount Int                     @default(1) @map("enrichment_count")
   rawResponse   Json?                   @map("raw_response")
   inputTokens   Int?                    @map("input_tokens")
   outputTokens  Int?                    @map("output_tokens")
@@ -1041,7 +1042,7 @@ model MissionEnrichment {
   values          MissionEnrichmentValue[]
   missionScorings MissionScoring[]
 
-  @@index([missionId, promptVersion], map: "mission_enrichment_mission_version_idx")
+  @@unique([missionId, promptVersion], map: "mission_enrichment_mission_version_key")
   @@index([status], map: "mission_enrichment_status_idx")
   @@map("mission_enrichment")
 }

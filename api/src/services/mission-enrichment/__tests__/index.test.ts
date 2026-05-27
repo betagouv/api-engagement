@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/repositories/mission", () => ({
   missionRepository: { findUnique: vi.fn() },
@@ -6,11 +6,10 @@ vi.mock("@/repositories/mission", () => ({
 
 vi.mock("@/repositories/mission-enrichment", () => ({
   missionEnrichmentRepository: {
-    findFirst: vi.fn(),
-    create: vi.fn(),
+    findUnique: vi.fn(),
+    upsert: vi.fn(),
     update: vi.fn(),
     completeWithValues: vi.fn(),
-    completeWithValuesAndDeletePrevious: vi.fn(),
   },
 }));
 
@@ -102,7 +101,7 @@ describe("missionEnrichmentService.enrich — chain propagation", () => {
 
   it("stops the chain when a completed enrichment is already up-to-date", async () => {
     (missionRepository.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(baseMission);
-    (missionEnrichmentRepository.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue({
+    (missionEnrichmentRepository.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({
       id: "enrichment-1",
       status: "completed",
       createdAt: new Date("2025-01-03"), // after baseMission.updatedAt (2025-01-02)
@@ -114,23 +113,9 @@ describe("missionEnrichmentService.enrich — chain propagation", () => {
     expect(providerGenerate).not.toHaveBeenCalled();
   });
 
-  it("stops the chain when an enrichment is already in-flight (pending)", async () => {
-    (missionRepository.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(baseMission);
-    (missionEnrichmentRepository.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue({
-      id: "enrichment-1",
-      status: "pending",
-      createdAt: new Date("2025-01-01"),
-    });
-
-    await missionEnrichmentService.enrich("mission-1");
-
-    expect(asyncTaskBus.publish).not.toHaveBeenCalled();
-    expect(providerGenerate).not.toHaveBeenCalled();
-  });
-
   it("stops the chain when an enrichment is already in-flight (processing)", async () => {
     (missionRepository.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(baseMission);
-    (missionEnrichmentRepository.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue({
+    (missionEnrichmentRepository.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({
       id: "enrichment-1",
       status: "processing",
       createdAt: new Date("2025-01-01"),
@@ -142,11 +127,29 @@ describe("missionEnrichmentService.enrich — chain propagation", () => {
     expect(providerGenerate).not.toHaveBeenCalled();
   });
 
+  it("proceeds when a completed enrichment is outdated", async () => {
+    (missionRepository.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(baseMission);
+    (missionEnrichmentRepository.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: "enrichment-1",
+      status: "completed",
+      createdAt: new Date("2025-01-01"), // before baseMission.updatedAt (2025-01-02)
+    });
+    (missionEnrichmentRepository.upsert as ReturnType<typeof vi.fn>).mockResolvedValue({ id: "enrichment-1" });
+    (missionEnrichmentRepository.completeWithValues as ReturnType<typeof vi.fn>).mockResolvedValue({});
+    providerGenerate.mockResolvedValue({
+      object: { classifications: [] },
+      usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
+    });
+
+    await missionEnrichmentService.enrich("mission-1");
+
+    expect(providerGenerate).toHaveBeenCalledOnce();
+  });
+
   it("calls LLM and forwards to scoring after successful enrichment", async () => {
     (missionRepository.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(baseMission);
-    (missionEnrichmentRepository.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue(null);
-    (missionEnrichmentRepository.create as ReturnType<typeof vi.fn>).mockResolvedValue({ id: "enrichment-new" });
-    (missionEnrichmentRepository.update as ReturnType<typeof vi.fn>).mockResolvedValue({});
+    (missionEnrichmentRepository.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(null);
+    (missionEnrichmentRepository.upsert as ReturnType<typeof vi.fn>).mockResolvedValue({ id: "enrichment-new" });
     (missionEnrichmentRepository.completeWithValues as ReturnType<typeof vi.fn>).mockResolvedValue({});
     providerGenerate.mockResolvedValue({
       object: { classifications: [] },
@@ -165,5 +168,24 @@ describe("missionEnrichmentService.enrich — chain propagation", () => {
       type: "mission.scoring",
       payload: { missionId: "mission-1" },
     });
+  });
+
+  it("upserts to processing regardless of prior status when force is true", async () => {
+    (missionRepository.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(baseMission);
+    // No idempotence check when force=true — findUnique should not be called
+    (missionEnrichmentRepository.upsert as ReturnType<typeof vi.fn>).mockResolvedValue({ id: "enrichment-1" });
+    (missionEnrichmentRepository.completeWithValues as ReturnType<typeof vi.fn>).mockResolvedValue({});
+    providerGenerate.mockResolvedValue({
+      object: { classifications: [] },
+      usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
+    });
+
+    await missionEnrichmentService.enrich("mission-1", { force: true });
+
+    expect(missionEnrichmentRepository.findUnique).not.toHaveBeenCalled();
+    expect(missionEnrichmentRepository.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({ update: expect.objectContaining({ status: "processing", enrichmentCount: { increment: 1 } }) })
+    );
+    expect(providerGenerate).toHaveBeenCalledOnce();
   });
 });
