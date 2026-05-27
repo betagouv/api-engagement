@@ -14,6 +14,7 @@
 //   icon       — emoji optionnel
 //   enrichable — false pour les valeurs exclues de l'enrichissement (ex : je_ne_sais_pas)
 
+import { DEPARTMENT_CODE_VALUES, resolveDepartmentCodeValues } from "./transformers/department-code";
 import { resolveLocationValues } from "./transformers/location";
 import { resolveTrancheAgeValues } from "./transformers/tranche-age";
 
@@ -404,6 +405,15 @@ export const TAXONOMY = {
     gate: false,
     transformer: resolveLocationValues,
     values: {},
+  },
+
+  departmentCode: {
+    label: "Département",
+    type: "multi_value",
+    enrichable: false,
+    gate: false,
+    transformer: resolveDepartmentCodeValues,
+    values: DEPARTMENT_CODE_VALUES,
   },
 
   // ─── taxonomy gate (filtre dur dans le matching) ────────────────────────

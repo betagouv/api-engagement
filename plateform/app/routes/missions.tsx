@@ -17,20 +17,17 @@ const PAGE_SIZE = 9;
 const FILTER_KEYS = ["departmentCode", "tranche_age", "type_mission", "secteur_activite", "domaine"] as const satisfies readonly (keyof MissionBrowseFilters)[];
 
 type FilterKey = (typeof FILTER_KEYS)[number];
-type TaxonomyFilterKey = Exclude<FilterKey, "departmentCode">;
 type BrowseParams = MissionBrowseFilters;
 
-const filterTaxonomyLabel = (key: TaxonomyFilterKey, value: string): string => {
+const filterTaxonomyLabel = (key: FilterKey, value: string): string => {
   const taxonomyValues = TAXONOMY[key].values as Record<string, { label: string }>;
   return taxonomyValues[value]?.label ?? value;
 };
 
-const isTaxonomyValueHidden = (key: TaxonomyFilterKey, value: string): boolean => {
+const isTaxonomyValueHidden = (key: FilterKey, value: string): boolean => {
   const taxonomyValues = TAXONOMY[key].values as Record<string, { hidden?: boolean }>;
   return taxonomyValues[value]?.hidden === true;
 };
-
-const formatDepartmentLabel = (code: string): string => code.replace(/^FR-/, "");
 
 const sortFacets = (facets: MissionBrowseFacetCount[] | undefined) =>
   (facets ?? [])
@@ -109,7 +106,7 @@ export default function MissionsPage() {
       selected: filterValues.departmentCode,
       options: sortFacets(facets.departmentCodes).map((facet) => ({
         value: facet.key,
-        label: formatDepartmentLabel(facet.key),
+        label: filterTaxonomyLabel("departmentCode", facet.key),
         count: facet.count,
       })),
     },
