@@ -279,10 +279,11 @@ export const missionEnrichmentService = {
     }
 
     // 2. Idempotence: skip if a completed enrichment exists and mission hasn't changed,
-    //    or if an in-flight enrichment (processing) already exists for this version.
+    //    or if an in-flight enrichment (pending/processing) already exists for this version
     if (!options.force) {
-      const existing = await missionEnrichmentRepository.findUnique({
-        where: { missionId_promptVersion: { missionId, promptVersion: CURRENT_PROMPT_VERSION } },
+      const existing = await missionEnrichmentRepository.findFirst({
+        where: { missionId, promptVersion: CURRENT_PROMPT_VERSION, status: { in: ["completed", "pending", "processing"] } },
+        orderBy: { createdAt: "desc" },
       });
 
       if (existing?.status === "completed" && mission.updatedAt <= existing.createdAt) {
@@ -290,8 +291,8 @@ export const missionEnrichmentService = {
         return;
       }
 
-      if (existing?.status === "processing") {
-        console.log(`${LOG_PREFIX} skipping ${missionId} — enrichment already in-flight`);
+      if (existing?.status === "pending" || existing?.status === "processing") {
+        console.log(`${LOG_PREFIX} skipping ${missionId} — enrichment already in-flight (${existing.status})`);
         return;
       }
     }
@@ -299,20 +300,34 @@ export const missionEnrichmentService = {
     // 3. Load taxonomy from package.
     const taxonomies = getTaxonomies();
 
-    // 4. Upsert enrichment record and mark as processing immediately.
-    // The unique constraint on (mission_id, prompt_version) ensures a single record per version.
-    // enrichmentCount tracks how many times this mission has been (re-)enriched for this prompt version.
-    const enrichment = await missionEnrichmentRepository.upsert({
-      where: { missionId_promptVersion: { missionId, promptVersion: CURRENT_PROMPT_VERSION } },
-      create: { missionId, promptVersion: CURRENT_PROMPT_VERSION, status: "processing", enrichmentCount: 1 },
-      update: { status: "processing", enrichmentCount: { increment: 1 } },
-    });
+    // 4. Create enrichment record (pending)
+    // The partial unique index on (mission_id, prompt_version) WHERE status IN ('pending', 'processing')
+    // enforces at DB level that no two concurrent workers can run for the same mission/version.
+    // A P2002 here means another worker won the race — skip silently.
+    let enrichment;
+    try {
+      enrichment = await missionEnrichmentRepository.create({
+        data: { missionId, promptVersion: CURRENT_PROMPT_VERSION, status: "pending" },
+      });
+    } catch (error) {
+      if ((error as { code?: string }).code === "P2002") {
+        console.log(`${LOG_PREFIX} skipping ${missionId} — lost race to concurrent worker`);
+        return;
+      }
+      throw error;
+    }
 
     // Declared outside try/catch so the catch block can persist them on failure
     let providerResult: MissionEnrichmentProviderResult | undefined;
 
     try {
-      // 5. Build prompts
+      // 5. Mark as processing
+      await missionEnrichmentRepository.update({
+        where: { id: enrichment.id },
+        data: { status: "processing" },
+      });
+
+      // 6. Build prompts
       const promptVersion = PROMPT_REGISTRY[CURRENT_PROMPT_VERSION];
       const systemPrompt = promptVersion.buildSystemPrompt(buildTaxonomyBlock(toTaxonomyForPrompt(taxonomies)));
       const userMessage = promptVersion.buildUserMessage(buildMissionBlock(toMissionForPrompt(mission)));
@@ -345,7 +360,18 @@ export const missionEnrichmentService = {
         evidence: v.evidence,
       }));
 
-      await missionEnrichmentRepository.completeWithValues(enrichment.id, JSON.stringify(providerResult.object), { inputTokens, outputTokens, totalTokens }, persistedValues);
+      if (options.force) {
+        await missionEnrichmentRepository.completeWithValuesAndDeletePrevious({
+          enrichmentId: enrichment.id,
+          missionId,
+          promptVersion: CURRENT_PROMPT_VERSION,
+          rawResponse: JSON.stringify(providerResult.object),
+          tokenUsage: { inputTokens, outputTokens, totalTokens },
+          values: persistedValues,
+        });
+      } else {
+        await missionEnrichmentRepository.completeWithValues(enrichment.id, JSON.stringify(providerResult.object), { inputTokens, outputTokens, totalTokens }, persistedValues);
+      }
 
       console.log(`${LOG_PREFIX} ${missionId}: enrichment completed — ${valid.length} values persisted`);
     } catch (error) {
@@ -375,7 +401,7 @@ export const missionEnrichmentService = {
       throw error;
     }
 
-    // 10. Trigger scoring (outside try/catch — enrichment is already completed).
+    // 10. Trigger scoring (outside try/catch — enrichment is already completed)
     await asyncTaskBus.publish({ type: "mission.scoring", payload: { missionId } });
   },
 };

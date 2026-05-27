@@ -54,7 +54,7 @@ describe("missionScoringService.score", () => {
     expect(missionScoringRepositoryMock.replaceForEnrichment).not.toHaveBeenCalled();
   });
 
-  it("replaces scoring when one already exists", async () => {
+  it("is idempotent when a scoring already exists and force is not set", async () => {
     missionEnrichmentRepositoryMock.findFirst.mockResolvedValue({
       id: "enrichment-1",
       missionId: "mission-1",
@@ -66,6 +66,24 @@ describe("missionScoringService.score", () => {
     await missionScoringService.score({
       missionId: "mission-1",
       missionEnrichmentId: "enrichment-1",
+    });
+
+    expect(missionScoringRepositoryMock.replaceForEnrichment).not.toHaveBeenCalled();
+  });
+
+  it("replaces existing scoring values when force is enabled", async () => {
+    missionEnrichmentRepositoryMock.findFirst.mockResolvedValue({
+      id: "enrichment-1",
+      missionId: "mission-1",
+      mission: { publisherId: null, type: null },
+      values: [buildEnrichmentValue()],
+    });
+    missionScoringRepositoryMock.findUnique.mockResolvedValue({ id: "mission-scoring-1" });
+
+    await missionScoringService.score({
+      missionId: "mission-1",
+      missionEnrichmentId: "enrichment-1",
+      force: true,
     });
 
     expect(missionScoringRepositoryMock.replaceForEnrichment).toHaveBeenCalledWith({
@@ -82,7 +100,7 @@ describe("missionScoringService.score", () => {
     });
   });
 
-  it("persists an empty scoring when re-scoring clears all derived values", async () => {
+  it("persists an empty scoring when force clears all derived values", async () => {
     missionEnrichmentRepositoryMock.findFirst.mockResolvedValue({
       id: "enrichment-1",
       missionId: "mission-1",
@@ -99,6 +117,7 @@ describe("missionScoringService.score", () => {
     await missionScoringService.score({
       missionId: "mission-1",
       missionEnrichmentId: "enrichment-1",
+      force: true,
     });
 
     expect(missionScoringRepositoryMock.replaceForEnrichment).toHaveBeenCalledWith({

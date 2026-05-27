@@ -2,20 +2,14 @@ import { MissionEnrichment, MissionEnrichmentValue, Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
 
 export const missionEnrichmentRepository = {
-  findUnique<T extends Prisma.MissionEnrichmentFindUniqueArgs>(
-    params: Prisma.SelectSubset<T, Prisma.MissionEnrichmentFindUniqueArgs>
-  ): Promise<Prisma.MissionEnrichmentGetPayload<T> | null> {
-    return prisma.missionEnrichment.findUnique(params) as Promise<Prisma.MissionEnrichmentGetPayload<T> | null>;
+  create(params: Prisma.MissionEnrichmentCreateArgs): Promise<MissionEnrichment> {
+    return prisma.missionEnrichment.create(params);
   },
 
   findFirst<T extends Prisma.MissionEnrichmentFindFirstArgs>(
     params: Prisma.SelectSubset<T, Prisma.MissionEnrichmentFindFirstArgs>
   ): Promise<Prisma.MissionEnrichmentGetPayload<T> | null> {
     return prisma.missionEnrichment.findFirst(params) as Promise<Prisma.MissionEnrichmentGetPayload<T> | null>;
-  },
-
-  upsert(params: Prisma.MissionEnrichmentUpsertArgs): Promise<MissionEnrichment> {
-    return prisma.missionEnrichment.upsert(params);
   },
 
   update(params: Prisma.MissionEnrichmentUpdateArgs): Promise<MissionEnrichment> {
@@ -33,11 +27,6 @@ export const missionEnrichmentRepository = {
     values: Omit<Prisma.MissionEnrichmentValueUncheckedCreateInput, "enrichmentId">[]
   ): Promise<void> {
     await prisma.$transaction(async (tx) => {
-      // Delete existing values first — the enrichmentId may be reused across runs (upsert model),
-      // so old classifications must be cleared before inserting the new ones.
-      // MissionScoringValues that reference these are cascade-deleted automatically.
-      await tx.missionEnrichmentValue.deleteMany({ where: { enrichmentId } });
-
       if (values.length > 0) {
         await tx.missionEnrichmentValue.createMany({
           data: values.map((value) => ({ ...value, enrichmentId })) as Prisma.MissionEnrichmentValueCreateManyInput[],
@@ -52,6 +41,45 @@ export const missionEnrichmentRepository = {
           outputTokens: tokenUsage.outputTokens,
           totalTokens: tokenUsage.totalTokens,
           completedAt: new Date(),
+        },
+      });
+    });
+  },
+
+  async completeWithValuesAndDeletePrevious(
+    params: {
+      enrichmentId: string;
+      missionId: string;
+      promptVersion: string;
+      rawResponse: string;
+      tokenUsage: { inputTokens: number | undefined; outputTokens: number | undefined; totalTokens: number | undefined };
+      values: Omit<Prisma.MissionEnrichmentValueUncheckedCreateInput, "enrichmentId">[];
+    }
+  ): Promise<void> {
+    await prisma.$transaction(async (tx) => {
+      if (params.values.length > 0) {
+        await tx.missionEnrichmentValue.createMany({
+          data: params.values.map((value) => ({ ...value, enrichmentId: params.enrichmentId })) as Prisma.MissionEnrichmentValueCreateManyInput[],
+        });
+      }
+
+      await tx.missionEnrichment.update({
+        where: { id: params.enrichmentId },
+        data: {
+          status: "completed",
+          rawResponse: params.rawResponse,
+          inputTokens: params.tokenUsage.inputTokens,
+          outputTokens: params.tokenUsage.outputTokens,
+          totalTokens: params.tokenUsage.totalTokens,
+          completedAt: new Date(),
+        },
+      });
+
+      await tx.missionEnrichment.deleteMany({
+        where: {
+          missionId: params.missionId,
+          promptVersion: params.promptVersion,
+          id: { not: params.enrichmentId },
         },
       });
     });
