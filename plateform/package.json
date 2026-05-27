@@ -10,14 +10,17 @@
     "typecheck": "react-router typegen && tsc --noEmit",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "prettier": "prettier --write . --plugin=prettier-plugin-organize-imports"
+    "prettier": "prettier --write . --plugin=prettier-plugin-organize-imports",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "prettier": {
     "printWidth": 180
   },
   "dependencies": {
-    "@engagement/taxonomy": "file:../packages/taxonomy",
     "@engagement/dto": "file:../packages/dto",
+    "@engagement/taxonomy": "file:../packages/taxonomy",
     "@gouvfr/dsfr": "1.14.4",
     "@react-router/node": "7.14.2",
     "@react-router/serve": "7.14.2",
@@ -41,6 +44,7 @@
     "@typescript-eslint/eslint-plugin": "8.59.0",
     "@typescript-eslint/parser": "8.59.0",
     "@vitejs/plugin-react": "6.0.1",
+    "@vitest/coverage-v8": "4.1.5",
     "eslint": "9.39.4",
     "globals": "17.5.0",
     "postcss": "8.5.10",
@@ -48,6 +52,7 @@
     "prettier-plugin-organize-imports": "4.3.0",
     "typescript": "6.0.3",
     "vite": "8.0.10",
-    "vite-tsconfig-paths": "6.1.1"
+    "vite-tsconfig-paths": "6.1.1",
+    "vitest": "4.1.5"
   }
 }
