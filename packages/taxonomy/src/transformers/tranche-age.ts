@@ -2,10 +2,12 @@ const isRecord = (value: unknown): value is Record<string, unknown> => typeof va
 
 type TrancheAgeValueKey =
   | "moins_18_ans"
+  | "entre_16_17_ans"
   | "entre_18_25_ans"
   | "entre_25_30_ans"
   | "entre_30_45_ans"
   | "entre_46_67_ans"
+  | "entre_46_66_ans"
   | "entre_68_72_ans"
   | "plus_72_ans"
   | "moins_31_ans_handicap";
@@ -30,6 +32,11 @@ export const resolveTrancheAgeValues = (params: unknown): TrancheAgeValueKey[] =
 
   if (age < 18) {
     values.push("moins_18_ans");
+    if (age >= 16) {
+      // bucket caché : permet aux règles de scoring d'inclure les 16-17 ans
+      // sans englober les âges < 16 via moins_18_ans
+      values.push("entre_16_17_ans");
+    }
   } else if (age <= 25) {
     values.push("entre_18_25_ans");
   } else if (age <= 30) {
@@ -38,6 +45,11 @@ export const resolveTrancheAgeValues = (params: unknown): TrancheAgeValueKey[] =
     values.push("entre_30_45_ans");
   } else if (age <= 67) {
     values.push("entre_46_67_ans");
+    if (age < 67) {
+      // bucket caché : permet aux règles de scoring d'exclure précisément les 67 ans
+      // (ex : volontariat_sapeurs_pompiers impose age < 67)
+      values.push("entre_46_66_ans");
+    }
   } else if (age <= 72) {
     values.push("entre_68_72_ans");
   } else {
