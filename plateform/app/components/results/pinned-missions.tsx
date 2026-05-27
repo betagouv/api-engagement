@@ -9,10 +9,9 @@ interface PinnedMissionsProps {
   loading: boolean;
   error: string | null;
   userScoringId: string | undefined;
-  onResetAnswers: () => void;
 }
 
-export default function PinnedMissions({ items, loading, error, userScoringId, onResetAnswers }: PinnedMissionsProps) {
+export default function PinnedMissions({ items, loading, error, userScoringId }: PinnedMissionsProps) {
   return (
     <div className="relative w-full px-6">
       {!loading && !error && items.length > 0 && (

@@ -164,7 +164,7 @@ export default function ResultsPage() {
             </div>
 
             <div ref={scrollRef} className={`flex-1 overflow-y-auto overscroll-contain ${expanded ? "" : "hidden"}`}>
-              <PinnedMissions items={pinnedItems} loading={loading} error={error} userScoringId={userScoringId} onResetAnswers={reset} />
+              <PinnedMissions items={pinnedItems} loading={loading} error={error} userScoringId={userScoringId} />
 
               {showOther && (
                 <div className="px-6 pt-2 pb-8">
@@ -222,7 +222,7 @@ export default function ResultsPage() {
                   </Link>
                 )}
               </div>
-              <PinnedMissions items={pinnedItems} loading={loading} error={error} userScoringId={userScoringId} onResetAnswers={reset} />
+              <PinnedMissions items={pinnedItems} loading={loading} error={error} userScoringId={userScoringId} />
             </div>
             <div className="sticky top-0 max-h-[720px] flex-1 py-12">{showMap && <LazyMissionMap items={pinnedItems} center={mapCenter} />}</div>
           </section>

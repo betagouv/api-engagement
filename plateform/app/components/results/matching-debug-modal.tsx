@@ -1,6 +1,7 @@
-import Modal from "~/components/layout/modal";
 import type { MissionMatchItem } from "@engagement/dto";
+import type React from "react";
 import { useSearchParams } from "react-router";
+import Modal from "~/components/layout/modal";
 import "./matching-debug-modal.css";
 
 const DEBUG_ID_PARAM = "debug_id";
