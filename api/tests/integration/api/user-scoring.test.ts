@@ -303,7 +303,7 @@ describe("POST /user-scoring", () => {
     const values = await prisma.userScoringValue.findMany({
       where: { userScoringId: res.body.data.id },
     });
-    expect(values).toHaveLength(4);
+    expect(values).toHaveLength(2);
 
     const geo = await prisma.userScoringGeo.findUnique({
       where: { userScoringId: res.body.data.id },
@@ -877,12 +877,12 @@ describe("PUT /user-scoring/:userScoringId", () => {
     });
 
     expect(res.status).toBe(200);
-    expect(res.body.data.created_count).toBe(3);
+    expect(res.body.data.created_count).toBe(1);
 
     const values = await prisma.userScoringValue.findMany({
       where: { userScoringId },
     });
-    expect(values).toHaveLength(3);
+    expect(values).toHaveLength(1);
   });
 
   it("should replace existing tranche_age values when age changes", async () => {
@@ -893,7 +893,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
       answers: [{ taxonomy: "tranche_age", params: { age: 18, handicap: false } }],
     });
     expect(firstRes.status).toBe(200);
-    expect(firstRes.body.data.created_count).toBe(3);
+    expect(firstRes.body.data.created_count).toBe(1);
 
     const secondRes = await putUserScoringRequest(userScoringId).send({
       distinctId,
@@ -907,7 +907,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
       where: { userScoringId },
       orderBy: [{ taxonomyKey: "asc" }, { valueKey: "asc" }],
     });
-    expect(values.map((value) => `${value.taxonomyKey}.${value.valueKey}`)).toEqual(["tranche_age.entre_17_72_ans"]);
+    expect(values.map((value) => `${value.taxonomyKey}.${value.valueKey}`)).toEqual(["tranche_age.entre_68_72_ans"]);
   });
 
   it("should delete existing geo when answers do not include location", async () => {
