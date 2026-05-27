@@ -20,7 +20,10 @@ export const llmMissionEnrichmentProvider: MissionEnrichmentProvider = {
 
         return result as MissionEnrichmentProviderResult;
       } catch (error) {
-        const isRateLimit = (error as { name?: string })?.name === "AI_APICallError" && (error as { statusCode?: number })?.statusCode === 429;
+        // AI SDK wraps repeated 429s in AI_RetryError (lastError = AI_APICallError) once maxRetries is
+        // exhausted. When maxRetries is 0 the raw AI_APICallError surfaces directly — handle both.
+        const rootError = (error as { name?: string })?.name === "AI_RetryError" ? (error as { lastError?: unknown })?.lastError : error;
+        const isRateLimit = (rootError as { name?: string })?.name === "AI_APICallError" && (rootError as { statusCode?: number })?.statusCode === 429;
         if (isRateLimit) {
           throw new MissionEnrichmentRateLimitError();
         }
