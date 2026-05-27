@@ -34,3 +34,10 @@ export const missionIndexPayloadSchema = z.object({
   missionId: z.string().min(1),
   action: z.enum(["upsert", "delete"]),
 });
+
+export class WorkerRetryableError extends Error {
+  constructor(reason: string) {
+    super(reason);
+    this.name = "WorkerRetryableError";
+  }
+}

@@ -1,4 +1,5 @@
 import { LLM_MAX_RETRIES, LLM_NO_OBJECT_MAX_RETRIES } from "@/services/mission-enrichment/config";
+import { MissionEnrichmentRateLimitError } from "@/services/mission-enrichment/errors";
 import type { MissionEnrichmentProvider, MissionEnrichmentProviderInput, MissionEnrichmentProviderResult } from "@/services/mission-enrichment/providers/types";
 import { generateObject } from "ai";
 
@@ -19,6 +20,10 @@ export const llmMissionEnrichmentProvider: MissionEnrichmentProvider = {
 
         return result as MissionEnrichmentProviderResult;
       } catch (error) {
+        const isRateLimit = (error as { name?: string })?.name === "AI_APICallError" && (error as { statusCode?: number })?.statusCode === 429;
+        if (isRateLimit) {
+          throw new MissionEnrichmentRateLimitError();
+        }
         const isNoObject = (error as { name?: string })?.name === "AI_NoObjectGeneratedError";
         if (isNoObject && attempt < LLM_NO_OBJECT_MAX_RETRIES) {
           console.warn(`${LOG_PREFIX} AI_NoObjectGeneratedError — retry ${attempt}/${LLM_NO_OBJECT_MAX_RETRIES}`);

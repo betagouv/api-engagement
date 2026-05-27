@@ -300,15 +300,28 @@ export const missionEnrichmentService = {
     // 3. Load taxonomy from package.
     const taxonomies = getTaxonomies();
 
-    // 4. Create enrichment record (pending)
+    // 4. Create or reuse enrichment record (pending)
     // The partial unique index on (mission_id, prompt_version) WHERE status IN ('pending', 'processing')
     // enforces at DB level that no two concurrent workers can run for the same mission/version.
     // A P2002 here means another worker won the race — skip silently.
+    // If a previous failed record exists, reuse it (upsert) to avoid accumulation.
     let enrichment;
     try {
-      enrichment = await missionEnrichmentRepository.create({
-        data: { missionId, promptVersion: CURRENT_PROMPT_VERSION, status: "pending" },
+      const latestFailed = await missionEnrichmentRepository.findFirst({
+        where: { missionId, promptVersion: CURRENT_PROMPT_VERSION, status: "failed" },
+        orderBy: { createdAt: "desc" },
       });
+
+      if (latestFailed) {
+        enrichment = await missionEnrichmentRepository.update({
+          where: { id: latestFailed.id },
+          data: { status: "pending" },
+        });
+      } else {
+        enrichment = await missionEnrichmentRepository.create({
+          data: { missionId, promptVersion: CURRENT_PROMPT_VERSION, status: "pending" },
+        });
+      }
     } catch (error) {
       if ((error as { code?: string }).code === "P2002") {
         console.log(`${LOG_PREFIX} skipping ${missionId} — lost race to concurrent worker`);
