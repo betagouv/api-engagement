@@ -303,7 +303,7 @@ router.post("/:id/scoring", passport.authenticate("admin", { session: false }), 
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    await missionScoringService.enqueue(params.data.id, { force: true });
+    await missionScoringService.enqueue(params.data.id);
     return res.status(200).send({ ok: true });
   } catch (error: any) {
     next(error);

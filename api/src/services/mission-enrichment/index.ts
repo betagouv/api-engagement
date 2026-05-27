@@ -375,7 +375,7 @@ export const missionEnrichmentService = {
       throw error;
     }
 
-    // 10. Trigger scoring (outside try/catch — enrichment is already completed)
+    // 10. Trigger scoring (outside try/catch — enrichment is already completed).
     await asyncTaskBus.publish({ type: "mission.scoring", payload: { missionId } });
   },
 };

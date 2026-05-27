@@ -19,11 +19,11 @@ const parseScoringRuleKey = (key: string): { taxonomyKey: string; valueKey: stri
 };
 
 export const missionScoringService = {
-  async enqueue(missionId: string, options: { force?: boolean } = {}): Promise<void> {
-    await asyncTaskBus.publish({ type: "mission.scoring", payload: { missionId, ...(options.force !== undefined ? { force: options.force } : {}) } });
+  async enqueue(missionId: string): Promise<void> {
+    await asyncTaskBus.publish({ type: "mission.scoring", payload: { missionId } });
   },
 
-  async score(params: { missionId: string; missionEnrichmentId?: string; force?: boolean }) {
+  async score(params: { missionId: string; missionEnrichmentId?: string }) {
     const enrichment = await missionEnrichmentRepository.findFirst({
       where: {
         ...(params.missionEnrichmentId ? { id: params.missionEnrichmentId } : {}),
@@ -49,11 +49,6 @@ export const missionScoringService = {
         },
       },
     });
-
-    if (existingScoring && !params.force) {
-      console.log(`${LOG_PREFIX} skipping mission=${params.missionId} enrichment=${enrichmentId} — scoring already exists`);
-      return;
-    }
 
     const missionRuleKeys = getMissionScoringRuleKeys(enrichment.mission);
     if (enrichment.values.length === 0 && missionRuleKeys.length === 0 && !existingScoring) {

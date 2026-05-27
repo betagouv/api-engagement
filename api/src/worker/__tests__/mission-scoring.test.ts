@@ -31,12 +31,10 @@ describe("mission scoring worker", () => {
       missionScoringPayloadSchema.parse({
         missionId: "mission-1",
         missionEnrichmentId: "enrichment-1",
-        force: true,
       })
     ).toEqual({
       missionId: "mission-1",
       missionEnrichmentId: "enrichment-1",
-      force: true,
     });
   });
 
@@ -47,13 +45,11 @@ describe("mission scoring worker", () => {
     await handleMissionScoring({
       missionId: "mission-1",
       missionEnrichmentId: "enrichment-1",
-      force: true,
     });
 
     expect(missionScoringServiceMock.score).toHaveBeenCalledWith({
       missionId: "mission-1",
       missionEnrichmentId: "enrichment-1",
-      force: true,
     });
     expect(asyncTaskBusMock.publish).toHaveBeenCalledWith({
       type: "mission.index",
