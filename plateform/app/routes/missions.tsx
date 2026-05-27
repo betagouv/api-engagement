@@ -162,48 +162,49 @@ export default function MissionsPage() {
   };
 
   return (
-    <main>
-      <GradientBg>
-        <div className="fr-container pt-4 md:pt-16">
-          <div className="flex items-center justify-between gap-4">
-            <h1 className="fr-h1 m-0!">Trouve ta mission</h1>
-            <MissionFiltersTrigger filters={filterDefs} onChange={handleFilterChange} />
+    <>
+      <main>
+        <GradientBg>
+          <div className="fr-container pt-4 md:pt-16">
+            <div className="flex items-center justify-between gap-4">
+              <h1 className="fr-h1 m-0!">Trouve ta mission</h1>
+              <MissionFiltersTrigger filters={filterDefs} onChange={handleFilterChange} />
+            </div>
+            <p className="fr-text--lead hidden md:block">
+              {loading && total === 0 ? "Chargement…" : `${total.toLocaleString("fr-FR")} mission${total > 1 ? "s" : ""} disponible${total > 1 ? "s" : ""}`}
+            </p>
+            <MissionFiltersBar filters={filterDefs} onChange={handleFilterChange} />
           </div>
-          <p className="fr-text--lead hidden md:block">
-            {loading && total === 0 ? "Chargement…" : `${total.toLocaleString("fr-FR")} mission${total > 1 ? "s" : ""} disponible${total > 1 ? "s" : ""}`}
-          </p>
-          <MissionFiltersBar filters={filterDefs} onChange={handleFilterChange} />
-        </div>
 
-        <div className="fr-container my-4 md:my-8">
-          {error && (
-            <div className="fr-alert fr-alert--error fr-mb-4w">
-              <p>Erreur lors du chargement des missions : {error}</p>
+          <div className="fr-container my-4 md:my-8">
+            {error && (
+              <div className="fr-alert fr-alert--error fr-mb-4w">
+                <p>Erreur lors du chargement des missions : {error}</p>
+              </div>
+            )}
+
+            {loading && items.length === 0 && <p className="fr-text--sm">Chargement des missions…</p>}
+
+            {!loading && !error && items.length === 0 && (
+              <div className="fr-alert fr-alert--info">
+                <p>Aucune mission ne correspond à ces filtres.</p>
+              </div>
+            )}
+
+            {items.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mx-auto gap-6 w-fit">
+                {items.map((mission) => (
+                  <MissionCard key={mission.id} mission={mission} link={mission.applicationUrl ? { type: "external", href: mission.applicationUrl } : undefined} />
+                ))}
+              </div>
+            )}
+
+            <div className="fr-mt-6w">
+              <Pagination page={page} totalPages={totalPages} onPageChange={handlePageChange} />
             </div>
-          )}
-
-          {loading && items.length === 0 && <p className="fr-text--sm">Chargement des missions…</p>}
-
-          {!loading && !error && items.length === 0 && (
-            <div className="fr-alert fr-alert--info">
-              <p>Aucune mission ne correspond à ces filtres.</p>
-            </div>
-          )}
-
-          {items.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mx-auto gap-6 w-fit">
-              {items.map((mission) => (
-                <MissionCard key={mission.id} mission={mission} link={mission.applicationUrl ? { type: "external", href: mission.applicationUrl } : undefined} />
-              ))}
-            </div>
-          )}
-
-          <div className="fr-mt-6w">
-            <Pagination page={page} totalPages={totalPages} onPageChange={handlePageChange} />
           </div>
-        </div>
-      </GradientBg>
-
+        </GradientBg>
+      </main>
       <Newsletter
         title="Inscris-toi à la newsletter"
         subtitle="1 email par mois avec les missions qui pourraient t'intéresser."
@@ -212,6 +213,6 @@ export default function MissionsPage() {
       />
 
       <Partners />
-    </main>
+    </>
   );
 }

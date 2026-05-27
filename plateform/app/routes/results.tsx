@@ -1,14 +1,17 @@
+import { useMemo } from "react";
+import { useParams } from "react-router";
+import Newsletter from "~/components/layout/newsletter";
+import Partners from "~/components/layout/partners";
+import MissionCard from "~/components/missions/mission-card";
 import LazyMissionMap from "~/components/results/lazy-mission-map";
-import MatchingDebugModal, { type MatchingDebugUserValue } from "~/components/results/matching-debug-modal";
-import OtherMissions from "~/components/results/other-missions";
+import MatchingDebugModal, { DebugButton, type MatchingDebugUserValue } from "~/components/results/matching-debug-modal";
 import PinnedMissions from "~/components/results/pinned-missions";
 import GradientBg from "~/components/ui/gradient-bg";
+import Pagination from "~/components/ui/pagination";
 import { OPTIONS } from "~/config/quiz-options";
 import { useMissionResults } from "~/hooks/useMissionResults";
 import { useQuizStore } from "~/stores/quiz";
-import type { MissionMatchItem } from "@engagement/dto";
-import { useMemo, useState } from "react";
-import { useParams } from "react-router";
+import { matchResultToBrowseMission } from "~/utils/mission";
 
 const FRANCE_CENTER: [number, number] = [46.6, 2.3];
 
@@ -17,7 +20,6 @@ export default function ResultsPage() {
   const reset = useQuizStore((s) => s.reset);
   const answers = useQuizStore((s) => s.answers);
   const { pinnedItems, otherItems, page, setPage, hasNextPage, loading, pageLoading, error, visiblePageNumbers } = useMissionResults(userScoringId);
-  const [debugItem, setDebugItem] = useState<MissionMatchItem | null>(null);
 
   const locAnswer = answers["localisation"];
   const geo = locAnswer?.type === "params" ? (locAnswer.params as { lat: number; lon: number }) : null;
@@ -48,51 +50,66 @@ export default function ResultsPage() {
     [answers],
   );
 
-  const renderDebugAction = (item: MissionMatchItem) => (
-    <button
-      type="button"
-      className="fr-btn fr-btn--tertiary fr-btn--icon-only absolute bottom-2 left-2 z-10"
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setDebugItem(item);
-      }}
-      aria-label={`Débuguer le matching de ${item.mission.title}`}
-    >
-      <i className="fr-icon-settings-5-line fr-icon--sm" aria-hidden="true" />
-    </button>
-  );
-
   const showMap = !loading && pinnedItems.length > 0;
 
   return (
-    <GradientBg fixed>
+    <>
       <main>
-        <section className="flex flex-col md:flex-row">
-          <div className="flex flex-col md:w-7/12">
-            <div className="h-72 w-full md:hidden">{showMap && <LazyMissionMap items={pinnedItems} center={mapCenter} />}</div>
+        <GradientBg fixed className="px-12">
+          <section className="flex flex-col md:flex-row">
+            <div className="flex flex-col md:flex-1 py-12">
+              {/* <div className="h-72 w-full md:hidden">{showMap && <LazyMissionMap items={pinnedItems} center={mapCenter} />}</div> */}
 
-            <PinnedMissions items={pinnedItems} loading={loading} error={error} userScoringId={userScoringId} onResetAnswers={reset} renderAction={renderDebugAction} />
-          </div>
+              <PinnedMissions items={pinnedItems} loading={loading} error={error} userScoringId={userScoringId} onResetAnswers={reset} />
+            </div>
 
-          <div className="sticky top-0 hidden h-screen md:block md:w-5/12">{showMap && <LazyMissionMap items={pinnedItems} center={mapCenter} />}</div>
-        </section>
+            <div className="sticky top-0 hidden max-h-[620px] md:block md:flex-1 py-12">{showMap && <LazyMissionMap items={pinnedItems} center={mapCenter} />}</div>
+          </section>
+
+          <MatchingDebugModal items={[...pinnedItems, ...otherItems]} userValues={userValues} />
+        </GradientBg>
 
         {!loading && !error && (otherItems.length > 0 || page > 1) && (
-          <OtherMissions
-            items={otherItems}
-            page={page}
-            pageLoading={pageLoading}
-            hasNextPage={hasNextPage}
-            pageItems={visiblePageNumbers}
-            userScoringId={userScoringId}
-            onPageChange={setPage}
-            renderAction={renderDebugAction}
-          />
+          <section className="mx-auto max-w-7xl py-10">
+            <h2>Il y a d'autres missions qui peuvent te plaire</h2>
+
+            {pageLoading ? (
+              <p className="text-mention-grey py-8 text-sm">Chargement…</p>
+            ) : (
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 mx-auto">
+                {otherItems.map((item) => (
+                  <div key={item.mission.id} className="relative">
+                    <MissionCard
+                      mission={matchResultToBrowseMission(item)}
+                      link={{ type: "internal", to: userScoringId ? `/results/${userScoringId}/missions/${item.mission.id}` : `/missions/${item.mission.id}` }}
+                    />
+                    <DebugButton missionId={item.mission.id} />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="fr-mt-3w">
+              <Pagination
+                page={page}
+                totalPages={Math.max(page, ...visiblePageNumbers)}
+                pageItems={visiblePageNumbers}
+                hasNextPage={hasNextPage}
+                disabled={pageLoading}
+                ariaLabel="Pagination des autres missions"
+                onPageChange={setPage}
+              />
+            </div>
+          </section>
         )}
       </main>
-
-      <MatchingDebugModal item={debugItem} userValues={userValues} onClose={() => setDebugItem(null)} />
-    </GradientBg>
+      <Newsletter
+        title="Reçois tes missions par email"
+        subtitle="1 email par mois avec les missions qui pourraient t'intéresser."
+        ctaText="Recevoir mes missions"
+        hintText="En renseignant ton adresse électronique, tu acceptes de recevoir de nouvelles offres de missions. Tu pourras te désinscrire à tout moment."
+      />
+      <Partners style="compact" />
+    </>
   );
 }
