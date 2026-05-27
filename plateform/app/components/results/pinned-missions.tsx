@@ -1,10 +1,8 @@
 import type { MissionMatchItem } from "@engagement/dto";
-import { Link } from "react-router";
 import MissionCard from "~/components/missions/mission-card";
 import EmailMissionsModal from "~/components/results/email-missions-modal";
 import { DebugButton } from "~/components/results/matching-debug-modal";
 import { matchResultToBrowseMission } from "~/utils/mission";
-import Highlight from "../ui/highlight";
 
 interface PinnedMissionsProps {
   items: MissionMatchItem[];
@@ -16,27 +14,10 @@ interface PinnedMissionsProps {
 
 export default function PinnedMissions({ items, loading, error, userScoringId, onResetAnswers }: PinnedMissionsProps) {
   return (
-    <div className="relative w-full bg-white shadow-results-pinned-missions md:bg-transparent md:shadow-none px-6">
-      <div className="flex items-center justify-between mb-6">
-        {!loading && !error && (
-          <h2 className="m-0!">
-            <Highlight>
-              <span className="text-blue-france-sun">
-                {items.length} mission{items.length > 1 ? "s" : ""}
-              </span>
-            </Highlight>
-            pour toi
-          </h2>
-        )}
-
-        <Link to="/quiz/age" onClick={onResetAnswers} className="fr-link fr-link--sm shrink-0">
-          Changer mes réponses
-        </Link>
-      </div>
-
+    <div className="relative w-full px-6">
       {!loading && !error && items.length > 0 && (
         <>
-          <div className="grid grid-cols-1 gap-6 px-5 pb-6 md:grid-cols-2 md:px-4">
+          <div className="grid grid-cols-1 gap-6 pb-6 md:grid-cols-2 md:px-4">
             {items.map((item) => (
               <div key={item.mission.id} className="relative w-full md:max-w-[330px]">
                 <MissionCard
@@ -48,7 +29,7 @@ export default function PinnedMissions({ items, loading, error, userScoringId, o
             ))}
           </div>
 
-          <div className="px-5 pb-8 md:px-6">
+          <div className="pb-8 md:px-6">
             <EmailMissionsModal userScoringId={userScoringId} />
           </div>
         </>

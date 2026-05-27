@@ -32,7 +32,7 @@ export default function MissionCard({ mission, link }: MissionCardProps) {
     );
 
   return (
-    <div className="mission-card fr-card fr-card--no-icon fr-enlarge-link relative h-full w-full md:max-w-[330px] max-h-[440px]">
+    <div className="mission-card fr-card fr-card--no-icon fr-enlarge-link relative h-full w-full md:max-w-[330px]">
       <div className="fr-card__body px-6! py-4!">
         <div className="fr-card__content m-0! p-0!">
           {domainLabel && (
