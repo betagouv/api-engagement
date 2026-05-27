@@ -206,7 +206,7 @@ export default function ResultsPage() {
             <div className="flex flex-col flex-1 py-12">
               <div className="flex gap-2 mb-6 flex-row items-center justify-between gap-4 px-6" onClick={handleToggleSheet}>
                 {!loading && !error && (
-                  <h2 className={`m-0! ${expanded ? "text-center!" : ""}`}>
+                  <h2 className="m-0!">
                     <Highlight>
                       <span className="text-blue-france-sun">
                         {pinnedItems.length} mission{pinnedItems.length > 1 ? "s" : ""}
@@ -216,11 +216,9 @@ export default function ResultsPage() {
                   </h2>
                 )}
 
-                {expanded && (
-                  <Link to="/quiz/age" onClick={reset} className="fr-link fr-link--sm shrink-0">
-                    Changer mes réponses
-                  </Link>
-                )}
+                <Link to="/quiz/age" onClick={reset} className="fr-link fr-link--sm shrink-0">
+                  Changer mes réponses
+                </Link>
               </div>
               <PinnedMissions items={pinnedItems} loading={loading} error={error} userScoringId={userScoringId} />
             </div>
