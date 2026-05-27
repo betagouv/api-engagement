@@ -33,6 +33,11 @@ export const missionEnrichmentRepository = {
     values: Omit<Prisma.MissionEnrichmentValueUncheckedCreateInput, "enrichmentId">[]
   ): Promise<void> {
     await prisma.$transaction(async (tx) => {
+      // Delete existing values first — the enrichmentId may be reused across runs (upsert model),
+      // so old classifications must be cleared before inserting the new ones.
+      // MissionScoringValues that reference these are cascade-deleted automatically.
+      await tx.missionEnrichmentValue.deleteMany({ where: { enrichmentId } });
+
       if (values.length > 0) {
         await tx.missionEnrichmentValue.createMany({
           data: values.map((value) => ({ ...value, enrichmentId })) as Prisma.MissionEnrichmentValueCreateManyInput[],
