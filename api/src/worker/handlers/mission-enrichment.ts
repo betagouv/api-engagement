@@ -1,6 +1,6 @@
 import { missionEnrichmentService } from "@/services/mission-enrichment";
 import { MissionEnrichmentRateLimitError } from "@/services/mission-enrichment/errors";
-import { WorkerRetryableError } from "@/worker/types";
+import { WorkerRetryableError } from "@/worker/errors";
 
 export const handleMissionEnrichment = async (payload: { missionId: string; force?: boolean }) => {
   console.log(`[mission.enrichment] start missionId=${payload.missionId}`);

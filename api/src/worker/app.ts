@@ -1,7 +1,8 @@
 import errorHandler from "@/middlewares/error-handler";
 import requestId from "@/middlewares/request-id";
+import { WorkerRetryableError } from "@/worker/errors";
 import { taskRegistry } from "@/worker/registry";
-import { taskEnvelopeSchema, WorkerRetryableError } from "@/worker/types";
+import { taskEnvelopeSchema } from "@/worker/types";
 import express from "express";
 import { z } from "zod";
 
