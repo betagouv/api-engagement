@@ -28,13 +28,6 @@ export const missionMatchScoringValueSelect = {
   taxonomyKey: true,
   valueKey: true,
   score: true,
-  taxonomyValue: {
-    select: {
-      key: true,
-      label: true,
-      taxonomy: { select: { key: true } },
-    },
-  },
   missionEnrichmentValue: {
     select: {
       confidence: true,
@@ -92,9 +85,9 @@ export const buildMissionIndex = (missionRows: MissionMatchDbRow[]): Record<stri
 export const buildValuesIndex = (scoringValueRows: MissionScoringValueDbRow[]): Record<string, MissionMatchValue[]> => {
   const index: Record<string, MissionMatchValue[]> = {};
   for (const row of scoringValueRows) {
-    const taxonomyKey = row.taxonomyKey ?? row.taxonomyValue?.taxonomy.key ?? "unknown";
-    const taxonomyValueKey = row.valueKey ?? row.taxonomyValue?.key ?? "unknown";
-    const taxonomyValueLabel = row.taxonomyValue?.label ?? getTaxonomyValueLabel(taxonomyKey, taxonomyValueKey) ?? taxonomyValueKey;
+    const taxonomyKey = row.taxonomyKey ?? "unknown";
+    const taxonomyValueKey = row.valueKey ?? "unknown";
+    const taxonomyValueLabel = getTaxonomyValueLabel(taxonomyKey, taxonomyValueKey) ?? taxonomyValueKey;
 
     const entry: MissionMatchValue = {
       taxonomyKey,
