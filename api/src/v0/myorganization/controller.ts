@@ -16,9 +16,9 @@ const router = Router();
 router.use(passport.authenticate(["apikey", "api"], { session: false }));
 router.use(publisherRateLimiter);
 
-const EXCLUSION_RULE_FIELD = "publisherOrganizationId";
+const EXCLUSION_RULE_FIELD = "publisherOrganization.clientId";
 
-const collectExclusions = async (annonceurPublisherId: string, publisherOrganizationId: string): Promise<Set<string>> => {
+const collectExclusions = async (annonceurPublisherId: string, organizationClientId: string): Promise<Set<string>> => {
   const roots = await publisherDiffusionRuleService.findRules({
     combinedWithId: null,
     field: "publisherId",
@@ -28,7 +28,7 @@ const collectExclusions = async (annonceurPublisherId: string, publisherOrganiza
 
   const excludedDiffuseurIds = new Set<string>();
   roots.forEach((root) => {
-    const matches = (root.combinedRules ?? []).some((child) => child.field === EXCLUSION_RULE_FIELD && child.value === publisherOrganizationId);
+    const matches = (root.combinedRules ?? []).some((child) => child.field === EXCLUSION_RULE_FIELD && child.value === organizationClientId);
     if (matches) {
       excludedDiffuseurIds.add(root.publisherId);
     }
@@ -56,7 +56,7 @@ router.get("/:organizationClientId", async (req: PublisherRequest, res: Response
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher organization not found" });
     }
 
-    const excludedDiffuseurIds = await collectExclusions(user.id, publisherOrganization.id);
+    const excludedDiffuseurIds = await collectExclusions(user.id, params.data.organizationClientId);
 
     const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const publisherIds = publishers.map((publisher) => publisher.id);
@@ -100,7 +100,7 @@ router.put("/:organizationClientId", async (req: PublisherRequest, res: Response
       publisherOrganizationService.findUniqueOrCreate(params.data.organizationClientId, user.id, { name: body.data.organizationName }),
     ]);
 
-    const previousExclusions = await collectExclusions(user.id, publisherOrganization.id);
+    const previousExclusions = await collectExclusions(user.id, params.data.organizationClientId);
     const allowedDiffuseurIds = new Set(body.data.publisherIds);
     const targetExcludedIds = publishers.map((publisher) => publisher.id).filter((id) => !allowedDiffuseurIds.has(id));
     const targetExcludedSet = new Set(targetExcludedIds);
@@ -112,7 +112,7 @@ router.put("/:organizationClientId", async (req: PublisherRequest, res: Response
       await publisherDiffusionRuleService.deleteRules({
         publisherIds: toDelete,
         field: EXCLUSION_RULE_FIELD,
-        value: publisherOrganization.id,
+        value: params.data.organizationClientId,
       });
     }
 
@@ -124,7 +124,7 @@ router.put("/:organizationClientId", async (req: PublisherRequest, res: Response
           field: EXCLUSION_RULE_FIELD,
           fieldType: "string",
           operator: "is_not",
-          value: publisherOrganization.id,
+          value: params.data.organizationClientId,
         })
       )
     );

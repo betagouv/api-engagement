@@ -97,7 +97,18 @@ router.post("/", async (req: PublisherRequest, res: Response, next: NextFunction
       )
     );
 
-    return res.status(201).send({ ok: true, data: created, total: created.length });
+    return res.status(201).send({
+      ok: true,
+      data: created.map((rule) => ({
+        id: rule.id,
+        publisherId: rule.publisherId,
+        field: rule.field,
+        fieldType: rule.fieldType,
+        operator: rule.operator,
+        value: rule.value,
+      })),
+      total: created.length,
+    });
   } catch (error) {
     next(error);
   }

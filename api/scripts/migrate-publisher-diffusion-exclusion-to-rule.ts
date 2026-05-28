@@ -4,11 +4,11 @@
  * Modèle cible (shared-root) :
  *   pour chaque (annonceur A, diffuseur D), une seule rule racine
  *     { publisher_id=D, field='publisherId', value=A, combined_with_id=NULL }
- *   puis une rule enfant par publisherOrganization exclue
- *     { publisher_id=D, field='publisherOrganizationId', value=PO.id, combined_with_id=root.id }
+ *   puis une rule enfant par organization exclue
+ *     { publisher_id=D, field='publisherOrganization.clientId', value=clientId, combined_with_id=root.id }
  *
- * PO.id est résolu via publisher_organization quand publisherOrganizationId est renseigné,
- * sinon via la jointure (excluded_by_annonceur_id, organization_client_id).
+ * Le clientId est résolu via publisher_organization quand publisherOrganizationId est
+ * renseigné sur l'exclusion, sinon directement via pde.organization_client_id.
  *
  * Idempotent : on n'insère pas si la rule (publisher_id, field, value) existe déjà
  * (unique key).
@@ -29,7 +29,7 @@ const isDryRun = process.argv.includes("--dry-run");
 type CandidateRow = {
   diffuseur_id: string;
   annonceur_id: string;
-  po_id: string;
+  client_id: string;
 };
 
 const listCandidates = async (): Promise<CandidateRow[]> =>
@@ -37,22 +37,19 @@ const listCandidates = async (): Promise<CandidateRow[]> =>
     SELECT DISTINCT
       pde."excluded_for_diffuseur_id" AS "diffuseur_id",
       pde."excluded_by_annonceur_id"  AS "annonceur_id",
-      COALESCE(po."id", po_fallback."id") AS "po_id"
+      COALESCE(po."client_id", pde."organization_client_id") AS "client_id"
     FROM "public"."publisher_diffusion_exclusion" pde
     LEFT JOIN "public"."publisher_organization" po
       ON po."id" = pde."publisher_organization_id"
-    LEFT JOIN "public"."publisher_organization" po_fallback
-      ON po_fallback."publisher_id" = pde."excluded_by_annonceur_id"
-     AND po_fallback."client_id" = pde."organization_client_id"
-    WHERE COALESCE(po."id", po_fallback."id") IS NOT NULL
+    WHERE COALESCE(po."client_id", pde."organization_client_id") IS NOT NULL
   `;
 
 const groupCandidates = (candidates: CandidateRow[]) => {
-  const groups = new Map<string, { diffuseurId: string; annonceurId: string; poIds: Set<string> }>();
+  const groups = new Map<string, { diffuseurId: string; annonceurId: string; clientIds: Set<string> }>();
   for (const candidate of candidates) {
     const key = `${candidate.diffuseur_id}::${candidate.annonceur_id}`;
-    const group = groups.get(key) ?? { diffuseurId: candidate.diffuseur_id, annonceurId: candidate.annonceur_id, poIds: new Set<string>() };
-    group.poIds.add(candidate.po_id);
+    const group = groups.get(key) ?? { diffuseurId: candidate.diffuseur_id, annonceurId: candidate.annonceur_id, clientIds: new Set<string>() };
+    group.clientIds.add(candidate.client_id);
     groups.set(key, group);
   }
   return Array.from(groups.values());
@@ -82,9 +79,9 @@ const ensureScopeRoot = async (diffuseurId: string, annonceurId: string): Promis
   return created.id;
 };
 
-const ensureChild = async (rootId: string, diffuseurId: string, poId: string): Promise<boolean> => {
+const ensureChild = async (rootId: string, diffuseurId: string, clientId: string): Promise<boolean> => {
   const existing = await prisma.publisherDiffusionRule.findFirst({
-    where: { publisherId: diffuseurId, field: "publisherOrganizationId", value: poId },
+    where: { publisherId: diffuseurId, field: "publisherOrganization.clientId", value: clientId },
     select: { id: true },
   });
   if (existing) {
@@ -95,10 +92,10 @@ const ensureChild = async (rootId: string, diffuseurId: string, poId: string): P
     data: {
       publisher: { connect: { id: diffuseurId } },
       combinedWith: { connect: { id: rootId } },
-      field: "publisherOrganizationId",
+      field: "publisherOrganization.clientId",
       fieldType: "string",
       operator: "is_not",
-      value: poId,
+      value: clientId,
       combinator: "and",
       position: 0,
     },
@@ -121,27 +118,23 @@ const run = async () => {
   let skippedChildren = 0;
 
   for (const group of groups) {
-    console.log(group);
     if (isDryRun) {
-      console.log(`  - diffuseur=${group.diffuseurId} annonceur=${group.annonceurId} po_count=${group.poIds.size}`);
+      console.log(`  - diffuseur=${group.diffuseurId} annonceur=${group.annonceurId} client_count=${group.clientIds.size}`);
       continue;
     }
 
     const rootId = await ensureScopeRoot(group.diffuseurId, group.annonceurId);
     createdRoots += 1;
 
-    console.log(`  - rootId=${rootId}`);
+    for (const clientId of group.clientIds) {
+      const created = await ensureChild(rootId, group.diffuseurId, clientId);
 
-    for (const poId of group.poIds) {
-      const created = await ensureChild(rootId, group.diffuseurId, poId);
-      console.log(`  - poId=${poId} created=${created}`);
       if (created) {
         createdChildren += 1;
       } else {
         skippedChildren += 1;
       }
     }
-    break;
   }
 
   const durationMs = Date.now() - startedAt.getTime();
