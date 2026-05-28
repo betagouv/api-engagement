@@ -52,7 +52,6 @@ function randomConfidence(): number {
 type SeedTaxonomyValue = {
   taxonomyKey: string;
   valueKey: string;
-  taxonomyValueId: string | null;
 };
 
 type SeedTaxonomy = {
@@ -97,22 +96,7 @@ function generateValues(taxonomies: SeedTaxonomy[]): GeneratedValue[] {
   return result;
 }
 
-const buildTaxonomyValueKey = (taxonomyKey: string, valueKey: string) => `${taxonomyKey}.${valueKey}`;
-
-async function buildTaxonomyValueIdLookup(): Promise<Map<string, string>> {
-  const values = await prisma.taxonomyValue.findMany({
-    where: { active: true },
-    select: {
-      id: true,
-      key: true,
-      taxonomy: { select: { key: true } },
-    },
-  });
-
-  return new Map(values.map((value) => [buildTaxonomyValueKey(value.taxonomy.key, value.key), value.id]));
-}
-
-function buildSeedTaxonomies(taxonomyValueIdByKey: Map<string, string>): SeedTaxonomy[] {
+function buildSeedTaxonomies(): SeedTaxonomy[] {
   return getTaxonomyList()
     .filter((taxonomy) => taxonomy.enrichable)
     .map((taxonomy) => ({
@@ -123,7 +107,6 @@ function buildSeedTaxonomies(taxonomyValueIdByKey: Map<string, string>): SeedTax
         .map((value) => ({
           taxonomyKey: taxonomy.key,
           valueKey: value.key,
-          taxonomyValueId: taxonomyValueIdByKey.get(buildTaxonomyValueKey(taxonomy.key, value.key)) ?? null,
         })),
     }))
     .filter((taxonomy) => taxonomy.values.length > 0);
@@ -158,10 +141,8 @@ async function reset() {
 // ── Seed ──────────────────────────────────────────────────────────────────────
 
 async function seed() {
-  const taxonomyValueIdByKey = await buildTaxonomyValueIdLookup();
-  const taxonomies = buildSeedTaxonomies(taxonomyValueIdByKey);
+  const taxonomies = buildSeedTaxonomies();
   const valueCount = taxonomies.reduce((sum, taxonomy) => sum + taxonomy.values.length, 0);
-  const resolvedValueIdCount = taxonomies.reduce((sum, taxonomy) => sum + taxonomy.values.filter((value) => value.taxonomyValueId !== null).length, 0);
 
   if (taxonomies.length === 0) {
     console.error("[seed-fake-mission-enrichment] Aucune taxonomie enrichissable trouvée dans @engagement/taxonomy");
@@ -170,7 +151,7 @@ async function seed() {
 
   const seedVersion = promptVersion ?? CURRENT_PROMPT_VERSION;
   console.log(
-    `[seed-fake-mission-enrichment] ${taxonomies.length} taxonomies enrichissables chargées depuis @engagement/taxonomy (${valueCount} valeurs, ${resolvedValueIdCount} ids DB résolus, version: ${seedVersion})`
+    `[seed-fake-mission-enrichment] ${taxonomies.length} taxonomies enrichissables chargées depuis @engagement/taxonomy (${valueCount} valeurs, version: ${seedVersion})`
   );
 
   // Query missions without a completed enrichment for the target version
@@ -234,7 +215,6 @@ async function seed() {
               await tx.missionEnrichmentValue.createMany({
                 data: values.map((v) => ({
                   enrichmentId: enrichment.id,
-                  taxonomyValueId: v.taxonomyValueId,
                   taxonomyKey: v.taxonomyKey,
                   valueKey: v.valueKey,
                   confidence: v.confidence,

@@ -34,8 +34,6 @@ beforeEach(async () => {
     prisma.userScoringGeo.deleteMany({}),
     prisma.userScoringValue.deleteMany({}),
     prisma.userScoring.deleteMany({}),
-    prisma.taxonomyValue.deleteMany({}),
-    prisma.taxonomy.deleteMany({}),
     prisma.domain.deleteMany({}),
     prisma.activity.deleteMany({}),
     prisma.moderationEvent.deleteMany({}),

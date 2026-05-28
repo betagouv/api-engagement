@@ -1,5 +1,4 @@
 // Source unique de vérité pour les taxonomies et valeurs de taxonomie.
-// Basé sur api/scripts/seed-taxonomy.ts.
 //
 // Champs par taxonomy :
 //   label     — libellé affiché en UI / logs
