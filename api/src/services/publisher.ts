@@ -1,6 +1,6 @@
 import { randomBytes, randomUUID } from "crypto";
 
-import { MissionType, Prisma, Publisher, PublisherDiffusion, PublisherDiffusionExclusion } from "@/db/core";
+import { MissionType, Prisma, Publisher, PublisherDiffusion } from "@/db/core";
 import { publisherRepository } from "@/repositories/publisher";
 import {
   PublisherCreateInput,
@@ -16,8 +16,6 @@ import { normalizeCollection, normalizeOptionalString } from "@/utils";
 
 type PrismaPublisherWithRelation = Publisher & {
   diffuseurs?: (PublisherDiffusion & { diffuseur?: Publisher })[];
-  diffusionExclusionsFor?: PublisherDiffusionExclusion[];
-  diffusionExclusionsBy?: PublisherDiffusionExclusion[];
 };
 export class PublisherNotFoundError extends Error {
   constructor(id: string) {
@@ -70,8 +68,6 @@ export const publisherService = (() => {
     createdAt: publisher.createdAt,
     updatedAt: publisher.updatedAt,
     publishers: (publisher.diffuseurs ?? []).map(toDiffusionRecord),
-    diffusionExclusionsBy: publisher.diffusionExclusionsBy ?? [],
-    diffusionExclusionsFor: publisher.diffusionExclusionsFor ?? [],
   });
 
   const normalizeDiffusions = (publishers?: PublisherDiffusionInput[] | null) =>
@@ -224,7 +220,7 @@ export const publisherService = (() => {
   const findOnePublisherByApiKey = async (apikey: string, publisherId?: string): Promise<PublisherRecordWithRelations | null> => {
     const publisher = await publisherRepository.findFirst({
       where: { apikey, ...(publisherId ? { id: publisherId } : {}) },
-      include: { ...defaultInclude, diffusionExclusionsFor: true, diffusionExclusionsBy: true },
+      include: defaultInclude,
     });
     return publisher ? toPublisherRecord(publisher) : null;
   };

@@ -15,15 +15,15 @@ import { PilotyMandatoryData } from "@/services/piloty/types";
 export async function publishNewMissions(
   pilotyClient: PilotyClient,
   mandatoryData: PilotyMandatoryData,
-  excludedOrgClientIds: Set<string>,
+  excludedPublisherOrganizationIds: Set<string>,
   counter: LetudiantJobCounter,
   dryRun = false
 ): Promise<void> {
   for (const config of PUBLISHER_SYNC_CONFIGS) {
     if (config.quotaByDomain) {
-      await publishWithQuota([config.publisherId], config.quotaByDomain, pilotyClient, mandatoryData, excludedOrgClientIds, counter, dryRun);
+      await publishWithQuota([config.publisherId], config.quotaByDomain, pilotyClient, mandatoryData, excludedPublisherOrganizationIds, counter, dryRun);
     } else {
-      await publishUnlimited([config.publisherId], pilotyClient, mandatoryData, excludedOrgClientIds, counter, dryRun);
+      await publishUnlimited([config.publisherId], pilotyClient, mandatoryData, excludedPublisherOrganizationIds, counter, dryRun);
     }
   }
 }
@@ -38,7 +38,7 @@ async function publishWithQuota(
   quotaByDomain: Record<string, number>,
   pilotyClient: PilotyClient,
   mandatoryData: PilotyMandatoryData,
-  excludedOrgClientIds: Set<string>,
+  excludedPublisherOrganizationIds: Set<string>,
   counter: LetudiantJobCounter,
   dryRun: boolean
 ): Promise<void> {
@@ -58,7 +58,7 @@ async function publishWithQuota(
     let offset = 0;
 
     while (remainingSlots > 0) {
-      const missionIds = await getMissionIdsToPublishByDomain(publisherIds, domain, pageSize, excludedOrgClientIds, offset);
+      const missionIds = await getMissionIdsToPublishByDomain(publisherIds, domain, pageSize, excludedPublisherOrganizationIds, offset);
       console.log(`[LetudiantHandler] Publish phase: ${missionIds.length} candidate missions for domain "${domain}" (offset: ${offset})`);
 
       if (!missionIds.length) {
@@ -98,11 +98,11 @@ async function publishUnlimited(
   publisherIds: string[],
   pilotyClient: PilotyClient,
   mandatoryData: PilotyMandatoryData,
-  excludedOrgClientIds: Set<string>,
+  excludedPublisherOrganizationIds: Set<string>,
   counter: LetudiantJobCounter,
   dryRun: boolean
 ): Promise<void> {
-  const missionIds = await getMissionIdsToPublishUnlimited(publisherIds, excludedOrgClientIds);
+  const missionIds = await getMissionIdsToPublishUnlimited(publisherIds, excludedPublisherOrganizationIds);
   console.log(`[LetudiantHandler] Publish phase (unlimited): ${missionIds.length} candidate missions for publishers ${publisherIds.join(", ")}`);
 
   if (!missionIds.length) {

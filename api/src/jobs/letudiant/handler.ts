@@ -5,7 +5,7 @@ import { archiveExpiredMissions } from "@/jobs/letudiant/phases/archive-expired"
 import { publishNewMissions } from "@/jobs/letudiant/phases/publish-new";
 import { LetudiantJobCounter } from "@/jobs/letudiant/phases/sync-mission";
 import { updateModifiedMissions } from "@/jobs/letudiant/phases/update-modified";
-import { getMandatoryData, loadExcludedOrganizationClientIds } from "@/jobs/letudiant/utils";
+import { getMandatoryData, loadExcludedPublisherOrganizationIds } from "@/jobs/letudiant/utils";
 import { JobResult } from "@/jobs/types";
 import { PilotyClient } from "@/services/piloty";
 
@@ -43,15 +43,15 @@ export class LetudiantHandler implements BaseHandler<LetudiantJobPayload, Letudi
       console.log("[LetudiantHandler] DRY RUN — no Piloty API calls or DB writes will be made");
     }
 
-    const excludedOrgClientIds = await loadExcludedOrganizationClientIds();
-    console.log(`[LetudiantHandler] Loaded ${excludedOrgClientIds.size} excluded organizations`);
+    const excludedPublisherOrganizationIds = await loadExcludedPublisherOrganizationIds();
+    console.log(`[LetudiantHandler] Loaded ${excludedPublisherOrganizationIds.size} excluded organizations`);
 
-    await archiveExpiredMissions(pilotyClient, excludedOrgClientIds, counter, dryRun);
+    await archiveExpiredMissions(pilotyClient, excludedPublisherOrganizationIds, counter, dryRun);
 
     const mandatoryData = await getMandatoryData(pilotyClient);
 
     await updateModifiedMissions(pilotyClient, mandatoryData, counter, dryRun);
-    await publishNewMissions(pilotyClient, mandatoryData, excludedOrgClientIds, counter, dryRun);
+    await publishNewMissions(pilotyClient, mandatoryData, excludedPublisherOrganizationIds, counter, dryRun);
 
     return {
       success: true,

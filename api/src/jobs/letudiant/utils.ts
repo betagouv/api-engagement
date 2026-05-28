@@ -14,7 +14,7 @@ import { missionService } from "@/services/mission";
 import missionJobBoardService from "@/services/mission-jobboard";
 import { PilotyClient } from "@/services/piloty/client";
 import { PilotyJobCategory, PilotyMandatoryData } from "@/services/piloty/types";
-import { publisherDiffusionExclusionService } from "@/services/publisher-diffusion-exclusion";
+import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import { MissionRecord } from "@/types/mission";
 import { JobBoardId, MissionJobBoardRecord } from "@/types/mission-job-board";
 import he from "he";
@@ -41,12 +41,24 @@ export async function rateLimit(delayMs = 500) {
 }
 
 /**
- * Load the set of organizationClientIds excluded for L'Etudiant diffusion.
+ * Load the set of publisherOrganizationIds excluded for L'Etudiant diffusion.
  * Returns a Set for O(1) lookups.
  */
-export async function loadExcludedOrganizationClientIds(): Promise<Set<string>> {
-  const exclusions = await publisherDiffusionExclusionService.findExclusionsForDiffuseurId(PUBLISHER_IDS.LETUDIANT);
-  return new Set(exclusions.map((e) => e.organizationClientId).filter((id): id is string => Boolean(id)));
+export async function loadExcludedPublisherOrganizationIds(): Promise<Set<string>> {
+  const rules = await publisherDiffusionRuleService.findRules({
+    publisherId: PUBLISHER_IDS.LETUDIANT,
+    combinedWithId: null,
+    includeCombinedRules: true,
+  });
+  const ids = new Set<string>();
+  rules.forEach((rule) => {
+    (rule.combinedRules ?? []).forEach((child) => {
+      if (child.field === "publisherOrganizationId" && child.value) {
+        ids.add(child.value);
+      }
+    });
+  });
+  return ids;
 }
 
 /**
@@ -57,9 +69,9 @@ export async function loadExcludedOrganizationClientIds(): Promise<Set<string>> 
  * - entry has been ONLINE for more than ONLINE_DAYS_LIMIT days
  * - mission's organization is in the exclusion list
  */
-export async function getMissionEntriesToArchive(excludedOrgClientIds: Set<string>): Promise<MissionEntryToArchive[]> {
+export async function getMissionEntriesToArchive(excludedPublisherOrganizationIds: Set<string>): Promise<MissionEntryToArchive[]> {
   const onlineCutoffDate = new Date(Date.now() - ONLINE_DAYS_LIMIT * 24 * 60 * 60 * 1000);
-  const excludedClientIds = Array.from(excludedOrgClientIds);
+  const excludedIds = Array.from(excludedPublisherOrganizationIds);
   // Publishers with no quota are never archived by age (they are always fully synced)
   const unlimitedPublisherIds = PUBLISHER_SYNC_CONFIGS.filter((c) => c.quotaByDomain === null).map((c) => c.publisherId);
 
@@ -80,7 +92,7 @@ export async function getMissionEntriesToArchive(excludedOrgClientIds: Set<strin
             mjb.created_at < ${onlineCutoffDate}
             ${unlimitedPublisherIds.length > 0 ? Prisma.sql`AND m.publisher_id NOT IN (${Prisma.join(unlimitedPublisherIds)})` : Prisma.sql``}
           )
-          ${excludedClientIds.length > 0 ? Prisma.sql`OR m.publisher_organization_id IN (SELECT id FROM publisher_organization WHERE client_id IN (${Prisma.join(excludedClientIds)}))` : Prisma.sql``}
+          ${excludedIds.length > 0 ? Prisma.sql`OR m.publisher_organization_id IN (${Prisma.join(excludedIds)})` : Prisma.sql``}
         )
     `
   );
@@ -144,14 +156,14 @@ export async function getMissionIdsToPublishByDomain(
   publisherIds: string[],
   domain: string,
   limit: number,
-  excludedOrgClientIds: Set<string>,
+  excludedPublisherOrganizationIds: Set<string>,
   offset = 0
 ): Promise<string[]> {
   if (limit <= 0) {
     return [];
   }
 
-  const excludedClientIds = Array.from(excludedOrgClientIds);
+  const excludedIds = Array.from(excludedPublisherOrganizationIds);
 
   const rows = await prisma.$queryRaw<Array<{ id: string }>>(
     Prisma.sql`
@@ -164,7 +176,7 @@ export async function getMissionIdsToPublishByDomain(
         AND m.deleted_at IS NULL
         AND po.organization_id_verified IS NOT NULL
         AND d.name = ${domain}
-        ${excludedClientIds.length > 0 ? Prisma.sql`AND (po.client_id IS NULL OR po.client_id NOT IN (${Prisma.join(excludedClientIds)}))` : Prisma.sql``}
+        ${excludedIds.length > 0 ? Prisma.sql`AND po.id NOT IN (${Prisma.join(excludedIds)})` : Prisma.sql``}
         AND NOT EXISTS (
           SELECT 1 FROM mission_jobboard mjb_err
           WHERE mjb_err.mission_id = m.id
@@ -197,8 +209,8 @@ export async function getMissionIdsToPublishByDomain(
  * Returns all mission IDs eligible for publication, ordered newest first.
  * No domain filter, no limit — all eligible missions are returned.
  */
-export async function getMissionIdsToPublishUnlimited(publisherIds: string[], excludedOrgClientIds: Set<string>): Promise<string[]> {
-  const excludedClientIds = Array.from(excludedOrgClientIds);
+export async function getMissionIdsToPublishUnlimited(publisherIds: string[], excludedPublisherOrganizationIds: Set<string>): Promise<string[]> {
+  const excludedIds = Array.from(excludedPublisherOrganizationIds);
 
   const rows = await prisma.$queryRaw<Array<{ id: string }>>(
     Prisma.sql`
@@ -209,7 +221,7 @@ export async function getMissionIdsToPublishUnlimited(publisherIds: string[], ex
         AND m.status_code = 'ACCEPTED'
         AND m.deleted_at IS NULL
         AND po.organization_id_verified IS NOT NULL
-        ${excludedClientIds.length > 0 ? Prisma.sql`AND (po.client_id IS NULL OR po.client_id NOT IN (${Prisma.join(excludedClientIds)}))` : Prisma.sql``}
+        ${excludedIds.length > 0 ? Prisma.sql`AND po.id NOT IN (${Prisma.join(excludedIds)})` : Prisma.sql``}
         AND NOT EXISTS (
           SELECT 1 FROM mission_jobboard mjb_err
           WHERE mjb_err.mission_id = m.id

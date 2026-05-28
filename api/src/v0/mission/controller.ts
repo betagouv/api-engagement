@@ -92,8 +92,6 @@ router.get("/", async (req: PublisherRequest, res: Response, next: NextFunction)
       query.data.skip = parseInt(req.query.from as string, 10);
     }
 
-    const excludePublisherOrganizationIds = user.diffusionExclusionsFor?.map((e) => e.publisherOrganizationId).filter((id): id is string => id !== null);
-
     const normalizePublisherIds = (publisher: string | string[] | undefined): string[] => {
       const values = normalizeQueryArray(publisher);
       if (!values) {
@@ -110,7 +108,7 @@ router.get("/", async (req: PublisherRequest, res: Response, next: NextFunction)
 
     const filters: MissionSearchFilters = {
       publisherIds,
-      excludePublisherOrganizationIds,
+      diffuseurPublisherId: user.id,
       moderationAcceptedFor: user.moderator ? user.id : undefined,
       activity: normalizeQueryArray(query.data.activity),
       city: normalizeQueryArray(query.data.city),
@@ -181,8 +179,6 @@ router.get("/search", async (req: PublisherRequest, res: Response, next: NextFun
       query.data.skip = parseInt(req.query.from as string, 10);
     }
 
-    const excludePublisherOrganizationIds = user.diffusionExclusionsFor?.map((e) => e.publisherOrganizationId).filter((id): id is string => id !== null);
-
     const normalizePublisherIds = (publisher: string | string[] | undefined): string[] => {
       const values = normalizeQueryArray(publisher);
       if (!values) {
@@ -199,7 +195,7 @@ router.get("/search", async (req: PublisherRequest, res: Response, next: NextFun
 
     const filters: MissionSearchFilters = {
       publisherIds,
-      excludePublisherOrganizationIds,
+      diffuseurPublisherId: user.id,
       moderationAcceptedFor: user.moderator ? user.id : undefined,
       activity: normalizeQueryArray(query.data.activity),
       city: normalizeQueryArray(query.data.city),

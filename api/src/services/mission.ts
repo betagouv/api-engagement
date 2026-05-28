@@ -5,6 +5,7 @@ import { prisma } from "@/db/postgres";
 import { missionRepository } from "@/repositories/mission";
 import { activityService } from "@/services/activity";
 import { buildMissionEnrichmentScoringWhere, missionEnrichmentService } from "@/services/mission-enrichment";
+import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import type {
   MissionCreateInput,
   MissionFacets,
@@ -201,10 +202,18 @@ const buildDateFilter = (range?: { gt?: Date; lt?: Date }) => {
   return Object.keys(filter).length ? filter : undefined;
 };
 
-export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereInput => {
+export const buildWhere = async (filters: MissionSearchFilters): Promise<Prisma.MissionWhereInput> => {
   const where: Prisma.MissionWhereInput = filters.directFilters ?? {};
 
   const orConditions: Prisma.MissionWhereInput[] = [];
+
+  if (filters.diffuseurPublisherId) {
+    const diffusionWhere = await publisherDiffusionRuleService.buildMissionPublisherDiffusionRuleWhere(filters.diffuseurPublisherId);
+    if (Object.keys(diffusionWhere).length > 0) {
+      const existingAnd = Array.isArray(where.AND) ? where.AND : where.AND ? [where.AND] : [];
+      where.AND = [...existingAnd, diffusionWhere];
+    }
+  }
 
   where.statusCode = filters.statusCode ?? "ACCEPTED";
 
@@ -254,19 +263,6 @@ export const buildWhere = (filters: MissionSearchFilters): Prisma.MissionWhereIn
   }
   if (filters.organizationIds?.length) {
     where.publisherOrganizationId = { in: filters.organizationIds };
-  }
-  if (filters.excludePublisherOrganizationIds?.length) {
-    const excludedIds = new Set(filters.excludePublisherOrganizationIds);
-    if (filters.organizationIds?.length) {
-      where.publisherOrganizationId = {
-        in: filters.organizationIds.filter((id) => !excludedIds.has(id)),
-      };
-    } else {
-      where.publisherOrganizationId = {
-        not: null,
-        notIn: filters.excludePublisherOrganizationIds,
-      };
-    }
   }
 
   if (filters.domain?.length && !filters.domainIncludeMissing) {
@@ -646,7 +642,7 @@ export const missionService = {
   },
 
   async findMissions(filters: MissionSearchFilters, select: MissionSelect | null = null): Promise<{ data: MissionRecord[]; total: number }> {
-    const where = buildWhere(filters);
+    const where = await buildWhere(filters);
 
     const [missions, total] = await Promise.all([
       missionRepository.findMany({
@@ -664,7 +660,7 @@ export const missionService = {
   },
 
   async findMissionsWithFacets(filters: MissionSearchFilters): Promise<{ data: MissionRecord[]; total: number; facets: MissionFacets }> {
-    const where = buildWhere(filters);
+    const where = await buildWhere(filters);
 
     const [missions, total] = await Promise.all([
       missionRepository.findMany({
@@ -684,7 +680,7 @@ export const missionService = {
   },
 
   async findMissionsWithAggregations(filters: MissionSearchFilters): Promise<{ data: MissionRecord[]; total: number; aggs: MissionSearchAggregations }> {
-    const where = buildWhere(filters);
+    const where = await buildWhere(filters);
 
     const [paginated, total, aggs] = await Promise.all([
       missionRepository.findMany({
@@ -703,7 +699,7 @@ export const missionService = {
   },
 
   async countMissions(filters: MissionSearchFilters): Promise<number> {
-    const where = buildWhere(filters);
+    const where = await buildWhere(filters);
     return missionRepository.count(where);
   },
 
