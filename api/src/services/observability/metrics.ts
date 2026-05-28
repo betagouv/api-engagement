@@ -7,6 +7,8 @@ const HISTOGRAM_BUCKETS = [0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10, 30,
 const METRICS_EXPORT_INTERVAL_MS = 30000;
 const SERVICE_NAME = "api-engagement-api";
 const TRACKED_PREFIXES = ["/v0/", "/v2/"];
+// API Endpoints call by the plateform in S2S
+const PLATEFORM_PREFIXES = ["/missions/browse", "/missions/match", "/user-scoring", "/email/mission"];
 
 export interface RecordedHttpRequestMetric {
   durationSeconds: number;
@@ -81,7 +83,7 @@ const getPublisherId = (req: Request) => {
   return String(user.id);
 };
 
-const shouldTrackPath = (pathname: string) => TRACKED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+const shouldTrackPath = (pathname: string) => TRACKED_PREFIXES.some((prefix) => pathname.startsWith(prefix)) || PLATEFORM_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 
 const createActiveRecorder = (config: Required<Pick<HttpMetricsConfig, "environment" | "otlpUrl" | "token">>): HttpMetricsRecorder => {
   const exporter = new OTLPMetricExporter({
