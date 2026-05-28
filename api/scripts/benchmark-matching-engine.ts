@@ -87,7 +87,7 @@ type ScenarioResult = {
 
 const getFlagValue = (flag: string): string | null => {
   const index = args.indexOf(flag);
-  return index === -1 ? null : args[index + 1] ?? null;
+  return index === -1 ? null : (args[index + 1] ?? null);
 };
 
 const getAllFlagValues = (flag: string): string[] => {
@@ -324,12 +324,7 @@ const buildRankingInput = (options: BenchmarkOptions, userScoringId: string, lim
   geoHalfDecayKm: options.geoHalfDecayKm,
 });
 
-const benchmarkScenario = async (params: {
-  options: BenchmarkOptions;
-  userScoring: UserScoringCandidate;
-  limit: number;
-  offset: number;
-}): Promise<ScenarioResult> => {
+const benchmarkScenario = async (params: { options: BenchmarkOptions; userScoring: UserScoringCandidate; limit: number; offset: number }): Promise<ScenarioResult> => {
   const measuredMs: number[] = [];
   const serviceTookMs: number[] = [];
   let itemCount = 0;
@@ -377,9 +372,7 @@ const printTable = (params: { dataset: DatasetSummary; options: BenchmarkOptions
     missionAddressesWithGeo: params.dataset.missionAddressWithGeoCount,
   });
 
-  console.log(
-    `[${SCRIPT_LABEL}] version=${params.options.version} iterations=${params.options.iterations} warmup=${params.options.warmup}`
-  );
+  console.log(`[${SCRIPT_LABEL}] version=${params.options.version} iterations=${params.options.iterations} warmup=${params.options.warmup}`);
 
   console.table(
     params.results.map((result) => ({
@@ -415,7 +408,7 @@ const run = async () => {
     ]);
 
     if (userScorings.length === 0) {
-      throw new Error("Aucun user_scoring actif trouve. Utiliser --user-scoring-id ou creer des profils avec scripts/seed-fake-user-scoring.ts.");
+      throw new Error("Aucun user_scoring actif trouve. Utiliser --user-scoring-id ou creer des profils via l'API user-scoring.");
     }
 
     const missingIds = options.userScoringIds.filter((id) => !userScorings.some((userScoring) => userScoring.id === id));

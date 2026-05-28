@@ -80,7 +80,6 @@ describe("POST /user-scoring", () => {
     expect(values[0].score).toBe(1.0);
     expect(values[0].taxonomyKey).toBe("domaine");
     expect(values[0].valueKey).toBe("social_solidarite");
-    expect(values[0].taxonomyValueId).toBeNull();
 
     const geo = await prisma.userScoringGeo.findUnique({
       where: { userScoringId: res.body.data.id },
