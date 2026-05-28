@@ -11,7 +11,7 @@ type ApiEnvelope<T = unknown> = {
 export class UpstreamApiError extends Error {
   constructor(
     public readonly status: number,
-    public readonly body: ApiEnvelope
+    public readonly body: ApiEnvelope,
   ) {
     super(body.code ?? body.message ?? `API error ${status}`);
   }
@@ -34,10 +34,14 @@ const readJsonEnvelope = async <T>(response: Response): Promise<ApiEnvelope<T>> 
   }
 };
 
-async function serverRequest<T>(method: string, path: string, body?: unknown, signal?: AbortSignal): Promise<T> {
+async function serverRequest<T>(method: string, path: string, body?: unknown, signal?: AbortSignal, clientIp?: string): Promise<T> {
   const headers: Record<string, string> = {};
   if (apiKey) headers["x-api-key"] = apiKey;
   if (body !== undefined) headers["Content-Type"] = "application/json";
+  // Forwarde l'IP réelle du navigateur (X-Envoy-External-Address injecté par Scaleway,
+  // non-spoofable) pour que le rate-limit côté API opère par utilisateur final
+  // et non par container plateform.
+  if (clientIp) headers["x-platform-client-ip"] = clientIp;
 
   let response: Response;
   try {
@@ -65,8 +69,22 @@ export const upstreamErrorResponse = (error: unknown) => {
   return Response.json({ ok: false, code: "upstream_error", message: "Upstream API unavailable" }, { status: 502 });
 };
 
-export const api = {
-  get: <T>(path: string, signal?: AbortSignal) => serverRequest<T>("GET", path, undefined, signal),
-  post: <T>(path: string, body?: unknown, signal?: AbortSignal) => serverRequest<T>("POST", path, body, signal),
-  put: <T>(path: string, body?: unknown, signal?: AbortSignal) => serverRequest<T>("PUT", path, body, signal),
+/**
+ * Crée une instance de l'API client liée à la requête entrante.
+ * Le signal d'annulation et l'IP cliente (X-Envoy-External-Address) sont
+ * extraits automatiquement — les routes n'ont pas à les passer explicitement.
+ *
+ * Usage dans un loader/action :
+ *   const api = createApi(request);
+ *   const data = await api.get<MyType>("/path");
+ */
+export const createApi = (request: Request) => {
+  const clientIp = request.headers.get("x-envoy-external-address") ?? undefined;
+  const { signal } = request;
+
+  return {
+    get: <T>(path: string) => serverRequest<T>("GET", path, undefined, signal, clientIp),
+    post: <T>(path: string, body?: unknown) => serverRequest<T>("POST", path, body, signal, clientIp),
+    put: <T>(path: string, body?: unknown) => serverRequest<T>("PUT", path, body, signal, clientIp),
+  };
 };

@@ -3,13 +3,13 @@ import passport from "passport";
 import zod from "zod";
 
 import { EMAIL_SEND_FAILED, FORBIDDEN, INVALID_BODY, NOT_FOUND } from "@/error";
-import { ipRateLimiter } from "@/middlewares/rate-limit";
+import { plateformRateLimiter } from "@/middlewares/rate-limit";
 import { sendMissionEmail } from "@/services/mission-email";
 import type { SendMissionEmailResponse } from "@engagement/dto";
 
 const router = Router();
 router.use(passport.authenticate(["apikey", "api"], { session: false }));
-router.use(ipRateLimiter);
+router.use(plateformRateLimiter);
 
 const distinctIdSchema = zod.string().trim().min(1);
 const emailSchema = zod.preprocess((value) => (typeof value === "string" ? value.trim().toLowerCase() : value), zod.email());

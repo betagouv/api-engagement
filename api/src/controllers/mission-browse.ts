@@ -3,13 +3,13 @@ import passport from "passport";
 import zod from "zod";
 
 import { INVALID_QUERY, NOT_FOUND, SERVICE_UNAVAILABLE, captureException } from "@/error";
-import { ipRateLimiter } from "@/middlewares/rate-limit";
+import { plateformRateLimiter } from "@/middlewares/rate-limit";
 import { MissionBrowseIndexUnavailableError, missionBrowseService } from "@/services/mission-browse";
 import { INDEXED_TAXONOMY_KEYS } from "@/services/search/collections/missions/fields";
 
 const router = Router();
 router.use(passport.authenticate(["apikey", "api"], { session: false }));
-router.use(ipRateLimiter);
+router.use(plateformRateLimiter);
 
 const stringOrStringArraySchema = zod.union([zod.string(), zod.array(zod.string())]);
 
