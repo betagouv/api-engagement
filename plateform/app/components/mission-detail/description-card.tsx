@@ -8,7 +8,7 @@ export default function MissionDescriptionCard({ mission }: MissionDescriptionCa
   if (!mission.descriptionHtml && !mission.description) return null;
 
   return (
-    <section className="fr-card fr-card--no-arrow shadow-[0_4px_12px_rgba(0,0,18,0.16)]">
+    <section className="fr-card fr-card--no-arrow shadow-card bg-none! p-0!">
       <div className="fr-card__body">
         <div className="fr-card__content p-6! md:p-12!">
           <h2 className="fr-h3 mb-4!">Présentation de la mission</h2>

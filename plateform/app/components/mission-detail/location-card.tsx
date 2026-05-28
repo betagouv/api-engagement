@@ -16,7 +16,7 @@ export default function MissionLocationCard({ location }: MissionLocationCardPro
   if (!locationDisplay) return null;
 
   return (
-    <section className="fr-card fr-card--no-arrow overflow-hidden shadow-[0_4px_12px_rgba(0,0,18,0.16)]">
+    <section className="fr-card fr-card--no-arrow shadow-card overflow-hidden bg-none! p-0!">
       {hasLocationCoordinates && (
         <Suspense fallback={<div className="h-[180px] w-full bg-[#f0f0f0]" />}>
           <LocationMap lat={locationLat} lon={locationLon} />

@@ -18,3 +18,5 @@ export const DOMAIN_LABELS: Record<string, string> = {
   "solidarite-insertion": "Solidarité",
   "vivre-ensemble": "Mémoire et citoyenneté",
 };
+
+export const getDomainLabel = (domain: string | null): string | null => (domain ? (DOMAIN_LABELS[domain] ?? domain) : null);

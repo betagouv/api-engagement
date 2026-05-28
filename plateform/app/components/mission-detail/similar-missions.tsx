@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 import type { MissionMatchItem } from "@engagement/dto";
 import MissionCard from "~/components/missions/mission-card";
+import Highlight from "~/components/ui/highlight";
 import { fetchMatches } from "~/services/matching";
 import { matchResultToBrowseMission } from "~/utils/mission";
 
@@ -31,19 +32,19 @@ export default function SimilarMissions({ userScoringId, currentMissionId }: Pro
       <div className="mx-auto max-w-7xl">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="fr-h4 mb-0!">
-            Découvre <span className="text-highlighted">ta sélection</span> de missions
+            Découvre <Highlight>ta sélection</Highlight> de missions
           </h2>
           <div className="flex gap-3">
             <button
               type="button"
               onClick={() => scrollBy(-1)}
-              className="fr-btn fr-btn--secondary fr-btn--icon-only fr-icon-arrow-left-s-line rounded-full!"
+              className="fr-btn fr-btn--secondary fr-btn--icon-only fr-icon-arrow-left-s-line size-10! justify-center! items-center! p-0! rounded-full!"
               aria-label="Précédent"
             />
             <button
               type="button"
               onClick={() => scrollBy(1)}
-              className="fr-btn fr-btn--secondary fr-btn--icon-only fr-icon-arrow-right-s-line rounded-full!"
+              className="fr-btn fr-btn--secondary fr-btn--icon-only fr-icon-arrow-right-s-line size-10! justify-center! items-center! p-0! rounded-full!"
               aria-label="Suivant"
             />
           </div>

@@ -1,4 +1,5 @@
 import type { MissionDetailResponse } from "@engagement/dto";
+import { getDomainLabel } from "@engagement/dto";
 import { formatMissionType } from "~/utils/mission";
 
 interface MissionHeroCardProps {
@@ -9,14 +10,15 @@ export default function MissionHeroCard({ mission }: MissionHeroCardProps) {
   const publisherTypeLabel = formatMissionType(mission.type);
   const orgDisplayName = mission.organizationName ?? mission.publisherName;
   const logo = mission.organizationLogo ?? mission.publisherLogo;
+  const domainLabel = getDomainLabel(mission.domain);
 
   return (
-    <section className="fr-card fr-card--no-arrow shadow-[0_4px_12px_rgba(0,0,18,0.16)]">
+    <section className="fr-card fr-card--no-arrow shadow-card bg-none! p-0!">
       <div className="fr-card__body">
         <div className="fr-card__content flex! flex-col! gap-4 p-6! md:p-12!">
-          {mission.domain && (
+          {domainLabel && (
             <div className="order-1">
-              <p className="fr-tag fr-tag--sm">{mission.domain}</p>
+              <p className="fr-tag fr-tag--sm text-blue-france-sun! bg-blue-france-925!">{domainLabel}</p>
             </div>
           )}
 

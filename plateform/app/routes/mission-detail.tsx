@@ -30,7 +30,7 @@ export default function MissionDetailPage() {
 
   if (loading) {
     return (
-      <GradientBg fixed>
+      <GradientBg>
         <main className="mx-auto max-w-[1200px] px-5 py-10 md:px-6">
           <Link to={backPath} className="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-left-line fr-btn--icon-left mb-8">
             {backLabel}
@@ -43,7 +43,7 @@ export default function MissionDetailPage() {
 
   if (error || !mission) {
     return (
-      <GradientBg fixed>
+      <GradientBg>
         <main className="mx-auto max-w-[1200px] px-5 py-10 md:px-6">
           <Link to={backPath} className="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-left-line fr-btn--icon-left mb-8">
             {backLabel}
@@ -58,7 +58,7 @@ export default function MissionDetailPage() {
 
   return (
     <>
-      <GradientBg fixed>
+      <GradientBg>
         <main className="min-h-screen">
           {mission.photo && (
             <div className="h-[216px] w-full overflow-hidden md:hidden">

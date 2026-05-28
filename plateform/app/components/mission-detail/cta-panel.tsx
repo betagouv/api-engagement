@@ -1,20 +1,12 @@
 import type { MissionDetailResponse } from "@engagement/dto";
 import type { ReactNode } from "react";
 import EmailMissionModal from "~/components/mission-detail/email-mission-details-modal";
-import { formatCompensation, formatStartDate } from "~/utils/mission";
+import { formatCompensation, formatDeadline, formatStartDate } from "~/utils/mission";
 
 interface MissionCtaPanelProps {
   mission: MissionDetailResponse;
   userScoringId?: string;
   className?: string;
-}
-
-const MONTHS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
-
-function formatDeadline(endAt: string | null): string | null {
-  if (!endAt) return null;
-  const d = new Date(endAt);
-  return `Candidatures ouvertes jusqu'au ${d.getDate()} ${MONTHS[d.getMonth()]}`;
 }
 
 function InfoRow({ icon, children }: { icon: string; children: ReactNode }) {
@@ -32,7 +24,7 @@ export default function MissionCtaPanel({ mission, userScoringId, className = ""
   const deadlineLabel = formatDeadline(mission.endAt);
 
   return (
-    <aside className={`flex flex-col gap-6 bg-white p-6 shadow-[0_4px_12px_rgba(0,0,18,0.16)] ${className}`}>
+    <aside className={`shadow-card flex flex-col gap-6 bg-white p-6! ${className}`}>
       {(durationLabel || mission.schedule) && (
         <InfoRow icon="fr-icon-time-line">
           {durationLabel && <span className="text-title-grey font-bold">{durationLabel}</span>}
@@ -53,7 +45,7 @@ export default function MissionCtaPanel({ mission, userScoringId, className = ""
         </InfoRow>
       )}
 
-      <hr className="fr-hr fr-pb-0 fr-mb-0" />
+      <hr className="fr-hr fr-mb-0! pb-0.5!" />
 
       <div className="flex flex-col gap-3">
         <a href={mission.applicationUrl} target="_blank" rel="noopener noreferrer" className="fr-btn w-full! justify-center!">
