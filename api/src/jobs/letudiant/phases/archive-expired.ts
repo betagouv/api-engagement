@@ -11,13 +11,8 @@ import { PilotyClient, PilotyError } from "@/services/piloty";
  * - entry has been ONLINE for more than 30 days
  * - mission's organization is excluded for L'Etudiant
  */
-export async function archiveExpiredMissions(
-  pilotyClient: PilotyClient,
-  excludedPublisherOrganizationIds: Set<string>,
-  counter: LetudiantJobCounter,
-  dryRun = false
-): Promise<void> {
-  const entries = await getMissionEntriesToArchive(excludedPublisherOrganizationIds);
+export async function archiveExpiredMissions(pilotyClient: PilotyClient, excludedOrgClientIds: Set<string>, counter: LetudiantJobCounter, dryRun = false): Promise<void> {
+  const entries = await getMissionEntriesToArchive(excludedOrgClientIds);
   console.log(`[LetudiantHandler] Archive phase: ${entries.length} entries to archive`);
 
   for (const entry of entries) {
