@@ -1,5 +1,5 @@
-import { Suspense, lazy } from "react";
 import type { MissionDetailLocation } from "@engagement/dto";
+import { Suspense, lazy } from "react";
 
 const LocationMap = lazy(() => import("~/components/ui/location-map"));
 
@@ -16,7 +16,7 @@ export default function MissionLocationCard({ location }: MissionLocationCardPro
   if (!locationDisplay) return null;
 
   return (
-    <section className="fr-card fr-card--no-arrow overflow-hidden">
+    <section className="fr-card fr-card--no-arrow overflow-hidden shadow-[0_4px_12px_rgba(0,0,18,0.16)]">
       {hasLocationCoordinates && (
         <Suspense fallback={<div className="h-[180px] w-full bg-[#f0f0f0]" />}>
           <LocationMap lat={locationLat} lon={locationLon} />
@@ -24,11 +24,11 @@ export default function MissionLocationCard({ location }: MissionLocationCardPro
       )}
 
       <div className="fr-card__body">
-        <div className="fr-card__content">
+        <div className="fr-card__content p-6! md:p-12!">
           <div className="flex items-start gap-4">
-            <i className="fr-icon-map-pin-2-line fr-icon--sm mt-0.5 flex-none text-mention-grey" aria-hidden="true" />
+            <i className="fr-icon-map-pin-2-line fr-icon--sm text-mention-grey mt-0.5 flex-none" aria-hidden="true" />
             <p className="fr-mb-0 flex flex-col gap-2">
-              {location.city && <span className="font-bold text-title-grey">{location.city}</span>}
+              {location.city && <span className="text-title-grey font-bold">{location.city}</span>}
               {location.address && <span className="fr-text--sm text-mention-grey">{location.address}</span>}
             </p>
           </div>
