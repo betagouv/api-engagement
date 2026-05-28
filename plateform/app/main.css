@@ -18,6 +18,7 @@
   --color-border-plain-error: var(--border-plain-error);
   /* Backgrounds */
   --color-blue-france-950: var(--blue-france-950-100); /* #ECECFE00 */
+  --color-blue-france-975: var(--blue-france-975-75);
   --color-beige-gris-galet-975: var(--beige-gris-galet-975-75); /* #F9F6F2 */
   --color-background-default-grey-hover: var(--background-default-grey-hover);
   --color-background-default-grey-active: var(--background-default-grey-active);
@@ -178,6 +179,36 @@
 .mission-map {
   height: 100%;
   width: 100%;
+}
+
+@keyframes slide-up-fade {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-down-fade {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+.animate-slide-up-fade {
+  animation: slide-up-fade 200ms ease-out;
+}
+
+.animate-slide-down-fade {
+  animation: slide-down-fade 200ms ease-out forwards;
 }
 
 .mission-map__emoji-marker {

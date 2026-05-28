@@ -1,6 +1,10 @@
-import Modal from "~/components/layout/modal";
 import type { MissionMatchItem } from "@engagement/dto";
+import type React from "react";
+import { useSearchParams } from "react-router";
+import Modal from "~/components/layout/modal";
 import "./matching-debug-modal.css";
+
+const DEBUG_ID_PARAM = "debug_id";
 
 const formatScore = (score: number | null): string => (score === null ? "—" : score.toFixed(3));
 
@@ -11,15 +15,42 @@ export type MatchingDebugUserValue = {
   userScore: number;
 };
 
-interface Props {
-  item: MissionMatchItem | null;
-  userValues: MatchingDebugUserValue[];
-  onClose: () => void;
+export function DebugButton({ missionId }: { missionId: string }) {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const next = new URLSearchParams(searchParams);
+    next.set(DEBUG_ID_PARAM, missionId);
+    setSearchParams(next);
+  };
+
+  return (
+    <button type="button" className="fr-btn fr-btn--tertiary fr-btn--icon-only absolute bottom-2 left-2 z-10" onClick={handleClick} aria-label="Débuguer le matching">
+      <i className="fr-icon-settings-5-line fr-icon--sm" aria-hidden="true" />
+    </button>
+  );
 }
 
-export default function MatchingDebugModal({ item, userValues, onClose }: Props) {
+interface Props {
+  items: MissionMatchItem[];
+  userValues: MatchingDebugUserValue[];
+}
+
+export default function MatchingDebugModal({ items, userValues }: Props) {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const debugId = searchParams.get(DEBUG_ID_PARAM);
+  const item = debugId ? (items.find((i) => i.mission.id === debugId) ?? null) : null;
+
+  const handleClose = () => {
+    const next = new URLSearchParams(searchParams);
+    next.delete(DEBUG_ID_PARAM);
+    setSearchParams(next);
+  };
+
   return (
-    <Modal open={item !== null} onClose={onClose} title="Debug matching" titleIcon="fr-icon-arrow-right-line">
+    <Modal open={item !== null} onClose={handleClose} title="Debug matching" titleIcon="fr-icon-arrow-right-line">
       {item && (
         <div className="matching-debug flex flex-col gap-6">
           <section>

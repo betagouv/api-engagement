@@ -1,13 +1,7 @@
 import { useLocation } from "react-router";
+import { useIsMobile } from "~/hooks/useIsMobile";
 
-export default function Footer() {
-  const location = useLocation();
-  const isQuiz = location.pathname.startsWith("/quiz");
-
-  if (isQuiz) {
-    return null;
-  }
-
+export function FooterContent() {
   return (
     <footer className="fr-footer" role="contentinfo" id="footer">
       <div className="fr-container">
@@ -34,4 +28,17 @@ export default function Footer() {
       </div>
     </footer>
   );
+}
+
+export default function Footer() {
+  const location = useLocation();
+  const isMobile = useIsMobile();
+  const isQuiz = location.pathname.startsWith("/quiz");
+  const isMobileResults = isMobile && location.pathname.startsWith("/results");
+
+  if (isQuiz || isMobileResults) {
+    return null;
+  }
+
+  return <FooterContent />;
 }
