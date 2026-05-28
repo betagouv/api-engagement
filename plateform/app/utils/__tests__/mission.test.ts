@@ -11,7 +11,7 @@ describe("formatStartDate", () => {
   });
 
   it("retourne seulement la date si duration est null", () => {
-    expect(formatStartDate("2025-09-01T00:00:00.000Z", null)).toBe("à partir du 1 septembre");
+    expect(formatStartDate("2025-09-01T00:00:00.000Z", null)).toBe("À partir du 1 septembre");
   });
 
   it("combine durée et date", () => {

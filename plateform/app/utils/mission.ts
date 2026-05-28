@@ -8,7 +8,8 @@ export function formatStartDate(startAt: string | null, duration: number | null)
   if (duration != null) parts.push(`${duration} mois`);
   if (startAt) {
     const d = new Date(startAt);
-    parts.push(`À partir du ${d.getDate()} ${MONTHS[d.getMonth()]}`);
+    const prefix = duration != null ? "à" : "À";
+    parts.push(`${prefix} partir du ${d.getDate()} ${MONTHS[d.getMonth()]}`);
   }
   return parts.join(" ") || null;
 }
