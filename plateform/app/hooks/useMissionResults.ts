@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import type { MissionMatchItem } from "@engagement/dto";
-import { fetchMatches } from "~/services/matching";
+import { fetchMatches, OTHER_RESULTS_PAGE_SIZE, PINNED_RESULTS_LIMIT, prefetchInitialMatches } from "~/services/matching";
 
-export const PINNED_RESULTS_LIMIT = 5;
-export const OTHER_RESULTS_PAGE_SIZE = 8;
+export { OTHER_RESULTS_PAGE_SIZE, PINNED_RESULTS_LIMIT };
 export const VISIBLE_PAGE_COUNT = 6;
 
 export function useMissionResults(userScoringId: string | undefined) {
@@ -42,13 +41,15 @@ export function useMissionResults(userScoringId: string | undefined) {
     setOtherItems([]);
     setHasNextPage(false);
 
-    Promise.all([fetchMatches(userScoringId, PINNED_RESULTS_LIMIT), fetchMatches(userScoringId, OTHER_RESULTS_PAGE_SIZE, PINNED_RESULTS_LIMIT)])
-      .then(([pinnedRes, otherRes]) => {
+    // Réutilise le préchargement lancé pendant l'écran de transition si disponible,
+    // sinon déclenche le chargement (accès direct à /results/:id).
+    prefetchInitialMatches(userScoringId)
+      .then(({ pinned, other }) => {
         if (!active) return;
-        setPinnedItems(pinnedRes.items);
-        setFirstOtherItems(otherRes.items);
-        setOtherItems(otherRes.items);
-        setHasNextPage(otherRes.items.length === OTHER_RESULTS_PAGE_SIZE);
+        setPinnedItems(pinned.items);
+        setFirstOtherItems(other.items);
+        setOtherItems(other.items);
+        setHasNextPage(other.items.length === OTHER_RESULTS_PAGE_SIZE);
       })
       .catch(() => {
         if (!active) return;

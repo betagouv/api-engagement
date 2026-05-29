@@ -285,7 +285,7 @@ export const TAXONOMY = {
     gate: false,
     values: {
       me_sentir_utile: {
-        label: "Aider les autres",
+        label: "Me sentir utile, rencontrer de nouvelles personnes",
         sublabel: "Être utile à des personnes ou à une cause",
         icon: "🙏🏻",
         enrichable: false,
@@ -389,12 +389,12 @@ export const TAXONOMY = {
     enrichable: false,
     gate: false,
     values: {
-      armee: { label: "Armée", sublabel: "Marine, Air, Santé...", icon: null, enrichable: false },
-      pompiers: { label: "Pompiers", icon: null, enrichable: false },
-      gendarmerie: { label: "Gendarmerie", icon: null, enrichable: false },
-      police: { label: "Police", icon: null, enrichable: false },
-      ne_sais_pas: { label: "Je ne sais pas", icon: null, enrichable: false },
-      aucun: { label: "Aucun de ces choix", icon: null, enrichable: false },
+      armee: { label: "Armée", sublabel: "Marine, Air, Santé...", icon: "🪖", enrichable: false },
+      pompiers: { label: "Pompiers", sublabel: "Aide à la personne, secours, urgences...", icon: "🚒", enrichable: false },
+      gendarmerie: { label: "Gendarmerie", sublabel: "Sécurité, territoire, enquêtes...", icon: "⚖️", enrichable: false },
+      police: { label: "Police", sublabel: "Ordre public, investigation, protection...", icon: "🚔", enrichable: false },
+      ne_sais_pas: { label: "Je ne sais pas", sublabel: "Aidez-moi à découvrir ma voie", icon: "🤔", enrichable: false },
+      aucun: { label: "Aucun de ces choix", sublabel: "Je cherche autre chose", icon: "🙅", enrichable: false },
     },
   },
 

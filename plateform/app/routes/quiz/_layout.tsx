@@ -1,11 +1,9 @@
-import type { TaxonomyValueKey } from "@engagement/taxonomy";
 import { useEffect, useMemo, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 import BackButton from "~/components/quiz/back-button";
 import QuizHeader from "~/components/quiz/header";
 import LoadingRecap from "~/components/quiz/loading-recap";
 import { QUIZ_FLOW, type StepDef } from "~/config/quiz-flow";
-import { OPTIONS } from "~/config/quiz-options";
 import { createUserScoring, updateUserScoring } from "~/services/user-scoring";
 import { useQuizStore } from "~/stores/quiz";
 import { evalCondition } from "~/utils/conditions";
@@ -108,12 +106,6 @@ export default function QuizLayout() {
     navigate(id ? `/results/${id}` : "/");
   };
 
-  const recapItems = (["statut", "duree", "motivation"] as const).flatMap((stepId) => {
-    const answer = answers[stepId];
-    if (!answer || answer.type !== "options") return [];
-    return answer.option_ids.map((id) => OPTIONS[`${answer.taxonomy}.${id}` as TaxonomyValueKey]?.label).filter(Boolean) as string[];
-  });
-
   const goBack = () => {
     if (!currentStep) return;
     setTransitioning(false);
@@ -135,7 +127,7 @@ export default function QuizLayout() {
             </div>
           )}
           {loadingResults ? (
-            <LoadingRecap items={recapItems} onComplete={handleLoadingComplete} />
+            <LoadingRecap onComplete={handleLoadingComplete} />
           ) : (
             // `goNext` / `goBack` exposés aux routes enfants via Outlet context — elles les appellent après validation.
             <Outlet context={{ goNext, goBack, transitioning, setTransitioning } satisfies QuizOutletContext} />

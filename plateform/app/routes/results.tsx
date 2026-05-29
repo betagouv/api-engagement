@@ -144,6 +144,7 @@ export default function ResultsPage() {
             className={`absolute inset-x-0 bottom-0 z-[1000] flex flex-col rounded-t-3xl bg-white shadow-2xl transition-[top] duration-300 ${expanded ? "top-12" : "top-[calc(100%-5rem)]"} ${selectedMission ? "hidden" : ""}`}
           >
             <div className={`flex flex-col gap-2 px-6 py-4 ${expanded ? "items-start!" : "items-center! justify-center! h-full"}`} onClick={handleToggleSheet}>
+              {!loading && error && <p className="fr-error-text m-0! text-center!">{error}</p>}
               {!loading && !error && (
                 <h2 className={`m-0! ${expanded ? "text-center!" : ""}`}>
                   <Highlight>
