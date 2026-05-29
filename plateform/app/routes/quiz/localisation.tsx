@@ -26,11 +26,15 @@ export default function LocalisationStep() {
   const { goNext, transitioning, setTransitioning } = useOutletContext<QuizOutletContext>();
 
   const locAnswer = answers["localisation"];
-  const savedLocation = locAnswer?.type === "params" ? (locAnswer.params as { lat: number; lon: number; country_code?: string }) : null;
+  // `label` est persisté avec les coordonnées pour ré-afficher la saisie au retour sur l'écran
+  // (ignoré côté API : le transformer `location` ne lit que lat/lon/country_code).
+  const savedLocation = locAnswer?.type === "params" ? (locAnswer.params as { lat: number; lon: number; country_code?: string; label?: string }) : null;
 
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState(savedLocation?.label ?? "");
   const [options, setOptions] = useState<Suggestion[]>([]);
-  const [selected, setSelected] = useState<Suggestion | null>(savedLocation ? { label: "", ...savedLocation } : null);
+  const [selected, setSelected] = useState<Suggestion | null>(
+    savedLocation ? { label: savedLocation.label ?? "", lat: savedLocation.lat, lon: savedLocation.lon, country_code: savedLocation.country_code } : null,
+  );
   const [showOptions, setShowOptions] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [locating, setLocating] = useState(false);
@@ -162,7 +166,12 @@ export default function LocalisationStep() {
     setAnswer("localisation", {
       type: "params",
       taxonomy: "location",
-      params: { lat: selected.lat, lon: selected.lon, ...(selected.country_code ? { country_code: selected.country_code } : {}) },
+      params: {
+        lat: selected.lat,
+        lon: selected.lon,
+        ...(selected.country_code ? { country_code: selected.country_code } : {}),
+        ...(selected.label ? { label: selected.label } : {}),
+      },
     });
     setValue(selected.label);
     setTransitioning(true);
