@@ -22,6 +22,8 @@ export interface StepOption {
   taxonomy: string;
   value: string;
   hiddenIf?: Condition;
+  // true → option grisée et non sélectionnable (fonctionnalité pas encore disponible).
+  disabled?: boolean;
 }
 
 // DTO retourné par l'API /v0/mission.

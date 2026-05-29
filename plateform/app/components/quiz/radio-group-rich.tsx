@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { DISABLED_OPTION_HINT } from "~/config/quiz-options";
 import type { StepOption } from "~/types/quiz";
 
 type Props = {
@@ -24,12 +25,20 @@ export default function RadioGroupRich({ title, subtitle, onChange, options, sel
       </legend>
       <div className="fr-fieldset__content grid grid-cols-1 md:grid-cols-2 max-w-4xl! mx-0! gap-x-6 gap-y-4!">
         {options.map((o) => (
-          <div key={o.value} className="fr-fieldset__element mb-0!">
+          <div key={o.value} className={`fr-fieldset__element mb-0! ${o.disabled ? "opacity-60" : ""}`}>
             <div className="fr-radio-group fr-radio-rich mb-0!">
-              <input value={o.value} type="radio" id={`radio-group-rich-${o.value}`} name="radio-group-rich" onChange={() => onChange(o.value)} checked={selected === o.value} />
-              <label className="fr-label text-base" htmlFor={`radio-group-rich-${o.value}`}>
+              <input
+                value={o.value}
+                type="radio"
+                id={`radio-group-rich-${o.value}`}
+                name="radio-group-rich"
+                onChange={() => onChange(o.value)}
+                checked={!o.disabled && selected === o.value}
+                disabled={o.disabled}
+              />
+              <label className={`fr-label text-base ${o.disabled ? "cursor-not-allowed!" : ""}`} htmlFor={`radio-group-rich-${o.value}`}>
                 {o.label}
-                {o.sublabel && <span className="fr-hint-text">{o.sublabel}</span>}
+                {o.disabled ? <span className="fr-hint-text">{DISABLED_OPTION_HINT}</span> : o.sublabel && <span className="fr-hint-text">{o.sublabel}</span>}
               </label>
               <div className="fr-radio-rich__pictogram">{o.icon && <div className="text-2xl">{o.icon}</div>}</div>
             </div>

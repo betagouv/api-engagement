@@ -31,6 +31,7 @@ export type TaxonomyValueItem = {
   order: number;
   enrichable: boolean;
   hidden?: boolean;
+  disabled?: boolean;
 };
 
 export type TaxonomyListItem = {

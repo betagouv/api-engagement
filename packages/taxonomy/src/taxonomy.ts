@@ -12,6 +12,7 @@
 //   sublabel   — aide contextuelle optionnelle pour les UIs
 //   icon       — emoji optionnel
 //   enrichable — false pour les valeurs exclues de l'enrichissement (ex : je_ne_sais_pas)
+//   disabled   — true pour griser l'option en UI (fonctionnalité pas encore disponible)
 
 import { DEPARTMENT_CODE_VALUES, resolveDepartmentCodeValues } from "./transformers/department-code";
 import { resolveLocationValues } from "./transformers/location";
@@ -206,11 +207,12 @@ export const TAXONOMY = {
     enrichable: true,
     gate: false,
     values: {
-      europe: { label: "Europe", icon: null, enrichable: true },
-      afrique: { label: "Afrique", icon: null, enrichable: true },
-      amerique: { label: "Amérique", icon: null, enrichable: true },
-      asie: { label: "Asie", icon: null, enrichable: true },
-      je_ne_sais_pas: { label: "Je ne sais pas encore", icon: null, enrichable: false },
+      // Branche "Partir à l'étranger" pas encore disponible : options grisées (cf. `disabled`).
+      europe: { label: "Europe", icon: null, enrichable: true, disabled: true },
+      afrique: { label: "Afrique", icon: null, enrichable: true, disabled: true },
+      amerique: { label: "Amérique", icon: null, enrichable: true, disabled: true },
+      asie: { label: "Asie", icon: null, enrichable: true, disabled: true },
+      je_ne_sais_pas: { label: "Je ne sais pas encore", icon: null, enrichable: false, disabled: true },
     },
   },
 
@@ -336,6 +338,7 @@ export const TAXONOMY = {
         sublabel: "Vivre une expérience d'engagement dans un autre pays",
         icon: "🌍",
         enrichable: false,
+        disabled: true,
       },
       competences_interet_general: {
         label: "Utiliser mes compétences pour l'intérêt général",
