@@ -81,13 +81,15 @@ export default function QuizLayout() {
 
   const goNext = async () => {
     if (!currentStep) return;
-    setTransitioning(false);
     setScoringError(null);
     const freshAnswers = useQuizStore.getState().answers;
+    // On garde `transitioning` à true pendant la sauvegarde (appel réseau) : sinon le step
+    // courant ré-afficherait sa question le temps de la requête, avant la navigation (glitch).
     const scoringSaved = await saveCurrentScoring();
 
     if (!scoringSaved) {
       setScoringError("Impossible d'enregistrer tes réponses. Réessaie dans quelques instants.");
+      setTransitioning(false);
       return;
     }
 
@@ -98,6 +100,8 @@ export default function QuizLayout() {
     } else {
       setLoadingResults(true);
     }
+    // Réinitialisé après la navigation (batché avec elle) → le step suivant s'affiche directement.
+    setTransitioning(false);
   };
 
   const handleLoadingComplete = () => {

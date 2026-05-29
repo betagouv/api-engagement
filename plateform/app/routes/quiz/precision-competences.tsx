@@ -19,14 +19,14 @@ const STEP_OPTIONS = [
   OPTIONS["competence_rome.relation_client_commerce_strategie"],
   OPTIONS["competence_rome.cooperation_organisation_soft_skills"],
   OPTIONS["competence_rome.securite_environnement_action_publique"],
+  OPTIONS["competence_rome.je_ne_sais_pas"],
 ];
 
 const TITLE_BY_MOTIVATION: Record<string, string> = {
   competences_interet_general: "Quel est ton domaine de compétences ?",
-  booster_cv: "Dans quel domaine souhaites-tu booster tes compétences",
 };
 
-const DEFAULT_TITLE = "Quel type de compétences t'attire le plus ?";
+const DEFAULT_TITLE = "Quel domaine de compétences t'attire le plus ?";
 
 export default function PrecisionCompetencesStep() {
   const { answers, setAnswer } = useQuizStore();

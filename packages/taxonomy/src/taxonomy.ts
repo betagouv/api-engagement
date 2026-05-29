@@ -198,6 +198,7 @@ export const TAXONOMY = {
       relation_client_commerce_strategie: { label: "Relation client, commerce, stratégie", icon: "📈", enrichable: true },
       cooperation_organisation_soft_skills: { label: "Coopération, organisation, soft skills", icon: "🤝", enrichable: true },
       securite_environnement_action_publique: { label: "Protection des personnes, de la société ou de l'environnement", icon: "🛡️", enrichable: true },
+      je_ne_sais_pas: { label: "Autre / Je ne sais pas", icon: "‍‍🤔‍", enrichable: false },
     },
   },
 
