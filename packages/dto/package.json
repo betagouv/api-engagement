@@ -6,9 +6,14 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "build:watch": "tsc --watch"
+    "build:watch": "tsc --watch",
+    "lint": "eslint ."
   },
   "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@typescript-eslint/eslint-plugin": "8.59.0",
+    "@typescript-eslint/parser": "8.59.0",
+    "eslint": "10.2.1",
     "typescript": "6.0.3"
   }
 }
