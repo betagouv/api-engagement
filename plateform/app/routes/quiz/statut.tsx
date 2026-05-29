@@ -5,19 +5,12 @@ import RadioGroupRich from "~/components/quiz/radio-group-rich";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
 import type { StepOption } from "~/types/quiz";
-import { evalCondition, numericRange } from "~/utils/conditions";
+import { evalCondition } from "~/utils/conditions";
 import type { QuizOutletContext } from "./_layout";
 
 const STEP_ID = "statut";
 
-const STEP_OPTIONS: StepOption[] = [
-  OPTIONS["statut.lyceen"],
-  OPTIONS["statut.etudiant"],
-  OPTIONS["statut.demandeur_emploi"],
-  OPTIONS["statut.actif"],
-  { ...OPTIONS["statut.retraite"], hiddenIf: numericRange("age", 16, 25) },
-  OPTIONS["statut.autre"],
-];
+const STEP_OPTIONS: StepOption[] = [OPTIONS["statut.lyceen"], OPTIONS["statut.etudiant"], OPTIONS["statut.demandeur_emploi"], OPTIONS["statut.actif"], OPTIONS["statut.autre"]];
 
 export default function StatutStep() {
   const { answers, setAnswer } = useQuizStore();

@@ -25,9 +25,9 @@ export default function RadioGroup({ title, subtitle, onChange, options, selecte
       <div className="fr-fieldset__content flex flex-col gap-4 max-w-sm! mx-0! ml-2!">
         {options.map((o) => (
           <div key={o.value} className={`fr-fieldset__element mb-0! border bg-white px-4! ${error ? "border-border-plain-error" : "border-border-default-grey"}`}>
-            <div className="fr-radio-group mt-0! mb-0!">
+            <div className="fr-radio-group fr-radio-group--sm mt-0! mb-0! w-full max-w-none!">
               <input value={o.value} type="radio" id={`radio-group-${o.value}`} name="radio-group" onChange={() => onChange(o.value)} checked={selected === o.value} />
-              <label className="fr-label text-sm" htmlFor={`radio-group-${o.value}`}>
+              <label className="fr-label text-sm w-full" htmlFor={`radio-group-${o.value}`}>
                 {o.label}
                 {o.sublabel && <span className="fr-hint-text">{o.sublabel}</span>}
               </label>

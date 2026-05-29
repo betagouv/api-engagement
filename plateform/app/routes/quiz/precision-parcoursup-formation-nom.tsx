@@ -39,7 +39,7 @@ export default function PrecisionParcoursupFormationNomStep() {
         <input id="formation-input" className="fr-input" type="text" value={value} onChange={(e) => setValue(e.target.value)} autoFocus />
       </div>
 
-      <NextButton onClick={goNext} type="submit" disabled={!valid} />
+      <NextButton type="submit" disabled={!valid} />
     </form>
   );
 }

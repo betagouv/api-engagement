@@ -261,7 +261,6 @@ export const TAXONOMY = {
       etudiant: { label: "Je fais des études", icon: "🎓", enrichable: false },
       demandeur_emploi: { label: "Je recherche un emploi", icon: "🕵️‍♂️", enrichable: false },
       actif: { label: "J’ai une activité professionnelle", icon: "💼", enrichable: false },
-      retraite: { label: "Je suis à la retraite", icon: "👴", enrichable: false },
       autre: { label: "Autre situation", icon: "🤷", enrichable: false },
     },
   },
