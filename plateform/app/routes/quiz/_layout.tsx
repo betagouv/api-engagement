@@ -4,6 +4,7 @@ import BackButton from "~/components/quiz/back-button";
 import QuizHeader from "~/components/quiz/header";
 import LoadingRecap from "~/components/quiz/loading-recap";
 import { QUIZ_FLOW, type StepDef } from "~/config/quiz-flow";
+import { invalidateInitialMatches } from "~/services/matching";
 import { createUserScoring, updateUserScoring } from "~/services/user-scoring";
 import { useQuizStore } from "~/stores/quiz";
 import { evalCondition } from "~/utils/conditions";
@@ -72,6 +73,7 @@ export default function QuizLayout() {
       }
 
       await updateUserScoring(freshUserScoringId, { ...payload, distinctId: freshDistinctId });
+      invalidateInitialMatches(freshUserScoringId);
       return true;
     } catch (err) {
       console.error("[quiz] saveCurrentScoring failed", err);

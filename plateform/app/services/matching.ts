@@ -34,3 +34,7 @@ export function prefetchInitialMatches(userScoringId: string): Promise<InitialMa
   initialMatchesCache.set(userScoringId, promise);
   return promise;
 }
+
+export function invalidateInitialMatches(userScoringId: string) {
+  initialMatchesCache.delete(userScoringId);
+}

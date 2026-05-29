@@ -93,6 +93,13 @@ export default function LocalisationStep() {
     setActiveIndex(-1);
   };
 
+  const handleChange = (nextValue: string) => {
+    setValue(nextValue);
+    if (selected && nextValue !== selected.label) {
+      setSelected(null);
+    }
+  };
+
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "ArrowDown") {
       if (options.length === 0) return;
@@ -200,7 +207,7 @@ export default function LocalisationStep() {
             type="text"
             placeholder="Adresse, ville ou code postal"
             value={value}
-            onChange={(e) => setValue(e.target.value)}
+            onChange={(e) => handleChange(e.target.value)}
             onKeyDown={handleKeyDown}
             autoComplete="off"
           />
