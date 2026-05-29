@@ -2,6 +2,7 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
+import { MissionType } from "@/db/core";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
 import { publisherRateLimiter } from "@/middlewares/rate-limit";
 import { missionService } from "@/services/mission";
@@ -62,7 +63,7 @@ export const missionQuerySchema = zod.object({
     .transform((value) => value === "true")
     .optional(),
   startAt: zod.string().optional(),
-  type: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+  type: zod.union([zod.enum(MissionType), zod.array(zod.enum(MissionType))]).optional(),
 });
 
 const router = Router();

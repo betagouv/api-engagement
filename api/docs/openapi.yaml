@@ -1605,10 +1605,12 @@ paths:
           schema:
             oneOf:
               - type: string
+                enum: [benevolat, volontariat_service_civique, volontariat_sapeurs_pompiers, volontariat_reserve_operationnelle]
               - type: array
                 items:
                   type: string
-          description: "Type d'engagement : benevolat, volontariat_service_civique, volontariat_sapeurs_pompiers, volontariat_reserve_operationnelle"
+                  enum: [benevolat, volontariat_service_civique, volontariat_sapeurs_pompiers, volontariat_reserve_operationnelle]
+          description: "Type d'engagement"
         - name: remote
           in: query
           schema:
