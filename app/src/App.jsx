@@ -55,12 +55,11 @@ const App = () => {
       <ToastContainer
         className="p-0"
         toastClassName={({ type }) => TOAST_STYLES[type || "default"] + ` flex justify-between py-4 px-3 min-h-10 shadow-none rounded-none`}
-        bodyClassName={() => "flex gap-4 text-sm"}
         position="top-right"
         autoClose={5000}
         hideProgressBar
         role="region"
-        aria-label="Notifications"
+        ariaLabel="Notifications"
       />
       <BrowserRouter>
         <Routes>
