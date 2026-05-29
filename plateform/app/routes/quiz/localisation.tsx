@@ -13,7 +13,9 @@ import { QUIZ_TRANSITION_MS } from "~/services/config";
 type Suggestion = { label: string; lat: number; lon: number; country_code?: string };
 
 type AddressFeature = {
-  properties: { name: string; postcode: string; id: string };
+  // `label` = adresse complète formatée par l'API (ex: "8 Boulevard du Port 80000 Amiens").
+  // `type`  = housenumber | street | locality | municipality.
+  properties: { label: string; name: string; postcode: string; type: string; id: string };
   geometry: { coordinates: [number, number] };
 };
 
@@ -54,12 +56,15 @@ export default function LocalisationStep() {
       }
 
       try {
-        const res = await fetch(`https://data.geopf.fr/geocodage/search?q=${value}&type=municipality&autocomplete=1&limit=6`);
+        // Pas de filtre `type` → l'API renvoie aussi les adresses précises (numéro + rue), pas seulement les villes.
+        const res = await fetch(`https://data.geopf.fr/geocodage/search?q=${encodeURIComponent(value)}&autocomplete=1&limit=6`);
         const data: { features?: AddressFeature[] } = await res.json();
         if (!data.features) return;
         setOptions(
           data.features.map((f) => ({
-            label: `${f.properties.name} (${f.properties.postcode})`,
+            // Villes : on garde "Nom (code postal)" pour lever l'ambiguïté entre homonymes.
+            // Adresses/rues : on utilise le `label` complet fourni par l'API.
+            label: f.properties.type === "municipality" ? `${f.properties.name} (${f.properties.postcode})` : f.properties.label,
             lat: f.geometry.coordinates[1],
             lon: f.geometry.coordinates[0],
             country_code: "fr",
@@ -137,7 +142,7 @@ export default function LocalisationStep() {
 
         if (!data.features) return;
         const here: Suggestion = {
-          label: data.features[0].properties.name,
+          label: data.features[0].properties.label ?? data.features[0].properties.name,
           lat: data.features[0].geometry.coordinates[1],
           lon: data.features[0].geometry.coordinates[0],
           country_code: "fr",
