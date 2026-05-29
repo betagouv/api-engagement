@@ -207,12 +207,11 @@ export const TAXONOMY = {
     enrichable: true,
     gate: false,
     values: {
-      // Branche "Partir à l'étranger" pas encore disponible : options grisées (cf. `disabled`).
-      europe: { label: "Europe", icon: null, enrichable: true, disabled: true },
-      afrique: { label: "Afrique", icon: null, enrichable: true, disabled: true },
-      amerique: { label: "Amérique", icon: null, enrichable: true, disabled: true },
-      asie: { label: "Asie", icon: null, enrichable: true, disabled: true },
-      je_ne_sais_pas: { label: "Je ne sais pas encore", icon: null, enrichable: false, disabled: true },
+      europe: { label: "Europe", icon: null, enrichable: true },
+      afrique: { label: "Afrique", icon: null, enrichable: true },
+      amerique: { label: "Amérique", icon: null, enrichable: true },
+      asie: { label: "Asie", icon: null, enrichable: true },
+      je_ne_sais_pas: { label: "Je ne sais pas encore", icon: null, enrichable: false },
     },
   },
 
