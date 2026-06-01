@@ -138,7 +138,13 @@ const Flux = ({ moderated }) => {
         </InfoAlert>
       )}
       <div className="flex flex-col gap-6">
-        <SearchInput className="w-full sm:w-96" value={filters.search} onChange={(search) => setFilters({ ...filters, search })} placeholder="Rechercher par mot-clé" />
+        <SearchInput
+          label="Rechercher une mission par mot-clé"
+          className="w-full sm:w-96"
+          value={filters.search}
+          onChange={(search) => setFilters({ ...filters, search })}
+          placeholder="Rechercher par mot-clé"
+        />
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <Select
             options={options.status.map((e) => ({ value: e.key, label: STATUS_PLR[e.key], count: e.doc_count }))}

@@ -196,9 +196,9 @@ const Settings = ({ widget, values, onChange, loading }) => {
             ) : (
               <div className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
                 {filteredPublishers.slice(0, showAll ? filteredPublishers.length : 15).map((item, i) => (
-                  <label
+                  <div
                     key={i}
-                    className={`hover:border-blue-france flex cursor-pointer gap-4 rounded border p-4 ${values.publishers.includes(item.key) ? "border-blue-france" : "border-gray-300"}`}
+                    className={`hover:border-blue-france flex gap-4 rounded border p-4 ${values.publishers.includes(item.key) ? "border-blue-france" : "border-gray-300"}`}
                   >
                     <div className="flex items-center gap-2">
                       <input
@@ -214,7 +214,12 @@ const Settings = ({ widget, values, onChange, loading }) => {
                     </div>
 
                     <div className="flex flex-col truncate">
-                      <span className={`line-clamp-2 truncate text-sm ${values.publishers.includes(item.key) ? "text-blue-france" : "text-black"}`}>{item.label}</span>
+                      <label
+                        htmlFor={`${i}-publishers`}
+                        className={`line-clamp-2 cursor-pointer truncate text-sm ${values.publishers.includes(item.key) ? "text-blue-france" : "text-black"}`}
+                      >
+                        {item.label}
+                      </label>
                     </div>
 
                     {item.moderation && item.moderation.length > 0 && values.publishers.includes(item.key) && (
@@ -242,7 +247,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
                         ))}
                       </div>
                     )}
-                  </label>
+                  </div>
                 ))}
               </div>
             );
