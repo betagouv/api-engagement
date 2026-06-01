@@ -70,6 +70,9 @@ router.post("/", async (req: PublisherRequest, res: Response, next: NextFunction
       .refine((data) => data.clickId || data.missionId || data.missionClientId, {
         message: "clickId, missionId or missionClientId is required",
       })
+      .refine((data) => data.clickId || !data.missionId || !data.missionClientId, {
+        message: "missionId and missionClientId cannot be used together without clickId",
+      })
       .safeParse(req.body);
 
     if (!body.success) {
@@ -126,7 +129,7 @@ router.post("/", async (req: PublisherRequest, res: Response, next: NextFunction
       obj.toPublisherId = mission.publisherId;
     }
 
-    if (!click && body.data.missionId) {
+    } else if (!click && body.data.missionId) {
       const diffusionRuleWhere = await publisherDiffusionRuleService.buildMissionPublisherDiffusionRuleWhere(user.id);
       const mission = await missionService.findOneMissionBy({
         id: body.data.missionId,

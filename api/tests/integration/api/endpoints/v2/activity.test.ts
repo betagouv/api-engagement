@@ -357,6 +357,19 @@ describe("Activity V2 controller", () => {
       expect(response.body.code).toBe("INVALID_BODY");
     });
 
+    it("returns 400 when missionId and missionClientId are provided without clickId", async () => {
+      const publisher = await publisherService.createPublisher({ name: "Apply Publisher Ambiguous Mission", apikey: "apply-ambiguous-mission-key" });
+
+      const response = await request(app)
+        .post("/v2/activity/")
+        .set("apikey", publisher.apikey || "")
+        .send({ missionId: "mission-id", missionClientId: "mission-client-id" });
+
+      expect(response.status).toBe(400);
+      expect(response.body.ok).toBe(false);
+      expect(response.body.code).toBe("INVALID_BODY");
+    });
+
     it("returns 404 when clickId does not exist", async () => {
       const publisher = await publisherService.createPublisher({ name: "Apply Publisher Missing Click", apikey: "apply-missing-click-key" });
 
