@@ -80,6 +80,7 @@ const Account = () => {
               id="firstname"
               className={`input mb-2 ${errors.firstname ? "border-b-error" : "border-b-black"}`}
               name="firstname"
+              autoComplete="given-name"
               value={values.firstname}
               onChange={(e) => setValues({ ...values, firstname: e.target.value })}
             />
@@ -99,6 +100,7 @@ const Account = () => {
               id="lastname"
               className={`input mb-2 ${errors.lastname ? "border-b-error" : "border-b-black"}`}
               name="lastname"
+              autoComplete="family-name"
               value={values.lastname}
               onChange={(e) => setValues({ ...values, lastname: e.target.value })}
             />

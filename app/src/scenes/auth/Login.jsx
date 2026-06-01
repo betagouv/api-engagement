@@ -64,7 +64,7 @@ const Login = () => {
       <label className="mt-6 mb-2 text-sm" htmlFor="email">
         E-mail
       </label>
-      <input className={`input mb-2 ${errors.email ? "border-b-error" : "border-b-black"}`} name="email" id="email" type="email" />
+      <input className={`input mb-2 ${errors.email ? "border-b-error" : "border-b-black"}`} name="email" id="email" type="email" autoComplete="email" />
       {errors.email && (
         <div className="text-error flex items-center text-sm">
           <RiErrorWarningFill className="mr-2" aria-hidden="true" />
@@ -75,7 +75,7 @@ const Login = () => {
       <label className="mt-6 mb-2 text-sm" htmlFor="password">
         Mot de passe
       </label>
-      <input className={`input mb-2 ${errors.password ? "border-b-error" : "border-b-black"}`} name="password" type="password" id="password" />
+      <input className={`input mb-2 ${errors.password ? "border-b-error" : "border-b-black"}`} name="password" type="password" id="password" autoComplete="current-password" />
       {errors.password && (
         <div className="text-error flex items-center text-sm">
           <RiErrorWarningFill className="mr-2" aria-hidden="true" />
