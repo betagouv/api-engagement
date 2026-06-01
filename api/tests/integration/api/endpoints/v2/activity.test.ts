@@ -281,7 +281,7 @@ describe("Activity V2 controller", () => {
       });
     });
 
-    it("returns 404 when missionId is outside the publisher diffusion rules", async () => {
+    it("returns 403 when missionId is outside the publisher diffusion rules", async () => {
       const allowedOwner = await publisherService.createPublisher({ name: "Allowed Owner", apikey: "allowed-owner-key" });
       const otherOwner = await publisherService.createPublisher({ name: "Other Owner", apikey: "other-owner-key" });
       const diffuser = await publisherService.createPublisher({ name: "Restricted Diffuser", apikey: "restricted-diffuser-key" });
@@ -308,8 +308,38 @@ describe("Activity V2 controller", () => {
         .set("apikey", diffuser.apikey || "")
         .send({ missionId: mission.id, tag: "MIG" });
 
-      expect(response.status).toBe(404);
-      expect(response.body).toEqual({ ok: false, code: "NOT_FOUND", message: "Mission not found" });
+      expect(response.status).toBe(403);
+      expect(response.body).toEqual({ ok: false, code: "FORBIDDEN", message: "Mission not accessible" });
+    });
+
+    it("returns 403 when the diffuser has rules that cannot be applied", async () => {
+      const owner = await publisherService.createPublisher({ name: "Invalid Rule Mission Owner", apikey: "invalid-rule-owner-key" });
+      const diffuser = await publisherService.createPublisher({ name: "Invalid Rule Diffuser", apikey: "invalid-rule-diffuser-key" });
+      const mission = await createTestMission({
+        clientId: "invalid-rule-mission",
+        title: "Invalid Rule Mission",
+        publisherId: owner.id,
+        statusCode: "ACCEPTED",
+      });
+
+      await prisma.publisherDiffusionRule.create({
+        data: {
+          publisherId: diffuser.id,
+          field: "unknownField",
+          fieldType: "string",
+          operator: "is",
+          value: owner.id,
+          combinator: "or",
+        },
+      });
+
+      const response = await request(app)
+        .post("/v2/activity/")
+        .set("apikey", diffuser.apikey || "")
+        .send({ missionId: mission.id, tag: "MIG" });
+
+      expect(response.status).toBe(403);
+      expect(response.body).toEqual({ ok: false, code: "FORBIDDEN", message: "Mission not accessible" });
     });
 
     it("returns 404 when missionId targets a deleted or non accepted mission", async () => {

@@ -2,7 +2,7 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { INVALID_BODY, INVALID_PARAMS, NOT_FOUND } from "@/error";
+import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, NOT_FOUND } from "@/error";
 import { publisherRateLimiter } from "@/middlewares/rate-limit";
 import missionService from "@/services/mission";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
@@ -127,18 +127,19 @@ router.post("/", async (req: PublisherRequest, res: Response, next: NextFunction
       obj.missionId = mission.id;
       obj.fromPublisherId = user.id;
       obj.toPublisherId = mission.publisherId;
-    }
-
     } else if (!click && body.data.missionId) {
-      const diffusionRuleWhere = await publisherDiffusionRuleService.buildMissionPublisherDiffusionRuleWhere(user.id);
       const mission = await missionService.findOneMissionBy({
         id: body.data.missionId,
         statusCode: "ACCEPTED",
         deletedAt: null,
-        ...diffusionRuleWhere,
       });
       if (!mission) {
         return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Mission not found" });
+      }
+
+      const canAccessMission = await publisherDiffusionRuleService.canPublisherAccessMission({ publisherId: user.id, missionId: mission.id });
+      if (!canAccessMission) {
+        return res.status(403).send({ ok: false, code: FORBIDDEN, message: "Mission not accessible" });
       }
 
       obj.missionId = mission.id;
