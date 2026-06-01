@@ -1,7 +1,7 @@
 import { toast } from "@/services/toast";
 import { useState } from "react";
 import { IoMdEye, IoMdEyeOff } from "react-icons/io";
-import { RiCheckboxCircleFill, RiErrorWarningFill } from "react-icons/ri";
+import { RiCheckboxCircleFill, RiCloseCircleFill, RiErrorWarningFill } from "react-icons/ri";
 import { TiDeleteOutline } from "react-icons/ti";
 import { Navigate } from "react-router-dom";
 
