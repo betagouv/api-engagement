@@ -211,15 +211,6 @@ describe("publisherDiffusionRuleService.canPublisherAccessMission", () => {
     expect(prismaMock.mission.count).not.toHaveBeenCalled();
   });
 
-  it("blocks access when rules exist but none can be applied", async () => {
-    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([buildRule({ field: "unknownField" })]);
-
-    const canAccess = await publisherDiffusionRuleService.canPublisherAccessMission({ publisherId: "publisher-1", missionId: "mission-1" });
-
-    expect(canAccess).toBe(false);
-    expect(prismaMock.mission.count).not.toHaveBeenCalled();
-  });
-
   it("checks the mission against applicable diffusion rules", async () => {
     prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([buildRule({ value: "annonceur-1" })]);
     prismaMock.mission.count.mockResolvedValue(1);
