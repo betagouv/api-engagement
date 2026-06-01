@@ -755,6 +755,17 @@ components:
             code: "NOT_FOUND"
             message: "Mission not found"
 
+    Forbidden:
+      description: Accès refusé
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            ok: false
+            code: "FORBIDDEN"
+            message: "Mission not accessible"
+
     Conflict:
       description: Conflit — la ressource existe déjà
       content:
@@ -1495,6 +1506,7 @@ paths:
         Le "missionId" permet à un diffuseur autorisé de déclarer une activité sans clic.
         Le "missionClientId" correspond à l'identifiant métier d'une mission du publisher authentifié.
         Au moins un champ parmi "clickId", "missionId" et "missionClientId" doit être fourni.
+        Le champ "missionId" ne doit pas être combiné avec "clickId" ou "missionClientId".
       operationId: createActivity
       tags: [Activités]
       requestBody:
@@ -1503,10 +1515,18 @@ paths:
           application/json:
             schema:
               type: object
-              anyOf:
+              oneOf:
                 - required: [clickId]
+                  not:
+                    required: [missionId]
                 - required: [missionId]
+                  not:
+                    anyOf:
+                      - required: [clickId]
+                      - required: [missionClientId]
                 - required: [missionClientId]
+                  not:
+                    required: [missionId]
               properties:
                 type:
                   type: string
@@ -1544,6 +1564,8 @@ paths:
           $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           description: Clic ou mission introuvable
           content:

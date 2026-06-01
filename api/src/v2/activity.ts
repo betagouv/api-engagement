@@ -70,6 +70,9 @@ router.post("/", async (req: PublisherRequest, res: Response, next: NextFunction
       .refine((data) => data.clickId || data.missionId || data.missionClientId, {
         message: "clickId, missionId or missionClientId is required",
       })
+      .refine((data) => !data.clickId || !data.missionId, {
+        message: "missionId cannot be used together with clickId",
+      })
       .refine((data) => data.clickId || !data.missionId || !data.missionClientId, {
         message: "missionId and missionClientId cannot be used together without clickId",
       })
