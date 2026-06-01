@@ -53,7 +53,7 @@
         "geoip-lite": "2.0.1",
         "he": "1.2.0",
         "helmet": "8.1.0",
-        "html-to-text": "9.0.5",
+        "html-to-text": "10.0.0",
         "isbot": "5.1.39",
         "jsonwebtoken": "9.0.3",
         "jspdf": "3.0.3",
