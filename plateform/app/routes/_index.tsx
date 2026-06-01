@@ -28,9 +28,9 @@ export function meta(): Route.MetaDescriptors {
   ];
 }
 
-export async function loader(): Promise<{ examples: BrowseMission[]; testimonials: BrowseMission[] }> {
+export async function loader({ request }: Route.LoaderArgs): Promise<{ examples: BrowseMission[]; testimonials: BrowseMission[] }> {
   try {
-    const res = await browseMissions({ pageSize: EXAMPLES_COUNT + TESTIMONIALS_COUNT });
+    const res = await browseMissions({ pageSize: EXAMPLES_COUNT + TESTIMONIALS_COUNT }, request);
     return {
       examples: res.data.slice(0, EXAMPLES_COUNT),
       testimonials: res.data.slice(EXAMPLES_COUNT, EXAMPLES_COUNT + TESTIMONIALS_COUNT),

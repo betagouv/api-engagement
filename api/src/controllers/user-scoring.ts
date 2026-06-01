@@ -3,10 +3,12 @@ import passport from "passport";
 import zod from "zod";
 
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, NOT_FOUND } from "@/error";
+import { plateformRateLimiter } from "@/middlewares/rate-limit";
 import { UserScoringAnswerValidationError, userScoringService } from "@/services/user-scoring";
 
 const router = Router();
 router.use(passport.authenticate(["apikey", "api"], { session: false }));
+router.use(plateformRateLimiter);
 
 const answerSchema = zod
   .object({
