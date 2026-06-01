@@ -1,7 +1,7 @@
 import { toast as reactToast } from "react-toastify";
 
 const ToastContent = ({ children }) => {
-  return <p>{children}</p>;
+  return <p className="flex gap-4 text-sm">{children}</p>;
 };
 
 const createAccessibleToast = (type, role, ariaLive) => {
