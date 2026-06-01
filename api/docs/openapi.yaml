@@ -1515,18 +1515,14 @@ paths:
           application/json:
             schema:
               type: object
-              oneOf:
+              anyOf:
                 - required: [clickId]
-                  not:
-                    required: [missionId]
                 - required: [missionId]
-                  not:
-                    anyOf:
-                      - required: [clickId]
-                      - required: [missionClientId]
                 - required: [missionClientId]
-                  not:
-                    required: [missionId]
+              not:
+                anyOf:
+                  - required: [clickId, missionId]
+                  - required: [missionId, missionClientId]
               properties:
                 type:
                   type: string
