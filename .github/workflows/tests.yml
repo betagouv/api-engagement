@@ -282,9 +282,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Playwright browsers and dependencies
-        timeout-minutes: 10
-        run: npm --workspace app exec -- playwright install --with-deps --only-shell chromium
+      - name: Check Chrome
+        run: google-chrome --version
 
       - name: Run tests
         run: npm --workspace app run test:e2e
