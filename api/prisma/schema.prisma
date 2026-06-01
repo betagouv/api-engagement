@@ -982,7 +982,7 @@ model MissionEnrichment {
   values          MissionEnrichmentValue[]
   missionScorings MissionScoring[]
 
-  @@index([missionId, promptVersion], map: "mission_enrichment_mission_version_idx")
+  @@unique([missionId, promptVersion], map: "mission_enrichment_mission_version_unique")
   @@index([status], map: "mission_enrichment_status_idx")
   @@map("mission_enrichment")
 }
