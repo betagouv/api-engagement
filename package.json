@@ -1,7 +1,15 @@
 {
   "name": "api-engagement",
-  "version": "1.7.0",
-  "workspaces": ["packages/dto", "packages/taxonomy", "api", "app", "widget", "analytics", "plateform"],
+  "version": "1.8.0",
+  "workspaces": [
+    "packages/dto",
+    "packages/taxonomy",
+    "api",
+    "app",
+    "widget",
+    "analytics",
+    "plateform"
+  ],
   "scripts": {
     "lint": "npm run lint:api && npm run lint:app && npm run lint:analytics && npm run lint:widget && npm run lint:plateform && npm run lint:packages",
     "lint:api": "cd api && npm run lint",
