@@ -13,7 +13,9 @@ import { QUIZ_TRANSITION_MS } from "~/services/config";
 type Suggestion = { label: string; lat: number; lon: number; country_code?: string };
 
 type AddressFeature = {
-  properties: { name: string; postcode: string; id: string };
+  // `label` = adresse complète formatée par l'API (ex: "8 Boulevard du Port 80000 Amiens").
+  // `type`  = housenumber | street | locality | municipality.
+  properties: { label: string; name: string; postcode: string; type: string; id: string };
   geometry: { coordinates: [number, number] };
 };
 
@@ -24,11 +26,15 @@ export default function LocalisationStep() {
   const { goNext, transitioning, setTransitioning } = useOutletContext<QuizOutletContext>();
 
   const locAnswer = answers["localisation"];
-  const savedLocation = locAnswer?.type === "params" ? (locAnswer.params as { lat: number; lon: number; country_code?: string }) : null;
+  // `label` est persisté avec les coordonnées pour ré-afficher la saisie au retour sur l'écran
+  // (ignoré côté API : le transformer `location` ne lit que lat/lon/country_code).
+  const savedLocation = locAnswer?.type === "params" ? (locAnswer.params as { lat: number; lon: number; country_code?: string; label?: string }) : null;
 
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState(savedLocation?.label ?? "");
   const [options, setOptions] = useState<Suggestion[]>([]);
-  const [selected, setSelected] = useState<Suggestion | null>(savedLocation ? { label: "", ...savedLocation } : null);
+  const [selected, setSelected] = useState<Suggestion | null>(
+    savedLocation ? { label: savedLocation.label ?? "", lat: savedLocation.lat, lon: savedLocation.lon, country_code: savedLocation.country_code } : null,
+  );
   const [showOptions, setShowOptions] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [locating, setLocating] = useState(false);
@@ -54,12 +60,15 @@ export default function LocalisationStep() {
       }
 
       try {
-        const res = await fetch(`https://data.geopf.fr/geocodage/search?q=${value}&type=municipality&autocomplete=1&limit=6`);
+        // Pas de filtre `type` → l'API renvoie aussi les adresses précises (numéro + rue), pas seulement les villes.
+        const res = await fetch(`https://data.geopf.fr/geocodage/search?q=${encodeURIComponent(value)}&autocomplete=1&limit=6`);
         const data: { features?: AddressFeature[] } = await res.json();
         if (!data.features) return;
         setOptions(
           data.features.map((f) => ({
-            label: `${f.properties.name} (${f.properties.postcode})`,
+            // Villes : on garde "Nom (code postal)" pour lever l'ambiguïté entre homonymes.
+            // Adresses/rues : on utilise le `label` complet fourni par l'API.
+            label: f.properties.type === "municipality" ? `${f.properties.name} (${f.properties.postcode})` : f.properties.label,
             lat: f.geometry.coordinates[1],
             lon: f.geometry.coordinates[0],
             country_code: "fr",
@@ -82,6 +91,13 @@ export default function LocalisationStep() {
     setValue(option.label);
     setShowOptions(false);
     setActiveIndex(-1);
+  };
+
+  const handleChange = (nextValue: string) => {
+    setValue(nextValue);
+    if (selected && nextValue !== selected.label) {
+      setSelected(null);
+    }
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -137,7 +153,7 @@ export default function LocalisationStep() {
 
         if (!data.features) return;
         const here: Suggestion = {
-          label: data.features[0].properties.name,
+          label: data.features[0].properties.label ?? data.features[0].properties.name,
           lat: data.features[0].geometry.coordinates[1],
           lon: data.features[0].geometry.coordinates[0],
           country_code: "fr",
@@ -157,7 +173,12 @@ export default function LocalisationStep() {
     setAnswer("localisation", {
       type: "params",
       taxonomy: "location",
-      params: { lat: selected.lat, lon: selected.lon, ...(selected.country_code ? { country_code: selected.country_code } : {}) },
+      params: {
+        lat: selected.lat,
+        lon: selected.lon,
+        ...(selected.country_code ? { country_code: selected.country_code } : {}),
+        ...(selected.label ? { label: selected.label } : {}),
+      },
     });
     setValue(selected.label);
     setTransitioning(true);
@@ -186,7 +207,7 @@ export default function LocalisationStep() {
             type="text"
             placeholder="Adresse, ville ou code postal"
             value={value}
-            onChange={(e) => setValue(e.target.value)}
+            onChange={(e) => handleChange(e.target.value)}
             onKeyDown={handleKeyDown}
             autoComplete="off"
           />

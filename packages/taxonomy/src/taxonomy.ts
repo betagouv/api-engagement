@@ -12,6 +12,7 @@
 //   sublabel   — aide contextuelle optionnelle pour les UIs
 //   icon       — emoji optionnel
 //   enrichable — false pour les valeurs exclues de l'enrichissement (ex : je_ne_sais_pas)
+//   disabled   — true pour griser l'option en UI (fonctionnalité pas encore disponible)
 
 import { DEPARTMENT_CODE_VALUES, resolveDepartmentCodeValues } from "./transformers/department-code";
 import { resolveLocationValues } from "./transformers/location";
@@ -197,6 +198,7 @@ export const TAXONOMY = {
       relation_client_commerce_strategie: { label: "Relation client, commerce, stratégie", icon: "📈", enrichable: true },
       cooperation_organisation_soft_skills: { label: "Coopération, organisation, soft skills", icon: "🤝", enrichable: true },
       securite_environnement_action_publique: { label: "Protection des personnes, de la société ou de l'environnement", icon: "🛡️", enrichable: true },
+      je_ne_sais_pas: { label: "Autre / Je ne sais pas", icon: "‍‍🤔‍", enrichable: false },
     },
   },
 
@@ -261,7 +263,6 @@ export const TAXONOMY = {
       etudiant: { label: "Je fais des études", icon: "🎓", enrichable: false },
       demandeur_emploi: { label: "Je recherche un emploi", icon: "🕵️‍♂️", enrichable: false },
       actif: { label: "J’ai une activité professionnelle", icon: "💼", enrichable: false },
-      retraite: { label: "Je suis à la retraite", icon: "👴", enrichable: false },
       autre: { label: "Autre situation", icon: "🤷", enrichable: false },
     },
   },
@@ -285,7 +286,7 @@ export const TAXONOMY = {
     gate: false,
     values: {
       me_sentir_utile: {
-        label: "Aider les autres",
+        label: "Me sentir utile, rencontrer de nouvelles personnes",
         sublabel: "Être utile à des personnes ou à une cause",
         icon: "🙏🏻",
         enrichable: false,
@@ -337,6 +338,7 @@ export const TAXONOMY = {
         sublabel: "Vivre une expérience d'engagement dans un autre pays",
         icon: "🌍",
         enrichable: false,
+        disabled: true,
       },
       competences_interet_general: {
         label: "Utiliser mes compétences pour l'intérêt général",
@@ -388,12 +390,12 @@ export const TAXONOMY = {
     enrichable: false,
     gate: false,
     values: {
-      armee: { label: "Armée", sublabel: "Marine, Air, Santé...", icon: null, enrichable: false },
-      pompiers: { label: "Pompiers", icon: null, enrichable: false },
-      gendarmerie: { label: "Gendarmerie", icon: null, enrichable: false },
-      police: { label: "Police", icon: null, enrichable: false },
-      ne_sais_pas: { label: "Je ne sais pas", icon: null, enrichable: false },
-      aucun: { label: "Aucun de ces choix", icon: null, enrichable: false },
+      armee: { label: "Armée", sublabel: "Marine, Air, Santé...", icon: "🪖", enrichable: false },
+      pompiers: { label: "Pompiers", sublabel: "Aide à la personne, secours, urgences...", icon: "🚒", enrichable: false },
+      gendarmerie: { label: "Gendarmerie", sublabel: "Sécurité, territoire, enquêtes...", icon: "⚖️", enrichable: false },
+      police: { label: "Police", sublabel: "Ordre public, investigation, protection...", icon: "🚔", enrichable: false },
+      ne_sais_pas: { label: "Je ne sais pas", sublabel: "Aidez-moi à découvrir ma voie", icon: "🤔", enrichable: false },
+      aucun: { label: "Aucun de ces choix", sublabel: "Je cherche autre chose", icon: "🙅", enrichable: false },
     },
   },
 

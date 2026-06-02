@@ -5,7 +5,7 @@ import NextButton from "~/components/quiz/next-button";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
 import type { StepOption } from "~/types/quiz";
-import { evalCondition, numericRange } from "~/utils/conditions";
+import { evalCondition } from "~/utils/conditions";
 import type { QuizOutletContext } from "./_layout";
 
 const STEP_ID = "duree";
@@ -14,7 +14,7 @@ const STEP_OPTIONS: StepOption[] = [
   OPTIONS["type_mission.ponctuelle"],
   OPTIONS["type_mission.temps_plein"],
   OPTIONS["type_mission.reguliere"],
-  { ...OPTIONS["type_mission.je_ne_sais_pas"], hiddenIf: numericRange("age", 16, 25) },
+  OPTIONS["type_mission.je_ne_sais_pas"],
 ];
 
 export default function DureeStep() {

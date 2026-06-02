@@ -18,7 +18,6 @@ const lyceen = screenAnswer("statut", "lyceen");
 const etudiant = screenAnswer("statut", "etudiant");
 const demandeurEmploi = screenAnswer("statut", "demandeur_emploi");
 const actif = screenAnswer("statut", "actif");
-const retraite = screenAnswer("statut", "retraite");
 
 const STEP_OPTIONS: StepOption[] = [
   OPTIONS["motivation.me_sentir_utile"],
@@ -28,7 +27,7 @@ const STEP_OPTIONS: StepOption[] = [
   { ...OPTIONS["motivation.decouvrir_domaine"], hiddenIf: or(lyceen, demandeurEmploi) },
   { ...OPTIONS["motivation.experience_terrain"], hiddenIf: not(etudiant) },
   { ...OPTIONS["motivation.partir_etranger"], hiddenIf: not(or(etudiant, actif)) },
-  { ...OPTIONS["motivation.competences_interet_general"], hiddenIf: not(or(actif, retraite)) },
+  { ...OPTIONS["motivation.competences_interet_general"], hiddenIf: not(actif) },
   { ...OPTIONS["motivation.reprendre_confiance"], hiddenIf: not(demandeurEmploi) },
   { ...OPTIONS["motivation.reprendre_activite"], hiddenIf: not(demandeurEmploi) },
   { ...OPTIONS["motivation.enrichir_cv"], hiddenIf: not(demandeurEmploi) },
