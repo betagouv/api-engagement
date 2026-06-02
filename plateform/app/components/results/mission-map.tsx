@@ -1,6 +1,6 @@
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { useEffect, useMemo } from "react";
+import { useEffect, useId, useMemo } from "react";
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import { TILE_LAYER_PROPS, createEmojiIcon } from "~/components/ui/location-map";
 import type { MissionMatchItem } from "@engagement/dto";
@@ -69,36 +69,44 @@ export default function MissionMap({ items, center, onMarkerClick }: Props) {
 
   const boundsPositions = missions.length > 0 ? missions.map((mission) => mission.position) : [center];
 
+  const descriptionId = useId();
+  const accessibleLabel = `Carte des ${items.length} mission${items.length > 1 ? "s" : ""} proposée${items.length > 1 ? "s" : ""}`;
+
   return (
-    <MapContainer center={center} zoom={12} className="mission-map" zoomControl={false}>
-      <TileLayer {...TILE_LAYER_PROPS} />
-      <BoundsFitter positions={boundsPositions} />
-      {missions.map(({ item, position, hasRealAddress }) => (
-        <Marker
-          key={item.mission.id}
-          position={position}
-          icon={hasRealAddress ? classicIcon : remoteIcon}
-          eventHandlers={onMarkerClick ? { click: () => onMarkerClick(item) } : undefined}
-        >
-          {!onMarkerClick && (
-            <Popup>
-              <strong>{item.mission.title}</strong>
-              {hasRealAddress && getAddressLabel(item) && (
-                <>
-                  <br />
-                  {getAddressLabel(item)}
-                </>
-              )}
-              {!hasRealAddress && (
-                <>
-                  <br />
-                  Mission à distance ou sans adresse précise
-                </>
-              )}
-            </Popup>
-          )}
-        </Marker>
-      ))}
-    </MapContainer>
+    <div role="region" aria-label={accessibleLabel} aria-describedby={descriptionId} className="relative h-full w-full">
+      <p id={descriptionId} className="sr-only">
+        Carte interactive localisant les missions proposées. La liste des missions présente les mêmes informations sous forme textuelle accessible.
+      </p>
+      <MapContainer center={center} zoom={12} className="mission-map" zoomControl={false}>
+        <TileLayer {...TILE_LAYER_PROPS} />
+        <BoundsFitter positions={boundsPositions} />
+        {missions.map(({ item, position, hasRealAddress }) => (
+          <Marker
+            key={item.mission.id}
+            position={position}
+            icon={hasRealAddress ? classicIcon : remoteIcon}
+            eventHandlers={onMarkerClick ? { click: () => onMarkerClick(item) } : undefined}
+          >
+            {!onMarkerClick && (
+              <Popup>
+                <strong>{item.mission.title}</strong>
+                {hasRealAddress && getAddressLabel(item) && (
+                  <>
+                    <br />
+                    {getAddressLabel(item)}
+                  </>
+                )}
+                {!hasRealAddress && (
+                  <>
+                    <br />
+                    Mission à distance ou sans adresse précise
+                  </>
+                )}
+              </Popup>
+            )}
+          </Marker>
+        ))}
+      </MapContainer>
+    </div>
   );
 }
