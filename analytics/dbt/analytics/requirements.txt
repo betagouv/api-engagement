@@ -1,3 +1,7 @@
+# dbt-core est épinglé explicitement : dbt-postgres déclare `dbt-core>=1.8.0rc1`,
+# ce qui autorise les pré-versions et fait sélectionner par pip le moteur Fusion
+# (dbt-core 2.0.0a1) qui ne supporte pas l'adapter postgres. On reste sur la 1.10.x.
+dbt-core==1.10.22
 dbt-postgres==1.10.0
 dbt-metabase==1.7.5
 sqlfluff==3.5.0
