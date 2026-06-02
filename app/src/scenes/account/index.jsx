@@ -1,7 +1,7 @@
 import { toast } from "@/services/toast";
 import { useState } from "react";
 import { IoMdEye, IoMdEyeOff } from "react-icons/io";
-import { RiCheckboxCircleFill, RiErrorWarningFill } from "react-icons/ri";
+import { RiCheckboxCircleFill, RiCloseCircleFill, RiErrorWarningFill } from "react-icons/ri";
 import { TiDeleteOutline } from "react-icons/ti";
 import { Navigate } from "react-router-dom";
 
@@ -124,6 +124,16 @@ const Account = () => {
     </div>
   );
 };
+
+const PasswordCriterion = ({ valid, children }) => (
+  <div className="flex items-center gap-2">
+    {valid ? <RiCheckboxCircleFill className="text-success" aria-hidden="true" /> : <RiCloseCircleFill className="text-text-mention" aria-hidden="true" />}
+    <span className={`align-middle text-sm ${valid ? "text-success" : "text-text-mention"}`}>
+      {children}
+      <span className="sr-only"> : {valid ? "critère validé" : "critère non validé"}</span>
+    </span>
+  </div>
+);
 
 const ResetPasswordModal = () => {
   const [open, setOpen] = useState(false);
@@ -271,42 +281,10 @@ const ResetPasswordModal = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2">
-            {(values.newPassword || "").length >= 12 ? (
-              <RiCheckboxCircleFill className="text-success" aria-hidden="true" />
-            ) : (
-              <RiCheckboxCircleFill className="text-text-mention" aria-hidden="true" />
-            )}
-            <span className={`align-middle text-sm ${values.newPassword && (values.newPassword || "").length >= 12 ? "text-success" : "text-text-mention"}`}>
-              Au moins 12 caractères
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            {/[a-zA-Z]/.test(values.newPassword) ? (
-              <RiCheckboxCircleFill className="text-success" aria-hidden="true" />
-            ) : (
-              <RiCheckboxCircleFill className="text-text-mention" aria-hidden="true" />
-            )}
-            <span className={`align-middle text-sm ${values.newPassword && /[a-zA-Z]/.test(values.newPassword) ? "text-success" : "text-text-mention"}`}>Au moins une lettre</span>
-          </div>
-          <div className="flex items-center gap-2">
-            {/[0-9]/.test(values.newPassword) ? (
-              <RiCheckboxCircleFill className="text-success" aria-hidden="true" />
-            ) : (
-              <RiCheckboxCircleFill className="text-text-mention" aria-hidden="true" />
-            )}
-            <span className={`align-middle text-sm ${values.newPassword && /[0-9]/.test(values.newPassword) ? "text-success" : "text-text-mention"}`}>Au moins un chiffre</span>
-          </div>
-          <div className="flex items-center gap-2">
-            {/[!-@#$%^&*(),.?":{}|<>]/.test(values.newPassword) ? (
-              <RiCheckboxCircleFill className="text-success" aria-hidden="true" />
-            ) : (
-              <RiCheckboxCircleFill className="text-text-mention" aria-hidden="true" />
-            )}
-            <span className={`align-middle text-sm ${values.newPassword && /[!-@#$%^&*(),.?":{}|<>]/.test(values.newPassword) ? "text-success" : "text-text-mention"}`}>
-              Au moins un caractère spécial
-            </span>
-          </div>
+          <PasswordCriterion valid={(values.newPassword || "").length >= 12}>Au moins 12 caractères</PasswordCriterion>
+          <PasswordCriterion valid={/[a-zA-Z]/.test(values.newPassword)}>Au moins une lettre</PasswordCriterion>
+          <PasswordCriterion valid={/[0-9]/.test(values.newPassword)}>Au moins un chiffre</PasswordCriterion>
+          <PasswordCriterion valid={/[!-@#$%^&*(),.?":{}|<>]/.test(values.newPassword)}>Au moins un caractère spécial</PasswordCriterion>
         </div>
 
         <div className="flex justify-end gap-2">
