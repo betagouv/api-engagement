@@ -105,6 +105,53 @@ describe("publisherDiffusionRuleService.buildMissionPublisherDiffusionRuleWhere"
   });
 });
 
+describe("publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere", () => {
+  beforeEach(() => {
+    prismaMock.publisherDiffusionRule.findMany.mockReset();
+  });
+
+  it("renvoie {} quand le diffuseur n'a aucune rule", async () => {
+    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([]);
+
+    const where = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere("diffuseur-1");
+
+    expect(where).toEqual({});
+  });
+
+  it("un seul annonceur sans critère → filtre positif publisherId", async () => {
+    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([buildRule({ id: "root-1", value: "annonceur-1", combinedRules: [] })]);
+
+    const where = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere("diffuseur-1");
+
+    expect(where).toEqual({ publisherId: "annonceur-1" });
+  });
+
+  it("plusieurs annonceurs → OR des scopes (allowlist)", async () => {
+    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([
+      buildRule({ id: "root-1", value: "annonceur-1", combinedRules: [] }),
+      buildRule({ id: "root-2", value: "annonceur-2", position: 1, combinedRules: [] }),
+    ]);
+
+    const where = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere("diffuseur-1");
+
+    expect(where).toEqual({ OR: [{ publisherId: "annonceur-1" }, { publisherId: "annonceur-2" }] });
+  });
+
+  it("applique les critères enfants en AND dans le scope", async () => {
+    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([
+      buildRule({
+        id: "root-1",
+        value: "annonceur-1",
+        combinedRules: [buildRule({ id: "child-1", combinedWithId: "root-1", field: "publisherOrganizationId", operator: "is_not", value: "po-1" })],
+      }),
+    ]);
+
+    const where = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere("diffuseur-1");
+
+    expect(where).toEqual({ AND: [{ publisherId: "annonceur-1" }, { publisherOrganizationId: { not: "po-1" } }] });
+  });
+});
+
 describe("publisherDiffusionRuleService.canPublisherAccessMission", () => {
   beforeEach(() => {
     prismaMock.publisherDiffusionRule.findMany.mockReset();
