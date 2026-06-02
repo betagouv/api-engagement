@@ -50,14 +50,19 @@ export default function Testimonials({ missions }: Props) {
           ref={scrollRef}
           id="testimonials-carousel"
           onScroll={updateScrollState}
-          className="overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden mb-0! md:mb-6!"
-          style={{ marginRight: "calc(50% - 50vw)" }}
+          className="snap-x snap-mandatory md:snap-none overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden mb-0! md:mb-6! [margin-left:calc(50%-50vw)] [margin-right:calc(50%-50vw)] md:ml-0"
           aria-live="polite"
           aria-atomic="false"
         >
-          <div className="flex w-max gap-6 pr-8 pb-4 items-stretch">
+          <div className="flex w-max gap-6 px-[10vw] pb-4 items-stretch md:pl-0 md:pr-8">
             {missions.map((mission, i) => (
-              <div key={mission.id} role="group" aria-roledescription="slide" aria-label={`Témoignage ${i + 1} sur ${missions.length}`} className="w-[330px] shrink-0">
+              <div
+                key={mission.id}
+                role="group"
+                aria-roledescription="slide"
+                aria-label={`Témoignage ${i + 1} sur ${missions.length}`}
+                className="w-[80vw] max-w-[330px] shrink-0 snap-center md:w-[330px]"
+              >
                 <MissionCard mission={mission} />
               </div>
             ))}
@@ -83,7 +88,7 @@ export default function Testimonials({ missions }: Props) {
               className="fr-btn fr-btn--secondary fr-icon-arrow-right-line fr-icon--md rounded-full"
             ></button>
           </div>
-          <Link to="/missions" className="fr-btn fr-btn--secondary w-full justify-center md:w-auto">
+          <Link to="/quiz" className="fr-btn fr-btn--secondary w-full justify-center md:w-auto">
             Je veux trouver ma mission
           </Link>
         </div>

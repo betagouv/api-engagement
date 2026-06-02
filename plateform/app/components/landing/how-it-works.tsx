@@ -62,15 +62,15 @@ export default function HowItWorks() {
           ref={scrollRef}
           id="how-it-works-carousel"
           onScroll={updateScrollState}
-          className="overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:overflow-visible fr-mb-6w [margin-right:calc(50%-50vw)] md:mr-0"
+          className="snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:overflow-visible fr-mb-6w [margin-left:calc(50%-50vw)] [margin-right:calc(50%-50vw)] md:mx-0"
           aria-live="polite"
           aria-atomic="false"
         >
-          <div className="flex w-max gap-6 pr-8 pb-4 md:grid md:w-auto md:grid-cols-2 md:pr-0 md:pb-0 lg:grid-cols-4">
+          <div className="flex w-max gap-6 px-[10vw] pb-4 md:grid md:w-auto md:grid-cols-2 md:px-0 md:pb-0 lg:grid-cols-4">
             {FEATURES.map((feature) => (
               <div
                 key={feature.title}
-                className="bg-background flex w-[calc(100vw-2rem)] shrink-0 flex-col items-center gap-4 p-6 text-center shadow-lg md:mx-auto md:w-auto md:max-w-60"
+                className="bg-background flex w-[80vw] shrink-0 snap-center flex-col items-center gap-4 p-6 text-center shadow-lg md:mx-auto md:w-auto md:max-w-60"
               >
                 <img src={feature.icon} alt="" className="size-16" aria-hidden="true" />
                 <p className="fr-text--lead text-title-grey font-bold mb-0!">{feature.title}</p>
@@ -99,7 +99,7 @@ export default function HowItWorks() {
         </div>
 
         <div className="flex flex-col items-center gap-3">
-          <Link to="/missions" className="fr-btn fr-btn--secondary fr-btn--lg w-full justify-center md:w-auto">
+          <Link to="/quiz" className="fr-btn fr-btn--secondary fr-btn--lg w-full justify-center md:w-auto">
             Je découvre les missions
           </Link>
           <p className="fr-text--sm text-mention-grey fr-mb-0 text-center">+25 000 missions disponibles partout en France</p>
