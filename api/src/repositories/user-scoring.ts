@@ -10,7 +10,6 @@ export const userScoringRepository = {
   },
 
   create(params: {
-    expiresAt: Date;
     values: Array<{ taxonomyKey: string; valueKey: string; score?: number }>;
     geo?: { lat: number; lon: number; radiusKm?: number; countryCode?: string };
     distinctId?: string;
@@ -18,7 +17,6 @@ export const userScoringRepository = {
   }): Promise<UserScoring> {
     return prisma.userScoring.create({
       data: {
-        expiresAt: params.expiresAt,
         distinctId: params.distinctId,
         missionAlertEnabled: params.missionAlertEnabled,
         ...(params.values.length

@@ -67,29 +67,11 @@ describe("matchingEngineService", () => {
       expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(1);
     });
 
-    it("throws when the user scoring is expired", async () => {
-      prismaMock.$queryRaw.mockResolvedValueOnce([
-        {
-          id: "user-scoring-expired",
-          expires_at: new Date(Date.now() - 60_000),
-        },
-      ]);
-
-      await expect(
-        matchingEngineService.rankMissionsByUserScoring({
-          userScoringId: "user-scoring-expired",
-        })
-      ).rejects.toThrow("[matchingEngineService] user_scoring 'user-scoring-expired' is expired.");
-
-      expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(1);
-    });
-
     it("returns ranked missions with clamped scores and indexed taxonomy scores", async () => {
       prismaMock.$queryRaw
         .mockResolvedValueOnce([
           {
             id: "user-scoring-1",
-            expires_at: new Date(Date.now() + 60_000),
           },
         ])
         .mockResolvedValueOnce([
@@ -186,7 +168,6 @@ describe("matchingEngineService", () => {
         .mockResolvedValueOnce([
           {
             id: "user-scoring-publisher-filter",
-            expires_at: null,
           },
         ])
         .mockResolvedValueOnce([]);
@@ -211,7 +192,6 @@ describe("matchingEngineService", () => {
         .mockResolvedValueOnce([
           {
             id: "user-scoring-empty",
-            expires_at: null,
           },
         ])
         .mockResolvedValueOnce([]);
@@ -237,7 +217,6 @@ describe("matchingEngineService", () => {
         .mockResolvedValueOnce([
           {
             id: "user-scoring-gate-filtered",
-            expires_at: null,
           },
         ])
         .mockResolvedValueOnce([
@@ -296,7 +275,6 @@ describe("matchingEngineService", () => {
         .mockResolvedValueOnce([
           {
             id: "user-scoring-gate-taxonomies",
-            expires_at: null,
           },
         ])
         .mockResolvedValueOnce([
@@ -362,7 +340,6 @@ describe("matchingEngineService", () => {
         .mockResolvedValueOnce([
           {
             id: "user-scoring-or-taxonomy",
-            expires_at: null,
           },
         ])
         .mockResolvedValueOnce([
@@ -406,7 +383,6 @@ describe("matchingEngineService", () => {
         .mockResolvedValueOnce([
           {
             id: "user-scoring-page-2",
-            expires_at: null,
           },
         ])
         .mockResolvedValueOnce([

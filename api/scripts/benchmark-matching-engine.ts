@@ -265,7 +265,6 @@ const getExplicitUserScorings = async (userScoringIds: string[]): Promise<UserSc
     LEFT JOIN "taxonomy" t
       ON t."key"::text = usv."taxonomy_key"
     WHERE us."id" IN (${Prisma.join(userScoringIds)})
-      AND (us."expires_at" IS NULL OR us."expires_at" > NOW())
     GROUP BY us."id"
     ORDER BY us."id" ASC
   `;
@@ -289,7 +288,6 @@ const getSampledUserScorings = async (sampleSize: number): Promise<UserScoringCa
         ON usv."user_scoring_id" = us."id"
       LEFT JOIN "taxonomy" t
         ON t."key"::text = usv."taxonomy_key"
-      WHERE us."expires_at" IS NULL OR us."expires_at" > NOW()
       GROUP BY us."id"
     ),
     ranked AS (
