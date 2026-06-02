@@ -300,33 +300,23 @@ export const missionEnrichmentService = {
     // 3. Load taxonomy from package.
     const taxonomies = getTaxonomies();
 
-    // 4. Create enrichment record (pending)
-    // The partial unique index on (mission_id, prompt_version) WHERE status IN ('pending', 'processing')
-    // enforces at DB level that no two concurrent workers can run for the same mission/version.
-    // A P2002 here means another worker won the race — skip silently.
-    let enrichment;
-    try {
-      enrichment = await missionEnrichmentRepository.create({
-        data: { missionId, promptVersion: CURRENT_PROMPT_VERSION, status: "pending" },
-      });
-    } catch (error) {
-      if ((error as { code?: string }).code === "P2002") {
-        console.log(`${LOG_PREFIX} skipping ${missionId} — lost race to concurrent worker`);
-        return;
-      }
-      throw error;
+    // 4. Reserve the single enrichment row for this (mission, version) and mark it `processing`.
+    // The unique constraint (mission_id, prompt_version) guarantees one row; claimForRun reuses it
+    // (no accumulation) and atomically blocks concurrent workers: a null id means another worker
+    // already holds the run, so we skip silently.
+    const enrichmentId = await missionEnrichmentRepository.claimForRun({ missionId, promptVersion: CURRENT_PROMPT_VERSION });
+
+    if (!enrichmentId) {
+      console.log(`${LOG_PREFIX} skipping ${missionId} — enrichment already in-flight (concurrent worker)`);
+      return;
     }
+
+    const enrichment = { id: enrichmentId };
 
     // Declared outside try/catch so the catch block can persist them on failure
     let providerResult: MissionEnrichmentProviderResult | undefined;
 
     try {
-      // 5. Mark as processing
-      await missionEnrichmentRepository.update({
-        where: { id: enrichment.id },
-        data: { status: "processing" },
-      });
-
       // 6. Build prompts
       const promptVersion = PROMPT_REGISTRY[CURRENT_PROMPT_VERSION];
       const systemPrompt = promptVersion.buildSystemPrompt(buildTaxonomyBlock(toTaxonomyForPrompt(taxonomies)));
@@ -352,7 +342,8 @@ export const missionEnrichmentService = {
         );
       }
 
-      // 9. Persist values + mark completed (atomic)
+      // 9. Persist values (replace) + mark as completed (atomic). Since the enrichment line is
+      // reused (claimForRun), completeWithValues clears the old values before inserting.
       const persistedValues = valid.map((v) => ({
         taxonomyKey: v.taxonomy_key,
         valueKey: v.value_key,
@@ -360,18 +351,7 @@ export const missionEnrichmentService = {
         evidence: v.evidence,
       }));
 
-      if (options.force) {
-        await missionEnrichmentRepository.completeWithValuesAndDeletePrevious({
-          enrichmentId: enrichment.id,
-          missionId,
-          promptVersion: CURRENT_PROMPT_VERSION,
-          rawResponse: JSON.stringify(providerResult.object),
-          tokenUsage: { inputTokens, outputTokens, totalTokens },
-          values: persistedValues,
-        });
-      } else {
-        await missionEnrichmentRepository.completeWithValues(enrichment.id, JSON.stringify(providerResult.object), { inputTokens, outputTokens, totalTokens }, persistedValues);
-      }
+      await missionEnrichmentRepository.completeWithValues(enrichment.id, JSON.stringify(providerResult.object), { inputTokens, outputTokens, totalTokens }, persistedValues);
 
       console.log(`${LOG_PREFIX} ${missionId}: enrichment completed — ${valid.length} values persisted`);
     } catch (error) {
