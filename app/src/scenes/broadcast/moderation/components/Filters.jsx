@@ -67,7 +67,13 @@ const Filters = ({ filters, onChange, reload }) => {
         </div>
       </div>
       <div className="mt-4 mb-4 flex w-full justify-start sm:mt-0">
-        <SearchInput value={filters.search} onChange={(e) => onChange({ ...filters, search: e })} placeholder="Rechercher" className="w-full sm:w-[40%]" />
+        <SearchInput
+          label="Rechercher une mission"
+          value={filters.search}
+          onChange={(e) => onChange({ ...filters, search: e })}
+          placeholder="Rechercher"
+          className="w-full sm:w-[40%]"
+        />
       </div>
       <div className="grid grid-cols-1 gap-4 pb-4 md:grid-cols-2 lg:grid-cols-4">
         <Select

@@ -1,6 +1,6 @@
+import { toast } from "@/services/toast";
 import { useEffect, useState } from "react";
 import { RiPencilFill } from "react-icons/ri";
-import { toast } from "@/services/toast";
 
 import api from "@/services/api";
 import { captureError } from "@/services/error";
@@ -61,6 +61,9 @@ const Note = ({ data, onChange }) => {
 
       {editing && (
         <>
+          <label htmlFor="note" className="mb-1 text-sm">
+            Note
+          </label>
           <textarea id="note" className="textarea mb-2 border-b-black" name="note" value={note} onChange={(e) => setNote(e.target.value)} rows={4} placeholder="Ajouter une note" />
           <button className="primary-btn w-1/2" onClick={handleSave}>
             Enregistrer
