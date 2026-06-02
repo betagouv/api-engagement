@@ -6,84 +6,14 @@ import type {
   PublisherDiffusionRuleFindParams,
   PublisherDiffusionRuleRecord,
 } from "@/types/publisher-diffusion-rule";
-import { buildMissionPublisherDiffusionRuleSqlFromRules } from "@/utils/publisher-diffusion-rule-query";
+import { buildMissionPublisherDiffusionRuleConditionFromRule, buildMissionPublisherDiffusionRuleSqlFromRules } from "@/utils/publisher-diffusion-rule-query";
 
 type PublisherDiffusionRuleWithChildren = PublisherDiffusionRule & {
   combinedRules?: PublisherDiffusionRule[];
 };
 
-type RuleCondition = Pick<PublisherDiffusionRule, "field" | "fieldType" | "operator" | "value">;
-
-const ARRAY_FIELD_PATHS = new Set(["publisherOrganization.parentOrganizations"]);
-
-const normalizeBooleanValue = (value: string) => {
-  const normalized = value.trim().toLowerCase();
-  if (["yes", "true", "1"].includes(normalized)) {
-    return true;
-  }
-  if (["no", "false", "0"].includes(normalized)) {
-    return false;
-  }
-  return value;
-};
-
-const normalizeRuleValue = (rule: RuleCondition) => {
-  if (rule.fieldType === "boolean") {
-    return normalizeBooleanValue(rule.value);
-  }
-  if (rule.fieldType === "number" || rule.fieldType === "int" || rule.fieldType === "float") {
-    const parsed = Number(rule.value);
-    return Number.isNaN(parsed) ? rule.value : parsed;
-  }
-  return rule.value;
-};
-
-const buildNestedWhere = (fieldPath: string, condition: unknown): Prisma.MissionWhereInput =>
-  fieldPath
-    .split(".")
-    .reverse()
-    .reduce<Prisma.MissionWhereInput>((acc, key) => ({ [key]: acc }), condition as Prisma.MissionWhereInput);
-
-const buildRuleCondition = (rule: RuleCondition): Prisma.MissionWhereInput | null => {
-  const value = normalizeRuleValue(rule);
-  const isArrayField = rule.fieldType === "array" || ARRAY_FIELD_PATHS.has(rule.field);
-
-  if (rule.operator !== "exists" && rule.operator !== "does_not_exist" && (value === "" || value === null || value === undefined)) {
-    return null;
-  }
-
-  switch (rule.operator) {
-    case "is":
-      return buildNestedWhere(rule.field, isArrayField ? { has: `${value}` } : value);
-    case "is_not":
-      if (isArrayField) {
-        return { NOT: buildNestedWhere(rule.field, { has: `${value}` }) };
-      }
-      return buildNestedWhere(rule.field, { not: value });
-    case "contains":
-      return buildNestedWhere(rule.field, isArrayField ? { has: `${value}` } : { contains: value, mode: "insensitive" });
-    case "does_not_contain":
-      if (isArrayField) {
-        return { NOT: buildNestedWhere(rule.field, { has: `${value}` }) };
-      }
-      return { NOT: buildNestedWhere(rule.field, { contains: value, mode: "insensitive" }) };
-    case "starts_with":
-      return buildNestedWhere(rule.field, { startsWith: value, mode: "insensitive" });
-    case "is_greater_than":
-      return buildNestedWhere(rule.field, { gt: value });
-    case "is_less_than":
-      return buildNestedWhere(rule.field, { lt: value });
-    case "exists":
-      return buildNestedWhere(rule.field, isArrayField ? { isEmpty: false } : { not: null });
-    case "does_not_exist":
-      return buildNestedWhere(rule.field, isArrayField ? { isEmpty: true } : null);
-    default:
-      return null;
-  }
-};
-
 const buildNodeCondition = (rule: PublisherDiffusionRule, childrenByParentId: Map<string, PublisherDiffusionRule[]>): Prisma.MissionWhereInput | null => {
-  const selfCondition = buildRuleCondition(rule);
+  const selfCondition = buildMissionPublisherDiffusionRuleConditionFromRule(rule);
   if (!selfCondition) {
     return null;
   }

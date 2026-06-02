@@ -52,7 +52,7 @@ export const buildNestedMissionWhere = (fieldPath: string, condition: unknown): 
 
 const buildDefaultFieldWhere = (field: string, condition: unknown): Prisma.MissionWhereInput => ({ [field]: condition });
 
-const buildRuleCondition = (rule: MissionRule, options: MissionRuleOptions): Prisma.MissionWhereInput | null => {
+export const buildRuleCondition = (rule: MissionRule, options: MissionRuleOptions = {}): Prisma.MissionWhereInput | null => {
   const isArrayField = rule.fieldType === "array" || Boolean(options.arrayFields?.has(rule.field));
   const operator = options.normalizeOperator?.(rule, isArrayField) ?? rule.operator;
   const value = options.normalizeValue?.(rule) ?? normalizeTypedRuleValue(rule);
