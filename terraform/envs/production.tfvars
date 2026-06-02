@@ -52,7 +52,7 @@ typesense_nodes = {
     typesense_version = "30.2"
   },
   node-3 = {
-    zone              = "fr-par-3"
+    zone              = "fr-par-2"
     private_ip        = "10.40.2.13"
     instance_type     = "PLAY2-PICO"
     typesense_version = "30.2"
