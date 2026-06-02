@@ -15,6 +15,26 @@ export const publisherDiffusionRuleService = {
     return buildMissionPublisherDiffusionRuleWhereFromRules(rules);
   },
 
+  async canPublisherAccessMission({ publisherId, missionId }: { publisherId: string; missionId: string }): Promise<boolean> {
+    const rules = await findRulesByPublisherId(publisherId);
+    if (rules.length === 0) {
+      return true;
+    }
+
+    const diffusionRuleWhere = buildMissionPublisherDiffusionRuleWhereFromRules(rules);
+    if (Object.keys(diffusionRuleWhere).length === 0) {
+      return false;
+    }
+
+    const count = await prisma.mission.count({
+      where: {
+        AND: [{ id: missionId }, diffusionRuleWhere],
+      },
+    });
+
+    return count > 0;
+  },
+
   async buildMissionPublisherDiffusionRuleSql(publisherId: string, options: { missionAlias?: string } = {}): Promise<Prisma.Sql> {
     const rules = await findRulesByPublisherId(publisherId);
 
