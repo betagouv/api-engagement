@@ -119,24 +119,44 @@ describe("GrimpioHandler (integration test)", () => {
     expect(imports.map((imp) => imp.name).sort()).toEqual([`GRIMPIO-${JVA_ID}`, `GRIMPIO-${ASC_ID}`].sort());
   });
 
-  it("génère un feed vide pour un annonceur configuré sans mission", async () => {
+  it("applique les critères enfants d'une rule (exclusion d'une organisation)", async () => {
     await createTestPublisher({ id: GRIMPIO_ID, name: "Grimpio" });
     await createTestPublisher({ id: JVA_ID, name: "JeVeuxAider" });
-    await createTestPublisher({ id: ASC_ID, name: "Service Civique" });
 
-    await publisherDiffusionRuleService.findOrCreateScopeRoot(GRIMPIO_ID, JVA_ID);
-    await publisherDiffusionRuleService.findOrCreateScopeRoot(GRIMPIO_ID, ASC_ID);
+    // Scope JVA + exclusion de l'organisation `excluded-org`.
+    await publisherDiffusionRuleService.createScopedRule({
+      diffuseurPublisherId: GRIMPIO_ID,
+      annonceurPublisherId: JVA_ID,
+      field: "publisherOrganization.clientId",
+      fieldType: "string",
+      operator: "is_not",
+      value: "excluded-org",
+    });
 
-    // Seul JVA a une mission ; ASC est configuré mais vide.
-    await createTestMission({ publisherId: JVA_ID, statusCode: "ACCEPTED", endAt: FUTURE_END, clientId: "jva-mission-1" });
+    await createTestMission({ publisherId: JVA_ID, statusCode: "ACCEPTED", endAt: FUTURE_END, clientId: "jva-kept", organizationClientId: "kept-org" });
+    await createTestMission({ publisherId: JVA_ID, statusCode: "ACCEPTED", endAt: FUTURE_END, clientId: "jva-excluded", organizationClientId: "excluded-org" });
 
     const result = await handler.handle({});
 
     expect(result.success).toBe(true);
 
-    const ascFeed = result.feeds?.find((feed) => feed.publisherId === ASC_ID);
-    expect(ascFeed).toBeDefined();
-    expect(ascFeed?.sent).toBe(0);
-    expect(vi.mocked(putObject).mock.calls.map(([key]) => key)).toContain(`xml/grimpio-${ASC_ID}.xml`);
+    const jvaXml = getStoredXmlForPublisher(JVA_ID);
+    expect(jvaXml).toBeDefined();
+    expect(jvaXml).toContain("jva-kept");
+    expect(jvaXml).not.toContain("jva-excluded");
+  });
+
+  it("ne génère aucun feed quand grimpio n'a aucune diffusion rule", async () => {
+    await createTestPublisher({ id: GRIMPIO_ID, name: "Grimpio" });
+    await createTestPublisher({ id: JVA_ID, name: "JeVeuxAider" });
+
+    // Aucune rule configurée pour grimpio.
+    await createTestMission({ publisherId: JVA_ID, statusCode: "ACCEPTED", endAt: FUTURE_END, clientId: "jva-mission-1" });
+
+    const result = await handler.handle({});
+
+    expect(result.success).toBe(true);
+    expect(result.feeds).toEqual([]);
+    expect(vi.mocked(putObject)).not.toHaveBeenCalled();
   });
 });

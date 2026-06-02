@@ -103,6 +103,32 @@ export const publisherDiffusionRuleService = {
     return buildMissionWhere(rules);
   },
 
+  /**
+   * Construit le where des missions qu'un diffuseur peut diffuser, sous forme
+   * d'allowlist : `OR` des scopes, chaque scope = `publisherId` de l'annonceur
+   * (root) `AND` ses critères/exclusions enfants. Contrairement à
+   * `buildMissionPublisherDiffusionRuleWhere` (forme implication, pensée pour
+   * contraindre un ensemble déjà restreint), cette forme exclut nativement les
+   * publishers hors annonceurs et reste valide avec plusieurs scopes.
+   */
+  async buildMissionDiffuseurCandidateWhere(publisherId: string): Promise<Prisma.MissionWhereInput> {
+    const roots = await this.findRules({ publisherId, combinedWithId: null, field: "publisherId", includeCombinedRules: true });
+
+    const scopes = roots
+      .map((root) => {
+        const conditions = [root, ...(root.combinedRules ?? [])]
+          .map(buildMissionPublisherDiffusionRuleConditionFromRule)
+          .filter((condition): condition is Prisma.MissionWhereInput => condition !== null);
+        return conditions.length === 1 ? conditions[0] : { AND: conditions };
+      })
+      .filter((scope) => Object.keys(scope).length > 0);
+
+    if (scopes.length === 0) {
+      return {};
+    }
+    return scopes.length === 1 ? scopes[0] : { OR: scopes };
+  },
+
   async canPublisherAccessMission({ publisherId, missionId }: { publisherId: string; missionId: string }): Promise<boolean> {
     const rules = await publisherDiffusionRuleRepository.findMany({
       where: { publisherId },
