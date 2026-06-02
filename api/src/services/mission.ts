@@ -2,6 +2,7 @@ import { randomUUID } from "crypto";
 
 import { Mission, Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
+import { captureException } from "@/error";
 import { missionRepository } from "@/repositories/mission";
 import { activityService } from "@/services/activity";
 import { buildMissionEnrichmentScoringWhere, missionEnrichmentService } from "@/services/mission-enrichment";
@@ -565,7 +566,14 @@ const baseInclude: MissionInclude = {
 
 export const missionService = {
   async enqueueMissionProcessing(missionId: string): Promise<void> {
-    await missionEnrichmentService.enqueue(missionId);
+    // Best-effort : déclencher le traitement async ne doit jamais faire échouer
+    // l'écriture de la mission (création/mise à jour, donc l'import des flux).
+    // Une indisponibilité de la queue est capturée mais n'interrompt pas le flux.
+    try {
+      await missionEnrichmentService.enqueue(missionId);
+    } catch (error) {
+      captureException(error, { extra: { context: "enqueueMissionProcessing", missionId } });
+    }
   },
 
   async findMissionsByIds(ids: string[]): Promise<MissionRecord[]> {
