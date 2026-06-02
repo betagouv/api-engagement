@@ -1,3 +1,16 @@
+# ⚠️ NE PAS reconvertir en `resource "scaleway_mnq_sqs"`.
+#
+# L'activation MNQ SQS est un SINGLETON PAR PROJET. Or staging et production
+# partagent le MÊME projet Scaleway (seuls les workspaces Terraform diffèrent),
+# donc une `resource` provoque un `409 Conflict: resource already exists` dès
+# que le 2ᵉ workspace s'applique (cf. PR #1047).
+#
+# Conséquence : l'activation SQS est volontairement gérée HORS Terraform (bootstrap
+# manuel unique par projet). À refaire uniquement sur un projet neuf :
+#   scw mnq sqs activate region=fr-par project-id=<PROJECT_ID>
+# Un `data` source ne fait que lire le statut ; il ne (dé)active jamais. Repasser en
+# `resource` ré-introduirait le 409 ET, au retrait, désactiverait SQS pour TOUT le
+# projet (suppression de toutes les queues + credentials, staging comme prod).
 data "scaleway_mnq_sqs" "main" {
   project_id = var.project_id
 }
