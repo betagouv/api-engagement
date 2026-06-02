@@ -17,6 +17,7 @@
   --color-border-default-grey: var(--border-default-grey);
   --color-border-plain-error: var(--border-plain-error);
   /* Backgrounds */
+  --color-blue-france-925: var(--blue-france-925-125);
   --color-blue-france-950: var(--blue-france-950-100); /* #ECECFE00 */
   --color-blue-france-975: var(--blue-france-975-75);
   --color-beige-gris-galet-975: var(--beige-gris-galet-975-75); /* #F9F6F2 */
@@ -26,6 +27,8 @@
   --color-yellow-tournesol-925: var(--yellow-tournesol-925-125);
   --color-yellow-moutarde-975: var(--yellow-moutarde-925-125);
   --color-yellow-moutarde-850: var(--yellow-moutarde-850-200);
+
+  --shadow-card: 0 4px 12px rgba(0, 0, 18, 0.16);
 }
 
 .header-shadow {
