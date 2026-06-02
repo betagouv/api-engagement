@@ -12,13 +12,39 @@ import Highlight from "../ui/highlight";
 
 type Feature = {
   icon: string;
-  title: string;
+  title: string | React.ReactNode;
 };
 
 const FEATURES: Feature[] = [
-  { icon: CalendarSvg, title: "À ton rythme Ponctuel ou régulier" },
-  { icon: MoneySvg, title: "Avec ou sans indemnité selon les missions" },
-  { icon: LocationFranceSvg, title: "Partout en France et à l'étranger" },
+  {
+    icon: CalendarSvg,
+    title: (
+      <>
+        À ton rythme
+        <br />
+        Ponctuel ou régulier
+      </>
+    ),
+  },
+  {
+    icon: MoneySvg,
+    title: (
+      <>
+        Avec ou sans indemnité
+        <br /> selon les missions
+      </>
+    ),
+  },
+  {
+    icon: LocationFranceSvg,
+    title: (
+      <>
+        En France
+        <br />
+        Près de chez toi ou plus loin
+      </>
+    ),
+  },
   { icon: SelfTrainingSvg, title: "Compatible sans diplôme études ou emploi" },
 ];
 
