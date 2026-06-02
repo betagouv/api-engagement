@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 
 import EmptySVG from "@/assets/svg/empty-info.svg";
-import ChartDetailsTable from "@/components/ChartDetailsTable";
 import { Pie, StackedBarchart } from "@/components/Chart";
+import ChartDetailsTable from "@/components/ChartDetailsTable";
 import DateRangePicker from "@/components/DateRangePicker";
 import Loader from "@/components/Loader";
 import Table from "@/components/Table";
@@ -246,11 +246,7 @@ const DistributionMean = ({ filters }) => {
                 aria-label={`Répartition par moyen de diffusion pour les ${accessibleTypeLabel}`}
                 aria-describedby="broadcast-distribution-description"
               >
-                <Pie
-                  data={data.map((d, i) => ({ name: KEYS[d.key], value: d.doc_count, color: COLORS[i % COLORS.length] }))}
-                  innerRadius="0%"
-                  unit={accessibleTypeLabel}
-                />
+                <Pie data={data.map((d, i) => ({ name: KEYS[d.key], value: d.doc_count, color: COLORS[i % COLORS.length] }))} innerRadius="0%" unit={accessibleTypeLabel} />
               </div>
             </div>
           )}
@@ -638,12 +634,12 @@ const Announcers = ({ filters }) => {
             <div className="min-w-[600px]">
               <h3 className="text-2xl font-semibold">Répartition des missions par annonceur</h3>
               {!missionData.length ? (
-                <div className="border-grey-border bg-background-grey-hover flex h-[248px] w-full flex-col items-center justify-center border border-dashed">
+                <div className="border-grey-border bg-background-grey-hover mt-4 flex h-[248px] w-full flex-col items-center justify-center border border-dashed">
                   <img src={EmptySVG} alt="" aria-hidden="true" className="h-16 w-16" />
                   <p className="text-color-gray-425 text-base">Aucune donnée disponible pour la période</p>
                 </div>
               ) : (
-                <div className="flex justify-between gap-4">
+                <div className="mt-4 flex justify-between gap-4">
                   <div className="w-2/3">
                     <table id="broadcast-announcers-missions-description" className="w-full table-auto">
                       <caption className="sr-only">Annonceurs avec le plus grand nombre de missions diffusées</caption>
