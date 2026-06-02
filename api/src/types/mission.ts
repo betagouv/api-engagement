@@ -192,7 +192,7 @@ export type MissionSearchFilters = {
   publisherIds: string[];
   statusCode?: MissionStatusCode;
   statusComment?: string;
-  excludePublisherOrganizationIds?: string[];
+  diffuseurPublisherId?: string;
   moderationAcceptedFor?: string;
   moderationStatus?: string;
   moderationComment?: string;

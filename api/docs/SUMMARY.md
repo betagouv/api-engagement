@@ -28,6 +28,12 @@
 - [Récupérer la liste des partenaires diffuseurs](diffuseur/liste.md)
 - [Récupérer un partenaire diffuseur](diffuseur/par-identifiant.md)
 
+## Règles de diffusion (/diffusion-rule)
+
+- [Lister les règles de diffusion](diffusion-rule/liste.md)
+- [Créer une règle de diffusion](diffusion-rule/creer.md)
+- [Supprimer une règle de diffusion](diffusion-rule/supprimer.md)
+
 ## Organisations (/organization)
 
 - [Récupérer les organisations](organisations/recuperer.md)

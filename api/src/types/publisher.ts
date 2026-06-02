@@ -1,4 +1,4 @@
-import { PublisherDiffusionExclusionRecord } from "./publisher-diffusion-exclusion";
+import { PublisherDiffusionRuleRecord } from "./publisher-diffusion-rule";
 
 export type PublisherRoleFilter = "annonceur" | "diffuseur" | "api" | "widget" | "campaign";
 
@@ -62,8 +62,7 @@ export interface PublisherRecord {
 }
 
 export type PublisherRecordWithRelations = PublisherRecord & {
-  diffusionExclusionsBy?: PublisherDiffusionExclusionRecord[] | null;
-  diffusionExclusionsFor?: PublisherDiffusionExclusionRecord[] | null;
+  diffusionRules?: PublisherDiffusionRuleRecord[] | null;
 };
 
 export interface PublisherSearchParams {

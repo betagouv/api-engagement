@@ -1,19 +1,19 @@
 import { XMLBuilder } from "fast-xml-parser";
 
 import { Prisma } from "@/db/core";
-import { buildWhere, missionService } from "@/services/mission";
-import { OBJECT_ACL, putObject } from "@/services/s3";
-import { MissionRecord, MissionSearchFilters } from "@/types/mission";
 import { GRIMPIO_XML_URL } from "@/jobs/grimpio/config";
 import { missionToGrimpioJob } from "@/jobs/grimpio/transformers";
 import { GrimpioJob } from "@/jobs/grimpio/types";
+import { buildWhere, missionService } from "@/services/mission";
+import { OBJECT_ACL, putObject } from "@/services/s3";
+import { MissionRecord, MissionSearchFilters } from "@/types/mission";
 
 const DEFAULT_BATCH_SIZE = 500;
 
 export async function* getMissionsCursor(filters: Omit<MissionSearchFilters, "limit" | "skip">, batchSize: number = DEFAULT_BATCH_SIZE) {
   const countFilters: MissionSearchFilters = { ...filters, limit: batchSize, skip: 0 };
   const total = await missionService.countMissions(countFilters);
-  const where = buildWhere(countFilters);
+  const where = await buildWhere(countFilters);
 
   let skip = 0;
   while (skip < total) {

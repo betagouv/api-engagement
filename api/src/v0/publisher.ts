@@ -3,10 +3,10 @@ import passport from "passport";
 import zod from "zod";
 
 import { INVALID_PARAMS, NOT_FOUND } from "@/error";
+import { publisherRateLimiter } from "@/middlewares/rate-limit";
 import { publisherService } from "@/services/publisher";
 import { PublisherRequest } from "@/types/passport";
-import { publisherRateLimiter } from "@/middlewares/rate-limit";
-import type { PublisherRecordWithRelations } from "@/types/publisher";
+import type { PublisherRecord } from "@/types/publisher";
 
 const router = Router();
 router.use(passport.authenticate(["apikey", "api"], { session: false }));
@@ -14,32 +14,24 @@ router.use(publisherRateLimiter);
 
 router.get("/", async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
-    const user = req.user as PublisherRecordWithRelations;
+    const user = req.user as PublisherRecord;
     const partners = await publisherService.findPublishers({ diffuseurOf: user.id });
-    const exclusions = user.diffusionExclusionsBy ?? [];
 
-    const data = partners.map((e) => {
-      return {
-        _id: e.id,
-        name: e.name,
-        category: e.category,
-        url: e.url,
-        logo: e.logo,
-        description: e.description,
-        widget: e.hasWidgetRights,
-        api: e.hasApiRights,
-        campaign: e.hasCampaignRights,
-        annonceur: e.isAnnonceur,
-        excludedOrganizations: exclusions.filter((o) => o.excludedForDiffuseurId === e.id),
-      };
-    });
+    const data = partners.map((partner) => ({
+      _id: partner.id,
+      name: partner.name,
+      category: partner.category,
+      url: partner.url,
+      logo: partner.logo,
+      description: partner.description,
+      widget: partner.hasWidgetRights,
+      api: partner.hasApiRights,
+      campaign: partner.hasCampaignRights,
+      annonceur: partner.isAnnonceur,
+    }));
 
-    res.locals = { total: data.filter((e) => e !== null).length };
-    return res.status(200).send({
-      ok: true,
-      data: data.filter((e) => e !== null),
-      total: data.filter((e) => e !== null).length,
-    });
+    res.locals = { total: data.length };
+    return res.status(200).send({ ok: true, data, total: data.length });
   } catch (error) {
     next(error);
   }
@@ -47,12 +39,8 @@ router.get("/", async (req: PublisherRequest, res: Response, next: NextFunction)
 
 router.get("/:id", async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
-    const user = req.user as PublisherRecordWithRelations;
-    const params = zod
-      .object({
-        id: zod.string(),
-      })
-      .safeParse(req.params);
+    const user = req.user as PublisherRecord;
+    const params = zod.object({ id: zod.string() }).safeParse(req.params);
 
     if (!params.success) {
       res.locals = { code: INVALID_PARAMS, message: JSON.stringify(params.error) };
@@ -65,8 +53,6 @@ router.get("/:id", async (req: PublisherRequest, res: Response, next: NextFuncti
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
     }
 
-    const exclusions = (user.diffusionExclusionsBy ?? []).filter((o) => o.excludedForDiffuseurId === publisher.id);
-
     const data = {
       _id: publisher.id,
       name: publisher.name,
@@ -78,7 +64,6 @@ router.get("/:id", async (req: PublisherRequest, res: Response, next: NextFuncti
       api: publisher.hasApiRights,
       campaign: publisher.hasCampaignRights,
       annonceur: publisher.isAnnonceur,
-      excludedOrganizations: exclusions,
     };
 
     res.locals = { total: 1 };

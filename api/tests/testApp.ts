@@ -24,6 +24,7 @@ import { auditLogger } from "@/middlewares/logger";
 import passport from "@/middlewares/passport";
 import requestId from "@/middlewares/request-id";
 import { createHttpMetricsMiddleware, HttpMetricsRecorder } from "@/services/observability/metrics";
+import DiffusionRuleV0Controller from "@/v0/diffusion-rule/controller";
 import MissionV0Controller from "@/v0/mission/controller";
 import MyMissionV0Controller from "@/v0/mymission/controller";
 import MyOrganizationV0Controller from "@/v0/myorganization/controller";
@@ -67,6 +68,7 @@ export const createTestApp = ({ auditLogs = false, metricsRecorder }: { auditLog
   app.use("/warning", WarningController);
   app.use("/v0/myorganization", MyOrganizationV0Controller);
   app.use("/v0/mymission", MyMissionV0Controller);
+  app.use("/v0/diffusion-rule", DiffusionRuleV0Controller);
   app.use("/v2/mission", MissionV2WriteController);
   app.use("/v0/mission", MissionV0Controller);
   app.use("/v0/view", ViewV0Controller);

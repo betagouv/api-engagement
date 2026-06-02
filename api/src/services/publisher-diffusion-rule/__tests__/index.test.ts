@@ -12,25 +12,10 @@ const prismaMock = prisma as unknown as {
   };
 };
 
-const getSqlText = (query: unknown): string => {
-  if (typeof query === "object" && query !== null && "sql" in query && typeof query.sql === "string") {
-    return query.sql;
-  }
-
-  if (typeof query === "object" && query !== null && "text" in query && typeof query.text === "string") {
-    return query.text;
-  }
-
-  if (typeof query === "object" && query !== null && "strings" in query && Array.isArray(query.strings)) {
-    return query.strings.join("");
-  }
-
-  return String(query);
-};
-
 const buildRule = (overrides: Record<string, unknown> = {}) => ({
   id: "rule-1",
   publisherId: "publisher-1",
+  combinedWithId: null,
   field: "publisherId",
   fieldType: "string",
   operator: "is",
@@ -48,7 +33,7 @@ describe("publisherDiffusionRuleService.buildMissionPublisherDiffusionRuleWhere"
     prismaMock.mission.count.mockReset();
   });
 
-  it("loads the publisher's rules sorted by position", async () => {
+  it("charge toutes les rules du publisher triées par position", async () => {
     prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([]);
 
     const where = await publisherDiffusionRuleService.buildMissionPublisherDiffusionRuleWhere("publisher-1");
@@ -60,139 +45,63 @@ describe("publisherDiffusionRuleService.buildMissionPublisherDiffusionRuleWhere"
     });
   });
 
-  it("creates an OR condition for rules migrated from publisher_diffusion", async () => {
+  it("encode l'implication scope → enfant (NOT scope OR enfant)", async () => {
     prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([
-      buildRule({ id: "rule-1", value: "annonceur-1", position: 0 }),
-      buildRule({ id: "rule-2", value: "annonceur-2", position: 1 }),
+      buildRule({ id: "root-1", value: "annonceur-1" }),
+      buildRule({ id: "child-1", combinedWithId: "root-1", field: "publisherOrganizationId", operator: "is_not", value: "po-1" }),
     ]);
 
     const where = await publisherDiffusionRuleService.buildMissionPublisherDiffusionRuleWhere("publisher-1");
 
     expect(where).toEqual({
-      OR: [{ publisherId: "annonceur-1" }, { publisherId: "annonceur-2" }],
+      OR: [{ NOT: { publisherId: "annonceur-1" } }, { publisherOrganizationId: { not: "po-1" } }],
     });
   });
 
-  it("constructs a nested WHERE clause for a relational Prisma field", async () => {
+  it("AND les enfants entre eux quand il y en a plusieurs sous le même scope", async () => {
     prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([
-      buildRule({
-        field: "publisherOrganization.parentOrganizations",
-        value: "Croix-Rouge",
-      }),
+      buildRule({ id: "root-1", value: "annonceur-1" }),
+      buildRule({ id: "child-1", combinedWithId: "root-1", field: "publisherOrganizationId", operator: "is_not", value: "po-1" }),
+      buildRule({ id: "child-2", combinedWithId: "root-1", field: "publisherOrganizationId", operator: "is_not", value: "po-2", position: 1 }),
     ]);
 
     const where = await publisherDiffusionRuleService.buildMissionPublisherDiffusionRuleWhere("publisher-1");
 
     expect(where).toEqual({
-      OR: [
-        {
-          publisherOrganization: {
-            parentOrganizations: {
-              has: "Croix-Rouge",
-            },
-          },
-        },
+      OR: [{ NOT: { publisherId: "annonceur-1" } }, { AND: [{ publisherOrganizationId: { not: "po-1" } }, { publisherOrganizationId: { not: "po-2" } }] }],
+    });
+  });
+
+  it("descend récursivement quand un enfant a lui-même des enfants", async () => {
+    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([
+      buildRule({ id: "root-1", value: "annonceur-1" }),
+      buildRule({ id: "child-1", combinedWithId: "root-1", field: "type", operator: "is", value: "benevolat" }),
+      buildRule({ id: "grandchild-1", combinedWithId: "child-1", field: "publisherOrganizationId", operator: "is_not", value: "po-1" }),
+    ]);
+
+    const where = await publisherDiffusionRuleService.buildMissionPublisherDiffusionRuleWhere("publisher-1");
+
+    expect(where).toEqual({
+      OR: [{ NOT: { publisherId: "annonceur-1" } }, { OR: [{ NOT: { type: "benevolat" } }, { publisherOrganizationId: { not: "po-1" } }] }],
+    });
+  });
+
+  it("AND plusieurs racines indépendantes au top-level", async () => {
+    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([
+      buildRule({ id: "root-1", value: "annonceur-1" }),
+      buildRule({ id: "child-1", combinedWithId: "root-1", field: "publisherOrganizationId", operator: "is_not", value: "po-1" }),
+      buildRule({ id: "root-2", value: "annonceur-2", position: 1 }),
+      buildRule({ id: "child-2", combinedWithId: "root-2", field: "publisherOrganizationId", operator: "is_not", value: "po-2" }),
+    ]);
+
+    const where = await publisherDiffusionRuleService.buildMissionPublisherDiffusionRuleWhere("publisher-1");
+
+    expect(where).toEqual({
+      AND: [
+        { OR: [{ NOT: { publisherId: "annonceur-1" } }, { publisherOrganizationId: { not: "po-1" } }] },
+        { OR: [{ NOT: { publisherId: "annonceur-2" } }, { publisherOrganizationId: { not: "po-2" } }] },
       ],
     });
-  });
-
-  it("uses a case-insensitive contains operator for text fields", async () => {
-    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([
-      buildRule({
-        field: "title",
-        operator: "contains",
-        value: "secourisme",
-      }),
-    ]);
-
-    const where = await publisherDiffusionRuleService.buildMissionPublisherDiffusionRuleWhere("publisher-1");
-
-    expect(where).toEqual({
-      OR: [
-        {
-          title: {
-            contains: "secourisme",
-            mode: "insensitive",
-          },
-        },
-      ],
-    });
-  });
-
-  it("combines the rules using AND when the combinator is and", async () => {
-    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([
-      buildRule({ field: "publisherId", value: "annonceur-1", combinator: "or", position: 0 }),
-      buildRule({ field: "type", value: "volontariat_sapeurs_pompiers", combinator: "and", position: 1 }),
-    ]);
-
-    const where = await publisherDiffusionRuleService.buildMissionPublisherDiffusionRuleWhere("publisher-1");
-
-    expect(where).toEqual({
-      AND: [{ publisherId: "annonceur-1" }, { type: "volontariat_sapeurs_pompiers" }],
-    });
-  });
-
-  it("constructs an SQL query on the mission columns", async () => {
-    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([
-      buildRule({ id: "rule-1", value: "annonceur-1", position: 0 }),
-      buildRule({ id: "rule-2", field: "type", value: "volontariat_sapeurs_pompiers", position: 1 }),
-    ]);
-
-    const sql = await publisherDiffusionRuleService.buildMissionPublisherDiffusionRuleSql("publisher-1", { missionAlias: "m" });
-    const sqlText = getSqlText(sql);
-
-    expect(sqlText).toContain('AND ((m."publisher_id" =');
-    expect(sqlText).toContain('OR m."type"::text =');
-  });
-
-  it("constructs an SQL fragment using EXISTS for publisherOrganization.parentOrganizations", async () => {
-    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([
-      buildRule({
-        field: "publisherOrganization.parentOrganizations",
-        value: "Croix-Rouge",
-      }),
-    ]);
-
-    const sql = await publisherDiffusionRuleService.buildMissionPublisherDiffusionRuleSql("publisher-1", { missionAlias: "m" });
-    const sqlText = getSqlText(sql);
-
-    expect(sqlText).toContain("AND ((EXISTS");
-    expect(sqlText).toContain('FROM "publisher_organization" po');
-    expect(sqlText).toContain('po."id" = m."publisher_organization_id"');
-    expect(sqlText).toContain('= ANY(po."parent_organizations")');
-  });
-
-  it("constructs an SQL fragment using EXISTS for publisherOrganization.clientId", async () => {
-    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([
-      buildRule({
-        field: "publisherOrganization.clientId",
-        value: "organization-client-1",
-      }),
-    ]);
-
-    const sql = await publisherDiffusionRuleService.buildMissionPublisherDiffusionRuleSql("publisher-1", { missionAlias: "m" });
-    const sqlText = getSqlText(sql);
-
-    expect(sqlText).toContain("AND ((EXISTS");
-    expect(sqlText).toContain('FROM "publisher_organization" po');
-    expect(sqlText).toContain('po."id" = m."publisher_organization_id"');
-    expect(sqlText).toContain('po."client_id" =');
-  });
-
-  it("does not filter when the publisher has no rules", async () => {
-    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([]);
-
-    const sql = await publisherDiffusionRuleService.buildMissionPublisherDiffusionRuleSql("publisher-1", { missionAlias: "m" });
-
-    expect(getSqlText(sql)).toBe("");
-  });
-
-  it("returns a blocking SQL filter when rules exist but none of them can be applied", async () => {
-    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([buildRule({ field: "unknownField" })]);
-
-    const sql = await publisherDiffusionRuleService.buildMissionPublisherDiffusionRuleSql("publisher-1", { missionAlias: "m" });
-
-    expect(getSqlText(sql)).toBe("AND FALSE");
   });
 });
 
@@ -220,7 +129,7 @@ describe("publisherDiffusionRuleService.canPublisherAccessMission", () => {
     expect(canAccess).toBe(true);
     expect(prismaMock.mission.count).toHaveBeenCalledWith({
       where: {
-        AND: [{ id: "mission-1" }, { OR: [{ publisherId: "annonceur-1" }] }],
+        AND: [{ id: "mission-1" }, { publisherId: "annonceur-1" }],
       },
     });
   });

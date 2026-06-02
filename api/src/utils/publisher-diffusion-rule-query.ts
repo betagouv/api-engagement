@@ -1,5 +1,12 @@
 import { Prisma, PublisherDiffusionRule } from "@/db/core";
-import { applyMissionRules, buildNestedMissionWhere, collectMissionRuleConditions, normalizeTypedRuleValue, shouldSkipMissionRuleValue } from "@/utils/mission-rule";
+import {
+  applyMissionRules,
+  buildNestedMissionWhere,
+  buildRuleCondition,
+  collectMissionRuleConditions,
+  normalizeTypedRuleValue,
+  shouldSkipMissionRuleValue,
+} from "@/utils/mission-rule";
 
 export type PublisherDiffusionRuleCondition = Pick<PublisherDiffusionRule, "field" | "fieldType" | "operator" | "value" | "combinator">;
 
@@ -132,6 +139,9 @@ const combineRuleSqlConditions = (rules: PublisherDiffusionRuleCondition[], miss
 
   return Prisma.sql`(${Prisma.join(parts, " AND ")})`;
 };
+
+export const buildMissionPublisherDiffusionRuleConditionFromRule = (rule: PublisherDiffusionRuleCondition): Prisma.MissionWhereInput | null =>
+  buildRuleCondition(rule, { arrayFields: ARRAY_FIELD_PATHS, buildFieldWhere: buildNestedMissionWhere });
 
 export const buildMissionPublisherDiffusionRuleWhereFromRules = (rules: PublisherDiffusionRuleCondition[]): Prisma.MissionWhereInput =>
   applyMissionRules(rules, {
