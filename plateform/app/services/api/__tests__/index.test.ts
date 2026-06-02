@@ -1,5 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { UpstreamApiError, api, upstreamErrorResponse } from "../index";
+import { UpstreamApiError, createApi, upstreamErrorResponse } from "../index";
+
+const fakeRequest = (ip?: string) =>
+  new Request("http://localhost", {
+    headers: ip ? { "x-envoy-external-address": ip } : {},
+  });
 
 const mockFetch = (status: number, body: unknown, ok = status >= 200 && status < 300) => {
   return vi.fn().mockResolvedValue({
@@ -24,19 +29,16 @@ describe("api.get", () => {
     const fetchMock = mockFetch(200, { ok: true, data: { id: 1 } });
     vi.stubGlobal("fetch", fetchMock);
 
-    await api.get("/missions");
+    await createApi(fakeRequest()).get("/missions");
 
-    expect(fetchMock).toHaveBeenCalledWith(
-      "http://fake-api.test/missions",
-      expect.objectContaining({ method: "GET" })
-    );
+    expect(fetchMock).toHaveBeenCalledWith("http://fake-api.test/missions", expect.objectContaining({ method: "GET" }));
   });
 
   it("inclut le header x-api-key", async () => {
     const fetchMock = mockFetch(200, { ok: true, data: {} });
     vi.stubGlobal("fetch", fetchMock);
 
-    await api.get("/missions");
+    await createApi(fakeRequest()).get("/missions");
 
     const [, options] = fetchMock.mock.calls[0];
     expect(options.headers).toMatchObject({ "x-api-key": "test-key" });
@@ -45,13 +47,14 @@ describe("api.get", () => {
   it("retourne data de l'enveloppe JSON", async () => {
     vi.stubGlobal("fetch", mockFetch(200, { ok: true, data: { id: 42, title: "Test" } }));
 
-    const result = await api.get<{ id: number; title: string }>("/missions/42");
+    const result = await createApi(fakeRequest()).get<{ id: number; title: string }>("/missions/42");
 
     expect(result).toEqual({ id: 42, title: "Test" });
   });
 
   it("lève UpstreamApiError si response.ok est false", async () => {
     vi.stubGlobal("fetch", mockFetch(404, { ok: false, code: "NOT_FOUND" }, false));
+    const api = createApi(fakeRequest());
 
     await expect(api.get("/missions/999")).rejects.toThrow(UpstreamApiError);
     await expect(api.get("/missions/999")).rejects.toMatchObject({ status: 404 });
@@ -60,13 +63,13 @@ describe("api.get", () => {
   it("lève UpstreamApiError si json.ok est false même avec HTTP 200", async () => {
     vi.stubGlobal("fetch", mockFetch(200, { ok: false, code: "BUSINESS_ERROR" }));
 
-    await expect(api.get("/missions")).rejects.toThrow(UpstreamApiError);
+    await expect(createApi(fakeRequest()).get("/missions")).rejects.toThrow(UpstreamApiError);
   });
 
   it("lève UpstreamApiError(502) en cas d'erreur réseau", async () => {
     vi.stubGlobal("fetch", mockFetchNetworkError());
 
-    await expect(api.get("/missions")).rejects.toMatchObject({ status: 502 });
+    await expect(createApi(fakeRequest()).get("/missions")).rejects.toMatchObject({ status: 502 });
   });
 
   it("gère un body 401 sans JSON valide (retourne UNAUTHORIZED)", async () => {
@@ -74,15 +77,40 @@ describe("api.get", () => {
       ...vi.fn(),
       mockResolvedValue: undefined,
     });
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
-      ok: false,
-      status: 401,
-      json: () => Promise.reject(new Error("no json")),
-    } as unknown as Response));
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 401,
+        json: () => Promise.reject(new Error("no json")),
+      } as unknown as Response),
+    );
 
-    const err = await api.get("/missions").catch((e) => e);
+    const err = await createApi(fakeRequest())
+      .get("/missions")
+      .catch((e: unknown) => e);
     expect(err).toBeInstanceOf(UpstreamApiError);
-    expect(err.body.code).toBe("UNAUTHORIZED");
+    expect((err as UpstreamApiError).body.code).toBe("UNAUTHORIZED");
+  });
+
+  it("forwarde x-platform-client-ip quand l'IP est fournie via x-envoy-external-address", async () => {
+    const fetchMock = mockFetch(200, { ok: true, data: {} });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await createApi(fakeRequest("1.2.3.4")).get("/missions");
+
+    const [, options] = fetchMock.mock.calls[0];
+    expect(options.headers).toMatchObject({ "x-platform-client-ip": "1.2.3.4" });
+  });
+
+  it("n'inclut pas x-platform-client-ip si x-envoy-external-address est absent", async () => {
+    const fetchMock = mockFetch(200, { ok: true, data: {} });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await createApi(fakeRequest()).get("/missions");
+
+    const [, options] = fetchMock.mock.calls[0];
+    expect(options.headers?.["x-platform-client-ip"]).toBeUndefined();
   });
 });
 
@@ -91,7 +119,7 @@ describe("api.post", () => {
     const fetchMock = mockFetch(200, { ok: true, data: { id: 1 } });
     vi.stubGlobal("fetch", fetchMock);
 
-    await api.post("/user-scoring", { answers: [] });
+    await createApi(fakeRequest()).post("/user-scoring", { answers: [] });
 
     const [, options] = fetchMock.mock.calls[0];
     expect(options.method).toBe("POST");
@@ -103,7 +131,7 @@ describe("api.post", () => {
     const fetchMock = mockFetch(200, { ok: true, data: {} });
     vi.stubGlobal("fetch", fetchMock);
 
-    await api.post("/user-scoring");
+    await createApi(fakeRequest()).post("/user-scoring");
 
     const [, options] = fetchMock.mock.calls[0];
     expect(options.headers?.["Content-Type"]).toBeUndefined();
@@ -115,7 +143,7 @@ describe("api.put", () => {
     const fetchMock = mockFetch(200, { ok: true, data: {} });
     vi.stubGlobal("fetch", fetchMock);
 
-    await api.put("/user-scoring/123", { answers: [] });
+    await createApi(fakeRequest()).put("/user-scoring/123", { answers: [] });
 
     const [, options] = fetchMock.mock.calls[0];
     expect(options.method).toBe("PUT");

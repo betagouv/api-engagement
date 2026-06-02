@@ -1,6 +1,8 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+import { getTaxonomyList } from "@engagement/taxonomy";
+
 import { prisma } from "@/db/postgres";
 import { CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/config";
 import { fuzzyMatchKey } from "@/utils/string";
@@ -29,18 +31,13 @@ const outputPath = getArg("--output") ?? "./enrichment-export.csv";
 type TaxonomyMeta = { type: string; label: string; values: Map<string, { label: string }> };
 type FullTaxonomyLookup = Map<string, TaxonomyMeta>;
 
-const buildFullLookup = (
-  taxonomies: Array<{ key: string; type: string; label: string; values: Array<{ key: string; label: string; active: boolean }> }>
-): FullTaxonomyLookup => {
+const buildFullLookup = (): FullTaxonomyLookup => {
   const fullLookup: FullTaxonomyLookup = new Map();
 
-  for (const dim of taxonomies) {
+  for (const dim of getTaxonomyList()) {
     const fullValueMap = new Map<string, { label: string }>();
 
     for (const val of dim.values) {
-      if (!val.active) {
-        continue;
-      }
       fullValueMap.set(val.key, { label: val.label });
     }
 
@@ -152,19 +149,7 @@ const rowToCsv = (row: CsvRow): string => HEADERS.map((h) => csvEscape(row[h as 
 async function main() {
   console.log(`[export-dataset] version=${version} limit=${limit ?? "all"} output=${outputPath}`);
 
-  const taxonomies = await prisma.taxonomy.findMany({
-    orderBy: { key: "asc" },
-    include: { values: true },
-  });
-
-  const fullLookup = buildFullLookup(
-    taxonomies.map((d) => ({
-      key: d.key,
-      type: d.type,
-      label: d.label,
-      values: d.values.map((v) => ({ key: v.key, label: v.label, active: v.active })),
-    }))
-  );
+  const fullLookup = buildFullLookup();
 
   const enrichments = await prisma.missionEnrichment.findMany({
     where: { status: "completed", promptVersion: version },
@@ -183,13 +168,7 @@ async function main() {
           publisher: { select: { name: true } },
         },
       },
-      values: {
-        include: {
-          taxonomyValue: {
-            include: { taxonomy: { select: { key: true, label: true } } },
-          },
-        },
-      },
+      values: true,
     },
   });
 
@@ -225,14 +204,18 @@ async function main() {
     // Valid classifications from DB
     for (const v of enrichment.values) {
       const evidence = v.evidence as { reasoning?: string } | null;
+      const taxonomyKey = v.taxonomyKey ?? "";
+      const valueKey = v.valueKey ?? "";
+      const dimMeta = fullLookup.get(taxonomyKey);
+      const valMeta = dimMeta?.values.get(valueKey);
       rows.push({
         ...base,
         status: "valid",
         skipReason: "",
-        taxonomy: v.taxonomyValue!.taxonomy.key,
-        taxonomyLabel: v.taxonomyValue!.taxonomy.label,
-        value: v.taxonomyValue!.key,
-        valueLabel: v.taxonomyValue!.label,
+        taxonomy: taxonomyKey,
+        taxonomyLabel: dimMeta?.label ?? "",
+        value: valueKey,
+        valueLabel: valMeta?.label ?? "",
         confidence: String(v.confidence),
         reasoning: evidence?.reasoning ?? "",
       });

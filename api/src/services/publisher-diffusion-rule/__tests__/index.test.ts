@@ -7,6 +7,9 @@ const prismaMock = prisma as unknown as {
   publisherDiffusionRule: {
     findMany: ReturnType<typeof vi.fn>;
   };
+  mission: {
+    count: ReturnType<typeof vi.fn>;
+  };
 };
 
 const buildRule = (overrides: Record<string, unknown> = {}) => ({
@@ -27,6 +30,7 @@ const buildRule = (overrides: Record<string, unknown> = {}) => ({
 describe("publisherDiffusionRuleService.buildMissionPublisherDiffusionRuleWhere", () => {
   beforeEach(() => {
     prismaMock.publisherDiffusionRule.findMany.mockReset();
+    prismaMock.mission.count.mockReset();
   });
 
   it("charge toutes les rules du publisher triées par position", async () => {
@@ -98,5 +102,44 @@ describe("publisherDiffusionRuleService.buildMissionPublisherDiffusionRuleWhere"
         { OR: [{ NOT: { publisherId: "annonceur-2" } }, { publisherOrganizationId: { not: "po-2" } }] },
       ],
     });
+  });
+});
+
+describe("publisherDiffusionRuleService.canPublisherAccessMission", () => {
+  beforeEach(() => {
+    prismaMock.publisherDiffusionRule.findMany.mockReset();
+    prismaMock.mission.count.mockReset();
+  });
+
+  it("allows access when the publisher has no diffusion rules", async () => {
+    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([]);
+
+    const canAccess = await publisherDiffusionRuleService.canPublisherAccessMission({ publisherId: "publisher-1", missionId: "mission-1" });
+
+    expect(canAccess).toBe(true);
+    expect(prismaMock.mission.count).not.toHaveBeenCalled();
+  });
+
+  it("checks the mission against applicable diffusion rules", async () => {
+    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([buildRule({ value: "annonceur-1" })]);
+    prismaMock.mission.count.mockResolvedValue(1);
+
+    const canAccess = await publisherDiffusionRuleService.canPublisherAccessMission({ publisherId: "publisher-1", missionId: "mission-1" });
+
+    expect(canAccess).toBe(true);
+    expect(prismaMock.mission.count).toHaveBeenCalledWith({
+      where: {
+        AND: [{ id: "mission-1" }, { publisherId: "annonceur-1" }],
+      },
+    });
+  });
+
+  it("rejects access when the mission does not match applicable diffusion rules", async () => {
+    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([buildRule({ value: "annonceur-1" })]);
+    prismaMock.mission.count.mockResolvedValue(0);
+
+    const canAccess = await publisherDiffusionRuleService.canPublisherAccessMission({ publisherId: "publisher-1", missionId: "mission-1" });
+
+    expect(canAccess).toBe(false);
   });
 });

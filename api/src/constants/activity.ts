@@ -51,4 +51,10 @@ export const ACTIVITIES: Record<string, string> = {
   secourisme: "Secourisme",
   sport: "Sport",
   visites: "Visites",
+  "operations-militaires": "Opérations militaires",
+  "sciences-humaines-social": "Sciences humaines et social",
+  "restauration-hotellerie": "Restauration, hôtellerie",
+  "maintenance-technique": "Maintenance technique",
+  "gestion-ressources-humaines": "Gestion des ressources humaines",
+  "gestion-entretien-patrimoine": "Gestion et entretien du patrimoine",
 };

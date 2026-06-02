@@ -8,9 +8,10 @@ interface ModalProps extends React.HTMLAttributes<HTMLDivElement> {
   title: string;
   beforeTitle?: React.ReactNode;
   titleIcon?: string;
+  className?: string;
 }
 
-export default function Modal({ open, children, onClose, title, beforeTitle, titleIcon, ...props }: ModalProps) {
+export default function Modal({ open, children, onClose, title, beforeTitle, titleIcon, className, ...props }: ModalProps) {
   const titleId = useId();
   const [mounted, setMounted] = useState(false);
 
@@ -33,7 +34,7 @@ export default function Modal({ open, children, onClose, title, beforeTitle, tit
       }}
       {...props}
     >
-      <div className="fr-container fr-container--fluid fr-container-md">
+      <div className={`fr-container fr-container--fluid fr-container-md ${className}`}>
         <div className="fr-grid-row fr-grid-row--center">
           <div className="fr-col-12 fr-col-md-8 fr-col-lg-6">
             <div className="fr-modal__body">

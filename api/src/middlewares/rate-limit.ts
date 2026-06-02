@@ -37,5 +37,28 @@ export const createIpRateLimiter = (limit = RATE_LIMIT_IP_MAX): RateLimitRequest
     skip: isDisabled,
   });
 
+// 120 req/min par IP utilisateur final — routes plateform (appels S2S authentifiés).
+// La clé est lue depuis x-platform-client-ip, header injecté par le serveur Express
+// de la plateform (depuis req.ip après trust proxy : non-spoofable par le user).
+// Seules les routes déjà protégées par passport.authenticate font confiance à ce header.
+// Fallback sur req.ip si le header est absent (appel direct, hors plateform).
+export const createPlateformRateLimiter = (limit = RATE_LIMIT_IP_MAX): RateLimitRequestHandler =>
+  rateLimit({
+    windowMs: 60_000,
+    limit,
+    keyGenerator: (req) => {
+      const clientIp = req.headers["x-platform-client-ip"];
+
+      if (clientIp && typeof clientIp === "string") {
+        return clientIp;
+      }
+
+      return ipKeyGenerator(req.ip ?? "");
+    },
+    handler,
+    skip: isDisabled,
+  });
+
 export const publisherRateLimiter = createPublisherRateLimiter();
 export const ipRateLimiter = createIpRateLimiter();
+export const plateformRateLimiter = createPlateformRateLimiter();

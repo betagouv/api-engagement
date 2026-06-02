@@ -308,6 +308,11 @@ describe("Mission API Integration Tests", () => {
       expect(response.body.data[0].type).toBe("volontariat_service_civique");
     });
 
+    it("should return 400 for an invalid type value", async () => {
+      const response = await request(app).get("/v0/mission?type=volontariat").set("x-api-key", apiKey);
+      expect(response.status).toBe(400);
+    });
+
     it("should filter by createdAt (gt)", async () => {
       const date = new Date();
       date.setSeconds(date.getSeconds() - 1);

@@ -6,7 +6,7 @@ import { Request, RequestHandler } from "express";
 const HISTOGRAM_BUCKETS = [0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10, 30, 60];
 const METRICS_EXPORT_INTERVAL_MS = 30000;
 const SERVICE_NAME = "api-engagement-api";
-const TRACKED_PREFIXES = ["/v0/", "/v2/"];
+const TRACKED_PREFIXES = ["/v0/", "/v2/", "/missions/browse", "/missions/match", "/user-scoring", "/email/mission"];
 
 export interface RecordedHttpRequestMetric {
   durationSeconds: number;

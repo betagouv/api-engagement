@@ -195,7 +195,7 @@ components:
           nullable: true
           description: |
             Domaine d'action de la mission. Valeurs possibles :
-            `animaux`, `autre`, `batiment-industrie-logistique`, `benevolat-competences`, `culture-loisirs`, `education`, `emploi`, `environnement`, `gestion-finance-droit`, `humanitaire`, `memoire-et-citoyennete`, `prevention-protection`, `recherche`, `sante`, `service-public-defense-securite`, `sport`, `solidarite-insertion`, `vivre-ensemble`.
+            `animaux`, `autre`, `batiment-industrie-logistique`, `benevolat-competences`, `communication`, `culture-loisirs`, `education`, `emploi`, `environnement`, `gestion-finance-droit`, `humanitaire`, `memoire-et-citoyennete`, `numerique`, `prevention-protection`, `recherche`, `sante`, `service-public-defense-securite`, `sport`, `solidarite-insertion`, `vivre-ensemble`.
 
             > Une demande d'ajout de valeur peut être faite auprès de l'équipe API Engagement.
           example: "sante"
@@ -205,7 +205,7 @@ components:
             type: string
           description: |
             Activité(s) principale(s) de la mission. Valeurs possibles :
-            `accueil-de-public`, `aide-psychologique`, `activites-manuelles`, `alphabetisation`, `animation`, `Animation, Valorisation`, `art`, `autre`, `bricolage`, `collecte`, `communication`, `comptabilite-finance`, `conseil`, `distribution`, `documentation-traduction`, `ecoute-permanence`, `encadrement-d-equipes`, `enseignement-formation`, `gestion-de-projets`, `gestion-recherche-des-partenariats`, `informatique`, `jardinage`, `juridique`, `logistique`, `lutte-contre-isolement`, `Médiation, Information`, `mentorat-parrainage`, `mission-internationale`, `Préservation, Patrimoine`, `Prévention, Sensibilisation`, `ramassage-dechets`, `recrutement`, `responsabilites-associatives`, `sante-soins`, `Secours, Aide`, `secourisme`, `sensibilisation`, `soins-animaux`, `Soutien, Accompagnement`, `soutien-scolaire`, `sport`, `taches-administratives`, `Transmission, Pédagogie`, `visites`.
+            `accueil-de-public`, `aide-psychologique`, `activites-manuelles`, `alphabetisation`, `animation`, `Animation, Valorisation`, `art`, `autre`, `bricolage`, `collecte`, `communication`, `comptabilite-finance`, `conseil`, `distribution`, `documentation-traduction`, `ecoute-permanence`, `encadrement-d-equipes`, `enseignement-formation`, `gestion-de-projets`, `gestion-recherche-des-partenariats`, `informatique`, `jardinage`, `juridique`, `logistique`, `lutte-contre-isolement`, `Médiation, Information`, `mentorat-parrainage`, `mission-internationale`, `Préservation, Patrimoine`, `Prévention, Sensibilisation`, `ramassage-dechets`, `recrutement`, `responsabilites-associatives`, `sante-soins`, `Secours, Aide`, `secourisme`, `sensibilisation`, `soins-animaux`, `Soutien, Accompagnement`, `soutien-scolaire`, `sport`, `taches-administratives`, `Transmission, Pédagogie`, `visites`, `operations-militaires`, `sciences-humaines-social`, `restauration-hotellerie`, `maintenance-technique`, `gestion-ressources-humaines`, `gestion-entretien-patrimoine`.
 
             > Une demande d'ajout de valeur peut être faite auprès de l'équipe API Engagement.
           example: ["animation", "lutte-contre-isolement"]
@@ -755,6 +755,17 @@ components:
             code: "NOT_FOUND"
             message: "Mission not found"
 
+    Forbidden:
+      description: Accès refusé
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            ok: false
+            code: "FORBIDDEN"
+            message: "Mission not accessible"
+
     Conflict:
       description: Conflit — la ressource existe déjà
       content:
@@ -854,7 +865,7 @@ paths:
                   type: string
                   description: |
                     Domaine d'action de la mission. Valeurs possibles :
-                    `animaux`, `autre`, `batiment-industrie-logistique`, `benevolat-competences`, `culture-loisirs`, `education`, `emploi`, `environnement`, `gestion-finance-droit`, `humanitaire`, `memoire-et-citoyennete`, `prevention-protection`, `recherche`, `sante`, `service-public-defense-securite`, `sport`, `solidarite-insertion`, `vivre-ensemble`.
+                    `animaux`, `autre`, `batiment-industrie-logistique`, `benevolat-competences`, `communication`, `culture-loisirs`, `education`, `emploi`, `environnement`, `gestion-finance-droit`, `humanitaire`, `memoire-et-citoyennete`, `numerique`, `prevention-protection`, `recherche`, `sante`, `service-public-defense-securite`, `sport`, `solidarite-insertion`, `vivre-ensemble`.
 
                     > Une demande d'ajout de valeur peut être faite auprès de l'équipe API Engagement.
                   example: "sante"
@@ -864,7 +875,7 @@ paths:
                     type: string
                   description: |
                     Activité(s) principale(s) de la mission. Valeurs possibles :
-                    `accueil-de-public`, `aide-psychologique`, `activites-manuelles`, `alphabetisation`, `animation`, `Animation, Valorisation`, `art`, `autre`, `bricolage`, `collecte`, `communication`, `comptabilite-finance`, `conseil`, `distribution`, `documentation-traduction`, `ecoute-permanence`, `encadrement-d-equipes`, `enseignement-formation`, `gestion-de-projets`, `gestion-recherche-des-partenariats`, `informatique`, `jardinage`, `juridique`, `logistique`, `lutte-contre-isolement`, `Médiation, Information`, `mentorat-parrainage`, `mission-internationale`, `Préservation, Patrimoine`, `Prévention, Sensibilisation`, `ramassage-dechets`, `recrutement`, `responsabilites-associatives`, `sante-soins`, `Secours, Aide`, `secourisme`, `sensibilisation`, `soins-animaux`, `Soutien, Accompagnement`, `soutien-scolaire`, `sport`, `taches-administratives`, `Transmission, Pédagogie`, `visites`.
+                    `accueil-de-public`, `aide-psychologique`, `activites-manuelles`, `alphabetisation`, `animation`, `Animation, Valorisation`, `art`, `autre`, `bricolage`, `collecte`, `communication`, `comptabilite-finance`, `conseil`, `distribution`, `documentation-traduction`, `ecoute-permanence`, `encadrement-d-equipes`, `enseignement-formation`, `gestion-de-projets`, `gestion-recherche-des-partenariats`, `informatique`, `jardinage`, `juridique`, `logistique`, `lutte-contre-isolement`, `Médiation, Information`, `mentorat-parrainage`, `mission-internationale`, `Préservation, Patrimoine`, `Prévention, Sensibilisation`, `ramassage-dechets`, `recrutement`, `responsabilites-associatives`, `sante-soins`, `Secours, Aide`, `secourisme`, `sensibilisation`, `soins-animaux`, `Soutien, Accompagnement`, `soutien-scolaire`, `sport`, `taches-administratives`, `Transmission, Pédagogie`, `visites`, `operations-militaires`, `sciences-humaines-social`, `restauration-hotellerie`, `maintenance-technique`, `gestion-ressources-humaines`, `gestion-entretien-patrimoine`.
 
                     > Une demande d'ajout de valeur peut être faite auprès de l'équipe API Engagement.
                   example: ["animation", "lutte-contre-isolement"]
@@ -1124,7 +1135,7 @@ paths:
                   type: string
                   description: |
                     Domaine d'action de la mission. Valeurs possibles :
-                    `animaux`, `autre`, `batiment-industrie-logistique`, `benevolat-competences`, `culture-loisirs`, `education`, `emploi`, `environnement`, `gestion-finance-droit`, `humanitaire`, `memoire-et-citoyennete`, `prevention-protection`, `recherche`, `sante`, `service-public-defense-securite`, `sport`, `solidarite-insertion`, `vivre-ensemble`.
+                    `animaux`, `autre`, `batiment-industrie-logistique`, `benevolat-competences`, `communication`, `culture-loisirs`, `education`, `emploi`, `environnement`, `gestion-finance-droit`, `humanitaire`, `memoire-et-citoyennete`, `numerique`, `prevention-protection`, `recherche`, `sante`, `service-public-defense-securite`, `sport`, `solidarite-insertion`, `vivre-ensemble`.
 
                     > Une demande d'ajout de valeur peut être faite auprès de l'équipe API Engagement.
                   example: "sante"
@@ -1134,7 +1145,7 @@ paths:
                     type: string
                   description: |
                     Activité(s) principale(s) de la mission. Valeurs possibles :
-                    `accueil-de-public`, `aide-psychologique`, `activites-manuelles`, `alphabetisation`, `animation`, `Animation, Valorisation`, `art`, `autre`, `bricolage`, `collecte`, `communication`, `comptabilite-finance`, `conseil`, `distribution`, `documentation-traduction`, `ecoute-permanence`, `encadrement-d-equipes`, `enseignement-formation`, `gestion-de-projets`, `gestion-recherche-des-partenariats`, `informatique`, `jardinage`, `juridique`, `logistique`, `lutte-contre-isolement`, `Médiation, Information`, `mentorat-parrainage`, `mission-internationale`, `Préservation, Patrimoine`, `Prévention, Sensibilisation`, `ramassage-dechets`, `recrutement`, `responsabilites-associatives`, `sante-soins`, `Secours, Aide`, `secourisme`, `sensibilisation`, `soins-animaux`, `Soutien, Accompagnement`, `soutien-scolaire`, `sport`, `taches-administratives`, `Transmission, Pédagogie`, `visites`.
+                    `accueil-de-public`, `aide-psychologique`, `activites-manuelles`, `alphabetisation`, `animation`, `Animation, Valorisation`, `art`, `autre`, `bricolage`, `collecte`, `communication`, `comptabilite-finance`, `conseil`, `distribution`, `documentation-traduction`, `ecoute-permanence`, `encadrement-d-equipes`, `enseignement-formation`, `gestion-de-projets`, `gestion-recherche-des-partenariats`, `informatique`, `jardinage`, `juridique`, `logistique`, `lutte-contre-isolement`, `Médiation, Information`, `mentorat-parrainage`, `mission-internationale`, `Préservation, Patrimoine`, `Prévention, Sensibilisation`, `ramassage-dechets`, `recrutement`, `responsabilites-associatives`, `sante-soins`, `Secours, Aide`, `secourisme`, `sensibilisation`, `soins-animaux`, `Soutien, Accompagnement`, `soutien-scolaire`, `sport`, `taches-administratives`, `Transmission, Pédagogie`, `visites`, `operations-militaires`, `sciences-humaines-social`, `restauration-hotellerie`, `maintenance-technique`, `gestion-ressources-humaines`, `gestion-entretien-patrimoine`.
 
                     > Une demande d'ajout de valeur peut être faite auprès de l'équipe API Engagement.
                   example: ["animation", "lutte-contre-isolement"]
@@ -1489,10 +1500,13 @@ paths:
       summary: Créer une activité
       description: |
         Enregistre un événement d'engagement (candidature ou création de compte)
-        lié à un clic tracé par l'API.
+        lié à un clic tracé par l'API ou directement à une mission.
 
         Le "clickId" doit correspondre à un clic enregistré par l'API Engagement.
-        Si "missionClientId" est fourni, l'activité sera enrichie avec les données de la mission correspondante.
+        Le "missionId" permet à un diffuseur autorisé de déclarer une activité sans clic.
+        Le "missionClientId" correspond à l'identifiant métier d'une mission du publisher authentifié.
+        Au moins un champ parmi "clickId", "missionId" et "missionClientId" doit être fourni.
+        Le champ "missionId" ne doit pas être combiné avec "clickId" ou "missionClientId".
       operationId: createActivity
       tags: [Activités]
       requestBody:
@@ -1501,7 +1515,14 @@ paths:
           application/json:
             schema:
               type: object
-              required: [clickId]
+              anyOf:
+                - required: [clickId]
+                - required: [missionId]
+                - required: [missionClientId]
+              not:
+                anyOf:
+                  - required: [clickId, missionId]
+                  - required: [missionId, missionClientId]
               properties:
                 type:
                   type: string
@@ -1510,11 +1531,15 @@ paths:
                   description: Type d'événement (défaut "apply")
                 clickId:
                   type: string
-                  description: Identifiant du clic d'origine (obligatoire)
+                  description: Identifiant du clic d'origine
                   example: "64a1b2c3d4e5f6789abc0088"
+                missionId:
+                  type: string
+                  description: Identifiant interne API Engagement de la mission, utilisable par un diffuseur autorisé sans clickId
+                  example: "64a1b2c3d4e5f6789abc0001"
                 missionClientId:
                   type: string
-                  description: Identifiant client de la mission concernée (optionnel)
+                  description: Identifiant métier de la mission côté publisher authentifié
                 tag:
                   type: string
                   description: Tag libre (optionnel)
@@ -1535,6 +1560,8 @@ paths:
           $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           description: Clic ou mission introuvable
           content:
@@ -1605,10 +1632,12 @@ paths:
           schema:
             oneOf:
               - type: string
+                enum: [benevolat, volontariat_service_civique, volontariat_sapeurs_pompiers, volontariat_reserve_operationnelle]
               - type: array
                 items:
                   type: string
-          description: "Type d'engagement : benevolat, volontariat_service_civique, volontariat_sapeurs_pompiers, volontariat_reserve_operationnelle"
+                  enum: [benevolat, volontariat_service_civique, volontariat_sapeurs_pompiers, volontariat_reserve_operationnelle]
+          description: "Type d'engagement"
         - name: remote
           in: query
           schema:

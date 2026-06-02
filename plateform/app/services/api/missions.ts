@@ -1,12 +1,14 @@
 import type { MissionBrowseFilters, MissionBrowseResponse } from "@engagement/dto";
-import { api } from "~/services/api";
+
+import { createApi } from "~/services/api";
 
 const appendMulti = (params: URLSearchParams, key: string, values?: string | string[]) => {
   if (!values?.length) return;
   for (const value of Array.isArray(values) ? values : [values]) params.append(key, value);
 };
 
-export async function browseMissions(filters: MissionBrowseFilters, signal?: AbortSignal): Promise<MissionBrowseResponse> {
+export async function browseMissions(filters: MissionBrowseFilters, request: Request): Promise<MissionBrowseResponse> {
+  const api = createApi(request);
   const params = new URLSearchParams();
   if (filters.page) params.set("page", String(filters.page));
   if (filters.pageSize) params.set("pageSize", String(filters.pageSize));
@@ -17,5 +19,5 @@ export async function browseMissions(filters: MissionBrowseFilters, signal?: Abo
   appendMulti(params, "type_mission", filters.type_mission);
   appendMulti(params, "tranche_age", filters.tranche_age);
 
-  return api.get<MissionBrowseResponse>(`/missions/browse?${params.toString()}`, signal);
+  return api.get<MissionBrowseResponse>(`/missions/browse?${params.toString()}`);
 }

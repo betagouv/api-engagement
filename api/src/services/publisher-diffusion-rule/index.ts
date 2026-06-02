@@ -1,4 +1,5 @@
 import { Prisma, PublisherDiffusionRule } from "@/db/core";
+import { missionRepository } from "@/repositories/mission";
 import { publisherDiffusionRuleRepository } from "@/repositories/publisher-diffusion-rule";
 import type {
   PublisherDiffusionRuleCombinator,
@@ -100,6 +101,25 @@ export const publisherDiffusionRuleService = {
     });
 
     return buildMissionWhere(rules);
+  },
+
+  async canPublisherAccessMission({ publisherId, missionId }: { publisherId: string; missionId: string }): Promise<boolean> {
+    const rules = await publisherDiffusionRuleRepository.findMany({
+      where: { publisherId },
+      orderBy: [{ position: Prisma.SortOrder.asc }, { createdAt: Prisma.SortOrder.asc }],
+    });
+    if (rules.length === 0) {
+      return true;
+    }
+
+    const diffusionRuleWhere = buildMissionWhere(rules);
+    if (Object.keys(diffusionRuleWhere).length === 0) {
+      return false;
+    }
+
+    const count = await missionRepository.count({ AND: [{ id: missionId }, diffusionRuleWhere] });
+
+    return count > 0;
   },
 
   async buildMissionPublisherDiffusionRuleSql(publisherId: string, options: { missionAlias?: string } = {}): Promise<Prisma.Sql> {
