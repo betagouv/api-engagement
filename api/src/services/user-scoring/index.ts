@@ -3,8 +3,6 @@ import { TAXONOMY } from "@engagement/taxonomy";
 
 import { userScoringRepository } from "@/repositories/user-scoring";
 
-const USER_SCORING_TTL_DAYS = 7;
-
 type UserScoringAnswerInput = {
   taxonomy: string;
   value?: string;
@@ -152,10 +150,8 @@ export const userScoringService = {
 
   async create(input: CreateUserScoringInput) {
     const scoringData = buildValuesToPersist(input.answers);
-    const expiresAt = new Date(Date.now() + USER_SCORING_TTL_DAYS * 24 * 60 * 60 * 1000);
 
     const userScoring = await userScoringRepository.create({
-      expiresAt,
       values: scoringData.values,
       geo: scoringData.geo,
       distinctId: input?.distinctId,

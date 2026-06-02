@@ -28,7 +28,6 @@ type DbTaxonomyScoreRow = {
 
 type UserScoringStateRow = {
   id: string;
-  expires_at: Date | null;
 };
 
 const clampScore = (value: number | null): number => {
@@ -59,9 +58,9 @@ const buildTaxonomyWeightsValuesSql = (taxonomyWeights: Record<MatchingEngineTax
 
 const buildGateTaxonomiesSql = () => Prisma.join(GATE_TAXONOMIES.map((taxonomy) => Prisma.sql`${taxonomy}`));
 
-const assertUserScoringIsQueryable = async (userScoringId: string): Promise<void> => {
+const assertUserScoringExists = async (userScoringId: string): Promise<void> => {
   const rows = await prisma.$queryRaw<UserScoringStateRow[]>`
-    SELECT "id", "expires_at"
+    SELECT "id"
     FROM "user_scoring"
     WHERE "id" = ${userScoringId}
     LIMIT 1
@@ -70,10 +69,6 @@ const assertUserScoringIsQueryable = async (userScoringId: string): Promise<void
 
   if (!userScoring) {
     throw new Error(`[matchingEngineService] user_scoring '${userScoringId}' not found.`);
-  }
-
-  if (userScoring.expires_at && userScoring.expires_at.getTime() <= Date.now()) {
-    throw new Error(`[matchingEngineService] user_scoring '${userScoringId}' is expired.`);
   }
 };
 
@@ -550,7 +545,7 @@ export const matchingEngineService = {
     const taxonomyCandidateLimit = getTaxonomyCandidateLimit({ limit: rankingLimit, offset });
     const geoCandidateLimit = getGeoCandidateLimit({ limit: rankingLimit, offset });
 
-    await assertUserScoringIsQueryable(input.userScoringId);
+    await assertUserScoringExists(input.userScoringId);
     const publisherRuleSql = await buildPublisherRuleSql(input.publisherId);
 
     const rows = await prisma.$queryRaw<DbRankRow[]>(
