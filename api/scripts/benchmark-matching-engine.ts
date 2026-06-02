@@ -15,6 +15,7 @@
  *   --geo-weight N             Poids geo (defaut : moteur)
  *   --geo-half-decay-km N      Demi-vie geo en km (defaut : moteur)
  *   --json                     Sortie JSON au lieu du tableau console
+ *   --explain                  Imprime EXPLAIN (ANALYZE, BUFFERS, VERBOSE) au lieu de mesurer
  */
 
 import dotenv from "dotenv";
@@ -25,6 +26,7 @@ import { prisma } from "@/db/postgres";
 import { matchingEngineService } from "@/services/matching-engine";
 import { CURRENT_MATCHING_ENGINE_VERSION } from "@/services/matching-engine/config";
 import type { MatchingEngineVersion, RankMissionsByUserScoringInput } from "@/services/matching-engine/types";
+import { GATE_TAXONOMIES } from "@engagement/taxonomy";
 
 const args = process.argv.slice(2);
 const SCRIPT_LABEL = "benchmark-matching-engine";
@@ -41,6 +43,7 @@ type BenchmarkOptions = {
   geoWeight?: number;
   geoHalfDecayKm?: number;
   json: boolean;
+  explain: boolean;
 };
 
 type UserScoringCandidate = {
@@ -170,6 +173,7 @@ const parseOptions = (): BenchmarkOptions => ({
   geoWeight: parseNumber("--geo-weight"),
   geoHalfDecayKm: parseNumber("--geo-half-decay-km"),
   json: args.includes("--json"),
+  explain: args.includes("--explain"),
 });
 
 const roundMs = (value: number): number => Number(value.toFixed(2));
@@ -253,7 +257,7 @@ const getExplicitUserScorings = async (userScoringIds: string[]): Promise<UserSc
       us."id",
       COUNT(usv."id")::int AS "value_count",
       COUNT(DISTINCT usv."taxonomy_key")::int AS "taxonomy_count",
-      COUNT(usv."id") FILTER (WHERE t."type" = 'gate')::int AS "gate_value_count",
+      COUNT(usv."id") FILTER (WHERE usv."taxonomy_key" IN (${Prisma.join(GATE_TAXONOMIES)}))::int AS "gate_value_count",
       EXISTS (
         SELECT 1
         FROM "user_scoring_geo" usg
@@ -262,8 +266,6 @@ const getExplicitUserScorings = async (userScoringIds: string[]): Promise<UserSc
     FROM "user_scoring" us
     LEFT JOIN "user_scoring_value" usv
       ON usv."user_scoring_id" = us."id"
-    LEFT JOIN "taxonomy" t
-      ON t."key"::text = usv."taxonomy_key"
     WHERE us."id" IN (${Prisma.join(userScoringIds)})
       AND (us."expires_at" IS NULL OR us."expires_at" > NOW())
     GROUP BY us."id"
@@ -278,7 +280,7 @@ const getSampledUserScorings = async (sampleSize: number): Promise<UserScoringCa
         us."id",
         COUNT(usv."id")::int AS "value_count",
         COUNT(DISTINCT usv."taxonomy_key")::int AS "taxonomy_count",
-        COUNT(usv."id") FILTER (WHERE t."type" = 'gate')::int AS "gate_value_count",
+        COUNT(usv."id") FILTER (WHERE usv."taxonomy_key" IN (${Prisma.join(GATE_TAXONOMIES)}))::int AS "gate_value_count",
         EXISTS (
           SELECT 1
           FROM "user_scoring_geo" usg
@@ -287,8 +289,6 @@ const getSampledUserScorings = async (sampleSize: number): Promise<UserScoringCa
       FROM "user_scoring" us
       LEFT JOIN "user_scoring_value" usv
         ON usv."user_scoring_id" = us."id"
-      LEFT JOIN "taxonomy" t
-        ON t."key"::text = usv."taxonomy_key"
       WHERE us."expires_at" IS NULL OR us."expires_at" > NOW()
       GROUP BY us."id"
     ),
@@ -414,6 +414,22 @@ const run = async () => {
     const missingIds = options.userScoringIds.filter((id) => !userScorings.some((userScoring) => userScoring.id === id));
     if (missingIds.length > 0) {
       throw new Error(`user_scoring introuvable ou expire: ${missingIds.join(", ")}`);
+    }
+
+    if (options.explain) {
+      for (const userScoring of userScorings) {
+        for (const limit of options.limits) {
+          for (const offset of options.offsets) {
+            const input = buildRankingInput(options, userScoring.id, limit, offset);
+            console.log(
+              `\n[${SCRIPT_LABEL}] EXPLAIN userScoringId=${userScoring.id} values=${userScoring.value_count} gates=${userScoring.gate_value_count} geo=${userScoring.has_geo} limit=${limit} offset=${offset}`
+            );
+            const plan = await matchingEngineService.explainRankMissionsByUserScoring(input);
+            console.log(plan);
+          }
+        }
+      }
+      return;
     }
 
     const results: ScenarioResult[] = [];
