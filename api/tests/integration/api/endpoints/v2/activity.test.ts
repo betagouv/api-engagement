@@ -1,6 +1,7 @@
 import request from "supertest";
 import { describe, expect, it } from "vitest";
 
+import { prisma } from "@/db/postgres";
 import { publisherService } from "@/services/publisher";
 import { statEventService } from "@/services/stat-event";
 import { createTestMission } from "../../../../fixtures";
@@ -183,6 +184,206 @@ describe("Activity V2 controller", () => {
         toPublisherId: publisher.id,
       });
       expect(createdApply?.missionId).toBeNull();
+    });
+
+    it("records apply events without clickId using missionClientId for the authenticated publisher", async () => {
+      const publisher = await publisherService.createPublisher({ name: "Apply Publisher Mission Client", apikey: "apply-mission-client-key" });
+      const mission = await createTestMission({
+        clientId: "direct-apply-mission-client",
+        title: "Direct Apply Mission Client",
+        publisherId: publisher.id,
+        statusCode: "ACCEPTED",
+      });
+
+      const response = await request(app)
+        .post("/v2/activity/")
+        .set("apikey", publisher.apikey || "")
+        .send({ missionClientId: mission.clientId, tag: "owner-tag" });
+
+      expect(response.status).toBe(200);
+      expect(response.body.ok).toBe(true);
+      expect(response.body.data).toMatchObject({ type: "apply", tag: "owner-tag", missionId: mission.id });
+
+      const createdApply = await statEventService.findOneStatEventById(response.body.data._id);
+      expect(createdApply).toMatchObject({
+        type: "apply",
+        fromPublisherId: publisher.id,
+        toPublisherId: publisher.id,
+        missionId: mission.id,
+      });
+      expect(createdApply?.clickId).toBeNull();
+    });
+
+    it("records apply events without clickId using missionId when diffusion rules allow the mission", async () => {
+      const owner = await publisherService.createPublisher({ name: "Mission Owner Publisher", apikey: "mission-owner-key" });
+      const diffuser = await publisherService.createPublisher({ name: "Allowed Diffuser Publisher", apikey: "allowed-diffuser-key" });
+      const mission = await createTestMission({
+        clientId: "allowed-diffusion-mission",
+        title: "Allowed Diffusion Mission",
+        publisherId: owner.id,
+        statusCode: "ACCEPTED",
+      });
+
+      await prisma.publisherDiffusionRule.create({
+        data: {
+          publisherId: diffuser.id,
+          field: "publisherId",
+          fieldType: "string",
+          operator: "is",
+          value: owner.id,
+          combinator: "or",
+        },
+      });
+
+      const response = await request(app)
+        .post("/v2/activity/")
+        .set("apikey", diffuser.apikey || "")
+        .send({ missionId: mission.id, tag: "MIG" });
+
+      expect(response.status).toBe(200);
+      expect(response.body.ok).toBe(true);
+      expect(response.body.data).toMatchObject({ type: "apply", tag: "MIG", missionId: mission.id });
+
+      const createdApply = await statEventService.findOneStatEventById(response.body.data._id);
+      expect(createdApply).toMatchObject({
+        type: "apply",
+        fromPublisherId: diffuser.id,
+        toPublisherId: owner.id,
+        missionId: mission.id,
+      });
+      expect(createdApply?.clickId).toBeNull();
+    });
+
+    it("records apply events without clickId using missionId when the diffuser has no rules", async () => {
+      const owner = await publisherService.createPublisher({ name: "No Rules Mission Owner", apikey: "no-rules-owner-key" });
+      const diffuser = await publisherService.createPublisher({ name: "No Rules Diffuser", apikey: "no-rules-diffuser-key" });
+      const mission = await createTestMission({
+        clientId: "no-rules-mission",
+        title: "No Rules Mission",
+        publisherId: owner.id,
+        statusCode: "ACCEPTED",
+      });
+
+      const response = await request(app)
+        .post("/v2/activity/")
+        .set("apikey", diffuser.apikey || "")
+        .send({ missionId: mission.id, tag: "MIG" });
+
+      expect(response.status).toBe(200);
+      expect(response.body.ok).toBe(true);
+
+      const createdApply = await statEventService.findOneStatEventById(response.body.data._id);
+      expect(createdApply).toMatchObject({
+        type: "apply",
+        fromPublisherId: diffuser.id,
+        toPublisherId: owner.id,
+        missionId: mission.id,
+      });
+    });
+
+    it("returns 403 when missionId is outside the publisher diffusion rules", async () => {
+      const allowedOwner = await publisherService.createPublisher({ name: "Allowed Owner", apikey: "allowed-owner-key" });
+      const otherOwner = await publisherService.createPublisher({ name: "Other Owner", apikey: "other-owner-key" });
+      const diffuser = await publisherService.createPublisher({ name: "Restricted Diffuser", apikey: "restricted-diffuser-key" });
+      const mission = await createTestMission({
+        clientId: "outside-rules-mission",
+        title: "Outside Rules Mission",
+        publisherId: otherOwner.id,
+        statusCode: "ACCEPTED",
+      });
+
+      await prisma.publisherDiffusionRule.create({
+        data: {
+          publisherId: diffuser.id,
+          field: "publisherId",
+          fieldType: "string",
+          operator: "is",
+          value: allowedOwner.id,
+          combinator: "or",
+        },
+      });
+
+      const response = await request(app)
+        .post("/v2/activity/")
+        .set("apikey", diffuser.apikey || "")
+        .send({ missionId: mission.id, tag: "MIG" });
+
+      expect(response.status).toBe(403);
+      expect(response.body).toEqual({ ok: false, code: "FORBIDDEN", message: "Mission not accessible" });
+    });
+
+    it("returns 404 when missionId targets a deleted or non accepted mission", async () => {
+      const owner = await publisherService.createPublisher({ name: "Unavailable Mission Owner", apikey: "unavailable-owner-key" });
+      const diffuser = await publisherService.createPublisher({ name: "Unavailable Mission Diffuser", apikey: "unavailable-diffuser-key" });
+      const refusedMission = await createTestMission({
+        clientId: "refused-direct-apply-mission",
+        title: "Refused Direct Apply Mission",
+        publisherId: owner.id,
+        statusCode: "REFUSED",
+      });
+      const deletedMission = await createTestMission({
+        clientId: "deleted-direct-apply-mission",
+        title: "Deleted Direct Apply Mission",
+        publisherId: owner.id,
+        statusCode: "ACCEPTED",
+        deleted: true,
+      });
+
+      const refusedResponse = await request(app)
+        .post("/v2/activity/")
+        .set("apikey", diffuser.apikey || "")
+        .send({ missionId: refusedMission.id });
+      const deletedResponse = await request(app)
+        .post("/v2/activity/")
+        .set("apikey", diffuser.apikey || "")
+        .send({ missionId: deletedMission.id });
+
+      expect(refusedResponse.status).toBe(404);
+      expect(refusedResponse.body).toEqual({ ok: false, code: "NOT_FOUND", message: "Mission not found" });
+      expect(deletedResponse.status).toBe(404);
+      expect(deletedResponse.body).toEqual({ ok: false, code: "NOT_FOUND", message: "Mission not found" });
+    });
+
+    it("returns 400 when no clickId, missionId or missionClientId is provided", async () => {
+      const publisher = await publisherService.createPublisher({ name: "Apply Publisher Missing Link", apikey: "apply-missing-link-key" });
+
+      const response = await request(app)
+        .post("/v2/activity/")
+        .set("apikey", publisher.apikey || "")
+        .send({ tag: "missing-link" });
+
+      expect(response.status).toBe(400);
+      expect(response.body.ok).toBe(false);
+      expect(response.body.code).toBe("INVALID_BODY");
+    });
+
+    it("returns 400 when missionId and missionClientId are provided without clickId", async () => {
+      const publisher = await publisherService.createPublisher({ name: "Apply Publisher Ambiguous Mission", apikey: "apply-ambiguous-mission-key" });
+
+      const response = await request(app)
+        .post("/v2/activity/")
+        .set("apikey", publisher.apikey || "")
+        .send({ missionId: "mission-id", missionClientId: "mission-client-id" });
+
+      expect(response.status).toBe(400);
+      expect(response.body.ok).toBe(false);
+      expect(response.body.code).toBe("INVALID_BODY");
+    });
+
+    it("returns 400 when missionId is provided with clickId", async () => {
+      const publisher = await publisherService.createPublisher({ name: "Apply Publisher Click Mission", apikey: "apply-click-mission-key" });
+      const clickStat = await createClickStat("click-with-mission-id", {
+        fromPublisherId: "click-from-with-mission-id",
+      });
+
+      const response = await request(app)
+        .post("/v2/activity/")
+        .set("apikey", publisher.apikey || "")
+        .send({ clickId: clickStat._id, missionId: "mission-id" });
+
+      expect(response.status).toBe(400);
+      expect(response.body.ok).toBe(false);
+      expect(response.body.code).toBe("INVALID_BODY");
     });
 
     it("returns 404 when clickId does not exist", async () => {

@@ -23,3 +23,5 @@ enable_widget              = false
 enable_async_tasks         = false
 enable_intern_jobs         = false
 enable_analytics_jobs      = false
+
+private_network_cidr = "10.42.0.0/22"

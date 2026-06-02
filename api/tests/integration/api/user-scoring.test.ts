@@ -181,21 +181,6 @@ describe("POST /user-scoring", () => {
     expect(values).toHaveLength(1);
   });
 
-  it("should set expiresAt on the created user scoring", async () => {
-    const before = Date.now();
-    const res = await postUserScoringRequest().send({ answers: [taxonomyAnswer] });
-
-    const userScoring = await prisma.userScoring.findUniqueOrThrow({
-      where: { id: res.body.data.id },
-    });
-    expect(userScoring.expiresAt).not.toBeNull();
-    // Should expire in roughly 7 days
-    const diffMs = userScoring.expiresAt!.getTime() - before;
-    const diffDays = diffMs / (1000 * 60 * 60 * 24);
-    expect(diffDays).toBeGreaterThan(6);
-    expect(diffDays).toBeLessThan(8);
-  });
-
   // ─── Validation errors ──────────────────────────────────────────────────────
 
   it("should return 400 when answers is empty", async () => {

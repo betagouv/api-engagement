@@ -1,7 +1,7 @@
 import { type FormEvent, useId, useState } from "react";
 import Modal from "~/components/layout/modal";
-import { sendMissionEmail } from "~/services/email";
 import { PUBLISHER_ID_API_ENGAGEMENT } from "~/services/config";
+import { sendMissionEmail } from "~/services/email";
 import { updateUserScoring } from "~/services/user-scoring";
 import { useQuizStore } from "~/stores/quiz";
 
@@ -63,7 +63,7 @@ export default function EmailMissionModal({ missionId, userScoringId }: EmailMis
 
   return (
     <>
-      <button type="button" onClick={() => setOpen(true)} className="fr-btn fr-btn--secondary fr-mt-2w w-full! justify-center!">
+      <button type="button" onClick={() => setOpen(true)} className="fr-btn fr-btn--secondary w-full! justify-center!">
         Recevoir cette mission par e-mail
       </button>
 

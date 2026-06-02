@@ -6,9 +6,9 @@ import { prisma } from "@/db/postgres";
 import { PUBLISHER_SYNC_CONFIGS } from "@/jobs/letudiant/config";
 import { LetudiantHandler } from "@/jobs/letudiant/handler";
 import * as letudiantUtils from "@/jobs/letudiant/utils";
+import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import { createTestMission, createTestPublisher, createTestPublisherOrganization } from "../../../fixtures";
 import { buildPilotyFetchMock, PILOTY_MANDATORY_DATA_MOCKS, pilotyJobResponse } from "../../../mocks";
-import { publisherDiffusionExclusionService } from "@/services/publisher-diffusion-exclusion";
 
 /**
  * L'Etudiant job integration tests
@@ -50,7 +50,7 @@ afterAll(() => {
 
 beforeEach(async () => {
   await prisma.missionJobBoard.deleteMany({});
-  await prisma.publisherDiffusionExclusion.deleteMany({});
+  await prisma.publisherDiffusionRule.deleteMany({});
 });
 
 /** Seed an ONLINE mission_jobboard entry. missionAddressId is null by default (no FK issue). */
@@ -150,7 +150,7 @@ describe("LetudiantHandler (integration test)", () => {
       const publisher = await createTestPublisher({ id: PUBLISHER_IDS.JEVEUXAIDER });
       const letudiantPublisher = await createTestPublisher({ id: PUBLISHER_IDS.LETUDIANT });
       const orgClientId = "excluded-org-client-id";
-      const publisherOrg = await createTestPublisherOrganization({ publisherId: publisher.id, clientId: orgClientId });
+      await createTestPublisherOrganization({ publisherId: publisher.id, clientId: orgClientId });
       const mission = await createTestMission({
         publisherId: publisher.id,
         statusCode: "ACCEPTED",
@@ -159,10 +159,13 @@ describe("LetudiantHandler (integration test)", () => {
       });
       await seedOnlineEntry(mission.id, "piloty-job-excluded");
 
-      await publisherDiffusionExclusionService.createExclusion({
-        excludedByAnnonceurId: publisher.id,
-        excludedForDiffuseurId: letudiantPublisher.id,
-        publisherOrganizationId: publisherOrg.id,
+      await publisherDiffusionRuleService.createScopedRule({
+        diffuseurPublisherId: letudiantPublisher.id,
+        annonceurPublisherId: publisher.id,
+        field: "publisherOrganization.clientId",
+        fieldType: "string",
+        operator: "is_not",
+        value: orgClientId,
       });
 
       global.fetch = buildPilotyFetchMock([pilotyJobResponse("piloty-job-excluded")]);
@@ -335,7 +338,7 @@ describe("LetudiantHandler (integration test)", () => {
       const publisher = await createTestPublisher({ id: PUBLISHER_IDS.JEVEUXAIDER });
       const letudiantPublisher = await createTestPublisher({ id: PUBLISHER_IDS.LETUDIANT });
       const orgClientId = "excluded-org-for-publish";
-      const publisherOrg = await createTestPublisherOrganization({ publisherId: publisher.id, clientId: orgClientId });
+      await createTestPublisherOrganization({ publisherId: publisher.id, clientId: orgClientId });
       const mission = await createTestMission({
         publisherId: publisher.id,
         statusCode: "ACCEPTED",
@@ -343,12 +346,13 @@ describe("LetudiantHandler (integration test)", () => {
         organizationClientId: orgClientId,
       });
 
-      await prisma.publisherDiffusionExclusion.create({
-        data: {
-          excludedByAnnonceurId: publisher.id,
-          excludedForDiffuseurId: letudiantPublisher.id,
-          publisherOrganizationId: publisherOrg.id,
-        },
+      await publisherDiffusionRuleService.createScopedRule({
+        diffuseurPublisherId: letudiantPublisher.id,
+        annonceurPublisherId: publisher.id,
+        field: "publisherOrganization.clientId",
+        fieldType: "string",
+        operator: "is_not",
+        value: orgClientId,
       });
 
       const fetchMock = buildPilotyFetchMock([]);

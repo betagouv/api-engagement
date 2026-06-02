@@ -1,4 +1,5 @@
 import type { MissionDetailResponse } from "@engagement/dto";
+import { getDomainLabel } from "@engagement/dto";
 import { formatMissionType } from "~/utils/mission";
 
 interface MissionHeroCardProps {
@@ -9,24 +10,25 @@ export default function MissionHeroCard({ mission }: MissionHeroCardProps) {
   const publisherTypeLabel = formatMissionType(mission.type);
   const orgDisplayName = mission.organizationName ?? mission.publisherName;
   const logo = mission.organizationLogo ?? mission.publisherLogo;
+  const domainLabel = getDomainLabel(mission.domain);
 
   return (
-    <section className="fr-card fr-card--no-arrow">
+    <section className="fr-card fr-card--no-arrow shadow-card bg-none! p-0!">
       <div className="fr-card__body">
-        <div className="fr-card__content flex! flex-col!">
-          {mission.domain && (
-            <div className="fr-mb-3w order-1">
-              <p className="fr-tag fr-tag--sm">{mission.domain}</p>
+        <div className="fr-card__content flex! flex-col! gap-4 p-6! md:p-12!">
+          {domainLabel && (
+            <div className="order-1">
+              <p className="fr-tag fr-tag--sm text-blue-france-sun! bg-blue-france-925!">{domainLabel}</p>
             </div>
           )}
 
-          <h1 className="fr-h1 fr-mb-3w order-2">{mission.title}</h1>
+          <h1 className="fr-h1 mb-0! order-2">{mission.title}</h1>
 
           {orgDisplayName && (
-            <div className="order-3 flex items-center gap-3">
-              {logo && <img src={logo} alt="" className="h-10 w-10 flex-none object-contain" loading="eager" />}
+            <div className="order-3 flex items-center gap-4">
+              {logo && <img src={logo} alt="" className="h-8 w-14 flex-none object-contain" loading="eager" />}
               <p className="fr-text--sm fr-mb-0 text-mention-grey">
-                {publisherTypeLabel} proposée par <span className="font-semibold text-title-grey">{orgDisplayName}</span>
+                {publisherTypeLabel} proposée par <span className="text-title-grey font-semibold">{orgDisplayName}</span>
               </p>
             </div>
           )}

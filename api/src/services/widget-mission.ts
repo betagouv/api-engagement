@@ -9,14 +9,14 @@ import publisherOrganizationService from "./publisher-organization";
 
 type Bucket = { key: string; doc_count: number; label?: string };
 
-const buildWidgetWhere = (widget: WidgetRecord, filters: MissionSearchFilters): Prisma.MissionWhereInput => {
+const buildWidgetWhere = async (widget: WidgetRecord, filters: MissionSearchFilters): Promise<Prisma.MissionWhereInput> => {
   if (!widget.jvaModeration) {
     return buildWhere(filters);
   }
 
   const jvaPublishers = widget.publishers.filter((publisherId) => publisherId === PUBLISHER_IDS.JEVEUXAIDER);
   const otherPublishers = widget.publishers.filter((publisherId) => publisherId !== PUBLISHER_IDS.JEVEUXAIDER);
-  const baseWhere = buildWhere({ ...filters, publisherIds: [], moderationAcceptedFor: undefined });
+  const baseWhere = await buildWhere({ ...filters, publisherIds: [], moderationAcceptedFor: undefined });
   const orConditions: Prisma.MissionWhereInput[] = [];
 
   if (jvaPublishers.length) {
@@ -188,7 +188,7 @@ const sortBuckets = (buckets?: Bucket[]) => (buckets ?? []).sort((a, b) => b.doc
 
 export const widgetMissionService = {
   async fetchWidgetMissions(widget: WidgetRecord, filters: MissionSearchFilters, select: MissionSelect | null = null): Promise<{ data: MissionRecord[]; total: number }> {
-    const where = buildWidgetWhere(widget, filters);
+    const where = await buildWidgetWhere(widget, filters);
 
     const [data, total] = await Promise.all([
       missionService.findMissionsBy(where, {
@@ -205,7 +205,7 @@ export const widgetMissionService = {
   },
 
   async fetchWidgetAggregations(widget: WidgetRecord, filters: MissionSearchFilters, requestedAggs: string[]) {
-    const where = buildWidgetWhere(widget, { ...filters, skip: 0, limit: 0 });
+    const where = await buildWidgetWhere(widget, { ...filters, skip: 0, limit: 0 });
     const result = await aggregateWidgetAggs(where, requestedAggs);
 
     const payload: any = {};

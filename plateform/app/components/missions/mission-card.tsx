@@ -1,7 +1,6 @@
 import type { MissionBrowse } from "@engagement/dto";
+import { getDomainLabel } from "@engagement/dto";
 import { Link } from "react-router";
-
-import { DOMAIN_LABELS } from "~/utils/domains";
 
 type MissionCardLink = { type: "internal"; to: string } | { type: "external"; href: string };
 
@@ -11,7 +10,7 @@ interface MissionCardProps {
 }
 
 export default function MissionCard({ mission, link }: MissionCardProps) {
-  const domainLabel = mission.domain ? (DOMAIN_LABELS[mission.domain] ?? mission.domain) : null;
+  const domainLabel = getDomainLabel(mission.domain);
   const cardImage = mission.photo ?? mission.organizationLogo ?? mission.domainLogo;
 
   const clampStyle = { display: "-webkit-box", WebkitBoxOrient: "vertical" as const, WebkitLineClamp: 3, overflow: "hidden" };

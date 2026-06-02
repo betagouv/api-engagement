@@ -46,14 +46,17 @@ export function getTaxonomyList(): TaxonomyListItem[] {
     type: dim.type,
     enrichable: dim.enrichable,
     gate: dim.gate,
-    values: (Object.entries(dim.values) as [string, { label: string; sublabel?: string; icon: string | null; enrichable: boolean; hidden?: boolean }][]).map(([vKey, val], i) => ({
-      key: vKey,
-      label: val.label,
-      sublabel: val.sublabel,
-      icon: val.icon,
-      order: i,
-      enrichable: val.enrichable,
-      hidden: val.hidden,
-    })),
+    values: (Object.entries(dim.values) as [string, { label: string; sublabel?: string; icon: string | null; enrichable: boolean; hidden?: boolean; disabled?: boolean }][]).map(
+      ([vKey, val], i) => ({
+        key: vKey,
+        label: val.label,
+        sublabel: val.sublabel,
+        icon: val.icon,
+        order: i,
+        enrichable: val.enrichable,
+        hidden: val.hidden,
+        disabled: val.disabled,
+      })
+    ),
   }));
 }

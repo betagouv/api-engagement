@@ -6,7 +6,7 @@ const importPlugin = require("eslint-plugin-import");
 module.exports = [
   // Ignores
   {
-    ignores: ["node_modules", "dist", "scripts", "src/static", "coverage", ".github", "*.js.map", "*.d.ts", "eslint.config.*", ".eslintrc.*"],
+    ignores: ["node_modules", "dist", "scripts", "src/static", "coverage", ".github", "dbt/**/.venv/**", "*.js.map", "*.d.ts", "eslint.config.*", ".eslintrc.*"],
   },
 
   // Base JS recommended

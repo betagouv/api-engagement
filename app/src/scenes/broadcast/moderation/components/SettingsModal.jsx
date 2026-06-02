@@ -14,10 +14,8 @@ const SettingsModal = () => {
 
       <Modal open={open} onClose={() => setOpen(false)} className="min-w-5xl" title="Paramétrages de la modération automatique">
         <div className="border-grey-border mb-10 flex flex-col border p-4">
-          <div className="flex items-start gap-3">
-            <div className="w-[20%]">
-              <h3 className="text-lg">Conditions</h3>
-            </div>
+          <fieldset className="flex items-start gap-3">
+            <legend className="w-[20%] text-lg">Conditions</legend>
             <div className="flex w-[20%] flex-col gap-2">
               <select className="select" disabled defaultValue="">
                 <option value="">createdAt</option>
@@ -38,12 +36,10 @@ const SettingsModal = () => {
               <input className="input" type="text" defaultValue="6 mois" readOnly />
               <input className="input" type="text" defaultValue="À modérer" readOnly />
             </div>
-          </div>
+          </fieldset>
           <div className="border-grey-border my-4 border-t" />
-          <div className="flex items-start gap-3">
-            <div className="w-[20%]">
-              <h3 className="text-lg">Action</h3>
-            </div>
+          <fieldset className="flex items-start gap-3">
+            <legend className="w-[20%] text-lg">Action</legend>
             <div className="flex w-[20%] flex-col gap-2">
               <select className="select" disabled defaultValue="">
                 <option value="">modération</option>
@@ -64,13 +60,11 @@ const SettingsModal = () => {
               <input className="input" type="text" defaultValue="Refusée" readOnly />
               <input className="input" type="text" defaultValue="La mission est refusée car la date de création est trop ancienne (> 6 mois)" readOnly />
             </div>
-          </div>
+          </fieldset>
         </div>
         <div className="border-grey-border flex flex-col border p-4">
-          <div className="flex items-start gap-3">
-            <div className="w-[20%]">
-              <h3 className="text-lg">Conditions</h3>
-            </div>
+          <fieldset className="flex items-start gap-3">
+            <legend className="w-[20%] text-lg">Conditions</legend>
             <div className="flex w-[20%] flex-col gap-2">
               <select className="select" disabled defaultValue="">
                 <option value="">startAt</option>
@@ -98,12 +92,10 @@ const SettingsModal = () => {
               <input className="input" type="text" defaultValue="21 jours" readOnly />
               <input className="input" type="text" defaultValue="À modérer" readOnly />
             </div>
-          </div>
+          </fieldset>
           <div className="border-grey-border my-4 border-t" />
-          <div className="flex items-start gap-3">
-            <div className="w-[20%]">
-              <h3 className="text-lg">Action</h3>
-            </div>
+          <fieldset className="flex items-start gap-3">
+            <legend className="w-[20%] text-lg">Action</legend>
             <div className="flex w-[20%] flex-col gap-2">
               <select className="select" disabled defaultValue="">
                 <option value="">modération</option>
@@ -124,13 +116,11 @@ const SettingsModal = () => {
               <input className="input" type="text" defaultValue="Refusée" readOnly />
               <input className="input" type="text" defaultValue="La date de la mission n’est pas compatible avec le recrutement de bénévoles" readOnly />
             </div>
-          </div>
+          </fieldset>
         </div>
         <div className="border-grey-border flex flex-col border p-4">
-          <div className="flex items-start gap-3">
-            <div className="w-[20%]">
-              <h3 className="text-lg">Conditions</h3>
-            </div>
+          <fieldset className="flex items-start gap-3">
+            <legend className="w-[20%] text-lg">Conditions</legend>
             <div className="flex w-[20%] flex-col gap-2">
               <select className="select" disabled defaultValue="">
                 <option value="">description</option>
@@ -151,12 +141,10 @@ const SettingsModal = () => {
               <input className="input" type="text" defaultValue="300 caractères" readOnly />
               <input className="input" type="text" defaultValue="À modérer" readOnly />
             </div>
-          </div>
+          </fieldset>
           <div className="border-grey-border my-4 border-t" />
-          <div className="flex items-start gap-3">
-            <div className="w-[20%]">
-              <h3 className="text-lg">Action</h3>
-            </div>
+          <fieldset className="flex items-start gap-3">
+            <legend className="w-[20%] text-lg">Action</legend>
             <div className="flex w-[20%] flex-col gap-2">
               <select className="select" disabled defaultValue="">
                 <option value="">modération</option>
@@ -177,13 +165,11 @@ const SettingsModal = () => {
               <input className="input" type="text" defaultValue="Refusée" readOnly />
               <input className="input" type="text" defaultValue="Le contenu est insuffisant / non qualitatif" readOnly />
             </div>
-          </div>
+          </fieldset>
         </div>
         <div className="border-grey-border flex flex-col border p-4">
-          <div className="flex items-start gap-3">
-            <div className="w-[20%]">
-              <h3 className="text-lg">Conditions</h3>
-            </div>
+          <fieldset className="flex items-start gap-3">
+            <legend className="w-[20%] text-lg">Conditions</legend>
             <div className="flex w-[20%] flex-col gap-2">
               <select className="select" disabled defaultValue="">
                 <option value="">city</option>
@@ -204,12 +190,10 @@ const SettingsModal = () => {
               <div className="h-9" />
               <input className="input" type="text" defaultValue="À modérer" readOnly />
             </div>
-          </div>
+          </fieldset>
           <div className="border-grey-border my-4 border-t" />
-          <div className="flex items-start gap-3">
-            <div className="w-[20%]">
-              <h3 className="text-lg">Action</h3>
-            </div>
+          <fieldset className="flex items-start gap-3">
+            <legend className="w-[20%] text-lg">Action</legend>
             <div className="flex w-[20%] flex-col gap-2">
               <select className="select" disabled defaultValue="">
                 <option value="">modération</option>
@@ -231,7 +215,7 @@ const SettingsModal = () => {
               <input className="input" type="text" defaultValue="Refusée" readOnly />
               <input className="input" type="text" defaultValue="Le contenu est insuffisant / non qualitatif" readOnly />
             </div>
-          </div>
+          </fieldset>
         </div>
       </Modal>
     </>

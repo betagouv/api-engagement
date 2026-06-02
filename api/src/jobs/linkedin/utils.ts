@@ -1,19 +1,19 @@
 import { XMLBuilder } from "fast-xml-parser";
 
 import { Prisma } from "@/db/core";
-import { buildWhere, missionService } from "@/services/mission";
-import { OBJECT_ACL, putObject } from "@/services/s3";
-import { MissionRecord, MissionSearchFilters } from "@/types/mission";
 import { AUDIENCE_MAPPING, DOMAIN_MAPPING, LINKEDIN_XML_URL } from "@/jobs/linkedin/config";
 import { missionToLinkedinJob } from "@/jobs/linkedin/transformers";
 import { LinkedInJob } from "@/jobs/linkedin/types";
+import { buildWhere, missionService } from "@/services/mission";
+import { OBJECT_ACL, putObject } from "@/services/s3";
+import { MissionRecord, MissionSearchFilters } from "@/types/mission";
 
 const DEFAULT_BATCH_SIZE = 500;
 
 export async function* getMissionsCursor(filters: Omit<MissionSearchFilters, "limit" | "skip">, batchSize: number = DEFAULT_BATCH_SIZE) {
   const countFilters: MissionSearchFilters = { ...filters, limit: batchSize, skip: 0 };
   const total = await missionService.countMissions(countFilters);
-  const where = buildWhere(countFilters);
+  const where = await buildWhere(countFilters);
 
   let skip = 0;
   while (skip < total) {
@@ -35,9 +35,7 @@ export async function* getMissionsCursor(filters: Omit<MissionSearchFilters, "li
   }
 }
 
-export async function generateJvaJobs(
-  missionsCursor: AsyncIterable<MissionRecord>
-): Promise<{ jobs: LinkedInJob[]; expired: number; skipped: number; processed: number }> {
+export async function generateJvaJobs(missionsCursor: AsyncIterable<MissionRecord>): Promise<{ jobs: LinkedInJob[]; expired: number; skipped: number; processed: number }> {
   const jobs = [] as LinkedInJob[];
   let expired = 0;
   let skipped = 0;

@@ -37,6 +37,7 @@ jobs:
               - 'widget/**'
             plateform:
               - 'plateform/**'
+              - 'packages/**'
 
   api-build:
     name: API build

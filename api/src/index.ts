@@ -76,6 +76,7 @@ import UserScoringController from "@/controllers/user-scoring";
 import WarningController from "@/controllers/warning";
 import WarningBotController from "@/controllers/warning-bot";
 import WidgetController from "@/controllers/widget";
+import DiffusionRuleV0Controller from "@/v0/diffusion-rule/controller";
 import MissionV0Controller from "@/v0/mission/controller";
 import MyMissionV0Controller from "@/v0/mymission/controller";
 import MyOrganizationV0Controller from "@/v0/myorganization/controller";
@@ -126,6 +127,7 @@ const main = async () => {
   app.use("/v0/publisher", corsPublic, PublisherV0Controller);
   app.use("/v0/view", corsPublic, ViewV0Controller);
   app.use("/v0/organization", OrganizationV0Controller);
+  app.use("/v0/diffusion-rule", corsPublic, DiffusionRuleV0Controller);
   app.use("/v2/mission", corsPublic, MissionV2Controller);
   app.use("/v2/mission", corsPublic, MissionV0Controller);
   app.use("/v2/activity", corsPublic, ActivityV2Controller);
