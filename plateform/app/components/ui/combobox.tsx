@@ -70,7 +70,7 @@ export default function Combobox({ label, placeholder, options, selected, onChan
       </button>
 
       {open && (
-        <div id={panelId} className="absolute right-0 left-0 z-50 min-w-80 mt-1 border border-border-default-grey bg-white shadow-lg">
+        <div id={panelId} className="absolute right-0 left-0 z-50 min-w-80 mt-1 border border-border-default-grey bg-white! shadow-lg">
           <div className="relative m-4">
             <input
               type="text"
@@ -84,10 +84,10 @@ export default function Combobox({ label, placeholder, options, selected, onChan
             <i className="fr-icon-search-line fr-icon--sm pointer-events-none absolute top-1/2 right-3 -translate-y-1/2" aria-hidden="true" />
           </div>
 
-          <fieldset className="fr-fieldset mx-2! py-2! max-h-60 overflow-y-auto" tabIndex={-1}>
-            <legend className="fr-fieldset__legend sr-only">Sélectionner {label.toLowerCase()}</legend>
+          <fieldset className="max-h-60 w-full min-w-0 overflow-y-auto" tabIndex={-1}>
+            <legend className="sr-only">Sélectionner {label.toLowerCase()}</legend>
 
-            <div className="fr-fieldset__content">
+            <div className="px-4">
               {visibleOptions.length === 0 ? (
                 <p className="px-3 py-4 text-center text-sm text-title-grey">Aucune option disponible</p>
               ) : (
@@ -95,9 +95,9 @@ export default function Combobox({ label, placeholder, options, selected, onChan
                   const inputId = `${reactId}-${option.value}`;
                   const isSelected = selected.includes(option.value);
                   return (
-                    <div key={option.value} className="fr-checkbox-group">
+                    <div key={option.value} className="fr-checkbox-group flex w-full">
                       <input type="checkbox" id={inputId} checked={isSelected} onChange={() => toggleOption(option)} className="mr-2!" />
-                      <label className="fr-label flex flex-1 items-center justify-between gap-3 px-2! py-2! before:top-2!" htmlFor={inputId}>
+                      <label className="fr-label flex min-w-0 flex-1 flex-nowrap items-center justify-between gap-3 px-2! py-2! before:top-2!" htmlFor={inputId}>
                         <span className="min-w-0 truncate flex-1">{option.label}</span>
                         {option.count !== undefined && <span className="shrink-0 text-xs text-title-grey">{option.count}</span>}
                       </label>
