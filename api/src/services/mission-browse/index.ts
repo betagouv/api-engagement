@@ -3,6 +3,7 @@ import type { MissionBrowseFacetCount, MissionBrowseFilters, MissionBrowseRespon
 import { missionService } from "@/services/mission";
 import { publisherDiffusionRuleService } from "@/services/publisher-diffusion-rule";
 import { missionSearchClient } from "@/services/search/collections/missions/client";
+import { publisherDiffusionRulesToMissionFilter } from "@/services/search/collections/missions/diffusion-rules-filter";
 import { INDEXED_TAXONOMY_KEYS, IndexedTaxonomyKey } from "@/services/search/collections/missions/fields";
 import { toMissionBrowse, toMissionDetailPayload } from "./transformers";
 
@@ -78,18 +79,14 @@ const buildFilterBy = (params: BrowseParams): string => {
 
 export const missionBrowseService = {
   async browse(params: BrowseParams): Promise<MissionBrowseResponse> {
-    const allowedPublisherIds = await publisherDiffusionRuleService.findAllowedMissionPublisherIds(params.diffuseurPublisherId);
-    if (!allowedPublisherIds.length) {
+    const rules = await publisherDiffusionRuleService.findRules({ publisherId: params.diffuseurPublisherId });
+    const diffusionFilter = publisherDiffusionRulesToMissionFilter(rules);
+    if (diffusionFilter.kind === "none") {
       return emptyBrowseResponse(params);
     }
 
-    const requestedPublisherIds = toArray(params.publisherId);
-    const publisherIds = requestedPublisherIds?.length ? allowedPublisherIds.filter((publisherId) => requestedPublisherIds.includes(publisherId)) : allowedPublisherIds;
-    if (!publisherIds.length) {
-      return emptyBrowseResponse(params);
-    }
-
-    const filterBy = buildFilterBy({ ...params, publisherId: publisherIds });
+    const browseFilter = buildFilterBy(params);
+    const filterBy = [diffusionFilter.filterBy, browseFilter].filter(Boolean).join(" && ");
 
     const tsResult = await (async () => {
       try {
@@ -121,12 +118,13 @@ export const missionBrowseService = {
   },
 
   async findById(id: string, diffuseurPublisherId: string): Promise<MissionDetailResponse | null> {
-    const allowedPublisherIds = await publisherDiffusionRuleService.findAllowedMissionPublisherIds(diffuseurPublisherId);
-    if (!allowedPublisherIds.length) {
+    const rules = await publisherDiffusionRuleService.findRules({ publisherId: diffuseurPublisherId });
+    const diffusionFilter = publisherDiffusionRulesToMissionFilter(rules);
+    if (diffusionFilter.kind === "none") {
       return null;
     }
 
-    const mission = await missionService.findOneMissionBy({ id, publisherId: { in: allowedPublisherIds }, deletedAt: null, statusCode: "ACCEPTED" });
+    const mission = await missionService.findOneMissionBy({ id, publisherId: { in: diffusionFilter.publisherIds }, deletedAt: null, statusCode: "ACCEPTED" });
     if (!mission) {
       return null;
     }
