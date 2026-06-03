@@ -8,9 +8,10 @@ interface ComboboxProps {
   options: ComboboxOption[];
   selected: string[];
   onChange: (next: string[]) => void;
+  className?: string;
 }
 
-export default function Combobox({ label, placeholder, options, selected, onChange }: ComboboxProps) {
+export default function Combobox({ label, placeholder, options, selected, onChange, className }: ComboboxProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const reactId = useId();
@@ -56,7 +57,7 @@ export default function Combobox({ label, placeholder, options, selected, onChan
       <button
         ref={triggerRef}
         type="button"
-        className="w-full px-4 text-left transition-colors hover:bg-background-default-grey-hover"
+        className={`w-full px-4 text-left transition-colors hover:bg-background-default-grey-hover ${className}`}
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => setOpen((value) => !value)}
