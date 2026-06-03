@@ -2,7 +2,7 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, NOT_FOUND } from "@/error";
+import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
 import { publisherRateLimiter } from "@/middlewares/rate-limit";
 import { publisherService } from "@/services/publisher";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
@@ -12,6 +12,11 @@ import type { PublisherRecord } from "@/types/publisher";
 const router = Router();
 router.use(passport.authenticate(["apikey", "api"], { session: false }));
 router.use(publisherRateLimiter);
+
+const listQuerySchema = zod.object({
+  field: zod.string().min(1).optional(),
+  value: zod.string().min(1).optional(),
+});
 
 const ruleBodySchema = zod.object({
   publisherIds: zod.array(zod.string()).min(1),
@@ -24,6 +29,14 @@ const ruleBodySchema = zod.object({
 router.get("/", async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
     const user = req.user as PublisherRecord;
+
+    const query = listQuerySchema.safeParse(req.query);
+    if (!query.success) {
+      res.locals = { code: INVALID_QUERY, message: JSON.stringify(query.error) };
+      return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
+    }
+
+    const { field, value } = query.data;
 
     const diffuseurs = await publisherService.findPublishers({ diffuseurOf: user.id });
     const diffuseurIds = diffuseurs.map((diffuseur) => diffuseur.id);
@@ -45,7 +58,7 @@ router.get("/", async (req: PublisherRequest, res: Response, next: NextFunction)
 
     const data = diffuseurs.map((diffuseur) => {
       const combinedRules = rulesByDiffuseur.get(diffuseur.id)?.[0].combinedRules ?? [];
-      return {
+      const base = {
         id: diffuseur.id,
         name: diffuseur.name,
         logo: diffuseur.logo,
@@ -57,6 +70,12 @@ router.get("/", async (req: PublisherRequest, res: Response, next: NextFunction)
           value: rule.value,
         })),
       };
+
+      if (field !== undefined && value !== undefined) {
+        return { ...base, diffuse: publisherDiffusionRuleService.isValueDiffused({ rules: combinedRules, field, value }) };
+      }
+
+      return base;
     });
 
     return res.status(200).send({ ok: true, data, total: data.length });
@@ -130,10 +149,10 @@ router.delete("/:id", async (req: PublisherRequest, res: Response, next: NextFun
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Rule not found" });
     }
 
-    const isScopedToUser = rule.combinedWithId === null && rule.field === "publisherId" && rule.value === user.id;
+    const isScopedToUser = rule.combinedWith?.field === "publisherId" && rule.combinedWith?.value === user.id;
     if (!isScopedToUser) {
-      res.locals = { code: NOT_FOUND, message: "Rule not found" };
-      return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Rule not found" });
+      res.locals = { code: FORBIDDEN, message: "Rule not scoped to user" };
+      return res.status(403).send({ ok: false, code: FORBIDDEN, message: "Rule not scoped to user" });
     }
 
     await publisherDiffusionRuleService.deleteRule(rule.id);

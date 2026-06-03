@@ -426,7 +426,7 @@ model PublisherDiffusionRule {
   combinedWith  PublisherDiffusionRule?  @relation("PublisherDiffusionRuleCombined", fields: [combinedWithId], references: [id], onDelete: Cascade)
   combinedRules PublisherDiffusionRule[] @relation("PublisherDiffusionRuleCombined")
 
-  @@unique([publisherId, field, value], map: "publisher_diffusion_rule_publisher_field_value_key")
+  @@unique([publisherId, combinedWithId, field, value], map: "publisher_diffusion_rule_publisher_combined_field_value_key")
   @@index([publisherId], map: "publisher_diffusion_rule_publisher_id_idx")
   @@index([combinedWithId], map: "publisher_diffusion_rule_combined_with_id_idx")
   @@map("publisher_diffusion_rule")

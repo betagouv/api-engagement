@@ -11,6 +11,7 @@ import { buildMissionPublisherDiffusionRuleConditionFromRule, buildMissionPublis
 
 type PublisherDiffusionRuleWithChildren = PublisherDiffusionRule & {
   combinedRules?: PublisherDiffusionRule[];
+  combinedWith?: PublisherDiffusionRule | null;
 };
 
 const buildNodeCondition = (rule: PublisherDiffusionRule, childrenByParentId: Map<string, PublisherDiffusionRule[]>): Prisma.MissionWhereInput | null => {
@@ -71,7 +72,25 @@ const toRecord = (rule: PublisherDiffusionRuleWithChildren): PublisherDiffusionR
   createdAt: rule.createdAt,
   updatedAt: rule.updatedAt,
   combinedRules: rule.combinedRules?.map(toRecord),
+  combinedWith: rule.combinedWith ? toRecord(rule.combinedWith) : null,
 });
+
+const EXCLUSION_OPERATORS = new Set(["is_not", "does_not_contain", "does_not_exist"]);
+
+const ruleExcludesValue = (rule: PublisherDiffusionRuleRecord, value: string): boolean => {
+  const ruleValue = (rule.value ?? "").toLowerCase();
+  const candidate = value.toLowerCase();
+  switch (rule.operator) {
+    case "is_not":
+      return candidate === ruleValue;
+    case "does_not_contain":
+      return candidate.includes(ruleValue);
+    case "does_not_exist":
+      return candidate.length > 0;
+    default:
+      return false;
+  }
+};
 
 const buildFindWhere = (params: PublisherDiffusionRuleFindParams): Prisma.PublisherDiffusionRuleWhereInput => {
   const where: Prisma.PublisherDiffusionRuleWhereInput = {};
@@ -131,6 +150,10 @@ export const publisherDiffusionRuleService = {
     return buildMissionPublisherDiffusionRuleSqlFromRules(rules, options);
   },
 
+  isValueDiffused({ rules, field, value }: { rules: PublisherDiffusionRuleRecord[]; field: string; value: string }): boolean {
+    return !rules.some((rule) => rule.field === field && EXCLUSION_OPERATORS.has(rule.operator) && ruleExcludesValue(rule, value));
+  },
+
   async findRules(params: PublisherDiffusionRuleFindParams = {}): Promise<PublisherDiffusionRuleRecord[]> {
     const rules = (await publisherDiffusionRuleRepository.findMany({
       where: buildFindWhere(params),
@@ -144,7 +167,7 @@ export const publisherDiffusionRuleService = {
   async findRuleById(id: string): Promise<PublisherDiffusionRuleRecord | null> {
     const rule = (await publisherDiffusionRuleRepository.findUnique({
       where: { id },
-      include: { combinedRules: true },
+      include: { combinedRules: true, combinedWith: true },
     })) as PublisherDiffusionRuleWithChildren | null;
 
     return rule ? toRecord(rule) : null;
@@ -202,6 +225,14 @@ export const publisherDiffusionRuleService = {
     value: string;
   }): Promise<PublisherDiffusionRuleRecord> {
     const root = await this.findOrCreateScopeRoot(input.diffuseurPublisherId, input.annonceurPublisherId);
+
+    const existing = await publisherDiffusionRuleRepository.findFirst({
+      where: { publisherId: input.diffuseurPublisherId, combinedWithId: root.id, field: input.field, value: input.value },
+      include: { combinedRules: true },
+    });
+    if (existing) {
+      return toRecord(existing as PublisherDiffusionRuleWithChildren);
+    }
 
     const created = (await publisherDiffusionRuleRepository.create({
       data: {
