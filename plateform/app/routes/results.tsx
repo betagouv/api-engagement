@@ -12,10 +12,12 @@ import OtherMissions from "~/components/results/other-missions";
 import PinnedMissions from "~/components/results/pinned-missions";
 import GradientBg from "~/components/ui/gradient-bg";
 import Highlight from "~/components/ui/highlight";
+import { QUIZ_FLOW } from "~/config/quiz-flow";
 import { OPTIONS } from "~/config/quiz-options";
 import { useIsMobile } from "~/hooks/useIsMobile";
 import { useMissionResults } from "~/hooks/useMissionResults";
 import { useQuizStore } from "~/stores/quiz";
+import { evalCondition } from "~/utils/conditions";
 import { matchResultToBrowseMission } from "~/utils/mission";
 
 const FRANCE_CENTER: [number, number] = [46.6, 2.3];
@@ -23,7 +25,6 @@ const FRANCE_CENTER: [number, number] = [46.6, 2.3];
 export default function ResultsPage() {
   const { userScoringId } = useParams<{ userScoringId: string }>();
   const isMobile = useIsMobile();
-  const reset = useQuizStore((s) => s.reset);
   const answers = useQuizStore((s) => s.answers);
   const { pinnedItems, otherItems, page, setPage, hasNextPage, loading, pageLoading, error, visiblePageNumbers } = useMissionResults(userScoringId);
   const [expanded, setExpanded] = useState(false);
@@ -63,6 +64,10 @@ export default function ResultsPage() {
 
   const showMap = !loading && pinnedItems.length > 0;
   const showOther = !loading && !error && (otherItems.length > 0 || page > 1);
+
+  // Dernier step visible du quiz selon les réponses courantes → "Changer mes réponses" y renvoie.
+  const lastQuizStep = QUIZ_FLOW.filter((s) => !s.condition || evalCondition(s.condition, answers)).at(-1);
+  const changeAnswersHref = lastQuizStep?.route ?? "/quiz/age";
 
   const handleToggleSheet = () => {
     if (expanded && scrollRef.current) scrollRef.current.scrollTop = 0;
@@ -157,7 +162,7 @@ export default function ResultsPage() {
               )}
 
               {expanded && (
-                <Link to="/quiz/age" onClick={reset} className="fr-link fr-link--sm shrink-0">
+                <Link to={changeAnswersHref} className="fr-link fr-link--sm shrink-0">
                   <span className="fr-icon-arrow-left-line fr-btn--icon-left" aria-hidden="true" />
                   Changer mes réponses
                 </Link>
@@ -217,7 +222,7 @@ export default function ResultsPage() {
                   </h2>
                 )}
 
-                <Link to="/quiz/age" onClick={reset} className="fr-link fr-link--sm shrink-0">
+                <Link to={changeAnswersHref} className="fr-link fr-link--sm shrink-0">
                   Changer mes réponses
                 </Link>
               </div>

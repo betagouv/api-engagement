@@ -20,10 +20,17 @@ interface MissionFiltersProps {
 
 export default function MissionFiltersBar({ filters, onChange }: MissionFiltersProps) {
   return (
-    <div className="fr-container bg-background hidden flex-col py-6 divide-y divide-border-default-grey shadow-lg md:flex md:flex-row md:divide-x md:divide-y-0">
-      {filters.map((filter) => (
+    <div className="fr-container px-0! bg-background hidden flex-col shadow-lg md:flex md:flex-row">
+      {filters.map((filter, index) => (
         <div key={filter.key} className="min-w-0 flex-1">
-          <Combobox label={filter.label} placeholder={filter.placeholder} options={filter.options} selected={filter.selected} onChange={(next) => onChange(filter.key, next)} />
+          <Combobox
+            label={filter.label}
+            placeholder={filter.placeholder}
+            options={filter.options}
+            selected={filter.selected}
+            onChange={(next) => onChange(filter.key, next)}
+            className={`py-5 ${index !== 0 ? "after:content-[''] after:absolute after:top-4 after:bottom-4 after:left-0 after:w-px after:bg-border-default-grey" : ""}`}
+          />
         </div>
       ))}
     </div>

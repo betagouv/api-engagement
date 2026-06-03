@@ -6,6 +6,10 @@
    aucun @layer donc il gagne la cascade et le reset DSFR reste en place. */
 @import "tailwindcss";
 
+/* DSFR pilote le thème via l'attribut `data-fr-theme` sur `<html>` : on branche
+   la variante `dark:` de Tailwind dessus plutôt que sur `prefers-color-scheme`. */
+@custom-variant dark ([data-fr-theme="dark"] &);
+
 @theme {
   --color-info-950: var(--info-950-100);
   --color-blue-france-sun: var(--blue-france-sun-113-625);
