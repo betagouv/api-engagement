@@ -265,6 +265,7 @@ variable "typesense_nodes" {
     instance_type     = string
     typesense_version = string
   }))
+  default     = {}
   description = "Typesense nodes keyed by stable node name, with one private IP per node."
 }
 

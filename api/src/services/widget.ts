@@ -16,7 +16,7 @@ import { randomUUID } from "crypto";
 
 type PrismaWidgetWithRelations = Prisma.WidgetGetPayload<{
   include: {
-    fromPublisher: { select: { id: true; name: true; diffusionExclusionsFor?: true } };
+    fromPublisher: { select: { id: true; name: true } };
     rules: true;
     widgetPublishers: { select: { publisherId: true } };
   };
@@ -55,7 +55,6 @@ const toWidgetRecord = (widget: PrismaWidgetWithRelations): WidgetRecord => ({
   jvaModeration: widget.jvaModeration,
   fromPublisherId: widget.fromPublisherId,
   fromPublisherName: widget.fromPublisher?.name ?? null,
-  fromPublisherDiffusionExclusions: widget.fromPublisher?.diffusionExclusionsFor ?? [],
   active: widget.active,
   deletedAt: widget.deletedAt,
   createdAt: widget.createdAt,
