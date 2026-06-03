@@ -1,11 +1,10 @@
-import type { TaxonomyValueKey } from "@engagement/taxonomy";
 import { useEffect, useMemo, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 import BackButton from "~/components/quiz/back-button";
 import QuizHeader from "~/components/quiz/header";
 import LoadingRecap from "~/components/quiz/loading-recap";
 import { QUIZ_FLOW, type StepDef } from "~/config/quiz-flow";
-import { OPTIONS } from "~/config/quiz-options";
+import { invalidateInitialMatches } from "~/services/matching";
 import { createUserScoring, updateUserScoring } from "~/services/user-scoring";
 import { useQuizStore } from "~/stores/quiz";
 import { evalCondition } from "~/utils/conditions";
@@ -74,6 +73,7 @@ export default function QuizLayout() {
       }
 
       await updateUserScoring(freshUserScoringId, { ...payload, distinctId: freshDistinctId });
+      invalidateInitialMatches(freshUserScoringId);
       return true;
     } catch (err) {
       console.error("[quiz] saveCurrentScoring failed", err);
@@ -83,13 +83,15 @@ export default function QuizLayout() {
 
   const goNext = async () => {
     if (!currentStep) return;
-    setTransitioning(false);
     setScoringError(null);
     const freshAnswers = useQuizStore.getState().answers;
+    // On garde `transitioning` à true pendant la sauvegarde (appel réseau) : sinon le step
+    // courant ré-afficherait sa question le temps de la requête, avant la navigation (glitch).
     const scoringSaved = await saveCurrentScoring();
 
     if (!scoringSaved) {
       setScoringError("Impossible d'enregistrer tes réponses. Réessaie dans quelques instants.");
+      setTransitioning(false);
       return;
     }
 
@@ -100,6 +102,8 @@ export default function QuizLayout() {
     } else {
       setLoadingResults(true);
     }
+    // Réinitialisé après la navigation (batché avec elle) → le step suivant s'affiche directement.
+    setTransitioning(false);
   };
 
   const handleLoadingComplete = () => {
@@ -107,12 +111,6 @@ export default function QuizLayout() {
     const id = useQuizStore.getState().userScoringId;
     navigate(id ? `/results/${id}` : "/");
   };
-
-  const recapItems = (["statut", "duree", "motivation"] as const).flatMap((stepId) => {
-    const answer = answers[stepId];
-    if (!answer || answer.type !== "options") return [];
-    return answer.option_ids.map((id) => OPTIONS[`${answer.taxonomy}.${id}` as TaxonomyValueKey]?.label).filter(Boolean) as string[];
-  });
 
   const goBack = () => {
     if (!currentStep) return;
@@ -125,17 +123,25 @@ export default function QuizLayout() {
 
   return (
     <div className="flex flex-col flex-1">
-      <QuizHeader step={loadingResults ? steps.length + 1 : currentIndex + 1} stepCount={steps.length + 1} />
+      <QuizHeader
+        step={loadingResults ? steps.length + 1 : currentIndex + 1}
+        stepCount={steps.length + 1}
+        backHref={!transitioning && !loadingResults ? (currentIndex > 0 ? steps[currentIndex - 1].route : "/") : undefined}
+      />
       <main className="flex-1 bg-gradient-to-l from-blue-france-950/40 md:from-blue-france-950 to-transparent pt-10 pb-24 md:pb-10">
         <div className="fr-container flex flex-col gap-10">
-          {!transitioning && !loadingResults && <BackButton href={currentIndex > 0 ? steps[currentIndex - 1].route : "/"} />}
+          {!transitioning && !loadingResults && (
+            <div className="hidden lg:block">
+              <BackButton href={currentIndex > 0 ? steps[currentIndex - 1].route : "/"} />
+            </div>
+          )}
           {scoringError && !loadingResults && (
             <div className="fr-alert fr-alert--error">
               <p>{scoringError}</p>
             </div>
           )}
           {loadingResults ? (
-            <LoadingRecap items={recapItems} onComplete={handleLoadingComplete} />
+            <LoadingRecap onComplete={handleLoadingComplete} />
           ) : (
             // `goNext` / `goBack` exposés aux routes enfants via Outlet context — elles les appellent après validation.
             <Outlet context={{ goNext, goBack, transitioning, setTransitioning } satisfies QuizOutletContext} />

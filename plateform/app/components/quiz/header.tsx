@@ -4,9 +4,10 @@ import ExitModal from "./exit-modal";
 interface QuizHeaderProps {
   step: number;
   stepCount: number;
+  backHref?: string;
 }
 
-export default function QuizHeader({ step = 0, stepCount }: QuizHeaderProps) {
+export default function QuizHeader({ step = 0, stepCount, backHref }: QuizHeaderProps) {
   const progress = stepCount > 0 ? Math.min(100, Math.max(0, (step / stepCount) * 100)) : 0;
 
   return (
@@ -35,13 +36,23 @@ export default function QuizHeader({ step = 0, stepCount }: QuizHeaderProps) {
       </div>
 
       <div className="relative flex lg:hidden items-center px-4 h-14">
-        <Link to="/" title="Retour à l'accueil" className="fr-icon-arrow-left-line fr-btn--icon-left fr-btn--tertiary-no-outline font-semi-bold!">
-          Retour
-        </Link>
+        {backHref && (
+          <Link to={backHref} title="Retour" className="fr-icon-arrow-left-line fr-btn--icon-left fr-btn--tertiary-no-outline font-semi-bold!">
+            Retour
+          </Link>
+        )}
         <p className="fr-h6 absolute left-1/2 -translate-x-1/2 mb-0">Trouve ta mission</p>
       </div>
 
-      <div className="h-2 bg-beige-gris-galet">
+      <div
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={stepCount}
+        aria-valuenow={step}
+        aria-valuetext={`Étape ${step} sur ${stepCount}`}
+        className="h-2 bg-beige-gris-galet"
+      >
+        <span className="sr-only">{`Étape ${step} sur ${stepCount}`}</span>
         <div className="h-full bg-blue-france-sun transition-[width] ease-out duration-500" style={{ width: `${progress}%` }} />
       </div>
     </header>

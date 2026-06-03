@@ -20,6 +20,7 @@ on:
       - "analytics/**"
       - "widget/**"
       - "plateform/**"
+      - "packages/**"
       - "terraform/**"
 
   workflow_dispatch:

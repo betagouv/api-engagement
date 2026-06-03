@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { DISABLED_OPTION_HINT } from "~/config/quiz-options";
 import type { StepOption } from "~/types/quiz";
 
 type Props = {
@@ -29,7 +30,7 @@ export default function CheckboxGroupRich({ title, subtitle, onChange, options, 
       </legend>
       <div className="fr-fieldset__content grid grid-cols-1 md:grid-cols-2 max-w-4xl! mx-0! gap-x-6 gap-y-4!">
         {options.map((o) => (
-          <div key={o.value} className="fr-fieldset__element mb-0!">
+          <div key={o.value} className={`fr-fieldset__element mb-0! ${o.disabled ? "opacity-60" : ""}`}>
             <div className="fr-checkbox-group fr-checkbox-rich mt-0! mb-0!">
               <input
                 value={o.value}
@@ -37,11 +38,15 @@ export default function CheckboxGroupRich({ title, subtitle, onChange, options, 
                 id={`checkbox-group-rich-${o.value}`}
                 name="checkbox-group-rich"
                 onChange={() => toggle(o.value)}
-                checked={selected.includes(o.value)}
+                checked={!o.disabled && selected.includes(o.value)}
+                disabled={o.disabled}
               />
-              <label className="fr-label text-base before:size-4! after:absolute after:inset-0 after:right-[-5.5rem] after:content-['']" htmlFor={`checkbox-group-rich-${o.value}`}>
+              <label
+                className={`fr-label text-base before:size-4! after:absolute after:inset-0 after:right-[-5.5rem] after:content-[''] ${o.disabled ? "cursor-not-allowed!" : ""}`}
+                htmlFor={`checkbox-group-rich-${o.value}`}
+              >
                 {o.label}
-                {o.sublabel && <span className="fr-hint-text">{o.sublabel}</span>}
+                {o.disabled ? <span className="fr-hint-text">{DISABLED_OPTION_HINT}</span> : o.sublabel && <span className="fr-hint-text">{o.sublabel}</span>}
               </label>
               <div className="fr-checkbox-rich__pictogram">{o.icon && <div className="text-2xl">{o.icon}</div>}</div>
             </div>

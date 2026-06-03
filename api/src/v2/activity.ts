@@ -2,12 +2,13 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { INVALID_BODY, INVALID_PARAMS, NOT_FOUND } from "@/error";
+import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, NOT_FOUND } from "@/error";
+import { publisherRateLimiter } from "@/middlewares/rate-limit";
 import missionService from "@/services/mission";
+import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import { statEventService } from "@/services/stat-event";
 import { StatEventRecord } from "@/types";
 import { PublisherRequest } from "@/types/passport";
-import { publisherRateLimiter } from "@/middlewares/rate-limit";
 import type { PublisherRecord } from "@/types/publisher";
 
 const router = Router();
@@ -55,35 +56,42 @@ router.get("/:id", async (req: PublisherRequest, res: Response, next: NextFuncti
   }
 });
 
-
 router.post("/", async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
     const user = req.user as PublisherRecord;
     const body = zod
       .object({
         type: zod.enum(["apply", "account"]).default("apply"),
-        clickId: zod.string(),
+        clickId: zod.string().optional(),
+        missionId: zod.string().optional(),
         missionClientId: zod.string().optional(),
         tag: zod.string().optional(),
       })
+      .refine((data) => data.clickId || data.missionId || data.missionClientId, {
+        message: "clickId, missionId or missionClientId is required",
+      })
+      .refine((data) => !data.clickId || !data.missionId, {
+        message: "missionId cannot be used together with clickId",
+      })
+      .refine((data) => data.clickId || !data.missionId || !data.missionClientId, {
+        message: "missionId and missionClientId cannot be used together without clickId",
+      })
       .safeParse(req.body);
-
 
     if (!body.success) {
       return res.status(400).send({ ok: false, code: INVALID_BODY, error: JSON.parse(body.error.message) });
     }
 
-    const click:StatEventRecord | null = await statEventService.findOneStatEventById(body.data.clickId);
-    if (!click) {
-      return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Click not found" });
+    let click: StatEventRecord | null = null;
+    if (body.data.clickId) {
+      click = await statEventService.findOneStatEventById(body.data.clickId);
+      if (!click) {
+        return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Click not found" });
+      }
     }
 
     const obj = {
-      clickId: click._id,
-      fromPublisherId: click.fromPublisherId,
-      toPublisherId: user.id || null,
-
-      tag: body.data.tag || click.tag || "",
+      tag: body.data.tag || click?.tag || "",
       isBot: false,
       isHuman: true,
 
@@ -98,13 +106,48 @@ router.post("/", async (req: PublisherRequest, res: Response, next: NextFunction
       status: "PENDING",
     } as StatEventRecord;
 
-    if (body.data.missionClientId) {
+    if (click) {
+      obj.clickId = click._id;
+      obj.fromPublisherId = click.fromPublisherId;
+      obj.toPublisherId = user.id;
+    }
+
+    if (click && body.data.missionClientId) {
       const mission = await missionService.findOneMissionBy({ clientId: body.data.missionClientId, publisherId: user.id });
       if (!mission) {
         return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Mission not found" });
       }
 
       obj.missionId = mission.id;
+    }
+
+    if (!click && body.data.missionClientId) {
+      const mission = await missionService.findOneMissionBy({ clientId: body.data.missionClientId, publisherId: user.id });
+      if (!mission) {
+        return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Mission not found" });
+      }
+
+      obj.missionId = mission.id;
+      obj.fromPublisherId = user.id;
+      obj.toPublisherId = mission.publisherId;
+    } else if (!click && body.data.missionId) {
+      const mission = await missionService.findOneMissionBy({
+        id: body.data.missionId,
+        statusCode: "ACCEPTED",
+        deletedAt: null,
+      });
+      if (!mission) {
+        return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Mission not found" });
+      }
+
+      const canAccessMission = await publisherDiffusionRuleService.canPublisherAccessMission({ publisherId: user.id, missionId: mission.id });
+      if (!canAccessMission) {
+        return res.status(403).send({ ok: false, code: FORBIDDEN, message: "Mission not accessible" });
+      }
+
+      obj.missionId = mission.id;
+      obj.fromPublisherId = user.id;
+      obj.toPublisherId = mission.publisherId;
     }
 
     const id = await statEventService.createStatEvent(obj);

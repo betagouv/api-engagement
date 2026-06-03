@@ -6,6 +6,7 @@ import { buildMissionIndex, buildValuesIndex, missionMatchMissionSelect, mission
 
 export type MissionMatchInput = {
   userScoringId: string;
+  publisherId?: string;
   limit: number;
   offset: number;
 };

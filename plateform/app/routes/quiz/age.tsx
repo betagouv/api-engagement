@@ -46,7 +46,7 @@ export default function AgeStep() {
           </option>
         ))}
       </select>
-      <NextButton onClick={goNext} type="submit" disabled={!valid} />
+      <NextButton type="submit" disabled={!valid} />
     </form>
   );
 }

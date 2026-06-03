@@ -69,8 +69,11 @@ services:
       dockerfile: plateform/Dockerfile
     depends_on:
       - api
+    env_file:
+      - ./plateform/.env
     environment:
       VITE_API_URL: http://localhost:3002
+      SERVER_API_URL: http://api:3002
       VITE_ENV: development
     volumes:
       - ./plateform:/workspace/plateform
@@ -95,30 +98,6 @@ services:
     ports:
       - "3000:3000"
     command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
-
-  widget:
-    build:
-      context: .
-      dockerfile: widget/Dockerfile
-    depends_on:
-      - api
-    environment:
-      API_URL: http://localhost:3002
-      ENV: development
-    volumes:
-      - ./widget:/workspace/widget
-      - /workspace/widget/node_modules
-    ports:
-      - "3003:3003"
-
-  typesense:
-    image: typesense/typesense:30.2
-    restart: always
-    command: --data-dir /data --api-key=xyz --enable-cors
-    ports:
-      - "8108:8108"
-    volumes:
-      - typesense-data:/data
 
   typesense-setup:
     build:
@@ -147,6 +126,30 @@ services:
         "sleep 20 && npx ts-node src/jobs/run-job.ts setup-search-collections",
       ]
     restart: "no"
+
+  widget:
+    build:
+      context: .
+      dockerfile: widget/Dockerfile
+    depends_on:
+      - api
+    environment:
+      API_URL: http://localhost:3002
+      ENV: development
+    volumes:
+      - ./widget:/workspace/widget
+      - /workspace/widget/node_modules
+    ports:
+      - "3003:3003"
+
+  typesense:
+    image: typesense/typesense:30.2
+    restart: always
+    command: --data-dir /data --api-key=xyz --enable-cors
+    ports:
+      - "8108:8108"
+    volumes:
+      - typesense-data:/data
 
 volumes:
   api-node-modules:

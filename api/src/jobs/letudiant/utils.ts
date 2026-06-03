@@ -14,7 +14,7 @@ import { missionService } from "@/services/mission";
 import missionJobBoardService from "@/services/mission-jobboard";
 import { PilotyClient } from "@/services/piloty/client";
 import { PilotyJobCategory, PilotyMandatoryData } from "@/services/piloty/types";
-import { publisherDiffusionExclusionService } from "@/services/publisher-diffusion-exclusion";
+import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import { MissionRecord } from "@/types/mission";
 import { JobBoardId, MissionJobBoardRecord } from "@/types/mission-job-board";
 import he from "he";
@@ -41,12 +41,24 @@ export async function rateLimit(delayMs = 500) {
 }
 
 /**
- * Load the set of organizationClientIds excluded for L'Etudiant diffusion.
+ * Load the set of organization clientIds excluded for L'Etudiant diffusion.
  * Returns a Set for O(1) lookups.
  */
 export async function loadExcludedOrganizationClientIds(): Promise<Set<string>> {
-  const exclusions = await publisherDiffusionExclusionService.findExclusionsForDiffuseurId(PUBLISHER_IDS.LETUDIANT);
-  return new Set(exclusions.map((e) => e.organizationClientId).filter((id): id is string => Boolean(id)));
+  const rules = await publisherDiffusionRuleService.findRules({
+    publisherId: PUBLISHER_IDS.LETUDIANT,
+    combinedWithId: null,
+    includeCombinedRules: true,
+  });
+  const clientIds = new Set<string>();
+  rules.forEach((rule) => {
+    (rule.combinedRules ?? []).forEach((child) => {
+      if (child.field === "publisherOrganization.clientId" && child.value) {
+        clientIds.add(child.value);
+      }
+    });
+  });
+  return clientIds;
 }
 
 /**
@@ -140,13 +152,7 @@ export async function countOnlineEntriesByDomain(publisherIds?: string[]): Promi
  * Returns mission IDs eligible for publication on a given domain, ordered newest first.
  * Excludes missions already ONLINE, missions with an ERROR status, and excluded orgs.
  */
-export async function getMissionIdsToPublishByDomain(
-  publisherIds: string[],
-  domain: string,
-  limit: number,
-  excludedOrgClientIds: Set<string>,
-  offset = 0
-): Promise<string[]> {
+export async function getMissionIdsToPublishByDomain(publisherIds: string[], domain: string, limit: number, excludedOrgClientIds: Set<string>, offset = 0): Promise<string[]> {
   if (limit <= 0) {
     return [];
   }

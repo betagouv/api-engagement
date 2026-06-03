@@ -1,11 +1,12 @@
+import React, { useEffect, useRef, useState } from "react";
+import { Link } from "react-router";
+
 import CalendarSvg from "@gouvfr/dsfr/dist/artwork/pictograms/digital/calendar.svg?url";
 import SelfTrainingSvg from "@gouvfr/dsfr/dist/artwork/pictograms/digital/self-training.svg?url";
 import LeafSvg from "@gouvfr/dsfr/dist/artwork/pictograms/environment/leaf.svg?url";
 import FirefighterSvg from "@gouvfr/dsfr/dist/artwork/pictograms/institutions/firefighter.svg?url";
 import MoneySvg from "@gouvfr/dsfr/dist/artwork/pictograms/institutions/money.svg?url";
 import LocationFranceSvg from "@gouvfr/dsfr/dist/artwork/pictograms/map/location-france.svg?url";
-import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router";
 import LongTraceSvg from "~/assets/svg/long-trace.svg";
 
 import Highlight from "../ui/highlight";
@@ -25,9 +26,26 @@ const FEATURES: Feature[] = [
       </>
     ),
   },
-  { icon: MoneySvg, title: "Avec ou sans indemnité selon les missions" },
-  { icon: LocationFranceSvg, title: "Partout en France et à l'étranger" },
-  { icon: SelfTrainingSvg, title: "Sans diplôme ni expérience requis" },
+  {
+    icon: MoneySvg,
+    title: (
+      <>
+        Avec ou sans indemnité
+        <br /> selon les missions
+      </>
+    ),
+  },
+  {
+    icon: LocationFranceSvg,
+    title: (
+      <>
+        En France
+        <br />
+        Près de chez toi ou plus loin
+      </>
+    ),
+  },
+  { icon: SelfTrainingSvg, title: "Compatible sans diplôme études ou emploi" },
 ];
 
 export default function HowItWorks() {
@@ -70,18 +88,18 @@ export default function HowItWorks() {
           ref={scrollRef}
           id="how-it-works-carousel"
           onScroll={updateScrollState}
-          className="overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:overflow-visible fr-mb-6w [margin-right:calc(50%-50vw)] md:mr-0"
+          className="snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:overflow-visible fr-mb-6w [margin-left:calc(50%-50vw)] [margin-right:calc(50%-50vw)] md:mx-0"
           aria-live="polite"
           aria-atomic="false"
         >
-          <div className="flex w-max gap-6 pr-8 pb-4 md:grid md:w-auto md:grid-cols-2 md:pr-0 md:pb-0 lg:grid-cols-4">
-            {FEATURES.map((feature, index) => (
+          <div className="flex w-max gap-6 px-[10vw] pb-4 md:grid md:w-auto md:grid-cols-2 md:px-0 md:pb-0 lg:grid-cols-4">
+            {FEATURES.map((feature) => (
               <div
-                key={`how-it-works-${index}`}
-                className="bg-background flex w-[calc(100vw-2rem)] shrink-0 flex-col items-center gap-4 py-6 px-8 text-center shadow-lg md:mx-auto md:w-auto md:w-72!"
+                key={feature.icon}
+                className="bg-background flex w-[80vw] shrink-0 snap-center flex-col items-center gap-4 p-6 text-center shadow-lg md:mx-auto md:w-auto md:max-w-60"
               >
-                <img src={feature.icon} alt="" className="size-16" aria-hidden="true" />
-                <p className="fr-text--lead text-title-grey font-bold mb-0! mt-4!">{feature.title}</p>
+                <img src={feature.icon} alt="" className="size-16 dark:box-content dark:rounded-full dark:bg-white dark:p-3" aria-hidden="true" />
+                <p className="fr-text--lead text-title-grey font-bold mb-0!">{feature.title}</p>
               </div>
             ))}
           </div>
@@ -107,7 +125,7 @@ export default function HowItWorks() {
         </div>
 
         <div className="flex flex-col items-center gap-3">
-          <Link to="/missions" className="fr-btn fr-btn--secondary fr-btn--lg w-full! justify-center! md:w-auto!">
+          <Link to="/quiz" className="fr-btn fr-btn--secondary fr-btn--lg w-full justify-center md:w-auto">
             Je découvre les missions
           </Link>
           <p className="fr-text--sm text-mention-grey fr-mb-0! text-center!">+25 000 missions disponibles partout en France</p>

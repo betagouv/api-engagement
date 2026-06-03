@@ -4,13 +4,13 @@ import zod from "zod";
 
 import { PUBLISHER_IDS } from "@/config";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
+import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { widgetService } from "@/services/widget";
 import { widgetMissionService } from "@/services/widget-mission";
 import { WidgetRecord } from "@/types";
 import type { MissionRecord, MissionSearchFilters, MissionSelect } from "@/types/mission";
 import { capitalizeFirstLetter, getDistanceKm } from "@/utils";
 import { normalizeToArray } from "@/utils/array";
-import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { applyWidgetRules } from "@/utils/widget";
 
 const router = Router();
@@ -30,7 +30,7 @@ const MISSION_FIELDS: MissionSelect = {
 };
 
 const WIDGET_INCLUDE = {
-  fromPublisher: { select: { id: true, name: true, diffusionExclusionsFor: true } },
+  fromPublisher: { select: { id: true, name: true } },
   rules: { orderBy: { position: "asc" as const } },
   widgetPublishers: { select: { publisherId: true }, orderBy: { createdAt: "asc" as const } },
 };
@@ -210,12 +210,10 @@ const resolveLocationFilters = (widget: WidgetRecord, lon?: number, lat?: number
 };
 
 const buildMissionFilters = (widget: WidgetRecord, query: { [key: string]: any }, pagination: { skip: number; limit: number }): MissionSearchFilters => {
-  const excludedPublisherOrganizationIds = widget.fromPublisherDiffusionExclusions?.map((e) => e.publisherOrganizationId as string) ?? [];
-
   const filters: MissionSearchFilters = {
     directFilters: applyWidgetRules(widget.rules || []),
     publisherIds: widget.publishers,
-    excludePublisherOrganizationIds: excludedPublisherOrganizationIds.length ? excludedPublisherOrganizationIds : undefined,
+    diffuseurPublisherId: widget.fromPublisherId,
     skip: pagination.skip,
     limit: pagination.limit,
   };

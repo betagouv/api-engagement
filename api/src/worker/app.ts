@@ -1,5 +1,6 @@
 import errorHandler from "@/middlewares/error-handler";
 import requestId from "@/middlewares/request-id";
+import { WorkerRetryableError } from "@/worker/errors";
 import { taskRegistry } from "@/worker/registry";
 import { taskEnvelopeSchema } from "@/worker/types";
 import express from "express";
@@ -36,6 +37,11 @@ export const buildAsyncWorkerApp = () => {
       if (error instanceof z.ZodError) {
         console.error("[async-worker] invalid message", { issues: error.issues });
         return res.status(400).send({ ok: false, message: "Invalid message" });
+      }
+
+      if (error instanceof WorkerRetryableError) {
+        console.warn(`[async-worker] retryable error — ${error.message}`);
+        return res.status(429).send({ ok: false, retryable: true, reason: error.message });
       }
 
       return next(error);

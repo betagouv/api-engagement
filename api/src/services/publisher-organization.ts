@@ -47,10 +47,9 @@ const buildWhere = (params: PublisherOrganizationFindParams): Prisma.PublisherOr
 };
 
 const publisherOrganizationService = {
-  findExclusions: async (clientId: string, publisherId: string): Promise<PublisherOrganizationWithRelations | null> => {
+  findOneByClientIdAndPublisher: async (clientId: string, publisherId: string): Promise<PublisherOrganizationRecord | null> => {
     return publisherOrganizationRepository.findUnique({
       where: { publisherId_clientId: { clientId, publisherId } },
-      include: { publisherDiffusionExclusions: true },
     });
   },
   findUniqueOrCreate: async (clientId: string, publisherId: string, data?: Partial<PublisherOrganizationRecord>): Promise<PublisherOrganizationRecord> => {

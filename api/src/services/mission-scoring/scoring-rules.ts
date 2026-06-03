@@ -21,11 +21,24 @@ type MissionScoringRules = {
  */
 export const SCORING_RULES = {
   publisherId: {
-    [PUBLISHER_IDS.SERVICE_CIVIQUE]: ["tranche_age.moins_26_ans", "tranche_age.moins_31_ans_handicap"],
-    [PUBLISHER_IDS.ROC]: ["tranche_age.entre_17_72_ans"],
+    [PUBLISHER_IDS.SERVICE_CIVIQUE]: ["tranche_age.moins_18_ans", "tranche_age.entre_18_25_ans", "tranche_age.moins_31_ans_handicap"],
+    [PUBLISHER_IDS.ROC]: [
+      "tranche_age.entre_16_17_ans",
+      "tranche_age.entre_18_25_ans",
+      "tranche_age.entre_25_30_ans",
+      "tranche_age.entre_30_45_ans",
+      "tranche_age.entre_46_67_ans",
+      "tranche_age.entre_68_72_ans",
+    ],
   },
   type: {
-    volontariat_sapeurs_pompiers: ["tranche_age.entre_16_67_ans"],
+    volontariat_sapeurs_pompiers: [
+      "tranche_age.entre_16_17_ans",
+      "tranche_age.entre_18_25_ans",
+      "tranche_age.entre_25_30_ans",
+      "tranche_age.entre_30_45_ans",
+      "tranche_age.entre_46_66_ans",
+    ],
   },
 } satisfies MissionScoringRules;
 

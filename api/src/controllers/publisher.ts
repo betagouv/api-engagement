@@ -8,7 +8,7 @@ import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, NOT_FOUND, RESSOURCE_ALREADY_E
 import { requireDirectPublisherAccess, requirePublisherRelationAccess } from "@/middlewares/authorization";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { PublisherNotFoundError, publisherService } from "@/services/publisher";
-import { publisherDiffusionExclusionService } from "@/services/publisher-diffusion-exclusion";
+import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import { OBJECT_ACL, putObject } from "@/services/s3";
 import { userService } from "@/services/user";
 import { UserRequest } from "@/types/passport";
@@ -122,22 +122,21 @@ router.get("/:id/moderated", passport.authenticate("user", { session: false }), 
   }
 });
 
-router.get(
-  "/:id/excluded-organizations",
-  passport.authenticate("user", { session: false }),
-  requirePublisherReadAccess,
-  async (_req: UserRequest, res: Response, next: NextFunction) => {
-    try {
-      const publisher = res.locals.publisher;
+router.get("/:id/diffusion-rules", passport.authenticate("user", { session: false }), requirePublisherReadAccess, async (_req: UserRequest, res: Response, next: NextFunction) => {
+  try {
+    const publisher = res.locals.publisher;
 
-      const diffusionExclusions = await publisherDiffusionExclusionService.findExclusionsForDiffuseurId(publisher.id);
+    const rules = await publisherDiffusionRuleService.findRules({
+      publisherId: publisher.id,
+      combinedWithId: null,
+      includeCombinedRules: true,
+    });
 
-      return res.status(200).send({ ok: true, data: diffusionExclusions });
-    } catch (error) {
-      next(error);
-    }
+    return res.status(200).send({ ok: true, data: rules });
+  } catch (error) {
+    next(error);
   }
-);
+});
 
 router.post("/", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {

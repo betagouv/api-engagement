@@ -30,6 +30,8 @@ export type TaxonomyValueItem = {
   icon: string | null;
   order: number;
   enrichable: boolean;
+  hidden?: boolean;
+  disabled?: boolean;
 };
 
 export type TaxonomyListItem = {

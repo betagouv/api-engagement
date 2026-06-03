@@ -8,7 +8,8 @@ export function formatStartDate(startAt: string | null, duration: number | null)
   if (duration != null) parts.push(`${duration} mois`);
   if (startAt) {
     const d = new Date(startAt);
-    parts.push(`à partir du ${d.getDate()} ${MONTHS[d.getMonth()]}`);
+    const prefix = duration != null ? "à" : "À";
+    parts.push(`${prefix} partir du ${d.getDate()} ${MONTHS[d.getMonth()]}`);
   }
   return parts.join(" ") || null;
 }
@@ -50,6 +51,12 @@ const MISSION_TYPE_LABELS: Record<string, string> = {
 export function formatMissionType(type: string | null): string {
   if (!type) return "Mission";
   return MISSION_TYPE_LABELS[type] ?? "Mission";
+}
+
+export function formatDeadline(endAt: string | null): string | null {
+  if (!endAt) return null;
+  const d = new Date(endAt);
+  return `Candidatures ouvertes jusqu'au ${d.getDate()} ${MONTHS[d.getMonth()]}`;
 }
 
 export function matchResultToBrowseMission(item: MissionMatchItem): MissionBrowse {

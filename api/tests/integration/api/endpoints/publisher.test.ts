@@ -59,10 +59,10 @@ describe("Dashboard publisher controller", () => {
     expect(res.status).toBe(403);
   });
 
-  it("rejects GET /publisher/:id/excluded-organizations for another publisher", async () => {
+  it("rejects GET /publisher/:id/diffusion-rules for another publisher", async () => {
     const otherPublisher = await createTestPublisher();
 
-    const res = await request(app).get(`/publisher/${otherPublisher.id}/excluded-organizations`).set(authHeader());
+    const res = await request(app).get(`/publisher/${otherPublisher.id}/diffusion-rules`).set(authHeader());
 
     expect(res.status).toBe(403);
   });
@@ -96,9 +96,13 @@ describe("Dashboard publisher controller", () => {
   it("logs an audit event when updating a publisher", async () => {
     const { token: adminToken } = await createTestUser({ role: "admin" });
 
-    const res = await request(app).put(`/publisher/${publisherId}`).set({ Authorization: `jwt ${adminToken}` }).set("x-request-id", "request-publisher-update").send({
-      name: "Updated publisher",
-    });
+    const res = await request(app)
+      .put(`/publisher/${publisherId}`)
+      .set({ Authorization: `jwt ${adminToken}` })
+      .set("x-request-id", "request-publisher-update")
+      .send({
+        name: "Updated publisher",
+      });
 
     expect(res.status).toBe(200);
     expect(getAuditLogs(consoleInfoSpy)).toContainEqual(

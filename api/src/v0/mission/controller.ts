@@ -2,6 +2,7 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
+import { MissionType } from "@/db/core";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
 import { publisherRateLimiter } from "@/middlewares/rate-limit";
 import { missionService } from "@/services/mission";
@@ -62,7 +63,7 @@ export const missionQuerySchema = zod.object({
     .transform((value) => value === "true")
     .optional(),
   startAt: zod.string().optional(),
-  type: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+  type: zod.union([zod.enum(MissionType), zod.array(zod.enum(MissionType))]).optional(),
 });
 
 const router = Router();
@@ -92,8 +93,6 @@ router.get("/", async (req: PublisherRequest, res: Response, next: NextFunction)
       query.data.skip = parseInt(req.query.from as string, 10);
     }
 
-    const excludePublisherOrganizationIds = user.diffusionExclusionsFor?.map((e) => e.publisherOrganizationId).filter((id): id is string => id !== null);
-
     const normalizePublisherIds = (publisher: string | string[] | undefined): string[] => {
       const values = normalizeQueryArray(publisher);
       if (!values) {
@@ -110,7 +109,7 @@ router.get("/", async (req: PublisherRequest, res: Response, next: NextFunction)
 
     const filters: MissionSearchFilters = {
       publisherIds,
-      excludePublisherOrganizationIds,
+      diffuseurPublisherId: user.id,
       moderationAcceptedFor: user.moderator ? user.id : undefined,
       activity: normalizeQueryArray(query.data.activity),
       city: normalizeQueryArray(query.data.city),
@@ -181,8 +180,6 @@ router.get("/search", async (req: PublisherRequest, res: Response, next: NextFun
       query.data.skip = parseInt(req.query.from as string, 10);
     }
 
-    const excludePublisherOrganizationIds = user.diffusionExclusionsFor?.map((e) => e.publisherOrganizationId).filter((id): id is string => id !== null);
-
     const normalizePublisherIds = (publisher: string | string[] | undefined): string[] => {
       const values = normalizeQueryArray(publisher);
       if (!values) {
@@ -199,7 +196,7 @@ router.get("/search", async (req: PublisherRequest, res: Response, next: NextFun
 
     const filters: MissionSearchFilters = {
       publisherIds,
-      excludePublisherOrganizationIds,
+      diffuseurPublisherId: user.id,
       moderationAcceptedFor: user.moderator ? user.id : undefined,
       activity: normalizeQueryArray(query.data.activity),
       city: normalizeQueryArray(query.data.city),

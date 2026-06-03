@@ -1,5 +1,4 @@
 // Source unique de vérité pour les taxonomies et valeurs de taxonomie.
-// Basé sur api/scripts/seed-taxonomy.ts.
 //
 // Champs par taxonomy :
 //   label     — libellé affiché en UI / logs
@@ -13,7 +12,9 @@
 //   sublabel   — aide contextuelle optionnelle pour les UIs
 //   icon       — emoji optionnel
 //   enrichable — false pour les valeurs exclues de l'enrichissement (ex : je_ne_sais_pas)
+//   disabled   — true pour griser l'option en UI (fonctionnalité pas encore disponible)
 
+import { DEPARTMENT_CODE_VALUES, resolveDepartmentCodeValues } from "./transformers/department-code";
 import { resolveLocationValues } from "./transformers/location";
 import { resolveTrancheAgeValues } from "./transformers/tranche-age";
 
@@ -26,16 +27,65 @@ export const TAXONOMY = {
     enrichable: true,
     gate: false,
     values: {
-      sante_soins: { label: "Santé et soins", icon: null, enrichable: true },
-      social_solidarite: { label: "Social et solidarité", icon: null, enrichable: true },
-      environnement_nature: { label: "Environnement et nature", icon: null, enrichable: true },
-      sport_animation: { label: "Sport et animation sportive", icon: null, enrichable: true },
-      culture_arts: { label: "Culture et arts", icon: null, enrichable: true },
-      education_transmission: { label: "Éducation et transmission", icon: null, enrichable: true },
-      securite_defense: { label: "Sécurité et défense", icon: null, enrichable: true },
-      international_humanitaire: { label: "International et humanitaire", icon: null, enrichable: true },
-      gestion_projet: { label: "Gestion de projet", icon: null, enrichable: true },
-      je_ne_sais_pas: { label: "Je ne sais pas encore", icon: null, enrichable: false },
+      sante_soins: {
+        label: "Santé et soins",
+        icon: "🩺",
+        sublabel: "Prendre soin des autres au quotidien",
+        enrichable: true,
+      },
+      social_solidarite: {
+        label: "Social et solidarité",
+        icon: "🤝",
+        sublabel: "Accompagner les personnes vulnérables",
+        enrichable: true,
+      },
+      environnement_nature: {
+        label: "Environnement et nature",
+        icon: "🌿",
+        sublabel: "Agir pour la planète et les territoires",
+        enrichable: true,
+      },
+      sport_animation: {
+        label: "Sport et animation sportive",
+        icon: "⚽",
+        sublabel: "Encadrer, motiver, transmettre par le sport",
+        enrichable: true,
+      },
+      culture_arts: {
+        label: "Culture et arts",
+        icon: "🎨",
+        sublabel: "Créer, animer, faire rayonner",
+        enrichable: true,
+      },
+      education_transmission: {
+        label: "Éducation et transmission",
+        icon: "🎓",
+        sublabel: "Apprendre, encadrer, faire grandir",
+        enrichable: true,
+      },
+      securite_defense: {
+        label: "Sécurité et défense",
+        icon: "🛡️",
+        sublabel: "Protéger les personnes et les biens",
+        enrichable: true,
+      },
+      international_humanitaire: {
+        label: "International et humanitaire",
+        icon: "🌍",
+        enrichable: true,
+      },
+      gestion_projet: {
+        label: "Gestion de projet",
+        icon: "📋",
+        sublabel: "Organiser, coordonner, piloter",
+        enrichable: true,
+      },
+      je_ne_sais_pas: {
+        label: "Je ne sais pas encore",
+        icon: "🤔",
+        sublabel: "Je découvrirai en explorant les missions",
+        enrichable: false,
+      },
     },
   },
 
@@ -45,15 +95,60 @@ export const TAXONOMY = {
     enrichable: true,
     gate: false,
     values: {
-      sante_social_aide_personne: { label: "Santé, social et aide à la personne", icon: null, enrichable: true },
-      education_formation_animation: { label: "Éducation, formation et animation", icon: null, enrichable: true },
-      securite_service_public: { label: "Sécurité et service public", icon: null, enrichable: true },
-      environnement_agriculture: { label: "Environnement et agriculture", icon: null, enrichable: true },
-      culture_creation_medias: { label: "Culture, création et médias", icon: null, enrichable: true },
-      numerique_communication: { label: "Numérique et communication", icon: null, enrichable: true },
-      batiment_industrie_logistique: { label: "Bâtiment, industrie et logistique", icon: null, enrichable: true },
-      gestion_commerce_organisation: { label: "Gestion, commerce et organisation", icon: null, enrichable: true },
-      je_ne_sais_pas: { label: "Je ne sais pas encore", icon: null, enrichable: false },
+      sante_social_aide_personne: {
+        label: "Santé, social et aide à la personne",
+        icon: "🏥",
+        sublabel: "Soigner, accompagner, soutenir",
+        enrichable: true,
+      },
+      education_formation_animation: {
+        label: "Éducation, formation et animation",
+        icon: "🎓",
+        sublabel: "Transmettre, apprendre, encadrer",
+        enrichable: true,
+      },
+      securite_service_public: {
+        label: "Sécurité et service public",
+        icon: "🛡️",
+        sublabel: "Protéger et servir la collectivité",
+        enrichable: true,
+      },
+      environnement_agriculture: {
+        label: "Environnement et agriculture",
+        icon: "🌿",
+        sublabel: "Préserver la nature et les territoires",
+        enrichable: true,
+      },
+      culture_creation_medias: {
+        label: "Culture, création et médias",
+        icon: "🎨",
+        sublabel: "Créer, diffuser, faire rayonner",
+        enrichable: true,
+      },
+      numerique_communication: {
+        label: "Numérique et communication",
+        icon: "💻",
+        sublabel: "Innover, connecter, informer",
+        enrichable: true,
+      },
+      batiment_industrie_logistique: {
+        label: "Bâtiment, industrie et logistique",
+        icon: "🏗️",
+        sublabel: "Construire, produire, organiser",
+        enrichable: true,
+      },
+      gestion_commerce_organisation: {
+        label: "Gestion, commerce et organisation",
+        icon: "📊",
+        sublabel: "Gérer, coordonner, développer",
+        enrichable: true,
+      },
+      je_ne_sais_pas: {
+        label: "Je ne sais pas encore",
+        icon: "🤔",
+        sublabel: "Je découvrirai en explorant les missions",
+        enrichable: false,
+      },
     },
   },
 
@@ -103,6 +198,7 @@ export const TAXONOMY = {
       relation_client_commerce_strategie: { label: "Relation client, commerce, stratégie", icon: "📈", enrichable: true },
       cooperation_organisation_soft_skills: { label: "Coopération, organisation, soft skills", icon: "🤝", enrichable: true },
       securite_environnement_action_publique: { label: "Protection des personnes, de la société ou de l'environnement", icon: "🛡️", enrichable: true },
+      je_ne_sais_pas: { label: "Autre / Je ne sais pas", icon: "‍‍🤔‍", enrichable: false },
     },
   },
 
@@ -167,7 +263,6 @@ export const TAXONOMY = {
       etudiant: { label: "Je fais des études", icon: "🎓", enrichable: false },
       demandeur_emploi: { label: "Je recherche un emploi", icon: "🕵️‍♂️", enrichable: false },
       actif: { label: "J’ai une activité professionnelle", icon: "💼", enrichable: false },
-      retraite: { label: "Je suis à la retraite", icon: "👴", enrichable: false },
       autre: { label: "Autre situation", icon: "🤷", enrichable: false },
     },
   },
@@ -191,7 +286,7 @@ export const TAXONOMY = {
     gate: false,
     values: {
       me_sentir_utile: {
-        label: "Aider les autres",
+        label: "Me sentir utile, rencontrer de nouvelles personnes",
         sublabel: "Être utile à des personnes ou à une cause",
         icon: "🙏🏻",
         enrichable: false,
@@ -223,35 +318,56 @@ export const TAXONOMY = {
       booster_cv: {
         label: "Booster mon CV",
         sublabel: "Acquérir des compétences en rapport avec mes études",
-        icon: null,
+        icon: "📄",
         enrichable: false,
       },
       decouvrir_domaine: {
         label: "Découvrir un nouveau domaine",
         sublabel: "Pour me ré-orienter, avoir une expérience pour tester...",
-        icon: null,
+        icon: "🧭",
         enrichable: false,
       },
-      experience_terrain: { label: "Avoir une 1ère expérience terrain", icon: null, enrichable: false },
+      experience_terrain: {
+        label: "Avoir une 1ère expérience terrain",
+        icon: "🌱",
+        sublabel: "Me lancer concrètement dans le monde professionnel",
+        enrichable: false,
+      },
       partir_etranger: {
         label: "Partir à l'étranger",
         sublabel: "Vivre une expérience d'engagement dans un autre pays",
         icon: "🌍",
         enrichable: false,
+        disabled: true,
       },
-      competences_interet_general: { label: "Utiliser mes compétences pour l'intérêt général", icon: null, enrichable: false },
-      reprendre_confiance: { label: "Reprendre confiance en moi", icon: null, enrichable: false },
-      reprendre_activite: { label: "Garder / reprendre une activité", icon: null, enrichable: false },
+      competences_interet_general: {
+        label: "Utiliser mes compétences pour l'intérêt général",
+        icon: "💡",
+        sublabel: "Mettre mon savoir-faire au service de la collectivité",
+        enrichable: false,
+      },
+      reprendre_confiance: {
+        label: "Reprendre confiance en moi",
+        icon: "💪",
+        sublabel: "Développer mes capacités et mon estime de moi",
+        enrichable: false,
+      },
+      reprendre_activite: {
+        label: "Garder / reprendre une activité",
+        icon: "🔄",
+        sublabel: "Rester actif·ve et maintenir un rythme",
+        enrichable: false,
+      },
       enrichir_cv: {
         label: "Enrichir mon CV",
         sublabel: "Acquérir des compétences en rapport avec mon métier",
-        icon: null,
+        icon: "📄",
         enrichable: false,
       },
       preparer_reconversion: {
         label: "Préparer une reconversion professionnelle",
         sublabel: "Tester un nouveau domaine / métier",
-        icon: null,
+        icon: "🧭",
         enrichable: false,
       },
     },
@@ -274,12 +390,12 @@ export const TAXONOMY = {
     enrichable: false,
     gate: false,
     values: {
-      armee: { label: "Armée", sublabel: "Marine, Air, Santé...", icon: null, enrichable: false },
-      pompiers: { label: "Pompiers", icon: null, enrichable: false },
-      gendarmerie: { label: "Gendarmerie", icon: null, enrichable: false },
-      police: { label: "Police", icon: null, enrichable: false },
-      ne_sais_pas: { label: "Je ne sais pas", icon: null, enrichable: false },
-      aucun: { label: "Aucun de ces choix", icon: null, enrichable: false },
+      armee: { label: "Armée", sublabel: "Marine, Air, Santé...", icon: "🪖", enrichable: false },
+      pompiers: { label: "Pompiers", sublabel: "Aide à la personne, secours, urgences...", icon: "🚒", enrichable: false },
+      gendarmerie: { label: "Gendarmerie", sublabel: "Sécurité, territoire, enquêtes...", icon: "⚖️", enrichable: false },
+      police: { label: "Police", sublabel: "Ordre public, investigation, protection...", icon: "🚔", enrichable: false },
+      ne_sais_pas: { label: "Je ne sais pas", sublabel: "Aidez-moi à découvrir ma voie", icon: "🤔", enrichable: false },
+      aucun: { label: "Aucun de ces choix", sublabel: "Je cherche autre chose", icon: "🙅", enrichable: false },
     },
   },
 
@@ -292,6 +408,15 @@ export const TAXONOMY = {
     values: {},
   },
 
+  departmentCode: {
+    label: "Département",
+    type: "multi_value",
+    enrichable: false,
+    gate: false,
+    transformer: resolveDepartmentCodeValues,
+    values: DEPARTMENT_CODE_VALUES,
+  },
+
   // ─── taxonomy gate (filtre dur dans le matching) ────────────────────────
 
   tranche_age: {
@@ -301,10 +426,16 @@ export const TAXONOMY = {
     gate: true,
     transformer: resolveTrancheAgeValues,
     values: {
-      moins_26_ans: { label: "Moins de 26 ans", icon: null, enrichable: false },
-      moins_31_ans_handicap: { label: "Moins de 31 ans — situation de handicap", icon: null, enrichable: false },
-      entre_17_72_ans: { label: "Être âgé de 17 à 72 ans", icon: null, enrichable: false },
-      entre_16_67_ans: { label: "Avoir au minimum 16 ans (avec autorisation parentale pour les mineurs) et moins de 67 ans", icon: null, enrichable: false },
+      moins_18_ans: { label: "Moins de 18 ans", icon: null, enrichable: false },
+      entre_18_25_ans: { label: "18-25 ans", icon: null, enrichable: false },
+      entre_25_30_ans: { label: "25-30 ans", icon: null, enrichable: false },
+      entre_30_45_ans: { label: "30-45 ans", icon: null, enrichable: false },
+      entre_46_67_ans: { label: "46-67 ans", icon: null, enrichable: false },
+      entre_68_72_ans: { label: "68-72 ans", icon: null, enrichable: false },
+      plus_72_ans: { label: "72 ans et plus", icon: null, enrichable: false },
+      entre_16_17_ans: { label: "16-17 ans", icon: null, enrichable: false, hidden: true },
+      entre_46_66_ans: { label: "46-66 ans", icon: null, enrichable: false, hidden: true },
+      moins_31_ans_handicap: { label: "Moins de 31 ans — situation de handicap", icon: null, enrichable: false, hidden: true },
     },
   },
 } as const;

@@ -12,6 +12,7 @@ export type MatchingEngineVersionConfig = {
 
 export type RankMissionsByUserScoringInput = {
   userScoringId: string;
+  publisherId?: string;
   version?: MatchingEngineVersion;
   limit?: number;
   offset?: number;

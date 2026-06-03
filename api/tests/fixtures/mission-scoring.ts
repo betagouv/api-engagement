@@ -1,5 +1,6 @@
-import { MissionEnrichment, MissionEnrichmentStatus, MissionScoring, TaxonomyKey } from "@/db/core";
+import { MissionEnrichment, MissionEnrichmentStatus, MissionScoring } from "@/db/core";
 import { prisma } from "@/db/postgres";
+import type { TaxonomyKey } from "@engagement/taxonomy";
 
 export const createTestMissionEnrichment = async (data: { missionId: string; status?: MissionEnrichmentStatus; promptVersion?: string }): Promise<MissionEnrichment> => {
   return prisma.missionEnrichment.create({

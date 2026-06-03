@@ -124,7 +124,8 @@ const RealTime = () => {
               </p>
             )}
           </div>
-          <div className="flex flex-wrap items-center gap-3 lg:justify-end lg:gap-4">
+          <fieldset className="flex flex-wrap items-center gap-3 lg:justify-end lg:gap-4">
+            <legend className="sr-only">Type d'événement</legend>
             <RadioInput id="type-all" name="type" value="" label="Tous" checked={type === ""} onChange={(e) => setType(e.target.value)} />
             {sourceType !== "campaign" && (
               <RadioInput id="type-print" name="type" value="print" label="Impressions" checked={type === "print"} onChange={(e) => setType(e.target.value)} />
@@ -132,7 +133,7 @@ const RealTime = () => {
             <RadioInput id="type-click" name="type" value="click" label="Redirections" checked={type === "click"} onChange={(e) => setType(e.target.value)} />
             <RadioInput id="type-apply" name="type" value="apply" label="Candidatures" checked={type === "apply"} onChange={(e) => setType(e.target.value)} />
             <RadioInput id="type-account" name="type" value="account" label="Créations de compte" checked={type === "account"} onChange={(e) => setType(e.target.value)} />
-          </div>
+          </fieldset>
         </div>
 
         <Table

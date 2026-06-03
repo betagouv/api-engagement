@@ -38,12 +38,11 @@ export default function MissionExamples({ missions, className }: Props) {
           ref={scrollRef}
           id="missions-carousel"
           onScroll={updateScrollState}
-          className="overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          style={{ marginRight: "calc(50% - 50vw)" }}
+          className="snap-x snap-mandatory md:snap-none overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [margin-left:calc(50%-50vw)] [margin-right:calc(50%-50vw)] md:ml-0"
           aria-live="polite"
           aria-atomic="false"
         >
-          <div className="flex w-max gap-4 pr-8 pb-4">
+          <div className="flex w-max gap-4 px-[10vw] pb-4 md:pl-0 md:pr-8">
             {missions.map((mission, i) => {
               const href = mission.applicationUrl ?? "#";
               return (
@@ -53,7 +52,7 @@ export default function MissionExamples({ missions, className }: Props) {
                   role="group"
                   aria-roledescription="slide"
                   aria-label={`Mission ${i + 1} sur ${missions.length}`}
-                  className="bg-background flex w-[380px] shrink-0 overflow-hidden shadow-lg border border-border-default-grey underline-none! bg-none! hover:bg-background!"
+                  className="bg-background flex w-[80vw] max-w-[360px] shrink-0 snap-center overflow-hidden shadow-lg border border-border-default-grey underline-none! bg-none! hover:bg-background! md:w-[360px]"
                 >
                   {mission.domainLogo ? (
                     <img src={mission.domainLogo} alt="" className="w-28 shrink-0 object-cover" loading="lazy" />

@@ -1,6 +1,7 @@
 import { Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
 import { missionMatchingResultRepository } from "@/repositories/mission-matching-result";
+import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import { GATE_TAXONOMIES } from "@engagement/taxonomy";
 import { CURRENT_MATCHING_ENGINE_VERSION, MATCHING_ENGINE_TAXONOMIES, MATCHING_ENGINE_TOP_RESULTS_LIMIT, MATCHING_ENGINE_VERSIONS } from "./config";
 import type { MatchMissionItem, MatchingEngineTaxonomy, MissionMatchingResultItem, RankMissionsByUserScoringInput, RankMissionsByUserScoringResult } from "./types";
@@ -27,7 +28,6 @@ type DbTaxonomyScoreRow = {
 
 type UserScoringStateRow = {
   id: string;
-  expires_at: Date | null;
 };
 
 const clampScore = (value: number | null): number => {
@@ -58,9 +58,9 @@ const buildTaxonomyWeightsValuesSql = (taxonomyWeights: Record<MatchingEngineTax
 
 const buildGateTaxonomiesSql = () => Prisma.join(GATE_TAXONOMIES.map((taxonomy) => Prisma.sql`${taxonomy}`));
 
-const assertUserScoringIsQueryable = async (userScoringId: string): Promise<void> => {
+const assertUserScoringExists = async (userScoringId: string): Promise<void> => {
   const rows = await prisma.$queryRaw<UserScoringStateRow[]>`
-    SELECT "id", "expires_at"
+    SELECT "id"
     FROM "user_scoring"
     WHERE "id" = ${userScoringId}
     LIMIT 1
@@ -70,14 +70,11 @@ const assertUserScoringIsQueryable = async (userScoringId: string): Promise<void
   if (!userScoring) {
     throw new Error(`[matchingEngineService] user_scoring '${userScoringId}' not found.`);
   }
-
-  if (userScoring.expires_at && userScoring.expires_at.getTime() <= Date.now()) {
-    throw new Error(`[matchingEngineService] user_scoring '${userScoringId}' is expired.`);
-  }
 };
 
 const buildRanking = (params: {
   userScoringId: string;
+  publisherRuleSql?: Prisma.Sql;
   taxonomyWeights: Record<MatchingEngineTaxonomy, number>;
   taxonomyWeight: number;
   geoWeight: number;
@@ -125,6 +122,7 @@ const buildRanking = (params: {
       ON m."id" = ms."mission_id"
     WHERE m."deleted_at" IS NULL
       AND m."status_code" = 'ACCEPTED'
+      ${params.publisherRuleSql ?? Prisma.empty}
     ORDER BY
       ms."mission_id" ASC,
       me."completed_at" DESC NULLS LAST,
@@ -448,6 +446,14 @@ const buildRanking = (params: {
   OFFSET ${params.offset}
 `;
 
+const buildPublisherRuleSql = async (publisherId?: string): Promise<Prisma.Sql> => {
+  if (!publisherId) {
+    return Prisma.empty;
+  }
+
+  return publisherDiffusionRuleService.buildMissionPublisherDiffusionRuleSql(publisherId, { missionAlias: "m" });
+};
+
 const buildTaxonomyScoresSql = (params: { userScoringId: string; missionScoringIds: string[] }) => Prisma.sql`
   WITH user_values AS (
     SELECT
@@ -539,11 +545,13 @@ export const matchingEngineService = {
     const taxonomyCandidateLimit = getTaxonomyCandidateLimit({ limit: rankingLimit, offset });
     const geoCandidateLimit = getGeoCandidateLimit({ limit: rankingLimit, offset });
 
-    await assertUserScoringIsQueryable(input.userScoringId);
+    await assertUserScoringExists(input.userScoringId);
+    const publisherRuleSql = await buildPublisherRuleSql(input.publisherId);
 
     const rows = await prisma.$queryRaw<DbRankRow[]>(
       buildRanking({
         userScoringId: input.userScoringId,
+        publisherRuleSql,
         taxonomyWeights,
         taxonomyWeight,
         geoWeight,

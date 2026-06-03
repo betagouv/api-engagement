@@ -1,4 +1,4 @@
-import { publisherDiffusionExclusionService } from "@/services/publisher-diffusion-exclusion";
+import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import publisherOrganizationService from "@/services/publisher-organization";
 import { MissionRecord, PublisherMissionType, PublisherRecord } from "@/types";
 import { PublisherOrganizationRecord } from "@/types/publisher-organization";
@@ -7,6 +7,19 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { createTestMission, createTestPublisher } from "../../../../fixtures";
 import { createStatEventFixture } from "../../../../fixtures/stat-event";
 import { createTestApp } from "../../../../testApp";
+
+const RULE_FIELD = "publisherOrganization.clientId";
+
+async function hasExclusionRule(diffuseurId: string, annonceurId: string, organizationClientId: string): Promise<boolean> {
+  const rules = await publisherDiffusionRuleService.findRules({
+    publisherId: diffuseurId,
+    combinedWithId: null,
+    field: "publisherId",
+    value: annonceurId,
+    includeCombinedRules: true,
+  });
+  return rules.some((root) => (root.combinedRules ?? []).some((child) => child.field === RULE_FIELD && child.value === organizationClientId));
+}
 
 describe("MyOrganization API Integration Tests", () => {
   const app = createTestApp();
@@ -88,10 +101,13 @@ describe("MyOrganization API Integration Tests", () => {
     });
 
     it("should return correct exclusion status for publishers", async () => {
-      await publisherDiffusionExclusionService.createExclusion({
-        excludedByAnnonceurId: publisher.id,
-        excludedForDiffuseurId: publisher2.id,
-        publisherOrganizationId: publisherOrganization.id,
+      await publisherDiffusionRuleService.createScopedRule({
+        diffuseurPublisherId: publisher2.id,
+        annonceurPublisherId: publisher.id,
+        field: RULE_FIELD,
+        fieldType: "string",
+        operator: "is_not",
+        value: orgId,
       });
 
       const response = await request(app).get(`/v0/myorganization/${orgId}`).set("x-api-key", apiKey).set("apikey", apiKey);
@@ -142,25 +158,26 @@ describe("MyOrganization API Integration Tests", () => {
       expect(publisher1Data.excluded).toBe(false);
       expect(publisher2Data.excluded).toBe(true);
 
-      // Verify via service: publisher1 has no exclusion, publisher2 does
-      const exclusionsForP1 = await publisherDiffusionExclusionService.findExclusionsForDiffuseurId(publisher1.id);
-      expect(exclusionsForP1.find((e) => e.publisherOrganizationId === publisherOrganization.id)).toBeUndefined();
-
-      const exclusionsForP2 = await publisherDiffusionExclusionService.findExclusionsForDiffuseurId(publisher2.id);
-      expect(exclusionsForP2.find((e) => e.publisherOrganizationId === publisherOrganization.id)).toBeDefined();
+      expect(await hasExclusionRule(publisher1.id, publisher.id, orgId)).toBe(false);
+      expect(await hasExclusionRule(publisher2.id, publisher.id, orgId)).toBe(true);
     });
 
     it("should remove exclusions when publisher is included", async () => {
-      // Seed both partners as excluded
-      await publisherDiffusionExclusionService.createExclusion({
-        excludedByAnnonceurId: publisher.id,
-        excludedForDiffuseurId: publisher1.id,
-        publisherOrganizationId: publisherOrganization.id,
+      await publisherDiffusionRuleService.createScopedRule({
+        diffuseurPublisherId: publisher1.id,
+        annonceurPublisherId: publisher.id,
+        field: RULE_FIELD,
+        fieldType: "string",
+        operator: "is_not",
+        value: orgId,
       });
-      await publisherDiffusionExclusionService.createExclusion({
-        excludedByAnnonceurId: publisher.id,
-        excludedForDiffuseurId: publisher2.id,
-        publisherOrganizationId: publisherOrganization.id,
+      await publisherDiffusionRuleService.createScopedRule({
+        diffuseurPublisherId: publisher2.id,
+        annonceurPublisherId: publisher.id,
+        field: RULE_FIELD,
+        fieldType: "string",
+        operator: "is_not",
+        value: orgId,
       });
 
       const response = await request(app)
@@ -176,20 +193,20 @@ describe("MyOrganization API Integration Tests", () => {
       expect(publisher1Data.excluded).toBe(false);
       expect(publisher2Data.excluded).toBe(false);
 
-      const exclusionsForP1 = await publisherDiffusionExclusionService.findExclusionsForDiffuseurId(publisher1.id);
-      expect(exclusionsForP1.find((e) => e.publisherOrganizationId === publisherOrganization.id)).toBeUndefined();
-
-      const exclusionsForP2 = await publisherDiffusionExclusionService.findExclusionsForDiffuseurId(publisher2.id);
-      expect(exclusionsForP2.find((e) => e.publisherOrganizationId === publisherOrganization.id)).toBeUndefined();
+      expect(await hasExclusionRule(publisher1.id, publisher.id, orgId)).toBe(false);
+      expect(await hasExclusionRule(publisher2.id, publisher.id, orgId)).toBe(false);
     });
 
     it("should not overwrite exclusions when receiving publisherId of a different publisher", async () => {
       const otherOrgClientId = "other-org-" + Date.now().toString();
-      const otherPublisherOrg = await publisherOrganizationService.findUniqueOrCreate(otherOrgClientId, publisher3.id, { name: "Other Organization" });
-      await publisherDiffusionExclusionService.createExclusion({
-        excludedByAnnonceurId: publisher3.id,
-        excludedForDiffuseurId: publisher1.id,
-        publisherOrganizationId: otherPublisherOrg.id,
+      await publisherOrganizationService.findUniqueOrCreate(otherOrgClientId, publisher3.id, { name: "Other Organization" });
+      await publisherDiffusionRuleService.createScopedRule({
+        diffuseurPublisherId: publisher1.id,
+        annonceurPublisherId: publisher3.id,
+        field: RULE_FIELD,
+        fieldType: "string",
+        operator: "is_not",
+        value: otherOrgClientId,
       });
 
       const response = await request(app)
@@ -200,11 +217,10 @@ describe("MyOrganization API Integration Tests", () => {
 
       expect(response.status).toBe(200);
 
-      const exclusionsForP1 = await publisherDiffusionExclusionService.findExclusionsForDiffuseurId(publisher1.id);
       // Exclusion from publisher3 for the other org still exists
-      expect(exclusionsForP1.find((e) => e.publisherOrganizationId === otherPublisherOrg.id)).toBeDefined();
+      expect(await hasExclusionRule(publisher1.id, publisher3.id, otherOrgClientId)).toBe(true);
       // No exclusion from the current publisher for the test org
-      expect(exclusionsForP1.find((e) => e.publisherOrganizationId === publisherOrganization.id)).toBeUndefined();
+      expect(await hasExclusionRule(publisher1.id, publisher.id, orgId)).toBe(false);
     });
 
     it("should create publisher organization with the provided name when it does not exist", async () => {

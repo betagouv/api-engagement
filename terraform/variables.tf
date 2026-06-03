@@ -188,17 +188,6 @@ variable "enable_app" {
   description = "Enable the app container"
 }
 
-variable "enable_poc_quiz" {
-  type        = bool
-  default     = false
-  description = "Enable the poc-quiz container"
-}
-
-variable "poc_quiz_hostname" {
-  type    = string
-  default = ""
-}
-
 variable "enable_plateform" {
   type        = bool
   default     = false
@@ -276,6 +265,7 @@ variable "typesense_nodes" {
     instance_type     = string
     typesense_version = string
   }))
+  default     = {}
   description = "Typesense nodes keyed by stable node name, with one private IP per node."
 }
 

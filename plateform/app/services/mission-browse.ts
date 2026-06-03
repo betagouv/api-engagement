@@ -1,6 +1,5 @@
 import type { MissionBrowseFilters, MissionBrowseResponse, MissionDetailResponse } from "@engagement/dto";
-
-import api from "~/services/api";
+import { client } from "~/services/client";
 
 const appendMulti = (params: URLSearchParams, key: string, values?: string | string[]) => {
   if (!values?.length) return;
@@ -18,7 +17,7 @@ export async function browseMissions(filters: MissionBrowseFilters, signal?: Abo
   appendMulti(params, "type_mission", filters.type_mission);
   appendMulti(params, "tranche_age", filters.tranche_age);
 
-  return api.get<MissionBrowseResponse>(`/missions/browse?${params.toString()}`, signal);
+  return client.get<MissionBrowseResponse>(`/api/missions/browse?${params.toString()}`, signal);
 }
 
-export const fetchMissionDetail = (id: string): Promise<MissionDetailResponse> => api.get<MissionDetailResponse>(`/missions/browse/${id}`);
+export const fetchMissionDetail = (id: string): Promise<MissionDetailResponse> => client.get<MissionDetailResponse>(`/api/missions/browse/${id}`);

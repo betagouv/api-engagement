@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/repositories/mission", () => ({
   missionRepository: { findUnique: vi.fn() },
@@ -7,10 +7,9 @@ vi.mock("@/repositories/mission", () => ({
 vi.mock("@/repositories/mission-enrichment", () => ({
   missionEnrichmentRepository: {
     findFirst: vi.fn(),
-    create: vi.fn(),
+    claimForRun: vi.fn(),
     update: vi.fn(),
     completeWithValues: vi.fn(),
-    completeWithValuesAndDeletePrevious: vi.fn(),
   },
 }));
 
@@ -142,10 +141,21 @@ describe("missionEnrichmentService.enrich — chain propagation", () => {
     expect(providerGenerate).not.toHaveBeenCalled();
   });
 
+  it("stops the chain when claimForRun loses the race to a concurrent worker", async () => {
+    (missionRepository.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(baseMission);
+    (missionEnrichmentRepository.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue(null);
+    (missionEnrichmentRepository.claimForRun as ReturnType<typeof vi.fn>).mockResolvedValue(null);
+
+    await missionEnrichmentService.enrich("mission-1");
+
+    expect(providerGenerate).not.toHaveBeenCalled();
+    expect(asyncTaskBus.publish).not.toHaveBeenCalled();
+  });
+
   it("calls LLM and forwards to scoring after successful enrichment", async () => {
     (missionRepository.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(baseMission);
     (missionEnrichmentRepository.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue(null);
-    (missionEnrichmentRepository.create as ReturnType<typeof vi.fn>).mockResolvedValue({ id: "enrichment-new" });
+    (missionEnrichmentRepository.claimForRun as ReturnType<typeof vi.fn>).mockResolvedValue("enrichment-new");
     (missionEnrichmentRepository.update as ReturnType<typeof vi.fn>).mockResolvedValue({});
     (missionEnrichmentRepository.completeWithValues as ReturnType<typeof vi.fn>).mockResolvedValue({});
     providerGenerate.mockResolvedValue({

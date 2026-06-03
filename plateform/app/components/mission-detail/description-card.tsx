@@ -8,14 +8,14 @@ export default function MissionDescriptionCard({ mission }: MissionDescriptionCa
   if (!mission.descriptionHtml && !mission.description) return null;
 
   return (
-    <section className="fr-card fr-card--no-arrow">
+    <section className="fr-card fr-card--no-arrow shadow-card bg-none! p-0!">
       <div className="fr-card__body">
-        <div className="fr-card__content">
-          <h2 className="fr-card__title fr-h4">Présentation de la mission</h2>
+        <div className="fr-card__content p-6! md:p-12!">
+          <h2 className="fr-h3 mb-4!">Présentation de la mission</h2>
           {mission.descriptionHtml ? (
-            <div className="mission-description prose max-w-none text-title-grey" dangerouslySetInnerHTML={{ __html: mission.descriptionHtml }} />
+            <div className="mission-description prose text-title-grey max-w-none" dangerouslySetInnerHTML={{ __html: mission.descriptionHtml }} />
           ) : (
-            <p className="whitespace-pre-line text-title-grey">{mission.description}</p>
+            <p className="text-title-grey whitespace-pre-line">{mission.description}</p>
           )}
         </div>
       </div>

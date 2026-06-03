@@ -7,14 +7,13 @@ import Testimonials from "~/components/landing/testimonials";
 import Newsletter from "~/components/layout/newsletter";
 import Partners from "~/components/layout/partners";
 import GradientBg from "~/components/ui/gradient-bg";
-import { browseMissions } from "~/services/mission-browse";
+import { browseMissions } from "~/services/api/missions";
 import { useQuizStore } from "~/stores/quiz";
 
 import type { Route } from "./+types/_index";
 
 import type { MissionBrowse } from "@engagement/dto";
-import PeopleMobilePng from "~/assets/images/people-landing-mobile.png";
-import PeoplePng from "~/assets/images/people-landing.png";
+import LandingPng from "~/assets/images/landing-no-bg.png";
 
 const EXAMPLES_COUNT = 5;
 
@@ -28,10 +27,12 @@ export function meta(): Route.MetaDescriptors {
   ];
 }
 
-export async function loader(): Promise<{ examples: MissionBrowse[] }> {
+export async function loader({ request }: Route.LoaderArgs): Promise<{ examples: MissionBrowse[] }> {
   try {
-    const res = await browseMissions({ pageSize: EXAMPLES_COUNT });
-    return { examples: res.data.slice(0, EXAMPLES_COUNT) };
+    const res = await browseMissions({ pageSize: EXAMPLES_COUNT }, request);
+    return {
+      examples: res.data.slice(0, EXAMPLES_COUNT),
+    };
   } catch {
     return { examples: [] };
   }
@@ -50,10 +51,14 @@ export default function Landing() {
   return (
     <main>
       <GradientBg className="bg-size-[100%_640px]">
-        <div className="relative md:min-h-[640px]">
-          <img src={PeoplePng} alt="" className="absolute hidden md:block right-0 bottom-0 object-contain md:bottom-auto md:top-0 md:h-[640px] md:w-auto md:max-w-[1024px]" />
+        <div className="relative md:min-h-[640px] md:overflow-hidden">
+          <img
+            src={LandingPng}
+            alt=""
+            className="absolute hidden md:block right-[-100px] bottom-0 object-contain md:bottom-auto md:top-0 md:h-[640px] md:w-auto md:max-w-[1024px]"
+          />
           <Hero onStartQuiz={handleStartQuiz} />
-          <img src={PeopleMobilePng} alt="" className="block md:hidden right-0 bottom-0 object-contain h-[420px] w-full" />
+          <img src={LandingPng} alt="" className="block md:hidden right-0 bottom-0 object-contain h-[420px] w-full" />
         </div>
         <MissionExamples missions={examples} className="-mt-14 md:-mt-24" />
       </GradientBg>
