@@ -95,10 +95,10 @@ export default function HowItWorks() {
           <div className="flex w-max gap-6 px-[10vw] pb-4 md:grid md:w-auto md:grid-cols-2 md:px-0 md:pb-0 lg:grid-cols-4">
             {FEATURES.map((feature) => (
               <div
-                key={feature.title}
+                key={feature.icon}
                 className="bg-background flex w-[80vw] shrink-0 snap-center flex-col items-center gap-4 p-6 text-center shadow-lg md:mx-auto md:w-auto md:max-w-60"
               >
-                <img src={feature.icon} alt="" className="size-16" aria-hidden="true" />
+                <img src={feature.icon} alt="" className="size-16 dark:box-content dark:rounded-full dark:bg-white dark:p-3" aria-hidden="true" />
                 <p className="fr-text--lead text-title-grey font-bold mb-0!">{feature.title}</p>
               </div>
             ))}
