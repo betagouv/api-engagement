@@ -1,11 +1,12 @@
+import React, { useEffect, useRef, useState } from "react";
+import { Link } from "react-router";
+
 import CalendarSvg from "@gouvfr/dsfr/dist/artwork/pictograms/digital/calendar.svg?url";
 import SelfTrainingSvg from "@gouvfr/dsfr/dist/artwork/pictograms/digital/self-training.svg?url";
 import LeafSvg from "@gouvfr/dsfr/dist/artwork/pictograms/environment/leaf.svg?url";
 import FirefighterSvg from "@gouvfr/dsfr/dist/artwork/pictograms/institutions/firefighter.svg?url";
 import MoneySvg from "@gouvfr/dsfr/dist/artwork/pictograms/institutions/money.svg?url";
 import LocationFranceSvg from "@gouvfr/dsfr/dist/artwork/pictograms/map/location-france.svg?url";
-import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router";
 import LongTraceSvg from "~/assets/svg/long-trace.svg";
 
 import Highlight from "../ui/highlight";
