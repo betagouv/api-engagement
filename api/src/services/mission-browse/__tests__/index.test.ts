@@ -47,14 +47,22 @@ describe("missionBrowseService.browse", () => {
     findRulesMock.mockResolvedValue([buildRule("annonceur-1"), buildRule("annonceur-2")]);
   });
 
-  it("court-circuite (réponse vide, pas d'appel index) quand aucune règle whitelist n'existe", async () => {
+  it("ne restreint pas la recherche quand aucune règle n'existe", async () => {
     findRulesMock.mockResolvedValue([]);
+
+    await missionBrowseService.browse(baseParams);
+
+    expect(findRulesMock).toHaveBeenCalledWith({ publisherId: "diffuseur-1" });
+    expect(searchMock).toHaveBeenCalledWith(expect.objectContaining({ filter_by: undefined }));
+  });
+
+  it("court-circuite quand des règles existent mais qu'aucune n'est supportée", async () => {
+    findRulesMock.mockResolvedValue([buildRule("annonceur-1", { field: "publisherOrganizationId" })]);
 
     const result = await missionBrowseService.browse(baseParams);
 
     expect(result).toEqual({ data: [], total: 0, page: 1, pageSize: 20, facets: {} });
     expect(searchMock).not.toHaveBeenCalled();
-    expect(findRulesMock).toHaveBeenCalledWith({ publisherId: "diffuseur-1" });
   });
 
   it("applique la whitelist des annonceurs autorisés", async () => {
@@ -82,6 +90,18 @@ describe("missionBrowseService.browse", () => {
     expect(findOneMissionByMock).toHaveBeenCalledWith({
       id: "mission-1",
       publisherId: { in: ["annonceur-1", "annonceur-2"] },
+      deletedAt: null,
+      statusCode: "ACCEPTED",
+    });
+  });
+
+  it("ne restreint pas le détail quand aucune règle n'existe", async () => {
+    findRulesMock.mockResolvedValue([]);
+
+    await missionBrowseService.findById("mission-1", "diffuseur-1");
+
+    expect(findOneMissionByMock).toHaveBeenCalledWith({
+      id: "mission-1",
       deletedAt: null,
       statusCode: "ACCEPTED",
     });

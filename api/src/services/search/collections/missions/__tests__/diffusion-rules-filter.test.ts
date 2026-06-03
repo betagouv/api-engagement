@@ -19,6 +19,12 @@ const buildRule = (overrides: Partial<PublisherDiffusionRuleRecord> = {}): Publi
 });
 
 describe("publisherDiffusionRulesToMissionFilter", () => {
+  it("ne contraint pas quand aucune règle n'est configurée", () => {
+    const result = publisherDiffusionRulesToMissionFilter([]);
+
+    expect(result).toEqual({ kind: "all", publisherIds: null });
+  });
+
   it("traduit les règles racines publisherId is en filtre Typesense", () => {
     const result = publisherDiffusionRulesToMissionFilter([
       buildRule({ id: "rule-1", value: "annonceur-1" }),

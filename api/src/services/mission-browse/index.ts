@@ -86,7 +86,7 @@ export const missionBrowseService = {
     }
 
     const browseFilter = buildFilterBy(params);
-    const filterBy = [diffusionFilter.filterBy, browseFilter].filter(Boolean).join(" && ");
+    const filterBy = [diffusionFilter.kind === "filter" ? diffusionFilter.filterBy : "", browseFilter].filter(Boolean).join(" && ");
 
     const tsResult = await (async () => {
       try {
@@ -124,7 +124,12 @@ export const missionBrowseService = {
       return null;
     }
 
-    const mission = await missionService.findOneMissionBy({ id, publisherId: { in: diffusionFilter.publisherIds }, deletedAt: null, statusCode: "ACCEPTED" });
+    const mission = await missionService.findOneMissionBy({
+      id,
+      ...(diffusionFilter.kind === "filter" ? { publisherId: { in: diffusionFilter.publisherIds } } : {}),
+      deletedAt: null,
+      statusCode: "ACCEPTED",
+    });
     if (!mission) {
       return null;
     }
