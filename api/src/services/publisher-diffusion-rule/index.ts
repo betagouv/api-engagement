@@ -94,6 +94,20 @@ const buildFindWhere = (params: PublisherDiffusionRuleFindParams): Prisma.Publis
 };
 
 export const publisherDiffusionRuleService = {
+  async findAllowedMissionPublisherIds(publisherId: string): Promise<string[]> {
+    const rules = await publisherDiffusionRuleRepository.findMany({
+      where: {
+        publisherId,
+        combinedWithId: null,
+        field: "publisherId",
+        operator: "is",
+      },
+      orderBy: [{ position: Prisma.SortOrder.asc }, { createdAt: Prisma.SortOrder.asc }],
+    });
+
+    return Array.from(new Set(rules.map((rule) => rule.value).filter(Boolean)));
+  },
+
   async buildMissionPublisherDiffusionRuleWhere(publisherId: string): Promise<Prisma.MissionWhereInput> {
     const rules = await publisherDiffusionRuleRepository.findMany({
       where: { publisherId },

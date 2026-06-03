@@ -1,6 +1,7 @@
 import type { MissionBrowseFacetCount, MissionBrowseFilters, MissionBrowseResponse, MissionDetailResponse } from "@engagement/dto";
 
 import { missionService } from "@/services/mission";
+import { publisherDiffusionRuleService } from "@/services/publisher-diffusion-rule";
 import { missionSearchClient } from "@/services/search/collections/missions/client";
 import { INDEXED_TAXONOMY_KEYS, IndexedTaxonomyKey } from "@/services/search/collections/missions/fields";
 import { toMissionBrowse, toMissionDetailPayload } from "./transformers";
@@ -10,6 +11,7 @@ const FACET_FIELDS = [...INDEXED_TAXONOMY_KEYS, "departmentCodes"];
 type BrowseTaxonomyParams = Partial<Record<IndexedTaxonomyKey, string | string[]>>;
 type BrowseParams = BrowseTaxonomyParams &
   Omit<MissionBrowseFilters, "page" | "pageSize"> & {
+    diffuseurPublisherId: string;
     page: number;
     pageSize: number;
   };
@@ -38,6 +40,14 @@ const escapeTypesenseFilterValue = (value: string): string => {
 const buildTypesenseListFilter = (field: string, values: string[]): string => {
   return `${field}:=[${values.map(escapeTypesenseFilterValue).join(",")}]`;
 };
+
+const emptyBrowseResponse = (params: Pick<BrowseParams, "page" | "pageSize">): MissionBrowseResponse => ({
+  data: [],
+  total: 0,
+  page: params.page,
+  pageSize: params.pageSize,
+  facets: {},
+});
 
 const buildFilterBy = (params: BrowseParams): string => {
   const parts: string[] = [];
@@ -68,7 +78,18 @@ const buildFilterBy = (params: BrowseParams): string => {
 
 export const missionBrowseService = {
   async browse(params: BrowseParams): Promise<MissionBrowseResponse> {
-    const filterBy = buildFilterBy(params);
+    const allowedPublisherIds = await publisherDiffusionRuleService.findAllowedMissionPublisherIds(params.diffuseurPublisherId);
+    if (!allowedPublisherIds.length) {
+      return emptyBrowseResponse(params);
+    }
+
+    const requestedPublisherIds = toArray(params.publisherId);
+    const publisherIds = requestedPublisherIds?.length ? allowedPublisherIds.filter((publisherId) => requestedPublisherIds.includes(publisherId)) : allowedPublisherIds;
+    if (!publisherIds.length) {
+      return emptyBrowseResponse(params);
+    }
+
+    const filterBy = buildFilterBy({ ...params, publisherId: publisherIds });
 
     const tsResult = await (async () => {
       try {
@@ -99,8 +120,13 @@ export const missionBrowseService = {
     return { data, total, page: params.page, pageSize: params.pageSize, facets };
   },
 
-  async findById(id: string): Promise<MissionDetailResponse | null> {
-    const mission = await missionService.findOneMissionBy({ id, deletedAt: null, statusCode: "ACCEPTED" });
+  async findById(id: string, diffuseurPublisherId: string): Promise<MissionDetailResponse | null> {
+    const allowedPublisherIds = await publisherDiffusionRuleService.findAllowedMissionPublisherIds(diffuseurPublisherId);
+    if (!allowedPublisherIds.length) {
+      return null;
+    }
+
+    const mission = await missionService.findOneMissionBy({ id, publisherId: { in: allowedPublisherIds }, deletedAt: null, statusCode: "ACCEPTED" });
     if (!mission) {
       return null;
     }

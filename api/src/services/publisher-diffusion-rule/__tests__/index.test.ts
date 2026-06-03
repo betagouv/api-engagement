@@ -27,6 +27,44 @@ const buildRule = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 });
 
+describe("publisherDiffusionRuleService.findAllowedMissionPublisherIds", () => {
+  beforeEach(() => {
+    prismaMock.publisherDiffusionRule.findMany.mockReset();
+    prismaMock.mission.count.mockReset();
+  });
+
+  it("charge uniquement les règles racines publisherId is du publisher courant", async () => {
+    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([
+      buildRule({ id: "rule-1", value: "annonceur-1" }),
+      buildRule({ id: "rule-2", value: "annonceur-2", position: 1 }),
+    ]);
+
+    const publisherIds = await publisherDiffusionRuleService.findAllowedMissionPublisherIds("publisher-1");
+
+    expect(publisherIds).toEqual(["annonceur-1", "annonceur-2"]);
+    expect(prismaMock.publisherDiffusionRule.findMany).toHaveBeenCalledWith({
+      where: {
+        publisherId: "publisher-1",
+        combinedWithId: null,
+        field: "publisherId",
+        operator: "is",
+      },
+      orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+    });
+  });
+
+  it("déduplique les publishers autorisés", async () => {
+    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([
+      buildRule({ id: "rule-1", value: "annonceur-1" }),
+      buildRule({ id: "rule-2", value: "annonceur-1", position: 1 }),
+    ]);
+
+    const publisherIds = await publisherDiffusionRuleService.findAllowedMissionPublisherIds("publisher-1");
+
+    expect(publisherIds).toEqual(["annonceur-1"]);
+  });
+});
+
 describe("publisherDiffusionRuleService.buildMissionPublisherDiffusionRuleWhere", () => {
   beforeEach(() => {
     prismaMock.publisherDiffusionRule.findMany.mockReset();
