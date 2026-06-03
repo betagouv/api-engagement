@@ -762,6 +762,13 @@ components:
           description: Règles de diffusion configurées pour ce diffuseur
           items:
             $ref: "#/components/schemas/DiffusionRule"
+        diffuse:
+          type: boolean
+          description: |
+            Présent uniquement lorsque les paramètres `field` et `value` sont fournis.
+            Indique si ce diffuseur diffuserait la valeur recherchée : `false` si une règle
+            d'exclusion (`does_not_contain`, `is_not`, `does_not_exist`) sur ce champ l'exclut, `true` sinon.
+          example: false
 
     # ── Erreur ─────────────────────────────────────────────────────────────────
     Error:
@@ -2400,8 +2407,30 @@ paths:
         Retourne, pour chacun de vos partenaires diffuseurs, les règles de diffusion
         que vous avez configurées en tant qu'annonceur. Ces règles déterminent quelles
         missions sont diffusées vers chaque diffuseur.
+
+        En fournissant les paramètres `field` et `value`, chaque diffuseur est en plus
+        annoté d'un booléen `diffuse` indiquant s'il diffuserait la valeur recherchée
+        pour ce champ.
       operationId: listDiffusionRules
       tags: [Règles de diffusion]
+      parameters:
+        - name: field
+          in: query
+          required: false
+          description: |
+            Champ sur lequel évaluer la diffusion. À fournir avec `value`.
+            Valeurs possibles : `type`, `publisherOrganizationId`,
+            `publisherOrganization.clientId`, `publisherOrganization.parentOrganizations`.
+          schema:
+            type: string
+          example: "publisherOrganization.parentOrganizations"
+        - name: value
+          in: query
+          required: false
+          description: Valeur recherchée sur le champ `field`. À fournir avec `field`.
+          schema:
+            type: string
+          example: "Marine nationale"
       responses:
         "200":
           description: Liste des diffuseurs avec leurs règles de diffusion
@@ -2433,6 +2462,9 @@ paths:
 
         Une mission n'est diffusée vers un diffuseur que si elle satisfait l'ensemble
         des règles configurées pour ce diffuseur.
+
+        L'opération est idempotente : si une règle identique existe déjà pour un diffuseur,
+        la règle existante est retournée plutôt que dupliquée.
       operationId: createDiffusionRule
       tags: [Règles de diffusion]
       requestBody:
@@ -2518,7 +2550,7 @@ paths:
         - name: id
           in: path
           required: true
-          description: Identifiant de la règle de diffusion
+          description: Identifiant de la règle de diffusion (règle enfant rattachée à votre scope d'annonceur)
           schema:
             type: string
           example: "9b1c2d3e-4f56-7890-abcd-ef0123456789"
@@ -2537,5 +2569,7 @@ paths:
           $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
