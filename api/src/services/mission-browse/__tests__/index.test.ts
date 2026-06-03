@@ -69,19 +69,19 @@ describe("missionBrowseService.browse", () => {
     await missionBrowseService.browse(baseParams);
 
     expect(findRulesMock).toHaveBeenCalledWith({ publisherId: "diffuseur-1" });
-    expect(searchMock).toHaveBeenCalledWith(expect.objectContaining({ filter_by: "(publisherId:=`annonceur-1` || publisherId:=`annonceur-2`)" }));
+    expect(searchMock).toHaveBeenCalledWith(expect.objectContaining({ filter_by: "publisherId:=[`annonceur-1`,`annonceur-2`]" }));
   });
 
   it("combine le publisher demandé avec la whitelist sans faire confiance au paramètre", async () => {
     await missionBrowseService.browse({ ...baseParams, publisherId: "annonceur-3" });
 
-    expect(searchMock).toHaveBeenCalledWith(expect.objectContaining({ filter_by: "(publisherId:=`annonceur-1` || publisherId:=`annonceur-2`) && publisherId:=`annonceur-3`" }));
+    expect(searchMock).toHaveBeenCalledWith(expect.objectContaining({ filter_by: "publisherId:=[`annonceur-1`,`annonceur-2`] && publisherId:=`annonceur-3`" }));
   });
 
   it("combine le publisher demandé quand il est dans la whitelist", async () => {
     await missionBrowseService.browse({ ...baseParams, publisherId: "annonceur-2" });
 
-    expect(searchMock).toHaveBeenCalledWith(expect.objectContaining({ filter_by: "(publisherId:=`annonceur-1` || publisherId:=`annonceur-2`) && publisherId:=`annonceur-2`" }));
+    expect(searchMock).toHaveBeenCalledWith(expect.objectContaining({ filter_by: "publisherId:=[`annonceur-1`,`annonceur-2`] && publisherId:=`annonceur-2`" }));
   });
 
   it("restreint le détail aux publishers whitelistés", async () => {
@@ -89,7 +89,7 @@ describe("missionBrowseService.browse", () => {
 
     expect(findOneMissionByMock).toHaveBeenCalledWith({
       id: "mission-1",
-      OR: [{ publisherId: "annonceur-1" }, { publisherId: "annonceur-2" }],
+      publisherId: { in: ["annonceur-1", "annonceur-2"] },
       deletedAt: null,
       statusCode: "ACCEPTED",
     });
