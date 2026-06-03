@@ -71,7 +71,7 @@ export default function HowItWorks() {
   };
 
   return (
-    <section className=" fr-mb-12w relative">
+    <section className=" fr-mb-12w relative overflow-x-clip">
       <img src={FirefighterSvg} alt="" className="hidden md:block absolute left-12 top-5 size-30 opacity-20 rotate-24" aria-hidden="true" />
       <img src={LeafSvg} alt="" className="hidden md:block absolute -right-10 top-3 size-40 opacity-20 -rotate-12" aria-hidden="true" />
       <img src={LongTraceSvg} alt="" className="hidden md:block absolute bottom-0 left-0 size-full opacity-30" aria-hidden="true" />
