@@ -106,7 +106,7 @@ export default function Testimonials() {
                 role="group"
                 aria-roledescription="slide"
                 aria-label={`Témoignage ${i + 1} sur ${TESTIMONIALS.length}`}
-                className="w-[80vw] max-w-[330px] shrink-0 snap-center md:w-[330px]"
+                className="bg-background w-[80vw] max-w-[330px] shrink-0 snap-center md:w-[330px] flex flex-col shadow-sm"
               >
                 <img src={testimonial.image} alt="" loading="lazy" className="block h-[280px] w-full object-cover" />
                 <div className="flex flex-1 flex-col gap-4 p-6">
