@@ -12,8 +12,7 @@ import { useQuizStore } from "~/stores/quiz";
 import type { BrowseMission } from "~/types/api";
 import type { Route } from "./+types/_index";
 
-import PeopleMobilePng from "~/assets/images/people-landing-mobile.png";
-import PeoplePng from "~/assets/images/people-landing.png";
+import LandingPng from "~/assets/images/landing-no-bg.png";
 
 const EXAMPLES_COUNT = 5;
 const TESTIMONIALS_COUNT = 4;
@@ -53,10 +52,14 @@ export default function Landing() {
   return (
     <main>
       <GradientBg className="bg-size-[100%_640px]">
-        <div className="relative md:min-h-[640px]">
-          <img src={PeoplePng} alt="" className="absolute hidden md:block right-0 bottom-0 object-contain md:bottom-auto md:top-0 md:h-[640px] md:w-auto md:max-w-[1024px]" />
+        <div className="relative md:min-h-[640px] md:overflow-hidden">
+          <img
+            src={LandingPng}
+            alt=""
+            className="absolute hidden md:block right-[-100px] bottom-0 object-contain md:bottom-auto md:top-0 md:h-[640px] md:w-auto md:max-w-[1024px]"
+          />
           <Hero onStartQuiz={handleStartQuiz} />
-          <img src={PeopleMobilePng} alt="" className="block md:hidden right-0 bottom-0 object-contain h-[420px] w-full" />
+          <img src={LandingPng} alt="" className="block md:hidden right-0 bottom-0 object-contain h-[420px] w-full" />
         </div>
         <MissionExamples missions={examples} className="-mt-14 md:-mt-24" />
       </GradientBg>
