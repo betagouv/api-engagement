@@ -5,7 +5,6 @@ const { enqueueMock, captureExceptionMock } = vi.hoisted(() => ({
   captureExceptionMock: vi.fn(),
 }));
 
-// On isole missionService du bus SQS réel : seul le contrat enqueue/erreur nous intéresse ici.
 vi.mock("@/services/mission-enrichment", () => ({
   missionEnrichmentService: { enqueue: enqueueMock },
   buildMissionEnrichmentScoringWhere: vi.fn(),

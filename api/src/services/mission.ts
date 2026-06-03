@@ -566,9 +566,6 @@ const baseInclude: MissionInclude = {
 
 export const missionService = {
   async enqueueMissionProcessing(missionId: string): Promise<void> {
-    // Best-effort : déclencher le traitement async ne doit jamais faire échouer
-    // l'écriture de la mission (création/mise à jour, donc l'import des flux).
-    // Une indisponibilité de la queue est capturée mais n'interrompt pas le flux.
     try {
       await missionEnrichmentService.enqueue(missionId);
     } catch (error) {
