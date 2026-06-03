@@ -69,19 +69,19 @@ describe("missionBrowseService.browse", () => {
     await missionBrowseService.browse(baseParams);
 
     expect(findRulesMock).toHaveBeenCalledWith({ publisherId: "diffuseur-1" });
-    expect(searchMock).toHaveBeenCalledWith(expect.objectContaining({ filter_by: "publisherId:=[`annonceur-1`,`annonceur-2`]" }));
+    expect(searchMock).toHaveBeenCalledWith(expect.objectContaining({ filter_by: "(publisherId:=`annonceur-1` || publisherId:=`annonceur-2`)" }));
   });
 
   it("combine le publisher demandé avec la whitelist sans faire confiance au paramètre", async () => {
     await missionBrowseService.browse({ ...baseParams, publisherId: "annonceur-3" });
 
-    expect(searchMock).toHaveBeenCalledWith(expect.objectContaining({ filter_by: "publisherId:=[`annonceur-1`,`annonceur-2`] && publisherId:=`annonceur-3`" }));
+    expect(searchMock).toHaveBeenCalledWith(expect.objectContaining({ filter_by: "(publisherId:=`annonceur-1` || publisherId:=`annonceur-2`) && publisherId:=`annonceur-3`" }));
   });
 
   it("combine le publisher demandé quand il est dans la whitelist", async () => {
     await missionBrowseService.browse({ ...baseParams, publisherId: "annonceur-2" });
 
-    expect(searchMock).toHaveBeenCalledWith(expect.objectContaining({ filter_by: "publisherId:=[`annonceur-1`,`annonceur-2`] && publisherId:=`annonceur-2`" }));
+    expect(searchMock).toHaveBeenCalledWith(expect.objectContaining({ filter_by: "(publisherId:=`annonceur-1` || publisherId:=`annonceur-2`) && publisherId:=`annonceur-2`" }));
   });
 
   it("restreint le détail aux publishers whitelistés", async () => {
@@ -89,7 +89,23 @@ describe("missionBrowseService.browse", () => {
 
     expect(findOneMissionByMock).toHaveBeenCalledWith({
       id: "mission-1",
-      publisherId: { in: ["annonceur-1", "annonceur-2"] },
+      OR: [{ publisherId: "annonceur-1" }, { publisherId: "annonceur-2" }],
+      deletedAt: null,
+      statusCode: "ACCEPTED",
+    });
+  });
+
+  it("restreint le détail avec les enfants organisation supportés", async () => {
+    findRulesMock.mockResolvedValue([
+      buildRule("annonceur-1", { id: "root-1" }),
+      buildRule("po-1", { id: "child-1", combinedWithId: "root-1", field: "publisherOrganizationId" }),
+    ]);
+
+    await missionBrowseService.findById("mission-1", "diffuseur-1");
+
+    expect(findOneMissionByMock).toHaveBeenCalledWith({
+      id: "mission-1",
+      AND: [{ publisherId: "annonceur-1" }, { publisherOrganizationId: "po-1" }],
       deletedAt: null,
       statusCode: "ACCEPTED",
     });

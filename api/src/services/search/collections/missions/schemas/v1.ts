@@ -12,6 +12,8 @@ const schema: CollectionCreateSchema = {
   name: TYPESENSE_MISSION_COLLECTION,
   fields: [
     { name: "publisherId", type: "string", facet: true },
+    { name: "publisherOrganizationId", type: "string", facet: true, optional: true },
+    { name: "publisherOrganizationParentOrganizations", type: "string[]", facet: true, optional: true },
     { name: "departmentCodes", type: "string[]", facet: true },
     ...taxonomyFields.map((name) => ({ name, type: "string[]" as const, facet: true, optional: true })),
   ],

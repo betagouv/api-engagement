@@ -126,7 +126,7 @@ export const missionBrowseService = {
 
     const mission = await missionService.findOneMissionBy({
       id,
-      ...(diffusionFilter.kind === "filter" ? { publisherId: { in: diffusionFilter.publisherIds } } : {}),
+      ...(diffusionFilter.kind === "filter" ? diffusionFilter.missionWhere : {}),
       deletedAt: null,
       statusCode: "ACCEPTED",
     });

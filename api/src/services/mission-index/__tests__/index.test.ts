@@ -22,6 +22,8 @@ const prismaMock = prisma as unknown as {
 const buildMission = (overrides: Record<string, unknown> = {}) => ({
   id: "mission-1",
   publisherId: "publisher-1",
+  publisherOrganizationId: "publisher-organization-1",
+  publisherOrganization: { parentOrganizations: ["Réseau 1", "Réseau 2"] },
   deletedAt: null,
   statusCode: "ACCEPTED",
   addresses: [{ departmentCode: "75" }],
@@ -60,6 +62,8 @@ describe("missionIndexService.upsert", () => {
       expect.objectContaining({
         id: "mission-1",
         publisherId: "publisher-1",
+        publisherOrganizationId: "publisher-organization-1",
+        publisherOrganizationParentOrganizations: ["Réseau 1", "Réseau 2"],
         departmentCodes: ["75"],
         domaine: ["social_solidarite"],
       })
