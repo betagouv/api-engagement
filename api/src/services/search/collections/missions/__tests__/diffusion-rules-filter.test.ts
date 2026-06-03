@@ -1,7 +1,12 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { captureException } from "@/error";
 import { publisherDiffusionRulesToMissionFilter } from "@/services/search/collections/missions/diffusion-rules-filter";
 import type { PublisherDiffusionRuleRecord } from "@/types/publisher-diffusion-rule";
+
+vi.mock("@/error", () => ({
+  captureException: vi.fn(),
+}));
 
 const buildRule = (overrides: Partial<PublisherDiffusionRuleRecord> = {}): PublisherDiffusionRuleRecord => ({
   id: "rule-1",
@@ -19,6 +24,10 @@ const buildRule = (overrides: Partial<PublisherDiffusionRuleRecord> = {}): Publi
 });
 
 describe("publisherDiffusionRulesToMissionFilter", () => {
+  beforeEach(() => {
+    vi.mocked(captureException).mockClear();
+  });
+
   it("ne contraint pas quand aucune règle n'est configurée", () => {
     const result = publisherDiffusionRulesToMissionFilter([]);
 
@@ -33,9 +42,22 @@ describe("publisherDiffusionRulesToMissionFilter", () => {
 
     expect(result).toEqual({
       kind: "filter",
-      filterBy: "(publisherId:=`annonceur-1` || publisherId:=`annonceur-2`)",
-      missionWhere: { OR: [{ publisherId: "annonceur-1" }, { publisherId: "annonceur-2" }] },
+      filterBy: "publisherId:=[`annonceur-1`,`annonceur-2`]",
+      missionWhere: { publisherId: { in: ["annonceur-1", "annonceur-2"] } },
     });
+  });
+
+  it("compacte les longues listes de publisherId pour éviter les query strings Typesense trop longues", () => {
+    const result = publisherDiffusionRulesToMissionFilter(
+      Array.from({ length: 120 }, (_, index) => buildRule({ id: `rule-${index}`, value: `annonceur-${index}`, position: index }))
+    );
+
+    expect(result.kind).toBe("filter");
+    if (result.kind === "filter") {
+      expect(result.filterBy).toMatch(/^publisherId:=\[/);
+      expect(result.filterBy).not.toContain(" || ");
+      expect(result.filterBy.length).toBeLessThan(4000);
+    }
   });
 
   it("traduit les enfants publisherOrganizationId", () => {
@@ -96,6 +118,25 @@ describe("publisherDiffusionRulesToMissionFilter", () => {
     ]);
 
     expect(result).toEqual({ kind: "none", missionWhere: null });
+  });
+
+  it("lève une alerte Sentry quand une règle n'est pas supportée", () => {
+    publisherDiffusionRulesToMissionFilter([
+      buildRule({ id: "root-alert", value: "annonceur-alert" }),
+      buildRule({ id: "unsupported-alert", combinedWithId: "root-alert", field: "type", value: "benevolat" }),
+    ]);
+
+    expect(captureException).toHaveBeenCalledWith(expect.any(Error), {
+      extra: expect.objectContaining({
+        reason: "unsupported_child_field",
+        ruleId: "unsupported-alert",
+        publisherId: "diffuseur-1",
+        combinedWithId: "root-alert",
+        field: "type",
+        operator: "is",
+        value: "benevolat",
+      }),
+    });
   });
 
   it("déduplique les publisherIds supportés", () => {

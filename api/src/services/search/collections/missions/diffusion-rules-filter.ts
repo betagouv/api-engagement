@@ -1,4 +1,5 @@
 import type { Prisma } from "@/db/core";
+import { captureException } from "@/error";
 import type { PublisherDiffusionRuleRecord } from "@/types/publisher-diffusion-rule";
 
 type MissionDiffusionRulesFilter =
@@ -20,12 +21,42 @@ const escapeTypesenseFilterValue = (value: string): string => {
   return `\`${value.replace(/\\/g, "\\\\").replace(/`/g, "\\`")}\``;
 };
 
+const buildTypesenseListFilter = (field: string, values: string[]): string => `${field}:=[${values.map(escapeTypesenseFilterValue).join(",")}]`;
+
 const isSupportedPublisherWhitelistRule = (rule: PublisherDiffusionRuleRecord): boolean =>
   rule.combinedWithId === null && rule.field === "publisherId" && rule.operator === "is" && rule.value.trim() !== "";
 
 type SupportedGroup = {
   filterBy: string;
   missionWhere: Prisma.MissionWhereInput;
+};
+
+const reportedUnsupportedRuleKeys = new Set<string>();
+
+const unsupportedRuleKey = (rule: PublisherDiffusionRuleRecord): string =>
+  [rule.id, rule.publisherId, rule.combinedWithId ?? "", rule.field, rule.operator, rule.value, rule.combinator].join(":");
+
+const reportUnsupportedRule = (rule: PublisherDiffusionRuleRecord, reason: string) => {
+  const key = unsupportedRuleKey(rule);
+  if (reportedUnsupportedRuleKeys.has(key)) {
+    return;
+  }
+
+  reportedUnsupportedRuleKeys.add(key);
+  captureException(new Error("[PublisherDiffusionRule] Règle non supportée dans le filtre Typesense des missions"), {
+    extra: {
+      reason,
+      ruleId: rule.id,
+      publisherId: rule.publisherId,
+      combinedWithId: rule.combinedWithId,
+      field: rule.field,
+      fieldType: rule.fieldType,
+      operator: rule.operator,
+      value: rule.value,
+      combinator: rule.combinator,
+      position: rule.position,
+    },
+  });
 };
 
 const buildChildrenByParentId = (rules: PublisherDiffusionRuleRecord[]): Map<string, PublisherDiffusionRuleRecord[]> => {
@@ -63,6 +94,7 @@ const buildParentOrganizationWhere = (rule: PublisherDiffusionRuleRecord): Prism
 const buildSupportedChildGroup = (rule: PublisherDiffusionRuleRecord): SupportedGroup | null => {
   const value = rule.value.trim();
   if (!value || (rule.operator !== "is" && rule.operator !== "is_not")) {
+    reportUnsupportedRule(rule, "unsupported_child_operator_or_empty_value");
     return null;
   }
 
@@ -86,6 +118,7 @@ const buildSupportedChildGroup = (rule: PublisherDiffusionRuleRecord): Supported
     };
   }
 
+  reportUnsupportedRule(rule, "unsupported_child_field");
   return null;
 };
 
@@ -120,9 +153,30 @@ const dedupeGroups = (groups: SupportedGroup[]): SupportedGroup[] => {
   });
 };
 
+const getPublisherIdOnlyGroups = (groups: SupportedGroup[]): string[] | null => {
+  const publisherIds: string[] = [];
+
+  for (const group of groups) {
+    const keys = Object.keys(group.missionWhere);
+    const publisherId = (group.missionWhere as { publisherId?: unknown }).publisherId;
+    if (keys.length !== 1 || typeof publisherId !== "string") {
+      return null;
+    }
+    publisherIds.push(publisherId);
+  }
+
+  return publisherIds;
+};
+
 export const publisherDiffusionRulesToMissionFilter = (rules: PublisherDiffusionRuleRecord[]): MissionDiffusionRulesFilter => {
   if (!rules.length) {
     return { kind: "all", missionWhere: null };
+  }
+
+  for (const rule of rules) {
+    if (rule.combinedWithId === null && !isSupportedPublisherWhitelistRule(rule)) {
+      reportUnsupportedRule(rule, "unsupported_root_rule");
+    }
   }
 
   const childrenByParentId = buildChildrenByParentId(rules);
@@ -135,6 +189,15 @@ export const publisherDiffusionRulesToMissionFilter = (rules: PublisherDiffusion
 
   if (!groups.length) {
     return { kind: "none", missionWhere: null };
+  }
+
+  const publisherIds = getPublisherIdOnlyGroups(groups);
+  if (publisherIds && publisherIds.length > 1) {
+    return {
+      kind: "filter",
+      filterBy: buildTypesenseListFilter("publisherId", publisherIds),
+      missionWhere: { publisherId: { in: publisherIds } },
+    };
   }
 
   return {
