@@ -122,19 +122,35 @@ const buildSupportedChildGroup = (rule: PublisherDiffusionRuleRecord): Supported
   return null;
 };
 
-const buildSupportedRootGroup = (root: PublisherDiffusionRuleRecord, children: PublisherDiffusionRuleRecord[]): SupportedGroup | null => {
-  const publisherId = root.value.trim();
-  if (!publisherId) {
+const buildSupportedRuleGroup = (
+  rule: PublisherDiffusionRuleRecord,
+  childrenByParentId: Map<string, PublisherDiffusionRuleRecord[]>,
+  options: { isRoot: boolean }
+): SupportedGroup | null => {
+  const value = rule.value.trim();
+  if (!value) {
     return null;
   }
 
-  const childGroups = children.map(buildSupportedChildGroup);
+  const selfGroup: SupportedGroup | null = options.isRoot
+    ? {
+        filterBy: `publisherId:=${escapeTypesenseFilterValue(value)}`,
+        missionWhere: { publisherId: value },
+      }
+    : buildSupportedChildGroup(rule);
+
+  if (!selfGroup) {
+    return null;
+  }
+
+  const childGroups = (childrenByParentId.get(rule.id) ?? []).map((child) => buildSupportedRuleGroup(child, childrenByParentId, { isRoot: false }));
   if (childGroups.some((child) => child === null)) {
     return null;
   }
 
-  const parts = [`publisherId:=${escapeTypesenseFilterValue(publisherId)}`, ...(childGroups as SupportedGroup[]).map((child) => child.filterBy)];
-  const missionWhereParts: Prisma.MissionWhereInput[] = [{ publisherId }, ...(childGroups as SupportedGroup[]).map((child) => child.missionWhere)];
+  const supportedChildren = childGroups as SupportedGroup[];
+  const parts = [selfGroup.filterBy, ...supportedChildren.map((child) => child.filterBy)];
+  const missionWhereParts: Prisma.MissionWhereInput[] = [selfGroup.missionWhere, ...supportedChildren.map((child) => child.missionWhere)];
 
   return {
     filterBy: parts.length === 1 ? parts[0] : `(${parts.join(" && ")})`,
@@ -183,7 +199,7 @@ export const publisherDiffusionRulesToMissionFilter = (rules: PublisherDiffusion
   const groups = dedupeGroups(
     rules
       .filter(isSupportedPublisherWhitelistRule)
-      .map((rule) => buildSupportedRootGroup(rule, childrenByParentId.get(rule.id) ?? []))
+      .map((rule) => buildSupportedRuleGroup(rule, childrenByParentId, { isRoot: true }))
       .filter((group: SupportedGroup | null): group is SupportedGroup => Boolean(group))
   );
 
