@@ -4,7 +4,7 @@ import type { MissionMatchItem } from "@engagement/dto";
 import MissionCard from "~/components/missions/mission-card";
 import Highlight from "~/components/ui/highlight";
 import { fetchMatches } from "~/services/matching";
-import { matchResultToBrowseMission } from "~/utils/mission";
+import { buildMissionDetailHref, matchResultToBrowseMission } from "~/utils/mission";
 
 interface Props {
   userScoringId: string;
@@ -53,7 +53,7 @@ export default function SimilarMissions({ userScoringId, currentMissionId }: Pro
         <div ref={scrollRef} className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2 scrollbar-none">
           {items.map((item) => (
             <div key={item.mission.id} className="w-[280px] flex-none snap-start md:w-[283px]">
-              <MissionCard mission={matchResultToBrowseMission(item)} link={{ type: "internal", to: `/results/${userScoringId}/missions/${item.mission.id}` }} />
+              <MissionCard mission={matchResultToBrowseMission(item)} link={{ type: "internal", to: buildMissionDetailHref(item, userScoringId) }} />
             </div>
           ))}
         </div>

@@ -20,4 +20,5 @@ export async function browseMissions(filters: MissionBrowseFilters, signal?: Abo
   return client.get<MissionBrowseResponse>(`/api/missions/browse?${params.toString()}`, signal);
 }
 
-export const fetchMissionDetail = (id: string): Promise<MissionDetailResponse> => client.get<MissionDetailResponse>(`/api/missions/browse/${id}`);
+export const fetchMissionDetail = (id: string, addressId?: string | null): Promise<MissionDetailResponse> =>
+  client.get<MissionDetailResponse>(`/api/missions/browse/${id}${addressId ? `?addressId=${encodeURIComponent(addressId)}` : ""}`);

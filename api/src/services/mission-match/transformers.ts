@@ -137,6 +137,7 @@ export const toMissionMatchItem = (item: MatchMissionItem, missionIndex: Record<
         closestLat: item.closestLat,
         closestLon: item.closestLon,
         closestAddress: item.closestAddress,
+        addressId: item.missionAddressId,
       },
     },
     match: {
