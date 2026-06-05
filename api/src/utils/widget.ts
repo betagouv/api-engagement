@@ -1,4 +1,5 @@
 import { Prisma } from "@/db/core";
+import { OrgArrayColumn } from "@/types/publisher-organization";
 import { WidgetRuleRecord } from "@/types/widget";
 
 type WidgetRule = Pick<WidgetRuleRecord, "field" | "operator" | "value" | "combinator">;
@@ -9,12 +10,12 @@ type WidgetRule = Pick<WidgetRuleRecord, "field" | "operator" | "value" | "combi
 const ARRAY_FIELDS = new Set(["organizationActions", "parentOrganization", "tags", "associationReseaux", "organizationNetwork", "organizationReseaux"]);
 
 /**
- * Champs array adossés à `PublisherOrganization` → colonne PostgreSQL correspondante.
- * Le matching insensible à la casse sur ces colonnes (`TEXT[]`) n'étant pas possible via Prisma,
- * on pré-résout les ids d'organisations correspondantes via SQL brut (voir `OrganizationArrayIdsResolver`).
- * NB : `tags` est une colonne `Mission` (pas une organisation) → non listé ici, conserve `{ has }`.
+ * Array fields associated with `PublisherOrganization` → corresponding PostgreSQL column.
+ * Since case-insensitive matching on these columns (`TEXT[]`) is not possible via Prisma,
+ * we pre-resolve the corresponding organization IDs using raw SQL (see `OrganizationArrayIdsResolver`).
+ * Note: `tags` is a `Mission` column (not an organization) → not listed here, retains `{ has }`.
  */
-const ORG_ARRAY_FIELD_TO_COLUMN: Record<string, "parent_organizations" | "actions"> = {
+const ORG_ARRAY_FIELD_TO_COLUMN: Record<string, OrgArrayColumn> = {
   parentOrganization: "parent_organizations",
   organizationActions: "actions",
   // LEGACY FIELDS to be removed after migration
@@ -24,10 +25,10 @@ const ORG_ARRAY_FIELD_TO_COLUMN: Record<string, "parent_organizations" | "action
 };
 
 /**
- * Résout, pour une colonne array d'organisation et une valeur, les ids des organisations
- * dont un élément correspond à la valeur, insensiblement à la casse.
+ * Given an “organization” array column and a value, returns the IDs of the organizations
+ * for which an element matches the value, case-insensitively.
  */
-export type OrganizationArrayIdsResolver = (column: "parent_organizations" | "actions", value: string) => Promise<string[]>;
+export type OrganizationArrayIdsResolver = (column: OrgArrayColumn, value: string) => Promise<string[]>;
 
 /**
  * Mapping des champs virtuels (utilisés dans les règles widget) vers les chemins Prisma réels.
@@ -85,7 +86,7 @@ const buildRuleCondition = async (rule: WidgetRule, resolveOrganizationIds: Orga
     return null;
   }
 
-  // Champs array adossés à l'organisation : matching insensible à la casse via pré-résolution des ids.
+  // Organization-backed array fields: case-insensitive matching via ID pre-resolution.
   const orgArrayColumn = ORG_ARRAY_FIELD_TO_COLUMN[field];
   if (orgArrayColumn && (operator === "contains" || operator === "does_not_contain")) {
     const ids = await resolveOrganizationIds(orgArrayColumn, `${normalizedValue}`);

@@ -1,6 +1,15 @@
 import { Prisma } from "@/db/core";
 import { OrganizationRecord } from "@/types/organization";
 
+/**
+ * Colonnes de type tableau (`TEXT[]`) de `publisher_organization` sur lesquelles un matching
+ * insensible à la casse est requis (impossible via Prisma → résolution en SQL brut).
+ * Source de vérité unique : ajouter une colonne ici suffit, le typage guide le reste.
+ * Sert aussi d'allowlist anti-injection (aucune colonne hors de cette liste n'est interpolée).
+ */
+export const ORG_ARRAY_COLUMNS = ["parent_organizations", "actions"] as const;
+export type OrgArrayColumn = (typeof ORG_ARRAY_COLUMNS)[number];
+
 export interface PublisherOrganizationFindParams {
   id?: string;
   ids?: string[];
