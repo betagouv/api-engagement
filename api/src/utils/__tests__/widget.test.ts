@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { applyWidgetRules, type OrganizationArrayIdsResolver } from "@/utils/widget";
+import type { OrganizationArrayIdsResolver } from "@/types/publisher-organization";
+import { applyWidgetRules } from "@/utils/widget";
 
 type Rule = { field: string; operator: string; value: string; combinator: "and" | "or" };
 

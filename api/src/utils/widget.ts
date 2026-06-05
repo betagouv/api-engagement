@@ -1,5 +1,5 @@
 import { Prisma } from "@/db/core";
-import { OrgArrayColumn } from "@/types/publisher-organization";
+import { OrganizationArrayIdsResolver, OrgArrayColumn } from "@/types/publisher-organization";
 import { WidgetRuleRecord } from "@/types/widget";
 
 type WidgetRule = Pick<WidgetRuleRecord, "field" | "operator" | "value" | "combinator">;
@@ -23,12 +23,6 @@ const ORG_ARRAY_FIELD_TO_COLUMN: Record<string, OrgArrayColumn> = {
   organizationNetwork: "parent_organizations",
   organizationReseaux: "parent_organizations",
 };
-
-/**
- * Given an “organization” array column and a value, returns the IDs of the organizations
- * for which an element matches the value, case-insensitively.
- */
-export type OrganizationArrayIdsResolver = (column: OrgArrayColumn, value: string) => Promise<string[]>;
 
 /**
  * Mapping des champs virtuels (utilisés dans les règles widget) vers les chemins Prisma réels.
