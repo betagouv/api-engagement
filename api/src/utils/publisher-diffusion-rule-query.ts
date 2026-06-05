@@ -76,13 +76,16 @@ const buildArraySqlCondition = (target: Prisma.Sql, rule: PublisherDiffusionRule
     return null;
   }
 
+  // Matching insensible à la casse sur un tableau (`= ANY` étant sensible à la casse).
+  const arrayContains = Prisma.sql`EXISTS (SELECT 1 FROM unnest(${target}) AS elem WHERE lower(elem) = lower(${value}))`;
+
   switch (rule.operator) {
     case "is":
     case "contains":
-      return Prisma.sql`${value} = ANY(${target})`;
+      return arrayContains;
     case "is_not":
     case "does_not_contain":
-      return Prisma.sql`NOT (${value} = ANY(${target}))`;
+      return Prisma.sql`NOT ${arrayContains}`;
     case "exists":
       return Prisma.sql`COALESCE(cardinality(${target}), 0) > 0`;
     case "does_not_exist":

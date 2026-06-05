@@ -40,5 +40,20 @@ export const publisherOrganizationRepository = {
   async count(params: Prisma.PublisherOrganizationCountArgs = {}): Promise<number> {
     return prisma.publisherOrganization.count(params);
   },
+
+  /**
+   * Retourne les ids des organisations dont la colonne array `column` contient un élément
+   * égal à `value`, de manière insensible à la casse.
+   * Prisma ne supportant pas `mode: "insensitive"` sur les opérateurs array, on passe par du SQL brut.
+   * `column` est restreint à une union typée (pas d'interpolation libre → pas d'injection).
+   */
+  async findIdsByArrayValueInsensitive(column: "parent_organizations" | "actions", value: string): Promise<string[]> {
+    const columnSql = column === "actions" ? Prisma.sql`"actions"` : Prisma.sql`"parent_organizations"`;
+    const rows = await prisma.$queryRaw<{ id: string }[]>`
+      SELECT "id" FROM "publisher_organization"
+      WHERE EXISTS (SELECT 1 FROM unnest(${columnSql}) AS elem WHERE lower(elem) = lower(${value}))
+    `;
+    return rows.map((row) => row.id);
+  },
 };
 export default publisherOrganizationRepository;

@@ -126,6 +126,13 @@ const publisherOrganizationService = {
   groupBy: async (by: (keyof PublisherOrganization)[], where: Prisma.PublisherOrganizationWhereInput) => {
     return publisherOrganizationRepository.groupBy(by, where);
   },
+  /**
+   * Résout les ids des organisations matchant `value` sur une colonne array, insensiblement à la casse.
+   * Utilisé pour le filtrage des règles widget (champs array adossés à l'organisation).
+   */
+  findIdsMatchingArrayValue: async (column: "parent_organizations" | "actions", value: string): Promise<string[]> => {
+    return publisherOrganizationRepository.findIdsByArrayValueInsensitive(column, value);
+  },
 };
 
 export default publisherOrganizationService;

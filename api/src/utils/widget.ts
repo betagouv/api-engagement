@@ -9,6 +9,27 @@ type WidgetRule = Pick<WidgetRuleRecord, "field" | "operator" | "value" | "combi
 const ARRAY_FIELDS = new Set(["organizationActions", "parentOrganization", "tags", "associationReseaux", "organizationNetwork", "organizationReseaux"]);
 
 /**
+ * Champs array adossés à `PublisherOrganization` → colonne PostgreSQL correspondante.
+ * Le matching insensible à la casse sur ces colonnes (`TEXT[]`) n'étant pas possible via Prisma,
+ * on pré-résout les ids d'organisations correspondantes via SQL brut (voir `OrganizationArrayIdsResolver`).
+ * NB : `tags` est une colonne `Mission` (pas une organisation) → non listé ici, conserve `{ has }`.
+ */
+const ORG_ARRAY_FIELD_TO_COLUMN: Record<string, "parent_organizations" | "actions"> = {
+  parentOrganization: "parent_organizations",
+  organizationActions: "actions",
+  // LEGACY FIELDS to be removed after migration
+  associationReseaux: "parent_organizations",
+  organizationNetwork: "parent_organizations",
+  organizationReseaux: "parent_organizations",
+};
+
+/**
+ * Résout, pour une colonne array d'organisation et une valeur, les ids des organisations
+ * dont un élément correspond à la valeur, insensiblement à la casse.
+ */
+export type OrganizationArrayIdsResolver = (column: "parent_organizations" | "actions", value: string) => Promise<string[]>;
+
+/**
  * Mapping des champs virtuels (utilisés dans les règles widget) vers les chemins Prisma réels.
  * Les champs non listés ici sont utilisés directement sur le modèle Mission.
  */
@@ -52,7 +73,7 @@ const normalizeArrayOperator = (operator: string): string => {
  * Opérateurs pour les champs tableau (array) : contains, does_not_contain
  *   → l'insensibilité à la casse n'est pas possible sur ces champs
  */
-const buildRuleCondition = (rule: WidgetRule): Prisma.MissionWhereInput | null => {
+const buildRuleCondition = async (rule: WidgetRule, resolveOrganizationIds: OrganizationArrayIdsResolver): Promise<Prisma.MissionWhereInput | null> => {
   const { field, value } = rule;
   const normalizedValue = field === "openToMinors" ? normalizeBooleanValue(value) : value;
   const isArrayField = ARRAY_FIELDS.has(field);
@@ -62,6 +83,14 @@ const buildRuleCondition = (rule: WidgetRule): Prisma.MissionWhereInput | null =
 
   if (operator !== "exists" && operator !== "does_not_exist" && !normalizedValue) {
     return null;
+  }
+
+  // Champs array adossés à l'organisation : matching insensible à la casse via pré-résolution des ids.
+  const orgArrayColumn = ORG_ARRAY_FIELD_TO_COLUMN[field];
+  if (orgArrayColumn && (operator === "contains" || operator === "does_not_contain")) {
+    const ids = await resolveOrganizationIds(orgArrayColumn, `${normalizedValue}`);
+    const base: Prisma.MissionWhereInput = { publisherOrganizationId: { in: ids } };
+    return operator === "does_not_contain" ? { NOT: base } : base;
   }
 
   // Construit la condition de base selon l'opérateur
@@ -134,7 +163,7 @@ const normalizeBooleanValue = (value?: string | null) => {
  * Applique les règles du widget pour construire un objet Prisma.MissionWhereInput.
  * Les règles sont combinées avec AND ou OR selon le combinator de chaque règle.
  */
-export const applyWidgetRules = (rules: WidgetRule[]): Prisma.MissionWhereInput => {
+export const applyWidgetRules = async (rules: WidgetRule[], resolveOrganizationIds: OrganizationArrayIdsResolver): Promise<Prisma.MissionWhereInput> => {
   if (!rules.length) {
     return {};
   }
@@ -160,10 +189,10 @@ export const applyWidgetRules = (rules: WidgetRule[]): Prisma.MissionWhereInput 
     return inner as Prisma.PublisherOrganizationWhereInput;
   };
 
-  rules.forEach((rule, index) => {
-    const condition = buildRuleCondition(rule);
+  for (const [index, rule] of rules.entries()) {
+    const condition = await buildRuleCondition(rule, resolveOrganizationIds);
     if (!condition) {
-      return;
+      continue;
     }
 
     // Pour la première règle avec plusieurs règles, utiliser le combinator de la deuxième règle
@@ -179,17 +208,17 @@ export const applyWidgetRules = (rules: WidgetRule[]): Prisma.MissionWhereInput 
       } else if (combinator === "or") {
         publisherOrganizationOr.push(publisherOrganizationCondition);
       }
-      return;
+      continue;
     }
 
     if (combinator === "and") {
       andConditions.push(condition);
-      return;
+      continue;
     }
     if (combinator === "or") {
       orConditions.push(condition);
     }
-  });
+  }
 
   if (publisherOrganizationAnd.length) {
     andConditions.push({

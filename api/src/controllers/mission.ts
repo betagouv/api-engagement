@@ -8,6 +8,7 @@ import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { missionService } from "@/services/mission";
 import { missionEnrichmentService } from "@/services/mission-enrichment";
 import { missionScoringService } from "@/services/mission-scoring";
+import publisherOrganizationService from "@/services/publisher-organization";
 import type { UserRequest } from "@/types/passport";
 import { applyWidgetRules, getDistanceKm } from "@/utils";
 import { getUserPublisherIds, hasAdminOrDirectPublisherAccess, isAdmin, readRequiredParam } from "@/utils/publisher-access";
@@ -154,7 +155,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
     }
 
     if (body.data.rules) {
-      filters.directFilters = applyWidgetRules(body.data.rules);
+      filters.directFilters = await applyWidgetRules(body.data.rules, publisherOrganizationService.findIdsMatchingArrayValue);
     }
 
     const withAdminProcessingFlags = async (data: Awaited<ReturnType<typeof missionService.findMissions>>["data"]) => {
