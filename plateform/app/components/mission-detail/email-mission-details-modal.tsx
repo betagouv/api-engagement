@@ -1,4 +1,4 @@
-import { type FormEvent, useId, useState } from "react";
+import { useId, useState } from "react";
 import Modal from "~/components/layout/modal";
 import { PUBLISHER_ID_API_ENGAGEMENT } from "~/services/config";
 import { sendMissionEmail } from "~/services/email";
@@ -25,7 +25,7 @@ export default function EmailMissionModal({ missionId, userScoringId }: EmailMis
     setSuccess(false);
   };
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.currentTarget;
     const email = (form.elements.namedItem("email") as HTMLInputElement).value;
