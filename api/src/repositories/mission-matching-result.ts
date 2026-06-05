@@ -13,6 +13,7 @@ export type MissionMatchingEmailMission = {
     compensationAmount: number | null;
     compensationAmountMax: number | null;
     compensationUnit: string | null;
+    domainLogo: string | null;
     publisherLogo: string | null;
     publisherName: string | null;
     publisherOrganizationName: string | null;
@@ -44,6 +45,7 @@ const findMissionsByMatchingResultItems = async (items: MissionMatchingResultIte
           compensationAmount: true,
           compensationAmountMax: true,
           compensationUnit: true,
+          domainLogo: true,
           publisher: { select: { logo: true, name: true } },
           publisherOrganization: { select: { name: true } },
           addresses: {
@@ -71,6 +73,7 @@ const findMissionsByMatchingResultItems = async (items: MissionMatchingResultIte
         compensationAmount: missionScoring.mission.compensationAmount,
         compensationAmountMax: missionScoring.mission.compensationAmountMax,
         compensationUnit: missionScoring.mission.compensationUnit,
+        domainLogo: missionScoring.mission.domainLogo ?? null,
         publisherLogo: missionScoring.mission.publisher?.logo ?? null,
         publisherName: missionScoring.mission.publisher?.name ?? null,
         publisherOrganizationName: missionScoring.mission.publisherOrganization?.name ?? null,

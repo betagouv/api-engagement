@@ -42,7 +42,7 @@ const updateBodySchema = zod
   });
 
 const userScoringParamsSchema = zod.object({
-  userScoringId: zod.string().uuid(),
+  userScoringId: zod.uuid(),
 });
 
 router.post("/", async (req, res, next) => {
