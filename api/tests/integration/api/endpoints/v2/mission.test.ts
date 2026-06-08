@@ -413,6 +413,26 @@ describe("Mission V2 Write API Integration Tests", () => {
       expect(response.body.data.places).toBe(4);
       expect(asyncTaskBus.publish).not.toHaveBeenCalledWith(expect.objectContaining({ type: "mission.enrichment" }));
     });
+
+    it("should enqueue enrichment when a non-prompt update changes moderation status", async () => {
+      const mission = await createTestMission({
+        publisherId: publisher.id,
+        compensationAmount: 10,
+        statusCode: "ACCEPTED",
+        statusComment: null,
+      });
+      vi.clearAllMocks();
+
+      const response = await request(app).put(`/v2/mission/${mission.clientId}`).set("x-api-key", apiKey).send({ compensationAmount: -1 });
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.statusCode).toBe("REFUSED");
+      expect(response.body.data.statusComment).toBe("Montant de la compensation invalide (nombre positif attendu)");
+      expect(asyncTaskBus.publish).toHaveBeenCalledWith({
+        type: "mission.enrichment",
+        payload: { missionId: mission.id },
+      });
+    });
   });
 
   // ────────────────────────────────────────────────────────────────────────────

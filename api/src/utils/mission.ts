@@ -131,6 +131,8 @@ export const IMPORT_FIELDS_TO_COMPARE = [
   "snu",
   "snuPlaces",
   "startAt",
+  "statusCode",
+  "statusComment",
   "compensationAmount",
   "compensationType",
   "compensationUnit",
