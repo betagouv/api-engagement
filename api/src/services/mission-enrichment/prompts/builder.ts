@@ -35,20 +35,6 @@ export const ENRICHMENT_TRIGGER_FIELDS = [
 
 export type EnrichmentTriggerField = (typeof ENRICHMENT_TRIGGER_FIELDS)[number];
 
-/**
- * Champs d'organisation (clés du diff d'import `publisher_organization`, cf.
- * `IMPORT_FIELDS_TO_COMPARE` dans `src/utils/publisher-organization.ts`) injectés par
- * `buildMissionBlock` dans le bloc « Organisation porteuse ». Une modification de l'un d'eux
- * lors d'un import justifie de ré-enrichir les missions rattachées à cette organisation
- * (sans quoi leurs classifications resteraient basées sur des données d'organisation obsolètes).
- *
- * `organizationObject`/`socialObject1`/`socialObject2` proviennent de `organizationVerified`
- * (entité distincte, non upsertée par l'import) : ils ne sont donc pas listés ici.
- */
-export const ORG_ENRICHMENT_TRIGGER_FIELDS = ["name", "type", "description", "actions", "beneficiaries", "parentOrganizations"] as const;
-
-export type OrgEnrichmentTriggerField = (typeof ORG_ENRICHMENT_TRIGGER_FIELDS)[number];
-
 const formatDate = (date: Date): string => date.toLocaleDateString("fr-FR", { year: "numeric", month: "long", day: "numeric" });
 
 const boolLabel = (value: boolean | null): string => (value === true ? "Oui" : value === false ? "Non" : "Non précisé");

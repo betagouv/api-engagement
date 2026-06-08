@@ -179,12 +179,6 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
     let hasFailed: boolean = false;
     const allMissionsClientIds = [] as string[];
     const startTime = obj.startedAt ?? new Date();
-    // clientIds des organisations dont un champ consommé par le prompt a changé sur tout l'import.
-    // Doit vivre HORS de la boucle de chunks : une org n'est détectée "modifiée" que dans le chunk
-    // où elle est upsertée ; aux chunks suivants elle est déjà à jour en base ("unchanged"). Sans
-    // persistance, les missions d'une même org réparties sur plusieurs chunks (publishers > CHUNK_SIZE
-    // missions/org) ne seraient pas ré-enrichies.
-    const organizationsNeedingEnrichment = new Set<string>();
     const chunkSize = options.chunkSize ?? CHUNK_SIZE;
     for (let i = 0; i < missionsXML.length; i += chunkSize) {
       const chunk = missionsXML.slice(i, i + chunkSize);
@@ -260,9 +254,6 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
         if (result.action === "unchanged") {
           unchangedOrganizationsCount += 1;
         }
-        if (result.enrichmentRelevant) {
-          organizationsNeedingEnrichment.add(organization.clientId);
-        }
         existingOrganizationsMap.set(organization.clientId, result.organization);
         createdOrganizationsCount += result.action === "created" ? 1 : 0;
         updatedOrganizationsCount += result.action === "updated" ? 1 : 0;
@@ -287,8 +278,7 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
         }
 
         const existing = existingMap.get(mission.clientId) || null;
-        const organizationChanged = mission.organizationClientId ? organizationsNeedingEnrichment.has(mission.organizationClientId) : false;
-        const result = await upsertMission(mission, existing, { organizationChanged });
+        const result = await upsertMission(mission, existing);
         existingMap.set(mission.clientId, result.mission);
 
         if (result.action === "created") {

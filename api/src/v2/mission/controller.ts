@@ -4,11 +4,9 @@ import zod from "zod";
 
 import { INVALID_BODY, INVALID_PARAMS, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "@/error";
 import { missionService } from "@/services/mission";
-import { changesRequireEnrichment } from "@/services/mission-enrichment/triggers";
 import { MissionCreateInput, MissionUpdatePatch } from "@/types/mission";
 import { PublisherRequest } from "@/types/passport";
 import { PublisherRecord } from "@/types/publisher";
-import { getMissionChanges } from "@/utils/mission";
 import { getModeration } from "@/utils/mission-moderation";
 
 import { publisherRateLimiter } from "@/middlewares/rate-limit";
@@ -136,8 +134,7 @@ router.post("/", passport.authenticate(["apikey", "api"], { session: false }), p
 
     let publisherOrganizationId: string | null = null;
     if (hasOrgFields(body)) {
-      const organization = await upsertPublisherOrganization(body, publisher.id);
-      publisherOrganizationId = organization?.id ?? null;
+      publisherOrganizationId = await upsertPublisherOrganization(body, publisher.id);
     }
 
     const input: MissionCreateInput = {
@@ -233,12 +230,10 @@ router.put("/:clientId", passport.authenticate(["apikey", "api"], { session: fal
     }
 
     let publisherOrganizationId: string | undefined;
-    let organizationEnrichmentRelevant = false;
     if (hasOrgFields(body)) {
-      const organization = await upsertPublisherOrganization(body, publisher.id);
-      if (organization) {
-        publisherOrganizationId = organization.id;
-        organizationEnrichmentRelevant = organization.enrichmentRelevant;
+      const orgId = await upsertPublisherOrganization(body, publisher.id);
+      if (orgId) {
+        publisherOrganizationId = orgId;
       }
     }
 
@@ -272,11 +267,7 @@ router.put("/:clientId", passport.authenticate(["apikey", "api"], { session: fal
       patch.description = moderation.description;
     }
 
-    const changes = getMissionChanges(existing, { ...existing, ...patch });
     const mission = await missionService.update(existing.id, patch);
-    if (organizationEnrichmentRelevant && (!changes || !changesRequireEnrichment(changes))) {
-      await missionService.handleEnrichmentContextChanged(existing.id);
-    }
     return res.status(200).send({ ok: true, data: buildData(mission) });
   } catch (error) {
     next(error);

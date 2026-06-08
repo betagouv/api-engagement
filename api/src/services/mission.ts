@@ -575,10 +575,6 @@ export const missionService = {
     }
   },
 
-  async handleEnrichmentContextChanged(missionId: string): Promise<void> {
-    await this.enqueueMissionProcessing(missionId);
-  },
-
   async findMissionsByIds(ids: string[]): Promise<MissionRecord[]> {
     if (!ids.length) {
       return [];

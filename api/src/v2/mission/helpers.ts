@@ -1,4 +1,3 @@
-import { orgChangesRequireEnrichment } from "@/services/mission-enrichment/triggers";
 import publisherOrganizationService from "@/services/publisher-organization";
 import { MissionAddress, MissionRecord } from "@/types/mission";
 import { PublisherOrganizationRecord } from "@/types/publisher-organization";
@@ -102,7 +101,7 @@ const buildOrgDataForUpdate = (body: OrgBody) => {
   };
 };
 
-export const upsertPublisherOrganization = async (body: OrgBody, publisherId: string): Promise<{ id: string; enrichmentRelevant: boolean } | null> => {
+export const upsertPublisherOrganization = async (body: OrgBody, publisherId: string): Promise<string | null> => {
   const orgClientId = deriveOrganizationClientId(body);
   if (!orgClientId) {
     return null;
@@ -116,7 +115,10 @@ export const upsertPublisherOrganization = async (body: OrgBody, publisherId: st
     if (changes) {
       await publisherOrganizationService.update(existing[0].id, orgData);
     }
-    return { id: existing[0].id, enrichmentRelevant: changes ? orgChangesRequireEnrichment(changes) : false };
+    // Les modifications de contenu d'organisation ne ré-enrichissent pas les
+    // missions existantes ; seul le rattachement mission -> organisation est
+    // considéré comme un changement mission pertinent.
+    return existing[0].id;
   }
 
   const orgData = buildOrgDataForCreate(body);
@@ -128,7 +130,7 @@ export const upsertPublisherOrganization = async (body: OrgBody, publisherId: st
     organizationIdVerified: null,
     verificationStatus: null,
   });
-  return { id: created.id, enrichmentRelevant: false };
+  return created.id;
 };
 
 // ──────────────────────────────────────────────────────────────────────────────
