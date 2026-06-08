@@ -113,6 +113,41 @@ npm run worker:run -- mission.enrichment '{"missionId":"abc123"}'
 
 Les types disponibles correspondent aux clés du `taskRegistry` (`src/worker/registry.ts`). Un message d'erreur explicite est affiché si le type est inconnu ou si le payload ne correspond pas au schéma attendu.
 
+### Rejeu des Dead Letter Queues (DLQ)
+
+Chaque queue SQS dispose d'une **Dead Letter Queue** (`<queue>-dlq`) vers laquelle un message bascule après plusieurs échecs de traitement (10 tentatives). Le job **`process-dead-letter-queues`** permet de rejouer ces messages, typiquement après correction de la cause racine.
+
+Pour chaque queue traitée, le job lit (pull) sa DLQ et **republie chaque message sur la queue source**. Un message n'est **supprimé de la DLQ qu'après un rejeu réussi** ; un message illisible, de type inconnu ou dont le rejeu échoue est conservé (et remonté dans Sentry).
+
+```bash
+# Rejouer toutes les DLQ
+npm run job -- process-dead-letter-queues --env staging
+
+# Cibler une seule queue
+npm run job -- process-dead-letter-queues '{"taskType":"mission.index"}' --env staging
+
+# Inspecter sans rien modifier (lecture seule)
+npm run job -- process-dead-letter-queues '{"dryRun":true}' --env staging
+
+# Tester sur un seul message
+npm run job -- process-dead-letter-queues '{"taskType":"mission.index","max":1}' --env staging
+```
+
+Paramètres (tous optionnels) :
+
+| Paramètre  | Défaut | Description                                                                                  |
+| ---------- | ------ | ------------------------------------------------------------------------------------------- |
+| `taskType` | —      | Clé du `taskRegistry` à traiter (ex. `mission.index`). Absent → toutes les DLQ sont drainées. |
+| `max`      | `1000` | Nombre maximum de messages traités **par queue** (`1` pour tester un seul message).          |
+| `dryRun`   | `false`| Lit et compte les messages sans republier ni supprimer.                                      |
+
+Détails d'implémentation :
+
+- `src/jobs/process-dead-letter-queues/handler.ts` — orchestration (sélection des queues, boucle de lecture, agrégation des compteurs `received / replayed / skipped`).
+- `src/services/async-task/dlq-consumer.ts` — `DlqConsumer` dédié (`receive` / `delete` / `getQueueUrl`), isolé du bus qui reste *publish-only*.
+- Le nom de la DLQ est dérivé de la queue source : `SCW_QUEUE_URL_<NOM>` doit donc pointer sur la **queue source** (le job ajoute lui-même le suffixe `-dlq`), qui est aussi la cible du rejeu.
+- Côté infra, le job (`scaleway_job_definition`) tourne avec une credential dédiée `async_task_dlq_processor` (droits `receive` + `publish`).
+
 ## Mode production
 
 ### Compilation pour la production
