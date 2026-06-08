@@ -201,6 +201,14 @@ router.get("/autocomplete", passport.authenticate("user", { session: false }), a
       return res.status(403).send({ ok: false, code: FORBIDDEN });
     }
 
+    // Le réseau parent n'est pas porté par la mission : on agrège directement `publisher_organization.parent_organizations`
+    // pour ne pas dépendre des missions remontées (limite, statut ACCEPTED, tri) qui masquaient des valeurs existantes.
+    if (query.data.field === "parentOrganization") {
+      const data = await publisherOrganizationService.autocompleteParentOrganizations(publisherIds, query.data.search);
+
+      return res.status(200).send({ ok: true, data });
+    }
+
     const missions = await missionService.findMissions({
       publisherIds,
       limit: 1000,
