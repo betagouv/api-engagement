@@ -14,7 +14,8 @@ import type { MissionForPrompt, TaxonomyForPrompt } from "./types";
  * - `startAt`/`endAt` : décalés chaque jour par les flux (bruit, sans impact sur la classification).
  * - `duration` : dérivée des dates (`getMonthDifference(startAt, endAt)`), aucun signal propre.
  * Les données d'organisation (nom/type/description/actions…) entrent dans le prompt via la
- * relation `publisherOrganizationId`.
+ * relation `publisherOrganizationId`. Limitation connue : une modification de contenu de
+ * l'organisation rattachée ne déclenche pas à elle seule un ré-enrichissement des missions.
  */
 export const ENRICHMENT_TRIGGER_FIELDS = [
   "title",
@@ -27,6 +28,7 @@ export const ENRICHMENT_TRIGGER_FIELDS = [
   "domain",
   "activities",
   "tags",
+  "tasks",
   "audience",
   "softSkills",
   "requirements",

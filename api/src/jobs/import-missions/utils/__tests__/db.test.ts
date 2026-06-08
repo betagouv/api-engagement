@@ -31,6 +31,7 @@ describe("changesRequireEnrichment", () => {
   it("déclenche dès qu'un champ consommé par le prompt change", () => {
     expect(changesRequireEnrichment({ title: change("a", "b") })).toBe(true);
     expect(changesRequireEnrichment({ description: change("a", "b") })).toBe(true);
+    expect(changesRequireEnrichment({ tasks: change([], ["x"]) })).toBe(true);
     expect(changesRequireEnrichment({ requirements: change([], ["x"]) })).toBe(true);
     expect(changesRequireEnrichment({ publisherOrganizationId: change("a", "b") })).toBe(true);
   });

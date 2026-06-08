@@ -40,9 +40,12 @@ export const upsertOrganization = async (input: ImportedOrganization, existing: 
   }
 
   const updated = await publisherOrganizationService.update(existing.id, input);
-  // Les modifications de données d'organisation seules ne déclenchent pas de
-  // ré-enrichissement des missions déjà rattachées. Ce cas est rare et on garde
-  // le ré-enrichissement centré sur les mutations de mission.
+  // Limitation connue : les données d'organisation sont présentes dans le prompt
+  // d'enrichissement, mais leur modification seule ne ré-enrichit pas les missions
+  // déjà rattachées. On accepte ce compromis pour garder le gating centré sur les
+  // mutations de mission et éviter un ré-enrichissement massif à chaque correction
+  // d'organisation. Le changement de rattachement (`publisherOrganizationId`), lui,
+  // reste bien traité comme une mutation de mission.
   return {
     action: "updated",
     organization: updated,
