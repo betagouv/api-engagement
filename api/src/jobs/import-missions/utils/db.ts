@@ -1,6 +1,7 @@
 import { Import as PrismaImport } from "@/db/core";
 import type { ImportedMission, ImportedOrganization } from "@/jobs/import-missions/types";
 import { missionService } from "@/services/mission";
+import { ENRICHMENT_TRIGGER_FIELDS } from "@/services/mission-enrichment/prompts";
 import { missionEventService } from "@/services/mission-event";
 import publisherOrganizationService from "@/services/publisher-organization";
 import type { MissionRecord } from "@/types/mission";
@@ -11,6 +12,21 @@ import { PublisherOrganizationRecord } from "@/types/publisher-organization";
 import { getJobTime } from "@/utils/job";
 import { EVENT_TYPES, getMissionChanges } from "@/utils/mission";
 import { getPublisherOrganizationChanges } from "@/utils/publisher-organization";
+
+const ENRICHMENT_TRIGGER_FIELD_SET = new Set<string>(ENRICHMENT_TRIGGER_FIELDS);
+
+/**
+ * Détermine si un diff de mission justifie un ré-enrichissement.
+ *
+ * La grande majorité des updates d'import ne portent que sur des champs hors-prompt
+ * (compteurs `places`/`snuPlaces`, `addresses`, dates glissantes `startAt`/`endAt`/`postedAt`,
+ * `duration` dérivée…) : ré-enrichir dans ces cas est inutile et coûteux (tokens LLM).
+ * On ne ré-enrichit que si un champ réellement consommé par le prompt a changé
+ * (cf. `ENRICHMENT_TRIGGER_FIELDS`). Le changement de `deletedAt` (restauration d'une mission)
+ * force aussi le retraitement.
+ */
+export const changesRequireEnrichment = (changes: Record<string, unknown>): boolean =>
+  Object.keys(changes).some((field) => field === "deletedAt" || ENRICHMENT_TRIGGER_FIELD_SET.has(field));
 
 type UpsertOrganizationResult = {
   action: "created" | "updated" | "unchanged";
@@ -90,8 +106,10 @@ export const upsertMission = async (input: ImportedMission, existing: MissionRec
     };
   }
 
-  // Update existing mission
-  const updated = await missionService.update(existing.id, input as MissionUpdatePatch);
+  // Update existing mission — only re-enrich when a prompt-relevant field actually changed
+  const updated = await missionService.update(existing.id, input as MissionUpdatePatch, {
+    enqueueEnrichment: changesRequireEnrichment(changes),
+  });
   return {
     action: "updated",
     mission: updated,

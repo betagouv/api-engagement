@@ -791,7 +791,8 @@ export const missionService = {
     return toMissionRecord(mission as MissionWithRelations);
   },
 
-  async update(id: string, patch: MissionUpdatePatch): Promise<MissionRecord> {
+  async update(id: string, patch: MissionUpdatePatch, options: { enqueueEnrichment?: boolean } = {}): Promise<MissionRecord> {
+    const { enqueueEnrichment = true } = options;
     const addresses = mapAddressesForCreate(patch.addresses);
     const data: Prisma.MissionUncheckedUpdateInput = {};
 
@@ -948,7 +949,9 @@ export const missionService = {
       throw new Error(`[missionService] Mission ${id} not found after update`);
     }
 
-    await this.enqueueMissionProcessing(id);
+    if (enqueueEnrichment) {
+      await this.enqueueMissionProcessing(id);
+    }
 
     return toMissionRecord(mission as MissionWithRelations);
   },

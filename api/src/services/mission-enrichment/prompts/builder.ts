@@ -1,5 +1,40 @@
 import type { MissionForPrompt, TaxonomyForPrompt } from "./types";
 
+/**
+ * Champs de mission (clés du diff d'import, cf. `IMPORT_FIELDS_TO_COMPARE` dans
+ * `src/utils/mission.ts`) réellement consommés par `buildMissionBlock` ci-dessous et dont
+ * une modification justifie un ré-enrichissement.
+ *
+ * Source de vérité unique du gate de ré-enrichissement à l'import
+ * (cf. `src/jobs/import-missions/utils/db.ts`). À garder synchronisée avec `buildMissionBlock` :
+ * un champ ajouté/retiré du prompt doit l'être ici aussi (un test garantit que cette liste
+ * reste un sous-ensemble de `IMPORT_FIELDS_TO_COMPARE`).
+ *
+ * Exclus volontairement bien que rendus dans le prompt :
+ * - `startAt`/`endAt` : décalés chaque jour par les flux (bruit, sans impact sur la classification).
+ * - `duration` : dérivée des dates (`getMonthDifference(startAt, endAt)`), aucun signal propre.
+ * Les données d'organisation (nom/type/description/actions…) entrent dans le prompt via la
+ * relation `publisherOrganizationId`.
+ */
+export const ENRICHMENT_TRIGGER_FIELDS = [
+  "title",
+  "description",
+  "type",
+  "remote",
+  "openToMinors",
+  "reducedMobilityAccessible",
+  "schedule",
+  "domain",
+  "activities",
+  "tags",
+  "audience",
+  "softSkills",
+  "requirements",
+  "publisherOrganizationId",
+] as const;
+
+export type EnrichmentTriggerField = (typeof ENRICHMENT_TRIGGER_FIELDS)[number];
+
 const formatDate = (date: Date): string => date.toLocaleDateString("fr-FR", { year: "numeric", month: "long", day: "numeric" });
 
 const boolLabel = (value: boolean | null): string => (value === true ? "Oui" : value === false ? "Non" : "Non précisé");
