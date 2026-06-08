@@ -114,7 +114,7 @@ const ENRICHMENT_RELEVANT_FIELDS_TO_COMPARE = [
   "publisherOrganizationId",
 ] as const satisfies readonly (keyof MissionRecord)[];
 
-const NON_ENRICHMENT_FIELDS_TO_COMPARE = [
+export const IMPORT_FIELDS_TO_COMPARE = [
   "applicationUrl",
   "clientId",
   "closeToTransport",
@@ -134,11 +134,7 @@ const NON_ENRICHMENT_FIELDS_TO_COMPARE = [
   "compensationAmount",
   "compensationType",
   "compensationUnit",
-] as const satisfies readonly (keyof MissionRecord)[];
-
-export const IMPORT_FIELDS_TO_COMPARE = [
   ...ENRICHMENT_RELEVANT_FIELDS_TO_COMPARE,
-  ...NON_ENRICHMENT_FIELDS_TO_COMPARE,
 ] as (keyof MissionRecord)[];
 
 /**

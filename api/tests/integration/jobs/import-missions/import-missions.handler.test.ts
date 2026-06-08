@@ -332,17 +332,28 @@ describe("Import missions job (integration test)", () => {
   });
 
   describe("enrichment gating", () => {
-    // Feed minimal paramétrable : `places` (champ hors-prompt = bruit).
+    // Feed minimal paramétrable : `places` et dates (champs hors-prompt = bruit),
+    // `title` (champ prompt).
     // Coordonnées fournies → pas d'appel géoloc.
-    const gatingFeed = ({ places }: { places: number }) => `<?xml version="1.0" encoding="UTF-8"?>
+    const gatingFeed = ({
+      places,
+      title = "Mission gating",
+      startAt = "01/01/2025",
+      endAt = "11/01/2025",
+    }: {
+      places: number;
+      title?: string;
+      startAt?: string;
+      endAt?: string;
+    }) => `<?xml version="1.0" encoding="UTF-8"?>
 <source>
   <mission>
-    <title><![CDATA[Mission gating]]></title>
+    <title><![CDATA[${title}]]></title>
     <clientId><![CDATA[gating-mission-1]]></clientId>
     <description><![CDATA[Description stable de la mission]]></description>
     <applicationUrl><![CDATA[https://www.example.org]]></applicationUrl>
-    <startAt><![CDATA[01/01/2025]]></startAt>
-    <endAt><![CDATA[11/01/2025]]></endAt>
+    <startAt><![CDATA[${startAt}]]></startAt>
+    <endAt><![CDATA[${endAt}]]></endAt>
     <addresses>
       <address>
         <street><![CDATA[Rue de Test]]></street>
@@ -373,7 +384,7 @@ describe("Import missions job (integration test)", () => {
       await handler.handle({ publisherId });
     };
 
-    it("ne ré-enrichit pas si seuls des champs hors-prompt changent (org inchangée)", async () => {
+    it("does not re-enrich when only non-prompt fields change and the organization is unchanged", async () => {
       const publisher = await createTestPublisher({ feed: "https://gating-noise", isAnnonceur: true });
       (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => gatingFeed({ places: 2 }) });
       await handler.handle({ publisherId: publisher.id });
@@ -382,6 +393,33 @@ describe("Import missions job (integration test)", () => {
       await reimport(publisher.id, gatingFeed({ places: 5 }));
 
       expect(asyncTaskBus.publish).not.toHaveBeenCalledWith(expect.objectContaining({ type: "mission.enrichment" }));
+    });
+
+    it("does not re-enrich when only rolling dates change", async () => {
+      const publisher = await createTestPublisher({ feed: "https://gating-dates", isAnnonceur: true });
+      (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => gatingFeed({ places: 2 }) });
+      await handler.handle({ publisherId: publisher.id });
+
+      await reimport(
+        publisher.id,
+        gatingFeed({
+          places: 2,
+          startAt: "02/01/2025",
+          endAt: "12/01/2025",
+        })
+      );
+
+      expect(asyncTaskBus.publish).not.toHaveBeenCalledWith(expect.objectContaining({ type: "mission.enrichment" }));
+    });
+
+    it("re-enriches when a prompt field changes", async () => {
+      const publisher = await createTestPublisher({ feed: "https://gating-title", isAnnonceur: true });
+      (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => gatingFeed({ places: 2 }) });
+      await handler.handle({ publisherId: publisher.id });
+
+      await reimport(publisher.id, gatingFeed({ places: 2, title: "Mission gating modifiée" }));
+
+      expect(asyncTaskBus.publish).toHaveBeenCalledWith(expect.objectContaining({ type: "mission.enrichment" }));
     });
   });
 
