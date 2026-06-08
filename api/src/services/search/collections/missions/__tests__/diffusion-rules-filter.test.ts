@@ -34,7 +34,7 @@ describe("publisherDiffusionRulesToMissionFilter", () => {
     expect(result).toEqual({ kind: "all", missionWhere: null });
   });
 
-  it("traduit les règles racines publisherId is en filtre Typesense", () => {
+  it("traduit les règles racines publisherId is en filtre de recherche", () => {
     const result = publisherDiffusionRulesToMissionFilter([
       buildRule({ id: "rule-1", value: "annonceur-1" }),
       buildRule({ id: "rule-2", value: "annonceur-2", position: 1 }),
@@ -47,7 +47,7 @@ describe("publisherDiffusionRulesToMissionFilter", () => {
     });
   });
 
-  it("compacte les longues listes de publisherId pour éviter les query strings Typesense trop longues", () => {
+  it("compacte les longues listes de publisherId pour éviter les query strings de recherche trop longues", () => {
     const result = publisherDiffusionRulesToMissionFilter(
       Array.from({ length: 120 }, (_, index) => buildRule({ id: `rule-${index}`, value: `annonceur-${index}`, position: index }))
     );

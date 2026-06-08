@@ -1,5 +1,6 @@
 import type { Prisma } from "@/db/core";
 import { captureException } from "@/error";
+import { buildSearchEqualFilter, buildSearchListFilter, buildSearchNotEqualFilter, combineSearchAnd, combineSearchOr } from "@/services/search/filter";
 import type { PublisherDiffusionRuleRecord } from "@/types/publisher-diffusion-rule";
 
 type MissionDiffusionRulesFilter =
@@ -16,12 +17,6 @@ type MissionDiffusionRulesFilter =
       kind: "none";
       missionWhere: null;
     };
-
-const escapeTypesenseFilterValue = (value: string): string => {
-  return `\`${value.replace(/\\/g, "\\\\").replace(/`/g, "\\`")}\``;
-};
-
-const buildTypesenseListFilter = (field: string, values: string[]): string => `${field}:=[${values.map(escapeTypesenseFilterValue).join(",")}]`;
 
 const isSupportedPublisherWhitelistRule = (rule: PublisherDiffusionRuleRecord): boolean =>
   rule.combinedWithId === null && rule.field === "publisherId" && rule.operator === "is" && rule.value.trim() !== "";
@@ -43,7 +38,7 @@ const reportUnsupportedRule = (rule: PublisherDiffusionRuleRecord, reason: strin
   }
 
   reportedUnsupportedRuleKeys.add(key);
-  captureException(new Error("[PublisherDiffusionRule] Règle non supportée dans le filtre Typesense des missions"), {
+  captureException(new Error("[PublisherDiffusionRule] Règle non supportée dans le filtre de recherche des missions"), {
     extra: {
       reason,
       ruleId: rule.id,
@@ -102,7 +97,7 @@ const buildSupportedChildGroup = (rule: PublisherDiffusionRuleRecord): Supported
 
   if (rule.field === "publisherOrganizationId") {
     return {
-      filterBy: `publisherOrganizationId:${isNot ? "!" : ""}=${escapeTypesenseFilterValue(value)}`,
+      filterBy: isNot ? buildSearchNotEqualFilter("publisherOrganizationId", value) : buildSearchEqualFilter("publisherOrganizationId", value),
       missionWhere: { publisherOrganizationId: isNot ? { not: value } : value },
     };
   }
@@ -113,7 +108,9 @@ const buildSupportedChildGroup = (rule: PublisherDiffusionRuleRecord): Supported
       return null;
     }
     return {
-      filterBy: `publisherOrganizationParentOrganizations:${isNot ? "!" : ""}=${escapeTypesenseFilterValue(value)}`,
+      filterBy: isNot
+        ? buildSearchNotEqualFilter("publisherOrganizationParentOrganizations", value)
+        : buildSearchEqualFilter("publisherOrganizationParentOrganizations", value),
       missionWhere,
     };
   }
@@ -134,7 +131,7 @@ const buildSupportedRuleGroup = (
 
   const selfGroup: SupportedGroup | null = options.isRoot
     ? {
-        filterBy: `publisherId:=${escapeTypesenseFilterValue(value)}`,
+        filterBy: buildSearchEqualFilter("publisherId", value),
         missionWhere: { publisherId: value },
       }
     : buildSupportedChildGroup(rule);
@@ -153,7 +150,7 @@ const buildSupportedRuleGroup = (
   const missionWhereParts: Prisma.MissionWhereInput[] = [selfGroup.missionWhere, ...supportedChildren.map((child) => child.missionWhere)];
 
   return {
-    filterBy: parts.length === 1 ? parts[0] : `(${parts.join(" && ")})`,
+    filterBy: combineSearchAnd(parts),
     missionWhere: missionWhereParts.length === 1 ? missionWhereParts[0] : { AND: missionWhereParts },
   };
 };
@@ -211,14 +208,14 @@ export const publisherDiffusionRulesToMissionFilter = (rules: PublisherDiffusion
   if (publisherIds && publisherIds.length > 1) {
     return {
       kind: "filter",
-      filterBy: buildTypesenseListFilter("publisherId", publisherIds),
+      filterBy: buildSearchListFilter("publisherId", publisherIds),
       missionWhere: { publisherId: { in: publisherIds } },
     };
   }
 
   return {
     kind: "filter",
-    filterBy: groups.length === 1 ? groups[0].filterBy : `(${groups.map((group) => group.filterBy).join(" || ")})`,
+    filterBy: combineSearchOr(groups.map((group) => group.filterBy)),
     missionWhere: groups.length === 1 ? groups[0].missionWhere : { OR: groups.map((group) => group.missionWhere) },
   };
 };

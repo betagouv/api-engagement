@@ -5,6 +5,7 @@ import { publisherDiffusionRuleService } from "@/services/publisher-diffusion-ru
 import { missionSearchClient } from "@/services/search/collections/missions/client";
 import { publisherDiffusionRulesToMissionFilter } from "@/services/search/collections/missions/diffusion-rules-filter";
 import { INDEXED_TAXONOMY_KEYS, IndexedTaxonomyKey } from "@/services/search/collections/missions/fields";
+import { buildSearchEqualFilter, buildSearchListFilter } from "@/services/search/filter";
 import { toMissionBrowse, toMissionDetailPayload } from "./transformers";
 
 const FACET_FIELDS = [...INDEXED_TAXONOMY_KEYS, "departmentCodes"];
@@ -34,14 +35,6 @@ const toArray = (v: string | string[] | undefined): string[] | undefined => {
   return Array.isArray(v) ? v : [v];
 };
 
-const escapeTypesenseFilterValue = (value: string): string => {
-  return `\`${value.replace(/\\/g, "\\\\").replace(/`/g, "\\`")}\``;
-};
-
-const buildTypesenseListFilter = (field: string, values: string[]): string => {
-  return `${field}:=[${values.map(escapeTypesenseFilterValue).join(",")}]`;
-};
-
 const emptyBrowseResponse = (params: Pick<BrowseParams, "page" | "pageSize">): MissionBrowseResponse => ({
   data: [],
   total: 0,
@@ -56,21 +49,21 @@ const buildFilterBy = (params: BrowseParams): string => {
   const publisherIds = toArray(params.publisherId);
   if (publisherIds?.length) {
     if (publisherIds.length === 1) {
-      parts.push(`publisherId:=${escapeTypesenseFilterValue(publisherIds[0])}`);
+      parts.push(buildSearchEqualFilter("publisherId", publisherIds[0]));
     } else {
-      parts.push(buildTypesenseListFilter("publisherId", publisherIds));
+      parts.push(buildSearchListFilter("publisherId", publisherIds));
     }
   }
 
   const deptCodes = toArray(params.departmentCode);
   if (deptCodes?.length) {
-    parts.push(buildTypesenseListFilter("departmentCodes", deptCodes));
+    parts.push(buildSearchListFilter("departmentCodes", deptCodes));
   }
 
   for (const field of INDEXED_TAXONOMY_KEYS) {
     const vals = toArray(params[field]);
     if (vals?.length) {
-      parts.push(buildTypesenseListFilter(field, vals));
+      parts.push(buildSearchListFilter(field, vals));
     }
   }
 
