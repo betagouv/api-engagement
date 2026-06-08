@@ -45,8 +45,12 @@ export const missionIndexService = {
       select: {
         id: true,
         publisherId: true,
+        publisherOrganizationId: true,
         deletedAt: true,
         statusCode: true,
+        publisherOrganization: {
+          select: { parentOrganizations: true },
+        },
         addresses: {
           select: { departmentCode: true },
         },
@@ -74,6 +78,8 @@ export const missionIndexService = {
     const document: MissionIndexDocument = {
       id: mission.id,
       publisherId: mission.publisherId ?? "",
+      ...(mission.publisherOrganizationId ? { publisherOrganizationId: mission.publisherOrganizationId } : {}),
+      publisherOrganizationParentOrganizations: mission.publisherOrganization?.parentOrganizations ?? [],
       departmentCodes,
       ...taxonomyIndex,
     };
