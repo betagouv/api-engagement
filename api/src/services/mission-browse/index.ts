@@ -99,11 +99,11 @@ export const missionBrowseService = {
     return { data, total, page: params.page, pageSize: params.pageSize, facets };
   },
 
-  async findById(id: string): Promise<MissionDetailResponse | null> {
+  async findById(id: string, addressId?: string | null): Promise<MissionDetailResponse | null> {
     const mission = await missionService.findOneMissionBy({ id, deletedAt: null, statusCode: "ACCEPTED" });
     if (!mission) {
       return null;
     }
-    return toMissionDetailPayload(mission);
+    return toMissionDetailPayload(mission, addressId);
   },
 };

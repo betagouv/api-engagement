@@ -41,6 +41,7 @@ router.get("/browse", async (req: Request, res: Response, next: NextFunction) =>
 });
 
 const missionIdSchema = zod.object({ id: zod.string() });
+const missionDetailQuerySchema = zod.object({ addressId: zod.string().optional() });
 
 router.get("/browse/:id", async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -48,7 +49,11 @@ router.get("/browse/:id", async (req: Request, res: Response, next: NextFunction
     if (!params.success) {
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: params.error });
     }
-    const result = await missionBrowseService.findById(params.data.id);
+    const query = missionDetailQuerySchema.safeParse(req.query);
+    if (!query.success) {
+      return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
+    }
+    const result = await missionBrowseService.findById(params.data.id, query.data.addressId);
     if (!result) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Mission not found" });
     }

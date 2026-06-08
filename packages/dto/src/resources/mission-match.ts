@@ -10,6 +10,7 @@ export type MissionMatchLocation = {
   closestLat: number | null;
   closestLon: number | null;
   closestAddress: string | null;
+  addressId: string | null;
 };
 
 export type MissionMatchMission = {

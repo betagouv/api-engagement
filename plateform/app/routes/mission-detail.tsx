@@ -1,6 +1,6 @@
 import type { MissionDetailResponse } from "@engagement/dto";
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router";
+import { Link, useParams, useSearchParams } from "react-router";
 
 import MissionCtaPanel from "~/components/mission-detail/cta-panel";
 import MissionDescriptionCard from "~/components/mission-detail/description-card";
@@ -12,6 +12,8 @@ import { fetchMissionDetail } from "~/services/mission-browse";
 
 export default function MissionDetailPage() {
   const { missionId, userScoringId } = useParams<{ missionId: string; userScoringId?: string }>();
+  const [searchParams] = useSearchParams();
+  const addressId = searchParams.get("addressId");
   const [mission, setMission] = useState<MissionDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -19,11 +21,11 @@ export default function MissionDetailPage() {
   useEffect(() => {
     if (!missionId) return;
     setLoading(true);
-    fetchMissionDetail(missionId)
+    fetchMissionDetail(missionId, addressId)
       .then(setMission)
       .catch(() => setError("Impossible de charger cette mission."))
       .finally(() => setLoading(false));
-  }, [missionId]);
+  }, [missionId, addressId]);
 
   const backPath = userScoringId ? `/results/${userScoringId}` : "/";
   const backLabel = userScoringId ? "Retour aux résultats" : "Accueil";
