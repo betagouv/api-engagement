@@ -21,7 +21,7 @@ export interface UpdateMissionIndexJobResult extends JobResult {
 }
 
 export class UpdateMissionIndexHandler implements BaseHandler<UpdateMissionIndexJobPayload, UpdateMissionIndexJobResult> {
-  name = "Indexation Typesense des missions";
+  name = "Indexation recherche des missions";
 
   async handle({ publisherId, limit, batchSize = DEFAULT_BATCH_SIZE, dryRun = false }: UpdateMissionIndexJobPayload = {}): Promise<UpdateMissionIndexJobResult> {
     if (batchSize <= 0) {

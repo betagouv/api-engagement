@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response, Router } from "express";
+import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
@@ -6,6 +6,8 @@ import { INVALID_QUERY, NOT_FOUND, SERVICE_UNAVAILABLE, captureException } from 
 import { plateformRateLimiter } from "@/middlewares/rate-limit";
 import { MissionBrowseIndexUnavailableError, missionBrowseService } from "@/services/mission-browse";
 import { INDEXED_TAXONOMY_KEYS } from "@/services/search/collections/missions/fields";
+import type { PublisherRequest } from "@/types/passport";
+import type { PublisherRecord } from "@/types/publisher";
 
 const router = Router();
 router.use(passport.authenticate(["apikey", "api"], { session: false }));
@@ -23,13 +25,14 @@ const browseQuerySchema = zod.object({
   pageSize: zod.coerce.number().int().positive().max(100).default(20),
 });
 
-router.get("/browse", async (req: Request, res: Response, next: NextFunction) => {
+router.get("/browse", async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
+    const publisher = req.user as PublisherRecord;
     const query = browseQuerySchema.safeParse(req.query);
     if (!query.success) {
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
-    const result = await missionBrowseService.browse(query.data);
+    const result = await missionBrowseService.browse({ ...query.data, diffuseurPublisherId: publisher.id });
     return res.status(200).send({ ok: true, data: result });
   } catch (error) {
     if (error instanceof MissionBrowseIndexUnavailableError) {
@@ -43,8 +46,9 @@ router.get("/browse", async (req: Request, res: Response, next: NextFunction) =>
 const missionIdSchema = zod.object({ id: zod.string() });
 const missionDetailQuerySchema = zod.object({ addressId: zod.string().optional() });
 
-router.get("/browse/:id", async (req: Request, res: Response, next: NextFunction) => {
+router.get("/browse/:id", async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
+    const publisher = req.user as PublisherRecord;
     const params = missionIdSchema.safeParse(req.params);
     if (!params.success) {
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: params.error });
@@ -53,7 +57,7 @@ router.get("/browse/:id", async (req: Request, res: Response, next: NextFunction
     if (!query.success) {
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
-    const result = await missionBrowseService.findById(params.data.id, query.data.addressId);
+    const result = await missionBrowseService.findById(params.data.id, publisher.id, query.data.addressId);
     if (!result) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Mission not found" });
     }

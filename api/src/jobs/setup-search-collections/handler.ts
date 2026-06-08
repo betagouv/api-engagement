@@ -1,7 +1,7 @@
 import { BaseHandler } from "@/jobs/base/handler";
 import { JobResult } from "@/jobs/types";
+import { ensureSearchCollection } from "@/services/search/collections";
 import missionSchemaV1 from "@/services/search/collections/missions/schemas/v1";
-import { ensureCollection } from "@/services/search/providers/typesense/utils";
 
 const LOG_PREFIX = "[setup-search-collections-job]";
 
@@ -21,7 +21,7 @@ export class SetupSearchCollectionsHandler implements BaseHandler<Record<string,
 
     for (const schema of SCHEMAS) {
       console.log(`${LOG_PREFIX} ensuring collection: ${schema.name}`);
-      await ensureCollection(schema);
+      await ensureSearchCollection(schema);
       ensured.push(schema.name);
       console.log(`${LOG_PREFIX} done: ${schema.name}`);
     }
