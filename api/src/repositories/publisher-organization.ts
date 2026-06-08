@@ -59,5 +59,25 @@ export const publisherOrganizationRepository = {
     `;
     return rows.map((row) => row.id);
   },
+
+  async aggregateParentOrganizations(publisherIds: string[], search: string): Promise<Array<{ value: string; count: number }>> {
+    const publisherFilter = publisherIds.length ? Prisma.sql`WHERE publisher_id IN (${Prisma.join(publisherIds)})` : Prisma.empty;
+    const rows = await prisma.$queryRaw<Array<{ value: string; doc_count: bigint }>>(
+      Prisma.sql`
+        SELECT value, COUNT(*) as doc_count
+        FROM (
+          SELECT UNNEST(parent_organizations) as value
+          FROM publisher_organization
+          ${publisherFilter}
+        ) t
+        WHERE value IS NOT NULL AND value != '' AND value ILIKE ${`%${search}%`}
+        GROUP BY value
+        ORDER BY doc_count DESC
+        LIMIT 1000
+      `
+    );
+
+    return rows.map((row) => ({ value: row.value, count: Number(row.doc_count) }));
+  },
 };
 export default publisherOrganizationRepository;

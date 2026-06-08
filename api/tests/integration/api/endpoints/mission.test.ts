@@ -2,7 +2,7 @@ import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { PUBLISHER_IDS } from "@/config";
-import { createTestMission, createTestPublisher } from "../../../fixtures";
+import { createTestMission, createTestPublisher, createTestPublisherOrganization } from "../../../fixtures";
 import { createTestUser } from "../../../fixtures/user";
 import { createTestApp } from "../../../testApp";
 
@@ -56,5 +56,41 @@ describe("Dashboard mission controller", () => {
     const res = await request(app).get(`/mission/${mission.id}`).set(authHeader());
 
     expect(res.status).toBe(403);
+  });
+
+  describe("GET /mission/autocomplete?field=parentOrganization", () => {
+    it("returns a parent organization stored in publisher_organization even without a matching mission", async () => {
+      // Réseau parent présent en base mais sans mission rattachée : doit malgré tout être proposé.
+      await createTestPublisherOrganization({
+        publisherId,
+        clientId: "org-with-network",
+        parentOrganizations: ["La Ligue de l'Enseignement"],
+      });
+
+      const res = await request(app)
+        .get(`/mission/autocomplete?field=parentOrganization&search=${encodeURIComponent("ligue de l'ens")}&publishers[]=${publisherId}`)
+        .set(authHeader());
+
+      expect(res.status).toBe(200);
+      expect(res.body.ok).toBe(true);
+      // La valeur remontée conserve la casse exacte stockée en base.
+      expect(res.body.data).toEqual([{ key: "La Ligue de l'Enseignement", doc_count: 1 }]);
+    });
+
+    it("does not return parent organizations from other publishers", async () => {
+      const otherPublisher = await createTestPublisher();
+      await createTestPublisherOrganization({
+        publisherId: otherPublisher.id,
+        clientId: "org-other",
+        parentOrganizations: ["Réseau Privé"],
+      });
+
+      const res = await request(app)
+        .get(`/mission/autocomplete?field=parentOrganization&search=${encodeURIComponent("Réseau")}&publishers[]=${publisherId}`)
+        .set(authHeader());
+
+      expect(res.status).toBe(200);
+      expect(res.body.data).toEqual([]);
+    });
   });
 });

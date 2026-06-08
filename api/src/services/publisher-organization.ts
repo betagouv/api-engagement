@@ -134,6 +134,11 @@ const publisherOrganizationService = {
   findIdsMatchingArrayValue: async (column: OrgArrayColumn, value: string): Promise<string[]> => {
     return publisherOrganizationRepository.findIdsByArrayValueInsensitive(column, value);
   },
+  autocompleteParentOrganizations: async (publisherIds: string[], search: string): Promise<Array<{ key: string; doc_count: number }>> => {
+    const rows = await publisherOrganizationRepository.aggregateParentOrganizations(publisherIds, search);
+
+    return rows.map((row) => ({ key: row.value, doc_count: row.count }));
+  },
 };
 
 export default publisherOrganizationService;
