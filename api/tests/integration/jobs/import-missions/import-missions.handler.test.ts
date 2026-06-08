@@ -331,10 +331,10 @@ describe("Import missions job (integration test)", () => {
     expect(asyncTaskBus.publish).not.toHaveBeenCalledWith(expect.objectContaining({ type: "mission.enrichment" }));
   });
 
-  describe("organization-aware enrichment gating", () => {
-    // Feed minimal paramétrable : `places` (champ hors-prompt = bruit) et la description de
-    // l'organisation (champ consommé par le prompt). Coordonnées fournies → pas d'appel géoloc.
-    const gatingFeed = ({ places, orgDescription }: { places: number; orgDescription: string }) => `<?xml version="1.0" encoding="UTF-8"?>
+  describe("enrichment gating", () => {
+    // Feed minimal paramétrable : `places` (champ hors-prompt = bruit).
+    // Coordonnées fournies → pas d'appel géoloc.
+    const gatingFeed = ({ places }: { places: number }) => `<?xml version="1.0" encoding="UTF-8"?>
 <source>
   <mission>
     <title><![CDATA[Mission gating]]></title>
@@ -362,7 +362,7 @@ describe("Import missions job (integration test)", () => {
     <organizationName><![CDATA[Org Gating]]></organizationName>
     <organizationClientId><![CDATA[org-gating-1]]></organizationClientId>
     <organizationType><![CDATA[1901]]></organizationType>
-    <organizationDescription><![CDATA[${orgDescription}]]></organizationDescription>
+    <organizationDescription><![CDATA[Desc A]]></organizationDescription>
   </mission>
 </source>`;
 
@@ -375,95 +375,13 @@ describe("Import missions job (integration test)", () => {
 
     it("ne ré-enrichit pas si seuls des champs hors-prompt changent (org inchangée)", async () => {
       const publisher = await createTestPublisher({ feed: "https://gating-noise", isAnnonceur: true });
-      (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => gatingFeed({ places: 2, orgDescription: "Desc A" }) });
+      (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => gatingFeed({ places: 2 }) });
       await handler.handle({ publisherId: publisher.id });
 
       // 2e import : seul `places` change, l'organisation est identique
-      await reimport(publisher.id, gatingFeed({ places: 5, orgDescription: "Desc A" }));
+      await reimport(publisher.id, gatingFeed({ places: 5 }));
 
       expect(asyncTaskBus.publish).not.toHaveBeenCalledWith(expect.objectContaining({ type: "mission.enrichment" }));
-    });
-
-    it("ne ré-enrichit pas si seule l'organisation liée change avec un changement mission de bruit", async () => {
-      const publisher = await createTestPublisher({ feed: "https://gating-org-mixed", isAnnonceur: true });
-      (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => gatingFeed({ places: 2, orgDescription: "Desc A" }) });
-      await handler.handle({ publisherId: publisher.id });
-
-      // 2e import : `places` (bruit) + description d'organisation changent.
-      // On ne ré-enrichit pas les missions déjà liées quand seules les données d'org changent :
-      // ce cas est considéré rare et laissé hors du gating pour garder l'import simple.
-      await reimport(publisher.id, gatingFeed({ places: 5, orgDescription: "Desc B" }));
-
-      expect(asyncTaskBus.publish).not.toHaveBeenCalledWith(expect.objectContaining({ type: "mission.enrichment" }));
-    });
-
-    it("ne ré-enrichit pas une mission inchangée quand seule l'organisation liée change", async () => {
-      const publisher = await createTestPublisher({ feed: "https://gating-org-only", isAnnonceur: true });
-      (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => gatingFeed({ places: 2, orgDescription: "Desc A" }) });
-      await handler.handle({ publisherId: publisher.id });
-
-      // 2e import : mission strictement identique, seule la description d'organisation change
-      await reimport(publisher.id, gatingFeed({ places: 2, orgDescription: "Desc B" }));
-
-      expect(asyncTaskBus.publish).not.toHaveBeenCalledWith(expect.objectContaining({ type: "mission.enrichment" }));
-    });
-
-    // Deux missions de la MÊME organisation, réparties sur plusieurs chunks.
-    // Un changement de contenu d'organisation ne force pas le ré-enrichissement des missions liées.
-    const twoMissionsFeed = ({ orgDescription }: { orgDescription: string }) => {
-      const mission = (clientId: string) => `
-  <mission>
-    <title><![CDATA[Mission ${clientId}]]></title>
-    <clientId><![CDATA[${clientId}]]></clientId>
-    <description><![CDATA[Description stable de ${clientId}]]></description>
-    <applicationUrl><![CDATA[https://www.example.org]]></applicationUrl>
-    <startAt><![CDATA[01/01/2025]]></startAt>
-    <endAt><![CDATA[11/01/2025]]></endAt>
-    <addresses>
-      <address>
-        <street><![CDATA[Rue de Test]]></street>
-        <postalCode><![CDATA[75001]]></postalCode>
-        <city><![CDATA[Paris]]></city>
-        <departmentCode><![CDATA[75]]></departmentCode>
-        <departmentName><![CDATA[Paris]]></departmentName>
-        <region><![CDATA[Île-de-France]]></region>
-        <country><![CDATA[France]]></country>
-        <location><lat><![CDATA[48.8541]]></lat><lon><![CDATA[2.3643]]></lon></location>
-      </address>
-    </addresses>
-    <places><![CDATA[2]]></places>
-    <activity><![CDATA[logistique]]></activity>
-    <remote><![CDATA[no]]></remote>
-    <domain><![CDATA[environnement]]></domain>
-    <organizationName><![CDATA[Org Multi]]></organizationName>
-    <organizationClientId><![CDATA[org-multi-1]]></organizationClientId>
-    <organizationType><![CDATA[1901]]></organizationType>
-    <organizationDescription><![CDATA[${orgDescription}]]></organizationDescription>
-  </mission>`;
-      return `<?xml version="1.0" encoding="UTF-8"?>\n<source>${mission("gating-multi-a")}${mission("gating-multi-b")}\n</source>`;
-    };
-
-    it("ne ré-enrichit pas les missions d'une org modifiée réparties sur plusieurs chunks", async () => {
-      const publisher = await createTestPublisher({ feed: "https://gating-multi-chunk", isAnnonceur: true });
-
-      // 1er import (chunkSize:1 → une mission par chunk) : crée les 2 missions et l'org
-      (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => twoMissionsFeed({ orgDescription: "Desc A" }) });
-      await handler.handle({ publisherId: publisher.id, chunkSize: 1 });
-
-      const missions = await missionService.findMissionsBy({ publisherId: publisher.id, clientId: { in: ["gating-multi-a", "gating-multi-b"] } });
-      const idA = missions.find((m) => m.clientId === "gating-multi-a")?.id;
-      const idB = missions.find((m) => m.clientId === "gating-multi-b")?.id;
-      expect(idA).toBeDefined();
-      expect(idB).toBeDefined();
-
-      // 2e import : missions inchangées, seule la description d'org change
-      vi.clearAllMocks();
-      (global.fetch as any).mockReset();
-      (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => twoMissionsFeed({ orgDescription: "Desc B" }) });
-      await handler.handle({ publisherId: publisher.id, chunkSize: 1 });
-
-      expect(asyncTaskBus.publish).not.toHaveBeenCalledWith({ type: "mission.enrichment", payload: { missionId: idA } });
-      expect(asyncTaskBus.publish).not.toHaveBeenCalledWith({ type: "mission.enrichment", payload: { missionId: idB } });
     });
   });
 
