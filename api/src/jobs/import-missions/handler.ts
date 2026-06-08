@@ -4,6 +4,7 @@ import { importService } from "@/services/import";
 import { Prisma, Import as PrismaImport } from "@/db/core";
 import { BaseHandler } from "@/jobs/base/handler";
 import { JobResult } from "@/jobs/types";
+import { enrichWithGeoloc } from "@/services/geoloc";
 import { missionService } from "@/services/mission";
 import { missionEventService } from "@/services/mission-event";
 import { publisherService } from "@/services/publisher";
@@ -13,7 +14,6 @@ import type { PublisherRecord } from "@/types/publisher";
 import { getJobTime } from "@/utils/job";
 import type { ImportedMission, ImportedOrganization } from "./types";
 import { cleanDB, upsertMission, upsertOrganization } from "./utils/db";
-import { enrichWithGeoloc } from "@/services/geoloc";
 import { parseMission } from "./utils/mission";
 import { parseOrganization } from "./utils/organization";
 import { shouldCleanMissionsForPublisher } from "./utils/publisher";
@@ -248,11 +248,17 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
       let createdOrganizationsCount = 0;
       let updatedOrganizationsCount = 0;
       let unchangedOrganizationsCount = 0;
+      // clientIds des organisations dont un champ consommé par le prompt a changé : les missions
+      // qui y sont rattachées devront être ré-enrichies même sans changement métier propre.
+      const organizationsNeedingEnrichment = new Set<string>();
       for (const organization of organizations.values()) {
         const existing = existingOrganizationsMap.get(organization.clientId) || null;
         const result = await upsertOrganization(organization, existing);
         if (result.action === "unchanged") {
           unchangedOrganizationsCount += 1;
+        }
+        if (result.enrichmentRelevant) {
+          organizationsNeedingEnrichment.add(organization.clientId);
         }
         existingOrganizationsMap.set(organization.clientId, result.organization);
         createdOrganizationsCount += result.action === "created" ? 1 : 0;
@@ -279,7 +285,8 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
         }
 
         const existing = existingMap.get(mission.clientId) || null;
-        const result = await upsertMission(mission, existing);
+        const organizationChanged = mission.organizationClientId ? organizationsNeedingEnrichment.has(mission.organizationClientId) : false;
+        const result = await upsertMission(mission, existing, { organizationChanged });
         existingMap.set(mission.clientId, result.mission);
 
         if (result.action === "created") {

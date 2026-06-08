@@ -1,7 +1,7 @@
 import { Import as PrismaImport } from "@/db/core";
 import type { ImportedMission, ImportedOrganization } from "@/jobs/import-missions/types";
 import { missionService } from "@/services/mission";
-import { ENRICHMENT_TRIGGER_FIELDS } from "@/services/mission-enrichment/prompts";
+import { ENRICHMENT_TRIGGER_FIELDS, ORG_ENRICHMENT_TRIGGER_FIELDS } from "@/services/mission-enrichment/prompts/builder";
 import { missionEventService } from "@/services/mission-event";
 import publisherOrganizationService from "@/services/publisher-organization";
 import type { MissionRecord } from "@/types/mission";
@@ -28,9 +28,20 @@ const ENRICHMENT_TRIGGER_FIELD_SET = new Set<string>(ENRICHMENT_TRIGGER_FIELDS);
 export const changesRequireEnrichment = (changes: Record<string, unknown>): boolean =>
   Object.keys(changes).some((field) => field === "deletedAt" || ENRICHMENT_TRIGGER_FIELD_SET.has(field));
 
+const ORG_ENRICHMENT_TRIGGER_FIELD_SET = new Set<string>(ORG_ENRICHMENT_TRIGGER_FIELDS);
+
+/**
+ * Détermine si un diff d'organisation impacte le prompt d'enrichissement et doit donc
+ * déclencher le ré-enrichissement de ses missions liées (cf. `ORG_ENRICHMENT_TRIGGER_FIELDS`).
+ * Les champs d'org hors-prompt (rna/siren/url/logo/adresse…) sont ignorés.
+ */
+export const orgChangesRequireEnrichment = (changes: Record<string, unknown>): boolean => Object.keys(changes).some((field) => ORG_ENRICHMENT_TRIGGER_FIELD_SET.has(field));
+
 type UpsertOrganizationResult = {
   action: "created" | "updated" | "unchanged";
   organization: PublisherOrganizationRecord;
+  /** True si un champ d'org consommé par le prompt a changé → missions liées à ré-enrichir. */
+  enrichmentRelevant: boolean;
 };
 /**
  * Upsert a single organization
@@ -46,6 +57,8 @@ export const upsertOrganization = async (input: ImportedOrganization, existing: 
     return {
       action: "created",
       organization: created,
+      // Mission nouvelle ou existante : l'enrichissement est piloté côté mission (create/update).
+      enrichmentRelevant: false,
     };
   }
 
@@ -54,6 +67,7 @@ export const upsertOrganization = async (input: ImportedOrganization, existing: 
     return {
       action: "unchanged",
       organization: existing,
+      enrichmentRelevant: false,
     };
   }
 
@@ -61,6 +75,7 @@ export const upsertOrganization = async (input: ImportedOrganization, existing: 
   return {
     action: "updated",
     organization: updated,
+    enrichmentRelevant: orgChangesRequireEnrichment(changes),
   };
 };
 
@@ -79,9 +94,15 @@ type UpsertMissionResult = {
  *
  * @param input - The mission data to upsert
  * @param existing - The existing mission from DB (or null if not found)
+ * @param options.organizationChanged - True si l'organisation liée a vu un champ consommé par
+ *   le prompt changer dans le même import : force le ré-enrichissement même si la mission
+ *   elle-même n'a pas (ou seulement du bruit) changé, pour ne pas figer des classifications
+ *   sur des données d'organisation obsolètes.
  * @returns The result of the upsert operation
  */
-export const upsertMission = async (input: ImportedMission, existing: MissionRecord | null): Promise<UpsertMissionResult> => {
+export const upsertMission = async (input: ImportedMission, existing: MissionRecord | null, options: { organizationChanged?: boolean } = {}): Promise<UpsertMissionResult> => {
+  const { organizationChanged = false } = options;
+
   // Create new mission
   if (!existing) {
     const created = await missionService.create(input);
@@ -99,6 +120,10 @@ export const upsertMission = async (input: ImportedMission, existing: MissionRec
   // Check if update is needed
   const changes = getMissionChanges(existing, input);
   if (!changes) {
+    // Mission inchangée : ne ré-enrichir que si l'organisation liée a changé (données du prompt).
+    if (organizationChanged) {
+      await missionService.enqueueMissionProcessing(existing.id);
+    }
     return {
       action: "unchanged",
       mission: existing,
@@ -106,9 +131,10 @@ export const upsertMission = async (input: ImportedMission, existing: MissionRec
     };
   }
 
-  // Update existing mission — only re-enrich when a prompt-relevant field actually changed
+  // Update existing mission — re-enrich when a prompt-relevant mission field changed,
+  // or when the linked organization's prompt-relevant data changed in this import.
   const updated = await missionService.update(existing.id, input as MissionUpdatePatch, {
-    enqueueEnrichment: changesRequireEnrichment(changes),
+    enqueueEnrichment: changesRequireEnrichment(changes) || organizationChanged,
   });
   return {
     action: "updated",

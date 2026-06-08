@@ -331,6 +331,82 @@ describe("Import missions job (integration test)", () => {
     expect(asyncTaskBus.publish).not.toHaveBeenCalledWith(expect.objectContaining({ type: "mission.enrichment" }));
   });
 
+  describe("organization-aware enrichment gating", () => {
+    // Feed minimal paramétrable : `places` (champ hors-prompt = bruit) et la description de
+    // l'organisation (champ consommé par le prompt). Coordonnées fournies → pas d'appel géoloc.
+    const gatingFeed = ({ places, orgDescription }: { places: number; orgDescription: string }) => `<?xml version="1.0" encoding="UTF-8"?>
+<source>
+  <mission>
+    <title><![CDATA[Mission gating]]></title>
+    <clientId><![CDATA[gating-mission-1]]></clientId>
+    <description><![CDATA[Description stable de la mission]]></description>
+    <applicationUrl><![CDATA[https://www.example.org]]></applicationUrl>
+    <startAt><![CDATA[01/01/2025]]></startAt>
+    <endAt><![CDATA[11/01/2025]]></endAt>
+    <addresses>
+      <address>
+        <street><![CDATA[Rue de Test]]></street>
+        <postalCode><![CDATA[75001]]></postalCode>
+        <city><![CDATA[Paris]]></city>
+        <departmentCode><![CDATA[75]]></departmentCode>
+        <departmentName><![CDATA[Paris]]></departmentName>
+        <region><![CDATA[Île-de-France]]></region>
+        <country><![CDATA[France]]></country>
+        <location><lat><![CDATA[48.8541]]></lat><lon><![CDATA[2.3643]]></lon></location>
+      </address>
+    </addresses>
+    <places><![CDATA[${places}]]></places>
+    <activity><![CDATA[logistique]]></activity>
+    <remote><![CDATA[no]]></remote>
+    <domain><![CDATA[environnement]]></domain>
+    <organizationName><![CDATA[Org Gating]]></organizationName>
+    <organizationClientId><![CDATA[org-gating-1]]></organizationClientId>
+    <organizationType><![CDATA[1901]]></organizationType>
+    <organizationDescription><![CDATA[${orgDescription}]]></organizationDescription>
+  </mission>
+</source>`;
+
+    const reimport = async (publisherId: string, xml: string) => {
+      vi.clearAllMocks();
+      (global.fetch as any).mockReset();
+      (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => xml });
+      await handler.handle({ publisherId });
+    };
+
+    it("ne ré-enrichit pas si seuls des champs hors-prompt changent (org inchangée)", async () => {
+      const publisher = await createTestPublisher({ feed: "https://gating-noise", isAnnonceur: true });
+      (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => gatingFeed({ places: 2, orgDescription: "Desc A" }) });
+      await handler.handle({ publisherId: publisher.id });
+
+      // 2e import : seul `places` change, l'organisation est identique
+      await reimport(publisher.id, gatingFeed({ places: 5, orgDescription: "Desc A" }));
+
+      expect(asyncTaskBus.publish).not.toHaveBeenCalledWith(expect.objectContaining({ type: "mission.enrichment" }));
+    });
+
+    it("ré-enrichit si l'organisation liée change (donnée du prompt), même avec un changement mission de bruit", async () => {
+      const publisher = await createTestPublisher({ feed: "https://gating-org-mixed", isAnnonceur: true });
+      (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => gatingFeed({ places: 2, orgDescription: "Desc A" }) });
+      await handler.handle({ publisherId: publisher.id });
+
+      // 2e import : `places` (bruit) + description d'organisation (prompt) changent
+      await reimport(publisher.id, gatingFeed({ places: 5, orgDescription: "Desc B" }));
+
+      expect(asyncTaskBus.publish).toHaveBeenCalledWith({ type: "mission.enrichment", payload: { missionId: expect.any(String) } });
+    });
+
+    it("ré-enrichit une mission inchangée quand l'organisation liée change", async () => {
+      const publisher = await createTestPublisher({ feed: "https://gating-org-only", isAnnonceur: true });
+      (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => gatingFeed({ places: 2, orgDescription: "Desc A" }) });
+      await handler.handle({ publisherId: publisher.id });
+
+      // 2e import : mission strictement identique, seule la description d'organisation change
+      await reimport(publisher.id, gatingFeed({ places: 2, orgDescription: "Desc B" }));
+
+      expect(asyncTaskBus.publish).toHaveBeenCalledWith({ type: "mission.enrichment", payload: { missionId: expect.any(String) } });
+    });
+  });
+
   describe("activities", () => {
     const activityFeed = (clientId: string, activity: string) => `<?xml version="1.0" encoding="UTF-8"?>
 <source>
