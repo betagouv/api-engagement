@@ -117,7 +117,7 @@ export const missionBrowseService = {
     return { data, total, page: params.page, pageSize: params.pageSize, facets };
   },
 
-  async findById(id: string, diffuseurPublisherId: string): Promise<MissionDetailResponse | null> {
+  async findById(id: string, diffuseurPublisherId: string, addressId?: string): Promise<MissionDetailResponse | null> {
     const rules = await publisherDiffusionRuleService.findRules({ publisherId: diffuseurPublisherId });
     const diffusionFilter = publisherDiffusionRulesToMissionFilter(rules);
     if (diffusionFilter.kind === "none") {
@@ -133,6 +133,6 @@ export const missionBrowseService = {
     if (!mission) {
       return null;
     }
-    return toMissionDetailPayload(mission);
+    return toMissionDetailPayload(mission, addressId);
   },
 };

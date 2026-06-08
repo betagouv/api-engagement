@@ -12,18 +12,19 @@ import OtherMissions from "~/components/results/other-missions";
 import PinnedMissions from "~/components/results/pinned-missions";
 import GradientBg from "~/components/ui/gradient-bg";
 import Highlight from "~/components/ui/highlight";
+import { QUIZ_FLOW } from "~/config/quiz-flow";
 import { OPTIONS } from "~/config/quiz-options";
 import { useIsMobile } from "~/hooks/useIsMobile";
 import { useMissionResults } from "~/hooks/useMissionResults";
 import { useQuizStore } from "~/stores/quiz";
-import { matchResultToBrowseMission } from "~/utils/mission";
+import { evalCondition } from "~/utils/conditions";
+import { buildMissionDetailHref, matchResultToBrowseMission } from "~/utils/mission";
 
 const FRANCE_CENTER: [number, number] = [46.6, 2.3];
 
 export default function ResultsPage() {
   const { userScoringId } = useParams<{ userScoringId: string }>();
   const isMobile = useIsMobile();
-  const reset = useQuizStore((s) => s.reset);
   const answers = useQuizStore((s) => s.answers);
   const { pinnedItems, otherItems, page, setPage, hasNextPage, loading, pageLoading, error, visiblePageNumbers } = useMissionResults(userScoringId);
   const [expanded, setExpanded] = useState(false);
@@ -63,6 +64,10 @@ export default function ResultsPage() {
 
   const showMap = !loading && pinnedItems.length > 0;
   const showOther = !loading && !error && (otherItems.length > 0 || page > 1);
+
+  // Dernier step visible du quiz selon les réponses courantes → "Changer mes réponses" y renvoie.
+  const lastQuizStep = QUIZ_FLOW.filter((s) => !s.condition || evalCondition(s.condition, answers)).at(-1);
+  const changeAnswersHref = lastQuizStep?.route ?? "/quiz/age";
 
   const handleToggleSheet = () => {
     if (expanded && scrollRef.current) scrollRef.current.scrollTop = 0;
@@ -106,10 +111,7 @@ export default function ResultsPage() {
               }}
             >
               <div className="relative">
-                <MissionCard
-                  mission={matchResultToBrowseMission(selectedMission)}
-                  link={{ type: "internal", to: userScoringId ? `/results/${userScoringId}/missions/${selectedMission.mission.id}` : `/missions/${selectedMission.mission.id}` }}
-                />
+                <MissionCard mission={matchResultToBrowseMission(selectedMission)} link={{ type: "internal", to: buildMissionDetailHref(selectedMission, userScoringId) }} />
                 <div className="absolute right-3 top-3 z-10 flex items-center gap-2">
                   <button
                     type="button"
@@ -157,7 +159,7 @@ export default function ResultsPage() {
               )}
 
               {expanded && (
-                <Link to="/quiz/age" onClick={reset} className="fr-link fr-link--sm shrink-0">
+                <Link to={changeAnswersHref} className="fr-link fr-link--sm shrink-0">
                   <span className="fr-icon-arrow-left-line fr-btn--icon-left" aria-hidden="true" />
                   Changer mes réponses
                 </Link>
@@ -217,7 +219,7 @@ export default function ResultsPage() {
                   </h2>
                 )}
 
-                <Link to="/quiz/age" onClick={reset} className="fr-link fr-link--sm shrink-0">
+                <Link to={changeAnswersHref} className="fr-link fr-link--sm shrink-0">
                   Changer mes réponses
                 </Link>
               </div>

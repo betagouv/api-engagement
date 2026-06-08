@@ -330,6 +330,26 @@ resource "scaleway_job_definition" "update-mission-index" {
   env = local.all_env_vars
 }
 
+# Job Definition for the 'process-dead-letter-queues' task (on-demand only, no cron)
+resource "scaleway_job_definition" "process-dead-letter-queues" {
+  count                  = var.enable_async_tasks ? 1 : 0
+  name                   = "${terraform.workspace}-process-dead-letter-queues"
+  project_id             = var.project_id
+  cpu_limit              = 1000
+  memory_limit           = 2048
+  local_storage_capacity = 1024
+  image_uri              = local.image_uri
+  startup_command        = ["node"]
+  args                   = ["dist/jobs/run-job.js", "process-dead-letter-queues"]
+  timeout                = "30m"
+
+  # SQS credential overload: the job must be able to read from the DLQ (receive) AND republish (publish)
+  env = merge(local.all_env_vars, {
+    "SCW_QUEUE_ACCESS_KEY" = scaleway_mnq_sqs_credentials.async_task_dlq_processor[0].access_key
+    "SCW_QUEUE_SECRET_KEY" = scaleway_mnq_sqs_credentials.async_task_dlq_processor[0].secret_key
+  })
+}
+
 # Job Definition for the 'verify-publisher-organization' task
 resource "scaleway_job_definition" "verify-publisher-organization" {
   count                  = var.enable_mission_jobs ? 1 : 0
