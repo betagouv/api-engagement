@@ -1,6 +1,6 @@
 import { Prisma, PublisherOrganization } from "@/db/core";
 import { prisma } from "@/db/postgres";
-import { PublisherOrganizationWithRelations } from "@/types/publisher-organization";
+import { ORG_ARRAY_COLUMNS, OrgArrayColumn, PublisherOrganizationWithRelations } from "@/types/publisher-organization";
 
 export const publisherOrganizationRepository = {
   async findUnique(params: Prisma.PublisherOrganizationFindUniqueArgs): Promise<PublisherOrganization | null> {
@@ -39,6 +39,25 @@ export const publisherOrganizationRepository = {
 
   async count(params: Prisma.PublisherOrganizationCountArgs = {}): Promise<number> {
     return prisma.publisherOrganization.count(params);
+  },
+
+  /**
+   * Retourne les ids des organisations dont la colonne array `column` contient un élément
+   * égal à `value`, de manière insensible à la casse.
+   * Prisma ne supportant pas `mode: "insensitive"` sur les opérateurs array, on passe par du SQL brut.
+   * `column` est validée contre l'allowlist `ORG_ARRAY_COLUMNS` avant d'être utilisée comme
+   * identifiant SQL (guillemets échappés) → aucune injection possible.
+   */
+  async findIdsByArrayValueInsensitive(column: OrgArrayColumn, value: string): Promise<string[]> {
+    if (!ORG_ARRAY_COLUMNS.includes(column)) {
+      throw new Error(`Unsupported array column: ${column}`);
+    }
+    const columnSql = Prisma.raw(`"${column.replaceAll('"', '""')}"`);
+    const rows = await prisma.$queryRaw<{ id: string }[]>`
+      SELECT "id" FROM "publisher_organization"
+      WHERE EXISTS (SELECT 1 FROM unnest(${columnSql}) AS elem WHERE lower(elem) = lower(${value}))
+    `;
+    return rows.map((row) => row.id);
   },
 };
 export default publisherOrganizationRepository;
