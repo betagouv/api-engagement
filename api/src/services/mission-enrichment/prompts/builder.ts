@@ -1,14 +1,12 @@
 import type { MissionForPrompt, TaxonomyForPrompt } from "./types";
 
 /**
- * Champs de mission (clés du diff d'import, cf. `IMPORT_FIELDS_TO_COMPARE` dans
- * `src/utils/mission.ts`) réellement consommés par `buildMissionBlock` ci-dessous et dont
- * une modification justifie un ré-enrichissement.
+ * Champs de mission dont une modification justifie de relancer le traitement
+ * d'enrichissement/scoring/indexation.
  *
- * Source de vérité unique du gate de ré-enrichissement à l'import
- * (cf. `src/jobs/import-missions/utils/db.ts`). À garder synchronisée avec `buildMissionBlock` :
- * un champ ajouté/retiré du prompt doit l'être ici aussi (un test garantit que cette liste
- * reste un sous-ensemble de `IMPORT_FIELDS_TO_COMPARE`).
+ * La majorité est consommée par `buildMissionBlock` ci-dessous. `addresses` est
+ * volontairement inclus même s'il n'est pas envoyé au prompt : `mission.index`
+ * utilise les `departmentCode` des adresses pour construire le document de recherche.
  *
  * Exclus volontairement bien que rendus dans le prompt :
  * - `startAt`/`endAt` : décalés chaque jour par les flux (bruit, sans impact sur la classification).
@@ -29,6 +27,7 @@ export const ENRICHMENT_TRIGGER_FIELDS = [
   "activities",
   "tags",
   "tasks",
+  "addresses",
   "audience",
   "softSkills",
   "requirements",

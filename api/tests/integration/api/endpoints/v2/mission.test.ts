@@ -433,6 +433,25 @@ describe("Mission V2 Write API Integration Tests", () => {
         payload: { missionId: mission.id },
       });
     });
+
+    it("should enqueue enrichment when addresses change because indexing depends on departments", async () => {
+      const mission = await createTestMission({
+        publisherId: publisher.id,
+        addresses: [{ city: "Paris", postalCode: "75001", departmentCode: "75" }],
+      });
+      vi.clearAllMocks();
+
+      const response = await request(app)
+        .put(`/v2/mission/${mission.clientId}`)
+        .set("x-api-key", apiKey)
+        .send({ addresses: [{ city: "Lyon", postalCode: "69001", departmentCode: "69" }] });
+
+      expect(response.status).toBe(200);
+      expect(asyncTaskBus.publish).toHaveBeenCalledWith({
+        type: "mission.enrichment",
+        payload: { missionId: mission.id },
+      });
+    });
   });
 
   // ────────────────────────────────────────────────────────────────────────────
