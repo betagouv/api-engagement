@@ -404,7 +404,7 @@ describe("Mission V2 Write API Integration Tests", () => {
     });
 
     it("should not enqueue enrichment when only non-prompt fields are updated", async () => {
-      const mission = await createTestMission({ publisherId: publisher.id, places: 2 });
+      const mission = await createTestMission({ publisherId: publisher.id, places: 2, domain: "sport", statusCode: "ACCEPTED", statusComment: null });
       vi.clearAllMocks();
 
       const response = await request(app).put(`/v2/mission/${mission.clientId}`).set("x-api-key", apiKey).send({ places: 4 });
@@ -418,6 +418,7 @@ describe("Mission V2 Write API Integration Tests", () => {
       const mission = await createTestMission({
         publisherId: publisher.id,
         compensationAmount: 10,
+        domain: "sport",
         statusCode: "ACCEPTED",
         statusComment: null,
       });

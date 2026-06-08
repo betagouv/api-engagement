@@ -10,6 +10,7 @@ import { publisherService } from "@/services/publisher";
 import publisherOrganizationService from "@/services/publisher-organization";
 import type { PublisherRecord } from "@/types/publisher";
 import { getJobTime } from "@/utils/job";
+import zod from "zod";
 import type { ImportedMission, ImportedOrganization } from "./types";
 import { cleanDB, upsertMission, upsertOrganization } from "./utils/db";
 import { parseMission } from "./utils/mission";
@@ -18,6 +19,11 @@ import { shouldCleanMissionsForPublisher } from "./utils/publisher";
 import { fetchXML, parseXML } from "./utils/xml";
 
 const CHUNK_SIZE = 2000;
+
+const importMissionsJobPayloadSchema = zod.object({
+  publisherId: zod.string().min(1).optional(),
+  chunkSize: zod.number().int().positive().max(CHUNK_SIZE).optional(),
+});
 
 const cleanEmptyFeedMissions = async (publisher: PublisherRecord, start: Date): Promise<number> => {
   const missions = await missionService.findMissionsBy({ publisherId: publisher.id, deletedAt: null, updatedAt: { lt: start } });
@@ -33,11 +39,7 @@ const cleanEmptyFeedMissions = async (publisher: PublisherRecord, start: Date): 
   return missions.length;
 };
 
-export interface ImportMissionsJobPayload {
-  publisherId?: string;
-  /** Taille des lots de missions traités (défaut `CHUNK_SIZE`). Surtout utile pour les tests. */
-  chunkSize?: number;
-}
+export type ImportMissionsJobPayload = zod.input<typeof importMissionsJobPayloadSchema>;
 
 export interface ImportMissionsJobResult extends JobResult {
   start: Date;
@@ -47,16 +49,17 @@ export interface ImportMissionsJobResult extends JobResult {
 export class ImportMissionsHandler implements BaseHandler<ImportMissionsJobPayload, ImportMissionsJobResult> {
   name = "Import des flux XML";
 
-  async handle(payload: ImportMissionsJobPayload): Promise<ImportMissionsJobResult> {
+  async handle(payload: ImportMissionsJobPayload = {}): Promise<ImportMissionsJobResult> {
+    const parsedPayload = importMissionsJobPayloadSchema.parse(payload);
     const start = new Date();
     console.log(`[Import XML] Starting at ${start.toISOString()}`);
 
     const imports = [] as PrismaImport[];
     let publishers: PublisherRecord[];
-    if (payload.publisherId) {
-      const publisher = await publisherService.findOnePublisherById(payload.publisherId);
+    if (parsedPayload.publisherId) {
+      const publisher = await publisherService.findOnePublisherById(parsedPayload.publisherId);
       if (!publisher) {
-        throw new Error(`Publisher ${payload.publisherId} not found`);
+        throw new Error(`Publisher ${parsedPayload.publisherId} not found`);
       }
       publishers = [publisher];
     } else {
@@ -76,7 +79,7 @@ export class ImportMissionsHandler implements BaseHandler<ImportMissionsJobPaylo
           continue;
         }
         const res = await importMissionssForPublisher(publisher, start, {
-          chunkSize: payload.chunkSize,
+          chunkSize: parsedPayload.chunkSize,
         });
         if (!res) {
           continue;
