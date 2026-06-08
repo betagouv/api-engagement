@@ -402,6 +402,17 @@ describe("Mission V2 Write API Integration Tests", () => {
       const updated = await missionService.findMissionByClientAndPublisher(mission.clientId, publisher.id);
       expect(updated?.placesStatus).toBe("GIVEN_BY_PARTNER");
     });
+
+    it("should not enqueue enrichment when only non-prompt fields are updated", async () => {
+      const mission = await createTestMission({ publisherId: publisher.id, places: 2 });
+      vi.clearAllMocks();
+
+      const response = await request(app).put(`/v2/mission/${mission.clientId}`).set("x-api-key", apiKey).send({ places: 4 });
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.places).toBe(4);
+      expect(asyncTaskBus.publish).not.toHaveBeenCalledWith(expect.objectContaining({ type: "mission.enrichment" }));
+    });
   });
 
   // ────────────────────────────────────────────────────────────────────────────

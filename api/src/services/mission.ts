@@ -6,6 +6,8 @@ import { captureException } from "@/error";
 import { missionRepository } from "@/repositories/mission";
 import { activityService } from "@/services/activity";
 import { buildMissionEnrichmentScoringWhere, missionEnrichmentService } from "@/services/mission-enrichment";
+import { changesRequireEnrichment } from "@/services/mission-enrichment/triggers";
+import { missionEventService } from "@/services/mission-event";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import type {
   MissionCreateInput,
@@ -19,7 +21,7 @@ import type {
 } from "@/types/mission";
 import { PublisherOrganizationWithRelations } from "@/types/publisher-organization";
 import { calculateBoundingBox } from "@/utils";
-import { buildJobBoardMap, computeAddressHash, deriveMissionLocation, normalizeMissionAddresses } from "@/utils/mission";
+import { buildJobBoardMap, computeAddressHash, deriveMissionLocation, EVENT_TYPES, getMissionChanges, normalizeMissionAddresses } from "@/utils/mission";
 import { normalizeOptionalString, normalizeStringList } from "@/utils/normalize";
 import { publisherService } from "./publisher";
 import publisherOrganizationService from "./publisher-organization";
@@ -573,6 +575,10 @@ export const missionService = {
     }
   },
 
+  async handleEnrichmentContextChanged(missionId: string): Promise<void> {
+    await this.enqueueMissionProcessing(missionId);
+  },
+
   async findMissionsByIds(ids: string[]): Promise<MissionRecord[]> {
     if (!ids.length) {
       return [];
@@ -782,6 +788,11 @@ export const missionService = {
     await missionRepository.createUnchecked(data);
 
     await activityService.addMissionActivities(id, activityIds);
+    await missionEventService.createMissionEvent({
+      missionId: id,
+      type: EVENT_TYPES.CREATE,
+      changes: null,
+    });
     await this.enqueueMissionProcessing(id);
 
     const mission = await missionRepository.findFirst({ where: { id }, include: baseInclude });
@@ -791,8 +802,12 @@ export const missionService = {
     return toMissionRecord(mission as MissionWithRelations);
   },
 
-  async update(id: string, patch: MissionUpdatePatch, options: { enqueueEnrichment?: boolean } = {}): Promise<MissionRecord> {
-    const { enqueueEnrichment = true } = options;
+  async update(id: string, patch: MissionUpdatePatch): Promise<MissionRecord> {
+    const previousMission = await missionRepository.findFirst({ where: { id }, include: baseInclude });
+    if (!previousMission) {
+      throw new Error(`[missionService] Mission ${id} not found before update`);
+    }
+    const previous = toMissionRecord(previousMission as MissionWithRelations);
     const addresses = mapAddressesForCreate(patch.addresses);
     const data: Prisma.MissionUncheckedUpdateInput = {};
 
@@ -949,11 +964,23 @@ export const missionService = {
       throw new Error(`[missionService] Mission ${id} not found after update`);
     }
 
-    if (enqueueEnrichment) {
+    const updated = toMissionRecord(mission as MissionWithRelations);
+    const changes = getMissionChanges(previous, updated);
+    if (!changes) {
+      return updated;
+    }
+
+    await missionEventService.createMissionEvent({
+      missionId: id,
+      type: changes.deletedAt?.current ? EVENT_TYPES.DELETE : EVENT_TYPES.UPDATE,
+      changes,
+    });
+
+    if (changesRequireEnrichment(changes)) {
       await this.enqueueMissionProcessing(id);
     }
 
-    return toMissionRecord(mission as MissionWithRelations);
+    return updated;
   },
 };
 

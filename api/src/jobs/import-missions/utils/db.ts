@@ -1,41 +1,15 @@
 import { Import as PrismaImport } from "@/db/core";
 import type { ImportedMission, ImportedOrganization } from "@/jobs/import-missions/types";
 import { missionService } from "@/services/mission";
-import { ENRICHMENT_TRIGGER_FIELDS, ORG_ENRICHMENT_TRIGGER_FIELDS } from "@/services/mission-enrichment/prompts/builder";
-import { missionEventService } from "@/services/mission-event";
+import { changesRequireEnrichment, orgChangesRequireEnrichment } from "@/services/mission-enrichment/triggers";
 import publisherOrganizationService from "@/services/publisher-organization";
 import type { MissionRecord } from "@/types/mission";
 import { MissionUpdatePatch } from "@/types/mission";
-import { MissionEventCreateParams } from "@/types/mission-event";
 import type { PublisherRecord } from "@/types/publisher";
 import { PublisherOrganizationRecord } from "@/types/publisher-organization";
 import { getJobTime } from "@/utils/job";
-import { EVENT_TYPES, getMissionChanges } from "@/utils/mission";
+import { getMissionChanges } from "@/utils/mission";
 import { getPublisherOrganizationChanges } from "@/utils/publisher-organization";
-
-const ENRICHMENT_TRIGGER_FIELD_SET = new Set<string>(ENRICHMENT_TRIGGER_FIELDS);
-
-/**
- * Détermine si un diff de mission justifie un ré-enrichissement.
- *
- * La grande majorité des updates d'import ne portent que sur des champs hors-prompt
- * (compteurs `places`/`snuPlaces`, `addresses`, dates glissantes `startAt`/`endAt`/`postedAt`,
- * `duration` dérivée…) : ré-enrichir dans ces cas est inutile et coûteux (tokens LLM).
- * On ne ré-enrichit que si un champ réellement consommé par le prompt a changé
- * (cf. `ENRICHMENT_TRIGGER_FIELDS`). Le changement de `deletedAt` (restauration d'une mission)
- * force aussi le retraitement.
- */
-export const changesRequireEnrichment = (changes: Record<string, unknown>): boolean =>
-  Object.keys(changes).some((field) => field === "deletedAt" || ENRICHMENT_TRIGGER_FIELD_SET.has(field));
-
-const ORG_ENRICHMENT_TRIGGER_FIELD_SET = new Set<string>(ORG_ENRICHMENT_TRIGGER_FIELDS);
-
-/**
- * Détermine si un diff d'organisation impacte le prompt d'enrichissement et doit donc
- * déclencher le ré-enrichissement de ses missions liées (cf. `ORG_ENRICHMENT_TRIGGER_FIELDS`).
- * Les champs d'org hors-prompt (rna/siren/url/logo/adresse…) sont ignorés.
- */
-export const orgChangesRequireEnrichment = (changes: Record<string, unknown>): boolean => Object.keys(changes).some((field) => ORG_ENRICHMENT_TRIGGER_FIELD_SET.has(field));
 
 type UpsertOrganizationResult = {
   action: "created" | "updated" | "unchanged";
@@ -86,7 +60,6 @@ export const upsertOrganization = async (input: ImportedOrganization, existing: 
 type UpsertMissionResult = {
   action: "created" | "updated" | "unchanged";
   mission: MissionRecord;
-  event: MissionEventCreateParams | null;
 };
 
 /**
@@ -109,11 +82,6 @@ export const upsertMission = async (input: ImportedMission, existing: MissionRec
     return {
       action: "created",
       mission: created,
-      event: {
-        missionId: created.id,
-        type: EVENT_TYPES.CREATE,
-        changes: null,
-      },
     };
   }
 
@@ -122,28 +90,21 @@ export const upsertMission = async (input: ImportedMission, existing: MissionRec
   if (!changes) {
     // Mission inchangée : ne ré-enrichir que si l'organisation liée a changé (données du prompt).
     if (organizationChanged) {
-      await missionService.enqueueMissionProcessing(existing.id);
+      await missionService.handleEnrichmentContextChanged(existing.id);
     }
     return {
       action: "unchanged",
       mission: existing,
-      event: null,
     };
   }
 
-  // Update existing mission — re-enrich when a prompt-relevant mission field changed,
-  // or when the linked organization's prompt-relevant data changed in this import.
-  const updated = await missionService.update(existing.id, input as MissionUpdatePatch, {
-    enqueueEnrichment: changesRequireEnrichment(changes) || organizationChanged,
-  });
+  const updated = await missionService.update(existing.id, input as MissionUpdatePatch);
+  if (organizationChanged && !changesRequireEnrichment(changes)) {
+    await missionService.handleEnrichmentContextChanged(existing.id);
+  }
   return {
     action: "updated",
     mission: updated,
-    event: {
-      missionId: existing.id,
-      type: changes.deletedAt?.current === null ? EVENT_TYPES.DELETE : EVENT_TYPES.UPDATE,
-      changes,
-    },
   };
 };
 
@@ -155,7 +116,7 @@ export const upsertMission = async (input: ImportedMission, existing: MissionRec
  * @param publisher - Publisher of the missions
  * @param importDoc - Import document to update
  */
-export const cleanDB = async (missionsClientIds: string[], publisher: PublisherRecord, importDoc: PrismaImport, options: { recordMissionEvents: boolean }) => {
+export const cleanDB = async (missionsClientIds: string[], publisher: PublisherRecord, importDoc: PrismaImport) => {
   console.log(`[${publisher.name}] Cleaning missions...`);
 
   const missions = await missionService.findMissionsBy({
@@ -164,26 +125,11 @@ export const cleanDB = async (missionsClientIds: string[], publisher: PublisherR
     ...(missionsClientIds.length ? { clientId: { notIn: missionsClientIds } } : {}),
   });
 
-  const events: MissionEventCreateParams[] = [];
-  for (const mission of missions) {
-    events.push({
-      missionId: mission.id,
-      type: EVENT_TYPES.DELETE,
-      changes: { deletedAt: true },
-    });
-  }
-
   const cleanStartedAt = new Date();
   for (const mission of missions) {
     await missionService.update(mission.id, { deletedAt: importDoc.startedAt } as MissionUpdatePatch);
   }
   console.log(`[${publisher.name}] Mission clean updates done: ${missions.length} in ${getJobTime(cleanStartedAt)}`);
-
-  if (options.recordMissionEvents && events.length > 0) {
-    const eventsStartedAt = new Date();
-    await missionEventService.createMissionEvents(events);
-    console.log(`[${publisher.name}] Mission clean events created: ${events.length} in ${getJobTime(eventsStartedAt)}`);
-  }
 
   importDoc.deletedCount = missions.length;
   console.log(`[${publisher.name}] Mission cleaning removed ${missions.length}`);

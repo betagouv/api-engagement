@@ -6,10 +6,8 @@ import { BaseHandler } from "@/jobs/base/handler";
 import { JobResult } from "@/jobs/types";
 import { enrichWithGeoloc } from "@/services/geoloc";
 import { missionService } from "@/services/mission";
-import { missionEventService } from "@/services/mission-event";
 import { publisherService } from "@/services/publisher";
 import publisherOrganizationService from "@/services/publisher-organization";
-import { MissionEventCreateParams } from "@/types/mission-event";
 import type { PublisherRecord } from "@/types/publisher";
 import { getJobTime } from "@/utils/job";
 import type { ImportedMission, ImportedOrganization } from "./types";
@@ -37,7 +35,6 @@ const cleanEmptyFeedMissions = async (publisher: PublisherRecord, start: Date): 
 
 export interface ImportMissionsJobPayload {
   publisherId?: string;
-  recordMissionEvents?: boolean;
   /** Taille des lots de missions traités (défaut `CHUNK_SIZE`). Surtout utile pour les tests. */
   chunkSize?: number;
 }
@@ -79,7 +76,6 @@ export class ImportMissionsHandler implements BaseHandler<ImportMissionsJobPaylo
           continue;
         }
         const res = await importMissionssForPublisher(publisher, start, {
-          recordMissionEvents: payload.recordMissionEvents ?? true,
           chunkSize: payload.chunkSize,
         });
         if (!res) {
@@ -122,11 +118,7 @@ export class ImportMissionsHandler implements BaseHandler<ImportMissionsJobPaylo
   }
 }
 
-async function importMissionssForPublisher(
-  publisher: PublisherRecord,
-  start: Date,
-  options: { recordMissionEvents: boolean; chunkSize?: number }
-): Promise<PrismaImport | undefined> {
+async function importMissionssForPublisher(publisher: PublisherRecord, start: Date, options: { chunkSize?: number }): Promise<PrismaImport | undefined> {
   if (!publisher) {
     return;
   }
@@ -282,7 +274,6 @@ async function importMissionssForPublisher(
       let createdMissionsCount = 0;
       let updatedMissionsCount = 0;
       let unchangedMissionsCount = 0;
-      const missionEvents: MissionEventCreateParams[] = [];
       for (const mission of missions) {
         if (mission.organizationClientId) {
           const publisherOrganization = existingOrganizationsMap.get(mission.organizationClientId) || null;
@@ -309,27 +300,16 @@ async function importMissionssForPublisher(
         } else if (result.action === "unchanged") {
           unchangedMissionsCount += 1;
         }
-
-        if (result.event) {
-          missionEvents.push(result.event);
-        }
       }
       console.log(`[${publisher.name}] ${createdMissionsCount} created, ${updatedMissionsCount} updated and ${unchangedMissionsCount} unchanged missions`);
       obj.createdCount += createdMissionsCount;
       obj.updatedCount += updatedMissionsCount;
-
-      // CREATE MISSION EVENTS
-      console.log(`[${publisher.name}] Creating ${missionEvents.length} mission events`);
-      if (options.recordMissionEvents && missionEvents.length > 0) {
-        await missionEventService.createMissionEvents(missionEvents);
-      }
-      console.log(`[${publisher.name}] ${missionEvents.length} mission events created`);
     }
 
     // CLEAN DB
     if (!hasFailed) {
       // If one chunk failed, don't remove missions from DB
-      await cleanDB(allMissionsClientIds, publisher, obj, options);
+      await cleanDB(allMissionsClientIds, publisher, obj);
     }
 
     // STATS

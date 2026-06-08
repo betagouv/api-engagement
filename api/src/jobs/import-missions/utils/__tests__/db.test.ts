@@ -8,8 +8,8 @@ vi.mock("@/services/mission-event", () => ({ missionEventService: {} }));
 vi.mock("@/services/publisher-organization", () => ({ default: {} }));
 vi.mock("../../../../error", () => ({ captureException: vi.fn() }));
 
-import { changesRequireEnrichment, orgChangesRequireEnrichment } from "@/jobs/import-missions/utils/db";
 import { ENRICHMENT_TRIGGER_FIELDS, ORG_ENRICHMENT_TRIGGER_FIELDS } from "@/services/mission-enrichment/prompts";
+import { changesRequireEnrichment, orgChangesRequireEnrichment } from "@/services/mission-enrichment/triggers";
 import { IMPORT_FIELDS_TO_COMPARE } from "@/utils/mission";
 import { IMPORT_FIELDS_TO_COMPARE as ORG_IMPORT_FIELDS_TO_COMPARE } from "@/utils/publisher-organization";
 
