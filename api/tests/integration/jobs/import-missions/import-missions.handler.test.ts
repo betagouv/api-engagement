@@ -405,6 +405,65 @@ describe("Import missions job (integration test)", () => {
 
       expect(asyncTaskBus.publish).toHaveBeenCalledWith({ type: "mission.enrichment", payload: { missionId: expect.any(String) } });
     });
+
+    // Deux missions de la MÊME organisation. Avec un changement d'org, toutes les missions liées
+    // doivent être ré-enrichies, y compris celles d'un chunk ultérieur (l'org y est déjà "unchanged").
+    const twoMissionsFeed = ({ orgDescription }: { orgDescription: string }) => {
+      const mission = (clientId: string) => `
+  <mission>
+    <title><![CDATA[Mission ${clientId}]]></title>
+    <clientId><![CDATA[${clientId}]]></clientId>
+    <description><![CDATA[Description stable de ${clientId}]]></description>
+    <applicationUrl><![CDATA[https://www.example.org]]></applicationUrl>
+    <startAt><![CDATA[01/01/2025]]></startAt>
+    <endAt><![CDATA[11/01/2025]]></endAt>
+    <addresses>
+      <address>
+        <street><![CDATA[Rue de Test]]></street>
+        <postalCode><![CDATA[75001]]></postalCode>
+        <city><![CDATA[Paris]]></city>
+        <departmentCode><![CDATA[75]]></departmentCode>
+        <departmentName><![CDATA[Paris]]></departmentName>
+        <region><![CDATA[Île-de-France]]></region>
+        <country><![CDATA[France]]></country>
+        <location><lat><![CDATA[48.8541]]></lat><lon><![CDATA[2.3643]]></lon></location>
+      </address>
+    </addresses>
+    <places><![CDATA[2]]></places>
+    <activity><![CDATA[logistique]]></activity>
+    <remote><![CDATA[no]]></remote>
+    <domain><![CDATA[environnement]]></domain>
+    <organizationName><![CDATA[Org Multi]]></organizationName>
+    <organizationClientId><![CDATA[org-multi-1]]></organizationClientId>
+    <organizationType><![CDATA[1901]]></organizationType>
+    <organizationDescription><![CDATA[${orgDescription}]]></organizationDescription>
+  </mission>`;
+      return `<?xml version="1.0" encoding="UTF-8"?>\n<source>${mission("gating-multi-a")}${mission("gating-multi-b")}\n</source>`;
+    };
+
+    it("ré-enrichit toutes les missions d'une org modifiée, même réparties sur plusieurs chunks", async () => {
+      const publisher = await createTestPublisher({ feed: "https://gating-multi-chunk", isAnnonceur: true });
+
+      // 1er import (chunkSize:1 → une mission par chunk) : crée les 2 missions et l'org
+      (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => twoMissionsFeed({ orgDescription: "Desc A" }) });
+      await handler.handle({ publisherId: publisher.id, chunkSize: 1 });
+
+      const missions = await missionService.findMissionsBy({ publisherId: publisher.id, clientId: { in: ["gating-multi-a", "gating-multi-b"] } });
+      const idA = missions.find((m) => m.clientId === "gating-multi-a")?.id;
+      const idB = missions.find((m) => m.clientId === "gating-multi-b")?.id;
+      expect(idA).toBeDefined();
+      expect(idB).toBeDefined();
+
+      // 2e import : missions inchangées, seule la description d'org change → les 2 doivent ré-enrichir
+      vi.clearAllMocks();
+      (global.fetch as any).mockReset();
+      (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => twoMissionsFeed({ orgDescription: "Desc B" }) });
+      await handler.handle({ publisherId: publisher.id, chunkSize: 1 });
+
+      // idB est dans le 2e chunk où l'org est déjà à jour : sans la persistance du set, il manquerait
+      expect(asyncTaskBus.publish).toHaveBeenCalledWith({ type: "mission.enrichment", payload: { missionId: idA } });
+      expect(asyncTaskBus.publish).toHaveBeenCalledWith({ type: "mission.enrichment", payload: { missionId: idB } });
+    });
   });
 
   describe("activities", () => {

@@ -38,6 +38,8 @@ const cleanEmptyFeedMissions = async (publisher: PublisherRecord, start: Date): 
 export interface ImportMissionsJobPayload {
   publisherId?: string;
   recordMissionEvents?: boolean;
+  /** Taille des lots de missions traités (défaut `CHUNK_SIZE`). Surtout utile pour les tests. */
+  chunkSize?: number;
 }
 
 export interface ImportMissionsJobResult extends JobResult {
@@ -78,6 +80,7 @@ export class ImportMissionsHandler implements BaseHandler<ImportMissionsJobPaylo
         }
         const res = await importMissionssForPublisher(publisher, start, {
           recordMissionEvents: payload.recordMissionEvents ?? true,
+          chunkSize: payload.chunkSize,
         });
         if (!res) {
           continue;
@@ -119,7 +122,11 @@ export class ImportMissionsHandler implements BaseHandler<ImportMissionsJobPaylo
   }
 }
 
-async function importMissionssForPublisher(publisher: PublisherRecord, start: Date, options: { recordMissionEvents: boolean }): Promise<PrismaImport | undefined> {
+async function importMissionssForPublisher(
+  publisher: PublisherRecord,
+  start: Date,
+  options: { recordMissionEvents: boolean; chunkSize?: number }
+): Promise<PrismaImport | undefined> {
   if (!publisher) {
     return;
   }
@@ -180,9 +187,16 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
     let hasFailed: boolean = false;
     const allMissionsClientIds = [] as string[];
     const startTime = obj.startedAt ?? new Date();
-    for (let i = 0; i < missionsXML.length; i += CHUNK_SIZE) {
-      const chunk = missionsXML.slice(i, i + CHUNK_SIZE);
-      console.log(`[${publisher.name}] Processing chunk ${i / CHUNK_SIZE + 1} of ${Math.ceil(missionsXML.length / CHUNK_SIZE)} (${chunk.length} missions)`);
+    // clientIds des organisations dont un champ consommé par le prompt a changé sur tout l'import.
+    // Doit vivre HORS de la boucle de chunks : une org n'est détectée "modifiée" que dans le chunk
+    // où elle est upsertée ; aux chunks suivants elle est déjà à jour en base ("unchanged"). Sans
+    // persistance, les missions d'une même org réparties sur plusieurs chunks (publishers > CHUNK_SIZE
+    // missions/org) ne seraient pas ré-enrichies.
+    const organizationsNeedingEnrichment = new Set<string>();
+    const chunkSize = options.chunkSize ?? CHUNK_SIZE;
+    for (let i = 0; i < missionsXML.length; i += chunkSize) {
+      const chunk = missionsXML.slice(i, i + chunkSize);
+      console.log(`[${publisher.name}] Processing chunk ${i / chunkSize + 1} of ${Math.ceil(missionsXML.length / chunkSize)} (${chunk.length} missions)`);
 
       const existingMissions = await missionService.findMissionsBy({ publisherId: publisher.id, clientId: { in: chunk.map((m) => m.clientId.toString()) } });
       const existingMap = new Map(existingMissions.map((m) => [m.clientId, m]));
@@ -248,9 +262,6 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
       let createdOrganizationsCount = 0;
       let updatedOrganizationsCount = 0;
       let unchangedOrganizationsCount = 0;
-      // clientIds des organisations dont un champ consommé par le prompt a changé : les missions
-      // qui y sont rattachées devront être ré-enrichies même sans changement métier propre.
-      const organizationsNeedingEnrichment = new Set<string>();
       for (const organization of organizations.values()) {
         const existing = existingOrganizationsMap.get(organization.clientId) || null;
         const result = await upsertOrganization(organization, existing);
