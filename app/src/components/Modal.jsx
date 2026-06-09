@@ -27,6 +27,7 @@ const Modal = ({ open, children, onClose, title, className = "min-w-2xl" }) => {
   return (
     <dialog
       ref={dialogRef}
+      aria-modal="true"
       aria-labelledby={titleId}
       onClick={handleBackdropClick}
       className="fixed inset-0 m-auto max-h-[90vh] max-w-[90vw] overflow-visible bg-transparent p-0 backdrop:bg-black/60"

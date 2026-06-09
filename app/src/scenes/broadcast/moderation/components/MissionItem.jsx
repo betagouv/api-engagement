@@ -74,9 +74,13 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
           </label>
 
           <div className="flex flex-1 flex-col justify-between py-2">
-            <div className="hover:text-blue-france my-2 line-clamp-3 flex items-center text-base font-semibold hover:cursor-pointer" onClick={handleMissionClick}>
+            <button
+              type="button"
+              className="hover:text-blue-france my-2 line-clamp-3 flex items-center text-left text-base font-semibold hover:cursor-pointer"
+              onClick={handleMissionClick}
+            >
               {data.title || data.missionTitle}
-            </div>
+            </button>
             <div className="text-text-mention mb-2 flex items-center gap-4 text-xs">
               {data.missionCity && (
                 <span className="flex items-center">

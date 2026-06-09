@@ -172,10 +172,10 @@ const SignupForm = ({ user }) => {
           <label className="mb-1" htmlFor="password">
             Mot de passe
           </label>
-          <div className="flex cursor-pointer items-center gap-1" onClick={() => setShow(!show)}>
+          <button type="button" className="flex cursor-pointer items-center gap-1" onClick={() => setShow(!show)}>
             {show ? <IoMdEyeOff className="text-blue-france" aria-hidden="true" /> : <IoMdEye className="text-blue-france" aria-hidden="true" />}
             <span className="text-blue-france text-xs font-bold">{show ? "CACHER" : "AFFICHER"}</span>
-          </div>
+          </button>
         </div>
         <input
           id="password"
@@ -224,10 +224,10 @@ const SignupForm = ({ user }) => {
           <label className="mb-1" htmlFor="confirm-password">
             Confirmation du mot de passe
           </label>
-          <div className="flex cursor-pointer items-center gap-1" onClick={() => setShowConfirm(!showConfirm)}>
+          <button type="button" className="flex cursor-pointer items-center gap-1" onClick={() => setShowConfirm(!showConfirm)}>
             {showConfirm ? <IoMdEyeOff className="text-blue-france" aria-hidden="true" /> : <IoMdEye className="text-blue-france" aria-hidden="true" />}
             <span className="text-blue-france text-xs font-bold">{showConfirm ? "CACHER" : "AFFICHER"}</span>
-          </div>
+          </button>
         </div>
         <input
           id="confirm-password"

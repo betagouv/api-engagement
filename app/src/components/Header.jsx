@@ -90,7 +90,7 @@ const NotificationMenu = () => {
 
   return (
     <Menu>
-      <MenuButton as="div" className="data-[focus]:bg-gray-975 hover:bg-gray-975 relative p-2 text-lg">
+      <MenuButton as="div" className="data-[focus]:bg-gray-975 hover:bg-gray-975 relative p-2 text-lg" aria-label="Ouvrir le menu des alertes">
         <RiDashboard3Line aria-hidden="true" />
         {warnings.length > 0 && <div className="bg-error absolute top-2 right-1.5 h-[9px] w-[9px] rounded-full border border-white" />}
       </MenuButton>
@@ -214,7 +214,7 @@ const AdminNotificationMenu = () => {
 
   return (
     <Menu>
-      <MenuButton className="data-[focus]:bg-gray-975 hover:bg-gray-975 relative p-2 text-lg">
+      <MenuButton className="data-[focus]:bg-gray-975 hover:bg-gray-975 relative p-2 text-lg" aria-label="Ouvrir le menu des alertes">
         <RiDashboard3Line aria-hidden="true" />
         {warnings.length > 0 && <div className="bg-error absolute top-2 right-1.5 h-[9px] w-[9px] rounded-full border border-white" />}
       </MenuButton>

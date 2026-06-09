@@ -82,7 +82,7 @@ const MissionModal = ({ onChange }) => {
   };
 
   return (
-    <dialog ref={dialogRef} aria-labelledby="mission-modal-title" className="fixed inset-0 m-0 h-screen max-h-none w-screen max-w-none">
+    <dialog ref={dialogRef} aria-modal="true" aria-labelledby="mission-modal-title" className="fixed inset-0 m-0 h-screen max-h-none w-screen max-w-none">
       <div className="bg-global-background relative h-full w-full overflow-scroll">
         <div className="flex justify-end px-8 pt-4">
           <button type="button" className="p-3 text-xl text-black" onClick={handleClose} aria-label="Fermer">
@@ -90,15 +90,15 @@ const MissionModal = ({ onChange }) => {
           </button>
         </div>
         <div className="mb-16 flex flex-col gap-4 px-8">
+          <p id="mission-modal-title" className="sr-only">
+            Détails de la mission
+          </p>
           {!data ? (
             <div className="flex justify-center py-10">
               <Loader />
             </div>
           ) : (
             <div className="max-h-full overflow-y-auto px-20">
-              <p id="mission-modal-title" className="sr-only">
-                Détails de la mission
-              </p>
               <Header
                 data={data}
                 onChange={(v) => {
