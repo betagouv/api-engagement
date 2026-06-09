@@ -33,7 +33,7 @@ enable_typesense      = true
 enable_public_gateway = true
 
 enable_plateform   = true
-plateform_hostname = "plateform.api-engagement.beta.gouv.fr"
+plateform_hostname = "plateforme.api-engagement.beta.gouv.fr"
 
 private_network_cidr = "10.40.0.0/22"
 
