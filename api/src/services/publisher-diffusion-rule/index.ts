@@ -1,4 +1,5 @@
 import { Prisma, PublisherDiffusionRule } from "@/db/core";
+import { RESSOURCE_ALREADY_EXIST } from "@/error";
 import { missionRepository } from "@/repositories/mission";
 import { publisherDiffusionRuleRepository } from "@/repositories/publisher-diffusion-rule";
 import publisherOrganizationService from "@/services/publisher-organization";
@@ -9,7 +10,11 @@ import type {
   PublisherDiffusionRuleRecord,
 } from "@/types/publisher-diffusion-rule";
 import type { OrganizationArrayIdsResolver } from "@/types/publisher-organization";
-import { buildMissionPublisherDiffusionRuleConditionFromRule, buildMissionPublisherDiffusionRuleSqlFromRules } from "@/utils/publisher-diffusion-rule-query";
+import {
+  buildMissionPublisherDiffusionRuleConditionFromRule,
+  buildMissionPublisherDiffusionRuleSqlFromRules,
+  isPublisherDiffusionRuleArrayField,
+} from "@/utils/publisher-diffusion-rule-query";
 
 type PublisherDiffusionRuleWithChildren = PublisherDiffusionRule & {
   combinedRules?: PublisherDiffusionRule[];
@@ -90,7 +95,8 @@ const ruleExcludesValue = (rule: PublisherDiffusionRuleRecord, value: string): b
     case "is_not":
       return candidate === ruleValue;
     case "does_not_contain":
-      return candidate.includes(ruleValue);
+      // Champs array (ex. parentOrganizations) : appartenance exacte comme le filtrage réel ; champs scalaires : sous-chaîne (ILIKE %...%).
+      return isPublisherDiffusionRuleArrayField(rule.field) ? candidate === ruleValue : candidate.includes(ruleValue);
     case "does_not_exist":
       return candidate.length > 0;
     default:
@@ -198,28 +204,38 @@ export const publisherDiffusionRuleService = {
   },
 
   async findOrCreateScopeRoot(diffuseurPublisherId: string, annonceurPublisherId: string): Promise<PublisherDiffusionRuleRecord> {
-    const existing = await publisherDiffusionRuleRepository.findFirst({
-      where: { publisherId: diffuseurPublisherId, combinedWithId: null, field: "publisherId", value: annonceurPublisherId },
-      include: { combinedRules: true },
-    });
+    const rootWhere = { publisherId: diffuseurPublisherId, combinedWithId: null, field: "publisherId", value: annonceurPublisherId };
+
+    const existing = await publisherDiffusionRuleRepository.findFirst({ where: rootWhere, include: { combinedRules: true } });
     if (existing) {
       return toRecord(existing as PublisherDiffusionRuleWithChildren);
     }
 
-    const created = (await publisherDiffusionRuleRepository.create({
-      data: {
-        publisher: { connect: { id: diffuseurPublisherId } },
-        field: "publisherId",
-        fieldType: "string",
-        operator: "is",
-        value: annonceurPublisherId,
-        combinator: "or",
-        position: 0,
-      },
-      include: { combinedRules: true },
-    })) as PublisherDiffusionRuleWithChildren;
+    try {
+      const created = (await publisherDiffusionRuleRepository.create({
+        data: {
+          publisher: { connect: { id: diffuseurPublisherId } },
+          field: "publisherId",
+          fieldType: "string",
+          operator: "is",
+          value: annonceurPublisherId,
+          combinator: "or",
+          position: 0,
+        },
+        include: { combinedRules: true },
+      })) as PublisherDiffusionRuleWithChildren;
 
-    return toRecord(created);
+      return toRecord(created);
+    } catch (error) {
+      // Course concurrente : un autre process a créé le root entre-temps (rejeté par l'index unique partiel sur les roots).
+      if ((error as { code?: string }).code === "P2002") {
+        const root = await publisherDiffusionRuleRepository.findFirst({ where: rootWhere, include: { combinedRules: true } });
+        if (root) {
+          return toRecord(root as PublisherDiffusionRuleWithChildren);
+        }
+      }
+      throw error;
+    }
   },
 
   async createScopedRule(input: {
@@ -237,7 +253,19 @@ export const publisherDiffusionRuleService = {
       include: { combinedRules: true },
     });
     if (existing) {
-      return toRecord(existing as PublisherDiffusionRuleWithChildren);
+      // Idempotent uniquement si la règle est réellement identique. Sinon on refuse explicitement au lieu de
+      // renvoyer silencieusement une règle qui ne correspond pas à la demande (clé unique sur field + value).
+      const isSameRule = existing.operator === input.operator && (existing.fieldType ?? null) === (input.fieldType ?? null);
+      if (isSameRule) {
+        return toRecord(existing as PublisherDiffusionRuleWithChildren);
+      }
+      const conflict = new Error(`A diffusion rule already exists for field "${input.field}" and value "${input.value}" with a different operator`) as Error & {
+        code: string;
+        status: number;
+      };
+      conflict.code = RESSOURCE_ALREADY_EXIST;
+      conflict.status = 409;
+      throw conflict;
     }
 
     const created = (await publisherDiffusionRuleRepository.create({

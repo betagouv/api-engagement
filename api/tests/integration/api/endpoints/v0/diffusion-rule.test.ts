@@ -35,6 +35,8 @@ describe("DiffusionRule API Integration Tests", () => {
    * - should ignore rules scoped to a different annonceur
    * - should not expose a diffuse field when field/value are missing
    * - should annotate each diffuseur with a diffuse boolean when filtering
+   * - should match array fields by exact membership, not substring
+   * - should return 400 when only one of field or value is provided
    */
   describe("GET /v0/diffusion-rule", () => {
     it("should return 401 if not authenticated", async () => {
@@ -149,6 +151,40 @@ describe("DiffusionRule API Integration Tests", () => {
       const allowed1 = allowed.body.data.find((entry: any) => entry.id === diffuseur1.id);
       expect(allowed1.diffuse).toBe(true);
     });
+
+    it("should match array fields by exact membership, not substring", async () => {
+      await publisherDiffusionRuleService.createScopedRule({
+        diffuseurPublisherId: diffuseur1.id,
+        annonceurPublisherId: publisher.id,
+        field: "publisherOrganization.parentOrganizations",
+        fieldType: "string",
+        operator: "does_not_contain",
+        value: "Marine",
+      });
+
+      // La valeur "Marine nationale" contient "Marine" comme sous-chaîne mais n'est pas un élément exact du tableau :
+      // le filtrage réel des missions diffuserait donc cette valeur.
+      const partial = await request(app)
+        .get("/v0/diffusion-rule")
+        .query({ field: "publisherOrganization.parentOrganizations", value: "Marine nationale" })
+        .set("x-api-key", apiKey);
+      expect(partial.status).toBe(200);
+      expect(partial.body.data.find((entry: any) => entry.id === diffuseur1.id).diffuse).toBe(true);
+
+      const exact = await request(app).get("/v0/diffusion-rule").query({ field: "publisherOrganization.parentOrganizations", value: "Marine" }).set("x-api-key", apiKey);
+      expect(exact.status).toBe(200);
+      expect(exact.body.data.find((entry: any) => entry.id === diffuseur1.id).diffuse).toBe(false);
+    });
+
+    it("should return 400 when only one of field or value is provided", async () => {
+      const onlyField = await request(app).get("/v0/diffusion-rule").query({ field: "type" }).set("x-api-key", apiKey);
+      expect(onlyField.status).toBe(400);
+      expect(onlyField.body.code).toBe("INVALID_QUERY");
+
+      const onlyValue = await request(app).get("/v0/diffusion-rule").query({ value: "benevolat" }).set("x-api-key", apiKey);
+      expect(onlyValue.status).toBe(400);
+      expect(onlyValue.body.code).toBe("INVALID_QUERY");
+    });
   });
 
   /**
@@ -159,6 +195,7 @@ describe("DiffusionRule API Integration Tests", () => {
    * - should create rules for allowed diffuseurs only
    * - should default fieldType to "string" when missing
    * - should be idempotent and return the existing rule when posted twice
+   * - should return 409 when the same field and value is posted with a different operator
    */
   describe("POST /v0/diffusion-rule", () => {
     const validRule = {
@@ -256,6 +293,32 @@ describe("DiffusionRule API Integration Tests", () => {
         value: validRule.value,
       });
       expect(persisted).toHaveLength(1);
+    });
+
+    it("should return 409 when the same field and value is posted with a different operator", async () => {
+      const first = await request(app)
+        .post("/v0/diffusion-rule")
+        .set("x-api-key", apiKey)
+        .send({ ...validRule, operator: "is_not", publisherIds: [diffuseur1.id] });
+      expect(first.status).toBe(201);
+
+      const conflict = await request(app)
+        .post("/v0/diffusion-rule")
+        .set("x-api-key", apiKey)
+        .send({ ...validRule, operator: "is", publisherIds: [diffuseur1.id] });
+
+      expect(conflict.status).toBe(409);
+      expect(conflict.body.ok).toBe(false);
+      expect(conflict.body.code).toBe("RESSOURCE_ALREADY_EXIST");
+
+      // La règle d'origine n'a pas été modifiée ni dupliquée.
+      const persisted = await publisherDiffusionRuleService.findRules({
+        publisherId: diffuseur1.id,
+        field: validRule.field,
+        value: validRule.value,
+      });
+      expect(persisted).toHaveLength(1);
+      expect(persisted[0].operator).toBe("is_not");
     });
   });
 

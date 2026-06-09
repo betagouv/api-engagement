@@ -2408,9 +2408,10 @@ paths:
         que vous avez configurées en tant qu'annonceur. Ces règles déterminent quelles
         missions sont diffusées vers chaque diffuseur.
 
-        En fournissant les paramètres `field` et `value`, chaque diffuseur est en plus
-        annoté d'un booléen `diffuse` indiquant s'il diffuserait la valeur recherchée
-        pour ce champ.
+        Les paramètres `field` et `value` doivent être fournis ensemble (les deux ou aucun) :
+        lorsqu'ils sont présents, chaque diffuseur est en plus annoté d'un booléen `diffuse`
+        indiquant s'il diffuserait la valeur recherchée pour ce champ. Fournir un seul des
+        deux renvoie une erreur `400`.
       operationId: listDiffusionRules
       tags: [Règles de diffusion]
       parameters:
@@ -2418,7 +2419,7 @@ paths:
           in: query
           required: false
           description: |
-            Champ sur lequel évaluer la diffusion. À fournir avec `value`.
+            Champ sur lequel évaluer la diffusion. À fournir conjointement avec `value`.
             Valeurs possibles : `type`, `publisherOrganizationId`,
             `publisherOrganization.clientId`, `publisherOrganization.parentOrganizations`.
           schema:
@@ -2427,7 +2428,7 @@ paths:
         - name: value
           in: query
           required: false
-          description: Valeur recherchée sur le champ `field`. À fournir avec `field`.
+          description: Valeur recherchée sur le champ `field`. À fournir conjointement avec `field`.
           schema:
             type: string
           example: "Marine nationale"
@@ -2450,6 +2451,8 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/DiffuseurWithRules"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
 
@@ -2463,8 +2466,10 @@ paths:
         Une mission n'est diffusée vers un diffuseur que si elle satisfait l'ensemble
         des règles configurées pour ce diffuseur.
 
-        L'opération est idempotente : si une règle identique existe déjà pour un diffuseur,
-        la règle existante est retournée plutôt que dupliquée.
+        L'opération est idempotente : si une règle identique (même `field`, `value`, `operator`
+        et `fieldType`) existe déjà pour un diffuseur, la règle existante est retournée plutôt
+        que dupliquée. Si une règle existe pour le même `field` et `value` mais avec un opérateur
+        différent, l'API renvoie une erreur `409` plutôt que de masquer silencieusement la demande.
       operationId: createDiffusionRule
       tags: [Règles de diffusion]
       requestBody:
@@ -2537,6 +2542,8 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "403":
           $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
 
   /v0/diffusion-rule/{id}:
     delete:

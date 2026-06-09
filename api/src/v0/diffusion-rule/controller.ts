@@ -2,7 +2,7 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
+import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "@/error";
 import { publisherRateLimiter } from "@/middlewares/rate-limit";
 import { publisherService } from "@/services/publisher";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
@@ -13,10 +13,14 @@ const router = Router();
 router.use(passport.authenticate(["apikey", "api"], { session: false }));
 router.use(publisherRateLimiter);
 
-const listQuerySchema = zod.object({
-  field: zod.string().min(1).optional(),
-  value: zod.string().min(1).optional(),
-});
+const listQuerySchema = zod
+  .object({
+    field: zod.string().min(1).optional(),
+    value: zod.string().min(1).optional(),
+  })
+  .refine((data) => (data.field === undefined) === (data.value === undefined), {
+    message: "field and value must be provided together",
+  });
 
 const ruleBodySchema = zod.object({
   publisherIds: zod.array(zod.string()).min(1),
@@ -129,6 +133,11 @@ router.post("/", async (req: PublisherRequest, res: Response, next: NextFunction
       total: created.length,
     });
   } catch (error) {
+    if ((error as { code?: string })?.code === RESSOURCE_ALREADY_EXIST) {
+      const message = (error as Error).message;
+      res.locals = { code: RESSOURCE_ALREADY_EXIST, message };
+      return res.status(409).send({ ok: false, code: RESSOURCE_ALREADY_EXIST, message });
+    }
     next(error);
   }
 });
