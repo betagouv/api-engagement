@@ -402,6 +402,57 @@ describe("Mission V2 Write API Integration Tests", () => {
       const updated = await missionService.findMissionByClientAndPublisher(mission.clientId, publisher.id);
       expect(updated?.placesStatus).toBe("GIVEN_BY_PARTNER");
     });
+
+    it("should not enqueue enrichment when only non-prompt fields are updated", async () => {
+      const mission = await createTestMission({ publisherId: publisher.id, places: 2, domain: "sport", statusCode: "ACCEPTED", statusComment: null });
+      vi.clearAllMocks();
+
+      const response = await request(app).put(`/v2/mission/${mission.clientId}`).set("x-api-key", apiKey).send({ places: 4 });
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.places).toBe(4);
+      expect(asyncTaskBus.publish).not.toHaveBeenCalledWith(expect.objectContaining({ type: "mission.enrichment" }));
+    });
+
+    it("should enqueue enrichment when a non-prompt update changes moderation status", async () => {
+      const mission = await createTestMission({
+        publisherId: publisher.id,
+        compensationAmount: 10,
+        domain: "sport",
+        statusCode: "ACCEPTED",
+        statusComment: null,
+      });
+      vi.clearAllMocks();
+
+      const response = await request(app).put(`/v2/mission/${mission.clientId}`).set("x-api-key", apiKey).send({ compensationAmount: -1 });
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.statusCode).toBe("REFUSED");
+      expect(response.body.data.statusComment).toBe("Montant de la compensation invalide (nombre positif attendu)");
+      expect(asyncTaskBus.publish).toHaveBeenCalledWith({
+        type: "mission.enrichment",
+        payload: { missionId: mission.id },
+      });
+    });
+
+    it("should enqueue enrichment when addresses change because indexing depends on departments", async () => {
+      const mission = await createTestMission({
+        publisherId: publisher.id,
+        addresses: [{ city: "Paris", postalCode: "75001", departmentCode: "75" }],
+      });
+      vi.clearAllMocks();
+
+      const response = await request(app)
+        .put(`/v2/mission/${mission.clientId}`)
+        .set("x-api-key", apiKey)
+        .send({ addresses: [{ city: "Lyon", postalCode: "69001", departmentCode: "69" }] });
+
+      expect(response.status).toBe(200);
+      expect(asyncTaskBus.publish).toHaveBeenCalledWith({
+        type: "mission.enrichment",
+        payload: { missionId: mission.id },
+      });
+    });
   });
 
   // ────────────────────────────────────────────────────────────────────────────

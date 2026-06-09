@@ -331,6 +331,98 @@ describe("Import missions job (integration test)", () => {
     expect(asyncTaskBus.publish).not.toHaveBeenCalledWith(expect.objectContaining({ type: "mission.enrichment" }));
   });
 
+  describe("enrichment gating", () => {
+    // Feed minimal paramétrable : `places` et dates (champs hors-prompt = bruit),
+    // `title` (champ prompt).
+    // Coordonnées fournies → pas d'appel géoloc.
+    const gatingFeed = ({
+      places,
+      title = "Mission gating",
+      startAt = "01/01/2025",
+      endAt = "11/01/2025",
+    }: {
+      places: number;
+      title?: string;
+      startAt?: string;
+      endAt?: string;
+    }) => `<?xml version="1.0" encoding="UTF-8"?>
+<source>
+  <mission>
+    <title><![CDATA[${title}]]></title>
+    <clientId><![CDATA[gating-mission-1]]></clientId>
+    <description><![CDATA[Description stable de la mission]]></description>
+    <applicationUrl><![CDATA[https://www.example.org]]></applicationUrl>
+    <startAt><![CDATA[${startAt}]]></startAt>
+    <endAt><![CDATA[${endAt}]]></endAt>
+    <addresses>
+      <address>
+        <street><![CDATA[Rue de Test]]></street>
+        <postalCode><![CDATA[75001]]></postalCode>
+        <city><![CDATA[Paris]]></city>
+        <departmentCode><![CDATA[75]]></departmentCode>
+        <departmentName><![CDATA[Paris]]></departmentName>
+        <region><![CDATA[Île-de-France]]></region>
+        <country><![CDATA[France]]></country>
+        <location><lat><![CDATA[48.8541]]></lat><lon><![CDATA[2.3643]]></lon></location>
+      </address>
+    </addresses>
+    <places><![CDATA[${places}]]></places>
+    <activity><![CDATA[logistique]]></activity>
+    <remote><![CDATA[no]]></remote>
+    <domain><![CDATA[environnement]]></domain>
+    <organizationName><![CDATA[Org Gating]]></organizationName>
+    <organizationClientId><![CDATA[org-gating-1]]></organizationClientId>
+    <organizationType><![CDATA[1901]]></organizationType>
+    <organizationDescription><![CDATA[Desc A]]></organizationDescription>
+  </mission>
+</source>`;
+
+    const reimport = async (publisherId: string, xml: string) => {
+      vi.clearAllMocks();
+      (global.fetch as any).mockReset();
+      (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => xml });
+      await handler.handle({ publisherId });
+    };
+
+    it("does not re-enrich when only non-prompt fields change and the organization is unchanged", async () => {
+      const publisher = await createTestPublisher({ feed: "https://gating-noise", isAnnonceur: true });
+      (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => gatingFeed({ places: 2 }) });
+      await handler.handle({ publisherId: publisher.id });
+
+      // 2e import : seul `places` change, l'organisation est identique
+      await reimport(publisher.id, gatingFeed({ places: 5 }));
+
+      expect(asyncTaskBus.publish).not.toHaveBeenCalledWith(expect.objectContaining({ type: "mission.enrichment" }));
+    });
+
+    it("does not re-enrich when only rolling dates change", async () => {
+      const publisher = await createTestPublisher({ feed: "https://gating-dates", isAnnonceur: true });
+      (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => gatingFeed({ places: 2 }) });
+      await handler.handle({ publisherId: publisher.id });
+
+      await reimport(
+        publisher.id,
+        gatingFeed({
+          places: 2,
+          startAt: "02/01/2025",
+          endAt: "12/01/2025",
+        })
+      );
+
+      expect(asyncTaskBus.publish).not.toHaveBeenCalledWith(expect.objectContaining({ type: "mission.enrichment" }));
+    });
+
+    it("re-enriches when a prompt field changes", async () => {
+      const publisher = await createTestPublisher({ feed: "https://gating-title", isAnnonceur: true });
+      (global.fetch as any).mockResolvedValueOnce({ ok: true, text: async () => gatingFeed({ places: 2 }) });
+      await handler.handle({ publisherId: publisher.id });
+
+      await reimport(publisher.id, gatingFeed({ places: 2, title: "Mission gating modifiée" }));
+
+      expect(asyncTaskBus.publish).toHaveBeenCalledWith(expect.objectContaining({ type: "mission.enrichment" }));
+    });
+  });
+
   describe("activities", () => {
     const activityFeed = (clientId: string, activity: string) => `<?xml version="1.0" encoding="UTF-8"?>
 <source>

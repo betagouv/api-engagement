@@ -22,7 +22,7 @@ describe("missionService.enqueueMissionProcessing", () => {
     captureExceptionMock.mockReset();
   });
 
-  it("délègue l'enqueue au service d'enrichissement", async () => {
+  it("delegates enqueueing to the enrichment service", async () => {
     enqueueMock.mockResolvedValue(undefined);
 
     await missionService.enqueueMissionProcessing("mission-1");
@@ -31,7 +31,7 @@ describe("missionService.enqueueMissionProcessing", () => {
     expect(captureExceptionMock).not.toHaveBeenCalled();
   });
 
-  it("ne propage pas l'erreur si la queue est indisponible (best-effort)", async () => {
+  it("does not propagate queue errors because enqueueing is best-effort", async () => {
     const error = new Error("You do not have sufficient access to perform this action.");
     enqueueMock.mockRejectedValue(error);
 

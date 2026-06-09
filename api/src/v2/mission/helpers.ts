@@ -115,6 +115,10 @@ export const upsertPublisherOrganization = async (body: OrgBody, publisherId: st
     if (changes) {
       await publisherOrganizationService.update(existing[0].id, orgData);
     }
+    // Limitation connue : les modifications du contenu d'organisation ne
+    // ré-enrichissent pas les missions déjà liées. Seul le rattachement
+    // mission -> organisation (`publisherOrganizationId`) est considéré comme
+    // un changement mission pertinent.
     return existing[0].id;
   }
 

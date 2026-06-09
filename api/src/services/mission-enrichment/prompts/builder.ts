@@ -1,5 +1,41 @@
 import type { MissionForPrompt, TaxonomyForPrompt } from "./types";
 
+/**
+ * Champs de mission dont une modification justifie de relancer le traitement
+ * d'enrichissement/scoring/indexation.
+ *
+ * La majorité est consommée par `buildMissionBlock` ci-dessous. `addresses` est
+ * volontairement inclus même s'il n'est pas envoyé au prompt : `mission.index`
+ * utilise les `departmentCode` des adresses pour construire le document de recherche.
+ *
+ * Exclus volontairement bien que rendus dans le prompt :
+ * - `startAt`/`endAt` : décalés chaque jour par les flux (bruit, sans impact sur la classification).
+ * - `duration` : dérivée des dates (`getMonthDifference(startAt, endAt)`), aucun signal propre.
+ * Les données d'organisation (nom/type/description/actions…) entrent dans le prompt via la
+ * relation `publisherOrganizationId`. Limitation connue : une modification de contenu de
+ * l'organisation rattachée ne déclenche pas à elle seule un ré-enrichissement des missions.
+ */
+export const ENRICHMENT_TRIGGER_FIELDS = [
+  "title",
+  "description",
+  "type",
+  "remote",
+  "openToMinors",
+  "reducedMobilityAccessible",
+  "schedule",
+  "domain",
+  "activities",
+  "tags",
+  "tasks",
+  "addresses",
+  "audience",
+  "softSkills",
+  "requirements",
+  "publisherOrganizationId",
+] as const;
+
+export type EnrichmentTriggerField = (typeof ENRICHMENT_TRIGGER_FIELDS)[number];
+
 const formatDate = (date: Date): string => date.toLocaleDateString("fr-FR", { year: "numeric", month: "long", day: "numeric" });
 
 const boolLabel = (value: boolean | null): string => (value === true ? "Oui" : value === false ? "Non" : "Non précisé");

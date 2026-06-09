@@ -4,22 +4,26 @@ import { importService } from "@/services/import";
 import { Prisma, Import as PrismaImport } from "@/db/core";
 import { BaseHandler } from "@/jobs/base/handler";
 import { JobResult } from "@/jobs/types";
+import { enrichWithGeoloc } from "@/services/geoloc";
 import { missionService } from "@/services/mission";
-import { missionEventService } from "@/services/mission-event";
 import { publisherService } from "@/services/publisher";
 import publisherOrganizationService from "@/services/publisher-organization";
-import { MissionEventCreateParams } from "@/types/mission-event";
 import type { PublisherRecord } from "@/types/publisher";
 import { getJobTime } from "@/utils/job";
+import zod from "zod";
 import type { ImportedMission, ImportedOrganization } from "./types";
 import { cleanDB, upsertMission, upsertOrganization } from "./utils/db";
-import { enrichWithGeoloc } from "@/services/geoloc";
 import { parseMission } from "./utils/mission";
 import { parseOrganization } from "./utils/organization";
 import { shouldCleanMissionsForPublisher } from "./utils/publisher";
 import { fetchXML, parseXML } from "./utils/xml";
 
 const CHUNK_SIZE = 2000;
+
+const importMissionsJobPayloadSchema = zod.object({
+  publisherId: zod.string().min(1).optional(),
+  chunkSize: zod.number().int().positive().max(CHUNK_SIZE).optional(),
+});
 
 const cleanEmptyFeedMissions = async (publisher: PublisherRecord, start: Date): Promise<number> => {
   const missions = await missionService.findMissionsBy({ publisherId: publisher.id, deletedAt: null, updatedAt: { lt: start } });
@@ -35,10 +39,7 @@ const cleanEmptyFeedMissions = async (publisher: PublisherRecord, start: Date): 
   return missions.length;
 };
 
-export interface ImportMissionsJobPayload {
-  publisherId?: string;
-  recordMissionEvents?: boolean;
-}
+export type ImportMissionsJobPayload = zod.input<typeof importMissionsJobPayloadSchema>;
 
 export interface ImportMissionsJobResult extends JobResult {
   start: Date;
@@ -48,16 +49,17 @@ export interface ImportMissionsJobResult extends JobResult {
 export class ImportMissionsHandler implements BaseHandler<ImportMissionsJobPayload, ImportMissionsJobResult> {
   name = "Import des flux XML";
 
-  async handle(payload: ImportMissionsJobPayload): Promise<ImportMissionsJobResult> {
+  async handle(payload: ImportMissionsJobPayload = {}): Promise<ImportMissionsJobResult> {
+    const parsedPayload = importMissionsJobPayloadSchema.parse(payload);
     const start = new Date();
     console.log(`[Import XML] Starting at ${start.toISOString()}`);
 
     const imports = [] as PrismaImport[];
     let publishers: PublisherRecord[];
-    if (payload.publisherId) {
-      const publisher = await publisherService.findOnePublisherById(payload.publisherId);
+    if (parsedPayload.publisherId) {
+      const publisher = await publisherService.findOnePublisherById(parsedPayload.publisherId);
       if (!publisher) {
-        throw new Error(`Publisher ${payload.publisherId} not found`);
+        throw new Error(`Publisher ${parsedPayload.publisherId} not found`);
       }
       publishers = [publisher];
     } else {
@@ -77,7 +79,7 @@ export class ImportMissionsHandler implements BaseHandler<ImportMissionsJobPaylo
           continue;
         }
         const res = await importMissionssForPublisher(publisher, start, {
-          recordMissionEvents: payload.recordMissionEvents ?? true,
+          chunkSize: parsedPayload.chunkSize,
         });
         if (!res) {
           continue;
@@ -119,7 +121,7 @@ export class ImportMissionsHandler implements BaseHandler<ImportMissionsJobPaylo
   }
 }
 
-async function importMissionssForPublisher(publisher: PublisherRecord, start: Date, options: { recordMissionEvents: boolean }): Promise<PrismaImport | undefined> {
+async function importMissionssForPublisher(publisher: PublisherRecord, start: Date, options: { chunkSize?: number }): Promise<PrismaImport | undefined> {
   if (!publisher) {
     return;
   }
@@ -180,9 +182,10 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
     let hasFailed: boolean = false;
     const allMissionsClientIds = [] as string[];
     const startTime = obj.startedAt ?? new Date();
-    for (let i = 0; i < missionsXML.length; i += CHUNK_SIZE) {
-      const chunk = missionsXML.slice(i, i + CHUNK_SIZE);
-      console.log(`[${publisher.name}] Processing chunk ${i / CHUNK_SIZE + 1} of ${Math.ceil(missionsXML.length / CHUNK_SIZE)} (${chunk.length} missions)`);
+    const chunkSize = options.chunkSize ?? CHUNK_SIZE;
+    for (let i = 0; i < missionsXML.length; i += chunkSize) {
+      const chunk = missionsXML.slice(i, i + chunkSize);
+      console.log(`[${publisher.name}] Processing chunk ${i / chunkSize + 1} of ${Math.ceil(missionsXML.length / chunkSize)} (${chunk.length} missions)`);
 
       const existingMissions = await missionService.findMissionsBy({ publisherId: publisher.id, clientId: { in: chunk.map((m) => m.clientId.toString()) } });
       const existingMap = new Map(existingMissions.map((m) => [m.clientId, m]));
@@ -265,7 +268,6 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
       let createdMissionsCount = 0;
       let updatedMissionsCount = 0;
       let unchangedMissionsCount = 0;
-      const missionEvents: MissionEventCreateParams[] = [];
       for (const mission of missions) {
         if (mission.organizationClientId) {
           const publisherOrganization = existingOrganizationsMap.get(mission.organizationClientId) || null;
@@ -291,27 +293,16 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
         } else if (result.action === "unchanged") {
           unchangedMissionsCount += 1;
         }
-
-        if (result.event) {
-          missionEvents.push(result.event);
-        }
       }
       console.log(`[${publisher.name}] ${createdMissionsCount} created, ${updatedMissionsCount} updated and ${unchangedMissionsCount} unchanged missions`);
       obj.createdCount += createdMissionsCount;
       obj.updatedCount += updatedMissionsCount;
-
-      // CREATE MISSION EVENTS
-      console.log(`[${publisher.name}] Creating ${missionEvents.length} mission events`);
-      if (options.recordMissionEvents && missionEvents.length > 0) {
-        await missionEventService.createMissionEvents(missionEvents);
-      }
-      console.log(`[${publisher.name}] ${missionEvents.length} mission events created`);
     }
 
     // CLEAN DB
     if (!hasFailed) {
       // If one chunk failed, don't remove missions from DB
-      await cleanDB(allMissionsClientIds, publisher, obj, options);
+      await cleanDB(allMissionsClientIds, publisher, obj);
     }
 
     // STATS
