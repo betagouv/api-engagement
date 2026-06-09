@@ -14,10 +14,7 @@ const SortableHeader = ({ item, sortBy, onSort }) => {
     <th key={item.key} className="p-4" width={item.width || undefined} aria-sort={ariaSort}>
       <button className={`group flex h-full w-full items-center gap-2 ${positionClass}`} onClick={() => onSort(item.key)} type="button">
         <span className={`text-sm font-semibold ${item.position === "right" ? "text-right" : item.position === "center" ? "text-center" : "text-left"}`}>{item.title}</span>
-        <RiArrowDownSLine
-          className={`ml-2 text-lg transition-transform duration-200 ${isSorted ? "rotate-180 opacity-100" : "opacity-0 group-hover:opacity-100"}`}
-          aria-hidden="true"
-        />
+        {isSorted && <RiArrowDownSLine className={`ml-2 size-4 shrink-0 text-lg ${isAscending ? "rotate-180" : ""}`} aria-hidden="true" />}
       </button>
     </th>
   );
