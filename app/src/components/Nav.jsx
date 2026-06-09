@@ -122,7 +122,7 @@ const Nav = () => {
             <ul role="list" className="m-0 flex w-full list-none flex-col items-start gap-2 p-0 lg:w-auto lg:flex-row lg:items-center lg:gap-6">
               {menuItems.map((item) => (
                 <li key={item.key}>
-                  <Link to={item.to} aria-current={item.isActive} className="nav-item" onClick={() => setMenuOpen(false)}>
+                  <Link to={item.to} aria-current={item.isActive ? "page" : undefined} className="nav-item" onClick={() => setMenuOpen(false)}>
                     {item.label}
                   </Link>
                 </li>
@@ -390,7 +390,10 @@ const PublisherMenu = ({ options, value, onChange }) => {
         inert={!show ? true : undefined}
         className={`border-grey-border absolute right-0 z-50 w-[calc(100vw-2rem)] w-full border bg-white shadow-lg transition-[max-height,opacity] duration-200 ease-in-out focus:outline-none sm:w-80 ${show ? "max-h-96 opacity-100" : "pointer-events-none max-h-0 opacity-0"}`}
       >
-        <div role="search" className="border-grey-border focus flex items-center gap-2 border-b p-3">
+        <div
+          role="search"
+          className="border-grey-border focus-within:outline-outline-blue flex items-center gap-2 border-b p-3 focus-within:outline-2 focus-within:outline-offset-2"
+        >
           <RiSearchLine aria-hidden="true" />
           <label htmlFor="publisher-search" className="sr-only">
             Rechercher un partenaire

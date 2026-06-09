@@ -169,7 +169,7 @@ body {
   transform: translateY(0);
 }
 
-@custom-variant aria-current (&[aria-current="true"]);
+@custom-variant aria-current (&[aria-current="page"]);
 
 @utility focus {
   @apply focus-visible:outline-outline-blue focus-visible:shadow-none! focus-visible:outline-2 focus-visible:outline-offset-2;

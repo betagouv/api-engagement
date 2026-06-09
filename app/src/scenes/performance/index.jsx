@@ -54,7 +54,7 @@ const Performance = () => {
 
   return (
     <>
-      <title>API Engagement - Au global - Performance</title>
+      <title>{`API Engagement - ${activeTab.title} - Performance`}</title>
       <h1 className="mb-12 text-4xl font-bold">Votre activité {flux === "from" ? "de diffuseur" : "d'annonceur"}</h1>
 
       {flux === "from" && (

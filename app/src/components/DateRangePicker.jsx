@@ -175,7 +175,7 @@ export const DateInput = ({ value, onChange }) => {
     <div className="relative" ref={ref}>
       <fieldset className="m-0 flex items-center gap-2 border-0 p-0">
         <legend className="sr-only">Période personnalisée</legend>
-        <div className="input flex items-center gap-1 px-2 py-1">
+        <div className="input focus-within:outline-outline-blue flex items-center gap-1 px-2 py-1 focus-within:outline-2 focus-within:outline-offset-2">
           <label htmlFor={`${id}-from`} className="text-sm text-gray-500">
             Du
           </label>
@@ -190,7 +190,7 @@ export const DateInput = ({ value, onChange }) => {
             className="w-24 border-0 bg-transparent p-0 text-sm font-semibold outline-none focus:ring-0"
           />
         </div>
-        <div className="input flex items-center gap-1 px-2 py-1">
+        <div className="input focus-within:outline-outline-blue flex items-center gap-1 px-2 py-1 focus-within:outline-2 focus-within:outline-offset-2">
           <label htmlFor={`${id}-to`} className="text-sm text-gray-500">
             Au
           </label>
