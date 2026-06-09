@@ -4,7 +4,7 @@ import type { PublisherOrganization } from "@/db/core";
 import { prisma } from "@/db/postgres";
 
 export const createTestPublisherOrganization = async (
-  data: { publisherId: string; clientId: string; name?: string | null } & Partial<Pick<PublisherOrganization, "rna" | "siren" | "siret">>
+  data: { publisherId: string; clientId: string; name?: string | null } & Partial<Pick<PublisherOrganization, "rna" | "siren" | "siret" | "parentOrganizations">>
 ): Promise<PublisherOrganization> => {
   const publisherId = data.publisherId;
   const clientId = data.clientId ?? `org-${randomUUID().slice(0, 8)}`;
@@ -21,7 +21,8 @@ export const createTestPublisherOrganization = async (
       rna: data.rna ?? null,
       siren: data.siren ?? null,
       siret: data.siret ?? null,
+      parentOrganizations: data.parentOrganizations ?? [],
     },
-    update: { name },
+    update: { name, parentOrganizations: data.parentOrganizations ?? [] },
   });
 };

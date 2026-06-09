@@ -25,8 +25,8 @@ export const toMissionBrowse = (mission: MissionRecord): MissionBrowse => {
   };
 };
 
-export const toMissionDetailPayload = (mission: MissionRecord): MissionDetailResponse => {
-  const addr = mission.addresses[0] ?? null;
+export const toMissionDetailPayload = (mission: MissionRecord, addressId?: string | null): MissionDetailResponse => {
+  const addr = (addressId ? mission.addresses.find((a) => a.id === addressId) : null) ?? mission.addresses[0] ?? null;
   const addressParts = [addr?.street, addr?.postalCode && addr?.city ? `${addr.postalCode} ${addr.city}` : (addr?.city ?? null)].filter(Boolean);
 
   const hasCompensation = mission.compensationAmount != null || mission.compensationAmountMax != null;
