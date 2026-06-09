@@ -33,8 +33,8 @@ const SettingsModal = () => {
               </select>
             </div>
             <div className="flex flex-1 flex-col gap-2">
-              <input className="input" type="text" defaultValue="6 mois" readOnly />
-              <input className="input" type="text" defaultValue="À modérer" readOnly />
+              <input className="input" type="text" aria-label="Valeur" defaultValue="6 mois" readOnly />
+              <input className="input" type="text" aria-label="Valeur" defaultValue="À modérer" readOnly />
             </div>
           </fieldset>
           <div className="border-grey-border my-4 border-t" />
@@ -57,8 +57,8 @@ const SettingsModal = () => {
               </select>
             </div>
             <div className="flex flex-1 flex-col gap-2">
-              <input className="input" type="text" defaultValue="Refusée" readOnly />
-              <input className="input" type="text" defaultValue="La mission est refusée car la date de création est trop ancienne (> 6 mois)" readOnly />
+              <input className="input" type="text" aria-label="Valeur" defaultValue="Refusée" readOnly />
+              <input className="input" type="text" aria-label="Valeur" defaultValue="La mission est refusée car la date de création est trop ancienne (> 6 mois)" readOnly />
             </div>
           </fieldset>
         </div>
@@ -88,9 +88,9 @@ const SettingsModal = () => {
               </select>
             </div>
             <div className="flex flex-1 flex-col gap-2">
-              <input className="input" type="text" defaultValue="7 jours" readOnly />
-              <input className="input" type="text" defaultValue="21 jours" readOnly />
-              <input className="input" type="text" defaultValue="À modérer" readOnly />
+              <input className="input" type="text" aria-label="Valeur" defaultValue="7 jours" readOnly />
+              <input className="input" type="text" aria-label="Valeur" defaultValue="21 jours" readOnly />
+              <input className="input" type="text" aria-label="Valeur" defaultValue="À modérer" readOnly />
             </div>
           </fieldset>
           <div className="border-grey-border my-4 border-t" />
@@ -113,8 +113,8 @@ const SettingsModal = () => {
               </select>
             </div>
             <div className="flex flex-1 flex-col gap-2">
-              <input className="input" type="text" defaultValue="Refusée" readOnly />
-              <input className="input" type="text" defaultValue="La date de la mission n’est pas compatible avec le recrutement de bénévoles" readOnly />
+              <input className="input" type="text" aria-label="Valeur" defaultValue="Refusée" readOnly />
+              <input className="input" type="text" aria-label="Valeur" defaultValue="La date de la mission n’est pas compatible avec le recrutement de bénévoles" readOnly />
             </div>
           </fieldset>
         </div>
@@ -138,8 +138,8 @@ const SettingsModal = () => {
               </select>
             </div>
             <div className="flex flex-1 flex-col gap-2">
-              <input className="input" type="text" defaultValue="300 caractères" readOnly />
-              <input className="input" type="text" defaultValue="À modérer" readOnly />
+              <input className="input" type="text" aria-label="Valeur" defaultValue="300 caractères" readOnly />
+              <input className="input" type="text" aria-label="Valeur" defaultValue="À modérer" readOnly />
             </div>
           </fieldset>
           <div className="border-grey-border my-4 border-t" />
@@ -162,8 +162,8 @@ const SettingsModal = () => {
               </select>
             </div>
             <div className="flex flex-1 flex-col gap-2">
-              <input className="input" type="text" defaultValue="Refusée" readOnly />
-              <input className="input" type="text" defaultValue="Le contenu est insuffisant / non qualitatif" readOnly />
+              <input className="input" type="text" aria-label="Valeur" defaultValue="Refusée" readOnly />
+              <input className="input" type="text" aria-label="Valeur" defaultValue="Le contenu est insuffisant / non qualitatif" readOnly />
             </div>
           </fieldset>
         </div>
@@ -188,7 +188,7 @@ const SettingsModal = () => {
             </div>
             <div className="flex flex-1 flex-col gap-2">
               <div className="h-9" />
-              <input className="input" type="text" defaultValue="À modérer" readOnly />
+              <input className="input" type="text" aria-label="Valeur" defaultValue="À modérer" readOnly />
             </div>
           </fieldset>
           <div className="border-grey-border my-4 border-t" />
@@ -212,8 +212,8 @@ const SettingsModal = () => {
             </div>
 
             <div className="flex flex-1 flex-col gap-2">
-              <input className="input" type="text" defaultValue="Refusée" readOnly />
-              <input className="input" type="text" defaultValue="Le contenu est insuffisant / non qualitatif" readOnly />
+              <input className="input" type="text" aria-label="Valeur" defaultValue="Refusée" readOnly />
+              <input className="input" type="text" aria-label="Valeur" defaultValue="Le contenu est insuffisant / non qualitatif" readOnly />
             </div>
           </fieldset>
         </div>

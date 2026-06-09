@@ -77,6 +77,7 @@ const Header = ({ data, onChange }) => {
               className="select w-56 border-b-2 pr-2"
               style={{ borderBottomColor: STATUS_COLORS[values.status] }}
               name="status"
+              aria-label="Statut de la mission"
               value={values.status}
               onChange={(e) => handleChange({ status: e.target.value })}
             >
@@ -90,6 +91,7 @@ const Header = ({ data, onChange }) => {
               <select
                 className="select border-error w-64 border-b-2"
                 name="motif"
+                aria-label="Motif de refus"
                 value={values.comment}
                 onChange={(e) => handleChange({ status: "REFUSED", comment: e.target.value })}
               >
