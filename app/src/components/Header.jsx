@@ -33,7 +33,7 @@ const Header = () => {
           </div>
           <LogoSvg alt="" className="hidden w-8 sm:block" aria-hidden="true" />
           <div className="hidden sm:block">
-            <h1 className="text-xl font-bold">API Engagement</h1>
+            <p className="text-xl font-bold">API Engagement</p>
             <p className="text-sm">Plateforme de partage de missions de bénévolat et de volontariat</p>
           </div>
         </Link>
@@ -113,7 +113,7 @@ const NotificationMenu = () => {
           <MenuItem>
             <Link to={warningPath} className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950">
               <div className="flex w-6 items-center">
-                <LogoSvg alt="" />
+                <LogoSvg alt="" aria-hidden="true" />
               </div>
               <div className="flex flex-1 flex-col gap-2">
                 <p className="text-base font-bold text-black">
@@ -236,7 +236,7 @@ const AdminNotificationMenu = () => {
           <MenuItem>
             <Link to="/admin-warning" className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950">
               <div className="flex w-6 items-center">
-                <LogoSvg alt="" />
+                <LogoSvg alt="" aria-hidden="true" />
               </div>
               <div className="flex flex-1 flex-col gap-2">
                 <p className="text-base font-bold text-black">

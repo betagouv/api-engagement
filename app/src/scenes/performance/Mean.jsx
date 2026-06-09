@@ -239,13 +239,13 @@ const Mean = ({ filters, onFiltersChange }) => {
           ) : (
             <>
               <div className="h-full w-full max-w-[220px] p-4">
-                <h3 className="text-4xl font-bold">
+                <p className="text-4xl font-bold">
                   {graph.conversionRate
                     ? graph.conversionRate.toLocaleString("fr-FR", { style: "percent", maximumFractionDigits: 2 })
                     : graph.clickCount
                       ? (graph.applyCount / graph.clickCount).toLocaleString("fr-FR", { style: "percent", maximumFractionDigits: 2 })
                       : "-"}
-                </h3>
+                </p>
                 <p className="mt-2 text-base">taux de conversion de l'API</p>
                 <p className="text-text-mention mt-4 text-sm">
                   entre le nombre de <span className="font-semibold text-black">redirections</span> et le nombre de <span className="font-semibold text-black">candidatures</span>
@@ -255,14 +255,14 @@ const Mean = ({ filters, onFiltersChange }) => {
                 <div className="group flex h-full flex-1 flex-col justify-end gap-4 px-4">
                   <Bar value={100} height={BAR_HEIGHT} />
                   <div className="h-24">
-                    <h3 className="text-3xl font-semibold text-gray-700 group-hover:text-black">{graph.clickCount.toLocaleString("fr")}</h3>
+                    <p className="text-3xl font-semibold text-gray-700 group-hover:text-black">{graph.clickCount.toLocaleString("fr")}</p>
                     <p className="text-base text-gray-700 group-hover:text-black">redirections vers une mission</p>
                   </div>
                 </div>
                 <div className="group flex h-full flex-1 flex-col justify-end gap-4 px-4">
                   <Bar value={graph.clickCount ? (graph.applyCount * 100) / graph.clickCount : 0} height={BAR_HEIGHT} />
                   <div className="h-24">
-                    <h3 className="text-3xl font-semibold text-gray-700 group-hover:text-black">{graph.applyCount.toLocaleString("fr")}</h3>
+                    <p className="text-3xl font-semibold text-gray-700 group-hover:text-black">{graph.applyCount.toLocaleString("fr")}</p>
                     <p className="text-base text-gray-700 group-hover:text-black">candidatures</p>
                   </div>
                 </div>
@@ -369,29 +369,29 @@ const SourcePerformance = ({ data, source }) => {
   return (
     <div className="border-grey-border space-y-4 overflow-x-auto border p-6">
       <div className="min-w-[600px]">
-      <h3 className="text-2xl font-semibold">Performance par {source === "widget" ? "widget" : "campagne"}</h3>
-      <Table
-        caption={`Performance par ${source === "widget" ? "widget" : "campagne"}`}
-        header={TABLE_HEADER(source)}
-        total={data.length}
-        sortBy={sortBy}
-        onSort={setSortBy}
-        page={page}
-        onPageChange={setPage}
-        pageSize={pageSize}
-        auto
-      >
-        {paginated.map((item, i) => (
-          <tr key={`${item.name || "source"}-${(page - 1) * pageSize + i}`} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
-            <td className="px-4">{item.name}</td>
-            <td className="px-4 text-right">{(item.printCount || 0).toLocaleString("fr")}</td>
-            <td className="px-4 text-right">{(item.clickCount || 0).toLocaleString("fr")}</td>
-            <td className="px-4 text-right">{(item.accountCount || 0).toLocaleString("fr")}</td>
-            <td className="px-4 text-right">{(item.applyCount || 0).toLocaleString("fr")}</td>
-            <td className="px-4 text-right">{(item.rate || 0).toLocaleString("fr", { style: "percent", minimumFractionDigits: 2 })}</td>
-          </tr>
-        ))}
-      </Table>
+        <h3 className="text-2xl font-semibold">Performance par {source === "widget" ? "widget" : "campagne"}</h3>
+        <Table
+          caption={`Performance par ${source === "widget" ? "widget" : "campagne"}`}
+          header={TABLE_HEADER(source)}
+          total={data.length}
+          sortBy={sortBy}
+          onSort={setSortBy}
+          page={page}
+          onPageChange={setPage}
+          pageSize={pageSize}
+          auto
+        >
+          {paginated.map((item, i) => (
+            <tr key={`${item.name || "source"}-${(page - 1) * pageSize + i}`} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
+              <td className="px-4">{item.name}</td>
+              <td className="px-4 text-right">{(item.printCount || 0).toLocaleString("fr")}</td>
+              <td className="px-4 text-right">{(item.clickCount || 0).toLocaleString("fr")}</td>
+              <td className="px-4 text-right">{(item.accountCount || 0).toLocaleString("fr")}</td>
+              <td className="px-4 text-right">{(item.applyCount || 0).toLocaleString("fr")}</td>
+              <td className="px-4 text-right">{(item.rate || 0).toLocaleString("fr", { style: "percent", minimumFractionDigits: 2 })}</td>
+            </tr>
+          ))}
+        </Table>
       </div>
     </div>
   );
