@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = ['event_date', 'publisher_id', 'status'],
+  unique_key = ['event_date', 'publisher_id'],
   incremental_strategy = 'delete+insert',
   on_schema_change = 'sync_all_columns'
 ) }}

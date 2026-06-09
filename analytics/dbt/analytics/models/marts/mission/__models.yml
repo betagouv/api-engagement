@@ -262,6 +262,8 @@ models:
       statut, alimenté depuis `mission_enrichment`. Le `publisher_id` est récupéré via
       `mission` et le `publisher_name` dénormalisé via `dim_publisher`. Permet le suivi
       du volume d'enrichissements et du coût en tokens (entrée/sortie) dans Metabase.
+      Le modèle incrémental supprime/réinsère les lignes au grain jour + publisher afin
+      de rafraîchir tous les statuts affectés quand une mission change de statut.
     columns:
       - name: event_date
         description: Jour d'agrégation basé sur `mission_enrichment.created_at`.
