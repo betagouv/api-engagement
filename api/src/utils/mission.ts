@@ -96,40 +96,47 @@ export const EVENT_TYPES = {
 
 const IMPORT_DATE_FIELDS_IGNORE_TIME = new Set<keyof MissionRecord>(["postedAt", "startAt", "endAt"]);
 
-export const IMPORT_FIELDS_TO_COMPARE = [
+const ENRICHMENT_RELEVANT_FIELDS_TO_COMPARE = [
+  "title",
+  "description",
+  "type",
+  "remote",
+  "openToMinors",
+  "reducedMobilityAccessible",
+  "schedule",
+  "domain",
   "activities",
-  "applicationUrl",
+  "tags",
+  "tasks",
   "audience",
+  "softSkills",
+  "requirements",
+  "publisherOrganizationId",
+] as const satisfies readonly (keyof MissionRecord)[];
+
+export const IMPORT_FIELDS_TO_COMPARE = [
+  "applicationUrl",
   "clientId",
   "closeToTransport",
   "deletedAt",
-  "description",
   "descriptionHtml",
-  "domain",
   "domainLogo",
   "duration",
   "endAt",
   "metadata",
-  "openToMinors",
-  "publisherOrganizationId",
   "places",
   "postedAt",
   "priority",
-  "reducedMobilityAccessible",
-  "remote",
-  "requirements",
   "romeSkills",
-  "schedule",
   "snu",
   "snuPlaces",
-  "softSkills",
   "startAt",
-  "tags",
-  "title",
-  "type",
+  "statusCode",
+  "statusComment",
   "compensationAmount",
   "compensationType",
   "compensationUnit",
+  ...ENRICHMENT_RELEVANT_FIELDS_TO_COMPARE,
 ] as (keyof MissionRecord)[];
 
 /**
