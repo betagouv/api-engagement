@@ -2,6 +2,7 @@ import { randomUUID } from "crypto";
 
 import { Mission, Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
+import { captureException } from "@/error";
 import { missionRepository } from "@/repositories/mission";
 import { activityService } from "@/services/activity";
 import { buildMissionEnrichmentScoringWhere, missionEnrichmentService } from "@/services/mission-enrichment";
@@ -565,7 +566,11 @@ const baseInclude: MissionInclude = {
 
 export const missionService = {
   async enqueueMissionProcessing(missionId: string): Promise<void> {
-    await missionEnrichmentService.enqueue(missionId);
+    try {
+      await missionEnrichmentService.enqueue(missionId);
+    } catch (error) {
+      captureException(error, { extra: { context: "enqueueMissionProcessing", missionId } });
+    }
   },
 
   async findMissionsByIds(ids: string[]): Promise<MissionRecord[]> {

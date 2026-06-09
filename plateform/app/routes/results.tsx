@@ -18,7 +18,7 @@ import { useIsMobile } from "~/hooks/useIsMobile";
 import { useMissionResults } from "~/hooks/useMissionResults";
 import { useQuizStore } from "~/stores/quiz";
 import { evalCondition } from "~/utils/conditions";
-import { matchResultToBrowseMission } from "~/utils/mission";
+import { buildMissionDetailHref, matchResultToBrowseMission } from "~/utils/mission";
 
 const FRANCE_CENTER: [number, number] = [46.6, 2.3];
 
@@ -111,10 +111,7 @@ export default function ResultsPage() {
               }}
             >
               <div className="relative">
-                <MissionCard
-                  mission={matchResultToBrowseMission(selectedMission)}
-                  link={{ type: "internal", to: userScoringId ? `/results/${userScoringId}/missions/${selectedMission.mission.id}` : `/missions/${selectedMission.mission.id}` }}
-                />
+                <MissionCard mission={matchResultToBrowseMission(selectedMission)} link={{ type: "internal", to: buildMissionDetailHref(selectedMission, userScoringId) }} />
                 <div className="absolute right-3 top-3 z-10 flex items-center gap-2">
                   <button
                     type="button"

@@ -10,25 +10,29 @@ const brevoMock = vi.hoisted(() => ({
   sendTemplate: vi.fn(),
 }));
 
-vi.mock("@/services/brevo", () => ({
-  TEMPLATE_IDS: {
-    INVITATION: 1,
-    FORGOT_PASSWORD: 5,
-    MISSION_MATCHING_RESULTS: 0,
-  },
-  LIST_IDS: {
-    MISSION_MATCHING_RESULTS: 22,
-  },
-  createOrUpdateContact: brevoMock.createOrUpdateContact,
-  sendTemplate: brevoMock.sendTemplate,
-  default: {
-    createOrUpdateContact: brevoMock.createOrUpdateContact,
-    sendTemplate: brevoMock.sendTemplate,
+vi.mock("@/services/brevo", async () => {
+  const { buildMissionContentHtml } = await vi.importActual<typeof import("@/services/brevo/mission-content")>("@/services/brevo/mission-content");
+  return {
+    TEMPLATE_IDS: {
+      INVITATION: 1,
+      FORGOT_PASSWORD: 5,
+      MISSION_MATCHING_RESULTS: 0,
+    },
     LIST_IDS: {
       MISSION_MATCHING_RESULTS: 22,
     },
-  },
-}));
+    createOrUpdateContact: brevoMock.createOrUpdateContact,
+    sendTemplate: brevoMock.sendTemplate,
+    buildMissionContentHtml,
+    default: {
+      createOrUpdateContact: brevoMock.createOrUpdateContact,
+      sendTemplate: brevoMock.sendTemplate,
+      LIST_IDS: {
+        MISSION_MATCHING_RESULTS: 22,
+      },
+    },
+  };
+});
 
 const app = createTestApp();
 let apiKey: string;
@@ -569,24 +573,20 @@ describe("PUT /user-scoring/:userScoringId", () => {
       listId: 22,
     });
     expect(brevoMock.sendTemplate).toHaveBeenCalledTimes(1);
-    expect(brevoMock.sendTemplate).toHaveBeenCalledWith(0, {
-      emailTo: ["user@example.com"],
-      params: {
-        missions: matching.missions.slice(0, 5).map((mission) => ({
-          title: mission.title,
-          durationLabel: "8 mois",
-          startAtLabel: "à partir du 2 février",
-          compensationLabel: "620€ par mois",
-          applicationDeadlineLabel: "Candidatures ouvertes jusqu'au 10 janvier",
-          publisherLogo: "https://example.com/logo.png",
-          publisherName: "Matching Publisher",
-          publisherOrganizationName: mission.organizationName,
-          city: mission.city,
-          url: `http://localhost:4000/r/email/${mission.id}/${emailPublisher.id}?user_scoring_id=${userScoringId}`,
-        })),
-      },
-      tags: ["user-scoring", "mission-matching-results"],
+    const [templateId, payload] = brevoMock.sendTemplate.mock.calls[0];
+    expect(templateId).toBe(0);
+    expect(payload.emailTo).toEqual(["user@example.com"]);
+    expect(payload.tags).toEqual(["user-scoring", "mission-matching-results"]);
+
+    const { contentHtml } = payload.params;
+    matching.missions.slice(0, 5).forEach((mission) => {
+      expect(contentHtml).toContain(mission.title);
+      expect(contentHtml).toContain(mission.city);
+      expect(contentHtml).toContain(`http://localhost:4000/r/email/${mission.id}/${emailPublisher.id}?user_scoring_id=${userScoringId}`);
     });
+    expect(contentHtml).toContain("8 mois");
+    expect(contentHtml).toContain("à partir du 2 février");
+    expect(contentHtml).toContain("620€ par mois");
 
     const userScoring = await prisma.userScoring.findUniqueOrThrow({
       where: { id: userScoringId },
@@ -659,7 +659,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
 
     expect(res.status).toBe(200);
     expect(brevoMock.sendTemplate).toHaveBeenCalledTimes(1);
-    expect(brevoMock.sendTemplate.mock.calls[0][1].params.missions[0].city).toBe("Matched City");
+    expect(brevoMock.sendTemplate.mock.calls[0][1].params.contentHtml).toContain("Matched City");
   });
 
   it("should send mission emails without user scoring when missionIds are provided", async () => {
@@ -694,26 +694,18 @@ describe("PUT /user-scoring/:userScoringId", () => {
 
     expect(brevoMock.createOrUpdateContact).not.toHaveBeenCalled();
     expect(brevoMock.sendTemplate).toHaveBeenCalledTimes(1);
-    expect(brevoMock.sendTemplate).toHaveBeenCalledWith(0, {
-      emailTo: ["user@example.com"],
-      params: {
-        missions: [
-          {
-            title: mission.title,
-            durationLabel: "8 mois",
-            startAtLabel: "à partir du 2 février",
-            compensationLabel: "620€ par mois",
-            applicationDeadlineLabel: "Candidatures ouvertes jusqu'au 10 janvier",
-            publisherLogo: "https://example.com/logo.png",
-            publisherName: "Single Mission Publisher",
-            publisherOrganizationName: "Single Mission Organization",
-            city: "Paris",
-            url: `http://localhost:4000/r/email/${mission.id}/${emailPublisher.id}`,
-          },
-        ],
-      },
-      tags: ["user-scoring", "mission-matching-results"],
-    });
+    const [templateId, payload] = brevoMock.sendTemplate.mock.calls[0];
+    expect(templateId).toBe(0);
+    expect(payload.emailTo).toEqual(["user@example.com"]);
+    expect(payload.tags).toEqual(["user-scoring", "mission-matching-results"]);
+
+    const { contentHtml } = payload.params;
+    expect(contentHtml).toContain(mission.title);
+    expect(contentHtml).toContain("Paris");
+    expect(contentHtml).toContain("8 mois");
+    expect(contentHtml).toContain("à partir du 2 février");
+    expect(contentHtml).toContain("620€ par mois");
+    expect(contentHtml).toContain(`http://localhost:4000/r/email/${mission.id}/${emailPublisher.id}`);
   });
 
   it("should skip mission email when missionIds are not found", async () => {

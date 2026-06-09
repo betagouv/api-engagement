@@ -1,7 +1,8 @@
 import { API_URL } from "@/config";
 import { missionMatchingResultRepository } from "@/repositories/mission-matching-result";
 import { userScoringRepository } from "@/repositories/user-scoring";
-import { createOrUpdateContact, sendTemplate, TEMPLATE_IDS } from "@/services/brevo";
+import type { MissionContent } from "@/services/brevo";
+import { buildMissionContentHtml, createOrUpdateContact, sendTemplate, TEMPLATE_IDS } from "@/services/brevo";
 import type { MissionMatchingResultItem } from "@/services/matching-engine/types";
 import { missionService } from "@/services/mission";
 import type { MissionEmailSkipReason, SendMissionEmailRequest } from "@engagement/dto";
@@ -23,28 +24,12 @@ type EmailMission = {
   compensationAmount?: number | null;
   compensationAmountMax?: number | null;
   compensationUnit?: string | null;
+  domainLogo?: string | null;
   publisherLogo?: string | null;
   publisherName?: string | null;
   publisherOrganizationName?: string | null;
   organizationName?: string | null;
   city?: string | null;
-};
-
-type MissionEmailItem = {
-  title: string;
-  durationLabel: string;
-  startAtLabel: string;
-  compensationLabel: string;
-  applicationDeadlineLabel: string;
-  publisherLogo: string;
-  publisherName: string;
-  publisherOrganizationName: string;
-  city: string;
-  url: string;
-};
-
-type MissionEmailParams = {
-  missions: MissionEmailItem[];
 };
 
 type SendMissionEmailResult = { status: "sent" } | { status: "skipped"; reason: MissionEmailSkipReason } | { status: "failed" } | { status: "forbidden" } | { status: "not_found" };
@@ -116,19 +101,12 @@ const formatCompensationLabel = (mission: EmailMission) => {
   return `${amountLabel} par ${unitLabel}`;
 };
 
-const formatApplicationDeadlineLabel = (endAt?: Date | null) => {
-  if (!endAt) {
-    return "";
-  }
-  return `Candidatures ouvertes jusqu'au ${formatFrenchDayMonth(endAt)}`;
-};
-
-const buildMissionEmailItem = (mission: EmailMission, publisherId: string, userScoringId?: string): MissionEmailItem => ({
+const buildMissionEmailItem = (mission: EmailMission, publisherId: string, userScoringId?: string): MissionContent => ({
   title: mission.title,
+  imageUrl: mission.domainLogo ?? "",
   durationLabel: formatDurationLabel(mission.duration),
   startAtLabel: formatStartAtLabel(mission.startAt),
   compensationLabel: formatCompensationLabel(mission),
-  applicationDeadlineLabel: formatApplicationDeadlineLabel(mission.endAt),
   publisherLogo: mission.publisherLogo ?? "",
   publisherName: mission.publisherName ?? "",
   publisherOrganizationName: mission.publisherOrganizationName ?? mission.organizationName ?? "",
@@ -136,7 +114,7 @@ const buildMissionEmailItem = (mission: EmailMission, publisherId: string, userS
   url: buildMissionEmailUrl(mission.id, publisherId, userScoringId),
 });
 
-const buildMissionMatchingEmailParams = async (userScoringId: string, publisherId: string): Promise<MissionEmailParams | null> => {
+const buildMissionMatchingEmailParams = async (userScoringId: string, publisherId: string): Promise<MissionContent[] | null> => {
   const matchingResult = await missionMatchingResultRepository.findLatestForUserScoring(userScoringId);
   if (!matchingResult) {
     return null;
@@ -155,16 +133,14 @@ const buildMissionMatchingEmailParams = async (userScoringId: string, publisherI
     return null;
   }
 
-  return {
-    missions: orderedMissions.map(({ mission }) => buildMissionEmailItem(mission, publisherId, userScoringId)),
-  };
+  return orderedMissions.map(({ mission }) => buildMissionEmailItem(mission, publisherId, userScoringId));
 };
 
 const normalizeMissionIds = (missionIds: string[]) => {
   return Array.from(new Set(missionIds)).slice(0, USER_SCORING_EMAIL_MISSION_LIMIT);
 };
 
-const buildMissionIdsEmailParams = async (missionIds: string[], publisherId: string, userScoringId?: string): Promise<MissionEmailParams | null> => {
+const buildMissionIdsEmailParams = async (missionIds: string[], publisherId: string, userScoringId?: string): Promise<MissionContent[] | null> => {
   const uniqueMissionIds = normalizeMissionIds(missionIds);
   const missions = await missionService.findMissionsByIds(uniqueMissionIds);
   const missionsById = new Map(missions.map((mission) => [mission.id, mission]));
@@ -174,12 +150,10 @@ const buildMissionIdsEmailParams = async (missionIds: string[], publisherId: str
     return null;
   }
 
-  return {
-    missions: orderedMissions.map((mission) => buildMissionEmailItem(mission, publisherId, userScoringId)),
-  };
+  return orderedMissions.map((mission) => buildMissionEmailItem(mission, publisherId, userScoringId));
 };
 
-export const buildMissionEmailParams = async (params: { publisherId: string; userScoringId?: string; missionIds?: string[] }): Promise<MissionEmailParams | null> => {
+export const buildMissionEmailParams = async (params: { publisherId: string; userScoringId?: string; missionIds?: string[] }): Promise<MissionContent[] | null> => {
   if (params.missionIds?.length) {
     return buildMissionIdsEmailParams(params.missionIds, params.publisherId, params.userScoringId);
   }
@@ -218,19 +192,19 @@ export const sendMissionEmail = async (input: SendMissionEmailRequest): Promise<
     }
   }
 
-  const emailParams = await buildMissionEmailParams({
+  const missions = await buildMissionEmailParams({
     publisherId: input.publisherId,
     userScoringId: input.userScoringId,
     missionIds: input.missionIds,
   });
 
-  if (!emailParams) {
+  if (!missions) {
     return { status: "skipped", reason: getMissionEmailSkipReason(input.missionIds) };
   }
 
   const emailResult = await sendTemplate(TEMPLATE_IDS.MISSION_MATCHING_RESULTS, {
     emailTo: [input.email],
-    params: emailParams,
+    params: { contentHtml: buildMissionContentHtml(missions) },
     tags: ["user-scoring", "mission-matching-results"],
   });
 

@@ -19,8 +19,8 @@ const missionEmailBodySchema = zod
     email: emailSchema,
     publisherId: zod.string().trim().min(1),
     distinctId: distinctIdSchema.optional(),
-    userScoringId: zod.string().uuid().optional(),
-    missionIds: zod.array(zod.string().uuid()).min(1).max(5).optional(),
+    userScoringId: zod.uuid().optional(),
+    missionIds: zod.array(zod.string().trim().min(1)).min(1).max(5).optional(),
   })
   .strict()
   .refine((body) => body.userScoringId !== undefined || body.missionIds !== undefined, {

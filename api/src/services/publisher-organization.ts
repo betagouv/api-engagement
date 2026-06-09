@@ -1,6 +1,7 @@
 import { Prisma, PublisherOrganization } from "@/db/core";
 import { publisherOrganizationRepository } from "@/repositories/publisher-organization";
 import {
+  OrgArrayColumn,
   PublisherOrganizationFindManyOptions,
   PublisherOrganizationFindParams,
   PublisherOrganizationRecord,
@@ -125,6 +126,18 @@ const publisherOrganizationService = {
   },
   groupBy: async (by: (keyof PublisherOrganization)[], where: Prisma.PublisherOrganizationWhereInput) => {
     return publisherOrganizationRepository.groupBy(by, where);
+  },
+  /**
+   * Returns the IDs of organizations whose names match `value` in an array column, case-insensitively.
+   * Used for filtering widget rules (array fields associated with the organization).
+   */
+  findIdsMatchingArrayValue: async (column: OrgArrayColumn, value: string): Promise<string[]> => {
+    return publisherOrganizationRepository.findIdsByArrayValueInsensitive(column, value);
+  },
+  autocompleteParentOrganizations: async (publisherIds: string[], search: string): Promise<Array<{ key: string; doc_count: number }>> => {
+    const rows = await publisherOrganizationRepository.aggregateParentOrganizations(publisherIds, search);
+
+    return rows.map((row) => ({ key: row.value, doc_count: row.count }));
   },
 };
 

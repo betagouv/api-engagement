@@ -5,6 +5,7 @@ import zod from "zod";
 import { PUBLISHER_IDS } from "@/config";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
+import publisherOrganizationService from "@/services/publisher-organization";
 import { widgetService } from "@/services/widget";
 import { widgetMissionService } from "@/services/widget-mission";
 import { WidgetRecord } from "@/types";
@@ -114,7 +115,7 @@ router.get("/:id/search", cors({ origin: "*" }), async (req: Request, res: Respo
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    const filters = buildMissionFilters(widget, query.data, { skip: query.data.from, limit: query.data.size });
+    const filters = await buildMissionFilters(widget, query.data, { skip: query.data.from, limit: query.data.size });
     const { data, total } = await widgetMissionService.fetchWidgetMissions(widget, filters, MISSION_FIELDS);
     const mappedData = data.map((mission) => toWidgetMission(mission, widget));
 
@@ -171,7 +172,7 @@ router.get("/:id/aggs", cors({ origin: "*" }), async (req: Request, res: Respons
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    const filters = buildMissionFilters(widget, query.data, { skip: 0, limit: 0 });
+    const filters = await buildMissionFilters(widget, query.data, { skip: 0, limit: 0 });
     const aggs = await widgetMissionService.fetchWidgetAggregations(widget, filters, query.data.aggs);
     return res.status(200).send({ ok: true, data: aggs });
   } catch (error) {
@@ -209,9 +210,9 @@ const resolveLocationFilters = (widget: WidgetRecord, lon?: number, lat?: number
   return undefined;
 };
 
-const buildMissionFilters = (widget: WidgetRecord, query: { [key: string]: any }, pagination: { skip: number; limit: number }): MissionSearchFilters => {
+const buildMissionFilters = async (widget: WidgetRecord, query: { [key: string]: any }, pagination: { skip: number; limit: number }): Promise<MissionSearchFilters> => {
   const filters: MissionSearchFilters = {
-    directFilters: applyWidgetRules(widget.rules || []),
+    directFilters: await applyWidgetRules(widget.rules || [], publisherOrganizationService.findIdsMatchingArrayValue),
     publisherIds: widget.publishers,
     diffuseurPublisherId: widget.fromPublisherId,
     skip: pagination.skip,

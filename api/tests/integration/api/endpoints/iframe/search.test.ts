@@ -392,6 +392,55 @@ describe("GET /iframe/:id/search", () => {
       expect(titles).toEqual(expect.arrayContaining(["Mission Environnement Paris", "Mission Éducation Lyon"]));
       expect(titles).not.toContain("Mission Santé Marseille");
     });
+
+    it("should match parent organization rules case-insensitively (legacy organizationReseaux alias)", async () => {
+      // mission1 stocke parent_organizations = ["Network A"] ; la règle utilise une casse différente.
+      const caseInsensitiveWidget = await createTestWidget({
+        fromPublisher: publisher,
+        publishers: [publisher.id],
+        rules: [createTestWidgetRule("organizationReseaux", "contains", "network a", { combinator: "or" })],
+      });
+
+      const response = await request(app).get(`/iframe/${caseInsensitiveWidget.id}/search`).expect(200);
+
+      expect(response.body.total).toBe(1);
+      expect(response.body.data[0].title).toBe("Mission Environnement Paris");
+    });
+
+    it("should match parentOrganization rules case-insensitively", async () => {
+      // mission2 stocke parent_organizations = ["Network B"] ; la règle utilise une casse différente.
+      const caseInsensitiveWidget = await createTestWidget({
+        fromPublisher: publisher,
+        publishers: [publisher.id],
+        rules: [createTestWidgetRule("parentOrganization", "contains", "NETWORK B", { combinator: "or" })],
+      });
+
+      const response = await request(app).get(`/iframe/${caseInsensitiveWidget.id}/search`).expect(200);
+
+      expect(response.body.total).toBe(1);
+      expect(response.body.data[0].title).toBe("Mission Éducation Lyon");
+    });
+
+    it("should match organizationActions rules case-insensitively", async () => {
+      await createTestMission({
+        publisherId: publisher.id,
+        title: "Mission Action Distribution",
+        organizationClientId: "action-org-1",
+        organizationName: "Action Org",
+        organizationActions: ["Distribution Alimentaire"],
+      });
+
+      const actionsWidget = await createTestWidget({
+        fromPublisher: publisher,
+        publishers: [publisher.id],
+        rules: [createTestWidgetRule("organizationActions", "contains", "distribution alimentaire", { combinator: "or" })],
+      });
+
+      const response = await request(app).get(`/iframe/${actionsWidget.id}/search`).expect(200);
+
+      expect(response.body.total).toBe(1);
+      expect(response.body.data[0].title).toBe("Mission Action Distribution");
+    });
   });
 
   describe("JVA moderation", () => {

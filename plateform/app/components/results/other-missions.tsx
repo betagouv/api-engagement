@@ -2,7 +2,7 @@ import type { MissionMatchItem } from "@engagement/dto";
 import MissionCard from "~/components/missions/mission-card";
 import { DebugButton } from "~/components/results/matching-debug-modal";
 import Pagination from "~/components/ui/pagination";
-import { matchResultToBrowseMission } from "~/utils/mission";
+import { buildMissionDetailHref, matchResultToBrowseMission } from "~/utils/mission";
 
 interface OtherMissionsProps {
   items: MissionMatchItem[];
@@ -35,10 +35,7 @@ export default function OtherMissions({
         <div className={gridClassName}>
           {items.map((item) => (
             <div key={item.mission.id} className="relative">
-              <MissionCard
-                mission={matchResultToBrowseMission(item)}
-                link={{ type: "internal", to: userScoringId ? `/results/${userScoringId}/missions/${item.mission.id}` : `/missions/${item.mission.id}` }}
-              />
+              <MissionCard mission={matchResultToBrowseMission(item)} link={{ type: "internal", to: buildMissionDetailHref(item, userScoringId) }} />
               <DebugButton missionId={item.mission.id} />
             </div>
           ))}

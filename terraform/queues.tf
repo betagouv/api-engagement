@@ -38,6 +38,19 @@ resource "scaleway_mnq_sqs_credentials" "async_task_trigger" {
   }
 }
 
+# DLQ replay job credentials: reads the DLQ (receive) and republishes it to the source queue (publish)
+resource "scaleway_mnq_sqs_credentials" "async_task_dlq_processor" {
+  count      = var.enable_async_tasks ? 1 : 0
+  project_id = data.scaleway_mnq_sqs.main.project_id
+  name       = "${var.workspace}-async-task-dlq-processor"
+
+  permissions {
+    can_manage  = false
+    can_receive = true
+    can_publish = true
+  }
+}
+
 locals {
   async_task_queues = {
     mission_enrichment = {
