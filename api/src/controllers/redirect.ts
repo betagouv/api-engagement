@@ -505,7 +505,7 @@ router.get("/email/:missionId/:publisherId", cors({ origin: "*" }), async (req, 
 
     const query = zod
       .object({
-        user_scoring_id: zod.string().uuid().optional(),
+        user_scoring_id: zod.uuid().optional(),
       })
       .safeParse(req.query);
 
