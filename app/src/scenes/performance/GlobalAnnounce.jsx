@@ -295,7 +295,7 @@ const Evolution = ({ filters }) => {
               <Loader />
             </div>
           ) : !histogram.length ? (
-            <div className="border-grey-border bg-background-grey-hover flex h-[248px] w-full flex-col items-center justify-center border border-dashed">
+            <div className="border-grey-border bg-background-grey-hover flex min-h-[248px] w-full flex-col items-center justify-center border border-dashed">
               <img src={EmptySVG} alt="" aria-hidden="true" className="h-16 w-16" />
               <p className="text-color-gray-425 text-base">Aucune donnée disponible pour la période</p>
             </div>
@@ -442,7 +442,7 @@ const Announcers = ({ filters }) => {
           <Tabs tabs={tabs} ariaLabel="Top partenaires diffuseurs" panelId="announce-traffic-panel" className="mb-6 gap-8 pb-2 text-sm" variant="underline" />
           <div id="announce-traffic-panel" role="tabpanel" tabIndex={0} aria-labelledby={activeTabId || undefined} className="min-w-[600px]">
             {!data.length ? (
-              <div className="border-grey-border bg-background-grey-hover flex h-[248px] w-full flex-col items-center justify-center border border-dashed">
+              <div className="border-grey-border bg-background-grey-hover flex min-h-[248px] w-full flex-col items-center justify-center border border-dashed">
                 <img src={EmptySVG} alt="" aria-hidden="true" className="h-16 w-16" />
                 <p className="text-color-gray-425 text-base">Aucune donnée disponible pour la période</p>
               </div>

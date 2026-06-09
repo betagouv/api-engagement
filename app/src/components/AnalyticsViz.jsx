@@ -125,7 +125,7 @@ const AnalyticsViz = ({
 
   if (error) {
     return (
-      <div className={`flex h-[200px] w-full flex-col items-center justify-center border border-dashed border-gray-900 bg-[#f6f6f6] ${className}`}>
+      <div className={`flex min-h-[200px] w-full flex-col items-center justify-center border border-dashed border-gray-900 bg-[#f6f6f6] ${className}`}>
         <p className="text-sm text-[#666]">Impossible de charger les données.</p>
         <p className="text-xs text-[#666]">{error.message}</p>
       </div>
@@ -135,7 +135,7 @@ const AnalyticsViz = ({
   if (type === "table") {
     if (!tableRows.length) {
       return (
-        <div className={`flex h-[200px] w-full flex-col items-center justify-center border border-dashed border-gray-900 bg-[#f6f6f6] ${className}`}>
+        <div className={`flex min-h-[200px] w-full flex-col items-center justify-center border border-dashed border-gray-900 bg-[#f6f6f6] ${className}`}>
           <img src={EmptySVG} alt="" aria-hidden="true" className="h-16 w-16" />
           <p className="text-base text-[#666]">Aucune donnée disponible</p>
         </div>
@@ -201,7 +201,7 @@ const AnalyticsViz = ({
   if (type === "kpi") {
     if (kpiValue === null) {
       return (
-        <div className={`flex h-[120px] w-full flex-col items-center justify-center border border-dashed border-gray-900 bg-[#f6f6f6] ${className}`}>
+        <div className={`flex min-h-[120px] w-full flex-col items-center justify-center border border-dashed border-gray-900 bg-[#f6f6f6] ${className}`}>
           <img src={EmptySVG} alt="" aria-hidden="true" className="h-12 w-12" />
           <p className="text-base text-[#666]">Aucune donnée disponible</p>
         </div>
@@ -238,7 +238,7 @@ const AnalyticsViz = ({
 
   if (!data.length) {
     return (
-      <div className={`flex h-[200px] w-full flex-col items-center justify-center border border-dashed border-gray-900 bg-[#f6f6f6] ${className}`}>
+      <div className={`flex min-h-[200px] w-full flex-col items-center justify-center border border-dashed border-gray-900 bg-[#f6f6f6] ${className}`}>
         <img src={EmptySVG} alt="" aria-hidden="true" className="h-16 w-16" />
         <p className="text-base text-[#666]">Aucune donnée disponible</p>
       </div>
