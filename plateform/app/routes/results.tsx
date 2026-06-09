@@ -1,6 +1,6 @@
 import type { MissionMatchItem } from "@engagement/dto";
 import { useMemo, useRef, useState } from "react";
-import { Link, useParams } from "react-router";
+import { Link, useParams, useSearchParams } from "react-router";
 import { FooterContent } from "~/components/layout/footer";
 import Newsletter from "~/components/layout/newsletter";
 import Partners from "~/components/layout/partners";
@@ -24,6 +24,7 @@ const FRANCE_CENTER: [number, number] = [46.6, 2.3];
 
 export default function ResultsPage() {
   const { userScoringId } = useParams<{ userScoringId: string }>();
+  const [searchParams] = useSearchParams();
   const isMobile = useIsMobile();
   const answers = useQuizStore((s) => s.answers);
   const { pinnedItems, otherItems, page, setPage, hasNextPage, loading, pageLoading, error, visiblePageNumbers } = useMissionResults(userScoringId);
@@ -64,6 +65,7 @@ export default function ResultsPage() {
 
   const showMap = !loading && pinnedItems.length > 0;
   const showOther = !loading && !error && (otherItems.length > 0 || page > 1);
+  const showDebug = searchParams.get("debug") === "true";
 
   // Dernier step visible du quiz selon les réponses courantes → "Changer mes réponses" y renvoie.
   const lastQuizStep = QUIZ_FLOW.filter((s) => !s.condition || evalCondition(s.condition, answers)).at(-1);
@@ -167,7 +169,7 @@ export default function ResultsPage() {
             </div>
 
             <div ref={scrollRef} className={`flex-1 overflow-y-auto overscroll-contain ${expanded ? "" : "hidden"}`}>
-              <PinnedMissions items={pinnedItems} loading={loading} error={error} userScoringId={userScoringId} />
+              <PinnedMissions items={pinnedItems} loading={loading} error={error} userScoringId={userScoringId} showDebug={showDebug} />
 
               {showOther && (
                 <div className="px-6 pt-2 pb-8">
@@ -178,6 +180,7 @@ export default function ResultsPage() {
                     pageLoading={pageLoading}
                     visiblePageNumbers={visiblePageNumbers}
                     userScoringId={userScoringId}
+                    showDebug={showDebug}
                     onPageChange={setPage}
                   />
                 </div>
@@ -223,7 +226,7 @@ export default function ResultsPage() {
                   Changer mes réponses
                 </Link>
               </div>
-              <PinnedMissions items={pinnedItems} loading={loading} error={error} userScoringId={userScoringId} />
+              <PinnedMissions items={pinnedItems} loading={loading} error={error} userScoringId={userScoringId} showDebug={showDebug} />
             </div>
             <div className="sticky top-0 max-h-[720px] flex-1 py-12">{showMap && <LazyMissionMap items={pinnedItems} center={mapCenter} />}</div>
           </section>
@@ -239,6 +242,7 @@ export default function ResultsPage() {
               pageLoading={pageLoading}
               visiblePageNumbers={visiblePageNumbers}
               userScoringId={userScoringId}
+              showDebug={showDebug}
               gridClassName="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 mx-auto"
               onPageChange={setPage}
             />
