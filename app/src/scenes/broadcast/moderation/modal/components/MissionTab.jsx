@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
-import { RiErrorWarningFill, RiExternalLinkLine } from "react-icons/ri";
-import { Link } from "react-router-dom";
-import { toast } from "@/services/toast";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
+import { toast } from "@/services/toast";
+import { useEffect, useState } from "react";
+import { RiErrorWarningFill, RiExternalLinkLine } from "react-icons/ri";
+import { Link } from "react-router-dom";
 
 const MissionTab = ({ data, onChange }) => {
   const { publisher } = useStore();
@@ -64,9 +64,7 @@ const MissionTab = ({ data, onChange }) => {
         </div>
         <div className="border-grey-border border-t" />
         <div className="flex flex-col space-y-2">
-          <label className="mb-2 text-sm" htmlFor="description">
-            Description
-          </label>
+          <p className="mb-2 text-sm">Description</p>
           <div
             className="text-text-mention border-grey-border overflow-hidden rounded-t border bg-gray-950 p-6 text-sm"
             dangerouslySetInnerHTML={{ __html: `<p>${data.missionDescription.replace(/\n/g, "</p><p>")}</p>` }}
@@ -74,34 +72,26 @@ const MissionTab = ({ data, onChange }) => {
         </div>
         <div className="border-grey-border border-t" />
         <div className="flex flex-col space-y-2 py-2">
-          <label className="text-sm" htmlFor="title">
-            Lieu de la mission
-          </label>
+          <p className="text-sm">Lieu de la mission</p>
           <p className="text-text-mention text-sm">
-          {data.missionDepartmentName} ({data.missionDepartmentCode})
+            {data.missionDepartmentName} ({data.missionDepartmentCode})
           </p>
         </div>
         <div className="border-grey-border border-t" />
         <div className="flex flex-col space-y-2 py-2">
-          <label className="text-sm" htmlFor="title">
-            Date de la mission
-          </label>
+          <p className="text-sm">Date de la mission</p>
           <p className="text-text-mention text-sm">À partir du {new Date(data.missionStartAt).toLocaleDateString("fr", { year: "numeric", month: "long", day: "numeric" })}</p>
         </div>
         <div className="border-grey-border border-t" />
         <div className="flex flex-col space-y-2 py-2">
-          <label className="text-sm" htmlFor="title">
-            Date de création
-          </label>
+          <p className="text-sm">Date de création</p>
           <p className="text-text-mention text-sm">
             Postée le {new Date(data.missionPostedAt).toLocaleDateString("fr")} sur {data.missionPublisherName}
           </p>
         </div>
         <div className="border-grey-border border-t" />
         <div className="flex flex-col space-y-2 py-2">
-          <label className="text-sm" htmlFor="title">
-            Lien de la mission
-          </label>
+          <p className="text-sm">Lien de la mission</p>
           <div className="flex items-center gap-2">
             <Link
               to={data.missionApplicationUrl.includes("http") ? data.missionApplicationUrl : `https://${data.missionApplicationUrl}`}
@@ -115,9 +105,7 @@ const MissionTab = ({ data, onChange }) => {
         </div>
         <div className="border-grey-border border-t" />
         <div className="flex flex-col space-y-2 py-2">
-          <label className="text-sm" htmlFor="title">
-            ID
-          </label>
+          <p className="text-sm">ID</p>
           <p className="text-text-mention text-sm">{data.missionId}</p>
         </div>
       </div>
