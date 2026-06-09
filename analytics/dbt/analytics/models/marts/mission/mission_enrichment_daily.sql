@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = ['event_date', 'publisher_id'],
+  unique_key = ['event_date', 'publisher_id', 'prompt_version'],
   incremental_strategy = 'delete+insert',
   on_schema_change = 'sync_all_columns'
 ) }}
@@ -32,6 +32,7 @@ base as (
     m.publisher_id,
     p.name as publisher_name,
     me.status,
+    me.prompt_version,
     me.input_tokens,
     me.output_tokens,
     me.total_tokens,
@@ -54,13 +55,14 @@ aggregated as (
     publisher_id,
     publisher_name,
     status,
+    prompt_version,
     count(*) as enrichment_count,
     sum(input_tokens) as input_tokens,
     sum(output_tokens) as output_tokens,
     sum(total_tokens) as total_tokens,
     max(updated_at) as max_updated_at
   from base
-  group by event_date, publisher_id, publisher_name, status
+  group by event_date, publisher_id, publisher_name, status, prompt_version
 )
 
 select *

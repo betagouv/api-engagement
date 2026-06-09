@@ -259,11 +259,11 @@ models:
   - name: mission_enrichment_daily
     description: >
       Agrégat quotidien des enrichissements IA de mission au grain jour + publisher +
-      statut, alimenté depuis `mission_enrichment`. Le `publisher_id` est récupéré via
-      `mission` et le `publisher_name` dénormalisé via `dim_publisher`. Permet le suivi
-      du volume d'enrichissements et du coût en tokens (entrée/sortie) dans Metabase.
-      Le modèle incrémental supprime/réinsère les lignes au grain jour + publisher afin
-      de rafraîchir tous les statuts affectés quand une mission change de statut.
+      statut + version de prompt, alimenté depuis `mission_enrichment`. Le `publisher_id`
+      est récupéré via `mission` et le `publisher_name` dénormalisé via `dim_publisher`.
+      Permet le suivi du volume d'enrichissements et du coût en tokens (entrée/sortie)
+      dans Metabase. Le modèle incrémental supprime/réinsère les lignes des journées
+      affectées pour rafraîchir l'ensemble du grain quand une mission est mise à jour.
     columns:
       - name: event_date
         description: Jour d'agrégation basé sur `mission_enrichment.created_at`.
@@ -274,12 +274,16 @@ models:
         tests:
           - relationships:
               arguments:
-                to: ref('dim_publisher')
+                to: ref('publisher')
                 field: id
       - name: publisher_name
         description: Nom du partenaire dénormalisé pour les analyses Metabase (nullable).
       - name: status
         description: Statut de l'enrichissement (`pending`, `processing`, `completed`, `failed`).
+        tests:
+          - not_null
+      - name: prompt_version
+        description: Version du prompt utilisée pour produire l'enrichissement.
         tests:
           - not_null
       - name: enrichment_count
