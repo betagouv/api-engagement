@@ -90,6 +90,7 @@ const ApiAnnonceur = () => {
           <textarea
             className="border-blue-france-925 bg-blue-france-975 w-full rounded-none border px-4 py-2 font-mono text-sm read-only:opacity-80"
             rows={2}
+            aria-label="Exemple d'appel"
             readOnly
             value={curl}
           />

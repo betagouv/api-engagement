@@ -44,6 +44,7 @@ const TrackingBroadcast = () => {
       <textarea
         className="border-blue-france-925 bg-blue-france-975 w-full rounded-none border px-4 py-2 text-base read-only:opacity-80"
         rows={8}
+        aria-label="Script à intégrer sur votre site"
         value={script.replace("{{publisherId}}", publisher.id)}
         readOnly
       />

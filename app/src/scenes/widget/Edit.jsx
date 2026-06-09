@@ -266,6 +266,7 @@ const Code = ({ widget }) => {
         <textarea
           className="border-blue-france-925 bg-blue-france-975 w-full rounded-none border px-4 py-2 text-base read-only:opacity-80"
           rows={widget.type === "benevolat" ? 11 : 4}
+          aria-label="Code du widget à intégrer"
           readOnly
           value={`${IFRAMES[getIframeKey(widget.type)][widget.style].replace("{{widgetId}}", widget.id)}${widget.type === "benevolat" ? `\n\n${JVA_LOGO}` : ""}`}
         />
