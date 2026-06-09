@@ -187,6 +187,7 @@ export const DateInput = ({ value, onChange }) => {
             onChange={handleFromTextChange}
             placeholder="JJ/MM/AAAA"
             aria-describedby={`${id}-format`}
+            aria-required="true"
             className="w-24 border-0 bg-transparent p-0 text-sm font-semibold outline-none focus:ring-0"
           />
         </div>
@@ -202,6 +203,7 @@ export const DateInput = ({ value, onChange }) => {
             onChange={handleToTextChange}
             placeholder="JJ/MM/AAAA"
             aria-describedby={`${id}-format`}
+            aria-required="true"
             className="w-24 border-0 bg-transparent p-0 text-sm font-semibold outline-none focus:ring-0"
           />
         </div>
