@@ -37,7 +37,12 @@ const buildNodeCondition = async (
   return { OR: [{ NOT: selfCondition }, childrenAnd] };
 };
 
-const buildMissionWhere = async (rules: PublisherDiffusionRule[], resolveOrganizationIds: OrganizationArrayIdsResolver): Promise<Prisma.MissionWhereInput> => {
+/**
+ * Indexe une liste plate de rules par parent : racines (`combinedWithId === null`)
+ * d'un côté, enfants regroupés par `combinedWithId` de l'autre. Partagé par les
+ * constructeurs de `where` (implication et allowlist).
+ */
+const groupRulesByParent = (rules: PublisherDiffusionRule[]): { roots: PublisherDiffusionRule[]; childrenByParentId: Map<string, PublisherDiffusionRule[]> } => {
   const childrenByParentId = new Map<string, PublisherDiffusionRule[]>();
   const roots: PublisherDiffusionRule[] = [];
 
@@ -50,6 +55,42 @@ const buildMissionWhere = async (rules: PublisherDiffusionRule[], resolveOrganiz
       childrenByParentId.set(rule.combinedWithId, siblings);
     }
   }
+
+  return { roots, childrenByParentId };
+};
+
+/**
+ * Forme allowlist d'un nœud : `selfCondition AND (enfants)`. Miroir positif de
+ * `buildNodeCondition` (qui encode l'implication `NOT self OR enfants`) : même
+ * parcours d'arbre via `combinedWithId`, enfants combinés en `AND` (le champ
+ * `combinator` n'est pas pris en compte, cohérent avec la forme implication).
+ */
+const buildAllowlistNodeCondition = async (
+  rule: PublisherDiffusionRule,
+  childrenByParentId: Map<string, PublisherDiffusionRule[]>,
+  resolveOrganizationIds: OrganizationArrayIdsResolver
+): Promise<Prisma.MissionWhereInput | null> => {
+  const selfCondition = await buildMissionPublisherDiffusionRuleConditionFromRule(rule, resolveOrganizationIds);
+
+  const children = (
+    await Promise.all(
+      (childrenByParentId.get(rule.id) ?? []).map((child: PublisherDiffusionRule) => buildAllowlistNodeCondition(child, childrenByParentId, resolveOrganizationIds))
+    )
+  ).filter((condition: Prisma.MissionWhereInput | null): condition is Prisma.MissionWhereInput => Boolean(condition));
+
+  if (!children.length) {
+    return selfCondition;
+  }
+
+  const childrenAnd = children.length === 1 ? children[0] : { AND: children };
+  if (!selfCondition) {
+    return childrenAnd;
+  }
+  return { AND: [selfCondition, childrenAnd] };
+};
+
+const buildMissionWhere = async (rules: PublisherDiffusionRule[], resolveOrganizationIds: OrganizationArrayIdsResolver): Promise<Prisma.MissionWhereInput> => {
+  const { roots, childrenByParentId } = groupRulesByParent(rules);
 
   const groups = (await Promise.all(roots.map((root: PublisherDiffusionRule) => buildNodeCondition(root, childrenByParentId, resolveOrganizationIds)))).filter(
     (group: Prisma.MissionWhereInput | null): group is Prisma.MissionWhereInput => Boolean(group)
@@ -118,16 +159,17 @@ export const publisherDiffusionRuleService = {
    * publishers hors annonceurs et reste valide avec plusieurs scopes.
    */
   async buildMissionDiffuseurCandidateWhere(publisherId: string): Promise<Prisma.MissionWhereInput> {
-    const roots = await this.findRules({ publisherId, combinedWithId: null, field: "publisherId", includeCombinedRules: true });
+    const rules = await publisherDiffusionRuleRepository.findMany({
+      where: { publisherId },
+      orderBy: [{ position: Prisma.SortOrder.asc }, { createdAt: Prisma.SortOrder.asc }],
+    });
 
-    const scopes = roots
-      .map((root) => {
-        const conditions = [root, ...(root.combinedRules ?? [])]
-          .map(buildMissionPublisherDiffusionRuleConditionFromRule)
-          .filter((condition): condition is Prisma.MissionWhereInput => condition !== null);
-        return conditions.length === 1 ? conditions[0] : { AND: conditions };
-      })
-      .filter((scope) => Object.keys(scope).length > 0);
+    const { roots, childrenByParentId } = groupRulesByParent(rules);
+    const scopeRoots = roots.filter((root) => root.field === "publisherId");
+
+    const scopes = (
+      await Promise.all(scopeRoots.map((root) => buildAllowlistNodeCondition(root, childrenByParentId, publisherOrganizationService.findIdsMatchingArrayValue)))
+    ).filter((scope): scope is Prisma.MissionWhereInput => scope !== null && Object.keys(scope).length > 0);
 
     if (scopes.length === 0) {
       return {};
