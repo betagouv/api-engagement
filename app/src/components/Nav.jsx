@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { RiArrowDownSFill, RiArrowDownSLine, RiArrowLeftRightLine, RiCheckLine, RiMenuLine, RiCloseLine, RiSearchLine } from "react-icons/ri";
+import { RiArrowDownSFill, RiArrowDownSLine, RiArrowLeftRightLine, RiCheckLine, RiCloseLine, RiMenuLine, RiSearchLine } from "react-icons/ri";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import api from "@/services/api";
@@ -112,10 +112,14 @@ const Nav = () => {
           </button>
         </div>
 
-        <ul className={`m-0 w-full list-none flex-col items-start justify-between gap-x-6 gap-y-2 p-0 pb-4 lg:flex lg:flex-row lg:items-center lg:pb-0 ${menuOpen ? "flex" : "hidden lg:flex"}`} role="list" aria-label="Menu principal">
+        <ul
+          className={`m-0 w-full list-none flex-col items-start justify-between gap-x-6 gap-y-2 p-0 pb-4 lg:flex lg:flex-row lg:items-center lg:pb-0 ${menuOpen ? "flex" : "hidden lg:flex"}`}
+          role="list"
+          aria-label="Menu principal"
+        >
           <li className="flex w-full flex-col items-start gap-4 lg:w-auto lg:flex-row lg:items-center lg:gap-6">
             {publisher.isAnnonceur && (publisher.hasApiRights || publisher.hasWidgetRights || publisher.hasCampaignRights) && <FluxMenu value={flux} onChange={handleFluxChange} />}
-            <ul className="m-0 flex w-full list-none flex-col items-start gap-2 p-0 lg:w-auto lg:flex-row lg:items-center lg:gap-6">
+            <ul role="list" className="m-0 flex w-full list-none flex-col items-start gap-2 p-0 lg:w-auto lg:flex-row lg:items-center lg:gap-6">
               {menuItems.map((item) => (
                 <li key={item.key}>
                   <Link to={item.to} aria-current={item.isActive} className="nav-item" onClick={() => setMenuOpen(false)}>
@@ -505,7 +509,7 @@ const AdminMenu = () => {
         inert={!show ? true : undefined}
         className={`border-grey-border absolute right-0 z-10 w-[calc(100vw-2rem)] w-full border bg-white shadow-lg transition-[max-height,opacity] duration-200 ease-in-out sm:w-80 ${show ? "max-h-96 opacity-100" : "pointer-events-none max-h-0 opacity-0"}`}
       >
-        <ul className="m-0 flex list-none flex-col p-0">
+        <ul role="list" className="m-0 flex list-none flex-col p-0">
           {ADMIN_MENU_ITEMS.map((item, index) => {
             const isCurrent = location.pathname.startsWith(item.href);
             return (

@@ -62,6 +62,9 @@ const App = () => {
         ariaLabel="Notifications"
       />
       <BrowserRouter>
+        <a href="#main-content" className="skip-link">
+          Aller au contenu principal
+        </a>
         <Routes>
           <Route element={<AuthLayout />}>
             <Route path="/login" element={<Login />} />
@@ -121,7 +124,7 @@ const AuthLayout = () => {
   }
 
   return (
-    <div className="bg-global-background flex min-h-screen w-screen flex-col">
+    <div className="bg-global-background flex min-h-screen w-full flex-col">
       <Header />
       <main id="main-content" role="main" tabIndex={-1} className="flex flex-1">
         <div className="flex-1">
@@ -238,7 +241,7 @@ const ProtectedLayout = () => {
   }
 
   return (
-    <div className="bg-global-background flex min-h-screen w-screen flex-col">
+    <div className="bg-global-background flex min-h-screen w-full flex-col">
       {ENV === "staging" && (
         <div className="bg-error w-full p-2 text-center">
           <p className="text-sm text-white">Environnement de pré-prod</p>
@@ -316,7 +319,7 @@ const PublicLayout = () => {
   }, [location.pathname]);
 
   return (
-    <div className="bg-global-background flex min-h-screen w-screen flex-col">
+    <div className="bg-global-background flex min-h-screen w-full flex-col">
       <Header />
       {user ? <Nav /> : ""}
       <main id="main-content" role="main" tabIndex={-1} aria-labelledby={user && hasActiveTab ? activeTabId : undefined}>

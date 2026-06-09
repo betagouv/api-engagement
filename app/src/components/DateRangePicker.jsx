@@ -173,7 +173,8 @@ export const DateInput = ({ value, onChange }) => {
 
   return (
     <div className="relative" ref={ref}>
-      <div className="flex items-center gap-2">
+      <fieldset className="m-0 flex items-center gap-2 border-0 p-0">
+        <legend className="sr-only">Période personnalisée</legend>
         <div className="input flex items-center gap-1 px-2 py-1">
           <label htmlFor={`${id}-from`} className="text-sm text-gray-500">
             Du
@@ -216,7 +217,7 @@ export const DateInput = ({ value, onChange }) => {
         >
           <RiCalendarLine className="text-lg" aria-hidden="true" />
         </button>
-      </div>
+      </fieldset>
 
       <div
         role="dialog"

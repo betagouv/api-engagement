@@ -98,7 +98,7 @@ const NotificationMenu = () => {
       <MenuItems
         transition
         anchor="bottom end"
-        className="mt-2 w-[400px] origin-top-right bg-white text-black shadow-lg transition duration-200 ease-out focus:outline-none data-closed:scale-95 data-closed:opacity-0"
+        className="mt-2 w-[calc(100vw-2rem)] origin-top-right bg-white text-black shadow-lg transition duration-200 ease-out focus:outline-none data-closed:scale-95 data-closed:opacity-0 sm:w-[400px]"
       >
         <MenuItem>
           <div className="flex items-center justify-between p-6">
@@ -221,7 +221,7 @@ const AdminNotificationMenu = () => {
       <MenuItems
         transition
         anchor="bottom end"
-        className="w-[400px] origin-top-right bg-white text-black shadow-lg transition duration-200 ease-out focus:outline-none data-closed:scale-95 data-closed:opacity-0"
+        className="w-[calc(100vw-2rem)] origin-top-right bg-white text-black shadow-lg transition duration-200 ease-out focus:outline-none data-closed:scale-95 data-closed:opacity-0 sm:w-[400px]"
       >
         <MenuItem>
           <div className="flex items-center justify-between p-6">

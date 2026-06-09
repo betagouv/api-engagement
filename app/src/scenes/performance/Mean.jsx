@@ -190,7 +190,7 @@ const Mean = ({ filters, onFiltersChange }) => {
       <title>API Engagement - Moyens de diffusion - Performance</title>
       <div className="flex flex-wrap items-center gap-6">
         <div className="space-y-2">
-          <label className="text-text-mention text-sm font-semibold uppercase">Période</label>
+          <p className="text-text-mention text-sm font-semibold uppercase">Période</p>
           <DateRangePicker value={filters} onChange={(value) => onFiltersChange({ ...filters, ...value })} />
         </div>
         {options.length > 1 && (
