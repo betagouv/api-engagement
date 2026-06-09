@@ -4,7 +4,7 @@ const WarningAlert = ({ children, onClose }) => {
   return (
     <div className="border-warning relative flex border">
       {onClose && (
-        <button className="absolute top-0 right-0 p-2" onClick={onClose}>
+        <button className="absolute top-0 right-0 p-2" onClick={onClose} aria-label="Fermer">
           <RiCloseFill className="text-blue-france" aria-hidden="true" />
         </button>
       )}

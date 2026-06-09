@@ -201,7 +201,7 @@ const DistributionMean = ({ filters }) => {
       <h2 className="text-3xl font-bold">Répartition par moyen de diffusion</h2>
       <div className="border-grey-border space-y-4 overflow-x-auto border p-6">
         <Tabs tabs={tabs} ariaLabel="Répartition par moyen de diffusion" panelId="distribution-panel" className="mb-6 gap-8 pb-2 text-sm" variant="underline" />
-        <div id="distribution-panel" role="tabpanel" aria-labelledby={activeTabId || undefined} className="min-w-[600px]">
+        <div id="distribution-panel" role="tabpanel" tabIndex={0} aria-labelledby={activeTabId || undefined} className="min-w-[600px]">
           {loading ? (
             <div className="flex h-64 items-center justify-center">
               <Loader />
@@ -418,7 +418,7 @@ const Evolution = ({ filters }) => {
       </div>
       <div className="border-grey-border overflow-x-auto border p-4">
         <Tabs tabs={tabs} ariaLabel="Evolution" panelId="evolution-panel" className="mb-6 gap-8 pb-2 text-sm" variant="underline" />
-        <div id="evolution-panel" role="tabpanel" aria-labelledby={activeTabId || undefined} className="min-w-[600px]">
+        <div id="evolution-panel" role="tabpanel" tabIndex={0} aria-labelledby={activeTabId || undefined} className="min-w-[600px]">
           {loading ? (
             <div className="flex h-[420px] items-center justify-center">
               <Loader />

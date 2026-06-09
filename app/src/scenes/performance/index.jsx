@@ -63,7 +63,13 @@ const Performance = () => {
         </>
       )}
 
-      <section id="performance-panel" role={isTabbed ? "tabpanel" : undefined} aria-labelledby={isTabbed && activeTabId ? activeTabId : undefined} className="bg-white shadow-lg">
+      <section
+        id="performance-panel"
+        role={isTabbed ? "tabpanel" : undefined}
+        tabIndex={isTabbed ? 0 : undefined}
+        aria-labelledby={isTabbed && activeTabId ? activeTabId : undefined}
+        className="bg-white shadow-lg"
+      >
         <Routes>
           <Route
             path="/"

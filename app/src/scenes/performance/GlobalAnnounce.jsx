@@ -1,6 +1,6 @@
 import EmptySVG from "@/assets/svg/empty-info.svg";
-import ChartDetailsTable from "@/components/ChartDetailsTable";
 import { Pie, StackedBarchart } from "@/components/Chart";
+import ChartDetailsTable from "@/components/ChartDetailsTable";
 import DateRangePicker from "@/components/DateRangePicker";
 import Loader from "@/components/Loader";
 import Tabs from "@/components/Tabs";
@@ -289,7 +289,7 @@ const Evolution = ({ filters }) => {
       </div>
       <div className="border-grey-border overflow-x-auto border p-4">
         <Tabs tabs={tabs} ariaLabel="Trafic reçu grâce à vos partenaires diffuseurs" panelId="announce-evolution-panel" className="mb-6 gap-8 pb-2 text-sm" variant="underline" />
-        <div id="announce-evolution-panel" role="tabpanel" aria-labelledby={activeTabId || undefined} className="min-w-[600px]">
+        <div id="announce-evolution-panel" role="tabpanel" tabIndex={0} aria-labelledby={activeTabId || undefined} className="min-w-[600px]">
           {loading ? (
             <div className="flex h-[248px] items-center justify-center">
               <Loader />
@@ -440,7 +440,7 @@ const Announcers = ({ filters }) => {
       ) : (
         <div className="border-grey-border space-y-4 overflow-x-auto border p-6">
           <Tabs tabs={tabs} ariaLabel="Top partenaires diffuseurs" panelId="announce-traffic-panel" className="mb-6 gap-8 pb-2 text-sm" variant="underline" />
-          <div id="announce-traffic-panel" role="tabpanel" aria-labelledby={activeTabId || undefined} className="min-w-[600px]">
+          <div id="announce-traffic-panel" role="tabpanel" tabIndex={0} aria-labelledby={activeTabId || undefined} className="min-w-[600px]">
             {!data.length ? (
               <div className="border-grey-border bg-background-grey-hover flex h-[248px] w-full flex-col items-center justify-center border border-dashed">
                 <img src={EmptySVG} alt="" aria-hidden="true" className="h-16 w-16" />

@@ -253,14 +253,14 @@ const Mean = ({ filters, onFiltersChange }) => {
               <div className="flex h-full flex-1 flex-col gap-8 md:flex-row md:items-end">
                 <div className="group flex h-full flex-1 flex-col justify-end gap-4 px-4">
                   <Bar value={100} height={BAR_HEIGHT} />
-                  <div className="h-24">
+                  <div className="min-h-24">
                     <p className="text-3xl font-semibold text-gray-700 group-hover:text-black">{graph.clickCount.toLocaleString("fr")}</p>
                     <p className="text-base text-gray-700 group-hover:text-black">redirections vers une mission</p>
                   </div>
                 </div>
                 <div className="group flex h-full flex-1 flex-col justify-end gap-4 px-4">
                   <Bar value={graph.clickCount ? (graph.applyCount * 100) / graph.clickCount : 0} height={BAR_HEIGHT} />
-                  <div className="h-24">
+                  <div className="min-h-24">
                     <p className="text-3xl font-semibold text-gray-700 group-hover:text-black">{graph.applyCount.toLocaleString("fr")}</p>
                     <p className="text-base text-gray-700 group-hover:text-black">candidatures</p>
                   </div>

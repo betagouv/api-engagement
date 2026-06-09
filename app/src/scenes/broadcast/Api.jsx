@@ -43,7 +43,7 @@ const Api = () => {
 
   const handleCopy = () => {
     navigator.clipboard.writeText(publisher.apikey);
-    toast.success("Lien copié");
+    toast.success("Clé copiée");
   };
 
   if (!publisher) return <p className="p-3">Chargement...</p>;

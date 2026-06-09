@@ -38,7 +38,7 @@ const Header = () => {
           </div>
         </Link>
         <nav role="navigation" aria-label="Navigation d'en-tête" className="text-blue-france flex items-center gap-3 text-sm">
-          <a href="https://doc.api-engagement.beta.gouv.fr/" target="_blank" className="text-blue-france flex items-center">
+          <a href="https://doc.api-engagement.beta.gouv.fr/" target="_blank" className="text-blue-france flex items-center" aria-label="Documentation">
             <RiBookletLine className="mr-2" aria-hidden="true" />
             <span className="hidden sm:block">Documentation</span>
           </a>
@@ -342,7 +342,7 @@ const AccountMenu = () => {
 
   return (
     <div className="relative" ref={ref} onBlur={handleFocusOut} onKeyDown={handleKeyDown}>
-      <button ref={buttonRef} className="btn hover:bg-gray-975 focus" type="button" onClick={() => setShow(!show)}>
+      <button ref={buttonRef} className="btn hover:bg-gray-975 focus" type="button" onClick={() => setShow(!show)} aria-label="Menu du compte">
         <div className="bg-blue-france flex h-8 w-8 items-center justify-center rounded-full">
           <RiUserLine className="text-white" aria-hidden="true" />
         </div>
