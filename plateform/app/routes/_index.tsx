@@ -9,14 +9,13 @@ import Partners from "~/components/layout/partners";
 import GradientBg from "~/components/ui/gradient-bg";
 import { browseMissions } from "~/services/api/missions";
 import { useQuizStore } from "~/stores/quiz";
-import type { BrowseMission } from "~/types/api";
+
 import type { Route } from "./+types/_index";
 
-import PeopleMobilePng from "~/assets/images/people-landing-mobile.png";
-import PeoplePng from "~/assets/images/people-landing.png";
+import type { MissionBrowse } from "@engagement/dto";
+import LandingPng from "~/assets/images/people-landing.png";
 
 const EXAMPLES_COUNT = 5;
-const TESTIMONIALS_COUNT = 4;
 
 export function meta(): Route.MetaDescriptors {
   return [
@@ -28,20 +27,19 @@ export function meta(): Route.MetaDescriptors {
   ];
 }
 
-export async function loader({ request }: Route.LoaderArgs): Promise<{ examples: BrowseMission[]; testimonials: BrowseMission[] }> {
+export async function loader({ request }: Route.LoaderArgs): Promise<{ examples: MissionBrowse[] }> {
   try {
-    const res = await browseMissions({ pageSize: EXAMPLES_COUNT + TESTIMONIALS_COUNT }, request);
+    const res = await browseMissions({ pageSize: EXAMPLES_COUNT }, request);
     return {
       examples: res.data.slice(0, EXAMPLES_COUNT),
-      testimonials: res.data.slice(EXAMPLES_COUNT, EXAMPLES_COUNT + TESTIMONIALS_COUNT),
     };
   } catch {
-    return { examples: [], testimonials: [] };
+    return { examples: [] };
   }
 }
 
 export default function Landing() {
-  const { examples, testimonials } = useLoaderData<typeof loader>();
+  const { examples } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const reset = useQuizStore((s) => s.reset);
 
@@ -53,15 +51,24 @@ export default function Landing() {
   return (
     <main>
       <GradientBg className="bg-size-[100%_640px]">
-        <div className="relative md:min-h-[640px]">
-          <img src={PeoplePng} alt="" className="absolute hidden md:block right-0 bottom-0 object-contain md:bottom-auto md:top-0 md:h-[640px] md:w-auto md:max-w-[1024px]" />
+        <div className="relative md:min-h-[640px] md:overflow-hidden">
           <Hero onStartQuiz={handleStartQuiz} />
-          <img src={PeopleMobilePng} alt="" className="block md:hidden right-0 bottom-0 object-contain h-[420px] w-full" />
+          <div className="relative overflow-hidden w-full md:absolute md:right-[-140px] md:top-0 md:h-[640px] md:w-auto md:max-w-[1024px]">
+            <svg
+              aria-hidden
+              viewBox="0 0 100 100"
+              preserveAspectRatio="none"
+              className="absolute left-1/2 top-0 -translate-x-1/2 h-[680px] w-[680px] md:top-[20px] md:h-[480px] md:w-[580px] text-yellow-moutarde-975 dark:text-transparent"
+            >
+              <ellipse cx="50" cy="50" rx="50" ry="50" fill="currentColor" />
+            </svg>
+            <img src={LandingPng} alt="" className="relative block object-cover h-[420px] w-full md:h-[640px] md:w-auto md:object-contain" />
+          </div>
         </div>
-        <MissionExamples missions={examples} className="-mt-14 md:-mt-24" />
+        <MissionExamples missions={examples} className="-mt-14 md:-mt-16" />
       </GradientBg>
       <HowItWorks />
-      <Testimonials missions={testimonials} />
+      <Testimonials />
       <ProSpace />
       <Partners style="compact" />
       <Newsletter

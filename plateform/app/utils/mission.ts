@@ -59,6 +59,17 @@ export function formatDeadline(endAt: string | null): string | null {
   return `Candidatures ouvertes jusqu'au ${d.getDate()} ${MONTHS[d.getMonth()]}`;
 }
 
+/**
+ * Construit le lien vers la page détail d'une mission issue des résultats de matching.
+ * Propage l'adresse qui a permis le match (`addressId`) afin que la page détail affiche
+ * la bonne adresse quand la mission en a plusieurs.
+ */
+export function buildMissionDetailHref(item: MissionMatchItem, userScoringId?: string): string {
+  const base = userScoringId ? `/results/${userScoringId}/missions/${item.mission.id}` : `/missions/${item.mission.id}`;
+  const addressId = item.mission.location.addressId;
+  return addressId ? `${base}?addressId=${encodeURIComponent(addressId)}` : base;
+}
+
 export function matchResultToBrowseMission(item: MissionMatchItem): MissionBrowse {
   return {
     id: item.mission.id,

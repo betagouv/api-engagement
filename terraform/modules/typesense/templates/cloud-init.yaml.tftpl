@@ -1,9 +1,4 @@
 #cloud-config
-package_update: true
-packages:
-  - ca-certificates
-  - curl
-  - docker.io
 
 write_files:
   - path: /etc/typesense/nodes
@@ -84,6 +79,9 @@ write_files:
       WantedBy=multi-user.target
 
 runcmd:
+  - until ping -c1 -W2 1.1.1.1 >/dev/null 2>&1; do echo "Waiting for network..."; sleep 5; done
+  - apt-get update
+  - apt-get install -y ca-certificates curl docker.io
   - systemctl enable --now docker
   - systemctl daemon-reload
   - systemctl enable --now typesense

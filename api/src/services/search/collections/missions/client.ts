@@ -1,13 +1,11 @@
-import type { SearchResponse } from "typesense/lib/Typesense/Documents";
-import type { SearchParams } from "typesense/lib/Typesense/Types";
-
 import { TYPESENSE_MISSION_COLLECTION } from "@/config";
 import { searchProvider } from "@/services/search";
+import type { SearchQueryParams, SearchQueryResponse } from "@/services/search/types";
 
 import type { MissionIndexDocument } from "./types";
 
 export const missionSearchClient = {
-  search(params: SearchParams<MissionIndexDocument>): Promise<SearchResponse<MissionIndexDocument>> {
+  search(params: SearchQueryParams<MissionIndexDocument>): Promise<SearchQueryResponse<MissionIndexDocument>> {
     return searchProvider.search(TYPESENSE_MISSION_COLLECTION, params);
   },
 

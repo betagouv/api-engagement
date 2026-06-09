@@ -1,27 +1,33 @@
 import { Prisma, PublisherDiffusionRule } from "@/db/core";
 import { missionRepository } from "@/repositories/mission";
 import { publisherDiffusionRuleRepository } from "@/repositories/publisher-diffusion-rule";
+import publisherOrganizationService from "@/services/publisher-organization";
 import type {
   PublisherDiffusionRuleCombinator,
   PublisherDiffusionRuleCreateInput,
   PublisherDiffusionRuleFindParams,
   PublisherDiffusionRuleRecord,
 } from "@/types/publisher-diffusion-rule";
+import type { OrganizationArrayIdsResolver } from "@/types/publisher-organization";
 import { buildMissionPublisherDiffusionRuleConditionFromRule, buildMissionPublisherDiffusionRuleSqlFromRules } from "@/utils/publisher-diffusion-rule-query";
 
 type PublisherDiffusionRuleWithChildren = PublisherDiffusionRule & {
   combinedRules?: PublisherDiffusionRule[];
 };
 
-const buildNodeCondition = (rule: PublisherDiffusionRule, childrenByParentId: Map<string, PublisherDiffusionRule[]>): Prisma.MissionWhereInput | null => {
-  const selfCondition = buildMissionPublisherDiffusionRuleConditionFromRule(rule);
+const buildNodeCondition = async (
+  rule: PublisherDiffusionRule,
+  childrenByParentId: Map<string, PublisherDiffusionRule[]>,
+  resolveOrganizationIds: OrganizationArrayIdsResolver
+): Promise<Prisma.MissionWhereInput | null> => {
+  const selfCondition = await buildMissionPublisherDiffusionRuleConditionFromRule(rule, resolveOrganizationIds);
   if (!selfCondition) {
     return null;
   }
 
-  const children = (childrenByParentId.get(rule.id) ?? [])
-    .map((child: PublisherDiffusionRule) => buildNodeCondition(child, childrenByParentId))
-    .filter((condition: Prisma.MissionWhereInput | null): condition is Prisma.MissionWhereInput => Boolean(condition));
+  const children = (
+    await Promise.all((childrenByParentId.get(rule.id) ?? []).map((child: PublisherDiffusionRule) => buildNodeCondition(child, childrenByParentId, resolveOrganizationIds)))
+  ).filter((condition: Prisma.MissionWhereInput | null): condition is Prisma.MissionWhereInput => Boolean(condition));
 
   if (!children.length) {
     return selfCondition;
@@ -31,7 +37,7 @@ const buildNodeCondition = (rule: PublisherDiffusionRule, childrenByParentId: Ma
   return { OR: [{ NOT: selfCondition }, childrenAnd] };
 };
 
-const buildMissionWhere = (rules: PublisherDiffusionRule[]): Prisma.MissionWhereInput => {
+const buildMissionWhere = async (rules: PublisherDiffusionRule[], resolveOrganizationIds: OrganizationArrayIdsResolver): Promise<Prisma.MissionWhereInput> => {
   const childrenByParentId = new Map<string, PublisherDiffusionRule[]>();
   const roots: PublisherDiffusionRule[] = [];
 
@@ -45,9 +51,9 @@ const buildMissionWhere = (rules: PublisherDiffusionRule[]): Prisma.MissionWhere
     }
   }
 
-  const groups = roots
-    .map((root: PublisherDiffusionRule) => buildNodeCondition(root, childrenByParentId))
-    .filter((group: Prisma.MissionWhereInput | null): group is Prisma.MissionWhereInput => Boolean(group));
+  const groups = (await Promise.all(roots.map((root: PublisherDiffusionRule) => buildNodeCondition(root, childrenByParentId, resolveOrganizationIds)))).filter(
+    (group: Prisma.MissionWhereInput | null): group is Prisma.MissionWhereInput => Boolean(group)
+  );
 
   if (!groups.length) {
     return {};
@@ -100,7 +106,7 @@ export const publisherDiffusionRuleService = {
       orderBy: [{ position: Prisma.SortOrder.asc }, { createdAt: Prisma.SortOrder.asc }],
     });
 
-    return buildMissionWhere(rules);
+    return buildMissionWhere(rules, publisherOrganizationService.findIdsMatchingArrayValue);
   },
 
   /**
@@ -138,7 +144,7 @@ export const publisherDiffusionRuleService = {
       return true;
     }
 
-    const diffusionRuleWhere = buildMissionWhere(rules);
+    const diffusionRuleWhere = await buildMissionWhere(rules, publisherOrganizationService.findIdsMatchingArrayValue);
     if (Object.keys(diffusionRuleWhere).length === 0) {
       return false;
     }

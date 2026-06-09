@@ -8,6 +8,7 @@ import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { missionService } from "@/services/mission";
 import { missionEnrichmentService } from "@/services/mission-enrichment";
 import { missionScoringService } from "@/services/mission-scoring";
+import publisherOrganizationService from "@/services/publisher-organization";
 import type { UserRequest } from "@/types/passport";
 import { applyWidgetRules, getDistanceKm } from "@/utils";
 import { getUserPublisherIds, hasAdminOrDirectPublisherAccess, isAdmin, readRequiredParam } from "@/utils/publisher-access";
@@ -154,7 +155,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
     }
 
     if (body.data.rules) {
-      filters.directFilters = applyWidgetRules(body.data.rules);
+      filters.directFilters = await applyWidgetRules(body.data.rules, publisherOrganizationService.findIdsMatchingArrayValue);
     }
 
     const withAdminProcessingFlags = async (data: Awaited<ReturnType<typeof missionService.findMissions>>["data"]) => {
@@ -198,6 +199,14 @@ router.get("/autocomplete", passport.authenticate("user", { session: false }), a
 
     if (!publisherIds.length && !isAdmin(req.user)) {
       return res.status(403).send({ ok: false, code: FORBIDDEN });
+    }
+
+    // Le réseau parent n'est pas porté par la mission : on agrège directement `publisher_organization.parent_organizations`
+    // pour ne pas dépendre des missions remontées (limite, statut ACCEPTED, tri) qui masquaient des valeurs existantes.
+    if (query.data.field === "parentOrganization") {
+      const data = await publisherOrganizationService.autocompleteParentOrganizations(publisherIds, query.data.search);
+
+      return res.status(200).send({ ok: true, data });
     }
 
     const missions = await missionService.findMissions({

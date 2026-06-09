@@ -1,6 +1,8 @@
 import type { CollectionFieldSchema, CollectionSchema } from "typesense/lib/Typesense/Collection";
 import type { CollectionCreateSchema } from "typesense/lib/Typesense/Collections";
 
+import type { SearchCollectionSchema } from "@/services/search/types";
+
 import { typesenseClient } from "./client";
 
 const LOG_PREFIX = "[search:typesense]";
@@ -20,7 +22,7 @@ const assertCompatibleField = (collectionName: string, expected: CollectionField
   }
 };
 
-const syncMissingFields = async (schema: CollectionCreateSchema, existing: CollectionSchema): Promise<void> => {
+const syncMissingFields = async (schema: SearchCollectionSchema, existing: CollectionSchema): Promise<void> => {
   const existingFields = new Map(existing.fields.map((f) => [f.name, f]));
   const missingFields: CollectionFieldSchema[] = [];
 
@@ -31,10 +33,10 @@ const syncMissingFields = async (schema: CollectionCreateSchema, existing: Colle
     const actual = existingFields.get(expected.name);
     if (!actual) {
       console.log(`${LOG_PREFIX} champ manquant : '${expected.name}' (${expected.type})`);
-      missingFields.push(expected);
+      missingFields.push(expected as CollectionFieldSchema);
       continue;
     }
-    assertCompatibleField(schema.name, expected, actual);
+    assertCompatibleField(schema.name, expected as CollectionFieldSchema, actual);
   }
 
   if (missingFields.length > 0) {
@@ -46,7 +48,7 @@ const syncMissingFields = async (schema: CollectionCreateSchema, existing: Colle
   }
 };
 
-export const ensureCollection = async (schema: CollectionCreateSchema): Promise<void> => {
+export const ensureCollection = async (schema: SearchCollectionSchema): Promise<void> => {
   const getHttpStatus = (error: unknown): number | undefined => (error as { httpStatus?: number }).httpStatus;
 
   console.log(`${LOG_PREFIX} vérification de la collection '${schema.name}'...`);
@@ -59,7 +61,7 @@ export const ensureCollection = async (schema: CollectionCreateSchema): Promise<
     if (getHttpStatus(error) !== 404) {throw error;}
     console.log(`${LOG_PREFIX} collection '${schema.name}' absente — création...`);
     try {
-      await typesenseClient.collections().create(schema);
+      await typesenseClient.collections().create(schema as CollectionCreateSchema);
       console.log(`${LOG_PREFIX} collection '${schema.name}' créée`);
     } catch (createError: unknown) {
       if (getHttpStatus(createError) !== 409) {throw createError;}
