@@ -174,7 +174,7 @@ const ModifyModal = () => {
       <button className="primary-btn" onClick={() => setOpen(!open)}>
         Modifier
       </button>
-      <Modal open={open} onClose={() => setOpen(false)} title="Modifier votre flux de missions" className="min-w-3xl">
+      <Modal open={open} onClose={() => setOpen(false)} title="Modifier votre flux de missions" className="w-[90vw] max-w-3xl">
         <div className="flex flex-col items-start justify-between gap-4">
           <div>Lien du fichier XML à synchroniser</div>
           <input className="input focus w-full" value={feed} onChange={(e) => setFeed(e.target.value)} />

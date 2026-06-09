@@ -198,7 +198,7 @@ const ResetPasswordModal = () => {
         Réinitialiser le mot de passe
       </button>
 
-      <Modal open={open} onClose={onClose} title="Changement du mot de passe" className="min-w-3xl">
+      <Modal open={open} onClose={onClose} title="Changement du mot de passe" className="w-[90vw] max-w-3xl">
         <div className="flex flex-col">
           <label className="mb-2 text-sm" htmlFor="old-password">
             Ancien mot de passe

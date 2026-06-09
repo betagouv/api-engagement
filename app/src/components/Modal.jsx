@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef } from "react";
 import { RiCloseFill } from "react-icons/ri";
 
-const Modal = ({ open, children, onClose, title, className = "min-w-2xl" }) => {
+const Modal = ({ open, children, onClose, title, className = "w-[90vw] max-w-2xl" }) => {
   const dialogRef = useRef(null);
   const titleId = useId();
 
