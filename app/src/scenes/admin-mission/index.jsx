@@ -231,9 +231,9 @@ const AdminMission = () => {
             <div className="flex flex-wrap items-center gap-2">
               <p className="text-text-mention text-base">Dernière synchronisation le {lastImport ? new Date(lastImport.startedAt).toLocaleDateString("fr") : "N/A"}</p>
               {lastImport && new Date(lastImport.startedAt) > new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - 1) ? (
-                <RiCheckboxCircleFill role="img" aria-label="OK" className="text-success text-base" />
+                <RiCheckboxCircleFill role="img" aria-label="Synchronisation à jour" className="text-success text-base" />
               ) : (
-                <ErrorIconSvg role="img" aria-label="Erreur" className="fill-error h-4 w-4" />
+                <ErrorIconSvg role="img" aria-label="Synchronisation en retard" className="fill-error h-4 w-4" />
               )}
             </div>
           </div>
@@ -286,9 +286,9 @@ const AdminMission = () => {
               <td className="px-6">
                 <div className="flex items-center gap-1">
                   {item.statusCode === "ACCEPTED" ? (
-                    <RiCheckboxCircleFill role="img" aria-label="OK" className="text-success text-2xl" />
+                    <RiCheckboxCircleFill role="img" aria-label="Acceptée par l'API" className="text-success text-2xl" />
                   ) : (
-                    <ErrorIconSvg role="img" aria-label="Erreur" className="fill-error h-6 w-6" />
+                    <ErrorIconSvg role="img" aria-label="Non acceptée par l'API" className="fill-error h-6 w-6" />
                   )}
                   {item.statusComment ? (
                     <Tooltip

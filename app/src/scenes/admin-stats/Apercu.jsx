@@ -2,16 +2,16 @@ import { useEffect, useState } from "react";
 import { HiChevronRight } from "react-icons/hi";
 import { Link, useSearchParams } from "react-router-dom";
 
+import EmptySVG from "@/assets/svg/empty-info.svg";
+import { StackedBarchart } from "@/components/Chart";
 import ChartDetailsTable from "@/components/ChartDetailsTable";
 import DateRangePicker from "@/components/DateRangePicker";
-import { StackedBarchart } from "@/components/Chart";
 import Loader from "@/components/Loader";
+import { METABASE_CARD_ID, MISSION_TYPE_OPTIONS } from "@/constants";
 import AnalyticsCard from "@/scenes/performance/AnalyticsCard";
 import { useAnalyticsProvider } from "@/services/analytics/provider";
 import { captureError } from "@/services/error";
 import { slugify } from "@/utils/string";
-import EmptySVG from "@/assets/svg/empty-info.svg";
-import { METABASE_CARD_ID, MISSION_TYPE_OPTIONS } from "@/constants";
 
 const CHART_COLORS = ["rgba(117,165,236,1)", "rgba(251,146,107,1)", "#fdc639"];
 
@@ -249,15 +249,7 @@ const TrafficByAnnouncerChart = ({ filters, cardId, title, subtitle }) => {
             <div className="h-[420px] w-full" role="img" aria-label={title} aria-describedby={descriptionId}>
               <StackedBarchart data={histogram} dataKey={keys} />
             </div>
-            <ChartDetailsTable
-              id={descriptionId}
-              title={title}
-              description={subtitle}
-              mode="sr-only"
-              type="stacked"
-              data={histogram}
-              stackedKeys={keys}
-            />
+            <ChartDetailsTable id={descriptionId} title={title} description={subtitle} mode="sr-only" type="stacked" data={histogram} stackedKeys={keys} />
           </figure>
         )}
       </div>
@@ -268,7 +260,9 @@ const TrafficByAnnouncerChart = ({ filters, cardId, title, subtitle }) => {
 const EngagementSection = ({ filters }) => {
   return (
     <div className="space-y-6">
-      <h2 className="text-3xl font-bold">🫶 Engagement généré</h2>
+      <h2 className="text-3xl font-bold">
+        <span aria-hidden="true">🫶</span> Engagement généré
+      </h2>
       <TrafficByAnnouncerChart
         filters={filters}
         cardId={METABASE_CARD_ID.ADMIN_STATS_ENGAGEMENT_REDIRECTIONS}
@@ -288,7 +282,9 @@ const EngagementSection = ({ filters }) => {
 const MissionsSection = ({ filters }) => {
   return (
     <div className="space-y-6">
-      <h2 className="text-3xl font-bold">🚀 Missions</h2>
+      <h2 className="text-3xl font-bold">
+        <span aria-hidden="true">🚀</span> Missions
+      </h2>
       <ChartBlock
         title="Missions actives"
         subtitle="Répartition par type de mission sur la période"
@@ -318,7 +314,9 @@ const MissionsSection = ({ filters }) => {
 const PartnersSection = ({ filters }) => {
   return (
     <div className="space-y-6">
-      <h2 className="text-3xl font-bold">🤝 Partenaires</h2>
+      <h2 className="text-3xl font-bold">
+        <span aria-hidden="true">🤝</span> Partenaires
+      </h2>
       <div className="space-y-4">
         <ChartBlock
           title="Top diffuseurs"
