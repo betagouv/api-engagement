@@ -404,12 +404,13 @@ const PublisherMenu = ({ options, value, onChange }) => {
             role="searchbox"
             id="publisher-search"
             name="publisher-search"
+            aria-controls="publisher-listbox"
             className="w-full pl-2 focus:outline-none"
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={handleInputKeyDown}
           />
         </div>
-        <ul className="flex max-h-80 list-none flex-col overflow-x-visible overflow-y-auto px-2" role="listbox">
+        <ul id="publisher-listbox" role="listbox" aria-label="Partenaires" className="flex max-h-80 list-none flex-col overflow-x-visible overflow-y-auto px-2">
           {filtered.map((option, index) => (
             <li
               ref={(el) => {
@@ -417,7 +418,7 @@ const PublisherMenu = ({ options, value, onChange }) => {
               }}
               key={index}
               role="option"
-              aria-selected={focusedIndex === index}
+              aria-selected={value.id === option.id}
               aria-label={option.name}
               tabIndex={focusedIndex === index ? 0 : -1}
               className={`nav-link -mx-2 cursor-pointer items-center ${index === 0 ? "shadow-none" : ""} ${focusedIndex === index || value.id === option.id ? "text-blue-france" : ""}`}
