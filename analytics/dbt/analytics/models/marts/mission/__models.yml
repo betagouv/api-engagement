@@ -256,6 +256,44 @@ models:
         description: Dernière date de mise à jour observée dans l'agrégat.
         tests:
           - not_null
+  - name: mission_enrichment_daily
+    description: >
+      Agrégat quotidien des enrichissements IA de mission au grain jour + publisher +
+      statut, alimenté depuis `mission_enrichment`. Le `publisher_id` est récupéré via
+      `mission` et le `publisher_name` dénormalisé via `dim_publisher`. Permet le suivi
+      du volume d'enrichissements et du coût en tokens (entrée/sortie) dans Metabase.
+    columns:
+      - name: event_date
+        description: Jour d'agrégation basé sur `mission_enrichment.created_at`.
+        tests:
+          - not_null
+      - name: publisher_id
+        description: Identifiant du partenaire propriétaire de la mission (nullable si mission introuvable).
+        tests:
+          - relationships:
+              arguments:
+                to: ref('dim_publisher')
+                field: id
+      - name: publisher_name
+        description: Nom du partenaire dénormalisé pour les analyses Metabase (nullable).
+      - name: status
+        description: Statut de l'enrichissement (`pending`, `processing`, `completed`, `failed`).
+        tests:
+          - not_null
+      - name: enrichment_count
+        description: Nombre d'enrichissements dans le grain (jour + publisher + statut).
+        tests:
+          - not_null
+      - name: input_tokens
+        description: Somme des tokens d'entrée consommés (NULL/0 hors statut `completed`).
+      - name: output_tokens
+        description: Somme des tokens de sortie produits (NULL/0 hors statut `completed`).
+      - name: total_tokens
+        description: Somme des tokens totaux consommés (NULL/0 hors statut `completed`).
+      - name: max_updated_at
+        description: Dernière date de mise à jour observée dans l'agrégat (curseur incrémental).
+        tests:
+          - not_null
   - name: mission_time_to_event_weekly
     description: >
       Mart hebdomadaire des délais (time-to-click/apply) et volumes, agrégé à partir
