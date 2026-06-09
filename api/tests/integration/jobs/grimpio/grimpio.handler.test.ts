@@ -33,6 +33,7 @@ const ASC_ID = PUBLISHER_IDS.SERVICE_CIVIQUE;
 // endAt par défaut de la factory = maintenant → la mission serait filtrée comme
 // expirée par le handler. On force une date future pour les missions de test.
 const FUTURE_END = new Date(Date.now() + 24 * 60 * 60 * 1000);
+const PAST_END = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
 const handler = new GrimpioHandler();
 
@@ -117,6 +118,31 @@ describe("GrimpioHandler (integration test)", () => {
     const imports = await prisma.import.findMany({ where: { publisherId: GRIMPIO_ID } });
     expect(imports).toHaveLength(2);
     expect(imports.map((imp) => imp.name).sort()).toEqual([`GRIMPIO-${JVA_ID}`, `GRIMPIO-${ASC_ID}`].sort());
+  });
+
+  it("réécrit un feed vide quand un publisher annonceur n'a aucune mission active", async () => {
+    await createTestPublisher({ id: GRIMPIO_ID, name: "Grimpio" });
+    await createTestPublisher({ id: JVA_ID, name: "JeVeuxAider" });
+    await createTestPublisher({ id: ASC_ID, name: "Service Civique" });
+
+    await publisherDiffusionRuleService.findOrCreateScopeRoot(GRIMPIO_ID, JVA_ID);
+    await publisherDiffusionRuleService.findOrCreateScopeRoot(GRIMPIO_ID, ASC_ID);
+
+    await createTestMission({ publisherId: JVA_ID, statusCode: "ACCEPTED", endAt: FUTURE_END, clientId: "jva-active" });
+    await createTestMission({ publisherId: ASC_ID, statusCode: "ACCEPTED", endAt: PAST_END, clientId: "asc-expired" });
+
+    const result = await handler.handle({});
+
+    expect(result.success).toBe(true);
+    expect(result.feeds?.find((feed) => feed.publisherId === ASC_ID)?.sent).toBe(0);
+    expect(result.counter).toMatchObject({ sent: 1, expired: 1 });
+
+    const ascXml = getStoredXmlForPublisher(ASC_ID);
+    expect(ascXml).toBeDefined();
+    expect(ascXml).not.toContain("asc-expired");
+
+    const storedKeys = vi.mocked(putObject).mock.calls.map(([key]) => key);
+    expect(storedKeys).toContain(`xml/grimpio-${ASC_ID}.xml`);
   });
 
   it("applique les critères enfants d'une rule (exclusion d'une organisation)", async () => {

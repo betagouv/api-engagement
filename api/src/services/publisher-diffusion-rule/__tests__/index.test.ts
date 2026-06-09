@@ -170,6 +170,30 @@ describe("publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere", ()
 
     expect(where).toEqual({ publisherId: "annonceur-1" });
   });
+
+  it("ignore les racines publisherId qui ne sont pas des scopes positifs", async () => {
+    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([
+      buildRule({ id: "root-1", value: "annonceur-1" }),
+      buildRule({ id: "root-2", operator: "is_not", value: "annonceur-2", position: 1 }),
+    ]);
+
+    const where = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere("diffuseur-1");
+
+    expect(where).toEqual({ publisherId: "annonceur-1" });
+  });
+
+  it("renvoie la liste des annonceurs configurés avec le where", async () => {
+    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([
+      buildRule({ id: "root-1", value: "annonceur-1" }),
+      buildRule({ id: "root-2", value: "annonceur-2", position: 1 }),
+      buildRule({ id: "root-3", operator: "is_not", value: "annonceur-3", position: 2 }),
+    ]);
+
+    const filter = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateFilter("diffuseur-1");
+
+    expect(filter.publisherIds).toEqual(["annonceur-1", "annonceur-2"]);
+    expect(filter.where).toEqual({ OR: [{ publisherId: "annonceur-1" }, { publisherId: "annonceur-2" }] });
+  });
 });
 
 describe("publisherDiffusionRuleService.canPublisherAccessMission", () => {

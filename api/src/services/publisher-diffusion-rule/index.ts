@@ -105,6 +105,30 @@ const buildMissionWhere = async (rules: PublisherDiffusionRule[], resolveOrganiz
   return { AND: groups };
 };
 
+const buildDiffuseurCandidateFilterFromRules = async (
+  rules: PublisherDiffusionRule[]
+): Promise<{ where: Prisma.MissionWhereInput; publisherIds: string[] }> => {
+  const { roots, childrenByParentId } = groupRulesByParent(rules);
+  const scopeRoots = roots.filter((root) => root.field === "publisherId" && root.operator === "is");
+
+  const scopes = (
+    await Promise.all(scopeRoots.map((root) => buildAllowlistNodeCondition(root, childrenByParentId, publisherOrganizationService.findIdsMatchingArrayValue)))
+  ).filter((scope): scope is Prisma.MissionWhereInput => scope !== null && Object.keys(scope).length > 0);
+
+  const publisherIds = Array.from(new Set(scopeRoots.map((root) => root.value)));
+
+  if (scopes.length === 0) {
+    return { where: {}, publisherIds };
+  }
+  return { where: scopes.length === 1 ? scopes[0] : { OR: scopes }, publisherIds };
+};
+
+const findOrderedRules = (publisherId: string): Promise<PublisherDiffusionRule[]> =>
+  publisherDiffusionRuleRepository.findMany({
+    where: { publisherId },
+    orderBy: [{ position: Prisma.SortOrder.asc }, { createdAt: Prisma.SortOrder.asc }],
+  });
+
 const toRecord = (rule: PublisherDiffusionRuleWithChildren): PublisherDiffusionRuleRecord => ({
   id: rule.id,
   publisherId: rule.publisherId,
@@ -142,11 +166,7 @@ const buildFindWhere = (params: PublisherDiffusionRuleFindParams): Prisma.Publis
 
 export const publisherDiffusionRuleService = {
   async buildMissionPublisherDiffusionRuleWhere(publisherId: string): Promise<Prisma.MissionWhereInput> {
-    const rules = await publisherDiffusionRuleRepository.findMany({
-      where: { publisherId },
-      orderBy: [{ position: Prisma.SortOrder.asc }, { createdAt: Prisma.SortOrder.asc }],
-    });
-
+    const rules = await findOrderedRules(publisherId);
     return buildMissionWhere(rules, publisherOrganizationService.findIdsMatchingArrayValue);
   },
 
@@ -159,29 +179,18 @@ export const publisherDiffusionRuleService = {
    * publishers hors annonceurs et reste valide avec plusieurs scopes.
    */
   async buildMissionDiffuseurCandidateWhere(publisherId: string): Promise<Prisma.MissionWhereInput> {
-    const rules = await publisherDiffusionRuleRepository.findMany({
-      where: { publisherId },
-      orderBy: [{ position: Prisma.SortOrder.asc }, { createdAt: Prisma.SortOrder.asc }],
-    });
+    const rules = await findOrderedRules(publisherId);
+    const { where } = await buildDiffuseurCandidateFilterFromRules(rules);
+    return where;
+  },
 
-    const { roots, childrenByParentId } = groupRulesByParent(rules);
-    const scopeRoots = roots.filter((root) => root.field === "publisherId");
-
-    const scopes = (
-      await Promise.all(scopeRoots.map((root) => buildAllowlistNodeCondition(root, childrenByParentId, publisherOrganizationService.findIdsMatchingArrayValue)))
-    ).filter((scope): scope is Prisma.MissionWhereInput => scope !== null && Object.keys(scope).length > 0);
-
-    if (scopes.length === 0) {
-      return {};
-    }
-    return scopes.length === 1 ? scopes[0] : { OR: scopes };
+  async buildMissionDiffuseurCandidateFilter(publisherId: string): Promise<{ where: Prisma.MissionWhereInput; publisherIds: string[] }> {
+    const rules = await findOrderedRules(publisherId);
+    return buildDiffuseurCandidateFilterFromRules(rules);
   },
 
   async canPublisherAccessMission({ publisherId, missionId }: { publisherId: string; missionId: string }): Promise<boolean> {
-    const rules = await publisherDiffusionRuleRepository.findMany({
-      where: { publisherId },
-      orderBy: [{ position: Prisma.SortOrder.asc }, { createdAt: Prisma.SortOrder.asc }],
-    });
+    const rules = await findOrderedRules(publisherId);
     if (rules.length === 0) {
       return true;
     }

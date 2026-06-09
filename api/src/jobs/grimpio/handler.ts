@@ -47,7 +47,7 @@ export class GrimpioHandler implements BaseHandler<GrimpioJobPayload, GrimpioJob
 
       // Where des missions candidates de grimpio (allowlist des annonceurs +
       // leurs critères/exclusions), construit depuis ses diffusion rules.
-      const candidateWhere = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere(GRIMPIO_PUBLISHER_ID);
+      const { where: candidateWhere, publisherIds: candidatePublisherIds } = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateFilter(GRIMPIO_PUBLISHER_ID);
       if (Object.keys(candidateWhere).length === 0) {
         console.log(`[Grimpio Job] No annonceur configured for grimpio, nothing to diffuse`);
         return { success: true, timestamp: new Date(), feeds: [], counter };
@@ -62,7 +62,8 @@ export class GrimpioHandler implements BaseHandler<GrimpioJobPayload, GrimpioJob
 
       const feeds: { publisherId: string; url: string; sent: number }[] = [];
 
-      for (const [publisherId, jobs] of jobsByPublisher) {
+      for (const publisherId of candidatePublisherIds) {
+        const jobs = jobsByPublisher.get(publisherId) ?? [];
         console.log(`[Grimpio Job] Generating XML for publisher ${publisherId} (${jobs.length} jobs)`);
         const xml = generateXML(jobs);
         counter.sent += jobs.length;
