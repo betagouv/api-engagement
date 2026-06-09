@@ -494,6 +494,146 @@ resource "scaleway_job_definition" "analytics-mission-jobboard" {
   })
 }
 
+resource "scaleway_job_definition" "analytics-user-scoring" {
+  count                  = var.enable_analytics_jobs ? 1 : 0
+  name                   = "analytics-${var.env}-user-scoring"
+  project_id             = var.project_id
+  cpu_limit              = 1000
+  memory_limit           = 2048
+  local_storage_capacity = 1024
+  image_uri              = local.image_analytics_uri
+  timeout                = "120m"
+
+  cron {
+    schedule = "0 3 * * *" # Every day at 3:00 AM
+    timezone = "Europe/Paris"
+  }
+
+  env = merge(local.common_analytics_env_vars, {
+    JOB_CMD = "node dist/jobs/run-job.js export-to-analytics-raw user_scoring"
+  })
+}
+
+resource "scaleway_job_definition" "analytics-user-scoring-value" {
+  count                  = var.enable_analytics_jobs ? 1 : 0
+  name                   = "analytics-${var.env}-user-scoring-value"
+  project_id             = var.project_id
+  cpu_limit              = 1000
+  memory_limit           = 2048
+  local_storage_capacity = 1024
+  image_uri              = local.image_analytics_uri
+  timeout                = "120m"
+
+  cron {
+    schedule = "0 3 * * *" # Every day at 3:00 AM
+    timezone = "Europe/Paris"
+  }
+
+  env = merge(local.common_analytics_env_vars, {
+    JOB_CMD = "node dist/jobs/run-job.js export-to-analytics-raw user_scoring_value"
+  })
+}
+
+resource "scaleway_job_definition" "analytics-matching-engine-result" {
+  count                  = var.enable_analytics_jobs ? 1 : 0
+  name                   = "analytics-${var.env}-matching-engine-result"
+  project_id             = var.project_id
+  cpu_limit              = 1000
+  memory_limit           = 2048
+  local_storage_capacity = 1024
+  image_uri              = local.image_analytics_uri
+  timeout                = "120m"
+
+  cron {
+    schedule = "0 3 * * *" # Every day at 3:00 AM
+    timezone = "Europe/Paris"
+  }
+
+  env = merge(local.common_analytics_env_vars, {
+    JOB_CMD = "node dist/jobs/run-job.js export-to-analytics-raw matching_engine_result"
+  })
+}
+
+resource "scaleway_job_definition" "analytics-mission-scoring" {
+  count                  = var.enable_analytics_jobs ? 1 : 0
+  name                   = "analytics-${var.env}-mission-scoring"
+  project_id             = var.project_id
+  cpu_limit              = 1000
+  memory_limit           = 2048
+  local_storage_capacity = 1024
+  image_uri              = local.image_analytics_uri
+  timeout                = "120m"
+
+  cron {
+    schedule = "0 3 * * *" # Every day at 3:00 AM
+    timezone = "Europe/Paris"
+  }
+
+  env = merge(local.common_analytics_env_vars, {
+    JOB_CMD = "node dist/jobs/run-job.js export-to-analytics-raw mission_scoring"
+  })
+}
+
+resource "scaleway_job_definition" "analytics-mission-scoring-value" {
+  count                  = var.enable_analytics_jobs ? 1 : 0
+  name                   = "analytics-${var.env}-mission-scoring-value"
+  project_id             = var.project_id
+  cpu_limit              = 1000
+  memory_limit           = 2048
+  local_storage_capacity = 1024
+  image_uri              = local.image_analytics_uri
+  timeout                = "120m"
+
+  cron {
+    schedule = "0 3 * * *" # Every day at 3:00 AM
+    timezone = "Europe/Paris"
+  }
+
+  env = merge(local.common_analytics_env_vars, {
+    JOB_CMD = "node dist/jobs/run-job.js export-to-analytics-raw mission_scoring_value"
+  })
+}
+
+resource "scaleway_job_definition" "analytics-mission-enrichment" {
+  count                  = var.enable_analytics_jobs ? 1 : 0
+  name                   = "analytics-${var.env}-mission-enrichment"
+  project_id             = var.project_id
+  cpu_limit              = 1000
+  memory_limit           = 2048
+  local_storage_capacity = 1024
+  image_uri              = local.image_analytics_uri
+  timeout                = "120m"
+
+  cron {
+    schedule = "0 3 * * *" # Every day at 3:00 AM
+    timezone = "Europe/Paris"
+  }
+
+  env = merge(local.common_analytics_env_vars, {
+    JOB_CMD = "node dist/jobs/run-job.js export-to-analytics-raw mission_enrichment"
+  })
+}
+
+resource "scaleway_job_definition" "analytics-mission-enrichment-value" {
+  count                  = var.enable_analytics_jobs ? 1 : 0
+  name                   = "analytics-${var.env}-mission-enrichment-value"
+  project_id             = var.project_id
+  cpu_limit              = 1000
+  memory_limit           = 2048
+  local_storage_capacity = 1024
+  image_uri              = local.image_analytics_uri
+  timeout                = "120m"
+
+  cron {
+    schedule = "0 3 * * *" # Every day at 3:00 AM
+    timezone = "Europe/Paris"
+  }
+
+  env = merge(local.common_analytics_env_vars, {
+    JOB_CMD = "node dist/jobs/run-job.js export-to-analytics-raw mission_enrichment_value"
+  })
+}
+
 resource "scaleway_job_definition" "analytics-dbt-run" {
   count                  = var.enable_analytics_jobs ? 1 : 0
   name                   = "analytics-${var.env}-dbt-run"
