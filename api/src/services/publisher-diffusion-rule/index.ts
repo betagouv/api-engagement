@@ -2,14 +2,12 @@ import { Prisma, PublisherDiffusionRule } from "@/db/core";
 import { RESSOURCE_ALREADY_EXIST } from "@/error";
 import { missionRepository } from "@/repositories/mission";
 import { publisherDiffusionRuleRepository } from "@/repositories/publisher-diffusion-rule";
-import publisherOrganizationService from "@/services/publisher-organization";
 import type {
   PublisherDiffusionRuleCombinator,
   PublisherDiffusionRuleCreateInput,
   PublisherDiffusionRuleFindParams,
   PublisherDiffusionRuleRecord,
 } from "@/types/publisher-diffusion-rule";
-import type { OrganizationArrayIdsResolver } from "@/types/publisher-organization";
 import {
   buildMissionPublisherDiffusionRuleConditionFromRule,
   buildMissionPublisherDiffusionRuleSqlFromRules,
@@ -21,32 +19,9 @@ type PublisherDiffusionRuleWithChildren = PublisherDiffusionRule & {
   combinedWith?: PublisherDiffusionRule | null;
 };
 
-const buildNodeCondition = async (
-  rule: PublisherDiffusionRule,
-  childrenByParentId: Map<string, PublisherDiffusionRule[]>,
-  resolveOrganizationIds: OrganizationArrayIdsResolver
-): Promise<Prisma.MissionWhereInput | null> => {
-  const selfCondition = await buildMissionPublisherDiffusionRuleConditionFromRule(rule, resolveOrganizationIds);
-  if (!selfCondition) {
-    return null;
-  }
-
-  const children = (
-    await Promise.all((childrenByParentId.get(rule.id) ?? []).map((child: PublisherDiffusionRule) => buildNodeCondition(child, childrenByParentId, resolveOrganizationIds)))
-  ).filter((condition: Prisma.MissionWhereInput | null): condition is Prisma.MissionWhereInput => Boolean(condition));
-
-  if (!children.length) {
-    return selfCondition;
-  }
-
-  const childrenAnd = children.length === 1 ? children[0] : { AND: children };
-  return { OR: [{ NOT: selfCondition }, childrenAnd] };
-};
-
 /**
- * Indexe une liste plate de rules par parent : racines (`combinedWithId === null`)
- * d'un côté, enfants regroupés par `combinedWithId` de l'autre. Partagé par les
- * constructeurs de `where` (implication et allowlist).
+ * Indexe une liste plate de rules par parent : racines (`combinedWithId === null`,
+ * une par annonceur) d'un côté, enfants regroupés par `combinedWithId` de l'autre.
  */
 const groupRulesByParent = (rules: PublisherDiffusionRule[]): { roots: PublisherDiffusionRule[]; childrenByParentId: Map<string, PublisherDiffusionRule[]> } => {
   const childrenByParentId = new Map<string, PublisherDiffusionRule[]>();
@@ -66,67 +41,47 @@ const groupRulesByParent = (rules: PublisherDiffusionRule[]): { roots: Publisher
 };
 
 /**
- * Forme allowlist d'un nœud : `selfCondition AND (enfants)`. Miroir positif de
- * `buildNodeCondition` (qui encode l'implication `NOT self OR enfants`) : même
- * parcours d'arbre via `combinedWithId`, enfants combinés en `AND` (le champ
- * `combinator` n'est pas pris en compte, cohérent avec la forme implication).
+ * Condition d'un scope : la condition de la rule combinée en `AND` avec celles de
+ * ses enfants (critères/exclusions). Ex. `publisherId === X AND <field op value>`.
  */
-const buildAllowlistNodeCondition = async (
-  rule: PublisherDiffusionRule,
-  childrenByParentId: Map<string, PublisherDiffusionRule[]>,
-  resolveOrganizationIds: OrganizationArrayIdsResolver
-): Promise<Prisma.MissionWhereInput | null> => {
-  const selfCondition = await buildMissionPublisherDiffusionRuleConditionFromRule(rule, resolveOrganizationIds);
+const buildScopeCondition = (rule: PublisherDiffusionRule, childrenByParentId: Map<string, PublisherDiffusionRule[]>): Prisma.MissionWhereInput | null => {
+  const conditions: Prisma.MissionWhereInput[] = [];
 
-  const children = (
-    await Promise.all(
-      (childrenByParentId.get(rule.id) ?? []).map((child: PublisherDiffusionRule) => buildAllowlistNodeCondition(child, childrenByParentId, resolveOrganizationIds))
-    )
-  ).filter((condition: Prisma.MissionWhereInput | null): condition is Prisma.MissionWhereInput => Boolean(condition));
-
-  if (!children.length) {
-    return selfCondition;
+  const selfCondition = buildMissionPublisherDiffusionRuleConditionFromRule(rule);
+  if (selfCondition) {
+    conditions.push(selfCondition);
   }
 
-  const childrenAnd = children.length === 1 ? children[0] : { AND: children };
-  if (!selfCondition) {
-    return childrenAnd;
+  for (const child of childrenByParentId.get(rule.id) ?? []) {
+    const childCondition = buildScopeCondition(child, childrenByParentId);
+    if (childCondition) {
+      conditions.push(childCondition);
+    }
   }
-  return { AND: [selfCondition, childrenAnd] };
+
+  if (conditions.length === 0) {
+    return null;
+  }
+  return conditions.length === 1 ? conditions[0] : { AND: conditions };
 };
 
-const buildMissionWhere = async (rules: PublisherDiffusionRule[], resolveOrganizationIds: OrganizationArrayIdsResolver): Promise<Prisma.MissionWhereInput> => {
+/**
+ * Allowlist des missions diffusables : `OR` des scopes, chaque scope étant un
+ * annonceur (`publisherId === X`) combiné à ses critères enfants. `publisherIds`
+ * restreint optionnellement aux annonceurs demandés (param `publisher` de la route).
+ */
+const buildAllowlistWhere = (rules: PublisherDiffusionRule[], publisherIds?: string[]): Prisma.MissionWhereInput => {
   const { roots, childrenByParentId } = groupRulesByParent(rules);
+  const scopeRoots = roots.filter((root) => root.field === "publisherId" && root.operator === "is" && (!publisherIds || publisherIds.includes(root.value)));
 
-  const groups = (await Promise.all(roots.map((root: PublisherDiffusionRule) => buildNodeCondition(root, childrenByParentId, resolveOrganizationIds)))).filter(
-    (group: Prisma.MissionWhereInput | null): group is Prisma.MissionWhereInput => Boolean(group)
-  );
-
-  if (!groups.length) {
-    return {};
-  }
-  if (groups.length === 1) {
-    return groups[0];
-  }
-  return { AND: groups };
-};
-
-const buildDiffuseurCandidateFilterFromRules = async (
-  rules: PublisherDiffusionRule[]
-): Promise<{ where: Prisma.MissionWhereInput; publisherIds: string[] }> => {
-  const { roots, childrenByParentId } = groupRulesByParent(rules);
-  const scopeRoots = roots.filter((root) => root.field === "publisherId" && root.operator === "is");
-
-  const scopes = (
-    await Promise.all(scopeRoots.map((root) => buildAllowlistNodeCondition(root, childrenByParentId, publisherOrganizationService.findIdsMatchingArrayValue)))
-  ).filter((scope): scope is Prisma.MissionWhereInput => scope !== null && Object.keys(scope).length > 0);
-
-  const publisherIds = Array.from(new Set(scopeRoots.map((root) => root.value)));
+  const scopes = scopeRoots
+    .map((root) => buildScopeCondition(root, childrenByParentId))
+    .filter((scope): scope is Prisma.MissionWhereInput => scope !== null && Object.keys(scope).length > 0);
 
   if (scopes.length === 0) {
-    return { where: {}, publisherIds };
+    return {};
   }
-  return { where: scopes.length === 1 ? scopes[0] : { OR: scopes }, publisherIds };
+  return scopes.length === 1 ? scopes[0] : { OR: scopes };
 };
 
 const findOrderedRules = (publisherId: string): Promise<PublisherDiffusionRule[]> =>
@@ -190,28 +145,15 @@ const buildFindWhere = (params: PublisherDiffusionRuleFindParams): Prisma.Publis
 };
 
 export const publisherDiffusionRuleService = {
-  async buildMissionPublisherDiffusionRuleWhere(publisherId: string): Promise<Prisma.MissionWhereInput> {
-    const rules = await findOrderedRules(publisherId);
-    return buildMissionWhere(rules, publisherOrganizationService.findIdsMatchingArrayValue);
-  },
-
   /**
    * Construit le where des missions qu'un diffuseur peut diffuser, sous forme
    * d'allowlist : `OR` des scopes, chaque scope = `publisherId` de l'annonceur
-   * (root) `AND` ses critères/exclusions enfants. Contrairement à
-   * `buildMissionPublisherDiffusionRuleWhere` (forme implication, pensée pour
-   * contraindre un ensemble déjà restreint), cette forme exclut nativement les
-   * publishers hors annonceurs et reste valide avec plusieurs scopes.
+   * `AND` ses critères/exclusions enfants. `publisherIds` restreint optionnellement
+   * aux annonceurs demandés (param `publisher` de la route).
    */
-  async buildMissionDiffuseurCandidateWhere(publisherId: string): Promise<Prisma.MissionWhereInput> {
+  async buildMissionDiffuseurCandidateWhere(publisherId: string, publisherIds?: string[]): Promise<Prisma.MissionWhereInput> {
     const rules = await findOrderedRules(publisherId);
-    const { where } = await buildDiffuseurCandidateFilterFromRules(rules);
-    return where;
-  },
-
-  async buildMissionDiffuseurCandidateFilter(publisherId: string): Promise<{ where: Prisma.MissionWhereInput; publisherIds: string[] }> {
-    const rules = await findOrderedRules(publisherId);
-    return buildDiffuseurCandidateFilterFromRules(rules);
+    return buildAllowlistWhere(rules, publisherIds);
   },
 
   async canPublisherAccessMission({ publisherId, missionId }: { publisherId: string; missionId: string }): Promise<boolean> {
@@ -220,7 +162,7 @@ export const publisherDiffusionRuleService = {
       return true;
     }
 
-    const diffusionRuleWhere = await buildMissionWhere(rules, publisherOrganizationService.findIdsMatchingArrayValue);
+    const diffusionRuleWhere = buildAllowlistWhere(rules);
     if (Object.keys(diffusionRuleWhere).length === 0) {
       return false;
     }
