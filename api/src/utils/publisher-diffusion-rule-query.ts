@@ -20,6 +20,9 @@ const ARRAY_FIELD_PATH_TO_COLUMN: Record<string, OrgArrayColumn> = {
 };
 const ARRAY_FIELD_PATHS = new Set(Object.keys(ARRAY_FIELD_PATH_TO_COLUMN));
 
+// Vrai si le champ est adossé à un tableau Postgres : l'appartenance est exacte (et non par sous-chaîne).
+export const isPublisherDiffusionRuleArrayField = (field: string): boolean => ARRAY_FIELD_PATHS.has(field);
+
 // Opérateurs array pour lesquels le matching doit être insensible à la casse (cf. règles widget).
 const CASE_INSENSITIVE_ARRAY_OPERATORS = new Set(["is", "is_not", "contains", "does_not_contain"]);
 
