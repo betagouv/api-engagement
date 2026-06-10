@@ -77,18 +77,19 @@ describe("storeXML", () => {
     vi.setSystemTime(new Date("2025-01-15"));
 
     const xml = "<source><publisher>test</publisher></source>";
-    const result = await storeXML(xml);
+    const publisherId = "publisher-123";
+    const result = await storeXML(xml, publisherId);
 
     expect(mockPutObject).toHaveBeenCalledTimes(2);
-    expect(mockPutObject).toHaveBeenCalledWith("xml/grimpio-2025-01-15.xml", xml, {
+    expect(mockPutObject).toHaveBeenCalledWith("xml/grimpio-publisher-123-2025-01-15.xml", xml, {
       ContentType: "application/xml",
       ACL: "public-read",
     });
-    expect(mockPutObject).toHaveBeenCalledWith("xml/grimpio.xml", xml, {
+    expect(mockPutObject).toHaveBeenCalledWith("xml/grimpio-publisher-123.xml", xml, {
       ContentType: "application/xml",
       ACL: "public-read",
     });
 
-    expect(result).toContain("grimpio-2025-01-15.xml");
+    expect(result).toContain("grimpio-publisher-123-2025-01-15.xml");
   });
 });

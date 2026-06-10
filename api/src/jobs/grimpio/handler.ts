@@ -11,15 +11,16 @@ import { ENV, PUBLISHER_IDS } from "@/config";
 import { captureException } from "@/error";
 import { BaseHandler } from "@/jobs/base/handler";
 import { GRIMPIO_PUBLISHER_ID } from "@/jobs/grimpio/config";
-import { generateJobs, generateXML, getMissionsCursor, storeXML } from "@/jobs/grimpio/utils";
+import { generateJobsByPublisher, generateXML, getMissionsCursor, storeXML } from "@/jobs/grimpio/utils";
 import { JobResult } from "@/jobs/types";
 import { importService } from "@/services/import";
 import { publisherService } from "@/services/publisher";
+import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 
 export interface GrimpioJobPayload {}
 
 export interface GrimpioJobResult extends JobResult {
-  url?: string;
+  feeds?: { publisherId: string; url: string; sent: number }[];
   counter: {
     processed: number;
     sent: number;
@@ -38,81 +39,67 @@ export class GrimpioHandler implements BaseHandler<GrimpioJobPayload, GrimpioJob
         throw new Error("Grimpio publisher not found");
       }
 
-      const result = {
-        url: "",
-        counter: {
-          processed: 0,
-          sent: 0,
-          expired: 0,
-        },
-      } as GrimpioJobResult;
+      const counter = {
+        processed: 0,
+        sent: 0,
+        expired: 0,
+      };
 
-      const jobs = [];
-
-      console.log(`[Grimpio Job] Querying and processing missions of JeVeuxAider.gouv.fr`);
-      const JvaMissionsCursor = getMissionsCursor({
-        publisherIds: [PUBLISHER_IDS.JEVEUXAIDER],
-      });
-
-      const jvaJobs = await generateJobs(JvaMissionsCursor);
-      console.log(`[Grimpio Job] ${jvaJobs.processed} JeVeuxAider missions processed, ${jvaJobs.jobs.length} jobs added to the feed`);
-      jobs.push(...jvaJobs.jobs);
-      result.counter.processed += jvaJobs.processed;
-      result.counter.sent += jvaJobs.jobs.length;
-      result.counter.expired += jvaJobs.expired;
-
-      // TODO: Uncomment when Service Civique is available
-      console.log(`[Grimpio Job] Querying and processing missions of Service Civique`);
-      const scMissionsCursor = getMissionsCursor({
-        publisherIds: [PUBLISHER_IDS.SERVICE_CIVIQUE],
-      });
-
-      const scJobs = await generateJobs(scMissionsCursor);
-      console.log(`[Grimpio Job] ${scJobs.processed} Service Civique missions processed, ${scJobs.jobs.length} jobs added to the feed`);
-      jobs.push(...scJobs.jobs);
-      result.counter.processed += scJobs.processed;
-      result.counter.sent += scJobs.jobs.length;
-      result.counter.expired += scJobs.expired;
-
-      console.log(`[Grimpio Job] Generating XML for ${jobs.length} jobs`);
-      const xml = generateXML(jobs);
-      console.log(`[Grimpio Job] ${xml.length} bytes`);
-
-      if (ENV === "development") {
-        fs.writeFileSync("grimpio.xml", xml);
-        console.log(`[Grimpio Job] XML stored in local file`);
-
-        return {
-          success: true,
-          timestamp: new Date(),
-          url: "file://grimpio.xml",
-          counter: result.counter,
-        };
+      // Where des missions candidates de grimpio (allowlist des annonceurs +
+      // leurs critères/exclusions), construit depuis ses diffusion rules.
+      const { where: candidateWhere, publisherIds: candidatePublisherIds } = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateFilter(GRIMPIO_PUBLISHER_ID);
+      if (Object.keys(candidateWhere).length === 0) {
+        console.log(`[Grimpio Job] No annonceur configured for grimpio, nothing to diffuse`);
+        return { success: true, timestamp: new Date(), feeds: [], counter };
       }
 
-      const url = await storeXML(xml);
-      console.log(`[Grimpio Job] XML stored at ${url}`);
+      console.log(`[Grimpio Job] Querying candidate missions`);
+      // publisherIds: [] satisfait le type (requis) sans ajouter de filtre — l'allowlist
+      // est portée par directFilters (candidateWhere).
+      const { jobsByPublisher, processed, expired } = await generateJobsByPublisher(getMissionsCursor({ directFilters: candidateWhere, publisherIds: [] }));
+      counter.processed = processed;
+      counter.expired = expired;
 
-      await importService.createImport({
-        name: `GRIMPIO`,
-        publisherId: PUBLISHER_IDS.GRIMPIO,
-        createdCount: result.counter.sent,
-        updatedCount: 0,
-        deletedCount: 0,
-        missionCount: 0,
-        refusedCount: 0,
-        startedAt: start,
-        finishedAt: new Date(),
-        status: "SUCCESS",
-        failed: { data: [] },
-      });
+      const feeds: { publisherId: string; url: string; sent: number }[] = [];
+
+      for (const publisherId of candidatePublisherIds) {
+        const jobs = jobsByPublisher.get(publisherId) ?? [];
+        console.log(`[Grimpio Job] Generating XML for publisher ${publisherId} (${jobs.length} jobs)`);
+        const xml = generateXML(jobs);
+        counter.sent += jobs.length;
+
+        if (ENV === "development") {
+          fs.writeFileSync(`grimpio-${publisherId}.xml`, xml);
+          console.log(`[Grimpio Job] XML stored in local file grimpio-${publisherId}.xml`);
+          feeds.push({ publisherId, url: `file://grimpio-${publisherId}.xml`, sent: jobs.length });
+          continue;
+        }
+
+        const url = await storeXML(xml, publisherId);
+        console.log(`[Grimpio Job] XML stored at ${url}`);
+        feeds.push({ publisherId, url, sent: jobs.length });
+
+        await importService.createImport({
+          name: `GRIMPIO-${publisherId}`,
+          publisherId: PUBLISHER_IDS.GRIMPIO,
+          createdCount: jobs.length,
+          updatedCount: 0,
+          deletedCount: 0,
+          missionCount: 0,
+          refusedCount: 0,
+          startedAt: start,
+          finishedAt: new Date(),
+          status: "SUCCESS",
+          failed: { data: [] },
+        });
+      }
 
       return {
         success: true,
         timestamp: new Date(),
-        url,
-        counter: result.counter,
-        message: `\t• Nombre de missions traitées: ${result.counter.processed}\n\t• Nombre de missions envoyées dans le feed: ${result.counter.sent}\n\t• Nombre de missions expirées: ${result.counter.expired}`,
+        feeds,
+        counter,
+        message: `\t• Nombre de feeds générés: ${feeds.length}\n\t• Nombre de missions traitées: ${counter.processed}\n\t• Nombre de missions envoyées dans les feeds: ${counter.sent}\n\t• Nombre de missions expirées: ${counter.expired}`,
       };
     } catch (error) {
       captureException(error);
@@ -120,7 +107,7 @@ export class GrimpioHandler implements BaseHandler<GrimpioJobPayload, GrimpioJob
         return {
           success: false,
           timestamp: new Date(),
-          url: "",
+          feeds: [],
           counter: { processed: 0, sent: 0, expired: 0 },
         };
       }
@@ -137,7 +124,7 @@ export class GrimpioHandler implements BaseHandler<GrimpioJobPayload, GrimpioJob
       return {
         success: false,
         timestamp: new Date(),
-        url: "",
+        feeds: [],
         counter: { processed: 0, sent: 0, expired: 0 },
       };
     }
