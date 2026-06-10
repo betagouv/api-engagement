@@ -653,8 +653,6 @@ export const missionService = {
   async findMissions(filters: MissionSearchFilters, select: MissionSelect | null = null): Promise<{ data: MissionRecord[]; total: number }> {
     const where = await buildWhere(filters);
 
-    console.log("where", JSON.stringify(where, null, 2));
-
     const [missions, total] = await Promise.all([
       missionRepository.findMany({
         where,
