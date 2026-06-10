@@ -28,6 +28,7 @@ import DiffusionRuleV0Controller from "@/v0/diffusion-rule/controller";
 import MissionV0Controller from "@/v0/mission/controller";
 import MyMissionV0Controller from "@/v0/mymission/controller";
 import MyOrganizationV0Controller from "@/v0/myorganization/controller";
+import PublisherV0Controller from "@/v0/publisher";
 import ViewV0Controller from "@/v0/view";
 import ActivityV2Controller from "@/v2/activity";
 import MissionV2WriteController from "@/v2/mission/controller";
@@ -69,6 +70,7 @@ export const createTestApp = ({ auditLogs = false, metricsRecorder }: { auditLog
   app.use("/v0/myorganization", MyOrganizationV0Controller);
   app.use("/v0/mymission", MyMissionV0Controller);
   app.use("/v0/diffusion-rule", DiffusionRuleV0Controller);
+  app.use("/v0/publisher", PublisherV0Controller);
   app.use("/v2/mission", MissionV2WriteController);
   app.use("/v0/mission", MissionV0Controller);
   app.use("/v0/view", ViewV0Controller);

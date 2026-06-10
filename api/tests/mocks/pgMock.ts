@@ -3,7 +3,7 @@ import { vi } from "vitest";
 export type PrismaCrudMock = ReturnType<typeof createPrismaCrudMock>;
 export type PrismaClientMock = ReturnType<typeof createPrismaClientMock>;
 
-const DEFAULT_MODELS = ["statEvent", "publisher", "publisherDiffusion", "email"] as const;
+const DEFAULT_MODELS = ["statEvent", "publisher", "publisherDiffusionRule", "email"] as const;
 
 export const createPrismaCrudMock = (): Record<string | symbol, ReturnType<typeof vi.fn>> =>
   new Proxy(
