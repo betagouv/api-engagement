@@ -688,6 +688,8 @@ model PublisherOrganization {
   @@unique([publisherId, clientId], map: "publisher_organization_publisher_id_client_id_key")
   @@index([publisherId], map: "publisher_organization_publisher_id_idx")
   @@index([name], map: "publisher_organization_name_idx")
+  // Supporte le filtrage des diffusion rules sur `parentOrganizations` (`has` → `@>`) côté v0/mission.
+  @@index([parentOrganizations], type: Gin, map: "publisher_organization_parent_organizations_idx")
   @@map("publisher_organization")
 }
 
