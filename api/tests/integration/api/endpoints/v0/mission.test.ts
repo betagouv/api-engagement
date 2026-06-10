@@ -2,6 +2,7 @@ import { randomUUID } from "crypto";
 import request from "supertest";
 
 import { missionModerationStatusService } from "@/services/mission-moderation-status";
+import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import type { MissionRecord, PublisherRecord } from "@/types";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createTestMission, createTestPublisher } from "../../../../fixtures";
@@ -140,6 +141,56 @@ describe("Mission API Integration Tests", () => {
       expect(response.body.skip).toBe(0);
 
       validateMissionStructure(response.body.data[0]);
+    });
+
+    it("should return missions from multiple PublisherDiffusion partners when diffusion rules define multiple publisher scopes", async () => {
+      const annonceurA = await createTestPublisher({ name: "Scoped Publisher A" });
+      const annonceurB = await createTestPublisher({ name: "Scoped Publisher B" });
+      const diffuseur = await createTestPublisher({
+        name: "Scoped Diffuseur",
+        publishers: [
+          { publisherId: annonceurA.id, publisherName: annonceurA.name },
+          { publisherId: annonceurB.id, publisherName: annonceurB.name },
+        ],
+      });
+
+      const scopedMissionA = await createTestMission({
+        publisherId: annonceurA.id,
+        title: "Scoped mission A",
+        clientId: `scoped-${randomUUID()}`,
+      });
+      const scopedMissionB = await createTestMission({
+        publisherId: annonceurB.id,
+        title: "Scoped mission B",
+        clientId: `scoped-${randomUUID()}`,
+      });
+
+      await publisherDiffusionRuleService.createRule({
+        publisherId: diffuseur.id,
+        field: "publisherId",
+        fieldType: "string",
+        operator: "is",
+        value: annonceurA.id,
+        combinator: "or",
+        position: 0,
+      });
+      await publisherDiffusionRuleService.createRule({
+        publisherId: diffuseur.id,
+        field: "publisherId",
+        fieldType: "string",
+        operator: "is",
+        value: annonceurB.id,
+        combinator: "or",
+        position: 1,
+      });
+
+      const response = await request(app).get("/v0/mission").set("x-api-key", diffuseur.apikey!);
+
+      expect(response.status).toBe(200);
+      expect(response.body.ok).toBe(true);
+      expect(response.body.total).toBe(2);
+      const ids = response.body.data.map((mission: any) => mission._id);
+      expect(ids).toEqual(expect.arrayContaining([scopedMissionA.id, scopedMissionB.id]));
     });
 
     it("should expose compensation fields on missions", async () => {
