@@ -27,16 +27,15 @@ const buildRule = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 });
 
-describe("publisherDiffusionRuleService.buildMissionPublisherDiffusionRuleWhere", () => {
+describe("publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere", () => {
   beforeEach(() => {
     prismaMock.publisherDiffusionRule.findMany.mockReset();
-    prismaMock.mission.count.mockReset();
   });
 
   it("charge toutes les rules du publisher triées par position", async () => {
     prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([]);
 
-    const where = await publisherDiffusionRuleService.buildMissionPublisherDiffusionRuleWhere("publisher-1");
+    const where = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere("publisher-1");
 
     expect(where).toEqual({});
     expect(prismaMock.publisherDiffusionRule.findMany).toHaveBeenCalledWith({
@@ -45,72 +44,29 @@ describe("publisherDiffusionRuleService.buildMissionPublisherDiffusionRuleWhere"
     });
   });
 
-  it("encode l'implication scope → enfant (NOT scope OR enfant)", async () => {
-    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([
-      buildRule({ id: "root-1", value: "annonceur-1" }),
-      buildRule({ id: "child-1", combinedWithId: "root-1", field: "publisherOrganizationId", operator: "is_not", value: "po-1" }),
-    ]);
+  it("réduit un annonceur sans enfant à son simple publisherId", async () => {
+    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([buildRule({ id: "root-1", value: "annonceur-1" })]);
 
-    const where = await publisherDiffusionRuleService.buildMissionPublisherDiffusionRuleWhere("publisher-1");
+    const where = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere("publisher-1");
 
-    expect(where).toEqual({
-      OR: [{ NOT: { publisherId: "annonceur-1" } }, { publisherOrganizationId: { not: "po-1" } }],
-    });
+    expect(where).toEqual({ publisherId: "annonceur-1" });
   });
 
-  it("AND les enfants entre eux quand il y en a plusieurs sous le même scope", async () => {
+  it("combine l'annonceur avec ses critères enfants (publisherId AND <critère>)", async () => {
     prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([
       buildRule({ id: "root-1", value: "annonceur-1" }),
       buildRule({ id: "child-1", combinedWithId: "root-1", field: "publisherOrganizationId", operator: "is_not", value: "po-1" }),
       buildRule({ id: "child-2", combinedWithId: "root-1", field: "publisherOrganizationId", operator: "is_not", value: "po-2", position: 1 }),
     ]);
 
-    const where = await publisherDiffusionRuleService.buildMissionPublisherDiffusionRuleWhere("publisher-1");
+    const where = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere("publisher-1");
 
     expect(where).toEqual({
-      OR: [{ NOT: { publisherId: "annonceur-1" } }, { AND: [{ publisherOrganizationId: { not: "po-1" } }, { publisherOrganizationId: { not: "po-2" } }] }],
+      AND: [{ publisherId: "annonceur-1" }, { publisherOrganizationId: { not: "po-1" } }, { publisherOrganizationId: { not: "po-2" } }],
     });
   });
 
-  it("descend récursivement quand un enfant a lui-même des enfants", async () => {
-    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([
-      buildRule({ id: "root-1", value: "annonceur-1" }),
-      buildRule({ id: "child-1", combinedWithId: "root-1", field: "type", operator: "is", value: "benevolat" }),
-      buildRule({ id: "grandchild-1", combinedWithId: "child-1", field: "publisherOrganizationId", operator: "is_not", value: "po-1" }),
-    ]);
-
-    const where = await publisherDiffusionRuleService.buildMissionPublisherDiffusionRuleWhere("publisher-1");
-
-    expect(where).toEqual({
-      OR: [{ NOT: { publisherId: "annonceur-1" } }, { OR: [{ NOT: { type: "benevolat" } }, { publisherOrganizationId: { not: "po-1" } }] }],
-    });
-  });
-
-  it("AND plusieurs racines indépendantes au top-level", async () => {
-    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([
-      buildRule({ id: "root-1", value: "annonceur-1" }),
-      buildRule({ id: "child-1", combinedWithId: "root-1", field: "publisherOrganizationId", operator: "is_not", value: "po-1" }),
-      buildRule({ id: "root-2", value: "annonceur-2", position: 1 }),
-      buildRule({ id: "child-2", combinedWithId: "root-2", field: "publisherOrganizationId", operator: "is_not", value: "po-2" }),
-    ]);
-
-    const where = await publisherDiffusionRuleService.buildMissionPublisherDiffusionRuleWhere("publisher-1");
-
-    expect(where).toEqual({
-      AND: [
-        { OR: [{ NOT: { publisherId: "annonceur-1" } }, { publisherOrganizationId: { not: "po-1" } }] },
-        { OR: [{ NOT: { publisherId: "annonceur-2" } }, { publisherOrganizationId: { not: "po-2" } }] },
-      ],
-    });
-  });
-});
-
-describe("publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere", () => {
-  beforeEach(() => {
-    prismaMock.publisherDiffusionRule.findMany.mockReset();
-  });
-
-  it("combine plusieurs annonceurs en allowlist", async () => {
+  it("combine plusieurs annonceurs en allowlist (OR)", async () => {
     prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([
       buildRule({ id: "root-1", value: "annonceur-1" }),
       buildRule({ id: "root-2", value: "annonceur-2", position: 1 }),
@@ -119,6 +75,17 @@ describe("publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere", ()
     const where = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere("publisher-1");
 
     expect(where).toEqual({ OR: [{ publisherId: "annonceur-1" }, { publisherId: "annonceur-2" }] });
+  });
+
+  it("restreint les scopes aux annonceurs demandés", async () => {
+    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([
+      buildRule({ id: "root-1", value: "annonceur-1" }),
+      buildRule({ id: "root-2", value: "annonceur-2", position: 1 }),
+    ]);
+
+    const where = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere("publisher-1", ["annonceur-2"]);
+
+    expect(where).toEqual({ publisherId: "annonceur-2" });
   });
 });
 
