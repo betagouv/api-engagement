@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
+import type { OrganizationArrayIdsResolver } from "@/types/publisher-organization";
 import {
   buildMissionPublisherDiffusionRuleConditionFromRule,
   buildMissionPublisherDiffusionRuleSqlFromRules,
@@ -34,33 +35,41 @@ describe("buildMissionPublisherDiffusionRuleSqlFromRules - array fields", () => 
 });
 
 describe("buildMissionPublisherDiffusionRuleConditionFromRule - array fields (Prisma where)", () => {
-  it("filters the org array field directly on the relation (contains -> has)", () => {
-    const where = buildMissionPublisherDiffusionRuleConditionFromRule(rule({ operator: "contains", value: "AFEV" }));
+  it("resolves the org array field to a case-insensitive publisherOrganizationId filter", async () => {
+    const resolve: OrganizationArrayIdsResolver = vi.fn().mockResolvedValue(["org-1", "org-2"]);
 
-    expect(where).toEqual({ publisherOrganization: { parentOrganizations: { has: "AFEV" } } });
+    const where = await buildMissionPublisherDiffusionRuleConditionFromRule(rule({ operator: "contains", value: "AFEV" }), resolve);
+
+    expect(resolve).toHaveBeenCalledWith("parent_organizations", "AFEV");
+    expect(where).toEqual({ publisherOrganizationId: { in: ["org-1", "org-2"] } });
   });
 
-  it("wraps negative array operators in NOT (does_not_contain)", () => {
-    const where = buildMissionPublisherDiffusionRuleConditionFromRule(rule({ operator: "does_not_contain", value: "Armee de l'air" }));
+  it("wraps negative array operators in NOT", async () => {
+    const resolve: OrganizationArrayIdsResolver = vi.fn().mockResolvedValue(["org-1"]);
 
-    expect(where).toEqual({ NOT: { publisherOrganization: { parentOrganizations: { has: "Armee de l'air" } } } });
+    const where = await buildMissionPublisherDiffusionRuleConditionFromRule(rule({ operator: "is_not", value: "AFEV" }), resolve);
+
+    expect(where).toEqual({ NOT: { publisherOrganizationId: { in: ["org-1"] } } });
   });
 
-  it("wraps negative array operators in NOT (is_not)", () => {
-    const where = buildMissionPublisherDiffusionRuleConditionFromRule(rule({ operator: "is_not", value: "AFEV" }));
+  it("does not resolve and keeps generic handling for exists on an array field", async () => {
+    const resolve = vi.fn();
 
-    expect(where).toEqual({ NOT: { publisherOrganization: { parentOrganizations: { has: "AFEV" } } } });
-  });
+    const where = await buildMissionPublisherDiffusionRuleConditionFromRule(rule({ operator: "exists", value: "" }), resolve);
 
-  it("keeps generic handling for exists on an array field", () => {
-    const where = buildMissionPublisherDiffusionRuleConditionFromRule(rule({ operator: "exists", value: "" }));
-
+    expect(resolve).not.toHaveBeenCalled();
     expect(where).toEqual({ publisherOrganization: { parentOrganizations: { isEmpty: false } } });
   });
 
-  it("handles scalar fields", () => {
-    const where = buildMissionPublisherDiffusionRuleConditionFromRule(rule({ field: "publisherOrganization.clientId", fieldType: "string", operator: "is", value: "client-1" }));
+  it("does not resolve scalar fields", async () => {
+    const resolve = vi.fn();
 
+    const where = await buildMissionPublisherDiffusionRuleConditionFromRule(
+      rule({ field: "publisherOrganization.clientId", fieldType: "string", operator: "is", value: "client-1" }),
+      resolve
+    );
+
+    expect(resolve).not.toHaveBeenCalled();
     expect(where).toEqual({ publisherOrganization: { clientId: "client-1" } });
   });
 });
