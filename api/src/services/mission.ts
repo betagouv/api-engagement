@@ -210,20 +210,12 @@ export const buildWhere = async (filters: MissionSearchFilters): Promise<Prisma.
 
   const orConditions: Prisma.MissionWhereInput[] = [];
 
-  // Restriction par publisher : les diffusion rules du diffuseur (allowlist `OR` de scopes
-  // `publisherId === annonceur AND <critères>`) font autorité. À défaut de rules, on retombe
-  // sur la simple liste d'annonceurs.
-  let publisherRestrictionApplied = false;
   if (filters.diffuseurPublisherId) {
-    const diffusionWhere = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere(filters.diffuseurPublisherId, filters.publisherIds);
+    const diffusionWhere = await publisherDiffusionRuleService.buildMissionPublisherDiffusionRuleWhere(filters.diffuseurPublisherId);
     if (Object.keys(diffusionWhere).length > 0) {
       const existingAnd = Array.isArray(where.AND) ? where.AND : where.AND ? [where.AND] : [];
       where.AND = [...existingAnd, diffusionWhere];
-      publisherRestrictionApplied = true;
     }
-  }
-  if (!publisherRestrictionApplied && filters.publisherIds?.length) {
-    where.publisherId = { in: filters.publisherIds };
   }
 
   where.statusCode = filters.statusCode ?? "ACCEPTED";
@@ -239,6 +231,10 @@ export const buildWhere = async (filters: MissionSearchFilters): Promise<Prisma.
     if (deletedAtFilter) {
       orConditions.push({ deletedAt: null }, { deletedAt: deletedAtFilter });
     }
+  }
+
+  if (filters.publisherIds?.length) {
+    where.publisherId = { in: filters.publisherIds };
   }
 
   if (filters.activity?.length) {

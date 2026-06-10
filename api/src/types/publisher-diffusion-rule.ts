@@ -13,7 +13,6 @@ export interface PublisherDiffusionRuleRecord {
   createdAt: Date;
   updatedAt: Date;
   combinedRules?: PublisherDiffusionRuleRecord[];
-  combinedWith?: PublisherDiffusionRuleRecord | null;
 }
 
 export interface PublisherDiffusionRuleFindParams {
