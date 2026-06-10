@@ -209,7 +209,7 @@ export const buildWhere = async (filters: MissionSearchFilters): Promise<Prisma.
   const orConditions: Prisma.MissionWhereInput[] = [];
 
   if (filters.diffuseurPublisherId) {
-    const diffusionWhere = await publisherDiffusionRuleService.buildMissionPublisherDiffusionRuleWhere(filters.diffuseurPublisherId);
+    const diffusionWhere = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere(filters.diffuseurPublisherId);
     if (Object.keys(diffusionWhere).length > 0) {
       const existingAnd = Array.isArray(where.AND) ? where.AND : where.AND ? [where.AND] : [];
       where.AND = [...existingAnd, diffusionWhere];

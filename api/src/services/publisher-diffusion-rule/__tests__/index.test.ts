@@ -105,6 +105,23 @@ describe("publisherDiffusionRuleService.buildMissionPublisherDiffusionRuleWhere"
   });
 });
 
+describe("publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere", () => {
+  beforeEach(() => {
+    prismaMock.publisherDiffusionRule.findMany.mockReset();
+  });
+
+  it("combine plusieurs annonceurs en allowlist", async () => {
+    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([
+      buildRule({ id: "root-1", value: "annonceur-1" }),
+      buildRule({ id: "root-2", value: "annonceur-2", position: 1 }),
+    ]);
+
+    const where = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere("publisher-1");
+
+    expect(where).toEqual({ OR: [{ publisherId: "annonceur-1" }, { publisherId: "annonceur-2" }] });
+  });
+});
+
 describe("publisherDiffusionRuleService.canPublisherAccessMission", () => {
   beforeEach(() => {
     prismaMock.publisherDiffusionRule.findMany.mockReset();
