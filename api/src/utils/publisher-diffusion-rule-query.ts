@@ -1,5 +1,5 @@
 import { Prisma, PublisherDiffusionRule } from "@/db/core";
-import { OrgArrayColumn } from "@/types/publisher-organization";
+import { OrganizationArrayIdsResolver, OrgArrayColumn } from "@/types/publisher-organization";
 import {
   applyMissionRules,
   buildNestedMissionWhere,
@@ -20,8 +20,8 @@ const ARRAY_FIELD_PATH_TO_COLUMN: Record<string, OrgArrayColumn> = {
 };
 const ARRAY_FIELD_PATHS = new Set(Object.keys(ARRAY_FIELD_PATH_TO_COLUMN));
 
-// Vrai si le champ est adossé à un tableau Postgres : l'appartenance est exacte (et non par sous-chaîne).
-export const isPublisherDiffusionRuleArrayField = (field: string): boolean => ARRAY_FIELD_PATHS.has(field);
+// Opérateurs array pour lesquels le matching doit être insensible à la casse (cf. règles widget).
+const CASE_INSENSITIVE_ARRAY_OPERATORS = new Set(["is", "is_not", "contains", "does_not_contain"]);
 
 type SqlFieldConfig = {
   column: string;
@@ -154,11 +154,25 @@ const combineRuleSqlConditions = (rules: PublisherDiffusionRuleCondition[], miss
   return Prisma.sql`(${Prisma.join(parts, " AND ")})`;
 };
 
-// Condition Prisma d'une diffusion rule. Les champs array d'organisation (ex. réseau) sont filtrés
-// directement sur la relation à la requête : `does_not_contain "X"` → `{ NOT: { publisherOrganization:
-// { parentOrganizations: { has: "X" } } } }`. Matching exact (sensible casse/accents), sans pré-résolution.
-export const buildMissionPublisherDiffusionRuleConditionFromRule = (rule: PublisherDiffusionRuleCondition): Prisma.MissionWhereInput | null =>
-  buildRuleCondition(rule, { arrayFields: ARRAY_FIELD_PATHS, buildFieldWhere: buildNestedMissionWhere });
+export const buildMissionPublisherDiffusionRuleConditionFromRule = async (
+  rule: PublisherDiffusionRuleCondition,
+  resolveOrganizationIds: OrganizationArrayIdsResolver
+): Promise<Prisma.MissionWhereInput | null> => {
+  // Champs array d'organisation : matching insensible à la casse via pré-résolution des ids (cf. règles widget).
+  const column = ARRAY_FIELD_PATH_TO_COLUMN[rule.field];
+  if (column && CASE_INSENSITIVE_ARRAY_OPERATORS.has(rule.operator)) {
+    const value = normalizeTypedRuleValue(rule);
+    if (shouldSkipMissionRuleValue(value)) {
+      return null;
+    }
+    const ids = await resolveOrganizationIds(column, `${value}`);
+    const base: Prisma.MissionWhereInput = { publisherOrganizationId: { in: ids } };
+    return rule.operator === "is_not" || rule.operator === "does_not_contain" ? { NOT: base } : base;
+  }
+
+  // Autres champs (scalaires, ou exists/does_not_exist sur array) : logique générique inchangée.
+  return buildRuleCondition(rule, { arrayFields: ARRAY_FIELD_PATHS, buildFieldWhere: buildNestedMissionWhere });
+};
 
 export const buildMissionPublisherDiffusionRuleWhereFromRules = (rules: PublisherDiffusionRuleCondition[]): Prisma.MissionWhereInput =>
   applyMissionRules(rules, {
