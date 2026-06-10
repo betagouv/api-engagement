@@ -33,7 +33,7 @@ const MissionTab = ({ data, onChange }) => {
 
   return (
     <form className="flex divide-x pb-4" onSubmit={handleSubmit}>
-      <div className="flex w-full flex-col gap-4 p-8">
+      <div className="flex w-full flex-col gap-4 p-4 md:p-8">
         <div className="flex flex-col">
           <label className="mb-2 text-sm" htmlFor="new-mission-title">
             Nom de la mission

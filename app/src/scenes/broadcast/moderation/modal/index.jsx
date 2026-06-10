@@ -84,12 +84,12 @@ const MissionModal = ({ onChange }) => {
   return (
     <dialog ref={dialogRef} aria-modal="true" aria-labelledby="mission-modal-title" className="fixed inset-0 m-0 h-screen max-h-none w-screen max-w-none">
       <div className="bg-global-background relative h-full w-full overflow-scroll">
-        <div className="flex justify-end px-8 pt-4">
+        <div className="flex justify-end px-4 pt-4 md:px-8">
           <button type="button" className="p-3 text-xl text-black" onClick={handleClose} aria-label="Fermer">
             <RiCloseFill aria-hidden="true" />
           </button>
         </div>
-        <div className="mb-16 flex flex-col gap-4 px-8">
+        <div className="mb-16 flex flex-col gap-4 px-4 md:px-8">
           <p id="mission-modal-title" className="sr-only">
             Détails de la mission
           </p>
@@ -98,7 +98,7 @@ const MissionModal = ({ onChange }) => {
               <Loader />
             </div>
           ) : (
-            <div className="max-h-full overflow-y-auto px-20">
+            <div className="max-h-full overflow-y-auto px-0 lg:px-20">
               <Header
                 data={data}
                 onChange={(v) => {
@@ -112,13 +112,13 @@ const MissionModal = ({ onChange }) => {
               />
 
               <div className="mt-8 flex w-full flex-1 flex-col">
-                <div role="tablist" aria-label="Onglets de modération" className="flex items-center space-x-2 pl-4 font-semibold text-black">
+                <div role="tablist" aria-label="Onglets de modération" className="flex items-center space-x-2 pl-0 font-semibold text-black md:pl-4">
                   <Tab name="mission" title="Mission" tab={tab} setTab={setTab} />
                   <Tab name="organization" title="Organisation" tab={tab} setTab={setTab} />
                   <Tab name="history" title="Historique" tab={tab} setTab={setTab} />
                 </div>
-                <div className="mb-12 grid w-full grid-cols-3 gap-6">
-                  <div className="border-grey-border col-span-2 border bg-white">
+                <div className="mb-12 grid w-full grid-cols-1 gap-6 lg:grid-cols-3">
+                  <div className="border-grey-border border bg-white lg:col-span-2">
                     {
                       {
                         mission: (
