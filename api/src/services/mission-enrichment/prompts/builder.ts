@@ -1,5 +1,5 @@
 import { PROMPT_ARRAY_MAX_ITEMS, PROMPT_FIELD_MAX_LENGTH } from "@/services/mission-enrichment/config";
-import { sanitizeForPrompt } from "@/utils/string";
+import { sanitizeForPrompt } from "@/utils/llm";
 import type { MissionForPrompt, TaxonomyForPrompt } from "./types";
 
 /**
