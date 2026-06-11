@@ -59,6 +59,14 @@ describe("GrimpioHandler (integration test)", () => {
     // Annonceurs configurés en DB pour grimpio : JVA + ASC (pas "otherPublisher")
     await publisherDiffusionRuleService.findOrCreateScopeRoot(GRIMPIO_ID, JVA_ID);
     await publisherDiffusionRuleService.findOrCreateScopeRoot(GRIMPIO_ID, ASC_ID);
+    await publisherDiffusionRuleService.createRule({
+      publisherId: GRIMPIO_ID,
+      field: "publisherId",
+      fieldType: "string",
+      operator: "is_not",
+      value: otherPublisher.id,
+      combinator: "or",
+    });
 
     await createTestMission({ publisherId: JVA_ID, statusCode: "ACCEPTED", endAt: FUTURE_END, clientId: "jva-mission-1", title: "Mission JVA" });
     await createTestMission({ publisherId: ASC_ID, statusCode: "ACCEPTED", endAt: FUTURE_END, clientId: "asc-mission-1", title: "Mission ASC" });
