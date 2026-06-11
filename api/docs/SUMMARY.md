@@ -30,6 +30,7 @@
 
 ## Règles de diffusion (/diffusion-rule)
 
+- [Comprendre les règles de diffusion](diffusion-rule/diffusion.md)
 - [Lister les règles de diffusion](diffusion-rule/liste.md)
 - [Créer une règle de diffusion](diffusion-rule/creer.md)
 - [Supprimer une règle de diffusion](diffusion-rule/supprimer.md)
@@ -37,8 +38,3 @@
 ## Organisations (/organization)
 
 - [Récupérer les organisations](organisations/recuperer.md)
-
-## Mes organisations (/myorganization)
-
-- [Récupérer les partenaires diffuseurs d'une organisation](mes-organisations/liste-diffuseurs.md)
-- [Modifier les partenaires diffuseurs d'une organisation](mes-organisations/modifier-diffuseurs.md)
