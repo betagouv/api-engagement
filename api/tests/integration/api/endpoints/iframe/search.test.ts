@@ -1,6 +1,7 @@
 import type { MissionRecord } from "@/types/mission";
 import type { PublisherRecord } from "@/types/publisher";
 import type { WidgetRecord } from "@/types/widget";
+import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
 import { createTestMission, createTestPublisher, createTestWidget, createTestWidgetRule } from "../../../../fixtures";
@@ -372,6 +373,24 @@ describe("GET /iframe/:id/search", () => {
 
       expect(response.body.total).toBe(1);
       expect(response.body.data[0].domain).toBe("Environnement");
+    });
+
+    it("should apply fromPublisher diffusion rules in addition to widget publishers", async () => {
+      await publisherDiffusionRuleService.createScopedRule({
+        diffuseurPublisherId: publisher.id,
+        annonceurPublisherId: publisher.id,
+        field: "publisherOrganization.parentOrganizations",
+        fieldType: "array",
+        operator: "is_not",
+        value: "Network B",
+      });
+
+      const response = await request(app).get(`/iframe/${widget.id}/search`).expect(200);
+
+      expect(response.body.total).toBe(2);
+      const titles = response.body.data.map((mission: MissionRecord) => mission.title);
+      expect(titles).toEqual(expect.arrayContaining(["Mission Environnement Paris", "Mission Santé Marseille"]));
+      expect(titles).not.toContain("Mission Éducation Lyon");
     });
 
     it("should apply multiple organization rules with OR combinator", async () => {
