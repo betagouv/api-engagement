@@ -4,6 +4,7 @@ import { client } from "~/services/client";
 // Tailles de page partagées entre le préchargement (LoadingRecap) et le hook de résultats.
 export const PINNED_RESULTS_LIMIT = 5;
 export const OTHER_RESULTS_PAGE_SIZE = 8;
+const INITIAL_RESULTS_LIMIT = PINNED_RESULTS_LIMIT + OTHER_RESULTS_PAGE_SIZE;
 
 export async function fetchMatches(userScoringId: string, limit = 5, offset = 0, signal?: AbortSignal): Promise<MissionMatchResponse> {
   return client.get<MissionMatchResponse>(`/api/missions/match?userScoringId=${encodeURIComponent(userScoringId)}&limit=${limit}&offset=${offset}`, signal);
@@ -23,8 +24,11 @@ export function prefetchInitialMatches(userScoringId: string): Promise<InitialMa
   const existing = initialMatchesCache.get(userScoringId);
   if (existing) return existing;
 
-  const promise = Promise.all([fetchMatches(userScoringId, PINNED_RESULTS_LIMIT), fetchMatches(userScoringId, OTHER_RESULTS_PAGE_SIZE, PINNED_RESULTS_LIMIT)])
-    .then(([pinned, other]) => ({ pinned, other }))
+  const promise = fetchMatches(userScoringId, INITIAL_RESULTS_LIMIT)
+    .then((initial) => ({
+      pinned: { ...initial, items: initial.items.slice(0, PINNED_RESULTS_LIMIT) },
+      other: { ...initial, items: initial.items.slice(PINNED_RESULTS_LIMIT, INITIAL_RESULTS_LIMIT) },
+    }))
     .catch((err) => {
       // En cas d'échec, on vide l'entrée pour autoriser un nouvel essai.
       initialMatchesCache.delete(userScoringId);
