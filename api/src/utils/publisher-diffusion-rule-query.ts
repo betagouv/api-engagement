@@ -166,6 +166,92 @@ export const buildMissionPublisherDiffusionRuleWhereFromRules = (rules: Publishe
     buildFieldWhere: buildNestedMissionWhere,
   });
 
+const PUBLISHER_ORG_RELATION_KEY = "publisherOrganization";
+
+const isPlainObject = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value);
+
+/**
+ * Extrait le `PublisherOrganizationWhereInput` d'une condition mission qui ne porte QUE sur la
+ * relation `publisherOrganization`, et seulement si elle est fusionnable (forme positive). Renvoie
+ * `null` sinon : condition sur un autre champ, négative (`isNot`), ou structure non reconnue.
+ *
+ * Formes reconnues :
+ *  - raccourcie : `{ publisherOrganization: { clientId: { not: "x" } } }`
+ *  - explicite  : `{ publisherOrganization: { is: { clientId: { not: "x" } } } }`
+ */
+const extractMergeableOrgFilter = (where: Prisma.MissionWhereInput): Prisma.PublisherOrganizationWhereInput | null => {
+  if (!isPlainObject(where) || Object.keys(where).length !== 1) {
+    return null;
+  }
+  const relationFilter = where[PUBLISHER_ORG_RELATION_KEY];
+  if (!isPlainObject(relationFilter)) {
+    return null;
+  }
+  if ("is" in relationFilter || "isNot" in relationFilter) {
+    // Seul un `is` seul est fusionnable : `isNot` (ou un mélange) change la sémantique.
+    if ("isNot" in relationFilter || Object.keys(relationFilter).length !== 1) {
+      return null;
+    }
+    return isPlainObject(relationFilter.is) ? (relationFilter.is as Prisma.PublisherOrganizationWhereInput) : null;
+  }
+  return relationFilter as Prisma.PublisherOrganizationWhereInput;
+};
+
+/**
+ * Fusionne, au sein d'un même `AND`, tous les filtres frères portant sur la relation
+ * `publisherOrganization` (relation to-one) en un unique `{ publisherOrganization: { is: { AND: [...] } } }`.
+ * Évite que Prisma n'émette une jointure par condition (une par règle d'exclusion → N jointures
+ * redondantes sur la même ligne). Inopérant s'il y a moins de deux filtres d'organisation.
+ */
+const mergeOrgRelationSiblings = (conditions: Prisma.MissionWhereInput[]): Prisma.MissionWhereInput[] => {
+  const orgFilters: Prisma.PublisherOrganizationWhereInput[] = [];
+  const others: Prisma.MissionWhereInput[] = [];
+
+  for (const condition of conditions) {
+    const orgFilter = extractMergeableOrgFilter(condition);
+    if (orgFilter) {
+      orgFilters.push(orgFilter);
+    } else {
+      others.push(condition);
+    }
+  }
+
+  if (orgFilters.length < 2) {
+    return conditions;
+  }
+
+  return [...others, { [PUBLISHER_ORG_RELATION_KEY]: { is: { AND: orgFilters } } }];
+};
+
+/**
+ * Parcourt récursivement un `where` mission et fusionne les filtres frères sur la relation
+ * `publisherOrganization` dans chaque `AND` (cf. `mergeOrgRelationSiblings`). Générique : vaut pour
+ * n'importe quel champ d'organisation, pas seulement `clientId`.
+ */
+export const optimizeMissionDiffusionRuleWhere = (where: Prisma.MissionWhereInput): Prisma.MissionWhereInput => {
+  if (!isPlainObject(where)) {
+    return where;
+  }
+
+  const result: Record<string, unknown> = {};
+
+  for (const [key, value] of Object.entries(where)) {
+    if (key === "AND" && Array.isArray(value)) {
+      result.AND = mergeOrgRelationSiblings((value as Prisma.MissionWhereInput[]).map(optimizeMissionDiffusionRuleWhere));
+    } else if (key === "OR" && Array.isArray(value)) {
+      result.OR = (value as Prisma.MissionWhereInput[]).map(optimizeMissionDiffusionRuleWhere);
+    } else if (key === "NOT") {
+      result.NOT = Array.isArray(value)
+        ? (value as Prisma.MissionWhereInput[]).map(optimizeMissionDiffusionRuleWhere)
+        : optimizeMissionDiffusionRuleWhere(value as Prisma.MissionWhereInput);
+    } else {
+      result[key] = value;
+    }
+  }
+
+  return result as Prisma.MissionWhereInput;
+};
+
 export const buildMissionPublisherDiffusionRuleSqlFromRules = (rules: PublisherDiffusionRuleCondition[], options: { missionAlias?: string } = {}): Prisma.Sql => {
   if (rules.length === 0) {
     return Prisma.empty;

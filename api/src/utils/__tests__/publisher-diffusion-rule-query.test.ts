@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildMissionPublisherDiffusionRuleConditionFromRule,
   buildMissionPublisherDiffusionRuleSqlFromRules,
+  optimizeMissionDiffusionRuleWhere,
   type PublisherDiffusionRuleCondition,
 } from "@/utils/publisher-diffusion-rule-query";
 
@@ -62,5 +63,71 @@ describe("buildMissionPublisherDiffusionRuleConditionFromRule - array fields (Pr
     const where = buildMissionPublisherDiffusionRuleConditionFromRule(rule({ field: "publisherOrganization.clientId", fieldType: "string", operator: "is", value: "client-1" }));
 
     expect(where).toEqual({ publisherOrganization: { clientId: "client-1" } });
+  });
+});
+
+describe("optimizeMissionDiffusionRuleWhere", () => {
+  it("fusionne les filtres frères d'organisation d'un AND en un seul filtre de relation", () => {
+    const where = {
+      AND: [
+        { publisherId: "annonceur-1" },
+        { publisherOrganization: { clientId: { not: "671" } } },
+        { publisherOrganization: { clientId: { not: "30575" } } },
+        { publisherOrganization: { rna: "W662005098" } },
+      ],
+    };
+
+    expect(optimizeMissionDiffusionRuleWhere(where)).toEqual({
+      AND: [{ publisherId: "annonceur-1" }, { publisherOrganization: { is: { AND: [{ clientId: { not: "671" } }, { clientId: { not: "30575" } }, { rna: "W662005098" }] } } }],
+    });
+  });
+
+  it("est générique : fusionne n'importe quel champ d'organisation, pas seulement clientId", () => {
+    const where = {
+      AND: [{ publisherOrganization: { name: { contains: "croix", mode: "insensitive" as const } } }, { publisherOrganization: { rna: "W123" } }],
+    };
+
+    expect(optimizeMissionDiffusionRuleWhere(where)).toEqual({
+      AND: [{ publisherOrganization: { is: { AND: [{ name: { contains: "croix", mode: "insensitive" } }, { rna: "W123" }] } } }],
+    });
+  });
+
+  it("ne fusionne pas un filtre d'organisation unique", () => {
+    const where = { AND: [{ publisherId: "annonceur-1" }, { publisherOrganization: { clientId: { not: "671" } } }] };
+
+    expect(optimizeMissionDiffusionRuleWhere(where)).toEqual(where);
+  });
+
+  it("laisse intactes les conditions négatives (NOT) non fusionnables", () => {
+    const where = {
+      AND: [
+        { publisherOrganization: { clientId: { not: "671" } } },
+        { NOT: { publisherOrganization: { parentOrganizations: { has: "AFEV" } } } },
+        { publisherOrganization: { clientId: { not: "915" } } },
+      ],
+    };
+
+    expect(optimizeMissionDiffusionRuleWhere(where)).toEqual({
+      AND: [
+        { NOT: { publisherOrganization: { parentOrganizations: { has: "AFEV" } } } },
+        { publisherOrganization: { is: { AND: [{ clientId: { not: "671" } }, { clientId: { not: "915" } }] } } },
+      ],
+    });
+  });
+
+  it("récurse dans les scopes d'un OR (allowlist multi-annonceurs)", () => {
+    const where = {
+      OR: [{ AND: [{ publisherId: "a-1" }, { publisherOrganization: { clientId: { not: "1" } } }, { publisherOrganization: { clientId: { not: "2" } } }] }, { publisherId: "a-2" }],
+    };
+
+    expect(optimizeMissionDiffusionRuleWhere(where)).toEqual({
+      OR: [{ AND: [{ publisherId: "a-1" }, { publisherOrganization: { is: { AND: [{ clientId: { not: "1" } }, { clientId: { not: "2" } }] } } }] }, { publisherId: "a-2" }],
+    });
+  });
+
+  it("ne touche pas un where sans AND d'organisation", () => {
+    const where = { publisherId: "annonceur-1" };
+
+    expect(optimizeMissionDiffusionRuleWhere(where)).toEqual(where);
   });
 });
