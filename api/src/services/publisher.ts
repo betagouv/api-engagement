@@ -23,6 +23,13 @@ export class PublisherNotFoundError extends Error {
   }
 }
 
+export class PublisherDiffusionPartnerNotFoundError extends Error {
+  constructor(readonly publisherIds: string[]) {
+    super(`Publisher diffusion partner(s) not found: ${publisherIds.join(", ")}`);
+    this.name = "PublisherDiffusionPartnerNotFoundError";
+  }
+}
+
 export const publisherService = (() => {
   // Critères des scope roots de diffusion : une racine par partenaire diffusé (cf. publisherDiffusionRuleService).
   const DIFFUSION_SCOPE_ROOT_PARAMS = Object.freeze({ combinedWithId: null, field: "publisherId", operator: "is" });
@@ -139,6 +146,24 @@ export const publisherService = (() => {
       orderBy: [{ position: Prisma.SortOrder.asc }, { createdAt: Prisma.SortOrder.asc }],
     });
 
+  const ensureDiffusionPartnersExist = async (tx: Prisma.TransactionClient, partnerIds: string[]): Promise<void> => {
+    const uniqueIds = Array.from(new Set(partnerIds));
+    if (!uniqueIds.length) {
+      return;
+    }
+
+    const partners = await tx.publisher.findMany({
+      where: { id: { in: uniqueIds } },
+      select: { id: true },
+    });
+    const existingIds = new Set(partners.map((partner) => partner.id));
+    const missingIds = uniqueIds.filter((partnerId) => !existingIds.has(partnerId));
+
+    if (missingIds.length) {
+      throw new PublisherDiffusionPartnerNotFoundError(missingIds);
+    }
+  };
+
   const findOrCreateScopeRoot = async (tx: Prisma.TransactionClient, diffuseurPublisherId: string, annonceurPublisherId: string): Promise<PublisherDiffusionRule> => {
     const rootWhere = { publisherId: diffuseurPublisherId, combinedWithId: null, field: "publisherId", operator: "is", value: annonceurPublisherId };
 
@@ -171,6 +196,8 @@ export const publisherService = (() => {
   };
 
   const syncDiffusionScopeRoots = async (tx: Prisma.TransactionClient, publisherId: string, desiredPartnerIds: string[]): Promise<void> => {
+    await ensureDiffusionPartnersExist(tx, desiredPartnerIds);
+
     const roots = await findDiffusionScopeRoots(tx, publisherId);
     const desired = new Set(desiredPartnerIds);
     const existing = new Set(roots.map((root) => root.value));

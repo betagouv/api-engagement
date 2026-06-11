@@ -57,6 +57,18 @@ describe("Publisher diffusions (dérivées des diffusion rules)", () => {
 
       await expect(publisherService.findOnePublisherByName("Diffuseur rollback create")).resolves.toBeNull();
     });
+
+    it("rejects unknown partner ids without creating orphan scope roots", async () => {
+      const res = await request(app)
+        .post("/publisher")
+        .set(adminHeader())
+        .send({ name: "Diffuseur unknown partner", hasApiRights: true, publishers: [{ publisherId: "unknown-publisher-id" }] });
+
+      expect(res.status).toBe(400);
+      expect(res.body.code).toBe("INVALID_BODY");
+      await expect(publisherService.findOnePublisherByName("Diffuseur unknown partner")).resolves.toBeNull();
+      expect(await publisherDiffusionRuleService.findRules({ value: "unknown-publisher-id" })).toHaveLength(0);
+    });
   });
 
   describe("PUT /publisher/:id", () => {
@@ -141,6 +153,24 @@ describe("Publisher diffusions (dérivées des diffusion rules)", () => {
       const persisted = await publisherService.findOnePublisherById(diffuseur.id);
       expect(persisted?.name).toBe("Diffuseur before rollback");
       expect(await publisherDiffusionRuleService.findRules({ publisherId: diffuseur.id })).toHaveLength(0);
+    });
+
+    it("rejects unknown partner ids without partially updating the publisher", async () => {
+      const annonceur = await createTestPublisher({ name: "Annonceur existing" });
+      const diffuseur = await createTestPublisher({ name: "Diffuseur before unknown partner", publishers: [{ publisherId: annonceur.id }] });
+
+      const res = await request(app)
+        .put(`/publisher/${diffuseur.id}`)
+        .set(adminHeader())
+        .send({ name: "Diffuseur after unknown partner", publishers: [{ publisherId: "unknown-publisher-id" }] });
+
+      expect(res.status).toBe(400);
+      expect(res.body.code).toBe("INVALID_BODY");
+
+      const persisted = await publisherService.findOnePublisherById(diffuseur.id);
+      expect(persisted?.name).toBe("Diffuseur before unknown partner");
+      expect(await publisherDiffusionRuleService.findRules({ publisherId: diffuseur.id, combinedWithId: null })).toHaveLength(1);
+      expect(await publisherDiffusionRuleService.findRules({ value: "unknown-publisher-id" })).toHaveLength(0);
     });
   });
 
