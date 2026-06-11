@@ -12,6 +12,7 @@ import {
   buildMissionPublisherDiffusionRuleConditionFromRule,
   buildMissionPublisherDiffusionRuleSqlFromRules,
   isPublisherDiffusionRuleArrayField,
+  optimizeMissionDiffusionRuleWhere,
 } from "@/utils/publisher-diffusion-rule-query";
 
 type PublisherDiffusionRuleWithChildren = PublisherDiffusionRule & {
@@ -83,7 +84,8 @@ const buildAllowlistFilter = (rules: PublisherDiffusionRule[], publisherIds?: st
   if (scopes.length === 0) {
     return { where: {}, publisherIds: candidatePublisherIds };
   }
-  return { where: scopes.length === 1 ? scopes[0] : { OR: scopes }, publisherIds: candidatePublisherIds };
+  const where = optimizeMissionDiffusionRuleWhere(scopes.length === 1 ? scopes[0] : { OR: scopes });
+  return { where, publisherIds: candidatePublisherIds };
 };
 
 const findOrderedRules = (publisherId: string): Promise<PublisherDiffusionRule[]> =>
