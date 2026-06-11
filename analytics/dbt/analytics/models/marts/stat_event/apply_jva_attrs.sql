@@ -33,7 +33,7 @@ select
   s.updated_at,
   coalesce((s.attrs ->> 'newUser')::boolean, true)
     as is_new_user,
-  s.attrs ->> 'candidateAge' as candidate_age,
+  (s.attrs ->> 'candidateAge')::int as candidate_age,
   s.attrs ->> 'candidateJob' as candidate_job,
   s.attrs ->> 'userIdentifiant' as user_identifiant,
   s.attrs ->> 'candidatePostalCode' as candidate_postal_code
