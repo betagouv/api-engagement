@@ -9,9 +9,10 @@ interface PinnedMissionsProps {
   loading: boolean;
   error: string | null;
   userScoringId: string | undefined;
+  showDebug: boolean;
 }
 
-export default function PinnedMissions({ items, loading, error, userScoringId }: PinnedMissionsProps) {
+export default function PinnedMissions({ items, loading, error, userScoringId, showDebug }: PinnedMissionsProps) {
   return (
     <div className="relative w-full px-6">
       {!loading && error && (
@@ -26,7 +27,7 @@ export default function PinnedMissions({ items, loading, error, userScoringId }:
             {items.map((item) => (
               <div key={item.mission.id} className="relative w-full md:max-w-[330px]">
                 <MissionCard mission={matchResultToBrowseMission(item)} link={{ type: "internal", to: buildMissionDetailHref(item, userScoringId) }} />
-                <DebugButton missionId={item.mission.id} />
+                {showDebug && <DebugButton missionId={item.mission.id} />}
               </div>
             ))}
           </div>
