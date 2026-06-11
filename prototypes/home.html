@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Trouve ta mission d'engagement — API Engagement</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.0/dist/dsfr/dsfr.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.0/dist/utility/icons/icons.min.css" />
+  <style>
+    /* === HERO === */
+    .hero {
+      background: #f0f0ff;
+      overflow: hidden;
+      min-height: 540px;
+      position: relative;
+    }
+    .hero__inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      min-height: 540px;
+    }
+    .hero__left {
+      padding: 4rem 2rem 4rem 0;
+      position: relative;
+      z-index: 2;
+    }
+    .hero__eyebrow {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #3a3a3a;
+      margin-bottom: 0.75rem;
+    }
+    .hero__title {
+      font-size: 3.5rem;
+      font-weight: 800;
+      line-height: 1.05;
+      color: #161616;
+      margin-bottom: 1.25rem;
+      letter-spacing: -0.02em;
+    }
+    .hero__title mark {
+      background: #d4d4fb;
+      color: inherit;
+      border-radius: 4px;
+      padding: 0 4px;
+    }
+    .hero__desc {
+      font-size: 1rem;
+      color: #3a3a3a;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+      max-width: 460px;
+    }
+    .hero__hint {
+      font-size: 0.875rem;
+      color: #666;
+      margin-top: 0.5rem;
+    }
+    .hero__right {
+      position: relative;
+      height: 540px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-end;
+    }
+    .hero__circle {
+      position: absolute;
+      top: 50%;
+      right: -80px;
+      transform: translateY(-50%);
+      width: 520px;
+      height: 520px;
+      background: #f0c060;
+      border-radius: 50%;
+      z-index: 0;
+    }
+    .hero__photo {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+    }
+    /* Photo placeholder (emoji) */
+    .hero__photo-placeholder {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      font-size: 10rem;
+      line-height: 1;
+      padding-bottom: 0;
+      overflow: hidden;
+    }
+    .hero__scroll-hint {
+      text-align: center;
+      padding: 1.25rem 0 1.5rem;
+      background: #f0f0ff;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: #3a3a3a;
+      letter-spacing: 0.01em;
+    }
+
+    /* === HOW IT WORKS === */
+    .how-section {
+      padding: 3.5rem 0 3rem;
+      background: #fff;
+    }
+    .how-step {
+      text-align: center;
+      padding: 1.5rem 1rem;
+    }
+    .how-step__num {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #2323ff;
+      color: #fff;
+      font-size: 1.25rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+    }
+
+    /* === MISSIONS === */
+    .mission-section {
+      padding: 3rem 0 4rem;
+      background: #f8f8f8;
+    }
+    .mission-card {
+      border: 1px solid #e5e5e5;
+      border-radius: 8px;
+      overflow: hidden;
+      background: white;
+      transition: box-shadow 0.2s;
+      height: 100%;
+    }
+    .mission-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+    .mission-card__img {
+      height: 140px;
+      background: linear-gradient(135deg, #cdfee0, #a2f0c5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+    }
+    .mission-card__body { padding: 1rem 1.25rem 1.25rem; }
+    .mission-card__tag {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #1f8d49;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+    .mission-card__title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #161616;
+      margin-bottom: 0.5rem;
+      line-height: 1.3;
+    }
+    .mission-card__org {
+      font-size: 0.875rem;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========== HEADER avec navigation ========== -->
+  <header role="banner" class="fr-header">
+    <div class="fr-header__body">
+      <div class="fr-container">
+        <div class="fr-header__body-row">
+
+          <!-- MARQUE -->
+          <div class="fr-header__brand fr-enlarge-link">
+            <div class="fr-header__brand-top">
+              <div class="fr-header__logo">
+                <p class="fr-logo">République<br>Française</p>
+              </div>
+            </div>
+            <div class="fr-header__service">
+              <a title="Trouve ta mission" href="/">
+                <p class="fr-header__service-title">Trouve ta mission</p>
+              </a>
+              <p class="fr-header__service-tagline">Service public pour trouver une mission d'engagement</p>
+            </div>
+          </div>
+
+          <!-- TOOLS — nouvelle entrée "Vous accompagnez des jeunes ?" -->
+          <div class="fr-header__tools">
+            <div class="fr-header__tools-links">
+              <ul class="fr-btns-group">
+                <li>
+                  <a class="fr-btn fr-btn--secondary fr-btn--sm fr-icon-team-line fr-btn--icon-left" href="login.html">
+                    Vous accompagnez des jeunes ?
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- NAVIGATION principale (desktop) -->
+    <div class="fr-header__menu fr-modal" id="modal-menu">
+      <div class="fr-container">
+        <button class="fr-link--close fr-link" aria-controls="modal-menu">Fermer</button>
+        <div class="fr-header__menu-links"></div>
+        <nav class="fr-nav" id="navigation" role="navigation" aria-label="Menu principal">
+          <ul class="fr-nav__list">
+            <li class="fr-nav__item">
+              <a class="fr-nav__link" href="#" target="_self" aria-current="page">Trouver une mission</a>
+            </li>
+            <li class="fr-nav__item">
+              <a class="fr-nav__link" href="#">Comment ça marche ?</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+  </header>
+
+  <!-- ========== HERO ========== -->
+  <main role="main" id="content">
+    <section class="hero">
+      <div class="fr-container" style="height:100%">
+        <div class="hero__inner">
+
+          <!-- Gauche : texte -->
+          <div class="hero__left">
+            <p class="hero__eyebrow">Tu veux te rendre utile ?</p>
+            <h1 class="hero__title">
+              À <mark>chacun</mark><br>
+              sa façon<br>
+              d'agir
+            </h1>
+            <p class="hero__desc">
+              Des milliers de missions concrètes t'attendent, selon tes envies, ton rythme, tes valeurs.
+              Réponds à quelques questions, on trouve la mission qui correspond à ce que tu es, là où tu en es.
+            </p>
+            <ul class="fr-btns-group fr-btns-group--inline">
+              <li>
+                <button class="fr-btn fr-btn--lg">
+                  Je commence le quiz
+                </button>
+              </li>
+            </ul>
+            <p class="hero__hint">Sans inscription</p>
+          </div>
+
+          <!-- Droite : illustration jeunes -->
+          <div class="hero__right">
+            <div class="hero__circle"></div>
+            <!-- Placeholder photo : groupe de jeunes souriants -->
+            <div class="hero__photo-placeholder" aria-hidden="true">
+              🧑‍🤝‍🧑
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Scroll hint -->
+    <div class="hero__scroll-hint">
+      Comment ça marche ?
+    </div>
+
+    <!-- ========== COMMENT ÇA MARCHE ========== -->
+    <section class="how-section">
+      <div class="fr-container">
+        <h2 class="fr-h3 fr-mb-4w" style="text-align:center">Des missions qui <mark style="background:#d4d4fb; border-radius:4px; padding:0 4px">s'adaptent à toi</mark></h2>
+        <div class="fr-grid-row fr-grid-row--gutters">
+          <div class="fr-col-12 fr-col-md-4">
+            <div class="how-step">
+              <div class="how-step__num">1</div>
+              <h3 class="fr-h6">Tu réponds au quiz</h3>
+              <p class="fr-text--sm" style="color:#555">Quelques questions sur tes envies, ta dispo et ta localisation.</p>
+            </div>
+          </div>
+          <div class="fr-col-12 fr-col-md-4">
+            <div class="how-step">
+              <div class="how-step__num">2</div>
+              <h3 class="fr-h6">On sélectionne les missions</h3>
+              <p class="fr-text--sm" style="color:#555">L'algorithme choisit les missions qui correspondent vraiment à ton profil.</p>
+            </div>
+          </div>
+          <div class="fr-col-12 fr-col-md-4">
+            <div class="how-step">
+              <div class="how-step__num">3</div>
+              <h3 class="fr-h6">Tu te lances !</h3>
+              <p class="fr-text--sm" style="color:#555">Tu postules directement sur la plateforme de l'organisme.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== MISSIONS ========== -->
+    <section class="mission-section">
+      <div class="fr-container">
+        <div class="fr-grid-row fr-grid-row--gutters fr-mb-3w" style="align-items:center">
+          <div class="fr-col">
+            <h2 class="fr-h4" style="margin-bottom:0">Missions à la une</h2>
+          </div>
+          <div class="fr-col-auto">
+            <a href="#" class="fr-link fr-icon-arrow-right-line fr-link--icon-right">Voir toutes les missions</a>
+          </div>
+        </div>
+
+        <div class="fr-grid-row fr-grid-row--gutters">
+          <div class="fr-col-12 fr-col-sm-6 fr-col-lg-4">
+            <div class="mission-card">
+              <div class="mission-card__img">🤝</div>
+              <div class="mission-card__body">
+                <p class="mission-card__tag">Bénévolat · Solidarité</p>
+                <p class="mission-card__title">Améliore la qualité de vie des personnes en situation de handicap</p>
+                <p class="mission-card__org">Association Handisport Île-de-France</p>
+              </div>
+            </div>
+          </div>
+          <div class="fr-col-12 fr-col-sm-6 fr-col-lg-4">
+            <div class="mission-card">
+              <div class="mission-card__img" style="background: linear-gradient(135deg, #fde8cf, #fbc99a)">🌱</div>
+              <div class="mission-card__body">
+                <p class="mission-card__tag" style="color:#b34000">Service Civique · Environnement</p>
+                <p class="mission-card__title">Développe tes compétences en sensibilisant à l'écologie</p>
+                <p class="mission-card__org">Réseau Action Climat</p>
+              </div>
+            </div>
+          </div>
+          <div class="fr-col-12 fr-col-sm-6 fr-col-lg-4">
+            <div class="mission-card">
+              <div class="mission-card__img" style="background: linear-gradient(135deg, #d7f0ff, #9dd5f7)">📚</div>
+              <div class="mission-card__body">
+                <p class="mission-card__tag" style="color:#0063cb">Bénévolat · Éducation</p>
+                <p class="mission-card__title">Juste à côté de toi — soutien scolaire de proximité</p>
+                <p class="mission-card__org">Croix-Rouge française</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="fr-grid-row fr-mt-4w" style="justify-content:center">
+          <button class="fr-btn fr-btn--secondary fr-icon-refresh-line fr-btn--icon-left">
+            Voir les missions suivantes
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="fr-footer" role="contentinfo">
+    <div class="fr-container">
+      <div class="fr-footer__body">
+        <div class="fr-footer__brand fr-enlarge-link">
+          <a href="/" title="Retour à l'accueil">
+            <p class="fr-logo">République<br>Française</p>
+          </a>
+        </div>
+        <div class="fr-footer__content">
+          <p class="fr-footer__content-desc">
+            Plateforme publique de mise en relation pour l'engagement des jeunes.
+          </p>
+        </div>
+      </div>
+      <div class="fr-footer__bottom">
+        <ul class="fr-footer__bottom-list">
+          <li class="fr-footer__bottom-item"><a class="fr-footer__bottom-link" href="#">Accessibilité : non conforme</a></li>
+          <li class="fr-footer__bottom-item"><a class="fr-footer__bottom-link" href="#">Mentions légales</a></li>
+          <li class="fr-footer__bottom-item"><a class="fr-footer__bottom-link" href="#">Données personnelles</a></li>
+          <li class="fr-footer__bottom-item"><a class="fr-footer__bottom-link" href="#">Gestion des cookies</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.0/dist/dsfr/dsfr.module.min.js"></script>
+</body>
+</html>

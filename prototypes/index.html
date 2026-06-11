@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Prototype DSFR</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.0/dist/dsfr/dsfr.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.0/dist/utility/icons/icons.min.css" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header role="banner" class="fr-header">
+    <div class="fr-header__body">
+      <div class="fr-container">
+        <div class="fr-header__body-row">
+          <div class="fr-header__brand fr-enlarge-link">
+            <div class="fr-header__brand-top">
+              <div class="fr-header__logo">
+                <p class="fr-logo">
+                  République<br>Française
+                </p>
+              </div>
+              <div class="fr-header__navbar">
+                <button class="fr-btn--menu fr-btn" data-fr-opened="false" aria-controls="modal-499" aria-haspopup="menu" id="button-499" title="Menu">
+                  Menu
+                </button>
+              </div>
+            </div>
+            <div class="fr-header__service">
+              <a href="/" title="Accueil - Prototype DSFR">
+                <p class="fr-header__service-title">Prototype DSFR</p>
+              </a>
+              <p class="fr-header__service-tagline">Maquette de démonstration</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main role="main" id="content">
+    <div class="fr-container fr-my-6w">
+
+      <div class="fr-grid-row fr-grid-row--gutters">
+        <div class="fr-col-12">
+          <h1>Bienvenue sur le prototype</h1>
+          <p class="fr-text--lead">
+            Cette page est un point de départ. Dis-moi quelle maquette tu veux créer et je la génère ici.
+          </p>
+        </div>
+      </div>
+
+      <!-- Exemple de cards -->
+      <div class="fr-grid-row fr-grid-row--gutters fr-mt-4w">
+        <div class="fr-col-12 fr-col-md-4">
+          <div class="fr-card fr-enlarge-link">
+            <div class="fr-card__body">
+              <div class="fr-card__content">
+                <h3 class="fr-card__title">
+                  <a href="#">Composant Card</a>
+                </h3>
+                <p class="fr-card__desc">Exemple de carte DSFR avec lien et description courte.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="fr-col-12 fr-col-md-4">
+          <div class="fr-card fr-enlarge-link">
+            <div class="fr-card__body">
+              <div class="fr-card__content">
+                <h3 class="fr-card__title">
+                  <a href="#">Deuxième carte</a>
+                </h3>
+                <p class="fr-card__desc">Un autre exemple pour illustrer la grille responsive.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="fr-col-12 fr-col-md-4">
+          <div class="fr-card fr-enlarge-link">
+            <div class="fr-card__body">
+              <div class="fr-card__content">
+                <h3 class="fr-card__title">
+                  <a href="#">Troisième carte</a>
+                </h3>
+                <p class="fr-card__desc">La grille DSFR est basée sur 12 colonnes.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Exemple de boutons -->
+      <div class="fr-mt-6w">
+        <h2>Actions</h2>
+        <ul class="fr-btns-group fr-btns-group--inline">
+          <li>
+            <button class="fr-btn">Bouton primaire</button>
+          </li>
+          <li>
+            <button class="fr-btn fr-btn--secondary">Bouton secondaire</button>
+          </li>
+          <li>
+            <button class="fr-btn fr-btn--tertiary">Bouton tertiaire</button>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Exemple d'alerte -->
+      <div class="fr-mt-4w">
+        <div class="fr-alert fr-alert--info">
+          <h3 class="fr-alert__title">Prototype en cours</h3>
+          <p>Cette maquette utilise le DSFR v1.13.0 via CDN. Prêt à être personnalisé.</p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="fr-footer" role="contentinfo" id="footer">
+    <div class="fr-container">
+      <div class="fr-footer__body">
+        <div class="fr-footer__brand fr-enlarge-link">
+          <a href="/" title="Retour à l'accueil">
+            <p class="fr-logo">République<br>Française</p>
+          </a>
+        </div>
+        <div class="fr-footer__content">
+          <p class="fr-footer__content-desc">Prototype DSFR — maquette de démonstration</p>
+        </div>
+      </div>
+      <div class="fr-footer__bottom">
+        <ul class="fr-footer__bottom-list">
+          <li class="fr-footer__bottom-item">
+            <a class="fr-footer__bottom-link" href="#">Accessibilité : non conforme</a>
+          </li>
+          <li class="fr-footer__bottom-item">
+            <a class="fr-footer__bottom-link" href="#">Mentions légales</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.13.0/dist/dsfr/dsfr.module.min.js"></script>
+</body>
+</html>
