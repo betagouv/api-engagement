@@ -31,10 +31,10 @@ select
   s.stat_event_id as apply_id,
   s.created_at,
   s.updated_at,
+  (s.attrs ->> 'candidateAge')::int as candidate_age,
   s.attrs ->> 'candidateJob' as candidate_job,
   s.attrs ->> 'userIdentifiant' as user_identifiant,
   s.attrs ->> 'candidatePostalCode' as candidate_postal_code,
-  (s.attrs ->> 'candidateAge')::int as candidate_age,
   coalesce((s.attrs ->> 'newUser')::boolean, true) as is_new_user
 from src as s
 inner join jva as sc on s.to_publisher_id = sc.id
