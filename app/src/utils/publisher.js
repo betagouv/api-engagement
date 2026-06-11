@@ -11,10 +11,6 @@ const formatPublishersForApi = (publishers = []) =>
 
       return {
         publisherId,
-        publisherName: publisher.publisherName ?? publisher.diffuseurPublisherName ?? publisher.name,
-        publisherLogo: publisher.publisherLogo ?? publisher.logo,
-        missionType: publisher.missionType ?? null,
-        moderator: Boolean(publisher.moderator),
       };
     })
     .filter(Boolean);

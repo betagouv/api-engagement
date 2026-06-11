@@ -45,6 +45,18 @@ describe("Publisher diffusions (dérivées des diffusion rules)", () => {
       expect(roots).toHaveLength(1);
       expect(roots[0]).toMatchObject({ field: "publisherId", operator: "is", value: annonceur.id });
     });
+
+    it("rolls back publisher creation when scope root synchronization fails", async () => {
+      await expect(
+        publisherService.createPublisher({
+          name: "Diffuseur rollback create",
+          hasApiRights: true,
+          publishers: [{ publisherId: "invalid\u0000publisher" }],
+        })
+      ).rejects.toThrow();
+
+      await expect(publisherService.findOnePublisherByName("Diffuseur rollback create")).resolves.toBeNull();
+    });
   });
 
   describe("PUT /publisher/:id", () => {
@@ -114,6 +126,21 @@ describe("Publisher diffusions (dérivées des diffusion rules)", () => {
 
       expect(updated.publishers).toHaveLength(0);
       expect(await publisherDiffusionRuleService.findRules({ publisherId: diffuseur.id, combinedWithId: null })).toHaveLength(0);
+    });
+
+    it("rolls back publisher update when scope root synchronization fails", async () => {
+      const diffuseur = await createTestPublisher({ name: "Diffuseur before rollback" });
+
+      await expect(
+        publisherService.updatePublisher(diffuseur.id, {
+          name: "Diffuseur after failed rollback",
+          publishers: [{ publisherId: "invalid\u0000publisher" }],
+        })
+      ).rejects.toThrow();
+
+      const persisted = await publisherService.findOnePublisherById(diffuseur.id);
+      expect(persisted?.name).toBe("Diffuseur before rollback");
+      expect(await publisherDiffusionRuleService.findRules({ publisherId: diffuseur.id })).toHaveLength(0);
     });
   });
 
