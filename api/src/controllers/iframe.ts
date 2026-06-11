@@ -214,6 +214,7 @@ const buildMissionFilters = async (widget: WidgetRecord, query: { [key: string]:
   const filters: MissionSearchFilters = {
     directFilters: await applyWidgetRules(widget.rules || [], publisherOrganizationService.findIdsMatchingArrayValue),
     publisherIds: widget.publishers,
+    diffuseurPublisherId: widget.fromPublisherId,
     skip: pagination.skip,
     limit: pagination.limit,
   };
