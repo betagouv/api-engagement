@@ -64,10 +64,11 @@ const GITHUB_REPO = "betagouv/api-engagement";
 // ⚙️  Apps connues — ordre d'affichage et décorateurs Slack
 // ---------------------------------------------------------------------------
 const APPS = [
-  { scope: "app", label: "Tableau de bord", decorator: "——" },
-  { scope: "api", label: "API", decorator: "—" },
-  { scope: "widget", label: "Widget", decorator: "—" },
-  { scope: "analytics", label: "Analytics", decorator: "·" },
+  { scope: "plateform", label: "Plateforme de l'engagement", decorator: "🇫🇷" },
+  { scope: "app", label: "Tableau de bord", decorator: "💻" },
+  { scope: "api", label: "API", decorator: "⚙️" },
+  { scope: "widget", label: "Widget", decorator: "🖼️" },
+  { scope: "analytics", label: "Analytics", decorator: "📊" },
 ] as const;
 
 // ---------------------------------------------------------------------------
@@ -354,7 +355,7 @@ Section "impact" :
 Section "sections" :
 - Un bullet par changement fonctionnel visible par l'utilisateur, groupé par app
 - N'inclure que les apps qui ont des changements visibles
-- Ordre des apps : Tableau de bord, API, Widget, Analytics
+- Ordre des apps : Plateforme de l'Engagement, Tableau de bord, API, Widget, Analytics
 
 Réponds UNIQUEMENT avec un objet JSON de la forme :
 {
