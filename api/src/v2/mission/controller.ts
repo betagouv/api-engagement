@@ -1,4 +1,5 @@
 import { NextFunction, Response, Router } from "express";
+import { convert } from "html-to-text";
 import passport from "passport";
 import zod from "zod";
 
@@ -113,6 +114,26 @@ const missionClientIdParamSchema = zod.object({
   clientId: zod.string(),
 });
 
+const HTML_TAG_REGEX = /<\/?[a-z][\s\S]*>/i;
+
+const normalizeMissionDescriptionInput = (description?: string): Pick<MissionCreateInput, "description" | "descriptionHtml"> => {
+  if (description === undefined) {
+    return {};
+  }
+
+  if (!HTML_TAG_REGEX.test(description)) {
+    return { description };
+  }
+
+  return {
+    description: convert(description, {
+      preserveNewlines: true,
+      selectors: [{ selector: "ul", options: { itemPrefix: " • " } }],
+    }),
+    descriptionHtml: description,
+  };
+};
+
 // ──────────────────────────────────────────────────────────────────────────────
 // POST /v2/mission — Create
 // ──────────────────────────────────────────────────────────────────────────────
@@ -146,7 +167,7 @@ router.post("/", passport.authenticate(["apikey", "api"], { session: false }), p
       lastSyncAt: new Date(),
       placesStatus: body.places ? "GIVEN_BY_PARTNER" : "ATTRIBUTED_BY_API",
       addresses: buildAddresses(body.addresses),
-      description: body.description,
+      ...normalizeMissionDescriptionInput(body.description),
       applicationUrl: body.applicationUrl,
       domainLogo: body.image,
       metadata: body.metadata,
@@ -241,6 +262,10 @@ router.put("/:clientId", passport.authenticate(["apikey", "api"], { session: fal
       ...body,
       lastSyncAt: new Date(),
     };
+
+    if ("description" in body) {
+      Object.assign(patch, normalizeMissionDescriptionInput(body.description));
+    }
 
     if (publisherOrganizationId !== undefined) {
       patch.publisherOrganizationId = publisherOrganizationId;

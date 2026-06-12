@@ -75,6 +75,37 @@ describe("Mission V2 Write API Integration Tests", () => {
       });
     });
 
+    it("should store HTML descriptions as rich HTML and plain text", async () => {
+      const htmlDescription = "<h2>Presentation</h2><p>Une <strong>mission</strong> utile.</p><ul><li>Accueillir</li><li>Orienter</li></ul>";
+
+      const response = await request(app)
+        .post("/v2/mission")
+        .set("x-api-key", apiKey)
+        .send({ clientId: "test-html-description", title: "Mission HTML", description: htmlDescription, applicationUrl: "https://example.com/apply" });
+
+      expect(response.status).toBe(201);
+      const mission = await missionService.findMissionByClientAndPublisher("test-html-description", publisher.id);
+      expect(mission?.descriptionHtml).toBe(htmlDescription);
+      expect(mission?.description).toContain("Presentation");
+      expect(mission?.description).toContain("Une mission utile.");
+      expect(mission?.description).toContain(" • Accueillir");
+      expect(mission?.description).not.toContain("<h2>");
+    });
+
+    it("should store plain text descriptions without HTML content", async () => {
+      const description = "Une description texte simple.";
+
+      const response = await request(app)
+        .post("/v2/mission")
+        .set("x-api-key", apiKey)
+        .send({ clientId: "test-text-description", title: "Mission texte", description, applicationUrl: "https://example.com/apply" });
+
+      expect(response.status).toBe(201);
+      const mission = await missionService.findMissionByClientAndPublisher("test-text-description", publisher.id);
+      expect(mission?.description).toBe(description);
+      expect(mission?.descriptionHtml).toBeNull();
+    });
+
     it("should return 201 with all optional fields", async () => {
       const payload = {
         clientId: "test-full",
@@ -299,6 +330,27 @@ describe("Mission V2 Write API Integration Tests", () => {
         type: "mission.enrichment",
         payload: { missionId: expect.any(String) },
       });
+    });
+
+    it("should update HTML descriptions as rich HTML and plain text", async () => {
+      const mission = await createTestMission({
+        publisherId: publisher.id,
+        title: "Mission valide",
+        description: "Description existante",
+        applicationUrl: "https://example.com/apply",
+        domain: "sport",
+        statusCode: "ACCEPTED",
+      });
+      const htmlDescription = "<p>Nouvelle <strong>description</strong></p><ul><li>Former</li><li>Accompagner</li></ul>";
+
+      const response = await request(app).put(`/v2/mission/${mission.clientId}`).set("x-api-key", apiKey).send({ description: htmlDescription });
+
+      expect(response.status).toBe(200);
+      const updated = await missionService.findMissionByClientAndPublisher(mission.clientId, publisher.id);
+      expect(updated?.descriptionHtml).toBe(htmlDescription);
+      expect(updated?.description).toContain("Nouvelle description");
+      expect(updated?.description).toContain(" • Former");
+      expect(updated?.description).not.toContain("<strong>");
     });
 
     it("should update PublisherOrganization when org fields are in body", async () => {
