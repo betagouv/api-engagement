@@ -199,7 +199,7 @@ const DistributionMean = ({ filters }) => {
   return (
     <div className="space-y-6">
       <h2 className="text-3xl font-bold">Répartition par moyen de diffusion</h2>
-      <div className="border-grey-border space-y-4 overflow-x-auto border p-6">
+      <div className="border-grey-border relative space-y-4 overflow-x-auto border p-6">
         <Tabs tabs={tabs} ariaLabel="Répartition par moyen de diffusion" panelId="distribution-panel" className="mb-6 gap-8 pb-2 text-sm" variant="underline" />
         <div id="distribution-panel" role="tabpanel" tabIndex={0} aria-labelledby={activeTabId || undefined} className="min-w-[600px]">
           {loading ? (
@@ -416,7 +416,7 @@ const Evolution = ({ filters }) => {
         <h2 className="text-3xl font-bold">Evolution</h2>
         <p className="text-text-mention text-base">Trafic que vous avez généré pour vos partenaires annonceurs</p>
       </div>
-      <div className="border-grey-border overflow-x-auto border p-4">
+      <div className="border-grey-border relative overflow-x-auto border p-4">
         <Tabs tabs={tabs} ariaLabel="Evolution" panelId="evolution-panel" className="mb-6 gap-8 pb-2 text-sm" variant="underline" />
         <div id="evolution-panel" role="tabpanel" tabIndex={0} aria-labelledby={activeTabId || undefined} className="min-w-[600px]">
           {loading ? (
@@ -465,7 +465,7 @@ const Announcers = ({ filters }) => {
   const [announcerData, setAnnouncerData] = useState([]);
   const [missionData, setMissionData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [tableSettings, setTableSettings] = useState({ page: 1, sortBy: "publisherId" });
+  const [tableSettings, setTableSettings] = useState({ page: 1, sortBy: "-publisherId" });
 
   useEffect(() => {
     if (!analyticsProvider?.query) {
@@ -599,7 +599,7 @@ const Announcers = ({ filters }) => {
         </div>
       ) : (
         <>
-          <div className="border-grey-border space-y-4 overflow-x-auto border p-6">
+          <div className="border-grey-border relative space-y-4 overflow-x-auto border p-6">
             <div className="flex min-w-[600px] flex-col gap-4">
               <h3 className="text-2xl font-semibold">Performance des annonceurs</h3>
               <Table
@@ -611,10 +611,10 @@ const Announcers = ({ filters }) => {
                 onPageChange={(page) => setTableSettings({ ...tableSettings, page })}
                 total={announcerData.length}
                 sortBy={tableSettings.sortBy}
-                onSort={(sortBy) => setTableSettings({ ...tableSettings, sortBy })}
+                onSort={(key) => setTableSettings({ ...tableSettings, sortBy: key === "publisherId" ? "-publisherId" : key })}
               >
                 {announcerData
-                  .sort((a, b) => (tableSettings.sortBy === "publisherId" ? a.publisherId.localeCompare(b.publisherId) : b[tableSettings.sortBy] - a[tableSettings.sortBy]))
+                  .sort((a, b) => (tableSettings.sortBy === "-publisherId" ? a.publisherId.localeCompare(b.publisherId) : b[tableSettings.sortBy] - a[tableSettings.sortBy]))
                   .slice((tableSettings.page - 1) * 5, tableSettings.page * 5)
                   .map((item, i) => (
                     <tr key={i} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
@@ -629,7 +629,7 @@ const Announcers = ({ filters }) => {
               </Table>
             </div>
           </div>
-          <div className="border-grey-border space-y-4 overflow-x-auto border p-6">
+          <div className="border-grey-border relative space-y-4 overflow-x-auto border p-6">
             <div className="min-w-[600px]">
               <h3 className="text-2xl font-semibold">Répartition des missions par annonceur</h3>
               {!missionData.length ? (

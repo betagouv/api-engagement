@@ -24,7 +24,7 @@ const Account = () => {
 
     const errors = {};
     if (!values.firstname) {
-      errors.firstname = "Le nom est requis";
+      errors.firstname = "Le prénom est requis";
     }
 
     setErrors(errors);
@@ -71,24 +71,37 @@ const Account = () => {
             Se deconnecter
           </button>
         </div>
+        <p className="text-text-mention mb-6 text-sm">
+          <span className="text-error" aria-hidden="true">
+            *
+          </span>{" "}
+          : champ obligatoire
+        </p>
         <div className="grid grid-cols-1 gap-x-10 gap-y-5 sm:grid-cols-2">
           <div className="flex flex-col">
             <label className="mb-2 text-sm" htmlFor="firstname">
               Prénom
+              <span className="text-error ml-1" aria-hidden="true">
+                *
+              </span>
             </label>
             <input
               id="firstname"
               className={`input mb-2 ${errors.firstname ? "border-b-error" : "border-b-black"}`}
               name="firstname"
               autoComplete="given-name"
+              required
+              aria-required="true"
+              aria-invalid={errors.firstname ? true : undefined}
+              aria-describedby={errors.firstname ? "firstname-error" : undefined}
               value={values.firstname}
               onChange={(e) => setValues({ ...values, firstname: e.target.value })}
             />
             {errors.firstname && (
-              <div className="text-error flex items-center text-sm">
-                <RiErrorWarningFill className="mr-2" aria-hidden="true" />
+              <p id="firstname-error" className="text-error flex items-center text-sm" aria-live="polite">
+                <RiErrorWarningFill className="mr-2 shrink-0" aria-hidden="true" />
                 {errors.firstname}
-              </div>
+              </p>
             )}
           </div>
 
@@ -149,13 +162,13 @@ const ResetPasswordModal = () => {
   const handleSubmit = async () => {
     const errors = {};
     if (values.newPassword.length < 12 || !/[a-zA-Z]/.test(values.newPassword) || !/[0-9]/.test(values.newPassword) || !/[!-@#$%^&*(),.?":{}|<>]/.test(values.newPassword)) {
-      errors.newPassword = "Le mot de passe ne respecte pas les critères de sécurité";
+      errors.newPassword = "Le nouveau mot de passe ne respecte pas les critères de sécurité";
     }
     if (values.newPassword === values.oldPassword) {
       errors.newPassword = "Le nouveau mot de passe ne peut pas être identique à l'ancien mot de passe";
     }
     if (values.newPassword !== values.confirmPassword) {
-      errors.confirmPassword = "Les mots de passe ne sont pas identiques";
+      errors.confirmPassword = "La confirmation du nouveau mot de passe ne correspond pas au nouveau mot de passe";
     }
 
     setErrors(errors);
@@ -167,7 +180,7 @@ const ResetPasswordModal = () => {
       const res = await api.put(`/user/change-password`, values);
       if (!res.ok) {
         if (res.code === "INVALID_PASSWORD") {
-          setErrors({ newPassword: "Le mot de passe ne respecte pas les critères de sécurité" });
+          setErrors({ newPassword: "Le nouveau mot de passe ne respecte pas les critères de sécurité" });
           return;
         }
 
@@ -199,29 +212,46 @@ const ResetPasswordModal = () => {
       </button>
 
       <Modal open={open} onClose={onClose} title="Changement du mot de passe" className="w-[90vw] max-w-3xl">
+        <p className="text-text-mention text-sm">
+          <span className="text-error" aria-hidden="true">
+            *
+          </span>{" "}
+          : champ obligatoire
+        </p>
         <div className="flex flex-col">
           <label className="mb-2 text-sm" htmlFor="old-password">
             Ancien mot de passe
+            <span className="text-error ml-1" aria-hidden="true">
+              *
+            </span>
           </label>
           <input
             id="old-password"
             className={`input mb-2 ${errors.oldPassword ? "border-b-error" : "border-b-black"}`}
             name="oldPassword"
             type="password"
+            autoComplete="current-password"
+            required
+            aria-required="true"
+            aria-invalid={errors.oldPassword ? true : undefined}
+            aria-describedby={errors.oldPassword ? "old-password-error" : undefined}
             value={values.oldPassword}
             onChange={(e) => setValues({ ...values, oldPassword: e.target.value })}
           />
           {errors.oldPassword && (
-            <div className="text-error flex items-center text-sm">
-              <RiErrorWarningFill className="mr-2" aria-hidden="true" />
+            <p id="old-password-error" className="text-error flex items-center text-sm" aria-live="polite">
+              <RiErrorWarningFill className="mr-2 shrink-0" aria-hidden="true" />
               {errors.oldPassword}
-            </div>
+            </p>
           )}
         </div>
         <div className="flex flex-col">
           <div className="flex justify-between">
             <label className="mb-2 text-sm" htmlFor="new-password">
               Nouveau mot de passe
+              <span className="text-error ml-1" aria-hidden="true">
+                *
+              </span>
             </label>
             <button
               type="button"
@@ -238,21 +268,28 @@ const ResetPasswordModal = () => {
             className={`input mb-2 ${errors.newPassword ? "border-b-error" : "border-b-black"}`}
             name="newPassword"
             type={showNewPassword ? "text" : "password"}
+            required
+            aria-required="true"
+            aria-invalid={errors.newPassword ? true : undefined}
+            aria-describedby={errors.newPassword ? "new-password-error new-password-criteria" : "new-password-criteria"}
             value={values.newPassword}
             onChange={(e) => setValues({ ...values, newPassword: e.target.value })}
             autoComplete="new-password"
           />
           {errors.newPassword && (
-            <div className="text-error flex items-center text-sm">
-              <RiErrorWarningFill className="mr-2" aria-hidden="true" />
+            <p id="new-password-error" className="text-error flex items-center text-sm" aria-live="polite">
+              <RiErrorWarningFill className="mr-2 shrink-0" aria-hidden="true" />
               {errors.newPassword}
-            </div>
+            </p>
           )}
         </div>
         <div className="flex flex-col">
           <div className="flex justify-between">
             <label className="mb-2 text-sm" htmlFor="confirm-password">
               Confirmez le nouveau mot de passe
+              <span className="text-error ml-1" aria-hidden="true">
+                *
+              </span>
             </label>
             <button
               type="button"
@@ -269,18 +306,23 @@ const ResetPasswordModal = () => {
             className={`input mb-2 ${errors.confirmPassword ? "border-b-error" : "border-b-black"}`}
             name="confirmPassword"
             type={showConfirmPassword ? "text" : "password"}
+            autoComplete="new-password"
+            required
+            aria-required="true"
+            aria-invalid={errors.confirmPassword ? true : undefined}
+            aria-describedby={errors.confirmPassword ? "confirm-password-error" : undefined}
             value={values.confirmPassword}
             onChange={(e) => setValues({ ...values, confirmPassword: e.target.value })}
           />
           {errors.confirmPassword && (
-            <div className="text-error flex items-center text-sm">
-              <RiErrorWarningFill className="mr-2" aria-hidden="true" />
+            <p id="confirm-password-error" className="text-error flex items-center text-sm" aria-live="polite">
+              <RiErrorWarningFill className="mr-2 shrink-0" aria-hidden="true" />
               {errors.confirmPassword}
-            </div>
+            </p>
           )}
         </div>
 
-        <div className="flex flex-col gap-2">
+        <div id="new-password-criteria" className="flex flex-col gap-2">
           <PasswordCriterion valid={(values.newPassword || "").length >= 12}>Au moins 12 caractères</PasswordCriterion>
           <PasswordCriterion valid={/[a-zA-Z]/.test(values.newPassword)}>Au moins une lettre</PasswordCriterion>
           <PasswordCriterion valid={/[0-9]/.test(values.newPassword)}>Au moins un chiffre</PasswordCriterion>

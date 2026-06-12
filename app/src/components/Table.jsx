@@ -5,8 +5,8 @@ import { RiArrowDownSLine, RiArrowLeftSLine, RiArrowRightSLine, RiSkipLeftLine, 
 import Loader from "@/components/Loader";
 
 const SortableHeader = ({ item, sortBy, onSort }) => {
-  const isSorted = sortBy === item.key;
-  const isAscending = isSorted && sortBy.startsWith?.("-");
+  const isSorted = sortBy === item.key || sortBy === `-${item.key}`;
+  const isAscending = isSorted && sortBy.startsWith("-");
   const ariaSort = isSorted ? (isAscending ? "ascending" : "descending") : undefined;
   const positionClass = item.position === "right" ? "justify-end" : item.position === "center" ? "justify-center" : "justify-start";
 
@@ -43,7 +43,7 @@ const Table = ({ header, caption, sortBy, total, onSort, loading, children, stic
 
   return (
     <>
-      <div className={`w-full overflow-x-auto overflow-y-visible ${className}`}>
+      <div className={`relative w-full overflow-x-auto overflow-y-visible ${className}`}>
         <table className="min-w-full table-fixed border-collapse">
           {caption && (
             <caption className="sr-only">
@@ -129,14 +129,14 @@ const Pagination = ({ page, setPage, end }) => {
         </li>
 
         {pages.map((p, index) => (
-          <li key={index}>
+          <li key={index} aria-hidden={p === "..." ? "true" : undefined}>
             {p === "..." ? (
               <div className="mx-2 text-sm">{p}</div>
             ) : (
               <button
                 aria-label={`Page ${p}`}
                 aria-current={parseInt(p) === page ? "page" : undefined}
-                className={`pagination-btn ${parseInt(p) === page ? "bg-blue-france text-white" : ""}`}
+                className={`pagination-btn ${parseInt(p) === page ? "bg-blue-france font-bold text-white underline underline-offset-4" : ""}`}
                 onClick={() => setPage(parseInt(p))}
               >
                 {p}

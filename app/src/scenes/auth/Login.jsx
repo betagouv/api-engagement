@@ -74,6 +74,9 @@ const Login = () => {
           *
         </span>
       </label>
+      <p id="email-hint" className="text-text-mention mb-2 text-xs">
+        Exemple de format attendu : jane.doe@gmail.com
+      </p>
       <input
         className={`input mb-2 ${errors.email ? "border-b-error" : "border-b-black"}`}
         name="email"
@@ -83,7 +86,7 @@ const Login = () => {
         required
         aria-required="true"
         aria-invalid={errors.email ? true : undefined}
-        aria-describedby={errors.email ? "email-error" : undefined}
+        aria-describedby={errors.email ? "email-error email-hint" : "email-hint"}
       />
       {errors.email && (
         <p id="email-error" className="text-error flex items-center text-sm" aria-live="polite">
@@ -109,7 +112,7 @@ const Login = () => {
         aria-invalid={errors.password ? true : undefined}
         aria-describedby={errors.password ? "password-error" : undefined}
       />
-      
+
       {errors.password && (
         <p id="password-error" className="text-error flex items-center text-sm" aria-live="polite">
           <RiErrorWarningFill className="mr-2 shrink-0" aria-hidden="true" />

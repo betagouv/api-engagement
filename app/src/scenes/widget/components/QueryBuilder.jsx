@@ -39,7 +39,7 @@ const QueryBuilder = ({ values, onChange }) => {
   return (
     <div className="flex flex-col overflow-x-auto">
       {values.rules.map((r, i) => (
-        <div key={i} className="my-3 flex min-w-[600px] items-center gap-4">
+        <div key={i} className="my-3 flex flex-col gap-4 sm:min-w-[600px] sm:flex-row sm:items-center">
           <Rule index={i} fields={FIELDS} rule={r} onChange={(r) => handleRuleChange(r, i)} filters={values.publishers.map((p) => `publishers[]=${p}`).join("&")} />
           <button
             type="button"
@@ -109,17 +109,17 @@ const Rule = ({ fields, rule, onChange, index, filters }) => {
   };
 
   return (
-    <div className="flex w-full items-center gap-4">
+    <div className="flex w-full flex-col gap-4 sm:flex-row sm:items-center">
       {index > 0 ? (
-        <select className="select w-[6%] px-2" value={rule.combinator} onChange={(e) => onChange({ ...rule, combinator: e.target.value })}>
+        <select className="select w-full sm:w-[6%] sm:px-2" value={rule.combinator} onChange={(e) => onChange({ ...rule, combinator: e.target.value })}>
           <option value="and">Et</option>
           <option value="or">Ou</option>
         </select>
       ) : (
-        <div className="w-[6%]" />
+        <div className="hidden sm:block sm:w-[6%]" />
       )}
-      <div className="flex w-full items-center gap-4">
-        <select className={`select w-[35%]`} value={rule.field} onChange={handleSelectField}>
+      <div className="flex w-full flex-col gap-4 sm:flex-row sm:items-center">
+        <select className="select w-full sm:w-[35%]" value={rule.field} onChange={handleSelectField}>
           {fields.map((f) => (
             <option key={f.value} value={f.value}>
               {f.label}
@@ -128,7 +128,7 @@ const Rule = ({ fields, rule, onChange, index, filters }) => {
         </select>
         {rule.fieldType === "boolean" ? (
           <>
-            <select className="select w-[15%]" defaultValue={rule.operator} disabled>
+            <select className="select w-full sm:w-[15%]" defaultValue={rule.operator} disabled>
               <option value="is">égal à</option>
             </select>
             <select className="select flex-1" value={rule.value} onChange={(e) => onChange({ ...rule, value: e.target.value })}>
@@ -138,7 +138,7 @@ const Rule = ({ fields, rule, onChange, index, filters }) => {
           </>
         ) : rule.fieldType === "array" ? (
           <>
-            <select className="select w-[15%]" value={rule.operator} onChange={(e) => onChange({ ...rule, operator: e.target.value })}>
+            <select className="select w-full sm:w-[15%]" value={rule.operator} onChange={(e) => onChange({ ...rule, operator: e.target.value })}>
               <option value="contains">contient</option>
               <option value="does_not_contain">ne contient pas</option>
             </select>
@@ -159,7 +159,7 @@ const Rule = ({ fields, rule, onChange, index, filters }) => {
           </>
         ) : (
           <>
-            <select className="select w-[15%]" value={rule.operator} onChange={(e) => onChange({ ...rule, operator: e.target.value })}>
+            <select className="select w-full sm:w-[15%]" value={rule.operator} onChange={(e) => onChange({ ...rule, operator: e.target.value })}>
               <option value="is">égal à</option>
               <option value="is_not">différent de</option>
               <option value="contains">contient</option>

@@ -210,13 +210,14 @@ const AnalyticsViz = ({
 
     return (
       <div className={`border border-gray-900 p-6 ${className}`}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <p className="text-[28px] font-bold">
+        <div className="flex items-start justify-between">
+          <p className="text-base">
+            <span className="block text-[28px] font-bold">
               {kpiValue.toLocaleString("fr")}
               {kpiUnit ? ` ${kpiUnit}` : ""}
-            </p>
-          </div>
+            </span>
+            {kpiLabel}
+          </p>
           <div className="flex items-center gap-2">
             {kpiTooltip ? (
               <Tooltip
@@ -231,7 +232,6 @@ const AnalyticsViz = ({
             {kpiIcon && <div className="text-text-mention text-xl">{kpiIcon}</div>}
           </div>
         </div>
-        {kpiLabel && <p className="text-base">{kpiLabel}</p>}
       </div>
     );
   }

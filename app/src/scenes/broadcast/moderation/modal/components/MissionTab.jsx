@@ -45,14 +45,16 @@ const MissionTab = ({ data, onChange }) => {
             placeholder={data.missionTitle}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            aria-invalid={error ? true : undefined}
+            aria-describedby={error ? "new-mission-title-error new-mission-title-hint" : "new-mission-title-hint"}
           />
           {error && (
-            <div className="text-error flex items-center text-sm">
-              <RiErrorWarningFill className="mr-2" aria-hidden="true" />
+            <p id="new-mission-title-error" className="text-error flex items-center text-sm" aria-live="polite">
+              <RiErrorWarningFill className="mr-2 shrink-0" aria-hidden="true" />
               {error}
-            </div>
+            </p>
           )}
-          <p className="text-text-mention text-xs">
+          <p id="new-mission-title-hint" className="text-text-mention text-xs">
             <span className="mr-1 font-semibold">Titre d'origine:</span>
             {data.missionTitle}
           </p>
@@ -64,7 +66,7 @@ const MissionTab = ({ data, onChange }) => {
         </div>
         <div className="border-grey-border border-t" />
         <div className="flex flex-col space-y-2">
-          <p className="mb-2 text-sm">Description</p>
+          <h3 className="mb-2 text-sm">Description</h3>
           <div
             className="text-text-mention border-grey-border overflow-hidden rounded-t border bg-gray-950 p-6 text-sm"
             dangerouslySetInnerHTML={{ __html: `<p>${data.missionDescription.replace(/\n/g, "</p><p>")}</p>` }}
@@ -72,26 +74,26 @@ const MissionTab = ({ data, onChange }) => {
         </div>
         <div className="border-grey-border border-t" />
         <div className="flex flex-col space-y-2 py-2">
-          <p className="text-sm">Lieu de la mission</p>
+          <h3 className="text-sm">Lieu de la mission</h3>
           <p className="text-text-mention text-sm">
             {data.missionDepartmentName} ({data.missionDepartmentCode})
           </p>
         </div>
         <div className="border-grey-border border-t" />
         <div className="flex flex-col space-y-2 py-2">
-          <p className="text-sm">Date de la mission</p>
+          <h3 className="text-sm">Date de la mission</h3>
           <p className="text-text-mention text-sm">À partir du {new Date(data.missionStartAt).toLocaleDateString("fr", { year: "numeric", month: "long", day: "numeric" })}</p>
         </div>
         <div className="border-grey-border border-t" />
         <div className="flex flex-col space-y-2 py-2">
-          <p className="text-sm">Date de création</p>
+          <h3 className="text-sm">Date de création</h3>
           <p className="text-text-mention text-sm">
             Postée le {new Date(data.missionPostedAt).toLocaleDateString("fr")} sur {data.missionPublisherName}
           </p>
         </div>
         <div className="border-grey-border border-t" />
         <div className="flex flex-col space-y-2 py-2">
-          <p className="text-sm">Lien de la mission</p>
+          <h3 className="text-sm">Lien de la mission</h3>
           <div className="flex items-center gap-2">
             <Link
               to={data.missionApplicationUrl.includes("http") ? data.missionApplicationUrl : `https://${data.missionApplicationUrl}`}
@@ -105,7 +107,7 @@ const MissionTab = ({ data, onChange }) => {
         </div>
         <div className="border-grey-border border-t" />
         <div className="flex flex-col space-y-2 py-2">
-          <p className="text-sm">ID</p>
+          <h3 className="text-sm">ID</h3>
           <p className="text-text-mention text-sm">{data.missionId}</p>
         </div>
       </div>

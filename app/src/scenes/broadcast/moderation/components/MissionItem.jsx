@@ -271,7 +271,7 @@ const UpdateNoteModal = ({ open, onChange, onClose, data }) => {
   };
 
   return (
-    <Modal open={open} onClose={onClose} title="Modifier la note" className="min-w-3xl">
+    <Modal open={open} onClose={onClose} title="Modifier la note" className="w-[90vw] max-w-3xl">
       <form onSubmit={handleSubmit}>
         <div className="flex items-center justify-center">
           <div className="flex w-full flex-col justify-center gap-4">

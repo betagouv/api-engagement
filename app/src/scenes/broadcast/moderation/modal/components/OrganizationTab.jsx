@@ -133,29 +133,21 @@ const OrganizationTab = ({ data, onChange }) => {
             </button>
           )}
           <div className="border-grey-border flex flex-col gap-2 border-t py-4">
-            <label className="text-sm" htmlFor="title">
-              Adresse
-            </label>
+            <h3 className="text-sm">Adresse</h3>
             <p className="text-text-mention text-sm">{data.missionOrganizationFullAddress ? data.missionOrganizationFullAddress : "/"}</p>
           </div>
           <div className="border-grey-border flex flex-col gap-2 border-t py-4">
-            <label className="text-sm" htmlFor="title">
-              Domaine d'action
-            </label>
+            <h3 className="text-sm">Domaine d'action</h3>
             <p className="text-text-mention text-sm">{DOMAINS[data.missionDomain]}</p>
           </div>
           <div className="border-grey-border flex flex-col gap-2 border-t py-4">
-            <label className="text-sm" htmlFor="title">
-              Organisation déjà inscrite sur
-            </label>
+            <h3 className="text-sm">Organisation déjà inscrite sur</h3>
             <p className="text-text-mention text-sm">
               {/* {data.associationSources?.length ? data.associationSources.map((s) => (s === "Je veux aider" ? "JeVeuxAider.gouv.fr" : s)).join(", ") : "/"} */}
             </p>
           </div>
           <div className="border-grey-border flex flex-col gap-2 border-t py-4">
-            <label className="text-sm" htmlFor="title">
-              Site internet
-            </label>
+            <h3 className="text-sm">Site internet</h3>
             <a href={data.missionOrganizationUrl} className="text-blue-france text-sm underline" target="_blank">
               {data.missionOrganizationUrl}
             </a>
