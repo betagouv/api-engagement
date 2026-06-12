@@ -24,7 +24,7 @@ const TESTIMONIALS: Testimonial[] = [
     domain: "Sécurité",
     skill: "❤️ Aider les autres",
     title: "Infirmière 2 fois par semaine depuis 3 mois",
-    publisherName: "La réserves des armées",
+    publisherName: "La réserve des armées",
     publisherLogo: RocLogo,
   },
   {
@@ -51,7 +51,7 @@ const TESTIMONIALS: Testimonial[] = [
     domain: "Sécurité",
     skill: "❤️ Aider les autres",
     title: "Pompier 2 fois par semaine depuis 7 mois",
-    publisherName: "Sapeurs pompiers volontaires",
+    publisherName: "Sapeurs-pompiers volontaires",
     publisherLogo: SpvLogo,
   },
 ];
@@ -83,7 +83,7 @@ export default function Testimonials() {
       <div className="bg-yellow-moutarde-975 fr-py-8w px-8">
         <div className="flex flex-col items-center fr-mb-6w">
           <h2 className="fr-h1 mb-0! md:mb-3!">
-            Ils ont trouvé leurs places. <Highlight className="bg-yellow-moutarde-850">Pourquoi pas toi ?</Highlight>
+            Ils ont trouvé leur place. <Highlight className="bg-yellow-moutarde-850">Pourquoi pas toi ?</Highlight>
           </h2>
           <p className="fr-text--lead text-default-grey mx-auto max-w-5xl! fr-mb-0 text-center hidden! md:block!">
             Accompagner une personne en difficulté, protéger la nature, organiser des événements, aider des personnes isolées, s'engager pour son pays… Découvre les missions qui
