@@ -12,7 +12,8 @@ COPY . .
 RUN npm run build
 
 # Run
-FROM node:24-alpine
+# Pin Alpine 3.22 (Python 3.12) : dbt-core 1.11.x ne supporte pas Python 3.14
+FROM node:24-alpine3.22
 
 WORKDIR /app
 
