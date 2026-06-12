@@ -142,6 +142,9 @@ const buildFindWhere = (params: PublisherDiffusionRuleFindParams): Prisma.Publis
   if (params.field) {
     where.field = params.field;
   }
+  if (params.operator) {
+    where.operator = params.operator;
+  }
   if (params.value) {
     where.value = params.value;
   }
