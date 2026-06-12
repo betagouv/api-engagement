@@ -1,6 +1,7 @@
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import { useEffect, useState } from "react";
+import { RiArrowDownSLine } from "react-icons/ri";
 
 const FIELD_LABELS = {
   "publisherOrganization.clientId": "Identifiant de l'organisation",
@@ -94,21 +95,26 @@ const Administration = ({ values, onChange }) => {
                 Règles <strong>spécifiques</strong> de diffusion pour <strong>{group.annonceurName}</strong>
               </label>
 
-              {groupRulesByFieldAndOperator(group.rules).map((rules) => (
-                <details key={`${rules[0].field}|${rules[0].operator}`} className="border-y border-gray-200">
-                  <summary className="cursor-pointer px-3 py-2 text-sm">
-                    <span className="font-medium">{FIELD_LABELS[rules[0].field] || rules[0].field}</span> {OPERATOR_LABELS[rules[0].operator] || rules[0].operator}{" "}
-                    <span className="text-gray-500">({rules.length})</span>
-                  </summary>
-                  <div className="flex flex-wrap items-center gap-2 px-3 pb-3">
-                    {rules.map((rule) => (
-                      <div key={rule.id} className="rounded-md bg-gray-100 px-2 py-1 text-sm">
-                        {rule.organizationName ? `${rule.organizationName} (${rule.value})` : rule.value}
-                      </div>
-                    ))}
-                  </div>
-                </details>
-              ))}
+              <div>
+                {groupRulesByFieldAndOperator(group.rules).map((rules) => (
+                  <details key={`${rules[0].field}|${rules[0].operator}`} className="group border-grey-border border-t last:border-b">
+                    <summary className="hover:bg-background-grey-hover flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-3 text-base text-black">
+                      <span>
+                        <span className="font-medium">{FIELD_LABELS[rules[0].field] || rules[0].field}</span> {OPERATOR_LABELS[rules[0].operator] || rules[0].operator}{" "}
+                        <span className="text-gray-425">({rules.length})</span>
+                      </span>
+                      <RiArrowDownSLine aria-hidden="true" className="text-blue-france shrink-0 text-xl transition-transform group-open:rotate-180" />
+                    </summary>
+                    <div className="flex flex-wrap items-center gap-2 px-4 pt-1 pb-6">
+                      {rules.map((rule) => (
+                        <div key={rule.id} className="rounded-md bg-gray-100 px-2 py-1 text-sm">
+                          {rule.organizationName ? `${rule.organizationName} (${rule.value})` : rule.value}
+                        </div>
+                      ))}
+                    </div>
+                  </details>
+                ))}
+              </div>
             </div>
           ))}
         </div>
