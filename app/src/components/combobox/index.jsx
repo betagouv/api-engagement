@@ -11,6 +11,7 @@ const Combobox = ({
   className,
   id,
   options = null,
+  ariaDescribedby,
   debounce = 300,
   onSearch = null,
   onChange = null,
@@ -62,6 +63,7 @@ const Combobox = ({
           aria-label={placeholder}
           aria-owns={`${id}-options`}
           aria-activedescendant={selectedIndex !== -1 ? `${id}-option-${selectedIndex}` : undefined}
+          aria-describedby={ariaDescribedby}
         />
         <ComboboxButton className="absolute inset-y-2 right-0 flex items-center pr-4" aria-label="Ouvrir les options">
           {({ open }) => <RiArrowDownSLine className={`text-lg ${open ? "rotate-180 transform" : ""}`} aria-hidden="true" />}

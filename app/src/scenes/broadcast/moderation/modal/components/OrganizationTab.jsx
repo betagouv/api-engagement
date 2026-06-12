@@ -99,8 +99,9 @@ const OrganizationTab = ({ data, onChange }) => {
               getLabel={(o) => o?.label || ""}
               getValue={(o) => o?.siren || null}
               placeholder="SIREN"
+              ariaDescribedby="organization-siren-hint"
             />
-            <p className="text-text-mention text-xs">
+            <p id="organization-siren-hint" className="text-text-mention text-xs">
               <span className="mr-1 font-semibold">SIREN d'origine:</span>
               {data.missionOrganizationSiren ? data.missionOrganizationSiren : "/"}
             </p>
@@ -121,8 +122,9 @@ const OrganizationTab = ({ data, onChange }) => {
               getLabel={(o) => o?.label || ""}
               getValue={(o) => o?.rna || null}
               placeholder="RNA"
+              ariaDescribedby="organization-rna-hint"
             />
-            <p className="text-text-mention text-xs">
+            <p id="organization-rna-hint" className="text-text-mention text-xs">
               <span className="mr-1 font-semibold">RNA d'origine:</span>
               {data.missionOrganizationRNA ? data.missionOrganizationRNA : "/"}
             </p>

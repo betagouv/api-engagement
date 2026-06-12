@@ -152,13 +152,16 @@ const Settings = ({ widget, values, onChange, loading }) => {
             </label>
             <LocationCombobox
               id="location"
+              ariaDescribedby="location-hint"
               selected={values.location ? { label: values.location.label, value: `${values.location.lat}-${values.location.lon}` } : null}
               onSelect={(v) => onChange({ ...values, location: v ? { label: v.label, lat: parseFloat(v.value.split("-")[0]), lon: parseFloat(v.value.split("-")[1]) } : null })}
               placeholder="Localisation"
             />
             <div className="text-info mt-4 flex items-center gap-2">
               <BiSolidInfoSquare className="text-sm" aria-hidden="true" />
-              <p className="text-xs">Laisser vide pour afficher les missions de toute la France</p>
+              <p id="location-hint" className="text-xs">
+                Laisser vide pour afficher les missions de toute la France
+              </p>
             </div>
           </div>
 
