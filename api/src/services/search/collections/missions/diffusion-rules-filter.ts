@@ -69,33 +69,19 @@ const buildChildrenByParentId = (rules: PublisherDiffusionRuleRecord[]): Map<str
   return childrenByParentId;
 };
 
-const buildParentOrganizationWhere = (rule: PublisherDiffusionRuleRecord): Prisma.MissionWhereInput | null => {
-  const value = rule.value.trim();
-  if (!value) {
-    return null;
-  }
-
-  if (rule.operator === "is") {
-    return { publisherOrganization: { parentOrganizations: { has: value } } };
-  }
-
-  if (rule.operator === "is_not") {
-    return { NOT: { publisherOrganization: { parentOrganizations: { has: value } } } };
-  }
-
-  return null;
-};
-
 const buildSupportedChildGroup = (rule: PublisherDiffusionRuleRecord): SupportedGroup | null => {
   const value = rule.value.trim();
-  if (!value || (rule.operator !== "is" && rule.operator !== "is_not")) {
+  if (!value) {
     reportUnsupportedRule(rule, "unsupported_child_operator_or_empty_value");
     return null;
   }
 
-  const isNot = rule.operator === "is_not";
-
   if (rule.field === "publisherOrganizationId") {
+    if (rule.operator !== "is" && rule.operator !== "is_not") {
+      reportUnsupportedRule(rule, "unsupported_child_operator_or_empty_value");
+      return null;
+    }
+    const isNot = rule.operator === "is_not";
     return {
       filterBy: isNot ? buildSearchNotEqualFilter("publisherOrganizationId", value) : buildSearchEqualFilter("publisherOrganizationId", value),
       missionWhere: { publisherOrganizationId: isNot ? { not: value } : value },
@@ -103,15 +89,16 @@ const buildSupportedChildGroup = (rule: PublisherDiffusionRuleRecord): Supported
   }
 
   if (rule.field === "publisherOrganization.parentOrganizations") {
-    const missionWhere = buildParentOrganizationWhere(rule);
-    if (!missionWhere) {
+    // Champ array : appartenance exacte, donc `contains` ≡ `is` et `does_not_contain` ≡ `is_not`
+    // (même sémantique que buildArraySqlCondition dans utils/publisher-diffusion-rule-query.ts).
+    const isNot = rule.operator === "is_not" || rule.operator === "does_not_contain";
+    if (!isNot && rule.operator !== "is" && rule.operator !== "contains") {
+      reportUnsupportedRule(rule, "unsupported_child_operator_or_empty_value");
       return null;
     }
     return {
-      filterBy: isNot
-        ? buildSearchNotEqualFilter("publisherOrganizationParentOrganizations", value)
-        : buildSearchEqualFilter("publisherOrganizationParentOrganizations", value),
-      missionWhere,
+      filterBy: isNot ? buildSearchNotEqualFilter("publisherOrganizationParentOrganizations", value) : buildSearchEqualFilter("publisherOrganizationParentOrganizations", value),
+      missionWhere: isNot ? { NOT: { publisherOrganization: { parentOrganizations: { has: value } } } } : { publisherOrganization: { parentOrganizations: { has: value } } },
     };
   }
 
