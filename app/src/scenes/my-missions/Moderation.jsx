@@ -4,6 +4,7 @@ import { RiCloseFill, RiInformationLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
 
 import JvaLogoPng from "@/assets/img/jva-logo.png";
+import ChartDetailsTable from "@/components/ChartDetailsTable";
 import Loader from "@/components/Loader";
 import Pie, { colors } from "@/components/Pie";
 import SearchInput from "@/components/SearchInput";
@@ -232,9 +233,12 @@ const Moderation = () => {
           <div className="flex items-start">
             <h3 className="flex-1 text-lg font-bold">Répartition des missions par statut</h3>
           </div>
-          <div className="p-4">
-            <Pie data={stats.status} backgroundColor={colors} legendPosition="bottom" />
-          </div>
+          <figure className="m-0 p-4">
+            <div role="img" aria-label="Diagramme de la répartition des missions par statut - description détaillée ci-dessous" aria-describedby="status-pie-table">
+              <Pie data={stats.status} backgroundColor={colors} legendPosition="bottom" />
+            </div>
+            <ChartDetailsTable id="status-pie-table" title="Répartition des missions par statut" mode="sr-only" type="pie" data={stats.status} nameKey="key" dataKey="doc_count" />
+          </figure>
         </div>
         <div className="border-grey-border col-span-2 border p-4">
           <div className="flex items-start">

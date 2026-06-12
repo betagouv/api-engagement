@@ -124,10 +124,10 @@ const ResetPasswordForm = ({ user, token }) => {
           <label className="mb-2 text-sm" htmlFor="password">
             Nouveau mot de passe
           </label>
-          <div className="flex cursor-pointer items-center gap-1" onClick={() => setShow(!show)}>
+          <button type="button" className="flex cursor-pointer items-center gap-1" onClick={() => setShow(!show)}>
             {show ? <IoMdEyeOff className="text-blue-france" aria-hidden="true" /> : <IoMdEye className="text-blue-france" aria-hidden="true" />}
             <span className="text-blue-france text-xs font-bold">{show ? "CACHER" : "AFFICHER"}</span>
-          </div>
+          </button>
         </div>
 
         <input
@@ -181,10 +181,10 @@ const ResetPasswordForm = ({ user, token }) => {
           <label className="mb-2 text-sm" htmlFor="confirm-password">
             Confirmez ce mot de passe
           </label>
-          <div className="flex cursor-pointer items-center gap-1" onClick={() => setShowConfirm(!showConfirm)}>
+          <button type="button" className="flex cursor-pointer items-center gap-1" onClick={() => setShowConfirm(!showConfirm)}>
             {showConfirm ? <IoMdEyeOff className="text-blue-france" aria-hidden="true" /> : <IoMdEye className="text-blue-france" aria-hidden="true" />}
             <span className="text-blue-france text-xs font-bold">{showConfirm ? "CACHER" : "AFFICHER"}</span>
-          </div>
+          </button>
         </div>
         <input
           id="confirm-password"

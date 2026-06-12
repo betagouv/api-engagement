@@ -108,6 +108,7 @@ export const DateInput = ({ value, onChange }) => {
   const [show, setShow] = useState(false);
   const ref = useRef(null);
   const buttonRef = useRef(null);
+  const dialogRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -137,6 +138,27 @@ export const DateInput = ({ value, onChange }) => {
     setFromText(formatDateFr(value.from));
     setToText(formatDateFr(value.to));
   }, [value]);
+
+  useEffect(() => {
+    if (show) {
+      dialogRef.current?.focus();
+    }
+  }, [show]);
+
+  const handleDialogKeyDown = (e) => {
+    if (e.key !== "Tab" || !dialogRef.current) return;
+    const focusables = dialogRef.current.querySelectorAll("button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])");
+    if (!focusables.length) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (e.shiftKey && (document.activeElement === first || document.activeElement === dialogRef.current)) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  };
 
   const handleCalendarChange = (dates) => {
     const [start, end] = dates;
@@ -173,8 +195,9 @@ export const DateInput = ({ value, onChange }) => {
 
   return (
     <div className="relative" ref={ref}>
-      <div className="flex items-center gap-2">
-        <div className="input flex items-center gap-1 px-2 py-1">
+      <fieldset className="m-0 flex flex-wrap items-center gap-2 border-0 p-0">
+        <legend className="sr-only">Période personnalisée</legend>
+        <div className="input focus-within:outline-outline-blue flex items-center gap-1 px-2 py-1 focus-within:outline-2 focus-within:outline-offset-2">
           <label htmlFor={`${id}-from`} className="text-sm text-gray-500">
             Du
           </label>
@@ -186,10 +209,11 @@ export const DateInput = ({ value, onChange }) => {
             onChange={handleFromTextChange}
             placeholder="JJ/MM/AAAA"
             aria-describedby={`${id}-format`}
+            aria-required="true"
             className="w-24 border-0 bg-transparent p-0 text-sm font-semibold outline-none focus:ring-0"
           />
         </div>
-        <div className="input flex items-center gap-1 px-2 py-1">
+        <div className="input focus-within:outline-outline-blue flex items-center gap-1 px-2 py-1 focus-within:outline-2 focus-within:outline-offset-2">
           <label htmlFor={`${id}-to`} className="text-sm text-gray-500">
             Au
           </label>
@@ -201,6 +225,7 @@ export const DateInput = ({ value, onChange }) => {
             onChange={handleToTextChange}
             placeholder="JJ/MM/AAAA"
             aria-describedby={`${id}-format`}
+            aria-required="true"
             className="w-24 border-0 bg-transparent p-0 text-sm font-semibold outline-none focus:ring-0"
           />
         </div>
@@ -216,12 +241,15 @@ export const DateInput = ({ value, onChange }) => {
         >
           <RiCalendarLine className="text-lg" aria-hidden="true" />
         </button>
-      </div>
+      </fieldset>
 
       <div
         role="dialog"
         aria-modal="true"
         aria-label="Sélection de période"
+        ref={dialogRef}
+        tabIndex={-1}
+        onKeyDown={handleDialogKeyDown}
         className={`border-grey-border fixed inset-0 z-50 overflow-y-auto border bg-white px-4 pt-4 pb-4 shadow-lg sm:absolute sm:inset-auto sm:right-0 sm:mt-1 sm:overflow-visible sm:px-8 sm:pt-6 ${show ? "block" : "hidden"}`}
       >
         <div className="mb-4 flex justify-end sm:hidden">

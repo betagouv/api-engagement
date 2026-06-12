@@ -43,7 +43,7 @@ const Api = () => {
 
   const handleCopy = () => {
     navigator.clipboard.writeText(publisher.apikey);
-    toast.success("Lien copié");
+    toast.success("Clé copiée");
   };
 
   if (!publisher) return <p className="p-3">Chargement...</p>;
@@ -92,12 +92,15 @@ const Api = () => {
         </div>
         <div className="flex flex-col gap-4 pt-6">
           <div className="flex items-center justify-between gap-4">
-            <p className="font-semibold sm:w-1/4">Exemple d'appel</p>
+            <p id="curl-example-label" className="font-semibold sm:w-1/4">
+              Exemple d'appel
+            </p>
           </div>
           <textarea
             className="border-blue-france-925 bg-blue-france-975 w-full rounded-none border px-4 py-2 font-mono text-sm read-only:opacity-80"
             rows={2}
             readOnly
+            aria-labelledby="curl-example-label"
             value={curl}
           />
         </div>

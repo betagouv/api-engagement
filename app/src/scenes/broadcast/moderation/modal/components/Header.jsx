@@ -65,18 +65,19 @@ const Header = ({ data, onChange }) => {
   return (
     <>
       <OrganizationRefusedModal open={missionToRefuse > 0} onClose={() => setMissionToRefuse(0)} data={data} update={values} onChange={onChange} total={missionToRefuse} />
-      <div className="bg-global-background border-grey-border sticky top-0 z-50 flex items-center justify-between gap-8 border-b pt-4 pb-8">
-        <div className="max-w-[50%] space-y-2">
+      <div className="bg-global-background border-grey-border sticky top-0 z-50 flex flex-col gap-4 border-b pt-4 pb-8 md:flex-row md:items-center md:justify-between md:gap-8">
+        <div className="max-w-full space-y-2 md:max-w-[50%]">
           <h1 className="mb-1">{DOMAINS[data.missionDomain]}</h1>
           <h2 className="text-xl font-semibold">{data.title || data.missionTitle}</h2>
         </div>
 
         <div className="relative space-y-2 pt-4">
-          <div className="flex items-center justify-end gap-2">
+          <div className="flex flex-col items-stretch gap-2 md:flex-row md:flex-wrap md:items-center md:justify-end">
             <select
-              className="select w-56 border-b-2 pr-2"
+              className="select w-full border-b-2 pr-2 md:w-56"
               style={{ borderBottomColor: STATUS_COLORS[values.status] }}
               name="status"
+              aria-label="Statut de la mission"
               value={values.status}
               onChange={(e) => handleChange({ status: e.target.value })}
             >
@@ -88,8 +89,9 @@ const Header = ({ data, onChange }) => {
             </select>
             {values.status === "REFUSED" && (
               <select
-                className="select border-error w-64 border-b-2"
+                className="select border-error w-full border-b-2 md:w-64"
                 name="motif"
+                aria-label="Motif de refus"
                 value={values.comment}
                 onChange={(e) => handleChange({ status: "REFUSED", comment: e.target.value })}
               >
@@ -102,7 +104,7 @@ const Header = ({ data, onChange }) => {
               </select>
             )}
           </div>
-          <div className="absolute right-0 -bottom-6 w-screen text-right text-xs italic">
+          <div className="absolute right-0 -bottom-6 w-full text-right text-xs italic md:w-screen">
             {values.status === "REFUSED" && !values.comment ? "Veuillez renseigner un motif de refus pour sauvegarder le changement de statut" : ""}
           </div>
         </div>

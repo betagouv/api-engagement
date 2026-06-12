@@ -32,13 +32,13 @@ const TrackingAnnounce = () => {
         <div className="space-y-4 border-b border-b-gray-900 pb-6">
           <div>
             <h3 className="text-base font-semibold">Commande de comptage d'une candidature</h3>
-            <p className="text-text-mention text-xs">
-              Lorsque vous enregistrez une candidature, effectuez cette commande chez vous nous permet de compter cette candidature.
-            </p>
+            <p className="text-text-mention text-xs">Lorsque vous enregistrez une candidature, effectuez cette commande chez vous nous permet de compter cette candidature.</p>
           </div>
           <div className="space-y-2">
             <div className="border-blue-france-925 bg-blue-france-975 overflow-x-auto rounded-none border px-4 py-2 text-sm">
-              <code className="whitespace-nowrap">window.apieng && window.apieng("trackApplication", <span className="text-warning">clientId</span>)</code>
+              <code className="whitespace-nowrap">
+                window.apieng && window.apieng("trackApplication", <span className="text-warning">clientId</span>)
+              </code>
             </div>
             <button className="secondary-btn" onClick={() => handleCopyCommand(`window.apieng && window.apieng("trackApplication", "clientId")`)}>
               Copier
@@ -55,7 +55,9 @@ const TrackingAnnounce = () => {
             </div>
             <div className="space-y-2">
               <div className="border-blue-france-925 bg-blue-france-975 overflow-x-auto rounded-none border px-4 py-2 text-sm">
-                <code className="whitespace-nowrap">window.apieng && window.apieng("trackAccount", <span className="text-warning">clientId</span>)</code>
+                <code className="whitespace-nowrap">
+                  window.apieng && window.apieng("trackAccount", <span className="text-warning">clientId</span>)
+                </code>
               </div>
               <button className="secondary-btn" onClick={() => handleCopyCommand(`window.apieng && window.apieng("trackAccount", "clientId")`)}>
                 Copier
@@ -86,6 +88,7 @@ const TrackingAnnounce = () => {
         <textarea
           className="border-blue-france-925 bg-blue-france-975 w-full rounded-none border px-4 py-2 text-base read-only:opacity-80"
           rows={8}
+          aria-label="Script à intégrer sur votre site"
           value={script.replace("{{publisherId}}", publisher.id)}
           readOnly
         />

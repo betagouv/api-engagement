@@ -62,19 +62,21 @@ const PublicStats = () => {
           <h3 className="text-3xl font-bold">En quelques mots</h3>
           <div className="flex-start flex flex-col gap-6 sm:flex-row">
             <div className="text-text-mention mt-8 flex-1 text-lg leading-loose">
-              <strong className="text-black">
-                L'API Engagement est un service public numérique qui permet aux plateformes d'engagement associatives, publiques et privées de mettre en commun leurs missions.
-              </strong>
-              <div>
+              <p>
+                <strong className="text-black">
+                  L'API Engagement est un service public numérique qui permet aux plateformes d'engagement associatives, publiques et privées de mettre en commun leurs missions.
+                </strong>
+              </p>
+              <p>
                 Elle permet au plus grand nombre d'accéder aux opportunités d'engagement en renforçant / démultipliant la visibilité des annonces, et augmente ainsi le nombre de
                 personnes qui candidatent aux actions.
-              </div>
+              </p>
             </div>
-            <div className="text-text-mention mt-8 flex-1 text-lg leading-loose">
+            <p className="text-text-mention mt-8 flex-1 text-lg leading-loose">
               L'API Engagement permet de faciliter l'engagement en simplifiant l'accès à une pluralité d'annonces actualisées. Avec cette technologie, les points de rencontres sont
               multipliés : les annonces sont accessible aux bons endroits, c'est-à-dire là où les personnes qui souhaitent s'engager se trouvent : site de mairie, applications,
               plateformes d'engagement, etc.
-            </div>
+            </p>
           </div>
         </div>
 

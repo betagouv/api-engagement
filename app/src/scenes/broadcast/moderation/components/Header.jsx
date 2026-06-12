@@ -39,7 +39,9 @@ const Header = ({ total, data, size, sort, selected, onSize, onSort, onSelect, o
               </button>
             </div>
           ) : (
-            <h2 className="text-xl font-semibold">{total.toLocaleString("fr")} missions diffusables</h2>
+            <h2 role="status" className="text-xl font-semibold">
+              {total.toLocaleString("fr")} missions diffusables
+            </h2>
           )}
           <div className="flex items-center gap-4">
             <span className="text-text-mention text-sm">{selected.length === 1 ? `1 sélectionnée` : `${selected.length} sélectionnées`}</span>
@@ -55,7 +57,9 @@ const Header = ({ total, data, size, sort, selected, onSize, onSort, onSelect, o
 
   return (
     <div className="mx-4 flex flex-wrap items-center justify-between gap-4 py-4 sm:mx-12">
-      <h2 className="text-xl font-semibold">{total.toLocaleString("fr")} missions diffusables</h2>
+      <h2 role="status" className="text-xl font-semibold">
+        {total.toLocaleString("fr")} missions diffusables
+      </h2>
 
       <div className="flex flex-wrap items-center gap-2">
         <label htmlFor="missions-per-page" className="text-text-mention text-xs">
@@ -117,7 +121,7 @@ const ManyUpdateModal = ({ onClose, selected, onChange }) => {
         Modérer
       </button>
 
-      <Modal open={open} onClose={() => setOpen(false)} title="Modérer les missions" className="min-w-3xl">
+      <Modal open={open} onClose={() => setOpen(false)} title="Modérer les missions" className="w-[90vw] max-w-3xl">
         <form onSubmit={handleSubmit}>
           <div className="flex items-center justify-center">
             <div className="flex w-full flex-col justify-center gap-4">

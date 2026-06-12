@@ -18,6 +18,7 @@ const Combobox = ({
 }) => {
   const ref = useRef(null);
   const inputRef = useRef(null);
+  const buttonRef = useRef(null);
   const [listRef, setListRef] = useState(options.map(() => undefined));
   const [show, setShow] = useState(false);
   const [selection, setSelection] = useState(values || []);
@@ -53,6 +54,17 @@ const Combobox = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    if (show) {
+      inputRef.current?.focus();
+    }
+  }, [show]);
+
+  const closeAndReturnFocus = () => {
+    setShow(false);
+    buttonRef.current?.focus();
+  };
+
   const handleToggle = (option) => {
     let newSelection;
     if (selection.some((o) => getValue(o) === getValue(option))) {
@@ -79,8 +91,23 @@ const Combobox = ({
     }
   };
 
+  const handleSearchKeyDown = (e) => {
+    if (e.key === "Escape") {
+      e.preventDefault();
+      closeAndReturnFocus();
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setFocusedIndex(0);
+      listRef[0]?.focus();
+    }
+  };
+
   const handleListKeyDown = (e, item) => {
     switch (e.key) {
+      case "Escape":
+        e.preventDefault();
+        closeAndReturnFocus();
+        break;
       case "Tab":
         if (e.shiftKey) {
           if (inputRef && inputRef.current) {
@@ -127,7 +154,12 @@ const Combobox = ({
       </div>
       <div className="relative w-full">
         <button
+          ref={buttonRef}
           id={id}
+          type="button"
+          role="combobox"
+          aria-haspopup="listbox"
+          aria-controls={`${id}-list`}
           aria-label={placeholder}
           aria-expanded={show}
           className="select relative w-full truncate pr-12 text-left"
@@ -161,12 +193,7 @@ const Combobox = ({
         )}
       </div>
 
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={id}
-        className={`absolute ${position} z-50 mt-1 ${className} border-grey-border border bg-white py-4 shadow-md ${show ? "block" : "hidden"}`}
-      >
+      <div className={`absolute ${position} z-50 mt-1 ${className} border-grey-border border bg-white py-4 shadow-md ${show ? "block" : "hidden"}`}>
         <div className="relative mx-4 mb-4">
           <input
             ref={inputRef}
@@ -175,6 +202,7 @@ const Combobox = ({
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={handleSearchKeyDown}
             placeholder={placeholder}
             className="input w-full"
           />
@@ -182,7 +210,7 @@ const Combobox = ({
         </div>
 
         <p className="mx-4 mb-2 text-base">{placeholder}</p>
-        <ul id={`${id}-list`} className="max-h-60 w-full overflow-auto py-2" tabIndex={-1} role="listbox" aria-multiselectable="true">
+        <ul id={`${id}-list`} aria-label={placeholder} className="max-h-60 w-full overflow-auto py-2" tabIndex={-1} role="listbox" aria-multiselectable="true">
           {options?.length === 0 ? (
             <li className="py-2 text-center text-sm">Aucune option disponible</li>
           ) : loading ? (

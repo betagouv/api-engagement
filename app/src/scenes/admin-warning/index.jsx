@@ -8,8 +8,8 @@ import { DAYS, MONTHS, WARNINGS, YEARS } from "@/constants";
 import Bots from "@/scenes/admin-warning/components/Bots";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
-import { slugify } from "@/utils/string";
 import { withLegacyPublishers } from "@/utils/publisher";
+import { slugify } from "@/utils/string";
 
 const Index = () => {
   const [currentWarnings, setCurrentWarnings] = useState([]);
@@ -194,7 +194,7 @@ const Index = () => {
               ? `${Object.keys(currentWarningsByPublishers).length} partenaires rencontrent un problème`
               : `${Object.keys(currentWarningsByPublishers).length} partenaire rencontre un problème`}
           </h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-10">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-10 lg:grid-cols-4">
             {Object.values(currentWarningsByPublishers).map((p, i) => (
               <div className="border-grey-border flex h-40 flex-col items-center border" key={i}>
                 <div className="text-text-mention mt-2 text-center text-xs">{p.name}</div>
@@ -266,7 +266,11 @@ const Index = () => {
                   const label = WARNINGS[w.type] || WARNINGS.OTHER_WARNING;
                   return (
                     <div className="flex flex-col gap-4 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:gap-8 sm:p-6" key={i} id={slugify(`${w.type}-${w.publisherName}`)}>
-                      {w.publisherLogo ? <img className="h-20 w-36 shrink-0 object-contain" src={w.publisherLogo} alt="" aria-hidden="true" /> : <div className="bg-grey-200 h-20 w-36 shrink-0" />}
+                      {w.publisherLogo ? (
+                        <img className="h-20 w-36 shrink-0 object-contain" src={w.publisherLogo} alt="" aria-hidden="true" />
+                      ) : (
+                        <div className="bg-grey-200 h-20 w-36 shrink-0" />
+                      )}
                       <div className="flex flex-col justify-between">
                         <div className="mb-2">
                           <span className="bg-yellow-tournesol-950 text-yellow-tournesol-200 truncate rounded p-1 text-center text-xs font-semibold uppercase">{label.name}</span>
@@ -335,7 +339,11 @@ const Index = () => {
                   const label = WARNINGS[w.type] || WARNINGS.OTHER_WARNING;
                   return (
                     <div className="flex flex-col gap-4 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:gap-8 sm:p-6" key={i}>
-                      {w.publisherLogo ? <img className="h-20 w-36 shrink-0 object-contain" src={w.publisherLogo} alt="" aria-hidden="true" /> : <div className="bg-grey-200 h-20 w-36 shrink-0" />}
+                      {w.publisherLogo ? (
+                        <img className="h-20 w-36 shrink-0 object-contain" src={w.publisherLogo} alt="" aria-hidden="true" />
+                      ) : (
+                        <div className="bg-grey-200 h-20 w-36 shrink-0" />
+                      )}
 
                       <div className="flex flex-col justify-between">
                         <div className="mb-2">
@@ -375,7 +383,7 @@ const Badge = ({ label, value, onDelete }) => {
     <div className="bg-blue-france-975 flex items-center gap-2 rounded p-2">
       <p className="text-sm">{label}:</p>
       <p className="text-sm">{value}</p>
-      <button className="text-sm text-black" onClick={onDelete}>
+      <button className="text-sm text-black" onClick={onDelete} aria-label={`Retirer le filtre ${label}`}>
         <RiCloseFill aria-hidden="true" />
       </button>
     </div>
