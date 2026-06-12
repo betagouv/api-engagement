@@ -86,7 +86,7 @@ describe("Mission V2 Write API Integration Tests", () => {
       expect(response.status).toBe(201);
       const mission = await missionService.findMissionByClientAndPublisher("test-html-description", publisher.id);
       expect(mission?.descriptionHtml).toBe(htmlDescription);
-      expect(mission?.description).toContain("Presentation");
+      expect(mission?.description).toContain("PRESENTATION");
       expect(mission?.description).toContain("Une mission utile.");
       expect(mission?.description).toContain(" • Accueillir");
       expect(mission?.description).not.toContain("<h2>");
