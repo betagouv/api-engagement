@@ -1,9 +1,9 @@
 import { randomBytes, randomUUID } from "crypto";
 
-import { MissionType, Prisma, Publisher, PublisherDiffusionRule } from "@/db/core";
+import { MissionType, Prisma, Publisher } from "@/db/core";
 import { prisma } from "@/db/postgres";
 import { publisherRepository } from "@/repositories/publisher";
-import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
+import publisherDiffusionRuleService, { DIFFUSION_SCOPE_ROOT_CRITERIA } from "@/services/publisher-diffusion-rule";
 import {
   PublisherCreateInput,
   PublisherDiffusionInput,
@@ -31,9 +31,6 @@ export class PublisherDiffusionPartnerNotFoundError extends Error {
 }
 
 export const publisherService = (() => {
-  // Critères des scope roots de diffusion : une racine par partenaire diffusé (cf. publisherDiffusionRuleService).
-  const DIFFUSION_SCOPE_ROOT_PARAMS = Object.freeze({ combinedWithId: null, field: "publisherId", operator: "is" });
-
   type DiffusionPartnerInfo = { name: string; moderator: boolean; missionType: PublisherMissionType | null };
 
   const getPartnerInfoMap = async (partnerIds: string[]): Promise<Map<string, DiffusionPartnerInfo>> => {
@@ -102,7 +99,7 @@ export const publisherService = (() => {
       return [];
     }
 
-    const roots = await publisherDiffusionRuleService.findRules({ publisherIds: publishers.map((publisher) => publisher.id), ...DIFFUSION_SCOPE_ROOT_PARAMS });
+    const roots = await publisherDiffusionRuleService.findRules({ publisherIds: publishers.map((publisher) => publisher.id), ...DIFFUSION_SCOPE_ROOT_CRITERIA });
     const partnerInfoMap = await getPartnerInfoMap(roots.map((rule) => rule.value));
 
     const diffusionsByPublisherId = new Map<string, PublisherDiffusionRecord[]>();
@@ -134,18 +131,6 @@ export const publisherService = (() => {
       }
     );
 
-  /**
-   * Aligne les scope roots du publisher sur la liste de partenaires demandée, par
-   * diff : suppression ciblée des roots retirés (cascade DB sur leurs rules enfants)
-   * et création des manquants. Pas de delete+recreate global, pour préserver les
-   * rules enfants (ex. exclusions d'organisations) des roots conservés.
-   */
-  const findDiffusionScopeRoots = (tx: Prisma.TransactionClient, publisherId: string): Promise<PublisherDiffusionRule[]> =>
-    tx.publisherDiffusionRule.findMany({
-      where: { publisherId, ...DIFFUSION_SCOPE_ROOT_PARAMS },
-      orderBy: [{ position: Prisma.SortOrder.asc }, { createdAt: Prisma.SortOrder.asc }],
-    });
-
   const ensureDiffusionPartnersExist = async (tx: Prisma.TransactionClient, partnerIds: string[]): Promise<void> => {
     const uniqueIds = Array.from(new Set(partnerIds));
     if (!uniqueIds.length) {
@@ -164,54 +149,13 @@ export const publisherService = (() => {
     }
   };
 
-  const findOrCreateScopeRoot = async (tx: Prisma.TransactionClient, diffuseurPublisherId: string, annonceurPublisherId: string): Promise<PublisherDiffusionRule> => {
-    const rootWhere = { publisherId: diffuseurPublisherId, combinedWithId: null, field: "publisherId", operator: "is", value: annonceurPublisherId };
-
-    const existing = await tx.publisherDiffusionRule.findFirst({ where: rootWhere });
-    if (existing) {
-      return existing;
-    }
-
-    try {
-      return await tx.publisherDiffusionRule.create({
-        data: {
-          publisher: { connect: { id: diffuseurPublisherId } },
-          field: "publisherId",
-          fieldType: "string",
-          operator: "is",
-          value: annonceurPublisherId,
-          combinator: "or",
-          position: 0,
-        },
-      });
-    } catch (error) {
-      if ((error as { code?: string }).code === "P2002") {
-        const root = await tx.publisherDiffusionRule.findFirst({ where: rootWhere });
-        if (root) {
-          return root;
-        }
-      }
-      throw error;
-    }
-  };
-
+  /**
+   * Valide les partenaires puis aligne les scope roots via le service des
+   * diffusion rules (diff création/suppression, rules enfants préservées).
+   */
   const syncDiffusionScopeRoots = async (tx: Prisma.TransactionClient, publisherId: string, desiredPartnerIds: string[]): Promise<void> => {
     await ensureDiffusionPartnersExist(tx, desiredPartnerIds);
-
-    const roots = await findDiffusionScopeRoots(tx, publisherId);
-    const desired = new Set(desiredPartnerIds);
-    const existing = new Set(roots.map((root) => root.value));
-
-    for (const root of roots) {
-      if (!desired.has(root.value)) {
-        await tx.publisherDiffusionRule.delete({ where: { id: root.id } });
-      }
-    }
-    for (const partnerId of desiredPartnerIds) {
-      if (!existing.has(partnerId)) {
-        await findOrCreateScopeRoot(tx, publisherId, partnerId);
-      }
-    }
+    await publisherDiffusionRuleService.syncScopeRoots(publisherId, desiredPartnerIds, tx);
   };
 
   const buildWhereClause = (params: PublisherSearchParams): Prisma.PublisherWhereInput => {
@@ -254,7 +198,7 @@ export const publisherService = (() => {
 
     if (params.diffuseurOf) {
       and.push({
-        diffusionRules: { some: { combinedWithId: null, field: "publisherId", operator: "is", value: params.diffuseurOf } },
+        diffusionRules: { some: { ...DIFFUSION_SCOPE_ROOT_CRITERIA, value: params.diffuseurOf } },
       });
     }
 
