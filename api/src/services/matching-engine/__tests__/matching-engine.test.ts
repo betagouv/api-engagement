@@ -21,6 +21,8 @@ import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 
 const prismaMock = prisma as unknown as {
   $queryRaw: ReturnType<typeof vi.fn>;
+  $executeRaw: ReturnType<typeof vi.fn>;
+  $transaction: ReturnType<typeof vi.fn>;
 };
 
 const missionMatchingResultRepositoryMock = missionMatchingResultRepository as unknown as {
@@ -50,6 +52,16 @@ const getSqlText = (query: unknown): string => {
 describe("matchingEngineService", () => {
   beforeEach(() => {
     prismaMock.$queryRaw.mockReset();
+    prismaMock.$executeRaw.mockReset();
+    prismaMock.$transaction.mockReset();
+    prismaMock.$executeRaw.mockResolvedValue(0);
+    prismaMock.$transaction.mockImplementation(async (operation: unknown) => {
+      if (typeof operation === "function") {
+        return operation(prismaMock);
+      }
+
+      return Promise.all(operation as unknown[]);
+    });
     missionMatchingResultRepositoryMock.createForUserScoringVersion.mockReset();
     publisherDiffusionRuleServiceMock.buildMissionPublisherDiffusionRuleSql.mockReset();
   });
@@ -140,6 +152,7 @@ describe("matchingEngineService", () => {
 
       expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(3);
       const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[1][0]);
+      expect(rankingSql).toContain("SELECT DISTINCT ON");
       expect(rankingSql).toContain('ma."id" AS "closest_address_id"');
       expect(rankingSql).toContain('ORDER BY "distance_km" ASC, ma."created_at" ASC, ma."id" ASC');
       expect(result.items).toEqual([
@@ -269,7 +282,7 @@ describe("matchingEngineService", () => {
       const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[1][0]);
       expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(3);
       expect(rankingSql).toContain("user_gate_values");
-      expect(rankingSql).toContain("matched_gate_taxonomies");
+      expect(rankingSql).toContain("unmatched_gate_taxonomies");
       expect(rankingSql).not.toContain('AND usv."taxonomy_key" NOT IN');
       expect(result.items).toEqual([
         {

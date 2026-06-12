@@ -26,6 +26,10 @@ type DbTaxonomyScoreRow = {
   taxonomy_score: number;
 };
 
+type DbExplainRow = {
+  "QUERY PLAN": string;
+};
+
 type UserScoringStateRow = {
   id: string;
   expires_at: Date | null;
@@ -59,7 +63,26 @@ const buildTaxonomyWeightsValuesSql = (taxonomyWeights: Record<MatchingEngineTax
 
 const buildGateTaxonomiesSql = () => Prisma.join(GATE_TAXONOMIES.map((taxonomy) => Prisma.sql`${taxonomy}`));
 
+<<<<<<< Updated upstream
 const assertUserScoringIsQueryable = async (userScoringId: string): Promise<void> => {
+=======
+<<<<<<< Updated upstream
+const assertUserScoringExists = async (userScoringId: string): Promise<void> => {
+=======
+const queryRawWithJitDisabled = <T>(query: Prisma.Sql): Promise<T[]> =>
+  prisma.$transaction(
+    async (tx) => {
+      await tx.$executeRaw`SET LOCAL jit = off`;
+      await tx.$executeRaw`SET LOCAL work_mem = '64MB'`;
+
+      return tx.$queryRaw<T[]>(query);
+    },
+    { timeout: 60_000 }
+  );
+
+const assertUserScoringIsQueryable = async (userScoringId: string): Promise<void> => {
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
   const rows = await prisma.$queryRaw<UserScoringStateRow[]>`
     SELECT "id", "expires_at"
     FROM "user_scoring"
@@ -142,31 +165,18 @@ const buildRanking = (params: {
     WHERE usv."user_scoring_id" = ${params.userScoringId}
       AND usv."taxonomy_key" IN (${buildGateTaxonomiesSql()})
   ),
-  mission_gate_values AS (
-    SELECT DISTINCT
-      ams."mission_scoring_id",
-      ams."mission_id",
-      msv."taxonomy_key" AS "taxonomy_key",
-      msv."value_key" AS "value_key"
-    FROM "mission_scoring_value" msv
-    JOIN active_mission_scorings ams
-      ON ams."mission_scoring_id" = msv."mission_scoring_id"
-    WHERE msv."taxonomy_key" IN (${buildGateTaxonomiesSql()})
-  ),
-  mission_gate_taxonomies AS (
-    SELECT DISTINCT
-      mgv."mission_scoring_id",
-      mgv."taxonomy_key"
-    FROM mission_gate_values mgv
-  ),
-  matched_gate_taxonomies AS (
-    SELECT DISTINCT
-      mgv."mission_scoring_id",
-      mgv."taxonomy_key"
-    FROM mission_gate_values mgv
-    JOIN user_gate_values ugv
-      ON ugv."taxonomy_key" = mgv."taxonomy_key"
-     AND ugv."value_key" = mgv."value_key"
+  unmatched_gate_taxonomies AS (
+    SELECT
+      ams."mission_scoring_id"
+    FROM active_mission_scorings ams
+    JOIN "mission_scoring_value" msv
+      ON msv."mission_scoring_id" = ams."mission_scoring_id"
+     AND msv."taxonomy_key" IN (${buildGateTaxonomiesSql()})
+    LEFT JOIN user_gate_values ugv
+      ON ugv."taxonomy_key" = msv."taxonomy_key"
+     AND ugv."value_key" = msv."value_key"
+    GROUP BY ams."mission_scoring_id", msv."taxonomy_key"
+    HAVING NOT COALESCE(BOOL_OR(ugv."value_key" IS NOT NULL), FALSE)
   ),
   eligible_mission_scorings AS (
     SELECT
@@ -175,14 +185,8 @@ const buildRanking = (params: {
     FROM active_mission_scorings ams
     WHERE NOT EXISTS (
       SELECT 1
-      FROM mission_gate_taxonomies mgt
-      WHERE mgt."mission_scoring_id" = ams."mission_scoring_id"
-        AND NOT EXISTS (
-          SELECT 1
-          FROM matched_gate_taxonomies mgtm
-          WHERE mgtm."mission_scoring_id" = mgt."mission_scoring_id"
-            AND mgtm."taxonomy_key" = mgt."taxonomy_key"
-        )
+      FROM unmatched_gate_taxonomies ugt
+      WHERE ugt."mission_scoring_id" = ams."mission_scoring_id"
     )
   ),
   matched_values AS (
@@ -217,7 +221,8 @@ const buildRanking = (params: {
   taxonomy_candidates AS (
     SELECT
       ems."mission_id",
-      ems."mission_scoring_id"
+      ems."mission_scoring_id",
+      ts."weighted_sum"
     FROM taxonomy_scores ts
     JOIN eligible_mission_scorings ems
       ON ems."mission_scoring_id" = ts."mission_scoring_id"
@@ -325,32 +330,37 @@ const buildRanking = (params: {
     SELECT
       tc."mission_id",
       tc."mission_scoring_id",
-      CAST(NULL AS double precision) AS "distance_km"
+      CAST(NULL AS double precision) AS "distance_km",
+      tc."weighted_sum"
     FROM taxonomy_candidates tc
     UNION ALL
     SELECT
       gc."mission_id",
       gc."mission_scoring_id",
-      gc."distance_km"
+      gc."distance_km",
+      CAST(NULL AS double precision) AS "weighted_sum"
     FROM geo_candidates gc
     UNION ALL
     SELECT
       fgc."mission_id",
       fgc."mission_scoring_id",
-      fgc."distance_km"
+      fgc."distance_km",
+      CAST(NULL AS double precision) AS "weighted_sum"
     FROM fallback_geo_candidates fgc
     UNION ALL
     SELECT
       fc."mission_id",
       fc."mission_scoring_id",
-      CAST(NULL AS double precision) AS "distance_km"
+      CAST(NULL AS double precision) AS "distance_km",
+      CAST(NULL AS double precision) AS "weighted_sum"
     FROM fallback_candidates fc
   ),
   candidate_missions AS (
     SELECT
       cmr."mission_id",
       cmr."mission_scoring_id",
-      MIN(cmr."distance_km") AS "distance_km"
+      MIN(cmr."distance_km") AS "distance_km",
+      MAX(cmr."weighted_sum") AS "weighted_sum"
     FROM candidate_mission_rows cmr
     GROUP BY cmr."mission_id", cmr."mission_scoring_id"
   ),
@@ -400,7 +410,7 @@ const buildRanking = (params: {
       cm."mission_id",
       cm."mission_scoring_id",
       CASE
-        WHEN ut."taxonomy_total" > 0 THEN COALESCE(ts."weighted_sum", 0) / ut."taxonomy_total"
+        WHEN ut."taxonomy_total" > 0 THEN COALESCE(cm."weighted_sum", 0) / ut."taxonomy_total"
         ELSE 0
       END AS "taxonomy_score",
       CASE
@@ -419,8 +429,6 @@ const buildRanking = (params: {
       gs."closest_address"
     FROM candidate_missions cm
     CROSS JOIN weighted_user_totals ut
-    LEFT JOIN taxonomy_scores ts
-      ON ts."mission_scoring_id" = cm."mission_scoring_id"
     LEFT JOIN geo_scores gs
       ON gs."mission_scoring_id" = cm."mission_scoring_id"
   )
@@ -553,7 +561,7 @@ export const matchingEngineService = {
     await assertUserScoringIsQueryable(input.userScoringId);
     const publisherRuleSql = await buildPublisherRuleSql(input.publisherId);
 
-    const rows = await prisma.$queryRaw<DbRankRow[]>(
+    const rows = await queryRawWithJitDisabled<DbRankRow>(
       buildRanking({
         userScoringId: input.userScoringId,
         publisherRuleSql,
@@ -611,6 +619,41 @@ export const matchingEngineService = {
       ),
       tookMs: Date.now() - startedAt,
     };
+  },
+
+  async explainRankMissionsByUserScoring(input: RankMissionsByUserScoringInput): Promise<string> {
+    const version = input.version ?? CURRENT_MATCHING_ENGINE_VERSION;
+    const taxonomyWeights = MATCHING_ENGINE_VERSIONS[version].taxonomyWeights;
+    const limit = Math.max(1, Math.min(500, input.limit ?? 20));
+    const offset = Math.max(0, input.offset ?? 0);
+    const rankingLimit = offset === 0 ? Math.max(limit, MATCHING_ENGINE_TOP_RESULTS_LIMIT) : limit;
+    const taxonomyWeight = input.taxonomyWeight ?? 0.3;
+    const geoWeight = input.geoWeight ?? 0.7;
+    const geoHalfDecayKm = input.geoHalfDecayKm ?? 20;
+    const missingGeoScore = input.missingGeoScore ?? 0.1;
+    const taxonomyCandidateLimit = getTaxonomyCandidateLimit({ limit: rankingLimit, offset });
+    const geoCandidateLimit = getGeoCandidateLimit({ limit: rankingLimit, offset });
+
+    await assertUserScoringIsQueryable(input.userScoringId);
+    const publisherRuleSql = await buildPublisherRuleSql(input.publisherId);
+
+    const planRows = await queryRawWithJitDisabled<DbExplainRow>(
+      Prisma.sql`EXPLAIN (ANALYZE, BUFFERS, VERBOSE, SETTINGS) ${buildRanking({
+        userScoringId: input.userScoringId,
+        publisherRuleSql,
+        taxonomyWeights,
+        taxonomyWeight,
+        geoWeight,
+        geoHalfDecayKm,
+        missingGeoScore,
+        taxonomyCandidateLimit,
+        geoCandidateLimit,
+        limit: rankingLimit,
+        offset,
+      })}`
+    );
+
+    return planRows.map((row) => row["QUERY PLAN"]).join("\n");
   },
 };
 

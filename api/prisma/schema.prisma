@@ -1039,6 +1039,9 @@ model MissionScoringValue {
   @@index([missionScoringId], map: "mission_scoring_value_mission_scoring_id_idx")
   @@index([missionEnrichmentValueId], map: "mission_scoring_value_mission_enrichment_value_id_idx")
   @@index([taxonomyKey, valueKey], map: "mission_scoring_value_taxonomy_value_idx")
+  // Covering index managed manually in migration for matching-engine taxonomy lookups
+  // CREATE INDEX "mission_scoring_value_taxonomy_value_scoring_cover_idx"
+  // ON "mission_scoring_value" (taxonomy_key, value_key, mission_scoring_id) INCLUDE (score)
   @@map("mission_scoring_value")
 }
 
