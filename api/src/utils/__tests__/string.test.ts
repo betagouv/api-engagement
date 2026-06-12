@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import { capitalizeFirstLetter, fuzzyMatchKey, hasLetter, hasNumber, hasSpecialChar, jaccardSimilarity, slugify } from "@/utils/string";
+import { describe, expect, it } from "vitest";
 
 describe("String Utils", () => {
   describe("slugify", () => {
