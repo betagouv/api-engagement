@@ -66,6 +66,59 @@ const buildScopeCondition = (rule: PublisherDiffusionRule, childrenByParentId: M
   return conditions.length === 1 ? conditions[0] : { AND: conditions };
 };
 
+const filterScopeRoots = (roots: PublisherDiffusionRule[], publisherIds?: string[]): PublisherDiffusionRule[] =>
+  roots.filter((root) => root.field === "publisherId" && root.operator === "is" && (!publisherIds || publisherIds.includes(root.value)));
+
+/**
+ * Variante décomposée de l'allowlist : une condition par requête exécutable séparément,
+ * dont l'union équivaut au `OR` de `buildAllowlistFilter`. Un `OR` de scopes dans une
+ * seule requête SQL empêche Postgres d'utiliser l'index par publisher dès que des
+ * critères d'organisation s'y mêlent (hash join + tri complet) ; en requêtes séparées,
+ * chaque branche est résoluble par l'index `(publisher_id, status_code, deleted_at, start_at)`.
+ *
+ * Les annonceurs sans critères sont regroupés en une seule branche `publisherId IN (...)`.
+ * Renvoie `null` quand la décomposition est inutile (moins de 2 branches) ou ne
+ * préserverait pas la sémantique : annonceur en doublon (les branches ne seraient plus
+ * disjointes, donc le total par somme serait faux) ou scope sans restriction publisher.
+ */
+const buildAllowlistBranches = (rules: PublisherDiffusionRule[], publisherIds?: string[]): Prisma.MissionWhereInput[] | null => {
+  const { roots, childrenByParentId } = groupRulesByParent(rules);
+  const scopeRoots = filterScopeRoots(roots, publisherIds);
+
+  const rootValues = scopeRoots.map((root) => root.value);
+  if (new Set(rootValues).size !== rootValues.length) {
+    return null;
+  }
+
+  const barePublisherIds: string[] = [];
+  const branches: Prisma.MissionWhereInput[] = [];
+
+  for (const root of scopeRoots) {
+    const selfCondition = buildMissionPublisherDiffusionRuleConditionFromRule(root);
+    if (!selfCondition || Object.keys(selfCondition).length === 0) {
+      return null;
+    }
+
+    const childConditions = (childrenByParentId.get(root.id) ?? [])
+      .map((child) => buildScopeCondition(child, childrenByParentId))
+      .filter((condition): condition is Prisma.MissionWhereInput => condition !== null && Object.keys(condition).length > 0);
+
+    if (childConditions.length === 0) {
+      barePublisherIds.push(root.value);
+    } else {
+      branches.push(optimizeMissionDiffusionRuleWhere({ AND: [selfCondition, ...childConditions] }));
+    }
+  }
+
+  if (barePublisherIds.length === 1) {
+    branches.push({ publisherId: barePublisherIds[0] });
+  } else if (barePublisherIds.length > 1) {
+    branches.push({ publisherId: { in: barePublisherIds } });
+  }
+
+  return branches.length >= 2 ? branches : null;
+};
+
 /**
  * Allowlist des missions diffusables : `OR` des scopes, chaque scope étant un
  * annonceur (`publisherId === X`) combiné à ses critères enfants. `publisherIds`
@@ -73,7 +126,7 @@ const buildScopeCondition = (rule: PublisherDiffusionRule, childrenByParentId: M
  */
 const buildAllowlistFilter = (rules: PublisherDiffusionRule[], publisherIds?: string[]): { where: Prisma.MissionWhereInput; publisherIds: string[] } => {
   const { roots, childrenByParentId } = groupRulesByParent(rules);
-  const scopeRoots = roots.filter((root) => root.field === "publisherId" && root.operator === "is" && (!publisherIds || publisherIds.includes(root.value)));
+  const scopeRoots = filterScopeRoots(roots, publisherIds);
 
   const scopes = scopeRoots
     .map((root) => buildScopeCondition(root, childrenByParentId))
@@ -85,6 +138,7 @@ const buildAllowlistFilter = (rules: PublisherDiffusionRule[], publisherIds?: st
     return { where: {}, publisherIds: candidatePublisherIds };
   }
   const where = optimizeMissionDiffusionRuleWhere(scopes.length === 1 ? scopes[0] : { OR: scopes });
+
   return { where, publisherIds: candidatePublisherIds };
 };
 
@@ -164,6 +218,19 @@ export const publisherDiffusionRuleService = {
   async buildMissionDiffuseurCandidateFilter(publisherId: string, publisherIds?: string[]): Promise<{ where: Prisma.MissionWhereInput; publisherIds: string[] }> {
     const rules = await findOrderedRules(publisherId);
     return buildAllowlistFilter(rules, publisherIds);
+  },
+
+  /**
+   * Allowlist du diffuseur décomposée en conditions exécutables en requêtes séparées
+   * (cf. `buildAllowlistBranches`). `null` si pas de rules ou décomposition impossible :
+   * le chemin standard (where unique de `buildMissionDiffuseurCandidateWhere`) s'applique.
+   */
+  async buildMissionDiffuseurCandidateWheres(publisherId: string, publisherIds?: string[]): Promise<Prisma.MissionWhereInput[] | null> {
+    const rules = await findOrderedRules(publisherId);
+    if (rules.length === 0) {
+      return null;
+    }
+    return buildAllowlistBranches(rules, publisherIds);
   },
 
   async canPublisherAccessMission({ publisherId, missionId }: { publisherId: string; missionId: string }): Promise<boolean> {
