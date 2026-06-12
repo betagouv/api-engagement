@@ -165,24 +165,9 @@ describe("Mission API Integration Tests", () => {
         clientId: `scoped-${randomUUID()}`,
       });
 
-      await publisherDiffusionRuleService.createRule({
-        publisherId: diffuseur.id,
-        field: "publisherId",
-        fieldType: "string",
-        operator: "is",
-        value: annonceurA.id,
-        combinator: "or",
-        position: 0,
-      });
-      await publisherDiffusionRuleService.createRule({
-        publisherId: diffuseur.id,
-        field: "publisherId",
-        fieldType: "string",
-        operator: "is",
-        value: annonceurB.id,
-        combinator: "or",
-        position: 1,
-      });
+      // Les scope roots (un par annonceur) sont créés par createTestPublisher à partir de `publishers`
+      const roots = await publisherDiffusionRuleService.findRules({ publisherId: diffuseur.id, combinedWithId: null, field: "publisherId" });
+      expect(roots.map((rule) => rule.value).sort()).toEqual([annonceurA.id, annonceurB.id].sort());
 
       const response = await request(app).get("/v0/mission").set("x-api-key", diffuseur.apikey!);
 
