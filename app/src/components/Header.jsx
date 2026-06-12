@@ -33,12 +33,12 @@ const Header = () => {
           </div>
           <LogoSvg alt="" className="hidden w-8 sm:block" aria-hidden="true" />
           <div className="hidden sm:block">
-            <h1 className="text-xl font-bold">API Engagement</h1>
+            <p className="text-xl font-bold">API Engagement</p>
             <p className="text-sm">Plateforme de partage de missions de bénévolat et de volontariat</p>
           </div>
         </Link>
-        <nav role="navigation" aria-label="Navigation d'en-tête" className="text-blue-france flex items-center gap-3 text-sm">
-          <a href="https://doc.api-engagement.beta.gouv.fr/" target="_blank" className="text-blue-france flex items-center">
+        <nav role="navigation" aria-label="Navigation d'en-tête" className="text-blue-france relative flex items-center gap-3 text-sm">
+          <a href="https://doc.api-engagement.beta.gouv.fr/" target="_blank" className="text-blue-france flex items-center" aria-label="Documentation">
             <RiBookletLine className="mr-2" aria-hidden="true" />
             <span className="hidden sm:block">Documentation</span>
           </a>
@@ -90,15 +90,14 @@ const NotificationMenu = () => {
 
   return (
     <Menu>
-      <MenuButton as="div" className="data-[focus]:bg-gray-975 hover:bg-gray-975 relative p-2 text-lg">
+      <MenuButton className="data-[focus]:bg-gray-975 hover:bg-gray-975 relative p-2 text-lg" aria-label="Ouvrir le menu des alertes">
         <RiDashboard3Line aria-hidden="true" />
         {warnings.length > 0 && <div className="bg-error absolute top-2 right-1.5 h-[9px] w-[9px] rounded-full border border-white" />}
       </MenuButton>
 
       <MenuItems
         transition
-        anchor="bottom end"
-        className="mt-2 w-[400px] origin-top-right bg-white text-black shadow-lg transition duration-200 ease-out focus:outline-none data-closed:scale-95 data-closed:opacity-0"
+        className="absolute top-full right-0 z-10 mt-2 w-[calc(100vw-2rem)] origin-top-right bg-white text-black shadow-lg transition duration-200 ease-out focus:outline-none data-closed:scale-95 data-closed:opacity-0 sm:w-[400px]"
       >
         <MenuItem>
           <div className="flex items-center justify-between p-6">
@@ -113,7 +112,7 @@ const NotificationMenu = () => {
           <MenuItem>
             <Link to={warningPath} className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950">
               <div className="flex w-6 items-center">
-                <LogoSvg alt="" />
+                <LogoSvg alt="" aria-hidden="true" />
               </div>
               <div className="flex flex-1 flex-col gap-2">
                 <p className="text-base font-bold text-black">
@@ -214,14 +213,13 @@ const AdminNotificationMenu = () => {
 
   return (
     <Menu>
-      <MenuButton className="data-[focus]:bg-gray-975 hover:bg-gray-975 relative p-2 text-lg">
+      <MenuButton className="data-[focus]:bg-gray-975 hover:bg-gray-975 relative p-2 text-lg" aria-label="Ouvrir le menu des alertes">
         <RiDashboard3Line aria-hidden="true" />
         {warnings.length > 0 && <div className="bg-error absolute top-2 right-1.5 h-[9px] w-[9px] rounded-full border border-white" />}
       </MenuButton>
       <MenuItems
         transition
-        anchor="bottom end"
-        className="w-[400px] origin-top-right bg-white text-black shadow-lg transition duration-200 ease-out focus:outline-none data-closed:scale-95 data-closed:opacity-0"
+        className="absolute top-full right-0 z-10 mt-2 w-[calc(100vw-2rem)] origin-top-right bg-white text-black shadow-lg transition duration-200 ease-out focus:outline-none data-closed:scale-95 data-closed:opacity-0 sm:w-[400px]"
       >
         <MenuItem>
           <div className="flex items-center justify-between p-6">
@@ -236,7 +234,7 @@ const AdminNotificationMenu = () => {
           <MenuItem>
             <Link to="/admin-warning" className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950">
               <div className="flex w-6 items-center">
-                <LogoSvg alt="" />
+                <LogoSvg alt="" aria-hidden="true" />
               </div>
               <div className="flex flex-1 flex-col gap-2">
                 <p className="text-base font-bold text-black">
@@ -342,7 +340,7 @@ const AccountMenu = () => {
 
   return (
     <div className="relative" ref={ref} onBlur={handleFocusOut} onKeyDown={handleKeyDown}>
-      <button ref={buttonRef} className="btn hover:bg-gray-975 focus" type="button" onClick={() => setShow(!show)}>
+      <button ref={buttonRef} className="btn hover:bg-gray-975 focus" type="button" onClick={() => setShow(!show)} aria-label="Menu du compte">
         <div className="bg-blue-france flex h-8 w-8 items-center justify-center rounded-full">
           <RiUserLine className="text-white" aria-hidden="true" />
         </div>
@@ -355,7 +353,7 @@ const AccountMenu = () => {
 
       <div
         inert={!show ? true : undefined}
-        className={`border-grey-border absolute left-1/2 z-10 w-[calc(100vw-2rem)] -translate-x-1/2 border bg-white shadow-lg transition-[max-height,opacity] duration-200 ease-in-out sm:right-0 sm:left-auto sm:w-56 ${show ? "max-h-96 opacity-100" : "pointer-events-none max-h-0 opacity-0"}`}
+        className={`border-grey-border absolute right-0 z-10 w-[calc(100vw-2rem)] border bg-white shadow-lg transition-[max-height,opacity] duration-200 ease-in-out sm:w-56 ${show ? "max-h-96 opacity-100" : "pointer-events-none max-h-0 opacity-0"}`}
       >
         <ul className="m-0 flex list-none flex-col p-0">
           <li>

@@ -75,7 +75,7 @@ const OrganizationTab = ({ data, onChange }) => {
   return (
     <>
       <form className="flex h-full divide-x" onSubmit={handleSubmit}>
-        <div className="flex flex-1 flex-col gap-2 p-8">
+        <div className="flex flex-1 flex-col gap-2 p-4 md:p-8">
           <div className="flex flex-col gap-2">
             <label className="text-sm" htmlFor="organization-name">
               Nom de l'organisation
@@ -99,8 +99,9 @@ const OrganizationTab = ({ data, onChange }) => {
               getLabel={(o) => o?.label || ""}
               getValue={(o) => o?.siren || null}
               placeholder="SIREN"
+              ariaDescribedby="organization-siren-hint"
             />
-            <p className="text-text-mention text-xs">
+            <p id="organization-siren-hint" className="text-text-mention text-xs">
               <span className="mr-1 font-semibold">SIREN d'origine:</span>
               {data.missionOrganizationSiren ? data.missionOrganizationSiren : "/"}
             </p>
@@ -121,8 +122,9 @@ const OrganizationTab = ({ data, onChange }) => {
               getLabel={(o) => o?.label || ""}
               getValue={(o) => o?.rna || null}
               placeholder="RNA"
+              ariaDescribedby="organization-rna-hint"
             />
-            <p className="text-text-mention text-xs">
+            <p id="organization-rna-hint" className="text-text-mention text-xs">
               <span className="mr-1 font-semibold">RNA d'origine:</span>
               {data.missionOrganizationRNA ? data.missionOrganizationRNA : "/"}
             </p>
@@ -133,29 +135,21 @@ const OrganizationTab = ({ data, onChange }) => {
             </button>
           )}
           <div className="border-grey-border flex flex-col gap-2 border-t py-4">
-            <label className="text-sm" htmlFor="title">
-              Adresse
-            </label>
+            <h3 className="text-sm">Adresse</h3>
             <p className="text-text-mention text-sm">{data.missionOrganizationFullAddress ? data.missionOrganizationFullAddress : "/"}</p>
           </div>
           <div className="border-grey-border flex flex-col gap-2 border-t py-4">
-            <label className="text-sm" htmlFor="title">
-              Domaine d'action
-            </label>
+            <h3 className="text-sm">Domaine d'action</h3>
             <p className="text-text-mention text-sm">{DOMAINS[data.missionDomain]}</p>
           </div>
           <div className="border-grey-border flex flex-col gap-2 border-t py-4">
-            <label className="text-sm" htmlFor="title">
-              Organisation déjà inscrite sur
-            </label>
+            <h3 className="text-sm">Organisation déjà inscrite sur</h3>
             <p className="text-text-mention text-sm">
               {/* {data.associationSources?.length ? data.associationSources.map((s) => (s === "Je veux aider" ? "JeVeuxAider.gouv.fr" : s)).join(", ") : "/"} */}
             </p>
           </div>
           <div className="border-grey-border flex flex-col gap-2 border-t py-4">
-            <label className="text-sm" htmlFor="title">
-              Site internet
-            </label>
+            <h3 className="text-sm">Site internet</h3>
             <a href={data.missionOrganizationUrl} className="text-blue-france text-sm underline" target="_blank">
               {data.missionOrganizationUrl}
             </a>

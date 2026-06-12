@@ -143,7 +143,9 @@ const List = () => {
               </div>
               <div className="flex flex-col gap-4">
                 <div className="text-lg">
-                  <p><b>Il semble y avoir un problème de paramétrages de votre côté.</b></p>
+                  <p>
+                    <b>Il semble y avoir un problème de paramétrages de votre côté.</b>
+                  </p>
                   <p>Consultez les alertes ci-dessous pour identifier le problème.</p>
                 </div>
               </div>
@@ -181,7 +183,12 @@ const List = () => {
               {currentWarningsByDays[d].map((w, i) => {
                 const label = WARNINGS[w.type] || WARNINGS.OTHER_WARNING;
                 return (
-                  <Link to={LINKS[w.type]} className="flex flex-col gap-4 bg-white p-4 shadow-sm sm:flex-row sm:items-end sm:gap-8 sm:p-6" key={i} id={slugify(`${w.type}-${w.publisherName}`)}>
+                  <Link
+                    to={LINKS[w.type]}
+                    className="flex flex-col gap-4 bg-white p-4 shadow-sm sm:flex-row sm:items-end sm:gap-8 sm:p-6"
+                    key={i}
+                    id={slugify(`${w.type}-${w.publisherName}`)}
+                  >
                     <div className="flex items-center justify-center gap-8">
                       <div className="flex items-center justify-center">{label.emoji}</div>
                       <div className="flex flex-1 flex-col justify-between">
@@ -285,7 +292,7 @@ const Badge = ({ label, value, onDelete }) => {
     <div className="bg-blue-france-975 flex items-center gap-2 rounded p-2">
       <p className="text-sm">{label}:</p>
       <p className="text-sm">{value}</p>
-      <button className="text-sm text-black" onClick={onDelete}>
+      <button className="text-sm text-black" onClick={onDelete} aria-label={`Retirer le filtre ${label}`}>
         <RiCloseFill aria-hidden="true" />
       </button>
     </div>

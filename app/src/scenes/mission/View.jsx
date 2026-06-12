@@ -27,8 +27,7 @@ const formatDateTime = (date) => (date ? new Date(date).toLocaleString("fr").rep
 
 const formatScore = (value) => (typeof value === "number" ? value.toLocaleString("fr", { maximumFractionDigits: 2 }) : "N/A");
 
-const formatConfidence = (value) =>
-  typeof value === "number" ? `${(value * 100).toLocaleString("fr", { maximumFractionDigits: 0 })} %` : "N/A";
+const formatConfidence = (value) => (typeof value === "number" ? `${(value * 100).toLocaleString("fr", { maximumFractionDigits: 0 })} %` : "N/A");
 
 const AdminDataTable = ({ caption, emptyMessage, headers, rows, renderRow }) => {
   if (!rows?.length) {
@@ -117,11 +116,32 @@ const View = () => {
   const technicalTabs = [
     ...(isAdmin
       ? [
-          { key: "enrichment", label: "🧠 Enrichissement" },
-          { key: "scoring", label: "🎯 Scoring" },
+          {
+            key: "enrichment",
+            label: (
+              <>
+                <span aria-hidden="true">🧠</span> Enrichissement
+              </>
+            ),
+          },
+          {
+            key: "scoring",
+            label: (
+              <>
+                <span aria-hidden="true">🎯</span> Scoring
+              </>
+            ),
+          },
         ]
       : []),
-    { key: "raw", label: "🧾 Données brutes" },
+    {
+      key: "raw",
+      label: (
+        <>
+          <span aria-hidden="true">🧾</span> Données brutes
+        </>
+      ),
+    },
   ].map((tab) => ({
     ...tab,
     id: `mission-technical-tab-${tab.key}`,
@@ -272,7 +292,7 @@ const View = () => {
                     )}
                   </div>
                   <button className="secondary-btn shrink-0" type="button" disabled={triggeringTask !== null} onClick={() => handleTriggerTask("enrichment")}>
-                    🧠 Relancer l&apos;enrichment
+                    <span aria-hidden="true">🧠</span> Relancer l&apos;enrichment
                   </button>
                 </div>
                 {mission.adminEnrichment && (
@@ -325,7 +345,7 @@ const View = () => {
                     )}
                   </div>
                   <button className="secondary-btn shrink-0" type="button" disabled={triggeringTask !== null} onClick={() => handleTriggerTask("scoring")}>
-                    🎯 Relancer le scoring
+                    <span aria-hidden="true">🎯</span> Relancer le scoring
                   </button>
                 </div>
                 {mission.adminScoring && (

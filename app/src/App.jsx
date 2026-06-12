@@ -62,6 +62,9 @@ const App = () => {
         ariaLabel="Notifications"
       />
       <BrowserRouter>
+        <a href="#main-content" className="skip-link">
+          Aller au contenu principal
+        </a>
         <Routes>
           <Route element={<AuthLayout />}>
             <Route path="/login" element={<Login />} />
@@ -121,7 +124,7 @@ const AuthLayout = () => {
   }
 
   return (
-    <div className="bg-global-background flex min-h-screen w-screen flex-col">
+    <div className="bg-global-background flex min-h-screen w-full flex-col">
       <Header />
       <main id="main-content" role="main" tabIndex={-1} className="flex flex-1">
         <div className="flex-1">
@@ -158,29 +161,12 @@ const PATH = [
 ];
 
 const ADMIN_PATH = ["/admin-mission", "/admin-organization", "/admin-account", "/admin-stats", "/admin-warning", "/admin-report", "/user/", "/publisher/"];
-const getActiveTabId = (pathname) => {
-  if (pathname.includes("performance")) {
-    return "tab-performance";
-  }
-  if (pathname.includes("broadcast")) {
-    return "tab-broadcast";
-  }
-  if (pathname.includes("my-missions")) {
-    return "tab-my-missions";
-  }
-  if (pathname.includes("settings")) {
-    return "tab-settings";
-  }
-  return null;
-};
 
 const ProtectedLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, setAuth } = useStore();
   const [loading, setLoading] = useState(true);
-  const activeTabId = getActiveTabId(location.pathname);
-  const hasActiveTab = Boolean(activeTabId);
 
   // Simple page tracking with user role
   useEffect(() => {
@@ -238,7 +224,7 @@ const ProtectedLayout = () => {
   }
 
   return (
-    <div className="bg-global-background flex min-h-screen w-screen flex-col">
+    <div className="bg-global-background flex min-h-screen w-full flex-col">
       {ENV === "staging" && (
         <div className="bg-error w-full p-2 text-center">
           <p className="text-sm text-white">Environnement de pré-prod</p>
@@ -252,13 +238,7 @@ const ProtectedLayout = () => {
       <Header />
       <Nav />
 
-      <main
-        id="main-content"
-        role="main"
-        tabIndex={-1}
-        aria-labelledby={hasActiveTab ? activeTabId : undefined}
-        className="mx-auto mb-14 w-full max-w-[1200px] flex-1 px-0 pt-14 sm:w-4/5 sm:px-4"
-      >
+      <main id="main-content" role="main" tabIndex={-1} className="mx-auto mb-14 w-full max-w-[1200px] flex-1 px-0 pt-14 sm:w-4/5 sm:px-4">
         <Outlet />
       </main>
       <Footer />
@@ -306,8 +286,6 @@ const PublisherSyncLayout = () => {
 const PublicLayout = () => {
   const { user } = useStore();
   const location = useLocation();
-  const activeTabId = getActiveTabId(location.pathname);
-  const hasActiveTab = Boolean(activeTabId);
 
   useEffect(() => {
     if (window.plausible) {
@@ -316,10 +294,10 @@ const PublicLayout = () => {
   }, [location.pathname]);
 
   return (
-    <div className="bg-global-background flex min-h-screen w-screen flex-col">
+    <div className="bg-global-background flex min-h-screen w-full flex-col">
       <Header />
       {user ? <Nav /> : ""}
-      <main id="main-content" role="main" tabIndex={-1} aria-labelledby={user && hasActiveTab ? activeTabId : undefined}>
+      <main id="main-content" role="main" tabIndex={-1}>
         <Outlet />
       </main>
       <Footer />

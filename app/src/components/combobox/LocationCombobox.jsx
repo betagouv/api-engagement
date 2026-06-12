@@ -1,7 +1,7 @@
-import { captureError } from "@/services/error";
 import Combobox from "@/components/combobox/index";
+import { captureError } from "@/services/error";
 
-const LocationCombobox = ({ id, selected, onSelect, placeholder, className }) => {
+const LocationCombobox = ({ id, selected, onSelect, placeholder, className, ariaDescribedby }) => {
   const fetchLocasions = async (search) => {
     if (search.length < 4) {
       if (selected) {
@@ -29,7 +29,17 @@ const LocationCombobox = ({ id, selected, onSelect, placeholder, className }) =>
     return [];
   };
 
-  return <Combobox id={id} value={selected ? selected.value : null} onSelect={onSelect} onSearch={fetchLocasions} placeholder={placeholder} className={className} />;
+  return (
+    <Combobox
+      id={id}
+      value={selected ? selected.value : null}
+      onSelect={onSelect}
+      onSearch={fetchLocasions}
+      placeholder={placeholder}
+      className={className}
+      ariaDescribedby={ariaDescribedby}
+    />
+  );
 };
 
 export default LocationCombobox;

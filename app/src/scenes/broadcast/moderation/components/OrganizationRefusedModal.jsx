@@ -47,7 +47,7 @@ const OrganizationRefusedModal = ({ open, onClose, data, update, onChange, total
   };
 
   return (
-    <Modal open={open} onClose={onClose} className="min-w-3xl" title="Refuser les autres missions de cette organisation">
+    <Modal open={open} onClose={onClose} className="w-[90vw] max-w-3xl" title="Refuser les autres missions de cette organisation">
       <p className="text-sm text-black">
         Vous venez de refuser une mission de l’organisation <b>{data.missionOrganizationName}</b> avec le motif <b>{JVA_MODERATION_COMMENTS_LABELS[update.comment]}</b>.
       </p>

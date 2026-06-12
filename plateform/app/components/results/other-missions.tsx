@@ -11,6 +11,7 @@ interface OtherMissionsProps {
   pageLoading: boolean;
   visiblePageNumbers: number[];
   userScoringId: string | undefined;
+  showDebug: boolean;
   gridClassName?: string;
   onPageChange: (page: number) => void;
 }
@@ -22,6 +23,7 @@ export default function OtherMissions({
   pageLoading,
   visiblePageNumbers,
   userScoringId,
+  showDebug,
   gridClassName = "grid grid-cols-1 gap-6",
   onPageChange,
 }: OtherMissionsProps) {
@@ -36,7 +38,7 @@ export default function OtherMissions({
           {items.map((item) => (
             <div key={item.mission.id} className="relative">
               <MissionCard mission={matchResultToBrowseMission(item)} link={{ type: "internal", to: buildMissionDetailHref(item, userScoringId) }} />
-              <DebugButton missionId={item.mission.id} />
+              {showDebug && <DebugButton missionId={item.mission.id} />}
             </div>
           ))}
         </div>

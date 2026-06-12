@@ -21,8 +21,8 @@ const FEATURES: Feature[] = [
     icon: CalendarSvg,
     title: (
       <>
-        À ton rythme <br />
-        Ponctuel ou régulier
+        À ton rythme. <br />
+        Mission ponctuelle ou régulière.
       </>
     ),
   },
@@ -31,7 +31,7 @@ const FEATURES: Feature[] = [
     title: (
       <>
         Avec ou sans indemnité
-        <br /> selon les missions
+        <br /> selon les missions.
       </>
     ),
   },
@@ -39,13 +39,21 @@ const FEATURES: Feature[] = [
     icon: LocationFranceSvg,
     title: (
       <>
-        En France
+        En France.
         <br />
-        Près de chez toi ou plus loin
+        Près de chez toi ou plus loin.
       </>
     ),
   },
-  { icon: SelfTrainingSvg, title: "Compatible sans diplôme études ou emploi" },
+  {
+    icon: SelfTrainingSvg,
+    title: (
+      <>
+        Accessible sans diplôme. <br />
+        Compatible avec vos études ou votre emploi.
+      </>
+    ),
+  },
 ];
 
 export default function HowItWorks() {

@@ -5,8 +5,8 @@ import { RiArrowDownSLine, RiArrowLeftSLine, RiArrowRightSLine, RiSkipLeftLine, 
 import Loader from "@/components/Loader";
 
 const SortableHeader = ({ item, sortBy, onSort }) => {
-  const isSorted = sortBy === item.key;
-  const isAscending = isSorted && sortBy.startsWith?.("-");
+  const isSorted = sortBy === item.key || sortBy === `-${item.key}`;
+  const isAscending = isSorted && sortBy.startsWith("-");
   const ariaSort = isSorted ? (isAscending ? "ascending" : "descending") : undefined;
   const positionClass = item.position === "right" ? "justify-end" : item.position === "center" ? "justify-center" : "justify-start";
 
@@ -14,10 +14,7 @@ const SortableHeader = ({ item, sortBy, onSort }) => {
     <th key={item.key} className="p-4" width={item.width || undefined} aria-sort={ariaSort}>
       <button className={`group flex h-full w-full items-center gap-2 ${positionClass}`} onClick={() => onSort(item.key)} type="button">
         <span className={`text-sm font-semibold ${item.position === "right" ? "text-right" : item.position === "center" ? "text-center" : "text-left"}`}>{item.title}</span>
-        <RiArrowDownSLine
-          className={`ml-2 text-lg transition-transform duration-200 ${isSorted ? "rotate-180 opacity-100" : "opacity-0 group-hover:opacity-100"}`}
-          aria-hidden="true"
-        />
+        {isSorted && <RiArrowDownSLine className={`ml-2 size-4 shrink-0 text-lg ${isAscending ? "rotate-180" : ""}`} aria-hidden="true" />}
       </button>
     </th>
   );
@@ -46,7 +43,7 @@ const Table = ({ header, caption, sortBy, total, onSort, loading, children, stic
 
   return (
     <>
-      <div className={`w-full overflow-x-auto overflow-y-visible ${className}`}>
+      <div className={`relative w-full overflow-x-auto overflow-y-visible ${className}`}>
         <table className="min-w-full table-fixed border-collapse">
           {caption && (
             <caption className="sr-only">
@@ -132,14 +129,14 @@ const Pagination = ({ page, setPage, end }) => {
         </li>
 
         {pages.map((p, index) => (
-          <li key={index}>
+          <li key={index} aria-hidden={p === "..." ? "true" : undefined}>
             {p === "..." ? (
               <div className="mx-2 text-sm">{p}</div>
             ) : (
               <button
                 aria-label={`Page ${p}`}
                 aria-current={parseInt(p) === page ? "page" : undefined}
-                className={`pagination-btn ${parseInt(p) === page ? "bg-blue-france text-white" : ""}`}
+                className={`pagination-btn ${parseInt(p) === page ? "bg-blue-france font-bold text-white underline underline-offset-4" : ""}`}
                 onClick={() => setPage(parseInt(p))}
               >
                 {p}
