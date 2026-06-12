@@ -122,7 +122,7 @@ const normalizeMissionDescriptionInput = (description?: string): Pick<MissionCre
   }
 
   if (!HTML_TAG_REGEX.test(description)) {
-    return { description };
+    return { description, descriptionHtml: description };
   }
 
   return {

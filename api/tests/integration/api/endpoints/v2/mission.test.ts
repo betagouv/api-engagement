@@ -92,7 +92,7 @@ describe("Mission V2 Write API Integration Tests", () => {
       expect(mission?.description).not.toContain("<h2>");
     });
 
-    it("should store plain text descriptions without HTML content", async () => {
+    it("should store plain text descriptions as rich content fallback", async () => {
       const description = "Une description texte simple.";
 
       const response = await request(app)
@@ -103,7 +103,7 @@ describe("Mission V2 Write API Integration Tests", () => {
       expect(response.status).toBe(201);
       const mission = await missionService.findMissionByClientAndPublisher("test-text-description", publisher.id);
       expect(mission?.description).toBe(description);
-      expect(mission?.descriptionHtml).toBeNull();
+      expect(mission?.descriptionHtml).toBe(description);
     });
 
     it("should return 201 with all optional fields", async () => {
@@ -353,6 +353,26 @@ describe("Mission V2 Write API Integration Tests", () => {
       expect(updated?.description).not.toContain("<strong>");
     });
 
+    it("should replace rich HTML when an HTML description is replaced by plain text", async () => {
+      const mission = await createTestMission({
+        publisherId: publisher.id,
+        title: "Mission valide",
+        description: "Ancienne description",
+        descriptionHtml: "<p>Ancienne <strong>description</strong></p>",
+        applicationUrl: "https://example.com/apply",
+        domain: "sport",
+        statusCode: "ACCEPTED",
+      });
+      const description = "Nouvelle description texte";
+
+      const response = await request(app).put(`/v2/mission/${mission.clientId}`).set("x-api-key", apiKey).send({ description });
+
+      expect(response.status).toBe(200);
+      const updated = await missionService.findMissionByClientAndPublisher(mission.clientId, publisher.id);
+      expect(updated?.description).toBe(description);
+      expect(updated?.descriptionHtml).toBe(description);
+    });
+
     it("should update PublisherOrganization when org fields are in body", async () => {
       const mission = await createTestMission({ publisherId: publisher.id });
       const response = await request(app).put(`/v2/mission/${mission.clientId}`).set("x-api-key", apiKey).send({ organizationName: "Updated Org", organizationRNA: "W999999999" });
@@ -418,6 +438,7 @@ describe("Mission V2 Write API Integration Tests", () => {
         publisherId: publisher.id,
         title: "Mission valide",
         description: "Description existante",
+        descriptionHtml: "<p>Description existante</p>",
         applicationUrl: "https://example.com/apply",
         domain: "sport", // valid domain to avoid masking the expected refusal reason
         statusCode: "ACCEPTED",
@@ -428,6 +449,8 @@ describe("Mission V2 Write API Integration Tests", () => {
       expect(response.status).toBe(200);
       expect(response.body.data.statusCode).toBe("REFUSED");
       expect(response.body.data.statusComment).toBe("Description manquante");
+      const updated = await missionService.findMissionByClientAndPublisher(mission.clientId, publisher.id);
+      expect(updated?.descriptionHtml).toBe("");
     });
 
     it("should not duplicate PublisherOrganization when org data is unchanged", async () => {

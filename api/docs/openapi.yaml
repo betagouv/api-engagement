@@ -174,7 +174,7 @@ components:
           description: |
             Description complète de la mission. Texte brut ou HTML acceptés.
 
-            Si du HTML est fourni, il est conservé pour le rendu riche et converti en texte brut pour les usages internes, la recherche et la modération.
+            La valeur fournie est conservée pour le rendu riche. Si du HTML est fourni, elle est aussi convertie en texte brut pour les usages internes, la recherche et la modération.
 
             **Recommandations** :
             - Utiliser le format HTML pour une meilleure lisibilité lors de la diffusion (sauts de ligne, gras, listes)
@@ -916,7 +916,7 @@ paths:
                   description: |
                     Description complète de la mission. Texte brut ou HTML acceptés.
 
-                    Si du HTML est fourni, il est conservé pour le rendu riche et converti en texte brut pour les usages internes, la recherche et la modération.
+                    La valeur fournie est conservée pour le rendu riche. Si du HTML est fourni, elle est aussi convertie en texte brut pour les usages internes, la recherche et la modération.
 
                     **Recommandations** :
                     - Utiliser le format HTML pour une meilleure lisibilité lors de la diffusion (sauts de ligne, gras, listes)
@@ -1188,7 +1188,7 @@ paths:
                   description: |
                     Description complète de la mission. Texte brut ou HTML acceptés.
 
-                    Si du HTML est fourni, il est conservé pour le rendu riche et converti en texte brut pour les usages internes, la recherche et la modération.
+                    La valeur fournie est conservée pour le rendu riche. Si du HTML est fourni, elle est aussi convertie en texte brut pour les usages internes, la recherche et la modération.
 
                     **Recommandations** :
                     - Utiliser le format HTML pour une meilleure lisibilité lors de la diffusion (sauts de ligne, gras, listes)
