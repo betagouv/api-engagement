@@ -89,8 +89,8 @@ const buildSupportedChildGroup = (rule: PublisherDiffusionRuleRecord): Supported
   }
 
   if (rule.field === "publisherOrganization.parentOrganizations") {
-    // Champ array : appartenance exacte, donc `contains` ≡ `is` et `does_not_contain` ≡ `is_not`
-    // (même sémantique que buildArraySqlCondition dans utils/publisher-diffusion-rule-query.ts).
+    // Champ array indexé par mission-browse : appartenance exacte, donc `contains` ≡ `is`
+    // et `does_not_contain` ≡ `is_not`.
     const isNot = rule.operator === "is_not" || rule.operator === "does_not_contain";
     if (!isNot && rule.operator !== "is" && rule.operator !== "contains") {
       reportUnsupportedRule(rule, "unsupported_child_operator_or_empty_value");
