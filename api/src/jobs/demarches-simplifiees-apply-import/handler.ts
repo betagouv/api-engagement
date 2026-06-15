@@ -43,7 +43,7 @@ export class DemarchesSimplifieesApplyImportHandler implements BaseHandler<Demar
       console.log(`[Démarches Simplifiées] Démarche ${demarcheNumber}: ${dossiersResult.data.length} dossiers récupérés, ${submittedDossiers.length} déposés`);
 
       for (const dossier of submittedDossiers) {
-        // 2. Retrouver le clic d'origine : il porte le numéro de dossier dans customAttributes.dNDossierNumber
+        // 2. Retrouver le clic d'origine : il porte le numéro de dossier dans customAttributes.demarcheNumeriqueDossierNumber
         // (posé lors de la création du dossier prérempli côté redirect).
         const click = await statEventService.findOneStatEventByDossierNumber({ dossierNumber: dossier.number, type: "click" });
         if (!click) {
@@ -70,7 +70,7 @@ export class DemarchesSimplifieesApplyImportHandler implements BaseHandler<Demar
           isHuman: click.isHuman,
         } as StatEventRecord;
 
-        applyEvent.customAttributes = { dNDossierNumber: dossier.number };
+        applyEvent.customAttributes = { demarcheNumeriqueDossierNumber: dossier.number };
         applyEvent.clickId = click._id;
         applyEvent.clickUser = click.user;
         applyEvent.user = click.user;

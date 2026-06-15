@@ -141,12 +141,12 @@ async function countStatEvents() {
   return statEventRepository.count();
 }
 
-// Retrouve un stat event via le numéro de dossier Démarches Simplifiées stocké dans customAttributes.dNDossierNumber.
+// Retrouve un stat event via le numéro de dossier Démarches Simplifiées stocké dans customAttributes.demarcheNumeriqueDossierNumber.
 async function findOneStatEventByDossierNumber({ dossierNumber, type }: { dossierNumber: number; type: StatEventType }): Promise<StatEventRecord | null> {
   const result = (await statEventRepository.findFirst({
     where: {
       type: type as any,
-      customAttributes: { path: ["dNDossierNumber"], equals: dossierNumber },
+      customAttributes: { path: ["demarcheNumeriqueDossierNumber"], equals: dossierNumber },
     },
   })) as PrismaStatEventWithPublishers | null;
   return toStatEventRecordOrNull(result);

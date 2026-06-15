@@ -408,7 +408,7 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
 
     const dossier = await createDemarcheNumeriqueDossier(mission.applicationUrl);
     if (dossier) {
-      obj.customAttributes = { ...obj.customAttributes, dNDossierNumber: dossier.number };
+      obj.customAttributes = { ...obj.customAttributes, demarcheNumeriqueDossierNumber: dossier.number };
       href = dossier.url;
     }
 
@@ -481,7 +481,7 @@ router.get("/seo/:id", cors({ origin: "*" }), async (req: Request, res: Response
 
     const dossier = await createDemarcheNumeriqueDossier(mission.applicationUrl);
     if (dossier) {
-      obj.customAttributes = { ...obj.customAttributes, dNDossierNumber: dossier.number };
+      obj.customAttributes = { ...obj.customAttributes, demarcheNumeriqueDossierNumber: dossier.number };
       mission.applicationUrl = dossier.url;
     }
 
@@ -573,7 +573,7 @@ router.get("/email/:missionId/:publisherId", cors({ origin: "*" }), async (req, 
 
     const dossier = await createDemarcheNumeriqueDossier(mission.applicationUrl);
     if (dossier) {
-      obj.customAttributes = { ...obj.customAttributes, dNDossierNumber: dossier.number };
+      obj.customAttributes = { ...obj.customAttributes, demarcheNumeriqueDossierNumber: dossier.number };
       href = dossier.url;
     }
 
@@ -709,7 +709,7 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async (req, res) =
 
     const dossier = await createDemarcheNumeriqueDossier(mission.applicationUrl);
     if (dossier) {
-      obj.customAttributes = { ...obj.customAttributes, dNDossierNumber: dossier.number };
+      obj.customAttributes = { ...obj.customAttributes, demarcheNumeriqueDossierNumber: dossier.number };
       href = dossier.url;
     }
 
