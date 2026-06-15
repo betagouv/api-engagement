@@ -25,6 +25,7 @@ type PublisherDiffusionRuleWithChildren = PublisherDiffusionRule & {
  * (`publisherId` du diffuseur + `value` = id de l'annonceur).
  */
 export const DIFFUSION_SCOPE_ROOT_CRITERIA = Object.freeze({ combinedWithId: null, field: "publisherId", operator: "is" } as const);
+const IMPOSSIBLE_MISSION_WHERE = Object.freeze({ id: { in: [] } }) satisfies Prisma.MissionWhereInput;
 
 /**
  * Indexe une liste plate de rules par parent : racines (`combinedWithId === null`,
@@ -75,6 +76,14 @@ const buildScopeCondition = (rule: PublisherDiffusionRule, childrenByParentId: M
 const filterScopeRoots = (roots: PublisherDiffusionRule[], publisherIds?: string[]): PublisherDiffusionRule[] =>
   roots.filter((root) => root.field === "publisherId" && root.operator === "is" && (!publisherIds || publisherIds.includes(root.value)));
 
+const hasRequestedPublisherIntersection = (roots: PublisherDiffusionRule[], publisherIds?: string[]): boolean => {
+  if (!publisherIds?.length) {
+    return true;
+  }
+  const scopeRoots = roots.filter((root) => root.field === "publisherId" && root.operator === "is");
+  return scopeRoots.length === 0 || scopeRoots.some((root) => publisherIds.includes(root.value));
+};
+
 /**
  * Variante décomposée de l'allowlist : une condition par requête exécutable séparément,
  * dont l'union équivaut au `OR` de `buildAllowlistFilter`. Un `OR` de scopes dans une
@@ -89,6 +98,10 @@ const filterScopeRoots = (roots: PublisherDiffusionRule[], publisherIds?: string
  */
 const buildAllowlistBranches = (rules: PublisherDiffusionRule[], publisherIds?: string[]): Prisma.MissionWhereInput[] | null => {
   const { roots, childrenByParentId } = groupRulesByParent(rules);
+  if (!hasRequestedPublisherIntersection(roots, publisherIds)) {
+    return [];
+  }
+
   const scopeRoots = filterScopeRoots(roots, publisherIds);
 
   const rootValues = scopeRoots.map((root) => root.value);
@@ -132,6 +145,10 @@ const buildAllowlistBranches = (rules: PublisherDiffusionRule[], publisherIds?: 
  */
 const buildAllowlistFilter = (rules: PublisherDiffusionRule[], publisherIds?: string[]): { where: Prisma.MissionWhereInput; publisherIds: string[] } => {
   const { roots, childrenByParentId } = groupRulesByParent(rules);
+  if (!hasRequestedPublisherIntersection(roots, publisherIds)) {
+    return { where: IMPOSSIBLE_MISSION_WHERE, publisherIds: [] };
+  }
+
   const scopeRoots = filterScopeRoots(roots, publisherIds);
 
   const scopes = scopeRoots

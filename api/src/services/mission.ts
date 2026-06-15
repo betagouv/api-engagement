@@ -723,6 +723,9 @@ export const missionService = {
   async findMissions(filters: MissionSearchFilters, select: MissionSelect | null = null): Promise<{ data: MissionRecord[]; total: number }> {
     const diffusionBranches = await resolveDiffusionBranches(filters);
     if (diffusionBranches) {
+      if (diffusionBranches.length === 0) {
+        return { data: [], total: 0 };
+      }
       const { missions, total } = await searchMissionsByDiffusionBranches(filters, diffusionBranches, select);
       return { data: missions.map((mission) => toMissionRecord(mission as MissionWithRelations, filters.moderationAcceptedFor)), total };
     }
@@ -747,6 +750,9 @@ export const missionService = {
   async findMissionsWithFacets(filters: MissionSearchFilters): Promise<{ data: MissionRecord[]; total: number; facets: MissionFacets }> {
     const diffusionBranches = await resolveDiffusionBranches(filters);
     if (diffusionBranches) {
+      if (diffusionBranches.length === 0) {
+        return { data: [], total: 0, facets: computeFacetsFromRecords([]) };
+      }
       const { missions, total } = await searchMissionsByDiffusionBranches(filters, diffusionBranches, null);
       const records = missions.map((mission) => toMissionRecord(mission as MissionWithRelations, filters.moderationAcceptedFor));
       return { data: records, total, facets: computeFacetsFromRecords(records) };

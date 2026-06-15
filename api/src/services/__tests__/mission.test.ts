@@ -142,6 +142,17 @@ describe("missionService.findMissions (diffusion multi-scopes)", () => {
     expect(prismaMock.mission.findMany.mock.calls[0][0]).toMatchObject({ skip: 0, take: 3 });
   });
 
+  it("renvoie zéro mission quand les annonceurs demandés sont hors scope", async () => {
+    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([buildRule({ id: "root-1", value: "annonceur-1" })]);
+
+    const { data, total } = await missionService.findMissions({ ...filters, publisherIds: ["annonceur-2"] });
+
+    expect(data).toEqual([]);
+    expect(total).toBe(0);
+    expect(prismaMock.mission.findMany).not.toHaveBeenCalled();
+    expect(prismaMock.mission.count).not.toHaveBeenCalled();
+  });
+
   it("retombe sur le chemin standard quand un annonceur apparaît dans plusieurs scopes", async () => {
     prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([
       buildRule({ id: "root-1", value: "annonceur-1" }),

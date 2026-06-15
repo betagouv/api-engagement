@@ -327,6 +327,25 @@ export const publisherService = (() => {
     return publisher ? toPublisherRecordWithDiffusions(publisher) : null;
   };
 
+  const hasPublisherRelationAccess = async (publisherId: string, accessiblePublisherIds: string[]): Promise<boolean> => {
+    const relatedIds = Array.from(new Set(accessiblePublisherIds.map((value) => value.trim()).filter(Boolean)));
+    if (!relatedIds.length) {
+      return false;
+    }
+
+    const count = await prisma.publisherDiffusionRule.count({
+      where: {
+        ...DIFFUSION_SCOPE_ROOT_CRITERIA,
+        OR: [
+          { publisherId, value: { in: relatedIds } },
+          { publisherId: { in: relatedIds }, value: publisherId },
+        ],
+      },
+    });
+
+    return count > 0;
+  };
+
   const findPublishersByIds = async (ids: string[]): Promise<PublisherRecord[]> => {
     if (!ids.length) {
       return [];
@@ -492,6 +511,7 @@ export const publisherService = (() => {
     findPublishers,
     findPublishersByIds,
     findPublishersWithCount,
+    hasPublisherRelationAccess,
     purgeAll,
     regenerateApiKey,
     softDeletePublisher,

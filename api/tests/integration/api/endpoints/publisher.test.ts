@@ -84,6 +84,17 @@ describe("Dashboard publisher controller", () => {
     expect(res.status).not.toBe(403);
   });
 
+  it("allows GET /publisher/:id for an annonceur linked to an accessible diffuseur", async () => {
+    const annonceur = await createTestPublisher({ name: "Annonceur linked" });
+    const diffuseur = await createTestPublisher({ name: "Diffuseur linked", publishers: [{ publisherId: annonceur.id }] });
+    const { token: userToken } = await createTestUser({ role: "user", publishers: [diffuseur.id] });
+
+    const res = await request(app).get(`/publisher/${annonceur.id}`).set({ Authorization: `jwt ${userToken}` });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe(annonceur.id);
+  });
+
   it("rejects POST /publisher/:id/apikey for another publisher", async () => {
     const otherPublisher = await createTestPublisher();
 

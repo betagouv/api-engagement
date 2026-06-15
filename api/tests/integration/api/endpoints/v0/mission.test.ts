@@ -210,27 +210,12 @@ describe("Mission API Integration Tests", () => {
         startAt: new Date("2026-04-01T00:00:00.000Z"),
       });
 
+      const roots = await publisherDiffusionRuleService.findRules({ publisherId: diffuseur.id, combinedWithId: null, field: "publisherId" });
+      const scopeB = roots.find((root) => root.value === annonceurB.id);
+      expect(scopeB).toBeDefined();
       await publisherDiffusionRuleService.createRule({
         publisherId: diffuseur.id,
-        field: "publisherId",
-        fieldType: "string",
-        operator: "is",
-        value: annonceurA.id,
-        combinator: "or",
-        position: 0,
-      });
-      const scopeB = await publisherDiffusionRuleService.createRule({
-        publisherId: diffuseur.id,
-        field: "publisherId",
-        fieldType: "string",
-        operator: "is",
-        value: annonceurB.id,
-        combinator: "or",
-        position: 1,
-      });
-      await publisherDiffusionRuleService.createRule({
-        publisherId: diffuseur.id,
-        combinedWithId: scopeB.id,
+        combinedWithId: scopeB!.id,
         field: "publisherOrganization.clientId",
         fieldType: "string",
         operator: "is_not",
@@ -318,6 +303,17 @@ describe("Mission API Integration Tests", () => {
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
       expect(response.body.data[0]._id).toBe(mission2.id);
+    });
+
+    it("should return no missions when publisher filter is outside diffusion scopes", async () => {
+      const outsidePublisher = await createTestPublisher({ name: "Outside Publisher" });
+      await createTestMission({ publisherId: outsidePublisher.id, title: "Outside mission", clientId: `outside-${randomUUID()}` });
+
+      const response = await request(app).get(`/v0/mission?publisher=${outsidePublisher.id}`).set("x-api-key", apiKey);
+
+      expect(response.status).toBe(200);
+      expect(response.body.total).toBe(0);
+      expect(response.body.data).toEqual([]);
     });
 
     it("should filter by keywords", async () => {
