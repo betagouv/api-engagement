@@ -141,6 +141,17 @@ async function countStatEvents() {
   return statEventRepository.count();
 }
 
+// Retrouve un stat event via le numéro de dossier Démarches Simplifiées stocké dans customAttributes.dNDossierNumber.
+async function findOneStatEventByDossierNumber({ dossierNumber, type }: { dossierNumber: number; type: StatEventType }): Promise<StatEventRecord | null> {
+  const result = (await statEventRepository.findFirst({
+    where: {
+      type: type as any,
+      customAttributes: { path: ["dNDossierNumber"], equals: dossierNumber },
+    },
+  })) as PrismaStatEventWithPublishers | null;
+  return toStatEventRecordOrNull(result);
+}
+
 async function findOneStatEventByMissionId(missionId: string): Promise<StatEventRecord | null> {
   const result = (await statEventRepository.findFirst({
     where: { missionId },
@@ -643,6 +654,7 @@ export const statEventService = {
   findOneStatEventById,
   findOneStatEventByLegacyId,
   findOneStatEventByMissionId,
+  findOneStatEventByDossierNumber,
   findStatEvents,
   countStatEvents,
   countStatEventsByTypeSince,
