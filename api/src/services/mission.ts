@@ -914,7 +914,7 @@ export const missionService = {
       data.description = patch.description ?? undefined;
     }
     if ("descriptionHtml" in patch) {
-      data.descriptionHtml = patch.descriptionHtml ?? undefined;
+      data.descriptionHtml = patch.descriptionHtml === undefined ? undefined : patch.descriptionHtml;
     }
     if ("tags" in patch) {
       data.tags = patch.tags ?? [];

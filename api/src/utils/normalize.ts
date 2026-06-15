@@ -4,7 +4,7 @@ export const normalizeOptionalString = (value: string | null | undefined): strin
   if (value === undefined) {
     return undefined;
   }
-  if (value === null) {
+  if (value === null || typeof value !== "string") {
     return null;
   }
   const trimmed = value.trim();
