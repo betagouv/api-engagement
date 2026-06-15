@@ -6,7 +6,6 @@ import { JVA_URL, PUBLISHER_IDS } from "@/config";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, SERVER_ERROR, captureException } from "@/error";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { campaignService } from "@/services/campaign";
-import demarchesSimplifiees from "@/services/demarches-simplifiees";
 import { missionService } from "@/services/mission";
 import { publisherService } from "@/services/publisher";
 import { statBotService } from "@/services/stat-bot";
@@ -15,7 +14,7 @@ import { userScoringService } from "@/services/user-scoring";
 import { widgetService } from "@/services/widget";
 import { MissionRecord, StatEventRecord } from "@/types";
 import { cleanIdParam, identify, slugify } from "@/utils";
-import { buildTrackedApplicationUrl, updateBotFlagAfterRedirect } from "@/utils/redirect";
+import { buildTrackedApplicationUrl, createDemarcheNumeriqueDossier, updateBotFlagAfterRedirect } from "@/utils/redirect";
 
 const router = Router();
 router.use(ipRateLimiter);
@@ -25,39 +24,6 @@ const FIVE_MINUTES_IN_MS = 5 * 60 * 1000;
 function fiveMinutesAgo() {
   return new Date(Date.now() - FIVE_MINUTES_IN_MS);
 }
-
-const DEMARCHE_NUMERIQUE_HOST = "demarche.numerique.gouv.fr";
-
-// Si l'URL de candidature pointe vers demarche.numerique.gouv.fr, on crée un dossier
-// pré-rempli côté Démarches Simplifiées. On renvoie son numéro (à stocker dans customAttributes)
-// et son URL (vers laquelle rediriger l'usager, à la place de l'applicationUrl générique).
-const createDemarcheNumeriqueDossier = async (applicationUrl: string | null | undefined): Promise<{ number: number; url: string } | null> => {
-  if (!applicationUrl) {
-    return null;
-  }
-
-  let host: string;
-  try {
-    host = new URL(applicationUrl).hostname;
-  } catch (error) {
-    return null;
-  }
-  if (host !== DEMARCHE_NUMERIQUE_HOST) {
-    return null;
-  }
-
-  const result = await demarchesSimplifiees.createDossier();
-  if (!result.ok) {
-    return null;
-  }
-
-  const number = result.data?.dossier_number ?? null;
-  const url = result.data?.dossier_url ?? null;
-  if (!number || !url) {
-    return null;
-  }
-  return { number, url };
-};
 
 router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) => {
   try {

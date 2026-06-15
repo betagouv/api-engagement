@@ -103,7 +103,6 @@ export const LETUDIANT_PILOTY_TOKEN = process.env.LETUDIANT_PILOTY_TOKEN || "";
 // Instance qui héberge la démarche (par défaut demarche.numerique.gouv.fr, l'instance DINUM).
 export const DEMARCHES_SIMPLIFIEES_BASE_URL = process.env.DEMARCHES_SIMPLIFIEES_BASE_URL || "https://demarche.numerique.gouv.fr";
 export const DEMARCHES_SIMPLIFIEES_TOKEN = process.env.DEMARCHES_SIMPLIFIEES_TOKEN;
-export const DEMARCHES_SIMPLIFIEES_DEMARCHE_NUMBER = Number.parseInt(process.env.DEMARCHES_SIMPLIFIEES_DEMARCHE_NUMBER || "0", 10);
 
 // Typesense
 export const TYPESENSE_HOST = process.env.TYPESENSE_HOST || "localhost";

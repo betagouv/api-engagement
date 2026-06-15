@@ -1,4 +1,4 @@
-import { DEMARCHES_SIMPLIFIEES_BASE_URL, DEMARCHES_SIMPLIFIEES_DEMARCHE_NUMBER, DEMARCHES_SIMPLIFIEES_TOKEN } from "@/config";
+import { DEMARCHES_SIMPLIFIEES_BASE_URL, DEMARCHES_SIMPLIFIEES_TOKEN } from "@/config";
 import { captureException } from "@/error";
 
 // L'API de démarches-simplifiées est une API GraphQL unique (un seul endpoint POST).
@@ -6,7 +6,11 @@ import { captureException } from "@/error";
 // soit un tableau d'erreurs. Doc : https://doc.demarches-simplifiees.fr/api-graphql
 // L'instance (GraphQL + API publique) est dérivée de DEMARCHES_SIMPLIFIEES_BASE_URL.
 
-const DEMARCHES_SIMPLIFIEES_URL = `${DEMARCHES_SIMPLIFIEES_BASE_URL}/api/v2/graphql`;
+// Mapping slug → numéro de démarche pour les démarches connues (évite un appel réseau).
+// Le slug est le segment d'URL de /commencer/<slug>.
+export const DEMARCHE_MAP: Record<string, number> = {
+  "test-formulaire-spv": 149326,
+};
 
 interface DemarchesSimplifieesSuccess<T> {
   ok: true;
@@ -26,7 +30,7 @@ const query = async <T = unknown>(graphqlQuery: string, variables: Record<string
       return { ok: false, message: "DEMARCHES_SIMPLIFIEES_TOKEN is not set" };
     }
 
-    const response = await fetch(DEMARCHES_SIMPLIFIEES_URL, {
+    const response = await fetch(`${DEMARCHES_SIMPLIFIEES_BASE_URL}/api/v2/graphql`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -63,7 +67,7 @@ const query = async <T = unknown>(graphqlQuery: string, variables: Record<string
 };
 
 // Exemple de helper : récupère les infos de base d'une démarche par son numéro.
-const getDemarche = async (number: number = DEMARCHES_SIMPLIFIEES_DEMARCHE_NUMBER) => {
+const getDemarche = async (number: number) => {
   const graphqlQuery = `
     query getDemarche($number: Int!) {
       demarche(number: $number) {
@@ -120,7 +124,7 @@ interface DossiersPage {
 // En GraphQL, une liste paginée est une "connection" : on demande une page (max 100),
 // et `pageInfo.endCursor` sert de curseur pour réclamer la page suivante via `after`.
 // On boucle tant que `pageInfo.hasNextPage` est vrai.
-const getAllDossiers = async (demarcheNumber: number = DEMARCHES_SIMPLIFIEES_DEMARCHE_NUMBER, createdSince?: Date): Promise<DemarchesSimplifieesResponse<DossierNode[]>> => {
+const getAllDossiers = async (demarcheNumber: number, createdSince?: Date): Promise<DemarchesSimplifieesResponse<DossierNode[]>> => {
   const graphqlQuery = `
     query getDemarcheDossiers($number: Int!, $after: String, $createdSince: ISO8601DateTime) {
       demarche(number: $number) {
@@ -167,7 +171,7 @@ const getAllDossiers = async (demarcheNumber: number = DEMARCHES_SIMPLIFIEES_DEM
 
 // Crée un dossier prérempli via l'API publique de préremplissage et renvoie sa réponse
 // (dossier_number, dossier_url, etc.). Cet endpoint public ne nécessite pas de token.
-const createDossier = async (demarcheNumber: number = DEMARCHES_SIMPLIFIEES_DEMARCHE_NUMBER, data: Record<string, unknown> = {}) => {
+const createDossier = async (demarcheNumber: number, data: Record<string, unknown> = {}) => {
   try {
     const response = await fetch(`${DEMARCHES_SIMPLIFIEES_BASE_URL}/api/public/v1/demarches/${demarcheNumber}/dossiers`, {
       method: "POST",
@@ -187,4 +191,27 @@ const createDossier = async (demarcheNumber: number = DEMARCHES_SIMPLIFIEES_DEMA
   }
 };
 
-export default { query, getDemarche, getDossier, getAllDossiers, createDossier };
+// Retrouve le numéro d'une démarche à partir de son slug (le segment d'URL de /commencer/<slug>).
+// Le slug n'est pas exposé par l'API GraphQL : on lit la page publique "commencer", dont le titre
+// contient le numéro de la démarche (ex. "... · #149326 · ..."). Pas de token nécessaire.
+const getDemarcheNumberBySlug = async (slug: string): Promise<DemarchesSimplifieesResponse<number>> => {
+  try {
+    const response = await fetch(`${DEMARCHES_SIMPLIFIEES_BASE_URL}/commencer/${encodeURIComponent(slug)}`);
+    if (!response.ok) {
+      return { ok: false, message: response.status === 404 ? "Démarche not found" : `HTTP ${response.status} ${response.statusText}` };
+    }
+
+    const html = await response.text();
+    const match = html.match(/<title[^>]*>[^<]*#(\d+)/i);
+    if (!match) {
+      return { ok: false, message: "Démarche number not found in page" };
+    }
+
+    return { ok: true, data: Number.parseInt(match[1], 10) };
+  } catch (error) {
+    captureException(error);
+    return { ok: false, message: "DemarchesSimplifiees API error" };
+  }
+};
+
+export default { query, getDemarche, getDossier, getAllDossiers, createDossier, getDemarcheNumberBySlug };
