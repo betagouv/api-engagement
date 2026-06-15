@@ -1,9 +1,10 @@
 import { captureException } from "@/error";
 import { BaseHandler } from "@/jobs/base/handler";
 import { JobResult } from "@/jobs/types";
-import demarchesSimplifiees, { DEMARCHE_MAP } from "@/services/demarches-simplifiees";
+import demarchesSimplifiees from "@/services/demarches-simplifiees";
 import { statEventService } from "@/services/stat-event";
 import { StatEventRecord } from "@/types";
+import { DEMARCHE_SIMPLIFIEES_DEMARCH_NUMBERS_MAP } from "@/utils/demarches-simplifiees";
 
 const FIFTEEN_DAYS_IN_MS = 15 * 24 * 60 * 60 * 1000;
 
@@ -11,7 +12,7 @@ interface DemarchesSimplifieesJobPayload {}
 
 interface DemarchesSimplifieesJobResult extends JobResult {}
 
-export class DemarchesSimplifieesHandler implements BaseHandler<DemarchesSimplifieesJobPayload, DemarchesSimplifieesJobResult> {
+export class DemarchesSimplifieesApplyImportHandler implements BaseHandler<DemarchesSimplifieesJobPayload, DemarchesSimplifieesJobResult> {
   name = "Import des candidatures Démarches Simplifiées";
 
   public async handle(): Promise<DemarchesSimplifieesJobResult> {
@@ -19,7 +20,7 @@ export class DemarchesSimplifieesHandler implements BaseHandler<DemarchesSimplif
     console.log(`[Démarches Simplifiées] Starting at ${start.toISOString()}`);
 
     const createdSince = new Date(start.getTime() - FIFTEEN_DAYS_IN_MS);
-    const demarcheNumbers = Object.values(DEMARCHE_MAP);
+    const demarcheNumbers = Object.values(DEMARCHE_SIMPLIFIEES_DEMARCH_NUMBERS_MAP);
 
     let submitted = 0;
     let created = 0;

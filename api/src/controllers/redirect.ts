@@ -14,7 +14,8 @@ import { userScoringService } from "@/services/user-scoring";
 import { widgetService } from "@/services/widget";
 import { MissionRecord, StatEventRecord } from "@/types";
 import { cleanIdParam, identify, slugify } from "@/utils";
-import { buildTrackedApplicationUrl, createDemarcheNumeriqueDossier, updateBotFlagAfterRedirect } from "@/utils/redirect";
+import { createDemarcheNumeriqueDossier } from "@/utils/demarches-simplifiees";
+import { buildTrackedApplicationUrl, updateBotFlagAfterRedirect } from "@/utils/redirect";
 
 const router = Router();
 router.use(ipRateLimiter);
@@ -404,6 +405,7 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
       fromPublisherName: widget.fromPublisherName,
       isBot: false,
     } as StatEventRecord;
+
     const dossier = await createDemarcheNumeriqueDossier(mission.applicationUrl);
     if (dossier) {
       obj.customAttributes = { ...obj.customAttributes, dNDossierNumber: dossier.number };
