@@ -84,6 +84,7 @@ describe("Mission V2 Write API Integration Tests", () => {
         .send({ clientId: "test-html-description", title: "Mission HTML", description: htmlDescription, applicationUrl: "https://example.com/apply" });
 
       expect(response.status).toBe(201);
+      expect(response.body.data.description).toBe(htmlDescription);
       const mission = await missionService.findMissionByClientAndPublisher("test-html-description", publisher.id);
       expect(mission?.descriptionHtml).toBe(htmlDescription);
       expect(mission?.description).toContain("PRESENTATION");
@@ -101,6 +102,7 @@ describe("Mission V2 Write API Integration Tests", () => {
         .send({ clientId: "test-text-description", title: "Mission texte", description, applicationUrl: "https://example.com/apply" });
 
       expect(response.status).toBe(201);
+      expect(response.body.data.description).toBe(description);
       const mission = await missionService.findMissionByClientAndPublisher("test-text-description", publisher.id);
       expect(mission?.description).toBe(description);
       expect(mission?.descriptionHtml).toBe(description);
@@ -346,6 +348,7 @@ describe("Mission V2 Write API Integration Tests", () => {
       const response = await request(app).put(`/v2/mission/${mission.clientId}`).set("x-api-key", apiKey).send({ description: htmlDescription });
 
       expect(response.status).toBe(200);
+      expect(response.body.data.description).toBe(htmlDescription);
       const updated = await missionService.findMissionByClientAndPublisher(mission.clientId, publisher.id);
       expect(updated?.descriptionHtml).toBe(htmlDescription);
       expect(updated?.description).toContain("Nouvelle description");
@@ -368,6 +371,7 @@ describe("Mission V2 Write API Integration Tests", () => {
       const response = await request(app).put(`/v2/mission/${mission.clientId}`).set("x-api-key", apiKey).send({ description });
 
       expect(response.status).toBe(200);
+      expect(response.body.data.description).toBe(description);
       const updated = await missionService.findMissionByClientAndPublisher(mission.clientId, publisher.id);
       expect(updated?.description).toBe(description);
       expect(updated?.descriptionHtml).toBe(description);
