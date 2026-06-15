@@ -1,11 +1,12 @@
-import { DEMARCHES_SIMPLIFIEES_DEMARCHE_NUMBER, DEMARCHES_SIMPLIFIEES_TOKEN } from "@/config";
+import { DEMARCHES_SIMPLIFIEES_BASE_URL, DEMARCHES_SIMPLIFIEES_DEMARCHE_NUMBER, DEMARCHES_SIMPLIFIEES_TOKEN } from "@/config";
 import { captureException } from "@/error";
 
 // L'API de démarches-simplifiées est une API GraphQL unique (un seul endpoint POST).
 // On envoie une requête GraphQL (query + variables) et on récupère soit des données,
 // soit un tableau d'erreurs. Doc : https://doc.demarches-simplifiees.fr/api-graphql
+// L'instance (GraphQL + API publique) est dérivée de DEMARCHES_SIMPLIFIEES_BASE_URL.
 
-const DEMARCHES_SIMPLIFIEES_URL = "https://www.demarches-simplifiees.fr/api/v2/graphql";
+const DEMARCHES_SIMPLIFIEES_URL = `${DEMARCHES_SIMPLIFIEES_BASE_URL}/api/v2/graphql`;
 
 interface DemarchesSimplifieesSuccess<T> {
   ok: true;
@@ -164,12 +165,11 @@ const getAllDossiers = async (demarcheNumber: number = DEMARCHES_SIMPLIFIEES_DEM
   return { ok: true, data: dossiers };
 };
 
-// Récupère l'URL publique où un usager crée un dossier ("commencer") pour une démarche.
-// On passe par `demarcheDescriptor` (la vue publique d'une démarche) qui expose directement
-// `demarcheURL` : pas besoin de reconstruire l'URL à partir d'un slug, l'API renvoie l'URL absolue.
+// Crée un dossier prérempli via l'API publique de préremplissage et renvoie sa réponse
+// (dossier_number, dossier_url, etc.). Cet endpoint public ne nécessite pas de token.
 const createDossier = async (demarcheNumber: number = DEMARCHES_SIMPLIFIEES_DEMARCHE_NUMBER, data: Record<string, unknown> = {}) => {
   try {
-    const response = await fetch(`https://www.demarches-simplifiees.fr/api/public/v1/demarches/${demarcheNumber}/dossiers`, {
+    const response = await fetch(`${DEMARCHES_SIMPLIFIEES_BASE_URL}/api/public/v1/demarches/${demarcheNumber}/dossiers`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
