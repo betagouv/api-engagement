@@ -35,10 +35,7 @@ describe("publisherDiffusionRulesToMissionFilter", () => {
   });
 
   it("traduit les règles racines publisherId is en filtre de recherche", () => {
-    const result = publisherDiffusionRulesToMissionFilter([
-      buildRule({ id: "rule-1", value: "annonceur-1" }),
-      buildRule({ id: "rule-2", value: "annonceur-2", position: 1 }),
-    ]);
+    const result = publisherDiffusionRulesToMissionFilter([buildRule({ id: "rule-1", value: "annonceur-1" }), buildRule({ id: "rule-2", value: "annonceur-2", position: 1 })]);
 
     expect(result).toEqual({
       kind: "filter",
@@ -85,8 +82,7 @@ describe("publisherDiffusionRulesToMissionFilter", () => {
 
     expect(result).toEqual({
       kind: "filter",
-      filterBy:
-        "(publisherId:=`annonceur-1` && publisherOrganizationParentOrganizations:=`Réseau 1` && publisherOrganizationParentOrganizations:!=`Réseau 2`)",
+      filterBy: "(publisherId:=`annonceur-1` && publisherOrganizationParentOrganizations:=`Réseau 1` && publisherOrganizationParentOrganizations:!=`Réseau 2`)",
       missionWhere: {
         AND: [
           { publisherId: "annonceur-1" },
@@ -94,6 +90,43 @@ describe("publisherDiffusionRulesToMissionFilter", () => {
           { NOT: { publisherOrganization: { parentOrganizations: { has: "Réseau 2" } } } },
         ],
       },
+    });
+  });
+
+  it("traduit les enfants publisherOrganization.parentOrganizations avec contains/does_not_contain comme appartenance exacte", () => {
+    const result = publisherDiffusionRulesToMissionFilter([
+      buildRule({ id: "root-1", value: "annonceur-1" }),
+      buildRule({ id: "child-1", combinedWithId: "root-1", field: "publisherOrganization.parentOrganizations", operator: "contains", value: "Réseau 1" }),
+      buildRule({ id: "child-2", combinedWithId: "root-1", field: "publisherOrganization.parentOrganizations", operator: "does_not_contain", value: "Armee de l'air" }),
+    ]);
+
+    expect(result).toEqual({
+      kind: "filter",
+      filterBy: "(publisherId:=`annonceur-1` && publisherOrganizationParentOrganizations:=`Réseau 1` && publisherOrganizationParentOrganizations:!=`Armee de l'air`)",
+      missionWhere: {
+        AND: [
+          { publisherId: "annonceur-1" },
+          { publisherOrganization: { parentOrganizations: { has: "Réseau 1" } } },
+          { NOT: { publisherOrganization: { parentOrganizations: { has: "Armee de l'air" } } } },
+        ],
+      },
+    });
+    expect(captureException).not.toHaveBeenCalled();
+  });
+
+  it("ne supporte pas contains/does_not_contain sur publisherOrganizationId (champ scalaire)", () => {
+    const result = publisherDiffusionRulesToMissionFilter([
+      buildRule({ id: "root-1", value: "annonceur-1" }),
+      buildRule({ id: "child-1", combinedWithId: "root-1", field: "publisherOrganizationId", operator: "does_not_contain", value: "po-1" }),
+    ]);
+
+    expect(result).toEqual({ kind: "none", missionWhere: null });
+    expect(captureException).toHaveBeenCalledWith(expect.any(Error), {
+      extra: expect.objectContaining({
+        reason: "unsupported_child_operator_or_empty_value",
+        ruleId: "child-1",
+        operator: "does_not_contain",
+      }),
     });
   });
 
@@ -177,10 +210,7 @@ describe("publisherDiffusionRulesToMissionFilter", () => {
   });
 
   it("déduplique les publisherIds supportés", () => {
-    const result = publisherDiffusionRulesToMissionFilter([
-      buildRule({ id: "rule-1", value: "annonceur-1" }),
-      buildRule({ id: "rule-2", value: "annonceur-1", position: 1 }),
-    ]);
+    const result = publisherDiffusionRulesToMissionFilter([buildRule({ id: "rule-1", value: "annonceur-1" }), buildRule({ id: "rule-2", value: "annonceur-1", position: 1 })]);
 
     expect(result).toEqual({
       kind: "filter",
