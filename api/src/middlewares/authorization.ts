@@ -1,15 +1,12 @@
 import { NextFunction, Response } from "express";
 
-import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, NOT_FOUND } from "@/error";
+import { FORBIDDEN, INVALID_BODY, NOT_FOUND } from "@/error";
 import { publisherService } from "@/services/publisher";
 import { UserRequest } from "@/types/passport";
-import { hasAdminOrDirectPublisherAccess, hasAllPublisherAccess, hasPublisherRelationAccess, isAdmin, normalizePublisherId, readRequiredParam } from "@/utils/publisher-access";
+import { hasAdminOrDirectPublisherAccess, hasAllPublisherAccess, hasPublisherRelationAccess, normalizePublisherId, readRequiredParam } from "@/utils/publisher-access";
 
 /** Emplacements d'où extraire un identifiant de publisher dans la requête. */
 type RequestSource = "body" | "query" | "params";
-
-/** Comportement quand l'identifiant est absent de la requête. */
-type OnMissingPublisherId = "reject" | "adminOnly" | "skip";
 
 /** Lit une valeur via un chemin pointé (ex. "variables.publisher_id"). */
 const readPath = (root: unknown, path: string): unknown =>
@@ -127,32 +124,16 @@ export const authorizeStatsSearch = () => (req: UserRequest, res: Response, next
  * `key` accepte un chemin pointé pour les identifiants imbriqués
  * (ex. `variables.publisher_id` dans un payload Metabase).
  *
- * Corrige les IDOR du type "n'importe quel utilisateur connecté peut passer le
- * publisherId d'un autre tenant" (ex. `GET /stats-mean?publisherId=...`,
- * `POST /metabase/card/:cardId/query`).
- *
- * `onMissing` règle le cas où l'identifiant est absent :
- * - `"reject"` (défaut) : 400 (l'identifiant est obligatoire).
- * - `"adminOnly"` : seul un admin passe (évite l'exposition des agrégats globaux).
- * - `"skip"` : on laisse passer (ex. cartes Metabase publiques sans publisher_id) ;
- *   le contrôle d'accès reste assuré dès qu'un identifiant est présent.
+ * Si l'identifiant est absent, on laisse passer : le contrôle ne s'applique que
+ * lorsqu'un publisher_id est effectivement fourni (les routes qui rendent
+ * l'identifiant obligatoire doivent le valider en amont).
  */
 export const requirePublisherAccessFrom =
-  ({ source, key, onMissing = "reject" }: { source: RequestSource; key: string; onMissing?: OnMissingPublisherId }) =>
+  ({ source, key }: { source: RequestSource; key: string }) =>
   (req: UserRequest, res: Response, next: NextFunction) => {
     const publisherId = readPublisherIdFrom(req, source, key);
 
-    if (!publisherId) {
-      if (onMissing === "reject") {
-        return res.status(400).send({ ok: false, code: source === "params" ? INVALID_PARAMS : INVALID_BODY, message: `Missing ${key}` });
-      }
-      if (onMissing === "adminOnly" && !isAdmin(req.user)) {
-        return res.status(403).send({ ok: false, code: FORBIDDEN, message: "Not allowed" });
-      }
-      return next();
-    }
-
-    if (!hasAdminOrDirectPublisherAccess(req.user, publisherId)) {
+    if (publisherId && !hasAdminOrDirectPublisherAccess(req.user, publisherId)) {
       return res.status(403).send({ ok: false, code: FORBIDDEN, message: "Not allowed" });
     }
 

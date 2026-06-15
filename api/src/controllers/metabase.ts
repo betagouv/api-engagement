@@ -2,7 +2,8 @@ import { NextFunction, RequestHandler, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { INVALID_BODY } from "@/error";
+import { METABASE_CARD_ACCESS } from "@/constants/metabase";
+import { FORBIDDEN, INVALID_BODY } from "@/error";
 import { requirePublisherAccessFrom } from "@/middlewares/authorization";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { metabaseService } from "@/services/metabase";
@@ -10,16 +11,6 @@ import { UserRequest } from "@/types/passport";
 
 const router = Router();
 router.use(ipRateLimiter);
-
-const PUBLIC_METABASE_CARD = [
-  "5525", // PUBLIC_STATS_GLOBAL
-  "5538", // PUBLIC_STATS_GLOBAL_MONTHLY
-  "5528", // PUBLIC_STATS_ACTIVE_MISSIONS
-  "5535", // PUBLIC_STATS_ACTIVE_MISSIONS_DEPARTMENT
-  "5531", // PUBLIC_STATS_ACTIVE_ORGANIZATIONS
-  "5537", // PUBLIC_STATS_MISSIONS_DEPARTMENT
-  "5536", // PUBLIC_STATS_MISSIONS_DOMAIN
-];
 
 const optionalUserAuthentication: RequestHandler = (req, res, next) =>
   passport.authenticate("user", { session: false }, (error: unknown, user?: UserRequest["user"]) => {
@@ -30,10 +21,33 @@ const optionalUserAuthentication: RequestHandler = (req, res, next) =>
     next();
   })(req, res, next);
 
+// Autorise la carte selon la liste blanche cardId -> rôle (carte inconnue => refus).
+const authorizeMetabaseCard: RequestHandler = (req: UserRequest, res: Response, next: NextFunction) => {
+  const access = METABASE_CARD_ACCESS[String(req.params.cardId)];
+
+  if (!access) {
+    return res.status(403).send({ ok: false, code: FORBIDDEN, message: "Card not allowed" });
+  }
+  if (access === "public") {
+    return next();
+  }
+  if (!req.user) {
+    return res.status(401).send();
+  }
+  if (access === "admin" && req.user.role !== "admin") {
+    return res.status(403).send({ ok: false, code: FORBIDDEN, message: "Not allowed" });
+  }
+
+  next();
+};
+
 router.post(
   "/card/:cardId/query",
   optionalUserAuthentication,
-  requirePublisherAccessFrom({ source: "body", key: "variables.publisher_id", onMissing: "skip" }),
+  // Autorise la carte selon son niveau d'accès (public / user / admin).
+  authorizeMetabaseCard,
+  // Scope les cartes "user" au tenant de l'appelant via variables.publisher_id (absent => laisse passer).
+  requirePublisherAccessFrom({ source: "body", key: "variables.publisher_id" }),
   async (req: UserRequest, res: Response, next: NextFunction) => {
     try {
       const params = zod
@@ -54,11 +68,6 @@ router.post(
         .safeParse(req.body);
       if (!body.success) {
         return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
-      }
-
-      // Endpoint should be public for /public-stats path but restrict the read of metabase card
-      if (!req.user && !PUBLIC_METABASE_CARD.includes(params.data.cardId)) {
-        return res.status(401).send();
       }
 
       try {
