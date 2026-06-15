@@ -121,8 +121,6 @@ export class ProcessDeadLetterQueuesHandler implements BaseHandler<ProcessDeadLe
           const targetType = envelope.type as TaskType;
           const payload = taskRegistry[targetType].schema.parse(envelope.payload);
 
-          console.log(payload);
-
           if (dryRun) {
             continue;
           }
