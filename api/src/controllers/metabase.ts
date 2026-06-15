@@ -3,8 +3,9 @@ import passport from "passport";
 import zod from "zod";
 
 import { INVALID_BODY } from "@/error";
-import { metabaseService } from "@/services/metabase";
+import { requirePublisherAccessFrom } from "@/middlewares/authorization";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
+import { metabaseService } from "@/services/metabase";
 import { UserRequest } from "@/types/passport";
 
 const router = Router();
@@ -29,53 +30,58 @@ const optionalUserAuthentication: RequestHandler = (req, res, next) =>
     next();
   })(req, res, next);
 
-router.post("/card/:cardId/query", optionalUserAuthentication, async (req: UserRequest, res: Response, next: NextFunction) => {
-  try {
-    const params = zod
-      .object({
-        cardId: zod.union([zod.string(), zod.number()]).transform((v) => v.toString()),
-      })
-      .safeParse(req.params);
-    if (!params.success) {
-      return res.status(400).send({ ok: false, code: INVALID_BODY, error: params.error });
-    }
-
-    const body = zod
-      .object({
-        variables: zod.record(zod.string(), zod.union([zod.string(), zod.number(), zod.boolean(), zod.array(zod.union([zod.string(), zod.number()]))])).optional(),
-        parameters: zod.array(zod.unknown()).optional(),
-        body: zod.record(zod.string(), zod.unknown()).optional(),
-      })
-      .safeParse(req.body);
-    if (!body.success) {
-      return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
-    }
-
-    // Endpoint should be public for /public-stats path but restrict the read of metabase card
-    if (!req.user && !PUBLIC_METABASE_CARD.includes(params.data.cardId)) {
-      return res.status(401).send();
-    }
-
+router.post(
+  "/card/:cardId/query",
+  optionalUserAuthentication,
+  requirePublisherAccessFrom({ source: "body", key: "variables.publisher_id", onMissing: "skip" }),
+  async (req: UserRequest, res: Response, next: NextFunction) => {
     try {
-      const metabaseResponse = await metabaseService.queryCard(params.data.cardId, {
-        variables: body.data.variables,
-        parameters: body.data.parameters,
-        body: body.data.body,
-      });
+      const params = zod
+        .object({
+          cardId: zod.union([zod.string(), zod.number()]).transform((v) => v.toString()),
+        })
+        .safeParse(req.params);
+      if (!params.success) {
+        return res.status(400).send({ ok: false, code: INVALID_BODY, error: params.error });
+      }
 
-      return res.status(metabaseResponse.status ?? 200).send({
-        ok: metabaseResponse.ok,
-        data: metabaseResponse.data,
-      });
-    } catch (err: any) {
-      const message = err?.message || "Erreur Metabase";
-      const status = message.toLowerCase().includes("metabase") ? 400 : 502;
+      const body = zod
+        .object({
+          variables: zod.record(zod.string(), zod.union([zod.string(), zod.number(), zod.boolean(), zod.array(zod.union([zod.string(), zod.number()]))])).optional(),
+          parameters: zod.array(zod.unknown()).optional(),
+          body: zod.record(zod.string(), zod.unknown()).optional(),
+        })
+        .safeParse(req.body);
+      if (!body.success) {
+        return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
+      }
 
-      return res.status(status).send({ ok: false, error: message });
+      // Endpoint should be public for /public-stats path but restrict the read of metabase card
+      if (!req.user && !PUBLIC_METABASE_CARD.includes(params.data.cardId)) {
+        return res.status(401).send();
+      }
+
+      try {
+        const metabaseResponse = await metabaseService.queryCard(params.data.cardId, {
+          variables: body.data.variables,
+          parameters: body.data.parameters,
+          body: body.data.body,
+        });
+
+        return res.status(metabaseResponse.status ?? 200).send({
+          ok: metabaseResponse.ok,
+          data: metabaseResponse.data,
+        });
+      } catch (err: any) {
+        const message = err?.message || "Erreur Metabase";
+        const status = message.toLowerCase().includes("metabase") ? 400 : 502;
+
+        return res.status(status).send({ ok: false, error: message });
+      }
+    } catch (error) {
+      next(error);
     }
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 export default router;
