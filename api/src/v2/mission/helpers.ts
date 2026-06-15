@@ -150,7 +150,7 @@ export const buildData = (mission: MissionRecord) => ({
   updatedAt: mission.updatedAt,
   deletedAt: mission.deletedAt,
   title: mission.title,
-  description: mission.description,
+  description: mission.descriptionHtml ?? mission.description,
   applicationUrl: mission.applicationUrl,
   image: mission.domainLogo,
   metadata: mission.metadata,
