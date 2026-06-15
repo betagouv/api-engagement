@@ -24,18 +24,7 @@ describe("Mission API Integration Tests", () => {
     // Create a main publisher for testing who has access to both
     publisher = await createTestPublisher({
       name: "Main Publisher",
-      publishers: [
-        {
-          publisherId: publisher1.id,
-          publisherName: "Publisher A",
-          moderator: true,
-        },
-        {
-          publisherId: publisher2.id,
-          publisherName: "Publisher B",
-          moderator: true,
-        },
-      ],
+      publishers: [{ publisherId: publisher1.id }, { publisherId: publisher2.id }],
     });
     apiKey = publisher.apikey!;
 
@@ -148,10 +137,7 @@ describe("Mission API Integration Tests", () => {
       const annonceurB = await createTestPublisher({ name: "Scoped Publisher B" });
       const diffuseur = await createTestPublisher({
         name: "Scoped Diffuseur",
-        publishers: [
-          { publisherId: annonceurA.id, publisherName: annonceurA.name },
-          { publisherId: annonceurB.id, publisherName: annonceurB.name },
-        ],
+        publishers: [{ publisherId: annonceurA.id }, { publisherId: annonceurB.id }],
       });
 
       const scopedMissionA = await createTestMission({
@@ -183,10 +169,7 @@ describe("Mission API Integration Tests", () => {
       const annonceurB = await createTestPublisher({ name: "Multi Scope Publisher B" });
       const diffuseur = await createTestPublisher({
         name: "Multi Scope Diffuseur",
-        publishers: [
-          { publisherId: annonceurA.id, publisherName: annonceurA.name },
-          { publisherId: annonceurB.id, publisherName: annonceurB.name },
-        ],
+        publishers: [{ publisherId: annonceurA.id }, { publisherId: annonceurB.id }],
       });
 
       const missionA = await createTestMission({
@@ -298,7 +281,7 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should filter by publisherId", async () => {
-      const publisherIdToFilter = publisher.publishers[1].diffuseurPublisherId;
+      const publisherIdToFilter = publisher.publishers[1].publisherId;
       const response = await request(app).get(`/v0/mission?publisher=${publisherIdToFilter}`).set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
@@ -332,7 +315,7 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should filter by activity", async () => {
-      await createTestMission({ organizationClientId: "org-4", publisherId: publisher.publishers[0].diffuseurPublisherId, activities: ["education"] });
+      await createTestMission({ organizationClientId: "org-4", publisherId: publisher.publishers[0].publisherId, activities: ["education"] });
       const response = await request(app).get("/v0/mission?activity=education").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
@@ -341,7 +324,7 @@ describe("Mission API Integration Tests", () => {
 
     it("should filter by clientId", async () => {
       const specificClientId = "client-abc-123";
-      await createTestMission({ organizationClientId: "org-5", publisherId: publisher.publishers[0].diffuseurPublisherId, clientId: specificClientId });
+      await createTestMission({ organizationClientId: "org-5", publisherId: publisher.publishers[0].publisherId, clientId: specificClientId });
       const response = await request(app).get(`/v0/mission?clientId=${specificClientId}`).set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
@@ -363,7 +346,7 @@ describe("Mission API Integration Tests", () => {
 
     it("should filter by organizationRNA", async () => {
       const specificRNA = "W987654321";
-      await createTestMission({ organizationClientId: "org-6", publisherId: publisher.publishers[0].diffuseurPublisherId, organizationRNA: specificRNA });
+      await createTestMission({ organizationClientId: "org-6", publisherId: publisher.publishers[0].publisherId, organizationRNA: specificRNA });
       const response = await request(app).get(`/v0/mission?organizationRNA=${specificRNA}`).set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
@@ -371,7 +354,7 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should filter by organizationStatusJuridique", async () => {
-      await createTestMission({ organizationClientId: "org-7", publisherId: publisher.publishers[0].diffuseurPublisherId, organizationStatusJuridique: "Fondation" });
+      await createTestMission({ organizationClientId: "org-7", publisherId: publisher.publishers[0].publisherId, organizationStatusJuridique: "Fondation" });
       const response = await request(app).get("/v0/mission?organizationStatusJuridique=Fondation").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
@@ -379,7 +362,7 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should filter by openToMinors", async () => {
-      await createTestMission({ publisherId: publisher.publishers[0].diffuseurPublisherId, openToMinors: true });
+      await createTestMission({ publisherId: publisher.publishers[0].publisherId, openToMinors: true });
       const response = await request(app).get("/v0/mission?openToMinors=yes").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
@@ -387,7 +370,7 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should filter by remote", async () => {
-      await createTestMission({ publisherId: publisher.publishers[0].diffuseurPublisherId, remote: "full" });
+      await createTestMission({ publisherId: publisher.publishers[0].publisherId, remote: "full" });
       const response = await request(app).get("/v0/mission?remote=full").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
@@ -395,7 +378,7 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should filter by reducedMobilityAccessible", async () => {
-      await createTestMission({ publisherId: publisher.publishers[0].diffuseurPublisherId, reducedMobilityAccessible: false });
+      await createTestMission({ publisherId: publisher.publishers[0].publisherId, reducedMobilityAccessible: false });
       const response = await request(app).get("/v0/mission?reducedMobilityAccessible=no").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
@@ -403,14 +386,14 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should filter by snu", async () => {
-      await createTestMission({ publisherId: publisher.publishers[0].diffuseurPublisherId, snu: true });
+      await createTestMission({ publisherId: publisher.publishers[0].publisherId, snu: true });
       const response = await request(app).get("/v0/mission/?snu=true").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
     });
 
     it("should filter by type", async () => {
-      await createTestMission({ publisherId: publisher.publishers[0].diffuseurPublisherId, type: "volontariat_service_civique" });
+      await createTestMission({ publisherId: publisher.publishers[0].publisherId, type: "volontariat_service_civique" });
       const response = await request(app).get(`/v0/mission?type=${"volontariat_service_civique"}`).set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
@@ -541,14 +524,14 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should filter by domain", async () => {
-      await createTestMission({ publisherId: publisher.publishers[0].diffuseurPublisherId, domain: "arts" });
+      await createTestMission({ publisherId: publisher.publishers[0].publisherId, domain: "arts" });
       const response = await request(app).get("/v0/mission/search?domain=arts").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
     });
 
     it("should filter by openToMinors", async () => {
-      await createTestMission({ publisherId: publisher.publishers[0].diffuseurPublisherId, openToMinors: true });
+      await createTestMission({ publisherId: publisher.publishers[0].publisherId, openToMinors: true });
       const response = await request(app).get("/v0/mission/search?openToMinors=yes").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
@@ -556,14 +539,14 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should filter by organizationRNA", async () => {
-      await createTestMission({ publisherId: publisher.publishers[0].diffuseurPublisherId, organizationRNA: "XXX" });
+      await createTestMission({ publisherId: publisher.publishers[0].publisherId, organizationRNA: "XXX" });
       const response = await request(app).get("/v0/mission/search?organizationRNA=XXX").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
     });
 
     it("should filter by organizationStatusJuridique", async () => {
-      await createTestMission({ organizationClientId: "org-7", publisherId: publisher.publishers[0].diffuseurPublisherId, organizationStatusJuridique: "Fondation" });
+      await createTestMission({ organizationClientId: "org-7", publisherId: publisher.publishers[0].publisherId, organizationStatusJuridique: "Fondation" });
       const response = await request(app).get("/v0/mission/search?organizationStatusJuridique=Fondation").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
@@ -577,28 +560,28 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should filter by remote", async () => {
-      await createTestMission({ publisherId: publisher.publishers[0].diffuseurPublisherId, remote: "full" });
+      await createTestMission({ publisherId: publisher.publishers[0].publisherId, remote: "full" });
       const response = await request(app).get("/v0/mission/search?remote=full").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
     });
 
     it("should filter by reducedMobilityAccessible", async () => {
-      await createTestMission({ publisherId: publisher.publishers[0].diffuseurPublisherId, reducedMobilityAccessible: false });
+      await createTestMission({ publisherId: publisher.publishers[0].publisherId, reducedMobilityAccessible: false });
       const response = await request(app).get("/v0/mission/search?reducedMobilityAccessible=no").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
     });
 
     it("should filter by startAt (gt)", async () => {
-      await createTestMission({ publisherId: publisher.publishers[0].diffuseurPublisherId, startAt: new Date("2028-01-01") });
+      await createTestMission({ publisherId: publisher.publishers[0].publisherId, startAt: new Date("2028-01-01") });
       const response = await request(app).get("/v0/mission/search?startAt=gt:2027-12-31").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
     });
 
     it("should filter by type", async () => {
-      await createTestMission({ publisherId: publisher.publishers[0].diffuseurPublisherId, type: "volontariat_service_civique" });
+      await createTestMission({ publisherId: publisher.publishers[0].publisherId, type: "volontariat_service_civique" });
       const response = await request(app).get(`/v0/mission/search?type=${"volontariat_service_civique"}`).set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
@@ -633,18 +616,12 @@ describe("Mission API Integration Tests", () => {
 
   describe("moderationAcceptedFor filter", () => {
     it("GET /v0/mission — should only return missions with ACCEPTED moderation status for a moderator publisher", async () => {
-      const publisher1Id = publisher.publishers[0].diffuseurPublisherId;
+      const publisher1Id = publisher.publishers[0].publisherId;
 
       const moderatorPublisher = await createTestPublisher({
         name: "Moderator Publisher",
         moderator: true,
-        publishers: [
-          {
-            publisherId: publisher1Id,
-            publisherName: "Publisher A",
-            moderator: true,
-          },
-        ],
+        publishers: [{ publisherId: publisher1Id }],
       });
 
       const acceptedMission = await createTestMission({
@@ -702,18 +679,12 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("GET /v0/mission/search — should only return missions with ACCEPTED moderation status for a moderator publisher", async () => {
-      const publisher1Id = publisher.publishers[0].diffuseurPublisherId;
+      const publisher1Id = publisher.publishers[0].publisherId;
 
       const moderatorPublisher = await createTestPublisher({
         name: "Moderator Publisher Search",
         moderator: true,
-        publishers: [
-          {
-            publisherId: publisher1Id,
-            publisherName: "Publisher A",
-            moderator: true,
-          },
-        ],
+        publishers: [{ publisherId: publisher1Id }],
       });
 
       const acceptedMission = await createTestMission({
@@ -757,7 +728,7 @@ describe("Mission API Integration Tests", () => {
     beforeEach(async () => {
       multiActivityMission = await createTestMission({
         organizationClientId: "org-multi-activity",
-        publisherId: publisher.publishers[0].diffuseurPublisherId,
+        publisherId: publisher.publishers[0].publisherId,
         title: "Mission multi-activités",
         activities: ["sport", "arts", "education"],
       });
@@ -789,7 +760,7 @@ describe("Mission API Integration Tests", () => {
     it("mission with no activities returns activity null", async () => {
       const noActivityMission = await createTestMission({
         organizationClientId: "org-no-activity",
-        publisherId: publisher.publishers[0].diffuseurPublisherId,
+        publisherId: publisher.publishers[0].publisherId,
         title: "Mission sans activité",
         activities: [],
       });

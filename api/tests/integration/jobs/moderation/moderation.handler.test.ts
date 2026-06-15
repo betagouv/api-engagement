@@ -22,7 +22,7 @@ describe("Moderation job (integration test)", () => {
     const jva = await createTestPublisher({
       id: PUBLISHER_IDS.JEVEUXAIDER,
       moderator: true,
-      publishers: [{ diffuseurPublisherId: partner.id }],
+      publishers: [{ publisherId: partner.id }],
     });
     return { jva, partner };
   };

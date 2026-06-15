@@ -3,6 +3,7 @@ import { randomBytes, randomUUID } from "crypto";
 import { MissionType, Prisma, Publisher } from "@/db/core";
 import { prisma } from "@/db/postgres";
 import { publisherRepository } from "@/repositories/publisher";
+import { publisherDiffusionRuleRepository } from "@/repositories/publisher-diffusion-rule";
 import publisherDiffusionRuleService, { DIFFUSION_SCOPE_ROOT_CRITERIA } from "@/services/publisher-diffusion-rule";
 import {
   PublisherCreateInput,
@@ -48,14 +49,14 @@ export const publisherService = (() => {
 
   /**
    * `publishers[]` est dérivé des scope roots de publisher_diffusion_rule :
-   * rule.publisherId = propriétaire de la liste (diffuseur), rule.value = partenaire
-   * diffusé. `moderator`/`missionType` proviennent du publisher partenaire.
+   * rule.publisherId = le diffuseur propriétaire de la liste, rule.value = l'annonceur
+   * diffusé. Chaque entrée décrit donc l'annonceur (`publisherId`/`publisherName`),
+   * dont proviennent aussi `moderator`/`missionType`.
    */
   const toDiffusionRecord = (rule: PublisherDiffusionRuleRecord, partner?: DiffusionPartnerInfo): PublisherDiffusionRecord => ({
     id: rule.id,
-    diffuseurPublisherId: rule.value,
-    diffuseurPublisherName: partner?.name ?? null,
-    annonceurPublisherId: rule.publisherId,
+    publisherId: rule.value,
+    publisherName: partner?.name ?? null,
     moderator: partner?.moderator ?? false,
     missionType: partner?.missionType ?? null,
     createdAt: rule.createdAt,
@@ -115,21 +116,14 @@ export const publisherService = (() => {
   const toPublisherRecordWithDiffusions = async (publisher: Publisher): Promise<PublisherRecordWithRelations> => (await toPublisherRecords([publisher]))[0];
 
   /**
-   * Normalise la liste de diffusions entrante en ids de partenaires dédupliqués.
-   * `moderator`/`missionType` de l'input sont ignorés : ils sont dérivés du
-   * publisher partenaire à la lecture (cf. toDiffusionRecord).
+   * Normalise la liste de diffusions entrante en ids d'annonceurs dédupliqués.
+   * `moderator`/`missionType` ne sont pas acceptés en entrée : ils sont dérivés du
+   * publisher annonceur à la lecture (cf. toDiffusionRecord).
    */
   const normalizeDiffusionPartnerIds = (publishers?: PublisherDiffusionInput[] | null): string[] =>
-    normalizeCollection(
-      publishers,
-      (diffusion) => {
-        const publisherId = (diffusion.diffuseurPublisherId ?? diffusion.publisherId)?.trim();
-        return publisherId || null;
-      },
-      {
-        key: (publisherId) => publisherId,
-      }
-    );
+    normalizeCollection(publishers, (diffusion) => diffusion.publisherId?.trim() || null, {
+      key: (publisherId) => publisherId,
+    });
 
   const ensureDiffusionPartnersExist = async (tx: Prisma.TransactionClient, partnerIds: string[]): Promise<void> => {
     const uniqueIds = Array.from(new Set(partnerIds));
@@ -333,7 +327,7 @@ export const publisherService = (() => {
       return false;
     }
 
-    const count = await prisma.publisherDiffusionRule.count({
+    const count = await publisherDiffusionRuleRepository.count({
       where: {
         ...DIFFUSION_SCOPE_ROOT_CRITERIA,
         OR: [

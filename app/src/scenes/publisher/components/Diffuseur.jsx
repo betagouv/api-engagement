@@ -9,7 +9,7 @@ import api from "@/services/api";
 import { captureError } from "@/services/error";
 import { withLegacyPublishers } from "@/utils/publisher";
 
-const resolvePublisherId = (publisher) => publisher?.publisherId ?? publisher?.diffuseurPublisherId ?? publisher?.annonceurPublisherId ?? publisher?.id ?? null;
+const resolvePublisherId = (publisher) => publisher?.publisherId ?? publisher?.id ?? null;
 
 const normalizeSelectedPublishers = (items = []) =>
   (items || [])
