@@ -321,7 +321,7 @@ describe("Mission V2 Write API Integration Tests", () => {
     });
 
     it("should update only the provided fields (PATCH semantics)", async () => {
-      const mission = await createTestMission({ publisherId: publisher.id, title: "Original Title", description: "Original Description" });
+      const mission = await createTestMission({ publisherId: publisher.id, title: "Original Title", description: "Original Description", descriptionHtml: "Original Description" });
       const response = await request(app).put(`/v2/mission/${mission.clientId}`).set("x-api-key", apiKey).send({ title: "Updated Title" });
 
       expect(response.status).toBe(200);
