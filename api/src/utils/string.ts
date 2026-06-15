@@ -24,13 +24,13 @@ export const slugify = (value: string) => {
 /**
  * Capitalize the first letter of each word in a string
  *  Use Unicode letters to avoid treating accented chars as non-word boundaries.
- *  Uses cases in french city names: 
+ *  Uses cases in french city names:
  *  - Saint-Étienne
  *  - L'Isle-d'Abeau
  *  - Chambon-La-Forêt
- 
+
  * @param string The string to capitalize
- * @returns The capitalized string 
+ * @returns The capitalized string
  */
 export const capitalizeFirstLetter = (string: string): string => {
   if (!string) {
@@ -119,11 +119,7 @@ export const jaccardSimilarity = (a: string, b: string): number => {
  * using Jaccard similarity on underscore-split tokens.
  * Returns the best match if its score >= threshold, null otherwise.
  */
-export const fuzzyMatchKey = (
-  candidate: string,
-  validKeys: Iterable<string>,
-  threshold: number
-): { key: string; score: number } | null => {
+export const fuzzyMatchKey = (candidate: string, validKeys: Iterable<string>, threshold: number): { key: string; score: number } | null => {
   let best: { key: string; score: number } | null = null;
   for (const key of validKeys) {
     const score = jaccardSimilarity(candidate, key);
