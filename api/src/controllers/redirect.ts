@@ -6,6 +6,7 @@ import { JVA_URL, PUBLISHER_IDS } from "@/config";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, SERVER_ERROR, captureException } from "@/error";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { campaignService } from "@/services/campaign";
+import demarchesSimplifiees from "@/services/demarches-simplifiees";
 import { missionService } from "@/services/mission";
 import { publisherService } from "@/services/publisher";
 import { statBotService } from "@/services/stat-bot";
@@ -24,6 +25,39 @@ const FIVE_MINUTES_IN_MS = 5 * 60 * 1000;
 function fiveMinutesAgo() {
   return new Date(Date.now() - FIVE_MINUTES_IN_MS);
 }
+
+const DEMARCHE_NUMERIQUE_HOST = "demarche.numerique.gouv.fr";
+
+// Si l'URL de candidature pointe vers demarche.numerique.gouv.fr, on crée un dossier
+// pré-rempli côté Démarches Simplifiées. On renvoie son numéro (à stocker dans customAttributes)
+// et son URL (vers laquelle rediriger l'usager, à la place de l'applicationUrl générique).
+const createDemarcheNumeriqueDossier = async (applicationUrl: string | null | undefined): Promise<{ number: number; url: string } | null> => {
+  if (!applicationUrl) {
+    return null;
+  }
+
+  let host: string;
+  try {
+    host = new URL(applicationUrl).hostname;
+  } catch (error) {
+    return null;
+  }
+  if (host !== DEMARCHE_NUMERIQUE_HOST) {
+    return null;
+  }
+
+  const result = await demarchesSimplifiees.createDossier();
+  if (!result.ok) {
+    return null;
+  }
+
+  const number = result.data?.dossier_number ?? null;
+  const url = result.data?.dossier_url ?? null;
+  if (!number || !url) {
+    return null;
+  }
+  return { number, url };
+};
 
 router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) => {
   try {
@@ -404,6 +438,12 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
       fromPublisherName: widget.fromPublisherName,
       isBot: false,
     } as StatEventRecord;
+    const dossier = await createDemarcheNumeriqueDossier(mission.applicationUrl);
+    if (dossier) {
+      obj.customAttributes = { ...obj.customAttributes, dNDossierNumber: dossier.number };
+      href = dossier.url;
+    }
+
     const clickId = await statEventService.createStatEvent(obj);
 
     const url = buildTrackedApplicationUrl(href, mission.publisherId, clickId, {
@@ -470,6 +510,12 @@ router.get("/seo/:id", cors({ origin: "*" }), async (req: Request, res: Response
       fromPublisherName: "API Engagement",
       isBot: false,
     } as StatEventRecord;
+
+    const dossier = await createDemarcheNumeriqueDossier(mission.applicationUrl);
+    if (dossier) {
+      obj.customAttributes = { ...obj.customAttributes, dNDossierNumber: dossier.number };
+      mission.applicationUrl = dossier.url;
+    }
 
     const clickId = await statEventService.createStatEvent(obj);
     const url = new URL(mission.applicationUrl || JVA_URL);
@@ -556,6 +602,12 @@ router.get("/email/:missionId/:publisherId", cors({ origin: "*" }), async (req, 
       fromPublisherName: fromPublisher.name || "",
       isBot: false,
     } as StatEventRecord;
+
+    const dossier = await createDemarcheNumeriqueDossier(mission.applicationUrl);
+    if (dossier) {
+      obj.customAttributes = { ...obj.customAttributes, dNDossierNumber: dossier.number };
+      href = dossier.url;
+    }
 
     const clickId = await statEventService.createStatEvent(obj);
 
@@ -686,6 +738,12 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async (req, res) =
       isBot: false,
       tags: query.data?.tags ? (query.data.tags.includes(",") ? query.data.tags.split(",").map((tag) => tag.trim()) : [query.data.tags]) : undefined,
     } as StatEventRecord;
+
+    const dossier = await createDemarcheNumeriqueDossier(mission.applicationUrl);
+    if (dossier) {
+      obj.customAttributes = { ...obj.customAttributes, dNDossierNumber: dossier.number };
+      href = dossier.url;
+    }
 
     const clickId = await statEventService.createStatEvent(obj);
 
