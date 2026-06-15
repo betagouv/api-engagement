@@ -99,6 +99,10 @@ export const ASC_100_LOGO_URL = "https://api-engagement-bucket.s3.fr-par.scw.clo
 export const PILOTY_BASE_URL = process.env.PILOTY_BASE_URL || "https://sandbox-api.piloty.fr";
 export const LETUDIANT_PILOTY_TOKEN = process.env.LETUDIANT_PILOTY_TOKEN || "";
 
+// Démarches Simplifiées (API GraphQL)
+export const DEMARCHES_SIMPLIFIEES_TOKEN = process.env.DEMARCHES_SIMPLIFIEES_TOKEN;
+export const DEMARCHES_SIMPLIFIEES_DEMARCHE_NUMBER = Number.parseInt(process.env.DEMARCHES_SIMPLIFIEES_DEMARCHE_NUMBER || "0", 10);
+
 // Typesense
 export const TYPESENSE_HOST = process.env.TYPESENSE_HOST || "localhost";
 export const TYPESENSE_PORT = parseInt(process.env.TYPESENSE_PORT || "8108", 10);
