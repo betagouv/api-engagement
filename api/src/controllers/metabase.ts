@@ -37,6 +37,10 @@ const authorizeMetabaseCard: RequestHandler = (req: UserRequest, res: Response, 
   if (access === "admin" && req.user.role !== "admin") {
     return res.status(403).send({ ok: false, code: FORBIDDEN, message: "Not allowed" });
   }
+  // Carte "user" : le publisher_id est obligatoire, sinon Metabase pourrait renvoyer les données de tous les tenants.
+  if (access === "user" && !req.body?.variables?.publisher_id) {
+    return res.status(400).send({ ok: false, code: INVALID_BODY, message: "Missing variables.publisher_id" });
+  }
 
   next();
 };
