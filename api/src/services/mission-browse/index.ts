@@ -126,6 +126,6 @@ export const missionBrowseService = {
     if (!mission) {
       return null;
     }
-    return toMissionDetailPayload(mission, addressId);
+    return toMissionDetailPayload(mission, diffuseurPublisherId, addressId);
   },
 };

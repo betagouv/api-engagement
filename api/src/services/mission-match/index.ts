@@ -6,7 +6,7 @@ import { buildMissionIndex, buildValuesIndex, missionMatchMissionSelect, mission
 
 export type MissionMatchInput = {
   userScoringId: string;
-  publisherId?: string;
+  publisherId: string;
   limit: number;
   offset: number;
 };
@@ -38,7 +38,7 @@ export const missionMatchService = {
 
     return {
       tookMs: result.tookMs,
-      items: result.items.map((item) => toMissionMatchItem(item, missionIndex, valuesIndex)),
+      items: result.items.map((item) => toMissionMatchItem(item, missionIndex, valuesIndex, input.publisherId)),
     };
   },
 };

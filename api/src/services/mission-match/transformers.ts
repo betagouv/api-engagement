@@ -3,6 +3,7 @@ import { TAXONOMY } from "@engagement/taxonomy";
 
 import type { Prisma } from "@/db/core";
 import type { MatchMissionItem } from "@/services/matching-engine/types";
+import { getMissionTrackedApplicationUrl } from "@/utils/mission";
 
 export const missionMatchMissionSelect = {
   id: true,
@@ -124,7 +125,12 @@ const toTaxonomyScoresDto = (taxonomyScores: MatchMissionItem["taxonomyScores"])
   return result;
 };
 
-export const toMissionMatchItem = (item: MatchMissionItem, missionIndex: Record<string, MissionIndexEntry>, valuesIndex: Record<string, MissionMatchValue[]>): MissionMatchItem => {
+export const toMissionMatchItem = (
+  item: MatchMissionItem,
+  missionIndex: Record<string, MissionIndexEntry>,
+  valuesIndex: Record<string, MissionMatchValue[]>,
+  publisherId: string
+): MissionMatchItem => {
   const mission = missionIndex[item.missionId];
   const photo = mission?.domainLogo ?? mission?.organizationLogo ?? mission?.publisherDefaultMissionLogo ?? mission?.publisherLogo ?? null;
   const hasCompensation = mission?.compensationAmount != null || mission?.compensationAmountMax != null;
@@ -160,6 +166,7 @@ export const toMissionMatchItem = (item: MatchMissionItem, missionIndex: Record<
             type: mission?.compensationType ?? null,
           }
         : null,
+      applicationUrl: getMissionTrackedApplicationUrl({ id: item.missionId }, publisherId),
     },
     match: {
       missionScoringId: item.missionScoringId,

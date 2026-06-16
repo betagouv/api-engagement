@@ -27,6 +27,7 @@ export type MissionMatchMission = {
   media: MissionMatchMedia;
   location: MissionMatchLocation;
   compensation: MissionDetailCompensation | null;
+  applicationUrl: string;
 };
 
 export type MissionMatchValue = {

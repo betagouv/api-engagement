@@ -1,5 +1,5 @@
 import { API_URL } from "@/config";
-import { MissionAddress, MissionRecord } from "@/types/mission";
+import { MissionRecord } from "@/types/mission";
 import { JobBoardId, MissionJobBoardSyncStatus } from "@/types/mission-job-board";
 import { parseDate } from "./parser";
 import { slugify } from "./string";
@@ -13,7 +13,7 @@ export { computeAddressHash } from "./address";
  * @param publisherId The publisher ID to format the URL for
  * @returns The tracked application URL
  */
-export const getMissionTrackedApplicationUrl = (mission: MissionRecord, publisherId: string) => {
+export const getMissionTrackedApplicationUrl = (mission: Pick<MissionRecord, "id">, publisherId: string) => {
   return `${API_URL}/r/${mission.id}/${publisherId}`;
 };
 
