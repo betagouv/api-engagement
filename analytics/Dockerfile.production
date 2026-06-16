@@ -1,13 +1,16 @@
 # Build
 FROM node:24-alpine AS builder
 
-WORKDIR /app
+WORKDIR /workspace
 
-COPY package*.json ./
+COPY package.json package-lock.json ./
+COPY analytics/package.json ./analytics/
 
-RUN npm ci
+RUN npm ci --workspace=analytics
 
-COPY . .
+COPY analytics ./analytics
+
+WORKDIR /workspace/analytics
 
 RUN npm run build
 
@@ -15,24 +18,27 @@ RUN npm run build
 # Pin Alpine 3.22 (Python 3.12) : dbt-core 1.11.x ne supporte pas Python 3.14
 FROM node:24-alpine3.22
 
-WORKDIR /app
+WORKDIR /workspace
 
 ENV NODE_ENV=production
 
 RUN apk add --no-cache python3 py3-pip
-COPY dbt/analytics/requirements.txt ./dbt/analytics/requirements.txt
-RUN pip install --no-cache-dir --break-system-packages -r dbt/analytics/requirements.txt
+COPY analytics/dbt/analytics/requirements.txt ./requirements.txt
+RUN pip install --no-cache-dir --break-system-packages -r ./requirements.txt
 
-COPY package*.json ./
+COPY package.json package-lock.json ./
+COPY analytics/package.json ./analytics/
 
-RUN npm ci --omit=dev
+RUN npm ci --workspace=analytics --omit=dev
 
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/db ./db
-COPY --from=builder /app/dbt ./dbt
-COPY --from=builder /app/scripts ./scripts
+WORKDIR /workspace/analytics
 
-COPY docker-entrypoint.sh /app/docker-entrypoint.sh
-RUN chmod +x /app/docker-entrypoint.sh
+COPY --from=builder /workspace/analytics/dist ./dist
+COPY --from=builder /workspace/analytics/db ./db
+COPY --from=builder /workspace/analytics/dbt ./dbt
+COPY --from=builder /workspace/analytics/scripts ./scripts
 
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
+COPY analytics/docker-entrypoint.sh ./docker-entrypoint.sh
+RUN chmod +x ./docker-entrypoint.sh
+
+ENTRYPOINT ["/workspace/analytics/docker-entrypoint.sh"]

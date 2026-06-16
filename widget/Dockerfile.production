@@ -5,17 +5,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+WORKDIR /workspace
 
 ARG SENTRY_HOST=
 
 ENV SENTRY_HOST=$SENTRY_HOST
 
-COPY package*.json ./
+COPY package.json package-lock.json ./
+COPY widget/package.json ./widget/
 
-RUN npm ci
+RUN npm ci --workspace=widget
 
-COPY . .
+COPY widget ./widget
+
+WORKDIR /workspace/widget
 
 RUN --mount=type=secret,id=sentry_auth_token,env=SENTRY_AUTH_TOKEN \
     NODE_TLS_REJECT_UNAUTHORIZED=0 npm run build
@@ -23,19 +26,22 @@ RUN --mount=type=secret,id=sentry_auth_token,env=SENTRY_AUTH_TOKEN \
 # Run
 FROM node:24-bookworm-slim
 
-WORKDIR /app
+WORKDIR /workspace
 
 ENV NODE_ENV=production
 ENV PORT=8080
 ENV NODE_OPTIONS="--dns-result-order=ipv4first --max-old-space-size=700"
 
-COPY package*.json ./
+COPY package.json package-lock.json ./
+COPY widget/package.json ./widget/
 
-RUN npm ci --omit=dev
+RUN npm ci --workspace=widget --omit=dev
 
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/next.config.js .
+WORKDIR /workspace/widget
+
+COPY --from=builder /workspace/widget/.next ./.next
+COPY --from=builder /workspace/widget/public ./public
+COPY --from=builder /workspace/widget/next.config.js ./next.config.js
 
 EXPOSE 8080
 
