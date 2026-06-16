@@ -4,6 +4,7 @@ node_modules/
 
 # Artefacts de build
 api/dist/
+analytics/dist/
 app/dist/
 widget/.next/
 widget/out/

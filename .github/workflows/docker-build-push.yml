@@ -67,6 +67,7 @@ jobs:
             github_env: sandbox
           - service: widget
             image_name: widget
+            context: .
           - service: api
             image_name: api
             context: .
@@ -76,6 +77,7 @@ jobs:
             context: .
           - service: analytics
             image_name: analytics
+            context: .
           - service: plateform
             image_name: plateform
             context: .
