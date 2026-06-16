@@ -31,6 +31,7 @@ export type MissionBrowse = {
   publisherLogo: string | null;
   applicationUrl: string | null;
   schedule: string | null;
+  compensation: MissionDetailCompensation | null;
 };
 
 export type MissionBrowseResponse = {

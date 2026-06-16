@@ -20,7 +20,7 @@ function InfoRow({ icon, children }: { icon: string; children: ReactNode }) {
 
 export default function MissionCtaPanel({ mission, userScoringId, className = "" }: MissionCtaPanelProps) {
   const durationLabel = formatStartDate(mission.startAt, mission.duration);
-  const compensationLabel = mission.compensation ? formatCompensation(mission.compensation) : null;
+  const compensationLabel = mission.compensation ? formatCompensation(mission.compensation, { withType: true }) : null;
   const deadlineLabel = formatDeadline(mission.endAt);
 
   return (

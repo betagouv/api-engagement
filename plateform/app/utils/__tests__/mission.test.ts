@@ -29,12 +29,17 @@ describe("formatCompensation", () => {
   });
 
   it("formate une plage de montants", () => {
-    expect(formatCompensation({ amount: 1000, amountMax: 1500, unit: null, type: null })).toBe("1000 – 1500€");
+    expect(formatCompensation({ amount: 1000, amountMax: 1500, unit: null, type: null })).toBe("Entre 1000 et 1500€");
+    expect(formatCompensation({ amount: 600, amountMax: 800, unit: "month", type: null })).toBe("Entre 600 et 800€ par mois");
   });
 
-  it("inclut le type (brut/net)", () => {
-    expect(formatCompensation({ amount: 1000, amountMax: null, unit: null, type: "net" })).toBe("1000€ net");
-    expect(formatCompensation({ amount: 1000, amountMax: null, unit: null, type: "gross" })).toBe("1000€ brut");
+  it("ignore le type par défaut", () => {
+    expect(formatCompensation({ amount: 1000, amountMax: null, unit: null, type: "net" })).toBe("1000€");
+  });
+
+  it("inclut le type (brut/net) avec withType", () => {
+    expect(formatCompensation({ amount: 1000, amountMax: null, unit: null, type: "net" }, { withType: true })).toBe("1000€ net");
+    expect(formatCompensation({ amount: 1000, amountMax: null, unit: null, type: "gross" }, { withType: true })).toBe("1000€ brut");
   });
 
   it("inclut l'unité", () => {
@@ -42,8 +47,8 @@ describe("formatCompensation", () => {
     expect(formatCompensation({ amount: 12, amountMax: null, unit: "hour", type: null })).toBe("12€ par heure");
   });
 
-  it("combine montant, type et unité", () => {
-    expect(formatCompensation({ amount: 1000, amountMax: null, unit: "month", type: "net" })).toBe("1000€ net par mois");
+  it("combine montant, type et unité avec withType", () => {
+    expect(formatCompensation({ amount: 1000, amountMax: null, unit: "month", type: "net" }, { withType: true })).toBe("1000€ net par mois");
   });
 
   it("préserve les unités inconnues telles quelles", () => {
