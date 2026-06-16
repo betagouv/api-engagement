@@ -2,6 +2,8 @@ import type { MissionBrowse } from "@engagement/dto";
 import { getDomainLabel } from "@engagement/dto";
 import { Link } from "react-router";
 
+import { formatCompensation } from "~/utils/mission";
+
 type MissionCardLink = { type: "internal"; to: string } | { type: "external"; href: string };
 
 interface MissionCardProps {
@@ -12,6 +14,7 @@ interface MissionCardProps {
 export default function MissionCard({ mission, link }: MissionCardProps) {
   const domainLabel = getDomainLabel(mission.domain);
   const cardImage = mission.photo ?? mission.organizationLogo ?? mission.domainLogo;
+  const compensationLabel = mission.compensation ? formatCompensation(mission.compensation) : null;
 
   const clampStyle = { display: "-webkit-box", WebkitBoxOrient: "vertical" as const, WebkitLineClamp: 3, overflow: "hidden" };
 
@@ -32,6 +35,8 @@ export default function MissionCard({ mission, link }: MissionCardProps) {
 
   return (
     <div className="mission-card fr-card fr-card--no-icon fr-enlarge-link relative h-full w-full md:max-w-[330px]">
+      {compensationLabel && <p className="fr-badge fr-badge--sm fr-badge--purple-glycine absolute top-3 left-3 z-1 m-0!">{compensationLabel}</p>}
+
       <div className="fr-card__body px-6! py-4!">
         <div className="fr-card__content m-0! p-0!">
           {domainLabel && (
