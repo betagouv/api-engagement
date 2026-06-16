@@ -238,6 +238,7 @@ describe("Mission V2 Write API Integration Tests", () => {
       expect(response.status).toBe(201);
       const mission = await missionService.findMissionByClientAndPublisher("test-no-places", publisher.id);
       expect(mission?.placesStatus).toBe("ATTRIBUTED_BY_API");
+      expect(mission?.places).toBe(1);
     });
 
     it("should store addresses with geolocStatus = SHOULD_ENRICH", async () => {

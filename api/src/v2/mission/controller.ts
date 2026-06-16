@@ -185,7 +185,7 @@ router.post("/", passport.authenticate(["apikey", "api"], { session: false }), p
       startAt: body.startAt,
       endAt: body.endAt,
       priority: body.priority,
-      places: body.places,
+      places: body.places || 1,
       compensationAmount: body.compensationAmount,
       compensationAmountMax: body.compensationAmountMax,
       compensationUnit: body.compensationUnit,
