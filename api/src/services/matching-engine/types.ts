@@ -4,10 +4,11 @@ export type MatchingEngineTaxonomy = EnrichableTaxonomyKey | GateTaxonomyKey;
 
 export type MatchingEngineTaxonomyWeights = Record<MatchingEngineTaxonomy, number>;
 
-export type MatchingEngineVersion = "m1";
+export type MatchingEngineVersion = "m1" | "m2";
 
 export type MatchingEngineVersionConfig = {
   taxonomyWeights: MatchingEngineTaxonomyWeights;
+  geoWeight: number;
 };
 
 export type RankMissionsByUserScoringInput = {
