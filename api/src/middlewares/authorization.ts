@@ -5,6 +5,15 @@ import { publisherService } from "@/services/publisher";
 import { UserRequest } from "@/types/passport";
 import { hasAdminOrDirectPublisherAccess, hasAllPublisherAccess, hasPublisherRelationAccess, normalizePublisherId, readRequiredParam } from "@/utils/publisher-access";
 
+/** Emplacements d'où extraire un identifiant de publisher dans la requête. */
+type RequestSource = "body" | "query" | "params";
+
+/** Lit une valeur via un chemin pointé (ex. "variables.publisher_id"). */
+const readPath = (root: unknown, path: string): unknown =>
+  path.split(".").reduce<unknown>((acc, segment) => (acc && typeof acc === "object" ? (acc as Record<string, unknown>)[segment] : undefined), root);
+
+const readPublisherIdFrom = (req: UserRequest, source: RequestSource, key: string): string | null => normalizePublisherId(readPath(req[source], key));
+
 type PublisherAccessResolution = {
   publisherIds: string[];
   locals?: Record<string, unknown>;
@@ -107,3 +116,26 @@ export const authorizeStatsSearch = () => (req: UserRequest, res: Response, next
 
   next();
 };
+
+/**
+ * Vérifie qu'un identifiant de publisher fourni dans la requête appartient bien
+ * au périmètre de l'utilisateur authentifié (ou qu'il est admin).
+ *
+ * `key` accepte un chemin pointé pour les identifiants imbriqués
+ * (ex. `variables.publisher_id` dans un payload Metabase).
+ *
+ * Si l'identifiant est absent, on laisse passer : le contrôle ne s'applique que
+ * lorsqu'un publisher_id est effectivement fourni (les routes qui rendent
+ * l'identifiant obligatoire doivent le valider en amont).
+ */
+export const requirePublisherAccessFrom =
+  ({ source, key }: { source: RequestSource; key: string }) =>
+  (req: UserRequest, res: Response, next: NextFunction) => {
+    const publisherId = readPublisherIdFrom(req, source, key);
+
+    if (publisherId && !hasAdminOrDirectPublisherAccess(req.user, publisherId)) {
+      return res.status(403).send({ ok: false, code: FORBIDDEN, message: "Not allowed" });
+    }
+
+    next();
+  };
