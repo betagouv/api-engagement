@@ -2,6 +2,7 @@ import type { MissionMatchItem } from "@engagement/dto";
 import MissionCard from "~/components/missions/mission-card";
 import { DebugButton } from "~/components/results/matching-debug-modal";
 import Pagination from "~/components/ui/pagination";
+import { trackMissionClicked } from "~/services/tracking/events";
 import { buildMissionDetailHref, matchResultToBrowseMission } from "~/utils/mission";
 
 interface OtherMissionsProps {
@@ -35,9 +36,13 @@ export default function OtherMissions({
         <p className="text-mention-grey py-8 text-sm">Chargement…</p>
       ) : (
         <div className={gridClassName}>
-          {items.map((item) => (
+          {items.map((item, index) => (
             <div key={item.mission.id} className="relative">
-              <MissionCard mission={matchResultToBrowseMission(item)} link={{ type: "internal", to: buildMissionDetailHref(item, userScoringId) }} />
+              <MissionCard
+                mission={matchResultToBrowseMission(item)}
+                link={{ type: "internal", to: buildMissionDetailHref(item, userScoringId) }}
+                onClick={() => trackMissionClicked(item, { source: "other", position: index + 1, userScoringId, page })}
+              />
               {showDebug && <DebugButton missionId={item.mission.id} />}
             </div>
           ))}

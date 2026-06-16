@@ -9,9 +9,12 @@ type MissionCardLink = { type: "internal"; to: string } | { type: "external"; hr
 interface MissionCardProps {
   mission: MissionBrowse;
   link?: MissionCardLink;
+  // Déclenché quand l'utilisateur ouvre la mission via le lien de la carte (DSFR `fr-enlarge-link`
+  // étend la zone cliquable à toute la carte). Sert notamment au tracking `mission.clicked`.
+  onClick?: () => void;
 }
 
-export default function MissionCard({ mission, link }: MissionCardProps) {
+export default function MissionCard({ mission, link, onClick }: MissionCardProps) {
   const domainLabel = getDomainLabel(mission.domain);
   const cardImage = mission.photo ?? mission.organizationLogo ?? mission.domainLogo;
   const compensationLabel = mission.compensation ? formatCompensation(mission.compensation) : null;
@@ -20,11 +23,11 @@ export default function MissionCard({ mission, link }: MissionCardProps) {
 
   const title =
     link?.type === "internal" ? (
-      <Link to={link.to} className="text-title-grey! fr-h6! bg-none! mb-0!" style={clampStyle}>
+      <Link to={link.to} onClick={onClick} className="text-title-grey! fr-h6! bg-none! mb-0!" style={clampStyle}>
         {mission.title}
       </Link>
     ) : link?.type === "external" ? (
-      <a href={link.href} target="_blank" rel="noopener noreferrer" className="text-title-grey! fr-h6! bg-none! mb-0!" style={clampStyle}>
+      <a href={link.href} onClick={onClick} target="_blank" rel="noopener noreferrer" className="text-title-grey! fr-h6! bg-none! mb-0!" style={clampStyle}>
         {mission.title}
       </a>
     ) : (

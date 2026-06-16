@@ -16,6 +16,7 @@ import { QUIZ_FLOW } from "~/config/quiz-flow";
 import { OPTIONS } from "~/config/quiz-options";
 import { useIsMobile } from "~/hooks/useIsMobile";
 import { useMissionResults } from "~/hooks/useMissionResults";
+import { trackMissionClicked } from "~/services/tracking/events";
 import { useQuizStore } from "~/stores/quiz";
 import { evalCondition } from "~/utils/conditions";
 import { buildMissionDetailHref, matchResultToBrowseMission } from "~/utils/mission";
@@ -122,7 +123,13 @@ export default function ResultsPage() {
               }}
             >
               <div className="relative">
-                <MissionCard mission={matchResultToBrowseMission(selectedMission)} link={{ type: "internal", to: buildMissionDetailHref(selectedMission, userScoringId) }} />
+                <MissionCard
+                  mission={matchResultToBrowseMission(selectedMission)}
+                  link={{ type: "internal", to: buildMissionDetailHref(selectedMission, userScoringId) }}
+                  onClick={() =>
+                    trackMissionClicked(selectedMission, { source: "map", position: pinnedItems.findIndex((i) => i.mission.id === selectedMission.mission.id) + 1, userScoringId })
+                  }
+                />
                 <div className="absolute right-3 top-3 z-10 flex items-center gap-2">
                   <button
                     type="button"

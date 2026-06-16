@@ -7,6 +7,10 @@ export const MAPTILER_API_KEY = import.meta.env.VITE_MAPTILER_API_KEY as string 
 // ID du publisher diffuseur, utilisé pour configurer le tag de tracking API Engagement (jstag.js).
 export const PUBLISHER_ID = import.meta.env.VITE_PUBLISHER_ID as string | undefined;
 
+// Outil de tracking front. Tant que le choix n'est pas tranché (posthog | umami | plausible | matomo),
+// on reste sur "local" qui se contente de logger les évènements dans la console.
+export const TRACKING_PROVIDER = (import.meta.env.VITE_TRACKING_PROVIDER as string | undefined) ?? "local";
+
 // Correspond à PUBLISHER_IDS.API_ENGAGEMENT dans api/src/config.ts
 export const PUBLISHER_ID_API_ENGAGEMENT = "63da29db7d356a87a4e35d4a";
 
