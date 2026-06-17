@@ -1,9 +1,11 @@
-import { Link, useLocation } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 
 export default function Header() {
   const location = useLocation();
+  const navigate = useNavigate();
   const isQuiz = location.pathname.startsWith("/quiz");
   const isLanding = location.pathname === "/";
+  const isResults = /^\/results\/[^/]+$/.test(location.pathname);
 
   if (isQuiz) {
     return null;
@@ -35,7 +37,7 @@ export default function Header() {
         </div>
       </div>
 
-      {isLanding ? (
+      {isLanding || isResults ? (
         <div className="relative flex items-center px-4 py-2 lg:hidden">
           <p className="fr-logo fr-logo--sm mb-0">
             République
@@ -48,9 +50,13 @@ export default function Header() {
         </div>
       ) : (
         <div className="relative flex h-14 items-center px-4 lg:hidden">
-          <Link to="/" title="Retour à l'accueil" className="fr-icon-arrow-left-line fr-btn--icon-left fr-btn--tertiary-no-outline font-semi-bold!">
+          <button
+            onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/"))}
+            title="Retour"
+            className="fr-icon-arrow-left-line fr-btn--icon-left fr-btn--tertiary-no-outline font-semi-bold!"
+          >
             Retour
-          </Link>
+          </button>
           <Link to="/" title="Trouve ta mission" className="fr-text--md fr-text--bold absolute left-1/2 -translate-x-1/2">
             <p className="fr-header__service-title">Trouve ta mission</p>
           </Link>
