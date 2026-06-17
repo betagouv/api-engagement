@@ -19,7 +19,7 @@ const STEP_OPTIONS: StepOption[] = [
 
 export default function DureeStep() {
   const { answers, setAnswer } = useQuizStore();
-  const { goNext } = useOutletContext<QuizOutletContext>();
+  const { goNext, saveScoring } = useOutletContext<QuizOutletContext>();
   const [options, setOptions] = useState<StepOption[]>([]);
   const [error, setError] = useState<string | undefined>(undefined);
   const selected = answers[STEP_ID]?.type === "options" ? answers[STEP_ID].option_ids : [];
@@ -39,6 +39,7 @@ export default function DureeStep() {
       setError("Sélectionne une réponse");
       return;
     }
+    saveScoring();
     goNext();
   };
 

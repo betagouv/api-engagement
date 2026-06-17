@@ -31,7 +31,7 @@ const DEFAULT_TITLE = "Vers quoi veux-tu t'orienter ?";
 
 export default function PrecisionFormationOnisepStep() {
   const { answers, setAnswer } = useQuizStore();
-  const { goNext } = useOutletContext<QuizOutletContext>();
+  const { goNext, saveScoring } = useOutletContext<QuizOutletContext>();
   const [error, setError] = useState<string | undefined>(undefined);
 
   const motivationId = answers.motivation?.type === "options" ? answers.motivation.option_ids[0] : "";
@@ -49,6 +49,7 @@ export default function PrecisionFormationOnisepStep() {
       setError("Sélectionne une réponse");
       return;
     }
+    saveScoring();
     goNext();
   };
 

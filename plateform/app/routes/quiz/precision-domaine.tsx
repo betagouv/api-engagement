@@ -31,7 +31,7 @@ const DEFAULT_TITLE = "Dans quel domaine aimerais-tu avoir une expérience ?";
 
 export default function PrecisionDomaineStep() {
   const { answers, setAnswer } = useQuizStore();
-  const { goNext } = useOutletContext<QuizOutletContext>();
+  const { goNext, saveScoring } = useOutletContext<QuizOutletContext>();
   const [error, setError] = useState<string | undefined>(undefined);
 
   const motivationId = answers.motivation?.type === "options" ? answers.motivation.option_ids[0] : "";
@@ -49,6 +49,7 @@ export default function PrecisionDomaineStep() {
       setError("Sélectionne une réponse");
       return;
     }
+    saveScoring();
     goNext();
   };
 

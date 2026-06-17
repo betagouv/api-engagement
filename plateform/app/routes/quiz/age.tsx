@@ -13,7 +13,7 @@ const STEP_ID = "age";
 // Utilisée uniquement dans les conditions des steps suivants (ex: handicap).
 export default function AgeStep() {
   const { answers, setAnswer } = useQuizStore();
-  const { goNext } = useOutletContext<QuizOutletContext>();
+  const { goNext, saveScoring } = useOutletContext<QuizOutletContext>();
   const [value, setValue] = useState<string>("");
 
   useEffect(() => {
@@ -29,6 +29,7 @@ export default function AgeStep() {
     setAnswer(STEP_ID, { type: "numeric", value: numeric });
     const existingHandicap = answers["handicap"]?.type === "options" ? answers["handicap"].option_ids[0] === "oui" : false;
     setAnswer("tranche_age", { type: "params", taxonomy: "tranche_age", params: { age: numeric, handicap: existingHandicap } });
+    saveScoring();
     goNext();
   };
 

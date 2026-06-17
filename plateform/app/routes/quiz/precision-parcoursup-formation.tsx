@@ -12,7 +12,7 @@ const STEP_OPTIONS = [OPTIONS["parcoursup_formation.oui"], OPTIONS["parcoursup_f
 
 export default function PrecisionParcoursupFormationStep() {
   const { answers, setAnswer } = useQuizStore();
-  const { goNext } = useOutletContext<QuizOutletContext>();
+  const { goNext, saveScoring } = useOutletContext<QuizOutletContext>();
   const [error, setError] = useState<string | undefined>(undefined);
   const selected = answers[STEP_ID]?.type === "options" ? answers[STEP_ID].option_ids[0] : undefined;
 
@@ -27,6 +27,7 @@ export default function PrecisionParcoursupFormationStep() {
       setError("Sélectionne une réponse");
       return;
     }
+    saveScoring();
     goNext();
   };
 
