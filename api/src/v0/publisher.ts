@@ -48,7 +48,7 @@ router.get("/:id", async (req: PublisherRequest, res: Response, next: NextFuncti
     }
 
     const publisher = await publisherService.findOnePublisherById(params.data.id);
-    if (!publisher || !publisher.publishers.some((p) => p.diffuseurPublisherId === user.id)) {
+    if (!publisher || !publisher.publishers.some((p) => p.publisherId === user.id)) {
       res.locals = { code: NOT_FOUND, message: "Publisher not found" };
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
     }

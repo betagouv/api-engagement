@@ -7,7 +7,7 @@ import { DEFAULT_AVATAR, PUBLISHER_IDS } from "@/config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, NOT_FOUND, RESSOURCE_ALREADY_EXIST, captureException } from "@/error";
 import { requireDirectPublisherAccess, requirePublisherRelationAccess } from "@/middlewares/authorization";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
-import { PublisherNotFoundError, publisherService } from "@/services/publisher";
+import { PublisherDiffusionPartnerNotFoundError, PublisherNotFoundError, publisherService } from "@/services/publisher";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import { OBJECT_ACL, putObject } from "@/services/s3";
 import { userService } from "@/services/user";
@@ -29,12 +29,7 @@ const publisherDiffusionSchema = zod.object({
 
 type PublisherDiffusionBody = zod.infer<typeof publisherDiffusionSchema>;
 
-const mapPublishersForService = (publishers?: PublisherDiffusionBody[]): PublisherDiffusionInput[] | undefined =>
-  publishers?.map(({ publisherId, missionType, moderator }) => ({
-    publisherId,
-    missionType: (missionType as PublisherMissionType) ?? null,
-    moderator: moderator ?? false,
-  }));
+const mapPublishersForService = (publishers?: PublisherDiffusionBody[]): PublisherDiffusionInput[] | undefined => publishers?.map(({ publisherId }) => ({ publisherId }));
 
 router.post("/search", passport.authenticate(["user", "admin"], { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
@@ -112,7 +107,7 @@ router.get("/:id/moderated", passport.authenticate("user", { session: false }), 
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: "JVA not found" });
     }
 
-    if (jva.publishers.some((p) => p.diffuseurPublisherId === publisherId)) {
+    if (jva.publishers.some((p) => p.publisherId === publisherId)) {
       return res.status(200).send({ ok: true, data: true });
     }
 
@@ -205,6 +200,9 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
 
     return res.status(200).send({ ok: true, data });
   } catch (error) {
+    if (error instanceof PublisherDiffusionPartnerNotFoundError) {
+      return res.status(400).send({ ok: false, code: INVALID_BODY, message: error.message });
+    }
     next(error);
   }
 });
@@ -350,6 +348,9 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
     } catch (error) {
       if (error instanceof PublisherNotFoundError) {
         return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
+      }
+      if (error instanceof PublisherDiffusionPartnerNotFoundError) {
+        return res.status(400).send({ ok: false, code: INVALID_BODY, message: error.message });
       }
       throw error;
     }
