@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 import BackButton from "~/components/quiz/back-button";
 import QuizHeader from "~/components/quiz/header";
@@ -15,6 +15,7 @@ import type { Route } from "./+types/_layout";
 export type QuizOutletContext = {
   goNext: () => void;
   goBack: () => void;
+  saveScoring: () => void;
   transitioning: boolean;
   setTransitioning: (value: boolean) => void;
 };
@@ -25,7 +26,7 @@ export function meta(): Route.MetaDescriptors {
 
 // Client-only : évite les mismatchs d'hydratation liés au store persisté en localStorage.
 export async function clientLoader() {
-  return {};
+  return { header: "hidden" };
 }
 
 export function HydrateFallback() {
@@ -41,6 +42,8 @@ export default function QuizLayout() {
   const [loadingResults, setLoadingResults] = useState(false);
   const [scoringError, setScoringError] = useState<string | null>(null);
   const currentStep = useMemo(() => steps.find((s) => s.route === location.pathname) ?? null, [location.pathname, steps]);
+  // Promise en cours de save — partagée entre saveScoring() et goNext() pour éviter un double appel.
+  const scoringPromiseRef = useRef<Promise<boolean> | null>(null);
 
   const currentIndex = currentStep ? steps.findIndex((s) => s.id === currentStep.id) : -1;
 
@@ -55,7 +58,7 @@ export default function QuizLayout() {
     }
   }, [location.pathname, currentStep]);
 
-  const saveCurrentScoring = async (): Promise<boolean> => {
+  const doSaveScoring = async (): Promise<boolean> => {
     const freshAnswers = useQuizStore.getState().answers;
     const freshUserScoringId = useQuizStore.getState().userScoringId;
     const freshDistinctId = useQuizStore.getState().distinctId;
@@ -81,13 +84,32 @@ export default function QuizLayout() {
     }
   };
 
+  // Lance le save si pas déjà en cours, ou joint la promise existante.
+  // Appelé par les steps dès que la réponse est validée (avant ou pendant la transition).
+  const saveScoring = () => {
+    if (!scoringPromiseRef.current) {
+      scoringPromiseRef.current = doSaveScoring().then((ok) => {
+        if (!ok) scoringPromiseRef.current = null;
+        return ok;
+      });
+    }
+    return scoringPromiseRef.current;
+  };
+
+  // Réinitialise `transitioning` uniquement après que la navigation a commité (nouveau pathname effectif).
+  // Si on appelait setTransitioning(false) dans goNext() après navigate(), React Router v7 différerait
+  // la navigation via startTransition, et le setState synchrone commiterait en premier — ce qui
+  // provoquerait un flash du step précédent (transitioning=false sur l'ancienne route).
+  useEffect(() => {
+    setTransitioning(false);
+    scoringPromiseRef.current = null;
+  }, [location.pathname]);
+
   const goNext = async () => {
     if (!currentStep) return;
     setScoringError(null);
     const freshAnswers = useQuizStore.getState().answers;
-    // On garde `transitioning` à true pendant la sauvegarde (appel réseau) : sinon le step
-    // courant ré-afficherait sa question le temps de la requête, avant la navigation (glitch).
-    const scoringSaved = await saveCurrentScoring();
+    const scoringSaved = await saveScoring();
 
     if (!scoringSaved) {
       setScoringError("Impossible d'enregistrer tes réponses. Réessaie dans quelques instants.");
@@ -102,8 +124,6 @@ export default function QuizLayout() {
     } else {
       setLoadingResults(true);
     }
-    // Réinitialisé après la navigation (batché avec elle) → le step suivant s'affiche directement.
-    setTransitioning(false);
   };
 
   const handleLoadingComplete = () => {
@@ -143,8 +163,8 @@ export default function QuizLayout() {
           {loadingResults ? (
             <LoadingRecap onComplete={handleLoadingComplete} />
           ) : (
-            // `goNext` / `goBack` exposés aux routes enfants via Outlet context — elles les appellent après validation.
-            <Outlet context={{ goNext, goBack, transitioning, setTransitioning } satisfies QuizOutletContext} />
+            // `goNext` / `goBack` / `saveScoring` exposés aux routes enfants via Outlet context.
+            <Outlet context={{ goNext, goBack, saveScoring, transitioning, setTransitioning } satisfies QuizOutletContext} />
           )}
         </div>
       </main>

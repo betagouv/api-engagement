@@ -1,4 +1,9 @@
 import { useLoaderData, useNavigate } from "react-router";
+
+export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
+  const serverData = await serverLoader();
+  return { ...serverData, backHref: null };
+}
 import Hero from "~/components/landing/hero";
 import HowItWorks from "~/components/landing/how-it-works";
 import MissionExamples from "~/components/landing/mission-examples";
@@ -71,12 +76,7 @@ export default function Landing() {
       <Testimonials />
       <ProSpace />
       <Partners style="compact" />
-      <Newsletter
-        title="Inscris-toi à la newsletter"
-        subtitle="1 email par mois avec les missions qui pourraient t'intéresser."
-        ctaText="Je m'inscris"
-        hintText="Tu peux te désinscrire à tout moment"
-      />
+      <Newsletter title="Inscris-toi à la newsletter" subtitle="1 email. Pas de spam." ctaText="Je m'inscris" hintText="Tu te désinscris quand tu veux." />
     </main>
   );
 }

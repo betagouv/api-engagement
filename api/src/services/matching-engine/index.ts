@@ -532,14 +532,15 @@ export const matchingEngineService = {
   async rankMissionsByUserScoring(input: RankMissionsByUserScoringInput): Promise<RankMissionsByUserScoringResult> {
     const startedAt = Date.now();
     const version = input.version ?? CURRENT_MATCHING_ENGINE_VERSION;
-    const taxonomyWeights = MATCHING_ENGINE_VERSIONS[version].taxonomyWeights;
+    const versionConfig = MATCHING_ENGINE_VERSIONS[version];
+    const taxonomyWeights = versionConfig.taxonomyWeights;
     const limit = Math.max(1, Math.min(500, input.limit ?? 20));
     const offset = Math.max(0, input.offset ?? 0);
     // The persisted snapshot is defined as the first page of the ranking.
     const shouldPersistTopResults = offset === 0;
     const rankingLimit = shouldPersistTopResults ? Math.max(limit, MATCHING_ENGINE_TOP_RESULTS_LIMIT) : limit;
     const taxonomyWeight = input.taxonomyWeight ?? 0.3;
-    const geoWeight = input.geoWeight ?? 0.7;
+    const geoWeight = input.geoWeight ?? versionConfig.geoWeight;
     const geoHalfDecayKm = input.geoHalfDecayKm ?? 20;
     const missingGeoScore = input.missingGeoScore ?? 0.1;
     const taxonomyCandidateLimit = getTaxonomyCandidateLimit({ limit: rankingLimit, offset });

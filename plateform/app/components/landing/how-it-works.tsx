@@ -47,12 +47,7 @@ const FEATURES: Feature[] = [
   },
   {
     icon: SelfTrainingSvg,
-    title: (
-      <>
-        Accessible sans diplôme. <br />
-        Compatible avec vos études ou votre emploi.
-      </>
-    ),
+    title: <>Sans diplôme ni expérience requis.</>,
   },
 ];
 

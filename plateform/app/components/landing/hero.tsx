@@ -10,7 +10,7 @@ export default function Hero({ onStartQuiz }: HeroProps) {
       <div className="relative z-10 w-full lg:max-w-xl">
         <h4 className="fr-h4">Tu veux te rendre utile ?</h4>
         <h1 className="text-4xl! md:text-5xl! lg:text-7xl! text-title-grey">
-          À <Highlight>chacun</Highlight>
+          À chacun
           <br /> sa façon d'<Highlight>agir</Highlight>
         </h1>
         <p className="fr-text--lead text-title-grey fr-mb-4w">

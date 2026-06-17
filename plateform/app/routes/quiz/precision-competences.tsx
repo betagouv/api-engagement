@@ -30,7 +30,7 @@ const DEFAULT_TITLE = "Quel domaine de compétences t'attire le plus ?";
 
 export default function PrecisionCompetencesStep() {
   const { answers, setAnswer } = useQuizStore();
-  const { goNext } = useOutletContext<QuizOutletContext>();
+  const { goNext, saveScoring } = useOutletContext<QuizOutletContext>();
   const [error, setError] = useState<string | undefined>(undefined);
 
   const motivationId = answers.motivation?.type === "options" ? answers.motivation.option_ids[0] : "";
@@ -48,6 +48,7 @@ export default function PrecisionCompetencesStep() {
       setError("Sélectionne une réponse");
       return;
     }
+    saveScoring();
     goNext();
   };
 

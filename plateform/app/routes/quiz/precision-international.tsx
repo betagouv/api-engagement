@@ -19,7 +19,7 @@ const STEP_OPTIONS = [
 
 export default function PrecisionInternationalStep() {
   const { answers, setAnswer } = useQuizStore();
-  const { goNext } = useOutletContext<QuizOutletContext>();
+  const { goNext, saveScoring } = useOutletContext<QuizOutletContext>();
   const [error, setError] = useState<string | undefined>(undefined);
 
   const handleSelect = (value: string[]) => {
@@ -33,6 +33,7 @@ export default function PrecisionInternationalStep() {
       setError("Sélectionne une réponse");
       return;
     }
+    saveScoring();
     goNext();
   };
 

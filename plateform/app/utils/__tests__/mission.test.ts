@@ -33,6 +33,11 @@ describe("formatCompensation", () => {
     expect(formatCompensation({ amount: 600, amountMax: 800, unit: "month", type: null })).toBe("Entre 600 et 800€ par mois");
   });
 
+  it('affiche "Jusqu\'à" quand le minimum est 0 et un maximum est défini', () => {
+    expect(formatCompensation({ amount: 0, amountMax: 1500, unit: null, type: null })).toBe("Jusqu'à 1500€");
+    expect(formatCompensation({ amount: 0, amountMax: 800, unit: "month", type: null })).toBe("Jusqu'à 800€ par mois");
+  });
+
   it("ignore le type par défaut", () => {
     expect(formatCompensation({ amount: 1000, amountMax: null, unit: null, type: "net" })).toBe("1000€");
   });

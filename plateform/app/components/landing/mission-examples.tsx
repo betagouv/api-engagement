@@ -29,7 +29,7 @@ export default function MissionExamples({ missions, className }: Props) {
     scrollRef.current.scrollBy({ left: offset, behavior: "smooth" });
   };
 
-  if (!missions.length) return null;
+  if (!missions?.length) return null;
 
   return (
     <section className={`fr-pb-8w relative z-10 ${className}`} aria-roledescription="carousel" aria-label="Exemples de missions d'engagement">

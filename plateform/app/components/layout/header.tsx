@@ -1,13 +1,15 @@
-import { Link, useLocation } from "react-router";
+import { Link, useMatches } from "react-router";
 
 export default function Header() {
-  const location = useLocation();
-  const isQuiz = location.pathname.startsWith("/quiz");
-  const isLanding = location.pathname === "/";
+  const matches = useMatches();
+  const activeMatch = [...matches].reverse().find((m) => m.data != null);
+  const routeData = activeMatch?.data as { header?: string; backHref?: string | null } | undefined;
 
-  if (isQuiz) {
+  if (routeData?.header === "hidden") {
     return null;
   }
+
+  const backHref = routeData?.backHref;
 
   return (
     <header role="banner" className="fr-header">
@@ -35,7 +37,7 @@ export default function Header() {
         </div>
       </div>
 
-      {isLanding ? (
+      {backHref === null ? (
         <div className="relative flex items-center px-4 py-2 lg:hidden">
           <p className="fr-logo fr-logo--sm mb-0">
             République
@@ -48,7 +50,7 @@ export default function Header() {
         </div>
       ) : (
         <div className="relative flex h-14 items-center px-4 lg:hidden">
-          <Link to="/" title="Retour à l'accueil" className="fr-icon-arrow-left-line fr-btn--icon-left fr-btn--tertiary-no-outline font-semi-bold!">
+          <Link to={backHref ?? "/"} aria-label="Retour" className="fr-icon-arrow-left-line fr-btn--icon-left fr-btn--tertiary-no-outline font-semi-bold!">
             Retour
           </Link>
           <Link to="/" title="Trouve ta mission" className="fr-text--md fr-text--bold absolute left-1/2 -translate-x-1/2">

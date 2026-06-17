@@ -1,29 +1,21 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type SubmitEvent } from "react";
 import { useOutletContext } from "react-router";
+import QuizTransition from "~/components/quiz/quiz-transition";
 import Label from "~/components/quiz/label";
 import MissionCard from "~/components/quiz/mission-card";
+import NextButton from "~/components/quiz/next-button";
 import Highlight from "~/components/ui/highlight";
+import { searchAddress, reverseGeocode, type GeoSuggestion } from "~/services/geolocation";
 import { useQuizStore } from "~/stores/quiz";
 import type { QuizOutletContext } from "./_layout";
 
 import Photo1 from "~/assets/images/humanitaire-02.jpeg";
-import NextButton from "~/components/quiz/next-button";
-import { QUIZ_TRANSITION_MS } from "~/services/config";
-
-type Suggestion = { label: string; lat: number; lon: number; country_code?: string };
-
-type AddressFeature = {
-  // `label` = adresse complète formatée par l'API (ex: "8 Boulevard du Port 80000 Amiens").
-  // `type`  = housenumber | street | locality | municipality.
-  properties: { label: string; name: string; postcode: string; type: string; id: string };
-  geometry: { coordinates: [number, number] };
-};
 
 const LISTBOX_ID = "localisation-listbox";
 
 export default function LocalisationStep() {
   const { answers, setAnswer } = useQuizStore();
-  const { goNext, transitioning, setTransitioning } = useOutletContext<QuizOutletContext>();
+  const { goNext, saveScoring, transitioning, setTransitioning } = useOutletContext<QuizOutletContext>();
 
   const locAnswer = answers["localisation"];
   // `label` est persisté avec les coordonnées pour ré-afficher la saisie au retour sur l'écran
@@ -31,8 +23,8 @@ export default function LocalisationStep() {
   const savedLocation = locAnswer?.type === "params" ? (locAnswer.params as { lat: number; lon: number; country_code?: string; label?: string }) : null;
 
   const [value, setValue] = useState(savedLocation?.label ?? "");
-  const [options, setOptions] = useState<Suggestion[]>([]);
-  const [selected, setSelected] = useState<Suggestion | null>(
+  const [options, setOptions] = useState<GeoSuggestion[]>([]);
+  const [selected, setSelected] = useState<GeoSuggestion | null>(
     savedLocation ? { label: savedLocation.label ?? "", lat: savedLocation.lat, lon: savedLocation.lon, country_code: savedLocation.country_code } : null,
   );
   const [showOptions, setShowOptions] = useState(false);
@@ -51,42 +43,34 @@ export default function LocalisationStep() {
   }, []);
 
   useEffect(() => {
-    async function fetchOptions() {
-      if (value.length < 3 || selected?.label === value) {
-        setOptions([]);
-        setShowOptions(false);
-        setActiveIndex(-1);
-        return;
-      }
-
-      try {
-        // Pas de filtre `type` → l'API renvoie aussi les adresses précises (numéro + rue), pas seulement les villes.
-        const res = await fetch(`https://data.geopf.fr/geocodage/search?q=${encodeURIComponent(value)}&autocomplete=1&limit=6`);
-        const data: { features?: AddressFeature[] } = await res.json();
-        if (!data.features) return;
-        setOptions(
-          data.features.map((f) => ({
-            // Villes : on garde "Nom (code postal)" pour lever l'ambiguïté entre homonymes.
-            // Adresses/rues : on utilise le `label` complet fourni par l'API.
-            label: f.properties.type === "municipality" ? `${f.properties.name} (${f.properties.postcode})` : f.properties.label,
-            lat: f.geometry.coordinates[1],
-            lon: f.geometry.coordinates[0],
-            country_code: "fr",
-          })),
-        );
-        setShowOptions(true);
-        setActiveIndex(-1);
-      } catch (error) {
-        console.error("Error fetching locations:", error);
-        setOptions([]);
-        setShowOptions(false);
-        setActiveIndex(-1);
-      }
+    if (value.length < 3 || selected?.label === value) {
+      setOptions([]);
+      setShowOptions(false);
+      setActiveIndex(-1);
+      return;
     }
-    fetchOptions();
+
+    let cancelled = false;
+    searchAddress(value)
+      .then((results) => {
+        if (cancelled) return;
+        setOptions(results);
+        setShowOptions(results.length > 0);
+        setActiveIndex(-1);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setOptions([]);
+        setShowOptions(false);
+        setActiveIndex(-1);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [value]);
 
-  const handleSelect = (option: Suggestion) => {
+  const handleSelect = (option: GeoSuggestion) => {
     setSelected(option);
     setValue(option.label);
     setShowOptions(false);
@@ -147,20 +131,12 @@ export default function LocalisationStep() {
     if (!navigator.geolocation) return;
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
-      async (res) => {
-        const feature = await fetch(`https://data.geopf.fr/geocodage/reverse?lon=${res.coords.longitude}&lat=${res.coords.latitude}&limit=1`);
-        const data: { features?: AddressFeature[] } = await feature.json();
-
-        if (!data.features) return;
-        const here: Suggestion = {
-          label: data.features[0].properties.label ?? data.features[0].properties.name,
-          lat: data.features[0].geometry.coordinates[1],
-          lon: data.features[0].geometry.coordinates[0],
-          country_code: "fr",
-        };
-        setSelected(here);
+      async ({ coords }) => {
+        const result = await reverseGeocode(coords.latitude, coords.longitude);
+        if (!result) return setLocating(false);
+        setSelected(result);
         setShowOptions(false);
-        setValue(here.label);
+        setValue(result.label);
         setLocating(false);
       },
       () => setLocating(false),
@@ -181,11 +157,36 @@ export default function LocalisationStep() {
       },
     });
     setValue(selected.label);
+    saveScoring();
     setTransitioning(true);
   };
 
   if (transitioning) {
-    return <LocationTransition onComplete={goNext} />;
+    return (
+      <QuizTransition onComplete={goNext}>
+        <div className="flex flex-col-reverse md:flex-row gap-6 pt-0 md:pt-20">
+          <div className="w-full md:flex-1 flex flex-col gap-6">
+            <h1 className="fr-h1 mb-0! text-center md:text-left">
+              On a trouvé des missions <Highlight>pour toi</Highlight>
+            </h1>
+            <p className="fr-text--lead text-center md:text-left">Maintenant, aide-nous à comprendre ce qui te donnerait envie de t'engager.</p>
+          </div>
+          <div className="w-full md:flex-1 relative gap-4 h-[400px] md:h-auto">
+            <MissionCard
+              imageSrc={Photo1}
+              title="Participer à l'information du public concernant l'accès aux droits…"
+              className="absolute top-0 left-1/2 -translate-x-[30%] rotate-[8deg]"
+            />
+            <MissionCard
+              imageSrc={Photo1}
+              title="Améliorer la qualité de vie des personnes en situation de handicap"
+              className="absolute top-12 left-1/2 -translate-x-[70%] rotate-[-4deg]"
+            />
+            <MissionCard imageSrc={Photo1} title="Je deviens infirmier pompier volontaire 🚒" className="absolute top-24 left-1/2 -translate-x-1/2 rotate-[3deg]" />
+          </div>
+        </div>
+      </QuizTransition>
+    );
   }
 
   return (
@@ -245,46 +246,5 @@ export default function LocalisationStep() {
 
       <NextButton type="submit" disabled={!selected} />
     </form>
-  );
-}
-
-function LocationTransition({ onComplete }: { onComplete: () => void }) {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const enterFrame = requestAnimationFrame(() => setVisible(true));
-    const exitTimer = setTimeout(() => setVisible(false), QUIZ_TRANSITION_MS - 700);
-    const completeTimer = setTimeout(onComplete, QUIZ_TRANSITION_MS);
-    return () => {
-      cancelAnimationFrame(enterFrame);
-      clearTimeout(exitTimer);
-      clearTimeout(completeTimer);
-    };
-  }, [onComplete]);
-
-  return (
-    <div
-      className={`flex flex-col-reverse md:flex-row gap-6 pt-0 md:pt-20 transition-all duration-700 ease-in ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
-    >
-      <div className="w-full md:flex-1 flex flex-col gap-6">
-        <h1 className="fr-h1 mb-0! text-center md:text-left">
-          On a trouvé des missions <Highlight>pour toi</Highlight>
-        </h1>
-        <p className="fr-text--lead text-center md:text-left">Maintenant, aide-nous à comprendre ce qui te donnerait envie de t'engager.</p>
-      </div>
-      <div className="w-full md:flex-1 relative gap-4 h-[400px] md:h-auto">
-        <MissionCard
-          imageSrc={Photo1}
-          title="Participer à l'information du public concernant l'accès aux droits…"
-          className="absolute top-0 left-1/2 -translate-x-[30%] rotate-[8deg]"
-        />
-        <MissionCard
-          imageSrc={Photo1}
-          title="Améliorer la qualité de vie des personnes en situation de handicap"
-          className="absolute top-12 left-1/2 -translate-x-[70%] rotate-[-4deg]"
-        />
-        <MissionCard imageSrc={Photo1} title="Je deviens infirmier pompier volontaire 🚒" className="absolute top-24 left-1/2 -translate-x-1/2 rotate-[3deg]" />
-      </div>
-    </div>
   );
 }
