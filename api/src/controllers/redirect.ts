@@ -15,7 +15,7 @@ import { userScoringService } from "@/services/user-scoring";
 import { widgetService } from "@/services/widget";
 import { MissionRecord, StatEventRecord } from "@/types";
 import { cleanIdParam, identify, slugify } from "@/utils";
-import { buildTrackedApplicationUrl, updateBotFlagAfterRedirect } from "@/utils/redirect";
+import { createClickRedirect, updateBotFlagAfterRedirect } from "@/utils/redirect";
 
 const router = Router();
 router.use(ipRateLimiter);
@@ -406,11 +406,7 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
       isBot: false,
     } as StatEventRecord;
 
-    const clickId = await statEventService.createStatEvent(obj);
-
-    const demarcheUrl = await generateDemarcheNumeriqueDossierUrl(mission.applicationUrl, clickId);
-
-    const url = buildTrackedApplicationUrl(demarcheUrl || href, mission.publisherId, clickId, {
+    const { clickId, url } = await createClickRedirect(obj, mission, href, {
       source: "api_engagement",
       medium: "widget",
       campaign: slugify(widget.name),
@@ -562,11 +558,7 @@ router.get("/email/:missionId/:publisherId", cors({ origin: "*" }), async (req, 
       isBot: false,
     } as StatEventRecord;
 
-    const clickId = await statEventService.createStatEvent(obj);
-
-    const demarcheUrl = await generateDemarcheNumeriqueDossierUrl(mission.applicationUrl, clickId);
-
-    const url = buildTrackedApplicationUrl(demarcheUrl || href, mission.publisherId, clickId, {
+    const { clickId, url } = await createClickRedirect(obj, mission, href, {
       source: slugify(fromPublisher.name || fromPublisher.id || "email"),
       medium: "email",
       campaign: userScoringId ? "user_scoring" : "mission_email",
@@ -694,13 +686,7 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async (req, res) =
       tags: query.data?.tags ? (query.data.tags.includes(",") ? query.data.tags.split(",").map((tag) => tag.trim()) : [query.data.tags]) : undefined,
     } as StatEventRecord;
 
-    const clickId = await statEventService.createStatEvent(obj);
-
-    const demarcheUrl = await generateDemarcheNumeriqueDossierUrl(mission.applicationUrl, clickId);
-
-    console.log("demarcheUrl", demarcheUrl);
-
-    const url = buildTrackedApplicationUrl(demarcheUrl || href, mission.publisherId, clickId, {
+    const { clickId, url } = await createClickRedirect(obj, mission, href, {
       source: "api_engagement",
       medium: "api",
       campaign: slugify(fromPublisher?.name || "unknown"),
