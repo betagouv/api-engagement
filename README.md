@@ -21,6 +21,15 @@ dossier `app/`
 Les deux widgets sont des applications NextJS pour optimiser le SEO
 dossier `widget/
 
+## Outils
+
+### Extension Chrome — Tag Assistant
+
+Extension Chrome pour valider l'intégration de `jstag.js` sur les sites partenaires et visualiser les événements de tracking en temps réel.
+Dossier `tools/chrome-extension/`
+
+Voir [tools/chrome-extension/README.md](tools/chrome-extension/README.md) pour l'installation et l'utilisation.
+
 ## Environnement de développement
 
 Pour lancer tous les services en mode développement, une orchestration avec docker-compose est possible :
