@@ -88,7 +88,10 @@ export default function QuizLayout() {
   // Appelé par les steps dès que la réponse est validée (avant ou pendant la transition).
   const saveScoring = () => {
     if (!scoringPromiseRef.current) {
-      scoringPromiseRef.current = doSaveScoring();
+      scoringPromiseRef.current = doSaveScoring().then((ok) => {
+        if (!ok) scoringPromiseRef.current = null;
+        return ok;
+      });
     }
     return scoringPromiseRef.current;
   };
