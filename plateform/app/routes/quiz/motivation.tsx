@@ -70,7 +70,7 @@ export default function MotivationStep() {
     <>
       <RadioGroupRich
         title="Qu’est-ce qui te motive le plus ?"
-        subtitle="Choisis une motivation importantes pour toi."
+        subtitle="Choisis une motivation importante pour toi."
         onChange={handleChange}
         options={options}
         error={error}

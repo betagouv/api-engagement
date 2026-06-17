@@ -54,7 +54,7 @@ const Performance = () => {
 
   return (
     <>
-      <title>API Engagement - Au global - Performance</title>
+      <title>{`API Engagement - ${activeTab.title} - Performance`}</title>
       <h1 className="mb-12 text-4xl font-bold">Votre activité {flux === "from" ? "de diffuseur" : "d'annonceur"}</h1>
 
       {flux === "from" && (
@@ -63,7 +63,13 @@ const Performance = () => {
         </>
       )}
 
-      <section id="performance-panel" role={isTabbed ? "tabpanel" : undefined} aria-labelledby={isTabbed && activeTabId ? activeTabId : undefined} className="bg-white shadow-lg">
+      <section
+        id="performance-panel"
+        role={isTabbed ? "tabpanel" : undefined}
+        tabIndex={isTabbed ? 0 : undefined}
+        aria-labelledby={isTabbed && activeTabId ? activeTabId : undefined}
+        className="bg-white shadow-lg"
+      >
         <Routes>
           <Route
             path="/"

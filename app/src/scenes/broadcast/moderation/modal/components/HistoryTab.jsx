@@ -2,10 +2,10 @@ import { Fragment, useEffect, useState } from "react";
 import { RiCheckboxCircleFill, RiCloseFill, RiTimeLine } from "react-icons/ri";
 
 import Loader from "@/components/Loader";
+import { JVA_MODERATION_COMMENTS_LABELS, STATUS } from "@/scenes/broadcast/moderation/components/Constants";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
-import { JVA_MODERATION_COMMENTS_LABELS, STATUS } from "@/scenes/broadcast/moderation/components/Constants";
 
 const HistoryTab = ({ data }) => {
   const { publisher } = useStore();
@@ -40,7 +40,7 @@ const HistoryTab = ({ data }) => {
     );
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <h3 className="text-text-mention mb-4 text-xs font-bold uppercase">Évolution des statuts</h3>
       <div className="space-y-2">
         {status.length === 0 && modifications.length === 0 && <p className="text-text-mention text-center">Aucun événement de modération trouvé.</p>}

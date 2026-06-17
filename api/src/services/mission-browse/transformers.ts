@@ -5,6 +5,8 @@ import type { MissionRecord } from "@/types/mission";
 import { getMissionTrackedApplicationUrl } from "@/utils/mission";
 
 export const toMissionBrowse = (mission: MissionRecord): MissionBrowse => {
+  const hasCompensation = mission.compensationAmount != null || mission.compensationAmountMax != null;
+
   return {
     id: mission.id,
     title: mission.title,
@@ -22,6 +24,14 @@ export const toMissionBrowse = (mission: MissionRecord): MissionBrowse => {
     publisherLogo: mission.publisherLogo ?? null,
     applicationUrl: mission.applicationUrl ?? null,
     schedule: mission.schedule ?? null,
+    compensation: hasCompensation
+      ? {
+          amount: mission.compensationAmount ?? null,
+          amountMax: mission.compensationAmountMax ?? null,
+          unit: mission.compensationUnit ?? null,
+          type: mission.compensationType ?? null,
+        }
+      : null,
   };
 };
 

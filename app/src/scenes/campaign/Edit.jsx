@@ -226,7 +226,7 @@ const CampaignMenu = ({ setIsReassignModalOpen, handleDelete }) => {
   return (
     <Dropdown
       renderTrigger={({ onClick }) => (
-        <button className="tertiary-btn flex items-center" onClick={onClick}>
+        <button className="tertiary-btn flex items-center" onClick={onClick} aria-label="Plus d'actions">
           <RiMoreLine className="text-xl" aria-hidden="true" />
         </button>
       )}

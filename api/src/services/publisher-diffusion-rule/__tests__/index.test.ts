@@ -87,6 +87,14 @@ describe("publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere", ()
 
     expect(where).toEqual({ publisherId: "annonceur-2" });
   });
+
+  it("renvoie un filtre impossible quand les annonceurs demandés sont hors scope", async () => {
+    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([buildRule({ id: "root-1", value: "annonceur-1" })]);
+
+    const where = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere("publisher-1", ["annonceur-2"]);
+
+    expect(where).toEqual({ id: { in: [] } });
+  });
 });
 
 describe("publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere", () => {
@@ -216,5 +224,94 @@ describe("publisherDiffusionRuleService.canPublisherAccessMission", () => {
     const canAccess = await publisherDiffusionRuleService.canPublisherAccessMission({ publisherId: "publisher-1", missionId: "mission-1" });
 
     expect(canAccess).toBe(false);
+  });
+});
+
+describe("publisherDiffusionRuleService.buildMissionDiffuseurCandidateWheres", () => {
+  beforeEach(() => {
+    prismaMock.publisherDiffusionRule.findMany.mockReset();
+  });
+
+  it("renvoie null quand le diffuseur n'a aucune rule (fallback chemin standard)", async () => {
+    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([]);
+
+    const branches = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateWheres("diffuseur-1");
+
+    expect(branches).toBeNull();
+  });
+
+  it("décompose l'allowlist en branches : une par annonceur à critères, les annonceurs nus regroupés", async () => {
+    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([
+      buildRule({ id: "root-1", value: "annonceur-1" }),
+      buildRule({ id: "root-2", value: "annonceur-2", position: 1 }),
+      buildRule({ id: "root-3", value: "annonceur-3", position: 2 }),
+      buildRule({ id: "child-1", combinedWithId: "root-2", field: "publisherOrganizationId", operator: "is_not", value: "po-1" }),
+      buildRule({ id: "child-2", combinedWithId: "root-2", field: "publisherOrganizationId", operator: "is_not", value: "po-2", position: 1 }),
+    ]);
+
+    const branches = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateWheres("diffuseur-1");
+
+    expect(branches).toEqual([
+      { AND: [{ publisherId: "annonceur-2" }, { publisherOrganizationId: { not: "po-1" } }, { publisherOrganizationId: { not: "po-2" } }] },
+      { publisherId: { in: ["annonceur-1", "annonceur-3"] } },
+    ]);
+  });
+
+  it("restreint les branches aux annonceurs demandés", async () => {
+    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([
+      buildRule({ id: "root-1", value: "annonceur-1" }),
+      buildRule({ id: "root-2", value: "annonceur-2", position: 1 }),
+      buildRule({ id: "child-1", combinedWithId: "root-2", field: "publisherOrganizationId", operator: "is_not", value: "po-1" }),
+    ]);
+
+    const branches = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateWheres("diffuseur-1", ["annonceur-1"]);
+
+    // Une seule branche restante → décomposition inutile, chemin standard.
+    expect(branches).toBeNull();
+  });
+
+  it("renvoie une liste vide quand les annonceurs demandés sont hors scope", async () => {
+    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([buildRule({ id: "root-1", value: "annonceur-1" })]);
+
+    const branches = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateWheres("diffuseur-1", ["annonceur-2"]);
+
+    expect(branches).toEqual([]);
+  });
+
+  it("renvoie null quand la décomposition n'apporte rien (moins de 2 branches)", async () => {
+    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([
+      buildRule({ id: "root-1", value: "annonceur-1" }),
+      buildRule({ id: "root-2", value: "annonceur-2", position: 1 }),
+    ]);
+
+    const branches = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateWheres("diffuseur-1");
+
+    // Deux annonceurs nus → fusionnés en un seul `IN` → 1 branche → null.
+    expect(branches).toBeNull();
+  });
+
+  it("renvoie null quand un annonceur apparaît dans plusieurs scopes (branches non disjointes)", async () => {
+    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([
+      buildRule({ id: "root-1", value: "annonceur-1" }),
+      buildRule({ id: "root-2", value: "annonceur-1", position: 1 }),
+      buildRule({ id: "child-1", combinedWithId: "root-2", field: "publisherOrganizationId", operator: "is_not", value: "po-1" }),
+    ]);
+
+    const branches = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateWheres("diffuseur-1");
+
+    expect(branches).toBeNull();
+  });
+
+  it("renvoie null quand un scope n'a pas de restriction publisher exploitable", async () => {
+    // `value` vide → condition publisherId ignorée par le builder : la décomposition serait incorrecte.
+    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([
+      buildRule({ id: "root-1", value: "" }),
+      buildRule({ id: "root-2", value: "annonceur-2", position: 1 }),
+      buildRule({ id: "child-1", combinedWithId: "root-2", field: "publisherOrganizationId", operator: "is_not", value: "po-1" }),
+    ]);
+
+    const branches = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateWheres("diffuseur-1");
+
+    expect(branches).toBeNull();
   });
 });

@@ -93,19 +93,16 @@ router.get("/", async (req: PublisherRequest, res: Response, next: NextFunction)
       query.data.skip = parseInt(req.query.from as string, 10);
     }
 
-    const normalizePublisherIds = (publisher: string | string[] | undefined): string[] => {
-      const values = normalizeQueryArray(publisher);
-      if (!values) {
-        return user.publishers.map((p) => p.diffuseurPublisherId);
-      }
-      return values.filter((publisherId: string) => user.publishers.some((p) => p.diffuseurPublisherId === publisherId));
-    };
-
-    const publisherIds = normalizePublisherIds(query.data.publisher);
-    if (!publisherIds.length) {
+    const allowedPublisherIds = user.publishers.map((p) => p.publisherId);
+    if (!allowedPublisherIds.length) {
       res.locals = { code: NO_PARTNER, message: NO_PARTNER_MESSAGE };
       return res.status(400).send({ ok: false, code: NO_PARTNER, message: NO_PARTNER_MESSAGE });
     }
+
+    // Les ids hors scope ne sont pas filtrés ici : on les passe au service, qui applique le
+    // gating de diffusion (via diffuseurPublisherId) et renvoie 0 résultat pour le hors-scope.
+    const requestedPublisherIds = normalizeQueryArray(query.data.publisher);
+    const publisherIds = requestedPublisherIds?.length ? requestedPublisherIds : allowedPublisherIds;
 
     const filters: MissionSearchFilters = {
       publisherIds,
@@ -180,19 +177,16 @@ router.get("/search", async (req: PublisherRequest, res: Response, next: NextFun
       query.data.skip = parseInt(req.query.from as string, 10);
     }
 
-    const normalizePublisherIds = (publisher: string | string[] | undefined): string[] => {
-      const values = normalizeQueryArray(publisher);
-      if (!values) {
-        return user.publishers.map((p) => p.diffuseurPublisherId);
-      }
-      return values.filter((publisherId: string) => user.publishers.some((p) => p.diffuseurPublisherId === publisherId));
-    };
-
-    const publisherIds = normalizePublisherIds(query.data.publisher);
-    if (!publisherIds.length) {
+    const allowedPublisherIds = user.publishers.map((p) => p.publisherId);
+    if (!allowedPublisherIds.length) {
       res.locals = { code: NO_PARTNER, message: NO_PARTNER_MESSAGE };
       return res.status(400).send({ ok: false, code: NO_PARTNER, message: NO_PARTNER_MESSAGE });
     }
+
+    // Les ids hors scope ne sont pas filtrés ici : on les passe au service, qui applique le
+    // gating de diffusion (via diffuseurPublisherId) et renvoie 0 résultat pour le hors-scope.
+    const requestedPublisherIds = normalizeQueryArray(query.data.publisher);
+    const publisherIds = requestedPublisherIds?.length ? requestedPublisherIds : allowedPublisherIds;
 
     const filters: MissionSearchFilters = {
       publisherIds,

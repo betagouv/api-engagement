@@ -205,16 +205,21 @@ const buildDateFilter = (range?: { gt?: Date; lt?: Date }) => {
   return Object.keys(filter).length ? filter : undefined;
 };
 
-export const buildWhere = async (filters: MissionSearchFilters): Promise<Prisma.MissionWhereInput> => {
+export const buildWhere = async (filters: MissionSearchFilters, diffusionScope?: Prisma.MissionWhereInput): Promise<Prisma.MissionWhereInput> => {
   const where: Prisma.MissionWhereInput = filters.directFilters ?? {};
 
   const orConditions: Prisma.MissionWhereInput[] = [];
 
   // Restriction par publisher : les diffusion rules du diffuseur (allowlist `OR` de scopes
   // `publisherId === annonceur AND <critères>`) font autorité. À défaut de rules, on retombe
-  // sur la simple liste d'annonceurs.
+  // sur la simple liste d'annonceurs. `diffusionScope` court-circuite la résolution des rules
+  // pour appliquer un scope unique (chemin de recherche multi-scopes).
   let publisherRestrictionApplied = false;
-  if (filters.diffuseurPublisherId) {
+  if (diffusionScope) {
+    const existingAnd = Array.isArray(where.AND) ? where.AND : where.AND ? [where.AND] : [];
+    where.AND = [...existingAnd, diffusionScope];
+    publisherRestrictionApplied = true;
+  } else if (filters.diffuseurPublisherId) {
     const diffusionWhere = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere(filters.diffuseurPublisherId, filters.publisherIds);
     if (Object.keys(diffusionWhere).length > 0) {
       const existingAnd = Array.isArray(where.AND) ? where.AND : where.AND ? [where.AND] : [];
@@ -570,6 +575,69 @@ const baseInclude: MissionInclude = {
   jobBoards: true,
 };
 
+// Réplique l'ordre SQL `ORDER BY start_at DESC` (NULLS FIRST, défaut Postgres en DESC).
+const compareStartAtDesc = (a: { startAt: Date | null }, b: { startAt: Date | null }): number => {
+  if (!a.startAt) {
+    return b.startAt ? -1 : 0;
+  }
+  if (!b.startAt) {
+    return 1;
+  }
+  return b.startAt.getTime() - a.startAt.getTime();
+};
+
+/**
+ * Recherche en branches de diffusion (cf. `buildMissionDiffuseurCandidateWheres`) :
+ * une requête par branche (mono-publisher, donc résoluble par l'index
+ * `mission_publisher_status_deleted_start_at_idx`) au lieu d'un `OR` inter-branches
+ * que le planner Postgres exécute en hash join + tri complet. Chaque branche ramène
+ * son top `skip + limit` trié par `start_at DESC` ; les résultats sont fusionnés puis
+ * découpés. Les branches étant disjointes, le total est la somme des counts.
+ */
+const searchMissionsByDiffusionBranches = async (
+  filters: MissionSearchFilters,
+  branches: Prisma.MissionWhereInput[],
+  select: MissionSelect | null
+): Promise<{ missions: Mission[]; total: number }> => {
+  const results = await Promise.all(
+    branches.map(async (branch) => {
+      const where = await buildWhere(filters, branch);
+      const [missions, count] = await Promise.all([
+        missionRepository.findMany({
+          where,
+          // `id` et `startAt` sont requis par la fusion ci-dessous.
+          select: select ? { ...select, id: true, startAt: true } : undefined,
+          include: select ? undefined : baseInclude,
+          orderBy: { startAt: Prisma.SortOrder.desc },
+          take: filters.skip + filters.limit,
+        }),
+        missionRepository.count(where),
+      ]);
+      return { missions, count };
+    })
+  );
+
+  const missions = results
+    .flatMap((result) => result.missions)
+    .sort(compareStartAtDesc)
+    .slice(filters.skip, filters.skip + filters.limit);
+
+  const total = results.reduce((sum, result) => sum + result.count, 0);
+
+  return { missions, total };
+};
+
+/**
+ * Branches de diffusion pour la recherche d'un diffuseur ; `null` si le chemin
+ * standard (where unique construit par `buildWhere`) doit s'appliquer.
+ */
+const resolveDiffusionBranches = async (filters: MissionSearchFilters): Promise<Prisma.MissionWhereInput[] | null> => {
+  if (!filters.diffuseurPublisherId) {
+    return null;
+  }
+  return publisherDiffusionRuleService.buildMissionDiffuseurCandidateWheres(filters.diffuseurPublisherId, filters.publisherIds);
+};
+
 export const missionService = {
   async enqueueMissionProcessing(missionId: string): Promise<void> {
     try {
@@ -653,6 +721,15 @@ export const missionService = {
   },
 
   async findMissions(filters: MissionSearchFilters, select: MissionSelect | null = null): Promise<{ data: MissionRecord[]; total: number }> {
+    const diffusionBranches = await resolveDiffusionBranches(filters);
+    if (diffusionBranches) {
+      if (diffusionBranches.length === 0) {
+        return { data: [], total: 0 };
+      }
+      const { missions, total } = await searchMissionsByDiffusionBranches(filters, diffusionBranches, select);
+      return { data: missions.map((mission) => toMissionRecord(mission as MissionWithRelations, filters.moderationAcceptedFor)), total };
+    }
+
     const where = await buildWhere(filters);
 
     const [missions, total] = await Promise.all([
@@ -671,6 +748,16 @@ export const missionService = {
   },
 
   async findMissionsWithFacets(filters: MissionSearchFilters): Promise<{ data: MissionRecord[]; total: number; facets: MissionFacets }> {
+    const diffusionBranches = await resolveDiffusionBranches(filters);
+    if (diffusionBranches) {
+      if (diffusionBranches.length === 0) {
+        return { data: [], total: 0, facets: computeFacetsFromRecords([]) };
+      }
+      const { missions, total } = await searchMissionsByDiffusionBranches(filters, diffusionBranches, null);
+      const records = missions.map((mission) => toMissionRecord(mission as MissionWithRelations, filters.moderationAcceptedFor));
+      return { data: records, total, facets: computeFacetsFromRecords(records) };
+    }
+
     const where = await buildWhere(filters);
 
     const [missions, total] = await Promise.all([
@@ -827,7 +914,7 @@ export const missionService = {
       data.description = patch.description ?? undefined;
     }
     if ("descriptionHtml" in patch) {
-      data.descriptionHtml = patch.descriptionHtml ?? undefined;
+      data.descriptionHtml = patch.descriptionHtml === undefined ? undefined : patch.descriptionHtml;
     }
     if ("tags" in patch) {
       data.tags = patch.tags ?? [];

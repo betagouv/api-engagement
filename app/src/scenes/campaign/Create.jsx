@@ -123,7 +123,7 @@ const CopyModal = ({ open, campaignId, onClose }) => {
         onClose();
         navigate(`/broadcast/campaign/${campaignId}`);
       }}
-      className="min-w-3xl"
+      className="w-[90vw] max-w-3xl"
       title="Votre campagne est créée !"
     >
       <p className="text-base">Pour commencer à diffuser des missions et suivre les statistiques, insérez ce lien dans le contenu de votre campagne.</p>

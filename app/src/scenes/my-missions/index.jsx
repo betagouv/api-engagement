@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 
 import Tabs from "@/components/Tabs";
+import Flux from "@/scenes/my-missions/Flux";
+import Moderation from "@/scenes/my-missions/Moderation";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
-import Flux from "@/scenes/my-missions/Flux";
-import Moderation from "@/scenes/my-missions/Moderation";
 
 const MyMissions = () => {
   const { publisher } = useStore();
@@ -50,6 +50,8 @@ const MyMissions = () => {
     ...tab,
     id: `my-missions-tab-${tab.key}`,
   }));
+  const activeTab = tabs.find((tab) => tab.isActive) || tabs[0];
+  const activeTabId = activeTab ? activeTab.id : null;
 
   return (
     <div className="space-y-12">
@@ -57,7 +59,7 @@ const MyMissions = () => {
 
       <div>
         <Tabs tabs={tabs} ariaLabel="Vos missions" panelId="my-missions-panel" className="flex items-center gap-4 pl-4 font-semibold text-black" variant="primary" />
-        <section id="my-missions-panel" className="bg-white shadow-lg">
+        <section id="my-missions-panel" role="tabpanel" aria-labelledby={activeTabId || undefined} tabIndex={0} className="bg-white shadow-lg">
           <Routes>
             <Route path="/" element={<Flux moderated={moderated} />} />
             <Route path="/moderated-mission" element={<Moderation />} />

@@ -19,10 +19,10 @@ describe("DiffusionRule API Integration Tests", () => {
     publisher = await createTestPublisher();
     apiKey = publisher.apikey || "";
     diffuseur1 = await createTestPublisher({
-      publishers: [{ publisherId: publisher.id, publisherName: publisher.name, moderator: true, missionType: PublisherMissionType.BENEVOLAT }],
+      publishers: [{ publisherId: publisher.id }],
     });
     diffuseur2 = await createTestPublisher({
-      publishers: [{ publisherId: publisher.id, publisherName: publisher.name, moderator: true, missionType: PublisherMissionType.BENEVOLAT }],
+      publishers: [{ publisherId: publisher.id }],
     });
     otherDiffuseur = await createTestPublisher();
   });

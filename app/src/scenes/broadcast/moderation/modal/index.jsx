@@ -3,6 +3,7 @@ import { RiCloseFill } from "react-icons/ri";
 import { useSearchParams } from "react-router-dom";
 
 import Loader from "@/components/Loader";
+import Tabs from "@/components/Tabs";
 import Header from "@/scenes/broadcast/moderation/modal/components/Header";
 import HistoryTab from "@/scenes/broadcast/moderation/modal/components/HistoryTab";
 import MissionTab from "@/scenes/broadcast/moderation/modal/components/MissionTab";
@@ -81,24 +82,31 @@ const MissionModal = ({ onChange }) => {
     setSearchParams(newSearchParams);
   };
 
+  const tabs = [
+    { key: "mission", label: "Mission" },
+    { key: "organization", label: "Organisation" },
+    { key: "history", label: "Historique" },
+  ].map((t) => ({ ...t, id: `mission-modal-tab-${t.key}`, isActive: tab === t.key, onSelect: () => setTab(t.key) }));
+  const activeTabId = `mission-modal-tab-${tab}`;
+
   return (
-    <dialog ref={dialogRef} aria-labelledby="mission-modal-title" className="fixed inset-0 m-0 h-screen max-h-none w-screen max-w-none">
+    <dialog ref={dialogRef} aria-modal="true" aria-labelledby="mission-modal-title" className="fixed inset-0 m-0 h-screen max-h-none w-screen max-w-none">
       <div className="bg-global-background relative h-full w-full overflow-scroll">
-        <div className="flex justify-end px-8 pt-4">
+        <div className="flex justify-end px-4 pt-4 md:px-8">
           <button type="button" className="p-3 text-xl text-black" onClick={handleClose} aria-label="Fermer">
             <RiCloseFill aria-hidden="true" />
           </button>
         </div>
-        <div className="mb-16 flex flex-col gap-4 px-8">
+        <div className="mb-16 flex flex-col gap-4 px-4 md:px-8">
+          <p id="mission-modal-title" className="sr-only">
+            Détails de la mission
+          </p>
           {!data ? (
             <div className="flex justify-center py-10">
               <Loader />
             </div>
           ) : (
-            <div className="max-h-full overflow-y-auto px-20">
-              <p id="mission-modal-title" className="sr-only">
-                Détails de la mission
-              </p>
+            <div className="max-h-full overflow-y-auto px-0 lg:px-20">
               <Header
                 data={data}
                 onChange={(v) => {
@@ -112,13 +120,15 @@ const MissionModal = ({ onChange }) => {
               />
 
               <div className="mt-8 flex w-full flex-1 flex-col">
-                <div role="tablist" aria-label="Onglets de modération" className="flex items-center space-x-2 pl-4 font-semibold text-black">
-                  <Tab name="mission" title="Mission" tab={tab} setTab={setTab} />
-                  <Tab name="organization" title="Organisation" tab={tab} setTab={setTab} />
-                  <Tab name="history" title="Historique" tab={tab} setTab={setTab} />
-                </div>
-                <div className="mb-12 grid w-full grid-cols-3 gap-6">
-                  <div className="border-grey-border col-span-2 border bg-white">
+                <Tabs
+                  tabs={tabs}
+                  ariaLabel="Onglets de modération"
+                  panelId="mission-modal-panel"
+                  className="flex items-center gap-2 pl-0 font-semibold text-black md:pl-4"
+                  variant="primary"
+                />
+                <div className="mb-12 grid w-full grid-cols-1 gap-6 lg:grid-cols-3">
+                  <div id="mission-modal-panel" role="tabpanel" aria-labelledby={activeTabId} tabIndex={0} className="border-grey-border border bg-white lg:col-span-2">
                     {
                       {
                         mission: (
@@ -161,34 +171,6 @@ const MissionModal = ({ onChange }) => {
         </div>
       </div>
     </dialog>
-  );
-};
-
-const Tab = ({ name, title, tab, setTab, actives }) => {
-  const [active, setActive] = useState(false);
-
-  useEffect(() => {
-    if (actives && actives.includes(tab)) {
-      setActive(true);
-    } else if (tab === name) {
-      setActive(true);
-    } else {
-      setActive(false);
-    }
-  }, [tab]);
-
-  return (
-    <button
-      type="button"
-      role="tab"
-      aria-selected={active}
-      onClick={() => setTab(name)}
-      className={`${
-        active ? "border-blue-france text-blue-france hover:bg-gray-975 border-t-2 bg-white" : "bg-blue-france-925 hover:bg-blue-france-925-hover border-0"
-      } border-x-grey-border flex translate-y-px cursor-pointer items-center border-x px-4 py-2`}
-    >
-      {title}
-    </button>
   );
 };
 

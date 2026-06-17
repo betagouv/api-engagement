@@ -1,11 +1,11 @@
 import { Prisma } from "@/db/core";
+import { ModerationUpdate } from "@/jobs/moderation/types";
 import { missionService } from "@/services/mission";
 import { missionModerationStatusService } from "@/services/mission-moderation-status";
 import { moderationEventService } from "@/services/moderation-event";
 import { MissionRecord, MissionSelect } from "@/types/mission";
 import { ModerationEventCreateInput, ModerationEventStatus } from "@/types/moderation-event";
 import type { PublisherRecord } from "@/types/publisher";
-import { ModerationUpdate } from "@/jobs/moderation/types";
 
 const MISSION_SELECT: MissionSelect = {
   id: true,
@@ -18,7 +18,7 @@ const MISSION_SELECT: MissionSelect = {
 };
 
 export const findMissions = async (moderator: PublisherRecord) => {
-  const publishers = moderator.publishers.map((p) => p.diffuseurPublisherId);
+  const publishers = moderator.publishers.map((p) => p.publisherId);
   return missionService.findMissionsBy(
     {
       publisherId: { in: publishers },

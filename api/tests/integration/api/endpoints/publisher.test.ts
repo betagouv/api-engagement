@@ -53,9 +53,8 @@ describe("Dashboard publisher controller", () => {
     expect(res.status).toBe(200);
     expect(res.body.data.publishers).toHaveLength(1);
     expect(res.body.data.publishers[0]).toMatchObject({
-      diffuseurPublisherId: annonceur.id,
-      diffuseurPublisherName: "Annonceur A",
-      annonceurPublisherId: res.body.data.id,
+      publisherId: annonceur.id,
+      publisherName: "Annonceur A",
       moderator: true,
       missionType: PublisherMissionType.BENEVOLAT,
     });
@@ -71,7 +70,10 @@ describe("Dashboard publisher controller", () => {
     const diffuseur = await createTestPublisher({ name: "Diffuseur 1", publishers: [{ publisherId: annonceur.id }] });
     await createTestPublisher({ name: "Diffuseur 2" });
 
-    const res = await request(app).post("/publisher/search").set({ Authorization: `jwt ${adminToken}` }).send({ diffuseursOf: annonceur.id });
+    const res = await request(app)
+      .post("/publisher/search")
+      .set({ Authorization: `jwt ${adminToken}` })
+      .send({ diffuseursOf: annonceur.id });
 
     expect(res.status).toBe(200);
     expect(res.body.data.map((publisher: { id: string }) => publisher.id)).toEqual([diffuseur.id]);
@@ -82,6 +84,19 @@ describe("Dashboard publisher controller", () => {
 
     expect(res.status).not.toBe(401);
     expect(res.status).not.toBe(403);
+  });
+
+  it("allows GET /publisher/:id for an annonceur linked to an accessible diffuseur", async () => {
+    const annonceur = await createTestPublisher({ name: "Annonceur linked" });
+    const diffuseur = await createTestPublisher({ name: "Diffuseur linked", publishers: [{ publisherId: annonceur.id }] });
+    const { token: userToken } = await createTestUser({ role: "user", publishers: [diffuseur.id] });
+
+    const res = await request(app)
+      .get(`/publisher/${annonceur.id}`)
+      .set({ Authorization: `jwt ${userToken}` });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe(annonceur.id);
   });
 
   it("rejects POST /publisher/:id/apikey for another publisher", async () => {
@@ -202,7 +217,10 @@ describe("Dashboard publisher controller", () => {
       value: "org-1",
     });
 
-    const res = await request(app).put(`/publisher/${diffuseur.id}`).set({ Authorization: `jwt ${adminToken}` }).send({ publishers: [] });
+    const res = await request(app)
+      .put(`/publisher/${diffuseur.id}`)
+      .set({ Authorization: `jwt ${adminToken}` })
+      .send({ publishers: [] });
 
     expect(res.status).toBe(200);
     expect(res.body.data.publishers).toHaveLength(0);
@@ -229,8 +247,12 @@ describe("Dashboard publisher controller", () => {
     await createTestPublisher({ id: PUBLISHER_IDS.JEVEUXAIDER, name: "JeVeuxAider", publishers: [{ publisherId: moderated.id }] });
     const { token: userToken } = await createTestUser({ role: "user", publishers: [moderated.id, other.id] });
 
-    const resModerated = await request(app).get(`/publisher/${moderated.id}/moderated`).set({ Authorization: `jwt ${userToken}` });
-    const resOther = await request(app).get(`/publisher/${other.id}/moderated`).set({ Authorization: `jwt ${userToken}` });
+    const resModerated = await request(app)
+      .get(`/publisher/${moderated.id}/moderated`)
+      .set({ Authorization: `jwt ${userToken}` });
+    const resOther = await request(app)
+      .get(`/publisher/${other.id}/moderated`)
+      .set({ Authorization: `jwt ${userToken}` });
 
     expect(resModerated.status).toBe(200);
     expect(resModerated.body.data).toBe(true);

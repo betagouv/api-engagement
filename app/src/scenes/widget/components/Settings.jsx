@@ -46,8 +46,8 @@ const Settings = ({ widget, values, onChange, loading }) => {
   useEffect(() => {
     if (loading) return;
     const items = publisher.publishers.map((p) => ({
-      key: p.diffuseurPublisherId,
-      label: p.diffuseurPublisherName,
+      key: p.publisherId,
+      label: p.publisherName,
       mission_type: toWidgetType(p.missionType),
     }));
     if (publisher.isAnnonceur) {
@@ -91,6 +91,13 @@ const Settings = ({ widget, values, onChange, loading }) => {
 
   return (
     <div className="space-y-12 bg-white p-4 shadow-lg sm:p-12">
+      <p className="text-text-mention text-sm">
+        Les champs suivis d'un astérisque{" "}
+        <span className="text-error" aria-hidden="true">
+          *
+        </span>{" "}
+        sont obligatoires.
+      </p>
       <div className="space-y-10">
         <h2 className="text-2xl font-bold">Informations générales</h2>
 
@@ -145,13 +152,16 @@ const Settings = ({ widget, values, onChange, loading }) => {
             </label>
             <LocationCombobox
               id="location"
+              ariaDescribedby="location-hint"
               selected={values.location ? { label: values.location.label, value: `${values.location.lat}-${values.location.lon}` } : null}
               onSelect={(v) => onChange({ ...values, location: v ? { label: v.label, lat: parseFloat(v.value.split("-")[0]), lon: parseFloat(v.value.split("-")[1]) } : null })}
               placeholder="Localisation"
             />
             <div className="text-info mt-4 flex items-center gap-2">
               <BiSolidInfoSquare className="text-sm" aria-hidden="true" />
-              <span className="text-xs">Laisser vide pour afficher les missions de toute la France</span>
+              <p id="location-hint" className="text-xs">
+                Laisser vide pour afficher les missions de toute la France
+              </p>
             </div>
           </div>
 
@@ -276,7 +286,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <label className="text-base">Filtrer les missions à afficher</label>
+            <h3 className="text-base">Filtrer les missions à afficher</h3>
             <p className="text-text-mention">
               {values.rules.length === 0 && "Aucun filtre appliqué - "}
               {total.toLocaleString("fr")} missions affichées
@@ -307,7 +317,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
                   checked={values.style === "page"}
                   onChange={(e) => onChange({ ...values, style: e.target.value })}
                 />
-                <span className="text-text-mention text-xs">Grille de 6 missions par page</span>
+                <p className="text-text-mention text-xs">Grille de 6 missions par page</p>
               </div>
 
               <div>
@@ -319,7 +329,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
                   checked={values.style === "carousel"}
                   onChange={(e) => onChange({ ...values, style: e.target.value })}
                 />
-                <span className="text-text-mention text-xs">Fait défiler les missions 3 par 3</span>
+                <p className="text-text-mention text-xs">Fait défiler les missions 3 par 3</p>
               </div>
             </div>
           </fieldset>
@@ -330,11 +340,20 @@ const Settings = ({ widget, values, onChange, loading }) => {
             </label>
             <div className="flex items-center gap-4">
               <div className="h-9 w-9 rounded" style={{ backgroundColor: values.color }} />
-              <input id="color" className="input flex-1" name="color" value={values.color} onChange={(e) => onChange({ ...values, color: e.target.value })} />
+              <input
+                id="color"
+                className="input flex-1"
+                name="color"
+                value={values.color}
+                onChange={(e) => onChange({ ...values, color: e.target.value })}
+                aria-describedby="color-hint"
+              />
             </div>
             <div className="text-info flex items-center gap-2">
               <BiSolidInfoSquare className="text-sm" aria-hidden="true" />
-              <span className="text-xs">Exemple: #000091</span>
+              <p id="color-hint" className="text-xs">
+                Exemple: #000091
+              </p>
             </div>
           </div>
         </div>

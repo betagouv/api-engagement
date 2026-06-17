@@ -19,15 +19,17 @@ const ChartDetailsTable = ({
     return null;
   }
 
-  const visibilityClass = mode === "sr-only" ? "sr-only" : "";
-  const tableClassName = `${visibilityClass} ${className}`.trim();
+  const tableClassName = className.trim();
   const caption = title ? `Description détaillée du graphique : ${title}` : "Description détaillée du graphique";
   const captionText = description ? `${caption}. ${description}` : caption;
   const formatName = (value) => (nameFormatter ? nameFormatter(value) : value);
   const formatValue = (value) => (valueFormatter ? valueFormatter(value) : formatChartValue(value));
+  // sr-only doit être porté par un div englobant : appliqué directement à une <table>,
+  // width/height 1px est ignoré (taille min-content) et clip ne masque pas la <caption>
+  const wrap = (table) => (mode === "sr-only" ? <div className="sr-only">{table}</div> : table);
 
   if (type === "stacked") {
-    return (
+    return wrap(
       <table id={id} className={`mt-4 w-full table-auto text-xs ${tableClassName}`}>
         <caption className={mode === "sr-only" ? "" : "mb-2 text-left font-semibold"}>{captionText}</caption>
         <thead className="text-text-mention text-left text-[10px] uppercase">
@@ -59,11 +61,11 @@ const ChartDetailsTable = ({
             );
           })}
         </tbody>
-      </table>
+      </table>,
     );
   }
 
-  return (
+  return wrap(
     <table id={id} className={`mt-4 w-full table-auto text-xs ${tableClassName}`}>
       <caption className={mode === "sr-only" ? "" : "mb-2 text-left font-semibold"}>{captionText}</caption>
       <thead className="text-text-mention text-left text-[10px] uppercase">
@@ -82,7 +84,7 @@ const ChartDetailsTable = ({
           </tr>
         ))}
       </tbody>
-    </table>
+    </table>,
   );
 };
 

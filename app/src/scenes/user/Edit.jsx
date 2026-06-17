@@ -278,7 +278,7 @@ const ResetPasswordModal = ({ user }) => {
         Réinitialiser le mot de passe
       </button>
       <Modal
-        className="min-w-2xl"
+        className="w-[90vw] max-w-2xl"
         open={open}
         onClose={() => setOpen(false)}
         title={!newPassword ? `Réinitialisation du mot de passe de ${user.firstname}` : "Voici le mot de passe temporaire"}

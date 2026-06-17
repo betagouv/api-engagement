@@ -98,7 +98,7 @@ export default function MissionDetailPage() {
 
       <div className="fixed right-0 bottom-0 left-0 z-10 border-t border-[#DDD] bg-white px-5 py-4 md:hidden">
         <a href={mission.applicationUrl} target="_blank" rel="noopener noreferrer" className="fr-btn w-full! justify-center!">
-          Postuler
+          Découvrir la mission
         </a>
       </div>
     </>

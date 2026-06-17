@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { RiArrowDownSFill, RiArrowDownSLine, RiArrowLeftRightLine, RiCheckLine, RiMenuLine, RiCloseLine, RiSearchLine } from "react-icons/ri";
+import { RiArrowDownSFill, RiArrowDownSLine, RiArrowLeftRightLine, RiCheckLine, RiCloseLine, RiMenuLine, RiSearchLine } from "react-icons/ri";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import api from "@/services/api";
@@ -112,13 +112,17 @@ const Nav = () => {
           </button>
         </div>
 
-        <ul className={`m-0 w-full list-none flex-col items-start justify-between gap-x-6 gap-y-2 p-0 pb-4 lg:flex lg:flex-row lg:items-center lg:pb-0 ${menuOpen ? "flex" : "hidden lg:flex"}`} role="list" aria-label="Menu principal">
+        <ul
+          className={`m-0 w-full list-none flex-col items-start justify-between gap-x-6 gap-y-2 p-0 pb-4 lg:flex lg:flex-row lg:items-center lg:pb-0 ${menuOpen ? "flex" : "hidden lg:flex"}`}
+          role="list"
+          aria-label="Menu principal"
+        >
           <li className="flex w-full flex-col items-start gap-4 lg:w-auto lg:flex-row lg:items-center lg:gap-6">
             {publisher.isAnnonceur && (publisher.hasApiRights || publisher.hasWidgetRights || publisher.hasCampaignRights) && <FluxMenu value={flux} onChange={handleFluxChange} />}
-            <ul className="m-0 flex w-full list-none flex-col items-start gap-2 p-0 lg:w-auto lg:flex-row lg:items-center lg:gap-6">
+            <ul role="list" className="m-0 flex w-full list-none flex-col items-start gap-2 p-0 lg:w-auto lg:flex-row lg:items-center lg:gap-6">
               {menuItems.map((item) => (
                 <li key={item.key}>
-                  <Link to={item.to} aria-current={item.isActive} className="nav-item" onClick={() => setMenuOpen(false)}>
+                  <Link to={item.to} aria-current={item.isActive ? "page" : undefined} className="nav-item" onClick={() => setMenuOpen(false)}>
                     {item.label}
                   </Link>
                 </li>
@@ -386,7 +390,10 @@ const PublisherMenu = ({ options, value, onChange }) => {
         inert={!show ? true : undefined}
         className={`border-grey-border absolute right-0 z-50 w-[calc(100vw-2rem)] w-full border bg-white shadow-lg transition-[max-height,opacity] duration-200 ease-in-out focus:outline-none sm:w-80 ${show ? "max-h-96 opacity-100" : "pointer-events-none max-h-0 opacity-0"}`}
       >
-        <div role="search" className="border-grey-border focus flex items-center gap-2 border-b p-3">
+        <div
+          role="search"
+          className="border-grey-border focus-within:outline-outline-blue flex items-center gap-2 border-b p-3 focus-within:outline-2 focus-within:outline-offset-2"
+        >
           <RiSearchLine aria-hidden="true" />
           <label htmlFor="publisher-search" className="sr-only">
             Rechercher un partenaire
@@ -397,12 +404,13 @@ const PublisherMenu = ({ options, value, onChange }) => {
             role="searchbox"
             id="publisher-search"
             name="publisher-search"
+            aria-controls="publisher-listbox"
             className="w-full pl-2 focus:outline-none"
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={handleInputKeyDown}
           />
         </div>
-        <ul className="flex max-h-80 list-none flex-col overflow-x-visible overflow-y-auto px-2" role="listbox">
+        <ul id="publisher-listbox" role="listbox" aria-label="Partenaires" className="flex max-h-80 list-none flex-col overflow-x-visible overflow-y-auto px-2">
           {filtered.map((option, index) => (
             <li
               ref={(el) => {
@@ -410,7 +418,7 @@ const PublisherMenu = ({ options, value, onChange }) => {
               }}
               key={index}
               role="option"
-              aria-selected={focusedIndex === index}
+              aria-selected={value.id === option.id}
               aria-label={option.name}
               tabIndex={focusedIndex === index ? 0 : -1}
               className={`nav-link -mx-2 cursor-pointer items-center ${index === 0 ? "shadow-none" : ""} ${focusedIndex === index || value.id === option.id ? "text-blue-france" : ""}`}
@@ -505,7 +513,7 @@ const AdminMenu = () => {
         inert={!show ? true : undefined}
         className={`border-grey-border absolute right-0 z-10 w-[calc(100vw-2rem)] w-full border bg-white shadow-lg transition-[max-height,opacity] duration-200 ease-in-out sm:w-80 ${show ? "max-h-96 opacity-100" : "pointer-events-none max-h-0 opacity-0"}`}
       >
-        <ul className="m-0 flex list-none flex-col p-0">
+        <ul role="list" className="m-0 flex list-none flex-col p-0">
           {ADMIN_MENU_ITEMS.map((item, index) => {
             const isCurrent = location.pathname.startsWith(item.href);
             return (

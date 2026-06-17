@@ -25,7 +25,7 @@ export const MOCK_PUBLISHER = {
 
 const MOCK_TOKEN = "mock-token-refreshed";
 
-const API_URL = "http://localhost:4000";
+const API_URL = "http://localhost:3002";
 
 type Route = { method: string; path: string; response: object; status?: number };
 

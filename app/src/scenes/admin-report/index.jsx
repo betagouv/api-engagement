@@ -61,7 +61,7 @@ const AdminReport = () => {
     <div className="space-y-12 bg-white p-4 shadow-lg sm:p-12">
       <title>API Engagement - Rapports d'impacts - Administration</title>
       <div className="flex items-center justify-between">
-        <h2 className="flex-1 text-2xl font-semibold">{total.toLocaleString("fr")} rapports d'impacts</h2>
+        <h1 className="flex-1 text-2xl font-semibold">{total.toLocaleString("fr")} rapports d'impacts</h1>
       </div>
 
       <div className="border-grey-border space-y-6 overflow-x-auto border p-4 sm:p-6">

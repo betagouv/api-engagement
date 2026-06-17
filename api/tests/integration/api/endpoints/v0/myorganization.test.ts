@@ -38,10 +38,10 @@ describe("MyOrganization API Integration Tests", () => {
     orgId = "test-org-id";
     mission = await createTestMission({ organizationClientId: orgId, publisherId: publisher.id });
     publisher1 = await createTestPublisher({
-      publishers: [{ publisherId: publisher.id, publisherName: publisher.name, moderator: true, missionType: PublisherMissionType.BENEVOLAT }],
+      publishers: [{ publisherId: publisher.id }],
     });
     publisher2 = await createTestPublisher({
-      publishers: [{ publisherId: publisher.id, publisherName: publisher.name, moderator: true, missionType: PublisherMissionType.BENEVOLAT }],
+      publishers: [{ publisherId: publisher.id }],
     });
     publisher3 = await createTestPublisher();
     publisherOrganization = await publisherOrganizationService.findUniqueOrCreate(orgId, publisher.id, { name: "Test Organization" });

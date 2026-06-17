@@ -31,76 +31,76 @@ const Footer = () => {
               L'API vous permet de faciliter l'engagement en simplifiant la démarche de recherche d'une mission de bénévolat ou de volontariat
             </p>
 
-            <ul role="list" aria-label="Liens gouvernementaux" className="text-grey-default flex flex-wrap items-center gap-x-6 gap-y-2 text-sm font-bold">
-              <li>
-                <a href="https://www.legifrance.gouv.fr/" target="_blank" rel="noopener external" className="link-external">
-                  legifrance.gouv.fr
-                  <RiExternalLinkLine className="ml-1" aria-hidden="true" />
-                </a>
-              </li>
-              <li>
-                <a href="https://www.gouvernement.fr/" target="_blank" rel="noopener external" className="link-external">
-                  gouvernement.fr
-                  <RiExternalLinkLine className="ml-1" aria-hidden="true" />
-                </a>
-              </li>
-              <li>
-                <a href="https://www.service-public.fr/" target="_blank" rel="noopener external" className="link-external">
-                  service-public.fr
-                  <RiExternalLinkLine className="ml-1" aria-hidden="true" />
-                </a>
-              </li>
-              <li>
-                <a href="https://www.data.gouv.fr/fr/" target="_blank" rel="noopener external" className="link-external">
-                  data.gouv.fr
-                  <RiExternalLinkLine className="ml-1" aria-hidden="true" />
-                </a>
-              </li>
-            </ul>
+            <nav role="navigation" aria-label="Liens gouvernementaux">
+              <ul role="list" className="text-grey-default flex flex-wrap items-center gap-x-6 gap-y-2 text-sm font-bold">
+                <li>
+                  <a href="https://www.legifrance.gouv.fr/" target="_blank" rel="noopener external" className="link-external">
+                    legifrance.gouv.fr
+                    <RiExternalLinkLine className="ml-1" aria-hidden="true" />
+                  </a>
+                </li>
+                <li>
+                  <a href="https://www.gouvernement.fr/" target="_blank" rel="noopener external" className="link-external">
+                    gouvernement.fr
+                    <RiExternalLinkLine className="ml-1" aria-hidden="true" />
+                  </a>
+                </li>
+                <li>
+                  <a href="https://www.service-public.fr/" target="_blank" rel="noopener external" className="link-external">
+                    service-public.fr
+                    <RiExternalLinkLine className="ml-1" aria-hidden="true" />
+                  </a>
+                </li>
+                <li>
+                  <a href="https://www.data.gouv.fr/fr/" target="_blank" rel="noopener external" className="link-external">
+                    data.gouv.fr
+                    <RiExternalLinkLine className="ml-1" aria-hidden="true" />
+                  </a>
+                </li>
+              </ul>
+            </nav>
           </div>
         </div>
 
-        <ul
-          role="list"
-          aria-label="Liens de pied de page"
-          className="divide-text-mention border-grey-border text-text-mention mt-10 flex flex-wrap items-center divide-x border-t py-4 text-xs"
-        >
-          <li>
-            <a href="https://api-engagement.beta.gouv.fr/accessibilite/" className="pr-3 hover:underline">
-              Accessibilité : non conforme
-            </a>
-          </li>
-          <li>
-            <Link to="/public-stats" className="px-3 hover:underline">
-              Statistiques
-            </Link>
-          </li>
-          <li>
-            <a href="https://doc.api-engagement.beta.gouv.fr/" className="px-3 hover:underline">
-              Documentation
-            </a>
-          </li>
-          <li>
-            <a href="https://api-engagement.beta.gouv.fr/mentions-legales/" className="px-3 hover:underline">
-              Mentions légales
-            </a>
-          </li>
-          <li>
-            <a href="https://doc.api-engagement.beta.gouv.fr/get-started/rgpd" className="px-3 hover:underline">
-              Données personnelles et cookies
-            </a>
-          </li>
-          <li>
-            <a href="https://api-engagement.beta.gouv.fr/politique-de-confidentialite/" className="px-3 hover:underline">
-              Politique de confidentialité
-            </a>
-          </li>
-          <li>
-            <Link to="cgu" className="pl-3 hover:underline">
-              CGU
-            </Link>
-          </li>
-        </ul>
+        <nav role="navigation" aria-label="Liens de pied de page">
+          <ul role="list" className="divide-text-mention border-grey-border text-text-mention mt-10 flex flex-wrap items-center divide-x border-t py-4 text-xs">
+            <li>
+              <a href="https://api-engagement.beta.gouv.fr/accessibilite/" className="pr-3 hover:underline">
+                Accessibilité : non conforme
+              </a>
+            </li>
+            <li>
+              <Link to="/public-stats" className="px-3 hover:underline">
+                Statistiques
+              </Link>
+            </li>
+            <li>
+              <a href="https://doc.api-engagement.beta.gouv.fr/" className="px-3 hover:underline">
+                Documentation
+              </a>
+            </li>
+            <li>
+              <a href="https://api-engagement.beta.gouv.fr/mentions-legales/" className="px-3 hover:underline">
+                Mentions légales
+              </a>
+            </li>
+            <li>
+              <a href="https://doc.api-engagement.beta.gouv.fr/get-started/rgpd" className="px-3 hover:underline">
+                Données personnelles et cookies
+              </a>
+            </li>
+            <li>
+              <a href="https://api-engagement.beta.gouv.fr/politique-de-confidentialite/" className="px-3 hover:underline">
+                Politique de confidentialité
+              </a>
+            </li>
+            <li>
+              <Link to="cgu" className="pl-3 hover:underline">
+                CGU
+              </Link>
+            </li>
+          </ul>
+        </nav>
         <p className="text-text-mention flex flex-wrap items-center py-4 text-xs">
           Sauf mention explicite de propriété intellectuelle détenue par des tiers, les contenus de ce site sont proposés sous
           <a href="https://github.com/etalab/licence-ouverte/blob/master/LO.md" target="_blank" className="ml-1 flex items-center hover:underline">

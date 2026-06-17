@@ -82,9 +82,11 @@ const Flux = () => {
         <h2 className="text-3xl font-bold">Configurer votre flux de missions</h2>
 
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-          <label className="font-semibold sm:w-[35%] sm:flex-none">Lien du fichier XML à synchroniser</label>
+          <label htmlFor="publisher-feed" className="font-semibold sm:w-[35%] sm:flex-none">
+            Lien du fichier XML à synchroniser
+          </label>
           <div className="flex min-w-0 flex-1 gap-2">
-            <input className="input border-blue-france-925 bg-blue-france-975 min-w-0 flex-1 border read-only:opacity-80" value={publisher.feed} readOnly />
+            <input id="publisher-feed" className="input border-blue-france-925 bg-blue-france-975 min-w-0 flex-1 border read-only:opacity-80" value={publisher.feed} readOnly />
             {user.role === "admin" && <ModifyModal />}
           </div>
         </div>
@@ -97,13 +99,13 @@ const Flux = () => {
             {imports.length > 0 && lastSync < new Date(Date.now() - 24 * 60 * 60 * 1000) ? (
               <div className="items-center">
                 <p className="inline align-middle">{new Date(lastSync).toLocaleString("fr").replace(" ", " à ")}</p>
-                <RiCloseCircleFill aria-label="Erreur" role="img" className="text-error ml-2 inline h-5 w-5 align-middle" />
+                <RiCloseCircleFill aria-label="Synchronisation en retard" role="img" className="text-error ml-2 inline h-5 w-5 align-middle" />
                 <p className="text-xs">Dernière synchronisation il y a plus de 24h.</p>
               </div>
             ) : (
               <div className="flex items-center gap-2">
                 <p>{imports.length > 0 && new Date(lastSync).toLocaleString("fr").replace(" ", " à ")}</p>
-                <RiCheckboxCircleFill aria-label="OK" role="img" className="text-success mr-1 h-5 w-5" />
+                <RiCheckboxCircleFill aria-label="Synchronisation à jour" role="img" className="text-success mr-1 h-5 w-5" />
               </div>
             )}
           </div>
@@ -174,10 +176,10 @@ const ModifyModal = () => {
       <button className="primary-btn" onClick={() => setOpen(!open)}>
         Modifier
       </button>
-      <Modal open={open} onClose={() => setOpen(false)} title="Modifier votre flux de missions" className="min-w-3xl">
+      <Modal open={open} onClose={() => setOpen(false)} title="Modifier votre flux de missions" className="w-[90vw] max-w-3xl">
         <div className="flex flex-col items-start justify-between gap-4">
-          <div>Lien du fichier XML à synchroniser</div>
-          <input className="input focus w-full" value={feed} onChange={(e) => setFeed(e.target.value)} />
+          <label htmlFor="feed-url">Lien du fichier XML à synchroniser</label>
+          <input id="feed-url" className="input focus w-full" value={feed} onChange={(e) => setFeed(e.target.value)} />
         </div>
         <div className="flex justify-end gap-6">
           <button type="button" className="tertiary-btn" onClick={() => setOpen(false)}>

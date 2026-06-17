@@ -2,7 +2,20 @@ import { useEffect, useId, useRef, useState } from "react";
 
 import Loader from "./Loader";
 
-const Autocomplete = ({ options = [], value, onChange, onSelect, loading = false, placeholder, className, id, getLabel = (o) => o, getValue = (o) => o, getCount = null }) => {
+const Autocomplete = ({
+  options = [],
+  value,
+  onChange,
+  onSelect,
+  loading = false,
+  placeholder,
+  className,
+  id,
+  ariaDescribedby,
+  getLabel = (o) => o,
+  getValue = (o) => o,
+  getCount = null,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState(-1);
   const containerRef = useRef(null);
@@ -150,6 +163,7 @@ const Autocomplete = ({ options = [], value, onChange, onSelect, loading = false
           aria-controls={listboxId}
           aria-autocomplete="list"
           aria-activedescendant={focusedIndex >= 0 ? `${inputId}-option-${focusedIndex}` : undefined}
+          aria-describedby={ariaDescribedby}
           onChange={(e) => {
             setIsOpen(true);
             onChange(e.target.value);

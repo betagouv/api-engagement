@@ -1,6 +1,6 @@
 import { toast } from "@/services/toast";
 import { Menu, Transition } from "@headlessui/react";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useId, useState } from "react";
 import { BsDot } from "react-icons/bs";
 import { RiCalendarEventFill, RiCheckboxCircleFill, RiCloseCircleFill, RiMapPin2Fill, RiMoreFill, RiPencilFill, RiTimeLine } from "react-icons/ri";
 import { useSearchParams } from "react-router-dom";
@@ -70,13 +70,17 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
         <div className="flex items-center">
           <label className="flex w-14 items-center">
             <span className="sr-only">Sélectionner la mission</span>
-            <input type="checkbox" className="checkbox" name="moderation-select" onChange={handleSelectModeration} checked={selected} />
+            <input type="checkbox" className="checkbox" onChange={handleSelectModeration} checked={selected} />
           </label>
 
           <div className="flex flex-1 flex-col justify-between py-2">
-            <div className="hover:text-blue-france my-2 line-clamp-3 flex items-center text-base font-semibold hover:cursor-pointer" onClick={handleMissionClick}>
+            <button
+              type="button"
+              className="hover:text-blue-france my-2 line-clamp-3 flex items-center text-left text-base font-semibold hover:cursor-pointer"
+              onClick={handleMissionClick}
+            >
               {data.title || data.missionTitle}
-            </div>
+            </button>
             <div className="text-text-mention mb-2 flex items-center gap-4 text-xs">
               {data.missionCity && (
                 <span className="flex items-center">
@@ -126,6 +130,7 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
               className="select flex-1 border-b-2 pr-2"
               style={{ borderBottomColor: STATUS_COLORS[values.status] }}
               name="status"
+              aria-label="Statut de la mission"
               value={values.status}
               onChange={(e) => handleSubmit({ status: e.target.value })}
             >
@@ -138,7 +143,13 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
             <MissionActionsMenu data={data} onFilter={onFilter} onChange={(v) => onChange({ ...data, ...v })} />
           </div>
           {values.status === "REFUSED" && (
-            <select className="select mt-4 w-full border-b-2" name="motif" value={values.comment} onChange={(e) => handleSubmit({ status: "REFUSED", comment: e.target.value })}>
+            <select
+              className="select mt-4 w-full border-b-2"
+              name="motif"
+              aria-label="Motif de refus"
+              value={values.comment}
+              onChange={(e) => handleSubmit({ status: "REFUSED", comment: e.target.value })}
+            >
               <option value="">Motif de refus</option>
               {Object.entries(JVA_MODERATION_COMMENTS_LABELS).map(([key, value]) => (
                 <option key={key} value={key} className="whitespace-nowrap text-black">
@@ -237,6 +248,7 @@ const MissionActionsMenu = ({ data, onFilter, onChange }) => {
 
 const UpdateNoteModal = ({ open, onChange, onClose, data }) => {
   const { publisher } = useStore();
+  const noteId = useId();
   const [note, setNote] = useState(data.note || "");
 
   useEffect(() => {
@@ -259,15 +271,15 @@ const UpdateNoteModal = ({ open, onChange, onClose, data }) => {
   };
 
   return (
-    <Modal open={open} onClose={onClose} title="Modifier la note" className="min-w-3xl">
+    <Modal open={open} onClose={onClose} title="Modifier la note" className="w-[90vw] max-w-3xl">
       <form onSubmit={handleSubmit}>
         <div className="flex items-center justify-center">
           <div className="flex w-full flex-col justify-center gap-4">
             <div className="flex flex-col gap-1">
-              <label htmlFor="note" className="text-sm">
+              <label htmlFor={noteId} className="text-sm">
                 Note
               </label>
-              <textarea id="note" className="input" rows={4} name="note" value={note} onChange={(e) => setNote(e.target.value)} required />
+              <textarea id={noteId} className="input" rows={4} name="note" value={note} onChange={(e) => setNote(e.target.value)} required />
               <div className="mt-6 flex justify-end">
                 <button className="primary-btn w-full" type="submit">
                   Enregistrer

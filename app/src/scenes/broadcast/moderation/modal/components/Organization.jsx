@@ -1,5 +1,5 @@
-import { RiCheckboxCircleFill, RiCloseCircleFill, RiFileCopyLine, RiPencilFill } from "react-icons/ri";
 import { toast } from "@/services/toast";
+import { RiCheckboxCircleFill, RiCloseCircleFill, RiFileCopyLine, RiPencilFill } from "react-icons/ri";
 
 const Organization = ({ data, history }) => {
   return (
@@ -9,11 +9,11 @@ const Organization = ({ data, history }) => {
         <h3 className="text-text-mention text-xs font-semibold">ORGANISATION</h3>
       </div>
       <div className="flex flex-col">
-        <span className="font-semibold">{data.organizationName}</span>
-        <span className="text-text-mention text-xs">
+        <p className="font-semibold">{data.organizationName}</p>
+        <p className="text-text-mention text-xs">
           Inscrite sur
           {/* TODO: Add association sources */}
-        </span>
+        </p>
       </div>
       <div>
         <div className="border-grey-border my-2 inline-flex flex-wrap items-center gap-1 rounded border p-2">
@@ -29,28 +29,34 @@ const Organization = ({ data, history }) => {
         <div className="flex items-center gap-6">
           <span className="text-text-mention text-xs">SIREN</span>
           <span className="text-text-mention text-xs">{data.missionOrganizationSirenVerified || "/"}</span>
-          <RiFileCopyLine
-            className="text-text-mention text-xs hover:cursor-pointer"
-            aria-hidden="true"
+          <button
+            type="button"
+            className="text-text-mention text-xs hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+            aria-label="Copier le SIREN"
+            disabled={!data.missionOrganizationSirenVerified}
             onClick={() => {
-              if (!data.missionOrganizationSirenVerified) return;
               navigator.clipboard.writeText(data.missionOrganizationSirenVerified);
               toast.success("Copié dans le presse-papier");
             }}
-          />
+          >
+            <RiFileCopyLine aria-hidden="true" />
+          </button>
         </div>
         <div className="flex items-center gap-6">
           <span className="text-text-mention text-xs">RNA</span>
           <span className="text-text-mention text-xs">{data.missionOrganizationRNAVerified || "/"}</span>
-          <RiFileCopyLine
-            className="text-text-mention text-xs hover:cursor-pointer"
-            aria-hidden="true"
+          <button
+            type="button"
+            className="text-text-mention text-xs hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+            aria-label="Copier le RNA"
+            disabled={!data.missionOrganizationRNAVerified}
             onClick={() => {
-              if (!data.missionOrganizationRNAVerified) return;
               navigator.clipboard.writeText(data.missionOrganizationRNAVerified);
               toast.success("Copié dans le presse-papier");
             }}
-          />
+          >
+            <RiFileCopyLine aria-hidden="true" />
+          </button>
         </div>
       </div>
     </div>
