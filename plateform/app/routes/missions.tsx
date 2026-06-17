@@ -2,6 +2,7 @@ import type { MissionBrowse, MissionBrowseFacetCount, MissionBrowseFilters } fro
 import { TAXONOMY } from "@engagement/taxonomy";
 
 import { useEffect, useState } from "react";
+
 import { useSearchParams } from "react-router";
 import Newsletter from "~/components/layout/newsletter";
 import Partners from "~/components/layout/partners";
@@ -44,7 +45,7 @@ const buildTaxonomyFilterOptions = (key: FilterKey, facets: MissionBrowseFacetCo
 };
 
 export async function clientLoader() {
-  return {};
+  return { backHref: "/" };
 }
 
 export function HydrateFallback() {

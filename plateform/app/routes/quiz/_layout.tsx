@@ -26,7 +26,7 @@ export function meta(): Route.MetaDescriptors {
 
 // Client-only : évite les mismatchs d'hydratation liés au store persisté en localStorage.
 export async function clientLoader() {
-  return {};
+  return { header: "hidden" };
 }
 
 export function HydrateFallback() {

@@ -1,6 +1,10 @@
 import type { MissionMatchItem } from "@engagement/dto";
 import { useMemo, useRef, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router";
+
+export async function clientLoader() {
+  return { backHref: null };
+}
 import { FooterContent } from "~/components/layout/footer";
 import Newsletter from "~/components/layout/newsletter";
 import Partners from "~/components/layout/partners";

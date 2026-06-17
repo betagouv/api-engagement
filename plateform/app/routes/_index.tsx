@@ -1,4 +1,9 @@
 import { useLoaderData, useNavigate } from "react-router";
+
+export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
+  const serverData = await serverLoader();
+  return { ...serverData, backHref: null };
+}
 import Hero from "~/components/landing/hero";
 import HowItWorks from "~/components/landing/how-it-works";
 import MissionExamples from "~/components/landing/mission-examples";

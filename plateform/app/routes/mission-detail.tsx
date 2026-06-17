@@ -2,6 +2,10 @@ import type { MissionDetailResponse } from "@engagement/dto";
 import { useEffect, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router";
 
+export async function clientLoader({ params }: { params: { userScoringId?: string } }) {
+  return { backHref: params.userScoringId ? `/results/${params.userScoringId}` : "/missions" };
+}
+
 import MissionCtaPanel from "~/components/mission-detail/cta-panel";
 import MissionDescriptionCard from "~/components/mission-detail/description-card";
 import MissionHeroCard from "~/components/mission-detail/hero-card";
