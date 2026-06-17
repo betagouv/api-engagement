@@ -34,6 +34,10 @@ export const getDossier = async (number: number) => {
         usager {
           email
         }
+        annotations {
+          key
+          value
+        }
       }
     }
   `;

@@ -1,5 +1,3 @@
-import demarchesSimplifiees from "@/services/demarches-simplifiees";
-
 // Instance qui héberge la démarche (par défaut demarche.numerique.gouv.fr, l'instance DINUM).
 export const DEMARCHES_SIMPLIFIEES_BASE_URL = process.env.DEMARCHES_SIMPLIFIEES_BASE_URL || "https://demarche.numerique.gouv.fr";
 
@@ -11,11 +9,15 @@ export const DEMARCHE_SIMPLIFIEES_DEMARCH_NUMBERS_MAP: Record<string, number> = 
   "test-formulaire-spv": 149326,
 };
 
-// Si l'URL de candidature pointe vers demarche.numerique.gouv.fr, on crée un dossier prérempli côté
-// Démarches Simplifiées. On renvoie son numéro (à stocker dans customAttributes) et son URL (cible de
-// redirection à la place de l'applicationUrl générique). Le numéro de démarche est résolu depuis le
-// slug de l'URL : d'abord via DEMARCHE_MAP, sinon via l'API (getDemarcheNumberBySlug).
-export const createDemarcheNumeriqueDossier = async (applicationUrl: string | null | undefined): Promise<{ number: number; url: string } | null> => {
+export const DEMARCHE_SIMPLIFIEES_ANNOTATION_KEY_MAP: Record<string, string> = {
+  "test-formulaire-spv": "Q2hhbXAtNjYyNjkxMA==",
+};
+
+// Si l'URL de candidature pointe vers demarche.numerique.gouv.fr, on ajoute en query param l'id du clic
+// sous la clé de l'annotation à préremplir (DEMARCHE_SIMPLIFIEES_ANNOTATION_KEY_MAP du slug). Le clic est
+// ainsi reporté dans le dossier, ce qui permettra de relier dossier et clic plus tard. On renvoie l'URL
+// de redirection, ou null si ce n'est pas une démarche numérique (ou si aucune annotation n'est connue).
+export const generateDemarcheNumeriqueDossierUrl = (applicationUrl: string | null | undefined, clickId: string): string | null => {
   if (!applicationUrl) {
     return null;
   }
@@ -35,24 +37,15 @@ export const createDemarcheNumeriqueDossier = async (applicationUrl: string | nu
     return null;
   }
 
-  let demarcheNumber = DEMARCHE_SIMPLIFIEES_DEMARCH_NUMBERS_MAP[slug];
-  if (!demarcheNumber) {
-    const found = await demarchesSimplifiees.getDemarcheNumberBySlug(slug);
-    if (!found.ok) {
-      return null;
-    }
-    demarcheNumber = found.data;
-  }
+  console.log("slug", slug);
 
-  const result = await demarchesSimplifiees.createDossier(demarcheNumber);
-  if (!result.ok) {
+  const annotationKey = DEMARCHE_SIMPLIFIEES_ANNOTATION_KEY_MAP[slug];
+  console.log("annotationKey", annotationKey);
+  if (!annotationKey) {
     return null;
   }
 
-  const number = result.data?.dossier_number ?? null;
-  const url = result.data?.dossier_url ?? null;
-  if (!number || !url) {
-    return null;
-  }
-  return { number, url };
+  parsedUrl.searchParams.set(annotationKey, clickId);
+  console.log("parsedUrl", parsedUrl.toString());
+  return parsedUrl.toString();
 };

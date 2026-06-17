@@ -14,7 +14,7 @@ import { userScoringService } from "@/services/user-scoring";
 import { widgetService } from "@/services/widget";
 import { MissionRecord, StatEventRecord } from "@/types";
 import { cleanIdParam, identify, slugify } from "@/utils";
-import { createDemarcheNumeriqueDossier } from "@/utils/demarches-simplifiees";
+import { generateDemarcheNumeriqueDossierUrl } from "@/utils/demarches-simplifiees";
 import { buildTrackedApplicationUrl, updateBotFlagAfterRedirect } from "@/utils/redirect";
 
 const router = Router();
@@ -406,15 +406,11 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
       isBot: false,
     } as StatEventRecord;
 
-    const dossier = await createDemarcheNumeriqueDossier(mission.applicationUrl);
-    if (dossier) {
-      obj.customAttributes = { ...obj.customAttributes, demarcheNumeriqueDossierNumber: dossier.number };
-      href = dossier.url;
-    }
-
     const clickId = await statEventService.createStatEvent(obj);
 
-    const url = buildTrackedApplicationUrl(href, mission.publisherId, clickId, {
+    const demarcheUrl = generateDemarcheNumeriqueDossierUrl(mission.applicationUrl, clickId);
+
+    const url = buildTrackedApplicationUrl(demarcheUrl || href, mission.publisherId, clickId, {
       source: "api_engagement",
       medium: "widget",
       campaign: slugify(widget.name),
@@ -479,14 +475,9 @@ router.get("/seo/:id", cors({ origin: "*" }), async (req: Request, res: Response
       isBot: false,
     } as StatEventRecord;
 
-    const dossier = await createDemarcheNumeriqueDossier(mission.applicationUrl);
-    if (dossier) {
-      obj.customAttributes = { ...obj.customAttributes, demarcheNumeriqueDossierNumber: dossier.number };
-      mission.applicationUrl = dossier.url;
-    }
-
     const clickId = await statEventService.createStatEvent(obj);
-    const url = new URL(mission.applicationUrl || JVA_URL);
+    const demarcheUrl = generateDemarcheNumeriqueDossierUrl(mission.applicationUrl, clickId);
+    const url = new URL(demarcheUrl || mission.applicationUrl || JVA_URL);
 
     url.searchParams.set("apiengagement_id", clickId);
     url.searchParams.set("utm_source", "api_engagement");
@@ -571,15 +562,11 @@ router.get("/email/:missionId/:publisherId", cors({ origin: "*" }), async (req, 
       isBot: false,
     } as StatEventRecord;
 
-    const dossier = await createDemarcheNumeriqueDossier(mission.applicationUrl);
-    if (dossier) {
-      obj.customAttributes = { ...obj.customAttributes, demarcheNumeriqueDossierNumber: dossier.number };
-      href = dossier.url;
-    }
-
     const clickId = await statEventService.createStatEvent(obj);
 
-    const url = buildTrackedApplicationUrl(href, mission.publisherId, clickId, {
+    const demarcheUrl = generateDemarcheNumeriqueDossierUrl(mission.applicationUrl, clickId);
+
+    const url = buildTrackedApplicationUrl(demarcheUrl || href, mission.publisherId, clickId, {
       source: slugify(fromPublisher.name || fromPublisher.id || "email"),
       medium: "email",
       campaign: userScoringId ? "user_scoring" : "mission_email",
@@ -707,15 +694,11 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async (req, res) =
       tags: query.data?.tags ? (query.data.tags.includes(",") ? query.data.tags.split(",").map((tag) => tag.trim()) : [query.data.tags]) : undefined,
     } as StatEventRecord;
 
-    const dossier = await createDemarcheNumeriqueDossier(mission.applicationUrl);
-    if (dossier) {
-      obj.customAttributes = { ...obj.customAttributes, demarcheNumeriqueDossierNumber: dossier.number };
-      href = dossier.url;
-    }
-
     const clickId = await statEventService.createStatEvent(obj);
 
-    const url = buildTrackedApplicationUrl(href, mission.publisherId, clickId, {
+    const demarcheUrl = generateDemarcheNumeriqueDossierUrl(mission.applicationUrl, clickId);
+
+    const url = buildTrackedApplicationUrl(demarcheUrl || href, mission.publisherId, clickId, {
       source: "api_engagement",
       medium: "api",
       campaign: slugify(fromPublisher?.name || "unknown"),
