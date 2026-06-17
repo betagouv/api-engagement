@@ -1,6 +1,6 @@
 import { DEMARCHES_SIMPLIFIEES_TOKEN } from "@/config";
 import { captureException } from "@/error";
-import { DEMARCHES_SIMPLIFIEES_BASE_URL } from "@/utils/demarches-simplifiees";
+import { DEMARCHES_SIMPLIFIEES_BASE_URL } from "@/services/demarches-simplifiees/utils";
 
 // L'API de démarches-simplifiées est une API GraphQL unique (un seul endpoint POST).
 // On envoie une requête GraphQL (query + variables) et on récupère soit des données,

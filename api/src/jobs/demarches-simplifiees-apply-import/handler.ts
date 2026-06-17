@@ -2,9 +2,9 @@ import { captureException } from "@/error";
 import { BaseHandler } from "@/jobs/base/handler";
 import { JobResult } from "@/jobs/types";
 import demarchesSimplifiees from "@/services/demarches-simplifiees";
+import { DEMARCHE_SIMPLIFIEES_DEMARCH_NUMBERS_MAP, isRedirectionAnnotation } from "@/services/demarches-simplifiees/utils";
 import { statEventService } from "@/services/stat-event";
 import { StatEventRecord } from "@/types";
-import { DEMARCHE_SIMPLIFIEES_DEMARCH_NUMBERS_MAP } from "@/utils/demarches-simplifiees";
 
 const FIFTEEN_DAYS_IN_MS = 15 * 24 * 60 * 60 * 1000;
 
@@ -43,17 +43,24 @@ export class DemarchesSimplifieesApplyImportHandler implements BaseHandler<Demar
       console.log(`[Démarches Simplifiées] Démarche ${demarcheNumber}: ${dossiersResult.data.length} dossiers récupérés, ${submittedDossiers.length} déposés`);
 
       for (const dossier of submittedDossiers) {
-        // 2. Retrouver le clic d'origine : il porte le numéro de dossier dans customAttributes.demarcheNumeriqueDossierNumber
-        // (posé lors de la création du dossier prérempli côté redirect).
-        const click = await statEventService.findOneStatEventByDossierNumber({ dossierNumber: dossier.number, type: "click" });
+        // 2. Retrouver le clic d'origine : son id est stocké dans l'annotation "Identifiant de la redirection",
+        // préremplie lors de la redirection.
+        const annotation = dossier.annotations.find((item) => isRedirectionAnnotation(item.label));
+        const clickId = annotation?.stringValue;
+        if (!clickId) {
+          missingClick++;
+          continue;
+        }
+
+        const click = await statEventService.findOneStatEventById(clickId);
         if (!click) {
           missingClick++;
           continue;
         }
 
-        // Idempotence : ne pas recréer un apply déjà importé pour ce dossier (le job tourne tous les jours sur 15 jours).
-        const existingApply = await statEventService.findOneStatEventByDossierNumber({ dossierNumber: dossier.number, type: "apply" });
-        if (existingApply) {
+        // Idempotence : ne pas recréer un apply déjà importé pour ce clic (le job tourne tous les jours sur 15 jours).
+        const alreadyImported = await statEventService.hasStatEventWithRecentClickId({ type: "apply", clickId: click._id, since: createdSince });
+        if (alreadyImported) {
           alreadyExisting++;
           continue;
         }

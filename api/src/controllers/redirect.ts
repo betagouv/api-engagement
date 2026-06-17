@@ -6,6 +6,7 @@ import { JVA_URL, PUBLISHER_IDS } from "@/config";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, SERVER_ERROR, captureException } from "@/error";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { campaignService } from "@/services/campaign";
+import { generateDemarcheNumeriqueDossierUrl } from "@/services/demarches-simplifiees/utils";
 import { missionService } from "@/services/mission";
 import { publisherService } from "@/services/publisher";
 import { statBotService } from "@/services/stat-bot";
@@ -14,7 +15,6 @@ import { userScoringService } from "@/services/user-scoring";
 import { widgetService } from "@/services/widget";
 import { MissionRecord, StatEventRecord } from "@/types";
 import { cleanIdParam, identify, slugify } from "@/utils";
-import { generateDemarcheNumeriqueDossierUrl } from "@/utils/demarches-simplifiees";
 import { buildTrackedApplicationUrl, updateBotFlagAfterRedirect } from "@/utils/redirect";
 
 const router = Router();
@@ -408,7 +408,7 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
 
     const clickId = await statEventService.createStatEvent(obj);
 
-    const demarcheUrl = generateDemarcheNumeriqueDossierUrl(mission.applicationUrl, clickId);
+    const demarcheUrl = await generateDemarcheNumeriqueDossierUrl(mission.applicationUrl, clickId);
 
     const url = buildTrackedApplicationUrl(demarcheUrl || href, mission.publisherId, clickId, {
       source: "api_engagement",
@@ -476,7 +476,7 @@ router.get("/seo/:id", cors({ origin: "*" }), async (req: Request, res: Response
     } as StatEventRecord;
 
     const clickId = await statEventService.createStatEvent(obj);
-    const demarcheUrl = generateDemarcheNumeriqueDossierUrl(mission.applicationUrl, clickId);
+    const demarcheUrl = await generateDemarcheNumeriqueDossierUrl(mission.applicationUrl, clickId);
     const url = new URL(demarcheUrl || mission.applicationUrl || JVA_URL);
 
     url.searchParams.set("apiengagement_id", clickId);
@@ -564,7 +564,7 @@ router.get("/email/:missionId/:publisherId", cors({ origin: "*" }), async (req, 
 
     const clickId = await statEventService.createStatEvent(obj);
 
-    const demarcheUrl = generateDemarcheNumeriqueDossierUrl(mission.applicationUrl, clickId);
+    const demarcheUrl = await generateDemarcheNumeriqueDossierUrl(mission.applicationUrl, clickId);
 
     const url = buildTrackedApplicationUrl(demarcheUrl || href, mission.publisherId, clickId, {
       source: slugify(fromPublisher.name || fromPublisher.id || "email"),
@@ -696,7 +696,9 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async (req, res) =
 
     const clickId = await statEventService.createStatEvent(obj);
 
-    const demarcheUrl = generateDemarcheNumeriqueDossierUrl(mission.applicationUrl, clickId);
+    const demarcheUrl = await generateDemarcheNumeriqueDossierUrl(mission.applicationUrl, clickId);
+
+    console.log("demarcheUrl", demarcheUrl);
 
     const url = buildTrackedApplicationUrl(demarcheUrl || href, mission.publisherId, clickId, {
       source: "api_engagement",

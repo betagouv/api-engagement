@@ -1,5 +1,5 @@
 import { captureException } from "@/error";
-import { DEMARCHES_SIMPLIFIEES_BASE_URL } from "@/utils/demarches-simplifiees";
+import { DEMARCHES_SIMPLIFIEES_BASE_URL, isRedirectionAnnotation, REDIRECTION_ANNOTATION_LABEL } from "@/services/demarches-simplifiees/utils";
 
 import { DemarchesSimplifieesResponse, query } from "./client";
 
@@ -44,12 +44,43 @@ export const getDossier = async (number: number) => {
   return query<{ dossier: { id: string; number: number; state: string; dateDepot: string; usager: { email: string } } }>(graphqlQuery, { number });
 };
 
+// Récupère l'id de l'annotation "Identifiant de la redirection" d'une démarche, au format de clé de
+// préremplissage (`champ_<id sans ==>`). C'est cette clé qu'on passe en query param pour préremplir
+// l'annotation avec l'id du clic. Renvoie une erreur si l'annotation n'existe pas sur la démarche.
+export const getAnnotationId = async (demarcheNumber: number): Promise<DemarchesSimplifieesResponse<string>> => {
+  const graphqlQuery = `
+    query getAnnotationDescriptors($number: Int!) {
+      demarche(number: $number) {
+        activeRevision {
+          annotationDescriptors {
+            id
+            label
+          }
+        }
+      }
+    }
+  `;
+
+  const result = await query<{ demarche: { activeRevision: { annotationDescriptors: { id: string; label: string }[] } } }>(graphqlQuery, { number: demarcheNumber });
+  if (!result.ok) {
+    return result;
+  }
+
+  const annotation = result.data.demarche.activeRevision.annotationDescriptors.find((descriptor) => isRedirectionAnnotation(descriptor.label));
+  if (!annotation) {
+    return { ok: false, message: `Annotation "${REDIRECTION_ANNOTATION_LABEL}" not found` };
+  }
+
+  return { ok: true, data: `champ_${annotation.id.replace("==", "")}` };
+};
+
 interface DossierNode {
   id: string;
   number: number;
   state: string;
   dateDepot: string | null;
   usager: { email: string };
+  annotations: { label: string; stringValue: string | null }[];
 }
 
 interface DossiersPage {
@@ -79,6 +110,10 @@ export const getAllDossiers = async (demarcheNumber: number, createdSince?: Date
             number
             state
             dateDepot
+            annotations {
+              label
+              stringValue
+            }
           }
         }
       }
