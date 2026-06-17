@@ -24,7 +24,7 @@ export default function MissionCtaPanel({ mission, userScoringId, className = ""
   const deadlineLabel = formatDeadline(mission.endAt);
 
   return (
-    <aside className={`shadow-card flex flex-col gap-6 bg-white p-6! ${className}`}>
+    <aside className={`shadow-card flex flex-col gap-6 bg-background p-6! ${className}`}>
       {(durationLabel || mission.schedule) && (
         <InfoRow icon="fr-icon-time-line">
           {durationLabel && <span className="text-title-grey font-bold">{durationLabel}</span>}
