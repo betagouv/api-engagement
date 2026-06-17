@@ -16,7 +16,11 @@ const ChartDetailsTable = ({
   valueFormatter,
 }) => {
   if (mode === "none" || mode === "external" || !id || !data.length) {
-    return null;
+    return (
+      <p id={id} aria-label="Aucune donnée" className="sr-only">
+        Aucune donnée
+      </p>
+    );
   }
 
   const tableClassName = className.trim();
