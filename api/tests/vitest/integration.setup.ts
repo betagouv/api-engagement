@@ -29,7 +29,6 @@ beforeEach(async () => {
     prisma.report.deleteMany({}),
     prisma.publisherOrganization.deleteMany({}),
     prisma.organization.deleteMany({}),
-    prisma.publisherDiffusion.deleteMany({}),
     prisma.publisher.deleteMany({}),
     prisma.userScoringGeo.deleteMany({}),
     prisma.userScoringValue.deleteMany({}),

@@ -1,7 +1,10 @@
 import { randomBytes, randomUUID } from "crypto";
 
-import { MissionType, Prisma, Publisher, PublisherDiffusion } from "@/db/core";
+import { MissionType, Prisma, Publisher } from "@/db/core";
+import { prisma } from "@/db/postgres";
 import { publisherRepository } from "@/repositories/publisher";
+import { publisherDiffusionRuleRepository } from "@/repositories/publisher-diffusion-rule";
+import publisherDiffusionRuleService, { DIFFUSION_SCOPE_ROOT_CRITERIA } from "@/services/publisher-diffusion-rule";
 import {
   PublisherCreateInput,
   PublisherDiffusionInput,
@@ -12,11 +15,8 @@ import {
   PublisherSearchParams,
   PublisherUpdatePatch,
 } from "@/types/publisher";
+import type { PublisherDiffusionRuleRecord } from "@/types/publisher-diffusion-rule";
 import { normalizeCollection, normalizeOptionalString } from "@/utils";
-
-type PrismaPublisherWithRelation = Publisher & {
-  diffuseurs?: (PublisherDiffusion & { diffuseur?: Publisher })[];
-};
 export class PublisherNotFoundError extends Error {
   constructor(id: string) {
     super(`Publisher ${id} not found`);
@@ -24,21 +24,46 @@ export class PublisherNotFoundError extends Error {
   }
 }
 
-export const publisherService = (() => {
-  const defaultInclude = Object.freeze({ diffuseurs: { include: { diffuseur: true } } }) satisfies Prisma.PublisherInclude;
+export class PublisherDiffusionPartnerNotFoundError extends Error {
+  constructor(readonly publisherIds: string[]) {
+    super(`Publisher diffusion partner(s) not found: ${publisherIds.join(", ")}`);
+    this.name = "PublisherDiffusionPartnerNotFoundError";
+  }
+}
 
-  const toDiffusionRecord = (diffusion: PublisherDiffusion & { diffuseur?: Publisher }): PublisherDiffusionRecord => ({
-    id: diffusion.id,
-    diffuseurPublisherId: diffusion.diffuseurPublisherId,
-    diffuseurPublisherName: diffusion.diffuseur?.name ?? null,
-    annonceurPublisherId: diffusion.annonceurPublisherId,
-    moderator: diffusion.moderator,
-    missionType: (diffusion.missionType as PublisherMissionType) ?? null,
-    createdAt: diffusion.createdAt,
-    updatedAt: diffusion.updatedAt,
+export const publisherService = (() => {
+  type DiffusionPartnerInfo = { name: string; moderator: boolean; missionType: PublisherMissionType | null };
+
+  const getPartnerInfoMap = async (partnerIds: string[]): Promise<Map<string, DiffusionPartnerInfo>> => {
+    if (!partnerIds.length) {
+      return new Map();
+    }
+    const partners = await publisherRepository.findMany({
+      where: { id: { in: Array.from(new Set(partnerIds)) } },
+      select: { id: true, name: true, moderator: true, missionType: true },
+    });
+    return new Map(
+      partners.map((partner) => [partner.id, { name: partner.name, moderator: partner.moderator, missionType: (partner.missionType as PublisherMissionType) ?? null }])
+    );
+  };
+
+  /**
+   * `publishers[]` est dérivé des scope roots de publisher_diffusion_rule :
+   * rule.publisherId = le diffuseur propriétaire de la liste, rule.value = l'annonceur
+   * diffusé. Chaque entrée décrit donc l'annonceur (`publisherId`/`publisherName`),
+   * dont proviennent aussi `moderator`/`missionType`.
+   */
+  const toDiffusionRecord = (rule: PublisherDiffusionRuleRecord, partner?: DiffusionPartnerInfo): PublisherDiffusionRecord => ({
+    id: rule.id,
+    publisherId: rule.value,
+    publisherName: partner?.name ?? null,
+    moderator: partner?.moderator ?? false,
+    missionType: partner?.missionType ?? null,
+    createdAt: rule.createdAt,
+    updatedAt: rule.updatedAt,
   });
 
-  const toPublisherRecord = (publisher: PrismaPublisherWithRelation): PublisherRecordWithRelations => ({
+  const toPublisherRecord = (publisher: Publisher, diffusions: PublisherDiffusionRecord[]): PublisherRecordWithRelations => ({
     _id: publisher.id,
     id: publisher.id,
     name: publisher.name,
@@ -67,31 +92,65 @@ export const publisherService = (() => {
     deletedAt: publisher.deletedAt ?? null,
     createdAt: publisher.createdAt,
     updatedAt: publisher.updatedAt,
-    publishers: (publisher.diffuseurs ?? []).map(toDiffusionRecord),
+    publishers: diffusions,
   });
 
-  const normalizeDiffusions = (publishers?: PublisherDiffusionInput[] | null) =>
-    normalizeCollection(
-      publishers,
-      (diffusion) => {
-        const publisherId = diffusion.diffuseurPublisherId ?? diffusion.publisherId;
-        const diffuseurPublisherId = publisherId?.trim();
-        if (!diffuseurPublisherId) {
-          return null;
-        }
+  const toPublisherRecords = async (publishers: Publisher[]): Promise<PublisherRecordWithRelations[]> => {
+    if (!publishers.length) {
+      return [];
+    }
 
-        const missionType = normalizeOptionalString(diffusion.missionType);
+    const roots = await publisherDiffusionRuleService.findRules({ publisherIds: publishers.map((publisher) => publisher.id), ...DIFFUSION_SCOPE_ROOT_CRITERIA });
+    const partnerInfoMap = await getPartnerInfoMap(roots.map((rule) => rule.value));
 
-        return {
-          diffuseurPublisherId,
-          moderator: diffusion.moderator ?? false,
-          missionType: missionType ?? null,
-        };
-      },
-      {
-        key: (diffusion) => diffusion.diffuseurPublisherId,
-      }
-    );
+    const diffusionsByPublisherId = new Map<string, PublisherDiffusionRecord[]>();
+    for (const rule of roots) {
+      const records = diffusionsByPublisherId.get(rule.publisherId) ?? [];
+      records.push(toDiffusionRecord(rule, partnerInfoMap.get(rule.value)));
+      diffusionsByPublisherId.set(rule.publisherId, records);
+    }
+
+    return publishers.map((publisher) => toPublisherRecord(publisher, diffusionsByPublisherId.get(publisher.id) ?? []));
+  };
+
+  const toPublisherRecordWithDiffusions = async (publisher: Publisher): Promise<PublisherRecordWithRelations> => (await toPublisherRecords([publisher]))[0];
+
+  /**
+   * Normalise la liste de diffusions entrante en ids d'annonceurs dédupliqués.
+   * `moderator`/`missionType` ne sont pas acceptés en entrée : ils sont dérivés du
+   * publisher annonceur à la lecture (cf. toDiffusionRecord).
+   */
+  const normalizeDiffusionPartnerIds = (publishers?: PublisherDiffusionInput[] | null): string[] =>
+    normalizeCollection(publishers, (diffusion) => diffusion.publisherId?.trim() || null, {
+      key: (publisherId) => publisherId,
+    });
+
+  const ensureDiffusionPartnersExist = async (tx: Prisma.TransactionClient, partnerIds: string[]): Promise<void> => {
+    const uniqueIds = Array.from(new Set(partnerIds));
+    if (!uniqueIds.length) {
+      return;
+    }
+
+    const partners = await tx.publisher.findMany({
+      where: { id: { in: uniqueIds } },
+      select: { id: true },
+    });
+    const existingIds = new Set(partners.map((partner) => partner.id));
+    const missingIds = uniqueIds.filter((partnerId) => !existingIds.has(partnerId));
+
+    if (missingIds.length) {
+      throw new PublisherDiffusionPartnerNotFoundError(missingIds);
+    }
+  };
+
+  /**
+   * Valide les partenaires puis aligne les scope roots via le service des
+   * diffusion rules (diff création/suppression, rules enfants préservées).
+   */
+  const syncDiffusionScopeRoots = async (tx: Prisma.TransactionClient, publisherId: string, desiredPartnerIds: string[]): Promise<void> => {
+    await ensureDiffusionPartnersExist(tx, desiredPartnerIds);
+    await publisherDiffusionRuleService.syncScopeRoots(publisherId, desiredPartnerIds, tx);
+  };
 
   const buildWhereClause = (params: PublisherSearchParams): Prisma.PublisherWhereInput => {
     const and: Prisma.PublisherWhereInput[] = [];
@@ -132,7 +191,9 @@ export const publisherService = (() => {
     }
 
     if (params.diffuseurOf) {
-      and.push({ diffuseurs: { some: { diffuseurPublisherId: params.diffuseurOf } } });
+      and.push({
+        diffusionRules: { some: { ...DIFFUSION_SCOPE_ROOT_CRITERIA, value: params.diffuseurOf } },
+      });
     }
 
     const ids = params.ids ?? undefined;
@@ -163,7 +224,7 @@ export const publisherService = (() => {
   };
 
   const createPublisher = async (input: PublisherCreateInput): Promise<PublisherRecord> => {
-    const normalizedPublishers = normalizeDiffusions(input.publishers);
+    const normalizedPartnerIds = normalizeDiffusionPartnerIds(input.publishers);
     const rightsEnabled = Boolean(input.hasApiRights || input.hasWidgetRights || input.hasCampaignRights);
     const id = input.id ?? (await generateUniquePublisherId());
 
@@ -194,22 +255,15 @@ export const publisherService = (() => {
       sendReportTo: input.sendReportTo ?? [],
     };
 
-    if (rightsEnabled && normalizedPublishers.length) {
-      data.diffuseurs = {
-        create: normalizedPublishers.map((diffusion) => ({
-          diffuseurPublisherId: diffusion.diffuseurPublisherId,
-          moderator: diffusion.moderator,
-          missionType: (normalizeOptionalString(diffusion.missionType) as MissionType) ?? null,
-        })),
-      };
-    }
-
-    const created = await publisherRepository.create({
-      data,
-      include: defaultInclude,
+    const created = await prisma.$transaction(async (tx) => {
+      const publisher = await tx.publisher.create({ data });
+      if (rightsEnabled && normalizedPartnerIds.length) {
+        await syncDiffusionScopeRoots(tx, publisher.id, normalizedPartnerIds);
+      }
+      return publisher;
     });
 
-    return toPublisherRecord(created as PrismaPublisherWithRelation);
+    return toPublisherRecordWithDiffusions(created);
   };
 
   const publisherExistsByName = async (name: string): Promise<boolean> => {
@@ -220,17 +274,15 @@ export const publisherService = (() => {
   const findOnePublisherByApiKey = async (apikey: string, publisherId?: string): Promise<PublisherRecordWithRelations | null> => {
     const publisher = await publisherRepository.findFirst({
       where: { apikey, ...(publisherId ? { id: publisherId } : {}) },
-      include: defaultInclude,
     });
-    return publisher ? toPublisherRecord(publisher) : null;
+    return publisher ? toPublisherRecordWithDiffusions(publisher) : null;
   };
 
   const findOnePublisherByName = async (name: string): Promise<PublisherRecord | null> => {
     const publisher = await publisherRepository.findFirst({
       where: { name },
-      include: defaultInclude,
     });
-    return publisher ? toPublisherRecord(publisher as PrismaPublisherWithRelation) : null;
+    return publisher ? toPublisherRecordWithDiffusions(publisher) : null;
   };
 
   const findPublishers = async (params: PublisherSearchParams = {}): Promise<PublisherRecord[]> => {
@@ -238,9 +290,8 @@ export const publisherService = (() => {
     const publishers = await publisherRepository.findMany({
       where,
       orderBy: [{ name: Prisma.SortOrder.asc }],
-      include: defaultInclude,
     });
-    return publishers.map((publisher) => toPublisherRecord(publisher as PrismaPublisherWithRelation));
+    return toPublisherRecords(publishers);
   };
 
   const findPublishersWithCount = async (params: PublisherSearchParams = {}): Promise<{ data: PublisherRecord[]; total: number }> => {
@@ -266,8 +317,27 @@ export const publisherService = (() => {
   };
 
   const findOnePublisherById = async (id: string): Promise<PublisherRecord | null> => {
-    const publisher = await publisherRepository.findUnique({ where: { id }, include: defaultInclude });
-    return publisher ? toPublisherRecord(publisher as PrismaPublisherWithRelation) : null;
+    const publisher = await publisherRepository.findUnique({ where: { id } });
+    return publisher ? toPublisherRecordWithDiffusions(publisher) : null;
+  };
+
+  const hasPublisherRelationAccess = async (publisherId: string, accessiblePublisherIds: string[]): Promise<boolean> => {
+    const relatedIds = Array.from(new Set(accessiblePublisherIds.map((value) => value.trim()).filter(Boolean)));
+    if (!relatedIds.length) {
+      return false;
+    }
+
+    const count = await publisherDiffusionRuleRepository.count({
+      where: {
+        ...DIFFUSION_SCOPE_ROOT_CRITERIA,
+        OR: [
+          { publisherId, value: { in: relatedIds } },
+          { publisherId: { in: relatedIds }, value: publisherId },
+        ],
+      },
+    });
+
+    return count > 0;
   };
 
   const findPublishersByIds = async (ids: string[]): Promise<PublisherRecord[]> => {
@@ -276,9 +346,8 @@ export const publisherService = (() => {
     }
     const publishers = await publisherRepository.findMany({
       where: { id: { in: ids } },
-      include: defaultInclude,
     });
-    return publishers.map((publisher) => toPublisherRecord(publisher as PrismaPublisherWithRelation));
+    return toPublisherRecords(publishers);
   };
 
   const purgeAll = async (): Promise<void> => {
@@ -290,27 +359,25 @@ export const publisherService = (() => {
     const updated = await publisherRepository.update({
       where: { id },
       data: { apikey },
-      include: defaultInclude,
     });
-    return { apikey, publisher: toPublisherRecord(updated as PrismaPublisherWithRelation) };
+    return { apikey, publisher: await toPublisherRecordWithDiffusions(updated) };
   };
 
   const softDeletePublisher = async (id: string): Promise<PublisherRecord> => {
     const updated = await publisherRepository.update({
       where: { id },
       data: { deletedAt: new Date() },
-      include: defaultInclude,
     });
-    return toPublisherRecord(updated as PrismaPublisherWithRelation);
+    return toPublisherRecordWithDiffusions(updated);
   };
 
   const updatePublisher = async (id: string, patch: PublisherUpdatePatch): Promise<PublisherRecord> => {
-    const existing: PrismaPublisherWithRelation | null = await publisherRepository.findUnique({ where: { id }, include: defaultInclude });
+    const existing = await publisherRepository.findUnique({ where: { id } });
     if (!existing) {
       throw new PublisherNotFoundError(id);
     }
 
-    const normalizedPublishers = Array.isArray(patch.publishers) ? normalizeDiffusions(patch.publishers) : null;
+    const normalizedPartnerIds = Array.isArray(patch.publishers) ? normalizeDiffusionPartnerIds(patch.publishers) : null;
     const effectiveRights = {
       hasApiRights: patch.hasApiRights ?? existing.hasApiRights,
       hasWidgetRights: patch.hasWidgetRights ?? existing.hasWidgetRights,
@@ -395,26 +462,22 @@ export const publisherService = (() => {
 
     const shouldClearDiffusions = patch.publishers === null || !rightsEnabled;
 
-    if (shouldClearDiffusions) {
-      data.diffuseurs = { deleteMany: {} };
-    } else if (normalizedPublishers) {
-      data.diffuseurs = {
-        deleteMany: {},
-        create: normalizedPublishers.map((diffusion) => ({
-          diffuseurPublisherId: diffusion.diffuseurPublisherId,
-          moderator: diffusion.moderator,
-          missionType: (normalizeOptionalString(diffusion.missionType) as MissionType) ?? null,
-        })),
-      };
-    }
+    const updated = await prisma.$transaction(async (tx) => {
+      const publisher = await tx.publisher.update({
+        where: { id },
+        data,
+      });
 
-    const updated = await publisherRepository.update({
-      where: { id },
-      data,
-      include: defaultInclude,
+      if (shouldClearDiffusions) {
+        await syncDiffusionScopeRoots(tx, id, []);
+      } else if (normalizedPartnerIds) {
+        await syncDiffusionScopeRoots(tx, id, normalizedPartnerIds);
+      }
+
+      return publisher;
     });
 
-    return toPublisherRecord(updated as PrismaPublisherWithRelation);
+    return toPublisherRecordWithDiffusions(updated);
   };
 
   async function getPublisherNameMap(publisherIds: string[]): Promise<Map<string, string>> {
@@ -442,6 +505,7 @@ export const publisherService = (() => {
     findPublishers,
     findPublishersByIds,
     findPublishersWithCount,
+    hasPublisherRelationAccess,
     purgeAll,
     regenerateApiKey,
     softDeletePublisher,

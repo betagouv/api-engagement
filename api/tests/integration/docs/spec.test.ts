@@ -30,7 +30,7 @@ describe("OpenAPI spec compliance", () => {
 
     const diffuseur = await createTestPublisher({
       name: "Diffuseur",
-      publishers: [{ publisherId: annonceur.id, publisherName: annonceur.name, moderator: false }],
+      publishers: [{ publisherId: annonceur.id }],
     });
     diffuseurApiKey = diffuseur.apikey!;
   });

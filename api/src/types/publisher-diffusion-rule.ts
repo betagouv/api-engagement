@@ -21,6 +21,7 @@ export interface PublisherDiffusionRuleFindParams {
   publisherIds?: string[];
   combinedWithId?: string | null;
   field?: string;
+  operator?: string;
   value?: string;
   includeCombinedRules?: boolean;
 }

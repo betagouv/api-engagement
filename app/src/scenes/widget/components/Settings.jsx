@@ -46,8 +46,8 @@ const Settings = ({ widget, values, onChange, loading }) => {
   useEffect(() => {
     if (loading) return;
     const items = publisher.publishers.map((p) => ({
-      key: p.diffuseurPublisherId,
-      label: p.diffuseurPublisherName,
+      key: p.publisherId,
+      label: p.publisherName,
       mission_type: toWidgetType(p.missionType),
     }));
     if (publisher.isAnnonceur) {

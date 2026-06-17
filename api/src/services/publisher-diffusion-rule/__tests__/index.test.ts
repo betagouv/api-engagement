@@ -87,6 +87,14 @@ describe("publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere", ()
 
     expect(where).toEqual({ publisherId: "annonceur-2" });
   });
+
+  it("renvoie un filtre impossible quand les annonceurs demandés sont hors scope", async () => {
+    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([buildRule({ id: "root-1", value: "annonceur-1" })]);
+
+    const where = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere("publisher-1", ["annonceur-2"]);
+
+    expect(where).toEqual({ id: { in: [] } });
+  });
 });
 
 describe("publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere", () => {
@@ -260,6 +268,14 @@ describe("publisherDiffusionRuleService.buildMissionDiffuseurCandidateWheres", (
 
     // Une seule branche restante → décomposition inutile, chemin standard.
     expect(branches).toBeNull();
+  });
+
+  it("renvoie une liste vide quand les annonceurs demandés sont hors scope", async () => {
+    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([buildRule({ id: "root-1", value: "annonceur-1" })]);
+
+    const branches = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateWheres("diffuseur-1", ["annonceur-2"]);
+
+    expect(branches).toEqual([]);
   });
 
   it("renvoie null quand la décomposition n'apporte rien (moins de 2 branches)", async () => {

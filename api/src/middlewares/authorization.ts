@@ -3,7 +3,7 @@ import { NextFunction, Response } from "express";
 import { FORBIDDEN, INVALID_BODY, NOT_FOUND } from "@/error";
 import { publisherService } from "@/services/publisher";
 import { UserRequest } from "@/types/passport";
-import { hasAdminOrDirectPublisherAccess, hasAllPublisherAccess, hasPublisherRelationAccess, normalizePublisherId, readRequiredParam } from "@/utils/publisher-access";
+import { getUserPublisherIds, hasAdminOrDirectPublisherAccess, hasAllPublisherAccess, normalizePublisherId, readRequiredParam } from "@/utils/publisher-access";
 
 /** Emplacements d'où extraire un identifiant de publisher dans la requête. */
 type RequestSource = "body" | "query" | "params";
@@ -87,7 +87,9 @@ export const requirePublisherRelationAccess =
 
       res.locals.publisher = publisher;
 
-      if (!hasPublisherRelationAccess(req.user, publisher)) {
+      const hasRelationAccess =
+        hasAdminOrDirectPublisherAccess(req.user, publisher.id) || (await publisherService.hasPublisherRelationAccess(publisher.id, getUserPublisherIds(req.user)));
+      if (!hasRelationAccess) {
         return res.status(403).send({ ok: false, code: FORBIDDEN, message: "Not allowed" });
       }
 
