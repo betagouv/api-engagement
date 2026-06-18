@@ -73,6 +73,9 @@ export default function MissionDetailPage() {
           )}
 
           <div className="mx-auto max-w-[1200px] px-5 py-6 md:px-6 md:py-10">
+            <Link to={backPath} className="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-left-line fr-btn--icon-left mb-6">
+              {backLabel}
+            </Link>
             <div className="flex flex-col gap-6 md:flex-row md:items-start">
               <div className="flex min-w-0 flex-1 flex-col gap-6">
                 <MissionHeroCard mission={mission} />
