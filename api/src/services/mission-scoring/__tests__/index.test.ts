@@ -180,6 +180,12 @@ describe("missionScoringService.score", () => {
           valueKey: "moins_31_ans_handicap",
           score: 1,
         },
+        {
+          missionEnrichmentValueId: null,
+          taxonomyKey: "type_mission",
+          valueKey: "temps_plein",
+          score: 1,
+        },
       ],
     });
   });
