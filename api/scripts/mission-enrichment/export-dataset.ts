@@ -1,6 +1,8 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+import { getTaxonomyList } from "@engagement/taxonomy";
+
 import { prisma } from "@/db/postgres";
 import { CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/config";
 import { fuzzyMatchKey } from "@/utils/string";
@@ -27,9 +29,7 @@ const outputPath = getArg("--output") ?? "./enrichment-export.csv";
 const parseIds = (idsFlag: string, idsFileFlag: string): string[] => {
   const idsArg = getArg(idsFlag);
   const idsFile = getArg(idsFileFlag);
-
   const ids = [...(idsArg ? idsArg.split(",") : []), ...(idsFile ? fs.readFileSync(idsFile, "utf-8").split(/\r?\n|,/) : [])].map((id) => id.trim()).filter(Boolean);
-
   return [...new Set(ids)];
 };
 
@@ -38,16 +38,13 @@ const parseIds = (idsFlag: string, idsFileFlag: string): string[] => {
 type TaxonomyMeta = { type: string; label: string; values: Map<string, { label: string }> };
 type FullTaxonomyLookup = Map<string, TaxonomyMeta>;
 
-const buildFullLookup = (taxonomies: Array<{ key: string; type: string; label: string; values: Array<{ key: string; label: string; active: boolean }> }>): FullTaxonomyLookup => {
+const buildFullLookup = (): FullTaxonomyLookup => {
   const fullLookup: FullTaxonomyLookup = new Map();
 
-  for (const dim of taxonomies) {
+  for (const dim of getTaxonomyList()) {
     const fullValueMap = new Map<string, { label: string }>();
 
     for (const val of dim.values) {
-      if (!val.active) {
-        continue;
-      }
       fullValueMap.set(val.key, { label: val.label });
     }
 
@@ -163,19 +160,7 @@ async function main() {
     `[export-dataset] version=${version} limit=${limit ?? "all"} missionIds=${missionIds.length || "all"} enrichmentIds=${enrichmentIds.length || "all"} output=${outputPath}`
   );
 
-  const taxonomies = await prisma.taxonomy.findMany({
-    orderBy: { key: "asc" },
-    include: { values: true },
-  });
-
-  const fullLookup = buildFullLookup(
-    taxonomies.map((d) => ({
-      key: d.key,
-      type: d.type,
-      label: d.label,
-      values: d.values.map((v) => ({ key: v.key, label: v.label, active: v.active })),
-    }))
-  );
+  const fullLookup = buildFullLookup();
 
   const enrichments = await prisma.missionEnrichment.findMany({
     where: {
@@ -199,13 +184,7 @@ async function main() {
           publisher: { select: { name: true } },
         },
       },
-      values: {
-        include: {
-          taxonomyValue: {
-            include: { taxonomy: { select: { key: true, label: true } } },
-          },
-        },
-      },
+      values: true,
     },
   });
 
@@ -241,15 +220,18 @@ async function main() {
     // Valid classifications from DB
     for (const v of enrichment.values) {
       const evidence = v.evidence as { reasoning?: string } | null;
-      const taxonomyValue = v.taxonomyValue;
+      const taxonomyKey = v.taxonomyKey ?? "";
+      const valueKey = v.valueKey ?? "";
+      const dimMeta = fullLookup.get(taxonomyKey);
+      const valMeta = dimMeta?.values.get(valueKey);
       rows.push({
         ...base,
-        status: taxonomyValue ? "valid" : "skipped",
-        skipReason: taxonomyValue ? "" : "missing_taxonomy_value_relation",
-        taxonomy: taxonomyValue?.taxonomy.key ?? v.taxonomyKey ?? "",
-        taxonomyLabel: taxonomyValue?.taxonomy.label ?? "",
-        value: taxonomyValue?.key ?? v.valueKey ?? "",
-        valueLabel: taxonomyValue?.label ?? "",
+        status: "valid",
+        skipReason: "",
+        taxonomy: taxonomyKey,
+        taxonomyLabel: dimMeta?.label ?? "",
+        value: valueKey,
+        valueLabel: valMeta?.label ?? "",
         confidence: String(v.confidence),
         reasoning: evidence?.reasoning ?? "",
       });
