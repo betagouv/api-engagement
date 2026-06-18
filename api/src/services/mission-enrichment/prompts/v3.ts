@@ -28,6 +28,14 @@ const TAXONOMY_GUIDANCE_MAP_V3 = {
         "Catégorie Management, social, soin. Utiliser UNIQUEMENT si la mission décrit explicitement une relation d'aide directe, un accompagnement individuel ou des soins. Le contact avec des publics lors d'ateliers, de sensibilisation ou d'animation ne suffit pas. Exemples négatifs (ne pas attribuer) : animer des ateliers de sensibilisation environnementale, accompagner les usagers dans leurs démarches numériques, transmettre des savoirs en milieu scolaire, médiation culturelle ou patrimoniale. Exemples positifs (attribuer) : suivi social de personnes en difficulté, accompagnement de personnes en situation de handicap au quotidien, soins infirmiers ou aide à la personne dépendante.",
     },
   },
+  engagement_intent: {
+    ...TAXONOMY_GUIDANCE_MAP.engagement_intent,
+    values: {
+      ...TAXONOMY_GUIDANCE_MAP.engagement_intent.values,
+      cadre_engage:
+        "À utiliser pour des missions exercées dans un cadre institutionnel, hiérarchique ou organisationnel fortement structuré : armée, réserve, police, gendarmerie, pompiers, administration, établissement public, école, ou structure support / siège de réseau associatif. Le simple fait qu'une mission soit en service civique, qu'elle comporte un tutorat ou des formations obligatoires ne suffit pas. Ne pas attribuer pour une mission SC dans une association classique, même si elle comporte un cadre et un tuteur. Attribuer uniquement si le texte décrit explicitement un cadre très structuré : armée, réserve opérationnelle, police, gendarmerie, pompiers, administration publique, établissement public, ou siège d'un réseau associatif national. Seuil de confiance : ne pas dépasser 0.7 pour une association classique même avec des éléments de cadre.",
+    },
+  },
   type_mission: {
     ...TAXONOMY_GUIDANCE_MAP.type_mission,
     taxonomy:
