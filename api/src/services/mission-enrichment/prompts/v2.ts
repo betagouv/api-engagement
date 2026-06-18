@@ -173,7 +173,7 @@ export const ENRICHMENT_SCHEMA = z.object({
   ),
 });
 
-export const buildSystemPrompt = (taxonomyBlock: string): string => `\
+export const buildSystemPrompt = (taxonomyBlock: string, guidanceMap: typeof TAXONOMY_GUIDANCE_MAP = TAXONOMY_GUIDANCE_MAP): string => `\
 Tu es un classificateur de missions d'engagement bénévole et civique.
 
 Ta tâche est d'analyser une mission et de la classifier selon un référentiel taxonomique fermé.
@@ -232,7 +232,7 @@ Ta tâche est d'analyser une mission et de la classifier selon un référentiel 
 Ces guides sont versionnés avec ce prompt. Ils servent à désambiguïser les taxonomies quand plusieurs labels semblent plausibles.
 
 --- DÉBUT GUIDES V2 ---
-${buildTaxonomyGuidanceBlock()}
+${buildTaxonomyGuidanceBlock(guidanceMap)}
 --- FIN GUIDES V2 ---
 
 ## Taxonomie active
