@@ -7,6 +7,7 @@ interface MissionCtaPanelProps {
   mission: MissionDetailResponse;
   userScoringId?: string;
   className?: string;
+  deadlineLabel?: string;
 }
 
 function InfoRow({ icon, children }: { icon: string; children: ReactNode }) {
@@ -18,11 +19,9 @@ function InfoRow({ icon, children }: { icon: string; children: ReactNode }) {
   );
 }
 
-export default function MissionCtaPanel({ mission, userScoringId, className = "" }: MissionCtaPanelProps) {
+export default function MissionCtaPanel({ mission, userScoringId, deadlineLabel = "", className = "" }: MissionCtaPanelProps) {
   const durationLabel = formatStartDate(mission.startAt, mission.duration);
   const compensationLabel = mission.compensation ? formatCompensation(mission.compensation, { withType: true }) : null;
-  // const deadlineLabel = formatDeadline(mission.endAt);
-  const deadlineLabel = "Candidature ouverte jusqu'au 18 juin 2026";
 
   return (
     <aside className={`md:shadow-card flex flex-col gap-6 bg-background px-5! py-5! md:p-6! ${className}`}>
