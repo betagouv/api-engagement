@@ -75,7 +75,7 @@ export default function MissionDetailPage() {
           )}
 
           <div className={`mx-auto max-w-[1200px] ${userScoringId ? "pb-6" : "pb-28"} md:pt-6 md:px-6 md:py-10 bg-beige-gris-galet-975 md:bg-transparent`}>
-            <Link to={backPath} className="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-left-line fr-btn--icon-left mb-6 hidden! md:block!">
+            <Link to={backPath} className="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-left-line fr-btn--icon-left mb-6 hidden! md:inline-flex!">
               {backLabel}
             </Link>
             <div className="flex flex-col md:flex-row md:items-start gap-6">
