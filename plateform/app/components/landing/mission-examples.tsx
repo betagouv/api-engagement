@@ -38,7 +38,7 @@ export default function MissionExamples({ missions, className }: Props) {
           ref={scrollRef}
           id="missions-carousel"
           onScroll={updateScrollState}
-          className="snap-x snap-mandatory md:snap-none overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [margin-left:calc(50%-50vw)] [margin-right:calc(50%-50vw)] md:ml-0"
+          className="snap-x snap-mandatory md:snap-none overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ml-[calc(50%-50vw)] mr-[calc(50%-50vw)] md:pl-[calc(50vw-50%)]"
           aria-live="polite"
           aria-atomic="false"
         >
@@ -63,7 +63,7 @@ export default function MissionExamples({ missions, className }: Props) {
                     <p className="fr-h6 line-clamp-2 mb-0!">{mission.title}</p>
                     <div className="fr-mt-auto flex items-center gap-2">
                       {mission.publisherLogo && (
-                        <div className="size-6 rounded object-contain bg-white">
+                        <div className="size-10 rounded object-contain bg-white">
                           <img src={mission.publisherLogo} alt="" className="size-full object-contain" />
                         </div>
                       )}
