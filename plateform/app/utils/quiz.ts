@@ -30,3 +30,9 @@ export const buildPayload = (answers: QuizAnswers) => {
 
   return { answers: apiAnswers };
 };
+
+export const isValidAge = (age: unknown, min = 16, max = 99) => {
+  if (age === "" || isNaN(Number(age))) return false;
+  const numeric = Number(age);
+  return numeric >= min && numeric <= max;
+};
