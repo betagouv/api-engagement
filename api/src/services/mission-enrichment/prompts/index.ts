@@ -5,7 +5,8 @@ import * as v1 from "./v1";
 import * as v2 from "./v2";
 import * as v3 from "./v3";
 
-export { buildMissionBlock, buildTaxonomyBlock } from "./builder";
+export { buildMissionBlock, buildTaxonomyBlock, ENRICHMENT_TRIGGER_FIELDS } from "./builder";
+export type { EnrichmentTriggerField } from "./builder";
 export type { MissionForPrompt, TaxonomyForPrompt } from "./types";
 
 export type PromptEntry = {
