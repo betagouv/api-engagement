@@ -72,12 +72,12 @@ export default function MissionDetailPage() {
             </div>
           )}
 
-          <div className="mx-auto max-w-[1200px] px-5 py-6 md:px-6 md:py-10">
-            <Link to={backPath} className="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-left-line fr-btn--icon-left mb-6">
+          <div className="mx-auto max-w-[1200px] pb-6 md:pt-6 md:px-6 md:py-10 bg-beige-gris-galet-975 md:bg-transparent">
+            <Link to={backPath} className="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-left-line fr-btn--icon-left mb-6 hidden! md:block!">
               {backLabel}
             </Link>
-            <div className="flex flex-col gap-6 md:flex-row md:items-start">
-              <div className="flex min-w-0 flex-1 flex-col gap-6">
+            <div className="flex flex-col md:flex-row md:items-start gap-6">
+              <div className="flex min-w-0 flex-1 flex-col gap-0! md:gap-6!">
                 <MissionHeroCard mission={mission} />
                 {mission.location && <MissionLocationCard location={mission.location} />}
                 <div className="md:hidden">

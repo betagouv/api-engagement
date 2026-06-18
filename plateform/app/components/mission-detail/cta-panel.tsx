@@ -1,7 +1,7 @@
 import type { MissionDetailResponse } from "@engagement/dto";
 import type { ReactNode } from "react";
 import EmailMissionModal from "~/components/mission-detail/email-mission-details-modal";
-import { formatCompensation, formatDeadline, formatStartDate } from "~/utils/mission";
+import { formatCompensation, formatStartDate } from "~/utils/mission";
 
 interface MissionCtaPanelProps {
   mission: MissionDetailResponse;
@@ -21,10 +21,13 @@ function InfoRow({ icon, children }: { icon: string; children: ReactNode }) {
 export default function MissionCtaPanel({ mission, userScoringId, className = "" }: MissionCtaPanelProps) {
   const durationLabel = formatStartDate(mission.startAt, mission.duration);
   const compensationLabel = mission.compensation ? formatCompensation(mission.compensation, { withType: true }) : null;
-  const deadlineLabel = formatDeadline(mission.endAt);
+  // const deadlineLabel = formatDeadline(mission.endAt);
+  const deadlineLabel = "Candidature ouverte jusqu'au 18 juin 2026";
 
   return (
-    <aside className={`shadow-card flex flex-col gap-6 bg-background p-6! ${className}`}>
+    <aside className={`md:shadow-card flex flex-col gap-6 bg-background px-5! py-5! md:p-6! ${className}`}>
+      <hr className="h-px! pb-0! bg-border-default-grey -mx-5! md:hidden!" />
+
       {(durationLabel || mission.schedule) && (
         <InfoRow icon="fr-icon-time-line">
           {durationLabel && <span className="text-title-grey font-bold">{durationLabel}</span>}
@@ -33,19 +36,25 @@ export default function MissionCtaPanel({ mission, userScoringId, className = ""
       )}
 
       {compensationLabel && (
-        <InfoRow icon="fr-icon-money-euro-circle-line">
-          <span className="text-title-grey font-bold">{compensationLabel}</span>
-        </InfoRow>
+        <>
+          <hr className="h-px! pb-0! bg-border-default-grey -mx-5! md:hidden!" />
+          <InfoRow icon="fr-icon-money-euro-circle-line">
+            <span className="text-title-grey font-bold">{compensationLabel}</span>
+          </InfoRow>
+        </>
       )}
 
       {deadlineLabel && (
-        <InfoRow icon="fr-icon-calendar-line">
-          <span className="text-title-grey text-sm font-bold">{deadlineLabel}</span>
-          <span className="text-mention-grey text-xs">Les candidatures peuvent fermer plus tôt si la mission est pourvue</span>
-        </InfoRow>
+        <>
+          <hr className="h-px! pb-0! bg-border-default-grey -mx-5! md:hidden!" />
+          <InfoRow icon="fr-icon-calendar-line">
+            <span className="text-title-grey text-sm font-bold">{deadlineLabel}</span>
+            <span className="text-mention-grey text-xs">Les candidatures peuvent fermer plus tôt si la mission est pourvue</span>
+          </InfoRow>
+        </>
       )}
 
-      <hr className="fr-hr fr-mb-0! pb-0.5!" />
+      <hr className="h-px! pb-0! bg-border-default-grey -mx-5! md:mx-0!" />
 
       <div className="flex flex-col gap-3">
         <a href={mission.applicationUrl} target="_blank" rel="noopener noreferrer" className="fr-btn w-full! justify-center!">
@@ -53,6 +62,8 @@ export default function MissionCtaPanel({ mission, userScoringId, className = ""
         </a>
 
         <EmailMissionModal missionId={mission.id} userScoringId={userScoringId} />
+
+        {deadlineLabel && <p className="text-mention-grey text-sm! md:hidden text-center!">{deadlineLabel}</p>}
       </div>
     </aside>
   );
