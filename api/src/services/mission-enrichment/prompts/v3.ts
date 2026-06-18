@@ -28,6 +28,11 @@ const TAXONOMY_GUIDANCE_MAP_V3 = {
         "Catégorie Management, social, soin. Utiliser UNIQUEMENT si la mission décrit explicitement une relation d'aide directe, un accompagnement individuel ou des soins. Le contact avec des publics lors d'ateliers, de sensibilisation ou d'animation ne suffit pas. Exemples négatifs (ne pas attribuer) : animer des ateliers de sensibilisation environnementale, accompagner les usagers dans leurs démarches numériques, transmettre des savoirs en milieu scolaire, médiation culturelle ou patrimoniale. Exemples positifs (attribuer) : suivi social de personnes en difficulté, accompagnement de personnes en situation de handicap au quotidien, soins infirmiers ou aide à la personne dépendante.",
     },
   },
+  type_mission: {
+    ...TAXONOMY_GUIDANCE_MAP.type_mission,
+    taxonomy:
+      "Décrit le format temporel ou l'intensité de la mission. Se baser sur les indices explicites de fréquence, de volume horaire, de période ou de rythme d'engagement. Utiliser les définitions suivantes : ponctuelle = de quelques heures à deux jours sans notion de répétition ; régulière = mission sur plusieurs jours ou semaines, répétée à intervalles réguliers ou irréguliers sur plusieurs semaines, ou mission en dessous de 20h par semaine sur plusieurs semaines avec une durée d'au moins 2 semaines ; temps plein = mission sur plusieurs semaines d'au moins 3 semaines ou sur plusieurs mois avec au moins 20h par semaine. INTERDICTION : ne jamais conclure reguliere sur le seul argument que la mission s'étend sur plusieurs mois. C'est l'intensité hebdomadaire qui tranche, pas la durée totale.",
+  },
   region_internationale: {
     ...TAXONOMY_GUIDANCE_MAP.region_internationale,
     values: {
