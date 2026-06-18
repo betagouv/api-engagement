@@ -43,7 +43,7 @@ export default function Modal({ open, children, onClose, title, beforeTitle, tit
                   Fermer
                 </button>
               </div>
-              <div className="fr-modal__content">
+              <div className="fr-modal__content mb-4!">
                 {beforeTitle}
                 <h2 id={titleId} className="fr-modal__title">
                   {titleIcon && <span className={`${titleIcon} fr-icon--lg`} aria-hidden="true" />}
