@@ -107,17 +107,16 @@ export default function MissionExamples({ missions, className }: Props) {
             <span aria-hidden className="fr-icon-arrow-left-s-line" />
           </button>
         )}
-        {canScrollRight && (
-          <button
-            type="button"
-            onClick={() => handleScroll("right")}
-            aria-label="Voir les missions suivantes"
-            aria-controls="missions-carousel"
-            className="bg-background! text-title-grey absolute right-0 top-1/2 hidden size-12 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full shadow-md md:flex"
-          >
-            <span aria-hidden className="fr-icon-arrow-right-s-line" />
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={() => handleScroll("right")}
+          disabled={!canScrollRight}
+          aria-label="Voir les missions suivantes"
+          aria-controls="missions-carousel"
+          className="bg-background! text-title-grey absolute right-0 top-1/2 hidden size-12 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full shadow-md md:flex disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          <span aria-hidden className="fr-icon-arrow-right-s-line" />
+        </button>
       </div>
     </section>
   );
