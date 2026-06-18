@@ -133,8 +133,14 @@ Pour les valeurs manquantes (missing_values) :
 
 Verdicts globaux :
 - "approved" : les classifications sont globalement correctes, pas de problème majeur
-- "flagged_minor" : une ou deux classifications discutables, sans impact sur la compréhension de la mission
-- "flagged_major" : erreur significative (mauvais domaine principal, intention erronée) ou plusieurs valeurs fausses
+- "flagged_minor" : 1 à 3 tags wrong sur des dimensions secondaires, domaine principal correct
+- "flagged_major" : le domaine principal est incorrect (critère qualitatif principal), OU 4 tags ou plus sont classés wrong dans classificationsReview, quel que soit le domaine (critère quantitatif de sécurité)
+
+RÈGLE ABSOLUE : si au moins un tag est classé "wrong" dans classificationsReview, le verdict DOIT être "flagged_minor" ou "flagged_major", jamais "approved". Un tagging "globalement correct" avec une erreur explicite = flagged_minor minimum.
+
+## Règles spécifiques par taxonomy
+
+- Si `region_internationale` est attribué à une mission se déroulant à Mayotte, en Martinique, en Guadeloupe, en Guyane ou à La Réunion, le statut doit être "wrong". Ces territoires sont administrativement France et ne constituent pas une mission internationale.
 
 ## Principes fondamentaux
 
