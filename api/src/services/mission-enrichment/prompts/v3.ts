@@ -1,6 +1,13 @@
 import { ai } from "@/services/ai";
 
-import { ENRICHMENT_SCHEMA, TAXONOMY_GUIDANCE_MAP, TEMPERATURE, buildSystemPrompt as buildSystemPromptV2, buildUserMessage } from "./v2";
+import {
+  ENRICHMENT_SCHEMA,
+  TAXONOMY_GUIDANCE_MAP,
+  TEMPERATURE,
+  buildSystemPrompt as buildSystemPromptV2,
+  buildTaxonomyGuidanceBlock as buildTaxonomyGuidanceBlockV2,
+  buildUserMessage,
+} from "./v2";
 
 export const VERSION = "v3";
 export const MODEL = ai.model("mistral", "mistral-small-2603");
@@ -63,3 +70,5 @@ const TAXONOMY_GUIDANCE_MAP_V3 = {
 };
 
 export const buildSystemPrompt = (taxonomyBlock: string): string => buildSystemPromptV2(taxonomyBlock, TAXONOMY_GUIDANCE_MAP_V3);
+
+export const buildTaxonomyGuidanceBlock = (): string => buildTaxonomyGuidanceBlockV2(TAXONOMY_GUIDANCE_MAP_V3);
