@@ -1,0 +1,47 @@
+# Packages the Chrome extension and attaches it as a release asset.
+# Runs only when tools/chrome-extension/** changes on main — not on every release.
+
+name: Chrome Extension Package
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "tools/chrome-extension/**"
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # needed to upload release assets
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.3
+
+      - name: Get latest release tag
+        id: latest_release
+        run: |
+          TAG=$(gh release list --limit 1 --json tagName --jq '.[0].tagName')
+          if [ -z "$TAG" ]; then
+            echo "No release found, skipping."
+            exit 1
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Package extension
+        run: |
+          cd tools
+          zip -r api-engagement-assistant.zip chrome-extension/ \
+            --exclude "chrome-extension/README.md"
+          echo "Archive size: $(du -sh api-engagement-assistant.zip | cut -f1)"
+
+      - name: Upload asset to latest release
+        run: |
+          gh release upload ${{ steps.latest_release.outputs.tag }} \
+            tools/api-engagement-assistant.zip \
+            --clobber
+        env:
+          GH_TOKEN: ${{ github.token }}
