@@ -62,11 +62,27 @@ function updateBadge(tabId, events) {
 // In-memory source of truth — JS est single-threaded, les appends sont atomiques.
 // Évite la race condition read/modify/write sur chrome.storage.session quand plusieurs
 // requêtes /r/* se terminent simultanément (ex. burst d'impressions).
+// Hydratation depuis storage au premier accès : préserve l'historique si le service
+// worker a été arrêté et redémarré entre deux requêtes sur le même onglet.
 const tabEvents = new Map();
 
-function getEvents(tabId) {
-  if (!tabEvents.has(tabId)) tabEvents.set(tabId, []);
-  return tabEvents.get(tabId);
+// Chaque tabId a au plus une Promise de chargement en cours — les appels concurrents
+// attendent la même promesse plutôt que de déclencher plusieurs lectures storage.
+const tabEventsLoading = new Map();
+
+async function getEventsForTab(tabId) {
+  if (tabEvents.has(tabId)) return tabEvents.get(tabId);
+  if (!tabEventsLoading.has(tabId)) {
+    const p = chrome.storage.session.get(`tab_${tabId}`).then((stored) => {
+      if (!tabEvents.has(tabId)) {
+        tabEvents.set(tabId, stored[`tab_${tabId}`] || []);
+      }
+      tabEventsLoading.delete(tabId);
+      return tabEvents.get(tabId);
+    });
+    tabEventsLoading.set(tabId, p);
+  }
+  return tabEventsLoading.get(tabId);
 }
 
 function persistEvents(tabId) {
@@ -74,13 +90,13 @@ function persistEvents(tabId) {
 }
 
 chrome.webRequest.onCompleted.addListener(
-  (details) => {
+  async (details) => {
     if (!details.tabId || details.tabId < 0) return;
 
     const event = parseEvent(details);
     if (!event) return;
 
-    const events = getEvents(details.tabId);
+    const events = await getEventsForTab(details.tabId);
     events.push(event);
     persistEvents(details.tabId);
 
@@ -92,6 +108,15 @@ chrome.webRequest.onCompleted.addListener(
   },
   { urls: [`${EVENT_HOST}/r/*`] }
 );
+
+// Clear demandé depuis le popup
+chrome.runtime.onMessage.addListener((message) => {
+  if (message.type === "ae_clear" && message.tabId != null) {
+    tabEvents.set(message.tabId, []);
+    tabEventsLoading.delete(message.tabId);
+    chrome.storage.session.remove(`tab_${message.tabId}`);
+  }
+});
 
 // Reset events on page navigation
 chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {

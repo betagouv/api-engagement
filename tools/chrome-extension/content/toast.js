@@ -14,13 +14,18 @@ const TYPE_LABELS = {
   "confirm-human": "Confirm human",
 };
 
+function escapeHtml(str) {
+  return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
 function formatParams(params) {
   const keys = ["publisher", "mission", "view", "clientEventId"];
   return keys
     .filter((k) => params[k])
     .map((k) => {
-      const val = params[k];
-      return `<span style="opacity:.7">${k}:</span> ${val.length > 20 ? val.slice(0, 20) + "…" : val}`;
+      const raw = String(params[k]);
+      const truncated = raw.length > 20 ? raw.slice(0, 20) + "…" : raw;
+      return `<span style="opacity:.7">${escapeHtml(k)}:</span> ${escapeHtml(truncated)}`;
     })
     .join("  ");
 }

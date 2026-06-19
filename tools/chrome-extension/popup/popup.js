@@ -43,7 +43,7 @@ function renderTagStatus(info) {
   }
 
   wrapper.innerHTML = renderNotice("success", "Jstag détecté");
-  details.style.display = "";
+  details.style.display = "block";
 
   document.getElementById("detail-publisher").textContent = info.publisherId || "Non configuré";
 
@@ -150,8 +150,8 @@ async function init() {
   const stored = await chrome.storage.session.get(key);
   renderEvents(stored[key] || []);
 
-  document.getElementById("btn-clear").addEventListener("click", async () => {
-    await chrome.storage.session.remove(key);
+  document.getElementById("btn-clear").addEventListener("click", () => {
+    chrome.runtime.sendMessage({ type: "ae_clear", tabId: tab.id });
     chrome.action.setBadgeText({ text: "", tabId: tab.id });
     renderEvents([]);
   });

@@ -1,13 +1,11 @@
-# Packages the Chrome extension and attaches it as a release asset.
-# Runs only when tools/chrome-extension/** changes on main — not on every release.
+# Repackage manuelle de l'extension Chrome et mise à jour de l'asset sur la dernière release.
+# Le packaging automatique est intégré à release.yml (déclenché uniquement si les fichiers
+# de l'extension ont changé depuis le tag précédent). Ce workflow sert au repackaging ad hoc.
 
 name: Chrome Extension Package
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "tools/chrome-extension/**"
+  workflow_dispatch:
 
 jobs:
   package:
