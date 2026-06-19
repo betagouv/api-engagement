@@ -59,50 +59,57 @@ function updateBadge(tabId, events) {
   chrome.action.setBadgeBackgroundColor({ color: "#1a7a4a", tabId });
 }
 
+// In-memory source of truth — JS est single-threaded, les appends sont atomiques.
+// Évite la race condition read/modify/write sur chrome.storage.session quand plusieurs
+// requêtes /r/* se terminent simultanément (ex. burst d'impressions).
+const tabEvents = new Map();
+
+function getEvents(tabId) {
+  if (!tabEvents.has(tabId)) tabEvents.set(tabId, []);
+  return tabEvents.get(tabId);
+}
+
+function persistEvents(tabId) {
+  chrome.storage.session.set({ [`tab_${tabId}`]: tabEvents.get(tabId) || [] });
+}
+
 chrome.webRequest.onCompleted.addListener(
-  async (details) => {
+  (details) => {
     if (!details.tabId || details.tabId < 0) return;
 
     const event = parseEvent(details);
     if (!event) return;
 
-    const key = `tab_${details.tabId}`;
-    const stored = await chrome.storage.session.get(key);
-    const events = stored[key] || [];
+    const events = getEvents(details.tabId);
     events.push(event);
-    await chrome.storage.session.set({ [key]: events });
+    persistEvents(details.tabId);
 
     updateBadge(details.tabId, events);
 
-    // Send toast to content script
-    try {
-      await chrome.tabs.sendMessage(details.tabId, { type: "ae_event", event });
-    } catch {
-      // Content script not yet injected on this page — ignore
-    }
+    chrome.tabs.sendMessage(details.tabId, { type: "ae_event", event }).catch(() => {
+      // Content script pas encore injecté sur cette page — ignoré
+    });
   },
   { urls: [`${EVENT_HOST}/r/*`] }
 );
 
 // Reset events on page navigation
-chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
+chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
   if (changeInfo.status !== "loading") return;
-  const key = `tab_${tabId}`;
-  await chrome.storage.session.remove(key);
+  tabEvents.set(tabId, []);
+  persistEvents(tabId);
   chrome.action.setBadgeText({ text: "", tabId });
 });
 
 // Cleanup on tab close
-chrome.tabs.onRemoved.addListener(async (tabId) => {
-  const key = `tab_${tabId}`;
-  await chrome.storage.session.remove(key);
+chrome.tabs.onRemoved.addListener((tabId) => {
+  tabEvents.delete(tabId);
+  chrome.storage.session.remove(`tab_${tabId}`);
 });
 
 // Badge for active tab when switching tabs
-chrome.tabs.onActivated.addListener(async ({ tabId }) => {
-  const key = `tab_${tabId}`;
-  const stored = await chrome.storage.session.get(key);
-  const events = stored[key] || [];
+chrome.tabs.onActivated.addListener(({ tabId }) => {
+  const events = getEvents(tabId);
   if (events.length > 0) {
     chrome.action.setBadgeText({ text: String(events.length), tabId });
     chrome.action.setBadgeBackgroundColor({ color: "#1a7a4a", tabId });

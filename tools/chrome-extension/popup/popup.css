@@ -32,6 +32,11 @@
   font-style: normal;
 }
 
+/* État initial masqué via CSS — évite de dépendre de style="display:none" bloqué par la CSP */
+#tag-details {
+  display: none;
+}
+
 body {
   width: 400px;
   min-height: 160px;
