@@ -61,7 +61,18 @@ export const SCORING_RULES = {
   },
 } satisfies MissionScoringRules;
 
-const intersect = (sets: Set<TaxonomyValueKey>[]): Set<TaxonomyValueKey> => sets.reduce((acc, set) => new Set([...acc].filter((key) => set.has(key))));
+/**
+ * Intersection d'une liste d'ensembles. Fonction **totale** : retourne un ensemble vide pour
+ * une liste vide, là où `reduce` sans valeur initiale lèverait. Exportée pour être testée
+ * directement (le cas « intersection vide » n'est pas atteignable via les règles réelles).
+ */
+export const intersect = (sets: Set<TaxonomyValueKey>[]): Set<TaxonomyValueKey> => {
+  const [first, ...rest] = sets;
+  if (!first) {
+    return new Set<TaxonomyValueKey>();
+  }
+  return rest.reduce((acc, set) => new Set([...acc].filter((key) => set.has(key))), new Set(first));
+};
 
 /**
  * Résout les clés de taxonomie injectées déterministiquement pour une mission.
@@ -111,10 +122,14 @@ export const getMissionScoringRuleKeys = (mission: MissionScoringRuleMission): T
   for (const [taxonomyKey, sets] of constraintsByTaxonomy) {
     const intersection = intersect(sets);
     if (intersection.size === 0) {
-      // Garde-fou : une intersection vide n'injecterait aucune valeur, ce que le matching
-      // interprète comme « aucune contrainte » (gate inactif) plutôt que « personne ne passe ».
-      // Cas non atteint avec les règles actuelles ; on loggue au lieu d'ouvrir la mission.
-      console.warn(`[mission-scoring] intersection vide pour la taxonomie '${taxonomyKey}' — contrainte de gate non appliquée`);
+      // Garde-fou de SÛRETÉ : une intersection vide n'injecterait aucune valeur, ce que le
+      // matching interprète comme « aucune contrainte » (gate inactif, mission ouverte à tous)
+      // plutôt que « personne ne passe ». Pour un gate de sûreté comme `tranche_age` (exclusion
+      // des mineurs), ce fail-open est dangereux. Le mécanisme d'allowlist ne permet pas de
+      // « bloquer tout le monde » proprement, donc on conserve le fail-open mais on le rend
+      // bruyant : c'est une anomalie de configuration. L'invariant « aucune règle tranche_age
+      // n'est un sous-ensemble de mineurs » (cf. test) garantit que ce cas est inatteignable.
+      console.error(`[mission-scoring] ANOMALIE config: intersection vide pour la taxonomie '${taxonomyKey}' — gate NON appliqué (fail-open). Vérifier SCORING_RULES.`);
       continue;
     }
 
