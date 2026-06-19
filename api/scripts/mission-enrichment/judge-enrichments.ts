@@ -109,6 +109,21 @@ const JUDGE_SCHEMA = z.object({
 
 type JudgeResult = z.infer<typeof JUDGE_SCHEMA>;
 
+const enforceVerdictInvariants = (result: JudgeResult): JudgeResult => {
+  const wrongCount = result.classifications_review.filter((c) => c.status === "wrong").length;
+  if (wrongCount === 0) return result;
+
+  let verdict = result.verdict;
+  if (verdict === "approved") {
+    verdict = "flagged_minor";
+  }
+  if (wrongCount >= 4 && verdict === "flagged_minor") {
+    verdict = "flagged_major";
+  }
+
+  return verdict === result.verdict ? result : { ...result, verdict };
+};
+
 // ─── Prompt ──────────────────────────────────────────────────────────────────
 
 const buildJudgeSystemPrompt = (taxonomyBlock: string): string => `\
@@ -323,7 +338,7 @@ const runJudge = async (params: {
       inputTokens: llmResult.usage.inputTokens,
       outputTokens: llmResult.usage.outputTokens,
       totalTokens: llmResult.usage.totalTokens,
-      result: llmResult.object,
+      result: enforceVerdictInvariants(llmResult.object),
     };
   } catch (err) {
     const error = err as { message?: string };
