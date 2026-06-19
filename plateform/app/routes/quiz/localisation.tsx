@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type SubmitEvent } from "react";
 import { useOutletContext } from "react-router";
-import QuizTransition from "~/components/quiz/quiz-transition";
 import Label from "~/components/quiz/label";
 import MissionCard from "~/components/quiz/mission-card";
 import NextButton from "~/components/quiz/next-button";
+import QuizTransition from "~/components/quiz/quiz-transition";
 import Highlight from "~/components/ui/highlight";
-import { searchAddress, reverseGeocode, type GeoSuggestion } from "~/services/geolocation";
+import { reverseGeocode, searchAddress, type GeoSuggestion } from "~/services/geolocation";
 import { useQuizStore } from "~/stores/quiz";
 import type { QuizOutletContext } from "./_layout";
 
@@ -217,7 +217,7 @@ export default function LocalisationStep() {
             <ul
               id={LISTBOX_ID}
               role="listbox"
-              className="absolute z-50 top-full left-0 right-0 mt-1 bg-white border border-border-default-grey max-h-60 overflow-auto shadow-md list-none! p-0! m-0!"
+              className="absolute z-50 top-full left-0 right-0 mt-1 bg-background border border-border-default-grey max-h-60 overflow-auto shadow-md list-none! p-0! m-0!"
             >
               {options.map((option, index) => (
                 <li

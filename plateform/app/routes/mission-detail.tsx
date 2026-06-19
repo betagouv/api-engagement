@@ -13,6 +13,7 @@ import MissionLocationCard from "~/components/mission-detail/location-card";
 import SimilarMissions from "~/components/mission-detail/similar-missions";
 import GradientBg from "~/components/ui/gradient-bg";
 import { fetchMissionDetail } from "~/services/mission-browse";
+import { formatDeadline } from "~/utils/mission";
 
 export default function MissionDetailPage() {
   const { missionId, userScoringId } = useParams<{ missionId: string; userScoringId?: string }>();
@@ -33,6 +34,7 @@ export default function MissionDetailPage() {
 
   const backPath = userScoringId ? `/results/${userScoringId}` : "/";
   const backLabel = userScoringId ? "Retour aux résultats" : "Accueil";
+  const deadlineLabel = mission ? formatDeadline(mission.endAt) : null;
 
   if (loading) {
     return (
@@ -72,9 +74,12 @@ export default function MissionDetailPage() {
             </div>
           )}
 
-          <div className="mx-auto max-w-[1200px] px-5 py-6 md:px-6 md:py-10">
-            <div className="flex flex-col gap-6 md:flex-row md:items-start">
-              <div className="flex min-w-0 flex-1 flex-col gap-6">
+          <div className={`mx-auto max-w-[1200px] ${userScoringId ? "pb-6" : "pb-28"} md:pt-6 md:px-6 md:py-10 bg-beige-gris-galet-975 md:bg-transparent`}>
+            <Link to={backPath} className="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-left-line fr-btn--icon-left mb-6 hidden! md:inline-flex!">
+              {backLabel}
+            </Link>
+            <div className="flex flex-col md:flex-row md:items-start gap-6">
+              <div className="flex min-w-0 flex-1 flex-col gap-0! md:gap-6!">
                 <MissionHeroCard mission={mission} />
                 {mission.location && <MissionLocationCard location={mission.location} />}
                 <div className="md:hidden">
@@ -102,8 +107,9 @@ export default function MissionDetailPage() {
 
       <div className="fixed right-0 bottom-0 left-0 z-10 border-t border-[#DDD] bg-white px-5 py-4 md:hidden">
         <a href={mission.applicationUrl} target="_blank" rel="noopener noreferrer" className="fr-btn w-full! justify-center!">
-          Découvrir la mission
+          Postuler
         </a>
+        {deadlineLabel && <p className="text-mention-grey text-sm! md:hidden text-center! mt-4! mb-0!">{deadlineLabel}</p>}
       </div>
     </>
   );

@@ -1,9 +1,4 @@
 import { useLoaderData, useNavigate } from "react-router";
-
-export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
-  const serverData = await serverLoader();
-  return { ...serverData, backHref: null };
-}
 import Hero from "~/components/landing/hero";
 import HowItWorks from "~/components/landing/how-it-works";
 import MissionExamples from "~/components/landing/mission-examples";
@@ -14,6 +9,11 @@ import Partners from "~/components/layout/partners";
 import GradientBg from "~/components/ui/gradient-bg";
 import { browseMissions } from "~/services/api/missions";
 import { useQuizStore } from "~/stores/quiz";
+
+export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
+  const serverData = await serverLoader();
+  return { ...serverData, backHref: null };
+}
 
 import type { Route } from "./+types/_index";
 
@@ -56,21 +56,21 @@ export default function Landing() {
   return (
     <main>
       <GradientBg className="bg-size-[100%_640px]">
-        <div className="relative md:min-h-[640px] md:overflow-hidden">
+        <div className="relative lg:min-h-[640px] lg:overflow-hidden">
           <Hero onStartQuiz={handleStartQuiz} />
-          <div className="relative overflow-hidden w-full md:absolute md:right-[-140px] md:top-0 md:h-[640px] md:w-auto md:max-w-[1024px]">
+          <div className="relative overflow-hidden w-full lg:absolute lg:right-[-140px] lg:top-0 lg:h-[640px] lg:w-[80%] xl:w-auto lg:max-w-[1024px]">
             <svg
               aria-hidden
               viewBox="0 0 100 100"
               preserveAspectRatio="none"
-              className="absolute left-1/2 top-0 -translate-x-1/2 h-[680px] w-[680px] md:top-[20px] md:h-[480px] md:w-[580px] text-yellow-moutarde-975 dark:text-transparent"
+              className="absolute left-1/2 top-0 -translate-x-1/2 h-[680px] w-[680px] lg:top-[20px] lg:h-[480px] lg:w-[580px] text-yellow-moutarde-975 dark:text-transparent"
             >
               <ellipse cx="50" cy="50" rx="50" ry="50" fill="currentColor" />
             </svg>
-            <img src={LandingPng} alt="" className="relative block object-cover h-[420px] w-full md:h-[640px] md:w-auto md:object-contain" />
+            <img src={LandingPng} alt="" className="relative block object-cover h-[420px] w-full lg:h-[640px] lg:w-full lg:object-contain lg:object-right" />
           </div>
         </div>
-        <MissionExamples missions={examples} className="-mt-14 md:-mt-16" />
+        <MissionExamples missions={examples} className="-mt-14 lg:-mt-16" />
       </GradientBg>
       <HowItWorks />
       <Testimonials />
