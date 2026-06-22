@@ -9,12 +9,6 @@ import { buildMissionBlock, buildTaxonomyBlock } from "@/services/mission-enrich
 import type { MissionForPrompt, TaxonomyForPrompt } from "@/services/mission-enrichment/prompts/types";
 import { buildTaxonomyGuidanceBlock as buildTaxonomyGuidanceBlockV2 } from "@/services/mission-enrichment/prompts/v2";
 import { buildTaxonomyGuidanceBlock as buildTaxonomyGuidanceBlockV3 } from "@/services/mission-enrichment/prompts/v3";
-
-const GUIDANCE_BLOCKS: Record<string, () => string> = {
-  v2: buildTaxonomyGuidanceBlockV2,
-  v3: buildTaxonomyGuidanceBlockV3,
-};
-const buildTaxonomyGuidanceBlock = (): string => (GUIDANCE_BLOCKS[version] ?? buildTaxonomyGuidanceBlockV2)();
 import { ENRICHABLE_TAXONOMIES, TAXONOMY } from "@engagement/taxonomy";
 import { generateObject } from "ai";
 import { spawnSync } from "child_process";
@@ -23,6 +17,12 @@ import path from "path";
 import { performance } from "perf_hooks";
 import { setTimeout as sleep } from "timers/promises";
 import { z } from "zod";
+
+const GUIDANCE_BLOCKS: Record<string, () => string> = {
+  v2: buildTaxonomyGuidanceBlockV2,
+  v3: buildTaxonomyGuidanceBlockV3,
+};
+const buildTaxonomyGuidanceBlock = (): string => (GUIDANCE_BLOCKS[version] ?? buildTaxonomyGuidanceBlockV2)();
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
@@ -162,7 +162,7 @@ RÈGLE ABSOLUE : si au moins un tag est classé "wrong" dans classificationsRevi
 
 ## Règles spécifiques par taxonomy
 
-- Si `region_internationale` est attribué à une mission se déroulant à Mayotte, en Martinique, en Guadeloupe, en Guyane ou à La Réunion, le statut doit être "wrong". Ces territoires sont administrativement France et ne constituent pas une mission internationale.
+- Si \`region_internationale\` est attribué à une mission se déroulant à Mayotte, en Martinique, en Guadeloupe, en Guyane ou à La Réunion, le statut doit être "wrong". Ces territoires sont administrativement France et ne constituent pas une mission internationale.
 
 ## Principes fondamentaux
 
