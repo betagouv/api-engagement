@@ -1,4 +1,5 @@
 import { TRACKING_PROVIDER } from "~/services/config";
+import { useQuizStore } from "~/stores/quiz";
 
 import { createProvider } from "./providers";
 import type { TrackingProperties, TrackingProvider, TrackingProviderName, TrackingTraits } from "./types";
@@ -22,11 +23,12 @@ function getProvider(): TrackingProvider | null {
   return provider;
 }
 
-// Initialise le tracking (chargement éventuel du SDK). Optionnel : `track`/`identify`
-// initialisent le provider à la demande. À appeler une fois côté client si on veut
-// déclencher l'init au plus tôt (ex. dans un effet de `root.tsx`).
+// Initialise le tracking côté client et identifie l'utilisateur par le `distinctId` persistant
+// du quiz, afin de réconcilier ses sessions dans PostHog (consentement assumé pour l'instant).
+// TODO(cookie-banner) : sans consentement, ne pas appeler `identify` (rester anonyme/cookieless).
 export function initTracking(): void {
-  getProvider();
+  if (!getProvider()) return;
+  identify(useQuizStore.getState().distinctId);
 }
 
 // Enregistre un évènement avec ses propriétés. No-op pendant le SSR.

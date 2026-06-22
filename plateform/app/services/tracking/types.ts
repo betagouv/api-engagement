@@ -22,6 +22,5 @@ export interface TrackingProvider {
   identify?(distinctId: string, traits?: TrackingTraits): void;
 }
 
-// Liste des providers supportés. Pour l'instant seul `local` est implémenté ; les autres
-// servent de cibles connues pour le choix d'outil (VITE_TRACKING_PROVIDER).
-export type TrackingProviderName = "local" | "posthog" | "umami" | "plausible" | "matomo";
+// Providers supportés : `posthog` en production, `local` (console.log) pour le développement.
+export type TrackingProviderName = "local" | "posthog";

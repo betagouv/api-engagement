@@ -4,11 +4,12 @@ import faviconIco from "@gouvfr/dsfr/dist/favicon/favicon.ico?url";
 import faviconSvg from "@gouvfr/dsfr/dist/favicon/favicon.svg?url";
 import webmanifest from "@gouvfr/dsfr/dist/favicon/manifest.webmanifest?url";
 import "@gouvfr/dsfr/dist/utility/utility.min.css";
-import { type ReactNode } from "react";
+import { type ReactNode, useEffect } from "react";
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 import Footer from "~/components/layout/footer";
 import Header from "~/components/layout/header";
 import { PUBLISHER_ID } from "~/services/config";
+import { initTracking } from "~/services/tracking";
 import { serializeForInlineScript } from "~/utils/string";
 import "./main.css";
 
@@ -41,6 +42,11 @@ export function Layout({ children }: { children: ReactNode }) {
 }
 
 export default function Root() {
+  // Initialise le tracking côté navigateur une seule fois au montage de l'app.
+  useEffect(() => {
+    initTracking();
+  }, []);
+
   return (
     <>
       <Header />
