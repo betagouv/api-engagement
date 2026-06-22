@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-scheme="system">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Engagement Tag Assistant</title>
+    <link rel="stylesheet" href="https://unpkg.com/@gouvfr/dsfr@1.14.4/dist/dsfr.min.css" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+
+    <!-- Header -->
+    <div class="ae-header fr-py-1v fr-px-2w">
+      <span class="fr-text--sm fr-text--bold fr-m-0">API Engagement — Assistant</span>
+    </div>
+
+    <!-- F1 — Statut du tag -->
+    <div id="tag-status" class="fr-px-2w fr-py-1w fr-background-alt--grey">
+
+      <!-- Alerte de détection (remplacée dynamiquement) -->
+      <div id="notice-wrapper">
+        <div class="fr-alert fr-alert--info fr-alert--sm">
+          <p>Détection en cours…</p>
+        </div>
+      </div>
+
+      <!-- Cookie — toujours affiché -->
+      <dl class="ae-dl fr-mt-1w fr-m-0">
+        <div class="ae-dl__row">
+          <dt class="ae-dl__label fr-text--xs">Cookie</dt>
+          <dd id="detail-cookie" class="ae-dl__value fr-text--xs">—</dd>
+        </div>
+      </dl>
+
+      <!-- Détails jstag (masqués si absent) -->
+      <div id="tag-details" class="fr-mt-1v">
+        <dl class="ae-dl ae-dl--bordered fr-m-0">
+          <div class="ae-dl__row">
+            <dt class="ae-dl__label fr-text--xs">Publisher ID</dt>
+            <dd id="detail-publisher" class="ae-dl__value fr-text--xs fr-text--bold mono">—</dd>
+          </div>
+          <div class="ae-dl__row">
+            <dt class="ae-dl__label fr-text--xs">Source</dt>
+            <dd id="detail-source" class="ae-dl__value fr-text--xs">—</dd>
+          </div>
+          <div class="ae-dl__row">
+            <dt class="ae-dl__label fr-text--xs">Version</dt>
+            <dd id="detail-version" class="ae-dl__value fr-text--xs mono">—</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+
+    <!-- Séparateur -->
+    <hr class="fr-hr fr-m-0" />
+
+    <!-- F2 — Événements -->
+    <div class="fr-px-2w fr-pt-1w fr-pb-2w">
+      <div class="ae-events-header fr-mb-1v">
+        <span class="fr-text--xs fr-text--bold ae-section-title">ÉVÉNEMENTS</span>
+        <button id="btn-clear" class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm ae-btn-clear" title="Effacer">
+          Effacer
+        </button>
+      </div>
+
+      <div id="events-list">
+        <p id="empty-state" class="fr-text--sm fr-hint-text fr-text--center fr-py-2w fr-m-0">
+          Aucun événement sur cette page.
+        </p>
+      </div>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
