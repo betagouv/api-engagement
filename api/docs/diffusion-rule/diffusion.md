@@ -33,7 +33,7 @@ Une règle de diffusion compare un **champ** de la mission à une **valeur**, vi
 }
 ```
 
-Cette règle se lit : « ne diffuser vers ce diffuseur que les missions dont le `type` n'est pas `benevolat` ».
+Cette règle se lit : « Diffuseur les missions à ce diffuseur (`5f5931496c7ea514150a818f`) qui `ne sont pas` de `type` `benevolat` ».
 
 ### Combinaison des règles
 
@@ -52,26 +52,26 @@ Les règles sont définies **par diffuseur** : une règle créée pour le diffus
 
 ## Les champs disponibles (`field`)
 
-| Champ | Description | Exemple de valeur |
-| --- | --- | --- |
-| `type` | Type de la mission | `benevolat`, `volontariat_service_civique` |
-| `publisherOrganizationId` | Identifiant API Engagement de l'organisation porteuse de la mission | `9b1c2d3e-4f56-7890-abcd-ef0123456789` |
-| `publisherOrganization.clientId` | Identifiant de l'organisation dans **votre** système (celui que vous transmettez à la création de vos missions) | `12345` |
-| `publisherOrganization.parentOrganizations` | Réseaux / organisations parentes de l'organisation porteuse (champ **tableau**) | `Marine nationale` |
+| Champ                                       | Description                                                                                                     | Exemple de valeur                          |
+| ------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| `type`                                      | Type de la mission                                                                                              | `benevolat`, `volontariat_service_civique` |
+| `publisherOrganizationId`                   | Identifiant API Engagement de l'organisation porteuse de la mission                                             | `9b1c2d3e-4f56-7890-abcd-ef0123456789`     |
+| `publisherOrganization.clientId`            | Identifiant de l'organisation dans **votre** système (celui que vous transmettez à la création de vos missions) | `12345`                                    |
+| `publisherOrganization.parentOrganizations` | Réseaux / organisations parentes de l'organisation porteuse (champ **tableau**)                                 | `Marine nationale`                         |
 
 ## Les opérateurs (`operator`)
 
-| Opérateur | La mission est diffusée si… |
-| --- | --- |
-| `is` | le champ est égal à la valeur |
-| `is_not` | le champ est différent de la valeur |
-| `contains` | le champ contient la valeur (insensible à la casse) |
-| `does_not_contain` | le champ ne contient pas la valeur (insensible à la casse) |
-| `starts_with` | le champ commence par la valeur (insensible à la casse) |
-| `is_greater_than` | le champ est strictement supérieur à la valeur |
-| `is_less_than` | le champ est strictement inférieur à la valeur |
-| `exists` | le champ est renseigné (la valeur fournie est ignorée) |
-| `does_not_exist` | le champ n'est pas renseigné (la valeur fournie est ignorée) |
+| Opérateur          | La mission est diffusée si…                                  |
+| ------------------ | ------------------------------------------------------------ |
+| `is`               | le champ est égal à la valeur                                |
+| `is_not`           | le champ est différent de la valeur                          |
+| `contains`         | le champ contient la valeur (insensible à la casse)          |
+| `does_not_contain` | le champ ne contient pas la valeur (insensible à la casse)   |
+| `starts_with`      | le champ commence par la valeur (insensible à la casse)      |
+| `is_greater_than`  | le champ est strictement supérieur à la valeur               |
+| `is_less_than`     | le champ est strictement inférieur à la valeur               |
+| `exists`           | le champ est renseigné (la valeur fournie est ignorée)       |
+| `does_not_exist`   | le champ n'est pas renseigné (la valeur fournie est ignorée) |
 
 {% hint style="info" %}
 **Cas particulier des champs tableau** (`publisherOrganization.parentOrganizations`) : `is` et `contains` testent la **présence exacte** de la valeur dans le tableau (insensible à la casse), `is_not` et `does_not_contain` testent son absence. Il n'y a pas de correspondance par sous-chaîne : `does_not_contain "Marine"` n'exclut pas une mission dont le réseau est `Marine nationale`.
