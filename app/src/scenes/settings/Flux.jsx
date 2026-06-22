@@ -94,7 +94,7 @@ const Flux = () => {
         <div className="h-px w-full bg-gray-900" />
 
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-          <label className="font-semibold sm:w-[35%]">Dernière synchronisation</label>
+          <p className="font-semibold sm:w-[35%]">Dernière synchronisation</p>
           <div className="flex flex-1 gap-2">
             {imports.length > 0 && lastSync < new Date(Date.now() - 24 * 60 * 60 * 1000) ? (
               <div className="items-center">

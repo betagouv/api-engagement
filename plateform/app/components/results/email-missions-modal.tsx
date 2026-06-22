@@ -69,13 +69,7 @@ export default function EmailMissionsModal({ userScoringId, open: controlledOpen
         </button>
       )}
 
-      <Modal
-        open={open}
-        onClose={handleClose}
-        title="Reçois tes missions par email"
-        beforeTitle={<MailIllustration className="mx-auto mb-6 h-[120px]" />}
-        className="[&_.fr-modal\_\_content]:max-h-[90vh]"
-      >
+      <Modal open={open} onClose={handleClose} title="Reçois tes missions par email" beforeTitle={<MailIllustration className="mx-auto mb-6 h-[100px]" />} className="">
         {success ? (
           <div className="flex flex-col items-center gap-4 py-4 text-center">
             <div className="fr-alert fr-alert--success w-full">

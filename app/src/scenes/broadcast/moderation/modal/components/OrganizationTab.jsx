@@ -89,6 +89,7 @@ const OrganizationTab = ({ data, onChange }) => {
 
             <Autocomplete
               id="organization-siren"
+              hideLabel
               options={organizations}
               value={values.siren}
               onChange={(e) => handleChange("siren", e)}
@@ -112,6 +113,7 @@ const OrganizationTab = ({ data, onChange }) => {
             </label>
             <Autocomplete
               id="organization-rna"
+              hideLabel
               options={organizations}
               value={values.rna}
               onChange={(e) => handleChange("rna", e)}

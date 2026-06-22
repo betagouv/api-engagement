@@ -1,0 +1,218 @@
+/* Fonts Marianne en local — priorité sur les @font-face du CDN, fonctionne hors-ligne */
+@font-face {
+  font-family: Marianne;
+  src:
+    url("../dsfr/fonts/Marianne-Light.woff2") format("woff2"),
+    url("../dsfr/fonts/Marianne-Light.woff") format("woff");
+  font-weight: 300;
+  font-style: normal;
+}
+@font-face {
+  font-family: Marianne;
+  src:
+    url("../dsfr/fonts/Marianne-Regular.woff2") format("woff2"),
+    url("../dsfr/fonts/Marianne-Regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: Marianne;
+  src:
+    url("../dsfr/fonts/Marianne-Medium.woff2") format("woff2"),
+    url("../dsfr/fonts/Marianne-Medium.woff") format("woff");
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: Marianne;
+  src:
+    url("../dsfr/fonts/Marianne-Bold.woff2") format("woff2"),
+    url("../dsfr/fonts/Marianne-Bold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+}
+
+/* État initial masqué via CSS — évite de dépendre de style="display:none" bloqué par la CSP */
+#tag-details {
+  display: none;
+}
+
+body {
+  width: 400px;
+  min-height: 160px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+/* Header */
+.ae-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--blue-france-sun-113-625);
+  color: #fff;
+}
+
+.ae-header__logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.ae-header .fr-text--sm {
+  color: #fff;
+}
+
+/* Description list — reset DSFR margins on dt/dd */
+.ae-dl {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.ae-dl__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0;
+}
+
+.ae-dl__label,
+.ae-dl__value {
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1.4 !important;
+}
+
+.ae-dl__label {
+  color: var(--text-mention-grey);
+  width: 80px;
+  flex-shrink: 0;
+}
+
+.ae-dl__value {
+  color: var(--text-default-grey);
+}
+
+/* badge inline dans les détails */
+.ae-dl__value .fr-badge {
+  margin: 0 !important;
+}
+
+.ae-dl--bordered {
+  border-top: 1px solid var(--border-default-grey);
+  padding-top: 4px;
+  margin-top: 4px !important;
+}
+
+.mono {
+  font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11px !important;
+}
+
+/* Events section header */
+.ae-events-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ae-section-title {
+  color: var(--text-mention-grey);
+  letter-spacing: 0.06em;
+}
+
+.ae-btn-clear {
+  color: var(--text-mention-grey) !important;
+  padding: 0 !important;
+  min-height: unset !important;
+  height: auto !important;
+  font-size: 11px !important;
+}
+
+/* Event item */
+.ae-event {
+  border-left: 3px solid var(--border-default-grey);
+  padding: 8px 0 8px 10px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-default-grey);
+}
+
+.ae-event:last-child {
+  border-bottom: none;
+}
+
+.ae-event:hover {
+  background: var(--background-alt-grey);
+}
+
+.ae-event[data-type="apply"] {
+  border-left-color: var(--success-main-525);
+}
+.ae-event[data-type="account"] {
+  border-left-color: var(--info-main-525);
+}
+.ae-event[data-type="impression"] {
+  border-left-color: var(--text-mention-grey);
+}
+.ae-event[data-type="confirm-human"] {
+  border-left-color: var(--warning-main-525);
+}
+
+.ae-event__header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ae-event__time {
+  margin-left: auto;
+  color: var(--text-mention-grey);
+  font-size: 10px;
+  font-family: monospace;
+}
+
+.ae-event__params {
+  display: none;
+  margin-top: 6px;
+  background: var(--background-alt-grey);
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 11px;
+}
+
+.ae-event.expanded .ae-event__params {
+  display: block;
+}
+
+.ae-param-row {
+  display: flex;
+  gap: 6px;
+  line-height: 1.7;
+  word-break: break-all;
+}
+
+.ae-param-key {
+  color: var(--text-mention-grey);
+  flex-shrink: 0;
+}
+
+.ae-param-val {
+  color: var(--text-default-grey);
+}
+
+/* DSFR alert compact dans la section statut */
+#tag-status .fr-alert {
+  margin-bottom: 0 !important;
+}
+
+/* fr-badge dans les headers d'événements — reset margin DSFR */
+.ae-event__header .fr-badge {
+  margin: 0 !important;
+}

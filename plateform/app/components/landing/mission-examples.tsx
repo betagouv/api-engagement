@@ -38,7 +38,7 @@ export default function MissionExamples({ missions, className }: Props) {
           ref={scrollRef}
           id="missions-carousel"
           onScroll={updateScrollState}
-          className="snap-x snap-mandatory md:snap-none overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [margin-left:calc(50%-50vw)] [margin-right:calc(50%-50vw)] md:ml-0"
+          className="snap-x snap-mandatory md:snap-none overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ml-[calc(50%-50vw)] mr-[calc(50%-50vw)] md:pl-[calc(50vw-50%)]"
           aria-live="polite"
           aria-atomic="false"
         >
@@ -63,7 +63,7 @@ export default function MissionExamples({ missions, className }: Props) {
                     <p className="fr-h6 line-clamp-2 mb-0!">{mission.title}</p>
                     <div className="fr-mt-auto flex items-center gap-2">
                       {mission.publisherLogo && (
-                        <div className="size-6 rounded object-contain bg-white">
+                        <div className="size-10 rounded object-contain bg-white">
                           <img src={mission.publisherLogo} alt="" className="size-full object-contain" />
                         </div>
                       )}
@@ -107,17 +107,16 @@ export default function MissionExamples({ missions, className }: Props) {
             <span aria-hidden className="fr-icon-arrow-left-s-line" />
           </button>
         )}
-        {canScrollRight && (
-          <button
-            type="button"
-            onClick={() => handleScroll("right")}
-            aria-label="Voir les missions suivantes"
-            aria-controls="missions-carousel"
-            className="bg-background! text-title-grey absolute right-0 top-1/2 hidden size-12 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full shadow-md md:flex"
-          >
-            <span aria-hidden className="fr-icon-arrow-right-s-line" />
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={() => handleScroll("right")}
+          disabled={!canScrollRight}
+          aria-label="Voir les missions suivantes"
+          aria-controls="missions-carousel"
+          className="bg-background! text-title-grey absolute right-0 top-1/2 hidden size-12 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full shadow-md md:flex disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          <span aria-hidden className="fr-icon-arrow-right-s-line" />
+        </button>
       </div>
     </section>
   );

@@ -7,9 +7,9 @@ interface HeroProps {
 export default function Hero({ onStartQuiz }: HeroProps) {
   return (
     <section className="fr-container pt-4! lg:pt-16!">
-      <div className="relative z-10 w-full lg:max-w-xl">
+      <div className="relative z-10 w-full lg:max-w-md lg:min-w-[320px] xl:max-w-xl">
         <h4 className="fr-h4">Tu veux te rendre utile ?</h4>
-        <h1 className="text-4xl! md:text-5xl! lg:text-7xl! text-title-grey">
+        <h1 className="text-4xl! md:text-5xl! lg:text-6xl! xl:text-7xl! text-title-grey">
           À chacun
           <br /> sa façon d'<Highlight>agir</Highlight>
         </h1>

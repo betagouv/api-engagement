@@ -27,6 +27,7 @@ jobs:
             jobs
             plateform
             ci
+            tools
             deps
             deps-dev
     env:

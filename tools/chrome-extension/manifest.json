@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "API Engagement Tag Assistant",
+  "version": "1.0.0",
+  "description": "Valide l'installation de jstag.js et visualise les événements de tracking sur les sites partenaires.",
+  "permissions": ["webRequest", "scripting", "activeTab", "storage", "tabs"],
+  "host_permissions": [
+    "https://api.api-engagement.beta.gouv.fr/*",
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background/service-worker.js"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content/toast.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self' https://unpkg.com; font-src 'self'; img-src 'self' data: https://unpkg.com;"
+  },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  }
+}
