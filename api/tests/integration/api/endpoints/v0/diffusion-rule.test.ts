@@ -2,9 +2,9 @@ import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
-import { PublisherMissionType, type PublisherRecord } from "@/types";
+import { type PublisherRecord } from "@/types";
 
-import { createTestPublisher } from "../../../../fixtures";
+import { createTestPublisher, createTestPublisherOrganization } from "../../../../fixtures";
 import { createTestApp } from "../../../../testApp";
 
 describe("DiffusionRule API Integration Tests", () => {
@@ -14,17 +14,19 @@ describe("DiffusionRule API Integration Tests", () => {
   let diffuseur1: PublisherRecord;
   let diffuseur2: PublisherRecord;
   let otherDiffuseur: PublisherRecord;
+  let organization: { id: string; clientId: string };
 
   beforeEach(async () => {
     publisher = await createTestPublisher();
     apiKey = publisher.apikey || "";
     diffuseur1 = await createTestPublisher({
-      publishers: [{ publisherId: publisher.id, publisherName: publisher.name, moderator: true, missionType: PublisherMissionType.BENEVOLAT }],
+      publishers: [{ publisherId: publisher.id }],
     });
     diffuseur2 = await createTestPublisher({
-      publishers: [{ publisherId: publisher.id, publisherName: publisher.name, moderator: true, missionType: PublisherMissionType.BENEVOLAT }],
+      publishers: [{ publisherId: publisher.id }],
     });
     otherDiffuseur = await createTestPublisher();
+    organization = await createTestPublisherOrganization({ publisherId: publisher.id, clientId: "org-1" });
   });
 
   /**
@@ -255,8 +257,8 @@ describe("DiffusionRule API Integration Tests", () => {
 
       const persisted = await publisherDiffusionRuleService.findRules({
         publisherIds: [diffuseur1.id, diffuseur2.id, otherDiffuseur.id],
-        field: validRule.field,
-        value: validRule.value,
+        field: "publisherOrganizationId",
+        value: organization.id,
       });
       expect(persisted.map((rule) => rule.publisherId).sort()).toEqual([diffuseur1.id, diffuseur2.id].sort());
     });
@@ -265,7 +267,7 @@ describe("DiffusionRule API Integration Tests", () => {
       const response = await request(app)
         .post("/v0/diffusion-rule")
         .set("x-api-key", apiKey)
-        .send({ publisherIds: [diffuseur1.id], field: "type", operator: "is_not", value: "benevolat" });
+        .send({ publisherIds: [diffuseur1.id], field: "publisherOrganization.parentOrganizations", operator: "does_not_contain", value: "Marine nationale" });
 
       expect(response.status).toBe(201);
       expect(response.body.data[0].fieldType).toBe("string");
@@ -289,8 +291,8 @@ describe("DiffusionRule API Integration Tests", () => {
 
       const persisted = await publisherDiffusionRuleService.findRules({
         publisherId: diffuseur1.id,
-        field: validRule.field,
-        value: validRule.value,
+        field: "publisherOrganizationId",
+        value: organization.id,
       });
       expect(persisted).toHaveLength(1);
     });
@@ -314,8 +316,8 @@ describe("DiffusionRule API Integration Tests", () => {
       // La règle d'origine n'a pas été modifiée ni dupliquée.
       const persisted = await publisherDiffusionRuleService.findRules({
         publisherId: diffuseur1.id,
-        field: validRule.field,
-        value: validRule.value,
+        field: "publisherOrganizationId",
+        value: organization.id,
       });
       expect(persisted).toHaveLength(1);
       expect(persisted[0].operator).toBe("is_not");

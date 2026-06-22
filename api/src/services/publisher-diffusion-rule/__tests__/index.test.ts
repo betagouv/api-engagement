@@ -87,6 +87,14 @@ describe("publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere", ()
 
     expect(where).toEqual({ publisherId: "annonceur-2" });
   });
+
+  it("renvoie un filtre impossible quand les annonceurs demandés sont hors scope", async () => {
+    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([buildRule({ id: "root-1", value: "annonceur-1" })]);
+
+    const where = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere("publisher-1", ["annonceur-2"]);
+
+    expect(where).toEqual({ id: { in: [] } });
+  });
 });
 
 describe("publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere", () => {

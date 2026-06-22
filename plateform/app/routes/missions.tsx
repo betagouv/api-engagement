@@ -2,6 +2,7 @@ import type { MissionBrowse, MissionBrowseFacetCount, MissionBrowseFilters } fro
 import { TAXONOMY } from "@engagement/taxonomy";
 
 import { useEffect, useState } from "react";
+
 import { useSearchParams } from "react-router";
 import Newsletter from "~/components/layout/newsletter";
 import Partners from "~/components/layout/partners";
@@ -44,7 +45,7 @@ const buildTaxonomyFilterOptions = (key: FilterKey, facets: MissionBrowseFacetCo
 };
 
 export async function clientLoader() {
-  return {};
+  return { backHref: "/" };
 }
 
 export function HydrateFallback() {
@@ -199,7 +200,7 @@ export default function MissionsPage() {
             {items.length > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mx-auto gap-6 w-fit">
                 {items.map((mission) => (
-                  <MissionCard key={mission.id} mission={mission} link={mission.applicationUrl ? { type: "external", href: mission.applicationUrl } : undefined} />
+                  <MissionCard key={mission.id} mission={mission} link={{ type: "internal", to: `/missions/${mission.id}` }} />
                 ))}
               </div>
             )}
@@ -210,12 +211,7 @@ export default function MissionsPage() {
           </div>
         </GradientBg>
       </main>
-      <Newsletter
-        title="Inscris-toi à la newsletter"
-        subtitle="1 email par mois avec les missions qui pourraient t'intéresser."
-        ctaText="Je m'inscris"
-        hintText="Tu peux te désinscrire à tout moment"
-      />
+      <Newsletter title="Inscris-toi à la newsletter" subtitle="1 email. Pas de spam." ctaText="Je m'inscris" hintText="Tu te désinscris quand tu veux." />
 
       <Partners />
     </>

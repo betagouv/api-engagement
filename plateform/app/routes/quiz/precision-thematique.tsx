@@ -22,7 +22,7 @@ const STEP_OPTIONS = [
 
 export default function PrecisionThematiqueStep() {
   const { answers, setAnswer } = useQuizStore();
-  const { goNext } = useOutletContext<QuizOutletContext>();
+  const { goNext, saveScoring } = useOutletContext<QuizOutletContext>();
   const [error, setError] = useState<string | undefined>(undefined);
 
   const handleSelect = (value: string[]) => {
@@ -36,6 +36,7 @@ export default function PrecisionThematiqueStep() {
       setError("Sélectionne une réponse");
       return;
     }
+    saveScoring();
     goNext();
   };
 

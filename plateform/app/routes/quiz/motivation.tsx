@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useOutletContext } from "react-router";
 import MissionCard from "~/components/quiz/mission-card";
 import NextButton from "~/components/quiz/next-button";
+import QuizTransition from "~/components/quiz/quiz-transition";
 import RadioGroupRich from "~/components/quiz/radio-group-rich";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
@@ -10,7 +11,6 @@ import { evalCondition, not, or, screenAnswer } from "~/utils/conditions";
 import type { QuizOutletContext } from "./_layout";
 
 import Photo1 from "~/assets/images/humanitaire-02.jpeg";
-import { QUIZ_TRANSITION_MS } from "~/services/config";
 
 const STEP_ID = "motivation";
 
@@ -38,7 +38,7 @@ const STEP_OPTIONS: StepOption[] = [
 
 export default function MotivationStep() {
   const { answers, setAnswer } = useQuizStore();
-  const { goNext, transitioning, setTransitioning } = useOutletContext<QuizOutletContext>();
+  const { goNext, saveScoring, transitioning, setTransitioning } = useOutletContext<QuizOutletContext>();
   const [options, setOptions] = useState<StepOption[]>([]);
   const [error, setError] = useState<string | undefined>(undefined);
   const selected = answers[STEP_ID]?.type === "options" ? answers[STEP_ID].option_ids[0] : undefined;
@@ -59,11 +59,33 @@ export default function MotivationStep() {
       setError("Sélectionne une réponse");
       return;
     }
+    saveScoring();
     setTransitioning(true);
   };
 
   if (transitioning) {
-    return <MotivationTransition onComplete={goNext} />;
+    return (
+      <QuizTransition onComplete={goNext}>
+        <div className="flex flex-col items-center justify-center gap-6 py-20">
+          <div className="h-[360px] relative gap-4">
+            <MissionCard
+              imageSrc={Photo1}
+              title="Participer à l'information du public concernant l'accès aux droits…"
+              size="sm"
+              className="absolute -top-12 left-1/2 -translate-x-[30%] rotate-[8deg]"
+            />
+            <MissionCard
+              imageSrc={Photo1}
+              title="Améliorer la qualité de vie des personnes en situation de handicap"
+              size="sm"
+              className="absolute top-0 left-1/2 -translate-x-[70%] rotate-[-4deg]"
+            />
+            <MissionCard imageSrc={Photo1} title="Je deviens infirmier pompier volontaire 🚒" size="sm" className="absolute top-16 left-1/2 -translate-x-1/2 rotate-[3deg]" />
+          </div>
+          <p className="fr-h1 mb-0!">On affine ta sélection</p>
+        </div>
+      </QuizTransition>
+    );
   }
 
   return (
@@ -78,43 +100,5 @@ export default function MotivationStep() {
       />
       <NextButton onClick={handleNext} skip />
     </>
-  );
-}
-
-function MotivationTransition({ onComplete }: { onComplete: () => void }) {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const enterFrame = requestAnimationFrame(() => setVisible(true));
-    const exitTimer = setTimeout(() => setVisible(false), QUIZ_TRANSITION_MS - 700);
-    const completeTimer = setTimeout(onComplete, QUIZ_TRANSITION_MS);
-    return () => {
-      cancelAnimationFrame(enterFrame);
-      clearTimeout(exitTimer);
-      clearTimeout(completeTimer);
-    };
-  }, [onComplete]);
-
-  return (
-    <div
-      className={`flex flex-col items-center justify-center gap-6 py-20 transition-all duration-700 ease-in ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
-    >
-      <div className="h-[360px] relative gap-4">
-        <MissionCard
-          imageSrc={Photo1}
-          title="Participer à l'information du public concernant l'accès aux droits…"
-          size="sm"
-          className="absolute -top-12 left-1/2 -translate-x-[30%] rotate-[8deg]"
-        />
-        <MissionCard
-          imageSrc={Photo1}
-          title="Améliorer la qualité de vie des personnes en situation de handicap"
-          size="sm"
-          className="absolute top-0 left-1/2 -translate-x-[70%] rotate-[-4deg]"
-        />
-        <MissionCard imageSrc={Photo1} title="Je deviens infirmier pompier volontaire 🚒" size="sm" className="absolute top-16 left-1/2 -translate-x-1/2 rotate-[3deg]" />
-      </div>
-      <p className="fr-h1 mb-0!">On affine ta sélection</p>
-    </div>
   );
 }

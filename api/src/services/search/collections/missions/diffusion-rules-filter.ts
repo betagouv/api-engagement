@@ -1,5 +1,7 @@
 import type { Prisma } from "@/db/core";
 import { captureException } from "@/error";
+import type { ChildFieldConfig, ChildPolarity } from "@/services/publisher-diffusion-rule/config";
+import { SUPPORTED_CHILD_FIELDS } from "@/services/publisher-diffusion-rule/config";
 import { buildSearchEqualFilter, buildSearchListFilter, buildSearchNotEqualFilter, combineSearchAnd, combineSearchOr } from "@/services/search/filter";
 import type { PublisherDiffusionRuleRecord } from "@/types/publisher-diffusion-rule";
 
@@ -69,54 +71,39 @@ const buildChildrenByParentId = (rules: PublisherDiffusionRuleRecord[]): Map<str
   return childrenByParentId;
 };
 
-const buildParentOrganizationWhere = (rule: PublisherDiffusionRuleRecord): Prisma.MissionWhereInput | null => {
-  const value = rule.value.trim();
-  if (!value) {
-    return null;
+const resolveChildPolarity = (config: ChildFieldConfig, operator: string): ChildPolarity | null => {
+  if (config.operators.is.includes(operator)) {
+    return "is";
   }
-
-  if (rule.operator === "is") {
-    return { publisherOrganization: { parentOrganizations: { has: value } } };
+  if (config.operators.isNot.includes(operator)) {
+    return "isNot";
   }
-
-  if (rule.operator === "is_not") {
-    return { NOT: { publisherOrganization: { parentOrganizations: { has: value } } } };
-  }
-
   return null;
 };
 
 const buildSupportedChildGroup = (rule: PublisherDiffusionRuleRecord): SupportedGroup | null => {
   const value = rule.value.trim();
-  if (!value || (rule.operator !== "is" && rule.operator !== "is_not")) {
+  if (!value) {
     reportUnsupportedRule(rule, "unsupported_child_operator_or_empty_value");
     return null;
   }
 
-  const isNot = rule.operator === "is_not";
-
-  if (rule.field === "publisherOrganizationId") {
-    return {
-      filterBy: isNot ? buildSearchNotEqualFilter("publisherOrganizationId", value) : buildSearchEqualFilter("publisherOrganizationId", value),
-      missionWhere: { publisherOrganizationId: isNot ? { not: value } : value },
-    };
+  const config = SUPPORTED_CHILD_FIELDS[rule.field];
+  if (!config) {
+    reportUnsupportedRule(rule, "unsupported_child_field");
+    return null;
   }
 
-  if (rule.field === "publisherOrganization.parentOrganizations") {
-    const missionWhere = buildParentOrganizationWhere(rule);
-    if (!missionWhere) {
-      return null;
-    }
-    return {
-      filterBy: isNot
-        ? buildSearchNotEqualFilter("publisherOrganizationParentOrganizations", value)
-        : buildSearchEqualFilter("publisherOrganizationParentOrganizations", value),
-      missionWhere,
-    };
+  const polarity = resolveChildPolarity(config, rule.operator);
+  if (!polarity) {
+    reportUnsupportedRule(rule, "unsupported_child_operator_or_empty_value");
+    return null;
   }
 
-  reportUnsupportedRule(rule, "unsupported_child_field");
-  return null;
+  return {
+    filterBy: polarity === "isNot" ? buildSearchNotEqualFilter(config.indexField, value) : buildSearchEqualFilter(config.indexField, value),
+    missionWhere: config.missionWhere[polarity](value),
+  };
 };
 
 const buildSupportedRuleGroup = (

@@ -3,6 +3,7 @@ import { TAXONOMY } from "@engagement/taxonomy";
 
 import type { Prisma } from "@/db/core";
 import type { MatchMissionItem } from "@/services/matching-engine/types";
+import { getMissionTrackedApplicationUrl } from "@/utils/mission";
 
 export const missionMatchMissionSelect = {
   id: true,
@@ -11,6 +12,10 @@ export const missionMatchMissionSelect = {
   schedule: true,
   domainOriginal: true,
   domainLogo: true,
+  compensationAmount: true,
+  compensationAmountMax: true,
+  compensationUnit: true,
+  compensationType: true,
   domain: { select: { name: true } },
   publisher: { select: { name: true, logo: true, defaultMissionLogo: true } },
   publisherOrganization: { select: { name: true, logo: true } },
@@ -51,6 +56,10 @@ type MissionIndexEntry = {
   publisherDefaultMissionLogo: string | null;
   organizationName: string | null;
   organizationLogo: string | null;
+  compensationAmount: number | null;
+  compensationAmountMax: number | null;
+  compensationUnit: MissionMatchDbRow["compensationUnit"];
+  compensationType: MissionMatchDbRow["compensationType"];
 };
 
 const getTaxonomyValueLabel = (taxonomyKey: string, valueKey: string): string | null => {
@@ -77,6 +86,10 @@ export const buildMissionIndex = (missionRows: MissionMatchDbRow[]): Record<stri
       publisherDefaultMissionLogo: m.publisher?.defaultMissionLogo ?? null,
       organizationName: m.publisherOrganization?.name ?? null,
       organizationLogo: m.publisherOrganization?.logo ?? null,
+      compensationAmount: m.compensationAmount ?? null,
+      compensationAmountMax: m.compensationAmountMax ?? null,
+      compensationUnit: m.compensationUnit ?? null,
+      compensationType: m.compensationType ?? null,
     };
   }
   return index;
@@ -112,9 +125,15 @@ const toTaxonomyScoresDto = (taxonomyScores: MatchMissionItem["taxonomyScores"])
   return result;
 };
 
-export const toMissionMatchItem = (item: MatchMissionItem, missionIndex: Record<string, MissionIndexEntry>, valuesIndex: Record<string, MissionMatchValue[]>): MissionMatchItem => {
+export const toMissionMatchItem = (
+  item: MatchMissionItem,
+  missionIndex: Record<string, MissionIndexEntry>,
+  valuesIndex: Record<string, MissionMatchValue[]>,
+  publisherId: string
+): MissionMatchItem => {
   const mission = missionIndex[item.missionId];
   const photo = mission?.domainLogo ?? mission?.organizationLogo ?? mission?.publisherDefaultMissionLogo ?? mission?.publisherLogo ?? null;
+  const hasCompensation = mission?.compensationAmount != null || mission?.compensationAmountMax != null;
 
   return {
     mission: {
@@ -139,6 +158,15 @@ export const toMissionMatchItem = (item: MatchMissionItem, missionIndex: Record<
         closestAddress: item.closestAddress,
         addressId: item.missionAddressId,
       },
+      compensation: hasCompensation
+        ? {
+            amount: mission?.compensationAmount ?? null,
+            amountMax: mission?.compensationAmountMax ?? null,
+            unit: mission?.compensationUnit ?? null,
+            type: mission?.compensationType ?? null,
+          }
+        : null,
+      applicationUrl: getMissionTrackedApplicationUrl({ id: item.missionId }, publisherId),
     },
     match: {
       missionScoringId: item.missionScoringId,

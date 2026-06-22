@@ -32,12 +32,17 @@ const COMPENSATION_TYPE_LABELS: Record<string, string> = {
   net: "net",
 };
 
-export function formatCompensation(compensation: MissionDetailCompensation): string | null {
+export function formatCompensation(compensation: MissionDetailCompensation, options?: { withType?: boolean }): string | null {
   if (compensation.amount == null) return null;
-  const amount = compensation.amountMax ? `${compensation.amount} – ${compensation.amountMax}` : `${compensation.amount}`;
+  const amount =
+    compensation.amountMax != null
+      ? compensation.amount === 0
+        ? `Jusqu'à ${compensation.amountMax}€`
+        : `Entre ${compensation.amount} et ${compensation.amountMax}€`
+      : `${compensation.amount}€`;
+  const type = options?.withType && compensation.type ? ` ${COMPENSATION_TYPE_LABELS[compensation.type] ?? compensation.type}` : "";
   const unit = compensation.unit ? ` par ${UNIT_LABELS[compensation.unit] ?? compensation.unit}` : "";
-  const type = compensation.type ? ` ${COMPENSATION_TYPE_LABELS[compensation.type] ?? compensation.type}` : "";
-  return `${amount}€${type}${unit}`;
+  return `${amount}${type}${unit}`;
 }
 
 const MISSION_TYPE_LABELS: Record<string, string> = {
@@ -88,5 +93,6 @@ export function matchResultToBrowseMission(item: MissionMatchItem): MissionBrows
     publisherLogo: item.mission.media.publisherLogo,
     applicationUrl: null,
     schedule: item.mission.schedule,
+    compensation: item.mission.compensation,
   };
 }

@@ -1,7 +1,7 @@
 version: 2
 updates:
   - package-ecosystem: "npm"
-    directory: "/api"
+    directory: "/"
     schedule:
       interval: "monthly"
     cooldown:
@@ -10,100 +10,18 @@ updates:
     versioning-strategy: "auto"
     labels:
       - "dependencies"
-      - "api"
+      - "npm"
     commit-message:
       prefix: "chore"
       include: "scope"
     groups:
       dev-dependencies:
-        patterns:
-          - "*eslint*"
-          - "*prettier*"
-          - "*test*"
-          - "*types*"
+        dependency-type: "development"
         update-types:
           - "minor"
           - "patch"
       production-dependencies:
-        patterns:
-          - "*"
-        exclude-patterns:
-          - "*eslint*"
-          - "*prettier*"
-          - "*test*"
-          - "*types*"
-        update-types:
-          - "minor"
-          - "patch"
-
-  - package-ecosystem: "npm"
-    directory: "/app"
-    schedule:
-      interval: "monthly"
-    cooldown:
-      default-days: 7
-    open-pull-requests-limit: 10
-    versioning-strategy: "auto"
-    labels:
-      - "dependencies"
-      - "app"
-    commit-message:
-      prefix: "chore"
-      include: "scope"
-    groups:
-      dev-dependencies:
-        patterns:
-          - "*eslint*"
-          - "*prettier*"
-          - "*test*"
-          - "*types*"
-        update-types:
-          - "minor"
-          - "patch"
-      production-dependencies:
-        patterns:
-          - "*"
-        exclude-patterns:
-          - "*eslint*"
-          - "*prettier*"
-          - "*test*"
-          - "*types*"
-        update-types:
-          - "minor"
-          - "patch"
-
-  - package-ecosystem: "npm"
-    directory: "/widget"
-    schedule:
-      interval: "monthly"
-    cooldown:
-      default-days: 7
-    open-pull-requests-limit: 10
-    versioning-strategy: "auto"
-    labels:
-      - "dependencies"
-      - "widget"
-    commit-message:
-      prefix: "chore"
-      include: "scope"
-    groups:
-      dev-dependencies:
-        patterns:
-          - "*eslint*"
-          - "*prettier*"
-          - "*test*"
-          - "*types*"
-        update-types:
-          - "minor"
-          - "patch"
-      production-dependencies:
-        patterns:
-          - "*"
-        exclude-patterns:
-          - "*eslint*"
-          - "*prettier*"
-          - "*test*"
-          - "*types*"
+        dependency-type: "production"
         update-types:
           - "minor"
           - "patch"

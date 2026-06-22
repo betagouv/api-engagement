@@ -6,15 +6,11 @@ const sanitizeNullableString = (value) => {
 const formatPublishersForApi = (publishers = []) =>
   (publishers || [])
     .map((publisher) => {
-      const publisherId = publisher.publisherId ?? publisher.diffuseurPublisherId ?? publisher.annonceurPublisherId ?? publisher.id;
+      const publisherId = publisher.publisherId ?? publisher.id;
       if (!publisherId) return null;
 
       return {
         publisherId,
-        publisherName: publisher.publisherName ?? publisher.diffuseurPublisherName ?? publisher.name,
-        publisherLogo: publisher.publisherLogo ?? publisher.logo,
-        missionType: publisher.missionType ?? null,
-        moderator: Boolean(publisher.moderator),
       };
     })
     .filter(Boolean);
@@ -49,7 +45,7 @@ export const withLegacyPublisher = (publisher = {}) => {
   const relations = Array.isArray(publisher.publishers)
     ? publisher.publishers.map((relation) => ({
         ...relation,
-        publisherId: relation.publisherId ?? relation.diffuseurPublisherId ?? relation.annonceurPublisherId ?? relation.id,
+        publisherId: relation.publisherId ?? relation.id,
       }))
     : publisher.publishers;
 

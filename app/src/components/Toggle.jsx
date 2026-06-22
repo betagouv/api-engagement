@@ -1,10 +1,11 @@
 import { RiCheckLine } from "react-icons/ri";
 
-const Toggle = ({ value, onChange = () => null, className = "", ...rest }) => {
+const Toggle = ({ id = "toggle-id", value, onChange = () => null, className = "", ...rest }) => {
   const checked = Boolean(value);
 
   return (
     <button
+      id={id}
       {...rest}
       type="button"
       role="switch"

@@ -26,6 +26,13 @@ const version = getArg("--version") ?? CURRENT_PROMPT_VERSION;
 const limit = getArg("--limit") ? parseInt(getArg("--limit")!, 10) : undefined;
 const outputPath = getArg("--output") ?? "./enrichment-export.csv";
 
+const parseIds = (idsFlag: string, idsFileFlag: string): string[] => {
+  const idsArg = getArg(idsFlag);
+  const idsFile = getArg(idsFileFlag);
+  const ids = [...(idsArg ? idsArg.split(",") : []), ...(idsFile ? fs.readFileSync(idsFile, "utf-8").split(/\r?\n|,/) : [])].map((id) => id.trim()).filter(Boolean);
+  return [...new Set(ids)];
+};
+
 // ─── Taxonomy lookup ─────────────────────────────────────────────────────────
 
 type TaxonomyMeta = { type: string; label: string; values: Map<string, { label: string }> };
@@ -147,12 +154,21 @@ const rowToCsv = (row: CsvRow): string => HEADERS.map((h) => csvEscape(row[h as 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function main() {
-  console.log(`[export-dataset] version=${version} limit=${limit ?? "all"} output=${outputPath}`);
+  const missionIds = parseIds("--ids", "--ids-file");
+  const enrichmentIds = parseIds("--enrichment-ids", "--enrichment-ids-file");
+  console.log(
+    `[export-dataset] version=${version} limit=${limit ?? "all"} missionIds=${missionIds.length || "all"} enrichmentIds=${enrichmentIds.length || "all"} output=${outputPath}`
+  );
 
   const fullLookup = buildFullLookup();
 
   const enrichments = await prisma.missionEnrichment.findMany({
-    where: { status: "completed", promptVersion: version },
+    where: {
+      status: "completed",
+      promptVersion: version,
+      ...(missionIds.length > 0 ? { missionId: { in: missionIds } } : {}),
+      ...(enrichmentIds.length > 0 ? { id: { in: enrichmentIds } } : {}),
+    },
     take: limit,
     orderBy: { completedAt: "desc" },
     include: {

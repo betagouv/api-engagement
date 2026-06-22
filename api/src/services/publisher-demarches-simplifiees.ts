@@ -43,4 +43,20 @@ export const publisherDemarcheSimplifieesService = {
     const demarches = await publisherDemarcheSimplifieesRepository.findMany();
     return demarches.map(toDemarcheSimplifieeRecord);
   },
+
+  // Démarches groupées par publisher (utilisé pour enrichir plusieurs publishers en une seule requête).
+  findByPublisherIds: async (publisherIds: string[]): Promise<Map<string, PublisherDemarcheSimplifieeRecord[]>> => {
+    if (!publisherIds.length) {
+      return new Map();
+    }
+    const demarches = await publisherDemarcheSimplifieesRepository.findMany({ where: { publisherId: { in: publisherIds } } });
+
+    const byPublisherId = new Map<string, PublisherDemarcheSimplifieeRecord[]>();
+    for (const demarche of demarches) {
+      const records = byPublisherId.get(demarche.publisherId) ?? [];
+      records.push(toDemarcheSimplifieeRecord(demarche));
+      byPublisherId.set(demarche.publisherId, records);
+    }
+    return byPublisherId;
+  },
 };

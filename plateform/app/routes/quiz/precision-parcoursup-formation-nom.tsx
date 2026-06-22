@@ -12,7 +12,7 @@ const STEP_ID = "precision_parcoursup_formation_nom";
 // (ex: V1, matching avec une base de formations).
 export default function PrecisionParcoursupFormationNomStep() {
   const { answers, setAnswer } = useQuizStore();
-  const { goNext } = useOutletContext<QuizOutletContext>();
+  const { goNext, saveScoring } = useOutletContext<QuizOutletContext>();
   const [value, setValue] = useState<string>("");
 
   useEffect(() => {
@@ -26,6 +26,7 @@ export default function PrecisionParcoursupFormationNomStep() {
     e.preventDefault();
     if (!valid) return;
     setAnswer(STEP_ID, { type: "text", value: value.trim() });
+    saveScoring();
     goNext();
   };
 

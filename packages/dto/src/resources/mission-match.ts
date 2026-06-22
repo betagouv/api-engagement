@@ -1,3 +1,5 @@
+import type { MissionDetailCompensation } from "./mission-browse";
+
 export type MissionMatchMedia = {
   photo: string | null;
   domainLogo: string | null;
@@ -24,6 +26,8 @@ export type MissionMatchMission = {
   publisherName: string | null;
   media: MissionMatchMedia;
   location: MissionMatchLocation;
+  compensation: MissionDetailCompensation | null;
+  applicationUrl: string;
 };
 
 export type MissionMatchValue = {

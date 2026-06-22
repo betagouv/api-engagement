@@ -1,10 +1,11 @@
 import type { MissionBrowse, MissionDetailResponse } from "@engagement/dto";
 
-import { PUBLISHER_IDS } from "@/config";
 import type { MissionRecord } from "@/types/mission";
 import { getMissionTrackedApplicationUrl } from "@/utils/mission";
 
 export const toMissionBrowse = (mission: MissionRecord): MissionBrowse => {
+  const hasCompensation = mission.compensationAmount != null || mission.compensationAmountMax != null;
+
   return {
     id: mission.id,
     title: mission.title,
@@ -22,10 +23,18 @@ export const toMissionBrowse = (mission: MissionRecord): MissionBrowse => {
     publisherLogo: mission.publisherLogo ?? null,
     applicationUrl: mission.applicationUrl ?? null,
     schedule: mission.schedule ?? null,
+    compensation: hasCompensation
+      ? {
+          amount: mission.compensationAmount ?? null,
+          amountMax: mission.compensationAmountMax ?? null,
+          unit: mission.compensationUnit ?? null,
+          type: mission.compensationType ?? null,
+        }
+      : null,
   };
 };
 
-export const toMissionDetailPayload = (mission: MissionRecord, addressId?: string | null): MissionDetailResponse => {
+export const toMissionDetailPayload = (mission: MissionRecord, diffuseurPublisherId: string, addressId?: string | null): MissionDetailResponse => {
   const addr = (addressId ? mission.addresses.find((a) => a.id === addressId) : null) ?? mission.addresses[0] ?? null;
   const addressParts = [addr?.street, addr?.postalCode && addr?.city ? `${addr.postalCode} ${addr.city}` : (addr?.city ?? null)].filter(Boolean);
 
@@ -63,7 +72,7 @@ export const toMissionDetailPayload = (mission: MissionRecord, addressId?: strin
       : null,
     descriptionHtml: mission.descriptionHtml ?? null,
     description: mission.description ?? null,
-    applicationUrl: getMissionTrackedApplicationUrl(mission, PUBLISHER_IDS.API_ENGAGEMENT),
+    applicationUrl: getMissionTrackedApplicationUrl(mission, diffuseurPublisherId),
     photo: mission.domainLogo ?? mission.organizationLogo ?? mission.publisherLogo ?? null,
     remote: mission.remote ?? null,
     openToMinors: mission.openToMinors ?? null,

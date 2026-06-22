@@ -76,8 +76,12 @@ export const missionScoringService = {
       };
     });
 
-    // Merge: start with enrichment values, mission rules override on same taxonomy key
-    const mergedValuesMap = new Map<string, ComputedMissionScoringValue>(result.values.map((value) => [`${value.taxonomyKey}.${value.valueKey}`, value] as const));
+    // Taxonomies covered by deterministic rules — LLM values for these are replaced entirely.
+    const ruleTaxonomyKeys = new Set(missionRuleValues.map((v) => v.taxonomyKey));
+    const enrichmentValues = result.values.filter((v) => !ruleTaxonomyKeys.has(v.taxonomyKey));
+
+    // Merge: enrichment values (minus rule-covered taxonomies) + rule values.
+    const mergedValuesMap = new Map<string, ComputedMissionScoringValue>(enrichmentValues.map((value) => [`${value.taxonomyKey}.${value.valueKey}`, value] as const));
     for (const pv of missionRuleValues) {
       mergedValuesMap.set(`${pv.taxonomyKey}.${pv.valueKey}`, pv);
     }

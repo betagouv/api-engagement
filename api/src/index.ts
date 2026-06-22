@@ -68,6 +68,7 @@ import ModerationController from "@/controllers/moderation";
 import ModerationEventController from "@/controllers/moderation-event";
 import OrganizationController from "@/controllers/organization";
 import PublisherController from "@/controllers/publisher";
+import PublisherOrganizationController from "@/controllers/publisher-organization";
 import RedirectController from "@/controllers/redirect";
 import ReportController from "@/controllers/report";
 import StatsController from "@/controllers/stats";
@@ -150,6 +151,7 @@ const main = async () => {
   app.use("/moderation-event", ModerationEventController);
   app.use("/metabase", MetabaseController);
   app.use("/publisher", PublisherController);
+  app.use("/publisher-organization", PublisherOrganizationController);
   app.use("/organization", OrganizationController);
   app.use("/stats", StatsController);
   app.use("/stats-mean", StatsMeanController);

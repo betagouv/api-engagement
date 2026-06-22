@@ -308,6 +308,7 @@ export const TAXONOMY = {
         sublabel: "Participer à des missions d'intérêt général",
         icon: "🇫🇷",
         enrichable: false,
+        disabled: true,
       },
       ne_sais_pas: {
         label: "Je ne sais pas encore",

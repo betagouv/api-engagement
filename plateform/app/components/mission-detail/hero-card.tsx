@@ -13,26 +13,24 @@ export default function MissionHeroCard({ mission }: MissionHeroCardProps) {
   const domainLabel = getDomainLabel(mission.domain);
 
   return (
-    <section className="fr-card fr-card--no-arrow shadow-card bg-none! p-0!">
-      <div className="fr-card__body">
-        <div className="fr-card__content flex! flex-col! gap-4 p-6! md:p-12!">
-          {domainLabel && (
-            <div className="order-1">
-              <p className="fr-tag fr-tag--sm text-blue-france-sun! bg-blue-france-925!">{domainLabel}</p>
-            </div>
-          )}
+    <section className="md:shadow-card bg-background p-0!">
+      <div className="flex flex-col gap-4 px-5! py-5! md:p-12!">
+        {domainLabel && (
+          <div className="order-1">
+            <p className="fr-tag fr-tag--sm text-blue-france-sun! bg-blue-france-925!">{domainLabel}</p>
+          </div>
+        )}
 
-          <h1 className="fr-h1 mb-0! order-2">{mission.title}</h1>
+        <h1 className="fr-h1 mb-0! order-2">{mission.title}</h1>
 
-          {orgDisplayName && (
-            <div className="order-3 flex items-center gap-4">
-              {logo && <img src={logo} alt="" className="h-8 w-14 flex-none object-contain" loading="eager" />}
-              <p className="fr-text--sm fr-mb-0 text-mention-grey">
-                {publisherTypeLabel} proposée par <span className="text-title-grey font-semibold">{orgDisplayName}</span>
-              </p>
-            </div>
-          )}
-        </div>
+        {orgDisplayName && (
+          <div className="order-3 flex items-center gap-4">
+            {logo && <img src={logo} alt="" className="h-8 w-14 flex-none object-contain" loading="eager" />}
+            <p className="fr-text--sm fr-mb-0 text-mention-grey">
+              {publisherTypeLabel} proposée par <span className="text-title-grey font-semibold">{orgDisplayName}</span>
+            </p>
+          </div>
+        )}
       </div>
     </section>
   );

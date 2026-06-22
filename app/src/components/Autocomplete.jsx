@@ -12,6 +12,7 @@ const Autocomplete = ({
   className,
   id,
   ariaDescribedby,
+  hideLabel = false,
   getLabel = (o) => o,
   getValue = (o) => o,
   getCount = null,
@@ -150,9 +151,11 @@ const Autocomplete = ({
   return (
     <div className="relative w-full" ref={containerRef}>
       <div className="relative w-full">
-        <label htmlFor={inputId} className="sr-only">
-          {placeholder}
-        </label>
+        {!hideLabel && (
+          <label htmlFor={inputId} className="sr-only">
+            {placeholder}
+          </label>
+        )}
         <input
           ref={inputRef}
           id={inputId}

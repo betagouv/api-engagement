@@ -32,24 +32,10 @@ const Tooltip = ({
 
   return (
     <>
-      <button
-        type="button"
-        className={composedTriggerClassName}
-        data-tooltip-id={tooltipId}
-        aria-describedby={tooltipId}
-        aria-label={ariaLabel}
-      >
+      <button type="button" className={composedTriggerClassName} data-tooltip-id={tooltipId} aria-describedby={tooltipId} aria-label={ariaLabel}>
         {children}
       </button>
-      <ReactTooltip
-        id={tooltipId}
-        role="tooltip"
-        openEvents={openEvents}
-        closeEvents={closeEvents}
-        closeOnEsc
-        className={tooltipClassName}
-        {...tooltipProps}
-      >
+      <ReactTooltip id={tooltipId} role="tooltip" openEvents={openEvents} closeEvents={closeEvents} className={tooltipClassName} {...tooltipProps}>
         {content}
       </ReactTooltip>
     </>

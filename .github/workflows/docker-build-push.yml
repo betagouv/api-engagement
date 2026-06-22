@@ -67,6 +67,7 @@ jobs:
             github_env: sandbox
           - service: widget
             image_name: widget
+            context: .
           - service: api
             image_name: api
             context: .
@@ -76,12 +77,13 @@ jobs:
             context: .
           - service: analytics
             image_name: analytics
+            context: .
           - service: plateform
             image_name: plateform
             context: .
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v6.0.3
         with:
           ref: ${{ inputs.branch || github.ref_name }}
           fetch-depth: 0

@@ -68,6 +68,9 @@ const publisherOrganizationService = {
     const where = buildWhere(params);
     return publisherOrganizationRepository.findMany({ where, take: options.take, skip: options.skip, select: options.select ?? undefined });
   },
+  findManyByPublisherAndClientIds: async (pairs: Array<{ publisherId: string; clientId: string }>): Promise<PublisherOrganizationRecord[]> => {
+    return publisherOrganizationRepository.findMany({ where: { OR: pairs.map(({ publisherId, clientId }) => ({ publisherId, clientId })) } });
+  },
   create: async (params: Omit<PublisherOrganizationRecord, "id" | "createdAt" | "updatedAt">): Promise<PublisherOrganizationRecord> => {
     const data: Prisma.PublisherOrganizationCreateInput = {
       name: params.name,

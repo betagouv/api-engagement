@@ -14,7 +14,7 @@ const STEP_OPTIONS: StepOption[] = [OPTIONS["statut.lyceen"], OPTIONS["statut.et
 
 export default function StatutStep() {
   const { answers, setAnswer } = useQuizStore();
-  const { goNext } = useOutletContext<QuizOutletContext>();
+  const { goNext, saveScoring } = useOutletContext<QuizOutletContext>();
   const [options, setOptions] = useState<StepOption[]>([]);
   const [error, setError] = useState<string | undefined>(undefined);
   const selected = answers[STEP_ID]?.type === "options" ? answers[STEP_ID].option_ids[0] : undefined;
@@ -35,6 +35,7 @@ export default function StatutStep() {
       setError("Sélectionne une réponse");
       return;
     }
+    saveScoring();
     goNext();
   };
 

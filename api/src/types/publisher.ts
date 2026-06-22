@@ -10,19 +10,18 @@ export enum PublisherMissionType {
 }
 
 export interface PublisherDiffusionInput {
-  diffuseurPublisherId?: string;
-  publisherId?: string;
-  diffuseurPublisherName?: string;
-  publisherName?: string;
-  moderator?: boolean;
-  missionType?: PublisherMissionType | null;
+  publisherId: string;
 }
 
+/**
+ * Une entrée de `publishers[]` : un annonceur diffusé par le publisher courant
+ * (qui est le diffuseur). `publisherId`/`publisherName` désignent l'annonceur ;
+ * `moderator`/`missionType` proviennent de ce publisher annonceur.
+ */
 export interface PublisherDiffusionRecord {
   id: string;
-  diffuseurPublisherId: string;
-  diffuseurPublisherName: string | null;
-  annonceurPublisherId: string;
+  publisherId: string;
+  publisherName: string | null;
   moderator: boolean;
   missionType: PublisherMissionType | null;
   createdAt: Date;

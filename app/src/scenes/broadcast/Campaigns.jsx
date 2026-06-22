@@ -149,8 +149,15 @@ const Campaigns = () => {
 
             {user.role === "admin" && (
               <div className="flex items-center">
-                <Toggle aria-label="Afficher les campagnes désactivées" value={!filters.active} onChange={(checked) => setFilters({ ...filters, active: !checked, page: 1 })} />
-                <label className="ml-2">Afficher les campagnes désactivées</label>
+                <Toggle
+                  id="toggle-show-inactive-campaigns"
+                  aria-label="Afficher les campagnes désactivées"
+                  value={!filters.active}
+                  onChange={(checked) => setFilters({ ...filters, active: !checked, page: 1 })}
+                />
+                <label className="ml-2" htmlFor="toggle-show-inactive-campaigns">
+                  Afficher les campagnes désactivées
+                </label>
               </div>
             )}
           </div>

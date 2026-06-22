@@ -6,6 +6,8 @@ description: Crée une règle de diffusion appliquée à un ou plusieurs de vos 
 
 Crée une règle de diffusion pour un ou plusieurs de vos partenaires diffuseurs. Une fois la règle créée, seules vos missions qui la satisfont (ainsi que toutes les autres règles déjà configurées pour ce diffuseur) lui sont diffusées. Le fonctionnement général et la liste complète des champs et opérateurs sont décrits dans [Comprendre les règles de diffusion](diffusion.md).
 
+Vous pouvez récupérer la liste de vos diffuseurs via [Récupérer la liste des partenaires diffuseurs](../diffuseur/liste.md).
+
 ## Corps de la requête
 
 | Champ | Obligatoire | Description |
