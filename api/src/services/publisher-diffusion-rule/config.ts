@@ -15,12 +15,12 @@ export type ChildFieldConfig = {
 // Registre des champs enfants supportés par le filtre de diffusion.
 // Ajouter un champ = ajouter une entrée ici (et le champ correspondant dans le schéma d'index).
 export const SUPPORTED_CHILD_FIELDS: Record<string, ChildFieldConfig> = {
-  publisherOrganizationId: {
-    indexField: "publisherOrganizationId",
+  "publisherOrganization.clientId": {
+    indexField: "publisherOrganizationClientId",
     operators: { is: ["is"], isNot: ["is_not"] },
     missionWhere: {
-      is: (value) => ({ publisherOrganizationId: value }),
-      isNot: (value) => ({ publisherOrganizationId: { not: value } }),
+      is: (value) => ({ publisherOrganization: { clientId: value } }),
+      isNot: (value) => ({ publisherOrganization: { clientId: { not: value } } }),
     },
   },
   // Champ array indexé : appartenance exacte, donc `contains` ≡ `is` et `does_not_contain` ≡ `is_not`.

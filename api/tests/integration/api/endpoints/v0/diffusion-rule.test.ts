@@ -257,8 +257,8 @@ describe("DiffusionRule API Integration Tests", () => {
 
       const persisted = await publisherDiffusionRuleService.findRules({
         publisherIds: [diffuseur1.id, diffuseur2.id, otherDiffuseur.id],
-        field: "publisherOrganizationId",
-        value: organization.id,
+        field: "publisherOrganization.clientId",
+        value: organization.clientId,
       });
       expect(persisted.map((rule) => rule.publisherId).sort()).toEqual([diffuseur1.id, diffuseur2.id].sort());
     });
@@ -291,8 +291,8 @@ describe("DiffusionRule API Integration Tests", () => {
 
       const persisted = await publisherDiffusionRuleService.findRules({
         publisherId: diffuseur1.id,
-        field: "publisherOrganizationId",
-        value: organization.id,
+        field: "publisherOrganization.clientId",
+        value: organization.clientId,
       });
       expect(persisted).toHaveLength(1);
     });
@@ -316,8 +316,8 @@ describe("DiffusionRule API Integration Tests", () => {
       // La règle d'origine n'a pas été modifiée ni dupliquée.
       const persisted = await publisherDiffusionRuleService.findRules({
         publisherId: diffuseur1.id,
-        field: "publisherOrganizationId",
-        value: organization.id,
+        field: "publisherOrganization.clientId",
+        value: organization.clientId,
       });
       expect(persisted).toHaveLength(1);
       expect(persisted[0].operator).toBe("is_not");

@@ -32,7 +32,6 @@ type SqlFieldConfig = {
 
 const FIELD_TO_SQL_CONFIG: Record<string, SqlFieldConfig> = {
   publisherId: { source: "mission", column: "publisher_id", kind: "scalar" },
-  publisherOrganizationId: { source: "mission", column: "publisher_organization_id", kind: "scalar" },
   type: { source: "mission", column: "type", kind: "scalar", castText: true },
   "publisherOrganization.clientId": { source: "publisherOrganization", column: "client_id", kind: "scalar" },
   "publisherOrganization.parentOrganizations": { source: "publisherOrganization", column: "parent_organizations", kind: "array" },
