@@ -1,4 +1,4 @@
-import { publisherService } from "@/services/publisher";
+import { publisherDemarcheSimplifieesService } from "@/services/publisher-demarches-simplifiees";
 import { slugify } from "@/utils";
 
 // Instance qui héberge la démarche (par défaut demarche.numerique.gouv.fr, l'instance DINUM).
@@ -29,7 +29,7 @@ export const generateDemarcheNumeriqueDossierUrl = async (applicationUrl: string
     return null;
   }
 
-  const demarches = await publisherService.findDemarcheSimplifieesByPublisher(publisherId);
+  const demarches = await publisherDemarcheSimplifieesService.findByPublisher(publisherId);
   const demarche = demarches.find((demarche) => extractDemarcheSlug(demarche.url) === slug);
   if (!demarche?.annotationKey) {
     return null;

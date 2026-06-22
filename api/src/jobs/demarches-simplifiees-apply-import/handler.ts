@@ -3,7 +3,7 @@ import { BaseHandler } from "@/jobs/base/handler";
 import { JobResult } from "@/jobs/types";
 import demarchesSimplifiees from "@/services/demarches-simplifiees";
 import { isRedirectionAnnotation } from "@/services/demarches-simplifiees/utils";
-import { publisherService } from "@/services/publisher";
+import { publisherDemarcheSimplifieesService } from "@/services/publisher-demarches-simplifiees";
 import { statEventService } from "@/services/stat-event";
 import { StatEventRecord } from "@/types";
 
@@ -21,7 +21,7 @@ export class DemarchesSimplifieesApplyImportHandler implements BaseHandler<Demar
     console.log(`[Démarches Simplifiées] Starting at ${start.toISOString()}`);
 
     const createdSince = new Date(start.getTime() - FIFTEEN_DAYS_IN_MS);
-    const demarches = await publisherService.findAllDemarcheSimplifiees();
+    const demarches = await publisherDemarcheSimplifieesService.findAll();
     const demarcheNumbers = [...new Set(demarches.map((demarche) => demarche.number))];
 
     let submitted = 0;

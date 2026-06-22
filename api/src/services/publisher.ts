@@ -2,11 +2,9 @@ import { randomBytes, randomUUID } from "crypto";
 
 import { MissionType, Prisma, Publisher, PublisherDemarcheSimplifiee, PublisherDiffusion } from "@/db/core";
 import { publisherRepository } from "@/repositories/publisher";
-import { publisherDemarcheSimplifieesRepository } from "@/repositories/publisher-demarche-simplifiees";
+import { normalizeDemarches, toDemarcheSimplifieeRecord } from "@/services/publisher-demarches-simplifiees";
 import {
   PublisherCreateInput,
-  PublisherDemarcheSimplifieeInput,
-  PublisherDemarcheSimplifieeRecord,
   PublisherDiffusionInput,
   PublisherDiffusionRecord,
   PublisherMissionType,
@@ -30,14 +28,6 @@ export class PublisherNotFoundError extends Error {
 
 export const publisherService = (() => {
   const defaultInclude = Object.freeze({ diffuseurs: { include: { diffuseur: true } }, demarcheSimplifiees: true }) satisfies Prisma.PublisherInclude;
-
-  const toDemarcheSimplifieeRecord = (demarche: PublisherDemarcheSimplifiee): PublisherDemarcheSimplifieeRecord => ({
-    id: demarche.id,
-    number: demarche.number,
-    name: demarche.name ?? null,
-    url: demarche.url ?? null,
-    annotationKey: demarche.annotationKey ?? null,
-  });
 
   const toDiffusionRecord = (diffusion: PublisherDiffusion & { diffuseur?: Publisher }): PublisherDiffusionRecord => ({
     id: diffusion.id,
@@ -103,26 +93,6 @@ export const publisherService = (() => {
       },
       {
         key: (diffusion) => diffusion.diffuseurPublisherId,
-      }
-    );
-
-  // Garde les démarches ayant un numéro valide et dédoublonne par numéro (contrainte unique (publisherId, number)).
-  const normalizeDemarches = (demarches?: PublisherDemarcheSimplifieeInput[] | null) =>
-    normalizeCollection(
-      demarches,
-      (demarche) => {
-        if (!demarche.number) {
-          return null;
-        }
-        return {
-          number: demarche.number,
-          name: normalizeOptionalString(demarche.name) ?? null,
-          url: normalizeOptionalString(demarche.url) ?? null,
-          annotationKey: normalizeOptionalString(demarche.annotationKey) ?? null,
-        };
-      },
-      {
-        key: (demarche) => String(demarche.number),
       }
     );
 
@@ -239,9 +209,7 @@ export const publisherService = (() => {
 
     const normalizedDemarches = normalizeDemarches(input.demarcheSimplifiees);
     if (normalizedDemarches.length) {
-      data.demarcheSimplifiees = {
-        create: normalizedDemarches.map((demarche) => ({ number: demarche.number, name: demarche.name, url: demarche.url, annotationKey: demarche.annotationKey })),
-      };
+      data.demarcheSimplifiees = { create: normalizedDemarches };
     }
 
     const created = await publisherRepository.create({
@@ -430,10 +398,9 @@ export const publisherService = (() => {
       data.sendReportTo = { set: patch.sendReportTo ?? [] };
     }
     if (patch.demarcheSimplifiees !== undefined) {
-      const normalizedDemarches = normalizeDemarches(patch.demarcheSimplifiees);
       data.demarcheSimplifiees = {
         deleteMany: {},
-        create: normalizedDemarches.map((demarche) => ({ number: demarche.number, name: demarche.name, url: demarche.url, annotationKey: demarche.annotationKey })),
+        create: normalizeDemarches(patch.demarcheSimplifiees),
       };
     }
     if (patch.deletedAt !== undefined) {
@@ -478,18 +445,6 @@ export const publisherService = (() => {
     return new Map(publishers.map((publisher) => [publisher.id, publisher.name]));
   }
 
-  // Démarches Démarches Simplifiées d'un publisher (utilisé à la redirection pour retrouver l'annotation par URL).
-  const findDemarcheSimplifieesByPublisher = async (publisherId: string): Promise<PublisherDemarcheSimplifieeRecord[]> => {
-    const demarches = await publisherDemarcheSimplifieesRepository.findMany({ where: { publisherId } });
-    return demarches.map(toDemarcheSimplifieeRecord);
-  };
-
-  // Toutes les démarches Démarches Simplifiées configurées (utilisé par le job d'import des candidatures).
-  const findAllDemarcheSimplifiees = async (): Promise<PublisherDemarcheSimplifieeRecord[]> => {
-    const demarches = await publisherDemarcheSimplifieesRepository.findMany();
-    return demarches.map(toDemarcheSimplifieeRecord);
-  };
-
   return {
     countPublishers,
     createPublisher,
@@ -501,8 +456,6 @@ export const publisherService = (() => {
     findPublishers,
     findPublishersByIds,
     findPublishersWithCount,
-    findDemarcheSimplifieesByPublisher,
-    findAllDemarcheSimplifiees,
     purgeAll,
     regenerateApiKey,
     softDeletePublisher,
