@@ -103,7 +103,7 @@ const formatCompensationLabel = (mission: EmailMission) => {
 
 const buildMissionEmailItem = (mission: EmailMission, publisherId: string, userScoringId?: string): MissionContent => ({
   title: mission.title,
-  imageUrl: mission.domainLogo ?? mission.publisherLogo ?? "",
+  imageUrl: mission.domainLogo || mission.publisherLogo || "",
   durationLabel: formatDurationLabel(mission.duration),
   startAtLabel: formatStartAtLabel(mission.startAt),
   compensationLabel: formatCompensationLabel(mission),
