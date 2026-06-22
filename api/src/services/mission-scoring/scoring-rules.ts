@@ -26,7 +26,7 @@ type MissionScoringRules = {
  */
 export const SCORING_RULES = {
   publisherId: {
-    [PUBLISHER_IDS.SERVICE_CIVIQUE]: ["tranche_age.moins_18_ans", "tranche_age.entre_18_25_ans", "tranche_age.moins_31_ans_handicap"],
+    [PUBLISHER_IDS.SERVICE_CIVIQUE]: ["tranche_age.moins_18_ans", "tranche_age.entre_18_25_ans", "tranche_age.moins_31_ans_handicap", "type_mission.temps_plein"],
     [PUBLISHER_IDS.ROC]: [
       "tranche_age.entre_16_17_ans",
       "tranche_age.entre_18_25_ans",
