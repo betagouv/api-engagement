@@ -18,7 +18,7 @@ const DemarcheSimplifiee = ({ values, onChange }) => {
   };
 
   const addDemarche = () => {
-    onChange({ ...values, demarcheSimplifiees: [...demarches, { number: null, annotationKey: null }] });
+    onChange({ ...values, demarcheSimplifiees: [...demarches, { number: null, name: null, url: null, annotationKey: null }] });
   };
 
   const removeDemarche = (index) => {
@@ -27,21 +27,21 @@ const DemarcheSimplifiee = ({ values, onChange }) => {
 
   const handleSearch = async (index) => {
     const demarche = demarches[index];
-    if (!demarche.number) {
-      toast.error("Veuillez renseigner le numéro de la démarche");
+    if (!demarche.url) {
+      toast.error("Veuillez renseigner l'URL de la démarche");
       return;
     }
     try {
       setLoadingIndex(index);
-      const res = await api.get(`/demarches-simplifiees/annotation?demarcheNumber=${demarche.number}`);
+      const res = await api.get(`/demarches-simplifiees/resolve?url=${encodeURIComponent(demarche.url)}`);
       if (!res.ok) {
-        toast.error("Champ « Identifiant de la redirection » introuvable pour cette démarche");
+        toast.error("Démarche introuvable pour cette URL");
         return;
       }
-      updateDemarche(index, { annotationKey: res.data.annotationKey });
-      toast.success("Champ « Identifiant de la redirection » trouvé");
+      updateDemarche(index, { number: res.data.number, name: res.data.name ?? null, annotationKey: res.data.annotationKey ?? null });
+      toast.success("Démarche trouvée");
     } catch (error) {
-      captureError(error, { extra: { demarcheNumber: demarche.number } });
+      captureError(error, { extra: { url: demarche.url } });
     } finally {
       setLoadingIndex(null);
     }
@@ -54,7 +54,13 @@ const DemarcheSimplifiee = ({ values, onChange }) => {
         <Toggle
           aria-label={isDemarcheSimplifiee ? "Désactiver les démarches simplifiées" : "Activer les démarches simplifiées"}
           value={isDemarcheSimplifiee}
-          onChange={(e) => onChange({ ...values, isDemarcheSimplifiee: e, demarcheSimplifiees: e ? (demarches.length ? demarches : [{ number: null, annotationKey: null }]) : [] })}
+          onChange={(e) =>
+            onChange({
+              ...values,
+              isDemarcheSimplifiee: e,
+              demarcheSimplifiees: e ? (demarches.length ? demarches : [{ number: null, name: null, url: null, annotationKey: null }]) : [],
+            })
+          }
         />
       </div>
       {isDemarcheSimplifiee && (
@@ -63,14 +69,14 @@ const DemarcheSimplifiee = ({ values, onChange }) => {
             <div key={index} className="border-grey-border flex flex-col gap-4 border p-4 sm:p-6">
               <div className="flex items-end gap-4">
                 <LabelledInput
-                  id={`demarche-simplifiees-number-${index}`}
-                  label="Numéro de la démarche"
-                  type="number"
-                  value={demarche.number ?? ""}
-                  onChange={(e) => updateDemarche(index, { number: e.target.value ? Number(e.target.value) : null, annotationKey: null })}
-                  className="w-64"
+                  id={`demarche-simplifiees-url-${index}`}
+                  label="URL de la démarche"
+                  placeholder="https://demarche.numerique.gouv.fr/commencer/..."
+                  value={demarche.url ?? ""}
+                  onChange={(e) => updateDemarche(index, { url: e.target.value || null, number: null, name: null, annotationKey: null })}
+                  className="w-full"
                 />
-                <button type="button" className="primary-btn" disabled={loadingIndex === index || !demarche.number} onClick={() => handleSearch(index)}>
+                <button type="button" className="primary-btn" disabled={loadingIndex === index || !demarche.url} onClick={() => handleSearch(index)}>
                   {loadingIndex === index ? "Recherche..." : "Chercher"}
                 </button>
                 <button type="button" className="text-error ml-auto flex items-center gap-1" aria-label="Supprimer la démarche" onClick={() => removeDemarche(index)}>
@@ -78,6 +84,22 @@ const DemarcheSimplifiee = ({ values, onChange }) => {
                   <span>Supprimer</span>
                 </button>
               </div>
+              <LabelledInput
+                id={`demarche-simplifiees-number-${index}`}
+                label="Numéro de la démarche"
+                hint="Renseigné automatiquement via « Chercher »."
+                value={demarche.number ?? ""}
+                readOnly
+                className="w-64"
+              />
+              <LabelledInput
+                id={`demarche-simplifiees-name-${index}`}
+                label="Nom de la démarche"
+                hint="Renseigné automatiquement via « Chercher »."
+                value={demarche.name ?? ""}
+                readOnly
+                className="w-full"
+              />
               <LabelledInput
                 id={`demarche-simplifiees-annotation-key-${index}`}
                 label="Champ « Identifiant de la redirection »"

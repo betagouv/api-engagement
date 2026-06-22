@@ -32,11 +32,15 @@ export interface PublisherDiffusionRecord {
 export interface PublisherDemarcheSimplifieeRecord {
   id: string;
   number: number;
+  name: string | null;
+  url: string | null;
   annotationKey: string | null;
 }
 
 export interface PublisherDemarcheSimplifieeInput {
   number: number;
+  name?: string | null;
+  url?: string | null;
   annotationKey?: string | null;
 }
 

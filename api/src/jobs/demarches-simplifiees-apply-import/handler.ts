@@ -51,12 +51,14 @@ export class DemarchesSimplifieesApplyImportHandler implements BaseHandler<Demar
         const clickId = annotation?.stringValue;
         if (!clickId) {
           missingClick++;
+          console.log(`[Démarches Simplifiées] Démarche ${demarcheNumber}, dossier ${dossier.number}: annotation de redirection vide (dossier non issu d'une redirection trackée)`);
           continue;
         }
 
         const click = await statEventService.findOneStatEventById(clickId);
         if (!click) {
           missingClick++;
+          console.log(`[Démarches Simplifiées] Démarche ${demarcheNumber}, dossier ${dossier.number}: clic ${clickId} introuvable en base`);
           continue;
         }
 

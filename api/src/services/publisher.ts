@@ -34,6 +34,8 @@ export const publisherService = (() => {
   const toDemarcheSimplifieeRecord = (demarche: PublisherDemarcheSimplifiee): PublisherDemarcheSimplifieeRecord => ({
     id: demarche.id,
     number: demarche.number,
+    name: demarche.name ?? null,
+    url: demarche.url ?? null,
     annotationKey: demarche.annotationKey ?? null,
   });
 
@@ -114,6 +116,8 @@ export const publisherService = (() => {
         }
         return {
           number: demarche.number,
+          name: normalizeOptionalString(demarche.name) ?? null,
+          url: normalizeOptionalString(demarche.url) ?? null,
           annotationKey: normalizeOptionalString(demarche.annotationKey) ?? null,
         };
       },
@@ -236,7 +240,7 @@ export const publisherService = (() => {
     const normalizedDemarches = normalizeDemarches(input.demarcheSimplifiees);
     if (normalizedDemarches.length) {
       data.demarcheSimplifiees = {
-        create: normalizedDemarches.map((demarche) => ({ number: demarche.number, annotationKey: demarche.annotationKey })),
+        create: normalizedDemarches.map((demarche) => ({ number: demarche.number, name: demarche.name, url: demarche.url, annotationKey: demarche.annotationKey })),
       };
     }
 
@@ -429,7 +433,7 @@ export const publisherService = (() => {
       const normalizedDemarches = normalizeDemarches(patch.demarcheSimplifiees);
       data.demarcheSimplifiees = {
         deleteMany: {},
-        create: normalizedDemarches.map((demarche) => ({ number: demarche.number, annotationKey: demarche.annotationKey })),
+        create: normalizedDemarches.map((demarche) => ({ number: demarche.number, name: demarche.name, url: demarche.url, annotationKey: demarche.annotationKey })),
       };
     }
     if (patch.deletedAt !== undefined) {
@@ -474,10 +478,10 @@ export const publisherService = (() => {
     return new Map(publishers.map((publisher) => [publisher.id, publisher.name]));
   }
 
-  // Démarche d'un publisher correspondant à un numéro donné (utilisé à la redirection après résolution slug → numéro).
-  const findDemarcheSimplifieeByPublisherAndNumber = async (publisherId: string, number: number): Promise<PublisherDemarcheSimplifieeRecord | null> => {
-    const demarche = await publisherDemarcheSimplifieesRepository.findFirst({ where: { publisherId, number } });
-    return demarche ? toDemarcheSimplifieeRecord(demarche) : null;
+  // Démarches Démarches Simplifiées d'un publisher (utilisé à la redirection pour retrouver l'annotation par URL).
+  const findDemarcheSimplifieesByPublisher = async (publisherId: string): Promise<PublisherDemarcheSimplifieeRecord[]> => {
+    const demarches = await publisherDemarcheSimplifieesRepository.findMany({ where: { publisherId } });
+    return demarches.map(toDemarcheSimplifieeRecord);
   };
 
   // Toutes les démarches Démarches Simplifiées configurées (utilisé par le job d'import des candidatures).
@@ -497,7 +501,7 @@ export const publisherService = (() => {
     findPublishers,
     findPublishersByIds,
     findPublishersWithCount,
-    findDemarcheSimplifieeByPublisherAndNumber,
+    findDemarcheSimplifieesByPublisher,
     findAllDemarcheSimplifiees,
     purgeAll,
     regenerateApiKey,

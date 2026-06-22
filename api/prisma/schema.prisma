@@ -384,6 +384,8 @@ model PublisherDemarcheSimplifiee {
   id            String   @id @default(uuid())
   publisherId   String   @map("publisher_id")
   number        Int      @map("number")
+  name          String?  @map("name")
+  url           String?  @map("url")
   annotationKey String?  @map("annotation_key")
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")

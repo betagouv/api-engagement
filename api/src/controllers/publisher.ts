@@ -160,7 +160,7 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
         url: nullableString,
         email: nullableString,
         feed: nullableString,
-        demarcheSimplifiees: zod.array(zod.object({ number: zod.number().int().positive(), annotationKey: nullableString })).optional(),
+        demarcheSimplifiees: zod.array(zod.object({ number: zod.number().int().positive(), name: nullableString, url: nullableString, annotationKey: nullableString })).optional(),
       })
       .safeParse(req.body);
 
@@ -299,7 +299,7 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
         url: nullableString,
         email: nullableString,
         feed: nullableString,
-        demarcheSimplifiees: zod.array(zod.object({ number: zod.number().int().positive(), annotationKey: nullableString })).optional(),
+        demarcheSimplifiees: zod.array(zod.object({ number: zod.number().int().positive(), name: nullableString, url: nullableString, annotationKey: nullableString })).optional(),
       })
       .safeParse(req.body);
 

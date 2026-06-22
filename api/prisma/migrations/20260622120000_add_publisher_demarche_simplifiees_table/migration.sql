@@ -3,6 +3,8 @@ CREATE TABLE "publisher_demarche_simplifiees" (
     "id" TEXT NOT NULL,
     "publisher_id" TEXT NOT NULL,
     "number" INTEGER NOT NULL,
+    "name" TEXT,
+    "url" TEXT,
     "annotation_key" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,

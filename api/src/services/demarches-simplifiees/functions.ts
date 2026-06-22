@@ -1,5 +1,5 @@
 import { captureException } from "@/error";
-import { DEMARCHES_SIMPLIFIEES_BASE_URL, isRedirectionAnnotation, REDIRECTION_ANNOTATION_LABEL } from "@/services/demarches-simplifiees/utils";
+import { DEMARCHES_SIMPLIFIEES_BASE_URL, extractDemarcheSlug, isRedirectionAnnotation, REDIRECTION_ANNOTATION_LABEL } from "@/services/demarches-simplifiees/utils";
 
 import { DemarchesSimplifieesResponse, query } from "./client";
 
@@ -142,6 +142,33 @@ export const getAllDossiers = async (demarcheNumber: number, createdSince?: Date
   }
 
   return { ok: true, data: dossiers };
+};
+
+// Résout une démarche à partir de son URL publique (/commencer/<slug>) : on extrait le slug, on le
+// convertit en numéro, puis on récupère le nom (title) et la clé d'annotation. `name`/`annotationKey`
+// sont best-effort (null si indisponibles) ; seul le numéro est requis pour considérer la résolution réussie.
+export const resolveDemarcheByUrl = async (url: string): Promise<DemarchesSimplifieesResponse<{ number: number; name: string | null; annotationKey: string | null }>> => {
+  const slug = extractDemarcheSlug(url);
+  if (!slug) {
+    return { ok: false, message: "URL must point to a /commencer/<slug> démarche" };
+  }
+
+  const numberResult = await getDemarcheNumberBySlug(slug);
+  if (!numberResult.ok) {
+    return numberResult;
+  }
+  const number = numberResult.data;
+
+  const [annotation, demarche] = await Promise.all([getAnnotationId(number), getDemarche(number)]);
+
+  return {
+    ok: true,
+    data: {
+      number,
+      name: demarche.ok ? demarche.data.demarche.title : null,
+      annotationKey: annotation.ok ? annotation.data : null,
+    },
+  };
 };
 
 // Crée un dossier prérempli via l'API publique de préremplissage et renvoie sa réponse
