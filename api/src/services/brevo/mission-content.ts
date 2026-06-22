@@ -46,12 +46,17 @@ const buildCriteriaRows = (mission: MissionContent) => {
   ].join("");
 };
 
-const buildBannerRow = (mission: MissionContent) => `
+const buildBannerRow = (mission: MissionContent) => {
+  if (!mission.imageUrl) {
+    return "";
+  }
+  return `
   <tr>
     <td style="padding-bottom: 16px;">
       <img src="${buildBannerImageUrl(mission.imageUrl)}" alt="" width="100%" style="display: block; width: 100%; height: auto; border: 0;" />
     </td>
   </tr>`;
+};
 
 const buildTitleRow = (mission: MissionContent, fontSize: number) => `
   <tr>
