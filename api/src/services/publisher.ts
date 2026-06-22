@@ -1,9 +1,12 @@
 import { randomBytes, randomUUID } from "crypto";
 
-import { MissionType, Prisma, Publisher, PublisherDiffusion } from "@/db/core";
+import { MissionType, Prisma, Publisher, PublisherDemarcheSimplifiee, PublisherDiffusion } from "@/db/core";
 import { publisherRepository } from "@/repositories/publisher";
+import { publisherDemarcheSimplifieesRepository } from "@/repositories/publisher-demarche-simplifiees";
 import {
   PublisherCreateInput,
+  PublisherDemarcheSimplifieeInput,
+  PublisherDemarcheSimplifieeRecord,
   PublisherDiffusionInput,
   PublisherDiffusionRecord,
   PublisherMissionType,
@@ -16,6 +19,7 @@ import { normalizeCollection, normalizeOptionalString } from "@/utils";
 
 type PrismaPublisherWithRelation = Publisher & {
   diffuseurs?: (PublisherDiffusion & { diffuseur?: Publisher })[];
+  demarcheSimplifiees?: PublisherDemarcheSimplifiee[];
 };
 export class PublisherNotFoundError extends Error {
   constructor(id: string) {
@@ -25,7 +29,13 @@ export class PublisherNotFoundError extends Error {
 }
 
 export const publisherService = (() => {
-  const defaultInclude = Object.freeze({ diffuseurs: { include: { diffuseur: true } } }) satisfies Prisma.PublisherInclude;
+  const defaultInclude = Object.freeze({ diffuseurs: { include: { diffuseur: true } }, demarcheSimplifiees: true }) satisfies Prisma.PublisherInclude;
+
+  const toDemarcheSimplifieeRecord = (demarche: PublisherDemarcheSimplifiee): PublisherDemarcheSimplifieeRecord => ({
+    id: demarche.id,
+    number: demarche.number,
+    annotationKey: demarche.annotationKey ?? null,
+  });
 
   const toDiffusionRecord = (diffusion: PublisherDiffusion & { diffuseur?: Publisher }): PublisherDiffusionRecord => ({
     id: diffusion.id,
@@ -68,6 +78,7 @@ export const publisherService = (() => {
     createdAt: publisher.createdAt,
     updatedAt: publisher.updatedAt,
     publishers: (publisher.diffuseurs ?? []).map(toDiffusionRecord),
+    demarcheSimplifiees: (publisher.demarcheSimplifiees ?? []).map(toDemarcheSimplifieeRecord),
   });
 
   const normalizeDiffusions = (publishers?: PublisherDiffusionInput[] | null) =>
@@ -90,6 +101,24 @@ export const publisherService = (() => {
       },
       {
         key: (diffusion) => diffusion.diffuseurPublisherId,
+      }
+    );
+
+  // Garde les démarches ayant un numéro valide et dédoublonne par numéro (contrainte unique (publisherId, number)).
+  const normalizeDemarches = (demarches?: PublisherDemarcheSimplifieeInput[] | null) =>
+    normalizeCollection(
+      demarches,
+      (demarche) => {
+        if (!demarche.number) {
+          return null;
+        }
+        return {
+          number: demarche.number,
+          annotationKey: normalizeOptionalString(demarche.annotationKey) ?? null,
+        };
+      },
+      {
+        key: (demarche) => String(demarche.number),
       }
     );
 
@@ -201,6 +230,13 @@ export const publisherService = (() => {
           moderator: diffusion.moderator,
           missionType: (normalizeOptionalString(diffusion.missionType) as MissionType) ?? null,
         })),
+      };
+    }
+
+    const normalizedDemarches = normalizeDemarches(input.demarcheSimplifiees);
+    if (normalizedDemarches.length) {
+      data.demarcheSimplifiees = {
+        create: normalizedDemarches.map((demarche) => ({ number: demarche.number, annotationKey: demarche.annotationKey })),
       };
     }
 
@@ -389,6 +425,13 @@ export const publisherService = (() => {
     if (patch.sendReportTo !== undefined) {
       data.sendReportTo = { set: patch.sendReportTo ?? [] };
     }
+    if (patch.demarcheSimplifiees !== undefined) {
+      const normalizedDemarches = normalizeDemarches(patch.demarcheSimplifiees);
+      data.demarcheSimplifiees = {
+        deleteMany: {},
+        create: normalizedDemarches.map((demarche) => ({ number: demarche.number, annotationKey: demarche.annotationKey })),
+      };
+    }
     if (patch.deletedAt !== undefined) {
       data.deletedAt = patch.deletedAt ?? null;
     }
@@ -431,6 +474,18 @@ export const publisherService = (() => {
     return new Map(publishers.map((publisher) => [publisher.id, publisher.name]));
   }
 
+  // Démarche d'un publisher correspondant à un numéro donné (utilisé à la redirection après résolution slug → numéro).
+  const findDemarcheSimplifieeByPublisherAndNumber = async (publisherId: string, number: number): Promise<PublisherDemarcheSimplifieeRecord | null> => {
+    const demarche = await publisherDemarcheSimplifieesRepository.findFirst({ where: { publisherId, number } });
+    return demarche ? toDemarcheSimplifieeRecord(demarche) : null;
+  };
+
+  // Toutes les démarches Démarches Simplifiées configurées (utilisé par le job d'import des candidatures).
+  const findAllDemarcheSimplifiees = async (): Promise<PublisherDemarcheSimplifieeRecord[]> => {
+    const demarches = await publisherDemarcheSimplifieesRepository.findMany();
+    return demarches.map(toDemarcheSimplifieeRecord);
+  };
+
   return {
     countPublishers,
     createPublisher,
@@ -442,6 +497,8 @@ export const publisherService = (() => {
     findPublishers,
     findPublishersByIds,
     findPublishersWithCount,
+    findDemarcheSimplifieeByPublisherAndNumber,
+    findAllDemarcheSimplifiees,
     purgeAll,
     regenerateApiKey,
     softDeletePublisher,

@@ -29,6 +29,17 @@ export interface PublisherDiffusionRecord {
   updatedAt: Date;
 }
 
+export interface PublisherDemarcheSimplifieeRecord {
+  id: string;
+  number: number;
+  annotationKey: string | null;
+}
+
+export interface PublisherDemarcheSimplifieeInput {
+  number: number;
+  annotationKey?: string | null;
+}
+
 export interface PublisherRecord {
   _id: string; // Temporary field for backward compatibility in the app
   id: string;
@@ -59,6 +70,7 @@ export interface PublisherRecord {
   createdAt: Date;
   updatedAt: Date;
   publishers: PublisherDiffusionRecord[];
+  demarcheSimplifiees: PublisherDemarcheSimplifieeRecord[];
 }
 
 export type PublisherRecordWithRelations = PublisherRecord & {
@@ -103,6 +115,7 @@ export interface PublisherCreateInput {
   sendReport?: boolean;
   sendReportTo?: string[];
   publishers?: PublisherDiffusionInput[];
+  demarcheSimplifiees?: PublisherDemarcheSimplifieeInput[];
 }
 
 export type PublisherUpdatePatch = Partial<Omit<PublisherCreateInput, "publishers" | "name">> & {

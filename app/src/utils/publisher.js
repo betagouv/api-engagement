@@ -37,6 +37,11 @@ export const buildPublisherPayload = (values) => ({
   url: sanitizeNullableString(values.url),
   email: sanitizeNullableString(values.email),
   feed: sanitizeNullableString(values.feed),
+  demarcheSimplifiees: values.isDemarcheSimplifiee
+    ? (values.demarcheSimplifiees || [])
+        .filter((demarche) => demarche.number)
+        .map((demarche) => ({ number: Number(demarche.number), annotationKey: demarche.annotationKey ?? null }))
+    : [],
 });
 
 export const withLegacyPublisher = (publisher = {}) => {

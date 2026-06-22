@@ -42,7 +42,7 @@ export const createClickRedirect = async (
   tracking: { source: string; medium: string; campaign: string }
 ): Promise<{ clickId: string; url: URL }> => {
   const clickId = await statEventService.createStatEvent(event);
-  const demarcheUrl = await generateDemarcheNumeriqueDossierUrl(mission.applicationUrl, clickId);
+  const demarcheUrl = await generateDemarcheNumeriqueDossierUrl(mission.applicationUrl, mission.publisherId, clickId);
   const url = buildTrackedApplicationUrl(demarcheUrl || fallbackHref, mission.publisherId, clickId, tracking);
   return { clickId, url };
 };

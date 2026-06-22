@@ -472,7 +472,7 @@ router.get("/seo/:id", cors({ origin: "*" }), async (req: Request, res: Response
     } as StatEventRecord;
 
     const clickId = await statEventService.createStatEvent(obj);
-    const demarcheUrl = await generateDemarcheNumeriqueDossierUrl(mission.applicationUrl, clickId);
+    const demarcheUrl = await generateDemarcheNumeriqueDossierUrl(mission.applicationUrl, mission.publisherId, clickId);
     const url = new URL(demarcheUrl || mission.applicationUrl || JVA_URL);
 
     url.searchParams.set("apiengagement_id", clickId);
