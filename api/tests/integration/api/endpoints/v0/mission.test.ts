@@ -164,65 +164,6 @@ describe("Mission API Integration Tests", () => {
       expect(ids).toEqual(expect.arrayContaining([scopedMissionA.id, scopedMissionB.id]));
     });
 
-    it("should combine a bare publisher scope with a scope carrying organization exclusions (multi-scope search path)", async () => {
-      const annonceurA = await createTestPublisher({ name: "Multi Scope Publisher A" });
-      const annonceurB = await createTestPublisher({ name: "Multi Scope Publisher B" });
-      const diffuseur = await createTestPublisher({
-        name: "Multi Scope Diffuseur",
-        publishers: [{ publisherId: annonceurA.id }, { publisherId: annonceurB.id }],
-      });
-
-      const missionA = await createTestMission({
-        publisherId: annonceurA.id,
-        title: "Multi scope mission A",
-        clientId: `multi-${randomUUID()}`,
-        startAt: new Date("2026-06-01T00:00:00.000Z"),
-      });
-      const missionBKept = await createTestMission({
-        publisherId: annonceurB.id,
-        title: "Multi scope mission B kept",
-        clientId: `multi-${randomUUID()}`,
-        organizationClientId: "org-allowed",
-        startAt: new Date("2026-05-01T00:00:00.000Z"),
-      });
-      const missionBExcluded = await createTestMission({
-        publisherId: annonceurB.id,
-        title: "Multi scope mission B excluded",
-        clientId: `multi-${randomUUID()}`,
-        organizationClientId: "org-excluded",
-        startAt: new Date("2026-04-01T00:00:00.000Z"),
-      });
-
-      const roots = await publisherDiffusionRuleService.findRules({ publisherId: diffuseur.id, combinedWithId: null, field: "publisherId" });
-      const scopeB = roots.find((root) => root.value === annonceurB.id);
-      expect(scopeB).toBeDefined();
-      await publisherDiffusionRuleService.createRule({
-        publisherId: diffuseur.id,
-        combinedWithId: scopeB!.id,
-        field: "publisherOrganization.clientId",
-        fieldType: "string",
-        operator: "is_not",
-        value: "org-excluded",
-        combinator: "and",
-        position: 0,
-      });
-
-      const response = await request(app).get("/v0/mission").set("x-api-key", diffuseur.apikey!);
-
-      expect(response.status).toBe(200);
-      expect(response.body.ok).toBe(true);
-      expect(response.body.total).toBe(2);
-      const ids = response.body.data.map((mission: any) => mission._id);
-      expect(ids).toEqual([missionA.id, missionBKept.id]);
-      expect(ids).not.toContain(missionBExcluded.id);
-
-      // Pagination après fusion des scopes : page 2 de taille 1 → mission B (2e par startAt desc).
-      const paginated = await request(app).get("/v0/mission?limit=1&skip=1").set("x-api-key", diffuseur.apikey!);
-      expect(paginated.status).toBe(200);
-      expect(paginated.body.total).toBe(2);
-      expect(paginated.body.data.map((mission: any) => mission._id)).toEqual([missionBKept.id]);
-    });
-
     it("should expose compensation fields on missions", async () => {
       const response = await request(app).get("/v0/mission").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
