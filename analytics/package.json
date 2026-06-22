@@ -15,7 +15,7 @@
   "dependencies": {
     "@sentry/node": "10.56.0",
     "dbmate": "2.33.0",
-    "dotenv": "16.4.5",
+    "dotenv": "17.4.2",
     "pg": "8.21.0"
   },
   "devDependencies": {
