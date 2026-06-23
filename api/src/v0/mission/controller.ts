@@ -2,7 +2,7 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { MissionType } from "@/db/core";
+import { MissionType, Prisma } from "@/db/core";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
 import { publisherRateLimiter } from "@/middlewares/rate-limit";
 import { missionService } from "@/services/mission";
@@ -274,7 +274,14 @@ router.get("/:id", async (req: PublisherRequest, res: Response, next: NextFuncti
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    const mission = await missionService.findOneMissionBy({ id: params.data.id, statusCode: "ACCEPTED", deletedAt: null }, user.moderator ? user.id : null);
+    const missionWhere: Prisma.MissionWhereInput = {
+      id: params.data.id,
+      statusCode: "ACCEPTED",
+      deletedAt: null,
+      ...(user.moderator ? { moderationStatuses: { some: { publisherId: user.id, status: "ACCEPTED" } } } : {}),
+    };
+
+    const mission = await missionService.findOneMissionBy(missionWhere, user.moderator ? user.id : null);
     if (!mission) {
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }

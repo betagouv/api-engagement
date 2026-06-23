@@ -624,19 +624,10 @@ describe("Mission API Integration Tests", () => {
         title: "Refused detail mission",
         statusCode: "REFUSED",
       });
-      const pendingMission = await createTestMission({
-        publisherId: owner.id,
-        title: "Pending detail mission",
-        statusCode: "PENDING",
-      });
-
       const refusedResponse = await request(app).get(`/v0/mission/${refusedMission.id}`).set("x-api-key", diffuseur.apikey!);
-      const pendingResponse = await request(app).get(`/v0/mission/${pendingMission.id}`).set("x-api-key", diffuseur.apikey!);
 
       expect(refusedResponse.status).toBe(404);
       expect(refusedResponse.body.code).toBe("NOT_FOUND");
-      expect(pendingResponse.status).toBe(404);
-      expect(pendingResponse.body.code).toBe("NOT_FOUND");
     });
 
     it("should return 404 for soft-deleted missions", async () => {
@@ -803,6 +794,71 @@ describe("Mission API Integration Tests", () => {
       const ids = response.body.hits.map((m: any) => m._id);
       expect(ids).toContain(acceptedMission.id);
       expect(ids).not.toContain(pendingMission.id);
+    });
+
+    it("GET /v0/mission/:id — should only return missions with ACCEPTED moderation status for a moderator publisher", async () => {
+      const publisher1Id = publisher.publishers[0].publisherId;
+
+      const moderatorPublisher = await createTestPublisher({
+        name: "Moderator Publisher Detail",
+        moderator: true,
+        publishers: [{ publisherId: publisher1Id }],
+      });
+
+      const acceptedMission = await createTestMission({
+        publisherId: publisher1Id,
+        title: "Detail accepted mission",
+      });
+      await missionModerationStatusService.create({
+        mission: { connect: { id: acceptedMission.id } },
+        publisherId: moderatorPublisher.id,
+        status: "ACCEPTED",
+        comment: null,
+        note: null,
+        title: null,
+      });
+
+      const pendingMission = await createTestMission({
+        publisherId: publisher1Id,
+        title: "Detail pending mission",
+      });
+      await missionModerationStatusService.create({
+        mission: { connect: { id: pendingMission.id } },
+        publisherId: moderatorPublisher.id,
+        status: "PENDING",
+        comment: null,
+        note: null,
+        title: null,
+      });
+
+      const refusedMission = await createTestMission({
+        publisherId: publisher1Id,
+        title: "Detail refused mission",
+      });
+      await missionModerationStatusService.create({
+        mission: { connect: { id: refusedMission.id } },
+        publisherId: moderatorPublisher.id,
+        status: "REFUSED",
+        comment: null,
+        note: null,
+        title: null,
+      });
+
+      const noModerationMission = await createTestMission({
+        publisherId: publisher1Id,
+        title: "Detail no moderation mission",
+      });
+
+      const acceptedResponse = await request(app).get(`/v0/mission/${acceptedMission.id}`).set("x-api-key", moderatorPublisher.apikey!);
+      const pendingResponse = await request(app).get(`/v0/mission/${pendingMission.id}`).set("x-api-key", moderatorPublisher.apikey!);
+      const refusedResponse = await request(app).get(`/v0/mission/${refusedMission.id}`).set("x-api-key", moderatorPublisher.apikey!);
+      const noModerationResponse = await request(app).get(`/v0/mission/${noModerationMission.id}`).set("x-api-key", moderatorPublisher.apikey!);
+
+      expect(acceptedResponse.status).toBe(200);
+      expect(acceptedResponse.body.data._id).toBe(acceptedMission.id);
+      expect(pendingResponse.status).toBe(404);
+      expect(refusedResponse.status).toBe(404);
+      expect(noModerationResponse.status).toBe(404);
     });
   });
 
