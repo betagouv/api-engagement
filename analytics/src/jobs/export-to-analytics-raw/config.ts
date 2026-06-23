@@ -235,6 +235,22 @@ export const exportDefinitions: ExportDefinition[] = [
     },
   },
   {
+    key: "publisher_diffusion_rule",
+    batchSize: 2000,
+    source: {
+      table: "publisher_diffusion_rule",
+      cursor: {
+        field: "updated_at",
+        idField: "id",
+      },
+      columns: ["id", "publisher_id", "field", "field_type", "operator", "value", "combinator", "position", "combined_with_id", "created_at", "updated_at"],
+    },
+    destination: {
+      table: "publisher_diffusion_rule",
+      conflictColumns: ["id"],
+    },
+  },
+  {
     key: "publisher_organization",
     batchSize: 1000,
     source: {

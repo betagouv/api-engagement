@@ -80,6 +80,60 @@ models:
         description: Horodatage de dernière mise à jour.
         tests:
           - not_null
+  - name: publisher_diffusion_rule
+    description: >
+      Vue mart des règles de diffusion par partenaire, exposée depuis `int_publisher_diffusion_rule`.
+      Chaque ligne représente une condition de filtrage appliquée lors de la diffusion des missions
+      par un partenaire.
+    columns:
+      - name: id
+        description: Identifiant unique de la règle.
+        tests:
+          - not_null
+          - unique
+      - name: publisher_id
+        description: Identifiant du partenaire diffuseur.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: field
+        description: Champ ciblé par la règle (ex. `publisherOrganizationId`, `domain`).
+        tests:
+          - not_null
+      - name: field_type
+        description: Typage fonctionnel du champ (nullable).
+      - name: operator
+        description: Opérateur de comparaison (ex. `=`, `in`).
+        tests:
+          - not_null
+      - name: value
+        description: Valeur comparée.
+        tests:
+          - not_null
+      - name: combinator
+        description: Combinaison logique avec les autres règles du partenaire (ex. `and` / `or`).
+        tests:
+          - not_null
+      - name: position
+        description: Ordre d'application de la règle au sein du groupe.
+        tests:
+          - not_null
+      - name: combined_with_id
+        description: Identifiant de la règle parente à laquelle cette règle est combinée (auto-référence, nullable).
+        tests:
+          - relationships:
+              to: ref('publisher_diffusion_rule')
+              field: id
+              where: combined_with_id is not null
+      - name: created_at
+        description: Timestamp de création.
+      - name: updated_at
+        description: Timestamp de dernière mise à jour.
+        tests:
+          - not_null
   - name: publisher_organization
     description: >
       Vue mart des organisations rattachées aux partenaires, directement dérivée de `int_publisher_organization` pour
