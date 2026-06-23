@@ -73,6 +73,22 @@ describe("publisherDiffusionRulesToMissionFilter", () => {
     });
   });
 
+  it("traduit les enfants publisherOrganizationId (champ historique conservé)", () => {
+    const result = publisherDiffusionRulesToMissionFilter([
+      buildRule({ id: "root-1", value: "annonceur-1" }),
+      buildRule({ id: "child-1", combinedWithId: "root-1", field: "publisherOrganizationId", operator: "is", value: "po-1" }),
+      buildRule({ id: "child-2", combinedWithId: "root-1", field: "publisherOrganizationId", operator: "is_not", value: "po-2" }),
+    ]);
+
+    expect(result).toEqual({
+      kind: "filter",
+      filterBy: "(publisherId:=`annonceur-1` && publisherOrganizationId:=`po-1` && publisherOrganizationId:!=`po-2`)",
+      missionWhere: {
+        AND: [{ publisherId: "annonceur-1" }, { publisherOrganizationId: "po-1" }, { publisherOrganizationId: { not: "po-2" } }],
+      },
+    });
+  });
+
   it("traduit les enfants publisherOrganization.parentOrganizations", () => {
     const result = publisherDiffusionRulesToMissionFilter([
       buildRule({ id: "root-1", value: "annonceur-1" }),
