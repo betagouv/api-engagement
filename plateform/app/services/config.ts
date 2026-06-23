@@ -4,6 +4,9 @@ export const ENV = (import.meta.env.VITE_ENV as string) || "development";
 export const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN as string;
 export const MAPTILER_API_KEY = import.meta.env.VITE_MAPTILER_API_KEY as string | undefined;
 
+// ID du publisher diffuseur, utilisé pour configurer le tag de tracking API Engagement (jstag.js).
+export const PUBLISHER_ID = import.meta.env.VITE_PUBLISHER_ID as string | undefined;
+
 // Correspond à PUBLISHER_IDS.API_ENGAGEMENT dans api/src/config.ts
 export const PUBLISHER_ID_API_ENGAGEMENT = "63da29db7d356a87a4e35d4a";
 
