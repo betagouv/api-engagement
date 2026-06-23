@@ -14,25 +14,25 @@ const PARTNERS: Partner[] = [
   {
     name: "Les réserves des armées",
     description: "Des missions rémunérées de réservistes.",
-    url: "https://www.reservistes.defense.gouv.fr",
+    url: "https://api.api-engagement.beta.gouv.fr/r/campaign/11c926dd-ead5-4bd7-8673-04457e7ad37a",
     logo: RocPng,
   },
   {
     name: "JeVeuxAider.gouv.fr",
     description: "La plateforme publique du bénévolat.",
-    url: "https://www.jeveuxaider.gouv.fr",
+    url: "https://api.api-engagement.beta.gouv.fr/r/campaign/4de09e85-0651-4eff-af78-a825041ef303",
     logo: JvaPng,
   },
   {
     name: "Le Service Civique",
     description: "De 6 à 12 mois, des missions d'intérêt général rémunérées.",
-    url: "https://www.service-civique.gouv.fr",
+    url: "https://api.api-engagement.beta.gouv.fr/r/campaign/b6e310b8-961c-4d2d-a7b4-94b383adce64",
     logo: AscPng,
   },
   {
     name: "Sapeurs-pompiers de France",
     description: "Deviens sapeur-pompier volontaire près de chez toi.",
-    url: "https://www.pompiers.fr",
+    url: "https://api.api-engagement.beta.gouv.fr/r/campaign/e681deef-81d8-40b7-b78f-af40eb29f151",
     logo: SpvPng,
   },
 ];
