@@ -6,9 +6,7 @@ import Select from "@/components/Select";
 import Table from "@/components/Table";
 import { MONTHS, REPORT_STATUS, YEARS } from "@/constants";
 import api from "@/services/api";
-import { API_URL } from "@/services/config";
 import { captureError } from "@/services/error";
-import { RiDownload2Line } from "react-icons/ri";
 
 const TABLE_HEADER = [{ title: "Partenaire", key: "publisherName" }, { title: "Statut", key: "status" }, { title: "Stat" }];
 
@@ -161,11 +159,6 @@ const AdminReport = () => {
                       </>
                     )}
                   </div>
-                  {item.id && (
-                    <a className="border-blue-france text-blue-france shrink-0 border p-2" href={`${API_URL}/report/${item.id}`} target="_blank" rel="noreferrer">
-                      <RiDownload2Line className="text-blue-france" role="img" aria-label="Télécharger le rapport" />
-                    </a>
-                  )}
                 </div>
               </td>
             </tr>
