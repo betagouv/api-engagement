@@ -9,11 +9,12 @@ import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 import Footer from "~/components/layout/footer";
 import Header from "~/components/layout/header";
 import { PUBLISHER_ID } from "~/services/config";
+import { serializeForInlineScript } from "~/utils/string";
 import "./main.css";
 
 // Tag de tracking API Engagement (jstag.js) — doit être chargé en tête du <head>, avant tout autre script.
 const apiEngagementTag = PUBLISHER_ID
-  ? `(function(i,s,o,g,r,a,m){i["ApiEngagementObject"]=r;(i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments);}),(i[r].l=1*new Date());(a=s.createElement(o)),(m=s.getElementsByTagName(o)[0]);a.async=1;a.src=g;m.parentNode.insertBefore(a,m);})(window,document,"script","https://app.api-engagement.beta.gouv.fr/jstag.js","apieng");apieng("config",${JSON.stringify(PUBLISHER_ID)});`
+  ? `(function(i,s,o,g,r,a,m){i["ApiEngagementObject"]=r;(i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments);}),(i[r].l=1*new Date());(a=s.createElement(o)),(m=s.getElementsByTagName(o)[0]);a.async=1;a.src=g;m.parentNode.insertBefore(a,m);})(window,document,"script","https://app.api-engagement.beta.gouv.fr/jstag.js","apieng");apieng("config",${serializeForInlineScript(PUBLISHER_ID)});`
   : null;
 
 export function Layout({ children }: { children: ReactNode }) {
