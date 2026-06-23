@@ -1,12 +1,14 @@
 import { randomBytes, randomUUID } from "crypto";
 
-import { MissionType, Prisma, Publisher } from "@/db/core";
+import { MissionType, Prisma, Publisher, PublisherDemarcheSimplifiee, PublisherDiffusion } from "@/db/core";
 import { prisma } from "@/db/postgres";
 import { publisherRepository } from "@/repositories/publisher";
 import { publisherDiffusionRuleRepository } from "@/repositories/publisher-diffusion-rule";
+import { normalizeDemarches, publisherDemarcheSimplifieesService } from "@/services/publisher-demarches-simplifiees";
 import publisherDiffusionRuleService, { DIFFUSION_SCOPE_ROOT_CRITERIA } from "@/services/publisher-diffusion-rule";
 import {
   PublisherCreateInput,
+  PublisherDemarcheSimplifieeRecord,
   PublisherDiffusionInput,
   PublisherDiffusionRecord,
   PublisherMissionType,
@@ -17,6 +19,11 @@ import {
 } from "@/types/publisher";
 import type { PublisherDiffusionRuleRecord } from "@/types/publisher-diffusion-rule";
 import { normalizeCollection, normalizeOptionalString } from "@/utils";
+
+type PrismaPublisherWithRelation = Publisher & {
+  diffuseurs?: (PublisherDiffusion & { diffuseur?: Publisher })[];
+  demarcheSimplifiees?: PublisherDemarcheSimplifiee[];
+};
 export class PublisherNotFoundError extends Error {
   constructor(id: string) {
     super(`Publisher ${id} not found`);
@@ -32,6 +39,7 @@ export class PublisherDiffusionPartnerNotFoundError extends Error {
 }
 
 export const publisherService = (() => {
+  const defaultInclude = Object.freeze({ diffuseurs: { include: { diffuseur: true } }, demarcheSimplifiees: true }) satisfies Prisma.PublisherInclude;
   type DiffusionPartnerInfo = { name: string; moderator: boolean; missionType: PublisherMissionType | null };
 
   const getPartnerInfoMap = async (partnerIds: string[]): Promise<Map<string, DiffusionPartnerInfo>> => {
@@ -63,7 +71,7 @@ export const publisherService = (() => {
     updatedAt: rule.updatedAt,
   });
 
-  const toPublisherRecord = (publisher: Publisher, diffusions: PublisherDiffusionRecord[]): PublisherRecordWithRelations => ({
+  const toPublisherRecord = (publisher: Publisher, diffusions: PublisherDiffusionRecord[], demarches: PublisherDemarcheSimplifieeRecord[]): PublisherRecordWithRelations => ({
     _id: publisher.id,
     id: publisher.id,
     name: publisher.name,
@@ -93,6 +101,7 @@ export const publisherService = (() => {
     createdAt: publisher.createdAt,
     updatedAt: publisher.updatedAt,
     publishers: diffusions,
+    demarcheSimplifiees: demarches,
   });
 
   const toPublisherRecords = async (publishers: Publisher[]): Promise<PublisherRecordWithRelations[]> => {
@@ -100,7 +109,8 @@ export const publisherService = (() => {
       return [];
     }
 
-    const roots = await publisherDiffusionRuleService.findRules({ publisherIds: publishers.map((publisher) => publisher.id), ...DIFFUSION_SCOPE_ROOT_CRITERIA });
+    const publisherIds = publishers.map((publisher) => publisher.id);
+    const roots = await publisherDiffusionRuleService.findRules({ publisherIds, ...DIFFUSION_SCOPE_ROOT_CRITERIA });
     const partnerInfoMap = await getPartnerInfoMap(roots.map((rule) => rule.value));
 
     const diffusionsByPublisherId = new Map<string, PublisherDiffusionRecord[]>();
@@ -110,7 +120,9 @@ export const publisherService = (() => {
       diffusionsByPublisherId.set(rule.publisherId, records);
     }
 
-    return publishers.map((publisher) => toPublisherRecord(publisher, diffusionsByPublisherId.get(publisher.id) ?? []));
+    const demarchesByPublisherId = await publisherDemarcheSimplifieesService.findByPublisherIds(publisherIds);
+
+    return publishers.map((publisher) => toPublisherRecord(publisher, diffusionsByPublisherId.get(publisher.id) ?? [], demarchesByPublisherId.get(publisher.id) ?? []));
   };
 
   const toPublisherRecordWithDiffusions = async (publisher: Publisher): Promise<PublisherRecordWithRelations> => (await toPublisherRecords([publisher]))[0];
@@ -255,8 +267,13 @@ export const publisherService = (() => {
       sendReportTo: input.sendReportTo ?? [],
     };
 
+    const normalizedDemarches = normalizeDemarches(input.demarcheSimplifiees);
+    if (normalizedDemarches.length) {
+      data.demarcheSimplifiees = { create: normalizedDemarches };
+    }
+
     const created = await prisma.$transaction(async (tx) => {
-      const publisher = await tx.publisher.create({ data });
+      const publisher = await tx.publisher.create({ data, include: defaultInclude });
       if (rightsEnabled && normalizedPartnerIds.length) {
         await syncDiffusionScopeRoots(tx, publisher.id, normalizedPartnerIds);
       }
@@ -455,6 +472,12 @@ export const publisherService = (() => {
     }
     if (patch.sendReportTo !== undefined) {
       data.sendReportTo = { set: patch.sendReportTo ?? [] };
+    }
+    if (patch.demarcheSimplifiees !== undefined) {
+      data.demarcheSimplifiees = {
+        deleteMany: {},
+        create: normalizeDemarches(patch.demarcheSimplifiees),
+      };
     }
     if (patch.deletedAt !== undefined) {
       data.deletedAt = patch.deletedAt ?? null;

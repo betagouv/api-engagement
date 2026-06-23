@@ -363,6 +363,7 @@ model Publisher {
   campaignsTo            Campaign[]                    @relation("CampaignToPublisher")
   missions               Mission[]                     @relation("MissionPublisher")
   publisherOrganizations PublisherOrganization[]
+  demarcheSimplifiees    PublisherDemarcheSimplifiee[]
 
   @@index([name], map: "publisher_name_idx")
   @@index([apikey], map: "publisher_apikey_idx")
@@ -374,6 +375,27 @@ model Publisher {
   @@index([hasCampaignRights], map: "publisher_has_campaign_rights_idx")
   @@index([sendReport], map: "publisher_send_report_idx")
   @@map("publisher")
+}
+
+// Démarches Démarches Simplifiées rattachées à un publisher (un publisher peut en avoir plusieurs).
+// `number` = numéro de la démarche ; `annotationKey` = clé de l'annotation "Identifiant de la redirection"
+// préremplie avec l'id du clic lors de la redirection (cf. service demarches-simplifiees).
+model PublisherDemarcheSimplifiee {
+  id            String   @id @default(uuid())
+  publisherId   String   @map("publisher_id")
+  number        Int      @map("number")
+  name          String?  @map("name")
+  url           String?  @map("url")
+  annotationKey String?  @map("annotation_key")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  publisher Publisher @relation(fields: [publisherId], references: [id], onDelete: Cascade)
+
+  @@unique([publisherId, number], map: "publisher_demarche_simplifiees_publisher_id_number_key")
+  @@index([publisherId], map: "publisher_demarche_simplifiees_publisher_id_idx")
+  @@index([number], map: "publisher_demarche_simplifiees_number_idx")
+  @@map("publisher_demarche_simplifiees")
 }
 
 model UserPublisher {

@@ -56,6 +56,7 @@ import { initHttpMetrics, shutdownHttpMetrics } from "@/services/observability/m
 import AdminReportController from "@/controllers/admin-report";
 import BrevoWebhookController from "@/controllers/brevo-webhook/controller";
 import CampaignController from "@/controllers/campaign";
+import DemarchesSimplifieesController from "@/controllers/demarches-simplifiees";
 import EmailController from "@/controllers/email";
 import IframeController from "@/controllers/iframe";
 import ImportController from "@/controllers/import";
@@ -143,6 +144,7 @@ const main = async () => {
   // Interal routes
   app.use("/admin-report", AdminReportController);
   app.use("/campaign", CampaignController);
+  app.use("/demarches-simplifiees", DemarchesSimplifieesController);
   app.use("/import", ImportController);
   app.use("/mission", MissionController);
   app.use("/moderation", ModerationController);
