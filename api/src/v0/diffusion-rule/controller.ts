@@ -6,7 +6,6 @@ import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESS
 import { publisherRateLimiter } from "@/middlewares/rate-limit";
 import { publisherService } from "@/services/publisher";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
-import publisherOrganizationService from "@/services/publisher-organization";
 import { PublisherRequest } from "@/types/passport";
 import type { PublisherRecord } from "@/types/publisher";
 
@@ -63,22 +62,8 @@ router.get("/", async (req: PublisherRequest, res: Response, next: NextFunction)
       rulesByDiffuseur.set(rule.publisherId, list);
     });
 
-    // Les règles sont stockées sur publisherOrganizationId ; on les réexpose sur le clientId de l'annonceur
-    // pour conserver le contrat d'API (publisherOrganization.clientId).
-    const organizationIds = roots.flatMap((root) => (root.combinedRules ?? []).filter((rule) => rule.field === "publisherOrganizationId").map((rule) => rule.value));
-    const organizations = organizationIds.length ? await publisherOrganizationService.findMany({ publisherId: user.id, ids: organizationIds }) : [];
-    const clientIdByOrganizationId = new Map(organizations.map((organization) => [organization.id, organization.clientId]));
-
-    const toPublicRule = (rule: (typeof roots)[number]) => {
-      const clientId = clientIdByOrganizationId.get(rule.value);
-      if (rule.field === "publisherOrganizationId" && clientId !== undefined) {
-        return { ...rule, field: "publisherOrganization.clientId", value: clientId };
-      }
-      return rule;
-    };
-
     const data = diffuseurs.map((diffuseur) => {
-      const combinedRules = (rulesByDiffuseur.get(diffuseur.id)?.[0].combinedRules ?? []).map(toPublicRule);
+      const combinedRules = rulesByDiffuseur.get(diffuseur.id)?.[0].combinedRules ?? [];
       const base = {
         id: diffuseur.id,
         name: diffuseur.name,
@@ -124,29 +109,15 @@ router.post("/", async (req: PublisherRequest, res: Response, next: NextFunction
       return res.status(403).send({ ok: false, code: FORBIDDEN, message: "No diffuseur match the request" });
     }
 
-    // On stocke une règle sur l'id de l'organisation plutôt que sur son clientId : le clientId reçu est résolu
-    // vers l'organisation de l'annonceur (clé unique publisherId + clientId) pour obtenir publisherOrganizationId.
-    let field: string = body.data.field;
-    let value = body.data.value;
-    if (body.data.field === "publisherOrganization.clientId") {
-      const organization = await publisherOrganizationService.findOneByClientIdAndPublisher(value, user.id);
-      if (!organization) {
-        res.locals = { code: NOT_FOUND, message: "Publisher organization not found" };
-        return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher organization not found" });
-      }
-      field = "publisherOrganizationId";
-      value = organization.id;
-    }
-
     const created = await Promise.all(
       diffuseurIds.map((diffuseurId) =>
         publisherDiffusionRuleService.createScopedRule({
           diffuseurPublisherId: diffuseurId,
           annonceurPublisherId: user.id,
-          field,
+          field: body.data.field,
           fieldType: body.data.fieldType ?? "string",
           operator: body.data.operator,
-          value,
+          value: body.data.value,
         })
       )
     );
@@ -156,11 +127,10 @@ router.post("/", async (req: PublisherRequest, res: Response, next: NextFunction
       data: created.map((rule) => ({
         id: rule.id,
         publisherId: rule.publisherId,
-        // On réexpose le champ tel que reçu (publisherOrganization.clientId) plutôt que le publisherOrganizationId stocké.
-        field: body.data.field,
+        field: rule.field,
         fieldType: rule.fieldType,
         operator: rule.operator,
-        value: body.data.value,
+        value: rule.value,
       })),
       total: created.length,
     });

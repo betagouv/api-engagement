@@ -55,14 +55,14 @@ describe("publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere", ()
   it("combine l'annonceur avec ses critères enfants (publisherId AND <critère>)", async () => {
     prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([
       buildRule({ id: "root-1", value: "annonceur-1" }),
-      buildRule({ id: "child-1", combinedWithId: "root-1", field: "publisherOrganizationId", operator: "is_not", value: "po-1" }),
-      buildRule({ id: "child-2", combinedWithId: "root-1", field: "publisherOrganizationId", operator: "is_not", value: "po-2", position: 1 }),
+      buildRule({ id: "child-1", combinedWithId: "root-1", field: "publisherOrganization.clientId", operator: "is_not", value: "po-1" }),
+      buildRule({ id: "child-2", combinedWithId: "root-1", field: "publisherOrganization.clientId", operator: "is_not", value: "po-2", position: 1 }),
     ]);
 
     const where = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere("publisher-1");
 
     expect(where).toEqual({
-      AND: [{ publisherId: "annonceur-1" }, { publisherOrganizationId: { not: "po-1" } }, { publisherOrganizationId: { not: "po-2" } }],
+      AND: [{ publisherId: "annonceur-1" }, { publisherOrganization: { is: { AND: [{ clientId: { not: "po-1" } }, { clientId: { not: "po-2" } }] } } }],
     });
   });
 
@@ -132,24 +132,24 @@ describe("publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere", ()
   it("applique les critères enfants en AND dans le scope", async () => {
     prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([
       buildRule({ id: "root-1", value: "annonceur-1" }),
-      buildRule({ id: "child-1", combinedWithId: "root-1", field: "publisherOrganizationId", operator: "is_not", value: "po-1" }),
+      buildRule({ id: "child-1", combinedWithId: "root-1", field: "publisherOrganization.clientId", operator: "is_not", value: "po-1" }),
     ]);
 
     const where = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere("diffuseur-1");
 
-    expect(where).toEqual({ AND: [{ publisherId: "annonceur-1" }, { publisherOrganizationId: { not: "po-1" } }] });
+    expect(where).toEqual({ AND: [{ publisherId: "annonceur-1" }, { publisherOrganization: { clientId: { not: "po-1" } } }] });
   });
 
   it("descend récursivement quand un critère enfant a lui-même un enfant", async () => {
     prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([
       buildRule({ id: "root-1", value: "annonceur-1" }),
       buildRule({ id: "child-1", combinedWithId: "root-1", field: "type", operator: "is", value: "benevolat" }),
-      buildRule({ id: "grandchild-1", combinedWithId: "child-1", field: "publisherOrganizationId", operator: "is_not", value: "po-1" }),
+      buildRule({ id: "grandchild-1", combinedWithId: "child-1", field: "publisherOrganization.clientId", operator: "is_not", value: "po-1" }),
     ]);
 
     const where = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere("diffuseur-1");
 
-    expect(where).toEqual({ AND: [{ publisherId: "annonceur-1" }, { AND: [{ type: "benevolat" }, { publisherOrganizationId: { not: "po-1" } }] }] });
+    expect(where).toEqual({ AND: [{ publisherId: "annonceur-1" }, { AND: [{ type: "benevolat" }, { publisherOrganization: { clientId: { not: "po-1" } } }] }] });
   });
 
   it("ignore les racines top-level qui ne sont pas des scopes annonceur (field ≠ publisherId)", async () => {

@@ -57,7 +57,7 @@ describe("missionBrowseService.browse", () => {
   });
 
   it("court-circuite quand des règles existent mais qu'aucune n'est supportée", async () => {
-    findRulesMock.mockResolvedValue([buildRule("annonceur-1", { field: "publisherOrganizationId" })]);
+    findRulesMock.mockResolvedValue([buildRule("annonceur-1", { field: "publisherOrganization.clientId" })]);
 
     const result = await missionBrowseService.browse(baseParams);
 
@@ -98,14 +98,14 @@ describe("missionBrowseService.browse", () => {
   it("restreint le détail avec les enfants organisation supportés", async () => {
     findRulesMock.mockResolvedValue([
       buildRule("annonceur-1", { id: "root-1" }),
-      buildRule("po-1", { id: "child-1", combinedWithId: "root-1", field: "publisherOrganizationId" }),
+      buildRule("po-1", { id: "child-1", combinedWithId: "root-1", field: "publisherOrganization.clientId" }),
     ]);
 
     await missionBrowseService.findById("mission-1", "diffuseur-1");
 
     expect(findOneMissionByMock).toHaveBeenCalledWith({
       id: "mission-1",
-      AND: [{ publisherId: "annonceur-1" }, { publisherOrganizationId: "po-1" }],
+      AND: [{ publisherId: "annonceur-1" }, { publisherOrganization: { clientId: "po-1" } }],
       deletedAt: null,
       statusCode: "ACCEPTED",
     });
