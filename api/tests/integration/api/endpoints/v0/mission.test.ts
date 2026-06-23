@@ -546,6 +546,149 @@ describe("Mission API Integration Tests", () => {
       validateMissionStructure(response.body.data);
     });
 
+    it("should return an accepted mission within publisher diffusion scope", async () => {
+      const owner = await createTestPublisher({ name: "Detail Owner" });
+      const diffuseur = await createTestPublisher({
+        name: "Detail Diffuseur",
+        publishers: [{ publisherId: owner.id }],
+      });
+      const mission = await createTestMission({
+        publisherId: owner.id,
+        title: "Scoped detail mission",
+        statusCode: "ACCEPTED",
+      });
+
+      const response = await request(app).get(`/v0/mission/${mission.id}`).set("x-api-key", diffuseur.apikey!);
+
+      expect(response.status).toBe(200);
+      expect(response.body.ok).toBe(true);
+      expect(response.body.data._id).toBe(mission.id);
+    });
+
+    it("should return 404 for a mission outside publisher diffusion scope", async () => {
+      const allowedOwner = await createTestPublisher({ name: "Allowed Detail Owner" });
+      const outsideOwner = await createTestPublisher({ name: "Outside Detail Owner" });
+      const diffuseur = await createTestPublisher({
+        name: "Restricted Detail Diffuseur",
+        publishers: [{ publisherId: allowedOwner.id }],
+      });
+      const mission = await createTestMission({
+        publisherId: outsideOwner.id,
+        title: "Outside detail mission",
+        statusCode: "ACCEPTED",
+      });
+
+      const response = await request(app).get(`/v0/mission/${mission.id}`).set("x-api-key", diffuseur.apikey!);
+
+      expect(response.status).toBe(404);
+      expect(response.body.ok).toBe(false);
+      expect(response.body.code).toBe("NOT_FOUND");
+    });
+
+    it("should return 404 for a mission excluded by a child diffusion rule", async () => {
+      const owner = await createTestPublisher({ name: "Excluded Detail Owner" });
+      const diffuseur = await createTestPublisher({
+        name: "Rule Restricted Detail Diffuseur",
+        publishers: [{ publisherId: owner.id }],
+      });
+      const mission = await createTestMission({
+        organizationClientId: `excluded-org-${randomUUID()}`,
+        publisherId: owner.id,
+        title: "Excluded detail mission",
+        statusCode: "ACCEPTED",
+      });
+      await publisherDiffusionRuleService.createScopedRule({
+        diffuseurPublisherId: diffuseur.id,
+        annonceurPublisherId: owner.id,
+        field: "publisherOrganization.clientId",
+        fieldType: "string",
+        operator: "is_not",
+        value: mission.organizationClientId!,
+      });
+
+      const response = await request(app).get(`/v0/mission/${mission.id}`).set("x-api-key", diffuseur.apikey!);
+
+      expect(response.status).toBe(404);
+      expect(response.body.ok).toBe(false);
+      expect(response.body.code).toBe("NOT_FOUND");
+    });
+
+    it("should return 404 for non-accepted missions", async () => {
+      const owner = await createTestPublisher({ name: "Moderation Detail Owner" });
+      const diffuseur = await createTestPublisher({
+        name: "Moderation Detail Diffuseur",
+        publishers: [{ publisherId: owner.id }],
+      });
+      const refusedMission = await createTestMission({
+        publisherId: owner.id,
+        title: "Refused detail mission",
+        statusCode: "REFUSED",
+      });
+      const pendingMission = await createTestMission({
+        publisherId: owner.id,
+        title: "Pending detail mission",
+        statusCode: "PENDING",
+      });
+
+      const refusedResponse = await request(app).get(`/v0/mission/${refusedMission.id}`).set("x-api-key", diffuseur.apikey!);
+      const pendingResponse = await request(app).get(`/v0/mission/${pendingMission.id}`).set("x-api-key", diffuseur.apikey!);
+
+      expect(refusedResponse.status).toBe(404);
+      expect(refusedResponse.body.code).toBe("NOT_FOUND");
+      expect(pendingResponse.status).toBe(404);
+      expect(pendingResponse.body.code).toBe("NOT_FOUND");
+    });
+
+    it("should return 404 for soft-deleted missions", async () => {
+      const owner = await createTestPublisher({ name: "Deleted Detail Owner" });
+      const diffuseur = await createTestPublisher({
+        name: "Deleted Detail Diffuseur",
+        publishers: [{ publisherId: owner.id }],
+      });
+      const mission = await createTestMission({
+        publisherId: owner.id,
+        title: "Deleted detail mission",
+        statusCode: "ACCEPTED",
+        deleted: true,
+      });
+
+      const response = await request(app).get(`/v0/mission/${mission.id}`).set("x-api-key", diffuseur.apikey!);
+
+      expect(response.status).toBe(404);
+      expect(response.body.ok).toBe(false);
+      expect(response.body.code).toBe("NOT_FOUND");
+    });
+
+    it("should return 404 when publisher has no diffusion partner", async () => {
+      const noAccessPublisher = await createTestPublisher({ publishers: [] });
+
+      const response = await request(app).get(`/v0/mission/${mission1.id}`).set("x-api-key", noAccessPublisher.apikey!);
+
+      expect(response.status).toBe(404);
+      expect(response.body.ok).toBe(false);
+      expect(response.body.code).toBe("NOT_FOUND");
+    });
+
+    it("should return 404 for a mission outside publisher diffusion scope through v2 mount", async () => {
+      const allowedOwner = await createTestPublisher({ name: "Allowed V2 Detail Owner" });
+      const outsideOwner = await createTestPublisher({ name: "Outside V2 Detail Owner" });
+      const diffuseur = await createTestPublisher({
+        name: "Restricted V2 Detail Diffuseur",
+        publishers: [{ publisherId: allowedOwner.id }],
+      });
+      const mission = await createTestMission({
+        publisherId: outsideOwner.id,
+        title: "Outside v2 detail mission",
+        statusCode: "ACCEPTED",
+      });
+
+      const response = await request(app).get(`/v2/mission/${mission.id}`).set("x-api-key", diffuseur.apikey!);
+
+      expect(response.status).toBe(404);
+      expect(response.body.ok).toBe(false);
+      expect(response.body.code).toBe("NOT_FOUND");
+    });
+
     it("should return 404 for unknown id parameter", async () => {
       const id = randomUUID();
       const response = await request(app).get(`/v0/mission/${id}`).set("x-api-key", apiKey);

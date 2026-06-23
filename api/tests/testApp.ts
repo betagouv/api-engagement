@@ -72,6 +72,7 @@ export const createTestApp = ({ auditLogs = false, metricsRecorder }: { auditLog
   app.use("/v0/diffusion-rule", DiffusionRuleV0Controller);
   app.use("/v0/publisher", PublisherV0Controller);
   app.use("/v2/mission", MissionV2WriteController);
+  app.use("/v2/mission", MissionV0Controller);
   app.use("/v0/mission", MissionV0Controller);
   app.use("/v0/view", ViewV0Controller);
   app.use("/r", RedirectController);
