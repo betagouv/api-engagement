@@ -1,43 +1,15 @@
-import { NextFunction, Request, Response, Router } from "express";
-import zod from "zod";
+import { Request, Response, Router } from "express";
 
-import { captureException, INVALID_PARAMS, NOT_FOUND } from "@/error";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
-import { reportService } from "@/services/report";
-import { getPresignedUrl } from "@/services/s3";
 
 const router = Router();
 router.use(ipRateLimiter);
 
-router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const params = zod
-      .object({
-        id: zod.uuid(),
-      })
-      .safeParse(req.params);
-
-    if (!params.success) {
-      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
-    }
-
-    const report = await reportService.findOneReportById(params.data.id);
-    if (!report) {
-      return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Report not found" });
-    }
-    if (!report.url) {
-      captureException(new Error(`Report ${report.id} has no url`), `Report ${report.id} has no url`);
-      return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Report not found" });
-    }
-
-    if (report.objectName) {
-      const signedUrl = await getPresignedUrl(report.objectName);
-      return res.redirect(signedUrl);
-    }
-    res.redirect(report.url);
-  } catch (error) {
-    next(error);
-  }
+// Endpoint décommissionné : la redirection publique vers les rapports (URL S3 présignée)
+// exposait une IDOR (aucun contrôle de propriété sur le `Report` multi-tenant). La feature
+// est dormante et vouée à disparaître ; on renvoie 410 Gone pour les liens encore dans la nature.
+router.get("/:id", async (_req: Request, res: Response) => {
+  return res.status(410).send({ ok: false, message: "This report endpoint has been decommissioned" });
 });
 
 export default router;
