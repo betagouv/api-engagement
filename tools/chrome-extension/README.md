@@ -46,7 +46,7 @@ besoin de télécharger le zip).
 Le tracking ne s'active que si la page a été ouverte via une **URL trackée** contenant
 `?apiengagement_id=…` : c'est elle qui fait poser le cookie `apiengagement`, sans lequel
 `trackApplication` / `trackAccount` n'envoient rien. Demander une URL trackée à l'équipe API
-Engagement avant de tester. Voir la [documentation tracking annonceur](../../docs/tracking-annonceur.md).
+Engagement avant de tester. Voir la [documentation tracking annonceur](https://doc.api-engagement.beta.gouv.fr/annoncer-des-missions/tracking-des-candidatures/rajout-de-la-balise-et-des-commandes-de-tracking-par-le-tag).
 
 ## Utilisation
 
