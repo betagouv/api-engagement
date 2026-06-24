@@ -41,7 +41,7 @@ export default function OtherMissions({
               <MissionCard
                 mission={matchResultToBrowseMission(item)}
                 link={{ type: "internal", to: buildMissionDetailHref(item, userScoringId) }}
-                onClick={() => trackMissionClickedFromMatch(item, { section: "other", entryPage: "results", rank: index + 1, quizSessionId: userScoringId })}
+                onClick={() => trackMissionClickedFromMatch(item, { section: "other", entryPage: "results", rank: index + 1 })}
               />
               {showDebug && <DebugButton missionId={item.mission.id} />}
             </div>

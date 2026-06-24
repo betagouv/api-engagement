@@ -19,5 +19,9 @@ export function createLocalProvider(): TrackingProvider {
     identify(distinctId: string, traits?: TrackingTraits) {
       console.log(`[tracking] identify "${distinctId}"`, traits ?? {});
     },
+
+    register(properties: TrackingProperties) {
+      console.log("[tracking] register super properties", properties);
+    },
   };
 }

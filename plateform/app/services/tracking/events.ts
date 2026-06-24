@@ -41,9 +41,12 @@ interface MissionClickedPayload {
   opens_external: boolean;
   // Distance user ↔ mission fournie par le backend. Null hors sections pinned/other.
   distance_km: number | null;
-  quiz_session_id: string | null;
   entry_page: MissionClickedEntryPage;
 }
+
+// Note : distinct_id, quiz_attempt_id et quiz_session_id sont des super properties PostHog
+// attachées automatiquement à tous les évènements (cf. tracking/index.ts) — inutile de les
+// répéter dans les payloads ci-dessous.
 
 // `mission.clicked` : clic sur une carte mission (résultats, liste, homepage, similarité).
 function trackMissionClicked(payload: MissionClickedPayload): void {
@@ -58,7 +61,6 @@ export function trackMissionClickedFromMatch(
     section: Extract<MissionClickedSection, "pinned" | "other" | "similar">;
     entryPage: MissionClickedEntryPage;
     rank: number | null;
-    quizSessionId?: string | null;
   },
 ): void {
   trackMissionClicked({
@@ -72,15 +74,13 @@ export function trackMissionClickedFromMatch(
     opens_external: false,
     // Spec : distance pertinente uniquement pour les sections pinned/other (résultats géolocalisés).
     distance_km: context.section === "similar" ? null : (item.mission.location.distanceKm ?? null),
-    quiz_session_id: context.quizSessionId ?? null,
     entry_page: context.entryPage,
   });
 }
 
 // `results.viewed` (core_value) : chargement de la page /results avec ses missions.
-export function trackResultsViewed(params: { quizSessionId: string; pinnedCount: number; totalResultsCount: number; avgDistanceKmTop5?: number | null }): void {
+export function trackResultsViewed(params: { pinnedCount: number; totalResultsCount: number; avgDistanceKmTop5?: number | null }): void {
   track("results.viewed", {
-    quiz_session_id: params.quizSessionId,
     has_results: params.pinnedCount > 0,
     pinned_count: params.pinnedCount,
     total_results_count: params.totalResultsCount,
@@ -109,7 +109,6 @@ export function trackMissionClickedFromBrowse(
     mission_type: null,
     opens_external: context.opensExternal,
     distance_km: null,
-    quiz_session_id: null,
     entry_page: context.entryPage,
   });
 }

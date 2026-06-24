@@ -16,6 +16,7 @@ import { QUIZ_FLOW } from "~/config/quiz-flow";
 import { OPTIONS } from "~/config/quiz-options";
 import { useIsMobile } from "~/hooks/useIsMobile";
 import { useMissionResults } from "~/hooks/useMissionResults";
+import { setQuizSessionId } from "~/services/tracking";
 import { trackMissionClickedFromMatch, trackResultsViewed } from "~/services/tracking/events";
 import { useQuizStore } from "~/stores/quiz";
 import { evalCondition } from "~/utils/conditions";
@@ -42,17 +43,22 @@ export default function ResultsPage() {
   const [emailModalOpen, setEmailModalOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // quiz_session_id vient de l'URL ici (accès direct possible) : on l'enregistre comme super
+  // property pour qu'il soit attaché à results.viewed et aux mission.clicked de cette page.
+  useEffect(() => {
+    if (userScoringId) setQuizSessionId(userScoringId);
+  }, [userScoringId]);
+
   // results.viewed : une fois le chargement terminé (succès), on émet l'évènement une seule fois.
   useEffect(() => {
     if (loading || error || resultsViewedFired.current) return;
     resultsViewedFired.current = true;
     trackResultsViewed({
-      quizSessionId: userScoringId ?? "",
       pinnedCount: pinnedItems.length,
       totalResultsCount: totalResults,
       avgDistanceKmTop5,
     });
-  }, [loading, error, userScoringId, pinnedItems.length, totalResults, avgDistanceKmTop5]);
+  }, [loading, error, pinnedItems.length, totalResults, avgDistanceKmTop5]);
 
   const locAnswer = answers["localisation"];
   const geo = locAnswer?.type === "params" ? (locAnswer.params as { lat: number; lon: number }) : null;
@@ -145,7 +151,6 @@ export default function ResultsPage() {
                       section: "pinned",
                       entryPage: "results",
                       rank: pinnedItems.findIndex((i) => i.mission.id === selectedMission.mission.id) + 1,
-                      quizSessionId: userScoringId,
                     })
                   }
                 />

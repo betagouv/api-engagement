@@ -43,5 +43,10 @@ export function createPosthogProvider(): TrackingProvider {
       if (!ready) return;
       posthog.identify(distinctId, traits);
     },
+
+    register(properties: TrackingProperties) {
+      if (!ready) return;
+      posthog.register(properties);
+    },
   };
 }

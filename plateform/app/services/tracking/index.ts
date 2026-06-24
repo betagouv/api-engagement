@@ -23,12 +23,42 @@ function getProvider(): TrackingProvider | null {
   return provider;
 }
 
-// Initialise le tracking côté client et identifie l'utilisateur par le `distinctId` persistant
-// du quiz, afin de réconcilier ses sessions dans PostHog (consentement assumé pour l'instant).
+// Super properties d'identité attachées à TOUS les évènements (via posthog.register) :
+//   - distinct_id     : géré automatiquement par PostHog (identify ci-dessous).
+//   - quiz_attempt_id : tentative de quiz courante (store, regénérée à chaque tentative).
+//   - quiz_session_id : userScoringId créé à la complétion du quiz (null tant qu'absent).
+// On synchronise ces propriétés depuis le store quiz et on les ré-enregistre à chaque changement
+// (nouvelle tentative → nouveau quiz_attempt_id et quiz_session_id remis à null).
+function syncIdentitySuperProperties(state: { quizAttemptId: string; userScoringId?: string }): void {
+  getProvider()?.register?.({
+    quiz_attempt_id: state.quizAttemptId,
+    quiz_session_id: state.userScoringId ?? null,
+  });
+}
+
+// Initialise le tracking côté client : identifie l'utilisateur par le `distinctId` persistant du
+// quiz (réconciliation des sessions dans PostHog, consentement assumé pour l'instant) et enregistre
+// les super properties d'identité, maintenues à jour via un abonnement au store.
 // TODO(cookie-banner) : sans consentement, ne pas appeler `identify` (rester anonyme/cookieless).
 export function initTracking(): void {
   if (!getProvider()) return;
   identify(useQuizStore.getState().distinctId);
+  syncIdentitySuperProperties(useQuizStore.getState());
+
+  let lastAttemptId = useQuizStore.getState().quizAttemptId;
+  let lastSessionId = useQuizStore.getState().userScoringId;
+  useQuizStore.subscribe((state) => {
+    if (state.quizAttemptId === lastAttemptId && state.userScoringId === lastSessionId) return;
+    lastAttemptId = state.quizAttemptId;
+    lastSessionId = state.userScoringId;
+    syncIdentitySuperProperties(state);
+  });
+}
+
+// Force l'enregistrement du quiz_session_id (ex. accès direct à /results/:id où l'id vient de l'URL
+// et non du store). No-op pendant le SSR.
+export function setQuizSessionId(userScoringId: string): void {
+  getProvider()?.register?.({ quiz_session_id: userScoringId });
 }
 
 // Enregistre un évènement avec ses propriétés. No-op pendant le SSR.

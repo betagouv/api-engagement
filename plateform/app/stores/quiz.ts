@@ -7,6 +7,7 @@ interface QuizStore {
   answers: QuizAnswers;
   userScoringId?: string;
   distinctId: string;
+  quizAttemptId: string;
   setAnswer: (stepId: StepId, answer: ScreenAnswer) => void;
   setUserScoringId: (id: string) => void;
   reset: () => void;
@@ -21,10 +22,13 @@ export const useQuizStore = create<QuizStore>()(
       userScoringId: undefined,
       // Généré une fois et conservé entre sessions pour authentifier les PUT.
       distinctId: crypto.randomUUID(),
+      // Identifiant de la tentative de quiz courante (regénéré à chaque nouvelle tentative).
+      quizAttemptId: crypto.randomUUID(),
       setAnswer: (stepId, answer) => set((s) => ({ answers: { ...s.answers, [stepId]: answer } })),
       setUserScoringId: (id) => set({ userScoringId: id }),
-      // reset efface les réponses et le scoring mais conserve distinctId.
-      reset: () => set({ answers: {}, userScoringId: undefined }),
+      // reset démarre une nouvelle tentative : efface réponses et scoring, conserve distinctId,
+      // et regénère quizAttemptId.
+      reset: () => set({ answers: {}, userScoringId: undefined, quizAttemptId: crypto.randomUUID() }),
     }),
     { name: "quiz-answers", version: 5 },
   ),

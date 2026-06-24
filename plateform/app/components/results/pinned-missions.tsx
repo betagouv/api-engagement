@@ -37,7 +37,7 @@ export default function PinnedMissions({ items, loading, error, userScoringId, s
                 <MissionCard
                   mission={matchResultToBrowseMission(item)}
                   link={{ type: "internal", to: buildMissionDetailHref(item, userScoringId) }}
-                  onClick={() => trackMissionClickedFromMatch(item, { section: "pinned", entryPage: "results", rank: index + 1, quizSessionId: userScoringId })}
+                  onClick={() => trackMissionClickedFromMatch(item, { section: "pinned", entryPage: "results", rank: index + 1 })}
                 />
                 {showDebug && <DebugButton missionId={item.mission.id} />}
               </div>

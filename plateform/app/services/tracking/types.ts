@@ -20,6 +20,8 @@ export interface TrackingProvider {
   track(event: string, properties?: TrackingProperties): void;
   // Associe l'utilisateur courant à un identifiant et, éventuellement, des traits.
   identify?(distinctId: string, traits?: TrackingTraits): void;
+  // Enregistre des "super properties" attachées automatiquement à tous les évènements suivants.
+  register?(properties: TrackingProperties): void;
 }
 
 // Providers supportés : `posthog` en production, `local` (console.log) pour le développement.
