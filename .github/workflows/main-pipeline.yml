@@ -21,6 +21,7 @@ on:
       - "widget/**"
       - "plateform/**"
       - "packages/**"
+      - "tools/chrome-extension/**"
       - "terraform/**"
 
   workflow_dispatch:
