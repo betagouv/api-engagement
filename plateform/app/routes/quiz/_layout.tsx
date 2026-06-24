@@ -6,6 +6,7 @@ import LoadingRecap from "~/components/quiz/loading-recap";
 import { QUIZ_FLOW, type StepDef } from "~/config/quiz-flow";
 import { invalidateInitialMatches } from "~/services/matching";
 import { createUserScoring, updateUserScoring } from "~/services/user-scoring";
+import { trackQuizCompleted } from "~/services/tracking/events";
 import { useQuizStore } from "~/stores/quiz";
 import { evalCondition } from "~/utils/conditions";
 import { buildPayload, refreshSteps } from "~/utils/quiz";
@@ -122,6 +123,7 @@ export default function QuizLayout() {
     if (next) {
       navigate(next.route);
     } else {
+      trackQuizCompleted({ answers: freshAnswers, completionType: "full", quizStartedAt: useQuizStore.getState().quizStartedAt });
       setLoadingResults(true);
     }
   };

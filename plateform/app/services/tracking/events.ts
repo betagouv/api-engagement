@@ -1,5 +1,8 @@
 import type { MissionBrowse, MissionMatchItem } from "@engagement/dto";
 
+import { QUIZ_FLOW } from "~/config/quiz-flow";
+import type { QuizAnswers } from "~/types/quiz";
+
 import { track } from "./index";
 
 // Catalogue des évènements métier tracés côté front. Centralise le nom de l'évènement et la forme
@@ -85,6 +88,48 @@ export function trackResultsViewed(params: { pinnedCount: number; totalResultsCo
     pinned_count: params.pinnedCount,
     total_results_count: params.totalResultsCount,
     avg_distance_km_top5: params.avgDistanceKmTop5 ?? null,
+  });
+}
+
+// Mode de complétion du quiz : "full" (l'utilisateur a parcouru jusqu'au bout) ou "shortcut"
+// (bouton "Voir les missions sans répondre à toutes les questions").
+export type QuizCompletionType = "full" | "shortcut";
+
+// Tranche d'âge produit calculée à partir de l'âge saisi.
+function getAgeBracket(age: number): string {
+  if (age <= 18) return "16-18";
+  if (age <= 25) return "19-25";
+  if (age <= 35) return "26-35";
+  if (age <= 50) return "36-50";
+  return "51+";
+}
+
+// Première option sélectionnée pour un step de type "options" (sinon null).
+function optionAnswer(answers: QuizAnswers, stepId: (typeof QUIZ_FLOW)[number]["id"]): string | null {
+  const answer = answers[stepId];
+  return answer?.type === "options" ? (answer.option_ids[0] ?? null) : null;
+}
+
+// `quiz.completed` (core_value) : fin du quiz, à l'arrivée sur les résultats.
+// quiz_attempt_id et quiz_session_id sont attachés automatiquement (super properties).
+export function trackQuizCompleted(params: { answers: QuizAnswers; completionType: QuizCompletionType; quizStartedAt: number }): void {
+  const { answers } = params;
+  const ageAnswer = answers["age"];
+  const age = ageAnswer?.type === "numeric" ? ageAnswer.value : null;
+  // Chemin synthétique : valeurs des réponses à choix uniques, dans l'ordre du flow (ex. "lyceen>booster_cv>...").
+  const quizPath = QUIZ_FLOW.map((step) => optionAnswer(answers, step.id))
+    .filter((value): value is string => value !== null)
+    .join(">");
+
+  track("quiz.completed", {
+    completion_type: params.completionType,
+    quiz_path: quizPath,
+    steps_completed_count: QUIZ_FLOW.filter((step) => answers[step.id] !== undefined).length,
+    has_localisation: answers["localisation"]?.type === "params",
+    statut: optionAnswer(answers, "statut"),
+    motivation: optionAnswer(answers, "motivation"),
+    age_bracket: age !== null ? getAgeBracket(age) : null,
+    quiz_duration_ms: Date.now() - params.quizStartedAt,
   });
 }
 

@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router";
+import { trackQuizCompleted } from "~/services/tracking/events";
 import { useQuizStore } from "~/stores/quiz";
 
 interface NextButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -11,7 +12,14 @@ export default function NextButton({ onClick, skip = false, ...props }: NextButt
   const navigate = useNavigate();
   const userScoringId = useQuizStore((s) => s.userScoringId);
   const handleSkip = () => {
-    navigate(userScoringId ? `/results/${userScoringId}` : "/");
+    // Sans userScoringId, le quiz n'a produit aucun scoring : pas de complétion à tracker.
+    if (!userScoringId) {
+      navigate("/");
+      return;
+    }
+    const { answers, quizStartedAt } = useQuizStore.getState();
+    trackQuizCompleted({ answers, completionType: "shortcut", quizStartedAt });
+    navigate(`/results/${userScoringId}`);
   };
 
   return (
