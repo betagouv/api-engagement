@@ -13,6 +13,9 @@ export type MissionMatchLocation = {
   closestLon: number | null;
   closestAddress: string | null;
   addressId: string | null;
+  // Distance (km) entre la localisation de l'utilisateur et l'adresse la plus proche de la mission.
+  // Null si l'utilisateur n'a pas de localisation.
+  distanceKm: number | null;
 };
 
 export type MissionMatchMission = {
@@ -23,6 +26,7 @@ export type MissionMatchMission = {
   domain: string | null;
   domainOriginal: string | null;
   organizationName: string | null;
+  publisherId: string | null;
   publisherName: string | null;
   media: MissionMatchMedia;
   location: MissionMatchLocation;

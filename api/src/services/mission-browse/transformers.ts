@@ -19,6 +19,7 @@ export const toMissionBrowse = (mission: MissionRecord): MissionBrowse => {
     photo: mission.domainLogo ?? mission.organizationLogo ?? mission.publisherLogo ?? null,
     organizationName: mission.organizationName ?? null,
     organizationLogo: mission.organizationLogo ?? null,
+    publisherId: mission.publisherId ?? null,
     publisherName: mission.publisherName ?? null,
     publisherLogo: mission.publisherLogo ?? null,
     applicationUrl: mission.applicationUrl ?? null,

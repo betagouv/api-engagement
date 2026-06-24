@@ -2,6 +2,8 @@ import type { MissionBrowse } from "@engagement/dto";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 
+import { trackMissionClickedFromBrowse } from "~/services/tracking/events";
+
 type Props = {
   missions: MissionBrowse[];
   className?: string;
@@ -49,6 +51,7 @@ export default function MissionExamples({ missions, className }: Props) {
                 <Link
                   key={mission.id}
                   to={href}
+                  onClick={() => trackMissionClickedFromBrowse(mission, { section: "homepage_examples", entryPage: "homepage", opensExternal: Boolean(mission.applicationUrl) })}
                   role="group"
                   aria-roledescription="slide"
                   aria-label={`Mission ${i + 1} sur ${missions.length}`}

@@ -11,6 +11,7 @@ import MissionCard from "~/components/missions/mission-card";
 import GradientBg from "~/components/ui/gradient-bg";
 import Pagination from "~/components/ui/pagination";
 import { browseMissions } from "~/services/mission-browse";
+import { trackMissionClickedFromBrowse } from "~/services/tracking/events";
 import type { Route } from "./+types/missions";
 
 const PAGE_SIZE = 9;
@@ -200,7 +201,12 @@ export default function MissionsPage() {
             {items.length > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mx-auto gap-6 w-fit">
                 {items.map((mission) => (
-                  <MissionCard key={mission.id} mission={mission} link={{ type: "internal", to: `/missions/${mission.id}` }} />
+                  <MissionCard
+                    key={mission.id}
+                    mission={mission}
+                    link={{ type: "internal", to: `/missions/${mission.id}` }}
+                    onClick={() => trackMissionClickedFromBrowse(mission, { section: "missions_list", entryPage: "missions_list", opensExternal: false })}
+                  />
                 ))}
               </div>
             )}

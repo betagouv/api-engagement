@@ -2,7 +2,7 @@ import type { MissionMatchItem } from "@engagement/dto";
 import MissionCard from "~/components/missions/mission-card";
 import { DebugButton } from "~/components/results/matching-debug-modal";
 import Pagination from "~/components/ui/pagination";
-import { trackMissionClicked } from "~/services/tracking/events";
+import { trackMissionClickedFromMatch } from "~/services/tracking/events";
 import { buildMissionDetailHref, matchResultToBrowseMission } from "~/utils/mission";
 
 interface OtherMissionsProps {
@@ -41,7 +41,7 @@ export default function OtherMissions({
               <MissionCard
                 mission={matchResultToBrowseMission(item)}
                 link={{ type: "internal", to: buildMissionDetailHref(item, userScoringId) }}
-                onClick={() => trackMissionClicked(item, { source: "other", position: index + 1, userScoringId, page })}
+                onClick={() => trackMissionClickedFromMatch(item, { section: "other", entryPage: "results", rank: index + 1, quizSessionId: userScoringId })}
               />
               {showDebug && <DebugButton missionId={item.mission.id} />}
             </div>
