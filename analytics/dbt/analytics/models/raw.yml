@@ -195,6 +195,34 @@ sources:
             description: Timestamp de création du partenaire.
           - name: updated_at
             description: Timestamp de dernière mise à jour, utilisé comme curseur d'export.
+      - name: publisher_diffusion_rule
+        description: >-
+          Règles de diffusion par partenaire, synchronisées depuis la table `publisher_diffusion_rule` de la base core.
+          Chaque ligne définit une condition de filtrage (champ / opérateur / valeur) appliquée lors de la diffusion
+          des missions par un partenaire. Les règles peuvent être combinées entre elles via `combined_with_id`.
+        columns:
+          - name: id
+            description: Identifiant unique de la règle (UUID).
+          - name: publisher_id
+            description: Identifiant du partenaire diffuseur propriétaire de la règle.
+          - name: field
+            description: Champ ciblé par la règle (ex. `publisherOrganizationId`, `domain`, `departmentCode`).
+          - name: field_type
+            description: Typage fonctionnel du champ ciblé (nullable).
+          - name: operator
+            description: Opérateur de comparaison appliqué (ex. `=`, `in`).
+          - name: value
+            description: Valeur comparée, sous forme texte.
+          - name: combinator
+            description: Combinaison logique avec les autres règles du même groupe (`and` / `or`).
+          - name: position
+            description: Ordre d'application de la règle au sein du groupe.
+          - name: combined_with_id
+            description: Identifiant de la règle parente à laquelle cette règle est rattachée (auto-référence, nullable).
+          - name: created_at
+            description: Timestamp de création de la règle.
+          - name: updated_at
+            description: Timestamp de dernière mise à jour, utilisé comme curseur d'export incrémental.
       - name: publisher_organization
         description: >-
           Organisations associées aux partenaires, synchronisées depuis la table `publisher_organization` de la base
