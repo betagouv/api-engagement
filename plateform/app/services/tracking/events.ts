@@ -77,6 +77,17 @@ export function trackMissionClickedFromMatch(
   });
 }
 
+// `results.viewed` (core_value) : chargement de la page /results avec ses missions.
+export function trackResultsViewed(params: { quizSessionId: string; pinnedCount: number; totalResultsCount: number; avgDistanceKmTop5?: number | null }): void {
+  track("results.viewed", {
+    quiz_session_id: params.quizSessionId,
+    has_results: params.pinnedCount > 0,
+    pinned_count: params.pinnedCount,
+    total_results_count: params.totalResultsCount,
+    avg_distance_km_top5: params.avgDistanceKmTop5 ?? null,
+  });
+}
+
 // Clic depuis une mission "browse" (liste /missions ou exemples de la homepage).
 export function trackMissionClickedFromBrowse(
   mission: MissionBrowse,

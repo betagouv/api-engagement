@@ -47,4 +47,9 @@ export type MissionMatchingResultItem = {
 export type RankMissionsByUserScoringResult = {
   items: MatchMissionItem[];
   tookMs: number;
+  // Nombre total de missions classées pour l'utilisateur (avant pagination).
+  total: number;
+  // Distance moyenne (km) entre l'utilisateur et les 5 premières missions recommandées.
+  // Calculée uniquement sur la première page (offset 0) ; null sinon ou sans localisation.
+  avgDistanceKmTop5: number | null;
 };

@@ -1,5 +1,5 @@
 import type { MissionMatchItem } from "@engagement/dto";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router";
 import { FooterContent } from "~/components/layout/footer";
 import Newsletter from "~/components/layout/newsletter";
@@ -16,7 +16,7 @@ import { QUIZ_FLOW } from "~/config/quiz-flow";
 import { OPTIONS } from "~/config/quiz-options";
 import { useIsMobile } from "~/hooks/useIsMobile";
 import { useMissionResults } from "~/hooks/useMissionResults";
-import { trackMissionClickedFromMatch } from "~/services/tracking/events";
+import { trackMissionClickedFromMatch, trackResultsViewed } from "~/services/tracking/events";
 import { useQuizStore } from "~/stores/quiz";
 import { evalCondition } from "~/utils/conditions";
 import { buildMissionDetailHref, matchResultToBrowseMission } from "~/utils/mission";
@@ -32,13 +32,27 @@ export default function ResultsPage() {
   const [searchParams] = useSearchParams();
   const isMobile = useIsMobile();
   const answers = useQuizStore((s) => s.answers);
-  const { pinnedItems, otherItems, page, setPage, hasNextPage, loading, pageLoading, error, visiblePageNumbers } = useMissionResults(userScoringId);
+  const { pinnedItems, otherItems, page, setPage, hasNextPage, totalResults, avgDistanceKmTop5, loading, pageLoading, error, visiblePageNumbers } =
+    useMissionResults(userScoringId);
+  const resultsViewedFired = useRef(false);
   const [expanded, setExpanded] = useState(false);
   const [selectedMission, setSelectedMission] = useState<MissionMatchItem | null>(null);
   const [hoveredMissionId, setHoveredMissionId] = useState<string | null>(null);
   const [isClosingCard, setIsClosingCard] = useState(false);
   const [emailModalOpen, setEmailModalOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // results.viewed : une fois le chargement terminé (succès), on émet l'évènement une seule fois.
+  useEffect(() => {
+    if (loading || error || resultsViewedFired.current) return;
+    resultsViewedFired.current = true;
+    trackResultsViewed({
+      quizSessionId: userScoringId ?? "",
+      pinnedCount: pinnedItems.length,
+      totalResultsCount: totalResults,
+      avgDistanceKmTop5,
+    });
+  }, [loading, error, userScoringId, pinnedItems.length, totalResults, avgDistanceKmTop5]);
 
   const locAnswer = answers["localisation"];
   const geo = locAnswer?.type === "params" ? (locAnswer.params as { lat: number; lon: number }) : null;

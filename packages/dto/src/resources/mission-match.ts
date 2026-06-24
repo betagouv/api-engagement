@@ -60,4 +60,9 @@ export type MissionMatchItem = {
 export type MissionMatchResponse = {
   tookMs: number;
   items: MissionMatchItem[];
+  // Nombre total de missions classées pour l'utilisateur (avant pagination).
+  total: number;
+  // Distance moyenne (km) entre l'utilisateur et les 5 premières missions recommandées.
+  // Null sans localisation ou hors première page.
+  avgDistanceKmTop5: number | null;
 };
