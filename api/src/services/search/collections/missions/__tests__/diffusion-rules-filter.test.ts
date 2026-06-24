@@ -57,6 +57,30 @@ describe("publisherDiffusionRulesToMissionFilter", () => {
     }
   });
 
+  it("compacte les publisherId purs en une liste même en présence de groupes à enfants (borne les opérations du filter_by)", () => {
+    const result = publisherDiffusionRulesToMissionFilter([
+      ...Array.from({ length: 110 }, (_, index) => buildRule({ id: `rule-${index}`, value: `annonceur-${index}`, position: index })),
+      buildRule({ id: "root-child", value: "annonceur-child", position: 110 }),
+      buildRule({ id: "child-1", combinedWithId: "root-child", field: "publisherOrganization.clientId", operator: "is_not", value: "po-1" }),
+    ]);
+
+    expect(result.kind).toBe("filter");
+    if (result.kind === "filter") {
+      // Les 110 publisherId purs sont regroupés en une seule liste, OR avec le seul groupe à enfants.
+      expect(result.filterBy).toContain("publisherId:=[`annonceur-0`,");
+      expect(result.filterBy).toContain("(publisherId:=`annonceur-child` && publisherOrganizationClientId:!=`po-1`)");
+      // Le nombre d'opérations (`||` / `&&` / `:=` …) reste très en-deçà du plafond Typesense de 100.
+      const ops = (result.filterBy.match(/&&|\|\||:=|:!=/g) ?? []).length;
+      expect(ops).toBeLessThan(10);
+      expect(result.missionWhere).toEqual({
+        OR: [
+          { publisherId: { in: Array.from({ length: 110 }, (_, index) => `annonceur-${index}`) } },
+          { AND: [{ publisherId: "annonceur-child" }, { publisherOrganization: { clientId: { not: "po-1" } } }] },
+        ],
+      });
+    }
+  });
+
   it("traduit les enfants publisherOrganization.clientId", () => {
     const result = publisherDiffusionRulesToMissionFilter([
       buildRule({ id: "root-1", value: "annonceur-1" }),

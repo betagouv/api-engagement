@@ -153,19 +153,10 @@ const dedupeGroups = (groups: SupportedGroup[]): SupportedGroup[] => {
   });
 };
 
-const getPublisherIdOnlyGroups = (groups: SupportedGroup[]): string[] | null => {
-  const publisherIds: string[] = [];
-
-  for (const group of groups) {
-    const keys = Object.keys(group.missionWhere);
-    const publisherId = (group.missionWhere as { publisherId?: unknown }).publisherId;
-    if (keys.length !== 1 || typeof publisherId !== "string") {
-      return null;
-    }
-    publisherIds.push(publisherId);
-  }
-
-  return publisherIds;
+const getPublisherIdOnly = (group: SupportedGroup): string | null => {
+  const keys = Object.keys(group.missionWhere);
+  const publisherId = (group.missionWhere as { publisherId?: unknown }).publisherId;
+  return keys.length === 1 && typeof publisherId === "string" ? publisherId : null;
 };
 
 export const publisherDiffusionRulesToMissionFilter = (rules: PublisherDiffusionRuleRecord[]): MissionDiffusionRulesFilter => {
@@ -191,18 +182,45 @@ export const publisherDiffusionRulesToMissionFilter = (rules: PublisherDiffusion
     return { kind: "none", missionWhere: null };
   }
 
-  const publisherIds = getPublisherIdOnlyGroups(groups);
-  if (publisherIds && publisherIds.length > 1) {
-    return {
-      kind: "filter",
-      filterBy: buildSearchListFilter("publisherId", publisherIds),
-      missionWhere: { publisherId: { in: publisherIds } },
-    };
+  // On compacte les groupes « publisherId seul » en une unique liste `publisherId:=[…]` plutôt qu'une
+  // chaîne de `||` : cela borne à la fois la longueur du filter_by et son nombre d'opérations (Typesense
+  // en limite respectivement la query string à 4000 caractères et le filter_by à 100 opérations). Les
+  // groupes avec enfants (restrictions sur l'organisation) ne peuvent pas être compactés : on les laisse
+  // en OR à côté de la liste.
+  const purePublisherIds: string[] = [];
+  const childGroups: SupportedGroup[] = [];
+  for (const group of groups) {
+    const publisherId = getPublisherIdOnly(group);
+    if (publisherId !== null) {
+      purePublisherIds.push(publisherId);
+    } else {
+      childGroups.push(group);
+    }
+  }
+
+  if (childGroups.length === 0) {
+    return purePublisherIds.length === 1
+      ? { kind: "filter", filterBy: buildSearchEqualFilter("publisherId", purePublisherIds[0]), missionWhere: { publisherId: purePublisherIds[0] } }
+      : { kind: "filter", filterBy: buildSearchListFilter("publisherId", purePublisherIds), missionWhere: { publisherId: { in: purePublisherIds } } };
+  }
+
+  const filterParts: string[] = [];
+  const missionWhereParts: Prisma.MissionWhereInput[] = [];
+  if (purePublisherIds.length === 1) {
+    filterParts.push(buildSearchEqualFilter("publisherId", purePublisherIds[0]));
+    missionWhereParts.push({ publisherId: purePublisherIds[0] });
+  } else if (purePublisherIds.length > 1) {
+    filterParts.push(buildSearchListFilter("publisherId", purePublisherIds));
+    missionWhereParts.push({ publisherId: { in: purePublisherIds } });
+  }
+  for (const group of childGroups) {
+    filterParts.push(group.filterBy);
+    missionWhereParts.push(group.missionWhere);
   }
 
   return {
     kind: "filter",
-    filterBy: combineSearchOr(groups.map((group) => group.filterBy)),
-    missionWhere: groups.length === 1 ? groups[0].missionWhere : { OR: groups.map((group) => group.missionWhere) },
+    filterBy: combineSearchOr(filterParts),
+    missionWhere: missionWhereParts.length === 1 ? missionWhereParts[0] : { OR: missionWhereParts },
   };
 };
