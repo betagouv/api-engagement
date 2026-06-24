@@ -112,10 +112,14 @@ function optionAnswer(answers: QuizAnswers, stepId: StepId): string | null {
   return answer?.type === "options" ? (answer.option_ids[0] ?? null) : null;
 }
 
-// Chemin synthétique : valeurs des réponses à choix uniques, dans l'ordre du flow (ex. "lyceen>booster_cv>...").
+// Chemin synthétique : pour chaque step répondu (dans l'ordre du flow), toutes les valeurs
+// sélectionnées concaténées par "-", les steps étant séparés par ">" (ex. "lyceen>sante-education").
 function buildQuizPath(answers: QuizAnswers): string {
-  return QUIZ_FLOW.map((step) => optionAnswer(answers, step.id))
-    .filter((value): value is string => value !== null)
+  return QUIZ_FLOW.map((step) => {
+    const answer = answers[step.id];
+    return answer?.type === "options" && answer.option_ids.length > 0 ? answer.option_ids.join("-") : null;
+  })
+    .filter((segment): segment is string => segment !== null)
     .join(">");
 }
 
@@ -146,7 +150,11 @@ export function trackQuizCompleted(params: { answers: QuizAnswers; completionTyp
 export function trackQuizStepCompleted(params: { stepName: StepId; answers: QuizAnswers; stepIndex: number; totalVisibleSteps: number }): void {
   const answer = params.answers[params.stepName];
   // answer_value uniquement pour les étapes catégorielles non sensibles (omis pour age/localisation/handicap).
-  const answerValue = !ANSWER_VALUE_EXCLUDED_STEPS.has(params.stepName) && answer?.type === "options" ? answer.option_ids[0] : undefined;
+  // Multi-sélection → tableau de toutes les valeurs ; sélection unique → chaîne simple.
+  let answerValue: string | string[] | undefined;
+  if (!ANSWER_VALUE_EXCLUDED_STEPS.has(params.stepName) && answer?.type === "options" && answer.option_ids.length > 0) {
+    answerValue = answer.option_ids.length === 1 ? answer.option_ids[0] : answer.option_ids;
+  }
 
   const properties: TrackingProperties = {
     step_name: params.stepName,

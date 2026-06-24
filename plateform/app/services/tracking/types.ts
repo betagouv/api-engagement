@@ -3,7 +3,8 @@
 
 // Propriétés associées à un évènement. On reste large pour ne pas contraindre les providers,
 // mais on évite d'y mettre des données personnelles (cf. règles de sécurité du dépôt).
-export type TrackingProperties = Record<string, string | number | boolean | null | undefined>;
+// Les tableaux sont supportés (ex. réponses multi-sélection envoyées à PostHog).
+export type TrackingProperties = Record<string, string | number | boolean | null | undefined | string[]>;
 
 // Identité optionnelle de l'utilisateur courant. `distinctId` correspond à l'id anonyme déjà
 // utilisé par le quiz (`useQuizStore.distinctId`).
