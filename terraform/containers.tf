@@ -170,7 +170,7 @@ resource "scaleway_container" "plateform" {
 
   secret_environment_variables = {
     "VITE_MAPTILER_API_KEY" = lookup(local.secrets, "VITE_MAPTILER_API_KEY", "")
-    "PUBLISHER_API_KEY"     = lookup(local.secrets, "PUBLISHER_API_KEY", "")
+    "PUBLISHER_API_KEY"     = lookup(local.secrets, "PLATEFORM_PUBLISHER_API_KEY", "")
   }
 }
 
