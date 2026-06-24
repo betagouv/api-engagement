@@ -1,9 +1,10 @@
 import type { MissionBrowse, MissionMatchItem } from "@engagement/dto";
 
-import { QUIZ_FLOW } from "~/config/quiz-flow";
+import { QUIZ_FLOW, type StepId } from "~/config/quiz-flow";
 import type { QuizAnswers } from "~/types/quiz";
 
 import { track } from "./index";
+import type { TrackingProperties } from "./types";
 
 // Catalogue des évènements métier tracés côté front. Centralise le nom de l'évènement et la forme
 // de ses propriétés (spec produit, propriétés en snake_case côté PostHog).
@@ -19,6 +20,7 @@ export type EventCategory = "lifecycle" | "core_value" | "feature_usage";
 // Associe chaque évènement du plan à sa catégorie (référence documentaire, non transmise).
 export const EVENT_CATALOG = {
   "quiz.started": "lifecycle",
+  "quiz.step_completed": "core_value",
   "quiz.completed": "core_value",
   "results.viewed": "core_value",
   "mission.clicked": "core_value",
@@ -105,10 +107,20 @@ function getAgeBracket(age: number): string {
 }
 
 // Première option sélectionnée pour un step de type "options" (sinon null).
-function optionAnswer(answers: QuizAnswers, stepId: (typeof QUIZ_FLOW)[number]["id"]): string | null {
+function optionAnswer(answers: QuizAnswers, stepId: StepId): string | null {
   const answer = answers[stepId];
   return answer?.type === "options" ? (answer.option_ids[0] ?? null) : null;
 }
+
+// Chemin synthétique : valeurs des réponses à choix uniques, dans l'ordre du flow (ex. "lyceen>booster_cv>...").
+function buildQuizPath(answers: QuizAnswers): string {
+  return QUIZ_FLOW.map((step) => optionAnswer(answers, step.id))
+    .filter((value): value is string => value !== null)
+    .join(">");
+}
+
+// Steps dont la réponse n'est pas remontée dans answer_value (non catégoriels ou sensibles).
+const ANSWER_VALUE_EXCLUDED_STEPS = new Set<StepId>(["age", "localisation", "handicap"]);
 
 // `quiz.completed` (core_value) : fin du quiz, à l'arrivée sur les résultats.
 // quiz_attempt_id et quiz_session_id sont attachés automatiquement (super properties).
@@ -116,14 +128,10 @@ export function trackQuizCompleted(params: { answers: QuizAnswers; completionTyp
   const { answers } = params;
   const ageAnswer = answers["age"];
   const age = ageAnswer?.type === "numeric" ? ageAnswer.value : null;
-  // Chemin synthétique : valeurs des réponses à choix uniques, dans l'ordre du flow (ex. "lyceen>booster_cv>...").
-  const quizPath = QUIZ_FLOW.map((step) => optionAnswer(answers, step.id))
-    .filter((value): value is string => value !== null)
-    .join(">");
 
   track("quiz.completed", {
     completion_type: params.completionType,
-    quiz_path: quizPath,
+    quiz_path: buildQuizPath(answers),
     steps_completed_count: QUIZ_FLOW.filter((step) => answers[step.id] !== undefined).length,
     has_localisation: answers["localisation"]?.type === "params",
     statut: optionAnswer(answers, "statut"),
@@ -131,6 +139,25 @@ export function trackQuizCompleted(params: { answers: QuizAnswers; completionTyp
     age_bracket: age !== null ? getAgeBracket(age) : null,
     quiz_duration_ms: Date.now() - params.quizStartedAt,
   });
+}
+
+// `quiz.step_completed` (core_value) : à chaque validation d'étape (goNext).
+// quiz_attempt_id est attaché automatiquement (super property).
+export function trackQuizStepCompleted(params: { stepName: StepId; answers: QuizAnswers; stepIndex: number; totalVisibleSteps: number }): void {
+  const answer = params.answers[params.stepName];
+  // answer_value uniquement pour les étapes catégorielles non sensibles (omis pour age/localisation/handicap).
+  const answerValue = !ANSWER_VALUE_EXCLUDED_STEPS.has(params.stepName) && answer?.type === "options" ? answer.option_ids[0] : undefined;
+
+  const properties: TrackingProperties = {
+    step_name: params.stepName,
+    quiz_path: buildQuizPath(params.answers),
+    step_index: params.stepIndex,
+    total_visible_steps: params.totalVisibleSteps,
+  };
+  // Omis (pas de clé) quand non applicable, plutôt que `answer_value: undefined`.
+  if (answerValue !== undefined) properties.answer_value = answerValue;
+
+  track("quiz.step_completed", properties);
 }
 
 // Clic depuis une mission "browse" (liste /missions ou exemples de la homepage).

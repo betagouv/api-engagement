@@ -6,7 +6,7 @@ import LoadingRecap from "~/components/quiz/loading-recap";
 import { QUIZ_FLOW, type StepDef } from "~/config/quiz-flow";
 import { invalidateInitialMatches } from "~/services/matching";
 import { createUserScoring, updateUserScoring } from "~/services/user-scoring";
-import { trackQuizCompleted } from "~/services/tracking/events";
+import { trackQuizCompleted, trackQuizStepCompleted } from "~/services/tracking/events";
 import { useQuizStore } from "~/stores/quiz";
 import { evalCondition } from "~/utils/conditions";
 import { buildPayload, refreshSteps } from "~/utils/quiz";
@@ -118,8 +118,11 @@ export default function QuizLayout() {
       return;
     }
 
-    const { next, steps } = refreshSteps(QUIZ_FLOW, currentStep.id, freshAnswers);
-    setSteps(steps);
+    // `steps` et `currentIndex` reflètent la séquence visible telle que vue par l'utilisateur.
+    trackQuizStepCompleted({ stepName: currentStep.id, answers: freshAnswers, stepIndex: currentIndex + 1, totalVisibleSteps: steps.length });
+
+    const { next, steps: nextSteps } = refreshSteps(QUIZ_FLOW, currentStep.id, freshAnswers);
+    setSteps(nextSteps);
     if (next) {
       navigate(next.route);
     } else {
