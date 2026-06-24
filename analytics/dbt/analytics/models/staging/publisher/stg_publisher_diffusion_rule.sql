@@ -4,7 +4,7 @@ select
   field,
   field_type,
   operator,
-  value as field_value,
+  value,
   combinator,
   position::integer as position,
   combined_with_id,
