@@ -20,21 +20,20 @@ Extension Chrome (Manifest V3) pour valider l'installation de `jstag.js` et visu
 
 ## Installation
 
-### Pour les partenaires (artefact de release)
+### Pour les partenaires
 
-L'extension n'est pas publiée sur le Chrome Web Store. Elle est distribuée comme asset de la
-dernière release GitHub :
+L'extension n'est pas publiée sur le Chrome Web Store. Elle est distribuée depuis le même domaine
+que `jstag.js` :
 
-1. Sur la [page des releases](https://github.com/betagouv/api-engagement/releases), télécharger `chrome-extension-api-engagement.zip` depuis la release la plus récente qui contient cet asset (il n'est packagé que lorsque l'extension change)
+1. Télécharger [`chrome-extension.zip`](https://app.api-engagement.beta.gouv.fr/chrome-extension.zip)
 2. Dézipper l'archive
 3. Ouvrir `chrome://extensions`, activer le **Mode développeur** (toggle en haut à droite)
 4. Cliquer **Charger l'extension non empaquetée** et sélectionner le dossier dézippé
 
 L'icône apparaît dans la barre d'outils Chrome. L'épingler pour un accès rapide.
 
-> L'archive est packagée automatiquement par `release.yml` lorsque les fichiers de l'extension
-> changent depuis le tag précédent. Un repackage manuel sur la dernière release est possible via
-> le workflow `chrome-extension-package.yml` (`workflow_dispatch`).
+> L'archive est générée dans `app/public/chrome-extension.zip` pendant le build Docker de
+> l'application, puis servie par l'application.
 
 ### Pour les contributeurs (depuis les sources)
 

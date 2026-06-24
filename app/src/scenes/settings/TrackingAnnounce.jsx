@@ -49,8 +49,8 @@ const TrackingAnnounce = () => {
           </p>
           <p className="text-text-mention text-xs leading-5">
             Pour visualiser le cookie et les événements en temps réel, installez l'extension Chrome « API Engagement Tag Assistant » :{" "}
-            <a href="https://github.com/betagouv/api-engagement/releases" target="_blank" rel="noreferrer" className="text-blue-france underline">
-              télécharger depuis les releases
+            <a href="https://app.api-engagement.beta.gouv.fr/chrome-extension.zip" target="_blank" rel="noreferrer" className="text-blue-france underline">
+              télécharger l'extension
             </a>
             .
           </p>
