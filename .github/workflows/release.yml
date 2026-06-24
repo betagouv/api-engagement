@@ -137,7 +137,7 @@ jobs:
         if: steps.commit.outputs.changes_detected == 'true' && env.EXT_CHANGED == 'true'
         run: |
           cd tools
-          zip -r api-engagement-assistant.zip chrome-extension/ \
+          zip -r chrome-extension-api-engagement.zip chrome-extension/ \
             --exclude "chrome-extension/README.md"
 
       - name: Create GitHub Release
@@ -155,4 +155,4 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           tag_name: v${{ env.RELEASE_VERSION }}
-          files: tools/api-engagement-assistant.zip
+          files: tools/chrome-extension-api-engagement.zip

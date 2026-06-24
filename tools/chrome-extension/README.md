@@ -18,14 +18,35 @@ Extension Chrome (Manifest V3) pour valider l'installation de `jstag.js` et visu
 - Cliquer sur un événement pour dérouler tous ses paramètres
 - **Toast** : notification overlay discrète sur la page à chaque événement capté
 
-## Installation (mode développeur)
+## Installation
 
-1. Ouvrir Chrome et aller sur `chrome://extensions`
-2. Activer le **Mode développeur** (toggle en haut à droite)
-3. Cliquer **Charger l'extension non empaquetée**
-4. Sélectionner le dossier `tools/chrome-extension/`
+### Pour les partenaires (artefact de release)
+
+L'extension n'est pas publiée sur le Chrome Web Store. Elle est distribuée comme asset de la
+dernière release GitHub :
+
+1. Sur la [page des releases](https://github.com/betagouv/api-engagement/releases), télécharger `chrome-extension-api-engagement.zip` depuis la release la plus récente qui contient cet asset (il n'est packagé que lorsque l'extension change)
+2. Dézipper l'archive
+3. Ouvrir `chrome://extensions`, activer le **Mode développeur** (toggle en haut à droite)
+4. Cliquer **Charger l'extension non empaquetée** et sélectionner le dossier dézippé
 
 L'icône apparaît dans la barre d'outils Chrome. L'épingler pour un accès rapide.
+
+> L'archive est packagée automatiquement par `release.yml` lorsque les fichiers de l'extension
+> changent depuis le tag précédent. Un repackage manuel sur la dernière release est possible via
+> le workflow `chrome-extension-package.yml` (`workflow_dispatch`).
+
+### Pour les contributeurs (depuis les sources)
+
+Mêmes étapes, mais sélectionner directement le dossier `tools/chrome-extension/` du dépôt (pas
+besoin de télécharger le zip).
+
+## Prérequis pour tester
+
+Le tracking ne s'active que si la page a été ouverte via une **URL trackée** contenant
+`?apiengagement_id=…` : c'est elle qui fait poser le cookie `apiengagement`, sans lequel
+`trackApplication` / `trackAccount` n'envoient rien. Demander une URL trackée à l'équipe API
+Engagement avant de tester. Voir la [documentation tracking annonceur](../../docs/tracking-annonceur.md).
 
 ## Utilisation
 

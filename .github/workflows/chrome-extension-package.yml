@@ -32,14 +32,14 @@ jobs:
       - name: Package extension
         run: |
           cd tools
-          zip -r api-engagement-assistant.zip chrome-extension/ \
+          zip -r chrome-extension-api-engagement.zip chrome-extension/ \
             --exclude "chrome-extension/README.md"
-          echo "Archive size: $(du -sh api-engagement-assistant.zip | cut -f1)"
+          echo "Archive size: $(du -sh chrome-extension-api-engagement.zip | cut -f1)"
 
       - name: Upload asset to latest release
         run: |
           gh release upload ${{ steps.latest_release.outputs.tag }} \
-            tools/api-engagement-assistant.zip \
+            tools/chrome-extension-api-engagement.zip \
             --clobber
         env:
           GH_TOKEN: ${{ github.token }}
