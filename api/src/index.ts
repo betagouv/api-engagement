@@ -66,6 +66,7 @@ import MissionBrowseController from "@/controllers/mission-browse";
 import MissionMatchController from "@/controllers/mission-match";
 import ModerationController from "@/controllers/moderation";
 import ModerationEventController from "@/controllers/moderation-event";
+import NewsletterController from "@/controllers/newsletter";
 import OrganizationController from "@/controllers/organization";
 import PublisherController from "@/controllers/publisher";
 import PublisherOrganizationController from "@/controllers/publisher-organization";
@@ -140,6 +141,7 @@ const main = async () => {
   app.use("/missions", corsPublic, MissionBrowseController);
   app.use("/missions", corsPublic, MissionMatchController);
   app.use("/email", corsPublic, EmailController);
+  app.use("/newsletter", corsPublic, NewsletterController);
 
   // Interal routes
   app.use("/admin-report", AdminReportController);

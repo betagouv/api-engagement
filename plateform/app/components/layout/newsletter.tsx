@@ -1,7 +1,9 @@
-import type { SubmitEvent } from "react";
+import { type SubmitEvent, useState } from "react";
 
 import MailSendSvg from "@gouvfr/dsfr/dist/artwork/pictograms/digital/mail-send.svg?url";
 import TraceSvg from "~/assets/svg/trace.svg";
+import { subscribeNewsletter } from "~/services/newsletter";
+import { useQuizStore } from "~/stores/quiz";
 
 interface NewsletterProps {
   title: string;
@@ -16,8 +18,27 @@ export default function Newsletter({
   ctaText = "Je m'inscris",
   hintText = "Tu te désinscris quand tu veux.",
 }: NewsletterProps) {
-  const handleSubmit = (event: SubmitEvent) => {
+  const distinctId = useQuizStore((s) => s.distinctId);
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const form = event.currentTarget;
+    const email = (form.elements.namedItem("email") as HTMLInputElement).value;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      await subscribeNewsletter({ email, distinctId });
+      setSuccess(true);
+    } catch {
+      setError("Une erreur est survenue. Merci de réessayer.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -37,18 +58,29 @@ export default function Newsletter({
         </div>
 
         <div className="flex-1 w-full md:w-auto">
-          <form onSubmit={handleSubmit} className="max-w-md">
-            <div className="fr-input-group fr-mb-2w">
-              <label className="fr-label sr-only" htmlFor="newsletter-email">
-                Adresse email
-              </label>
-              <input id="newsletter-email" type="email" required className="fr-input bg-background!" placeholder="nom@email.fr" />
+          {success ? (
+            <div className="fr-alert fr-alert--success max-w-md">
+              <p>Ton inscription est bien prise en compte. À très vite dans ta boîte mail !</p>
             </div>
-            <button type="submit" className="fr-btn w-full! md:w-auto! justify-center! md:justify-start!">
-              {ctaText}
-            </button>
-            <p className="fr-hint-text fr-mt-1w">{hintText}</p>
-          </form>
+          ) : (
+            <form onSubmit={handleSubmit} className="max-w-md">
+              {error && (
+                <div className="fr-alert fr-alert--error fr-mb-2w">
+                  <p>{error}</p>
+                </div>
+              )}
+              <div className="fr-input-group fr-mb-2w">
+                <label className="fr-label sr-only" htmlFor="newsletter-email">
+                  Adresse email
+                </label>
+                <input id="newsletter-email" name="email" type="email" required className="fr-input bg-background!" placeholder="nom@email.fr" />
+              </div>
+              <button type="submit" disabled={loading} className="fr-btn w-full! md:w-auto! justify-center! md:justify-start!">
+                {loading ? "Inscription en cours…" : ctaText}
+              </button>
+              <p className="fr-hint-text fr-mt-1w">{hintText}</p>
+            </form>
+          )}
         </div>
       </div>
     </section>

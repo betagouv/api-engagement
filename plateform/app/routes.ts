@@ -10,6 +10,7 @@ export default [
   route("api/user-scoring", "routes/api.user-scoring.ts"),
   route("api/user-scoring/:id", "routes/api.user-scoring.$id.ts"),
   route("api/email/mission", "routes/api.email.mission.ts"),
+  route("api/newsletter", "routes/api.newsletter.ts"),
 
   // Nouveau quiz — flow conditionnel, un step = une route, layout partagé.
   route("quiz", "routes/quiz/_layout.tsx", [
