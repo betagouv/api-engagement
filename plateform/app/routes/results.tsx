@@ -34,13 +34,15 @@ export default function ResultsPage() {
   const { pinnedItems, otherItems, page, setPage, hasNextPage, loading, pageLoading, error, visiblePageNumbers } = useMissionResults(userScoringId);
   const [expanded, setExpanded] = useState(false);
   const [selectedMission, setSelectedMission] = useState<MissionMatchItem | null>(null);
+  const [hoveredMissionId, setHoveredMissionId] = useState<string | null>(null);
   const [isClosingCard, setIsClosingCard] = useState(false);
   const [emailModalOpen, setEmailModalOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const locAnswer = answers["localisation"];
   const geo = locAnswer?.type === "params" ? (locAnswer.params as { lat: number; lon: number }) : null;
-  const mapCenter: [number, number] = geo ? [geo.lat, geo.lon] : FRANCE_CENTER;
+  // Mémoïsé pour garder une identité stable : sinon chaque rendu (ex. sélection d'un pin) recale la carte sur l'ensemble des pins.
+  const mapCenter = useMemo<[number, number]>(() => (geo ? [geo.lat, geo.lon] : FRANCE_CENTER), [geo]);
   const userValues = useMemo<MatchingDebugUserValue[]>(
     () =>
       Object.values(answers).flatMap((answer) => {
@@ -70,6 +72,9 @@ export default function ResultsPage() {
   const showMap = !loading && pinnedItems.length > 0;
   const showOther = !loading && !error && (otherItems.length > 0 || page > 1);
   const showDebug = searchParams.get("debug") === "true";
+
+  // Mission mise en avant (survol prioritaire sur sélection) : pin coloré + carte surlignée dans la liste.
+  const activeMissionId = hoveredMissionId ?? selectedMission?.mission.id ?? null;
 
   // Dernier step visible du quiz selon les réponses courantes → "Changer mes réponses" y renvoie.
   const lastQuizStep = QUIZ_FLOW.filter((s) => !s.condition || evalCondition(s.condition, answers)).at(-1);
@@ -102,7 +107,7 @@ export default function ResultsPage() {
         <section className="relative h-[calc(100dvh-3.5rem)] overflow-hidden">
           {showMap && (
             <div className="absolute inset-0 z-0" onClickCapture={handleCollapseSheet}>
-              <LazyMissionMap items={pinnedItems} center={mapCenter} onMarkerClick={handleMarkerClick} />
+              <LazyMissionMap items={pinnedItems} center={mapCenter} onMarkerClick={handleMarkerClick} activeMissionId={activeMissionId} />
             </div>
           )}
 
@@ -173,7 +178,7 @@ export default function ResultsPage() {
             </div>
 
             <div ref={scrollRef} className={`flex-1 overflow-y-auto overscroll-contain ${expanded ? "" : "hidden"}`}>
-              <PinnedMissions items={pinnedItems} loading={loading} error={error} userScoringId={userScoringId} showDebug={showDebug} />
+              <PinnedMissions items={pinnedItems} loading={loading} error={error} userScoringId={userScoringId} showDebug={showDebug} highlightedMissionId={activeMissionId} />
 
               {showOther && (
                 <div className="px-6 pt-2 pb-8">
@@ -230,9 +235,72 @@ export default function ResultsPage() {
                   Changer mes réponses
                 </Link>
               </div>
-              <PinnedMissions items={pinnedItems} loading={loading} error={error} userScoringId={userScoringId} showDebug={showDebug} />
+              <PinnedMissions
+                items={pinnedItems}
+                loading={loading}
+                error={error}
+                userScoringId={userScoringId}
+                showDebug={showDebug}
+                highlightedMissionId={activeMissionId}
+                onMissionHover={setHoveredMissionId}
+              />
             </div>
-            <div className="sticky top-0 max-h-[720px] flex-1 py-12">{showMap && <LazyMissionMap items={pinnedItems} center={mapCenter} />}</div>
+            <div className="sticky top-0 max-h-[720px] flex-1 py-12">
+              {showMap && (
+                <div className="relative h-full">
+                  <LazyMissionMap
+                    items={pinnedItems}
+                    center={mapCenter}
+                    onMarkerClick={handleMarkerClick}
+                    selectionPadding={[380, 0]}
+                    activeMissionId={activeMissionId}
+                    onMissionHover={setHoveredMissionId}
+                  />
+
+                  {selectedMission && (
+                    <div
+                      key={selectedMission.mission.id}
+                      className={`absolute right-4 top-4 z-[500] w-[330px] ${isClosingCard ? "animate-slide-down-fade" : "animate-slide-up-fade"}`}
+                      onAnimationEnd={() => {
+                        if (!isClosingCard) return;
+                        setSelectedMission(null);
+                        setIsClosingCard(false);
+                      }}
+                    >
+                      <div className="relative">
+                        <MissionCard mission={matchResultToBrowseMission(selectedMission)} link={{ type: "internal", to: buildMissionDetailHref(selectedMission, userScoringId) }} />
+                        <div className="absolute right-3 top-3 z-10 flex items-center gap-2">
+                          <button
+                            type="button"
+                            className="flex h-8 w-8 items-center justify-center rounded-full bg-background! shadow-md"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setEmailModalOpen(true);
+                            }}
+                            aria-label="Recevoir par email"
+                          >
+                            <i className="fr-icon-mail-send-line fr-icon--sm" aria-hidden="true" />
+                          </button>
+                          <button
+                            type="button"
+                            className="flex h-8 w-8 items-center justify-center rounded-full bg-background! shadow-md"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setIsClosingCard(true);
+                            }}
+                            aria-label="Fermer la carte"
+                          >
+                            <i className="fr-icon-close-line fr-icon--sm" aria-hidden="true" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </section>
           <MatchingDebugModal items={[...pinnedItems, ...otherItems]} userValues={userValues} />
         </GradientBg>
@@ -260,6 +328,7 @@ export default function ResultsPage() {
         hintText="En renseignant ton adresse électronique, tu acceptes de recevoir de nouvelles offres de missions. Tu pourras te désinscrire à tout moment."
       />
       <Partners style="compact" />
+      <EmailMissionsModal userScoringId={userScoringId} open={emailModalOpen} onOpenChange={setEmailModalOpen} hideTrigger />
     </>
   );
 }
