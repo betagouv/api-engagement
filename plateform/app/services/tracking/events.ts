@@ -20,6 +20,7 @@ export type EventCategory = "lifecycle" | "core_value" | "feature_usage";
 // Associe chaque évènement du plan à sa catégorie (référence documentaire, non transmise).
 export const EVENT_CATALOG = {
   "quiz.started": "lifecycle",
+  "quiz.shortcut_taken": "feature_usage",
   "quiz.step_completed": "core_value",
   "quiz.completed": "core_value",
   "results.viewed": "core_value",
@@ -119,6 +120,16 @@ export function trackQuizStarted(params: { entrySource: QuizEntrySource }): void
   track("quiz.started", { entry_source: params.entrySource });
 }
 
+// `quiz.shortcut_taken` (feature_usage) : clic sur "Voir mes résultats" (raccourci depuis une étape).
+// quiz_attempt_id est attaché automatiquement (super property).
+export function trackQuizShortcutTaken(params: { fromStepName: StepId; fromStepIndex: number; answers: QuizAnswers }): void {
+  track("quiz.shortcut_taken", {
+    from_step_name: params.fromStepName,
+    from_step_index: params.fromStepIndex,
+    steps_completed_count: countAnsweredSteps(params.answers),
+  });
+}
+
 // Mode de complétion du quiz : "full" (l'utilisateur a parcouru jusqu'au bout) ou "shortcut"
 // (bouton "Voir les missions sans répondre à toutes les questions").
 export type QuizCompletionType = "full" | "shortcut";
@@ -152,6 +163,11 @@ function buildQuizPath(answers: QuizAnswers): string {
 // Steps dont la réponse n'est pas remontée dans answer_value (non catégoriels ou sensibles).
 const ANSWER_VALUE_EXCLUDED_STEPS = new Set<StepId>(["age", "localisation", "handicap"]);
 
+// Nombre d'étapes du flow ayant une réponse.
+function countAnsweredSteps(answers: QuizAnswers): number {
+  return QUIZ_FLOW.filter((step) => answers[step.id] !== undefined).length;
+}
+
 // `quiz.completed` (core_value) : fin du quiz, à l'arrivée sur les résultats.
 // quiz_attempt_id et quiz_session_id sont attachés automatiquement (super properties).
 export function trackQuizCompleted(params: { answers: QuizAnswers; completionType: QuizCompletionType; quizStartedAt: number }): void {
@@ -162,7 +178,7 @@ export function trackQuizCompleted(params: { answers: QuizAnswers; completionTyp
   track("quiz.completed", {
     completion_type: params.completionType,
     quiz_path: buildQuizPath(answers),
-    steps_completed_count: QUIZ_FLOW.filter((step) => answers[step.id] !== undefined).length,
+    steps_completed_count: countAnsweredSteps(answers),
     has_localisation: answers["localisation"]?.type === "params",
     statut: optionAnswer(answers, "statut"),
     motivation: optionAnswer(answers, "motivation"),

@@ -3,7 +3,7 @@ import { Outlet, useLocation, useNavigate } from "react-router";
 import BackButton from "~/components/quiz/back-button";
 import QuizHeader from "~/components/quiz/header";
 import LoadingRecap from "~/components/quiz/loading-recap";
-import { QUIZ_FLOW, type StepDef } from "~/config/quiz-flow";
+import { QUIZ_FLOW, type StepDef, type StepId } from "~/config/quiz-flow";
 import { invalidateInitialMatches } from "~/services/matching";
 import { createUserScoring, updateUserScoring } from "~/services/user-scoring";
 import { trackQuizCompleted, trackQuizStepCompleted } from "~/services/tracking/events";
@@ -19,6 +19,9 @@ export type QuizOutletContext = {
   saveScoring: () => void;
   transitioning: boolean;
   setTransitioning: (value: boolean) => void;
+  // Step courant (pour le tracking des raccourcis depuis NextButton).
+  currentStepId: StepId | null;
+  currentStepIndex: number;
 };
 
 export function meta(): Route.MetaDescriptors {
@@ -169,7 +172,19 @@ export default function QuizLayout() {
             <LoadingRecap onComplete={handleLoadingComplete} />
           ) : (
             // `goNext` / `goBack` / `saveScoring` exposés aux routes enfants via Outlet context.
-            <Outlet context={{ goNext, goBack, saveScoring, transitioning, setTransitioning } satisfies QuizOutletContext} />
+            <Outlet
+              context={
+                {
+                  goNext,
+                  goBack,
+                  saveScoring,
+                  transitioning,
+                  setTransitioning,
+                  currentStepId: currentStep?.id ?? null,
+                  currentStepIndex: currentIndex + 1,
+                } satisfies QuizOutletContext
+              }
+            />
           )}
         </div>
       </main>
