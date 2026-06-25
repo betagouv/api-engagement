@@ -20,6 +20,8 @@ const STEP_OPTIONS = [
   OPTIONS["engagement_intent.exploration"],
 ];
 
+const DEFAULT_TITLE = "Parmi ces choix, quelle thématique te parle le plus ?";
+
 export default function PrecisionThematiqueStep() {
   const { answers, setAnswer } = useQuizStore();
   const { goNext, saveScoring } = useOutletContext<QuizOutletContext>();
@@ -42,7 +44,7 @@ export default function PrecisionThematiqueStep() {
 
   return (
     <>
-      <CheckboxGroupRich title="Parmi ces choix, quelle thématique te parle le plus ?" onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} />
+      <CheckboxGroupRich title={DEFAULT_TITLE} onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} />
       <NextButton onClick={handleNext} skip />
     </>
   );

@@ -21,6 +21,8 @@ const STEP_OPTIONS = [
   OPTIONS["secteur_activite.je_ne_sais_pas"],
 ];
 
+const DEFAULT_TITLE = "Quel secteur d'activité t'attirerait le plus ?";
+
 export default function PrecisionReprendreActiviteStep() {
   const { answers, setAnswer } = useQuizStore();
   const { goNext, saveScoring } = useOutletContext<QuizOutletContext>();
@@ -43,7 +45,7 @@ export default function PrecisionReprendreActiviteStep() {
 
   return (
     <>
-      <CheckboxGroupRich title="Quel secteur d'activité t'attirerait le plus ?" onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} />
+      <CheckboxGroupRich title={DEFAULT_TITLE} onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} />
       <NextButton onClick={handleNext} skip />
     </>
   );

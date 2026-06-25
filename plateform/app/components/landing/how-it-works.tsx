@@ -47,7 +47,7 @@ const FEATURES: Feature[] = [
   },
   {
     icon: SelfTrainingSvg,
-    title: <>Sans diplôme ni expérience requis.</>,
+    title: <>Compatible sans diplôme, études ou emploi</>,
   },
 ];
 
@@ -129,7 +129,7 @@ export default function HowItWorks() {
 
         <div className="flex flex-col items-center gap-3">
           <Link to="/quiz" className="fr-btn fr-btn--secondary fr-btn--lg w-full justify-center md:w-auto">
-            Je découvre les missions
+            Trouver ma mission
           </Link>
           <p className="fr-text--sm text-mention-grey fr-mb-0! text-center!">+25 000 missions disponibles partout en France</p>
         </div>

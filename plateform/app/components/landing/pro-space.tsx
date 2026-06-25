@@ -35,7 +35,7 @@ export default function ProSpace() {
             Un <Highlight className="bg-yellow-tournesol-925">outil concret</Highlight> pour les aider à avancer.
           </h2>
           <p className="fr-text--lead text-default-grey fr-mb-4w hidden! md:block!">
-            Professionnels de l'éducation, conseillers, parents : orientez facilement les jeunes vers des missions adaptées à leurs envies et leur rythme.
+            Professionnels de l'éducation, conseillers, parents. Orientez facilement les jeunes vers des missions adaptées à leurs envies et leur rythme.
           </p>
           <Link to="#" className="fr-btn fr-btn--secondary hidden! md:block!">
             Accéder aux ressources

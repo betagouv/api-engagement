@@ -13,6 +13,9 @@ import Photo1 from "~/assets/images/humanitaire-02.jpeg";
 
 const LISTBOX_ID = "localisation-listbox";
 
+const DEFAULT_TITLE = "Où veux-tu chercher des missions ?";
+const DEFAULT_SUBTITLE = "Entre ton adresse pour découvrir les missions près de chez toi. Certaines missions peuvent aussi se faire à distance.";
+
 export default function LocalisationStep() {
   const { answers, setAnswer } = useQuizStore();
   const { goNext, saveScoring, transitioning, setTransitioning } = useOutletContext<QuizOutletContext>();
@@ -191,8 +194,8 @@ export default function LocalisationStep() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-10">
-      <Label subtitle="Entre ton adresse pour découvrir les missions près de chez toi. Certaines missions peuvent aussi se faire à distance." htmlFor="localisation-input">
-        Où veux-tu chercher des missions ?
+      <Label subtitle={DEFAULT_SUBTITLE} htmlFor="localisation-input">
+        {DEFAULT_TITLE}
       </Label>
 
       <div className="flex flex-col gap-4 max-w-md!">
