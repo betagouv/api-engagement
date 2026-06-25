@@ -27,7 +27,8 @@ export const EVENT_CATALOG = {
   "mission.clicked": "core_value",
   "mission_detail.viewed": "feature_usage",
   "missions_filter.applied": "feature_usage",
-  // feature_usage (emails, ...) : à cataloguer à l'implémentation.
+  "email_missions.sent": "feature_usage",
+  "email_mission_detail.sent": "feature_usage",
 } satisfies Record<string, EventCategory>;
 
 // Surface d'où provient le clic sur une carte mission.
@@ -278,5 +279,31 @@ export function trackMissionsFilterApplied(params: { filterType: MissionsFilterT
     filter_type: params.filterType,
     filter_value: params.filterValue,
     active_filter_count: params.activeFilterCount,
+  });
+}
+
+// `email_missions.sent` (feature_usage) : envoi par email des 5 missions recommandées (modale résultats).
+// quiz_session_id est attaché automatiquement (super property).
+export function trackEmailMissionsSent(params: { hasAlertOptIn: boolean }): void {
+  track("email_missions.sent", { has_alert_opt_in: params.hasAlertOptIn });
+}
+
+// Provenance de la fiche depuis laquelle l'email d'une mission est envoyé.
+export type EmailMissionDetailEntrySource = "results" | "missions_list" | "direct";
+
+export function resolveEmailMissionDetailEntrySource(navStateHint: string | null | undefined, hasUserScoringId: boolean): EmailMissionDetailEntrySource {
+  if (navStateHint === "results_pinned" || navStateHint === "results_other") return "results";
+  if (navStateHint === "missions_list") return "missions_list";
+  if (hasUserScoringId) return "results";
+  return "direct";
+}
+
+// `email_mission_detail.sent` (feature_usage) : envoi par email d'une seule mission (modale détail).
+export function trackEmailMissionDetailSent(params: { missionId: string; publisherId: string; entrySource: EmailMissionDetailEntrySource; hasAlertOptIn: boolean }): void {
+  track("email_mission_detail.sent", {
+    mission_id: params.missionId,
+    publisher_id: params.publisherId,
+    entry_source: params.entrySource,
+    has_alert_opt_in: params.hasAlertOptIn,
   });
 }
