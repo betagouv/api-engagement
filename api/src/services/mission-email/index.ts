@@ -204,7 +204,10 @@ export const sendMissionEmail = async (input: SendMissionEmailRequest): Promise<
 
   const emailResult = await sendTemplate(TEMPLATE_IDS.MISSION_MATCHING_RESULTS, {
     emailTo: [input.email],
-    params: { contentHtml: buildMissionContentHtml(missions) },
+    params: {
+      descriptionMission: missions.length === 1 ? "les détails de ta mission" : "les détails de ta sélection de missions",
+      contentHtml: buildMissionContentHtml(missions),
+    },
     tags: ["user-scoring", "mission-matching-results"],
   });
 
