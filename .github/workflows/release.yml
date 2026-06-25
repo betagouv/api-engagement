@@ -123,23 +123,6 @@ jobs:
         if: steps.commit.outputs.changes_detected == 'true'
         run: api/mockoon/build-archive.sh
 
-      - name: Detect Chrome extension changes since last release
-        if: steps.commit.outputs.changes_detected == 'true'
-        run: |
-          PREV_TAG=$(git tag --sort=-version:refname | grep "^v" | sed -n '2p' || true)
-          if [ -z "$PREV_TAG" ] || ! git diff --quiet "$PREV_TAG" HEAD -- tools/chrome-extension/; then
-            echo "EXT_CHANGED=true" >> $GITHUB_ENV
-          else
-            echo "EXT_CHANGED=false" >> $GITHUB_ENV
-          fi
-
-      - name: Package Chrome extension
-        if: steps.commit.outputs.changes_detected == 'true' && env.EXT_CHANGED == 'true'
-        run: |
-          cd tools
-          zip -r api-engagement-assistant.zip chrome-extension/ \
-            --exclude "chrome-extension/README.md"
-
       - name: Create GitHub Release
         if: steps.commit.outputs.changes_detected == 'true'
         uses: softprops/action-gh-release@v3
@@ -149,10 +132,3 @@ jobs:
           target_commitish: main
           body_path: /tmp/release-notes.md
           files: api/docs/mockoon/api-engagement-latest.tar.gz
-
-      - name: Upload Chrome extension to release
-        if: steps.commit.outputs.changes_detected == 'true' && env.EXT_CHANGED == 'true'
-        uses: softprops/action-gh-release@v3
-        with:
-          tag_name: v${{ env.RELEASE_VERSION }}
-          files: tools/api-engagement-assistant.zip

@@ -3,6 +3,7 @@ FROM node:24-bookworm-slim AS builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
+    zip \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /workspace
@@ -30,6 +31,11 @@ COPY plateform/package.json ./plateform/
 RUN npm ci --workspace app
 
 COPY app ./app
+COPY tools/chrome-extension ./tools/chrome-extension
+
+RUN cd tools && \
+    zip -r ../app/public/chrome-extension.zip chrome-extension/ \
+      --exclude "chrome-extension/README.md"
 
 RUN --mount=type=secret,id=sentry_auth_token,env=SENTRY_AUTH_TOKEN \
     NODE_TLS_REJECT_UNAUTHORIZED=0 npm --workspace app run build
