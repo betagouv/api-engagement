@@ -29,6 +29,7 @@ export const EVENT_CATALOG = {
   "missions_filter.applied": "feature_usage",
   "email_missions.sent": "feature_usage",
   "email_mission_detail.sent": "feature_usage",
+  "quiz.back_navigated": "feature_usage",
 } satisfies Record<string, EventCategory>;
 
 // Surface d'où provient le clic sur une carte mission.
@@ -305,5 +306,14 @@ export function trackEmailMissionDetailSent(params: { missionId: string; publish
     publisher_id: params.publisherId,
     entry_source: params.entrySource,
     has_alert_opt_in: params.hasAlertOptIn,
+  });
+}
+
+// `quiz.back_navigated` (feature_usage) : clic sur le bouton "Retour" dans le quiz.
+// quiz_attempt_id est attaché automatiquement (super property).
+export function trackQuizBackNavigated(params: { fromStepName: StepId; fromStepIndex: number }): void {
+  track("quiz.back_navigated", {
+    from_step_name: params.fromStepName,
+    from_step_index: params.fromStepIndex,
   });
 }
