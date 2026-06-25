@@ -7,6 +7,8 @@ import type { QuizOutletContext } from "./_layout";
 
 const STEP_ID = "precision_parcoursup_formation_nom";
 
+const DEFAULT_TITLE = "Dans quel domaine aimerais-tu avoir une expérience ?";
+
 // Step custom : capture libre du nom de formation (texte brut).
 // Pas de taxonomyKey — la valeur est transmise telle quelle au backend pour mapping ultérieur
 // (ex: V1, matching avec une base de formations).
@@ -33,7 +35,7 @@ export default function PrecisionParcoursupFormationNomStep() {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-10">
       <Label subtitle="Indique le nom de la formation." htmlFor="formation-input">
-        Dans quel domaine aimerais-tu avoir une expérience ?
+        {DEFAULT_TITLE}
       </Label>
 
       <div className="fr-input-group max-w-md!">

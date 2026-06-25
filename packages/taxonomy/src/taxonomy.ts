@@ -160,14 +160,14 @@ export const TAXONOMY = {
     values: {
       ponctuelle: {
         label: "Mission ponctuelle",
-        sublabel: "Quelques heures ou quelques jours, une fois.",
+        sublabel: "Quelques heures ou quelques jours, une fois",
         icon: "😇‍",
         enrichable: true,
       },
       reguliere: {
         label: "Mission régulière",
         sublabel: "Quelques heures par semaine ou par mois. Certaines missions peuvent être indemnisées",
-        icon: "😇‍",
+        icon: "☺️",
         enrichable: true,
       },
       temps_plein: {

@@ -19,7 +19,7 @@ export default function Hero({ onStartQuiz }: HeroProps) {
         </p>
 
         <button type="button" onClick={onStartQuiz} className="fr-btn fr-btn--lg w-full! lg:w-auto! justify-center!">
-          Je commence le quiz
+          Trouver ma mission
         </button>
         <p className="fr-text--md text-mention-grey fr-mt-1w w-full! text-center! lg:text-left!">Sans inscription</p>
       </div>

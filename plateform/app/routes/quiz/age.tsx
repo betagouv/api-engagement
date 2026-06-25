@@ -12,6 +12,8 @@ const MAX_AGE = 99;
 const STEP_ID = "age";
 // Step custom : stocke une valeur numérique brute (pas de taxonomyKey).
 // Utilisée uniquement dans les conditions des steps suivants (ex: handicap).
+const DEFAULT_TITLE = "Quel âge as-tu ?";
+const DEFAULT_SUBTITLE = "Certaines missions dépendent de l'âge.";
 
 export default function AgeStep() {
   const { answers, setAnswer } = useQuizStore();
@@ -37,12 +39,12 @@ export default function AgeStep() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-10">
-      <Label subtitle="Certaines missions dépendent de l'âge." htmlFor="age-input">
-        Quel âge as-tu ?
+      <Label subtitle={DEFAULT_SUBTITLE} htmlFor="age-input">
+        {DEFAULT_TITLE}
       </Label>
 
       <select id="age-input" className="fr-select md:max-w-80!" value={value} onChange={(e) => setValue(e.target.value)}>
-        <option value="">Sélectionnez votre âge</option>
+        <option value="">Sélectionne ton âge</option>
         {Array.from({ length: MAX_AGE - MIN_AGE + 1 }, (_, i) => (
           <option key={i} value={i + MIN_AGE}>
             {i + MIN_AGE}
