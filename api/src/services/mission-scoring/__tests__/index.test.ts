@@ -210,6 +210,12 @@ describe("missionScoringService.score", () => {
       values: [
         {
           missionEnrichmentValueId: null,
+          taxonomyKey: "dispositif",
+          valueKey: "sapeurs_pompiers",
+          score: 1,
+        },
+        {
+          missionEnrichmentValueId: null,
           taxonomyKey: "tranche_age",
           valueKey: "entre_16_17_ans",
           score: 1,

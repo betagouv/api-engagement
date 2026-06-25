@@ -37,7 +37,10 @@ export const SCORING_RULES = {
     ],
   },
   type: {
+    benevolat: ["dispositif.benevolat"],
+    volontariat_service_civique: ["dispositif.service_civique"],
     volontariat_sapeurs_pompiers: [
+      "dispositif.sapeurs_pompiers",
       "tranche_age.entre_16_17_ans",
       "tranche_age.entre_18_25_ans",
       "tranche_age.entre_25_30_ans",
