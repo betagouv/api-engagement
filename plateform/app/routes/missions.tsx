@@ -11,7 +11,7 @@ import MissionCard from "~/components/missions/mission-card";
 import GradientBg from "~/components/ui/gradient-bg";
 import Pagination from "~/components/ui/pagination";
 import { browseMissions } from "~/services/mission-browse";
-import { trackMissionClickedFromBrowse, type MissionDetailNavState } from "~/services/tracking/events";
+import { trackMissionClickedFromBrowse, trackMissionsFilterApplied, type MissionDetailNavState, type MissionsFilterType } from "~/services/tracking/events";
 import type { Route } from "./+types/missions";
 
 const PAGE_SIZE = 9;
@@ -19,6 +19,15 @@ const PAGE_SIZE = 9;
 const FILTER_KEYS = ["departmentCode", "tranche_age", "type_mission", "secteur_activite", "domaine"] as const satisfies readonly (keyof MissionBrowseFilters)[];
 
 type FilterKey = (typeof FILTER_KEYS)[number];
+
+// Mappe la clé interne du filtre vers le filter_type de la spec tracking (departmentCode → departement).
+const FILTER_TYPE_BY_KEY: Record<FilterKey, MissionsFilterType> = {
+  departmentCode: "departement",
+  tranche_age: "tranche_age",
+  type_mission: "type_mission",
+  secteur_activite: "secteur_activite",
+  domaine: "domaine",
+};
 type BrowseParams = MissionBrowseFilters;
 type TaxonomyFilterValue = { label: string; hidden?: boolean };
 
@@ -149,6 +158,16 @@ export default function MissionsPage() {
 
   const handleFilterChange = (key: string, next: string[]) => {
     if (!FILTER_KEYS.includes(key as FilterKey)) return;
+    const filterKey = key as FilterKey;
+
+    // missions_filter.applied : on émet uniquement lors d'une sélection (valeur ajoutée),
+    // pas lors d'une désélection. active_filter_count = total des valeurs actives après ce changement.
+    const addedValue = next.find((value) => !filterValues[filterKey].includes(value));
+    if (addedValue) {
+      const activeFilterCount = FILTER_KEYS.reduce((sum, k) => sum + (k === filterKey ? next.length : filterValues[k].length), 0);
+      trackMissionsFilterApplied({ filterType: FILTER_TYPE_BY_KEY[filterKey], filterValue: addedValue, activeFilterCount });
+    }
+
     setSearchParams((prev) => {
       const params = new URLSearchParams(prev);
       params.delete(key);

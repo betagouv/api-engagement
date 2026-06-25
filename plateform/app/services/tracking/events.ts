@@ -26,7 +26,8 @@ export const EVENT_CATALOG = {
   "results.viewed": "core_value",
   "mission.clicked": "core_value",
   "mission_detail.viewed": "feature_usage",
-  // feature_usage (filtres, emails, navigation détail, raccourcis) : à cataloguer à l'implémentation.
+  "missions_filter.applied": "feature_usage",
+  // feature_usage (emails, ...) : à cataloguer à l'implémentation.
 } satisfies Record<string, EventCategory>;
 
 // Surface d'où provient le clic sur une carte mission.
@@ -266,4 +267,16 @@ export function trackMissionDetailViewed(params: {
   // rank pertinent uniquement pour les sources results_*.
   if (params.rank != null) properties.rank = params.rank;
   track("mission_detail.viewed", properties);
+}
+
+// Type de filtre sur la page /missions.
+export type MissionsFilterType = "departement" | "tranche_age" | "type_mission" | "secteur_activite" | "domaine";
+
+// `missions_filter.applied` (feature_usage) : sélection d'une valeur de filtre sur /missions.
+export function trackMissionsFilterApplied(params: { filterType: MissionsFilterType; filterValue: string; activeFilterCount: number }): void {
+  track("missions_filter.applied", {
+    filter_type: params.filterType,
+    filter_value: params.filterValue,
+    active_filter_count: params.activeFilterCount,
+  });
 }
