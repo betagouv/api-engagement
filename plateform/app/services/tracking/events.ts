@@ -93,6 +93,32 @@ export function trackResultsViewed(params: { pinnedCount: number; totalResultsCo
   });
 }
 
+// Provenance de l'entrée dans le quiz.
+export type QuizEntrySource = "homepage_cta" | "direct" | "missions_list" | "change_results_cta" | "external";
+
+const QUIZ_ENTRY_SOURCES = new Set<QuizEntrySource>(["homepage_cta", "direct", "missions_list", "change_results_cta", "external"]);
+
+// Résout l'entry_source : priorité à l'état de navigation (CTA in-app qui le transmet), sinon on
+// déduit direct/external depuis le referrer du document. (Le referrer ne reflète pas la navigation
+// SPA interne, d'où le besoin du state pour les CTA in-app.)
+export function resolveQuizEntrySource(stateHint?: string | null): QuizEntrySource {
+  if (stateHint && QUIZ_ENTRY_SOURCES.has(stateHint as QuizEntrySource)) return stateHint as QuizEntrySource;
+  if (typeof document === "undefined") return "direct";
+  const referrer = document.referrer;
+  if (!referrer) return "direct";
+  try {
+    return new URL(referrer).origin === window.location.origin ? "direct" : "external";
+  } catch {
+    return "direct";
+  }
+}
+
+// `quiz.started` (lifecycle) : chargement de /quiz/age, début d'une tentative.
+// quiz_attempt_id est attaché automatiquement (super property).
+export function trackQuizStarted(params: { entrySource: QuizEntrySource }): void {
+  track("quiz.started", { entry_source: params.entrySource });
+}
+
 // Mode de complétion du quiz : "full" (l'utilisateur a parcouru jusqu'au bout) ou "shortcut"
 // (bouton "Voir les missions sans répondre à toutes les questions").
 export type QuizCompletionType = "full" | "shortcut";

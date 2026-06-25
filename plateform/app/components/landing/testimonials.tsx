@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router";
 
 import AscLogo from "~/assets/images/asc-logo.png";
 import RocLogo from "~/assets/images/roc-logo.png";
@@ -61,7 +60,7 @@ const TESTIMONIALS: Testimonial[] = [
   },
 ];
 
-export default function Testimonials() {
+export default function Testimonials({ onStartQuiz }: { onStartQuiz: () => void }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
@@ -151,9 +150,9 @@ export default function Testimonials() {
               className="fr-btn fr-btn--secondary fr-icon-arrow-right-line fr-icon--md rounded-full"
             ></button>
           </div>
-          <Link to="/quiz" className="fr-btn fr-btn--secondary w-full justify-center md:w-auto">
+          <button type="button" onClick={onStartQuiz} className="fr-btn fr-btn--secondary w-full justify-center md:w-auto">
             Je veux trouver ma mission
-          </Link>
+          </button>
         </div>
       </div>
     </section>

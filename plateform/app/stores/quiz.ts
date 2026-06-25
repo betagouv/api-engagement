@@ -9,8 +9,11 @@ interface QuizStore {
   distinctId: string;
   quizAttemptId: string;
   quizStartedAt: number;
+  // Dernière tentative pour laquelle l'évènement quiz.started a été émis (déduplication).
+  startedAttemptId?: string;
   setAnswer: (stepId: StepId, answer: ScreenAnswer) => void;
   setUserScoringId: (id: string) => void;
+  markQuizStarted: () => void;
   reset: () => void;
 }
 
@@ -29,6 +32,9 @@ export const useQuizStore = create<QuizStore>()(
       quizStartedAt: Date.now(),
       setAnswer: (stepId, answer) => set((s) => ({ answers: { ...s.answers, [stepId]: answer } })),
       setUserScoringId: (id) => set({ userScoringId: id }),
+      // Marque la tentative courante comme "démarrée" (quiz.started émis). reset() regénère
+      // quizAttemptId → la nouvelle tentative ne correspondra plus à startedAttemptId et réémettra.
+      markQuizStarted: () => set((s) => ({ startedAttemptId: s.quizAttemptId })),
       // reset démarre une nouvelle tentative : efface réponses et scoring, conserve distinctId,
       // et regénère quizAttemptId + quizStartedAt.
       reset: () => set({ answers: {}, userScoringId: undefined, quizAttemptId: crypto.randomUUID(), quizStartedAt: Date.now() }),

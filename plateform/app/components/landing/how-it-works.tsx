@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link } from "react-router";
 
 import CalendarSvg from "@gouvfr/dsfr/dist/artwork/pictograms/digital/calendar.svg?url";
 import SelfTrainingSvg from "@gouvfr/dsfr/dist/artwork/pictograms/digital/self-training.svg?url";
@@ -51,7 +50,7 @@ const FEATURES: Feature[] = [
   },
 ];
 
-export default function HowItWorks() {
+export default function HowItWorks({ onStartQuiz }: { onStartQuiz: () => void }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
@@ -128,9 +127,9 @@ export default function HowItWorks() {
         </div>
 
         <div className="flex flex-col items-center gap-3">
-          <Link to="/quiz" className="fr-btn fr-btn--secondary fr-btn--lg w-full justify-center md:w-auto">
+          <button type="button" onClick={onStartQuiz} className="fr-btn fr-btn--secondary fr-btn--lg w-full justify-center md:w-auto">
             Trouver ma mission
-          </Link>
+          </button>
           <p className="fr-text--sm text-mention-grey fr-mb-0! text-center!">+25 000 missions disponibles partout en France</p>
         </div>
       </div>
