@@ -47,6 +47,7 @@ export const toMissionDetailPayload = (mission: MissionRecord, diffuseurPublishe
     domain: mission.domain ?? mission.domainOriginal ?? null,
     domainLogo: mission.domainLogo ?? null,
     type: mission.type ?? null,
+    publisherId: mission.publisherId ?? null,
     publisherName: mission.publisherName ?? null,
     publisherLogo: mission.publisherLogo ?? null,
     organizationName: mission.organizationName ?? null,

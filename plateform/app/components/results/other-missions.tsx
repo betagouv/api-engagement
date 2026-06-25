@@ -2,7 +2,8 @@ import type { MissionMatchItem } from "@engagement/dto";
 import MissionCard from "~/components/missions/mission-card";
 import { DebugButton } from "~/components/results/matching-debug-modal";
 import Pagination from "~/components/ui/pagination";
-import { trackMissionClickedFromMatch } from "~/services/tracking/events";
+import { OTHER_RESULTS_PAGE_SIZE } from "~/services/matching";
+import { trackMissionClickedFromMatch, type MissionDetailNavState } from "~/services/tracking/events";
 import { buildMissionDetailHref, matchResultToBrowseMission } from "~/utils/mission";
 
 interface OtherMissionsProps {
@@ -36,16 +37,25 @@ export default function OtherMissions({
         <p className="text-mention-grey py-8 text-sm">Chargement…</p>
       ) : (
         <div className={gridClassName}>
-          {items.map((item, index) => (
-            <div key={item.mission.id} className="relative">
-              <MissionCard
-                mission={matchResultToBrowseMission(item)}
-                link={{ type: "internal", to: buildMissionDetailHref(item, userScoringId) }}
-                onClick={() => trackMissionClickedFromMatch(item, { section: "other", entryPage: "results", rank: index + 1 })}
-              />
-              {showDebug && <DebugButton missionId={item.mission.id} />}
-            </div>
-          ))}
+          {items.map((item, index) => {
+            // Rang dans la section "other", 1-based et tenant compte de la pagination
+            // (page 1 → 1..pageSize, page 2 → pageSize+1.., etc.). Indépendant des missions pinned.
+            const rank = (page - 1) * OTHER_RESULTS_PAGE_SIZE + index + 1;
+            return (
+              <div key={item.mission.id} className="relative">
+                <MissionCard
+                  mission={matchResultToBrowseMission(item)}
+                  link={{
+                    type: "internal",
+                    to: buildMissionDetailHref(item, userScoringId),
+                    state: { entrySource: "results_other", rank } satisfies MissionDetailNavState,
+                  }}
+                  onClick={() => trackMissionClickedFromMatch(item, { section: "other", entryPage: "results", rank })}
+                />
+                {showDebug && <DebugButton missionId={item.mission.id} />}
+              </div>
+            );
+          })}
         </div>
       )}
 

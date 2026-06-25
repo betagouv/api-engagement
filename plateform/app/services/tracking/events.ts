@@ -25,6 +25,7 @@ export const EVENT_CATALOG = {
   "quiz.completed": "core_value",
   "results.viewed": "core_value",
   "mission.clicked": "core_value",
+  "mission_detail.viewed": "feature_usage",
   // feature_usage (filtres, emails, navigation détail, raccourcis) : à cataloguer à l'implémentation.
 } satisfies Record<string, EventCategory>;
 
@@ -233,4 +234,36 @@ export function trackMissionClickedFromBrowse(
     distance_km: null,
     entry_page: context.entryPage,
   });
+}
+
+// Provenance de l'ouverture d'une fiche mission.
+export type MissionDetailEntrySource = "results_pinned" | "results_other" | "missions_list" | "homepage" | "direct";
+
+const MISSION_DETAIL_ENTRY_SOURCES = new Set<MissionDetailEntrySource>(["results_pinned", "results_other", "missions_list", "homepage", "direct"]);
+
+// State de navigation transmis par les cartes mission vers la fiche détail (pour entry_source/rank).
+export type MissionDetailNavState = { entrySource: MissionDetailEntrySource; rank?: number };
+
+export function resolveMissionDetailEntrySource(stateHint?: string | null): MissionDetailEntrySource {
+  return stateHint && MISSION_DETAIL_ENTRY_SOURCES.has(stateHint as MissionDetailEntrySource) ? (stateHint as MissionDetailEntrySource) : "direct";
+}
+
+// `mission_detail.viewed` (feature_usage) : chargement de la fiche d'une mission.
+// quiz_session_id est attaché automatiquement (super property).
+export function trackMissionDetailViewed(params: {
+  missionId: string;
+  publisherId: string;
+  publisherName: string;
+  entrySource: MissionDetailEntrySource;
+  rank?: number | null;
+}): void {
+  const properties: TrackingProperties = {
+    mission_id: params.missionId,
+    publisher_id: params.publisherId,
+    publisher_name: params.publisherName,
+    entry_source: params.entrySource,
+  };
+  // rank pertinent uniquement pour les sources results_*.
+  if (params.rank != null) properties.rank = params.rank;
+  track("mission_detail.viewed", properties);
 }

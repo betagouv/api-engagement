@@ -4,7 +4,9 @@ import { Link } from "react-router";
 
 import { formatCompensation } from "~/utils/mission";
 
-type MissionCardLink = { type: "internal"; to: string } | { type: "external"; href: string };
+// `state` est transmis à la navigation interne (React Router) — utilisé pour l'entry_source de
+// `mission_detail.viewed` (provenance + rang de la carte).
+type MissionCardLink = { type: "internal"; to: string; state?: unknown } | { type: "external"; href: string };
 
 interface MissionCardProps {
   mission: MissionBrowse;
@@ -23,7 +25,7 @@ export default function MissionCard({ mission, link, onClick }: MissionCardProps
 
   const title =
     link?.type === "internal" ? (
-      <Link to={link.to} onClick={onClick} className="text-title-grey! fr-h6! bg-none! mb-0!" style={clampStyle}>
+      <Link to={link.to} state={link.state} onClick={onClick} className="text-title-grey! fr-h6! bg-none! mb-0!" style={clampStyle}>
         {mission.title}
       </Link>
     ) : link?.type === "external" ? (

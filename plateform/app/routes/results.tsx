@@ -17,7 +17,7 @@ import { OPTIONS } from "~/config/quiz-options";
 import { useIsMobile } from "~/hooks/useIsMobile";
 import { useMissionResults } from "~/hooks/useMissionResults";
 import { setQuizSessionId } from "~/services/tracking";
-import { trackMissionClickedFromMatch, trackResultsViewed } from "~/services/tracking/events";
+import { trackMissionClickedFromMatch, trackResultsViewed, type MissionDetailNavState } from "~/services/tracking/events";
 import { useQuizStore } from "~/stores/quiz";
 import { evalCondition } from "~/utils/conditions";
 import { buildMissionDetailHref, matchResultToBrowseMission } from "~/utils/mission";
@@ -145,7 +145,11 @@ export default function ResultsPage() {
               <div className="relative">
                 <MissionCard
                   mission={matchResultToBrowseMission(selectedMission)}
-                  link={{ type: "internal", to: buildMissionDetailHref(selectedMission, userScoringId) }}
+                  link={{
+                    type: "internal",
+                    to: buildMissionDetailHref(selectedMission, userScoringId),
+                    state: { entrySource: "results_pinned", rank: pinnedItems.findIndex((i) => i.mission.id === selectedMission.mission.id) + 1 } satisfies MissionDetailNavState,
+                  }}
                   onClick={() =>
                     trackMissionClickedFromMatch(selectedMission, {
                       section: "pinned",
