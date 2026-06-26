@@ -20,6 +20,30 @@ export interface UpdateMissionScoringJobResult extends JobResult {
   failed: number;
 }
 
+type MissionEnrichmentCandidate = {
+  id: string;
+  missionId: string;
+};
+
+export const selectActiveEnrichments = <T extends MissionEnrichmentCandidate>(enrichments: T[], limit?: number): T[] => {
+  const selected: T[] = [];
+  const selectedMissionIds = new Set<string>();
+
+  for (const enrichment of enrichments) {
+    if (limit !== undefined && selected.length >= limit) {
+      break;
+    }
+    if (selectedMissionIds.has(enrichment.missionId)) {
+      continue;
+    }
+
+    selected.push(enrichment);
+    selectedMissionIds.add(enrichment.missionId);
+  }
+
+  return selected;
+};
+
 export class UpdateMissionScoringHandler implements BaseHandler<UpdateMissionScoringJobPayload, UpdateMissionScoringJobResult> {
   name = "Scoring des missions";
 
@@ -28,7 +52,7 @@ export class UpdateMissionScoringHandler implements BaseHandler<UpdateMissionSco
     const versionLabel = promptVersionFilter.promptVersion ?? "all";
 
     try {
-      const enrichments = await prisma.missionEnrichment.findMany({
+      const enrichmentCandidates = await prisma.missionEnrichment.findMany({
         where: {
           ...promptVersionFilter,
           status: "completed",
@@ -45,11 +69,13 @@ export class UpdateMissionScoringHandler implements BaseHandler<UpdateMissionSco
             : {}),
         },
         select: { id: true, missionId: true },
-        take: limit,
         orderBy: { createdAt: "desc" },
       });
+      const enrichments = selectActiveEnrichments(enrichmentCandidates, limit);
 
-      console.log(`${LOG_PREFIX} ${enrichments.length} enrichments to score (publisher: ${publisherId ?? "all"}, version: ${versionLabel}, force: ${force ?? false})`);
+      console.log(
+        `${LOG_PREFIX} ${enrichments.length} active enrichments to score (${enrichmentCandidates.length} candidate(s), publisher: ${publisherId ?? "all"}, version: ${versionLabel}, force: ${force ?? false})`
+      );
 
       let processed = 0;
       let failed = 0;
