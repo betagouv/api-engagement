@@ -186,6 +186,12 @@ describe("missionScoringService.score", () => {
           valueKey: "temps_plein",
           score: 1,
         },
+        {
+          missionEnrichmentValueId: null,
+          taxonomyKey: "dispositif",
+          valueKey: "service_civique",
+          score: 1,
+        },
       ],
     });
   });
