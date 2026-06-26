@@ -9,9 +9,10 @@ interface ComboboxProps {
   selected: string[];
   onChange: (next: string[]) => void;
   className?: string;
+  single?: boolean;
 }
 
-export default function Combobox({ label, placeholder, options, selected, onChange, className }: ComboboxProps) {
+export default function Combobox({ label, placeholder, options, selected, onChange, className, single }: ComboboxProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const reactId = useId();
@@ -41,10 +42,17 @@ export default function Combobox({ label, placeholder, options, selected, onChan
     };
   }, [open]);
 
-  const visibleOptions = search ? options.filter((option) => option.label.toLowerCase().includes(search.toLowerCase())) : options;
+  // En sélection unique, la valeur sélectionnée est remontée en première position (tri stable).
+  const orderedOptions = single ? [...options].sort((a, b) => (selected.includes(b.value) ? 1 : 0) - (selected.includes(a.value) ? 1 : 0)) : options;
+  const visibleOptions = search ? orderedOptions.filter((option) => option.label.toLowerCase().includes(search.toLowerCase())) : orderedOptions;
 
   const toggleOption = (option: ComboboxOption) => {
     const isSelected = selected.includes(option.value);
+    if (single) {
+      onChange(isSelected ? [] : [option.value]);
+      setOpen(false);
+      return;
+    }
     onChange(isSelected ? selected.filter((value) => value !== option.value) : [...selected, option.value]);
   };
 
@@ -95,6 +103,19 @@ export default function Combobox({ label, placeholder, options, selected, onChan
                 visibleOptions.map((option) => {
                   const inputId = `${reactId}-${option.value}`;
                   const isSelected = selected.includes(option.value);
+                  if (single) {
+                    return (
+                      <div key={option.value} className="flex w-full items-center justify-between gap-3">
+                        <div className="fr-radio-group min-w-0 flex-1">
+                          <input type="radio" id={inputId} name={`${reactId}-group`} checked={isSelected} onChange={() => toggleOption(option)} />
+                          <label className="fr-label relative min-w-0 truncate py-2! before:top-2!" htmlFor={inputId}>
+                            {option.label}
+                          </label>
+                        </div>
+                        {option.count !== undefined && <span className="shrink-0 text-xs text-title-grey">{option.count}</span>}
+                      </div>
+                    );
+                  }
                   return (
                     <div key={option.value} className="fr-checkbox-group flex w-full">
                       <input type="checkbox" id={inputId} checked={isSelected} onChange={() => toggleOption(option)} className="mr-2!" />

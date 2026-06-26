@@ -30,6 +30,7 @@ export type SearchQueryResponse<TDoc extends object> = {
 
 export interface SearchProvider {
   search<TDoc extends object>(collection: string, params: SearchQueryParams<TDoc>): Promise<SearchQueryResponse<TDoc>>;
+  multiSearch<TDoc extends object>(collection: string, searches: SearchQueryParams<TDoc>[]): Promise<SearchQueryResponse<TDoc>[]>;
   upsert<TDoc extends object>(collection: string, document: TDoc): Promise<TDoc>;
   delete(collection: string, documentId: string): Promise<{ id: string }>;
 }
