@@ -16,6 +16,7 @@ import type { Route } from "./+types/missions";
 const PAGE_SIZE = 9;
 
 const FILTER_KEYS = ["departmentCode", "dispositif", "tranche_age", "type_mission", "secteur_activite", "domaine"] as const satisfies readonly (keyof MissionBrowseFilters)[];
+const SINGLE_FILTER_KEYS = new Set<FilterKey>(["tranche_age"]);
 
 type FilterKey = (typeof FILTER_KEYS)[number];
 type BrowseParams = MissionBrowseFilters;
@@ -44,6 +45,14 @@ const buildTaxonomyFilterOptions = (key: FilterKey, facets: MissionBrowseFacetCo
   });
 };
 
+const getFilterValues = (searchParams: URLSearchParams): Record<FilterKey, string[]> =>
+  Object.fromEntries(
+    FILTER_KEYS.map((key) => {
+      const values = searchParams.getAll(key);
+      return [key, SINGLE_FILTER_KEYS.has(key) ? values.slice(0, 1) : values];
+    }),
+  ) as Record<FilterKey, string[]>;
+
 export async function clientLoader() {
   return { backHref: "/" };
 }
@@ -61,14 +70,7 @@ export default function MissionsPage() {
 
   const rawPage = parseInt(searchParams.get("page") ?? "1", 10);
   const page = Number.isNaN(rawPage) ? 1 : Math.max(1, rawPage);
-  const filterValues: Record<FilterKey, string[]> = {
-    departmentCode: searchParams.getAll("departmentCode"),
-    dispositif: searchParams.getAll("dispositif"),
-    tranche_age: searchParams.getAll("tranche_age"),
-    type_mission: searchParams.getAll("type_mission"),
-    secteur_activite: searchParams.getAll("secteur_activite"),
-    domaine: searchParams.getAll("domaine"),
-  };
+  const filterValues = getFilterValues(searchParams);
 
   const [items, setItems] = useState<MissionBrowse[]>([]);
   const [total, setTotal] = useState(0);

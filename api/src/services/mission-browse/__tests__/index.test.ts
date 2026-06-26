@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { MISSION_BROWSE_FACET_FIELDS } from "@/services/search/collections/missions/fields";
+
 const multiSearchMock = vi.hoisted(() => vi.fn());
 const findMissionsByIdsMock = vi.hoisted(() => vi.fn());
 const findOneMissionByMock = vi.hoisted(() => vi.fn());
@@ -9,9 +11,9 @@ vi.mock("@/services/search/collections/missions/client", () => ({
   missionSearchClient: { multiSearch: multiSearchMock },
 }));
 
-// FACET_FIELDS = [...INDEXED_TAXONOMY_KEYS, "departmentCodes"]. Le service envoie 1 requête résultats
+// Le service envoie 1 requête résultats
 // (sans facet_by) + 1 requête par facette (avec facet_by), batchées en un seul appel multiSearch.
-const FACET_FIELDS = ["domaine", "secteur_activite", "type_mission", "tranche_age", "dispositif", "departmentCodes"];
+const FACET_FIELDS = [...MISSION_BROWSE_FACET_FIELDS];
 // Réponse multiSearch par défaut : résultats vides + une réponse vide par facette.
 type FacetResponse = { hits: never[]; found: number; facet_counts?: Array<{ field_name: string; counts: Array<{ value: string; count: number }> }> };
 const emptyMultiSearchResult = (): FacetResponse[] => [
@@ -91,6 +93,13 @@ describe("missionBrowseService.browse", () => {
     // La requête résultats n'a pas de facet_by ; chaque facette a le sien.
     expect(searches[0].facet_by).toBeUndefined();
     expect(searches.slice(1).map((s) => s.facet_by)).toEqual(FACET_FIELDS);
+  });
+
+  it("demande assez de valeurs pour la facette des départements", async () => {
+    await missionBrowseService.browse(baseParams);
+
+    expect(facetSearch("departmentCodes").max_facet_values).toBe(120);
+    expect(facetSearch("domaine").max_facet_values).toBe(100);
   });
 
   it("applique la whitelist des annonceurs autorisés", async () => {

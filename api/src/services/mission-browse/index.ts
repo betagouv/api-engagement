@@ -4,11 +4,11 @@ import { missionService } from "@/services/mission";
 import { publisherDiffusionRuleService } from "@/services/publisher-diffusion-rule";
 import { missionSearchClient } from "@/services/search/collections/missions/client";
 import { publisherDiffusionRulesToMissionFilter } from "@/services/search/collections/missions/diffusion-rules-filter";
-import { INDEXED_TAXONOMY_KEYS, IndexedTaxonomyKey } from "@/services/search/collections/missions/fields";
+import { INDEXED_TAXONOMY_KEYS, IndexedTaxonomyKey, MISSION_BROWSE_FACET_FIELDS } from "@/services/search/collections/missions/fields";
+import type { MissionIndexDocument } from "@/services/search/collections/missions/types";
 import { buildSearchEqualFilter, buildSearchListFilter } from "@/services/search/filter";
+import type { SearchQueryParams } from "@/services/search/types";
 import { toMissionBrowse, toMissionDetailPayload } from "./transformers";
-
-const FACET_FIELDS = [...INDEXED_TAXONOMY_KEYS, "departmentCodes"];
 
 type BrowseTaxonomyParams = Partial<Record<IndexedTaxonomyKey, string | string[]>>;
 type BrowseParams = BrowseTaxonomyParams &
@@ -43,9 +43,12 @@ const emptyBrowseResponse = (params: Pick<BrowseParams, "page" | "pageSize">): M
   facets: {},
 });
 
-// Nombre max de valeurs renvoyées par facette (Typesense plafonne à 10 par défaut), pour ne pas tronquer
-// les options affichées dans les filtres (Activités, Domaine…).
-const MAX_FACET_VALUES = 100;
+const DEFAULT_MAX_FACET_VALUES = 100;
+const MAX_FACET_VALUES_BY_FIELD: Partial<Record<(typeof MISSION_BROWSE_FACET_FIELDS)[number], number>> = {
+  departmentCodes: 120,
+};
+
+const getMaxFacetValues = (field: (typeof MISSION_BROWSE_FACET_FIELDS)[number]): number => MAX_FACET_VALUES_BY_FIELD[field] ?? DEFAULT_MAX_FACET_VALUES;
 
 // Part de filtre toujours appliquée à toutes les sous-requêtes (sécurité diffuseur), non rattachée à une
 // facette : le `publisherId` demandé. Le filtre de diffusion est ajouté séparément en amont.
@@ -78,6 +81,28 @@ const buildFacetFilterParts = (params: BrowseParams): Map<string, string> => {
   return parts;
 };
 
+const buildBrowseSearches = (params: BrowseParams, diffusionFilterBy?: string): SearchQueryParams<MissionIndexDocument>[] => {
+  const alwaysParts = [diffusionFilterBy ?? "", buildAlwaysFilterPart(params) ?? ""].filter(Boolean);
+  const facetParts = buildFacetFilterParts(params);
+
+  const filterByExcluding = (excludedField?: string): string | undefined => {
+    const parts = [...alwaysParts, ...[...facetParts.entries()].filter(([field]) => field !== excludedField).map(([, part]) => part)];
+    return parts.length ? parts.join(" && ") : undefined;
+  };
+
+  const resultsSearch: SearchQueryParams<MissionIndexDocument> = { q: "*", query_by: "publisherId", filter_by: filterByExcluding(), per_page: params.pageSize, page: params.page };
+  const facetSearches: SearchQueryParams<MissionIndexDocument>[] = MISSION_BROWSE_FACET_FIELDS.map((field) => ({
+    q: "*",
+    query_by: "publisherId",
+    filter_by: filterByExcluding(field),
+    facet_by: field,
+    max_facet_values: getMaxFacetValues(field),
+    per_page: 0,
+  }));
+
+  return [resultsSearch, ...facetSearches];
+};
+
 export const missionBrowseService = {
   async browse(params: BrowseParams): Promise<MissionBrowseResponse> {
     const rules = await publisherDiffusionRuleService.findRules({ publisherId: params.diffuseurPublisherId });
@@ -86,31 +111,11 @@ export const missionBrowseService = {
       return emptyBrowseResponse(params);
     }
 
-    // Parts de filtre toujours présentes (diffusion + publisherId), jamais exclues d'une sous-requête.
-    const alwaysParts = [diffusionFilter.kind === "filter" ? diffusionFilter.filterBy : "", buildAlwaysFilterPart(params) ?? ""].filter(Boolean);
-    const facetParts = buildFacetFilterParts(params);
-
-    // `filter_by` complet, en excluant éventuellement le groupe d'un champ (pour ses compteurs disjonctifs).
-    const filterByExcluding = (excludedField?: string): string | undefined => {
-      const parts = [...alwaysParts, ...[...facetParts.entries()].filter(([field]) => field !== excludedField).map(([, part]) => part)];
-      return parts.length ? parts.join(" && ") : undefined;
-    };
-
-    // 1 requête pour les résultats (tous les filtres) + 1 requête par facette (chacune excluant son groupe),
-    // batchées en un seul appel `multi_search`.
-    const resultsSearch = { q: "*", query_by: "publisherId", filter_by: filterByExcluding(), per_page: params.pageSize, page: params.page };
-    const facetSearches = FACET_FIELDS.map((field) => ({
-      q: "*",
-      query_by: "publisherId",
-      filter_by: filterByExcluding(field),
-      facet_by: field,
-      max_facet_values: MAX_FACET_VALUES,
-      per_page: 0,
-    }));
+    const searches = buildBrowseSearches(params, diffusionFilter.kind === "filter" ? diffusionFilter.filterBy : undefined);
 
     const searchResults = await (async () => {
       try {
-        return await missionSearchClient.multiSearch([resultsSearch, ...facetSearches]);
+        return await missionSearchClient.multiSearch(searches);
       } catch (error) {
         throw new MissionBrowseIndexUnavailableError(error);
       }
@@ -125,7 +130,7 @@ export const missionBrowseService = {
 
     // Chaque facette lit ses compteurs depuis sa sous-requête dédiée (ordre identique à FACET_FIELDS).
     const facets: Record<string, MissionBrowseFacetCount[]> = {};
-    FACET_FIELDS.forEach((field, index) => {
+    MISSION_BROWSE_FACET_FIELDS.forEach((field, index) => {
       const facetCounts = facetResults[index]?.facet_counts?.find((f) => f.field_name === field)?.counts ?? [];
       facets[field] = facetCounts.map((c) => ({ key: c.value, count: c.count }));
     });
