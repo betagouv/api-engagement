@@ -1,6 +1,6 @@
 import { randomBytes, randomUUID } from "crypto";
 
-import { MissionType, Prisma, Publisher, PublisherDemarcheSimplifiee, PublisherDiffusion } from "@/db/core";
+import { MissionType, Prisma, Publisher } from "@/db/core";
 import { prisma } from "@/db/postgres";
 import { publisherRepository } from "@/repositories/publisher";
 import { publisherDiffusionRuleRepository } from "@/repositories/publisher-diffusion-rule";
@@ -20,10 +20,6 @@ import {
 import type { PublisherDiffusionRuleRecord } from "@/types/publisher-diffusion-rule";
 import { normalizeCollection, normalizeOptionalString } from "@/utils";
 
-type PrismaPublisherWithRelation = Publisher & {
-  diffuseurs?: (PublisherDiffusion & { diffuseur?: Publisher })[];
-  demarcheSimplifiees?: PublisherDemarcheSimplifiee[];
-};
 export class PublisherNotFoundError extends Error {
   constructor(id: string) {
     super(`Publisher ${id} not found`);
@@ -39,7 +35,7 @@ export class PublisherDiffusionPartnerNotFoundError extends Error {
 }
 
 export const publisherService = (() => {
-  const defaultInclude = Object.freeze({ diffuseurs: { include: { diffuseur: true } }, demarcheSimplifiees: true }) satisfies Prisma.PublisherInclude;
+  const defaultInclude = Object.freeze({ demarcheSimplifiees: true }) satisfies Prisma.PublisherInclude;
   type DiffusionPartnerInfo = { name: string; moderator: boolean; missionType: PublisherMissionType | null };
 
   const getPartnerInfoMap = async (partnerIds: string[]): Promise<Map<string, DiffusionPartnerInfo>> => {
