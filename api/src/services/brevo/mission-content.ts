@@ -1,4 +1,5 @@
 export type MissionContent = {
+  id: string;
   title: string;
   imageUrl: string;
   durationLabel: string;
