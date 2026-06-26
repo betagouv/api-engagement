@@ -102,10 +102,12 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
     }
 
     if (query.data.mission) {
+      // La mission peut être introuvable sans que ce soit une anomalie : le candidat peut postuler
+      // à une mission qui existe chez l'annonceur (ex. Service Civique) mais qui n'a pas encore été
+      // importée en base, ou à une mission différente de celle qu'il a cliquée. Dans ces cas, on
+      // retombe plus bas sur la mission du click (cf. `if (click && !mission)`) pour ne pas perdre
+      // l'apply. On ne remonte donc pas d'erreur ici.
       mission = await missionService.findMissionByClientAndPublisher(query.data.mission, click.toPublisherId || query.data.publisher || "");
-      if (!mission) {
-        captureException(new Error(`[Apply] Mission not found`), { extra: { missionId: query.data.mission, publisherId: click.toPublisherId || query.data.publisher } });
-      }
     }
 
     const statBot = await statBotService.findStatBotByUser(identity.user);
@@ -144,6 +146,10 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
     }
 
     if (click && !mission) {
+      // Fallback quand la mission n'a pas pu être résolue (mission pas encore importée, ou mission
+      // différente de celle cliquée) : on rattache l'événement à la mission du click pour ne pas le
+      // perdre. L'attribution mission peut alors différer de la mission réellement visée, mais
+      // l'annonceur (toPublisher) reste correct.
       obj.missionId = click.missionId;
       obj.toPublisherId = click.toPublisherId;
       obj.toPublisherName = click.toPublisherName;
@@ -220,10 +226,10 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
     }
 
     if (query.data.mission) {
+      // Voir la route /apply : la mission peut légitimement être introuvable (pas encore importée,
+      // ou différente de celle cliquée). On retombe plus bas sur la mission du click, sans remonter
+      // d'erreur.
       mission = await missionService.findMissionByClientAndPublisher(query.data.mission, click.toPublisherId || query.data.publisher || "");
-      if (!mission) {
-        captureException(new Error(`[Account] Mission not found`), { extra: { missionId: query.data.mission, publisherId: click.toPublisherId || query.data.publisher } });
-      }
     }
 
     const statBot = await statBotService.findStatBotByUser(identity.user);
@@ -258,6 +264,10 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
     }
 
     if (click && !mission) {
+      // Fallback quand la mission n'a pas pu être résolue (mission pas encore importée, ou mission
+      // différente de celle cliquée) : on rattache l'événement à la mission du click pour ne pas le
+      // perdre. L'attribution mission peut alors différer de la mission réellement visée, mais
+      // l'annonceur (toPublisher) reste correct.
       obj.missionId = click.missionId;
       obj.toPublisherId = click.toPublisherId;
       obj.toPublisherName = click.toPublisherName;
