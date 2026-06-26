@@ -1,11 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 
 import type { MissionMatchItem } from "@engagement/dto";
-import MissionCard from "~/components/missions/mission-card";
+import MatchMissionCard from "~/components/missions/match-mission-card";
 import Highlight from "~/components/ui/highlight";
 import { fetchMatches } from "~/services/matching";
-import { trackMissionClickedFromMatch } from "~/services/tracking/events";
-import { buildMissionDetailHref, matchResultToBrowseMission } from "~/utils/mission";
 
 interface Props {
   userScoringId: string;
@@ -43,11 +41,7 @@ export default function SimilarMissions({ userScoringId, currentMissionId }: Pro
         <div ref={scrollRef} className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2 scrollbar-none">
           {items.map((item, index) => (
             <div key={item.mission.id} className="w-[310px] flex-none snap-start md:w-[283px]">
-              <MissionCard
-                mission={matchResultToBrowseMission(item)}
-                link={{ type: "internal", to: buildMissionDetailHref(item, userScoringId) }}
-                onClick={() => trackMissionClickedFromMatch(item, { section: "similar", entryPage: "results", rank: index + 1 })}
-              />
+              <MatchMissionCard item={item} section="similar" rank={index + 1} userScoringId={userScoringId} />
             </div>
           ))}
         </div>

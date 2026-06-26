@@ -1,11 +1,8 @@
 import type { MissionMatchItem } from "@engagement/dto";
-import MissionCard from "~/components/missions/mission-card";
+import MatchMissionCard from "~/components/missions/match-mission-card";
 import { DebugButton } from "~/components/results/matching-debug-modal";
 import Pagination from "~/components/ui/pagination";
 import { OTHER_RESULTS_PAGE_SIZE } from "~/services/matching";
-import { trackMissionClickedFromMatch } from "~/services/tracking/events";
-import type { MissionDetailNavState } from "~/services/tracking/types";
-import { buildMissionDetailHref, matchResultToBrowseMission } from "~/utils/mission";
 
 interface OtherMissionsProps {
   items: MissionMatchItem[];
@@ -44,15 +41,7 @@ export default function OtherMissions({
             const rank = (page - 1) * OTHER_RESULTS_PAGE_SIZE + index + 1;
             return (
               <div key={item.mission.id} className="relative">
-                <MissionCard
-                  mission={matchResultToBrowseMission(item)}
-                  link={{
-                    type: "internal",
-                    to: buildMissionDetailHref(item, userScoringId),
-                    state: { entrySource: "results_other", rank } satisfies MissionDetailNavState,
-                  }}
-                  onClick={() => trackMissionClickedFromMatch(item, { section: "other", entryPage: "results", rank })}
-                />
+                <MatchMissionCard item={item} section="other" rank={rank} userScoringId={userScoringId} />
                 {showDebug && <DebugButton missionId={item.mission.id} />}
               </div>
             );

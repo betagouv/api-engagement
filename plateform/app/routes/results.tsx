@@ -4,7 +4,7 @@ import { Link, useParams, useSearchParams } from "react-router";
 import { FooterContent } from "~/components/layout/footer";
 import Newsletter from "~/components/layout/newsletter";
 import Partners from "~/components/layout/partners";
-import MissionCard from "~/components/missions/mission-card";
+import MatchMissionCard from "~/components/missions/match-mission-card";
 import EmailMissionsModal from "~/components/results/email-missions-modal";
 import LazyMissionMap from "~/components/results/lazy-mission-map";
 import MatchingDebugModal, { type MatchingDebugUserValue } from "~/components/results/matching-debug-modal";
@@ -17,11 +17,9 @@ import { OPTIONS } from "~/config/quiz-options";
 import { useIsMobile } from "~/hooks/useIsMobile";
 import { useMissionResults } from "~/hooks/useMissionResults";
 import { setQuizSessionId } from "~/services/tracking";
-import { trackMissionClickedFromMatch, trackResultsViewed } from "~/services/tracking/events";
-import type { MissionDetailNavState } from "~/services/tracking/types";
+import { trackResultsViewed } from "~/services/tracking/events";
 import { useQuizStore } from "~/stores/quiz";
 import { evalCondition } from "~/utils/conditions";
-import { buildMissionDetailHref, matchResultToBrowseMission } from "~/utils/mission";
 
 export async function clientLoader() {
   return { backHref: null };
@@ -144,20 +142,11 @@ export default function ResultsPage() {
               }}
             >
               <div className="relative">
-                <MissionCard
-                  mission={matchResultToBrowseMission(selectedMission)}
-                  link={{
-                    type: "internal",
-                    to: buildMissionDetailHref(selectedMission, userScoringId),
-                    state: { entrySource: "results_pinned", rank: pinnedItems.findIndex((i) => i.mission.id === selectedMission.mission.id) + 1 } satisfies MissionDetailNavState,
-                  }}
-                  onClick={() =>
-                    trackMissionClickedFromMatch(selectedMission, {
-                      section: "pinned",
-                      entryPage: "results",
-                      rank: pinnedItems.findIndex((i) => i.mission.id === selectedMission.mission.id) + 1,
-                    })
-                  }
+                <MatchMissionCard
+                  item={selectedMission}
+                  section="pinned"
+                  rank={pinnedItems.findIndex((i) => i.mission.id === selectedMission.mission.id) + 1}
+                  userScoringId={userScoringId}
                 />
                 <div className="absolute right-3 top-3 z-10 flex items-center gap-2">
                   <button
@@ -304,7 +293,12 @@ export default function ResultsPage() {
                       }}
                     >
                       <div className="relative">
-                        <MissionCard mission={matchResultToBrowseMission(selectedMission)} link={{ type: "internal", to: buildMissionDetailHref(selectedMission, userScoringId) }} />
+                        <MatchMissionCard
+                          item={selectedMission}
+                          section="pinned"
+                          rank={pinnedItems.findIndex((i) => i.mission.id === selectedMission.mission.id) + 1}
+                          userScoringId={userScoringId}
+                        />
                         <div className="absolute right-3 top-3 z-10 flex items-center gap-2">
                           <button
                             type="button"

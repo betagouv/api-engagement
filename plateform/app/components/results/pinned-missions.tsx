@@ -1,10 +1,7 @@
 import type { MissionMatchItem } from "@engagement/dto";
-import MissionCard from "~/components/missions/mission-card";
+import MatchMissionCard from "~/components/missions/match-mission-card";
 import EmailMissionsModal from "~/components/results/email-missions-modal";
 import { DebugButton } from "~/components/results/matching-debug-modal";
-import { trackMissionClickedFromMatch } from "~/services/tracking/events";
-import type { MissionDetailNavState } from "~/services/tracking/types";
-import { buildMissionDetailHref, matchResultToBrowseMission } from "~/utils/mission";
 
 interface PinnedMissionsProps {
   items: MissionMatchItem[];
@@ -35,15 +32,7 @@ export default function PinnedMissions({ items, loading, error, userScoringId, s
                 onMouseEnter={() => onMissionHover?.(item.mission.id)}
                 onMouseLeave={() => onMissionHover?.(null)}
               >
-                <MissionCard
-                  mission={matchResultToBrowseMission(item)}
-                  link={{
-                    type: "internal",
-                    to: buildMissionDetailHref(item, userScoringId),
-                    state: { entrySource: "results_pinned", rank: index + 1 } satisfies MissionDetailNavState,
-                  }}
-                  onClick={() => trackMissionClickedFromMatch(item, { section: "pinned", entryPage: "results", rank: index + 1 })}
-                />
+                <MatchMissionCard item={item} section="pinned" rank={index + 1} userScoringId={userScoringId} />
                 {showDebug && <DebugButton missionId={item.mission.id} />}
               </div>
             ))}
