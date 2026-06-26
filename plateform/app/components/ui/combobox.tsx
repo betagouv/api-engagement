@@ -104,11 +104,14 @@ export default function Combobox({ label, placeholder, options, selected, onChan
                   const inputId = `${reactId}-${option.value}`;
                   const isSelected = selected.includes(option.value);
                   if (single) {
+                    // Radio DSFR : on garde le `fr-label` nu (comme le FilterAccordion mobile) pour ne pas
+                    // casser le positionnement par défaut du contrôle ; l'espacement et l'alignement du
+                    // compteur se gèrent sur le wrapper.
                     return (
-                      <div key={option.value} className="flex w-full items-center justify-between gap-3">
+                      <div key={option.value} className="flex w-full items-center justify-between gap-3 py-2">
                         <div className="fr-radio-group min-w-0 flex-1">
                           <input type="radio" id={inputId} name={`${reactId}-group`} checked={isSelected} onChange={() => toggleOption(option)} />
-                          <label className="fr-label relative min-w-0 truncate py-2! before:top-2!" htmlFor={inputId}>
+                          <label className="fr-label" htmlFor={inputId}>
                             {option.label}
                           </label>
                         </div>
