@@ -3,12 +3,10 @@ import type { TaxonomyKey } from "@engagement/taxonomy";
 import { TYPESENSE_MISSION_COLLECTION } from "@/config";
 import type { SearchCollectionSchema } from "@/services/search/types";
 
-import { MISSION_TAXONOMY_FIELDS_V1 } from "./v1";
-
 // Snapshot statique des champs indexés à l'instant de la v3.
 // Ajout par rapport à la v2 : la taxonomie `dispositif`.
 // Pour ajouter/retirer des champs, créer un v4.ts — ne pas modifier ce fichier.
-export const MISSION_TAXONOMY_FIELDS_V3: TaxonomyKey[] = [...MISSION_TAXONOMY_FIELDS_V1, "dispositif"];
+export const MISSION_TAXONOMY_FIELDS_V3: TaxonomyKey[] = ["domaine", "secteur_activite", "type_mission", "tranche_age", "dispositif"];
 const taxonomyFields = MISSION_TAXONOMY_FIELDS_V3;
 
 const schema: SearchCollectionSchema = {
