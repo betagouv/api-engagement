@@ -2,7 +2,8 @@ import type { MissionMatchItem } from "@engagement/dto";
 import MissionCard from "~/components/missions/mission-card";
 import EmailMissionsModal from "~/components/results/email-missions-modal";
 import { DebugButton } from "~/components/results/matching-debug-modal";
-import { trackMissionClickedFromMatch, type MissionDetailNavState } from "~/services/tracking/events";
+import { trackMissionClickedFromMatch } from "~/services/tracking/events";
+import type { MissionDetailNavState } from "~/services/tracking/types";
 import { buildMissionDetailHref, matchResultToBrowseMission } from "~/utils/mission";
 
 interface PinnedMissionsProps {

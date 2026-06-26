@@ -3,7 +3,8 @@ import MissionCard from "~/components/missions/mission-card";
 import { DebugButton } from "~/components/results/matching-debug-modal";
 import Pagination from "~/components/ui/pagination";
 import { OTHER_RESULTS_PAGE_SIZE } from "~/services/matching";
-import { trackMissionClickedFromMatch, type MissionDetailNavState } from "~/services/tracking/events";
+import { trackMissionClickedFromMatch } from "~/services/tracking/events";
+import type { MissionDetailNavState } from "~/services/tracking/types";
 import { buildMissionDetailHref, matchResultToBrowseMission } from "~/utils/mission";
 
 interface OtherMissionsProps {

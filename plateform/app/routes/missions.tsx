@@ -11,7 +11,8 @@ import MissionCard from "~/components/missions/mission-card";
 import GradientBg from "~/components/ui/gradient-bg";
 import Pagination from "~/components/ui/pagination";
 import { browseMissions } from "~/services/mission-browse";
-import { trackMissionClickedFromBrowse, trackMissionsFilterApplied, type MissionDetailNavState, type MissionsFilterType } from "~/services/tracking/events";
+import { trackMissionClickedFromBrowse, trackMissionsFilterApplied } from "~/services/tracking/events";
+import type { MissionDetailNavState, MissionsFilterType } from "~/services/tracking/types";
 import type { Route } from "./+types/missions";
 
 const PAGE_SIZE = 9;

@@ -14,7 +14,9 @@ import SimilarMissions from "~/components/mission-detail/similar-missions";
 import GradientBg from "~/components/ui/gradient-bg";
 import { fetchMissionDetail } from "~/services/mission-browse";
 import { setQuizSessionId } from "~/services/tracking";
-import { resolveMissionDetailEntrySource, trackMissionDetailViewed, type MissionDetailNavState } from "~/services/tracking/events";
+import { trackMissionDetailViewed } from "~/services/tracking/events";
+import type { MissionDetailNavState } from "~/services/tracking/types";
+import { resolveMissionDetailEntrySource } from "~/services/tracking/utils";
 import { formatDeadline } from "~/utils/mission";
 
 export default function MissionDetailPage() {

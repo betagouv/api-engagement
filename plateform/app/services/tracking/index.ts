@@ -61,9 +61,19 @@ export function setQuizSessionId(userScoringId: string): void {
   getProvider()?.register?.({ quiz_session_id: userScoringId });
 }
 
+// Retire les clés à valeur `undefined` : permet aux events de passer une propriété optionnelle
+// systématiquement (ex. `rank: x ?? undefined`) sans envoyer de clé vide au provider.
+function omitUndefined(properties: TrackingProperties): TrackingProperties {
+  const result: TrackingProperties = {};
+  for (const [key, value] of Object.entries(properties)) {
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+}
+
 // Enregistre un évènement avec ses propriétés. No-op pendant le SSR.
 export function track(event: string, properties?: TrackingProperties): void {
-  getProvider()?.track(event, properties);
+  getProvider()?.track(event, properties ? omitUndefined(properties) : properties);
 }
 
 // Associe l'utilisateur courant à un identifiant (ex. `distinctId` du quiz). No-op pendant le SSR.

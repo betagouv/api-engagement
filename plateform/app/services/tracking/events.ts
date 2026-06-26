@@ -1,64 +1,50 @@
 import type { MissionBrowse, MissionMatchItem } from "@engagement/dto";
 
-import { QUIZ_FLOW, type StepId } from "~/config/quiz-flow";
+import type { StepId } from "~/config/quiz-flow";
 import type { QuizAnswers } from "~/types/quiz";
 
 import { track } from "./index";
-import type { TrackingProperties } from "./types";
+import type {
+  EmailMissionDetailEntrySource,
+  EventCategory,
+  MissionClickedEntryPage,
+  MissionClickedPayload,
+  MissionClickedSection,
+  MissionDetailEntrySource,
+  MissionsFilterType,
+  QuizCompletionType,
+  QuizEntrySource,
+} from "./types";
+import { ANSWER_VALUE_EXCLUDED_STEPS, buildQuizPath, countAnsweredSteps, getAgeBracket, optionAnswer } from "./utils";
 
-// Catalogue des évènements métier tracés côté front. Centralise le nom de l'évènement et la forme
-// de ses propriétés (spec produit, propriétés en snake_case côté PostHog).
+// Catalogue des évènements métier tracés côté front : nom de l'évènement + forme des propriétés
+// (spec produit, propriétés en snake_case côté PostHog). Les types vivent dans ./types, les helpers
+// dans ./utils.
+//
+// Note : distinct_id, quiz_attempt_id et quiz_session_id sont des super properties PostHog attachées
+// automatiquement à TOUS les évènements (cf. tracking/index.ts) — inutile de les répéter ici.
+// Les propriétés optionnelles peuvent être passées à `undefined` : `track()` retire les clés vides.
 
-// Catégories du plan de télémétrie. Convention de documentation et de priorisation UNIQUEMENT :
-// elles ne sont pas envoyées à PostHog (PostHog n'a pas de notion native de catégorie).
-//   - lifecycle    : début/fin d'un parcours utilisateur (ex. quiz.started, évènement de référence)
-//   - core_value   : actions cœur de la plateforme (quiz.completed, results.viewed, mission.clicked)
-//   - feature_usage: fonctionnalités secondaires (filtres, emails, navigation détail, raccourcis)
-// Ordre d'implémentation : lifecycle + core_value d'abord, feature_usage ensuite.
-export type EventCategory = "lifecycle" | "core_value" | "feature_usage";
-
-// Associe chaque évènement du plan à sa catégorie (référence documentaire, non transmise).
+// Catégorie de chaque évènement (documentation/priorisation, non transmise à PostHog).
 export const EVENT_CATALOG = {
   "quiz.started": "lifecycle",
-  "quiz.shortcut_taken": "feature_usage",
   "quiz.step_completed": "core_value",
   "quiz.completed": "core_value",
+  "quiz.shortcut_taken": "feature_usage",
+  "quiz.back_navigated": "feature_usage",
   "results.viewed": "core_value",
   "mission.clicked": "core_value",
   "mission_detail.viewed": "feature_usage",
   "missions_filter.applied": "feature_usage",
   "email_missions.sent": "feature_usage",
   "email_mission_detail.sent": "feature_usage",
-  "quiz.back_navigated": "feature_usage",
 } satisfies Record<string, EventCategory>;
 
-// Surface d'où provient le clic sur une carte mission.
-export type MissionClickedSection = "pinned" | "other" | "homepage_examples" | "missions_list" | "similar";
-// Page sur laquelle se trouve l'utilisateur au moment du clic.
-export type MissionClickedEntryPage = "results" | "homepage" | "missions_list";
+// ============================================================================
+// mission.clicked
+// ============================================================================
 
-interface MissionClickedPayload {
-  mission_id: string;
-  publisher_id: string;
-  publisher_name: string;
-  section: MissionClickedSection;
-  // Position ordinale dans la liste affichée (1 = première). Null pour les listes non classées.
-  rank: number | null;
-  mission_domain: string | null;
-  // Valeur de la taxonomie `type_mission` (ponctuelle, reguliere, temps_plein, ...).
-  mission_type: string | null;
-  // true si le clic mène vers le site annonceur externe (et non vers le détail interne).
-  opens_external: boolean;
-  // Distance user ↔ mission fournie par le backend. Null hors sections pinned/other.
-  distance_km: number | null;
-  entry_page: MissionClickedEntryPage;
-}
-
-// Note : distinct_id, quiz_attempt_id et quiz_session_id sont des super properties PostHog
-// attachées automatiquement à tous les évènements (cf. tracking/index.ts) — inutile de les
-// répéter dans les payloads ci-dessous.
-
-// `mission.clicked` : clic sur une carte mission (résultats, liste, homepage, similarité).
+// `mission.clicked` (core_value) : clic sur une carte mission (résultats, liste, homepage, similarité).
 function trackMissionClicked(payload: MissionClickedPayload): void {
   track("mission.clicked", { ...payload });
 }
@@ -88,132 +74,6 @@ export function trackMissionClickedFromMatch(
   });
 }
 
-// `results.viewed` (core_value) : chargement de la page /results avec ses missions.
-export function trackResultsViewed(params: { pinnedCount: number; totalResultsCount: number; avgDistanceKmTop5?: number | null }): void {
-  track("results.viewed", {
-    has_results: params.pinnedCount > 0,
-    pinned_count: params.pinnedCount,
-    total_results_count: params.totalResultsCount,
-    avg_distance_km_top5: params.avgDistanceKmTop5 ?? null,
-  });
-}
-
-// Provenance de l'entrée dans le quiz.
-export type QuizEntrySource = "homepage_cta" | "direct" | "missions_list" | "change_results_cta" | "external";
-
-const QUIZ_ENTRY_SOURCES = new Set<QuizEntrySource>(["homepage_cta", "direct", "missions_list", "change_results_cta", "external"]);
-
-// Résout l'entry_source : priorité à l'état de navigation (CTA in-app qui le transmet), sinon on
-// déduit direct/external depuis le referrer du document. (Le referrer ne reflète pas la navigation
-// SPA interne, d'où le besoin du state pour les CTA in-app.)
-export function resolveQuizEntrySource(stateHint?: string | null): QuizEntrySource {
-  if (stateHint && QUIZ_ENTRY_SOURCES.has(stateHint as QuizEntrySource)) return stateHint as QuizEntrySource;
-  if (typeof document === "undefined") return "direct";
-  const referrer = document.referrer;
-  if (!referrer) return "direct";
-  try {
-    return new URL(referrer).origin === window.location.origin ? "direct" : "external";
-  } catch {
-    return "direct";
-  }
-}
-
-// `quiz.started` (lifecycle) : chargement de /quiz/age, début d'une tentative.
-// quiz_attempt_id est attaché automatiquement (super property).
-export function trackQuizStarted(params: { entrySource: QuizEntrySource }): void {
-  track("quiz.started", { entry_source: params.entrySource });
-}
-
-// `quiz.shortcut_taken` (feature_usage) : clic sur "Voir mes résultats" (raccourci depuis une étape).
-// quiz_attempt_id est attaché automatiquement (super property).
-export function trackQuizShortcutTaken(params: { fromStepName: StepId; fromStepIndex: number; answers: QuizAnswers }): void {
-  track("quiz.shortcut_taken", {
-    from_step_name: params.fromStepName,
-    from_step_index: params.fromStepIndex,
-    steps_completed_count: countAnsweredSteps(params.answers),
-  });
-}
-
-// Mode de complétion du quiz : "full" (l'utilisateur a parcouru jusqu'au bout) ou "shortcut"
-// (bouton "Voir les missions sans répondre à toutes les questions").
-export type QuizCompletionType = "full" | "shortcut";
-
-// Tranche d'âge produit calculée à partir de l'âge saisi.
-function getAgeBracket(age: number): string {
-  if (age <= 18) return "16-18";
-  if (age <= 25) return "19-25";
-  if (age <= 35) return "26-35";
-  if (age <= 50) return "36-50";
-  return "51+";
-}
-
-// Première option sélectionnée pour un step de type "options" (sinon null).
-function optionAnswer(answers: QuizAnswers, stepId: StepId): string | null {
-  const answer = answers[stepId];
-  return answer?.type === "options" ? (answer.option_ids[0] ?? null) : null;
-}
-
-// Chemin synthétique : pour chaque step répondu (dans l'ordre du flow), toutes les valeurs
-// sélectionnées concaténées par "-", les steps étant séparés par ">" (ex. "lyceen>sante-education").
-function buildQuizPath(answers: QuizAnswers): string {
-  return QUIZ_FLOW.map((step) => {
-    const answer = answers[step.id];
-    return answer?.type === "options" && answer.option_ids.length > 0 ? answer.option_ids.join("-") : null;
-  })
-    .filter((segment): segment is string => segment !== null)
-    .join(">");
-}
-
-// Steps dont la réponse n'est pas remontée dans answer_value (non catégoriels ou sensibles).
-const ANSWER_VALUE_EXCLUDED_STEPS = new Set<StepId>(["age", "localisation", "handicap"]);
-
-// Nombre d'étapes du flow ayant une réponse.
-function countAnsweredSteps(answers: QuizAnswers): number {
-  return QUIZ_FLOW.filter((step) => answers[step.id] !== undefined).length;
-}
-
-// `quiz.completed` (core_value) : fin du quiz, à l'arrivée sur les résultats.
-// quiz_attempt_id et quiz_session_id sont attachés automatiquement (super properties).
-export function trackQuizCompleted(params: { answers: QuizAnswers; completionType: QuizCompletionType; quizStartedAt: number }): void {
-  const { answers } = params;
-  const ageAnswer = answers["age"];
-  const age = ageAnswer?.type === "numeric" ? ageAnswer.value : null;
-
-  track("quiz.completed", {
-    completion_type: params.completionType,
-    quiz_path: buildQuizPath(answers),
-    steps_completed_count: countAnsweredSteps(answers),
-    has_localisation: answers["localisation"]?.type === "params",
-    statut: optionAnswer(answers, "statut"),
-    motivation: optionAnswer(answers, "motivation"),
-    age_bracket: age !== null ? getAgeBracket(age) : null,
-    quiz_duration_ms: Date.now() - params.quizStartedAt,
-  });
-}
-
-// `quiz.step_completed` (core_value) : à chaque validation d'étape (goNext).
-// quiz_attempt_id est attaché automatiquement (super property).
-export function trackQuizStepCompleted(params: { stepName: StepId; answers: QuizAnswers; stepIndex: number; totalVisibleSteps: number }): void {
-  const answer = params.answers[params.stepName];
-  // answer_value uniquement pour les étapes catégorielles non sensibles (omis pour age/localisation/handicap).
-  // Multi-sélection → tableau de toutes les valeurs ; sélection unique → chaîne simple.
-  let answerValue: string | string[] | undefined;
-  if (!ANSWER_VALUE_EXCLUDED_STEPS.has(params.stepName) && answer?.type === "options" && answer.option_ids.length > 0) {
-    answerValue = answer.option_ids.length === 1 ? answer.option_ids[0] : answer.option_ids;
-  }
-
-  const properties: TrackingProperties = {
-    step_name: params.stepName,
-    quiz_path: buildQuizPath(params.answers),
-    step_index: params.stepIndex,
-    total_visible_steps: params.totalVisibleSteps,
-  };
-  // Omis (pas de clé) quand non applicable, plutôt que `answer_value: undefined`.
-  if (answerValue !== undefined) properties.answer_value = answerValue;
-
-  track("quiz.step_completed", properties);
-}
-
 // Clic depuis une mission "browse" (liste /missions ou exemples de la homepage).
 export function trackMissionClickedFromBrowse(
   mission: MissionBrowse,
@@ -239,20 +99,88 @@ export function trackMissionClickedFromBrowse(
   });
 }
 
-// Provenance de l'ouverture d'une fiche mission.
-export type MissionDetailEntrySource = "results_pinned" | "results_other" | "missions_list" | "homepage" | "direct";
+// ============================================================================
+// Évènements quiz
+// ============================================================================
 
-const MISSION_DETAIL_ENTRY_SOURCES = new Set<MissionDetailEntrySource>(["results_pinned", "results_other", "missions_list", "homepage", "direct"]);
-
-// State de navigation transmis par les cartes mission vers la fiche détail (pour entry_source/rank).
-export type MissionDetailNavState = { entrySource: MissionDetailEntrySource; rank?: number };
-
-export function resolveMissionDetailEntrySource(stateHint?: string | null): MissionDetailEntrySource {
-  return stateHint && MISSION_DETAIL_ENTRY_SOURCES.has(stateHint as MissionDetailEntrySource) ? (stateHint as MissionDetailEntrySource) : "direct";
+// `quiz.started` (lifecycle) : chargement de /quiz/age, début d'une tentative.
+export function trackQuizStarted(params: { entrySource: QuizEntrySource }): void {
+  track("quiz.started", { entry_source: params.entrySource });
 }
 
+// `quiz.step_completed` (core_value) : à chaque validation d'étape (goNext).
+export function trackQuizStepCompleted(params: { stepName: StepId; answers: QuizAnswers; stepIndex: number; totalVisibleSteps: number }): void {
+  const answer = params.answers[params.stepName];
+  // answer_value uniquement pour les étapes catégorielles non sensibles (omis pour age/localisation/handicap).
+  // Multi-sélection → tableau de toutes les valeurs ; sélection unique → chaîne simple ; sinon undefined (clé omise).
+  let answerValue: string | string[] | undefined;
+  if (!ANSWER_VALUE_EXCLUDED_STEPS.has(params.stepName) && answer?.type === "options" && answer.option_ids.length > 0) {
+    answerValue = answer.option_ids.length === 1 ? answer.option_ids[0] : answer.option_ids;
+  }
+
+  track("quiz.step_completed", {
+    step_name: params.stepName,
+    quiz_path: buildQuizPath(params.answers),
+    step_index: params.stepIndex,
+    total_visible_steps: params.totalVisibleSteps,
+    answer_value: answerValue,
+  });
+}
+
+// `quiz.completed` (core_value) : fin du quiz, à l'arrivée sur les résultats.
+export function trackQuizCompleted(params: { answers: QuizAnswers; completionType: QuizCompletionType; quizStartedAt: number }): void {
+  const { answers } = params;
+  const ageAnswer = answers["age"];
+  const age = ageAnswer?.type === "numeric" ? ageAnswer.value : null;
+
+  track("quiz.completed", {
+    completion_type: params.completionType,
+    quiz_path: buildQuizPath(answers),
+    steps_completed_count: countAnsweredSteps(answers),
+    has_localisation: answers["localisation"]?.type === "params",
+    statut: optionAnswer(answers, "statut"),
+    motivation: optionAnswer(answers, "motivation"),
+    age_bracket: age !== null ? getAgeBracket(age) : null,
+    quiz_duration_ms: Date.now() - params.quizStartedAt,
+  });
+}
+
+// `quiz.shortcut_taken` (feature_usage) : clic sur "Voir mes résultats" (raccourci depuis une étape).
+export function trackQuizShortcutTaken(params: { fromStepName: StepId; fromStepIndex: number; answers: QuizAnswers }): void {
+  track("quiz.shortcut_taken", {
+    from_step_name: params.fromStepName,
+    from_step_index: params.fromStepIndex,
+    steps_completed_count: countAnsweredSteps(params.answers),
+  });
+}
+
+// `quiz.back_navigated` (feature_usage) : clic sur le bouton "Retour" dans le quiz.
+export function trackQuizBackNavigated(params: { fromStepName: StepId; fromStepIndex: number }): void {
+  track("quiz.back_navigated", {
+    from_step_name: params.fromStepName,
+    from_step_index: params.fromStepIndex,
+  });
+}
+
+// ============================================================================
+// results.viewed
+// ============================================================================
+
+// `results.viewed` (core_value) : chargement de la page /results avec ses missions.
+export function trackResultsViewed(params: { pinnedCount: number; totalResultsCount: number; avgDistanceKmTop5?: number | null }): void {
+  track("results.viewed", {
+    has_results: params.pinnedCount > 0,
+    pinned_count: params.pinnedCount,
+    total_results_count: params.totalResultsCount,
+    avg_distance_km_top5: params.avgDistanceKmTop5 ?? null,
+  });
+}
+
+// ============================================================================
+// mission_detail.viewed
+// ============================================================================
+
 // `mission_detail.viewed` (feature_usage) : chargement de la fiche d'une mission.
-// quiz_session_id est attaché automatiquement (super property).
 export function trackMissionDetailViewed(params: {
   missionId: string;
   publisherId: string;
@@ -260,19 +188,19 @@ export function trackMissionDetailViewed(params: {
   entrySource: MissionDetailEntrySource;
   rank?: number | null;
 }): void {
-  const properties: TrackingProperties = {
+  track("mission_detail.viewed", {
     mission_id: params.missionId,
     publisher_id: params.publisherId,
     publisher_name: params.publisherName,
     entry_source: params.entrySource,
-  };
-  // rank pertinent uniquement pour les sources results_*.
-  if (params.rank != null) properties.rank = params.rank;
-  track("mission_detail.viewed", properties);
+    // rank pertinent uniquement pour les sources results_* → sinon clé omise.
+    rank: params.rank ?? undefined,
+  });
 }
 
-// Type de filtre sur la page /missions.
-export type MissionsFilterType = "departement" | "tranche_age" | "type_mission" | "secteur_activite" | "domaine";
+// ============================================================================
+// missions_filter.applied
+// ============================================================================
 
 // `missions_filter.applied` (feature_usage) : sélection d'une valeur de filtre sur /missions.
 export function trackMissionsFilterApplied(params: { filterType: MissionsFilterType; filterValue: string; activeFilterCount: number }): void {
@@ -283,20 +211,13 @@ export function trackMissionsFilterApplied(params: { filterType: MissionsFilterT
   });
 }
 
+// ============================================================================
+// Emails
+// ============================================================================
+
 // `email_missions.sent` (feature_usage) : envoi par email des 5 missions recommandées (modale résultats).
-// quiz_session_id est attaché automatiquement (super property).
 export function trackEmailMissionsSent(params: { hasAlertOptIn: boolean }): void {
   track("email_missions.sent", { has_alert_opt_in: params.hasAlertOptIn });
-}
-
-// Provenance de la fiche depuis laquelle l'email d'une mission est envoyé.
-export type EmailMissionDetailEntrySource = "results" | "missions_list" | "direct";
-
-export function resolveEmailMissionDetailEntrySource(navStateHint: string | null | undefined, hasUserScoringId: boolean): EmailMissionDetailEntrySource {
-  if (navStateHint === "results_pinned" || navStateHint === "results_other") return "results";
-  if (navStateHint === "missions_list") return "missions_list";
-  if (hasUserScoringId) return "results";
-  return "direct";
 }
 
 // `email_mission_detail.sent` (feature_usage) : envoi par email d'une seule mission (modale détail).
@@ -306,14 +227,5 @@ export function trackEmailMissionDetailSent(params: { missionId: string; publish
     publisher_id: params.publisherId,
     entry_source: params.entrySource,
     has_alert_opt_in: params.hasAlertOptIn,
-  });
-}
-
-// `quiz.back_navigated` (feature_usage) : clic sur le bouton "Retour" dans le quiz.
-// quiz_attempt_id est attaché automatiquement (super property).
-export function trackQuizBackNavigated(params: { fromStepName: StepId; fromStepIndex: number }): void {
-  track("quiz.back_navigated", {
-    from_step_name: params.fromStepName,
-    from_step_index: params.fromStepIndex,
   });
 }

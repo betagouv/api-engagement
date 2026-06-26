@@ -3,7 +3,9 @@ import { useLocation } from "react-router";
 import Modal from "~/components/layout/modal";
 import { PUBLISHER_ID_API_ENGAGEMENT } from "~/services/config";
 import { sendMissionEmail } from "~/services/email";
-import { resolveEmailMissionDetailEntrySource, trackEmailMissionDetailSent, type MissionDetailNavState } from "~/services/tracking/events";
+import { trackEmailMissionDetailSent } from "~/services/tracking/events";
+import type { MissionDetailNavState } from "~/services/tracking/types";
+import { resolveEmailMissionDetailEntrySource } from "~/services/tracking/utils";
 import { updateUserScoring } from "~/services/user-scoring";
 import { useQuizStore } from "~/stores/quiz";
 

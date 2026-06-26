@@ -27,3 +27,52 @@ export interface TrackingProvider {
 
 // Providers supportés : `posthog` en production, `local` (console.log) pour le développement.
 export type TrackingProviderName = "local" | "posthog";
+
+// ============================================================================
+// Types des évènements métier (émetteurs dans ./events, helpers dans ./utils)
+// ============================================================================
+
+// Catégorie du plan de télémétrie (documentation/priorisation, non envoyée à PostHog).
+export type EventCategory = "lifecycle" | "core_value" | "feature_usage";
+
+// --- mission.clicked ---
+// Surface d'où provient le clic sur une carte mission.
+export type MissionClickedSection = "pinned" | "other" | "homepage_examples" | "missions_list" | "similar";
+// Page sur laquelle se trouve l'utilisateur au moment du clic.
+export type MissionClickedEntryPage = "results" | "homepage" | "missions_list";
+
+export interface MissionClickedPayload {
+  mission_id: string;
+  publisher_id: string;
+  publisher_name: string;
+  section: MissionClickedSection;
+  // Position ordinale dans la liste affichée (1 = première). Null pour les listes non classées.
+  rank: number | null;
+  mission_domain: string | null;
+  // Valeur de la taxonomie `type_mission` (ponctuelle, reguliere, temps_plein, ...).
+  mission_type: string | null;
+  // true si le clic mène vers le site annonceur externe (et non vers le détail interne).
+  opens_external: boolean;
+  // Distance user ↔ mission fournie par le backend. Null hors sections pinned/other.
+  distance_km: number | null;
+  entry_page: MissionClickedEntryPage;
+}
+
+// --- quiz ---
+// Provenance de l'entrée dans le quiz.
+export type QuizEntrySource = "homepage_cta" | "direct" | "missions_list" | "change_results_cta" | "external";
+// Mode de complétion : "full" (parcours jusqu'au bout) ou "shortcut" (bouton "Voir mes résultats").
+export type QuizCompletionType = "full" | "shortcut";
+
+// --- mission_detail.viewed ---
+// Provenance de l'ouverture d'une fiche mission.
+export type MissionDetailEntrySource = "results_pinned" | "results_other" | "missions_list" | "homepage" | "direct";
+// State de navigation transmis par les cartes mission vers la fiche détail (entry_source + rang).
+export type MissionDetailNavState = { entrySource: MissionDetailEntrySource; rank?: number };
+
+// --- missions_filter.applied ---
+export type MissionsFilterType = "departement" | "tranche_age" | "type_mission" | "secteur_activite" | "domaine";
+
+// --- emails ---
+// Provenance de la fiche depuis laquelle l'email d'une mission est envoyé.
+export type EmailMissionDetailEntrySource = "results" | "missions_list" | "direct";
