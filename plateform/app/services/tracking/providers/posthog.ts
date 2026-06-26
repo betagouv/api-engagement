@@ -2,7 +2,7 @@ import posthog from "posthog-js";
 
 import { POSTHOG_HOST, POSTHOG_KEY } from "~/services/config";
 
-import type { TrackingProvider, TrackingProperties, TrackingTraits } from "../types";
+import type { TrackingProperties, TrackingProvider, TrackingTraits } from "../types";
 
 // Provider PostHog. `init()` n'est appelé que côté navigateur (cf. garde `typeof window` dans
 // `../index`), donc le SDK n'est initialisé que dans le browser. Sans clé `VITE_POSTHOG_KEY`,
@@ -26,10 +26,12 @@ export function createPosthogProvider(): TrackingProvider {
         // TODO(cookie-banner) : sans consentement, passer en `persistence: "memory"` (cookieless,
         // pas de réconciliation multi-sessions) et ne pas identifier par distinctId.
         persistence: "localStorage+cookie",
-        // SPA React Router : on ne s'appuie pas sur la détection auto de pageview.
-        capture_pageview: false,
         // Ne crée un profil personne que pour les utilisateurs identifiés (limite la collecte).
         person_profiles: "identified_only",
+        autocapture: false,
+        capture_pageview: false,
+        capture_pageleave: false,
+        capture_performance: false, // web vitals
       });
       ready = true;
     },
