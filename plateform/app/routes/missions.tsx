@@ -15,7 +15,7 @@ import type { Route } from "./+types/missions";
 
 const PAGE_SIZE = 9;
 
-const FILTER_KEYS = ["departmentCode", "tranche_age", "type_mission", "secteur_activite", "domaine"] as const satisfies readonly (keyof MissionBrowseFilters)[];
+const FILTER_KEYS = ["departmentCode", "dispositif", "tranche_age", "type_mission", "secteur_activite", "domaine"] as const satisfies readonly (keyof MissionBrowseFilters)[];
 
 type FilterKey = (typeof FILTER_KEYS)[number];
 type BrowseParams = MissionBrowseFilters;
@@ -63,6 +63,7 @@ export default function MissionsPage() {
   const page = Number.isNaN(rawPage) ? 1 : Math.max(1, rawPage);
   const filterValues: Record<FilterKey, string[]> = {
     departmentCode: searchParams.getAll("departmentCode"),
+    dispositif: searchParams.getAll("dispositif"),
     tranche_age: searchParams.getAll("tranche_age"),
     type_mission: searchParams.getAll("type_mission"),
     secteur_activite: searchParams.getAll("secteur_activite"),
@@ -82,6 +83,7 @@ export default function MissionsPage() {
 
     const browseInput: BrowseParams = { page, pageSize: PAGE_SIZE };
     if (filterValues.departmentCode.length) browseInput.departmentCode = filterValues.departmentCode;
+    if (filterValues.dispositif.length) browseInput.dispositif = filterValues.dispositif;
     if (filterValues.tranche_age.length) browseInput.tranche_age = filterValues.tranche_age;
     if (filterValues.type_mission.length) browseInput.type_mission = filterValues.type_mission;
     if (filterValues.secteur_activite.length) browseInput.secteur_activite = filterValues.secteur_activite;
@@ -143,6 +145,13 @@ export default function MissionsPage() {
       placeholder: "Tous",
       selected: filterValues.domaine,
       options: buildTaxonomyFilterOptions("domaine", facets.domaine),
+    },
+    {
+      key: "dispositif",
+      label: "Organisation",
+      placeholder: "Toutes",
+      selected: filterValues.dispositif,
+      options: buildTaxonomyFilterOptions("dispositif", facets.dispositif),
     },
   ];
 

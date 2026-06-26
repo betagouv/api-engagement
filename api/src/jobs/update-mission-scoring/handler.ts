@@ -20,16 +20,41 @@ export interface UpdateMissionScoringJobResult extends JobResult {
   failed: number;
 }
 
+type MissionEnrichmentCandidate = {
+  id: string;
+  missionId: string;
+};
+
+export const selectActiveEnrichments = <T extends MissionEnrichmentCandidate>(enrichments: T[], limit?: number): T[] => {
+  const selected: T[] = [];
+  const selectedMissionIds = new Set<string>();
+
+  for (const enrichment of enrichments) {
+    if (limit !== undefined && selected.length >= limit) {
+      break;
+    }
+    if (selectedMissionIds.has(enrichment.missionId)) {
+      continue;
+    }
+
+    selected.push(enrichment);
+    selectedMissionIds.add(enrichment.missionId);
+  }
+
+  return selected;
+};
+
 export class UpdateMissionScoringHandler implements BaseHandler<UpdateMissionScoringJobPayload, UpdateMissionScoringJobResult> {
   name = "Scoring des missions";
 
   async handle({ promptVersion, publisherId, limit, force }: UpdateMissionScoringJobPayload = {}): Promise<UpdateMissionScoringJobResult> {
-    const version = promptVersion ?? CURRENT_PROMPT_VERSION;
+    const promptVersionFilter: { promptVersion?: string } = promptVersion !== undefined ? { promptVersion } : force ? {} : { promptVersion: CURRENT_PROMPT_VERSION };
+    const versionLabel = promptVersionFilter.promptVersion ?? "all";
 
     try {
-      const enrichments = await prisma.missionEnrichment.findMany({
+      const enrichmentCandidates = await prisma.missionEnrichment.findMany({
         where: {
-          promptVersion: version,
+          ...promptVersionFilter,
           status: "completed",
           mission: {
             deletedAt: null,
@@ -44,11 +69,13 @@ export class UpdateMissionScoringHandler implements BaseHandler<UpdateMissionSco
             : {}),
         },
         select: { id: true, missionId: true },
-        take: limit,
         orderBy: { createdAt: "desc" },
       });
+      const enrichments = selectActiveEnrichments(enrichmentCandidates, limit);
 
-      console.log(`${LOG_PREFIX} ${enrichments.length} enrichments to score (publisher: ${publisherId ?? "all"}, version: ${version}, force: ${force ?? false})`);
+      console.log(
+        `${LOG_PREFIX} ${enrichments.length} active enrichments to score (${enrichmentCandidates.length} candidate(s), publisher: ${publisherId ?? "all"}, version: ${versionLabel}, force: ${force ?? false})`
+      );
 
       let processed = 0;
       let failed = 0;
@@ -66,7 +93,7 @@ export class UpdateMissionScoringHandler implements BaseHandler<UpdateMissionSco
         }
       }
 
-      const message = `${processed} missions scorées, ${failed} échecs (publisher: ${publisherId ?? "all"}, version: ${version})`;
+      const message = `${processed} missions scorées, ${failed} échecs (publisher: ${publisherId ?? "all"}, version: ${versionLabel})`;
       console.log(`${LOG_PREFIX} done — ${message}`);
 
       return { success: failed === 0, timestamp: new Date(), processed, failed, message };

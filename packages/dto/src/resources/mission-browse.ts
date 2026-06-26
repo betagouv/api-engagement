@@ -3,7 +3,7 @@ export type MissionBrowseFacetCount = {
   count: number;
 };
 
-export type MissionBrowseTaxonomyKey = "domaine" | "secteur_activite" | "type_mission" | "tranche_age" | "competence_rome";
+export type MissionBrowseTaxonomyKey = "domaine" | "secteur_activite" | "type_mission" | "tranche_age" | "competence_rome" | "dispositif";
 
 export type MissionBrowseTaxonomyParams = Partial<Record<MissionBrowseTaxonomyKey, string | string[]>>;
 

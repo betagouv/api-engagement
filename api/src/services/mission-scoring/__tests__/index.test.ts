@@ -186,6 +186,12 @@ describe("missionScoringService.score", () => {
           valueKey: "temps_plein",
           score: 1,
         },
+        {
+          missionEnrichmentValueId: null,
+          taxonomyKey: "dispositif",
+          valueKey: "service_civique",
+          score: 1,
+        },
       ],
     });
   });
@@ -208,6 +214,12 @@ describe("missionScoringService.score", () => {
       missionId: "mission-1",
       missionEnrichmentId: "enrichment-1",
       values: [
+        {
+          missionEnrichmentValueId: null,
+          taxonomyKey: "dispositif",
+          valueKey: "sapeurs_pompiers",
+          score: 1,
+        },
         {
           missionEnrichmentValueId: null,
           taxonomyKey: "tranche_age",
