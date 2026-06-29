@@ -29,15 +29,6 @@ export function countAnsweredSteps(answers: QuizAnswers): number {
   return QUIZ_FLOW.filter((step) => answers[step.id] !== undefined).length;
 }
 
-// Tranche d'âge produit calculée à partir de l'âge saisi.
-export function getAgeBracket(age: number): string {
-  if (age <= 18) return "16-18";
-  if (age <= 25) return "19-25";
-  if (age <= 35) return "26-35";
-  if (age <= 50) return "36-50";
-  return "51+";
-}
-
 // Steps dont la réponse n'est pas remontée dans answer_value (non catégoriels ou sensibles).
 export const ANSWER_VALUE_EXCLUDED_STEPS = new Set<StepId>(["age", "localisation", "handicap"]);
 

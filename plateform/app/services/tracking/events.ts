@@ -1,4 +1,5 @@
 import type { MissionBrowse, MissionMatchItem } from "@engagement/dto";
+import { resolveTrancheAgeValues } from "@engagement/taxonomy";
 
 import type { StepId } from "~/config/quiz-flow";
 import type { QuizAnswers } from "~/types/quiz";
@@ -15,7 +16,7 @@ import type {
   QuizCompletionType,
   QuizEntrySource,
 } from "./types";
-import { ANSWER_VALUE_EXCLUDED_STEPS, buildQuizPath, countAnsweredSteps, getAgeBracket, optionAnswer } from "./utils";
+import { ANSWER_VALUE_EXCLUDED_STEPS, buildQuizPath, countAnsweredSteps, optionAnswer } from "./utils";
 
 // Catalogue des évènements métier tracés côté front : nom de l'évènement + forme des propriétés
 // (spec produit, propriétés en snake_case côté PostHog). Les types vivent dans ./types, les helpers
@@ -130,8 +131,7 @@ export function trackQuizStepCompleted(params: { stepName: StepId; answers: Quiz
 // `quiz.completed` (core_value) : fin du quiz, à l'arrivée sur les résultats.
 export function trackQuizCompleted(params: { answers: QuizAnswers; completionType: QuizCompletionType; quizStartedAt: number }): void {
   const { answers } = params;
-  const ageAnswer = answers["age"];
-  const age = ageAnswer?.type === "numeric" ? ageAnswer.value : null;
+  const trancheAge = answers["tranche_age"];
 
   track("quiz.completed", {
     completion_type: params.completionType,
@@ -140,7 +140,13 @@ export function trackQuizCompleted(params: { answers: QuizAnswers; completionTyp
     has_localisation: answers["localisation"]?.type === "params",
     statut: optionAnswer(answers, "statut"),
     motivation: optionAnswer(answers, "motivation"),
-    age_bracket: age !== null ? getAgeBracket(age) : null,
+    age_bracket:
+      trancheAge?.type === "params"
+        ? resolveTrancheAgeValues({
+            ...trancheAge.params,
+            handicap: false,
+          }).pop()
+        : null,
     quiz_duration_ms: Date.now() - params.quizStartedAt,
   });
 }
