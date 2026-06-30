@@ -20,6 +20,13 @@ type PublisherDiffusionRuleWithChildren = PublisherDiffusionRule & {
   combinedWith?: PublisherDiffusionRule | null;
 };
 
+type MissionDiffuseurCandidateFilter = {
+  where: Prisma.MissionWhereInput;
+  publisherIds: string[];
+  scopes: Prisma.MissionWhereInput[];
+  scopePublisherIds: string[];
+};
+
 /**
  * Critères communs des scope roots : une racine par annonceur diffusé
  * (`publisherId` du diffuseur + `value` = id de l'annonceur).
@@ -78,13 +85,13 @@ const buildScopeCondition = (rule: PublisherDiffusionRule, childrenByParentId: M
  * annonceur (`publisherId === X`) combiné à ses critères enfants. `publisherIds`
  * restreint optionnellement aux annonceurs demandés (param `publisher` de la route).
  */
-const buildAllowlistFilter = (rules: PublisherDiffusionRule[], publisherIds?: string[]): { where: Prisma.MissionWhereInput; publisherIds: string[] } => {
+const buildAllowlistFilter = (rules: PublisherDiffusionRule[], publisherIds?: string[]): MissionDiffuseurCandidateFilter => {
   const { roots, childrenByParentId } = groupRulesByParent(rules);
 
   if (publisherIds?.length) {
     const configuredPublisherIds = roots.filter((root) => root.field === "publisherId" && root.operator === "is").map((root) => root.value);
     if (configuredPublisherIds.length > 0 && !publisherIds.some((id) => configuredPublisherIds.includes(id))) {
-      return { where: IMPOSSIBLE_MISSION_WHERE, publisherIds: [] };
+      return { where: IMPOSSIBLE_MISSION_WHERE, publisherIds: [], scopes: [], scopePublisherIds: [] };
     }
   }
 
@@ -95,12 +102,13 @@ const buildAllowlistFilter = (rules: PublisherDiffusionRule[], publisherIds?: st
     .filter((scope): scope is Prisma.MissionWhereInput => scope !== null && Object.keys(scope).length > 0);
 
   const candidatePublisherIds = Array.from(new Set(scopeRoots.map((root) => root.value)));
+  const scopePublisherIds = scopeRoots.map((root) => root.value);
 
   if (scopes.length === 0) {
-    return { where: {}, publisherIds: candidatePublisherIds };
+    return { where: {}, publisherIds: candidatePublisherIds, scopes, scopePublisherIds };
   }
   const where = optimizeMissionDiffusionRuleWhere(scopes.length === 1 ? scopes[0] : { OR: scopes });
-  return { where, publisherIds: candidatePublisherIds };
+  return { where, publisherIds: candidatePublisherIds, scopes, scopePublisherIds };
 };
 
 const findOrderedRules = (publisherId: string): Promise<PublisherDiffusionRule[]> =>
@@ -179,7 +187,7 @@ export const publisherDiffusionRuleService = {
     return where;
   },
 
-  async buildMissionDiffuseurCandidateFilter(publisherId: string, publisherIds?: string[]): Promise<{ where: Prisma.MissionWhereInput; publisherIds: string[] }> {
+  async buildMissionDiffuseurCandidateFilter(publisherId: string, publisherIds?: string[]): Promise<MissionDiffuseurCandidateFilter> {
     const rules = await findOrderedRules(publisherId);
     return buildAllowlistFilter(rules, publisherIds);
   },

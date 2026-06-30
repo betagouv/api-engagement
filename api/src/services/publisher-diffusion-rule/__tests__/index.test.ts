@@ -184,6 +184,8 @@ describe("publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere", ()
     const filter = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateFilter("diffuseur-1");
 
     expect(filter.publisherIds).toEqual(["annonceur-1", "annonceur-2"]);
+    expect(filter.scopePublisherIds).toEqual(["annonceur-1", "annonceur-2"]);
+    expect(filter.scopes).toEqual([{ publisherId: "annonceur-1" }, { publisherId: "annonceur-2" }]);
     expect(filter.where).toEqual({ OR: [{ publisherId: "annonceur-1" }, { publisherId: "annonceur-2" }] });
   });
 });
