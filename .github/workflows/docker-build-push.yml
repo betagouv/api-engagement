@@ -129,6 +129,9 @@ jobs:
           echo "VOLONTARIAT_URL=${{ vars.VOLONTARIAT_URL }}" >> $GITHUB_OUTPUT
           echo "VITE_MAPTILER_API_KEY=${{ vars.VITE_MAPTILER_API_KEY }}" >> $GITHUB_OUTPUT
           echo "VITE_PUBLISHER_ID=${{ vars.PLATEFORM_PUBLISHER_ID }}" >> $GITHUB_OUTPUT
+          echo "VITE_TRACKING_PROVIDER=${{ vars.TRACKING_PROVIDER }}" >> $GITHUB_OUTPUT
+          echo "VITE_POSTHOG_KEY=${{ vars.POSTHOG_KEY }}" >> $GITHUB_OUTPUT
+          echo "VITE_POSTHOG_HOST=${{ vars.POSTHOG_HOST }}" >> $GITHUB_OUTPUT
 
       - name: Build and push ${{ matrix.image_name }} image
         if: ${{ matrix.variant != 'sandbox' || needs.set-env.outputs.environment_name == 'production' }}
@@ -154,3 +157,6 @@ jobs:
             SENTRY_HOST=${{ steps.app_args.outputs.SENTRY_HOST }}
             VITE_MAPTILER_API_KEY=${{ steps.app_args.outputs.VITE_MAPTILER_API_KEY }}
             VITE_PUBLISHER_ID=${{ steps.app_args.outputs.VITE_PUBLISHER_ID }}
+            VITE_TRACKING_PROVIDER=${{ steps.app_args.outputs.VITE_TRACKING_PROVIDER }}
+            VITE_POSTHOG_KEY=${{ steps.app_args.outputs.VITE_POSTHOG_KEY }}
+            VITE_POSTHOG_HOST=${{ steps.app_args.outputs.VITE_POSTHOG_HOST }}
