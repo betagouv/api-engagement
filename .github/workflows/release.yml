@@ -102,7 +102,7 @@ jobs:
       - name: Commit changes to main
         id: commit
         if: steps.release_mode.outputs.should_release == 'true'
-        uses: stefanzweifel/git-auto-commit-action@v7
+        uses: stefanzweifel/git-auto-commit-action@v7.1.0
         with:
           commit_message: |
             chore(release): v${{ env.RELEASE_VERSION }}
