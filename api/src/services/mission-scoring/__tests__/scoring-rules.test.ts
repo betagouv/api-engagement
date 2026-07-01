@@ -49,6 +49,7 @@ describe("getMissionScoringRuleKeys — openToMinors", () => {
 
     expect(keys).toContain("tranche_age.entre_18_25_ans");
     expect(keys).toContain("type_mission.temps_plein");
+    expect(keys).toContain("dispositif.service_civique");
     expect(keys).not.toContain("tranche_age.moins_18_ans");
     expect(keys).not.toContain("tranche_age.moins_31_ans_handicap");
   });
@@ -56,13 +57,23 @@ describe("getMissionScoringRuleKeys — openToMinors", () => {
   it("conserve l'ensemble Service Civique complet quand openToMinors=true (non-régression)", () => {
     const keys = getMissionScoringRuleKeys(buildMission({ publisherId: PUBLISHER_IDS.SERVICE_CIVIQUE, openToMinors: true }));
 
-    expect(sorted(keys)).toEqual(sorted(["tranche_age.moins_18_ans", "tranche_age.entre_18_25_ans", "tranche_age.moins_31_ans_handicap", "type_mission.temps_plein"]));
+    expect(sorted(keys)).toEqual(
+      sorted(["tranche_age.moins_18_ans", "tranche_age.entre_18_25_ans", "tranche_age.moins_31_ans_handicap", "type_mission.temps_plein", "dispositif.service_civique"])
+    );
   });
 
   it("conserve l'ensemble Service Civique complet quand openToMinors=null (non-régression)", () => {
     const keys = getMissionScoringRuleKeys(buildMission({ publisherId: PUBLISHER_IDS.SERVICE_CIVIQUE, openToMinors: null }));
 
-    expect(sorted(keys)).toEqual(sorted(["tranche_age.moins_18_ans", "tranche_age.entre_18_25_ans", "tranche_age.moins_31_ans_handicap", "type_mission.temps_plein"]));
+    expect(sorted(keys)).toEqual(
+      sorted(["tranche_age.moins_18_ans", "tranche_age.entre_18_25_ans", "tranche_age.moins_31_ans_handicap", "type_mission.temps_plein", "dispositif.service_civique"])
+    );
+  });
+
+  it("déduit le dispositif Service Civique du publisher, même si le type est absent", () => {
+    const keys = getMissionScoringRuleKeys(buildMission({ publisherId: PUBLISHER_IDS.SERVICE_CIVIQUE, type: null }));
+
+    expect(keys).toContain("dispositif.service_civique");
   });
 });
 

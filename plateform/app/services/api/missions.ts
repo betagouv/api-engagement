@@ -18,6 +18,7 @@ export async function browseMissions(filters: MissionBrowseFilters, request: Req
   appendMulti(params, "secteur_activite", filters.secteur_activite);
   appendMulti(params, "type_mission", filters.type_mission);
   appendMulti(params, "tranche_age", filters.tranche_age);
+  appendMulti(params, "dispositif", filters.dispositif);
 
   return api.get<MissionBrowseResponse>(`/missions/browse?${params.toString()}`);
 }

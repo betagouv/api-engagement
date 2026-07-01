@@ -35,4 +35,22 @@ describe("TypesenseSearchProvider.search", () => {
 
     await expect(provider.search("missions", { q: "*" })).rejects.toThrow("Bad filter_by");
   });
+
+  it("batche plusieurs sous-recherches en un seul appel multi_search", async () => {
+    const r1 = { found: 5, hits: [] };
+    const r2 = { found: 0, hits: [], facet_counts: [{ field_name: "domaine", counts: [] }] };
+    performMock.mockResolvedValue({ results: [r1, r2] });
+
+    const searches = [
+      { q: "*", query_by: "publisherId", filter_by: "publisherId:=`pub-1`" },
+      { q: "*", query_by: "publisherId", facet_by: "domaine", per_page: 0 },
+    ];
+    const results = await provider.multiSearch("missions", searches);
+
+    expect(performMock).toHaveBeenCalledTimes(1);
+    expect(performMock).toHaveBeenCalledWith({
+      searches: searches.map((params) => ({ collection: "missions", ...params })),
+    });
+    expect(results).toEqual([r1, r2]);
+  });
 });

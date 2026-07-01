@@ -652,6 +652,8 @@ model Mission {
   // Partial index managed manually in migration (Prisma doesn't support WHERE clause on indexes)
   // CREATE INDEX "mission_publisher_active_idx" ON "mission" (publisher_id, id)
   // WHERE deleted_at IS NULL AND status_code = 'ACCEPTED'
+  // CREATE INDEX "mission_active_publisher_start_at_idx" ON "mission" (publisher_id, start_at DESC, id)
+  // WHERE deleted_at IS NULL AND status_code = 'ACCEPTED'
   @@map("mission")
 }
 

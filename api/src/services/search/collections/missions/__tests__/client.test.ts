@@ -1,12 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const searchMock = vi.hoisted(() => vi.fn());
+const multiSearchMock = vi.hoisted(() => vi.fn());
 const upsertMock = vi.hoisted(() => vi.fn());
 const deleteMock = vi.hoisted(() => vi.fn());
 
 vi.mock("@/services/search/index", () => ({
   searchProvider: {
     search: searchMock,
+    multiSearch: multiSearchMock,
     upsert: upsertMock,
     delete: deleteMock,
   },
@@ -17,6 +19,7 @@ import { missionSearchClient } from "@/services/search/collections/missions/clie
 describe("missionSearchClient", () => {
   beforeEach(() => {
     searchMock.mockReset();
+    multiSearchMock.mockReset();
     upsertMock.mockReset();
     deleteMock.mockReset();
   });
@@ -27,6 +30,15 @@ describe("missionSearchClient", () => {
     await missionSearchClient.search({ q: "*", query_by: "publisherId" });
 
     expect(searchMock).toHaveBeenCalledWith(expect.any(String), { q: "*", query_by: "publisherId" });
+  });
+
+  it("délègue le multi_search au provider avec le bon nom de collection", async () => {
+    multiSearchMock.mockResolvedValue([{ found: 0, hits: [] }]);
+
+    const searches = [{ q: "*", query_by: "publisherId" }];
+    await missionSearchClient.multiSearch(searches);
+
+    expect(multiSearchMock).toHaveBeenCalledWith(expect.any(String), searches);
   });
 
   it("délègue l'upsert au provider avec le bon nom de collection", async () => {

@@ -72,7 +72,6 @@ import PublisherOrganizationController from "@/controllers/publisher-organizatio
 import RedirectController from "@/controllers/redirect";
 import ReportController from "@/controllers/report";
 import StatsController from "@/controllers/stats";
-import StatsMeanController from "@/controllers/stats-mean/controller";
 import UserController from "@/controllers/user";
 import UserScoringController from "@/controllers/user-scoring";
 import WarningController from "@/controllers/warning";
@@ -154,7 +153,6 @@ const main = async () => {
   app.use("/publisher-organization", PublisherOrganizationController);
   app.use("/organization", OrganizationController);
   app.use("/stats", StatsController);
-  app.use("/stats-mean", StatsMeanController);
   app.use("/user", UserController);
   app.use("/warning", WarningController);
   app.use("/warning-bot", WarningBotController);

@@ -13,8 +13,9 @@ type Props = {
 
 export default function RadioGroupRich({ title, subtitle, onChange, options, selected, error }: Props) {
   return (
+    // `block!` : contourne un bug de layout iOS Safari sur fr-fieldset (display:flex) — cf checkbox-group-rich.
     <fieldset
-      className={`fr-fieldset ${error ? "fr-fieldset--error" : ""}`}
+      className={`fr-fieldset block! ${error ? "fr-fieldset--error" : ""}`}
       id="radio-group-rich"
       role="group"
       aria-describedby={`radio-group-rich-legend ${error && "radio-group-rich-messages"}`}

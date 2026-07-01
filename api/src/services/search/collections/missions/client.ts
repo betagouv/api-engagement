@@ -9,6 +9,10 @@ export const missionSearchClient = {
     return searchProvider.search(TYPESENSE_MISSION_COLLECTION, params);
   },
 
+  multiSearch(searches: SearchQueryParams<MissionIndexDocument>[]): Promise<SearchQueryResponse<MissionIndexDocument>[]> {
+    return searchProvider.multiSearch(TYPESENSE_MISSION_COLLECTION, searches);
+  },
+
   upsert(document: MissionIndexDocument): Promise<MissionIndexDocument> {
     return searchProvider.upsert(TYPESENSE_MISSION_COLLECTION, document);
   },

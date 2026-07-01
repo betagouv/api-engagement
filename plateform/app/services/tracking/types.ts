@@ -71,7 +71,7 @@ export type MissionDetailEntrySource = "results_pinned" | "results_other" | "mis
 export type MissionDetailNavState = { entrySource: MissionDetailEntrySource; rank?: number };
 
 // --- missions_filter.applied ---
-export type MissionsFilterType = "departement" | "tranche_age" | "type_mission" | "secteur_activite" | "domaine";
+export type MissionsFilterType = "departement" | "dispositif" | "tranche_age" | "type_mission" | "secteur_activite" | "domaine";
 
 // --- emails ---
 // Provenance de la fiche depuis laquelle l'email d'une mission est envoyé.

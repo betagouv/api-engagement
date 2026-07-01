@@ -123,114 +123,112 @@ export default function ResultsPage() {
 
   if (isMobile) {
     return (
-      <main>
-        <section className="relative h-[calc(100dvh-3.5rem)] overflow-hidden">
-          {showMap && (
-            <div className="absolute inset-0 z-0" onClickCapture={handleCollapseSheet}>
-              <LazyMissionMap items={pinnedItems} center={mapCenter} onMarkerClick={handleMarkerClick} activeMissionId={activeMissionId} />
-            </div>
-          )}
+      <main className="flex-1 relative overflow-hidden">
+        {showMap && (
+          <div className="absolute inset-0 z-0" onClickCapture={handleCollapseSheet}>
+            <LazyMissionMap items={pinnedItems} center={mapCenter} onMarkerClick={handleMarkerClick} activeMissionId={activeMissionId} />
+          </div>
+        )}
 
-          {selectedMission && !expanded && (
-            <div
-              key={selectedMission.mission.id}
-              className={`absolute inset-x-3 bottom-3 z-[500] ${isClosingCard ? "animate-slide-down-fade" : "animate-slide-up-fade"}`}
-              onAnimationEnd={() => {
-                if (!isClosingCard) return;
-                setSelectedMission(null);
-                setIsClosingCard(false);
-              }}
-            >
-              <div className="relative">
-                <MatchMissionCard
-                  item={selectedMission}
-                  section="pinned"
-                  rank={pinnedItems.findIndex((i) => i.mission.id === selectedMission.mission.id) + 1}
-                  userScoringId={userScoringId}
-                />
-                <div className="absolute right-3 top-3 z-10 flex items-center gap-2">
-                  <button
-                    type="button"
-                    className="flex h-8 w-8 items-center justify-center rounded-full bg-background! shadow-md"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setEmailModalOpen(true);
-                    }}
-                    aria-label="Recevoir par email"
-                  >
-                    <i className="fr-icon-mail-send-line fr-icon--sm" aria-hidden="true" />
-                  </button>
-                  <button
-                    type="button"
-                    className="flex h-8 w-8 items-center justify-center rounded-full bg-background! shadow-md"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setIsClosingCard(true);
-                    }}
-                    aria-label="Fermer la carte"
-                  >
-                    <i className="fr-icon-close-line fr-icon--sm" aria-hidden="true" />
-                  </button>
-                </div>
+        {selectedMission && !expanded && (
+          <div
+            key={selectedMission.mission.id}
+            className={`absolute inset-x-3 bottom-3 z-[500] ${isClosingCard ? "animate-slide-down-fade" : "animate-slide-up-fade"}`}
+            onAnimationEnd={() => {
+              if (!isClosingCard) return;
+              setSelectedMission(null);
+              setIsClosingCard(false);
+            }}
+          >
+            <div className="relative">
+              <MatchMissionCard
+                item={selectedMission}
+                section="pinned"
+                rank={pinnedItems.findIndex((i) => i.mission.id === selectedMission.mission.id) + 1}
+                userScoringId={userScoringId}
+              />
+              <div className="absolute right-3 top-3 z-10 flex items-center gap-2">
+                <button
+                  type="button"
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-background! shadow-md"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setEmailModalOpen(true);
+                  }}
+                  aria-label="Recevoir par email"
+                >
+                  <i className="fr-icon-mail-send-line fr-icon--sm" aria-hidden="true" />
+                </button>
+                <button
+                  type="button"
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-background! shadow-md"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsClosingCard(true);
+                  }}
+                  aria-label="Fermer la carte"
+                >
+                  <i className="fr-icon-close-line fr-icon--sm" aria-hidden="true" />
+                </button>
               </div>
             </div>
-          )}
-
-          <div
-            className={`absolute inset-x-0 bottom-0 z-[1000] flex flex-col rounded-t-3xl bg-background shadow-2xl transition-[top] duration-300 ${expanded ? "top-12" : "top-[calc(100%-5rem)]"} ${selectedMission ? "hidden" : ""}`}
-          >
-            <div className={`flex flex-col gap-2 px-6 py-4 ${expanded ? "items-start!" : "items-center! justify-center! h-full"}`} onClick={handleToggleSheet}>
-              {!loading && error && <p className="fr-error-text m-0! text-center!">{error}</p>}
-              {!loading && !error && (
-                <h2 className={`m-0! ${expanded ? "text-center!" : ""}`}>
-                  <Highlight>
-                    <span className="text-blue-france-sun">
-                      {pinnedItems.length} mission{pinnedItems.length > 1 ? "s" : ""}
-                    </span>
-                  </Highlight>
-                  pour toi
-                </h2>
-              )}
-
-              {expanded && (
-                <Link to={changeAnswersHref} className="fr-link fr-link--sm shrink-0">
-                  <span className="fr-icon-arrow-left-line fr-btn--icon-left" aria-hidden="true" />
-                  Changer mes réponses
-                </Link>
-              )}
-            </div>
-
-            <div ref={scrollRef} className={`flex-1 overflow-y-auto overscroll-contain ${expanded ? "" : "hidden"}`}>
-              <PinnedMissions items={pinnedItems} loading={loading} error={error} userScoringId={userScoringId} showDebug={showDebug} highlightedMissionId={activeMissionId} />
-
-              {showOther && (
-                <div className="px-6 pt-2 pb-8">
-                  <OtherMissions
-                    items={otherItems}
-                    page={page}
-                    hasNextPage={hasNextPage}
-                    pageLoading={pageLoading}
-                    visiblePageNumbers={visiblePageNumbers}
-                    userScoringId={userScoringId}
-                    showDebug={showDebug}
-                    onPageChange={setPage}
-                  />
-                </div>
-              )}
-
-              <Newsletter
-                title="Reçois tes missions par email"
-                subtitle="1 email par mois avec les missions qui pourraient t'intéresser."
-                ctaText="Recevoir mes missions"
-                hintText="En renseignant ton adresse électronique, tu acceptes de recevoir de nouvelles offres de missions. Tu pourras te désinscrire à tout moment."
-              />
-              <Partners style="compact" />
-              <FooterContent />
-            </div>
           </div>
-        </section>
+        )}
+
+        <div
+          className={`absolute inset-x-0 bottom-0 z-[1000] flex flex-col rounded-t-3xl bg-background shadow-2xl transition-[top] duration-300 ${expanded ? "top-12" : "top-[calc(100%-5rem)]"} ${selectedMission ? "hidden" : ""}`}
+        >
+          <div className={`flex flex-col gap-2 px-6 py-4 ${expanded ? "items-start!" : "items-center! justify-center! h-full"}`} onClick={handleToggleSheet}>
+            {!loading && error && <p className="fr-error-text m-0! text-center!">{error}</p>}
+            {!loading && !error && (
+              <h2 className={`m-0! ${expanded ? "text-center!" : ""}`}>
+                <Highlight>
+                  <span className="text-blue-france-sun">
+                    {pinnedItems.length} mission{pinnedItems.length > 1 ? "s" : ""}
+                  </span>
+                </Highlight>
+                pour toi
+              </h2>
+            )}
+
+            {expanded && (
+              <Link to={changeAnswersHref} className="fr-link fr-link--sm shrink-0">
+                <span className="fr-icon-arrow-left-line fr-btn--icon-left" aria-hidden="true" />
+                Changer mes réponses
+              </Link>
+            )}
+          </div>
+
+          <div ref={scrollRef} className={`flex-1 overflow-y-auto overscroll-contain ${expanded ? "" : "hidden"}`}>
+            <PinnedMissions items={pinnedItems} loading={loading} error={error} userScoringId={userScoringId} showDebug={showDebug} highlightedMissionId={activeMissionId} />
+
+            {showOther && (
+              <div className="px-6 pt-2 pb-8">
+                <OtherMissions
+                  items={otherItems}
+                  page={page}
+                  hasNextPage={hasNextPage}
+                  pageLoading={pageLoading}
+                  visiblePageNumbers={visiblePageNumbers}
+                  userScoringId={userScoringId}
+                  showDebug={showDebug}
+                  onPageChange={setPage}
+                />
+              </div>
+            )}
+
+            <Newsletter
+              title="Reçois tes missions par email"
+              subtitle="1 email par mois avec les missions qui pourraient t'intéresser."
+              ctaText="Recevoir mes missions"
+              hintText="En renseignant ton adresse électronique, tu acceptes de recevoir de nouvelles offres de missions. Tu pourras te désinscrire à tout moment."
+            />
+            <Partners style="compact" />
+            <FooterContent />
+          </div>
+        </div>
 
         <MatchingDebugModal items={[...pinnedItems, ...otherItems]} userValues={userValues} />
         <EmailMissionsModal userScoringId={userScoringId} open={emailModalOpen} onOpenChange={setEmailModalOpen} hideTrigger />
