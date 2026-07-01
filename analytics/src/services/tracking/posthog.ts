@@ -13,6 +13,7 @@ import { SourceReader } from "../process-definition";
 
 const DEFAULT_SYNC_SINCE = "2020-01-01 00:00:00.000";
 const DEFAULT_LOOKBACK_MINUTES = 60;
+const DEFAULT_POSTHOG_HOST = "https://eu.posthog.com";
 
 interface PosthogConfig {
   host: string;
@@ -23,13 +24,10 @@ interface PosthogConfig {
 }
 
 const getConfig = (): PosthogConfig => {
-  const host = process.env.POSTHOG_HOST;
+  const host = process.env.POSTHOG_HOST || DEFAULT_POSTHOG_HOST;
   const projectId = process.env.POSTHOG_PROJECT_ID;
   const apiKey = process.env.POSTHOG_API_KEY;
 
-  if (!host) {
-    throw new Error("POSTHOG_HOST must be defined");
-  }
   if (!projectId) {
     throw new Error("POSTHOG_PROJECT_ID must be defined");
   }

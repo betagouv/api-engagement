@@ -58,7 +58,6 @@ Le provider est sélectionné via `TRACKING_PROVIDER` (défaut `posthog`) et iso
 
 Provider PostHog (par défaut) :
 
-- `POSTHOG_HOST` (ex. `https://eu.posthog.com`)
 - `POSTHOG_PROJECT_ID`
 - `POSTHOG_API_KEY` (personal API key, scope lecture — jamais en dur, secret Terraform/CI)
 
@@ -66,6 +65,7 @@ Optionnel :
 
 - `BATCH_SIZE` (override taille de lot)
 - `TRACKING_PROVIDER` (provider de tracking, défaut `posthog`)
+- `POSTHOG_HOST` (host API PostHog, défaut `https://eu.posthog.com`)
 - `POSTHOG_SYNC_SINCE` (borne plancher au 1er run, ex. `2026-01-01 00:00:00.000`)
 - `POSTHOG_LOOKBACK_MINUTES` (fenêtre de rescan pour les évènements en retard, défaut 60)
 - `ENV`, `SENTRY_DSN_JOBS`
