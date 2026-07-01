@@ -6,19 +6,25 @@ import { typesenseClient } from "./client";
 
 export class TypesenseSearchProvider implements SearchProvider {
   async search<TDoc extends object>(collection: string, params: SearchQueryParams<TDoc>): Promise<SearchQueryResponse<TDoc>> {
+    const [result] = await this.multiSearch(collection, [params]);
+    return result;
+  }
+
+  async multiSearch<TDoc extends object>(collection: string, searches: SearchQueryParams<TDoc>[]): Promise<SearchQueryResponse<TDoc>[]> {
     // `multi_search` (POST) transporte les paramètres dans le corps JSON, là où `documents().search()`
     // (GET) les met dans la query string de l'URL, plafonnée à 4000 caractères par Typesense — limite
-    // dépassée par le `filter_by` de l'allowlist de diffusion de certains diffuseurs.
-    const { results } = await typesenseClient.multiSearch.perform<[TDoc]>({
-      searches: [{ collection, ...params } as MultiSearchRequestSchema<TDoc, string>],
+    // dépassée par le `filter_by` de l'allowlist de diffusion de certains diffuseurs. On en profite pour
+    // batcher plusieurs sous-recherches (ex. facettes disjonctives) en un seul aller-retour HTTP.
+    const { results } = await typesenseClient.multiSearch.perform<TDoc[]>({
+      searches: searches.map((params) => ({ collection, ...params }) as MultiSearchRequestSchema<TDoc, string>),
     });
 
-    const result = results[0];
-    if (result.error) {
-      throw new Error(`[search:typesense] multi_search a échoué (code ${result.code}) : ${result.error}`);
-    }
-
-    return result as unknown as SearchQueryResponse<TDoc>;
+    return results.map((result) => {
+      if (result.error) {
+        throw new Error(`[search:typesense] multi_search a échoué (code ${result.code}) : ${result.error}`);
+      }
+      return result as unknown as SearchQueryResponse<TDoc>;
+    });
   }
 
   async upsert<TDoc extends object>(collection: string, document: TDoc): Promise<TDoc> {
