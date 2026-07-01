@@ -185,6 +185,25 @@ export const TAXONOMY = {
     },
   },
 
+  // Dispositif d'engagement de la mission. Valeur déterministe injectée depuis `mission.type`
+  // (cf. SCORING_RULES.type côté API), pas enrichie par le LLM. Pour l'instant seuls bénévolat,
+  // service civique et pompiers sont mappés ; les réserves arriveront quand un discriminant
+  // permettra de les distinguer (l'enum MissionType n'a qu'un seul `volontariat_reserve_operationnelle`).
+  dispositif: {
+    label: "Dispositif d'engagement",
+    type: "categorical",
+    enrichable: false,
+    gate: false,
+    values: {
+      benevolat: { label: "Bénévolat", icon: null, enrichable: false },
+      service_civique: { label: "Service civique", icon: null, enrichable: false },
+      sapeurs_pompiers: { label: "Pompiers volontaires", icon: null, enrichable: false },
+      reserve_gendarmerie: { label: "Réserve Gendarmerie", icon: null, enrichable: false, disabled: true },
+      reserve_police_nationale: { label: "Réserve Police Nationale", icon: null, enrichable: false, disabled: true },
+      reserve_armees: { label: "Réserves des armées", icon: null, enrichable: false, disabled: true },
+    },
+  },
+
   competence_rome: {
     label: "Compétences (référentiel ROME)",
     type: "multi_value",

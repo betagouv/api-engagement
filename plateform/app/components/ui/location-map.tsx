@@ -19,9 +19,9 @@ export const createEmojiIcon = (emoji: string) =>
   L.divIcon({
     className: "",
     html: `<div class="mission-map__emoji-marker">${emoji}</div>`,
-    iconSize: [28, 28],
-    iconAnchor: [14, 14],
-    popupAnchor: [0, -16],
+    iconSize: [22, 22],
+    iconAnchor: [11, 11],
+    popupAnchor: [0, -12],
   });
 
 const pinIcon = createEmojiIcon("📍");

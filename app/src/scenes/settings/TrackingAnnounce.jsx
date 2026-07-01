@@ -27,7 +27,34 @@ const TrackingAnnounce = () => {
     <div className="space-y-12 p-4 sm:p-12">
       <title>API Engagement - Tracking des événements - Paramètres</title>
       <div className="border-grey-border space-y-8 border p-4 sm:p-8">
-        <h2 className="text-2xl font-bold">Tracking des événements</h2>
+        <div className="flex items-start justify-between gap-4">
+          <h2 className="text-2xl font-bold">Tracking des événements</h2>
+          <a
+            href="https://doc.api-engagement.beta.gouv.fr/annoncer-des-missions/tracking-des-candidatures/rajout-de-la-balise-et-des-commandes-de-tracking-par-le-tag"
+            target="_blank"
+            rel="noreferrer"
+            className="text-blue-france shrink-0 text-sm underline"
+          >
+            Ouvrir la documentation
+          </a>
+        </div>
+
+        <div className="border-info bg-blue-france-975 space-y-2 border-l-4 px-4 py-3">
+          <h3 className="text-sm font-semibold">Comment tester votre intégration</h3>
+          <p className="text-text-mention text-xs leading-5">
+            Le tracking suit une chaîne en 3 étapes : (1) le bénévole arrive sur votre site via une <strong>URL trackée</strong> (contenant{" "}
+            <span className="font-['courier']">?apiengagement_id=…</span>) ; (2) le script dépose un cookie <span className="font-['courier']">apiengagement</span> (30 jours) ; (3)
+            au déclenchement de l'événement, un appel part <strong>seulement si le cookie est présent</strong>. Si vous ouvrez votre page sans passer par une URL trackée, aucun
+            cookie n'est posé et rien n'est envoyé — ce n'est pas une erreur de votre code.
+          </p>
+          <p className="text-text-mention text-xs leading-5">
+            Pour visualiser le cookie et les événements en temps réel, installez l'extension Chrome « API Engagement Tag Assistant » :{" "}
+            <a href="https://app.api-engagement.beta.gouv.fr/chrome-extension.zip" target="_blank" rel="noreferrer" className="text-blue-france underline">
+              télécharger l'extension
+            </a>
+            .
+          </p>
+        </div>
 
         <div className="space-y-4 border-b border-b-gray-900 pb-6">
           <div>
@@ -67,7 +94,7 @@ const TrackingAnnounce = () => {
           <div className="flex items-start gap-2 pb-6">
             <BiSolidInfoSquare className="text-info mt-1 text-xs" aria-hidden="true" />
             <p className="text-info text-xs leading-4">
-              clientId = votre identifiant de mission utilisé dans le flux XML. <br />
+              clientId = votre identifiant de mission utilisé dans le flux XML (transmis dans le paramètre <span className="font-['courier']">mission</span>). <br />
               Exemple : <span className="font-['courier']">window.apieng && window.apieng("trackAccount", "6294b108de43a106f6ca6d5f")</span> <br />
               NB: Si vous n’en avez pas, ne l’indiquez pas dans la commande. Exemple : <span className="font-['courier']">window.apieng && window.apieng(“trackAccount”)</span>
             </p>

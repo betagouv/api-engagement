@@ -15,14 +15,14 @@
   "dependencies": {
     "@sentry/node": "10.56.0",
     "dbmate": "2.33.0",
-    "dotenv": "16.4.5",
+    "dotenv": "17.4.2",
     "pg": "8.21.0"
   },
   "devDependencies": {
     "@eslint/js": "9.38.0",
     "@types/pg": "8.20.0",
-    "@typescript-eslint/eslint-plugin": "8.61.0",
-    "@typescript-eslint/parser": "8.61.0",
+    "@typescript-eslint/eslint-plugin": "8.62.0",
+    "@typescript-eslint/parser": "8.62.0",
     "eslint": "9.38.0",
     "eslint-plugin-import": "2.32.0",
     "ts-node": "10.9.2",
