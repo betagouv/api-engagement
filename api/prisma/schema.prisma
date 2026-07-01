@@ -649,6 +649,7 @@ model Mission {
   @@index([domainId], map: "mission_domain_id_idx")
   @@index([deletedAt], map: "mission_deleted_at_idx")
   @@index([statusCode], map: "mission_status_code_idx")
+  @@index([publisherOrganizationId], map: "mission_publisher_organization_id_idx")
   // Partial index managed manually in migration (Prisma doesn't support WHERE clause on indexes)
   // CREATE INDEX "mission_publisher_active_idx" ON "mission" (publisher_id, id)
   // WHERE deleted_at IS NULL AND status_code = 'ACCEPTED'
@@ -689,6 +690,7 @@ model PublisherOrganization {
 
   @@unique([publisherId, clientId], map: "publisher_organization_publisher_id_client_id_key")
   @@index([publisherId], map: "publisher_organization_publisher_id_idx")
+  @@index([clientId], map: "publisher_organization_client_id_idx")
   @@index([name], map: "publisher_organization_name_idx")
   // Supporte le filtrage des diffusion rules sur `parentOrganizations` (`has` → `@>`) côté v0/mission.
   @@index([parentOrganizations], type: Gin, map: "publisher_organization_parent_organizations_idx")
