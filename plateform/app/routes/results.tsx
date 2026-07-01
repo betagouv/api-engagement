@@ -1,10 +1,10 @@
 import type { MissionMatchItem } from "@engagement/dto";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router";
 import { FooterContent } from "~/components/layout/footer";
 import Newsletter from "~/components/layout/newsletter";
 import Partners from "~/components/layout/partners";
-import MissionCard from "~/components/missions/mission-card";
+import MatchMissionCard from "~/components/missions/match-mission-card";
 import EmailMissionsModal from "~/components/results/email-missions-modal";
 import LazyMissionMap from "~/components/results/lazy-mission-map";
 import MatchingDebugModal, { type MatchingDebugUserValue } from "~/components/results/matching-debug-modal";
@@ -16,9 +16,10 @@ import { QUIZ_FLOW } from "~/config/quiz-flow";
 import { OPTIONS } from "~/config/quiz-options";
 import { useIsMobile } from "~/hooks/useIsMobile";
 import { useMissionResults } from "~/hooks/useMissionResults";
+import { setQuizSessionId } from "~/services/tracking";
+import { trackResultsViewed } from "~/services/tracking/events";
 import { useQuizStore } from "~/stores/quiz";
 import { evalCondition } from "~/utils/conditions";
-import { buildMissionDetailHref, matchResultToBrowseMission } from "~/utils/mission";
 
 export async function clientLoader() {
   return { backHref: null };
@@ -31,13 +32,32 @@ export default function ResultsPage() {
   const [searchParams] = useSearchParams();
   const isMobile = useIsMobile();
   const answers = useQuizStore((s) => s.answers);
-  const { pinnedItems, otherItems, page, setPage, hasNextPage, loading, pageLoading, error, visiblePageNumbers } = useMissionResults(userScoringId);
+  const { pinnedItems, otherItems, page, setPage, hasNextPage, totalResults, avgDistanceKmTop5, loading, pageLoading, error, visiblePageNumbers } =
+    useMissionResults(userScoringId);
+  const resultsViewedFired = useRef(false);
   const [expanded, setExpanded] = useState(false);
   const [selectedMission, setSelectedMission] = useState<MissionMatchItem | null>(null);
   const [hoveredMissionId, setHoveredMissionId] = useState<string | null>(null);
   const [isClosingCard, setIsClosingCard] = useState(false);
   const [emailModalOpen, setEmailModalOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // quiz_session_id vient de l'URL ici (accès direct possible) : on l'enregistre comme super
+  // property pour qu'il soit attaché à results.viewed et aux mission.clicked de cette page.
+  useEffect(() => {
+    if (userScoringId) setQuizSessionId(userScoringId);
+  }, [userScoringId]);
+
+  // results.viewed : une fois le chargement terminé (succès), on émet l'évènement une seule fois.
+  useEffect(() => {
+    if (loading || error || resultsViewedFired.current) return;
+    resultsViewedFired.current = true;
+    trackResultsViewed({
+      pinnedCount: pinnedItems.length,
+      totalResultsCount: totalResults,
+      avgDistanceKmTop5,
+    });
+  }, [loading, error, pinnedItems.length, totalResults, avgDistanceKmTop5]);
 
   const locAnswer = answers["localisation"];
   const geo = locAnswer?.type === "params" ? (locAnswer.params as { lat: number; lon: number }) : null;
@@ -121,7 +141,12 @@ export default function ResultsPage() {
             }}
           >
             <div className="relative">
-              <MissionCard mission={matchResultToBrowseMission(selectedMission)} link={{ type: "internal", to: buildMissionDetailHref(selectedMission, userScoringId) }} />
+              <MatchMissionCard
+                item={selectedMission}
+                section="pinned"
+                rank={pinnedItems.findIndex((i) => i.mission.id === selectedMission.mission.id) + 1}
+                userScoringId={userScoringId}
+              />
               <div className="absolute right-3 top-3 z-10 flex items-center gap-2">
                 <button
                   type="button"
@@ -266,9 +291,11 @@ export default function ResultsPage() {
                       }}
                     >
                       <div className="relative">
-                        <MissionCard
-                          mission={matchResultToBrowseMission(selectedMission)}
-                          link={{ type: "internal", to: buildMissionDetailHref(selectedMission, userScoringId) }}
+                        <MatchMissionCard
+                          item={selectedMission}
+                          section="pinned"
+                          rank={pinnedItems.findIndex((i) => i.mission.id === selectedMission.mission.id) + 1}
+                          userScoringId={userScoringId}
                         />
                         <div className="absolute right-3 top-3 z-10 flex items-center gap-2">
                           <button

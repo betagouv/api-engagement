@@ -1,8 +1,7 @@
 import type { MissionMatchItem } from "@engagement/dto";
-import MissionCard from "~/components/missions/mission-card";
+import MatchMissionCard from "~/components/missions/match-mission-card";
 import EmailMissionsModal from "~/components/results/email-missions-modal";
 import { DebugButton } from "~/components/results/matching-debug-modal";
-import { buildMissionDetailHref, matchResultToBrowseMission } from "~/utils/mission";
 
 interface PinnedMissionsProps {
   items: MissionMatchItem[];
@@ -26,14 +25,14 @@ export default function PinnedMissions({ items, loading, error, userScoringId, s
       {!loading && !error && items.length > 0 && (
         <>
           <div className="grid grid-cols-1 gap-6 pb-6 md:grid-cols-2 md:px-4">
-            {items.map((item) => (
+            {items.map((item, index) => (
               <div
                 key={item.mission.id}
                 className={`relative w-full transition-shadow md:max-w-[330px] ${item.mission.id === highlightedMissionId ? "shadow-card ring-2 ring-blue-france-sun" : ""}`}
                 onMouseEnter={() => onMissionHover?.(item.mission.id)}
                 onMouseLeave={() => onMissionHover?.(null)}
               >
-                <MissionCard mission={matchResultToBrowseMission(item)} link={{ type: "internal", to: buildMissionDetailHref(item, userScoringId) }} />
+                <MatchMissionCard item={item} section="pinned" rank={index + 1} userScoringId={userScoringId} />
                 {showDebug && <DebugButton missionId={item.mission.id} />}
               </div>
             ))}

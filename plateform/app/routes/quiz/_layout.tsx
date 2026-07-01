@@ -3,9 +3,10 @@ import { Outlet, useLocation, useNavigate } from "react-router";
 import BackButton from "~/components/quiz/back-button";
 import QuizHeader from "~/components/quiz/header";
 import LoadingRecap from "~/components/quiz/loading-recap";
-import { QUIZ_FLOW, type StepDef } from "~/config/quiz-flow";
+import { QUIZ_FLOW, type StepDef, type StepId } from "~/config/quiz-flow";
 import { invalidateInitialMatches } from "~/services/matching";
 import { createUserScoring, updateUserScoring } from "~/services/user-scoring";
+import { trackQuizBackNavigated, trackQuizCompleted, trackQuizStepCompleted } from "~/services/tracking/events";
 import { useQuizStore } from "~/stores/quiz";
 import { evalCondition } from "~/utils/conditions";
 import { buildPayload, refreshSteps } from "~/utils/quiz";
@@ -18,6 +19,9 @@ export type QuizOutletContext = {
   saveScoring: () => void;
   transitioning: boolean;
   setTransitioning: (value: boolean) => void;
+  // Step courant (pour le tracking des raccourcis depuis NextButton).
+  currentStepId: StepId | null;
+  currentStepIndex: number;
 };
 
 export function meta(): Route.MetaDescriptors {
@@ -117,11 +121,15 @@ export default function QuizLayout() {
       return;
     }
 
-    const { next, steps } = refreshSteps(QUIZ_FLOW, currentStep.id, freshAnswers);
-    setSteps(steps);
+    // `steps` et `currentIndex` reflètent la séquence visible telle que vue par l'utilisateur.
+    trackQuizStepCompleted({ stepName: currentStep.id, answers: freshAnswers, stepIndex: currentIndex + 1, totalVisibleSteps: steps.length });
+
+    const { next, steps: nextSteps } = refreshSteps(QUIZ_FLOW, currentStep.id, freshAnswers);
+    setSteps(nextSteps);
     if (next) {
       navigate(next.route);
     } else {
+      trackQuizCompleted({ answers: freshAnswers, completionType: "full", quizStartedAt: useQuizStore.getState().quizStartedAt });
       setLoadingResults(true);
     }
   };
@@ -141,18 +149,24 @@ export default function QuizLayout() {
     navigate(prev ? prev.route : "/quiz/age", { replace: true });
   };
 
+  // quiz.back_navigated : clic sur un bouton "Retour" (header mobile ou BackButton desktop).
+  const handleBackNavigated = () => {
+    if (currentStep) trackQuizBackNavigated({ fromStepName: currentStep.id, fromStepIndex: currentIndex + 1 });
+  };
+
   return (
     <div className="flex flex-col flex-1">
       <QuizHeader
         step={loadingResults ? steps.length + 1 : currentIndex + 1}
         stepCount={steps.length + 1}
         backHref={!transitioning && !loadingResults ? (currentIndex > 0 ? steps[currentIndex - 1].route : "/") : undefined}
+        onBack={handleBackNavigated}
       />
       <main className="flex-1 bg-gradient-to-l from-blue-france-950/40 md:from-blue-france-950 to-transparent pt-10 pb-24 md:pb-10">
         <div className="fr-container flex flex-col gap-10">
           {!transitioning && !loadingResults && (
             <div className="hidden lg:block">
-              <BackButton href={currentIndex > 0 ? steps[currentIndex - 1].route : "/"} />
+              <BackButton href={currentIndex > 0 ? steps[currentIndex - 1].route : "/"} onBack={handleBackNavigated} />
             </div>
           )}
           {scoringError && !loadingResults && (
@@ -164,7 +178,19 @@ export default function QuizLayout() {
             <LoadingRecap onComplete={handleLoadingComplete} />
           ) : (
             // `goNext` / `goBack` / `saveScoring` exposés aux routes enfants via Outlet context.
-            <Outlet context={{ goNext, goBack, saveScoring, transitioning, setTransitioning } satisfies QuizOutletContext} />
+            <Outlet
+              context={
+                {
+                  goNext,
+                  goBack,
+                  saveScoring,
+                  transitioning,
+                  setTransitioning,
+                  currentStepId: currentStep?.id ?? null,
+                  currentStepIndex: currentIndex + 1,
+                } satisfies QuizOutletContext
+              }
+            />
           )}
         </div>
       </main>

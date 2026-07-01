@@ -13,6 +13,9 @@ export type MissionMatchLocation = {
   closestLon: number | null;
   closestAddress: string | null;
   addressId: string | null;
+  // Distance (km) entre la localisation de l'utilisateur et l'adresse la plus proche de la mission.
+  // Null si l'utilisateur n'a pas de localisation.
+  distanceKm: number | null;
 };
 
 export type MissionMatchMission = {
@@ -23,6 +26,7 @@ export type MissionMatchMission = {
   domain: string | null;
   domainOriginal: string | null;
   organizationName: string | null;
+  publisherId: string | null;
   publisherName: string | null;
   media: MissionMatchMedia;
   location: MissionMatchLocation;
@@ -56,4 +60,9 @@ export type MissionMatchItem = {
 export type MissionMatchResponse = {
   tookMs: number;
   items: MissionMatchItem[];
+  // Nombre total de missions classées pour l'utilisateur (avant pagination).
+  total: number;
+  // Distance moyenne (km) entre l'utilisateur et les 5 premières missions recommandées.
+  // Null sans localisation ou hors première page.
+  avgDistanceKmTop5: number | null;
 };

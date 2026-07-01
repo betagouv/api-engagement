@@ -30,6 +30,7 @@
     "leaflet": "1.9.4",
     "react": "19.2.7",
     "react-dom": "19.2.7",
+    "posthog-js": "1.391.6",
     "react-leaflet": "5.0.0",
     "react-router": "7.17.0",
     "tailwindcss": "4.3.0",

@@ -27,6 +27,7 @@ export type MissionBrowse = {
   photo: string | null;
   organizationName: string | null;
   organizationLogo: string | null;
+  publisherId: string | null;
   publisherName: string | null;
   publisherLogo: string | null;
   applicationUrl: string | null;
@@ -62,6 +63,7 @@ export type MissionDetailResponse = {
   domain: string | null;
   domainLogo: string | null;
   type: string | null;
+  publisherId: string | null;
   publisherName: string | null;
   publisherLogo: string | null;
   organizationName: string | null;
