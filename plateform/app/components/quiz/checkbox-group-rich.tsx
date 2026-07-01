@@ -18,8 +18,10 @@ export default function CheckboxGroupRich({ title, subtitle, onChange, options, 
   };
 
   return (
+    // `block!` : DSFR met fr-fieldset en display:flex, ce qui provoque un bug de layout iOS Safari
+    // (espace fantôme sous le titre après une navigation SPA, corrigé seulement au reload). block l'évite.
     <fieldset
-      className={`fr-fieldset ${error ? "fr-fieldset--error" : ""}`}
+      className={`fr-fieldset block! ${error ? "fr-fieldset--error" : ""}`}
       id="checkbox-group-rich"
       role="group"
       aria-describedby={`checkbox-group-rich-legend ${error && "checkbox-group-rich-messages"}`}
