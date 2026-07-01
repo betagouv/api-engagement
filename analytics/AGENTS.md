@@ -52,9 +52,22 @@ Souvent nécessaires :
 - `DATABASE_URL_CORE`
 - `DATABASE_URL_ANALYTICS`
 
+Pour la synchro des évènements de tracking front (job `export-tracking-raw`).
+Le provider est sélectionné via `TRACKING_PROVIDER` (défaut `posthog`) et isolé dans
+`src/services/tracking/` — seul ce dossier connaît le fournisseur concret.
+
+Provider PostHog (par défaut) :
+
+- `POSTHOG_PROJECT_ID`
+- `POSTHOG_API_KEY` (personal API key, scope lecture — jamais en dur, secret Terraform/CI)
+
 Optionnel :
 
 - `BATCH_SIZE` (override taille de lot)
+- `TRACKING_PROVIDER` (provider de tracking, défaut `posthog`)
+- `POSTHOG_HOST` (host API PostHog, défaut `https://eu.posthog.com`)
+- `POSTHOG_SYNC_SINCE` (borne plancher au 1er run, ex. `2026-01-01 00:00:00.000`)
+- `POSTHOG_LOOKBACK_MINUTES` (fenêtre de rescan pour les évènements en retard, défaut 60)
 - `ENV`, `SENTRY_DSN_JOBS`
 - `SLACK_CRON_CHANNEL_ID` (notifications Slack)
 
