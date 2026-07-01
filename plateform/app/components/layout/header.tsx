@@ -1,7 +1,8 @@
-import { Link, useMatches } from "react-router";
+import { Link, useLocation, useMatches } from "react-router";
 
 export default function Header() {
   const matches = useMatches();
+  const location = useLocation();
   const activeMatch = [...matches].reverse().find((m) => m.data != null);
   const routeData = activeMatch?.data as { header?: string; backHref?: string | null } | undefined;
 
@@ -9,6 +10,7 @@ export default function Header() {
     return null;
   }
 
+  const isHome = location.pathname === "/";
   const backHref = routeData?.backHref;
 
   return (
@@ -37,7 +39,7 @@ export default function Header() {
         </div>
       </div>
 
-      {backHref === null ? (
+      {isHome || backHref === null ? (
         <div className="relative flex items-center px-4 py-2 lg:hidden">
           <p className="fr-logo fr-logo--sm mb-0">
             République
