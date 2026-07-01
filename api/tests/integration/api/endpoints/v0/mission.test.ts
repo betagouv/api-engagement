@@ -164,6 +164,53 @@ describe("Mission API Integration Tests", () => {
       expect(ids).toEqual(expect.arrayContaining([scopedMissionA.id, scopedMissionB.id]));
     });
 
+    it("should apply organization exclusions when listing multiple diffusion scopes", async () => {
+      const annonceurA = await createTestPublisher({ name: "Excluded List Publisher A" });
+      const annonceurB = await createTestPublisher({ name: "Excluded List Publisher B" });
+      const diffuseur = await createTestPublisher({
+        name: "Excluded List Diffuseur",
+        publishers: [{ publisherId: annonceurA.id }, { publisherId: annonceurB.id }],
+      });
+
+      const includedMissionA = await createTestMission({
+        publisherId: annonceurA.id,
+        title: "Included mission A",
+        clientId: `included-a-${randomUUID()}`,
+        startAt: new Date("2026-01-03"),
+      });
+      const excludedMissionB = await createTestMission({
+        organizationClientId: `excluded-org-${randomUUID()}`,
+        publisherId: annonceurB.id,
+        title: "Excluded mission B",
+        clientId: `excluded-b-${randomUUID()}`,
+        startAt: new Date("2026-01-02"),
+      });
+      const includedMissionB = await createTestMission({
+        organizationClientId: `included-org-${randomUUID()}`,
+        publisherId: annonceurB.id,
+        title: "Included mission B",
+        clientId: `included-b-${randomUUID()}`,
+        startAt: new Date("2026-01-01"),
+      });
+
+      await publisherDiffusionRuleService.createScopedRule({
+        diffuseurPublisherId: diffuseur.id,
+        annonceurPublisherId: annonceurB.id,
+        field: "publisherOrganization.clientId",
+        fieldType: "string",
+        operator: "is_not",
+        value: excludedMissionB.organizationClientId!,
+      });
+
+      const response = await request(app).get("/v0/mission").set("x-api-key", diffuseur.apikey!);
+
+      expect(response.status).toBe(200);
+      expect(response.body.total).toBe(2);
+      const ids = response.body.data.map((mission: any) => mission._id);
+      expect(ids).toEqual(expect.arrayContaining([includedMissionA.id, includedMissionB.id]));
+      expect(ids).not.toContain(excludedMissionB.id);
+    });
+
     it("should expose compensation fields on missions", async () => {
       const response = await request(app).get("/v0/mission").set("x-api-key", apiKey);
       expect(response.status).toBe(200);
