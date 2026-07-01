@@ -6,6 +6,7 @@ import { JVA_URL, PUBLISHER_IDS } from "@/config";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, SERVER_ERROR, captureException } from "@/error";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { campaignService } from "@/services/campaign";
+import { generateDemarcheNumeriqueDossierUrl } from "@/services/demarches-simplifiees/utils";
 import { missionService } from "@/services/mission";
 import { publisherService } from "@/services/publisher";
 import { statBotService } from "@/services/stat-bot";
@@ -14,7 +15,7 @@ import { userScoringService } from "@/services/user-scoring";
 import { widgetService } from "@/services/widget";
 import { MissionRecord, StatEventRecord } from "@/types";
 import { cleanIdParam, identify, slugify } from "@/utils";
-import { buildTrackedApplicationUrl, updateBotFlagAfterRedirect } from "@/utils/redirect";
+import { createClickRedirect, updateBotFlagAfterRedirect } from "@/utils/redirect";
 
 const router = Router();
 router.use(ipRateLimiter);
@@ -101,10 +102,12 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
     }
 
     if (query.data.mission) {
+      // La mission peut être introuvable sans que ce soit une anomalie : le candidat peut postuler
+      // à une mission qui existe chez l'annonceur (ex. Service Civique) mais qui n'a pas encore été
+      // importée en base, ou à une mission différente de celle qu'il a cliquée. Dans ces cas, on
+      // retombe plus bas sur la mission du click (cf. `if (click && !mission)`) pour ne pas perdre
+      // l'apply. On ne remonte donc pas d'erreur ici.
       mission = await missionService.findMissionByClientAndPublisher(query.data.mission, click.toPublisherId || query.data.publisher || "");
-      if (!mission) {
-        captureException(new Error(`[Apply] Mission not found`), { extra: { missionId: query.data.mission, publisherId: click.toPublisherId || query.data.publisher } });
-      }
     }
 
     const statBot = await statBotService.findStatBotByUser(identity.user);
@@ -143,6 +146,10 @@ router.get("/apply", cors({ origin: "*" }), async (req: Request, res: Response) 
     }
 
     if (click && !mission) {
+      // Fallback quand la mission n'a pas pu être résolue (mission pas encore importée, ou mission
+      // différente de celle cliquée) : on rattache l'événement à la mission du click pour ne pas le
+      // perdre. L'attribution mission peut alors différer de la mission réellement visée, mais
+      // l'annonceur (toPublisher) reste correct.
       obj.missionId = click.missionId;
       obj.toPublisherId = click.toPublisherId;
       obj.toPublisherName = click.toPublisherName;
@@ -219,10 +226,10 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
     }
 
     if (query.data.mission) {
+      // Voir la route /apply : la mission peut légitimement être introuvable (pas encore importée,
+      // ou différente de celle cliquée). On retombe plus bas sur la mission du click, sans remonter
+      // d'erreur.
       mission = await missionService.findMissionByClientAndPublisher(query.data.mission, click.toPublisherId || query.data.publisher || "");
-      if (!mission) {
-        captureException(new Error(`[Account] Mission not found`), { extra: { missionId: query.data.mission, publisherId: click.toPublisherId || query.data.publisher } });
-      }
     }
 
     const statBot = await statBotService.findStatBotByUser(identity.user);
@@ -257,6 +264,10 @@ router.get("/account", cors({ origin: "*" }), async (req: Request, res: Response
     }
 
     if (click && !mission) {
+      // Fallback quand la mission n'a pas pu être résolue (mission pas encore importée, ou mission
+      // différente de celle cliquée) : on rattache l'événement à la mission du click pour ne pas le
+      // perdre. L'attribution mission peut alors différer de la mission réellement visée, mais
+      // l'annonceur (toPublisher) reste correct.
       obj.missionId = click.missionId;
       obj.toPublisherId = click.toPublisherId;
       obj.toPublisherName = click.toPublisherName;
@@ -404,9 +415,8 @@ router.get("/widget/:id", cors({ origin: "*" }), async (req: Request, res: Respo
       fromPublisherName: widget.fromPublisherName,
       isBot: false,
     } as StatEventRecord;
-    const clickId = await statEventService.createStatEvent(obj);
 
-    const url = buildTrackedApplicationUrl(href, mission.publisherId, clickId, {
+    const { clickId, url } = await createClickRedirect(obj, mission, href, {
       source: "api_engagement",
       medium: "widget",
       campaign: slugify(widget.name),
@@ -472,7 +482,8 @@ router.get("/seo/:id", cors({ origin: "*" }), async (req: Request, res: Response
     } as StatEventRecord;
 
     const clickId = await statEventService.createStatEvent(obj);
-    const url = new URL(mission.applicationUrl || JVA_URL);
+    const demarcheUrl = await generateDemarcheNumeriqueDossierUrl(mission.applicationUrl, mission.publisherId, clickId);
+    const url = new URL(demarcheUrl || mission.applicationUrl || JVA_URL);
 
     url.searchParams.set("apiengagement_id", clickId);
     url.searchParams.set("utm_source", "api_engagement");
@@ -557,9 +568,7 @@ router.get("/email/:missionId/:publisherId", cors({ origin: "*" }), async (req, 
       isBot: false,
     } as StatEventRecord;
 
-    const clickId = await statEventService.createStatEvent(obj);
-
-    const url = buildTrackedApplicationUrl(href, mission.publisherId, clickId, {
+    const { clickId, url } = await createClickRedirect(obj, mission, href, {
       source: slugify(fromPublisher.name || fromPublisher.id || "email"),
       medium: "email",
       campaign: userScoringId ? "user_scoring" : "mission_email",
@@ -687,9 +696,7 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async (req, res) =
       tags: query.data?.tags ? (query.data.tags.includes(",") ? query.data.tags.split(",").map((tag) => tag.trim()) : [query.data.tags]) : undefined,
     } as StatEventRecord;
 
-    const clickId = await statEventService.createStatEvent(obj);
-
-    const url = buildTrackedApplicationUrl(href, mission.publisherId, clickId, {
+    const { clickId, url } = await createClickRedirect(obj, mission, href, {
       source: "api_engagement",
       medium: "api",
       campaign: slugify(fromPublisher?.name || "unknown"),

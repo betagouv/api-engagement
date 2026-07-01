@@ -50,7 +50,7 @@ export default function Landing() {
 
   const handleStartQuiz = () => {
     reset();
-    navigate("/quiz/age");
+    navigate("/quiz/age", { state: { entrySource: "homepage_cta" } });
   };
 
   return (
@@ -72,8 +72,8 @@ export default function Landing() {
         </div>
         <MissionExamples missions={examples} className="-mt-14 lg:-mt-16" />
       </GradientBg>
-      <HowItWorks />
-      <Testimonials />
+      <HowItWorks onStartQuiz={handleStartQuiz} />
+      <Testimonials onStartQuiz={handleStartQuiz} />
       <ProSpace />
       <Partners style="compact" />
       <Newsletter title="Inscris-toi à la newsletter" subtitle="1 email. Pas de spam." ctaText="Je m'inscris" hintText="Tu te désinscris quand tu veux." />

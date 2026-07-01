@@ -11,6 +11,8 @@ export function useMissionResults(userScoringId: string | undefined) {
   const [otherItems, setOtherItems] = useState<MissionMatchItem[]>([]);
   const [page, setPage] = useState(1);
   const [hasNextPage, setHasNextPage] = useState(false);
+  const [totalResults, setTotalResults] = useState(0);
+  const [avgDistanceKmTop5, setAvgDistanceKmTop5] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [pageLoading, setPageLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -50,6 +52,8 @@ export function useMissionResults(userScoringId: string | undefined) {
         setFirstOtherItems(other.items);
         setOtherItems(other.items);
         setHasNextPage(other.items.length === OTHER_RESULTS_PAGE_SIZE);
+        setTotalResults(pinned.total);
+        setAvgDistanceKmTop5(pinned.avgDistanceKmTop5);
       })
       .catch(() => {
         if (!active) return;
@@ -107,6 +111,8 @@ export function useMissionResults(userScoringId: string | undefined) {
     page,
     setPage,
     hasNextPage,
+    totalResults,
+    avgDistanceKmTop5,
     loading,
     pageLoading,
     error,

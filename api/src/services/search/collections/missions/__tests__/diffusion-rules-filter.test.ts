@@ -57,7 +57,47 @@ describe("publisherDiffusionRulesToMissionFilter", () => {
     }
   });
 
-  it("traduit les enfants publisherOrganizationId", () => {
+  it("compacte les publisherId purs en une liste même en présence de groupes à enfants (borne les opérations du filter_by)", () => {
+    const result = publisherDiffusionRulesToMissionFilter([
+      ...Array.from({ length: 110 }, (_, index) => buildRule({ id: `rule-${index}`, value: `annonceur-${index}`, position: index })),
+      buildRule({ id: "root-child", value: "annonceur-child", position: 110 }),
+      buildRule({ id: "child-1", combinedWithId: "root-child", field: "publisherOrganization.clientId", operator: "is_not", value: "po-1" }),
+    ]);
+
+    expect(result.kind).toBe("filter");
+    if (result.kind === "filter") {
+      // Les 110 publisherId purs sont regroupés en une seule liste, OR avec le seul groupe à enfants.
+      expect(result.filterBy).toContain("publisherId:=[`annonceur-0`,");
+      expect(result.filterBy).toContain("(publisherId:=`annonceur-child` && publisherOrganizationClientId:!=`po-1`)");
+      // Le nombre d'opérations (`||` / `&&` / `:=` …) reste très en-deçà du plafond Typesense de 100.
+      const ops = (result.filterBy.match(/&&|\|\||:=|:!=/g) ?? []).length;
+      expect(ops).toBeLessThan(10);
+      expect(result.missionWhere).toEqual({
+        OR: [
+          { publisherId: { in: Array.from({ length: 110 }, (_, index) => `annonceur-${index}`) } },
+          { AND: [{ publisherId: "annonceur-child" }, { publisherOrganization: { clientId: { not: "po-1" } } }] },
+        ],
+      });
+    }
+  });
+
+  it("traduit les enfants publisherOrganization.clientId", () => {
+    const result = publisherDiffusionRulesToMissionFilter([
+      buildRule({ id: "root-1", value: "annonceur-1" }),
+      buildRule({ id: "child-1", combinedWithId: "root-1", field: "publisherOrganization.clientId", operator: "is", value: "po-1" }),
+      buildRule({ id: "child-2", combinedWithId: "root-1", field: "publisherOrganization.clientId", operator: "is_not", value: "po-2" }),
+    ]);
+
+    expect(result).toEqual({
+      kind: "filter",
+      filterBy: "(publisherId:=`annonceur-1` && publisherOrganizationClientId:=`po-1` && publisherOrganizationClientId:!=`po-2`)",
+      missionWhere: {
+        AND: [{ publisherId: "annonceur-1" }, { publisherOrganization: { clientId: "po-1" } }, { publisherOrganization: { clientId: { not: "po-2" } } }],
+      },
+    });
+  });
+
+  it("traduit les enfants publisherOrganizationId (champ historique conservé)", () => {
     const result = publisherDiffusionRulesToMissionFilter([
       buildRule({ id: "root-1", value: "annonceur-1" }),
       buildRule({ id: "child-1", combinedWithId: "root-1", field: "publisherOrganizationId", operator: "is", value: "po-1" }),
@@ -114,10 +154,10 @@ describe("publisherDiffusionRulesToMissionFilter", () => {
     expect(captureException).not.toHaveBeenCalled();
   });
 
-  it("ne supporte pas contains/does_not_contain sur publisherOrganizationId (champ scalaire)", () => {
+  it("ne supporte pas contains/does_not_contain sur publisherOrganization.clientId (champ scalaire)", () => {
     const result = publisherDiffusionRulesToMissionFilter([
       buildRule({ id: "root-1", value: "annonceur-1" }),
-      buildRule({ id: "child-1", combinedWithId: "root-1", field: "publisherOrganizationId", operator: "does_not_contain", value: "po-1" }),
+      buildRule({ id: "child-1", combinedWithId: "root-1", field: "publisherOrganization.clientId", operator: "does_not_contain", value: "po-1" }),
     ]);
 
     expect(result).toEqual({ kind: "none", missionWhere: null });
@@ -133,7 +173,7 @@ describe("publisherDiffusionRulesToMissionFilter", () => {
   it("traduit récursivement les descendants supportés", () => {
     const result = publisherDiffusionRulesToMissionFilter([
       buildRule({ id: "root-1", value: "annonceur-1" }),
-      buildRule({ id: "child-1", combinedWithId: "root-1", field: "publisherOrganizationId", operator: "is", value: "po-1" }),
+      buildRule({ id: "child-1", combinedWithId: "root-1", field: "publisherOrganization.clientId", operator: "is", value: "po-1" }),
       buildRule({
         id: "grandchild-1",
         combinedWithId: "child-1",
@@ -145,9 +185,9 @@ describe("publisherDiffusionRulesToMissionFilter", () => {
 
     expect(result).toEqual({
       kind: "filter",
-      filterBy: "(publisherId:=`annonceur-1` && (publisherOrganizationId:=`po-1` && publisherOrganizationParentOrganizations:=`Réseau 1`))",
+      filterBy: "(publisherId:=`annonceur-1` && (publisherOrganizationClientId:=`po-1` && publisherOrganizationParentOrganizations:=`Réseau 1`))",
       missionWhere: {
-        AND: [{ publisherId: "annonceur-1" }, { AND: [{ publisherOrganizationId: "po-1" }, { publisherOrganization: { parentOrganizations: { has: "Réseau 1" } } }] }],
+        AND: [{ publisherId: "annonceur-1" }, { AND: [{ publisherOrganization: { clientId: "po-1" } }, { publisherOrganization: { parentOrganizations: { has: "Réseau 1" } } }] }],
       },
     });
   });
@@ -169,7 +209,7 @@ describe("publisherDiffusionRulesToMissionFilter", () => {
   it("ignore les groupes qui contiennent un descendant non supporté", () => {
     const result = publisherDiffusionRulesToMissionFilter([
       buildRule({ id: "root-1", value: "annonceur-1" }),
-      buildRule({ id: "child-1", combinedWithId: "root-1", field: "publisherOrganizationId", operator: "is", value: "po-1" }),
+      buildRule({ id: "child-1", combinedWithId: "root-1", field: "publisherOrganization.clientId", operator: "is", value: "po-1" }),
       buildRule({ id: "grandchild-1", combinedWithId: "child-1", field: "type", value: "benevolat" }),
       buildRule({ id: "root-2", value: "annonceur-2" }),
     ]);

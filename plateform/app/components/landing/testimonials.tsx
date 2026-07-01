@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router";
 
 import AscLogo from "~/assets/images/asc-logo.png";
 import RocLogo from "~/assets/images/roc-logo.png";
@@ -17,46 +16,51 @@ type Testimonial = {
   publisherLogo: string;
 };
 
+import TestimonialAdrien from "~/assets/images/testimonial-adrien.jpg";
+import TestimonialMarie from "~/assets/images/testimonial-marie.jpg";
+import TestimonialSeb from "~/assets/images/testimonial-seb.jpg";
+import TestimonialSophie from "~/assets/images/testimonial-sophie.jpg";
+
 const TESTIMONIALS: Testimonial[] = [
   {
     id: "1",
-    image: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=600&q=80",
+    image: TestimonialSophie,
     domain: "Sécurité",
     skill: "❤️ Aider les autres",
-    title: "Infirmière 2 fois par semaine depuis 3 mois",
+    title: "Sophie, infirmière 2 fois par semaine depuis 3 mois",
     publisherName: "La réserve des armées",
     publisherLogo: RocLogo,
   },
   {
     id: "2",
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=600&q=80",
+    image: TestimonialSeb,
     domain: "Solidarité",
     skill: "💡 Développe tes...",
-    title: "Améliore la qualité de vie des personnes en situation de handicap depuis 6 mois",
+    title: "Séb, améliore la qualité de vie des personnes en situation de handicap depuis 6 mois",
     publisherName: "Service Civique",
     publisherLogo: AscLogo,
   },
   {
     id: "3",
-    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=600&q=80",
+    image: TestimonialAdrien,
     domain: "Solidarité",
     skill: "💡 Développe tes...",
-    title: "Améliore la qualité de vie des personnes en situation de handicap depuis 6 mois",
+    title: "Adrien, accompagne des mineurs étrangers vers la réussite de leur apprentissage depuis 9 mois",
     publisherName: "Service Civique",
     publisherLogo: AscLogo,
   },
   {
     id: "4",
-    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80",
+    image: TestimonialMarie,
     domain: "Sécurité",
     skill: "❤️ Aider les autres",
-    title: "Pompier 2 fois par semaine depuis 7 mois",
+    title: "Marie, pompier 2 fois par semaine depuis 7 mois",
     publisherName: "Sapeurs-pompiers volontaires",
     publisherLogo: SpvLogo,
   },
 ];
 
-export default function Testimonials() {
+export default function Testimonials({ onStartQuiz }: { onStartQuiz: () => void }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
@@ -83,7 +87,7 @@ export default function Testimonials() {
       <div className="bg-yellow-moutarde-975 fr-py-8w px-8">
         <div className="flex flex-col items-center fr-mb-6w">
           <h2 className="fr-h1 mb-0! md:mb-3!">
-            Ils ont trouvé leur place. <Highlight className="bg-yellow-moutarde-850">Pourquoi pas toi ?</Highlight>
+            Ils ont trouvé leurs places. <Highlight className="bg-yellow-moutarde-850">Pourquoi pas toi ?</Highlight>
           </h2>
           <p className="fr-text--lead text-default-grey mx-auto max-w-5xl! fr-mb-0 text-center hidden! md:block!">
             Accompagner une personne en difficulté, protéger la nature, organiser des événements, aider des personnes isolées, s'engager pour son pays… Découvre les missions qui
@@ -146,9 +150,9 @@ export default function Testimonials() {
               className="fr-btn fr-btn--secondary fr-icon-arrow-right-line fr-icon--md rounded-full"
             ></button>
           </div>
-          <Link to="/quiz" className="fr-btn fr-btn--secondary w-full justify-center md:w-auto">
+          <button type="button" onClick={onStartQuiz} className="fr-btn fr-btn--secondary w-full justify-center md:w-auto">
             Je veux trouver ma mission
-          </Link>
+          </button>
         </div>
       </div>
     </section>

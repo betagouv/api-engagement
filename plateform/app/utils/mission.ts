@@ -89,6 +89,7 @@ export function matchResultToBrowseMission(item: MissionMatchItem): MissionBrows
     organizationName: item.mission.organizationName,
     organizationLogo: item.mission.media.organizationLogo,
     photo: item.mission.media.photo,
+    publisherId: item.mission.publisherId,
     publisherName: item.mission.publisherName,
     publisherLogo: item.mission.media.publisherLogo,
     applicationUrl: null,

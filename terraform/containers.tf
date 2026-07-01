@@ -71,6 +71,7 @@ resource "scaleway_container" "api" {
     "COCKPIT_METRICS_OTLP_URL" = lookup(local.secrets, "COCKPIT_METRICS_OTLP_URL", "")
     "COCKPIT_METRICS_TOKEN"    = lookup(local.secrets, "COCKPIT_METRICS_TOKEN", "")
     "TYPESENSE_API_KEY"        = lookup(local.secrets, "TYPESENSE_API_KEY", "")
+    "DEMARCHES_SIMPLIFIEES_TOKEN" = lookup(local.secrets, "DEMARCHES_SIMPLIFIEES_TOKEN", "")
   }
 }
 
@@ -169,7 +170,7 @@ resource "scaleway_container" "plateform" {
 
   secret_environment_variables = {
     "VITE_MAPTILER_API_KEY" = lookup(local.secrets, "VITE_MAPTILER_API_KEY", "")
-    "PUBLISHER_API_KEY"     = lookup(local.secrets, "PUBLISHER_API_KEY", "")
+    "PUBLISHER_API_KEY"     = lookup(local.secrets, "PLATEFORM_PUBLISHER_API_KEY", "")
   }
 }
 

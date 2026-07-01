@@ -133,8 +133,8 @@ chrome.tabs.onRemoved.addListener((tabId) => {
 });
 
 // Badge for active tab when switching tabs
-chrome.tabs.onActivated.addListener(({ tabId }) => {
-  const events = getEvents(tabId);
+chrome.tabs.onActivated.addListener(async ({ tabId }) => {
+  const events = await getEventsForTab(tabId);
   if (events.length > 0) {
     chrome.action.setBadgeText({ text: String(events.length), tabId });
     chrome.action.setBadgeBackgroundColor({ color: "#1a7a4a", tabId });

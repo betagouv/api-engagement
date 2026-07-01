@@ -18,6 +18,7 @@ type DbRankRow = {
   closest_address_id: string | null;
   closest_city: string | null;
   closest_address: string | null;
+  total_count: number | bigint;
 };
 
 type DbTaxonomyScoreRow = {
@@ -439,7 +440,9 @@ const buildRanking = (params: {
     r."closest_lon",
     r."closest_address_id",
     r."closest_city",
-    r."closest_address"
+    r."closest_address",
+    -- Total des missions classées pour cet utilisateur (avant pagination), borné par le pool de candidats.
+    COUNT(*) OVER () AS "total_count"
   FROM ranked r
   ORDER BY "total_score" DESC, r."mission_id" ASC
   LIMIT ${params.limit}
@@ -577,6 +580,17 @@ export const matchingEngineService = {
     const taxonomyScoresByMissionScoringId = buildTaxonomyScoresIndex(taxonomyScoresRows);
     const responseRows = shouldPersistTopResults ? rows.slice(0, limit) : rows;
 
+    const total = rows.length > 0 ? Number(rows[0].total_count) : 0;
+    // Distance moyenne des 5 premières missions recommandées : pertinente uniquement sur la 1re page.
+    let avgDistanceKmTop5: number | null = null;
+    if (offset === 0) {
+      const top5Distances = rows
+        .slice(0, 5)
+        .map((row) => nullableNumber(row.distance_km))
+        .filter((distance): distance is number => distance !== null);
+      avgDistanceKmTop5 = top5Distances.length > 0 ? Number((top5Distances.reduce((sum, value) => sum + value, 0) / top5Distances.length).toFixed(2)) : null;
+    }
+
     if (shouldPersistTopResults) {
       await missionMatchingResultRepository.createForUserScoringVersion({
         userScoringId: input.userScoringId,
@@ -606,6 +620,8 @@ export const matchingEngineService = {
         })
       ),
       tookMs: Date.now() - startedAt,
+      total,
+      avgDistanceKmTop5,
     };
   },
 };

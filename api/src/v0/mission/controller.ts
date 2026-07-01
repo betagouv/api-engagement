@@ -2,13 +2,14 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { MissionType } from "@/db/core";
+import { MissionType, Prisma } from "@/db/core";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
 import { publisherRateLimiter } from "@/middlewares/rate-limit";
 import { missionService } from "@/services/mission";
+import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import type { MissionRecord, MissionRemote, MissionSearchFilters } from "@/types/mission";
 import { PublisherRequest } from "@/types/passport";
-import type { PublisherRecord, PublisherRecordWithRelations } from "@/types/publisher";
+import type { PublisherRecordWithRelations } from "@/types/publisher";
 import { getDistanceFromLatLonInKm, getDistanceKm } from "@/utils";
 import { NO_PARTNER, NO_PARTNER_MESSAGE } from "@/v0/mission/constants";
 import { buildData } from "@/v0/mission/transformer";
@@ -256,7 +257,7 @@ router.get("/search", async (req: PublisherRequest, res: Response, next: NextFun
 
 router.get("/:id", async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
-    const user = req.user as PublisherRecord;
+    const user = req.user as PublisherRecordWithRelations;
 
     const params = zod
       .object({
@@ -269,8 +270,24 @@ router.get("/:id", async (req: PublisherRequest, res: Response, next: NextFuncti
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
 
-    const mission = await missionService.findOneMission(params.data.id, user.moderator ? user.id : null);
+    if (!user.publishers?.length) {
+      return res.status(404).send({ ok: false, code: NOT_FOUND });
+    }
+
+    const missionWhere: Prisma.MissionWhereInput = {
+      id: params.data.id,
+      statusCode: "ACCEPTED",
+      deletedAt: null,
+      ...(user.moderator ? { moderationStatuses: { some: { publisherId: user.id, status: "ACCEPTED" } } } : {}),
+    };
+
+    const mission = await missionService.findOneMissionBy(missionWhere, user.moderator ? user.id : null);
     if (!mission) {
+      return res.status(404).send({ ok: false, code: NOT_FOUND });
+    }
+
+    const canAccessMission = await publisherDiffusionRuleService.canPublisherAccessMission({ publisherId: user.id, missionId: mission.id });
+    if (!canAccessMission) {
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 

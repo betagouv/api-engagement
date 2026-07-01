@@ -72,7 +72,10 @@ function renderCookie(info) {
     const short = info.cookieInQs.length > 26 ? info.cookieInQs.slice(0, 26) + "…" : info.cookieInQs;
     el.innerHTML = badge("warning", "Dans l'URL — cookie non encore posé", true) + ` <span class="mono fr-text--xs">${short}</span>`;
   } else {
-    el.innerHTML = badge("error", "Absent", true);
+    // Cookie absent : guider l'utilisateur. Sans cookie, trackApplication/trackAccount n'envoient rien.
+    el.innerHTML =
+      badge("error", "Absent", true) +
+      ` <span class="fr-text--xs" style="color:var(--text-mention-grey)">Ouvrez la page via une URL trackée (<span class="mono">?apiengagement_id=…</span>) pour poser le cookie.</span>`;
   }
 }
 

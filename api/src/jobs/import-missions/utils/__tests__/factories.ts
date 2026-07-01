@@ -37,6 +37,7 @@ export const buildPublisher = (overrides: Partial<PublisherRecord> = {}): Publis
   createdAt: new Date(),
   updatedAt: new Date(),
   publishers: [],
+  demarcheSimplifiees: [],
   ...overrides,
 });
 

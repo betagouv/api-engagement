@@ -222,6 +222,27 @@ resource "scaleway_job_definition" "brevo" {
   env = local.all_env_vars
 }
 
+# Job Definition for the 'demarches-simplifiees-apply-import' task
+resource "scaleway_job_definition" "demarches-simplifiees-apply-import" {
+  count                  = var.enable_intern_jobs ? 1 : 0
+  name                   = "${terraform.workspace}-demarches-simplifiees-apply-import"
+  project_id             = var.project_id
+  cpu_limit              = 1000
+  memory_limit           = 2048
+  local_storage_capacity = 1024
+  image_uri              = local.image_uri
+  startup_command        = ["node"]
+  args                   = ["dist/jobs/run-job.js", "demarches-simplifiees-apply-import"]
+  timeout                = "15m"
+
+  cron {
+    schedule = "0 4 * * *" # Every day at 4 AM
+    timezone = "Europe/Paris"
+  }
+
+  env = local.all_env_vars
+}
+
 # Job Definition for the 'moderation' task
 resource "scaleway_job_definition" "moderation" {
   count                  = var.enable_intern_jobs ? 1 : 0

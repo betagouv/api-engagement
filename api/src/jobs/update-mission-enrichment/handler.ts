@@ -11,6 +11,7 @@ const LOG_PREFIX = "[update-mission-enrichment-job]";
 export interface UpdateMissionEnrichmentJobPayload {
   publisherId?: string;
   limit?: number;
+  onlyMissing?: boolean; // ne traite que les missions sans aucun enrichment
 }
 
 export interface UpdateMissionEnrichmentJobResult extends JobResult {
@@ -21,22 +22,48 @@ export interface UpdateMissionEnrichmentJobResult extends JobResult {
 export class UpdateMissionEnrichmentHandler implements BaseHandler<UpdateMissionEnrichmentJobPayload, UpdateMissionEnrichmentJobResult> {
   name = "Enrichissement des missions";
 
-  async handle({ publisherId, limit }: UpdateMissionEnrichmentJobPayload = {}): Promise<UpdateMissionEnrichmentJobResult> {
+  async handle({ publisherId, limit, onlyMissing }: UpdateMissionEnrichmentJobPayload = {}): Promise<UpdateMissionEnrichmentJobResult> {
     try {
-      const missions = await prisma.mission.findMany({
-        where: {
-          ...(publisherId ? { publisherId } : {}),
-          deletedAt: null,
-          enrichments: {
-            none: { promptVersion: CURRENT_PROMPT_VERSION, status: "completed" },
-          },
-        },
+      const baseWhere = {
+        ...(publisherId ? { publisherId } : {}),
+        deletedAt: null,
+      };
+
+      // Phase 1 — missions sans AUCUN enrichment (priorité absolue)
+      const missingMissions = await prisma.mission.findMany({
+        where: { ...baseWhere, enrichments: { none: {} } },
         select: { id: true },
         take: limit,
         orderBy: { updatedAt: "desc" },
       });
 
-      console.log(`${LOG_PREFIX} ${missions.length} missions to enrich (publisher: ${publisherId ?? "all"}, version: ${CURRENT_PROMPT_VERSION})`);
+      // Phase 2 — missions avec enrichment mais pas de v3 "completed" (stock obsolète)
+      let staleMissions: { id: string }[] = [];
+      if (!onlyMissing) {
+        const remaining = limit !== undefined ? limit - missingMissions.length : undefined;
+        if (remaining === undefined || remaining > 0) {
+          staleMissions = await prisma.mission.findMany({
+            where: {
+              ...baseWhere,
+              enrichments: {
+                some: {},
+                none: { promptVersion: CURRENT_PROMPT_VERSION, status: "completed" },
+              },
+            },
+            select: { id: true },
+            take: remaining,
+            orderBy: { updatedAt: "desc" },
+          });
+        }
+      }
+
+      const missions = [...missingMissions, ...staleMissions];
+
+      console.log(
+        `${LOG_PREFIX} ${missions.length} missions to enrich ` +
+          `(${missingMissions.length} sans enrichment + ${staleMissions.length} obsolètes, ` +
+          `publisher: ${publisherId ?? "all"}, version: ${CURRENT_PROMPT_VERSION}, onlyMissing: ${onlyMissing ?? false})`
+      );
 
       let processed = 0;
       let failed = 0;

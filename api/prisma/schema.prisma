@@ -345,15 +345,11 @@ model Publisher {
   createdAt          DateTime     @default(now()) @map("created_at")
   updatedAt          DateTime     @updatedAt @map("updated_at")
 
-  diffuseurs             PublisherDiffusion[]          @relation("PublisherAnnonceurRelation")
-  diffusionsAsDiffuseur  PublisherDiffusion[]          @relation("PublisherDiffuseurRelation")
   diffusionRules         PublisherDiffusionRule[]      @relation("PublisherDiffuseurRuleRelation")
   warnings               Warning[]                     @relation("WarningPublisherRelation")
   warningBots            WarningBot[]                  @relation("WarningBotPublisherRelation")
   imports                Import[]                      @relation("ImportPublisherRelation")
   reports                Report[]                      @relation("PublisherReportRelation")
-  diffusionExclusionsBy  PublisherDiffusionExclusion[] @relation("PublisherDiffusionExclusionByAnnonceurRelation")
-  diffusionExclusionsFor PublisherDiffusionExclusion[] @relation("PublisherDiffusionExclusionForDiffuseurRelation")
   statEventsFrom         StatEvent[]                   @relation("StatEventFromPublisher")
   statEventsTo           StatEvent[]                   @relation("StatEventToPublisher")
   userPublishers         UserPublisher[]
@@ -363,6 +359,7 @@ model Publisher {
   campaignsTo            Campaign[]                    @relation("CampaignToPublisher")
   missions               Mission[]                     @relation("MissionPublisher")
   publisherOrganizations PublisherOrganization[]
+  demarcheSimplifiees    PublisherDemarcheSimplifiee[]
 
   @@index([name], map: "publisher_name_idx")
   @@index([apikey], map: "publisher_apikey_idx")
@@ -374,6 +371,27 @@ model Publisher {
   @@index([hasCampaignRights], map: "publisher_has_campaign_rights_idx")
   @@index([sendReport], map: "publisher_send_report_idx")
   @@map("publisher")
+}
+
+// Démarches Démarches Simplifiées rattachées à un publisher (un publisher peut en avoir plusieurs).
+// `number` = numéro de la démarche ; `annotationKey` = clé de l'annotation "Identifiant de la redirection"
+// préremplie avec l'id du clic lors de la redirection (cf. service demarches-simplifiees).
+model PublisherDemarcheSimplifiee {
+  id            String   @id @default(uuid())
+  publisherId   String   @map("publisher_id")
+  number        Int      @map("number")
+  name          String?  @map("name")
+  url           String?  @map("url")
+  annotationKey String?  @map("annotation_key")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  publisher Publisher @relation(fields: [publisherId], references: [id], onDelete: Cascade)
+
+  @@unique([publisherId, number], map: "publisher_demarche_simplifiees_publisher_id_number_key")
+  @@index([publisherId], map: "publisher_demarche_simplifiees_publisher_id_idx")
+  @@index([number], map: "publisher_demarche_simplifiees_number_idx")
+  @@map("publisher_demarche_simplifiees")
 }
 
 model UserPublisher {
@@ -390,23 +408,6 @@ model UserPublisher {
   @@index([userId], map: "user_publisher_user_id_idx")
   @@index([publisherId], map: "user_publisher_publisher_id_idx")
   @@map("user_publisher")
-}
-
-model PublisherDiffusion {
-  id                   String       @id @default(uuid())
-  diffuseurPublisherId String       @map("diffuseur_publisher_id")
-  annonceurPublisherId String       @map("annonceur_publisher_id")
-  moderator            Boolean      @default(false) @map("moderator")
-  missionType          MissionType? @map("mission_type")
-  createdAt            DateTime     @default(now()) @map("created_at")
-  updatedAt            DateTime     @updatedAt @map("updated_at")
-
-  diffuseur Publisher @relation("PublisherDiffuseurRelation", fields: [diffuseurPublisherId], references: [id], onDelete: Cascade)
-  annonceur Publisher @relation("PublisherAnnonceurRelation", fields: [annonceurPublisherId], references: [id], onDelete: Cascade)
-
-  @@index([diffuseurPublisherId], map: "publisher_diffusion_diffuseur_id_idx")
-  @@index([annonceurPublisherId], map: "publisher_diffusion_annonceur_id_idx")
-  @@map("publisher_diffusion")
 }
 
 model PublisherDiffusionRule {
@@ -651,6 +652,8 @@ model Mission {
   // Partial index managed manually in migration (Prisma doesn't support WHERE clause on indexes)
   // CREATE INDEX "mission_publisher_active_idx" ON "mission" (publisher_id, id)
   // WHERE deleted_at IS NULL AND status_code = 'ACCEPTED'
+  // CREATE INDEX "mission_active_publisher_start_at_idx" ON "mission" (publisher_id, start_at DESC, id)
+  // WHERE deleted_at IS NULL AND status_code = 'ACCEPTED'
   @@map("mission")
 }
 
@@ -683,7 +686,6 @@ model PublisherOrganization {
   publisher                    Publisher                     @relation(fields: [publisherId], references: [id], onDelete: Cascade)
   missions                     Mission[]                     @relation("MissionPublisherOrganization")
   organizationVerified         Organization?                 @relation(fields: [organizationIdVerified], references: [id])
-  publisherDiffusionExclusions PublisherDiffusionExclusion[] @relation("PublisherDiffusionExclusionOrganizationRelation")
 
   @@unique([publisherId, clientId], map: "publisher_organization_publisher_id_client_id_key")
   @@index([publisherId], map: "publisher_organization_publisher_id_idx")
@@ -891,27 +893,6 @@ model Organization {
   @@index([addressDepartmentName], map: "organization_department_name_idx")
   @@index([addressCity], map: "organization_city_idx")
   @@map("organization")
-}
-
-model PublisherDiffusionExclusion {
-  id                      String  @id @default(uuid())
-  excludedByAnnonceurId   String  @map("excluded_by_annonceur_id")
-  excludedForDiffuseurId  String  @map("excluded_for_diffuseur_id")
-  organizationClientId    String? @map("organization_client_id")
-  organizationName        String? @map("organization_name")
-  publisherOrganizationId String? @map("publisher_organization_id")
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  excludedByAnnonceur   Publisher              @relation("PublisherDiffusionExclusionByAnnonceurRelation", fields: [excludedByAnnonceurId], references: [id], onDelete: Cascade, map: "pde_excluded_by_annonceur_id_fkey")
-  excludedForDiffuseur  Publisher              @relation("PublisherDiffusionExclusionForDiffuseurRelation", fields: [excludedForDiffuseurId], references: [id], onDelete: Cascade, map: "pde_excluded_for_diffuseur_id_fkey")
-  publisherOrganization PublisherOrganization? @relation("PublisherDiffusionExclusionOrganizationRelation", fields: [publisherOrganizationId], references: [id], onDelete: SetNull)
-
-  @@unique([excludedByAnnonceurId, excludedForDiffuseurId, organizationClientId], map: "pde_by_annonceur_for_diffuseur_org_key")
-  @@index([excludedForDiffuseurId], map: "publisher_diffusion_exclusion_for_diffuseur_id_idx")
-  @@index([publisherOrganizationId], map: "publisher_diffusion_exclusion_publisher_organization_id_idx")
-  @@map("publisher_diffusion_exclusion")
 }
 
 model Campaign {

@@ -1,4 +1,4 @@
-import { API_URL } from "@/config";
+import { API_URL, PLATEFORM_URL } from "@/config";
 import { missionMatchingResultRepository } from "@/repositories/mission-matching-result";
 import { userScoringRepository } from "@/repositories/user-scoring";
 import type { MissionContent } from "@/services/brevo";
@@ -102,8 +102,9 @@ const formatCompensationLabel = (mission: EmailMission) => {
 };
 
 const buildMissionEmailItem = (mission: EmailMission, publisherId: string, userScoringId?: string): MissionContent => ({
+  id: mission.id,
   title: mission.title,
-  imageUrl: mission.domainLogo ?? "",
+  imageUrl: mission.domainLogo || mission.publisherLogo || "",
   durationLabel: formatDurationLabel(mission.duration),
   startAtLabel: formatStartAtLabel(mission.startAt),
   compensationLabel: formatCompensationLabel(mission),
@@ -204,7 +205,11 @@ export const sendMissionEmail = async (input: SendMissionEmailRequest): Promise<
 
   const emailResult = await sendTemplate(TEMPLATE_IDS.MISSION_MATCHING_RESULTS, {
     emailTo: [input.email],
-    params: { contentHtml: buildMissionContentHtml(missions) },
+    params: {
+      descriptionMission: missions.length === 1 ? "les détails de ta mission" : "les détails de ta sélection de missions",
+      descriptionLink: `${PLATEFORM_URL}/results/${input.userScoringId}/${missions.length === 1 ? `missions/${missions[0].id}` : ``}`,
+      contentHtml: buildMissionContentHtml(missions),
+    },
     tags: ["user-scoring", "mission-matching-results"],
   });
 

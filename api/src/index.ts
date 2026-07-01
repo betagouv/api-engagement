@@ -56,6 +56,7 @@ import { initHttpMetrics, shutdownHttpMetrics } from "@/services/observability/m
 import AdminReportController from "@/controllers/admin-report";
 import BrevoWebhookController from "@/controllers/brevo-webhook/controller";
 import CampaignController from "@/controllers/campaign";
+import DemarchesSimplifieesController from "@/controllers/demarches-simplifiees";
 import EmailController from "@/controllers/email";
 import IframeController from "@/controllers/iframe";
 import ImportController from "@/controllers/import";
@@ -71,7 +72,6 @@ import PublisherOrganizationController from "@/controllers/publisher-organizatio
 import RedirectController from "@/controllers/redirect";
 import ReportController from "@/controllers/report";
 import StatsController from "@/controllers/stats";
-import StatsMeanController from "@/controllers/stats-mean/controller";
 import UserController from "@/controllers/user";
 import UserScoringController from "@/controllers/user-scoring";
 import WarningController from "@/controllers/warning";
@@ -143,6 +143,7 @@ const main = async () => {
   // Interal routes
   app.use("/admin-report", AdminReportController);
   app.use("/campaign", CampaignController);
+  app.use("/demarches-simplifiees", DemarchesSimplifieesController);
   app.use("/import", ImportController);
   app.use("/mission", MissionController);
   app.use("/moderation", ModerationController);
@@ -152,7 +153,6 @@ const main = async () => {
   app.use("/publisher-organization", PublisherOrganizationController);
   app.use("/organization", OrganizationController);
   app.use("/stats", StatsController);
-  app.use("/stats-mean", StatsMeanController);
   app.use("/user", UserController);
   app.use("/warning", WarningController);
   app.use("/warning-bot", WarningBotController);

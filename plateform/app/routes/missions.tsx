@@ -11,13 +11,26 @@ import MissionCard from "~/components/missions/mission-card";
 import GradientBg from "~/components/ui/gradient-bg";
 import Pagination from "~/components/ui/pagination";
 import { browseMissions } from "~/services/mission-browse";
+import { trackMissionClickedFromBrowse, trackMissionsFilterApplied } from "~/services/tracking/events";
+import type { MissionDetailNavState, MissionsFilterType } from "~/services/tracking/types";
 import type { Route } from "./+types/missions";
 
 const PAGE_SIZE = 9;
 
-const FILTER_KEYS = ["departmentCode", "tranche_age", "type_mission", "secteur_activite", "domaine"] as const satisfies readonly (keyof MissionBrowseFilters)[];
+const FILTER_KEYS = ["departmentCode", "dispositif", "tranche_age", "type_mission", "secteur_activite", "domaine"] as const satisfies readonly (keyof MissionBrowseFilters)[];
+const SINGLE_FILTER_KEYS = new Set<FilterKey>(["tranche_age"]);
 
 type FilterKey = (typeof FILTER_KEYS)[number];
+
+// Mappe la clé interne du filtre vers le filter_type de la spec tracking (departmentCode → departement).
+const FILTER_TYPE_BY_KEY: Record<FilterKey, MissionsFilterType> = {
+  departmentCode: "departement",
+  dispositif: "dispositif",
+  tranche_age: "tranche_age",
+  type_mission: "type_mission",
+  secteur_activite: "secteur_activite",
+  domaine: "domaine",
+};
 type BrowseParams = MissionBrowseFilters;
 type TaxonomyFilterValue = { label: string; hidden?: boolean };
 
@@ -44,6 +57,14 @@ const buildTaxonomyFilterOptions = (key: FilterKey, facets: MissionBrowseFacetCo
   });
 };
 
+const getFilterValues = (searchParams: URLSearchParams): Record<FilterKey, string[]> =>
+  Object.fromEntries(
+    FILTER_KEYS.map((key) => {
+      const values = searchParams.getAll(key);
+      return [key, SINGLE_FILTER_KEYS.has(key) ? values.slice(0, 1) : values];
+    }),
+  ) as Record<FilterKey, string[]>;
+
 export async function clientLoader() {
   return { backHref: "/" };
 }
@@ -61,13 +82,7 @@ export default function MissionsPage() {
 
   const rawPage = parseInt(searchParams.get("page") ?? "1", 10);
   const page = Number.isNaN(rawPage) ? 1 : Math.max(1, rawPage);
-  const filterValues: Record<FilterKey, string[]> = {
-    departmentCode: searchParams.getAll("departmentCode"),
-    tranche_age: searchParams.getAll("tranche_age"),
-    type_mission: searchParams.getAll("type_mission"),
-    secteur_activite: searchParams.getAll("secteur_activite"),
-    domaine: searchParams.getAll("domaine"),
-  };
+  const filterValues = getFilterValues(searchParams);
 
   const [items, setItems] = useState<MissionBrowse[]>([]);
   const [total, setTotal] = useState(0);
@@ -82,6 +97,7 @@ export default function MissionsPage() {
 
     const browseInput: BrowseParams = { page, pageSize: PAGE_SIZE };
     if (filterValues.departmentCode.length) browseInput.departmentCode = filterValues.departmentCode;
+    if (filterValues.dispositif.length) browseInput.dispositif = filterValues.dispositif;
     if (filterValues.tranche_age.length) browseInput.tranche_age = filterValues.tranche_age;
     if (filterValues.type_mission.length) browseInput.type_mission = filterValues.type_mission;
     if (filterValues.secteur_activite.length) browseInput.secteur_activite = filterValues.secteur_activite;
@@ -144,10 +160,27 @@ export default function MissionsPage() {
       selected: filterValues.domaine,
       options: buildTaxonomyFilterOptions("domaine", facets.domaine),
     },
+    {
+      key: "dispositif",
+      label: "Organisation",
+      placeholder: "Toutes",
+      selected: filterValues.dispositif,
+      options: buildTaxonomyFilterOptions("dispositif", facets.dispositif),
+    },
   ];
 
   const handleFilterChange = (key: string, next: string[]) => {
     if (!FILTER_KEYS.includes(key as FilterKey)) return;
+    const filterKey = key as FilterKey;
+
+    // missions_filter.applied : on émet uniquement lors d'une sélection (valeur ajoutée),
+    // pas lors d'une désélection. active_filter_count = total des valeurs actives après ce changement.
+    const addedValue = next.find((value) => !filterValues[filterKey].includes(value));
+    if (addedValue) {
+      const activeFilterCount = FILTER_KEYS.reduce((sum, k) => sum + (k === filterKey ? next.length : filterValues[k].length), 0);
+      trackMissionsFilterApplied({ filterType: FILTER_TYPE_BY_KEY[filterKey], filterValue: addedValue, activeFilterCount });
+    }
+
     setSearchParams((prev) => {
       const params = new URLSearchParams(prev);
       params.delete(key);
@@ -200,7 +233,12 @@ export default function MissionsPage() {
             {items.length > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mx-auto gap-6 w-fit">
                 {items.map((mission) => (
-                  <MissionCard key={mission.id} mission={mission} link={{ type: "internal", to: `/missions/${mission.id}` }} />
+                  <MissionCard
+                    key={mission.id}
+                    mission={mission}
+                    link={{ type: "internal", to: `/missions/${mission.id}`, state: { entrySource: "missions_list" } satisfies MissionDetailNavState }}
+                    onClick={() => trackMissionClickedFromBrowse(mission, { section: "missions_list", entryPage: "missions_list", opensExternal: false })}
+                  />
                 ))}
               </div>
             )}

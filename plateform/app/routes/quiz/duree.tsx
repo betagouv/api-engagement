@@ -17,6 +17,9 @@ const STEP_OPTIONS: StepOption[] = [
   OPTIONS["type_mission.je_ne_sais_pas"],
 ];
 
+const DEFAULT_TITLE = "Combien de temps aimerais-tu consacrer à ta mission ?";
+const DEFAULT_SUBTITLE = "Choisis ce qui te correspond le mieux.";
+
 export default function DureeStep() {
   const { answers, setAnswer } = useQuizStore();
   const { goNext, saveScoring } = useOutletContext<QuizOutletContext>();
@@ -45,14 +48,7 @@ export default function DureeStep() {
 
   return (
     <>
-      <CheckboxGroupRich
-        title="Combien de temps aimerais-tu consacrer à ta mission ?"
-        subtitle="Choisis ce qui te correspond le mieux."
-        onChange={handleSelect}
-        options={options}
-        selected={selected}
-        error={error}
-      />
+      <CheckboxGroupRich title={DEFAULT_TITLE} subtitle={DEFAULT_SUBTITLE} onChange={handleSelect} options={options} selected={selected} error={error} />
       <NextButton onClick={handleNext} skip />
     </>
   );

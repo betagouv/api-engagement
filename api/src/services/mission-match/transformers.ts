@@ -17,7 +17,7 @@ export const missionMatchMissionSelect = {
   compensationUnit: true,
   compensationType: true,
   domain: { select: { name: true } },
-  publisher: { select: { name: true, logo: true, defaultMissionLogo: true } },
+  publisher: { select: { id: true, name: true, logo: true, defaultMissionLogo: true } },
   publisherOrganization: { select: { name: true, logo: true } },
   addresses: {
     select: { city: true },
@@ -51,6 +51,7 @@ type MissionIndexEntry = {
   domain: string | null;
   domainOriginal: string | null;
   domainLogo: string | null;
+  publisherId: string | null;
   publisherName: string | null;
   publisherLogo: string | null;
   publisherDefaultMissionLogo: string | null;
@@ -81,6 +82,7 @@ export const buildMissionIndex = (missionRows: MissionMatchDbRow[]): Record<stri
       domain: m.domain?.name ?? null,
       domainOriginal: m.domainOriginal ?? null,
       domainLogo: m.domainLogo ?? null,
+      publisherId: m.publisher?.id ?? null,
       publisherName: m.publisher?.name ?? null,
       publisherLogo: m.publisher?.logo ?? null,
       publisherDefaultMissionLogo: m.publisher?.defaultMissionLogo ?? null,
@@ -144,6 +146,7 @@ export const toMissionMatchItem = (
       domain: mission?.domain ?? mission?.domainOriginal ?? null,
       domainOriginal: mission?.domainOriginal ?? null,
       organizationName: mission?.organizationName ?? null,
+      publisherId: mission?.publisherId ?? null,
       publisherName: mission?.publisherName ?? null,
       media: {
         photo,
@@ -157,6 +160,7 @@ export const toMissionMatchItem = (
         closestLon: item.closestLon,
         closestAddress: item.closestAddress,
         addressId: item.missionAddressId,
+        distanceKm: item.distanceKm,
       },
       compensation: hasCompensation
         ? {

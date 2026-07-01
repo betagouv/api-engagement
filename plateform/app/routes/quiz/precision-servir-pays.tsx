@@ -19,6 +19,8 @@ const STEP_OPTIONS = [
   OPTIONS["servir_pays.aucun"],
 ];
 
+const DEFAULT_TITLE = "Quel type d'engagement pourrait t'intéresser le plus ?";
+
 export default function PrecisionServirPaysStep() {
   const { answers, setAnswer } = useQuizStore();
   const { goNext, saveScoring } = useOutletContext<QuizOutletContext>();
@@ -41,7 +43,7 @@ export default function PrecisionServirPaysStep() {
 
   return (
     <>
-      <CheckboxGroupRich title="Quel type d'engagement pourrait t'intéresser le plus ?" onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} />
+      <CheckboxGroupRich title={DEFAULT_TITLE} onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} />
       <NextButton onClick={handleNext} skip />
     </>
   );

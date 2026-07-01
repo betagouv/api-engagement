@@ -17,6 +17,8 @@ const STEP_OPTIONS = [
   OPTIONS["region_internationale.je_ne_sais_pas"],
 ];
 
+const DEFAULT_TITLE = "Dans quelle région du monde souhaiterais-tu partir ?";
+
 export default function PrecisionInternationalStep() {
   const { answers, setAnswer } = useQuizStore();
   const { goNext, saveScoring } = useOutletContext<QuizOutletContext>();
@@ -39,7 +41,7 @@ export default function PrecisionInternationalStep() {
 
   return (
     <>
-      <CheckboxGroupRich title="Dans quelle région du monde souhaiterais-tu partir ?" onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} />
+      <CheckboxGroupRich title={DEFAULT_TITLE} onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} />
       <NextButton onClick={handleNext} skip />
     </>
   );

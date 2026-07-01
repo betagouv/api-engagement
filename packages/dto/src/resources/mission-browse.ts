@@ -3,7 +3,7 @@ export type MissionBrowseFacetCount = {
   count: number;
 };
 
-export type MissionBrowseTaxonomyKey = "domaine" | "secteur_activite" | "type_mission" | "tranche_age" | "competence_rome";
+export type MissionBrowseTaxonomyKey = "domaine" | "secteur_activite" | "type_mission" | "tranche_age" | "competence_rome" | "dispositif";
 
 export type MissionBrowseTaxonomyParams = Partial<Record<MissionBrowseTaxonomyKey, string | string[]>>;
 
@@ -27,6 +27,7 @@ export type MissionBrowse = {
   photo: string | null;
   organizationName: string | null;
   organizationLogo: string | null;
+  publisherId: string | null;
   publisherName: string | null;
   publisherLogo: string | null;
   applicationUrl: string | null;
@@ -62,6 +63,7 @@ export type MissionDetailResponse = {
   domain: string | null;
   domainLogo: string | null;
   type: string | null;
+  publisherId: string | null;
   publisherName: string | null;
   publisherLogo: string | null;
   organizationName: string | null;

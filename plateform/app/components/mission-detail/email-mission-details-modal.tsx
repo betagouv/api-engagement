@@ -1,17 +1,23 @@
 import React, { useId, useState } from "react";
+import { useLocation } from "react-router";
 import Modal from "~/components/layout/modal";
 import { PUBLISHER_ID_API_ENGAGEMENT } from "~/services/config";
 import { sendMissionEmail } from "~/services/email";
+import { trackEmailMissionDetailSent } from "~/services/tracking/events";
+import type { MissionDetailNavState } from "~/services/tracking/types";
+import { resolveEmailMissionDetailEntrySource } from "~/services/tracking/utils";
 import { updateUserScoring } from "~/services/user-scoring";
 import { useQuizStore } from "~/stores/quiz";
 
 interface EmailMissionModalProps {
   missionId: string;
+  publisherId?: string | null;
   userScoringId?: string;
 }
 
-export default function EmailMissionModal({ missionId, userScoringId }: EmailMissionModalProps) {
+export default function EmailMissionModal({ missionId, publisherId, userScoringId }: EmailMissionModalProps) {
   const distinctId = useQuizStore((s) => s.distinctId);
+  const location = useLocation();
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -52,6 +58,13 @@ export default function EmailMissionModal({ missionId, userScoringId }: EmailMis
       if (!result.email_sent) {
         setError("La mission est introuvable et n'a pas pu être envoyée.");
       } else {
+        const navState = location.state as MissionDetailNavState | null;
+        trackEmailMissionDetailSent({
+          missionId,
+          publisherId: publisherId ?? "",
+          entrySource: resolveEmailMissionDetailEntrySource(navState?.entrySource, Boolean(userScoringId)),
+          hasAlertOptIn: missionAlertEnabled,
+        });
         setSuccess(true);
       }
     } catch {

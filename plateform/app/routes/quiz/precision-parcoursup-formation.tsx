@@ -10,6 +10,8 @@ const STEP_ID = "precision_parcoursup_formation";
 
 const STEP_OPTIONS = [OPTIONS["parcoursup_formation.oui"], OPTIONS["parcoursup_formation.non"]];
 
+const DEFAULT_TITLE = "As-tu déjà une formation précise en tête ?";
+
 export default function PrecisionParcoursupFormationStep() {
   const { answers, setAnswer } = useQuizStore();
   const { goNext, saveScoring } = useOutletContext<QuizOutletContext>();
@@ -33,7 +35,7 @@ export default function PrecisionParcoursupFormationStep() {
 
   return (
     <>
-      <RadioGroup title="As-tu déjà une formation précise en tête ?" onChange={handleSelect} options={STEP_OPTIONS} error={error} selected={selected} />
+      <RadioGroup title={DEFAULT_TITLE} onChange={handleSelect} options={STEP_OPTIONS} error={error} selected={selected} />
       <NextButton onClick={handleNext} skip />
     </>
   );

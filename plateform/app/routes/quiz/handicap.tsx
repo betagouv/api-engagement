@@ -10,6 +10,9 @@ const STEP_ID = "handicap";
 
 const STEP_OPTIONS = [OPTIONS["handicap.oui"], OPTIONS["handicap.non"], OPTIONS["handicap.ne_se_prononce_pas"]];
 
+const DEFAULT_TITLE = "Es-tu en situation de handicap reconnue ?";
+const DEFAULT_SUBTITLE = "Certaines missions sont accessibles jusqu’à 30 ans pour les personnes en situation de handicap.";
+
 export default function HandicapStep() {
   const { answers, setAnswer } = useQuizStore();
   const { goNext, saveScoring } = useOutletContext<QuizOutletContext>();
@@ -37,14 +40,7 @@ export default function HandicapStep() {
 
   return (
     <>
-      <RadioGroup
-        title="Es-tu en situation de handicap reconnue ?"
-        subtitle="Certaines missions sont accessibles jusqu’à 30 ans pour les personnes en situation de handicap."
-        onChange={handleSelect}
-        options={STEP_OPTIONS}
-        error={error}
-        selected={selected}
-      />
+      <RadioGroup title={DEFAULT_TITLE} subtitle={DEFAULT_SUBTITLE} onChange={handleSelect} options={STEP_OPTIONS} error={error} selected={selected} />
       <NextButton onClick={handleNext} />
     </>
   );

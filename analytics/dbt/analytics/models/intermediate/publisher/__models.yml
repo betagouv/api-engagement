@@ -1,6 +1,52 @@
 version: 2
 
 models:
+  - name: int_publisher_diffusion_rule
+    description: >
+      Modèle intermédiaire (table complète) des règles de diffusion par partenaire, dérivé de
+      `stg_publisher_diffusion_rule`. Reconstruit intégralement à chaque run dbt.
+    columns:
+      - name: id
+        description: Identifiant unique de la règle.
+        tests:
+          - not_null
+          - unique
+      - name: publisher_id
+        description: Identifiant du partenaire diffuseur.
+        tests:
+          - not_null
+      - name: field
+        description: Champ ciblé par la règle.
+        tests:
+          - not_null
+      - name: field_type
+        description: Typage fonctionnel du champ (nullable).
+      - name: operator
+        description: Opérateur de comparaison.
+        tests:
+          - not_null
+      - name: value
+        description: Valeur comparée.
+        tests:
+          - not_null
+      - name: combinator
+        description: Combinaison logique avec les autres règles.
+        tests:
+          - not_null
+      - name: position
+        description: Ordre d'application de la règle.
+        tests:
+          - not_null
+      - name: combined_with_id
+        description: Identifiant de la règle parente (auto-référence, nullable).
+      - name: created_at
+        description: Timestamp de création.
+        tests:
+          - not_null
+      - name: updated_at
+        description: Timestamp de dernière mise à jour.
+        tests:
+          - not_null
   - name: int_publisher_organization
     description: >
       Modèle intermédiaire incrémental des organisations rattachées aux partenaires, dérivé de

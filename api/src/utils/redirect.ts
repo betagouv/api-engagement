@@ -1,7 +1,9 @@
 import { JVA_URL, PUBLISHER_IDS } from "@/config";
 
+import { generateDemarcheNumeriqueDossierUrl } from "@/services/demarches-simplifiees/utils";
 import { statBotService } from "@/services/stat-bot";
 import { statEventService } from "@/services/stat-event";
+import { MissionRecord, StatEventRecord } from "@/types";
 
 const ensureUrlProtocol = (href: string) => {
   if (href.indexOf("http://") === 0 || href.indexOf("https://") === 0) {
@@ -29,6 +31,20 @@ export const buildTrackedApplicationUrl = (
   url.searchParams.set(`${trackingPrefix}_campaign`, tracking.campaign);
 
   return url;
+};
+
+// Enregistre le clic et construit l'URL de redirection finale : préremplit l'éventuel dossier Démarches
+// Simplifiées avec l'id du clic, puis ajoute les paramètres de tracking. Renvoie l'id du clic et l'URL.
+export const createClickRedirect = async (
+  event: StatEventRecord,
+  mission: MissionRecord,
+  fallbackHref: string,
+  tracking: { source: string; medium: string; campaign: string }
+): Promise<{ clickId: string; url: URL }> => {
+  const clickId = await statEventService.createStatEvent(event);
+  const demarcheUrl = await generateDemarcheNumeriqueDossierUrl(mission.applicationUrl, mission.publisherId, clickId);
+  const url = buildTrackedApplicationUrl(demarcheUrl || fallbackHref, mission.publisherId, clickId, tracking);
+  return { clickId, url };
 };
 
 export const updateBotFlagAfterRedirect = async (user: string, clickId: string) => {

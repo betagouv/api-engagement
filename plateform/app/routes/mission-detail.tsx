@@ -1,6 +1,6 @@
 import type { MissionDetailResponse } from "@engagement/dto";
-import { useEffect, useState } from "react";
-import { Link, useParams, useSearchParams } from "react-router";
+import { useEffect, useRef, useState } from "react";
+import { Link, useLocation, useParams, useSearchParams } from "react-router";
 
 export async function clientLoader({ params }: { params: { userScoringId?: string } }) {
   return { backHref: params.userScoringId ? `/results/${params.userScoringId}` : "/missions" };
@@ -13,15 +13,21 @@ import MissionLocationCard from "~/components/mission-detail/location-card";
 import SimilarMissions from "~/components/mission-detail/similar-missions";
 import GradientBg from "~/components/ui/gradient-bg";
 import { fetchMissionDetail } from "~/services/mission-browse";
+import { setQuizSessionId } from "~/services/tracking";
+import { trackMissionDetailViewed } from "~/services/tracking/events";
+import type { MissionDetailNavState } from "~/services/tracking/types";
+import { resolveMissionDetailEntrySource } from "~/services/tracking/utils";
 import { formatDeadline } from "~/utils/mission";
 
 export default function MissionDetailPage() {
   const { missionId, userScoringId } = useParams<{ missionId: string; userScoringId?: string }>();
   const [searchParams] = useSearchParams();
+  const location = useLocation();
   const addressId = searchParams.get("addressId");
   const [mission, setMission] = useState<MissionDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const viewedFiredRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!missionId) return;
@@ -31,6 +37,27 @@ export default function MissionDetailPage() {
       .catch(() => setError("Impossible de charger cette mission."))
       .finally(() => setLoading(false));
   }, [missionId, addressId]);
+
+  // Fiche issue d'un résultat (/results/:userScoringId/missions/:id) : le userScoringId de l'URL est
+  // la clé de session quiz → on l'enregistre comme super property (quiz_session_id) pour tous les
+  // évènements de cette page (mission_detail.viewed, mission.clicked des missions similaires, ...).
+  useEffect(() => {
+    if (userScoringId) setQuizSessionId(userScoringId);
+  }, [userScoringId]);
+
+  // mission_detail.viewed : une fois la fiche chargée, émis une seule fois par mission.
+  useEffect(() => {
+    if (!mission || !missionId || viewedFiredRef.current === missionId) return;
+    viewedFiredRef.current = missionId;
+    const navState = location.state as MissionDetailNavState | null;
+    trackMissionDetailViewed({
+      missionId,
+      publisherId: mission.publisherId ?? "",
+      publisherName: mission.publisherName ?? "",
+      entrySource: resolveMissionDetailEntrySource(navState?.entrySource),
+      rank: navState?.rank ?? null,
+    });
+  }, [mission, missionId, location.state]);
 
   const backPath = userScoringId ? `/results/${userScoringId}` : "/";
   const backLabel = userScoringId ? "Retour aux résultats" : "Accueil";

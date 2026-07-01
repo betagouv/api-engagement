@@ -6,7 +6,7 @@ module.exports = {
     { value: "chore", name: "chore:    Tâche de maintenance" },
     { value: "test", name: "test:     Ajout ou mise à jour de tests" },
   ],
-  scopes: ["app", "api", "analytics", "widget", "jobs", "ci", "doc", "release"],
+  scopes: ["app", "api", "analytics", "widget", "jobs", "ci", "doc", "release", "plateform"],
   allowTicketNumber: false,
   allowCustomScopes: false,
   allowCustomIssuePrefix: false,

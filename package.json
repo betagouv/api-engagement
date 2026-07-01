@@ -1,6 +1,6 @@
 {
   "name": "api-engagement",
-  "version": "1.13.0",
+  "version": "1.14.2",
   "workspaces": [
     "packages/dto",
     "packages/taxonomy",
@@ -28,11 +28,11 @@
     }
   },
   "devDependencies": {
-    "@commitlint/cli": "19.8.1",
-    "commitizen": "4.3.1",
+    "@commitlint/cli": "21.1.0",
+    "commitizen": "4.3.2",
     "cz-customizable": "7.5.4",
     "husky": "9.1.7",
-    "prettier": "3.8.3",
+    "prettier": "3.8.4",
     "prettier-plugin-organize-imports": "4.3.0",
     "prettier-plugin-tailwindcss": "0.8.0"
   }

@@ -3,6 +3,7 @@ import Modal from "~/components/layout/modal";
 import MailIllustration from "~/components/ui/mail-illustration";
 import { PUBLISHER_ID_API_ENGAGEMENT } from "~/services/config";
 import { sendMissionEmail } from "~/services/email";
+import { trackEmailMissionsSent } from "~/services/tracking/events";
 import { updateUserScoring } from "~/services/user-scoring";
 import { useQuizStore } from "~/stores/quiz";
 
@@ -52,6 +53,7 @@ export default function EmailMissionsModal({ userScoringId, open: controlledOpen
       if (!result.email_sent) {
         setError("Aucune mission n'a pu être envoyée. Réessaie depuis la page de résultats.");
       } else {
+        trackEmailMissionsSent({ hasAlertOptIn: missionAlertEnabled });
         setSuccess(true);
       }
     } catch {

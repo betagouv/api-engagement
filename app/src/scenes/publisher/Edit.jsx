@@ -6,6 +6,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import TrashSvg from "@/assets/svg/trash-icon.svg?react";
 import Loader from "@/components/Loader";
 import Administration from "@/scenes/publisher/components/Administration";
+import DemarcheSimplifiee from "@/scenes/publisher/components/DemarcheSimplifiee";
 import Informations from "@/scenes/publisher/components/Informations";
 import Members from "@/scenes/publisher/components/Members";
 import api from "@/services/api";
@@ -39,6 +40,8 @@ const Edit = () => {
     hasApiRights: false,
     hasWidgetRights: false,
     hasCampaignRights: false,
+    isDemarcheSimplifiee: false,
+    demarcheSimplifiees: [],
   });
   const [errors, setErrors] = useState({});
 
@@ -46,7 +49,12 @@ const Edit = () => {
     if (!publisher) {
       return;
     }
-    setValues({ ...values, ...publisher, isDiffuseur: publisher.hasApiRights || publisher.hasWidgetRights || publisher.hasCampaignRights || false });
+    setValues({
+      ...values,
+      ...publisher,
+      isDiffuseur: publisher.hasApiRights || publisher.hasWidgetRights || publisher.hasCampaignRights || false,
+      isDemarcheSimplifiee: (publisher.demarcheSimplifiees || []).length > 0,
+    });
   }, [publisher]);
 
   useEffect(() => {
@@ -196,6 +204,8 @@ const Edit = () => {
             <Diffuseur values={values} onChange={setValues} errors={errors} setErrors={setErrors} />
           </div>
         </div>
+        <div className="h-px w-full bg-gray-900" />
+        <DemarcheSimplifiee values={values} onChange={setValues} />
         <div className="h-px w-full bg-gray-900" />
         <Administration values={values} onChange={setValues} />
         <div className="h-px w-full bg-gray-900" />

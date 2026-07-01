@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link } from "react-router";
 
 import CalendarSvg from "@gouvfr/dsfr/dist/artwork/pictograms/digital/calendar.svg?url";
 import SelfTrainingSvg from "@gouvfr/dsfr/dist/artwork/pictograms/digital/self-training.svg?url";
@@ -47,11 +46,11 @@ const FEATURES: Feature[] = [
   },
   {
     icon: SelfTrainingSvg,
-    title: <>Sans diplôme ni expérience requis.</>,
+    title: <>Compatible sans diplôme, études ou emploi</>,
   },
 ];
 
-export default function HowItWorks() {
+export default function HowItWorks({ onStartQuiz }: { onStartQuiz: () => void }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
@@ -95,11 +94,11 @@ export default function HowItWorks() {
           aria-live="polite"
           aria-atomic="false"
         >
-          <div className="flex w-max gap-6 px-[10vw] pb-4 md:grid md:w-auto md:grid-cols-2 md:px-0 md:pb-0 lg:grid-cols-4">
+          <div className="flex w-max gap-6 px-[10vw] pb-4 md:grid md:w-auto md:grid-cols-2 md:gap-6 md:px-0 md:pb-0 lg:grid-cols-4">
             {FEATURES.map((feature) => (
               <div
                 key={feature.icon}
-                className="bg-background flex w-[80vw] shrink-0 snap-center flex-col items-center gap-4 p-6 text-center shadow-lg md:mx-auto md:w-auto md:max-w-60"
+                className="bg-background flex w-[80vw] shrink-0 snap-center flex-col items-center gap-4 p-8 text-center shadow-lg md:w-auto md:p-10 lg:mx-auto lg:max-w-60 lg:p-6"
               >
                 <img src={feature.icon} alt="" className="size-16 dark:box-content dark:rounded-full dark:bg-white dark:p-3" aria-hidden="true" />
                 <p className="fr-text--lead text-title-grey font-bold mb-0!">{feature.title}</p>
@@ -128,9 +127,9 @@ export default function HowItWorks() {
         </div>
 
         <div className="flex flex-col items-center gap-3">
-          <Link to="/quiz" className="fr-btn fr-btn--secondary fr-btn--lg w-full justify-center md:w-auto">
-            Je découvre les missions
-          </Link>
+          <button type="button" onClick={onStartQuiz} className="fr-btn fr-btn--secondary fr-btn--lg w-full justify-center md:w-auto">
+            Trouver ma mission
+          </button>
           <p className="fr-text--sm text-mention-grey fr-mb-0! text-center!">+25 000 missions disponibles partout en France</p>
         </div>
       </div>

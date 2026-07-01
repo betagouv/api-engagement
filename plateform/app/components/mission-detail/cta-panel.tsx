@@ -60,7 +60,7 @@ export default function MissionCtaPanel({ mission, userScoringId, deadlineLabel 
           Découvrir la mission
         </a>
 
-        <EmailMissionModal missionId={mission.id} userScoringId={userScoringId} />
+        <EmailMissionModal missionId={mission.id} publisherId={mission.publisherId} userScoringId={userScoringId} />
 
         {deadlineLabel && <p className="text-mention-grey text-sm! md:hidden text-center!">{deadlineLabel}</p>}
       </div>

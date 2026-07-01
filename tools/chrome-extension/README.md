@@ -18,14 +18,34 @@ Extension Chrome (Manifest V3) pour valider l'installation de `jstag.js` et visu
 - Cliquer sur un événement pour dérouler tous ses paramètres
 - **Toast** : notification overlay discrète sur la page à chaque événement capté
 
-## Installation (mode développeur)
+## Installation
 
-1. Ouvrir Chrome et aller sur `chrome://extensions`
-2. Activer le **Mode développeur** (toggle en haut à droite)
-3. Cliquer **Charger l'extension non empaquetée**
-4. Sélectionner le dossier `tools/chrome-extension/`
+### Pour les partenaires
+
+L'extension n'est pas publiée sur le Chrome Web Store. Elle est distribuée depuis le même domaine
+que `jstag.js` :
+
+1. Télécharger [`chrome-extension.zip`](https://app.api-engagement.beta.gouv.fr/chrome-extension.zip)
+2. Dézipper l'archive
+3. Ouvrir `chrome://extensions`, activer le **Mode développeur** (toggle en haut à droite)
+4. Cliquer **Charger l'extension non empaquetée** et sélectionner le dossier dézippé
 
 L'icône apparaît dans la barre d'outils Chrome. L'épingler pour un accès rapide.
+
+> L'archive est générée dans `app/public/chrome-extension.zip` pendant le build Docker de
+> l'application, puis servie par l'application.
+
+### Pour les contributeurs (depuis les sources)
+
+Mêmes étapes, mais sélectionner directement le dossier `tools/chrome-extension/` du dépôt (pas
+besoin de télécharger le zip).
+
+## Prérequis pour tester
+
+Le tracking ne s'active que si la page a été ouverte via une **URL trackée** contenant
+`?apiengagement_id=…` : c'est elle qui fait poser le cookie `apiengagement`, sans lequel
+`trackApplication` / `trackAccount` n'envoient rien. Demander une URL trackée à l'équipe API
+Engagement avant de tester. Voir la [documentation tracking annonceur](https://doc.api-engagement.beta.gouv.fr/annoncer-des-missions/tracking-des-candidatures/rajout-de-la-balise-et-des-commandes-de-tracking-par-le-tag).
 
 ## Utilisation
 

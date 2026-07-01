@@ -222,13 +222,43 @@
 .mission-map__emoji-marker {
   align-items: center;
   background: rgb(246 246 255 / 92%);
-  border: 3px solid #ffffff;
+  border: 1px solid #ffffff;
   border-radius: 9999px;
   box-shadow: 0 3px 10px rgb(0 0 0 / 16%);
   display: grid;
-  font-size: 13px;
-  height: 28px;
+  font-size: 12px;
+  height: 22px;
   justify-items: center;
   line-height: 1;
-  width: 28px;
+  width: 22px;
+}
+
+.mission-map__emoji-marker--active {
+  background: #000091;
+  transform: scale(1.18);
+}
+
+.mission-map__tooltip.leaflet-tooltip {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 16%);
+  max-width: 320px;
+  min-width: 220px;
+  padding: 10px 14px;
+  white-space: normal;
+}
+
+.mission-map__tooltip-title {
+  color: var(--text-title-grey);
+  display: block;
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.mission-map__tooltip-address {
+  color: var(--text-mention-grey);
+  display: block;
+  font-size: 12px;
+  line-height: 1.3;
+  margin-top: 2px;
 }

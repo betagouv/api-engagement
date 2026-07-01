@@ -28,42 +28,10 @@ npx ts-node api/scripts/mongo-backfill/backfill-email.ts --env production --dry-
 npx ts-node api/scripts/mongo-backfill/backfill-email.ts --env api/.env.production
 ```
 
-## backfill-publisher.ts
-
-- Rôle: migrer la collection Mongo `publishers` (et ses diffuseurs) vers PostgreSQL.
-- Options:
-  - `--dry-run` exécute sans écrire en base et loggue les actions qui seraient effectuées.
-  - `--env <nom|chemin>` sélectionne le fichier d'environnement à charger.
-- Exemples:
-
-```bash
-# Dry-run
-npx ts-node api/scripts/mongo-backfill/backfill-publisher.ts --env production --dry-run
-
-# Exécution réelle
-npx ts-node api/scripts/mongo-backfill/backfill-publisher.ts --env api/.env.production
-```
-
 ## backfill-moderation-event.ts
 
 - Exécution: `npx ts-node scripts/mongo-backfill/backfill-moderation-event.ts [--env <chemin>] [--dry-run]`
 - Usage: Migration des événements de modération depuis MongoDB vers PostgreSQL (bulk insert/update).
-
-## backfill-publisher-diffusion-exclusion.ts
-
-- Rôle: migrer la collection Mongo `organization-exclusion` vers la table correspondante dans PostgreSQL.
-- Options:
-  - `--dry-run` exécute sans écrire en base et affiche des exemples de créations.
-  - `--env <nom|chemin>` sélectionne le fichier d'environnement à charger.
-- Exemples:
-
-```bash
-# Dry-run avec l'environnement production (utilise api/.env.production)
-npx ts-node api/scripts/mongo-backfill/backfill-publisher-diffusion-exclusion.ts --env production --dry-run
-
-# Exécution réelle en pointant explicitement un fichier .env
-npx ts-node api/scripts/mongo-backfill/backfill-publisher-diffusion-exclusion.ts --env api/.env.production
-```
 
 ## backfill-campaign.ts
 
