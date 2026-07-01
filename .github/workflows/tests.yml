@@ -26,7 +26,7 @@ jobs:
       plateform: ${{ steps.filter.outputs.plateform }}
       taxonomy: ${{ steps.filter.outputs.taxonomy }}
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.0
       - uses: dorny/paths-filter@v4.0.1
         id: filter
         with:
@@ -68,7 +68,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.0
 
       - uses: actions/setup-node@v6.4.0
         with:
@@ -110,7 +110,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.0
 
       - uses: actions/setup-node@v6.4.0
         with:
@@ -167,7 +167,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.0
 
       - uses: actions/setup-node@v6.4.0
         with:
@@ -213,7 +213,7 @@ jobs:
       contents: read
       actions: write
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.0
 
       - uses: actions/setup-node@v6.4.0
         with:
@@ -241,7 +241,7 @@ jobs:
       contents: read
       actions: write
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.0
 
       - name: Use Node.js
         uses: actions/setup-node@v6.4.0
@@ -277,7 +277,7 @@ jobs:
       contents: read
       actions: write
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.0
 
       - name: Use Node.js
         uses: actions/setup-node@v6.4.0
@@ -301,7 +301,7 @@ jobs:
     if: needs.changes.outputs.plateform == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.0
 
       - uses: actions/setup-node@v6.4.0
         with:
@@ -321,7 +321,7 @@ jobs:
     if: needs.changes.outputs.taxonomy == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.0
 
       - uses: actions/setup-node@v6.4.0
         with:
