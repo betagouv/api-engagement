@@ -1,6 +1,7 @@
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { PUBLISHER_IDS } from "@/config";
 import { prisma } from "@/db/postgres";
 import { createTestMission, createTestPublisher } from "../../fixtures";
 import { createTestApp } from "../../testApp";
@@ -427,7 +428,9 @@ describe("PUT /user-scoring/:userScoringId", () => {
     return { missionScoringIds, missions };
   };
 
-  const createEmailPublisher = () => createTestPublisher({ name: "Email Publisher" });
+  // En production, les emails de missions sont toujours envoyés avec le publisher API Engagement,
+  // seul publisher autorisé par la liste newsletter Brevo (subscribeToNewsletter).
+  const createEmailPublisher = () => createTestPublisher({ id: PUBLISHER_IDS.API_ENGAGEMENT, name: "Email Publisher" });
 
   it("should require an api key to send mission emails", async () => {
     const res = await request(app)
