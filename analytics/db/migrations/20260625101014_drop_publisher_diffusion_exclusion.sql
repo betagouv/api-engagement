@@ -1,5 +1,7 @@
 -- migrate:up
-DROP TABLE IF EXISTS "analytics_raw"."publisher_diffusion_exclusion";
+-- CASCADE : des vues dbt orphelines (stg_publisher_diffusion_exclusion, supprimée du
+-- projet dbt en #1135 mais jamais droppée en base) dépendent encore de cette table.
+DROP TABLE IF EXISTS "analytics_raw"."publisher_diffusion_exclusion" CASCADE;
 
 
 -- migrate:down
