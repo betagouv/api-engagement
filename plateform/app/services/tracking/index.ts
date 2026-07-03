@@ -1,5 +1,6 @@
 import { TRACKING_PROVIDER } from "~/services/config";
 import { useQuizStore } from "~/stores/quiz";
+import { getInternalUserFlagAction } from "~/utils/internal-user-flag";
 
 import { createProvider } from "./providers";
 import type { TrackingProperties, TrackingProvider, TrackingProviderName, TrackingTraits } from "./types";
@@ -36,12 +37,27 @@ function syncIdentitySuperProperties(state: { quizAttemptId: string; userScoring
   });
 }
 
+function syncInternalUserFlag(provider: TrackingProvider): void {
+  switch (getInternalUserFlagAction(window.location.search)) {
+    case "enable":
+      provider.register?.({ internal_user: true });
+      break;
+    case "disable":
+      provider.unregister?.("internal_user");
+      break;
+    case "none":
+      break;
+  }
+}
+
 // Initialise le tracking côté client : identifie l'utilisateur par le `distinctId` persistant du
 // quiz (réconciliation des sessions dans PostHog, consentement assumé pour l'instant) et enregistre
 // les super properties d'identité, maintenues à jour via un abonnement au store.
 // TODO(cookie-banner) : sans consentement, ne pas appeler `identify` (rester anonyme/cookieless).
 export function initTracking(): void {
-  if (!getProvider()) return;
+  const provider = getProvider();
+  if (!provider) return;
+  syncInternalUserFlag(provider);
   identify(useQuizStore.getState().distinctId);
   syncIdentitySuperProperties(useQuizStore.getState());
 
