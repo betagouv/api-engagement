@@ -196,6 +196,14 @@ function FilterAccordion({ filter, open, onToggleOpen, onChange }: FilterAccordi
 
       {open && (
         <div className="mt-3 flex flex-col gap-2">
+          {isSingle && (
+            <div className="fr-radio-group">
+              <input type="radio" id={`${reactId}-all`} name={`${reactId}-group`} checked={filter.selected.length === 0} onChange={() => {}} onClick={() => onChange([])} />
+              <label className="fr-label" htmlFor={`${reactId}-all`}>
+                {filter.placeholder}
+              </label>
+            </div>
+          )}
           {filter.options.map((option) => {
             const inputId = `${reactId}-${option.value}`;
             const isSelected = filter.selected.includes(option.value);
