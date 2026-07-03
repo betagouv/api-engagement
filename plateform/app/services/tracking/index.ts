@@ -20,6 +20,7 @@ function getProvider(): TrackingProvider | null {
   if (!provider) {
     provider = createProvider(TRACKING_PROVIDER as TrackingProviderName);
     provider.init?.();
+    syncInternalUserFlag(provider);
   }
   return provider;
 }
