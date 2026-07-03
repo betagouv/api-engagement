@@ -33,13 +33,13 @@ export type EmailBody = {
 export type CreateOrUpdateContactParams = {
   email: string;
   userScoringId?: string;
-  distinctId: string;
+  distinctId?: string;
   missionAlertEnabled: boolean;
   listId: number;
 };
 
 export type ContactAttributes = {
-  DISTINCT_ID: string;
+  DISTINCT_ID?: string;
   MISSION_ALERT_ENABLED: boolean;
   USER_SCORING_ID?: string;
 };

@@ -2,12 +2,12 @@ import { API_URL, PLATEFORM_URL } from "@/config";
 import { missionMatchingResultRepository } from "@/repositories/mission-matching-result";
 import { userScoringRepository } from "@/repositories/user-scoring";
 import type { MissionContent } from "@/services/brevo";
-import { buildMissionContentHtml, createOrUpdateContact, sendTemplate, TEMPLATE_IDS } from "@/services/brevo";
+import { buildMissionContentHtml, sendTemplate, TEMPLATE_IDS } from "@/services/brevo";
 import type { MissionMatchingResultItem } from "@/services/matching-engine/types";
 import { missionService } from "@/services/mission";
+import { subscribeToNewsletter } from "@/services/newsletter";
 import type { MissionEmailSkipReason, SendMissionEmailRequest } from "@engagement/dto";
 
-const BREVO_CONTACT_LIST_ID = 22;
 const USER_SCORING_EMAIL_MISSION_LIMIT = 5;
 
 export const MISSION_EMAIL_SKIP_REASONS = {
@@ -180,12 +180,12 @@ export const sendMissionEmail = async (input: SendMissionEmailRequest): Promise<
       return { status: "forbidden" };
     }
 
-    const contactResult = await createOrUpdateContact({
+    const contactResult = await subscribeToNewsletter({
       email: input.email,
+      publisherId: input.publisherId,
       distinctId: input.distinctId,
       userScoringId: input.userScoringId,
       missionAlertEnabled: userScoring.missionAlertEnabled,
-      listId: BREVO_CONTACT_LIST_ID,
     });
 
     if (!contactResult.ok) {
