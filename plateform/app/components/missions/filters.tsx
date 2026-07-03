@@ -180,10 +180,6 @@ function FilterAccordion({ filter, open, onToggleOpen, onChange }: FilterAccordi
 
   const toggleOption = (value: string) => {
     const isSelected = filter.selected.includes(value);
-    if (isSingle) {
-      onChange(isSelected ? [] : [value]);
-      return;
-    }
     onChange(isSelected ? filter.selected.filter((current) => current !== value) : [...filter.selected, value]);
   };
 
@@ -198,7 +194,7 @@ function FilterAccordion({ filter, open, onToggleOpen, onChange }: FilterAccordi
         <div className="mt-3 flex flex-col gap-2">
           {isSingle && (
             <div className="fr-radio-group">
-              <input type="radio" id={`${reactId}-all`} name={`${reactId}-group`} checked={filter.selected.length === 0} onChange={() => {}} onClick={() => onChange([])} />
+              <input type="radio" id={`${reactId}-all`} name={`${reactId}-group`} checked={filter.selected.length === 0} onChange={() => onChange([])} />
               <label className="fr-label" htmlFor={`${reactId}-all`}>
                 {filter.placeholder}
               </label>
@@ -210,14 +206,15 @@ function FilterAccordion({ filter, open, onToggleOpen, onChange }: FilterAccordi
             return (
               <div key={option.value} className="flex items-center justify-between gap-3">
                 <div className={isSingle ? "fr-radio-group" : "fr-checkbox-group"}>
-                  {/* Radio : `change` ne se déclenche pas au clic sur une valeur déjà cochée, on passe par `click` pour permettre la désélection. */}
+                  {/* Radio : la sélection passe par `change` (émis aussi au clavier) ; `click` ne sert qu'à
+                      désélectionner un radio déjà coché, seul cas où `change` ne peut pas se produire. */}
                   <input
                     type={isSingle ? "radio" : "checkbox"}
                     id={inputId}
                     name={isSingle ? `${reactId}-group` : undefined}
                     checked={isSelected}
-                    onChange={isSingle ? () => {} : () => toggleOption(option.value)}
-                    onClick={isSingle ? () => toggleOption(option.value) : undefined}
+                    onChange={() => (isSingle ? onChange([option.value]) : toggleOption(option.value))}
+                    onClick={isSingle && isSelected ? () => onChange([]) : undefined}
                   />
                   <label className="fr-label" htmlFor={inputId}>
                     {option.label}
