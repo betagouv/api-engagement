@@ -1,6 +1,6 @@
 import { TRACKING_PROVIDER } from "~/services/config";
 import { useQuizStore } from "~/stores/quiz";
-import { getInternalUserFlagAction, persistInternalUserFlagAction } from "~/utils/internal-user-flag";
+import { getInternalUserFlagAction, isInternalUserFlagEnabled, persistInternalUserFlagAction } from "~/utils/internal-user-flag";
 
 import { createProvider } from "./providers";
 import type { TrackingProperties, TrackingProvider, TrackingProviderName, TrackingTraits } from "./types";
@@ -39,22 +39,20 @@ function syncIdentitySuperProperties(state: { quizAttemptId: string; userScoring
 
 function syncInternalUserFlag(provider: TrackingProvider): void {
   const action = getInternalUserFlagAction(window.location.search);
+  let enabled = action === "enable";
   try {
     persistInternalUserFlagAction(action, window.localStorage);
+    enabled = isInternalUserFlagEnabled(window.location.search, window.localStorage);
   } catch {
     // Le marqueur UI ne doit pas empêcher la synchronisation PostHog.
   }
 
-  switch (action) {
-    case "enable":
-      provider.register?.({ internal_user: true });
-      break;
-    case "disable":
-      provider.unregister?.("internal_user");
-      break;
-    case "none":
-      break;
+  if (enabled) {
+    provider.register?.({ internal_user: true });
+    return;
   }
+
+  provider.unregister?.("internal_user");
 }
 
 // Initialise le tracking côté client : identifie l'utilisateur par le `distinctId` persistant du
