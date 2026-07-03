@@ -35,6 +35,10 @@ export type TrackingProviderName = "local" | "posthog";
 // Catégorie du plan de télémétrie (documentation/priorisation, non envoyée à PostHog).
 export type EventCategory = "lifecycle" | "core_value" | "feature_usage";
 
+// --- page.viewed ---
+// Page visitée (discriminant du pageview manuel : capture_pageview est désactivé côté PostHog).
+export type PageViewedPageName = "homepage" | "missions_list";
+
 // --- mission.clicked ---
 // Surface d'où provient le clic sur une carte mission.
 export type MissionClickedSection = "pinned" | "other" | "homepage_examples" | "missions_list" | "similar";

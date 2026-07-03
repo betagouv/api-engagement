@@ -1,7 +1,7 @@
 import type { MissionBrowse, MissionBrowseFacetCount, MissionBrowseFilters } from "@engagement/dto";
 import { TAXONOMY } from "@engagement/taxonomy";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { useSearchParams } from "react-router";
 import Newsletter from "~/components/layout/newsletter";
@@ -11,7 +11,7 @@ import MissionCard from "~/components/missions/mission-card";
 import GradientBg from "~/components/ui/gradient-bg";
 import Pagination from "~/components/ui/pagination";
 import { browseMissions } from "~/services/mission-browse";
-import { trackMissionClickedFromBrowse, trackMissionsFilterApplied } from "~/services/tracking/events";
+import { trackMissionClickedFromBrowse, trackMissionsFilterApplied, trackPageViewed } from "~/services/tracking/events";
 import type { MissionDetailNavState, MissionsFilterType } from "~/services/tracking/types";
 import type { Route } from "./+types/missions";
 
@@ -90,6 +90,16 @@ export default function MissionsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const pageViewedFired = useRef(false);
+  // Filtre appliqué en attente de tracking : results_count n'est connu qu'au retour de la recherche.
+  const pendingFilterTrackRef = useRef<{ filterType: MissionsFilterType; filterValue: string; activeFilterCount: number } | null>(null);
+
+  useEffect(() => {
+    if (pageViewedFired.current) return;
+    pageViewedFired.current = true;
+    trackPageViewed({ pageName: "missions_list" });
+  }, []);
+
   useEffect(() => {
     const controller = new AbortController();
     setLoading(true);
@@ -108,9 +118,18 @@ export default function MissionsPage() {
         setItems(res.data);
         setTotal(res.total);
         setFacets(res.facets);
+
+        const pendingFilterTrack = pendingFilterTrackRef.current;
+        if (pendingFilterTrack) {
+          pendingFilterTrackRef.current = null;
+          trackMissionsFilterApplied({ ...pendingFilterTrack, resultsCount: res.total });
+        }
       })
       .catch((err) => {
         if (controller.signal.aborted) return;
+        // Recherche en échec : on abandonne le tracking du filtre plutôt que d'émettre
+        // un results_count erroné lors d'un fetch ultérieur (ex. pagination).
+        pendingFilterTrackRef.current = null;
         setError(err instanceof Error ? err.message : "Erreur inconnue");
       })
       .finally(() => {
@@ -175,10 +194,11 @@ export default function MissionsPage() {
 
     // missions_filter.applied : on émet uniquement lors d'une sélection (valeur ajoutée),
     // pas lors d'une désélection. active_filter_count = total des valeurs actives après ce changement.
+    // L'event part au retour de la recherche (cf. pendingFilterTrackRef) pour porter results_count.
     const addedValue = next.find((value) => !filterValues[filterKey].includes(value));
     if (addedValue) {
       const activeFilterCount = FILTER_KEYS.reduce((sum, k) => sum + (k === filterKey ? next.length : filterValues[k].length), 0);
-      trackMissionsFilterApplied({ filterType: FILTER_TYPE_BY_KEY[filterKey], filterValue: addedValue, activeFilterCount });
+      pendingFilterTrackRef.current = { filterType: FILTER_TYPE_BY_KEY[filterKey], filterValue: addedValue, activeFilterCount };
     }
 
     setSearchParams((prev) => {
