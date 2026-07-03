@@ -39,20 +39,11 @@ const buildTaxonomyFilterOptions = (key: FilterKey, facets: MissionBrowseFacetCo
   const taxonomyValues = TAXONOMY[key].values as Record<string, TaxonomyFilterValue>;
   const countByKey = new Map((facets ?? []).map((facet) => [facet.key, facet.count]));
 
-  const options = Object.entries(taxonomyValues).flatMap(([value, taxonomyValue]) => {
+  return Object.entries(taxonomyValues).flatMap(([value, taxonomyValue]) => {
     const count = countByKey.get(value) ?? 0;
-    countByKey.delete(value);
     if (taxonomyValue.hidden === true || count === 0) return [];
     return [{ value, label: taxonomyValue.label, count }];
   });
-
-  // Facettes hors taxonomie (données inattendues) : affichées en fin de liste, par volume décroissant.
-  const extras = [...countByKey.entries()]
-    .filter(([, count]) => count > 0)
-    .sort((a, b) => b[1] - a[1])
-    .map(([value, count]) => ({ value, label: value, count }));
-
-  return [...options, ...extras];
 };
 
 const getFilterValues = (searchParams: URLSearchParams): Record<FilterKey, string[]> =>
