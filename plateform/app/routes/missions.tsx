@@ -105,6 +105,10 @@ export default function MissionsPage() {
     setLoading(true);
     setError(null);
 
+    // Consommé par cette requête : si elle est abortée ou échoue, l'event de filtre est abandonné.
+    const pendingFilterTrack = pendingFilterTrackRef.current;
+    pendingFilterTrackRef.current = null;
+
     const browseInput: BrowseParams = { page, pageSize: PAGE_SIZE };
     if (filterValues.departmentCode.length) browseInput.departmentCode = filterValues.departmentCode;
     if (filterValues.dispositif.length) browseInput.dispositif = filterValues.dispositif;
@@ -119,17 +123,12 @@ export default function MissionsPage() {
         setTotal(res.total);
         setFacets(res.facets);
 
-        const pendingFilterTrack = pendingFilterTrackRef.current;
         if (pendingFilterTrack) {
-          pendingFilterTrackRef.current = null;
           trackMissionsFilterApplied({ ...pendingFilterTrack, resultsCount: res.total });
         }
       })
       .catch((err) => {
         if (controller.signal.aborted) return;
-        // Recherche en échec : on abandonne le tracking du filtre plutôt que d'émettre
-        // un results_count erroné lors d'un fetch ultérieur (ex. pagination).
-        pendingFilterTrackRef.current = null;
         setError(err instanceof Error ? err.message : "Erreur inconnue");
       })
       .finally(() => {
@@ -192,9 +191,8 @@ export default function MissionsPage() {
     if (!FILTER_KEYS.includes(key as FilterKey)) return;
     const filterKey = key as FilterKey;
 
-    // missions_filter.applied : on émet uniquement lors d'une sélection (valeur ajoutée),
-    // pas lors d'une désélection. active_filter_count = total des valeurs actives après ce changement.
-    // L'event part au retour de la recherche (cf. pendingFilterTrackRef) pour porter results_count.
+    // missions_filter.applied : émis uniquement lors d'une sélection (pas la désélection),
+    // au retour de la recherche pour porter results_count.
     const addedValue = next.find((value) => !filterValues[filterKey].includes(value));
     if (addedValue) {
       const activeFilterCount = FILTER_KEYS.reduce((sum, k) => sum + (k === filterKey ? next.length : filterValues[k].length), 0);

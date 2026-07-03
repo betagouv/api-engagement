@@ -19,6 +19,8 @@ function getProvider(): TrackingProvider | null {
   if (!provider) {
     provider = createProvider(TRACKING_PROVIDER as TrackingProviderName);
     provider.init?.();
+    // Identify + super properties avant la première capture (un track() de route peut précéder initTracking()).
+    bootstrapIdentity();
   }
   return provider;
 }
@@ -36,12 +38,10 @@ function syncIdentitySuperProperties(state: { quizAttemptId: string; userScoring
   });
 }
 
-// Initialise le tracking côté client : identifie l'utilisateur par le `distinctId` persistant du
-// quiz (réconciliation des sessions dans PostHog, consentement assumé pour l'instant) et enregistre
-// les super properties d'identité, maintenues à jour via un abonnement au store.
+// Bootstrap d'identité (une seule fois, à l'init du provider) : identify par le `distinctId`
+// persistant du quiz et super properties d'identité, maintenues à jour via un abonnement au store.
 // TODO(cookie-banner) : sans consentement, ne pas appeler `identify` (rester anonyme/cookieless).
-export function initTracking(): void {
-  if (!getProvider()) return;
+function bootstrapIdentity(): void {
   identify(useQuizStore.getState().distinctId);
   syncIdentitySuperProperties(useQuizStore.getState());
 
@@ -53,6 +53,11 @@ export function initTracking(): void {
     lastSessionId = state.userScoringId;
     syncIdentitySuperProperties(state);
   });
+}
+
+// Déclenche l'init paresseuse (provider + identité) au plus tôt, sans attendre un premier track().
+export function initTracking(): void {
+  getProvider();
 }
 
 // Force l'enregistrement du quiz_session_id (ex. accès direct à /results/:id où l'id vient de l'URL
