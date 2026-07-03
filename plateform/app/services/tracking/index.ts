@@ -1,6 +1,6 @@
 import { TRACKING_PROVIDER } from "~/services/config";
 import { useQuizStore } from "~/stores/quiz";
-import { getInternalUserFlagAction } from "~/utils/internal-user-flag";
+import { getInternalUserFlagAction, persistInternalUserFlagAction } from "~/utils/internal-user-flag";
 
 import { createProvider } from "./providers";
 import type { TrackingProperties, TrackingProvider, TrackingProviderName, TrackingTraits } from "./types";
@@ -38,7 +38,14 @@ function syncIdentitySuperProperties(state: { quizAttemptId: string; userScoring
 }
 
 function syncInternalUserFlag(provider: TrackingProvider): void {
-  switch (getInternalUserFlagAction(window.location.search)) {
+  const action = getInternalUserFlagAction(window.location.search);
+  try {
+    persistInternalUserFlagAction(action, window.localStorage);
+  } catch {
+    // Le marqueur UI ne doit pas empêcher la synchronisation PostHog.
+  }
+
+  switch (action) {
     case "enable":
       provider.register?.({ internal_user: true });
       break;
@@ -75,6 +82,20 @@ export function initTracking(): void {
 // et non du store). No-op pendant le SSR.
 export function setQuizSessionId(userScoringId: string): void {
   getProvider()?.register?.({ quiz_session_id: userScoringId });
+}
+
+// Désactive le flag interne depuis l'UI de debug. No-op pendant le SSR.
+export function disableInternalUserFlag(): void {
+  const provider = getProvider();
+  if (!provider) return;
+
+  try {
+    persistInternalUserFlagAction("disable", window.localStorage);
+  } catch {
+    // Le marqueur UI ne doit pas empêcher la synchronisation PostHog.
+  }
+
+  provider.unregister?.("internal_user");
 }
 
 // Retire les clés à valeur `undefined` : permet aux events de passer une propriété optionnelle
