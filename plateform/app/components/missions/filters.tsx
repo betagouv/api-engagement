@@ -202,12 +202,14 @@ function FilterAccordion({ filter, open, onToggleOpen, onChange }: FilterAccordi
             return (
               <div key={option.value} className="flex items-center justify-between gap-3">
                 <div className={isSingle ? "fr-radio-group" : "fr-checkbox-group"}>
+                  {/* Radio : `change` ne se déclenche pas au clic sur une valeur déjà cochée, on passe par `click` pour permettre la désélection. */}
                   <input
                     type={isSingle ? "radio" : "checkbox"}
                     id={inputId}
                     name={isSingle ? `${reactId}-group` : undefined}
                     checked={isSelected}
-                    onChange={() => toggleOption(option.value)}
+                    onChange={isSingle ? () => {} : () => toggleOption(option.value)}
+                    onClick={isSingle ? () => toggleOption(option.value) : undefined}
                   />
                   <label className="fr-label" htmlFor={inputId}>
                     {option.label}
