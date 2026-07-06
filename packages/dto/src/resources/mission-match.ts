@@ -59,6 +59,7 @@ export type MissionMatchItem = {
 
 export type MissionMatchResponse = {
   tookMs: number;
+  // Version du moteur de matching effectivement utilisée ("m1" | "m2"). Optionnel pour rétro-compatibilité des clients.
   engineVersion?: string;
   items: MissionMatchItem[];
   // Nombre total de missions classées pour l'utilisateur (avant pagination).
