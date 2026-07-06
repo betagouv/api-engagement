@@ -162,6 +162,7 @@ export const userScoringService = {
   },
 
   async update(input: UpdateUserScoringInput) {
+    const scoringData = input.answers ? buildValuesToPersist(input.answers) : { values: [], geo: undefined };
     const userScoring = await userScoringRepository.findById(input.userScoringId);
     if (!userScoring) {
       return { status: "not_found" as const };
@@ -171,7 +172,6 @@ export const userScoringService = {
       return { status: "forbidden" as const };
     }
 
-    const scoringData = input.answers ? buildValuesToPersist(input.answers) : { values: [], geo: undefined };
     const result = await userScoringRepository.update({
       userScoringId: input.userScoringId,
       values: scoringData.values,

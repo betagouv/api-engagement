@@ -59,6 +59,7 @@ export type MissionMatchItem = {
 
 export type MissionMatchResponse = {
   tookMs: number;
+  engineVersion?: string;
   items: MissionMatchItem[];
   // Nombre total de missions classées pour l'utilisateur (avant pagination).
   total: number;

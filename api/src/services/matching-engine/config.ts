@@ -36,4 +36,6 @@ export const MATCHING_ENGINE_VERSIONS = {
   },
 } as const satisfies Record<MatchingEngineVersion, MatchingEngineVersionConfig>;
 
+export const MATCHING_ENGINE_VERSION_KEYS = Object.keys(MATCHING_ENGINE_VERSIONS) as [MatchingEngineVersion, ...MatchingEngineVersion[]];
+
 export const MATCHING_ENGINE_TAXONOMY_WEIGHTS = MATCHING_ENGINE_VERSIONS[CURRENT_MATCHING_ENGINE_VERSION].taxonomyWeights;

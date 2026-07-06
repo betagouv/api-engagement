@@ -333,15 +333,14 @@ describe("POST /user-scoring", () => {
   });
 
   it("should return 400 when location uses a value or is duplicated", async () => {
-    const responses = await Promise.all([
-      postUserScoringRequest().send({ answers: [{ taxonomy: "location", value: "paris" }] }),
-      postUserScoringRequest().send({
-        answers: [
-          { taxonomy: "location", params: { lat: 48.8566, lon: 2.3522 } },
-          { taxonomy: "location", params: { lat: 45.764, lon: 4.8357 } },
-        ],
-      }),
-    ]);
+    const locationValueResponse = await postUserScoringRequest().send({ answers: [{ taxonomy: "location", value: "paris" }] });
+    const duplicatedLocationResponse = await postUserScoringRequest().send({
+      answers: [
+        { taxonomy: "location", params: { lat: 48.8566, lon: 2.3522 } },
+        { taxonomy: "location", params: { lat: 45.764, lon: 4.8357 } },
+      ],
+    });
+    const responses = [locationValueResponse, duplicatedLocationResponse];
 
     expect(responses.map((res) => res.status)).toEqual([400, 400]);
     expect(responses.every((res) => res.body.ok === false)).toBe(true);
