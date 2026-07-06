@@ -3,12 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "generate-changelog": "ts-node generate-changelog.ts"
+    "generate-changelog": "ts-node generate-changelog.ts",
+    "eval:matching": "ts-node eval-matching/index.ts"
   },
   "dependencies": {
     "openai": "4.103.0",
     "@notionhq/client": "2.2.15",
-    "dotenv": "16.5.0"
+    "dotenv": "16.5.0",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/node": "22.15.29",
