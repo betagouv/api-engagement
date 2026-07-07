@@ -34,26 +34,15 @@ const FILTER_TYPE_BY_KEY: Record<FilterKey, MissionsFilterType> = {
 type BrowseParams = MissionBrowseFilters;
 type TaxonomyFilterValue = { label: string; hidden?: boolean };
 
-const sortFacets = (facets: MissionBrowseFacetCount[] | undefined) =>
-  (facets ?? [])
-    .filter((f) => f.count > 0)
-    .slice()
-    .sort((a, b) => b.count - a.count);
-
+// Les options suivent l'ordre de déclaration des valeurs dans TAXONOMY (pas le nombre de résultats).
 const buildTaxonomyFilterOptions = (key: FilterKey, facets: MissionBrowseFacetCount[] | undefined) => {
   const taxonomyValues = TAXONOMY[key].values as Record<string, TaxonomyFilterValue>;
+  const countByKey = new Map((facets ?? []).map((facet) => [facet.key, facet.count]));
 
-  return sortFacets(facets).flatMap((facet) => {
-    const taxonomyValue = taxonomyValues[facet.key];
-    if (taxonomyValue?.hidden === true) return [];
-
-    return [
-      {
-        value: facet.key,
-        label: taxonomyValue?.label ?? facet.key,
-        count: facet.count,
-      },
-    ];
+  return Object.entries(taxonomyValues).flatMap(([value, taxonomyValue]) => {
+    const count = countByKey.get(value) ?? 0;
+    if (taxonomyValue.hidden === true || count === 0) return [];
+    return [{ value, label: taxonomyValue.label, count }];
   });
 };
 

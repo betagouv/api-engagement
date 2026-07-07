@@ -23,6 +23,8 @@ export interface TrackingProvider {
   identify?(distinctId: string, traits?: TrackingTraits): void;
   // Enregistre des "super properties" attachées automatiquement à tous les évènements suivants.
   register?(properties: TrackingProperties): void;
+  // Retire une super property attachée automatiquement aux évènements suivants.
+  unregister?(property: string): void;
 }
 
 // Providers supportés : `posthog` en production, `local` (console.log) pour le développement.
