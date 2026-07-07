@@ -28,7 +28,7 @@ pages as (
     kpi_date,
     sum(pageview_count) filter (where page_name = 'homepage')
       as home_pageview_count
-  from {{ ref('page_view_daily') }}
+  from {{ ref('tracking_page_view_daily') }}
   group by kpi_date
 )
 
