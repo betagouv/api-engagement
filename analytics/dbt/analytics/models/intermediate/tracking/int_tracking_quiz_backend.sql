@@ -14,15 +14,17 @@ backend_scoring as (
     r.user_scoring_id as quiz_session_id,
     avg(
       (
-        select avg(val::numeric)
-        from jsonb_each_text(elem -> 'taxonomyScores') as kv(key, val)
+        select avg(jt.value::numeric)
+        from jsonb_each_text(t.elem -> 'taxonomyScores') as jt
       )
     ) as score_top5,
     max(r.matching_engine_version) as matching_engine_version
   from {{ ref('matching_engine_result') }} as r
-  cross join lateral jsonb_array_elements(r.results)
-    with ordinality as t(elem, ord)
-  where t.ord <= 5
+  cross join
+    lateral jsonb_array_elements(r.results)
+    with ordinality as t (elem, ord)
+  where
+    t.ord <= 5
     and r.results is not null
   group by r.user_scoring_id
 )
