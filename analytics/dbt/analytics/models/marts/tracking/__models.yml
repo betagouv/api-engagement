@@ -1,0 +1,65 @@
+version: 2
+
+models:
+  - name: quiz_session
+    description: >
+      Fait session (grain `quiz_attempt_id`) exposé à Metabase. Fusionne le tunnel, les résultats et le backend.
+      Sert aussi de base aux distributions (statut, motivation, age_bracket) par `group by`.
+    columns:
+      - name: quiz_attempt_id
+        tests:
+          - not_null
+          - unique
+      - name: quiz_session_id
+        description: Identifiant backend, présent pour les sessions complétées.
+
+  - name: mission_click
+    description: >
+      Fait clic mission (grain événement) pour les breakdowns rang / score / distance / section / publisher,
+      enrichi du statut et de la tranche d'âge de la session.
+    columns:
+      - name: event_uuid
+        tests:
+          - not_null
+          - unique
+
+  - name: page_view_daily
+    description: >
+      Trafic quotidien par page (`page_name`). Dénominateur des ratios d'acquisition (ex. taux de démarrage
+      du quiz depuis la home).
+    columns:
+      - name: kpi_date
+        tests:
+          - not_null
+      - name: page_name
+        tests:
+          - not_null
+
+  - name: funnel_step_daily
+    description: >
+      Funnel quotidien : sessions atteignant chaque étape, taux de rétention étape N / N-1 et taux d'atteinte
+      global depuis `quiz.started`.
+    columns:
+      - name: kpi_date
+        tests:
+          - not_null
+
+  - name: engagement_kpi_daily
+    description: >
+      Rollup quotidien des KPIs de succès et d'activité (complétion, conversion quiz → clic, accès annonceurs,
+      raccourci, changement de résultats, taux de démarrage depuis la home).
+    columns:
+      - name: kpi_date
+        tests:
+          - not_null
+          - unique
+
+  - name: scoring_kpi_daily
+    description: >
+      Rollup quotidien de la qualité des recommandations : clic pinned, zéro-clic, distance et score moyens du
+      top 5, répartition des clics par rang.
+    columns:
+      - name: kpi_date
+        tests:
+          - not_null
+          - unique

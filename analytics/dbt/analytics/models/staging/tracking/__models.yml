@@ -1,0 +1,157 @@
+version: 2
+
+models:
+  - name: stg_tracking__event
+    description: >
+      Pivot des événements de tracking front (source `analytics_raw.tracking_event`). Normalise les colonnes
+      communes et extrait du JSONB `properties` les propriétés partagées (clés de liaison, versioning, contexte
+      device/geo PostHog, acquisition, flag interne). Conserve `properties` brut pour les modèles par-event.
+      Exclut les événements système PostHog (préfixe `$`). Aucun filtrage des utilisateurs internes ici :
+      le staging reste exhaustif, l'exclusion est appliquée à partir des intermediate.
+    columns:
+      - name: event_uuid
+        description: Identifiant unique de l'événement (PostHog).
+        tests:
+          - not_null
+          - unique
+      - name: event_name
+        description: Nom de l'événement métier (ex. `quiz.started`).
+        tests:
+          - not_null
+      - name: event_at
+        description: Horodatage d'émission de l'événement.
+        tests:
+          - not_null
+      - name: is_internal_user
+        description: Vrai si l'événement porte le flag `internal_user` (membre de l'équipe). Jamais nul.
+        tests:
+          - not_null
+      - name: device_type
+        description: Type d'appareil PostHog (`$device_type`), ex. Mobile / Desktop / Tablet.
+      - name: quiz_attempt_id
+        description: UUID de la tentative de quiz (présent sur tout le tunnel).
+      - name: quiz_session_id
+        description: Identifiant de session backend (`userScoringId`), présent sur les events post-quiz.
+
+  - name: stg_tracking__quiz_started
+    description: Entrée du tunnel quiz (`quiz.started`), événement de référence de tous les ratios.
+    columns:
+      - name: event_uuid
+        tests:
+          - not_null
+          - unique
+      - name: quiz_attempt_id
+        description: UUID de la tentative, généré à cet événement.
+        tests:
+          - not_null
+      - name: entry_source
+        description: Origine d'entrée dans le tunnel.
+        tests:
+          - accepted_values:
+              values: ["homepage_cta", "direct", "missions_list", "change_results_cta", "external"]
+
+  - name: stg_tracking__quiz_step_completed
+    description: Étape de quiz validée (`quiz.step_completed`), base du funnel d'abandon.
+    columns:
+      - name: event_uuid
+        tests:
+          - not_null
+          - unique
+      - name: quiz_attempt_id
+        tests:
+          - not_null
+      - name: step_name
+        description: Nom de l'étape validée.
+        tests:
+          - not_null
+      - name: step_index
+        description: Position 1-based dans la séquence visible.
+
+  - name: stg_tracking__quiz_completed
+    description: Fin du quiz (`quiz.completed`). Fait le lien `quiz_attempt_id` ↔ `quiz_session_id`.
+    columns:
+      - name: event_uuid
+        tests:
+          - not_null
+          - unique
+      - name: quiz_attempt_id
+        tests:
+          - not_null
+      - name: quiz_session_id
+        description: Identifiant backend (`userScoringId`), clé de jointure analytics.
+        tests:
+          - not_null
+      - name: completion_type
+        description: Type de complétion.
+        tests:
+          - accepted_values:
+              values: ["full", "shortcut"]
+      - name: statut
+        description: Statut déclaré par l'utilisateur.
+        tests:
+          - accepted_values:
+              values: ["lyceen", "etudiant", "demandeur_emploi", "actif", "retraite", "autre"]
+
+  - name: stg_tracking__results_viewed
+    description: Affichage de la page de résultats (`results.viewed`).
+    columns:
+      - name: event_uuid
+        tests:
+          - not_null
+          - unique
+      - name: quiz_session_id
+        tests:
+          - not_null
+      - name: has_results
+        description: Faux si aucune mission retournée.
+
+  - name: stg_tracking__mission_clicked
+    description: Clic sur une carte mission (`mission.clicked`), base des breakdowns rang/distance/section.
+    columns:
+      - name: event_uuid
+        tests:
+          - not_null
+          - unique
+      - name: mission_id
+        tests:
+          - not_null
+      - name: section
+        description: Section d'où provient le clic.
+        tests:
+          - accepted_values:
+              values: ["pinned", "other", "homepage_examples", "missions_list", "similar"]
+      - name: entry_page
+        description: Page depuis laquelle le clic est émis.
+        tests:
+          - accepted_values:
+              values: ["results", "homepage", "missions_list"]
+
+  - name: stg_tracking__mission_detail_viewed
+    description: Consultation d'une fiche mission (`mission_detail.viewed`).
+    columns:
+      - name: event_uuid
+        tests:
+          - not_null
+          - unique
+      - name: mission_id
+        tests:
+          - not_null
+      - name: entry_source
+        description: Origine de la consultation.
+        tests:
+          - accepted_values:
+              values: ["results_pinned", "results_other", "missions_list", "homepage", "direct"]
+
+  - name: stg_tracking__page_viewed
+    description: Visite d'une page (`page.viewed`), utilisé en agrégé comme dénominateur du trafic.
+    columns:
+      - name: event_uuid
+        tests:
+          - not_null
+          - unique
+      - name: page_name
+        description: Page visitée (discriminant).
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["homepage", "missions_list"]
