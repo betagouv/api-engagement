@@ -3,6 +3,7 @@ import { missionMatchingResultRepository } from "@/repositories/mission-matching
 import { userScoringRepository } from "@/repositories/user-scoring";
 import type { MissionContent } from "@/services/brevo";
 import { buildMissionContentHtml, sendTemplate, TEMPLATE_IDS } from "@/services/brevo";
+import { CURRENT_MATCHING_ENGINE_VERSION } from "@/services/matching-engine/config";
 import type { MissionMatchingResultItem } from "@/services/matching-engine/types";
 import { missionService } from "@/services/mission";
 import { subscribeToNewsletter } from "@/services/newsletter";
@@ -116,7 +117,7 @@ const buildMissionEmailItem = (mission: EmailMission, publisherId: string, userS
 });
 
 const buildMissionMatchingEmailParams = async (userScoringId: string, publisherId: string): Promise<MissionContent[] | null> => {
-  const matchingResult = await missionMatchingResultRepository.findLatestForUserScoring(userScoringId);
+  const matchingResult = await missionMatchingResultRepository.findLatestForUserScoringVersion(userScoringId, CURRENT_MATCHING_ENGINE_VERSION);
   if (!matchingResult) {
     return null;
   }
