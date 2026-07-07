@@ -13,6 +13,7 @@ import type {
   MissionClickedSection,
   MissionDetailEntrySource,
   MissionsFilterType,
+  PageViewedPageName,
   QuizCompletionType,
   QuizEntrySource,
 } from "./types";
@@ -28,6 +29,7 @@ import { ANSWER_VALUE_EXCLUDED_STEPS, buildQuizPath, countAnsweredSteps, optionA
 
 // Catégorie de chaque évènement (documentation/priorisation, non transmise à PostHog).
 export const EVENT_CATALOG = {
+  "page.viewed": "lifecycle",
   "quiz.started": "lifecycle",
   "quiz.step_completed": "core_value",
   "quiz.completed": "core_value",
@@ -40,6 +42,15 @@ export const EVENT_CATALOG = {
   "email_missions.sent": "feature_usage",
   "email_mission_detail.sent": "feature_usage",
 } satisfies Record<string, EventCategory>;
+
+// ============================================================================
+// page.viewed
+// ============================================================================
+
+// `page.viewed` (lifecycle) : visite d'une page (pageview manuel, capture_pageview désactivé).
+export function trackPageViewed(params: { pageName: PageViewedPageName }): void {
+  track("page.viewed", { page_name: params.pageName });
+}
 
 // ============================================================================
 // mission.clicked
@@ -209,11 +220,13 @@ export function trackMissionDetailViewed(params: {
 // ============================================================================
 
 // `missions_filter.applied` (feature_usage) : sélection d'une valeur de filtre sur /missions.
-export function trackMissionsFilterApplied(params: { filterType: MissionsFilterType; filterValue: string; activeFilterCount: number }): void {
+// Émis après le retour de la recherche : results_count = nombre de missions après application du filtre.
+export function trackMissionsFilterApplied(params: { filterType: MissionsFilterType; filterValue: string; activeFilterCount: number; resultsCount: number }): void {
   track("missions_filter.applied", {
     filter_type: params.filterType,
     filter_value: params.filterValue,
     active_filter_count: params.activeFilterCount,
+    results_count: params.resultsCount,
   });
 }
 

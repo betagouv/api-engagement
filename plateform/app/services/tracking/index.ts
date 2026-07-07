@@ -20,6 +20,8 @@ function getProvider(): TrackingProvider | null {
   if (!provider) {
     provider = createProvider(TRACKING_PROVIDER as TrackingProviderName);
     provider.init?.();
+    // Identify + super properties avant la première capture (un track() de route peut précéder initTracking()).
+    bootstrapIdentity();
     syncInternalUserFlag(provider);
   }
   return provider;
@@ -35,6 +37,23 @@ function syncIdentitySuperProperties(state: { quizAttemptId: string; userScoring
   getProvider()?.register?.({
     quiz_attempt_id: state.quizAttemptId,
     quiz_session_id: state.userScoringId ?? null,
+  });
+}
+
+// Bootstrap d'identité (une seule fois, à l'init du provider) : identify par le `distinctId`
+// persistant du quiz et super properties d'identité, maintenues à jour via un abonnement au store.
+// TODO(cookie-banner) : sans consentement, ne pas appeler `identify` (rester anonyme/cookieless).
+function bootstrapIdentity(): void {
+  identify(useQuizStore.getState().distinctId);
+  syncIdentitySuperProperties(useQuizStore.getState());
+
+  let lastAttemptId = useQuizStore.getState().quizAttemptId;
+  let lastSessionId = useQuizStore.getState().userScoringId;
+  useQuizStore.subscribe((state) => {
+    if (state.quizAttemptId === lastAttemptId && state.userScoringId === lastSessionId) return;
+    lastAttemptId = state.quizAttemptId;
+    lastSessionId = state.userScoringId;
+    syncIdentitySuperProperties(state);
   });
 }
 
@@ -56,25 +75,9 @@ function syncInternalUserFlag(provider: TrackingProvider): void {
   provider.unregister?.("internal_user");
 }
 
-// Initialise le tracking côté client : identifie l'utilisateur par le `distinctId` persistant du
-// quiz (réconciliation des sessions dans PostHog, consentement assumé pour l'instant) et enregistre
-// les super properties d'identité, maintenues à jour via un abonnement au store.
-// TODO(cookie-banner) : sans consentement, ne pas appeler `identify` (rester anonyme/cookieless).
+// Déclenche l'init paresseuse (provider + identité + flag interne) au plus tôt, sans attendre un premier track().
 export function initTracking(): void {
-  const provider = getProvider();
-  if (!provider) return;
-  syncInternalUserFlag(provider);
-  identify(useQuizStore.getState().distinctId);
-  syncIdentitySuperProperties(useQuizStore.getState());
-
-  let lastAttemptId = useQuizStore.getState().quizAttemptId;
-  let lastSessionId = useQuizStore.getState().userScoringId;
-  useQuizStore.subscribe((state) => {
-    if (state.quizAttemptId === lastAttemptId && state.userScoringId === lastSessionId) return;
-    lastAttemptId = state.quizAttemptId;
-    lastSessionId = state.userScoringId;
-    syncIdentitySuperProperties(state);
-  });
+  getProvider();
 }
 
 // Force l'enregistrement du quiz_session_id (ex. accès direct à /results/:id où l'id vient de l'URL
