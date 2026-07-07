@@ -1,5 +1,6 @@
 import { TRACKING_PROVIDER } from "~/services/config";
 import { useQuizStore } from "~/stores/quiz";
+import { getInternalUserFlagAction, isInternalUserFlagEnabled, persistInternalUserFlagAction } from "~/utils/internal-user-flag";
 
 import { createProvider } from "./providers";
 import type { TrackingProperties, TrackingProvider, TrackingProviderName, TrackingTraits } from "./types";
@@ -19,6 +20,7 @@ function getProvider(): TrackingProvider | null {
   if (!provider) {
     provider = createProvider(TRACKING_PROVIDER as TrackingProviderName);
     provider.init?.();
+    syncInternalUserFlag(provider);
   }
   return provider;
 }
@@ -36,12 +38,32 @@ function syncIdentitySuperProperties(state: { quizAttemptId: string; userScoring
   });
 }
 
+function syncInternalUserFlag(provider: TrackingProvider): void {
+  const action = getInternalUserFlagAction(window.location.search);
+  let enabled = action === "enable";
+  try {
+    persistInternalUserFlagAction(action, window.localStorage);
+    enabled = isInternalUserFlagEnabled(window.location.search, window.localStorage);
+  } catch {
+    // Le marqueur UI ne doit pas empêcher la synchronisation PostHog.
+  }
+
+  if (enabled) {
+    provider.register?.({ internal_user: true });
+    return;
+  }
+
+  provider.unregister?.("internal_user");
+}
+
 // Initialise le tracking côté client : identifie l'utilisateur par le `distinctId` persistant du
 // quiz (réconciliation des sessions dans PostHog, consentement assumé pour l'instant) et enregistre
 // les super properties d'identité, maintenues à jour via un abonnement au store.
 // TODO(cookie-banner) : sans consentement, ne pas appeler `identify` (rester anonyme/cookieless).
 export function initTracking(): void {
-  if (!getProvider()) return;
+  const provider = getProvider();
+  if (!provider) return;
+  syncInternalUserFlag(provider);
   identify(useQuizStore.getState().distinctId);
   syncIdentitySuperProperties(useQuizStore.getState());
 
@@ -59,6 +81,20 @@ export function initTracking(): void {
 // et non du store). No-op pendant le SSR.
 export function setQuizSessionId(userScoringId: string): void {
   getProvider()?.register?.({ quiz_session_id: userScoringId });
+}
+
+// Désactive le flag interne depuis l'UI de debug. No-op pendant le SSR.
+export function disableInternalUserFlag(): void {
+  const provider = getProvider();
+  if (!provider) return;
+
+  try {
+    persistInternalUserFlagAction("disable", window.localStorage);
+  } catch {
+    // Le marqueur UI ne doit pas empêcher la synchronisation PostHog.
+  }
+
+  provider.unregister?.("internal_user");
 }
 
 // Retire les clés à valeur `undefined` : permet aux events de passer une propriété optionnelle

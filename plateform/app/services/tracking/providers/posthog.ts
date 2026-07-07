@@ -50,5 +50,10 @@ export function createPosthogProvider(): TrackingProvider {
       if (!ready) return;
       posthog.register(properties);
     },
+
+    unregister(property: string) {
+      if (!ready) return;
+      posthog.unregister(property);
+    },
   };
 }

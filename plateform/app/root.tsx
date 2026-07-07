@@ -8,6 +8,7 @@ import { type ReactNode, useEffect } from "react";
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 import Footer from "~/components/layout/footer";
 import Header from "~/components/layout/header";
+import InternalUserFlagIndicator from "~/components/layout/internal-user-flag-indicator";
 import { PUBLISHER_ID } from "~/services/config";
 import { initTracking } from "~/services/tracking";
 import { serializeForInlineScript } from "~/utils/string";
@@ -52,6 +53,7 @@ export default function Root() {
       <Header />
       <Outlet />
       <Footer />
+      <InternalUserFlagIndicator />
     </>
   );
 }
