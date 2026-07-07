@@ -1,7 +1,7 @@
 import type { MissionBrowse, MissionBrowseFacetCount, MissionBrowseFilters } from "@engagement/dto";
 import { TAXONOMY } from "@engagement/taxonomy";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { useSearchParams } from "react-router";
 import Newsletter from "~/components/layout/newsletter";
@@ -11,7 +11,7 @@ import MissionCard from "~/components/missions/mission-card";
 import GradientBg from "~/components/ui/gradient-bg";
 import Pagination from "~/components/ui/pagination";
 import { browseMissions } from "~/services/mission-browse";
-import { trackMissionClickedFromBrowse, trackMissionsFilterApplied } from "~/services/tracking/events";
+import { trackMissionClickedFromBrowse, trackMissionsFilterApplied, trackPageViewed } from "~/services/tracking/events";
 import type { MissionDetailNavState, MissionsFilterType } from "~/services/tracking/types";
 import type { Route } from "./+types/missions";
 
@@ -34,26 +34,15 @@ const FILTER_TYPE_BY_KEY: Record<FilterKey, MissionsFilterType> = {
 type BrowseParams = MissionBrowseFilters;
 type TaxonomyFilterValue = { label: string; hidden?: boolean };
 
-const sortFacets = (facets: MissionBrowseFacetCount[] | undefined) =>
-  (facets ?? [])
-    .filter((f) => f.count > 0)
-    .slice()
-    .sort((a, b) => b.count - a.count);
-
+// Les options suivent l'ordre de déclaration des valeurs dans TAXONOMY (pas le nombre de résultats).
 const buildTaxonomyFilterOptions = (key: FilterKey, facets: MissionBrowseFacetCount[] | undefined) => {
   const taxonomyValues = TAXONOMY[key].values as Record<string, TaxonomyFilterValue>;
+  const countByKey = new Map((facets ?? []).map((facet) => [facet.key, facet.count]));
 
-  return sortFacets(facets).flatMap((facet) => {
-    const taxonomyValue = taxonomyValues[facet.key];
-    if (taxonomyValue?.hidden === true) return [];
-
-    return [
-      {
-        value: facet.key,
-        label: taxonomyValue?.label ?? facet.key,
-        count: facet.count,
-      },
-    ];
+  return Object.entries(taxonomyValues).flatMap(([value, taxonomyValue]) => {
+    const count = countByKey.get(value) ?? 0;
+    if (taxonomyValue.hidden === true || count === 0) return [];
+    return [{ value, label: taxonomyValue.label, count }];
   });
 };
 
@@ -90,10 +79,24 @@ export default function MissionsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const pageViewedFired = useRef(false);
+  // Filtre appliqué en attente de tracking : results_count n'est connu qu'au retour de la recherche.
+  const pendingFilterTrackRef = useRef<{ filterType: MissionsFilterType; filterValue: string; activeFilterCount: number } | null>(null);
+
+  useEffect(() => {
+    if (pageViewedFired.current) return;
+    pageViewedFired.current = true;
+    trackPageViewed({ pageName: "missions_list" });
+  }, []);
+
   useEffect(() => {
     const controller = new AbortController();
     setLoading(true);
     setError(null);
+
+    // Consommé par cette requête : si elle est abortée ou échoue, l'event de filtre est abandonné.
+    const pendingFilterTrack = pendingFilterTrackRef.current;
+    pendingFilterTrackRef.current = null;
 
     const browseInput: BrowseParams = { page, pageSize: PAGE_SIZE };
     if (filterValues.departmentCode.length) browseInput.departmentCode = filterValues.departmentCode;
@@ -108,6 +111,10 @@ export default function MissionsPage() {
         setItems(res.data);
         setTotal(res.total);
         setFacets(res.facets);
+
+        if (pendingFilterTrack) {
+          trackMissionsFilterApplied({ ...pendingFilterTrack, resultsCount: res.total });
+        }
       })
       .catch((err) => {
         if (controller.signal.aborted) return;
@@ -173,12 +180,12 @@ export default function MissionsPage() {
     if (!FILTER_KEYS.includes(key as FilterKey)) return;
     const filterKey = key as FilterKey;
 
-    // missions_filter.applied : on émet uniquement lors d'une sélection (valeur ajoutée),
-    // pas lors d'une désélection. active_filter_count = total des valeurs actives après ce changement.
+    // missions_filter.applied : émis uniquement lors d'une sélection (pas la désélection),
+    // au retour de la recherche pour porter results_count.
     const addedValue = next.find((value) => !filterValues[filterKey].includes(value));
     if (addedValue) {
       const activeFilterCount = FILTER_KEYS.reduce((sum, k) => sum + (k === filterKey ? next.length : filterValues[k].length), 0);
-      trackMissionsFilterApplied({ filterType: FILTER_TYPE_BY_KEY[filterKey], filterValue: addedValue, activeFilterCount });
+      pendingFilterTrackRef.current = { filterType: FILTER_TYPE_BY_KEY[filterKey], filterValue: addedValue, activeFilterCount };
     }
 
     setSearchParams((prev) => {

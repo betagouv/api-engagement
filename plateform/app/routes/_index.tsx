@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { useLoaderData, useNavigate } from "react-router";
 import Hero from "~/components/landing/hero";
 import HowItWorks from "~/components/landing/how-it-works";
@@ -8,6 +9,7 @@ import Newsletter from "~/components/layout/newsletter";
 import Partners from "~/components/layout/partners";
 import GradientBg from "~/components/ui/gradient-bg";
 import { browseMissions } from "~/services/api/missions";
+import { trackPageViewed } from "~/services/tracking/events";
 import { useQuizStore } from "~/stores/quiz";
 
 export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
@@ -47,6 +49,13 @@ export default function Landing() {
   const { examples } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const reset = useQuizStore((s) => s.reset);
+  const pageViewedFired = useRef(false);
+
+  useEffect(() => {
+    if (pageViewedFired.current) return;
+    pageViewedFired.current = true;
+    trackPageViewed({ pageName: "homepage" });
+  }, []);
 
   const handleStartQuiz = () => {
     reset();

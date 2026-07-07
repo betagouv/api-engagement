@@ -23,6 +23,8 @@ export interface TrackingProvider {
   identify?(distinctId: string, traits?: TrackingTraits): void;
   // Enregistre des "super properties" attachées automatiquement à tous les évènements suivants.
   register?(properties: TrackingProperties): void;
+  // Retire une super property attachée automatiquement aux évènements suivants.
+  unregister?(property: string): void;
 }
 
 // Providers supportés : `posthog` en production, `local` (console.log) pour le développement.
@@ -34,6 +36,10 @@ export type TrackingProviderName = "local" | "posthog";
 
 // Catégorie du plan de télémétrie (documentation/priorisation, non envoyée à PostHog).
 export type EventCategory = "lifecycle" | "core_value" | "feature_usage";
+
+// --- page.viewed ---
+// Page visitée (discriminant du pageview manuel : capture_pageview est désactivé côté PostHog).
+export type PageViewedPageName = "homepage" | "missions_list";
 
 // --- mission.clicked ---
 // Surface d'où provient le clic sur une carte mission.

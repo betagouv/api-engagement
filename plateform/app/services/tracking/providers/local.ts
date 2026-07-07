@@ -23,5 +23,9 @@ export function createLocalProvider(): TrackingProvider {
     register(properties: TrackingProperties) {
       console.log("[tracking] register super properties", properties);
     },
+
+    unregister(property: string) {
+      console.log("[tracking] unregister super property", property);
+    },
   };
 }

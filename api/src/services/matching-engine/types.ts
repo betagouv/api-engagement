@@ -45,6 +45,7 @@ export type MissionMatchingResultItem = {
 };
 
 export type RankMissionsByUserScoringResult = {
+  version: MatchingEngineVersion;
   items: MatchMissionItem[];
   tookMs: number;
   // Nombre total de missions classées pour l'utilisateur (avant pagination).
