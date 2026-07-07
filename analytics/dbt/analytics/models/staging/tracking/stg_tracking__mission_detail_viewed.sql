@@ -9,7 +9,6 @@ with base as (
     utm_source,
     utm_campaign,
     utm_medium,
-    mtm_campaign,
     is_internal_user,
     (properties ->> 'rank')::int as rank,
     properties ->> 'mission_id' as mission_id,

@@ -11,7 +11,6 @@ with base as (
     utm_source,
     utm_campaign,
     utm_medium,
-    mtm_campaign,
     is_internal_user,
     (properties ->> 'has_results')::boolean as has_results,
     (properties ->> 'pinned_count')::int as pinned_count,

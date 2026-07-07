@@ -7,7 +7,6 @@ with started as (
     max(utm_source) as utm_source,
     max(utm_campaign) as utm_campaign,
     max(utm_medium) as utm_medium,
-    max(mtm_campaign) as mtm_campaign,
     max(prompt_version) as prompt_version,
     max(algo_version) as algo_version,
     bool_or(is_internal_user) as is_internal_user
@@ -59,7 +58,6 @@ joined as (
     s.utm_source,
     s.utm_campaign,
     s.utm_medium,
-    s.mtm_campaign,
     s.prompt_version,
     s.algo_version,
     c.completed_at,

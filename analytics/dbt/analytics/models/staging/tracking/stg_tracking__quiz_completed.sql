@@ -11,7 +11,6 @@ with base as (
     utm_source,
     utm_campaign,
     utm_medium,
-    mtm_campaign,
     is_internal_user,
     (properties ->> 'steps_completed_count')::int as steps_completed_count,
     (properties ->> 'has_localisation')::boolean as has_localisation,

@@ -25,7 +25,6 @@ with base as (
     properties ->> 'utm_source' as utm_source,
     properties ->> 'utm_campaign' as utm_campaign,
     properties ->> 'utm_medium' as utm_medium,
-    properties ->> 'mtm_campaign' as mtm_campaign,
     coalesce((properties ->> 'internal_user')::boolean, false)
       as is_internal_user
   from {{ source('analytics_raw', 'tracking_event') }}

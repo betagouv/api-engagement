@@ -11,7 +11,6 @@ with base as (
     utm_source,
     utm_campaign,
     utm_medium,
-    mtm_campaign,
     referrer,
     referring_domain,
     is_internal_user,

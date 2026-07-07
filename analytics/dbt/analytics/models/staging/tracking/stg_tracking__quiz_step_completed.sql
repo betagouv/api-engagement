@@ -11,7 +11,6 @@ with base as (
     utm_source,
     utm_campaign,
     utm_medium,
-    mtm_campaign,
     is_internal_user,
     (properties ->> 'step_index')::int as step_index,
     (properties ->> 'total_visible_steps')::int as total_visible_steps,
