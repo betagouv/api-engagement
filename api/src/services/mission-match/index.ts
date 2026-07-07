@@ -2,11 +2,13 @@ import type { MissionMatchResponse } from "@engagement/dto";
 
 import { prisma } from "@/db/postgres";
 import { matchingEngineService } from "@/services/matching-engine";
+import type { MatchingEngineVersion } from "@/services/matching-engine/types";
 import { buildMissionIndex, buildValuesIndex, missionMatchMissionSelect, missionMatchScoringValueSelect, toMissionMatchItem } from "./transformers";
 
 export type MissionMatchInput = {
   userScoringId: string;
   publisherId: string;
+  version?: MatchingEngineVersion;
   limit: number;
   offset: number;
 };
@@ -16,7 +18,7 @@ export const missionMatchService = {
     const result = await matchingEngineService.rankMissionsByUserScoring(input);
 
     if (result.items.length === 0) {
-      return { tookMs: result.tookMs, items: [], total: result.total, avgDistanceKmTop5: result.avgDistanceKmTop5 };
+      return { tookMs: result.tookMs, engineVersion: result.version, items: [], total: result.total, avgDistanceKmTop5: result.avgDistanceKmTop5 };
     }
 
     const missionIds = result.items.map((item) => item.missionId);
@@ -38,6 +40,7 @@ export const missionMatchService = {
 
     return {
       tookMs: result.tookMs,
+      engineVersion: result.version,
       items: result.items.map((item) => toMissionMatchItem(item, missionIndex, valuesIndex, input.publisherId)),
       total: result.total,
       avgDistanceKmTop5: result.avgDistanceKmTop5,

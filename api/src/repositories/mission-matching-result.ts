@@ -113,6 +113,14 @@ export const missionMatchingResultRepository = {
     });
   },
 
+  findLatestForUserScoringVersion(userScoringId: string, matchingEngineVersion: MatchingEngineVersion): Promise<Pick<MissionMatchingResult, "id" | "results"> | null> {
+    return prisma.missionMatchingResult.findFirst({
+      where: { userScoringId, matchingEngineVersion },
+      orderBy: { createdAt: "desc" },
+      select: { id: true, results: true },
+    });
+  },
+
   findMissionsByMatchingResultItems,
 
   async findMissionsByScoringIds(missionScoringIds: string[]): Promise<MissionMatchingEmailMission[]> {

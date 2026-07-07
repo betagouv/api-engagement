@@ -3,6 +3,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PUBLISHER_IDS } from "@/config";
 import { prisma } from "@/db/postgres";
+import { CURRENT_MATCHING_ENGINE_VERSION } from "@/services/matching-engine/config";
+import type { MatchingEngineVersion } from "@/services/matching-engine/types";
 import { createTestMission, createTestPublisher } from "../../fixtures";
 import { createTestApp } from "../../testApp";
 
@@ -333,15 +335,14 @@ describe("POST /user-scoring", () => {
   });
 
   it("should return 400 when location uses a value or is duplicated", async () => {
-    const responses = await Promise.all([
-      postUserScoringRequest().send({ answers: [{ taxonomy: "location", value: "paris" }] }),
-      postUserScoringRequest().send({
-        answers: [
-          { taxonomy: "location", params: { lat: 48.8566, lon: 2.3522 } },
-          { taxonomy: "location", params: { lat: 45.764, lon: 4.8357 } },
-        ],
-      }),
-    ]);
+    const locationValueResponse = await postUserScoringRequest().send({ answers: [{ taxonomy: "location", value: "paris" }] });
+    const duplicatedLocationResponse = await postUserScoringRequest().send({
+      answers: [
+        { taxonomy: "location", params: { lat: 48.8566, lon: 2.3522 } },
+        { taxonomy: "location", params: { lat: 45.764, lon: 4.8357 } },
+      ],
+    });
+    const responses = [locationValueResponse, duplicatedLocationResponse];
 
     expect(responses.map((res) => res.status)).toEqual([400, 400]);
     expect(responses.every((res) => res.body.ok === false)).toBe(true);
@@ -380,10 +381,11 @@ describe("PUT /user-scoring/:userScoringId", () => {
     return res.body.data.id as string;
   };
 
-  const createStoredMatchingResult = async (userScoringId: string, missionCount = 6) => {
+  const createStoredMatchingResult = async (userScoringId: string, missionCount = 6, matchingEngineVersion: MatchingEngineVersion = CURRENT_MATCHING_ENGINE_VERSION) => {
     const publisher = await createTestPublisher({ name: "Matching Publisher" });
     const missionScoringIds: string[] = [];
     const missions: Array<{ id: string; title: string; city: string; organizationName: string }> = [];
+    const titlePrefix = matchingEngineVersion.toUpperCase();
 
     for (let index = 0; index < missionCount; index++) {
       const mission = await createTestMission({
@@ -395,7 +397,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
         organizationClientId: `matching-organization-${index + 1}`,
         publisherId: publisher.id,
         startAt: new Date("2026-02-02T00:00:00.000Z"),
-        title: `Matching Mission ${index + 1}`,
+        title: `${titlePrefix} Matching Mission ${index + 1}`,
         city: `City ${index + 1}`,
       });
       const enrichment = await prisma.missionEnrichment.create({
@@ -420,7 +422,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
     await prisma.missionMatchingResult.create({
       data: {
         userScoringId,
-        matchingEngineVersion: "m1",
+        matchingEngineVersion,
         results: missionScoringIds.map((missionScoringId) => ({ missionScoringId, taxonomyScores: {} })),
       },
     });
@@ -598,6 +600,27 @@ describe("PUT /user-scoring/:userScoringId", () => {
     expect("email" in userScoring).toBe(false);
   });
 
+  it("should use the current matching engine snapshot for matching emails", async () => {
+    const userScoringId = await createUserScoring();
+    const currentMatching = await createStoredMatchingResult(userScoringId, 1, CURRENT_MATCHING_ENGINE_VERSION);
+    const legacyMatching = await createStoredMatchingResult(userScoringId, 1, "m1");
+    const emailPublisher = await createEmailPublisher();
+
+    const res = await postMissionEmailRequest().send({
+      distinctId,
+      email: "user@example.com",
+      publisherId: emailPublisher.id,
+      userScoringId,
+    });
+
+    expect(res.status).toBe(200);
+    expect(brevoMock.sendTemplate).toHaveBeenCalledTimes(1);
+
+    const contentHtml = brevoMock.sendTemplate.mock.calls[0][1].params.contentHtml;
+    expect(contentHtml).toContain(currentMatching.missions[0].title);
+    expect(contentHtml).not.toContain(legacyMatching.missions[0].title);
+  });
+
   it("should send matching email with the city from the matched mission address", async () => {
     const userScoringId = await createUserScoring();
     const publisher = await createTestPublisher({ name: "Matching Publisher" });
@@ -648,7 +671,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
     await prisma.missionMatchingResult.create({
       data: {
         userScoringId,
-        matchingEngineVersion: "m1",
+        matchingEngineVersion: CURRENT_MATCHING_ENGINE_VERSION,
         results: [{ missionScoringId: scoring.id, missionAddressId: matchedAddress.id, taxonomyScores: {} }],
       },
     });

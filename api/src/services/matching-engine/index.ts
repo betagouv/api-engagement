@@ -603,6 +603,7 @@ export const matchingEngineService = {
     }
 
     return {
+      version,
       items: responseRows.map(
         (row): MatchMissionItem => ({
           missionId: row.mission_id,

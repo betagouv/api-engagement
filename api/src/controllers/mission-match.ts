@@ -4,6 +4,7 @@ import zod from "zod";
 
 import { INVALID_QUERY } from "@/error";
 import { plateformRateLimiter } from "@/middlewares/rate-limit";
+import { MATCHING_ENGINE_VERSION_KEYS } from "@/services/matching-engine/config";
 import { missionMatchService } from "@/services/mission-match";
 import type { PublisherRequest } from "@/types/passport";
 
@@ -13,6 +14,7 @@ router.use(plateformRateLimiter);
 
 const matchQuerySchema = zod.object({
   userScoringId: zod.uuid(),
+  engineVersion: zod.enum(MATCHING_ENGINE_VERSION_KEYS).optional(),
   limit: zod.coerce.number().int().min(1).max(100).default(20),
   offset: zod.coerce.number().int().min(0).default(0),
 });
@@ -24,7 +26,10 @@ router.get("/match", async (req: PublisherRequest, res, next) => {
       return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
     }
     const data = await missionMatchService.getMatchedMissions({
-      ...query.data,
+      userScoringId: query.data.userScoringId,
+      version: query.data.engineVersion,
+      limit: query.data.limit,
+      offset: query.data.offset,
       publisherId: req.user.id,
     });
     return res.status(200).send({ ok: true, data });

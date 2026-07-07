@@ -9,6 +9,7 @@ import IframeController from "@/controllers/iframe";
 import ImportController from "@/controllers/import";
 import MissionController from "@/controllers/mission";
 import MissionBrowseController from "@/controllers/mission-browse";
+import MissionMatchController from "@/controllers/mission-match";
 import ModerationController from "@/controllers/moderation";
 import OrganizationController from "@/controllers/organization";
 import PublisherController from "@/controllers/publisher";
@@ -59,6 +60,7 @@ export const createTestApp = ({ auditLogs = false, metricsRecorder }: { auditLog
   app.use("/widget", WidgetController);
   app.use("/mission", MissionController);
   app.use("/missions", MissionBrowseController);
+  app.use("/missions", MissionMatchController);
   app.use("/email", EmailController);
   app.use("/moderation", ModerationController);
   app.use("/user-scoring", UserScoringController);

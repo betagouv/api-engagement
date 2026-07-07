@@ -47,6 +47,14 @@ const getSqlText = (query: unknown): string => {
   return String(query);
 };
 
+const getSqlValues = (query: unknown): unknown[] => {
+  if (typeof query === "object" && query !== null && "values" in query && Array.isArray(query.values)) {
+    return query.values;
+  }
+
+  return [];
+};
+
 describe("matchingEngineService", () => {
   beforeEach(() => {
     prismaMock.$queryRaw.mockReset();
@@ -120,6 +128,7 @@ describe("matchingEngineService", () => {
         limit: 1,
       });
 
+      expect(result.version).toBe(CURRENT_MATCHING_ENGINE_VERSION);
       expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(3);
       const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[1][0]);
       expect(rankingSql).toContain('ma."id" AS "closest_address_id"');
@@ -203,11 +212,41 @@ describe("matchingEngineService", () => {
         userScoringId: "user-scoring-empty",
       });
 
+      expect(result.version).toBe(CURRENT_MATCHING_ENGINE_VERSION);
       expect(result.items).toEqual([]);
       expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(2);
       expect(missionMatchingResultRepositoryMock.createForUserScoringVersion).toHaveBeenCalledWith({
         userScoringId: "user-scoring-empty",
         matchingEngineVersion: CURRENT_MATCHING_ENGINE_VERSION,
+        results: [],
+      });
+    });
+
+    it("uses the requested m1 version config and persists the m1 snapshot", async () => {
+      prismaMock.$queryRaw
+        .mockResolvedValueOnce([
+          {
+            id: "user-scoring-m1",
+          },
+        ])
+        .mockResolvedValueOnce([]);
+      missionMatchingResultRepositoryMock.createForUserScoringVersion.mockResolvedValue({
+        id: "mission-matching-result-m1",
+      });
+
+      const result = await matchingEngineService.rankMissionsByUserScoring({
+        userScoringId: "user-scoring-m1",
+        version: "m1",
+        taxonomyWeight: 0.11,
+      });
+
+      const rankingValues = getSqlValues(prismaMock.$queryRaw.mock.calls[1][0]);
+      expect(result.version).toBe("m1");
+      expect(rankingValues).toContain(0.7);
+      expect(rankingValues).not.toContain(0.3);
+      expect(missionMatchingResultRepositoryMock.createForUserScoringVersion).toHaveBeenCalledWith({
+        userScoringId: "user-scoring-m1",
+        matchingEngineVersion: "m1",
         results: [],
       });
     });
