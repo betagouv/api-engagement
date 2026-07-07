@@ -1,4 +1,4 @@
-import { resolveTrancheAgeValues } from "../../../packages/taxonomy/src/transformers/tranche-age";
+import { resolveTrancheAgeValues } from "@engagement/taxonomy";
 import type { DeterministicScores, GateViolation, MatchItem, Parcours } from "./types";
 import { getAnswerValues } from "./validate";
 

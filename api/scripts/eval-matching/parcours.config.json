@@ -2,7 +2,7 @@
   {
     "id": "lea-parcoursup-ifsi",
     "segment": "lyceen",
-    "label": "Lea, lyceenne a Lyon, veut renforcer son dossier Parcoursup pour un IFSI",
+    "label": "Léa, 17 ans, lycéenne en Terminale à Lyon, veut booster son dossier Parcoursup pour une formation en soins infirmiers, avec peu de temps hors week-ends",
     "locationLabel": "Lyon (69)",
     "age": 17,
     "answers": [
@@ -17,9 +17,9 @@
     "notes": ["Texte libre Parcoursup non envoye: buildPayload ignore les answers text et le moteur consomme domaine=sante_soins."]
   },
   {
-    "id": "lyceen-parcoursup-sans-formation",
+    "id": "noah-parcoursup-sans-formation",
     "segment": "lyceen",
-    "label": "Lyceen a Aurillac, sans formation Parcoursup precise",
+    "label": "Noah, 16 ans, lycéen à Aurillac, veut booster Parcoursup sans formation précise et reste ouvert sur le domaine",
     "locationLabel": "Aurillac (15)",
     "age": 16,
     "answers": [
@@ -35,11 +35,11 @@
   {
     "id": "sami-orientation-securite",
     "segment": "lyceen",
-    "label": "Sami, lyceen a Marseille, teste une orientation securite-defense-logistique",
+    "label": "Sami, 16 ans, lycéen en Seconde à Marseille, attiré par les métiers en uniforme et la sécurité, veut tester avant de choisir sa voie",
     "locationLabel": "Marseille (13)",
-    "age": 17,
+    "age": 16,
     "answers": [
-      { "taxonomy": "tranche_age", "params": { "age": 17, "handicap": false } },
+      { "taxonomy": "tranche_age", "params": { "age": 16, "handicap": false } },
       { "taxonomy": "statut", "value": "lyceen" },
       { "taxonomy": "location", "params": { "lat": 43.296482, "lon": 5.36978, "country_code": "fr", "label": "Marseille (13)" } },
       { "taxonomy": "type_mission", "value": "reguliere" },
@@ -48,9 +48,9 @@
     ]
   },
   {
-    "id": "lyceenne-utile",
+    "id": "manon-utile-terrain",
     "segment": "lyceen",
-    "label": "Lyceenne a Lille, cherche une mission utile et concrete",
+    "label": "Manon, 16 ans, lycéenne à Lille, cherche une mission ponctuelle utile et concrète sur le terrain",
     "locationLabel": "Lille (59)",
     "age": 16,
     "answers": [
@@ -66,7 +66,7 @@
   {
     "id": "emma-cv-communication",
     "segment": "etudiant",
-    "label": "Emma, etudiante a Paris, veut booster son CV en communication",
+    "label": "Emma, 20 ans, étudiante en L2 info-com à Paris, cherche à valoriser son CV avec des compétences en communication et numérique",
     "locationLabel": "Paris (75)",
     "age": 20,
     "answers": [
@@ -81,7 +81,7 @@
   {
     "id": "hugo-terrain-temps-plein",
     "segment": "etudiant",
-    "label": "Hugo, etudiant a Nantes, cherche une experience terrain a temps plein",
+    "label": "Hugo, 22 ans, étudiant en césure à Nantes, veut une vraie première expérience terrain à temps plein, ouvert au service civique indemnisé",
     "locationLabel": "Nantes (44)",
     "age": 22,
     "answers": [
@@ -94,9 +94,9 @@
     ]
   },
   {
-    "id": "etudiante-environnement",
+    "id": "camille-environnement",
     "segment": "etudiant",
-    "label": "Etudiante a Grenoble, veut decouvrir le domaine environnement",
+    "label": "Camille, 24 ans, étudiante à Grenoble, veut découvrir le domaine de l'environnement et de la nature",
     "locationLabel": "Grenoble (38)",
     "age": 24,
     "answers": [
@@ -109,9 +109,9 @@
     ]
   },
   {
-    "id": "ines-rural-transmission",
+    "id": "ines-rural-aide-directe",
     "segment": "etudiant",
-    "label": "Ines, etudiante a Figeac, veut aider par la transmission",
+    "label": "Inès, 24 ans, étudiante en M1 à Figeac, veut se sentir utile et aider directement des personnes en zone rurale",
     "locationLabel": "Figeac (46)",
     "age": 24,
     "answers": [
@@ -120,13 +120,13 @@
       { "taxonomy": "location", "params": { "lat": 44.608333, "lon": 2.031944, "country_code": "fr", "label": "Figeac (46)" } },
       { "taxonomy": "type_mission", "value": "ponctuelle" },
       { "taxonomy": "motivation", "value": "me_sentir_utile" },
-      { "taxonomy": "engagement_intent", "value": "transmission" }
+      { "taxonomy": "engagement_intent", "value": "aide_directe" }
     ]
   },
   {
-    "id": "sans-signal",
+    "id": "lucas-sans-signal",
     "segment": "etudiant",
-    "label": "Etudiant a Toulouse sans preference claire",
+    "label": "Lucas, 19 ans, étudiant à Toulouse, n'a pas encore de préférence claire et veut explorer les missions disponibles",
     "locationLabel": "Toulouse (31)",
     "age": 19,
     "answers": [
@@ -141,7 +141,7 @@
   {
     "id": "karim-reconversion",
     "segment": "demandeur_emploi",
-    "label": "Karim, demandeur d'emploi a Saint-Etienne, prepare une reconversion technique",
+    "label": "Karim, 28 ans, demandeur d'emploi à Saint-Étienne, en reconversion, veut tester un nouveau secteur avant de se former",
     "locationLabel": "Saint-Etienne (42)",
     "age": 28,
     "handicap": "non",
@@ -158,7 +158,7 @@
   {
     "id": "julie-handicap-confiance",
     "segment": "demandeur_emploi",
-    "label": "Julie, demandeuse d'emploi a Montpellier, en situation de handicap, veut reprendre confiance",
+    "label": "Julie, 26 ans, demandeuse d'emploi à Montpellier, en situation de handicap, veut reprendre confiance",
     "locationLabel": "Montpellier (34)",
     "age": 26,
     "handicap": "oui",
@@ -174,9 +174,9 @@
     ]
   },
   {
-    "id": "de-reprendre-activite",
+    "id": "nadia-reprendre-activite",
     "segment": "demandeur_emploi",
-    "label": "Demandeur d'emploi a Rouen, veut reprendre une activite dans le batiment ou la logistique",
+    "label": "Nadia, 24 ans, demandeuse d'emploi à Rouen, veut reprendre une activité dans le bâtiment, l'industrie ou la logistique",
     "locationLabel": "Rouen (76)",
     "age": 24,
     "answers": [
@@ -189,9 +189,9 @@
     ]
   },
   {
-    "id": "de-cv-multi-duree",
+    "id": "mehdi-cv-multi-duree",
     "segment": "demandeur_emploi",
-    "label": "Demandeur d'emploi a Bordeaux, veut enrichir son CV avec plusieurs formats possibles",
+    "label": "Mehdi, 29 ans, demandeur d'emploi à Bordeaux, veut enrichir son CV avec plusieurs formats possibles",
     "locationLabel": "Bordeaux (33)",
     "age": 29,
     "handicap": "ne_se_prononce_pas",
@@ -210,7 +210,7 @@
   {
     "id": "thomas-actif-competences",
     "segment": "actif",
-    "label": "Thomas, actif a Rennes, veut mobiliser des competences d'organisation et de soin",
+    "label": "Thomas, 29 ans, salarié à Rennes, veut mettre ses compétences pro en gestion et management au service de l'intérêt général sur des missions ponctuelles",
     "locationLabel": "Rennes (35)",
     "age": 29,
     "handicap": "non",
@@ -222,13 +222,14 @@
       { "taxonomy": "type_mission", "value": "ponctuelle" },
       { "taxonomy": "motivation", "value": "competences_interet_general" },
       { "taxonomy": "competence_rome", "value": "management_social_soin" },
+      { "taxonomy": "competence_rome", "value": "gestion_pilotage_juridique" },
       { "taxonomy": "competence_rome", "value": "cooperation_organisation_soft_skills" }
     ]
   },
   {
-    "id": "cesure-humanitaire",
+    "id": "clara-cesure-humanitaire",
     "segment": "autre",
-    "label": "Jeune en cesure a Paris, cherche une mission humanitaire ou solidaire a temps plein",
+    "label": "Clara, 25 ans, en césure à Paris, cherche une mission humanitaire ou solidaire à temps plein",
     "locationLabel": "Paris (75)",
     "age": 25,
     "answers": [

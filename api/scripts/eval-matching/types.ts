@@ -1,4 +1,4 @@
-export type EvalEnv = "staging" | "production";
+export type EvalEnv = "staging" | "production" | "local";
 export type MatchingAlgo = "m1" | "m2";
 export type Segment = "lyceen" | "etudiant" | "demandeur_emploi" | "actif" | "autre";
 export type JudgeCause = "matching" | "offre" | "signal";
@@ -130,6 +130,7 @@ export type ParcoursArtifact = {
   judgeRuns?: JudgeRunArtifact[];
   engineVersion?: MatchingAlgo;
   verdict?: number;
+  cleanup?: { userScoringDeleted: boolean };
   error?: string;
   startedAt: string;
   finishedAt: string;
@@ -139,14 +140,24 @@ export type CampaignMetrics = {
   totalParcours: number;
   successfulParcours: number;
   failedParcours: number;
-  criteria: Record<string, { mean: number | null; min: number | null; stddev: number | null }>;
-  bySegment: Record<string, { count: number; verdictMean: number | null }>;
-  belowFourRate: number | null;
-  causes: Record<string, number>;
-  orderSensitivity: {
-    coherenceAbsDiffMean: number | null;
-    homogeneiteAbsDiffMean: number | null;
-    missionsPertinentesJaccardMean: number | null;
+  acceptableRate: number | null;
+  eligibilityViolationRate: number | null;
+  averageScoresByCriterion: Record<string, { mean: number | null; min: number | null; stddev: number | null }>;
+  causesForLowVerdicts: Record<JudgeCause | "indecis", number>;
+  dispersion: {
+    parcoursCount: number;
+    cohesionTags: { mean: number | null; min: number | null; stddev: number | null };
+    concentrationTags: { mean: number | null; min: number | null; stddev: number | null };
+  };
+  bySegment: Record<Segment, { count: number; verdictMean: number | null; acceptableRate: number | null }>;
+  byTerritory: Record<"urbain" | "rural", { count: number; verdictMean: number | null; acceptableRate: number | null }>;
+  avgDistanceKmTop5: { mean: number | null; min: number | null; stddev: number | null };
+  judgeStability: {
+    unstableParcoursRate: number | null;
+    unstableParcoursCount: number;
+    totalCompared: number;
+    thresholdExceeded: boolean;
+    verdictRunDiffMean: number | null;
   };
   gates: {
     parcoursWithViolationRate: number | null;
@@ -159,6 +170,7 @@ export type CliOptions = {
   campaign: string;
   env: EvalEnv;
   algo?: MatchingAlgo;
+  publisherId: string;
   dryRun: boolean;
   force: boolean;
   parcours?: string;

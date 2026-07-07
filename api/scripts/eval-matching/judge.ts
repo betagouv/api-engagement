@@ -1,9 +1,14 @@
-import OpenAI from "openai";
 import { z } from "zod";
+import { generateObject } from "ai";
+
+import { ai } from "@/services/ai";
 
 import { seededShuffle } from "./rng";
 import type { JudgeOutput, JudgeRunArtifact, MissionWithDetail, Parcours } from "./types";
 import { getAnswerValues } from "./validate";
+
+export const JUDGE_MODEL_ID = "gpt-4.1-mini";
+const JUDGE_MODEL = ai.model("openai", JUDGE_MODEL_ID);
 
 const judgeSchema = z.object({
   coherence: z.object({
@@ -18,39 +23,6 @@ const judgeSchema = z.object({
   }),
   cause: z.union([z.literal("matching"), z.literal("offre"), z.literal("signal"), z.null()]),
 });
-
-const jsonSchema = {
-  name: "matching_eval_judge",
-  strict: true,
-  schema: {
-    type: "object",
-    additionalProperties: false,
-    required: ["coherence", "homogeneite", "cause"],
-    properties: {
-      coherence: {
-        type: "object",
-        additionalProperties: false,
-        required: ["score", "missionsPertinentes", "justification"],
-        properties: {
-          score: { type: "integer", enum: [1, 2, 3, 4, 5] },
-          missionsPertinentes: { type: "array", items: { type: "integer", minimum: 1, maximum: 5 } },
-          justification: { type: "string" },
-        },
-      },
-      homogeneite: {
-        type: "object",
-        additionalProperties: false,
-        required: ["score", "familles", "justification"],
-        properties: {
-          score: { type: "integer", enum: [1, 2, 3, 4, 5] },
-          familles: { type: "array", items: { type: "string" } },
-          justification: { type: "string" },
-        },
-      },
-      cause: { type: ["string", "null"], enum: ["matching", "offre", "signal", null] },
-    },
-  },
-} as const;
 
 const normalizeText = (value: string | null | undefined, maxLength = 1500): string => {
   const normalized = (value ?? "").replace(/\s+/g, " ").trim();
@@ -115,14 +87,6 @@ Cause si coherence < 4: matching = missions hors sujet alors que le besoin est c
 Retourne strictement le JSON demande. Les missionsPertinentes sont les numeros 1 a 5 de l'ordre presente.`;
 
 export class JudgeClient {
-  private readonly openai: OpenAI;
-  private readonly model: string;
-
-  constructor(model: string) {
-    this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-    this.model = model;
-  }
-
   async judgeParcours(parcours: Parcours, missions: MissionWithDetail[], runIndex: number, campaign: string): Promise<JudgeRunArtifact> {
     const { seed, items } = seededShuffle(missions, `${campaign}:${parcours.id}:run:${runIndex}`);
     const userPrompt = `Profil:\n${profileFor(parcours)}\n\nMissions:\n${items.map(renderMission).join("\n\n")}`;
@@ -131,17 +95,15 @@ export class JudgeClient {
 
     for (let attempt = 0; attempt < 2; attempt += 1) {
       try {
-        const completion = await this.openai.chat.completions.create({
-          model: this.model,
+        const result = await generateObject({
+          model: JUDGE_MODEL,
+          schema: judgeSchema,
           temperature: 0,
-          response_format: { type: "json_schema", json_schema: jsonSchema },
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: userPrompt },
-          ],
-        } as never);
-        const content = completion.choices[0]?.message?.content;
-        output = judgeSchema.parse(JSON.parse(content ?? "{}")) as JudgeOutput;
+          system: systemPrompt,
+          prompt: userPrompt,
+          maxRetries: 0,
+        });
+        output = result.object as JudgeOutput;
         break;
       } catch (error) {
         lastError = error;
@@ -163,9 +125,3 @@ export class JudgeClient {
     return { runIndex, seed, order: items.map((mission) => mission.mission.id), output };
   }
 }
-
-export const getJudgeModel = (): string => {
-  const model = process.env.EVAL_JUDGE_MODEL;
-  if (!model) throw new Error("EVAL_JUDGE_MODEL manquant");
-  return model;
-};

@@ -1,11 +1,11 @@
 import { z } from "zod";
 
-import { TAXONOMY } from "../../../packages/taxonomy/src/taxonomy";
+import { TAXONOMY } from "@engagement/taxonomy";
 import type { Parcours, UserScoringAnswer } from "./types";
 
 const answerSchema = z.union([
   z.object({ taxonomy: z.string(), value: z.string(), params: z.never().optional() }),
-  z.object({ taxonomy: z.string(), params: z.record(z.unknown()), value: z.never().optional() }),
+  z.object({ taxonomy: z.string(), params: z.record(z.string(), z.unknown()), value: z.never().optional() }),
 ]);
 
 const parcoursSchema = z.object({
