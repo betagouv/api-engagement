@@ -1,6 +1,3 @@
--- TODO score_top5: figer le chemin JSON de matching_engine_result.results
--- (cles score / rank) pour calculer avg(score) sur le top 5.
--- TODO candidature: rattacher les apply backend a la session (cle a definir).
 with sessions as (
   select
     quiz_session_id,
@@ -14,11 +11,20 @@ with sessions as (
 
 backend_scoring as (
   select
-    user_scoring_id as quiz_session_id,
-    null::numeric as score_top5,
-    max(matching_engine_version) as matching_engine_version
-  from {{ ref('matching_engine_result') }}
-  group by user_scoring_id
+    r.user_scoring_id as quiz_session_id,
+    avg(
+      (
+        select avg(val::numeric)
+        from jsonb_each_text(elem -> 'taxonomyScores') as kv(key, val)
+      )
+    ) as score_top5,
+    max(r.matching_engine_version) as matching_engine_version
+  from {{ ref('matching_engine_result') }} as r
+  cross join lateral jsonb_array_elements(r.results)
+    with ordinality as t(elem, ord)
+  where t.ord <= 5
+    and r.results is not null
+  group by r.user_scoring_id
 )
 
 select
