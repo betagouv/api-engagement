@@ -2,9 +2,10 @@ import type { CampaignMetrics, ParcoursArtifact } from "./types";
 import { averageJudgeScore } from "./metrics";
 
 const fmt = (value: number | null | undefined): string => (typeof value === "number" ? value.toFixed(2) : "n/a");
+const escapeMarkdownTableCell = (value: string): string => value.replace(/\\/g, "\\\\").replace(/\|/g, "\\|").replace(/\r?\n/g, " ");
 
 const metricTable = (metrics: CampaignMetrics): string => {
-  const rows = Object.entries(metrics.criteria).map(([name, values]) => `| ${name} | ${fmt(values.mean)} | ${fmt(values.min)} | ${fmt(values.stddev)} |`);
+  const rows = Object.entries(metrics.criteria).map(([name, values]) => `| ${escapeMarkdownTableCell(name)} | ${fmt(values.mean)} | ${fmt(values.min)} | ${fmt(values.stddev)} |`);
   return ["| Critere | Moyenne | Min | Ecart-type |", "|---|---:|---:|---:|", ...rows].join("\n");
 };
 
@@ -28,7 +29,7 @@ const renderArtifact = (artifact: ParcoursArtifact): string => {
   const missions = artifact.missions ?? [];
   const missionRows = missions.map((mission, index) => {
     const distance = mission.mission.remote === "full" || mission.mission.remote === "possible" ? "distance" : fmt(mission.mission.location.distanceKm);
-    return `| ${index + 1} | ${mission.mission.id} | ${mission.mission.title.replace(/\|/g, "\\|")} | ${distance} | ${fmt(mission.match.totalScore)} |`;
+    return `| ${index + 1} | ${escapeMarkdownTableCell(mission.mission.id)} | ${escapeMarkdownTableCell(mission.mission.title)} | ${distance} | ${fmt(mission.match.totalScore)} |`;
   });
   const justifications = (artifact.judgeRuns ?? []).map((run) => `- Run ${run.runIndex}: coherence ${run.output.coherence.score}, homogeneite ${run.output.homogeneite.score}. ${run.output.coherence.justification}`);
   return [
@@ -51,7 +52,7 @@ const renderArtifact = (artifact: ParcoursArtifact): string => {
 };
 
 export const renderReport = (metrics: CampaignMetrics, artifacts: ParcoursArtifact[]): string => {
-  const segmentRows = Object.entries(metrics.bySegment).map(([segment, value]) => `| ${segment} | ${value.count} | ${fmt(value.verdictMean)} |`);
+  const segmentRows = Object.entries(metrics.bySegment).map(([segment, value]) => `| ${escapeMarkdownTableCell(segment)} | ${value.count} | ${fmt(value.verdictMean)} |`);
   return [
     "# Rapport evaluation matching",
     "",
