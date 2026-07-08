@@ -32,6 +32,11 @@ export default [
     route("precision-international", "routes/quiz/precision-international.tsx"),
   ]),
 
+  // Pages légales et informatives, liées depuis le footer.
+  route("accessibilite", "routes/accessibilite.tsx"),
+  route("mentions-legales", "routes/mentions-legales.tsx"),
+  route("politique-de-confidentialite", "routes/politique-de-confidentialite.tsx"),
+
   route("results/:userScoringId", "routes/results.tsx"),
   route("results/:userScoringId/missions/:missionId", "routes/mission-detail.tsx", { id: "mission-detail-from-results" }),
   route("missions/:missionId", "routes/mission-detail.tsx", { id: "mission-detail-standalone" }),
