@@ -12,8 +12,8 @@ export default function MentionsLegales() {
 
         <h2>Éditeur</h2>
         <p>
-          La Plateforme de l'engagement (<code>plateforme.api-engagement.beta.gouv.fr</code>) est un service public numérique édité par la Direction de la Jeunesse, de l'Éducation
-          Populaire et de la Vie Associative (DJEPVA), au sein du Ministère des Sports, de la Jeunesse et de la Vie Associative.
+          La Plateforme de l'engagement (plateforme.api-engagement.beta.gouv.fr) est un service public numérique édité par la Direction de la Jeunesse, de l'Éducation Populaire et
+          de la Vie Associative (DJEPVA), au sein du Ministère des Sports, de la Jeunesse et de la Vie Associative.
         </p>
         <p>
           Adresse : 95 avenue de France, 75650 Paris Cedex 13
