@@ -8,6 +8,7 @@ import { createOrUpdateContact } from "@/services/brevo";
 // Par defaut on reutilise la liste des contacts engagement (22) pour ne rien casser en attendant.
 const NEWSLETTER_BREVO_LIST_BY_PUBLISHER: Record<string, number> = {
   [PUBLISHER_IDS.API_ENGAGEMENT]: 22,
+  [PUBLISHER_IDS.PLATEFORME_ENGAGEMENT]: 23,
 };
 
 type SubscribeResult = { ok: true } | { ok: false; reason: "publisher_not_allowed" | "brevo_failed" };
