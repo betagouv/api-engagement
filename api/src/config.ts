@@ -62,15 +62,27 @@ export const ALBERT_BASE_URL = process.env.ALBERT_BASE_URL || "https://albert.ap
 const MISSION_ENRICHMENT_PROVIDERS = ["mock", "albert", "mistral", "openai"] as const;
 export type MissionEnrichmentProviderName = (typeof MISSION_ENRICHMENT_PROVIDERS)[number];
 
-const parseMissionEnrichmentProvider = (provider: string): MissionEnrichmentProviderName => {
-  if ((MISSION_ENRICHMENT_PROVIDERS as readonly string[]).includes(provider)) {
-    return provider as MissionEnrichmentProviderName;
-  }
+const DEFAULT_MISSION_ENRICHMENT_PROVIDER: MissionEnrichmentProviderName = "mistral";
 
-  throw new Error(`Invalid MISSION_ENRICHMENT_PROVIDER "${provider}". Expected one of: ${MISSION_ENRICHMENT_PROVIDERS.join(", ")}.`);
-};
+const isMissionEnrichmentProvider = (provider: string): provider is MissionEnrichmentProviderName => (MISSION_ENRICHMENT_PROVIDERS as readonly string[]).includes(provider);
 
-export const MISSION_ENRICHMENT_PROVIDER = parseMissionEnrichmentProvider(process.env.MISSION_ENRICHMENT_PROVIDER || "mistral");
+const rawMissionEnrichmentProvider = process.env.MISSION_ENRICHMENT_PROVIDER || DEFAULT_MISSION_ENRICHMENT_PROVIDER;
+
+// Valeur invalide → on retombe sur le défaut plutôt que de crasher tout le process : `config.ts`
+// est importé par le worker et tous les jobs, un throw ici couperait l'ensemble de l'API au boot
+// (ex. ancienne valeur `llm` restée en secret). On expose la valeur fautive pour un report Sentry
+// côté service d'enrichissement — Sentry n'étant pas encore initialisé au chargement du module.
+export const INVALID_MISSION_ENRICHMENT_PROVIDER = isMissionEnrichmentProvider(rawMissionEnrichmentProvider) ? null : rawMissionEnrichmentProvider;
+
+if (INVALID_MISSION_ENRICHMENT_PROVIDER) {
+  console.warn(
+    `[config] Invalid MISSION_ENRICHMENT_PROVIDER "${INVALID_MISSION_ENRICHMENT_PROVIDER}". Expected one of: ${MISSION_ENRICHMENT_PROVIDERS.join(", ")}. Falling back to "${DEFAULT_MISSION_ENRICHMENT_PROVIDER}".`
+  );
+}
+
+export const MISSION_ENRICHMENT_PROVIDER: MissionEnrichmentProviderName = INVALID_MISSION_ENRICHMENT_PROVIDER
+  ? DEFAULT_MISSION_ENRICHMENT_PROVIDER
+  : (rawMissionEnrichmentProvider as MissionEnrichmentProviderName);
 export const MISSION_ENRICHMENT_MODEL = process.env.MISSION_ENRICHMENT_MODEL || "mistral-small-2603";
 
 // Rate limit

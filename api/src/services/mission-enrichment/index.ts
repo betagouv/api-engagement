@@ -2,7 +2,8 @@ import { Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
 import { ENRICHABLE_TAXONOMIES, TAXONOMY } from "@engagement/taxonomy";
 
-import { MISSION_ENRICHMENT_MODEL, MISSION_ENRICHMENT_PROVIDER } from "@/config";
+import { INVALID_MISSION_ENRICHMENT_PROVIDER, MISSION_ENRICHMENT_MODEL, MISSION_ENRICHMENT_PROVIDER } from "@/config";
+import { captureException } from "@/error";
 import { missionRepository } from "@/repositories/mission";
 import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
 import { ai } from "@/services/ai";
@@ -16,6 +17,24 @@ import { getMissionEnrichmentProvider } from "./providers";
 import type { MissionEnrichmentProviderResult } from "./providers/types";
 
 const LOG_PREFIX = "[mission-enrichment]";
+
+// Le provider effectivement utilisé pour l'historisation. `mock` ne sollicite aucun LLM : on
+// n'historise donc pas de modèle (sinon le défaut `MISSION_ENRICHMENT_MODEL` fausserait le grain
+// analytics par modèle).
+const HISTORISED_MODEL = MISSION_ENRICHMENT_PROVIDER === "mock" ? null : MISSION_ENRICHMENT_MODEL;
+
+// Config chargée avant l'init Sentry : on signale une valeur de provider invalide au premier
+// enrichissement (au runtime, Sentry initialisé côté job), une seule fois pour éviter le spam.
+let invalidProviderReported = false;
+const reportInvalidProviderOnce = () => {
+  if (!INVALID_MISSION_ENRICHMENT_PROVIDER || invalidProviderReported) {
+    return;
+  }
+  invalidProviderReported = true;
+  captureException(new Error(`Invalid MISSION_ENRICHMENT_PROVIDER "${INVALID_MISSION_ENRICHMENT_PROVIDER}" — falling back to "${MISSION_ENRICHMENT_PROVIDER}"`), {
+    extra: { rawValue: INVALID_MISSION_ENRICHMENT_PROVIDER, fallback: MISSION_ENRICHMENT_PROVIDER },
+  });
+};
 
 type TaxonomyWithValues = { key: string; type: string; label: string; values: Array<{ key: string; label: string }> };
 type TaxonomyDefinition = {
@@ -266,6 +285,8 @@ export const missionEnrichmentService = {
   },
 
   async enrich(missionId: string, options: { force?: boolean } = {}) {
+    reportInvalidProviderOnce();
+
     // 1. Load mission (needed before idempotence check for updatedAt comparison)
     const mission = await missionRepository.findUnique({
       where: { id: missionId },
@@ -312,7 +333,7 @@ export const missionEnrichmentService = {
       missionId,
       promptVersion: CURRENT_PROMPT_VERSION,
       aiProvider: MISSION_ENRICHMENT_PROVIDER,
-      model: MISSION_ENRICHMENT_MODEL,
+      model: HISTORISED_MODEL,
     });
 
     if (!enrichmentId) {
@@ -365,7 +386,7 @@ export const missionEnrichmentService = {
 
       await missionEnrichmentRepository.completeWithValues(enrichment.id, JSON.stringify(providerResult.object), { inputTokens, outputTokens, totalTokens }, persistedValues, {
         aiProvider: MISSION_ENRICHMENT_PROVIDER,
-        model: MISSION_ENRICHMENT_MODEL,
+        model: HISTORISED_MODEL,
       });
 
       console.log(`${LOG_PREFIX} ${missionId}: enrichment completed — ${valid.length} values persisted`);
@@ -382,7 +403,7 @@ export const missionEnrichmentService = {
           data: {
             status: "failed",
             aiProvider: MISSION_ENRICHMENT_PROVIDER,
-            model: MISSION_ENRICHMENT_MODEL,
+            model: HISTORISED_MODEL,
             ...(rawResponse !== null && { rawResponse }),
             ...(usage && {
               inputTokens: usage.inputTokens,
