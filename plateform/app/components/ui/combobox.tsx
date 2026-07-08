@@ -79,7 +79,7 @@ export default function Combobox({ label, placeholder, options, selected, onChan
       </button>
 
       {open && (
-        <div id={panelId} className="absolute right-0 left-0 z-50 min-w-80 mt-1 border border-border-default-grey bg-white! shadow-lg">
+        <div id={panelId} className="absolute right-0 left-0 z-50 min-w-80 mt-1 border border-border-default-grey bg-background! shadow-lg">
           <div className="relative m-4">
             <input
               type="text"
