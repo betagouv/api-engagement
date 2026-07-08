@@ -3,6 +3,8 @@ select
   mission_id,
   status,
   prompt_version,
+  ai_provider,
+  model,
   input_tokens::integer as input_tokens,
   output_tokens::integer as output_tokens,
   total_tokens::integer as total_tokens,

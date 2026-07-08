@@ -768,6 +768,10 @@ sources:
             description: Statut de l'enrichissement (`pending`, `processing`, `completed`, `failed`).
           - name: prompt_version
             description: Version du prompt utilisée.
+          - name: ai_provider
+            description: Fournisseur IA utilisé pour l'enrichissement (`albert`, `mistral`, `openai`, `mock`), si disponible.
+          - name: model
+            description: Identifiant du modèle IA utilisé pour l'enrichissement, si disponible.
           - name: input_tokens
             description: Nombre de tokens d'entrée consommés, si disponible.
           - name: output_tokens

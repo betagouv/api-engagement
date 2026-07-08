@@ -259,11 +259,12 @@ models:
   - name: mission_enrichment_daily
     description: >
       Agrégat quotidien des enrichissements IA de mission au grain jour + publisher +
-      statut + version de prompt, alimenté depuis `mission_enrichment`. Le `publisher_id`
-      est récupéré via `mission` et le `publisher_name` dénormalisé via `dim_publisher`.
-      Permet le suivi du volume d'enrichissements et du coût en tokens (entrée/sortie)
-      dans Metabase. Le modèle incrémental supprime/réinsère les lignes des journées
-      affectées pour rafraîchir l'ensemble du grain quand une mission est mise à jour.
+      statut + version de prompt + fournisseur IA + modèle, alimenté depuis
+      `mission_enrichment`. Le `publisher_id` est récupéré via `mission` et le
+      `publisher_name` dénormalisé via `dim_publisher`. Permet le suivi du volume
+      d'enrichissements et du coût en tokens (entrée/sortie) par fournisseur/modèle dans
+      Metabase. Le modèle incrémental supprime/réinsère les lignes des journées affectées
+      pour rafraîchir l'ensemble du grain quand une mission est mise à jour.
     columns:
       - name: event_date
         description: Jour d'agrégation basé sur `mission_enrichment.created_at`.
@@ -286,8 +287,12 @@ models:
         description: Version du prompt utilisée pour produire l'enrichissement.
         tests:
           - not_null
+      - name: ai_provider
+        description: Fournisseur IA utilisé (`albert`, `mistral`, `openai`, `mock`), nullable pour les lignes historiques.
+      - name: model
+        description: Identifiant du modèle IA utilisé, nullable pour les lignes historiques.
       - name: enrichment_count
-        description: Nombre d'enrichissements dans le grain (jour + publisher + statut).
+        description: Nombre d'enrichissements dans le grain (jour + publisher + statut + fournisseur + modèle).
         tests:
           - not_null
       - name: input_tokens
@@ -637,6 +642,10 @@ models:
         description: Version du prompt utilisée pour produire l'enrichissement.
         tests:
           - not_null
+      - name: ai_provider
+        description: Fournisseur IA utilisé (`albert`, `mistral`, `openai`, `mock`), nullable pour les lignes historiques.
+      - name: model
+        description: Identifiant du modèle IA utilisé, nullable pour les lignes historiques.
       - name: input_tokens
         description: Nombre de tokens d'entrée consommés, si disponible.
       - name: output_tokens

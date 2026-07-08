@@ -5,6 +5,8 @@ select
   mission_id,
   status,
   prompt_version,
+  ai_provider,
+  model,
   input_tokens,
   output_tokens,
   total_tokens,
