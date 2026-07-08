@@ -87,7 +87,7 @@ export const PUBLISHER_IDS = {
   VACANCES_ET_FAMILLES: "619fb1e17d373e07aea8be32",
   VILLE_DE_NANTES: "6347be8883b660072d4c1c53",
   ROC: "65d7715cc0d3764cbed3afaf",
-  PLATEFORME_ENGAGEMENT: ENV === "production" ? "6c6a6ed4cf9795a1d770c1e2" : "6c6a6ed4cf9795a1d770c1e2",
+  PLATEFORME_ENGAGEMENT: "6c6a6ed4cf9795a1d770c1e2",
 };
 
 export const DEFAULT_AVATAR = "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/default.jpg";
