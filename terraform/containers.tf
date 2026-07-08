@@ -112,7 +112,7 @@ resource "scaleway_container" "api_worker" {
     "SCW_QUEUE_URL_MISSION_SCORING"     = module.async_task_queues["mission_scoring"].url
     "SCW_QUEUE_URL_MISSION_INDEX"       = module.async_task_queues["mission_index"].url
     "ALBERT_BASE_URL"                   = lookup(local.secrets, "ALBERT_BASE_URL", "https://albert.api.etalab.gouv.fr")
-    "MISSION_ENRICHMENT_PROMPT_VERSION" = lookup(local.secrets, "MISSION_ENRICHMENT_PROMPT_VERSION", "v3")
+    "MISSION_ENRICHMENT_PROMPT_VERSION" = var.mission_enrichment_prompt_version
     "TYPESENSE_HOST"                    = var.typesense_load_balancer_private_ip
     "TYPESENSE_PORT"                    = "8108"
   }
