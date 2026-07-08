@@ -38,4 +38,4 @@ select
   / nullif(st.sessions_started, 0) as overall_reach_rate
 from funnel as f
 left join started as st on f.kpi_date = st.kpi_date
-order by f.kpi_date desc, f.step_index
+order by f.kpi_date desc, f.step_index asc
