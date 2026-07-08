@@ -66,7 +66,14 @@ aggregated as (
     sum(total_tokens) as total_tokens,
     max(updated_at) as max_updated_at
   from base
-  group by event_date, publisher_id, publisher_name, status, prompt_version, ai_provider, model
+  group by
+    event_date,
+    publisher_id,
+    publisher_name,
+    status,
+    prompt_version,
+    ai_provider,
+    model
 )
 
 select *
