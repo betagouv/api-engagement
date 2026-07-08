@@ -17,8 +17,8 @@ import { generateObject } from "ai";
 
 const generateObjectMock = generateObject as ReturnType<typeof vi.fn>;
 
-const promptVersion = { MODEL: {}, ENRICHMENT_SCHEMA: {}, TEMPERATURE: 0, buildSystemPrompt: () => "", buildUserMessage: () => "" };
-const input = { systemPrompt: "sys", userMessage: "usr", promptVersion } as any;
+const promptVersion = { ENRICHMENT_SCHEMA: {}, TEMPERATURE: 0, buildSystemPrompt: () => "", buildUserMessage: () => "" };
+const input = { systemPrompt: "sys", userMessage: "usr", model: {}, promptVersion } as any;
 
 const makeApiCallError = (statusCode: number) => Object.assign(new Error("api error"), { name: "AI_APICallError", statusCode });
 const makeRetryError = (lastError: unknown) => Object.assign(new Error("retry error"), { name: "AI_RetryError", lastError });

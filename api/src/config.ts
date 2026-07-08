@@ -57,7 +57,10 @@ export const DATA_SUBVENTION_TOKEN = process.env.DATA_SUBVENTION_TOKEN;
 // Albert API
 export const ALBERT_API_KEY = process.env.ALBERT_API_KEY;
 export const ALBERT_BASE_URL = process.env.ALBERT_BASE_URL || "https://albert.api.etalab.gouv.fr";
-export const MISSION_ENRICHMENT_PROVIDER = process.env.MISSION_ENRICHMENT_PROVIDER || "llm";
+// Enrichissement IA : provider + modèle. `mock` court-circuite le LLM ; sinon on tape sur le
+// fournisseur nommé (albert en staging, mistral en prod). Ajusté par env au déploiement.
+export const MISSION_ENRICHMENT_PROVIDER = process.env.MISSION_ENRICHMENT_PROVIDER || "mistral";
+export const MISSION_ENRICHMENT_MODEL = process.env.MISSION_ENRICHMENT_MODEL || "mistral-small-2603";
 
 // Rate limit
 export const RATE_LIMIT_PUBLISHER_MAX = Number(process.env.RATE_LIMIT_PUBLISHER_MAX) || 600;

@@ -168,7 +168,13 @@ describe("missionEnrichmentService.enrich — chain propagation", () => {
     expect(providerGenerate).toHaveBeenCalledWith({
       systemPrompt: "system",
       userMessage: "user",
+      model: expect.anything(),
       promptVersion: expect.objectContaining({ TEMPERATURE: 0 }),
+    });
+    // Le provider/modèle IA effectifs (défauts de config) sont historisés à la complétion.
+    expect(missionEnrichmentRepository.completeWithValues).toHaveBeenCalledWith("enrichment-new", expect.any(String), expect.any(Object), expect.any(Array), {
+      aiProvider: "mistral",
+      model: "mistral-small-2603",
     });
     expect(asyncTaskBus.publish).toHaveBeenCalledOnce();
     expect(asyncTaskBus.publish).toHaveBeenCalledWith({

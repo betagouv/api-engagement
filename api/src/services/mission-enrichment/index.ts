@@ -2,8 +2,10 @@ import { Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
 import { ENRICHABLE_TAXONOMIES, TAXONOMY } from "@engagement/taxonomy";
 
+import { MISSION_ENRICHMENT_MODEL, MISSION_ENRICHMENT_PROVIDER } from "@/config";
 import { missionRepository } from "@/repositories/mission";
 import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
+import { ai } from "@/services/ai";
 import { asyncTaskBus } from "@/services/async-task";
 import type { MissionRecord, MissionSearchFilters } from "@/types/mission";
 import { CONFIDENCE_THRESHOLD, CURRENT_PROMPT_VERSION } from "./config";
@@ -189,6 +191,8 @@ export const missionEnrichmentService = {
       adminEnrichment: {
         id: enrichment.id,
         promptVersion: enrichment.promptVersion,
+        aiProvider: enrichment.aiProvider,
+        model: enrichment.model,
         status: enrichment.status,
         inputTokens: enrichment.inputTokens,
         outputTokens: enrichment.outputTokens,
@@ -322,8 +326,11 @@ export const missionEnrichmentService = {
       const systemPrompt = promptVersion.buildSystemPrompt(buildTaxonomyBlock(toTaxonomyForPrompt(taxonomies)));
       const userMessage = promptVersion.buildUserMessage(buildMissionBlock(toMissionForPrompt(mission)));
 
-      // 7. Generate enrichment with the configured provider.
-      providerResult = await getMissionEnrichmentProvider().generate({ systemPrompt, userMessage, promptVersion });
+      // 7. Resolve the AI model from config (provider + model id) and generate with the configured provider.
+      //    The `mock` provider short-circuits the LLM, so no model is built for it.
+      console.log(`${LOG_PREFIX} ${missionId}: using ${MISSION_ENRICHMENT_PROVIDER}/${MISSION_ENRICHMENT_MODEL}`);
+      const model = MISSION_ENRICHMENT_PROVIDER === "mock" ? undefined : ai.model(MISSION_ENRICHMENT_PROVIDER, MISSION_ENRICHMENT_MODEL);
+      providerResult = await getMissionEnrichmentProvider().generate({ systemPrompt, userMessage, model, promptVersion });
 
       const { inputTokens, outputTokens, totalTokens } = providerResult.usage;
       console.log(`${LOG_PREFIX} ${missionId}: enrichment provider response received — tokens: ${inputTokens} in / ${outputTokens} out / ${totalTokens} total`);
@@ -351,7 +358,10 @@ export const missionEnrichmentService = {
         evidence: v.evidence,
       }));
 
-      await missionEnrichmentRepository.completeWithValues(enrichment.id, JSON.stringify(providerResult.object), { inputTokens, outputTokens, totalTokens }, persistedValues);
+      await missionEnrichmentRepository.completeWithValues(enrichment.id, JSON.stringify(providerResult.object), { inputTokens, outputTokens, totalTokens }, persistedValues, {
+        aiProvider: MISSION_ENRICHMENT_PROVIDER,
+        model: MISSION_ENRICHMENT_MODEL,
+      });
 
       console.log(`${LOG_PREFIX} ${missionId}: enrichment completed — ${valid.length} values persisted`);
     } catch (error) {
@@ -366,6 +376,8 @@ export const missionEnrichmentService = {
           where: { id: enrichment.id },
           data: {
             status: "failed",
+            aiProvider: MISSION_ENRICHMENT_PROVIDER,
+            model: MISSION_ENRICHMENT_MODEL,
             ...(rawResponse !== null && { rawResponse }),
             ...(usage && {
               inputTokens: usage.inputTokens,

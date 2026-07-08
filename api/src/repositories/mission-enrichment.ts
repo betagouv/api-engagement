@@ -58,7 +58,8 @@ export const missionEnrichmentRepository = {
     enrichmentId: string,
     rawResponse: string,
     tokenUsage: { inputTokens: number | undefined; outputTokens: number | undefined; totalTokens: number | undefined },
-    values: Omit<Prisma.MissionEnrichmentValueUncheckedCreateInput, "enrichmentId">[]
+    values: Omit<Prisma.MissionEnrichmentValueUncheckedCreateInput, "enrichmentId">[],
+    meta: { aiProvider: string; model: string }
   ): Promise<void> {
     await prisma.$transaction(async (tx) => {
       await tx.missionEnrichmentValue.deleteMany({ where: { enrichmentId } });
@@ -72,6 +73,8 @@ export const missionEnrichmentRepository = {
         where: { id: enrichmentId },
         data: {
           status: "completed",
+          aiProvider: meta.aiProvider,
+          model: meta.model,
           rawResponse,
           inputTokens: tokenUsage.inputTokens,
           outputTokens: tokenUsage.outputTokens,

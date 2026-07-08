@@ -284,8 +284,9 @@ const View = () => {
                     <h4 className="text-xl font-semibold">Données d&apos;enrichissement</h4>
                     {mission.adminEnrichment ? (
                       <p className="text-text-mention mt-1 text-sm">
-                        Version {mission.adminEnrichment.promptVersion} · Statut {mission.adminEnrichment.status} · Complété le{" "}
-                        {formatDateTime(mission.adminEnrichment.completedAt)}
+                        Version {mission.adminEnrichment.promptVersion}
+                        {mission.adminEnrichment.aiProvider ? ` · ${mission.adminEnrichment.aiProvider}/${mission.adminEnrichment.model}` : ""} · Statut{" "}
+                        {mission.adminEnrichment.status} · Complété le {formatDateTime(mission.adminEnrichment.completedAt)}
                       </p>
                     ) : (
                       <p className="text-text-mention mt-1 text-sm">Aucun enrichissement complété.</p>

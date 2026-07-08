@@ -1,4 +1,3 @@
-import type { LanguageModel } from "ai";
 import type { ZodTypeAny } from "zod";
 
 import * as v1 from "./v1";
@@ -12,7 +11,6 @@ export type { MissionForPrompt, TaxonomyForPrompt } from "./types";
 export type PromptEntry = {
   VERSION: string;
   TEMPERATURE: number;
-  MODEL: LanguageModel;
   ENRICHMENT_SCHEMA: ZodTypeAny;
   buildSystemPrompt: (taxonomyBlock: string) => string;
   buildUserMessage: (missionBlock: string) => string;

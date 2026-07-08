@@ -3,10 +3,5 @@ import { llmMissionEnrichmentProvider } from "@/services/mission-enrichment/prov
 import { mockMissionEnrichmentProvider } from "@/services/mission-enrichment/providers/mock";
 import type { MissionEnrichmentProvider } from "@/services/mission-enrichment/providers/types";
 
-export const getMissionEnrichmentProvider = (): MissionEnrichmentProvider => {
-  if (MISSION_ENRICHMENT_PROVIDER === "mock") {
-    return mockMissionEnrichmentProvider;
-  }
-
-  return llmMissionEnrichmentProvider;
-};
+export const getMissionEnrichmentProvider = (): MissionEnrichmentProvider =>
+  MISSION_ENRICHMENT_PROVIDER === "mock" ? mockMissionEnrichmentProvider : llmMissionEnrichmentProvider;

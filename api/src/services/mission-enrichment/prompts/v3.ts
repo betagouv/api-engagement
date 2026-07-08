@@ -1,5 +1,3 @@
-import { ai } from "@/services/ai";
-
 import {
   ENRICHMENT_SCHEMA,
   TAXONOMY_GUIDANCE_MAP,
@@ -10,7 +8,6 @@ import {
 } from "./v2";
 
 export const VERSION = "v3";
-export const MODEL = ai.model("mistral", "mistral-small-2603");
 export { ENRICHMENT_SCHEMA, TEMPERATURE, buildUserMessage };
 
 const TAXONOMY_GUIDANCE_MAP_V3 = {

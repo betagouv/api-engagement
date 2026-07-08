@@ -13,8 +13,11 @@ export type MissionEnrichmentProviderResult = {
 export type MissionEnrichmentProviderInput = {
   systemPrompt: string;
   userMessage: string;
+  // Modèle résolu à l'exécution depuis la config (provider + model id), plutôt que porté par la
+  // version de prompt : permet de basculer le fournisseur IA par environnement. Optionnel car le
+  // provider `mock` court-circuite le LLM et n'a pas de modèle.
+  model?: LanguageModel;
   promptVersion: {
-    MODEL: LanguageModel;
     ENRICHMENT_SCHEMA: FlexibleSchema<unknown>;
     TEMPERATURE: number;
   };

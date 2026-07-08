@@ -40,6 +40,8 @@ export type MissionAdminEnrichmentValue = {
 export type MissionAdminEnrichment = {
   id: string;
   promptVersion: string;
+  aiProvider: string | null;
+  model: string | null;
   status: string;
   inputTokens: number | null;
   outputTokens: number | null;

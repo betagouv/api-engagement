@@ -957,6 +957,8 @@ model MissionEnrichment {
   missionId     String                  @map("mission_id")
   status        MissionEnrichmentStatus @default(pending)
   promptVersion String                  @map("prompt_version")
+  aiProvider    String?                 @map("ai_provider")
+  model         String?                 @map("model")
   rawResponse   Json?                   @map("raw_response")
   inputTokens   Int?                    @map("input_tokens")
   outputTokens  Int?                    @map("output_tokens")

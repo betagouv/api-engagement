@@ -6,11 +6,14 @@ import { generateObject } from "ai";
 const LOG_PREFIX = "[mission-enrichment]";
 
 export const llmMissionEnrichmentProvider: MissionEnrichmentProvider = {
-  async generate({ systemPrompt, userMessage, promptVersion }: MissionEnrichmentProviderInput): Promise<MissionEnrichmentProviderResult> {
+  async generate({ systemPrompt, userMessage, model, promptVersion }: MissionEnrichmentProviderInput): Promise<MissionEnrichmentProviderResult> {
+    if (!model) {
+      throw new Error(`${LOG_PREFIX} missing model for LLM enrichment provider`);
+    }
     for (let attempt = 1; attempt <= LLM_NO_OBJECT_MAX_RETRIES; attempt++) {
       try {
         const result = await generateObject({
-          model: promptVersion.MODEL,
+          model,
           schema: promptVersion.ENRICHMENT_SCHEMA,
           system: systemPrompt,
           prompt: userMessage,
