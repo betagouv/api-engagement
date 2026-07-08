@@ -16,7 +16,7 @@ export function FooterContent() {
             </a>
           </div>
           <div className="fr-footer__content">
-            <p className="fr-footer__content-desc">Lorem [...] elit ut.</p>
+            <p className="fr-footer__content-desc">La plateforme vous accompagne dans votre recherche de missions et d'engagement.</p>
             <ul className="fr-footer__content-list">
               <li className="fr-footer__content-item">
                 <a title="info.gouv.fr - nouvelle fenêtre" href="https://info.gouv.fr" target="_blank" rel="noopener external" className="fr-footer__content-link">
@@ -65,7 +65,7 @@ export function FooterContent() {
               </a>
             </li>
             <li className="fr-footer__bottom-item">
-              <a className="fr-footer__bottom-link" href="https://app.api-engagement.beta.gouv.fr/public-stats">
+              <a className="fr-footer__bottom-link" href="#">
                 Statistiques
               </a>
             </li>
