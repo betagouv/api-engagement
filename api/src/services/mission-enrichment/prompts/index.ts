@@ -1,9 +1,13 @@
 import type { LanguageModel } from "ai";
 import type { ZodTypeAny } from "zod";
 
+import { MISSION_ENRICHMENT_PROMPT_VERSION } from "@/config";
+import { captureMessage } from "@/error";
+
 import * as v1 from "./v1";
 import * as v2 from "./v2";
 import * as v3 from "./v3";
+import * as v4 from "./v4";
 
 export { buildMissionBlock, buildTaxonomyBlock, ENRICHMENT_TRIGGER_FIELDS } from "./builder";
 export type { EnrichmentTriggerField } from "./builder";
@@ -22,6 +26,25 @@ export const PROMPT_REGISTRY: Record<string, PromptEntry> = {
   [v1.VERSION]: v1,
   [v2.VERSION]: v2,
   [v3.VERSION]: v3,
+  [v4.VERSION]: v4,
 };
 
 export type PromptVersion = keyof typeof PROMPT_REGISTRY;
+
+/** Version de prompt utilisée par défaut si la variable d'env est absente ou invalide. */
+export const DEFAULT_PROMPT_VERSION = v3.VERSION;
+
+// Résout la version active depuis l'env. Une valeur inconnue (typo, version supprimée) retombe sur le
+// défaut plutôt que de faire planter l'enrichissement (`PROMPT_REGISTRY[inconnu]` → undefined) ; on
+// signale le fallback via Sentry pour ne pas masquer une mauvaise configuration.
+const resolvePromptVersion = (raw: string): string => {
+  if (raw in PROMPT_REGISTRY) {
+    return raw;
+  }
+  captureMessage(`[mission-enrichment] unknown prompt version "${raw}", falling back to "${DEFAULT_PROMPT_VERSION}"`);
+  console.warn(`[mission-enrichment] unknown prompt version "${raw}", falling back to "${DEFAULT_PROMPT_VERSION}"`);
+  return DEFAULT_PROMPT_VERSION;
+};
+
+/** Version de prompt active pour l'enrichissement et le scoring (pilotée par env, cf. `MISSION_ENRICHMENT_PROMPT_VERSION`). */
+export const CURRENT_PROMPT_VERSION = resolvePromptVersion(MISSION_ENRICHMENT_PROMPT_VERSION);

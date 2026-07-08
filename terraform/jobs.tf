@@ -10,6 +10,9 @@ locals {
     "PRISMA_POOL_SIZE_CORE"      = "8"
     "PRISMA_POOL_TIMEOUT"        = "20"
     "PRISMA_CONNECT_TIMEOUT"     = "10"
+    # Version de prompt active pour update-mission-enrichment / update-mission-scoring.
+    # Défaut "v3" ; surchargée par le secret de workspace (ex. "v4" sur staging) via le merge de local.secrets.
+    "MISSION_ENRICHMENT_PROMPT_VERSION" = lookup(local.secrets, "MISSION_ENRICHMENT_PROMPT_VERSION", "v3")
   }
 
   async_task_env_vars = {

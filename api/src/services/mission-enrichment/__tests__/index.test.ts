@@ -37,6 +37,7 @@ vi.mock("@/services/mission-enrichment/prompts", () => ({
   },
   buildMissionBlock: () => "mission block",
   buildTaxonomyBlock: () => "taxonomy block",
+  CURRENT_PROMPT_VERSION: "v3",
 }));
 
 import { missionRepository } from "@/repositories/mission";

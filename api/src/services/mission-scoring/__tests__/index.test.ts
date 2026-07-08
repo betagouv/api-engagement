@@ -16,6 +16,7 @@ vi.mock("@/repositories/mission-scoring", () => ({
 import { PUBLISHER_IDS } from "@/config";
 import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
 import { missionScoringRepository } from "@/repositories/mission-scoring";
+import { CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/prompts";
 import { missionScoringService } from "@/services/mission-scoring";
 
 const missionEnrichmentRepositoryMock = missionEnrichmentRepository as unknown as {
@@ -252,5 +253,58 @@ describe("missionScoringService.score", () => {
         },
       ],
     });
+  });
+});
+
+describe("missionScoringService.score — enrichment selection", () => {
+  beforeEach(() => {
+    missionEnrichmentRepositoryMock.findFirst.mockReset();
+    missionScoringRepositoryMock.findUnique.mockReset();
+    missionScoringRepositoryMock.replaceForEnrichment.mockReset();
+  });
+
+  const buildEnrichment = (id: string) => ({
+    id,
+    missionId: "mission-1",
+    mission: { publisherId: null, type: null },
+    values: [buildEnrichmentValue()],
+  });
+
+  it("targets the active prompt version when no enrichment id is given", async () => {
+    missionEnrichmentRepositoryMock.findFirst.mockResolvedValue(buildEnrichment("enrichment-active"));
+    missionScoringRepositoryMock.findUnique.mockResolvedValue(null);
+
+    await missionScoringService.score({ missionId: "mission-1", force: true });
+
+    expect(missionEnrichmentRepositoryMock.findFirst).toHaveBeenCalledTimes(1);
+    expect(missionEnrichmentRepositoryMock.findFirst.mock.calls[0][0].where).toMatchObject({
+      missionId: "mission-1",
+      status: "completed",
+      promptVersion: CURRENT_PROMPT_VERSION,
+    });
+    expect(missionScoringRepositoryMock.replaceForEnrichment).toHaveBeenCalledWith(expect.objectContaining({ missionEnrichmentId: "enrichment-active" }));
+  });
+
+  it("falls back to the latest completed enrichment when none exists for the active version", async () => {
+    missionEnrichmentRepositoryMock.findFirst.mockResolvedValueOnce(null).mockResolvedValueOnce(buildEnrichment("enrichment-fallback"));
+    missionScoringRepositoryMock.findUnique.mockResolvedValue(null);
+
+    await missionScoringService.score({ missionId: "mission-1", force: true });
+
+    expect(missionEnrichmentRepositoryMock.findFirst).toHaveBeenCalledTimes(2);
+    expect(missionEnrichmentRepositoryMock.findFirst.mock.calls[1][0].where).not.toHaveProperty("promptVersion");
+    expect(missionScoringRepositoryMock.replaceForEnrichment).toHaveBeenCalledWith(expect.objectContaining({ missionEnrichmentId: "enrichment-fallback" }));
+  });
+
+  it("targets the exact enrichment id without version filter or fallback", async () => {
+    missionEnrichmentRepositoryMock.findFirst.mockResolvedValue(buildEnrichment("enrichment-explicit"));
+    missionScoringRepositoryMock.findUnique.mockResolvedValue(null);
+
+    await missionScoringService.score({ missionId: "mission-1", missionEnrichmentId: "enrichment-explicit", force: true });
+
+    expect(missionEnrichmentRepositoryMock.findFirst).toHaveBeenCalledTimes(1);
+    const where = missionEnrichmentRepositoryMock.findFirst.mock.calls[0][0].where;
+    expect(where).toMatchObject({ id: "enrichment-explicit", missionId: "mission-1", status: "completed" });
+    expect(where).not.toHaveProperty("promptVersion");
   });
 });

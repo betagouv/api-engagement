@@ -58,6 +58,9 @@ export const DATA_SUBVENTION_TOKEN = process.env.DATA_SUBVENTION_TOKEN;
 export const ALBERT_API_KEY = process.env.ALBERT_API_KEY;
 export const ALBERT_BASE_URL = process.env.ALBERT_BASE_URL || "https://albert.api.etalab.gouv.fr";
 export const MISSION_ENRICHMENT_PROVIDER = process.env.MISSION_ENRICHMENT_PROVIDER || "llm";
+// Version de prompt active pour l'enrichissement/scoring (clé du PROMPT_REGISTRY). Permet de tester
+// un couple prompt/modèle différent par environnement (ex. v4/Albert en staging). Défaut : "v3".
+export const MISSION_ENRICHMENT_PROMPT_VERSION = process.env.MISSION_ENRICHMENT_PROMPT_VERSION || "v3";
 
 // Rate limit
 export const RATE_LIMIT_PUBLISHER_MAX = Number(process.env.RATE_LIMIT_PUBLISHER_MAX) || 600;

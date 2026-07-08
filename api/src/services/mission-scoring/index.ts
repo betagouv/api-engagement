@@ -1,6 +1,9 @@
+import { Prisma } from "@/db/core";
+
 import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
 import { missionScoringRepository } from "@/repositories/mission-scoring";
 import { asyncTaskBus } from "@/services/async-task";
+import { CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/prompts";
 import { computeMissionScoringValues } from "@/services/mission-scoring/calculator";
 import { missionScoringEnrichmentInclude, toScoringInputValues } from "@/services/mission-scoring/data";
 import { getMissionScoringRuleKeys } from "@/services/mission-scoring/scoring-rules";
@@ -24,18 +27,35 @@ export const missionScoringService = {
   },
 
   async score(params: { missionId: string; missionEnrichmentId?: string; force?: boolean }) {
-    const enrichment = await missionEnrichmentRepository.findFirst({
-      where: {
-        ...(params.missionEnrichmentId ? { id: params.missionEnrichmentId } : {}),
-        missionId: params.missionId,
-        status: "completed",
-      },
+    // Sélection de l'enrichment à scorer :
+    // - id explicite fourni → ciblage exact (comportement inchangé) ;
+    // - sinon on privilégie la version de prompt active, avec repli sur le dernier enrichment
+    //   `completed` (toutes versions) pour ne pas laisser une mission non scorée quand elle n'a pas
+    //   encore été enrichie dans la version active.
+    const completedWhere = {
+      ...(params.missionEnrichmentId ? { id: params.missionEnrichmentId } : {}),
+      missionId: params.missionId,
+      status: "completed",
+    } satisfies Prisma.MissionEnrichmentWhereInput;
+
+    let enrichment = await missionEnrichmentRepository.findFirst({
+      where: params.missionEnrichmentId ? completedWhere : { ...completedWhere, promptVersion: CURRENT_PROMPT_VERSION },
       orderBy: { createdAt: "desc" },
       include: missionScoringEnrichmentInclude,
     });
 
+    if (!enrichment && !params.missionEnrichmentId) {
+      enrichment = await missionEnrichmentRepository.findFirst({
+        where: completedWhere,
+        orderBy: { createdAt: "desc" },
+        include: missionScoringEnrichmentInclude,
+      });
+    }
+
     if (!enrichment) {
-      console.log(`${LOG_PREFIX} skipping mission=${params.missionId} enrichment=${params.missionEnrichmentId ?? "latest"} — completed enrichment not found`);
+      console.log(
+        `${LOG_PREFIX} skipping mission=${params.missionId} enrichment=${params.missionEnrichmentId ?? `${CURRENT_PROMPT_VERSION}|latest`} — completed enrichment not found`
+      );
       return;
     }
 
