@@ -236,7 +236,7 @@ async function getPRsForCommit(sha: string): Promise<PR[]> {
 // Notion helpers
 // ---------------------------------------------------------------------------
 function extractNotionLinks(text: string): string[] {
-  const regex = /https:\/\/(?:www\.)?notion\.so\/[^\s)>\]"]+/g;
+  const regex = /https:\/\/(?:www\.)?(?:notion\.so|app\.notion\.com)\/[^\s)>\]"]+/g;
   return [...new Set(text.match(regex) ?? [])];
 }
 
