@@ -15,12 +15,58 @@ export function FooterContent() {
               </p>
             </a>
           </div>
+          <div className="fr-footer__content">
+            <p className="fr-footer__content-desc">Lorem [...] elit ut.</p>
+            <ul className="fr-footer__content-list">
+              <li className="fr-footer__content-item">
+                <a title="info.gouv.fr - nouvelle fenêtre" href="https://info.gouv.fr" target="_blank" rel="noopener external" className="fr-footer__content-link">
+                  info.gouv.fr
+                </a>
+              </li>
+              <li className="fr-footer__content-item">
+                <a
+                  title="service-public.gouv.fr - nouvelle fenêtre"
+                  href="https://service-public.gouv.fr"
+                  target="_blank"
+                  rel="noopener external"
+                  className="fr-footer__content-link"
+                >
+                  service-public.gouv.fr
+                </a>
+              </li>
+              <li className="fr-footer__content-item">
+                <a title="legifrance.gouv.fr - nouvelle fenêtre" href="https://legifrance.gouv.fr" target="_blank" rel="noopener external" className="fr-footer__content-link">
+                  legifrance.gouv.fr
+                </a>
+              </li>
+              <li className="fr-footer__content-item">
+                <a title="data.gouv.fr - nouvelle fenêtre" href="https://data.gouv.fr" target="_blank" rel="noopener external" className="fr-footer__content-link">
+                  data.gouv.fr
+                </a>
+              </li>
+            </ul>
+          </div>
         </div>
         <div className="fr-footer__bottom">
           <ul className="fr-footer__bottom-list">
             <li className="fr-footer__bottom-item">
               <a className="fr-footer__bottom-link" href="/accessibilite">
                 Accessibilité : totalement conforme
+              </a>
+            </li>
+            <li className="fr-footer__bottom-item">
+              <a className="fr-footer__bottom-link" href="/mentions-legales">
+                Mentions légales
+              </a>
+            </li>
+            <li className="fr-footer__bottom-item">
+              <a className="fr-footer__bottom-link" href="/politique-de-confidentialite">
+                Politique de confidentialité
+              </a>
+            </li>
+            <li className="fr-footer__bottom-item">
+              <a className="fr-footer__bottom-link" href="https://app.api-engagement.beta.gouv.fr/public-stats">
+                Statistiques
               </a>
             </li>
           </ul>
