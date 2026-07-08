@@ -55,3 +55,4 @@ select
 from results as r
 left join clicks as c on r.kpi_date = c.kpi_date
 left join backend as b on r.kpi_date = b.kpi_date
+order by r.kpi_date desc

@@ -36,3 +36,4 @@ select
   s.age_bracket
 from clicks as c
 left join sessions as s on c.quiz_session_id = s.quiz_session_id
+order by c.clicked_at desc

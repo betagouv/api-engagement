@@ -56,3 +56,4 @@ select
 from sessions as s
 left join results as r on s.kpi_date = r.kpi_date
 left join pages as p on s.kpi_date = p.kpi_date
+order by s.kpi_date desc

@@ -15,3 +15,4 @@ select
   pageview_count,
   unique_visitor_count
 from page_views
+order by kpi_date desc, page_name

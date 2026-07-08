@@ -66,3 +66,4 @@ select
 from sessions as s
 left join results as r on s.quiz_session_id = r.quiz_session_id
 left join backend as b on s.quiz_session_id = b.quiz_session_id
+order by s.started_at desc
