@@ -59,7 +59,18 @@ export const ALBERT_API_KEY = process.env.ALBERT_API_KEY;
 export const ALBERT_BASE_URL = process.env.ALBERT_BASE_URL || "https://albert.api.etalab.gouv.fr";
 // Enrichissement IA : provider + modèle. `mock` court-circuite le LLM ; sinon on tape sur le
 // fournisseur nommé (albert en staging, mistral en prod). Ajusté par env au déploiement.
-export const MISSION_ENRICHMENT_PROVIDER = process.env.MISSION_ENRICHMENT_PROVIDER || "mistral";
+const MISSION_ENRICHMENT_PROVIDERS = ["mock", "albert", "mistral", "openai"] as const;
+export type MissionEnrichmentProviderName = (typeof MISSION_ENRICHMENT_PROVIDERS)[number];
+
+const parseMissionEnrichmentProvider = (provider: string): MissionEnrichmentProviderName => {
+  if ((MISSION_ENRICHMENT_PROVIDERS as readonly string[]).includes(provider)) {
+    return provider as MissionEnrichmentProviderName;
+  }
+
+  throw new Error(`Invalid MISSION_ENRICHMENT_PROVIDER "${provider}". Expected one of: ${MISSION_ENRICHMENT_PROVIDERS.join(", ")}.`);
+};
+
+export const MISSION_ENRICHMENT_PROVIDER = parseMissionEnrichmentProvider(process.env.MISSION_ENRICHMENT_PROVIDER || "mistral");
 export const MISSION_ENRICHMENT_MODEL = process.env.MISSION_ENRICHMENT_MODEL || "mistral-small-2603";
 
 // Rate limit

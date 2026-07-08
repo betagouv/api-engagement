@@ -55,22 +55,22 @@ resource "scaleway_container" "api" {
   }
 
   secret_environment_variables = {
-    "SECRET"                   = local.secrets.SECRET
-    "DATABASE_URL_CORE"        = local.secrets.DATABASE_URL_CORE
-    "SENTRY_DSN_API"           = local.secrets.SENTRY_DSN_API
-    "SENDINBLUE_APIKEY"        = local.secrets.SENDINBLUE_APIKEY
-    "BREVO_WEBHOOK_TOKEN"      = local.secrets.BREVO_WEBHOOK_TOKEN
-    "SLACK_TOKEN"              = local.secrets.SLACK_TOKEN
-    "SCW_ACCESS_KEY"           = local.secrets.SCW_ACCESS_KEY
-    "SCW_SECRET_KEY"           = local.secrets.SCW_SECRET_KEY
-    "SCW_QUEUE_ACCESS_KEY"     = var.enable_async_tasks ? scaleway_mnq_sqs_credentials.async_task_publisher[0].access_key : ""
-    "SCW_QUEUE_SECRET_KEY"     = var.enable_async_tasks ? scaleway_mnq_sqs_credentials.async_task_publisher[0].secret_key : ""
-    "LETUDIANT_PILOTY_TOKEN"   = lookup(local.secrets, "LETUDIANT_PILOTY_TOKEN", "")
-    "METABASE_API_KEY"         = lookup(local.secrets, "METABASE_API_KEY", "")
-    "METABASE_URL"             = lookup(local.secrets, "METABASE_URL", "")
-    "COCKPIT_METRICS_OTLP_URL" = lookup(local.secrets, "COCKPIT_METRICS_OTLP_URL", "")
-    "COCKPIT_METRICS_TOKEN"    = lookup(local.secrets, "COCKPIT_METRICS_TOKEN", "")
-    "TYPESENSE_API_KEY"        = lookup(local.secrets, "TYPESENSE_API_KEY", "")
+    "SECRET"                      = local.secrets.SECRET
+    "DATABASE_URL_CORE"           = local.secrets.DATABASE_URL_CORE
+    "SENTRY_DSN_API"              = local.secrets.SENTRY_DSN_API
+    "SENDINBLUE_APIKEY"           = local.secrets.SENDINBLUE_APIKEY
+    "BREVO_WEBHOOK_TOKEN"         = local.secrets.BREVO_WEBHOOK_TOKEN
+    "SLACK_TOKEN"                 = local.secrets.SLACK_TOKEN
+    "SCW_ACCESS_KEY"              = local.secrets.SCW_ACCESS_KEY
+    "SCW_SECRET_KEY"              = local.secrets.SCW_SECRET_KEY
+    "SCW_QUEUE_ACCESS_KEY"        = var.enable_async_tasks ? scaleway_mnq_sqs_credentials.async_task_publisher[0].access_key : ""
+    "SCW_QUEUE_SECRET_KEY"        = var.enable_async_tasks ? scaleway_mnq_sqs_credentials.async_task_publisher[0].secret_key : ""
+    "LETUDIANT_PILOTY_TOKEN"      = lookup(local.secrets, "LETUDIANT_PILOTY_TOKEN", "")
+    "METABASE_API_KEY"            = lookup(local.secrets, "METABASE_API_KEY", "")
+    "METABASE_URL"                = lookup(local.secrets, "METABASE_URL", "")
+    "COCKPIT_METRICS_OTLP_URL"    = lookup(local.secrets, "COCKPIT_METRICS_OTLP_URL", "")
+    "COCKPIT_METRICS_TOKEN"       = lookup(local.secrets, "COCKPIT_METRICS_TOKEN", "")
+    "TYPESENSE_API_KEY"           = lookup(local.secrets, "TYPESENSE_API_KEY", "")
     "DEMARCHES_SIMPLIFIEES_TOKEN" = lookup(local.secrets, "DEMARCHES_SIMPLIFIEES_TOKEN", "")
   }
 }
@@ -112,6 +112,8 @@ resource "scaleway_container" "api_worker" {
     "SCW_QUEUE_URL_MISSION_SCORING"    = module.async_task_queues["mission_scoring"].url
     "SCW_QUEUE_URL_MISSION_INDEX"      = module.async_task_queues["mission_index"].url
     "ALBERT_BASE_URL"                  = lookup(local.secrets, "ALBERT_BASE_URL", "https://albert.api.etalab.gouv.fr")
+    "MISSION_ENRICHMENT_PROVIDER"      = lookup(local.secrets, "MISSION_ENRICHMENT_PROVIDER", "mistral")
+    "MISSION_ENRICHMENT_MODEL"         = lookup(local.secrets, "MISSION_ENRICHMENT_MODEL", "mistral-small-2603")
     "TYPESENSE_HOST"                   = var.typesense_load_balancer_private_ip
     "TYPESENSE_PORT"                   = "8108"
   }
