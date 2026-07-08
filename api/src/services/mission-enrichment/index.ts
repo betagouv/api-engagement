@@ -308,7 +308,12 @@ export const missionEnrichmentService = {
     // The unique constraint (mission_id, prompt_version) guarantees one row; claimForRun reuses it
     // (no accumulation) and atomically blocks concurrent workers: a null id means another worker
     // already holds the run, so we skip silently.
-    const enrichmentId = await missionEnrichmentRepository.claimForRun({ missionId, promptVersion: CURRENT_PROMPT_VERSION });
+    const enrichmentId = await missionEnrichmentRepository.claimForRun({
+      missionId,
+      promptVersion: CURRENT_PROMPT_VERSION,
+      aiProvider: MISSION_ENRICHMENT_PROVIDER,
+      model: MISSION_ENRICHMENT_MODEL,
+    });
 
     if (!enrichmentId) {
       console.log(`${LOG_PREFIX} skipping ${missionId} — enrichment already in-flight (concurrent worker)`);

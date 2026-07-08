@@ -217,6 +217,10 @@ models:
         description: Version du prompt utilisée pour produire l'enrichissement.
         tests:
           - not_null
+      - name: ai_provider
+        description: Fournisseur IA utilisé (`albert`, `mistral`, `openai`, `mock`), nullable pour les lignes historiques.
+      - name: model
+        description: Identifiant du modèle IA utilisé, nullable pour les lignes historiques.
       - name: input_tokens
         description: Nombre de tokens d'entrée consommés, si disponible.
       - name: output_tokens

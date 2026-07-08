@@ -165,6 +165,12 @@ describe("missionEnrichmentService.enrich — chain propagation", () => {
 
     await missionEnrichmentService.enrich("mission-1");
 
+    expect(missionEnrichmentRepository.claimForRun).toHaveBeenCalledWith({
+      missionId: "mission-1",
+      promptVersion: "v3",
+      aiProvider: "mistral",
+      model: "mistral-small-2603",
+    });
     expect(providerGenerate).toHaveBeenCalledWith({
       systemPrompt: "system",
       userMessage: "user",

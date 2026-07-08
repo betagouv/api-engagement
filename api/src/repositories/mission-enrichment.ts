@@ -14,13 +14,15 @@ export const missionEnrichmentRepository = {
    * row if no run is already in progress. Returns the reserved ID, or `null` if another worker
    * already holds the run (concurrency) — the caller must then stop.
    */
-  async claimForRun(params: { missionId: string; promptVersion: string }): Promise<string | null> {
+  async claimForRun(params: { missionId: string; promptVersion: string; aiProvider: string; model: string }): Promise<string | null> {
     const rows = await prisma.$queryRaw<{ id: string }[]>`
-      INSERT INTO "mission_enrichment" ("id", "mission_id", "prompt_version", "status", "created_at", "updated_at")
-      VALUES (gen_random_uuid(), ${params.missionId}, ${params.promptVersion}, 'processing', now(), now())
+      INSERT INTO "mission_enrichment" ("id", "mission_id", "prompt_version", "status", "ai_provider", "model", "created_at", "updated_at")
+      VALUES (gen_random_uuid(), ${params.missionId}, ${params.promptVersion}, 'processing', ${params.aiProvider}, ${params.model}, now(), now())
       ON CONFLICT ("mission_id", "prompt_version")
       DO UPDATE SET
         "status" = 'processing',
+        "ai_provider" = ${params.aiProvider},
+        "model" = ${params.model},
         "completed_at" = NULL,
         "raw_response" = NULL,
         "input_tokens" = NULL,
