@@ -174,7 +174,7 @@ describe("missionEnrichmentService.enrich — chain propagation", () => {
     expect(asyncTaskBus.publish).toHaveBeenCalledOnce();
     expect(asyncTaskBus.publish).toHaveBeenCalledWith({
       type: "mission.scoring",
-      payload: { missionId: "mission-1" },
+      payload: { missionId: "mission-1", missionEnrichmentId: "enrichment-new" },
     });
   });
 });

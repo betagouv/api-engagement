@@ -382,6 +382,6 @@ export const missionEnrichmentService = {
     }
 
     // 10. Trigger scoring (outside try/catch — enrichment is already completed)
-    await asyncTaskBus.publish({ type: "mission.scoring", payload: { missionId } });
+    await asyncTaskBus.publish({ type: "mission.scoring", payload: { missionId, missionEnrichmentId: enrichment.id } });
   },
 };
