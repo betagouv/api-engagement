@@ -31,7 +31,7 @@ const Signup = () => {
       }
       setUser(res.data);
     } catch (error) {
-      captureError(error, { extra: { token } });
+      captureError(error, { extra: { hasToken: !!token } });
     }
   };
 
@@ -120,7 +120,7 @@ const SignupForm = ({ user, token }) => {
       toast.success("Compte créé avec succès");
       navigate("/login");
     } catch (error) {
-      captureError(error, { extra: { values } });
+      captureError(error);
     }
     setLoading(false);
   };

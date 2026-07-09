@@ -25,7 +25,7 @@ const Forgot = () => {
       await api.post("/user/forgot-password", { email: values.email });
       setDone(true);
     } catch (error) {
-      captureError(error, { extra: { values } });
+      captureError(error);
     }
     setLoading(false);
   };

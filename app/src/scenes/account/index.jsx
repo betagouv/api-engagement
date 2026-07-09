@@ -189,7 +189,7 @@ const ResetPasswordModal = () => {
       toast.success("Mot de passe mis à jour");
       setOpen(false);
     } catch (error) {
-      captureError(error, { extra: { values } });
+      captureError(error);
     }
   };
 
