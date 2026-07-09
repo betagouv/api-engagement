@@ -33,7 +33,8 @@ export function countAnsweredSteps(answers: QuizAnswers): number {
 //   - options : valeur unique (sélection simple) ou tableau (multi-sélection) ; undefined si vide.
 //   - numeric : nombre brut (ex. age).
 //   - params  : `label` lisible (ex. localisation) ; les coordonnées/CP sont remontés à part via resolveGeoProps.
-//   - text    : texte brut.
+//   - text    : omis. Saisie libre (ex. precision_parcoursup_formation_nom) → risque de données
+//               personnelles et haute cardinalité, hors périmètre analytique d'answer_value.
 export function resolveAnswerValue(answer: ScreenAnswer | undefined): string | number | string[] | undefined {
   if (!answer) return undefined;
   switch (answer.type) {
@@ -47,7 +48,7 @@ export function resolveAnswerValue(answer: ScreenAnswer | undefined): string | n
       return typeof label === "string" && label ? label : undefined;
     }
     case "text":
-      return answer.value || undefined;
+      return undefined;
   }
 }
 

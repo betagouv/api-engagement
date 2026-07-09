@@ -34,9 +34,9 @@ describe("resolveAnswerValue", () => {
     expect(resolveAnswerValue(answer)).toBeUndefined();
   });
 
-  it("retourne la valeur pour une réponse text", () => {
-    const answer: ScreenAnswer = { type: "text", value: "infirmier" };
-    expect(resolveAnswerValue(answer)).toBe("infirmier");
+  it("omet la valeur d'une réponse text (saisie libre : données perso / haute cardinalité)", () => {
+    const answer: ScreenAnswer = { type: "text", value: "BTS SIO au lycée Jean Moulin" };
+    expect(resolveAnswerValue(answer)).toBeUndefined();
   });
 
   it("retourne undefined quand la réponse est absente", () => {
