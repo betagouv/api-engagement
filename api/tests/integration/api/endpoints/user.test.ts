@@ -1,6 +1,7 @@
 import request from "supertest";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { userService } from "@/services/user";
 import { createTestPublisher } from "../../../fixtures";
 import { createTestUser } from "../../../fixtures/user";
 import { createTestApp } from "../../../testApp";
@@ -66,7 +67,10 @@ describe("Dashboard user controller", () => {
     const { token: adminToken } = await createTestUser({ role: "admin" });
     const { user: targetUser } = await createTestUser({ publishers: [publisher.id] });
 
-    const res = await request(app).get(`/user/loginas/${targetUser.id}`).set({ Authorization: `jwt ${adminToken}` }).set("x-request-id", "request-loginas");
+    const res = await request(app)
+      .get(`/user/loginas/${targetUser.id}`)
+      .set({ Authorization: `jwt ${adminToken}` })
+      .set("x-request-id", "request-loginas");
 
     expect(res.status).toBe(200);
     expect(getAuditLogs(consoleInfoSpy)).toContainEqual(
@@ -81,5 +85,76 @@ describe("Dashboard user controller", () => {
         metadata: { publisherId: publisher.id },
       })
     );
+  });
+
+  describe("POST /user/signup", () => {
+    const VALID_PASSWORD = "SuperSecret123!";
+
+    const createInvitedUser = (data: Parameters<typeof createTestUser>[0] = {}) =>
+      createTestUser({
+        invitationToken: "invitation-token-test",
+        invitationExpiresAt: new Date(Date.now() + 1000 * 60 * 60),
+        ...data,
+      });
+
+    it("completes signup with a valid invitation token", async () => {
+      const { user } = await createInvitedUser();
+
+      const res = await request(app).post("/user/signup").send({ token: "invitation-token-test", firstname: "Jane", lastname: "Doe", password: VALID_PASSWORD });
+
+      expect(res.status).toBe(200);
+      expect(res.body.ok).toBe(true);
+
+      const updated = await userService.findUserById(user.id);
+      expect(updated?.firstname).toBe("Jane");
+      expect(updated?.invitationToken).toBeNull();
+      expect(updated?.invitationExpiresAt).toBeNull();
+      expect(updated?.invitationCompletedAt).not.toBeNull();
+
+      const login = await request(app).post("/user/login").send({ email: user.email, password: VALID_PASSWORD });
+      expect(login.status).toBe(200);
+    });
+
+    it("rejects an unknown invitation token without touching any account", async () => {
+      const { user } = await createInvitedUser();
+
+      const res = await request(app).post("/user/signup").send({ token: "wrong-token", firstname: "Evil", lastname: "Hacker", password: VALID_PASSWORD });
+
+      expect(res.status).toBe(404);
+
+      const untouched = await userService.findUserById(user.id);
+      expect(untouched?.firstname).toBe(user.firstname);
+      expect(untouched?.invitationToken).toBe("invitation-token-test");
+    });
+
+    it("rejects an expired invitation token", async () => {
+      await createInvitedUser({ invitationExpiresAt: new Date(Date.now() - 1000) });
+
+      const res = await request(app).post("/user/signup").send({ token: "invitation-token-test", firstname: "Jane", lastname: "Doe", password: VALID_PASSWORD });
+
+      expect(res.status).toBe(403);
+      expect(res.body.code).toBe("REQUEST_EXPIRED");
+    });
+
+    it("rejects the legacy payload with a user id instead of a token", async () => {
+      const { user } = await createInvitedUser();
+
+      const res = await request(app).post("/user/signup").send({ id: user.id, firstname: "Evil", lastname: "Hacker", password: VALID_PASSWORD });
+
+      expect(res.status).toBe(400);
+      expect(res.body.code).toBe("INVALID_BODY");
+
+      const untouched = await userService.findUserById(user.id);
+      expect(untouched?.firstname).toBe(user.firstname);
+    });
+
+    it("rejects a weak password even with a valid token", async () => {
+      await createInvitedUser();
+
+      const res = await request(app).post("/user/signup").send({ token: "invitation-token-test", firstname: "Jane", lastname: "Doe", password: "weak" });
+
+      expect(res.status).toBe(400);
+      expect(res.body.code).toBe("INVALID_PASSWORD");
+    });
   });
 });

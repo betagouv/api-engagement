@@ -6,15 +6,15 @@ import zod from "zod";
 
 import { APP_URL, ENV, SECRET } from "@/config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, REQUEST_EXPIRED, RESSOURCE_ALREADY_EXIST } from "@/error";
+import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { sendTemplate, TEMPLATE_IDS } from "@/services/brevo";
 import { loginHistoryService } from "@/services/login-history";
 import { publisherService } from "@/services/publisher";
 import { userService } from "@/services/user";
 import { UserRequest } from "@/types/passport";
-import { appendAuditEvent } from "@/utils/audit-log";
 import type { UserUpdatePatch } from "@/types/user";
-import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { hasLetter, hasNumber, hasSpecialChar } from "@/utils";
+import { appendAuditEvent } from "@/utils/audit-log";
 
 const FORGET_PASSWORD_EXPIRATION = 1000 * 60 * 60 * 2; // 2 hours
 const AUTH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7; // 7 day
@@ -256,7 +256,7 @@ router.post("/signup", async (req: UserRequest, res: Response, next: NextFunctio
   try {
     const body = zod
       .object({
-        id: zod.string(),
+        token: zod.string().min(1),
         firstname: zod.string(),
         lastname: zod.string(),
         password: zod.string(),
@@ -272,9 +272,12 @@ router.post("/signup", async (req: UserRequest, res: Response, next: NextFunctio
       return res.status(400).send({ ok: false, code: "INVALID_PASSWORD" });
     }
 
-    const user = await userService.findUserById(body.data.id, { includeDeleted: true });
+    const user = await userService.findUserByInvitationToken(body.data.token);
     if (!user) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: `User not found` });
+    }
+    if (!user.invitationExpiresAt || user.invitationExpiresAt < new Date()) {
+      return res.status(403).send({ ok: false, code: REQUEST_EXPIRED, message: `Token expired` });
     }
 
     await userService.updateUser(user.id, {
