@@ -1,5 +1,5 @@
 import { QUIZ_FLOW, type StepId } from "~/config/quiz-flow";
-import type { QuizAnswers } from "~/types/quiz";
+import type { QuizAnswers, ScreenAnswer } from "~/types/quiz";
 
 import type { EmailMissionDetailEntrySource, MissionDetailEntrySource, QuizEntrySource } from "./types";
 
@@ -29,8 +29,46 @@ export function countAnsweredSteps(answers: QuizAnswers): number {
   return QUIZ_FLOW.filter((step) => answers[step.id] !== undefined).length;
 }
 
-// Steps dont la réponse n'est pas remontée dans answer_value (non catégoriels ou sensibles).
-export const ANSWER_VALUE_EXCLUDED_STEPS = new Set<StepId>(["age", "localisation", "handicap"]);
+// Valeur remontée dans `answer_value` selon le type de réponse du step :
+//   - options : valeur unique (sélection simple) ou tableau (multi-sélection) ; undefined si vide.
+//   - numeric : nombre brut (ex. age).
+//   - params  : `label` lisible (ex. localisation) ; les coordonnées/CP sont remontés à part via resolveGeoProps.
+//   - text    : texte brut.
+export function resolveAnswerValue(answer: ScreenAnswer | undefined): string | number | string[] | undefined {
+  if (!answer) return undefined;
+  switch (answer.type) {
+    case "options":
+      if (answer.option_ids.length === 0) return undefined;
+      return answer.option_ids.length === 1 ? answer.option_ids[0] : answer.option_ids;
+    case "numeric":
+      return answer.value;
+    case "params": {
+      const label = (answer.params as { label?: unknown }).label;
+      return typeof label === "string" && label ? label : undefined;
+    }
+    case "text":
+      return answer.value || undefined;
+  }
+}
+
+// Propriétés géo brutes remontées pour les steps de type "params" géolocalisés (ex. localisation),
+// pour des analyses futures (distance, temps de trajet…). Générique : un step params sans lat/lon
+// (ex. tranche_age) produit des valeurs undefined, filtrées par `track()` avant envoi.
+export function resolveGeoProps(answer: ScreenAnswer | undefined): {
+  geo_lat?: number;
+  geo_lon?: number;
+  geo_postcode?: string;
+  geo_country_code?: string;
+} {
+  if (answer?.type !== "params") return {};
+  const params = answer.params as { lat?: unknown; lon?: unknown; postcode?: unknown; country_code?: unknown };
+  return {
+    geo_lat: typeof params.lat === "number" ? params.lat : undefined,
+    geo_lon: typeof params.lon === "number" ? params.lon : undefined,
+    geo_postcode: typeof params.postcode === "string" ? params.postcode : undefined,
+    geo_country_code: typeof params.country_code === "string" ? params.country_code : undefined,
+  };
+}
 
 // ============================================================================
 // Résolveurs d'entry_source

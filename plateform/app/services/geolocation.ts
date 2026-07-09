@@ -1,4 +1,4 @@
-export type GeoSuggestion = { label: string; lat: number; lon: number; country_code?: string };
+export type GeoSuggestion = { label: string; lat: number; lon: number; country_code?: string; postcode?: string };
 
 type AddressFeature = {
   properties: { label: string; name: string; postcode: string; type: string; id: string };
@@ -16,6 +16,7 @@ export async function searchAddress(query: string): Promise<GeoSuggestion[]> {
     lat: f.geometry.coordinates[1],
     lon: f.geometry.coordinates[0],
     country_code: "fr",
+    postcode: f.properties.postcode,
   }));
 }
 
@@ -29,5 +30,6 @@ export async function reverseGeocode(lat: number, lon: number): Promise<GeoSugge
     lat: f.geometry.coordinates[1],
     lon: f.geometry.coordinates[0],
     country_code: "fr",
+    postcode: f.properties.postcode,
   };
 }

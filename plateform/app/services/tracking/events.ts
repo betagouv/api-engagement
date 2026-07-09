@@ -17,7 +17,7 @@ import type {
   QuizCompletionType,
   QuizEntrySource,
 } from "./types";
-import { ANSWER_VALUE_EXCLUDED_STEPS, buildQuizPath, countAnsweredSteps, optionAnswer } from "./utils";
+import { buildQuizPath, countAnsweredSteps, optionAnswer, resolveAnswerValue, resolveGeoProps } from "./utils";
 
 // Catalogue des évènements métier tracés côté front : nom de l'évènement + forme des propriétés
 // (spec produit, propriétés en snake_case côté PostHog). Les types vivent dans ./types, les helpers
@@ -121,21 +121,18 @@ export function trackQuizStarted(params: { entrySource: QuizEntrySource }): void
 }
 
 // `quiz.step_completed` (core_value) : à chaque validation d'étape (goNext).
+// answer_value remonte la réponse de chaque étape (cf. resolveAnswerValue). Pour les étapes
+// géolocalisées (localisation), les coordonnées/CP brutes sont ajoutées via resolveGeoProps.
 export function trackQuizStepCompleted(params: { stepName: StepId; answers: QuizAnswers; stepIndex: number; totalVisibleSteps: number }): void {
   const answer = params.answers[params.stepName];
-  // answer_value uniquement pour les étapes catégorielles non sensibles (omis pour age/localisation/handicap).
-  // Multi-sélection → tableau de toutes les valeurs ; sélection unique → chaîne simple ; sinon undefined (clé omise).
-  let answerValue: string | string[] | undefined;
-  if (!ANSWER_VALUE_EXCLUDED_STEPS.has(params.stepName) && answer?.type === "options" && answer.option_ids.length > 0) {
-    answerValue = answer.option_ids.length === 1 ? answer.option_ids[0] : answer.option_ids;
-  }
 
   track("quiz.step_completed", {
     step_name: params.stepName,
     quiz_path: buildQuizPath(params.answers),
     step_index: params.stepIndex,
     total_visible_steps: params.totalVisibleSteps,
-    answer_value: answerValue,
+    answer_value: resolveAnswerValue(answer),
+    ...resolveGeoProps(answer),
   });
 }
 
