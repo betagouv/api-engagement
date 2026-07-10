@@ -1,7 +1,7 @@
 import React, { useId, useState } from "react";
 import { useLocation } from "react-router";
 import Modal from "~/components/layout/modal";
-import { PUBLISHER_ID_API_ENGAGEMENT } from "~/services/config";
+import { PUBLISHER_ID } from "~/services/config";
 import { sendMissionEmail } from "~/services/email";
 import { trackEmailMissionDetailSent } from "~/services/tracking/events";
 import type { MissionDetailNavState } from "~/services/tracking/types";
@@ -51,7 +51,7 @@ export default function EmailMissionModal({ missionId, publisherId, userScoringI
     try {
       const result = await sendMissionEmail({
         email,
-        publisherId: PUBLISHER_ID_API_ENGAGEMENT,
+        publisherId: PUBLISHER_ID,
         missionIds: [missionId],
         ...(userScoringId ? { userScoringId, distinctId } : {}),
       });

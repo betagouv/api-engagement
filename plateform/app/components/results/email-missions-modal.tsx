@@ -1,7 +1,7 @@
 import { type SubmitEvent, useId, useState } from "react";
 import Modal from "~/components/layout/modal";
 import MailIllustration from "~/components/ui/mail-illustration";
-import { PUBLISHER_ID_API_ENGAGEMENT } from "~/services/config";
+import { PUBLISHER_ID } from "~/services/config";
 import { sendMissionEmail } from "~/services/email";
 import { trackEmailMissionsSent } from "~/services/tracking/events";
 import { updateUserScoring } from "~/services/user-scoring";
@@ -49,7 +49,7 @@ export default function EmailMissionsModal({ userScoringId, open: controlledOpen
 
     try {
       await updateUserScoring(userScoringId, { missionAlertEnabled, distinctId });
-      const result = await sendMissionEmail({ email, publisherId: PUBLISHER_ID_API_ENGAGEMENT, userScoringId, distinctId });
+      const result = await sendMissionEmail({ email, publisherId: PUBLISHER_ID, userScoringId, distinctId });
       if (!result.email_sent) {
         setError("Aucune mission n'a pu être envoyée. Réessaie depuis la page de résultats.");
       } else {
