@@ -3,7 +3,7 @@ import { captureException } from "@/error";
 import { BaseHandler } from "@/jobs/base/handler";
 import { JobResult } from "@/jobs/types";
 import { asyncTaskBus } from "@/services/async-task";
-import { CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/config";
+import { CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/prompts";
 import { missionScoringService } from "@/services/mission-scoring";
 
 const LOG_PREFIX = "[update-mission-scoring-job]";

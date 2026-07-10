@@ -37,6 +37,7 @@ vi.mock("@/services/mission-enrichment/prompts", () => ({
   },
   buildMissionBlock: () => "mission block",
   buildTaxonomyBlock: () => "taxonomy block",
+  CURRENT_PROMPT_VERSION: "v3",
 }));
 
 import { missionRepository } from "@/repositories/mission";
@@ -173,7 +174,7 @@ describe("missionEnrichmentService.enrich — chain propagation", () => {
     expect(asyncTaskBus.publish).toHaveBeenCalledOnce();
     expect(asyncTaskBus.publish).toHaveBeenCalledWith({
       type: "mission.scoring",
-      payload: { missionId: "mission-1" },
+      payload: { missionId: "mission-1", missionEnrichmentId: "enrichment-new" },
     });
   });
 });

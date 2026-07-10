@@ -63,6 +63,13 @@ variable "slack_jobteaser_channel_id" {
   default = ""
 }
 
+# Version de prompt active pour l'enrichissement/scoring des missions (clé du PROMPT_REGISTRY).
+# Permet de tester un couple prompt/modèle différent par environnement (ex. "v4"/Albert en staging).
+variable "mission_enrichment_prompt_version" {
+  type    = string
+  default = "v3"
+}
+
 # Container sizing
 
 variable "api_cpu_limit" {

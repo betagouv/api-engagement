@@ -3,7 +3,8 @@ import { captureException } from "@/error";
 import { BaseHandler } from "@/jobs/base/handler";
 import { JobResult } from "@/jobs/types";
 import { missionEnrichmentService } from "@/services/mission-enrichment";
-import { CURRENT_PROMPT_VERSION, JOB_ENRICH_SLEEP_MS } from "@/services/mission-enrichment/config";
+import { JOB_ENRICH_SLEEP_MS } from "@/services/mission-enrichment/config";
+import { CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/prompts";
 import { setTimeout as sleep } from "timers/promises";
 
 const LOG_PREFIX = "[update-mission-enrichment-job]";
