@@ -123,6 +123,7 @@ jobs:
           echo "ENV=${{ matrix.variant || needs.set-env.outputs.environment_name }}" >> $GITHUB_OUTPUT
           echo "SENTRY_HOST=${{ vars.SENTRY_HOST }}" >> $GITHUB_OUTPUT
           echo "SENTRY_DNS_APP=${{ secrets.SENTRY_DNS_APP }}" >> $GITHUB_OUTPUT
+          echo "SENTRY_DSN_PLATEFORM=${{ secrets.SENTRY_DSN_PLATEFORM }}" >> $GITHUB_OUTPUT
           echo "API_URL=${{ vars.API_URL }}" >> $GITHUB_OUTPUT
           echo "VITE_API_URL=${{ vars.API_URL }}" >> $GITHUB_OUTPUT
           echo "BENEVOLAT_URL=${{ vars.BENEVOLAT_URL }}" >> $GITHUB_OUTPUT
@@ -151,6 +152,8 @@ jobs:
             ENV=${{ steps.app_args.outputs.ENV }}
             API_URL=${{ steps.app_args.outputs.API_URL }}
             VITE_API_URL=${{ steps.app_args.outputs.VITE_API_URL }}
+            VITE_ENV=${{ steps.app_args.outputs.ENV }}
+            VITE_SENTRY_DSN=${{ steps.app_args.outputs.SENTRY_DSN_PLATEFORM }}
             BENEVOLAT_URL=${{ steps.app_args.outputs.BENEVOLAT_URL }}
             VOLONTARIAT_URL=${{ steps.app_args.outputs.VOLONTARIAT_URL }}
             SENTRY_DNS_APP=${{ steps.app_args.outputs.SENTRY_DNS_APP }}
