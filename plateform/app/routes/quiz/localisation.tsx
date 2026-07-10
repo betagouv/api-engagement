@@ -23,12 +23,14 @@ export default function LocalisationStep() {
   const locAnswer = answers["localisation"];
   // `label` est persisté avec les coordonnées pour ré-afficher la saisie au retour sur l'écran
   // (ignoré côté API : le transformer `location` ne lit que lat/lon/country_code).
-  const savedLocation = locAnswer?.type === "params" ? (locAnswer.params as { lat: number; lon: number; country_code?: string; label?: string }) : null;
+  const savedLocation = locAnswer?.type === "params" ? (locAnswer.params as { lat: number; lon: number; country_code?: string; label?: string; postcode?: string }) : null;
 
   const [value, setValue] = useState(savedLocation?.label ?? "");
   const [options, setOptions] = useState<GeoSuggestion[]>([]);
   const [selected, setSelected] = useState<GeoSuggestion | null>(
-    savedLocation ? { label: savedLocation.label ?? "", lat: savedLocation.lat, lon: savedLocation.lon, country_code: savedLocation.country_code } : null,
+    savedLocation
+      ? { label: savedLocation.label ?? "", lat: savedLocation.lat, lon: savedLocation.lon, country_code: savedLocation.country_code, postcode: savedLocation.postcode }
+      : null,
   );
   const [showOptions, setShowOptions] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -155,6 +157,7 @@ export default function LocalisationStep() {
       params: {
         lat: selected.lat,
         lon: selected.lon,
+        ...(selected.postcode ? { postcode: selected.postcode } : {}),
         ...(selected.country_code ? { country_code: selected.country_code } : {}),
         ...(selected.label ? { label: selected.label } : {}),
       },
