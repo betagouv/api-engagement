@@ -1,5 +1,6 @@
 import { TRACKING_PROVIDER } from "~/services/config";
 import { useQuizStore } from "~/stores/quiz";
+import { CAMPAIGN_UTM_KEYS, getCampaignParamsFromSearch, resolveActiveCampaign, type CampaignParams } from "~/utils/campaign-attribution";
 import { getInternalUserFlagAction, isInternalUserFlagEnabled, persistInternalUserFlagAction } from "~/utils/internal-user-flag";
 
 import { createProvider } from "./providers";
@@ -23,6 +24,7 @@ function getProvider(): TrackingProvider | null {
     // Identify + super properties avant la première capture (un track() de route peut précéder initTracking()).
     bootstrapIdentity();
     syncInternalUserFlag(provider);
+    syncCampaignSuperProperties(provider);
   }
   return provider;
 }
@@ -73,6 +75,27 @@ function syncInternalUserFlag(provider: TrackingProvider): void {
   }
 
   provider.unregister?.("internal_user");
+}
+
+// Super properties d'attribution de campagne (utm_source/campaign/medium) attachées à TOUS les
+// évènements. Modèle "last non-direct touch" + session glissante de 30 min (cf. resolveActiveCampaign) :
+// une nouvelle campagne écrase l'attribution, le direct/navigation interne la prolonge, l'inactivité
+// la purge. On `unregister` les UTM absents de l'attribution active pour ne pas laisser d'anciennes
+// valeurs persistées par PostHog au-delà du TTL.
+function syncCampaignSuperProperties(provider: TrackingProvider): void {
+  let campaign: CampaignParams = {};
+  try {
+    campaign = resolveActiveCampaign(window.location.search, window.localStorage);
+  } catch {
+    // localStorage indisponible : au minimum, attacher les UTM de l'URL courante.
+    campaign = getCampaignParamsFromSearch(window.location.search);
+  }
+
+  for (const key of CAMPAIGN_UTM_KEYS) {
+    if (campaign[key] === undefined) provider.unregister?.(key);
+  }
+
+  if (Object.keys(campaign).length > 0) provider.register?.(campaign);
 }
 
 // Déclenche l'init paresseuse (provider + identité + flag interne) au plus tôt, sans attendre un premier track().
