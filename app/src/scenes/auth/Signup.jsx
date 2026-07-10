@@ -31,7 +31,7 @@ const Signup = () => {
       }
       setUser(res.data);
     } catch (error) {
-      captureError(error, { extra: { token } });
+      captureError(error, { extra: { hasToken: !!token } });
     }
   };
 
@@ -49,13 +49,13 @@ const Signup = () => {
           <p className="text-color-grey-200 text-sm">La clé fournie est expirée, contactez nous pour avoir un nouveau mail d'inscription</p>
         </WarningAlert>
       ) : (
-        <SignupForm user={user} />
+        <SignupForm user={user} token={token} />
       )}
     </div>
   );
 };
 
-const SignupForm = ({ user }) => {
+const SignupForm = ({ user, token }) => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [show, setShow] = useState(false);
@@ -112,7 +112,7 @@ const SignupForm = ({ user }) => {
 
     setLoading(true);
     try {
-      const res = await api.post("/user/signup", { ...values, id: user.id });
+      const res = await api.post("/user/signup", { firstname: values.firstname, lastname: values.lastname, password: values.password, token });
       if (!res.ok) {
         if (res.code === "INVALID_PASSWORD") setErrors({ password: "Le mot de passe ne respecte pas les critères de sécurité" });
         else throw res;
@@ -120,7 +120,7 @@ const SignupForm = ({ user }) => {
       toast.success("Compte créé avec succès");
       navigate("/login");
     } catch (error) {
-      captureError(error, { extra: { values } });
+      captureError(error);
     }
     setLoading(false);
   };

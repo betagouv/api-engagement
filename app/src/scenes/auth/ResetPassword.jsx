@@ -102,7 +102,7 @@ const ResetPasswordForm = ({ user, token }) => {
       }
       setSuccess(true);
     } catch (error) {
-      captureError(error, { extra: { values } });
+      captureError(error);
     } finally {
       setLoading(false);
     }
