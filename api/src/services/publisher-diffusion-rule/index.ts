@@ -82,27 +82,38 @@ const buildScopeCondition = (rule: PublisherDiffusionRule, childrenByParentId: M
 
 /**
  * Allowlist des missions diffusables : `OR` des scopes, chaque scope étant un
- * annonceur (`publisherId === X`) combiné à ses critères enfants. `publisherIds`
- * restreint optionnellement aux annonceurs demandés (param `publisher` de la route).
+ * annonceur (`publisherId === X`) combiné à ses critères enfants. Le diffuseur
+ * est toujours implicitement autorisé à diffuser ses propres missions, même
+ * s'il ne figure pas dans sa propre allowlist. `publisherIds` restreint
+ * optionnellement aux annonceurs demandés (param `publisher` de la route).
  */
-const buildAllowlistFilter = (rules: PublisherDiffusionRule[], publisherIds?: string[]): MissionDiffuseurCandidateFilter => {
+const buildAllowlistFilter = (rules: PublisherDiffusionRule[], diffuseurPublisherId: string, publisherIds?: string[]): MissionDiffuseurCandidateFilter => {
   const { roots, childrenByParentId } = groupRulesByParent(rules);
+  const allowlistRoots = roots.filter((root) => root.field === "publisherId" && root.operator === "is");
+  const diffuseurIsRequested = !publisherIds || publisherIds.includes(diffuseurPublisherId);
 
-  if (publisherIds?.length) {
-    const configuredPublisherIds = roots.filter((root) => root.field === "publisherId" && root.operator === "is").map((root) => root.value);
-    if (configuredPublisherIds.length > 0 && !publisherIds.some((id) => configuredPublisherIds.includes(id))) {
+  if (publisherIds?.length && allowlistRoots.length > 0 && !diffuseurIsRequested) {
+    const configuredPublisherIds = allowlistRoots.map((root) => root.value);
+    if (!publisherIds.some((id) => configuredPublisherIds.includes(id))) {
       return { where: IMPOSSIBLE_MISSION_WHERE, publisherIds: [], scopes: [], scopePublisherIds: [] };
     }
   }
 
-  const scopeRoots = roots.filter((root) => root.field === "publisherId" && root.operator === "is" && (!publisherIds || publisherIds.includes(root.value)));
+  const scopeRoots = allowlistRoots.filter((root) => !publisherIds || publisherIds.includes(root.value));
 
   const scopes = scopeRoots
     .map((root) => buildScopeCondition(root, childrenByParentId))
     .filter((scope): scope is Prisma.MissionWhereInput => scope !== null && Object.keys(scope).length > 0);
 
+  // `publisherIds` (candidats) ne liste que les annonceurs explicitement configurés :
+  // le scope implicite du diffuseur n'y est pas ajouté (ex. feeds XML par annonceur).
   const candidatePublisherIds = Array.from(new Set(scopeRoots.map((root) => root.value)));
   const scopePublisherIds = scopeRoots.map((root) => root.value);
+
+  if (allowlistRoots.length > 0 && diffuseurIsRequested && !scopePublisherIds.includes(diffuseurPublisherId)) {
+    scopes.push({ publisherId: diffuseurPublisherId });
+    scopePublisherIds.push(diffuseurPublisherId);
+  }
 
   if (scopes.length === 0) {
     return { where: {}, publisherIds: candidatePublisherIds, scopes, scopePublisherIds };
@@ -178,18 +189,19 @@ export const publisherDiffusionRuleService = {
   /**
    * Construit le where des missions qu'un diffuseur peut diffuser, sous forme
    * d'allowlist : `OR` des scopes, chaque scope = `publisherId` de l'annonceur
-   * `AND` ses critères/exclusions enfants. `publisherIds` restreint optionnellement
+   * `AND` ses critères/exclusions enfants. Le diffuseur est toujours implicitement
+   * autorisé à diffuser ses propres missions. `publisherIds` restreint optionnellement
    * aux annonceurs demandés (param `publisher` de la route).
    */
   async buildMissionDiffuseurCandidateWhere(publisherId: string, publisherIds?: string[]): Promise<Prisma.MissionWhereInput> {
     const rules = await findOrderedRules(publisherId);
-    const { where } = buildAllowlistFilter(rules, publisherIds);
+    const { where } = buildAllowlistFilter(rules, publisherId, publisherIds);
     return where;
   },
 
   async buildMissionDiffuseurCandidateFilter(publisherId: string, publisherIds?: string[]): Promise<MissionDiffuseurCandidateFilter> {
     const rules = await findOrderedRules(publisherId);
-    return buildAllowlistFilter(rules, publisherIds);
+    return buildAllowlistFilter(rules, publisherId, publisherIds);
   },
 
   async canPublisherAccessMission({ publisherId, missionId }: { publisherId: string; missionId: string }): Promise<boolean> {
@@ -198,7 +210,7 @@ export const publisherDiffusionRuleService = {
       return true;
     }
 
-    const { where: diffusionRuleWhere } = buildAllowlistFilter(rules);
+    const { where: diffusionRuleWhere } = buildAllowlistFilter(rules, publisherId);
     if (Object.keys(diffusionRuleWhere).length === 0) {
       return false;
     }
