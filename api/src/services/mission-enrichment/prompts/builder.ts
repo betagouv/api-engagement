@@ -28,6 +28,7 @@ export const ENRICHMENT_TRIGGER_FIELDS = [
   "domain",
   "activities",
   "tags",
+  "romeSkills",
   "tasks",
   "addresses",
   "audience",
@@ -108,6 +109,11 @@ export const buildMissionBlock = (mission: MissionForPrompt): string => {
   const cleanRequirements = cleanList(mission.requirements, PROMPT_FIELD_MAX_LENGTH.short);
   if (cleanRequirements.length) {
     lines.push("", "**Prérequis :**", cleanRequirements.join("\n"));
+  }
+  // Libellés de macro-compétences ROME 4.0 résolus depuis les codes `romeSkills` de la mission.
+  const cleanRomeSkills = cleanList(mission.romeSkills, PROMPT_FIELD_MAX_LENGTH.short);
+  if (cleanRomeSkills.length) {
+    lines.push("", "**Compétences ROME :**", cleanRomeSkills.join(", "));
   }
 
   const cleanOrgName = clean(mission.organizationName, PROMPT_FIELD_MAX_LENGTH.short);

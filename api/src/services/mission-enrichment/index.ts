@@ -6,6 +6,7 @@ import { missionRepository } from "@/repositories/mission";
 import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
 import { asyncTaskBus } from "@/services/async-task";
 import type { MissionRecord, MissionSearchFilters } from "@/types/mission";
+import { resolveRomeSkills } from "@/utils/rome";
 import { CONFIDENCE_THRESHOLD } from "./config";
 import { validateEnrichmentClassifications, type ClassificationInput, type TaxonomyLookup } from "./parser";
 import { buildMissionBlock, buildTaxonomyBlock, CURRENT_PROMPT_VERSION, PROMPT_REGISTRY } from "./prompts";
@@ -101,6 +102,7 @@ const toMissionForPrompt = (mission: MissionWithRelations): MissionForPrompt => 
     softSkills: mission.softSkills,
     requirements: mission.requirements,
     tags: mission.tags,
+    romeSkills: resolveRomeSkills(mission.romeSkills),
     type: mission.type,
     remote: mission.remote,
     openToMinors: mission.openToMinors,
