@@ -2,6 +2,7 @@ export type RateLimitDetails = {
   provider?: string; // ex. "albert", "mistral.chat"
   statusCode?: number; // 429
   retryAfter?: string; // header retry-after si présent
+  detail?: string; // message de limite extrait du corps (Albert renvoie `{"detail":"… tokens per day exceeded …"}`)
   rateLimitHeaders?: Record<string, string>; // sous-ensemble filtré des headers de rate-limit (highlights lisibles)
   responseHeaders?: Record<string, string>; // headers complets (pour découvrir le nommage exact côté provider)
   responseBody?: string; // corps tronqué (le provider y met souvent le message de limite)
@@ -22,6 +23,9 @@ export const buildRateLimitMessage = (details?: RateLimitDetails): string => {
   }
   if (details.retryAfter) {
     parts.push(`retry-after=${details.retryAfter}`);
+  }
+  if (details.detail) {
+    parts.push(details.detail);
   }
   for (const [key, value] of Object.entries(details.rateLimitHeaders ?? {})) {
     if (key === "retry-after") {

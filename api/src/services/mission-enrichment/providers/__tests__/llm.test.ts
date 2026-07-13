@@ -79,4 +79,23 @@ describe("llmMissionEnrichmentProvider — rate limit detection", () => {
     expect(message).toContain("retry-after=12");
     expect(message).toContain("x-ratelimit-remaining-requests=0");
   });
+
+  it("extracts the limit from Albert's JSON body when no rate-limit header is present", async () => {
+    generateObjectMock.mockRejectedValue(
+      makeApiCallError(429, {
+        responseHeaders: { "content-type": "application/json", server: "nginx/1.29.3" },
+        responseBody: '{"detail":"2460000 input tokens per day exceeded (remaining: 0)."}',
+      })
+    );
+    const inputWithProvider = { ...input, promptVersion: { ...promptVersion, MODEL: { provider: "albert" } } };
+
+    const error = await llmMissionEnrichmentProvider.generate(inputWithProvider).catch((e: unknown) => e);
+
+    expect(error).toBeInstanceOf(MissionEnrichmentRateLimitError);
+    const { details, message } = error as MissionEnrichmentRateLimitError;
+    expect(details?.detail).toBe("2460000 input tokens per day exceeded (remaining: 0).");
+    expect(details?.rateLimitHeaders).toBeUndefined();
+    expect(message).toContain("provider=albert");
+    expect(message).toContain("2460000 input tokens per day exceeded (remaining: 0).");
+  });
 });
