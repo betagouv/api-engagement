@@ -3,7 +3,7 @@ import { missionMatchingResultRepository } from "@/repositories/mission-matching
 import { userScoringRepository } from "@/repositories/user-scoring";
 import type { MissionContent } from "@/services/brevo";
 import { buildMissionContentHtml, sendTemplate, TEMPLATE_IDS } from "@/services/brevo";
-import { CURRENT_MATCHING_ENGINE_VERSION } from "@/services/matching-engine/config";
+import { CURRENT_MATCHING_ENGINE_VERSION, MATCHING_ENGINE_VERSIONS } from "@/services/matching-engine/config";
 import type { MissionMatchingResultItem } from "@/services/matching-engine/types";
 import { missionService } from "@/services/mission";
 import { subscribeToNewsletter } from "@/services/newsletter";
@@ -127,7 +127,9 @@ const buildMissionMatchingEmailParams = async (userScoringId: string, publisherI
     return null;
   }
 
-  const missions = await missionMatchingResultRepository.findMissionsByMatchingResultItems(matchingItems);
+  // La version courante ignore-t-elle l'adresse des missions remote=full ? (aligné sur le moteur / l'API)
+  const ignoreRemoteAddress = MATCHING_ENGINE_VERSIONS[CURRENT_MATCHING_ENGINE_VERSION].remoteFullGeoScore != null;
+  const missions = await missionMatchingResultRepository.findMissionsByMatchingResultItems(matchingItems, ignoreRemoteAddress);
   const missionsByScoringId = new Map(missions.map((item) => [item.missionScoringId, item]));
   const orderedMissions = matchingItems.map((item) => missionsByScoringId.get(item.missionScoringId)).filter((item): item is NonNullable<typeof item> => Boolean(item));
 

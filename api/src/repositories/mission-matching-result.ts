@@ -24,7 +24,9 @@ export type MissionMatchingEmailMission = {
 const buildMissionMatchingResultItemsFromScoringIds = (missionScoringIds: string[]): MissionMatchingResultItem[] =>
   missionScoringIds.map((missionScoringId) => ({ missionScoringId, missionAddressId: null, taxonomyScores: {} }));
 
-const findMissionsByMatchingResultItems = async (items: MissionMatchingResultItem[]): Promise<MissionMatchingEmailMission[]> => {
+// ignoreRemoteAddress : quand la version du snapshot ignore l'adresse des missions remote=full,
+// on neutralise aussi le fallback ville ici pour ne pas la ré-exposer dans les emails.
+const findMissionsByMatchingResultItems = async (items: MissionMatchingResultItem[], ignoreRemoteAddress = false): Promise<MissionMatchingEmailMission[]> => {
   if (items.length === 0) {
     return [];
   }
@@ -39,6 +41,7 @@ const findMissionsByMatchingResultItems = async (items: MissionMatchingResultIte
         select: {
           id: true,
           title: true,
+          remote: true,
           duration: true,
           startAt: true,
           endAt: true,
@@ -59,8 +62,10 @@ const findMissionsByMatchingResultItems = async (items: MissionMatchingResultIte
 
   return missionScorings.map((missionScoring) => {
     const item = itemsByMissionScoringId.get(missionScoring.id);
+    const isFullRemoteAddressIgnored = ignoreRemoteAddress && missionScoring.mission.remote === "full";
     const matchedAddress = item?.missionAddressId ? missionScoring.mission.addresses.find((address) => address.id === item.missionAddressId) : null;
     const fallbackAddress = missionScoring.mission.addresses[0] ?? null;
+    const city = isFullRemoteAddressIgnored ? null : (matchedAddress?.city ?? fallbackAddress?.city ?? null);
 
     return {
       missionScoringId: missionScoring.id,
@@ -77,7 +82,7 @@ const findMissionsByMatchingResultItems = async (items: MissionMatchingResultIte
         publisherLogo: missionScoring.mission.publisher?.logo ?? null,
         publisherName: missionScoring.mission.publisher?.name ?? null,
         publisherOrganizationName: missionScoring.mission.publisherOrganization?.name ?? null,
-        city: matchedAddress?.city ?? fallbackAddress?.city ?? null,
+        city,
       },
     };
   });
