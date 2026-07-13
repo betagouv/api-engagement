@@ -81,11 +81,17 @@ const buildRanking = (params: {
   geoWeight: number;
   geoHalfDecayKm: number;
   missingGeoScore: number;
+  remoteFullGeoScore: number | null;
   taxonomyCandidateLimit: number;
   geoCandidateLimit: number;
   limit: number;
   offset: number;
-}) => Prisma.sql`
+}) => {
+  // Missions remote=full : proximité naturelle (score géo forcé), uniquement si la version l'active.
+  const remoteFullGeoScoreSql =
+    params.remoteFullGeoScore == null ? Prisma.empty : Prisma.sql`WHEN m."remote"::text = 'full' THEN CAST(${params.remoteFullGeoScore} AS double precision)`;
+
+  return Prisma.sql`
   WITH taxonomy_weights ("taxonomy_key", "taxonomy_weight") AS (
     VALUES ${buildTaxonomyWeightsValuesSql(params.taxonomyWeights)}
   ),
@@ -402,6 +408,7 @@ const buildRanking = (params: {
       CASE
         WHEN EXISTS (SELECT 1 FROM user_geo) THEN
           CASE
+            ${remoteFullGeoScoreSql}
             WHEN gs."distance_km" IS NULL THEN CAST(${params.missingGeoScore} AS double precision)
             ELSE EXP(-LN(2) * gs."distance_km" / NULLIF(CAST(${params.geoHalfDecayKm} AS double precision), 0.0))
           END
@@ -415,6 +422,8 @@ const buildRanking = (params: {
       gs."closest_address"
     FROM candidate_missions cm
     CROSS JOIN weighted_user_totals ut
+    JOIN "mission" m
+      ON m."id" = cm."mission_id"
     LEFT JOIN taxonomy_scores ts
       ON ts."mission_scoring_id" = cm."mission_scoring_id"
     LEFT JOIN geo_scores gs
@@ -448,6 +457,7 @@ const buildRanking = (params: {
   LIMIT ${params.limit}
   OFFSET ${params.offset}
 `;
+};
 
 const buildPublisherRuleSql = async (publisherId?: string): Promise<Prisma.Sql> => {
   if (!publisherId) {
@@ -546,6 +556,7 @@ export const matchingEngineService = {
     const geoWeight = input.geoWeight ?? versionConfig.geoWeight;
     const geoHalfDecayKm = input.geoHalfDecayKm ?? 20;
     const missingGeoScore = input.missingGeoScore ?? 0.1;
+    const remoteFullGeoScore = input.remoteFullGeoScore !== undefined ? input.remoteFullGeoScore : versionConfig.remoteFullGeoScore;
     const taxonomyCandidateLimit = getTaxonomyCandidateLimit({ limit: rankingLimit, offset });
     const geoCandidateLimit = getGeoCandidateLimit({ limit: rankingLimit, offset });
 
@@ -561,6 +572,7 @@ export const matchingEngineService = {
         geoWeight,
         geoHalfDecayKm,
         missingGeoScore,
+        remoteFullGeoScore,
         taxonomyCandidateLimit,
         geoCandidateLimit,
         limit: rankingLimit,

@@ -4,11 +4,13 @@ export type MatchingEngineTaxonomy = EnrichableTaxonomyKey | GateTaxonomyKey;
 
 export type MatchingEngineTaxonomyWeights = Record<MatchingEngineTaxonomy, number>;
 
-export type MatchingEngineVersion = "m1" | "m2";
+export type MatchingEngineVersion = "m1" | "m2" | "m3";
 
 export type MatchingEngineVersionConfig = {
   taxonomyWeights: MatchingEngineTaxonomyWeights;
   geoWeight: number;
+  // Score géo forcé pour les missions remote=full (proximité naturelle). null = pas de traitement spécial.
+  remoteFullGeoScore: number | null;
 };
 
 export type RankMissionsByUserScoringInput = {
@@ -21,6 +23,7 @@ export type RankMissionsByUserScoringInput = {
   geoWeight?: number;
   geoHalfDecayKm?: number;
   missingGeoScore?: number;
+  remoteFullGeoScore?: number | null;
 };
 
 export type MatchMissionItem = {
