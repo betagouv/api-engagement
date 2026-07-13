@@ -49,7 +49,7 @@ export const MATCHING_ENGINE_VERSIONS = {
       tranche_age: 1,
     } satisfies MatchingEngineTaxonomyWeights,
     geoWeight: 0.3,
-    remoteFullGeoScore: 1.0,
+    remoteFullGeoScore: 0.9,
   },
 } as const satisfies Record<MatchingEngineVersion, MatchingEngineVersionConfig>;
 

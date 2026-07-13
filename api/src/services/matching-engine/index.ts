@@ -120,6 +120,24 @@ const buildRanking = (params: {
       CAST(NULL AS double precision) AS "distance_km"
     FROM remote_full_candidates rfc`;
 
+  // Une mission remote=full ignore toute adresse : on nullifie distance/closest_* pour ne pas polluer
+  // l'affichage ni avgDistanceKmTop5, y compris quand elle a une adresse géocodée.
+  const rankedGeoColumnsSql = !remoteFullActive
+    ? Prisma.sql`
+      gs."distance_km",
+      gs."closest_lat",
+      gs."closest_lon",
+      gs."closest_address_id",
+      gs."closest_city",
+      gs."closest_address"`
+    : Prisma.sql`
+      CASE WHEN m."remote"::text = 'full' THEN NULL ELSE gs."distance_km" END AS "distance_km",
+      CASE WHEN m."remote"::text = 'full' THEN NULL ELSE gs."closest_lat" END AS "closest_lat",
+      CASE WHEN m."remote"::text = 'full' THEN NULL ELSE gs."closest_lon" END AS "closest_lon",
+      CASE WHEN m."remote"::text = 'full' THEN NULL ELSE gs."closest_address_id" END AS "closest_address_id",
+      CASE WHEN m."remote"::text = 'full' THEN NULL ELSE gs."closest_city" END AS "closest_city",
+      CASE WHEN m."remote"::text = 'full' THEN NULL ELSE gs."closest_address" END AS "closest_address"`;
+
   return Prisma.sql`
   WITH taxonomy_weights ("taxonomy_key", "taxonomy_weight") AS (
     VALUES ${buildTaxonomyWeightsValuesSql(params.taxonomyWeights)}
@@ -442,13 +460,7 @@ const buildRanking = (params: {
             ELSE EXP(-LN(2) * gs."distance_km" / NULLIF(CAST(${params.geoHalfDecayKm} AS double precision), 0.0))
           END
         ELSE NULL
-      END AS "geo_score",
-      gs."distance_km",
-      gs."closest_lat",
-      gs."closest_lon",
-      gs."closest_address_id",
-      gs."closest_city",
-      gs."closest_address"
+      END AS "geo_score",${rankedGeoColumnsSql}
     FROM candidate_missions cm
     CROSS JOIN weighted_user_totals ut
     JOIN "mission" m

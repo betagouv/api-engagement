@@ -52,6 +52,37 @@ const createRemoteFullMissionWithoutMatch = async () => {
   return mission;
 };
 
+// Mission remote=full AVEC une adresse géocodée proche : sous m3, la distance doit tout de même être
+// ignorée (nullifiée) pour ne pas fausser l'affichage ni avgDistanceKmTop5.
+const createRemoteFullMissionWithAddress = async () => {
+  const mission = await createTestMission({
+    publisherId,
+    title: "Mission full remote géolocalisée",
+    domain: "solidarite",
+    remote: "full",
+    addresses: [
+      {
+        street: "1 rue de Test",
+        postalCode: "75001",
+        departmentCode: "75",
+        departmentName: "Paris",
+        city: "Paris",
+        region: "Ile-de-France",
+        country: "France",
+        location: { lat: 48.8566, lon: 2.3522 },
+        geolocStatus: "FOUND",
+      },
+    ],
+  });
+  const enrichment = await createTestMissionEnrichment({ missionId: mission.id });
+  await createTestMissionScoring({
+    missionId: mission.id,
+    missionEnrichmentId: enrichment.id,
+    values: [{ taxonomyKey: "domaine", valueKey: "social_solidarite", score: 1 }],
+  });
+  return mission;
+};
+
 const createRankableMission = async () => {
   const mission = await createTestMission({
     publisherId,
@@ -138,7 +169,7 @@ describe("GET /missions/match", () => {
     expect(response.status).toBe(200);
     const item = response.body.data.items.find((entry: { mission: { id: string } }) => entry.mission.id === mission.id);
     expect(item).toBeDefined();
-    expect(item.match.geoScore).toBe(1);
+    expect(item.match.geoScore).toBe(0.9);
     expect(item.mission.location.distanceKm).toBeNull();
   });
 
@@ -154,5 +185,25 @@ describe("GET /missions/match", () => {
     expect(response.status).toBe(200);
     const item = response.body.data.items.find((entry: { mission: { id: string } }) => entry.mission.id === mission.id);
     expect(item).toBeUndefined();
+  });
+
+  it("ignores the geocoded address of a full-remote mission under m3 (no distance leaked)", async () => {
+    const mission = await createRemoteFullMissionWithAddress();
+    const userScoringId = await createGeoUserScoring();
+
+    const response = await withApiKey(request(app).get("/missions/match")).query({
+      userScoringId,
+      engineVersion: "m3",
+    });
+
+    expect(response.status).toBe(200);
+    const item = response.body.data.items.find((entry: { mission: { id: string } }) => entry.mission.id === mission.id);
+    expect(item).toBeDefined();
+    expect(item.match.geoScore).toBe(0.9);
+    expect(item.mission.location.distanceKm).toBeNull();
+    expect(item.mission.location.closestLat).toBeNull();
+    expect(item.mission.location.closestLon).toBeNull();
+    expect(item.mission.location.addressId).toBeNull();
+    expect(response.body.data.avgDistanceKmTop5).toBeNull();
   });
 });

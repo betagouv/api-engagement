@@ -494,7 +494,8 @@ describe("matchingEngineService", () => {
       expect(rankingSql).toContain('JOIN "mission" m');
       expect(rankingSql).toContain("remote_full_candidates AS (");
       expect(rankingSql).toContain("FROM remote_full_candidates rfc");
-      expect(rankingValues).toContain(1);
+      expect(rankingSql).toContain('WHEN m."remote"::text = \'full\' THEN NULL ELSE gs."distance_km" END');
+      expect(rankingValues).toContain(0.9);
     });
 
     it("does not inject the remote=full branch for the m2 version (non-regression)", async () => {
