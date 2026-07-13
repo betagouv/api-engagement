@@ -57,7 +57,7 @@ describe("GET /missions/match", () => {
   it("rejects an unknown engine version", async () => {
     const response = await withApiKey(request(app).get("/missions/match")).query({
       userScoringId: "00000000-0000-0000-0000-000000000000",
-      engineVersion: "m3",
+      engineVersion: "m99",
     });
 
     expect(response.status).toBe(400);
@@ -90,7 +90,7 @@ describe("GET /missions/match", () => {
 
     expect(response.status).toBe(200);
     expect(response.body.ok).toBe(true);
-    expect(response.body.data.engineVersion).toBe("m2");
+    expect(response.body.data.engineVersion).toBe("m3");
     expect(response.body.data.items).toHaveLength(1);
   });
 });
