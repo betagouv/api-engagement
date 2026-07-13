@@ -8,7 +8,7 @@ export const handleMissionEnrichment = async (payload: { missionId: string; forc
     await missionEnrichmentService.enrich(payload.missionId, { force: payload.force });
   } catch (error) {
     if (error instanceof MissionEnrichmentRateLimitError) {
-      console.warn(`[mission.enrichment] rate limit missionId=${payload.missionId} — will be retried`);
+      console.warn(`[mission.enrichment] rate limit missionId=${payload.missionId} — will be retried — ${error.message}`, error.details ?? {});
       throw new WorkerRetryableError(`rate_limit missionId=${payload.missionId}`);
     }
     if ((error as { name?: string })?.name === "AI_NoObjectGeneratedError") {
