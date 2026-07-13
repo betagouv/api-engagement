@@ -47,6 +47,22 @@ describe("Moderation API endpoints (integration test)", () => {
       expect(res.status).toBe(400);
     });
 
+    it("should return 403 when the moderatorId is not a moderator", async () => {
+      const nonModerator = await createTestPublisher({ moderator: false });
+
+      const res = await request(app).post("/moderation/search").set("Authorization", `jwt ${adminToken}`).send({ moderatorId: nonModerator.id });
+
+      expect(res.status).toBe(403);
+    });
+
+    it("should return 403 when user does not have access to the moderator publisher", async () => {
+      const { token } = await createTestUser({ role: "user", publishers: [partner.id] });
+
+      const res = await request(app).post("/moderation/search").set("Authorization", `jwt ${token}`).send({ moderatorId: jva.id });
+
+      expect(res.status).toBe(403);
+    });
+
     it("should return empty results when there are no moderation records for this moderator", async () => {
       const otherPublisher = await createTestPublisher({ moderator: true });
 
@@ -155,6 +171,22 @@ describe("Moderation API endpoints (integration test)", () => {
       expect(res.status).toBe(401);
     });
 
+    it("should return 403 when the moderatorId is not a moderator", async () => {
+      const nonModerator = await createTestPublisher({ moderator: false });
+
+      const res = await request(app).post("/moderation/aggs").set("Authorization", `jwt ${adminToken}`).send({ moderatorId: nonModerator.id });
+
+      expect(res.status).toBe(403);
+    });
+
+    it("should return 403 when user does not have access to the moderator publisher", async () => {
+      const { token } = await createTestUser({ role: "user", publishers: [partner.id] });
+
+      const res = await request(app).post("/moderation/aggs").set("Authorization", `jwt ${token}`).send({ moderatorId: jva.id });
+
+      expect(res.status).toBe(403);
+    });
+
     it("should return aggregations with correct keys", async () => {
       await createMissionWithModeration({ publisherId: partner.id, moderationStatus: "REFUSED", moderationComment: "CONTENT_INSUFFICIENT" });
       await createMissionWithModeration({ publisherId: partner.id, moderationStatus: "PENDING" });
@@ -194,6 +226,40 @@ describe("Moderation API endpoints (integration test)", () => {
       const commentsAgg = res.body.data.comments;
       expect(commentsAgg).toHaveLength(1);
       expect(commentsAgg[0].key).toBe("CONTENT_INSUFFICIENT");
+    });
+  });
+
+  // ─── POST /moderation/search-history ──────────────────────────────────────
+
+  describe("POST /moderation/search-history", () => {
+    it("should return 401 when unauthenticated", async () => {
+      const res = await request(app).post("/moderation/search-history").send({ moderatorId: jva.id });
+      expect(res.status).toBe(401);
+    });
+
+    it("should return 403 when the moderatorId is not a moderator", async () => {
+      const nonModerator = await createTestPublisher({ moderator: false });
+
+      const res = await request(app).post("/moderation/search-history").set("Authorization", `jwt ${adminToken}`).send({ moderatorId: nonModerator.id });
+
+      expect(res.status).toBe(403);
+    });
+
+    it("should return 403 when user does not have access to the moderator publisher", async () => {
+      const { token } = await createTestUser({ role: "user", publishers: [partner.id] });
+
+      const res = await request(app).post("/moderation/search-history").set("Authorization", `jwt ${token}`).send({ moderatorId: jva.id });
+
+      expect(res.status).toBe(403);
+    });
+
+    it("allows a user attached to the moderator publisher", async () => {
+      const { token } = await createTestUser({ role: "user", publishers: [jva.id] });
+
+      const res = await request(app).post("/moderation/search-history").set("Authorization", `jwt ${token}`).send({ moderatorId: jva.id });
+
+      expect(res.status).toBe(200);
+      expect(res.body.ok).toBe(true);
     });
   });
 

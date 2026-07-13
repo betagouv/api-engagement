@@ -71,6 +71,14 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
     if (!moderator) {
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
+    if (!moderator.moderator) {
+      return res.status(403).send({ ok: false, code: FORBIDDEN });
+    }
+
+    const userPublisherIds = req.user.publishers.map((publisherId: string) => publisherId.toString());
+    if (req.user.role !== "admin" && !userPublisherIds.includes(moderator.id)) {
+      return res.status(403).send({ ok: false, code: FORBIDDEN });
+    }
 
     const filters: ModerationFilters = {
       moderatorId: moderator.id,
@@ -111,6 +119,14 @@ router.post("/aggs", passport.authenticate("user", { session: false }), async (r
     if (!moderator) {
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
+    if (!moderator.moderator) {
+      return res.status(403).send({ ok: false, code: FORBIDDEN });
+    }
+
+    const userPublisherIds = req.user.publishers.map((publisherId: string) => publisherId.toString());
+    if (req.user.role !== "admin" && !userPublisherIds.includes(moderator.id)) {
+      return res.status(403).send({ ok: false, code: FORBIDDEN });
+    }
 
     const filters: ModerationFilters = {
       moderatorId: moderator.id,
@@ -143,6 +159,14 @@ router.post("/search-history", passport.authenticate("user", { session: false })
     const moderator = await publisherService.findOnePublisherById(body.data.moderatorId);
     if (!moderator) {
       return res.status(404).send({ ok: false, code: NOT_FOUND });
+    }
+    if (!moderator.moderator) {
+      return res.status(403).send({ ok: false, code: FORBIDDEN });
+    }
+
+    const userPublisherIds = req.user.publishers.map((publisherId: string) => publisherId.toString());
+    if (req.user.role !== "admin" && !userPublisherIds.includes(moderator.id)) {
+      return res.status(403).send({ ok: false, code: FORBIDDEN });
     }
 
     const result = await missionModerationStatusService.aggregateByOrganization({
