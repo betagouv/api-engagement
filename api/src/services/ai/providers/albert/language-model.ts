@@ -4,7 +4,7 @@ import { APICallError, UnsupportedFunctionalityError } from "@ai-sdk/provider";
 import { ALBERT_BASE_URL } from "@/config";
 
 import type { AlbertChatCompletion } from "./types";
-import { buildResponseFormat, getAlbertApiKey, headersToRecord, mapFinishReason, mapUsage, toAlbertMessages } from "./utils";
+import { buildResponseFormat, getAlbertApiKey, headersToRecord, mapFinishReason, mapUsage, parseAlbertErrorDetail, toAlbertMessages } from "./utils";
 
 export const createAlbertLanguageModel = (modelId: string): LanguageModelV3 => ({
   specificationVersion: "v3",
@@ -58,6 +58,7 @@ export const createAlbertLanguageModel = (modelId: string): LanguageModelV3 => (
       });
     }
     if (!response.ok) {
+      const detail = parseAlbertErrorDetail(responseBody);
       throw new APICallError({
         message: `Albert API error ${response.status}: ${responseBody}`,
         url,
@@ -65,6 +66,7 @@ export const createAlbertLanguageModel = (modelId: string): LanguageModelV3 => (
         statusCode: response.status,
         responseHeaders: headersToRecord(response.headers),
         responseBody,
+        data: detail ? { detail } : undefined,
         isRetryable: response.status === 429 || response.status >= 500,
       });
     }

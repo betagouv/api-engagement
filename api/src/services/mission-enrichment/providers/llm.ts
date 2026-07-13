@@ -15,27 +15,10 @@ const isRateLimitHeader = (key: string): boolean => {
   return normalized.includes("ratelimit") || normalized.includes("retryafter");
 };
 
-// Albert ne renvoie pas de headers x-ratelimit-* : la limite atteinte est dans le corps JSON, ex.
-// `{"detail":"2460000 input tokens per day exceeded (remaining: 0)."}`. On en extrait le message.
-const extractBodyDetail = (responseBody?: string): string | undefined => {
-  if (!responseBody) {
-    return undefined;
-  }
-  try {
-    const parsed = JSON.parse(responseBody) as { detail?: unknown; message?: unknown; error?: unknown };
-    const errorMessage = typeof parsed.error === "object" && parsed.error !== null ? (parsed.error as { message?: unknown }).message : parsed.error;
-    const candidate = [parsed.detail, parsed.message, errorMessage].find((value) => typeof value === "string" && value.trim());
-    return candidate ? (candidate as string).trim() : undefined;
-  } catch {
-    // corps non-JSON : rien à extraire, responseBody reste disponible tel quel dans les détails
-    return undefined;
-  }
-};
-
 // Extrait de l'APICallError 429 les infos utiles au diagnostic (quelle limite, chez quel provider).
 // L'APICallError porte déjà responseHeaders/responseBody/statusCode ; on les propage sans nouvel appel.
 export const extractRateLimitDetails = (rootError: unknown, provider?: string): RateLimitDetails => {
-  const err = (rootError ?? {}) as { statusCode?: number; responseHeaders?: Record<string, string>; responseBody?: string };
+  const err = (rootError ?? {}) as { statusCode?: number; responseHeaders?: Record<string, string>; responseBody?: string; data?: { detail?: string } };
   const responseHeaders = err.responseHeaders;
 
   const normalizedHeaders: Record<string, string> = {};
@@ -54,7 +37,8 @@ export const extractRateLimitDetails = (rootError: unknown, provider?: string): 
     provider,
     statusCode: err.statusCode,
     retryAfter: normalizedHeaders["retry-after"],
-    detail: extractBodyDetail(responseBody),
+    // `data.detail` est renseigné par les providers qui savent parser leur corps d'erreur (ex. Albert).
+    detail: err.data?.detail,
     rateLimitHeaders: Object.keys(rateLimitHeaders).length ? rateLimitHeaders : undefined,
     responseHeaders: Object.keys(normalizedHeaders).length ? normalizedHeaders : undefined,
     responseBody: responseBody ? responseBody.slice(0, RESPONSE_BODY_MAX_LENGTH) : undefined,

@@ -1,11 +1,4 @@
-import type {
-  JSONObject,
-  JSONSchema7,
-  LanguageModelV3CallOptions,
-  LanguageModelV3GenerateResult,
-  LanguageModelV3Message,
-  LanguageModelV3Usage,
-} from "@ai-sdk/provider";
+import type { JSONObject, JSONSchema7, LanguageModelV3CallOptions, LanguageModelV3GenerateResult, LanguageModelV3Message, LanguageModelV3Usage } from "@ai-sdk/provider";
 import { LoadAPIKeyError, UnsupportedFunctionalityError } from "@ai-sdk/provider";
 
 import { ALBERT_API_KEY } from "@/config";
@@ -94,6 +87,17 @@ export const mapUsage = (usage: AlbertChatCompletion["usage"]): LanguageModelV3U
 });
 
 export const headersToRecord = (headers: Headers): Record<string, string> => Object.fromEntries(headers.entries());
+
+// Albert renvoie la limite atteinte dans le corps JSON (`{"detail":"… input tokens per day exceeded …"}`)
+// et non dans les headers ; on extrait ce message pour l'exposer sur `APICallError.data` (payload parsé).
+export const parseAlbertErrorDetail = (responseBody: string): string | undefined => {
+  try {
+    const parsed = JSON.parse(responseBody) as { detail?: unknown };
+    return typeof parsed.detail === "string" && parsed.detail.trim() ? parsed.detail.trim() : undefined;
+  } catch {
+    return undefined; // corps non-JSON (ex. page HTML d'un proxy) : rien à extraire
+  }
+};
 
 export const getAlbertApiKey = (): string => {
   if (!ALBERT_API_KEY) {

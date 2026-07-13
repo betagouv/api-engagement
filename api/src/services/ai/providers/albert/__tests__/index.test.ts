@@ -141,6 +141,28 @@ describe("AlbertProvider", () => {
     } satisfies Partial<APICallError>);
   });
 
+  it("attaches the parsed limit detail to APICallError.data on a 429 rate limit", async () => {
+    process.env.ALBERT_API_KEY = "test-key";
+    process.env.ALBERT_BASE_URL = "https://albert.test";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response('{"detail":"2460000 input tokens per day exceeded (remaining: 0)."}', {
+          status: 429,
+          headers: { "content-type": "application/json" },
+        })
+      )
+    );
+
+    const { AlbertProvider } = await importAlbert();
+
+    await expect(new AlbertProvider().languageModel("mistral-test").doGenerate(baseOptions)).rejects.toMatchObject({
+      statusCode: 429,
+      isRetryable: true,
+      data: { detail: "2460000 input tokens per day exceeded (remaining: 0)." },
+    } satisfies Partial<APICallError>);
+  });
+
   it("throws a non-retryable APICallError when Albert returns no content", async () => {
     process.env.ALBERT_API_KEY = "test-key";
     process.env.ALBERT_BASE_URL = "https://albert.test";

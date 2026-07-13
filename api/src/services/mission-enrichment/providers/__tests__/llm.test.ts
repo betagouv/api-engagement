@@ -80,11 +80,11 @@ describe("llmMissionEnrichmentProvider — rate limit detection", () => {
     expect(message).toContain("x-ratelimit-remaining-requests=0");
   });
 
-  it("extracts the limit from Albert's JSON body when no rate-limit header is present", async () => {
+  it("surfaces the provider-parsed limit detail (APICallError.data.detail) when no rate-limit header is present", async () => {
     generateObjectMock.mockRejectedValue(
       makeApiCallError(429, {
         responseHeaders: { "content-type": "application/json", server: "nginx/1.29.3" },
-        responseBody: '{"detail":"2460000 input tokens per day exceeded (remaining: 0)."}',
+        data: { detail: "2460000 input tokens per day exceeded (remaining: 0)." },
       })
     );
     const inputWithProvider = { ...input, promptVersion: { ...promptVersion, MODEL: { provider: "albert" } } };
