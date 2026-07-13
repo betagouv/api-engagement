@@ -1,27 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { normalizeRomeSkillCodes, normalizeRomeSkillCodesWith, resolveRomeSkills, resolveRomeSkillsWith } from "@/utils/rome";
+import { resolveRomeSkills, resolveRomeSkillsWith } from "@/utils/rome";
 
 const referential = new Map<string, string>([
   ["300412", "Accompagner des personnes"],
   ["300577", "Animer une réunion"],
 ]);
-
-describe("normalizeRomeSkillCodesWith", () => {
-  it("keeps only known codes", () => {
-    expect(normalizeRomeSkillCodesWith(["300412", "999999", "Skill A"], referential)).toEqual(["300412"]);
-  });
-
-  it("trims and deduplicates codes while preserving order", () => {
-    expect(normalizeRomeSkillCodesWith([" 300577 ", "300412", "300577"], referential)).toEqual(["300577", "300412"]);
-  });
-});
-
-describe("normalizeRomeSkillCodes", () => {
-  it("ignores values absent from the static referential", () => {
-    expect(normalizeRomeSkillCodes(["__unknown_rome_code__"])).toEqual([]);
-  });
-});
 
 describe("resolveRomeSkillsWith", () => {
   it("resolves known codes to their labels", () => {
