@@ -20,6 +20,38 @@ const createUserScoring = async (): Promise<string> => {
   return response.body.data.id;
 };
 
+// Utilisateur géolocalisé (Paris) : active la branche géo du moteur.
+const createGeoUserScoring = async (): Promise<string> => {
+  const response = await withApiKey(request(app).post("/user-scoring")).send({
+    answers: [
+      { taxonomy: "domaine", value: "social_solidarite" },
+      { taxonomy: "location", params: { lat: 48.8566, lon: 2.3522 } },
+    ],
+  });
+
+  expect(response.status).toBe(201);
+  return response.body.data.id;
+};
+
+// Mission remote=full sans adresse et sans recouvrement taxonomie avec l'utilisateur :
+// elle n'entre ni dans les candidats taxonomie ni géo → cas ciblé par remote_full_candidates.
+const createRemoteFullMissionWithoutMatch = async () => {
+  const mission = await createTestMission({
+    publisherId,
+    title: "Mission full remote",
+    domain: "solidarite",
+    remote: "full",
+    addresses: [],
+  });
+  const enrichment = await createTestMissionEnrichment({ missionId: mission.id });
+  await createTestMissionScoring({
+    missionId: mission.id,
+    missionEnrichmentId: enrichment.id,
+    values: [{ taxonomyKey: "domaine", valueKey: "sport", score: 1 }],
+  });
+  return mission;
+};
+
 const createRankableMission = async () => {
   const mission = await createTestMission({
     publisherId,
@@ -92,5 +124,35 @@ describe("GET /missions/match", () => {
     expect(response.body.ok).toBe(true);
     expect(response.body.data.engineVersion).toBe("m3");
     expect(response.body.data.items).toHaveLength(1);
+  });
+
+  it("ranks an eligible full-remote mission without taxonomy match nor address for a geolocated user (m3)", async () => {
+    const mission = await createRemoteFullMissionWithoutMatch();
+    const userScoringId = await createGeoUserScoring();
+
+    const response = await withApiKey(request(app).get("/missions/match")).query({
+      userScoringId,
+      engineVersion: "m3",
+    });
+
+    expect(response.status).toBe(200);
+    const item = response.body.data.items.find((entry: { mission: { id: string } }) => entry.mission.id === mission.id);
+    expect(item).toBeDefined();
+    expect(item.match.geoScore).toBe(1);
+    expect(item.mission.location.distanceKm).toBeNull();
+  });
+
+  it("does not surface the same full-remote mission under m2 (candidate pool gap it fixes)", async () => {
+    const mission = await createRemoteFullMissionWithoutMatch();
+    const userScoringId = await createGeoUserScoring();
+
+    const response = await withApiKey(request(app).get("/missions/match")).query({
+      userScoringId,
+      engineVersion: "m2",
+    });
+
+    expect(response.status).toBe(200);
+    const item = response.body.data.items.find((entry: { mission: { id: string } }) => entry.mission.id === mission.id);
+    expect(item).toBeUndefined();
   });
 });

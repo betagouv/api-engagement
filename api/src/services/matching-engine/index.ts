@@ -88,8 +88,37 @@ const buildRanking = (params: {
   offset: number;
 }) => {
   // Missions remote=full : proximité naturelle (score géo forcé), uniquement si la version l'active.
-  const remoteFullGeoScoreSql =
-    params.remoteFullGeoScore == null ? Prisma.empty : Prisma.sql`WHEN m."remote"::text = 'full' THEN CAST(${params.remoteFullGeoScore} AS double precision)`;
+  const remoteFullActive = params.remoteFullGeoScore != null;
+  const remoteFullGeoScoreSql = !remoteFullActive ? Prisma.empty : Prisma.sql`WHEN m."remote"::text = 'full' THEN CAST(${params.remoteFullGeoScore} AS double precision)`;
+
+  // Quand le boost remote est actif et que l'utilisateur est géolocalisé, les missions remote=full éligibles
+  // doivent entrer dans le pool candidat même sans match taxonomie ni adresse proche : elles sont "partout".
+  const remoteFullCandidatesCteSql = !remoteFullActive
+    ? Prisma.empty
+    : Prisma.sql`
+  remote_full_candidates AS (
+    SELECT
+      ems."mission_id",
+      ems."mission_scoring_id"
+    FROM eligible_mission_scorings ems
+    JOIN "mission" m
+      ON m."id" = ems."mission_id"
+     AND m."remote"::text = 'full'
+    LEFT JOIN taxonomy_scores ts
+      ON ts."mission_scoring_id" = ems."mission_scoring_id"
+    WHERE EXISTS (SELECT 1 FROM user_geo)
+    ORDER BY COALESCE(ts."weighted_sum", 0) DESC, ems."mission_id" ASC
+    LIMIT ${params.geoCandidateLimit}
+  ),`;
+  const remoteFullCandidatesUnionSql = !remoteFullActive
+    ? Prisma.empty
+    : Prisma.sql`
+    UNION ALL
+    SELECT
+      rfc."mission_id",
+      rfc."mission_scoring_id",
+      CAST(NULL AS double precision) AS "distance_km"
+    FROM remote_full_candidates rfc`;
 
   return Prisma.sql`
   WITH taxonomy_weights ("taxonomy_key", "taxonomy_weight") AS (
@@ -322,7 +351,7 @@ const buildRanking = (params: {
       AND NOT EXISTS (SELECT 1 FROM user_geo)
     ORDER BY ems."mission_id" ASC
     LIMIT ${params.offset + params.limit}
-  ),
+  ),${remoteFullCandidatesCteSql}
   candidate_mission_rows AS (
     SELECT
       tc."mission_id",
@@ -346,7 +375,7 @@ const buildRanking = (params: {
       fc."mission_id",
       fc."mission_scoring_id",
       CAST(NULL AS double precision) AS "distance_km"
-    FROM fallback_candidates fc
+    FROM fallback_candidates fc${remoteFullCandidatesUnionSql}
   ),
   candidate_missions AS (
     SELECT

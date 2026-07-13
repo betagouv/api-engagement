@@ -492,6 +492,8 @@ describe("matchingEngineService", () => {
       expect(result.version).toBe("m3");
       expect(rankingSql).toContain("WHEN m.\"remote\"::text = 'full' THEN CAST(");
       expect(rankingSql).toContain('JOIN "mission" m');
+      expect(rankingSql).toContain("remote_full_candidates AS (");
+      expect(rankingSql).toContain("FROM remote_full_candidates rfc");
       expect(rankingValues).toContain(1);
     });
 
@@ -515,6 +517,7 @@ describe("matchingEngineService", () => {
       const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[1][0]);
       expect(result.version).toBe("m2");
       expect(rankingSql).not.toContain('m."remote"::text');
+      expect(rankingSql).not.toContain("remote_full_candidates");
     });
 
     it("returns a geo score of 1 for a remote=full mission ranked with m3", async () => {
