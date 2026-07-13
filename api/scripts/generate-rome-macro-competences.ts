@@ -86,12 +86,15 @@ const fetchMacroCompetences = async (token: string): Promise<MacroCompetence[]> 
 const renderFile = (entries: MacroCompetence[]): string => {
   const sorted = [...entries].sort((a, b) => a.code.localeCompare(b.code));
   const lines = sorted.map((entry) => `  ${JSON.stringify(entry.code)}: ${JSON.stringify(entry.libelle)},`);
+  const generatedAt = new Date().toISOString().slice(0, 10);
   return `/**
  * Référentiel des macro-compétences ROME 4.0 : code → libellé.
  *
  * Fichier GÉNÉRÉ par \`api/scripts/generate-rome-macro-competences.ts\` (snapshot du
  * référentiel France Travail). Ne pas éditer à la main : relancer le script pour
  * rafraîchir (le référentiel ROME 4.0 est stable).
+ *
+ * Dernière mise à jour : ${generatedAt} (${sorted.length} macro-compétences).
  */
 export const ROME_MACRO_COMPETENCES: Record<string, string> = {
 ${lines.join("\n")}

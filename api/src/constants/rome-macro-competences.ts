@@ -4,6 +4,8 @@
  * Fichier GÉNÉRÉ par `api/scripts/generate-rome-macro-competences.ts` (snapshot du
  * référentiel France Travail). Ne pas éditer à la main : relancer le script pour
  * rafraîchir (le référentiel ROME 4.0 est stable).
+ *
+ * Dernière mise à jour : 2026-07-13 (506 macro-compétences).
  */
 export const ROME_MACRO_COMPETENCES: Record<string, string> = {
   "104292": "Effectuer le suivi des réservations",
