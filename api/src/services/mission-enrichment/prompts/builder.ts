@@ -111,9 +111,10 @@ export const buildMissionBlock = (mission: MissionForPrompt): string => {
     lines.push("", "**Prérequis :**", cleanRequirements.join("\n"));
   }
   // Libellés de macro-compétences ROME 4.0 résolus depuis les codes `romeSkills` de la mission.
+  // Le libellé explicite au modèle qu'il s'agit de compétences attendues pour réaliser la mission.
   const cleanRomeSkills = cleanList(mission.romeSkills, PROMPT_FIELD_MAX_LENGTH.short);
   if (cleanRomeSkills.length) {
-    lines.push("", "**Compétences ROME :**", cleanRomeSkills.join(", "));
+    lines.push("", "**Compétences attendues pour la mission (référentiel ROME 4.0) :**", cleanRomeSkills.join(", "));
   }
 
   const cleanOrgName = clean(mission.organizationName, PROMPT_FIELD_MAX_LENGTH.short);

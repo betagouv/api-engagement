@@ -63,13 +63,13 @@ describe("buildMissionBlock", () => {
 
   it("renders the resolved ROME macro-competences when present", () => {
     const block = buildMissionBlock(baseMission({ romeSkills: ["Accompagner des personnes", "Animer une réunion"] }));
-    expect(block).toContain("**Compétences ROME :**");
+    expect(block).toContain("**Compétences attendues pour la mission (référentiel ROME 4.0) :**");
     expect(block).toContain("Accompagner des personnes, Animer une réunion");
   });
 
   it("omits the ROME section when there is no resolved competence", () => {
     const block = buildMissionBlock(baseMission({ romeSkills: [] }));
-    expect(block).not.toContain("**Compétences ROME :**");
+    expect(block).not.toContain("référentiel ROME 4.0");
   });
 });
 
