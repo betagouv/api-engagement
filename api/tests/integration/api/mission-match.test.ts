@@ -204,6 +204,8 @@ describe("GET /missions/match", () => {
     expect(item.mission.location.closestLat).toBeNull();
     expect(item.mission.location.closestLon).toBeNull();
     expect(item.mission.location.addressId).toBeNull();
+    // Le fallback city (mission.addresses[0].city) doit aussi être neutralisé pour une full-remote.
+    expect(item.mission.location.city).toBeNull();
     expect(response.body.data.avgDistanceKmTop5).toBeNull();
   });
 });
