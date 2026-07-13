@@ -11,6 +11,7 @@ import { activityService } from "@/services/activity";
 import type { MissionRecord } from "@/types/mission";
 import type { PublisherRecord } from "@/types/publisher";
 import { parseBool, parseDate, parseLowercase, parseNumber, parseString, parseStringArray } from "@/utils";
+import { normalizeRomeSkillCodes } from "@/utils/rome";
 
 const getImageDomain = (domain: string) => {
   const number = Number(new Date().getTime().toString().slice(-1)) % 3;
@@ -127,7 +128,7 @@ export const parseMission = (publisher: PublisherRecord, missionXML: MissionXML,
       schedule: parseString(missionXML.schedule),
       audience: parseStringArray(missionXML.audience) || parseStringArray(missionXML.publicBeneficiaries) || parseStringArray(missionXML.publicsBeneficiaires) || [],
       softSkills: parseStringArray(missionXML.softSkills) || parseStringArray(missionXML.soft_skills) || [],
-      romeSkills: parseStringArray(missionXML.romeSkills) || [],
+      romeSkills: normalizeRomeSkillCodes(parseStringArray(missionXML.romeSkills) || []),
       requirements: parseStringArray(missionXML.requirements) || [],
       remote: parseRemote(missionXML.remote),
       reducedMobilityAccessible: parseBool(missionXML.reducedMobilityAccessible),

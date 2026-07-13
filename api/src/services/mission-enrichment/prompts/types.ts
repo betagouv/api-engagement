@@ -26,7 +26,7 @@ export type MissionForPrompt = {
   softSkills: string[];
   requirements: string[];
   tags: string[];
-  romeSkills: string[];
+  romeSkillLabels: string[];
   type: string | null;
   remote: string | null;
   openToMinors: boolean | null;

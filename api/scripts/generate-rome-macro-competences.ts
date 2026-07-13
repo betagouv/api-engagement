@@ -36,6 +36,11 @@ const OUTPUT_PATH = join(__dirname, "..", "src", "constants", "rome-macro-compet
 
 type MacroCompetence = { code: string; libelle: string };
 
+const readErrorBody = async (response: Response): Promise<string> => {
+  const text = await response.text();
+  return text.length > 500 ? `${text.slice(0, 500)}…[tronqué]` : text;
+};
+
 const getAccessToken = async (): Promise<string> => {
   if (!CLIENT_ID || !CLIENT_SECRET) {
     throw new Error("FT_CLIENT_ID / FT_CLIENT_SECRET manquants dans l'environnement");
@@ -55,7 +60,9 @@ const getAccessToken = async (): Promise<string> => {
   });
 
   if (!response.ok) {
-    throw new Error(`OAuth token failed: ${response.status} ${await response.text()}`);
+    throw new Error(
+      `OAuth token failed: ${response.status} ${response.statusText || "(no status text)"} (response body redacted)`
+    );
   }
 
   const json = (await response.json()) as { access_token?: string };
@@ -71,7 +78,7 @@ const fetchMacroCompetences = async (token: string): Promise<MacroCompetence[]> 
   });
 
   if (!response.ok) {
-    throw new Error(`Macro-competences fetch failed: ${response.status} ${await response.text()}`);
+    throw new Error(`Macro-competences fetch failed: ${response.status} ${await readErrorBody(response)}`);
   }
 
   const json = (await response.json()) as Array<Record<string, unknown>>;

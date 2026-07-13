@@ -242,7 +242,7 @@ const toMissionForPrompt = (mission: MissionWithRelations): MissionForPrompt => 
     softSkills: mission.softSkills,
     requirements: mission.requirements,
     tags: mission.tags,
-    romeSkills: resolveRomeSkills(mission.romeSkills),
+    romeSkillLabels: resolveRomeSkills(mission.romeSkills),
     type: mission.type,
     remote: mission.remote,
     openToMinors: mission.openToMinors,

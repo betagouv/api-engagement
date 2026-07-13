@@ -23,6 +23,7 @@ import { PublisherOrganizationWithRelations } from "@/types/publisher-organizati
 import { calculateBoundingBox } from "@/utils";
 import { buildJobBoardMap, computeAddressHash, deriveMissionLocation, EVENT_TYPES, getMissionChanges, normalizeMissionAddresses } from "@/utils/mission";
 import { normalizeOptionalString, normalizeStringList } from "@/utils/normalize";
+import { normalizeRomeSkillCodes } from "@/utils/rome";
 import { publisherService } from "./publisher";
 import publisherOrganizationService from "./publisher-organization";
 
@@ -849,7 +850,7 @@ export const missionService = {
       audience: input.audience ?? [],
       softSkills: input.softSkills ?? input.soft_skills ?? [],
       requirements: input.requirements ?? [],
-      romeSkills: input.romeSkills ?? [],
+      romeSkills: normalizeRomeSkillCodes(input.romeSkills ?? []),
       reducedMobilityAccessible: input.reducedMobilityAccessible ?? undefined,
       closeToTransport: input.closeToTransport ?? undefined,
       openToMinors: input.openToMinors ?? undefined,
@@ -941,7 +942,7 @@ export const missionService = {
       data.requirements = patch.requirements ?? [];
     }
     if ("romeSkills" in patch) {
-      data.romeSkills = patch.romeSkills ?? [];
+      data.romeSkills = normalizeRomeSkillCodes(patch.romeSkills ?? []);
     }
     if ("reducedMobilityAccessible" in patch) {
       data.reducedMobilityAccessible = patch.reducedMobilityAccessible ?? undefined;
