@@ -6,6 +6,7 @@ import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESS
 import { publisherRateLimiter } from "@/middlewares/rate-limit";
 import { publisherService } from "@/services/publisher";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
+import { SUPPORTED_CHILD_FIELDS } from "@/services/publisher-diffusion-rule/config";
 import { PublisherRequest } from "@/types/passport";
 import type { PublisherRecord } from "@/types/publisher";
 
@@ -24,13 +25,23 @@ const listQuerySchema = zod
 
 const ALLOWED_RULE_FIELDS = ["publisherOrganization.clientId", "publisherOrganization.parentOrganizations"] as const;
 
-const ruleBodySchema = zod.object({
-  publisherIds: zod.array(zod.string()).min(1),
-  field: zod.enum(ALLOWED_RULE_FIELDS),
-  fieldType: zod.string().optional().nullable(),
-  operator: zod.string().min(1),
-  value: zod.string().min(1),
-});
+// Garde-fou : seuls les opérateurs déclarés dans le registre `SUPPORTED_CHILD_FIELDS` sont acceptés,
+// une règle hors registre casserait le filtrage des missions (match / missions-browse).
+const ruleBodySchema = zod
+  .object({
+    publisherIds: zod.array(zod.string()).min(1),
+    field: zod.enum(ALLOWED_RULE_FIELDS),
+    fieldType: zod.enum(["string"]).optional().nullable(),
+    operator: zod.string().min(1),
+    value: zod.string().min(1),
+  })
+  .refine(
+    (data) => {
+      const config = SUPPORTED_CHILD_FIELDS[data.field];
+      return config.operators.is.includes(data.operator) || config.operators.isNot.includes(data.operator);
+    },
+    { message: "operator not supported for this field" }
+  );
 
 router.get("/", async (req: PublisherRequest, res: Response, next: NextFunction) => {
   try {
