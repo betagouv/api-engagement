@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 
 import { Prisma } from "@/db/core";
 import { userRepository } from "@/repositories/user";
-import type { UserCreateInput, UserFindParams, UserRecord, UserUpdatePatch } from "@/types/user";
+import type { PublicUserRecord, UserCreateInput, UserFindParams, UserRecord, UserUpdatePatch } from "@/types/user";
 
 const SALT_ROUNDS = 10;
 
@@ -159,6 +159,15 @@ const buildUpdateData = async (patch: UserUpdatePatch): Promise<Prisma.UserUpdat
 };
 
 export const userService = {
+  /**
+   * Retire les champs sensibles (`password`, `invitationToken`, `forgotPasswordToken`, `forgotPasswordExpiresAt`)
+   * d'un record : à utiliser pour toute réponse HTTP contenant un user.
+   */
+  toPublicUser(user: UserRecord): PublicUserRecord {
+    const { password, invitationToken, forgotPasswordToken, forgotPasswordExpiresAt, ...publicUser } = user;
+    return publicUser;
+  },
+
   async findUsers(params: UserFindParams = {}): Promise<UserRecord[]> {
     const users = (await userRepository.findMany({
       where: buildWhere(params),

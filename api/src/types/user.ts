@@ -20,6 +20,8 @@ export interface UserRecord {
   updatedAt: Date;
 }
 
+export type PublicUserRecord = Omit<UserRecord, "password" | "invitationToken" | "forgotPasswordToken" | "forgotPasswordExpiresAt">;
+
 export interface UserFindParams {
   email?: string;
   publisherId?: string;
