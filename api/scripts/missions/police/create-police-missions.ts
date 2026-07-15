@@ -21,6 +21,7 @@ const PUBLISHER_ID = "65f07ba338b232a6341ed1e2";
 const API_URLS: Record<string, string> = {
   prod: "https://api.api-engagement.beta.gouv.fr",
   sandbox: "https://api.bac-a-sable.api-engagement.beta.gouv.fr",
+  staging: "https://api.api-engagement-dev.fr",
   local: "http://localhost:3002",
 };
 

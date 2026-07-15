@@ -21,8 +21,8 @@ const PUBLISHER_ID = "65d770d5c0d3764cbed3ac85";
 const API_URLS: Record<string, string> = {
   prod: "https://api.api-engagement.beta.gouv.fr",
   sandbox: "https://api.bac-a-sable.api-engagement.beta.gouv.fr",
-  staging: "https://api.bac-a-sable.api-engagement.beta.gouv.fr",
-  local: "http://localhost:4000",
+  staging: "https://api.api-engagement-dev.fr",
+  local: "http://localhost:3002",
 };
 
 const CLIENT_ID = "dggn-reserve-gendarmerie-nationale";
