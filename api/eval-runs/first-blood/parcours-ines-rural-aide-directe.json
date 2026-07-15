@@ -1,0 +1,2321 @@
+{
+  "status": "success",
+  "parcours": {
+    "id": "ines-rural-aide-directe",
+    "segment": "etudiant",
+    "label": "Inès, 24 ans, étudiante en M1 à Figeac, veut se sentir utile et aider directement des personnes en zone rurale",
+    "locationLabel": "Figeac (46)",
+    "age": 24,
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 24,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "statut",
+        "value": "etudiant"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 44.608333,
+          "lon": 2.031944,
+          "country_code": "fr",
+          "label": "Figeac (46)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "ponctuelle"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "me_sentir_utile"
+      },
+      {
+        "taxonomy": "engagement_intent",
+        "value": "aide_directe"
+      }
+    ]
+  },
+  "payload": {
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 24,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "statut",
+        "value": "etudiant"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 44.608333,
+          "lon": 2.031944,
+          "country_code": "fr",
+          "label": "Figeac (46)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "ponctuelle"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "me_sentir_utile"
+      },
+      {
+        "taxonomy": "engagement_intent",
+        "value": "aide_directe"
+      }
+    ],
+    "distinctId": "eval:first-blood:ines-rural-aide-directe",
+    "missionAlertEnabled": false
+  },
+  "userScoringId": "f1801607-01ba-4fe1-bd2c-c88dfa79a746",
+  "match": {
+    "tookMs": 276,
+    "engineVersion": "m2",
+    "items": [
+      {
+        "mission": {
+          "id": "0d479e6a-5780-4d71-bc35-5d71de892b61",
+          "title": "FIGEAC Accompagner les usagers sur les outils numériques de France Travail",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "solidarite-insertion",
+          "domainOriginal": "Solidarité",
+          "organizationName": "FRANCE TRAVAIL",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_02.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_02.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Figeac",
+            "closestLat": 44.608423,
+            "closestLon": 2.023917,
+            "closestAddress": "8bis avenue Joseph Loubet, 46100 Figeac, FR",
+            "addressId": "60302033-bccb-403e-b655-3ef070b75ead",
+            "distanceKm": 0.635514313539134
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/0d479e6a-5780-4d71-bc35-5d71de892b61/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "e0ececb0-fb30-448c-b53a-375209d51e85",
+          "totalScore": 0.686108,
+          "taxonomyScore": 0.394,
+          "geoScore": 0.978216,
+          "taxonomyScores": {
+            "engagement_intent": 0.97,
+            "tranche_age": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Accompagner les usagers dans l’utilisation des outils numériques de France Travail afin d'être facilitateur d’inclusion numérique",
+                "reasoning": "La mission est explicitement centrée sur l'accompagnement et la transmission des outils numériques, ce qui relève directement de l'éducation et de la transmission."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Aide à l'appropriation des services numériques et outils digitaux par les usagers / aide à l’écriture, la lecture, la compréhension des outils / Participe à la prise en main des outils digitaux présentés",
+                "reasoning": "Les tâches décrites concernent directement la transmission de compétences numériques et l'accompagnement des usagers dans leur utilisation."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Accompagner les usagers dans l’utilisation des outils numériques de France Travail afin d'être facilitateur d’inclusion numérique / Aide à l'appropriation des services numériques et outils digitaux par les usagers",
+                "reasoning": "La mission vise à faciliter l'inclusion numérique, ce qui relève de l'aide directe aux personnes en situation de fragilité."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Participe à des ateliers favorisant le lien social / Participe à la prise en main des outils digitaux présentés",
+                "reasoning": "Les ateliers décrits incluent une dimension d'animation et de création de lien social, bien que secondaire par rapport à la transmission numérique."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Aide à l'appropriation des services numériques et outils digitaux par les usagers / promotion des services numériques et outils digitaux auprès des usagers",
+                "reasoning": "Les tâches principales impliquent une interaction directe avec les usagers pour les aider à utiliser des outils numériques."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "communication_creation_numerique",
+              "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Aide à l'appropriation des services numériques et outils digitaux par les usagers / promotion des services numériques et outils digitaux auprès des usagers",
+                "reasoning": "La mission implique une forte composante de communication et de médiation autour des outils numériques."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Il ou elle participe, pendant 10 % à 20 % de sa durée de mission, à des actions externes d’intérêt général (dans les domaines de la solidarité, de la transition écologique)",
+                "reasoning": "La mission inclut une participation à des actions externes d'intérêt général, bien que minoritaire."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Accompagner les usagers dans l’utilisation des outils numériques de France Travail",
+                "reasoning": "La mission se déroule dans le secteur de l'aide à la personne, notamment pour des publics fragilisés."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Il ou elle participe, pendant 10 % à 20 % de sa durée de mission, à des actions externes d’intérêt général",
+                "reasoning": "Le cadre institutionnel du service civique et la participation à des actions externes d'intérêt général indiquent un engagement en cadre structuré."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "numerique_communication",
+              "taxonomyValueLabel": "Numérique et communication",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Accompagner les usagers dans l’utilisation des outils numériques de France Travail",
+                "reasoning": "La mission est liée à la formation et à la transmission de compétences numériques, ce qui correspond au domaine de formation ONISEP."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "service_civique",
+              "taxonomyValueLabel": "Service civique",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "3f294e86-9c83-456d-a251-3e0735118307",
+          "title": "👴👵 SC2S 12 - VILEEFRANCHE-DE-ROUERGUE: S'ENGAGER POUR LES SENIORS AVEC LE CCAS",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "solidarite-insertion",
+          "domainOriginal": "Solidarité",
+          "organizationName": "SC2S Occitanie",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Villefranche-de-Rouergue",
+            "closestLat": 44.349832,
+            "closestLon": 2.036357,
+            "closestAddress": "Promenade du Guiraudet, 12200 Villefranche-de-Rouergue, FR",
+            "addressId": "8b6e9f20-b0e7-4c2e-b154-1065f2cf9190",
+            "distanceKm": 28.74613197820779
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/3f294e86-9c83-456d-a251-3e0735118307/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "2044b31f-1935-4a00-b330-6ff7236324df",
+          "totalScore": 0.384628,
+          "taxonomyScore": 0.4,
+          "geoScore": 0.369256,
+          "taxonomyScores": {
+            "engagement_intent": 1,
+            "tranche_age": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Effectueras des visites de convivialité au domicile des personnes âgées pour offrir présence et écoute bienveillante / Proposeras des jeux de société, de la lecture, ou d’autres activités adaptées / Participeras à des actions collectives : bal des aînés, activités physiques adaptées, art-thérapie… / Accompagneras les bénéficiaires lors de promenades ou sorties diverses",
+                "reasoning": "La mission est centrée sur l'accompagnement social, la lutte contre l'isolement des seniors et la création de lien social, ce qui relève clairement du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Effectueras des visites de convivialité au domicile des personnes âgées pour offrir présence et écoute bienveillante / Proposeras des jeux de société, de la lecture, ou d’autres activités adaptées / Accompagneras les bénéficiaires lors de promenades ou sorties diverses",
+                "reasoning": "Les tâches principales impliquent une interaction directe et bienveillante avec les bénéficiaires, ce qui correspond à une aide directe."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Proposeras des jeux de société, de la lecture, ou d’autres activités adaptées / Participeras à des actions collectives : bal des aînés, activités physiques adaptées, art-thérapie…",
+                "reasoning": "La mission inclut explicitement l'animation d'activités collectives et individuelles pour stimuler les seniors."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Participant à la coordination du réseau des visiteurs à domicile / Contribuant aux actions de communication du réseau / Soutenant les équipes lors des manifestations et événements organisés",
+                "reasoning": "Les tâches incluent une dimension de soutien organisationnel et de coordination, en complément de l'aide directe."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Effectueras des visites de convivialité au domicile des personnes âgées pour offrir présence et écoute bienveillante / Proposeras des jeux de société, de la lecture, ou d’autres activités adaptées",
+                "reasoning": "Les tâches relèvent de l'accompagnement social, de l'écoute et du soin relationnel auprès des seniors."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Participant à la coordination du réseau des visiteurs à domicile / Contribuant aux actions de communication du réseau / Soutenant les équipes lors des manifestations et événements organisés",
+                "reasoning": "La mission implique un travail collaboratif, de coordination et d'organisation au sein d'une équipe."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Effectueras des visites de convivialité au domicile des personnes âgées pour offrir présence et écoute bienveillante / Proposeras des jeux de société, de la lecture, ou d’autres activités adaptées",
+                "reasoning": "La mission s'inscrit dans le secteur de l'aide à la personne, spécifiquement auprès des seniors."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "VOTRE MISSION DE SERVICE CIVIQUE / Tu intégreras le parcours de formation SC2S, qui te permettra d'acquérir les connaissances nécessaires à la réussite de ta mission avec les seniors / Tu collaboreras avec les équipes du CCAS et tu auras un tuteur dédié qui t'accompagnera tout au long de ta mission",
+                "reasoning": "La mission est encadrée par un service civique, avec un parcours de formation et un tutorat dédié, ce qui relève d'un cadre structuré."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "social_sante_sport",
+              "taxonomyValueLabel": "Social, santé et sport",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "La France compte 10 millions de seniors. 900.000 souffrent de solitude. Tu apprécies le contact avec les personnes âgées ? Tu as envie de leur (re)donner le sourire ? Tu veux apprendre et t’enrichir humainement, tout en développant des nouvelles compétences ?",
+                "reasoning": "La mission est orientée vers l'accompagnement social et la santé des seniors, ce qui correspond au domaine social, santé et sport."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "service_civique",
+              "taxonomyValueLabel": "Service civique",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "61f12a5a51d4c407ac023ddf",
+          "title": "J'assure le service des petits déjeuners pour les personnes à la rue à Avignon",
+          "remote": "no",
+          "schedule": "Une demi-journée",
+          "domain": "solidarite-insertion",
+          "domainOriginal": null,
+          "organizationName": "Secours Catholique 84",
+          "publisherId": "5f5931496c7ea514150a818f",
+          "publisherName": "JeVeuxAider.gouv.fr",
+          "media": {
+            "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12165/solidarite-et-insertion-1.webp?v=1737022221",
+            "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12165/solidarite-et-insertion-1.webp?v=1737022221",
+            "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/5757/5dCcw5VhPPT5wRp7EZjAfSFP2bH3lO.jpg?v=1737381484",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+          },
+          "location": {
+            "city": "Avignon",
+            "closestLat": 43.942468,
+            "closestLon": 4.809361,
+            "closestAddress": "6 Boulevard Saint-michel, 84000 Avignon, FR",
+            "addressId": "4e299e74-c1ad-4303-a0d4-3b9ba1c476f8",
+            "distanceKm": 233.17542508336513
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/61f12a5a51d4c407ac023ddf/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "47a836f5-ff0a-4de3-9851-5e77750c46bf",
+          "totalScore": 0.300155,
+          "taxonomyScore": 0.6,
+          "geoScore": 0.000309,
+          "taxonomyScores": {
+            "engagement_intent": 1,
+            "tranche_age": 1,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Servir des petits déjeuners pour les personnes à la rue à Avignon, créer du lien, discuter, être à l'écoute / assurer la gestion quotidienne de l'accueil et notamment le service des petits déjeuners / aller à la rencontre des personnes, de créer du lien, de discuter",
+                "reasoning": "La mission est centrée sur l'accompagnement social, la lutte contre l'isolement et le soutien aux personnes en situation de précarité."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Servir des petits déjeuners pour les personnes à la rue à Avignon / aller à la rencontre des personnes, de créer du lien, de discuter",
+                "reasoning": "Interaction directe et concrète avec les bénéficiaires, incluant écoute et soutien."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "créer du lien, discuter, être à l'écoute / aller à la rencontre des personnes",
+                "reasoning": "Création de lien social et animation d'échanges avec les personnes accueillies."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "action_terrain",
+              "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "service des petits déjeuners (sur place ou en maraude dans la rue)",
+                "reasoning": "Action concrète de distribution de repas sur le terrain, incluant une dimension de maraude."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.92,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Servir des petits déjeuners pour les personnes à la rue / être à l'écoute / créer du lien",
+                "reasoning": "Accompagnement humain, écoute et soutien aux personnes en situation de vulnérabilité."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "assurer la gestion quotidienne de l'accueil / avec plus de 100 personnes accueillies chaque matin",
+                "reasoning": "Coordination et adaptation dans un contexte d'accueil collectif et structuré."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Servir des petits déjeuners pour les personnes à la rue / personnes à la rue",
+                "reasoning": "Mission dans le secteur de l'aide à la personne et de l'accompagnement social."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "ponctuelle",
+              "taxonomyValueLabel": "Mission ponctuelle",
+              "enrichmentConfidence": 0.99,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Une demi-journée / du 26 janvier 2022",
+                "reasoning": "Mission explicitement limitée à une demi-journée, sans notion de répétition."
+              }
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "benevolat",
+              "taxonomyValueLabel": "Bénévolat",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "62283732285e0d07a06a1c2b",
+          "title": "Je bricole ou je jardine pour des personnes  en situation de handicap",
+          "remote": "no",
+          "schedule": "1 heure par mois",
+          "domain": "solidarite-insertion",
+          "domainOriginal": null,
+          "organizationName": "Le Grain de Blé",
+          "publisherId": "5f5931496c7ea514150a818f",
+          "publisherName": "JeVeuxAider.gouv.fr",
+          "media": {
+            "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12166/dRHWvAk9ViLSUPbMRWEttmsNvituig.jpg?v=1753367089",
+            "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12166/dRHWvAk9ViLSUPbMRWEttmsNvituig.jpg?v=1753367089",
+            "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/10206/z9tnuFW0rK8Fjhq9ZqTqPfA2Xl8Ggt.png?v=1737382245",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+          },
+          "location": {
+            "city": "Le Mans",
+            "closestLat": 48.0041,
+            "closestLon": 0.196806,
+            "closestAddress": "5 Cours Saint Damien 72000 Le Mans, 72000 Le Mans, FR",
+            "addressId": "f65c6970-a7d2-4751-8920-30adde66ae1b",
+            "distanceKm": 403.01466038000916
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/62283732285e0d07a06a1c2b/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "d8344971-03e2-42ae-a3f2-fe22cbf2ec30",
+          "totalScore": 0.3,
+          "taxonomyScore": 0.6,
+          "geoScore": 0.000001,
+          "taxonomyScores": {
+            "engagement_intent": 1,
+            "tranche_age": 1,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Nous recherchons des bénévoles aimant jardiner et/ou bricoler pour nous aider ponctuellement au sein de la Maison Saint Damien, qui accueille des adultes en situation de handicap mental ou moteur / Ce temps de service est aussi un moment d'échange convivial avec les résidents et les professionnels qui les accompagnent",
+                "reasoning": "La mission cible explicitement l'accompagnement de personnes en situation de handicap, ce qui relève du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "gestion_projet",
+              "taxonomyValueLabel": "Gestion de projet",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Bricolage : petites réparations, montage de meubles, installation de décorations, peinture, entretien de vélos… / Jardinage : entretien de parterres et jardinières de fleurs, taille, mini jardin potager avec les résidents…",
+                "reasoning": "Les tâches décrites sont des actions concrètes et manuelles (bricolage, jardinage) réalisées avec les résidents."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Nous recherchons des bénévoles aimant jardiner et/ou bricoler pour nous aider ponctuellement au sein de la Maison Saint Damien, qui accueille des adultes en situation de handicap mental ou moteur / Ce temps de service est aussi un moment d'échange convivial avec les résidents et les professionnels qui les accompagnent",
+                "reasoning": "La mission implique une interaction directe avec les résidents, notamment via des activités manuelles et des échanges conviviaux."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Jardinage : entretien de parterres et jardinières de fleurs, taille, mini jardin potager avec les résidents…",
+                "reasoning": "La mission inclut explicitement l'animation d'activités collectives avec les résidents."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "action_terrain",
+              "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Bricolage : petites réparations, montage de meubles, installation de décorations, peinture, entretien de vélos… / Jardinage : entretien de parterres et jardinières de fleurs, taille, mini jardin potager avec les résidents…",
+                "reasoning": "Les tâches décrites relèvent d'actions concrètes sur le terrain (réparations, entretien, jardinage) réalisées avec les résidents."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "production_construction_qualite_logistique",
+              "taxonomyValueLabel": "Production, construction, qualité, logistique",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Bricolage : petites réparations, montage de meubles, installation de décorations, peinture, entretien de vélos… / Jardinage : entretien de parterres et jardinières de fleurs, taille, mini jardin potager avec les résidents…",
+                "reasoning": "Les tâches principales impliquent des compétences manuelles et techniques (bricolage, jardinage)."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Ce temps de service est aussi un moment d'échange convivial avec les résidents et les professionnels qui les accompagnent",
+                "reasoning": "La mission inclut une dimension d'accompagnement social et d'échange humain avec les résidents."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Nous recherchons des bénévoles aimant jardiner et/ou bricoler pour nous aider ponctuellement au sein de la Maison Saint Damien, qui accueille des adultes en situation de handicap mental ou moteur",
+                "reasoning": "La mission s'inscrit dans le secteur de l'aide à la personne, notamment pour des publics en situation de handicap."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "ponctuelle",
+              "taxonomyValueLabel": "Mission ponctuelle",
+              "enrichmentConfidence": 0.99,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Durée : non précisée — 1 heure par mois",
+                "reasoning": "La mission est explicitement décrite comme ponctuelle, avec une fréquence mensuelle."
+              }
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "benevolat",
+              "taxonomyValueLabel": "Bénévolat",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "00007e3e-6bdd-4188-a18d-e6365411b0b5",
+          "title": "J'accompagne vers l’emploi une personne réfugiée 1️⃣1️⃣ Atelier 👉Préparer mes entretiens 🏋️‍♂️ le 24 juin 2026",
+          "remote": "no",
+          "schedule": "Une demi-journée",
+          "domain": "solidarite-insertion",
+          "domainOriginal": null,
+          "organizationName": "Kodiko",
+          "publisherId": "5f5931496c7ea514150a818f",
+          "publisherName": "JeVeuxAider.gouv.fr",
+          "media": {
+            "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/59911/HgZhpM3vkTFWFZrNWyfzSJDqppUVzB.jpg?v=1737022229",
+            "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/59911/HgZhpM3vkTFWFZrNWyfzSJDqppUVzB.jpg?v=1737022229",
+            "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/128650/VDJGEQCSMDQxxu6LothDtEVLAVmCAJ.png?v=1762784872",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+          },
+          "location": {
+            "city": "Paris",
+            "closestLat": 48.871126,
+            "closestLon": 2.393389,
+            "closestAddress": "Rue de l'Est, 75020 Paris, FR",
+            "addressId": "11ff6eda-09a2-4967-b35e-f9b8b702d61b",
+            "distanceKm": 474.7989081567814
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/00007e3e-6bdd-4188-a18d-e6365411b0b5/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "b97397ff-bf06-4f01-b6a9-cb2ca542d837",
+          "totalScore": 0.297,
+          "taxonomyScore": 0.594,
+          "geoScore": 0,
+          "taxonomyScores": {
+            "engagement_intent": 0.97,
+            "tranche_age": 1,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Un atelier d’accompagnement vers l’emploi centré sur la préparation des entretiens de recrutement / accompagnement vers l’emploi / transmettre aux personnes réfugiées les codes socio-professionnels français",
+                "reasoning": "La mission est clairement centrée sur l'accompagnement social et l'insertion professionnelle de personnes réfugiées, ce qui relève du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Préparer mes entretiens / ateliers d’accompagnement vers l’emploi / parties théoriques avec une présentation des bonnes pratiques / pédagogie participative, actionnelle et interactive",
+                "reasoning": "La mission inclut explicitement la transmission de savoirs et de compétences pour préparer des entretiens, ce qui relève de l'éducation et transmission."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "accompagnement vers l’emploi / mentorat parrainage / personnes réfugiées",
+                "reasoning": "La mission s'inscrit dans le secteur de l'aide à la personne et de l'accompagnement social."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "ateliers d’accompagnement vers l’emploi / pédagogie participative, actionnelle et interactive / parties théoriques avec une présentation des bonnes pratiques",
+                "reasoning": "La mission inclut des activités d'animation et de formation, ce qui relève du secteur éducation, formation et animation."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "ponctuelle",
+              "taxonomyValueLabel": "Mission ponctuelle",
+              "enrichmentConfidence": 0.99,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Une demi-journée / Le mardi 24/06 ⏱️de 14h à 17h",
+                "reasoning": "La mission est explicitement décrite comme une action ponctuelle sur une demi-journée."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Vous serez le binôme d’une personne réfugiée / aider une personne réfugiée / accompagnement vers l’emploi",
+                "reasoning": "La mission implique un accompagnement humain et social direct avec des personnes réfugiées."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Alternance de temps théoriques (collectif) et pratiques (en binômes) / pédagogie participative / travail en binôme avec un participant réfugié",
+                "reasoning": "La mission nécessite une forte coopération et des compétences relationnelles pour travailler en binôme et animer des ateliers."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Préparer mes entretiens / ateliers d’accompagnement vers l’emploi / transmission des codes socio-professionnels / pédagogie participative",
+                "reasoning": "La mission est centrée sur la transmission de savoirs et de compétences pour préparer des entretiens, ce qui relève de l'intention de transmission."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Vous serez le binôme d’une personne réfugiée / aider une personne réfugiée / accompagnement vers l’emploi",
+                "reasoning": "La mission implique une interaction directe et un accompagnement individuel avec une personne réfugiée."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Atelier animé par l’équipe Kodiko / parties théoriques avec une présentation des bonnes pratiques / pédagogie participative",
+                "reasoning": "La mission inclut l'animation d'un atelier collectif avec des temps théoriques et pratiques."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "transmettre aux personnes réfugiées les codes socio-professionnels français / intégration professionnelle / codes pour mieux vivre ensemble",
+                "reasoning": "La mission vise à transmettre des codes socio-professionnels et culturels, ce qui relève des enjeux de société et de politique d'intégration."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "social_sante_sport",
+              "taxonomyValueLabel": "Social, santé et sport",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "accompagnement vers l’emploi / mentorat parrainage / personnes réfugiées",
+                "reasoning": "La mission s'inscrit dans un contexte d'accompagnement social et d'insertion, ce qui peut relever du domaine social, santé et sport."
+              }
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "benevolat",
+              "taxonomyValueLabel": "Bénévolat",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      }
+    ],
+    "total": 2057,
+    "avgDistanceKmTop5": 228.07
+  },
+  "missions": [
+    {
+      "mission": {
+        "id": "0d479e6a-5780-4d71-bc35-5d71de892b61",
+        "title": "FIGEAC Accompagner les usagers sur les outils numériques de France Travail",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "solidarite-insertion",
+        "domainOriginal": "Solidarité",
+        "organizationName": "FRANCE TRAVAIL",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_02.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_02.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Figeac",
+          "closestLat": 44.608423,
+          "closestLon": 2.023917,
+          "closestAddress": "8bis avenue Joseph Loubet, 46100 Figeac, FR",
+          "addressId": "60302033-bccb-403e-b655-3ef070b75ead",
+          "distanceKm": 0.635514313539134
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/0d479e6a-5780-4d71-bc35-5d71de892b61/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "e0ececb0-fb30-448c-b53a-375209d51e85",
+        "totalScore": 0.686108,
+        "taxonomyScore": 0.394,
+        "geoScore": 0.978216,
+        "taxonomyScores": {
+          "engagement_intent": 0.97,
+          "tranche_age": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Accompagner les usagers dans l’utilisation des outils numériques de France Travail afin d'être facilitateur d’inclusion numérique",
+              "reasoning": "La mission est explicitement centrée sur l'accompagnement et la transmission des outils numériques, ce qui relève directement de l'éducation et de la transmission."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Aide à l'appropriation des services numériques et outils digitaux par les usagers / aide à l’écriture, la lecture, la compréhension des outils / Participe à la prise en main des outils digitaux présentés",
+              "reasoning": "Les tâches décrites concernent directement la transmission de compétences numériques et l'accompagnement des usagers dans leur utilisation."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Accompagner les usagers dans l’utilisation des outils numériques de France Travail afin d'être facilitateur d’inclusion numérique / Aide à l'appropriation des services numériques et outils digitaux par les usagers",
+              "reasoning": "La mission vise à faciliter l'inclusion numérique, ce qui relève de l'aide directe aux personnes en situation de fragilité."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Participe à des ateliers favorisant le lien social / Participe à la prise en main des outils digitaux présentés",
+              "reasoning": "Les ateliers décrits incluent une dimension d'animation et de création de lien social, bien que secondaire par rapport à la transmission numérique."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Aide à l'appropriation des services numériques et outils digitaux par les usagers / promotion des services numériques et outils digitaux auprès des usagers",
+              "reasoning": "Les tâches principales impliquent une interaction directe avec les usagers pour les aider à utiliser des outils numériques."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "communication_creation_numerique",
+            "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Aide à l'appropriation des services numériques et outils digitaux par les usagers / promotion des services numériques et outils digitaux auprès des usagers",
+              "reasoning": "La mission implique une forte composante de communication et de médiation autour des outils numériques."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Il ou elle participe, pendant 10 % à 20 % de sa durée de mission, à des actions externes d’intérêt général (dans les domaines de la solidarité, de la transition écologique)",
+              "reasoning": "La mission inclut une participation à des actions externes d'intérêt général, bien que minoritaire."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Accompagner les usagers dans l’utilisation des outils numériques de France Travail",
+              "reasoning": "La mission se déroule dans le secteur de l'aide à la personne, notamment pour des publics fragilisés."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Il ou elle participe, pendant 10 % à 20 % de sa durée de mission, à des actions externes d’intérêt général",
+              "reasoning": "Le cadre institutionnel du service civique et la participation à des actions externes d'intérêt général indiquent un engagement en cadre structuré."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "numerique_communication",
+            "taxonomyValueLabel": "Numérique et communication",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Accompagner les usagers dans l’utilisation des outils numériques de France Travail",
+              "reasoning": "La mission est liée à la formation et à la transmission de compétences numériques, ce qui correspond au domaine de formation ONISEP."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "service_civique",
+            "taxonomyValueLabel": "Service civique",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "0d479e6a-5780-4d71-bc35-5d71de892b61",
+        "title": "FIGEAC Accompagner les usagers sur les outils numériques de France Travail",
+        "domain": "solidarite-insertion",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_02.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "FRANCE TRAVAIL",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Figeac",
+          "address": "8bis avenue Joseph Loubet, 46100 Figeac",
+          "lat": 44.608423,
+          "lon": 2.023917
+        },
+        "startAt": "2026-03-02T00:00:00.000Z",
+        "endAt": "2026-11-02T00:00:00.000Z",
+        "duration": 8,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Accompagner les usagers dans l’utilisation des outils numériques de France Travail afin d'être facilitateur d’inclusion numérique et participer à des ateliers favorisant le lien social</p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p>Il ou elle participe, pendant 10 % à 20 % de sa durée de mission, à des actions externes d’intérêt général (dans les domaines de la solidarité, de la transition écologique) proposés par des acteurs de la vie locale (associations, établissements public)</p></p><br>\n<b>Actions</b><br><p><p>Aide à l'appropriation des services numériques et outils digitaux par les usagers, aide à l’écriture, la lecture, la compréhension des outils, promotion des services numériques et outils digitaux auprès des usagers, facilite l'expression et soutient les participants. Participe à la prise en main des outils digitaux présentés. Le ou la volontaire facilite par ailleurs les démarches des demandeurs d’emploi en situation de handicap se présentant en agences locales, sensibilise les usagers de France Travail aux gestes barrière, avec l'appui du référent sanitaire local.</p></p><br>",
+        "description": "EN QUELQUES MOTS\n\n\nAccompagner les usagers dans l’utilisation des outils numériques de France\nTravail afin d'être facilitateur d’inclusion numérique et participer à des\nateliers favorisant le lien social\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nIl ou elle participe, pendant 10 % à 20 % de sa durée de mission, à des actions\nexternes d’intérêt général (dans les domaines de la solidarité, de la transition\nécologique) proposés par des acteurs de la vie locale (associations,\nétablissements public)\n\n\n\n\n\nActions\n\n\n\n\nAide à l'appropriation des services numériques et outils digitaux par les\nusagers, aide à l’écriture, la lecture, la compréhension des outils, promotion\ndes services numériques et outils digitaux auprès des usagers, facilite\nl'expression et soutient les participants. Participe à la prise en main des\noutils digitaux présentés. Le ou la volontaire facilite par ailleurs les\ndémarches des demandeurs d’emploi en situation de handicap se présentant en\nagences locales, sensibilise les usagers de France Travail aux gestes barrière,\navec l'appui du référent sanitaire local.\n\n\n",
+        "applicationUrl": "http://localhost:4000/r/0d479e6a-5780-4d71-bc35-5d71de892b61/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_02.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": true,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "3f294e86-9c83-456d-a251-3e0735118307",
+        "title": "👴👵 SC2S 12 - VILEEFRANCHE-DE-ROUERGUE: S'ENGAGER POUR LES SENIORS AVEC LE CCAS",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "solidarite-insertion",
+        "domainOriginal": "Solidarité",
+        "organizationName": "SC2S Occitanie",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Villefranche-de-Rouergue",
+          "closestLat": 44.349832,
+          "closestLon": 2.036357,
+          "closestAddress": "Promenade du Guiraudet, 12200 Villefranche-de-Rouergue, FR",
+          "addressId": "8b6e9f20-b0e7-4c2e-b154-1065f2cf9190",
+          "distanceKm": 28.74613197820779
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/3f294e86-9c83-456d-a251-3e0735118307/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "2044b31f-1935-4a00-b330-6ff7236324df",
+        "totalScore": 0.384628,
+        "taxonomyScore": 0.4,
+        "geoScore": 0.369256,
+        "taxonomyScores": {
+          "engagement_intent": 1,
+          "tranche_age": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Effectueras des visites de convivialité au domicile des personnes âgées pour offrir présence et écoute bienveillante / Proposeras des jeux de société, de la lecture, ou d’autres activités adaptées / Participeras à des actions collectives : bal des aînés, activités physiques adaptées, art-thérapie… / Accompagneras les bénéficiaires lors de promenades ou sorties diverses",
+              "reasoning": "La mission est centrée sur l'accompagnement social, la lutte contre l'isolement des seniors et la création de lien social, ce qui relève clairement du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Effectueras des visites de convivialité au domicile des personnes âgées pour offrir présence et écoute bienveillante / Proposeras des jeux de société, de la lecture, ou d’autres activités adaptées / Accompagneras les bénéficiaires lors de promenades ou sorties diverses",
+              "reasoning": "Les tâches principales impliquent une interaction directe et bienveillante avec les bénéficiaires, ce qui correspond à une aide directe."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Proposeras des jeux de société, de la lecture, ou d’autres activités adaptées / Participeras à des actions collectives : bal des aînés, activités physiques adaptées, art-thérapie…",
+              "reasoning": "La mission inclut explicitement l'animation d'activités collectives et individuelles pour stimuler les seniors."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Participant à la coordination du réseau des visiteurs à domicile / Contribuant aux actions de communication du réseau / Soutenant les équipes lors des manifestations et événements organisés",
+              "reasoning": "Les tâches incluent une dimension de soutien organisationnel et de coordination, en complément de l'aide directe."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Effectueras des visites de convivialité au domicile des personnes âgées pour offrir présence et écoute bienveillante / Proposeras des jeux de société, de la lecture, ou d’autres activités adaptées",
+              "reasoning": "Les tâches relèvent de l'accompagnement social, de l'écoute et du soin relationnel auprès des seniors."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Participant à la coordination du réseau des visiteurs à domicile / Contribuant aux actions de communication du réseau / Soutenant les équipes lors des manifestations et événements organisés",
+              "reasoning": "La mission implique un travail collaboratif, de coordination et d'organisation au sein d'une équipe."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Effectueras des visites de convivialité au domicile des personnes âgées pour offrir présence et écoute bienveillante / Proposeras des jeux de société, de la lecture, ou d’autres activités adaptées",
+              "reasoning": "La mission s'inscrit dans le secteur de l'aide à la personne, spécifiquement auprès des seniors."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "VOTRE MISSION DE SERVICE CIVIQUE / Tu intégreras le parcours de formation SC2S, qui te permettra d'acquérir les connaissances nécessaires à la réussite de ta mission avec les seniors / Tu collaboreras avec les équipes du CCAS et tu auras un tuteur dédié qui t'accompagnera tout au long de ta mission",
+              "reasoning": "La mission est encadrée par un service civique, avec un parcours de formation et un tutorat dédié, ce qui relève d'un cadre structuré."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "social_sante_sport",
+            "taxonomyValueLabel": "Social, santé et sport",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "La France compte 10 millions de seniors. 900.000 souffrent de solitude. Tu apprécies le contact avec les personnes âgées ? Tu as envie de leur (re)donner le sourire ? Tu veux apprendre et t’enrichir humainement, tout en développant des nouvelles compétences ?",
+              "reasoning": "La mission est orientée vers l'accompagnement social et la santé des seniors, ce qui correspond au domaine social, santé et sport."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "service_civique",
+            "taxonomyValueLabel": "Service civique",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "3f294e86-9c83-456d-a251-3e0735118307",
+        "title": "👴👵 SC2S 12 - VILEEFRANCHE-DE-ROUERGUE: S'ENGAGER POUR LES SENIORS AVEC LE CCAS",
+        "domain": "solidarite-insertion",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "SC2S Occitanie",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Villefranche-de-Rouergue",
+          "address": "Promenade du Guiraudet, 12200 Villefranche-de-Rouergue",
+          "lat": 44.349832,
+          "lon": 2.036357
+        },
+        "startAt": "2026-03-30T00:00:00.000Z",
+        "endAt": "2026-11-30T01:00:00.000Z",
+        "duration": 8,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>La France compte 10 millions de seniors. 900.000 souffrent de solitude. Tu apprécies le contact avec les personnes âgées ? Tu as envie de leur (re)donner le sourire ? Tu veux apprendre et t’enrichir humainement, tout en développant des nouvelles compétences ? Alors cette mission est faite pour toi !</p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p>Avec SC2S et le CCAS de Villefranche-de-Rouergue, tu peux t'engager auprès des personnes âgées, construire des actions pour les stimuler et faciliter la constitution de lien social. C'est la jeunesse qui se mobilise pour donner une réponse solidaire à l'isolement de nos aînés !</p></p><br>\n<b>Actions</b><br><p><p>Tout comme les membres du réseau des visiteurs bénévoles à domicile, tu :</p><ul><li>Effectueras des visites de convivialité au domicile des personnes âgées pour offrir présence et écoute bienveillante.</li><li>Proposeras des jeux de société, de la lecture, ou d’autres activités adaptées.</li><li>Participeras à des actions collectives : bal des aînés, activités physiques adaptées, art-thérapie…</li><li>Accompagneras les bénéficiaires lors de promenades ou sorties diverses.</li></ul><p><br></p><p>En complément des visites, tu contribueras à renforcer l’impact du réseau avec les équipes du CCAS en :</p><ul><li>Participant à la coordination du réseau des visiteurs à domicile.</li><li>Contribuant aux actions de communication du réseau.</li><li>Soutenant les équipes lors des manifestations et événements organisés.</li><li>Tu bénéficieras d’une voiture de service pour accomplir ta mission.</li></ul><p><br></p><p>Permis B obligatoire</p></p><br>\n<b>Capacité d’initiative</b><br><p>Les missions peuvent être adaptées selon tes compétences et/ou envies, notamment afin de correspondre à ton futur projet professionnel !</p><br>\n<b>VOTRE ENVIRONNEMENT</b><br><b>Formations obligatoires proposées</b><br><p>Tu intégreras le parcours de formation SC2S, qui te permettra d'acquérir les connaissances nécessaires à la réussite de ta mission avec les seniors.</p><br><b>Tutorat et accompagnement</b><br><p>Tu collaboreras avec les équipes du CCAS et tu auras un tuteur dédié qui t'accompagnera tout au long de ta mission.</p>",
+        "description": "EN QUELQUES MOTS\n\n\nLa France compte 10 millions de seniors. 900.000 souffrent de solitude. Tu\napprécies le contact avec les personnes âgées ? Tu as envie de leur (re)donner\nle sourire ? Tu veux apprendre et t’enrichir humainement, tout en développant\ndes nouvelles compétences ? Alors cette mission est faite pour toi !\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nAvec SC2S et le CCAS de Villefranche-de-Rouergue, tu peux t'engager auprès des\npersonnes âgées, construire des actions pour les stimuler et faciliter la\nconstitution de lien social. C'est la jeunesse qui se mobilise pour donner une\nréponse solidaire à l'isolement de nos aînés !\n\n\n\n\n\nActions\n\n\n\n\nTout comme les membres du réseau des visiteurs bénévoles à domicile, tu :\n\n • Effectueras des visites de convivialité au domicile des personnes âgées pour\n   offrir présence et écoute bienveillante.\n • Proposeras des jeux de société, de la lecture, ou d’autres activités\n   adaptées.\n • Participeras à des actions collectives : bal des aînés, activités physiques\n   adaptées, art-thérapie…\n • Accompagneras les bénéficiaires lors de promenades ou sorties diverses.\n\n\n\n\nEn complément des visites, tu contribueras à renforcer l’impact du réseau avec\nles équipes du CCAS en :\n\n • Participant à la coordination du réseau des visiteurs à domicile.\n • Contribuant aux actions de communication du réseau.\n • Soutenant les équipes lors des manifestations et événements organisés.\n • Tu bénéficieras d’une voiture de service pour accomplir ta mission.\n\n\n\n\nPermis B obligatoire\n\n\n\n\n\nCapacité d’initiative\n\n\nLes missions peuvent être adaptées selon tes compétences et/ou envies, notamment\nafin de correspondre à ton futur projet professionnel !\n\n\n\nVOTRE ENVIRONNEMENT\nFormations obligatoires proposées\n\n\nTu intégreras le parcours de formation SC2S, qui te permettra d'acquérir les\nconnaissances nécessaires à la réussite de ta mission avec les seniors.\n\n\nTutorat et accompagnement\n\n\nTu collaboreras avec les équipes du CCAS et tu auras un tuteur dédié qui\nt'accompagnera tout au long de ta mission.",
+        "applicationUrl": "http://localhost:4000/r/3f294e86-9c83-456d-a251-3e0735118307/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": true,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "61f12a5a51d4c407ac023ddf",
+        "title": "J'assure le service des petits déjeuners pour les personnes à la rue à Avignon",
+        "remote": "no",
+        "schedule": "Une demi-journée",
+        "domain": "solidarite-insertion",
+        "domainOriginal": null,
+        "organizationName": "Secours Catholique 84",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "media": {
+          "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12165/solidarite-et-insertion-1.webp?v=1737022221",
+          "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12165/solidarite-et-insertion-1.webp?v=1737022221",
+          "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/5757/5dCcw5VhPPT5wRp7EZjAfSFP2bH3lO.jpg?v=1737381484",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+        },
+        "location": {
+          "city": "Avignon",
+          "closestLat": 43.942468,
+          "closestLon": 4.809361,
+          "closestAddress": "6 Boulevard Saint-michel, 84000 Avignon, FR",
+          "addressId": "4e299e74-c1ad-4303-a0d4-3b9ba1c476f8",
+          "distanceKm": 233.17542508336513
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/61f12a5a51d4c407ac023ddf/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "47a836f5-ff0a-4de3-9851-5e77750c46bf",
+        "totalScore": 0.300155,
+        "taxonomyScore": 0.6,
+        "geoScore": 0.000309,
+        "taxonomyScores": {
+          "engagement_intent": 1,
+          "tranche_age": 1,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Servir des petits déjeuners pour les personnes à la rue à Avignon, créer du lien, discuter, être à l'écoute / assurer la gestion quotidienne de l'accueil et notamment le service des petits déjeuners / aller à la rencontre des personnes, de créer du lien, de discuter",
+              "reasoning": "La mission est centrée sur l'accompagnement social, la lutte contre l'isolement et le soutien aux personnes en situation de précarité."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Servir des petits déjeuners pour les personnes à la rue à Avignon / aller à la rencontre des personnes, de créer du lien, de discuter",
+              "reasoning": "Interaction directe et concrète avec les bénéficiaires, incluant écoute et soutien."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "créer du lien, discuter, être à l'écoute / aller à la rencontre des personnes",
+              "reasoning": "Création de lien social et animation d'échanges avec les personnes accueillies."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "action_terrain",
+            "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "service des petits déjeuners (sur place ou en maraude dans la rue)",
+              "reasoning": "Action concrète de distribution de repas sur le terrain, incluant une dimension de maraude."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.92,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Servir des petits déjeuners pour les personnes à la rue / être à l'écoute / créer du lien",
+              "reasoning": "Accompagnement humain, écoute et soutien aux personnes en situation de vulnérabilité."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "assurer la gestion quotidienne de l'accueil / avec plus de 100 personnes accueillies chaque matin",
+              "reasoning": "Coordination et adaptation dans un contexte d'accueil collectif et structuré."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Servir des petits déjeuners pour les personnes à la rue / personnes à la rue",
+              "reasoning": "Mission dans le secteur de l'aide à la personne et de l'accompagnement social."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "ponctuelle",
+            "taxonomyValueLabel": "Mission ponctuelle",
+            "enrichmentConfidence": 0.99,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Une demi-journée / du 26 janvier 2022",
+              "reasoning": "Mission explicitement limitée à une demi-journée, sans notion de répétition."
+            }
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "benevolat",
+            "taxonomyValueLabel": "Bénévolat",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "61f12a5a51d4c407ac023ddf",
+        "title": "J'assure le service des petits déjeuners pour les personnes à la rue à Avignon",
+        "domain": "solidarite-insertion",
+        "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12165/solidarite-et-insertion-1.webp?v=1737022221",
+        "type": "benevolat",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png",
+        "organizationName": "Secours Catholique 84",
+        "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/5757/5dCcw5VhPPT5wRp7EZjAfSFP2bH3lO.jpg?v=1737381484",
+        "location": {
+          "city": "Avignon",
+          "address": "6 Boulevard Saint-michel, 84000 Avignon",
+          "lat": 43.942468,
+          "lon": 4.809361
+        },
+        "startAt": "2022-01-26T09:00:00.000Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "Une demi-journée",
+        "compensation": null,
+        "descriptionHtml": "<b>Présentation de la mission</b><br>Servir des petits déjeuners pour les personnes à la rue à Avignon, créer du lien, discuter, être à l'écoute...<br><br><b>Précisions</b><br>Avec plus de 100 personnes accueillies chaque matin, notre accueil de jour pour les personnes à la rue a besoin de bénévoles! Nous recherchons des bénévoles pour assurer la gestion quotidienne de l'accueil et notamment le service des petits déjeuners (sur place ou en maraude dans la rue) . Nous recherchons des bénévoles ayant envie d'aller à la rencontre des personnes, de créer du lien, de discuter, de boire un café...",
+        "description": "Présentation de la mission\nServir des petits déjeuners pour les personnes à la rue à Avignon, créer du\nlien, discuter, être à l'écoute...\n\nPrécisions\nAvec plus de 100 personnes accueillies chaque matin, notre accueil de jour pour\nles personnes à la rue a besoin de bénévoles! Nous recherchons des bénévoles\npour assurer la gestion quotidienne de l'accueil et notamment le service des\npetits déjeuners (sur place ou en maraude dans la rue) . Nous recherchons des\nbénévoles ayant envie d'aller à la rencontre des personnes, de créer du lien, de\ndiscuter, de boire un café...",
+        "applicationUrl": "http://localhost:4000/r/61f12a5a51d4c407ac023ddf/c4a9ce23692082d70af2b16d",
+        "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12165/solidarite-et-insertion-1.webp?v=1737022221",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 2
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "62283732285e0d07a06a1c2b",
+        "title": "Je bricole ou je jardine pour des personnes  en situation de handicap",
+        "remote": "no",
+        "schedule": "1 heure par mois",
+        "domain": "solidarite-insertion",
+        "domainOriginal": null,
+        "organizationName": "Le Grain de Blé",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "media": {
+          "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12166/dRHWvAk9ViLSUPbMRWEttmsNvituig.jpg?v=1753367089",
+          "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12166/dRHWvAk9ViLSUPbMRWEttmsNvituig.jpg?v=1753367089",
+          "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/10206/z9tnuFW0rK8Fjhq9ZqTqPfA2Xl8Ggt.png?v=1737382245",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+        },
+        "location": {
+          "city": "Le Mans",
+          "closestLat": 48.0041,
+          "closestLon": 0.196806,
+          "closestAddress": "5 Cours Saint Damien 72000 Le Mans, 72000 Le Mans, FR",
+          "addressId": "f65c6970-a7d2-4751-8920-30adde66ae1b",
+          "distanceKm": 403.01466038000916
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/62283732285e0d07a06a1c2b/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "d8344971-03e2-42ae-a3f2-fe22cbf2ec30",
+        "totalScore": 0.3,
+        "taxonomyScore": 0.6,
+        "geoScore": 0.000001,
+        "taxonomyScores": {
+          "engagement_intent": 1,
+          "tranche_age": 1,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Nous recherchons des bénévoles aimant jardiner et/ou bricoler pour nous aider ponctuellement au sein de la Maison Saint Damien, qui accueille des adultes en situation de handicap mental ou moteur / Ce temps de service est aussi un moment d'échange convivial avec les résidents et les professionnels qui les accompagnent",
+              "reasoning": "La mission cible explicitement l'accompagnement de personnes en situation de handicap, ce qui relève du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "gestion_projet",
+            "taxonomyValueLabel": "Gestion de projet",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Bricolage : petites réparations, montage de meubles, installation de décorations, peinture, entretien de vélos… / Jardinage : entretien de parterres et jardinières de fleurs, taille, mini jardin potager avec les résidents…",
+              "reasoning": "Les tâches décrites sont des actions concrètes et manuelles (bricolage, jardinage) réalisées avec les résidents."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Nous recherchons des bénévoles aimant jardiner et/ou bricoler pour nous aider ponctuellement au sein de la Maison Saint Damien, qui accueille des adultes en situation de handicap mental ou moteur / Ce temps de service est aussi un moment d'échange convivial avec les résidents et les professionnels qui les accompagnent",
+              "reasoning": "La mission implique une interaction directe avec les résidents, notamment via des activités manuelles et des échanges conviviaux."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Jardinage : entretien de parterres et jardinières de fleurs, taille, mini jardin potager avec les résidents…",
+              "reasoning": "La mission inclut explicitement l'animation d'activités collectives avec les résidents."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "action_terrain",
+            "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Bricolage : petites réparations, montage de meubles, installation de décorations, peinture, entretien de vélos… / Jardinage : entretien de parterres et jardinières de fleurs, taille, mini jardin potager avec les résidents…",
+              "reasoning": "Les tâches décrites relèvent d'actions concrètes sur le terrain (réparations, entretien, jardinage) réalisées avec les résidents."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "production_construction_qualite_logistique",
+            "taxonomyValueLabel": "Production, construction, qualité, logistique",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Bricolage : petites réparations, montage de meubles, installation de décorations, peinture, entretien de vélos… / Jardinage : entretien de parterres et jardinières de fleurs, taille, mini jardin potager avec les résidents…",
+              "reasoning": "Les tâches principales impliquent des compétences manuelles et techniques (bricolage, jardinage)."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Ce temps de service est aussi un moment d'échange convivial avec les résidents et les professionnels qui les accompagnent",
+              "reasoning": "La mission inclut une dimension d'accompagnement social et d'échange humain avec les résidents."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Nous recherchons des bénévoles aimant jardiner et/ou bricoler pour nous aider ponctuellement au sein de la Maison Saint Damien, qui accueille des adultes en situation de handicap mental ou moteur",
+              "reasoning": "La mission s'inscrit dans le secteur de l'aide à la personne, notamment pour des publics en situation de handicap."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "ponctuelle",
+            "taxonomyValueLabel": "Mission ponctuelle",
+            "enrichmentConfidence": 0.99,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Durée : non précisée — 1 heure par mois",
+              "reasoning": "La mission est explicitement décrite comme ponctuelle, avec une fréquence mensuelle."
+            }
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "benevolat",
+            "taxonomyValueLabel": "Bénévolat",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "62283732285e0d07a06a1c2b",
+        "title": "Je bricole ou je jardine pour des personnes  en situation de handicap",
+        "domain": "solidarite-insertion",
+        "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12166/dRHWvAk9ViLSUPbMRWEttmsNvituig.jpg?v=1753367089",
+        "type": "benevolat",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png",
+        "organizationName": "Le Grain de Blé",
+        "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/10206/z9tnuFW0rK8Fjhq9ZqTqPfA2Xl8Ggt.png?v=1737382245",
+        "location": {
+          "city": "Le Mans",
+          "address": "5 Cours Saint Damien 72000 Le Mans, 72000 Le Mans",
+          "lat": 48.0041,
+          "lon": 0.196806
+        },
+        "startAt": "2022-03-08T09:49:20.000Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "1 heure par mois",
+        "compensation": null,
+        "descriptionHtml": "<b>Présentation de la mission</b><br><p>Nous recherchons des bénévoles aimant jardiner et/ou bricoler pour nous aider ponctuellement au sein de la Maison Saint Damien, qui accueille des adultes en en situation de handicap mental ou moteur.</p><p>Ce temps de service est aussi un moment d'échange convivial avec les résidents et les professionnels qui les accompagnent.</p><br><br><b>Sautez le pas</b><br><p>Venez vous rendre utile tout en partageant un temps de vie dans notre maison !</p><br><br><b>Précisions</b><br><p>Selon vos compétences, envies et disponibilité* :</p><ul><li>Bricolage : petites réparations, montage de meubles, installation de décorations, peinture, entretien de vélos…</li><li>Jardinage : entretien de parterres et jardinières de fleurs, taille, mini jardin potager avec les résidents…</li></ul><p>*Rythme et temps de présence à définir ensemble.</p>",
+        "description": "Présentation de la mission\n\n\nNous recherchons des bénévoles aimant jardiner et/ou bricoler pour nous aider\nponctuellement au sein de la Maison Saint Damien, qui accueille des adultes en\nen situation de handicap mental ou moteur.\n\nCe temps de service est aussi un moment d'échange convivial avec les résidents\net les professionnels qui les accompagnent.\n\n\n\nSautez le pas\n\n\nVenez vous rendre utile tout en partageant un temps de vie dans notre maison !\n\n\n\nPrécisions\n\n\nSelon vos compétences, envies et disponibilité* :\n\n • Bricolage : petites réparations, montage de meubles, installation de\n   décorations, peinture, entretien de vélos…\n • Jardinage : entretien de parterres et jardinières de fleurs, taille, mini\n   jardin potager avec les résidents…\n\n*Rythme et temps de présence à définir ensemble.",
+        "applicationUrl": "http://localhost:4000/r/62283732285e0d07a06a1c2b/c4a9ce23692082d70af2b16d",
+        "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12166/dRHWvAk9ViLSUPbMRWEttmsNvituig.jpg?v=1753367089",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "00007e3e-6bdd-4188-a18d-e6365411b0b5",
+        "title": "J'accompagne vers l’emploi une personne réfugiée 1️⃣1️⃣ Atelier 👉Préparer mes entretiens 🏋️‍♂️ le 24 juin 2026",
+        "remote": "no",
+        "schedule": "Une demi-journée",
+        "domain": "solidarite-insertion",
+        "domainOriginal": null,
+        "organizationName": "Kodiko",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "media": {
+          "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/59911/HgZhpM3vkTFWFZrNWyfzSJDqppUVzB.jpg?v=1737022229",
+          "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/59911/HgZhpM3vkTFWFZrNWyfzSJDqppUVzB.jpg?v=1737022229",
+          "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/128650/VDJGEQCSMDQxxu6LothDtEVLAVmCAJ.png?v=1762784872",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+        },
+        "location": {
+          "city": "Paris",
+          "closestLat": 48.871126,
+          "closestLon": 2.393389,
+          "closestAddress": "Rue de l'Est, 75020 Paris, FR",
+          "addressId": "11ff6eda-09a2-4967-b35e-f9b8b702d61b",
+          "distanceKm": 474.7989081567814
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/00007e3e-6bdd-4188-a18d-e6365411b0b5/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "b97397ff-bf06-4f01-b6a9-cb2ca542d837",
+        "totalScore": 0.297,
+        "taxonomyScore": 0.594,
+        "geoScore": 0,
+        "taxonomyScores": {
+          "engagement_intent": 0.97,
+          "tranche_age": 1,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Un atelier d’accompagnement vers l’emploi centré sur la préparation des entretiens de recrutement / accompagnement vers l’emploi / transmettre aux personnes réfugiées les codes socio-professionnels français",
+              "reasoning": "La mission est clairement centrée sur l'accompagnement social et l'insertion professionnelle de personnes réfugiées, ce qui relève du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Préparer mes entretiens / ateliers d’accompagnement vers l’emploi / parties théoriques avec une présentation des bonnes pratiques / pédagogie participative, actionnelle et interactive",
+              "reasoning": "La mission inclut explicitement la transmission de savoirs et de compétences pour préparer des entretiens, ce qui relève de l'éducation et transmission."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "accompagnement vers l’emploi / mentorat parrainage / personnes réfugiées",
+              "reasoning": "La mission s'inscrit dans le secteur de l'aide à la personne et de l'accompagnement social."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "ateliers d’accompagnement vers l’emploi / pédagogie participative, actionnelle et interactive / parties théoriques avec une présentation des bonnes pratiques",
+              "reasoning": "La mission inclut des activités d'animation et de formation, ce qui relève du secteur éducation, formation et animation."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "ponctuelle",
+            "taxonomyValueLabel": "Mission ponctuelle",
+            "enrichmentConfidence": 0.99,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Une demi-journée / Le mardi 24/06 ⏱️de 14h à 17h",
+              "reasoning": "La mission est explicitement décrite comme une action ponctuelle sur une demi-journée."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Vous serez le binôme d’une personne réfugiée / aider une personne réfugiée / accompagnement vers l’emploi",
+              "reasoning": "La mission implique un accompagnement humain et social direct avec des personnes réfugiées."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Alternance de temps théoriques (collectif) et pratiques (en binômes) / pédagogie participative / travail en binôme avec un participant réfugié",
+              "reasoning": "La mission nécessite une forte coopération et des compétences relationnelles pour travailler en binôme et animer des ateliers."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Préparer mes entretiens / ateliers d’accompagnement vers l’emploi / transmission des codes socio-professionnels / pédagogie participative",
+              "reasoning": "La mission est centrée sur la transmission de savoirs et de compétences pour préparer des entretiens, ce qui relève de l'intention de transmission."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Vous serez le binôme d’une personne réfugiée / aider une personne réfugiée / accompagnement vers l’emploi",
+              "reasoning": "La mission implique une interaction directe et un accompagnement individuel avec une personne réfugiée."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Atelier animé par l’équipe Kodiko / parties théoriques avec une présentation des bonnes pratiques / pédagogie participative",
+              "reasoning": "La mission inclut l'animation d'un atelier collectif avec des temps théoriques et pratiques."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "transmettre aux personnes réfugiées les codes socio-professionnels français / intégration professionnelle / codes pour mieux vivre ensemble",
+              "reasoning": "La mission vise à transmettre des codes socio-professionnels et culturels, ce qui relève des enjeux de société et de politique d'intégration."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "social_sante_sport",
+            "taxonomyValueLabel": "Social, santé et sport",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "accompagnement vers l’emploi / mentorat parrainage / personnes réfugiées",
+              "reasoning": "La mission s'inscrit dans un contexte d'accompagnement social et d'insertion, ce qui peut relever du domaine social, santé et sport."
+            }
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "benevolat",
+            "taxonomyValueLabel": "Bénévolat",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "00007e3e-6bdd-4188-a18d-e6365411b0b5",
+        "title": "J'accompagne vers l’emploi une personne réfugiée 1️⃣1️⃣ Atelier 👉Préparer mes entretiens 🏋️‍♂️ le 24 juin 2026",
+        "domain": "solidarite-insertion",
+        "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/59911/HgZhpM3vkTFWFZrNWyfzSJDqppUVzB.jpg?v=1737022229",
+        "type": "benevolat",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png",
+        "organizationName": "Kodiko",
+        "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/128650/VDJGEQCSMDQxxu6LothDtEVLAVmCAJ.png?v=1762784872",
+        "location": {
+          "city": "Paris",
+          "address": "Rue de l'Est, 75020 Paris",
+          "lat": 48.871126,
+          "lon": 2.393389
+        },
+        "startAt": "2026-06-24T00:00:00.000Z",
+        "endAt": "2026-06-24T00:00:00.000Z",
+        "duration": 0,
+        "schedule": "Une demi-journée",
+        "compensation": null,
+        "descriptionHtml": "<b>Présentation de la mission</b><br><p><strong>QUOI ?</strong></p><p>💼 Un atelier d’accompagnement vers l’emploi centré sur la préparation des entretiens de recrutement et notamment la préparation des questions</p><p>🥷 Atelier animé par l’équipe Kodiko</p><p><strong>QUI ?</strong></p><p>🤵 Personnes réfugiées engagées dans le programme de mentorat Kodiko (cf. détails ci-dessous)</p><p>👯 Vous serez le binôme d’une personne réfugiée</p><p>♦️ Pas besoin d’expertise ou de préparation</p><p><strong>COMMENT ?</strong></p><p><strong>↔️</strong> Alternance de temps théoriques (collectif) et pratiques (en binômes).</p><p>🙋‍♂️Pédagogie participative, actionnelle et interactive</p><p>💻 Nos participants sont équipés d’ordinateurs</p><p>📹 Une mini-formation en visio avant l’atelier vous permettra de bien saisir tous les aspects de votre mission</p><p><strong>QUAND ?</strong></p><p>📆 Le mardi 24/06 ⏱️de 14h à 17h</p><p><strong>OU ?</strong></p><p>📍 Chez Kodiko, 24 rue de l’est 75020 Paris</p><p>🚇 Jourdain (11) ou Gambetta (3)</p><p>🚌 Pyrénées Ménilmontant</p><p>🏬 Rooftop pour le café ☕ d’accueil</p><p><strong>Le programme Kodiko</strong></p><p>🔑 En grec, Kodiko signifie codes. Le programme Kodiko s’est construit autour de la nécessité de transmettre aux personnes réfugiées les codes socio-professionnels français pour les accompagner vers l’emploi, vers un emploi choisi.</p><p>👩‍💼 Le coeur du programme Kodiko est le mentorat. Chacun de nos 120 participants est matché avec un mentor salarié dans une des entreprises partenaires de l’association. Ce mentor est leur référent dans leur accompagnement professionnel durant les 6 mois du programme.</p><p>👯 En plus, de cet accompagnement individuel, Kodiko propose un parcours collectif à la carte autour d’ateliers d’accompagnement vers l’emploi, de sorties pédagogiques, de cours de français et d’événements de réseaux.</p><p>🗺️ Le parcours comporte 14 ateliers divisés en 4 blocs.</p><p>🧑‍🏫 Les ateliers sont organisés et animés par Kodiko. Ils concernent entre 8-10 participants accompagnés par 8-10 bénévoles (soit une vingtaine de personnes). Vous n’avez pas besoin d’expertise ou de préparation. Ils alternent:</p><ul><li data-list-item-id=\"efcf51ec683a135bebd76b0a90f813aaf\">parties théoriques avec une présentation des bonnes pratiques liées à la thématique de l’atelier</li><li data-list-item-id=\"ef2c9dc05488de13e42e0e99589766e04\">parties pratiques de mise en application en binômes</li></ul><p>🤝 Vous intervenez comme binôme d’un participant réfugié pour l’aider à mettre en pratique et à adapter les bonnes pratiques à sa situation personnelle.</p><p>💻 Une mini formation en visio de 30-45 minutes vous sera proposée le lundi de la semaine de votre atelier. Elle vous permettra de poser vos questions, d’aborder l’atelier au travers de cas pratiques et de partager l’expérience de bénévoles habitués.</p><br><br><b>Précisions</b><br><p>Vous êtes motivé-e et avez envie d'aider une personne réfugiée ? Cette mission est faite pour vous !</p>",
+        "description": "Présentation de la mission\n\n\nQUOI ?\n\n💼 Un atelier d’accompagnement vers l’emploi centré sur la préparation des\nentretiens de recrutement et notamment la préparation des questions\n\n🥷 Atelier animé par l’équipe Kodiko\n\nQUI ?\n\n🤵 Personnes réfugiées engagées dans le programme de mentorat Kodiko (cf.\ndétails ci-dessous)\n\n👯 Vous serez le binôme d’une personne réfugiée\n\n♦️ Pas besoin d’expertise ou de préparation\n\nCOMMENT ?\n\n↔️ Alternance de temps théoriques (collectif) et pratiques (en binômes).\n\n🙋‍♂️Pédagogie participative, actionnelle et interactive\n\n💻 Nos participants sont équipés d’ordinateurs\n\n📹 Une mini-formation en visio avant l’atelier vous permettra de bien saisir\ntous les aspects de votre mission\n\nQUAND ?\n\n📆 Le mardi 24/06 ⏱️de 14h à 17h\n\nOU ?\n\n📍 Chez Kodiko, 24 rue de l’est 75020 Paris\n\n🚇 Jourdain (11) ou Gambetta (3)\n\n🚌 Pyrénées Ménilmontant\n\n🏬 Rooftop pour le café ☕ d’accueil\n\nLe programme Kodiko\n\n🔑 En grec, Kodiko signifie codes. Le programme Kodiko s’est construit autour de\nla nécessité de transmettre aux personnes réfugiées les codes\nsocio-professionnels français pour les accompagner vers l’emploi, vers un emploi\nchoisi.\n\n👩‍💼 Le coeur du programme Kodiko est le mentorat. Chacun de nos 120\nparticipants est matché avec un mentor salarié dans une des entreprises\npartenaires de l’association. Ce mentor est leur référent dans leur\naccompagnement professionnel durant les 6 mois du programme.\n\n👯 En plus, de cet accompagnement individuel, Kodiko propose un parcours\ncollectif à la carte autour d’ateliers d’accompagnement vers l’emploi, de\nsorties pédagogiques, de cours de français et d’événements de réseaux.\n\n🗺️ Le parcours comporte 14 ateliers divisés en 4 blocs.\n\n🧑‍🏫 Les ateliers sont organisés et animés par Kodiko. Ils concernent entre\n8-10 participants accompagnés par 8-10 bénévoles (soit une vingtaine de\npersonnes). Vous n’avez pas besoin d’expertise ou de préparation. Ils alternent:\n\n • parties théoriques avec une présentation des bonnes pratiques liées à la\n   thématique de l’atelier\n • parties pratiques de mise en application en binômes\n\n🤝 Vous intervenez comme binôme d’un participant réfugié pour l’aider à mettre\nen pratique et à adapter les bonnes pratiques à sa situation personnelle.\n\n💻 Une mini formation en visio de 30-45 minutes vous sera proposée le lundi de\nla semaine de votre atelier. Elle vous permettra de poser vos questions,\nd’aborder l’atelier au travers de cas pratiques et de partager l’expérience de\nbénévoles habitués.\n\n\n\nPrécisions\n\n\nVous êtes motivé-e et avez envie d'aider une personne réfugiée ? Cette mission\nest faite pour vous !",
+        "applicationUrl": "http://localhost:4000/r/00007e3e-6bdd-4188-a18d-e6365411b0b5/c4a9ce23692082d70af2b16d",
+        "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/59911/HgZhpM3vkTFWFZrNWyfzSJDqppUVzB.jpg?v=1737022229",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": null,
+        "places": 6
+      },
+      "descriptionMissing": false
+    }
+  ],
+  "deterministic": {
+    "geo": 2,
+    "format": 3,
+    "missionsSansTagFormat": [],
+    "gateViolations": []
+  },
+  "judgeRuns": [
+    {
+      "runIndex": 0,
+      "seed": 1270322266,
+      "order": [
+        "0d479e6a-5780-4d71-bc35-5d71de892b61",
+        "3f294e86-9c83-456d-a251-3e0735118307",
+        "62283732285e0d07a06a1c2b",
+        "00007e3e-6bdd-4188-a18d-e6365411b0b5",
+        "61f12a5a51d4c407ac023ddf"
+      ],
+      "output": {
+        "coherence": {
+          "score": 2,
+          "missionsPertinentes": [
+            4,
+            1
+          ],
+          "justification": "Parmi les 5 missions proposées, seules deux correspondent clairement au profil d'Inès qui souhaite un engagement ponctuel, utile, avec aide directe à des personnes en zone rurale proche de Figeac. La mission 4 (service petit déjeuner aux personnes à la rue) et la mission 1 (engagement auprès des seniors) impliquent un contact direct avec des personnes et un engagement social. Les autres missions sont soit trop éloignées géographiquement (missions 2, 3), soit centrées sur l'accompagnement numérique (mission 0) qui est moins directement une aide humaine en zone rurale.",
+          "missionIdsPertinents": [
+            "00007e3e-6bdd-4188-a18d-e6365411b0b5",
+            "0d479e6a-5780-4d71-bc35-5d71de892b61"
+          ]
+        },
+        "homogeneite": {
+          "score": 4,
+          "familles": [
+            "aide sociale directe",
+            "accompagnement social"
+          ],
+          "justification": "Les deux missions pertinentes appartiennent à la famille de l'aide sociale directe et de l'accompagnement social. Elles sont proches thématiquement, mais il y a deux familles distinctes (aide aux personnes âgées et aide aux personnes sans-abri). Les autres missions sont très différentes (numérique, bricolage, accompagnement emploi réfugiés)."
+        },
+        "cause": "offre"
+      }
+    },
+    {
+      "runIndex": 1,
+      "seed": 1287099885,
+      "order": [
+        "00007e3e-6bdd-4188-a18d-e6365411b0b5",
+        "62283732285e0d07a06a1c2b",
+        "61f12a5a51d4c407ac023ddf",
+        "0d479e6a-5780-4d71-bc35-5d71de892b61",
+        "3f294e86-9c83-456d-a251-3e0735118307"
+      ],
+      "output": {
+        "coherence": {
+          "score": 3,
+          "missionsPertinentes": [
+            1,
+            2,
+            3
+          ],
+          "justification": "Parmi les 5 missions proposées, 3 sont pertinentes pour Inès qui souhaite aider directement des personnes en zone rurale autour de Figeac. La mission 3 est à Figeac même et implique un accompagnement direct des usagers, ce qui correspond bien. La mission 2, bien que située à Avignon (233 km), propose un contact direct avec des personnes en difficulté, ce qui correspond à son souhait d'aide directe. La mission 1, même si située au Mans (403 km), propose un engagement direct auprès de personnes en situation de handicap, ce qui est pertinent. Les missions 0 et 4 sont trop éloignées ou concernent des publics moins en lien avec la demande précise d'Inès.",
+          "missionIdsPertinents": [
+            "00007e3e-6bdd-4188-a18d-e6365411b0b5",
+            "62283732285e0d07a06a1c2b",
+            "61f12a5a51d4c407ac023ddf"
+          ]
+        },
+        "homogeneite": {
+          "score": 3,
+          "familles": [
+            "aide sociale et insertion",
+            "accompagnement numérique",
+            "aide aux personnes handicapées"
+          ],
+          "justification": "Les missions pertinentes couvrent trois familles différentes : aide aux personnes en situation de handicap (mission 1), aide aux personnes sans domicile (mission 2), et accompagnement numérique pour l'emploi (mission 3). Il n'y a pas de famille majoritaire, ce qui donne une homogénéité moyenne."
+        },
+        "cause": "offre"
+      }
+    }
+  ],
+  "engineVersion": "m2",
+  "startedAt": "2026-07-07T12:01:41.405Z",
+  "finishedAt": "2026-07-07T12:01:54.320Z",
+  "verdict": 2.5500000000000003,
+  "cleanup": {
+    "userScoringDeleted": true
+  }
+}

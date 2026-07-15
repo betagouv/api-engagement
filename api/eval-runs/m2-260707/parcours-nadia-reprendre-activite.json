@@ -1,0 +1,2282 @@
+{
+  "status": "success",
+  "parcours": {
+    "id": "nadia-reprendre-activite",
+    "segment": "demandeur_emploi",
+    "label": "Nadia, 24 ans, demandeuse d'emploi à Rouen, veut reprendre une activité dans le bâtiment, l'industrie ou la logistique",
+    "locationLabel": "Rouen (76)",
+    "age": 24,
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 24,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "statut",
+        "value": "demandeur_emploi"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 49.443232,
+          "lon": 1.099971,
+          "country_code": "fr",
+          "label": "Rouen (76)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "reguliere"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "reprendre_activite"
+      },
+      {
+        "taxonomy": "secteur_activite",
+        "value": "batiment_industrie_logistique"
+      }
+    ]
+  },
+  "payload": {
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 24,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "statut",
+        "value": "demandeur_emploi"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 49.443232,
+          "lon": 1.099971,
+          "country_code": "fr",
+          "label": "Rouen (76)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "reguliere"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "reprendre_activite"
+      },
+      {
+        "taxonomy": "secteur_activite",
+        "value": "batiment_industrie_logistique"
+      }
+    ],
+    "distinctId": "eval:m2-260707:nadia-reprendre-activite",
+    "missionAlertEnabled": false
+  },
+  "userScoringId": "855fba51-4c57-46d2-bc87-c37de4d9f703",
+  "match": {
+    "tookMs": 7797,
+    "engineVersion": "m2",
+    "items": [
+      {
+        "mission": {
+          "id": "6194def9a99ff4075b5edc34",
+          "title": "Logistique et transport de matériel événements",
+          "remote": "no",
+          "schedule": "",
+          "domain": "culture-loisirs",
+          "domainOriginal": null,
+          "organizationName": "Accordise",
+          "publisherId": "5f592d415655a711feb4460e",
+          "publisherName": "Benevolt",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_03.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_03.jpeg",
+            "organizationLogo": null,
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo"
+          },
+          "location": {
+            "city": "Rouen",
+            "closestLat": 49.4307,
+            "closestLon": 1.0876,
+            "closestAddress": "20 bis Rue Pavée, 76100 Rouen, FR",
+            "addressId": "69efe90c-b82c-4eef-95b2-4a1c5436b8f5",
+            "distanceKm": 1.6558999522909346
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/6194def9a99ff4075b5edc34/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "f98a18f2-a613-4146-8540-c6c5e00f03f5",
+          "totalScore": 0.772113,
+          "taxonomyScore": 0.6,
+          "geoScore": 0.944227,
+          "taxonomyScores": {
+            "secteur_activite": 1,
+            "tranche_age": 1,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "gestion_projet",
+              "taxonomyValueLabel": "Gestion de projet",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "missions de logistique, manutention de matériel plutôt de poids moyen, lors de ses évènements artistiques variés",
+                "reasoning": "Les tâches principales sont explicitement axées sur la logistique et la manutention dans le cadre d'événements artistiques."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "batiment_industrie_logistique",
+              "taxonomyValueLabel": "Bâtiment, industrie et logistique",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "missions de logistique, manutention de matériel plutôt de poids moyen",
+                "reasoning": "La mission relève clairement du secteur de la logistique et de la manutention, typique du bâtiment, de l'industrie ou de la logistique."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Fréquence : Maximum 10 fois par an / Durée : demie journée ou journée",
+                "reasoning": "La mission s'étend sur plusieurs événements dans l'année avec une durée de demie journée ou journée, ce qui correspond à une mission régulière."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "production_construction_qualite_logistique",
+              "taxonomyValueLabel": "Production, construction, qualité, logistique",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "missions de logistique, manutention de matériel plutôt de poids moyen / des travaux manuels, de la manutention",
+                "reasoning": "Les tâches décrites impliquent directement la logistique, la manutention et des travaux manuels, relevant de la production, construction, qualité et logistique."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "renforcer son équipe de bénévoles / compléter notre dynamique et sympathique équipe de bénévoles",
+                "reasoning": "La mission implique un travail en équipe et une intégration dans une dynamique collective, relevant des soft skills et de l'organisation."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "action_terrain",
+              "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "missions de logistique, manutention de matériel plutôt de poids moyen / préparation d'événements, des travaux manuels, de la manutention",
+                "reasoning": "Les tâches décrites sont des actions concrètes sur le terrain, notamment la logistique et la manutention."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "missions de logistique, manutention de matériel plutôt de poids moyen, lors de ses évènements artistiques variés / préparation d'événements",
+                "reasoning": "La mission consiste à soutenir l'organisation d'événements artistiques via des tâches logistiques et de préparation."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "technique_industrie_construction",
+              "taxonomyValueLabel": "Technique, industrie et construction",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "missions de logistique, manutention de matériel plutôt de poids moyen / des travaux manuels",
+                "reasoning": "Les tâches décrites relèvent de compétences techniques et manuelles, typiques de l'industrie et de la construction."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "62b0b752d559470714fc2c5a",
+          "title": "Je deviens réparateur au sein d'un Repair Café",
+          "remote": "no",
+          "schedule": "",
+          "domain": "vivre-ensemble",
+          "domainOriginal": null,
+          "organizationName": "I.d.hauts",
+          "publisherId": "5f592d415655a711feb4460e",
+          "publisherName": "Benevolt",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/generique.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/generique.jpeg",
+            "organizationLogo": null,
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo"
+          },
+          "location": {
+            "city": "Rouen",
+            "closestLat": 49.4482,
+            "closestLon": 1.1386,
+            "closestAddress": "Rue François Couperin, 76000 Rouen, FR",
+            "addressId": "99d833bd-790d-4844-828d-10a00c1b5ad2",
+            "distanceKm": 2.846810911096282
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/62b0b752d559470714fc2c5a/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "6c107d16-7211-407e-a84c-25ac2ed7c303",
+          "totalScore": 0.745024,
+          "taxonomyScore": 0.584,
+          "geoScore": 0.906048,
+          "taxonomyScores": {
+            "secteur_activite": 0.92,
+            "tranche_age": 1,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "gestion_projet",
+              "taxonomyValueLabel": "Gestion de projet",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Notre association souhaite créer un Repair Café sur les Hauts de Rouen / Nous recherchons des réparateurs bénévoles pour un atelier samedi par mois",
+                "reasoning": "La mission implique principalement l'organisation et la coordination d'un atelier régulier, ce qui relève de la gestion de projet."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "environnement_nature",
+              "taxonomyValueLabel": "Environnement et nature",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Réparer ensemble, c’est l’idée des Repair Cafés. Outils et matériel sont disponibles à l’endroit où est organisé le Repair Café, pour faire toutes les réparations possibles et imaginables. Vêtements, meubles, appareils électriques, bicyclettes, vaisselle, objets utiles, jouets, et autres.",
+                "reasoning": "La mission est centrée sur la réparation d'objets, ce qui s'inscrit dans une démarche de réduction des déchets et de durabilité environnementale."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "batiment_industrie_logistique",
+              "taxonomyValueLabel": "Bâtiment, industrie et logistique",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Si vous avez des compétences dans l'informatique, l'électronique, la couture, la mécanique, la réparation des vélos",
+                "reasoning": "Les compétences mentionnées relèvent principalement du secteur technique et industriel."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "gestion_commerce_organisation",
+              "taxonomyValueLabel": "Gestion, commerce et organisation",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Notre association souhaite créer un Repair Café sur les Hauts de Rouen / Nous recherchons des réparateurs bénévoles pour un atelier samedi par mois",
+                "reasoning": "La mission implique l'organisation et la coordination d'un atelier régulier, ce qui relève de la gestion et de l'organisation."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Fréquence : 1 samedi par mois de 10h à 16h / Durée : année scolaire",
+                "reasoning": "La mission est répétée à intervalles réguliers sur une durée d'au moins 2 semaines."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "production_construction_qualite_logistique",
+              "taxonomyValueLabel": "Production, construction, qualité, logistique",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Si vous avez des compétences dans l'informatique, l'électronique, la couture, la mécanique, la réparation des vélos",
+                "reasoning": "Les compétences décrites relèvent de la réparation et de la production manuelle ou technique."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Réparer ensemble, c’est l’idée des Repair Cafés / Outils et matériel sont disponibles à l’endroit où est organisé le Repair Café",
+                "reasoning": "La mission implique un travail collaboratif et l'organisation d'un espace partagé pour la réparation."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "action_terrain",
+              "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Réparer ensemble, c’est l’idée des Repair Cafés / Outils et matériel sont disponibles à l’endroit où est organisé le Repair Café",
+                "reasoning": "La mission consiste en une action concrète de réparation sur le terrain."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Notre association souhaite créer un Repair Café sur les Hauts de Rouen / Nous recherchons des réparateurs bénévoles pour un atelier samedi par mois",
+                "reasoning": "La mission implique l'organisation et la coordination d'un atelier régulier, ce qui relève du soutien organisationnel."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "technique_industrie_construction",
+              "taxonomyValueLabel": "Technique, industrie et construction",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Si vous avez des compétences dans l'informatique, l'électronique, la couture, la mécanique, la réparation des vélos",
+                "reasoning": "Les compétences mentionnées relèvent principalement des domaines techniques et industriels."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "environnement_nature_sciences",
+              "taxonomyValueLabel": "Environnement, nature et sciences",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Réparer ensemble, c’est l’idée des Repair Cafés / Outils et matériel sont disponibles à l’endroit où est organisé le Repair Café",
+                "reasoning": "La mission s'inscrit dans une démarche de durabilité environnementale et de réduction des déchets, avec une dimension scientifique ou technique sous-jacente."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "65bcd2a3465156f505e9b0d6",
+          "title": "J'accompagne la transition écologique des entrepreneurs",
+          "remote": "no",
+          "schedule": "",
+          "domain": "emploi",
+          "domainOriginal": null,
+          "organizationName": "Adie Grand Ouest",
+          "publisherId": "619fb52a7d373e07aea8be35",
+          "publisherName": "Adie",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/emploi_02.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/emploi_02.jpeg",
+            "organizationLogo": null,
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/619fb52a7d373e07aea8be35/logo"
+          },
+          "location": {
+            "city": "Rouen",
+            "closestLat": 49.443347,
+            "closestLon": 1.099288,
+            "closestAddress": "76000 Rouen, FR",
+            "addressId": "16e14b2b-6fcf-47e7-99ce-47d6b4070e6e",
+            "distanceKm": 0.05100904486206132
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/65bcd2a3465156f505e9b0d6/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "9c39e494-8d43-4085-9d5b-890984c70776",
+          "totalScore": 0.699117,
+          "taxonomyScore": 0.4,
+          "geoScore": 0.998234,
+          "taxonomyScores": {
+            "tranche_age": 1,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "environnement_nature",
+              "taxonomyValueLabel": "Environnement et nature",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "accompagnez de manière individuelle nos clients et nos équipes de salariés et bénévoles sur les enjeux liés à la transition écologique",
+                "reasoning": "La mission est explicitement centrée sur l'accompagnement individuel lié à la transition écologique."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "accompagnez de manière individuelle nos clients et nos équipes de salariés et bénévoles sur les enjeux liés à la transition écologique",
+                "reasoning": "L'accompagnement individuel et la transmission de savoirs sur un sujet écologique justifient cette classification."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "accompagnez de manière individuelle nos clients et nos équipes de salariés et bénévoles sur les enjeux liés à la transition écologique",
+                "reasoning": "L'accompagnement direct et personnalisé des clients et équipes relève de l'aide directe."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "En coordination avec le salarié référent, vous accompagnez de manière individuelle nos clients et nos équipes de salariés et bénévoles",
+                "reasoning": "La mission implique une coordination et un soutien organisationnel, bien que l'activité principale soit l'accompagnement."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "action_terrain",
+              "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Vous avez envie de vous impliquer sur un sujet en lien avec la transition écologique, ? Vous aimez aider les autres, et cherchez une mission engageante, sur le terrain, au contact des publics cibles de l'Adie ?",
+                "reasoning": "La mission est décrite comme une action sur le terrain, au contact direct des publics cibles."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Vous adorerez cette mission ! / Chez nous la solidarité et la convivialité sont de mise",
+                "reasoning": "La mission met en avant des valeurs de solidarité et de convivialité, typiques du secteur social."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "L'Adie est une grande association française qui défend l’idée que chacun, même sans capital, même sans diplôme, peut devenir entrepreneur, s'il a accès au crédit et à un accompagnement personnalisé.",
+                "reasoning": "L'organisation porteuse est une association dont l'objet social est lié à l'accompagnement des entrepreneurs, ce qui relève du secteur social et de l'aide à la personne."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "gestion_pilotage_juridique",
+              "taxonomyValueLabel": "Gestion, pilotage, juridique",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "En coordination avec le salarié référent, vous accompagnez de manière individuelle nos clients et nos équipes de salariés et bénévoles",
+                "reasoning": "La mission implique une coordination et un pilotage, bien que l'activité principale soit l'accompagnement."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Vous avez envie de vous impliquer sur un sujet en lien avec la transition écologique / accompagnez de manière individuelle nos clients et nos équipes",
+                "reasoning": "La mission combine des compétences sociales (aide aux autres) et une dimension écologique, mais l'accompagnement direct domine."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Fréquence : Quelques heures par semaine / Durée : engagement pour 6 mois à 2 ans",
+                "reasoning": "La mission s'étend sur plusieurs mois avec une fréquence hebdomadaire explicite."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "68bead10f7b3b996db36ca7e",
+          "title": "Je veux encadrer des jeunes filles dans une séance de Football",
+          "remote": "no",
+          "schedule": "",
+          "domain": "sport",
+          "domainOriginal": null,
+          "organizationName": "Graines de Footballeuses",
+          "publisherId": "5f592d415655a711feb4460e",
+          "publisherName": "Benevolt",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sport_03.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sport_03.jpeg",
+            "organizationLogo": null,
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo"
+          },
+          "location": {
+            "city": "Rouen",
+            "closestLat": 49.443347,
+            "closestLon": 1.099288,
+            "closestAddress": "76000 Rouen, FR",
+            "addressId": "55659cb8-f937-4791-a61a-8ace1be277e2",
+            "distanceKm": 0.05100904486206132
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/68bead10f7b3b996db36ca7e/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "a10c5c43-ac95-45fa-8a38-73f9d1393214",
+          "totalScore": 0.699117,
+          "taxonomyScore": 0.4,
+          "geoScore": 0.998234,
+          "taxonomyScores": {
+            "tranche_age": 1,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "sport_animation",
+              "taxonomyValueLabel": "Sport et animation sportive",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "encadrer des jeunes filles (3 à 6 ans) dans des séances de foot / Les séances sont mises en place tout les samedi de 16h à 17h",
+                "reasoning": "La mission consiste explicitement à encadrer des séances de football pour des jeunes filles, ce qui relève du domaine sport et animation."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "encadrer des jeunes filles (3 à 6 ans) dans des séances de foot / Animation Graines de Footballeuses",
+                "reasoning": "La mission implique l'animation et l'encadrement éducatif de jeunes enfants dans un cadre sportif."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.99,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Les séances sont mises en place tout les samedi de 16h à 17h / Durée : Selon vos disponibilités, pendant un an",
+                "reasoning": "La mission se déroule chaque semaine sur une période longue (au moins 2 semaines), avec une fréquence régulière."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "encadrer des jeunes filles / travailler en équipe de 3-4 bénévoles / accompagnement lors de ses premières missions",
+                "reasoning": "La mission implique le travail en équipe, l'animation de groupe et l'accompagnement des jeunes, ce qui relève des soft skills et de la coopération."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "encadrer des jeunes filles (3 à 6 ans) dans des séances de foot / Les séances sont mises en place tout les samedi de 16h à 17h",
+                "reasoning": "La mission consiste à animer des séances de football pour des jeunes filles, ce qui relève clairement de l'animation."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Vous devez être accueillant avec les petites et qu'elles se sentent bien sur le terrain",
+                "reasoning": "La mission implique une interaction directe avec les jeunes filles pour les accompagner et les mettre en confiance."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "social_sante_sport",
+              "taxonomyValueLabel": "Social, santé et sport",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "encadrer des jeunes filles (3 à 6 ans) dans des séances de foot / Graines de Footballeuses utilise la promotion du Football auprès des jeunes filles et des femmes comme un vecteur d'émancipation",
+                "reasoning": "La mission combine sport et accompagnement social, notamment pour l'émancipation des jeunes filles."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "62aae159ca28ca06f349a4e5",
+          "title": "Participer aux actions de notre association !",
+          "remote": "no",
+          "schedule": "",
+          "domain": "humanitaire",
+          "domainOriginal": null,
+          "organizationName": "Action Contre La Faim Seine Maritime",
+          "publisherId": "62432692651de907c463e29b",
+          "publisherName": "Action contre la Faim",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_01.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_01.jpeg",
+            "organizationLogo": null,
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/62432692651de907c463e29b/logo"
+          },
+          "location": {
+            "city": "Rouen",
+            "closestLat": 49.443,
+            "closestLon": 1.09817,
+            "closestAddress": "2 Place du Général de Gaulle, 76000 Rouen, FR",
+            "addressId": "1a0a6968-aa8b-47d9-add8-08ccf651e423",
+            "distanceKm": 0.13274178857843746
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/62aae159ca28ca06f349a4e5/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "ea6d7674-4d1c-4a89-9b39-612228e1e72c",
+          "totalScore": 0.697705,
+          "taxonomyScore": 0.4,
+          "geoScore": 0.99541,
+          "taxonomyScores": {
+            "tranche_age": 1,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "international_humanitaire",
+              "taxonomyValueLabel": "International et humanitaire",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Action contre la faim / lutte contre la faim dans le monde / organisation mène une réponse coordonnée dans près de 50 pays / Sa mission est de sauver des vies en éliminant la faim par la prévention, la détection et le traitement de la sous-nutrition",
+                "reasoning": "La mission est explicitement liée à l'action humanitaire internationale contre la faim."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "gestion_projet",
+              "taxonomyValueLabel": "Gestion de projet",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "vous participez à la mise en place des grandes opérations de sensibilisation et de collecte / Force de proposition, vous construisez chaque année de nouveaux projets en équipe / La mission de la délégation est de promouvoir et soutenir le mandat d’Action contre la Faim en alertant sur les causes et conséquences de la faim dans le monde mais aussi en présentant concrètement les solutions que l'ONG met en place sur le terrain",
+                "reasoning": "Les tâches décrites portent principalement sur la coordination, la proposition et la construction de projets, ce qui relève de la gestion de projet."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "gestion_commerce_organisation",
+              "taxonomyValueLabel": "Gestion, commerce et organisation",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "vous participez à la mise en place des grandes opérations de sensibilisation et de collecte / Force de proposition, vous construisez chaque année de nouveaux projets en équipe / La mission de la délégation est de promouvoir et soutenir le mandat d’Action contre la Faim",
+                "reasoning": "Les activités décrites relèvent de l'organisation, de la coordination et de la promotion, typiques du secteur gestion/commerce/organisation."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Fréquence : Libre (+/- 1h par semaine selon la période) / Durée : Mission régulière, sur le long terme",
+                "reasoning": "La mission est explicitement décrite comme régulière et sur le long terme, avec une fréquence hebdomadaire."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Force de proposition, vous construisez chaque année de nouveaux projets en équipe / les bénévoles sont organisés en groupes locaux, les délégations. Ils agissent ensemble et portent des projets locaux",
+                "reasoning": "La mission met en avant le travail collaboratif, la proposition de projets et l'organisation en équipe."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "relation_client_commerce_strategie",
+              "taxonomyValueLabel": "Relation client, commerce, stratégie",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "promouvoir et soutenir le mandat d’Action contre la Faim en alertant sur les causes et conséquences de la faim dans le monde mais aussi en présentant concrètement les solutions que l'ONG met en place sur le terrain",
+                "reasoning": "La mission inclut des activités de promotion, de sensibilisation et de présentation de solutions, relevant de la relation client/commerce/stratégie."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "vous participez à la mise en place des grandes opérations de sensibilisation et de collecte / Force de proposition, vous construisez chaque année de nouveaux projets en équipe / promouvoir et soutenir le mandat d’Action contre la Faim",
+                "reasoning": "Les tâches principales consistent à soutenir l'organisation via la mise en place d'opérations, la construction de projets et la promotion de l'ONG."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "promouvoir et soutenir le mandat d’Action contre la Faim en alertant sur les causes et conséquences de la faim dans le monde / présenter concrètement les solutions que l'ONG met en place sur le terrain",
+                "reasoning": "La mission relève de la sensibilisation et de la promotion de causes humanitaires, liées à des enjeux de société et de politique internationale."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      }
+    ],
+    "total": 2951,
+    "avgDistanceKmTop5": 0.95
+  },
+  "missions": [
+    {
+      "mission": {
+        "id": "6194def9a99ff4075b5edc34",
+        "title": "Logistique et transport de matériel événements",
+        "remote": "no",
+        "schedule": "",
+        "domain": "culture-loisirs",
+        "domainOriginal": null,
+        "organizationName": "Accordise",
+        "publisherId": "5f592d415655a711feb4460e",
+        "publisherName": "Benevolt",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_03.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_03.jpeg",
+          "organizationLogo": null,
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo"
+        },
+        "location": {
+          "city": "Rouen",
+          "closestLat": 49.4307,
+          "closestLon": 1.0876,
+          "closestAddress": "20 bis Rue Pavée, 76100 Rouen, FR",
+          "addressId": "69efe90c-b82c-4eef-95b2-4a1c5436b8f5",
+          "distanceKm": 1.6558999522909346
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/6194def9a99ff4075b5edc34/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "f98a18f2-a613-4146-8540-c6c5e00f03f5",
+        "totalScore": 0.772113,
+        "taxonomyScore": 0.6,
+        "geoScore": 0.944227,
+        "taxonomyScores": {
+          "secteur_activite": 1,
+          "tranche_age": 1,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "gestion_projet",
+            "taxonomyValueLabel": "Gestion de projet",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "missions de logistique, manutention de matériel plutôt de poids moyen, lors de ses évènements artistiques variés",
+              "reasoning": "Les tâches principales sont explicitement axées sur la logistique et la manutention dans le cadre d'événements artistiques."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "batiment_industrie_logistique",
+            "taxonomyValueLabel": "Bâtiment, industrie et logistique",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "missions de logistique, manutention de matériel plutôt de poids moyen",
+              "reasoning": "La mission relève clairement du secteur de la logistique et de la manutention, typique du bâtiment, de l'industrie ou de la logistique."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Fréquence : Maximum 10 fois par an / Durée : demie journée ou journée",
+              "reasoning": "La mission s'étend sur plusieurs événements dans l'année avec une durée de demie journée ou journée, ce qui correspond à une mission régulière."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "production_construction_qualite_logistique",
+            "taxonomyValueLabel": "Production, construction, qualité, logistique",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "missions de logistique, manutention de matériel plutôt de poids moyen / des travaux manuels, de la manutention",
+              "reasoning": "Les tâches décrites impliquent directement la logistique, la manutention et des travaux manuels, relevant de la production, construction, qualité et logistique."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "renforcer son équipe de bénévoles / compléter notre dynamique et sympathique équipe de bénévoles",
+              "reasoning": "La mission implique un travail en équipe et une intégration dans une dynamique collective, relevant des soft skills et de l'organisation."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "action_terrain",
+            "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "missions de logistique, manutention de matériel plutôt de poids moyen / préparation d'événements, des travaux manuels, de la manutention",
+              "reasoning": "Les tâches décrites sont des actions concrètes sur le terrain, notamment la logistique et la manutention."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "missions de logistique, manutention de matériel plutôt de poids moyen, lors de ses évènements artistiques variés / préparation d'événements",
+              "reasoning": "La mission consiste à soutenir l'organisation d'événements artistiques via des tâches logistiques et de préparation."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "technique_industrie_construction",
+            "taxonomyValueLabel": "Technique, industrie et construction",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "missions de logistique, manutention de matériel plutôt de poids moyen / des travaux manuels",
+              "reasoning": "Les tâches décrites relèvent de compétences techniques et manuelles, typiques de l'industrie et de la construction."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "6194def9a99ff4075b5edc34",
+        "title": "Logistique et transport de matériel événements",
+        "domain": "culture-loisirs",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_03.jpeg",
+        "type": "benevolat",
+        "publisherId": "5f592d415655a711feb4460e",
+        "publisherName": "Benevolt",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo",
+        "organizationName": "Accordise",
+        "organizationLogo": null,
+        "location": {
+          "city": "Rouen",
+          "address": "20 bis Rue Pavée, 76100 Rouen",
+          "lat": 49.4307,
+          "lon": 1.0876
+        },
+        "startAt": "2025-08-25T19:18:09.358Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "",
+        "compensation": null,
+        "descriptionHtml": "   Rouen (76)<br>   Dès que possible<br><br><br>L'association cherche à renforcer son équipe de bénévoles, entre-autres sur des missions de logistique, manutention de matériel plutôt de poids moyen, lors de ses évènements artistiques variés.\nEn visitant le site de l'association, vous pourrez vous rendre compte de l'aide que vous pourriez nous apporter et toutes les propositions seront étudiées.<br><br><p><strong>Informations pratiques</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p><br><br>Fréquence : Maximum 10 fois par an<br>Durée : demie journée ou journée<br><br><p><strong>Informations sur l'association Accordise</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>ACCORDISE; Accompagner, Organiser, Diffuser, Servir la production culturelle et les artistes normands\nAssociation loi de 1901, pour les artistes, les associations culturelles et tous lieux et structures ouverts aux arts<br><p><strong>Formation des bénévoles</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Nous cherchons quelques personnes pour compléter notre dynamique et sympathique équipe de bénévoles.\nNous réalisons des projets artistiques très variés.\nDifférentes activités peuvent vous intéresser comme la préparation d'événements, des  travaux manuels, de la manutention, l'accueil et l'encadrement du public...\nSi vous êtes intéressés nous serions heureuses de faire votre connaissance et de vous présenter l'équipe.\nTrès cordialement, le bureau Marianne et Denise",
+        "description": "Rouen (76)\nDès que possible\n\n\nL'association cherche à renforcer son équipe de bénévoles, entre-autres sur des\nmissions de logistique, manutention de matériel plutôt de poids moyen, lors de\nses évènements artistiques variés.\nEn visitant le site de l'association, vous pourrez vous rendre compte de l'aide\nque vous pourriez nous apporter et toutes les propositions seront étudiées.\n\n\n\nInformations pratiques\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\n\n\nFréquence : Maximum 10 fois par an\nDurée : demie journée ou journée\n\n\n\nInformations sur l'association Accordise\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nACCORDISE; Accompagner, Organiser, Diffuser, Servir la production culturelle et\nles artistes normands\nAssociation loi de 1901, pour les artistes, les associations culturelles et tous\nlieux et structures ouverts aux arts\n\n\nFormation des bénévoles\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nNous cherchons quelques personnes pour compléter notre dynamique et sympathique\néquipe de bénévoles.\nNous réalisons des projets artistiques très variés.\nDifférentes activités peuvent vous intéresser comme la préparation d'événements,\ndes travaux manuels, de la manutention, l'accueil et l'encadrement du public...\nSi vous êtes intéressés nous serions heureuses de faire votre connaissance et de\nvous présenter l'équipe.\nTrès cordialement, le bureau Marianne et Denise",
+        "applicationUrl": "http://localhost:4000/r/6194def9a99ff4075b5edc34/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_03.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "62b0b752d559470714fc2c5a",
+        "title": "Je deviens réparateur au sein d'un Repair Café",
+        "remote": "no",
+        "schedule": "",
+        "domain": "vivre-ensemble",
+        "domainOriginal": null,
+        "organizationName": "I.d.hauts",
+        "publisherId": "5f592d415655a711feb4460e",
+        "publisherName": "Benevolt",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/generique.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/generique.jpeg",
+          "organizationLogo": null,
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo"
+        },
+        "location": {
+          "city": "Rouen",
+          "closestLat": 49.4482,
+          "closestLon": 1.1386,
+          "closestAddress": "Rue François Couperin, 76000 Rouen, FR",
+          "addressId": "99d833bd-790d-4844-828d-10a00c1b5ad2",
+          "distanceKm": 2.846810911096282
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/62b0b752d559470714fc2c5a/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "6c107d16-7211-407e-a84c-25ac2ed7c303",
+        "totalScore": 0.745024,
+        "taxonomyScore": 0.584,
+        "geoScore": 0.906048,
+        "taxonomyScores": {
+          "secteur_activite": 0.92,
+          "tranche_age": 1,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "gestion_projet",
+            "taxonomyValueLabel": "Gestion de projet",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Notre association souhaite créer un Repair Café sur les Hauts de Rouen / Nous recherchons des réparateurs bénévoles pour un atelier samedi par mois",
+              "reasoning": "La mission implique principalement l'organisation et la coordination d'un atelier régulier, ce qui relève de la gestion de projet."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "environnement_nature",
+            "taxonomyValueLabel": "Environnement et nature",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Réparer ensemble, c’est l’idée des Repair Cafés. Outils et matériel sont disponibles à l’endroit où est organisé le Repair Café, pour faire toutes les réparations possibles et imaginables. Vêtements, meubles, appareils électriques, bicyclettes, vaisselle, objets utiles, jouets, et autres.",
+              "reasoning": "La mission est centrée sur la réparation d'objets, ce qui s'inscrit dans une démarche de réduction des déchets et de durabilité environnementale."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "batiment_industrie_logistique",
+            "taxonomyValueLabel": "Bâtiment, industrie et logistique",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Si vous avez des compétences dans l'informatique, l'électronique, la couture, la mécanique, la réparation des vélos",
+              "reasoning": "Les compétences mentionnées relèvent principalement du secteur technique et industriel."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "gestion_commerce_organisation",
+            "taxonomyValueLabel": "Gestion, commerce et organisation",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Notre association souhaite créer un Repair Café sur les Hauts de Rouen / Nous recherchons des réparateurs bénévoles pour un atelier samedi par mois",
+              "reasoning": "La mission implique l'organisation et la coordination d'un atelier régulier, ce qui relève de la gestion et de l'organisation."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Fréquence : 1 samedi par mois de 10h à 16h / Durée : année scolaire",
+              "reasoning": "La mission est répétée à intervalles réguliers sur une durée d'au moins 2 semaines."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "production_construction_qualite_logistique",
+            "taxonomyValueLabel": "Production, construction, qualité, logistique",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Si vous avez des compétences dans l'informatique, l'électronique, la couture, la mécanique, la réparation des vélos",
+              "reasoning": "Les compétences décrites relèvent de la réparation et de la production manuelle ou technique."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Réparer ensemble, c’est l’idée des Repair Cafés / Outils et matériel sont disponibles à l’endroit où est organisé le Repair Café",
+              "reasoning": "La mission implique un travail collaboratif et l'organisation d'un espace partagé pour la réparation."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "action_terrain",
+            "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Réparer ensemble, c’est l’idée des Repair Cafés / Outils et matériel sont disponibles à l’endroit où est organisé le Repair Café",
+              "reasoning": "La mission consiste en une action concrète de réparation sur le terrain."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Notre association souhaite créer un Repair Café sur les Hauts de Rouen / Nous recherchons des réparateurs bénévoles pour un atelier samedi par mois",
+              "reasoning": "La mission implique l'organisation et la coordination d'un atelier régulier, ce qui relève du soutien organisationnel."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "technique_industrie_construction",
+            "taxonomyValueLabel": "Technique, industrie et construction",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Si vous avez des compétences dans l'informatique, l'électronique, la couture, la mécanique, la réparation des vélos",
+              "reasoning": "Les compétences mentionnées relèvent principalement des domaines techniques et industriels."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "environnement_nature_sciences",
+            "taxonomyValueLabel": "Environnement, nature et sciences",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Réparer ensemble, c’est l’idée des Repair Cafés / Outils et matériel sont disponibles à l’endroit où est organisé le Repair Café",
+              "reasoning": "La mission s'inscrit dans une démarche de durabilité environnementale et de réduction des déchets, avec une dimension scientifique ou technique sous-jacente."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "62b0b752d559470714fc2c5a",
+        "title": "Je deviens réparateur au sein d'un Repair Café",
+        "domain": "vivre-ensemble",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/generique.jpeg",
+        "type": "benevolat",
+        "publisherId": "5f592d415655a711feb4460e",
+        "publisherName": "Benevolt",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo",
+        "organizationName": "I.d.hauts",
+        "organizationLogo": null,
+        "location": {
+          "city": "Rouen",
+          "address": "Rue François Couperin, 76000 Rouen",
+          "lat": 49.4482,
+          "lon": 1.1386
+        },
+        "startAt": "2025-08-25T19:16:17.776Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "",
+        "compensation": null,
+        "descriptionHtml": "   Rouen (76)<br>   Dès que possible<br><br><br>Notre association souhaite créer un Repair Café sur les Hauts de Rouen. Pour se faire, nous recherchons des réparateurs bénévoles pour un atelier samedi par mois. Si vous avez des compétences dans l'informatique, l'électronique, la couture, la mécanique, la réparation des vélos et si vous êtes un réparateur dans l'âme, venez nous rejoindre. N'hésitez pas à nous contacter pour plus de renseignements.<br><br><p><strong>Informations pratiques</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>un repair café, c'est quoi : \"Réparer ensemble, c’est l’idée des Repair Cafés. Outils et matériel sont disponibles à l’endroit où est organisé le Repair Café, pour faire toutes les réparations possibles et imaginables. Vêtements, meubles, appareils électriques, bicyclettes, vaisselle, objets utiles, jouets, et autres. D’autre part sont présents dans le Repair Café des experts bénévoles, qui ont une connaissance et une compétence de la réparation dans toutes sortes de domaines\"<br><br>Fréquence : 1 samedi par mois de 10h à 16h<br>Durée : année scolaire<br><br><p><strong>Informations sur l'association I.d.hauts</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Notre association d'habitants œuvre dans un quartier fragilisé. Nous favorisons, par nos animations, le lien social et le vivre ensemble. En parallèle, nous développons des actions solidaires.",
+        "description": "Rouen (76)\nDès que possible\n\n\nNotre association souhaite créer un Repair Café sur les Hauts de Rouen. Pour se\nfaire, nous recherchons des réparateurs bénévoles pour un atelier samedi par\nmois. Si vous avez des compétences dans l'informatique, l'électronique, la\ncouture, la mécanique, la réparation des vélos et si vous êtes un réparateur\ndans l'âme, venez nous rejoindre. N'hésitez pas à nous contacter pour plus de\nrenseignements.\n\n\n\nInformations pratiques\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nun repair café, c'est quoi : \"Réparer ensemble, c’est l’idée des Repair Cafés.\nOutils et matériel sont disponibles à l’endroit où est organisé le Repair Café,\npour faire toutes les réparations possibles et imaginables. Vêtements, meubles,\nappareils électriques, bicyclettes, vaisselle, objets utiles, jouets, et autres.\nD’autre part sont présents dans le Repair Café des experts bénévoles, qui ont\nune connaissance et une compétence de la réparation dans toutes sortes de\ndomaines\"\n\nFréquence : 1 samedi par mois de 10h à 16h\nDurée : année scolaire\n\n\n\nInformations sur l'association I.d.hauts\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nNotre association d'habitants œuvre dans un quartier fragilisé. Nous favorisons,\npar nos animations, le lien social et le vivre ensemble. En parallèle, nous\ndéveloppons des actions solidaires.",
+        "applicationUrl": "http://localhost:4000/r/62b0b752d559470714fc2c5a/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/generique.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "65bcd2a3465156f505e9b0d6",
+        "title": "J'accompagne la transition écologique des entrepreneurs",
+        "remote": "no",
+        "schedule": "",
+        "domain": "emploi",
+        "domainOriginal": null,
+        "organizationName": "Adie Grand Ouest",
+        "publisherId": "619fb52a7d373e07aea8be35",
+        "publisherName": "Adie",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/emploi_02.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/emploi_02.jpeg",
+          "organizationLogo": null,
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/619fb52a7d373e07aea8be35/logo"
+        },
+        "location": {
+          "city": "Rouen",
+          "closestLat": 49.443347,
+          "closestLon": 1.099288,
+          "closestAddress": "76000 Rouen, FR",
+          "addressId": "16e14b2b-6fcf-47e7-99ce-47d6b4070e6e",
+          "distanceKm": 0.05100904486206132
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/65bcd2a3465156f505e9b0d6/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "9c39e494-8d43-4085-9d5b-890984c70776",
+        "totalScore": 0.699117,
+        "taxonomyScore": 0.4,
+        "geoScore": 0.998234,
+        "taxonomyScores": {
+          "tranche_age": 1,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "environnement_nature",
+            "taxonomyValueLabel": "Environnement et nature",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "accompagnez de manière individuelle nos clients et nos équipes de salariés et bénévoles sur les enjeux liés à la transition écologique",
+              "reasoning": "La mission est explicitement centrée sur l'accompagnement individuel lié à la transition écologique."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "accompagnez de manière individuelle nos clients et nos équipes de salariés et bénévoles sur les enjeux liés à la transition écologique",
+              "reasoning": "L'accompagnement individuel et la transmission de savoirs sur un sujet écologique justifient cette classification."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "accompagnez de manière individuelle nos clients et nos équipes de salariés et bénévoles sur les enjeux liés à la transition écologique",
+              "reasoning": "L'accompagnement direct et personnalisé des clients et équipes relève de l'aide directe."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "En coordination avec le salarié référent, vous accompagnez de manière individuelle nos clients et nos équipes de salariés et bénévoles",
+              "reasoning": "La mission implique une coordination et un soutien organisationnel, bien que l'activité principale soit l'accompagnement."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "action_terrain",
+            "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Vous avez envie de vous impliquer sur un sujet en lien avec la transition écologique, ? Vous aimez aider les autres, et cherchez une mission engageante, sur le terrain, au contact des publics cibles de l'Adie ?",
+              "reasoning": "La mission est décrite comme une action sur le terrain, au contact direct des publics cibles."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Vous adorerez cette mission ! / Chez nous la solidarité et la convivialité sont de mise",
+              "reasoning": "La mission met en avant des valeurs de solidarité et de convivialité, typiques du secteur social."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "L'Adie est une grande association française qui défend l’idée que chacun, même sans capital, même sans diplôme, peut devenir entrepreneur, s'il a accès au crédit et à un accompagnement personnalisé.",
+              "reasoning": "L'organisation porteuse est une association dont l'objet social est lié à l'accompagnement des entrepreneurs, ce qui relève du secteur social et de l'aide à la personne."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "gestion_pilotage_juridique",
+            "taxonomyValueLabel": "Gestion, pilotage, juridique",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "En coordination avec le salarié référent, vous accompagnez de manière individuelle nos clients et nos équipes de salariés et bénévoles",
+              "reasoning": "La mission implique une coordination et un pilotage, bien que l'activité principale soit l'accompagnement."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Vous avez envie de vous impliquer sur un sujet en lien avec la transition écologique / accompagnez de manière individuelle nos clients et nos équipes",
+              "reasoning": "La mission combine des compétences sociales (aide aux autres) et une dimension écologique, mais l'accompagnement direct domine."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Fréquence : Quelques heures par semaine / Durée : engagement pour 6 mois à 2 ans",
+              "reasoning": "La mission s'étend sur plusieurs mois avec une fréquence hebdomadaire explicite."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "65bcd2a3465156f505e9b0d6",
+        "title": "J'accompagne la transition écologique des entrepreneurs",
+        "domain": "emploi",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/emploi_02.jpeg",
+        "type": "benevolat",
+        "publisherId": "619fb52a7d373e07aea8be35",
+        "publisherName": "Adie",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/619fb52a7d373e07aea8be35/logo",
+        "organizationName": "Adie Grand Ouest",
+        "organizationLogo": null,
+        "location": {
+          "city": "Rouen",
+          "address": "76000 Rouen",
+          "lat": 49.443347,
+          "lon": 1.099288
+        },
+        "startAt": "2025-08-25T19:34:24.962Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "",
+        "compensation": null,
+        "descriptionHtml": "   Rouen (76)<br>   Dès que possible<br><br><br>Missions : Relai transition Ecologique\n\nL’Adie entend faire en sorte que ses clients ne soient pas victimes mais acteurs de la transition écologique :\nEn coordination avec le salarié référent, vous accompagnez de manière individuelle nos clients et nos équipes\nde salariés et bénévoles sur les enjeux liés à la transition écologique\n\nEnvies et compétences :\n● Vous avez envie de vous impliquer sur un sujet en lien avec la transition écologique, ? Vous aimez\naider les autres, et cherchez une mission engageante, sur le terrain, au contact des publics cibles de\nl’Adie ?\n● Vous adorerez cette mission !\n● Chez nous la solidarité et la convivialité sont de mise, rejoignez-nous !<br><br><p><strong>Informations pratiques</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p><br><br>Fréquence : Quelques heures par semaine<br>Durée : engagement pour 6 mois à 2 ans<br><br><p><strong>Informations sur l'association Adie Grand Ouest</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>L’Adie est une grande association française qui défend l’idée que chacun, même sans capital, même sans diplôme, peut devenir entrepreneur, s'il a accès au crédit et à un accompagnement personnalisé.\nDepuis plus de 30 ans son réseau de spécialistes finance et accompagne les créateurs d’entreprise pour une économie plus solidaire.<br><p><strong>Formation des bénévoles</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>L'Adie accompagne et forme ses bénévoles à appréhender l'approche avec le public, à comprendre les process et les dispositifs internes, à comprendre l'environnement dans lequel évolue les chefs d'entreprise, à s'accaparer les techniques d'animations ou de rendez-vous, à maîtriser les outils informatiques et les applications qu'elle utilise. Elle leur permet aussi de monter en compétences grâce à un catalogue de formation complet, animé par des professionnels dans chacune des thématiques",
+        "description": "Rouen (76)\nDès que possible\n\n\nMissions : Relai transition Ecologique\n\nL’Adie entend faire en sorte que ses clients ne soient pas victimes mais acteurs\nde la transition écologique :\nEn coordination avec le salarié référent, vous accompagnez de manière\nindividuelle nos clients et nos équipes\nde salariés et bénévoles sur les enjeux liés à la transition écologique\n\nEnvies et compétences :\n● Vous avez envie de vous impliquer sur un sujet en lien avec la transition\nécologique, ? Vous aimez\naider les autres, et cherchez une mission engageante, sur le terrain, au contact\ndes publics cibles de\nl’Adie ?\n● Vous adorerez cette mission !\n● Chez nous la solidarité et la convivialité sont de mise, rejoignez-nous !\n\n\n\nInformations pratiques\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\n\n\nFréquence : Quelques heures par semaine\nDurée : engagement pour 6 mois à 2 ans\n\n\n\nInformations sur l'association Adie Grand Ouest\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nL’Adie est une grande association française qui défend l’idée que chacun, même\nsans capital, même sans diplôme, peut devenir entrepreneur, s'il a accès au\ncrédit et à un accompagnement personnalisé.\nDepuis plus de 30 ans son réseau de spécialistes finance et accompagne les\ncréateurs d’entreprise pour une économie plus solidaire.\n\n\nFormation des bénévoles\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nL'Adie accompagne et forme ses bénévoles à appréhender l'approche avec le\npublic, à comprendre les process et les dispositifs internes, à comprendre\nl'environnement dans lequel évolue les chefs d'entreprise, à s'accaparer les\ntechniques d'animations ou de rendez-vous, à maîtriser les outils informatiques\net les applications qu'elle utilise. Elle leur permet aussi de monter en\ncompétences grâce à un catalogue de formation complet, animé par des\nprofessionnels dans chacune des thématiques",
+        "applicationUrl": "http://localhost:4000/r/65bcd2a3465156f505e9b0d6/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/emploi_02.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "68bead10f7b3b996db36ca7e",
+        "title": "Je veux encadrer des jeunes filles dans une séance de Football",
+        "remote": "no",
+        "schedule": "",
+        "domain": "sport",
+        "domainOriginal": null,
+        "organizationName": "Graines de Footballeuses",
+        "publisherId": "5f592d415655a711feb4460e",
+        "publisherName": "Benevolt",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sport_03.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sport_03.jpeg",
+          "organizationLogo": null,
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo"
+        },
+        "location": {
+          "city": "Rouen",
+          "closestLat": 49.443347,
+          "closestLon": 1.099288,
+          "closestAddress": "76000 Rouen, FR",
+          "addressId": "55659cb8-f937-4791-a61a-8ace1be277e2",
+          "distanceKm": 0.05100904486206132
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/68bead10f7b3b996db36ca7e/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "a10c5c43-ac95-45fa-8a38-73f9d1393214",
+        "totalScore": 0.699117,
+        "taxonomyScore": 0.4,
+        "geoScore": 0.998234,
+        "taxonomyScores": {
+          "tranche_age": 1,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "sport_animation",
+            "taxonomyValueLabel": "Sport et animation sportive",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "encadrer des jeunes filles (3 à 6 ans) dans des séances de foot / Les séances sont mises en place tout les samedi de 16h à 17h",
+              "reasoning": "La mission consiste explicitement à encadrer des séances de football pour des jeunes filles, ce qui relève du domaine sport et animation."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "encadrer des jeunes filles (3 à 6 ans) dans des séances de foot / Animation Graines de Footballeuses",
+              "reasoning": "La mission implique l'animation et l'encadrement éducatif de jeunes enfants dans un cadre sportif."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.99,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Les séances sont mises en place tout les samedi de 16h à 17h / Durée : Selon vos disponibilités, pendant un an",
+              "reasoning": "La mission se déroule chaque semaine sur une période longue (au moins 2 semaines), avec une fréquence régulière."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "encadrer des jeunes filles / travailler en équipe de 3-4 bénévoles / accompagnement lors de ses premières missions",
+              "reasoning": "La mission implique le travail en équipe, l'animation de groupe et l'accompagnement des jeunes, ce qui relève des soft skills et de la coopération."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "encadrer des jeunes filles (3 à 6 ans) dans des séances de foot / Les séances sont mises en place tout les samedi de 16h à 17h",
+              "reasoning": "La mission consiste à animer des séances de football pour des jeunes filles, ce qui relève clairement de l'animation."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Vous devez être accueillant avec les petites et qu'elles se sentent bien sur le terrain",
+              "reasoning": "La mission implique une interaction directe avec les jeunes filles pour les accompagner et les mettre en confiance."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "social_sante_sport",
+            "taxonomyValueLabel": "Social, santé et sport",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "encadrer des jeunes filles (3 à 6 ans) dans des séances de foot / Graines de Footballeuses utilise la promotion du Football auprès des jeunes filles et des femmes comme un vecteur d'émancipation",
+              "reasoning": "La mission combine sport et accompagnement social, notamment pour l'émancipation des jeunes filles."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "68bead10f7b3b996db36ca7e",
+        "title": "Je veux encadrer des jeunes filles dans une séance de Football",
+        "domain": "sport",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sport_03.jpeg",
+        "type": "benevolat",
+        "publisherId": "5f592d415655a711feb4460e",
+        "publisherName": "Benevolt",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo",
+        "organizationName": "Graines de Footballeuses",
+        "organizationLogo": null,
+        "location": {
+          "city": "Rouen",
+          "address": "76000 Rouen",
+          "lat": 49.443347,
+          "lon": 1.099288
+        },
+        "startAt": "2025-09-08T10:16:39.948Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "",
+        "compensation": null,
+        "descriptionHtml": "   Rouen (76)<br>   Dès que possible<br><br><br>Votre mission sera d'encadrer des jeunes filles (3 à 6 ans) dans des séances de foot avec les autres coachs. \nVous devez être accueillant avec les petites et qu'elles se sentent bien sur le terrain.<br><br><p><strong>Informations pratiques</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Les séances sont mises en place tout les samedi de 16h à 17h avec une dizaine d'enfant dans une équipe de 3-4 bénévoles. \nLes missions s'effectuent au Five de Rouen.<br><br>Fréquence : Tout les samedi après-midi de 16h à 17h<br>Durée : Selon vos disponibilités, pendant un an<br><br><p><strong>Informations sur l'association Graines de Footballeuses</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>L'Association Graines de Footballeuses est une jeune association qui utilise la promotion du Football auprès des jeunes filles et des femmes comme un vecteur d'émancipation et accompagne les jeunes joueuses dans leur pratique. Nous voulons aider les jeunes joueuses à prendre confiance en elles et à s’affirmer dans le monde du football et dans la société. Ainsi, si une jeune fille prend sa place sur un terrain de foot (place qu'on ne lui donne pas facilement), elle sera capable, plus tard dans sa vie de femme, d'occuper tous les terrains au sens large.  <br><p><strong>Formation des bénévoles</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Il y a  deux niveaux de responsabilité et de décision des bénévoles : un group de 6 bénévoles participant au pilotage de la structure ; le reste des bénévoles, qui soutiennent les meneuses de projet sur le plan opérationnel.\nChaque nouveau bénévole est orienté vers les missions qui collent le plus à ses talents et est accompagné lors de ses premières missions. Un gros travail de sensibilisation au projet et aux enjeux de la pratique féminine est également réalisé pour chaque bénévole",
+        "description": "Rouen (76)\nDès que possible\n\n\nVotre mission sera d'encadrer des jeunes filles (3 à 6 ans) dans des séances de\nfoot avec les autres coachs.\nVous devez être accueillant avec les petites et qu'elles se sentent bien sur le\nterrain.\n\n\n\nInformations pratiques\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nLes séances sont mises en place tout les samedi de 16h à 17h avec une dizaine\nd'enfant dans une équipe de 3-4 bénévoles.\nLes missions s'effectuent au Five de Rouen.\n\nFréquence : Tout les samedi après-midi de 16h à 17h\nDurée : Selon vos disponibilités, pendant un an\n\n\n\nInformations sur l'association Graines de Footballeuses\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nL'Association Graines de Footballeuses est une jeune association qui utilise la\npromotion du Football auprès des jeunes filles et des femmes comme un vecteur\nd'émancipation et accompagne les jeunes joueuses dans leur pratique. Nous\nvoulons aider les jeunes joueuses à prendre confiance en elles et à s’affirmer\ndans le monde du football et dans la société. Ainsi, si une jeune fille prend sa\nplace sur un terrain de foot (place qu'on ne lui donne pas facilement), elle\nsera capable, plus tard dans sa vie de femme, d'occuper tous les terrains au\nsens large.\n\n\nFormation des bénévoles\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nIl y a deux niveaux de responsabilité et de décision des bénévoles : un group de\n6 bénévoles participant au pilotage de la structure ; le reste des bénévoles,\nqui soutiennent les meneuses de projet sur le plan opérationnel.\nChaque nouveau bénévole est orienté vers les missions qui collent le plus à ses\ntalents et est accompagné lors de ses premières missions. Un gros travail de\nsensibilisation au projet et aux enjeux de la pratique féminine est également\nréalisé pour chaque bénévole",
+        "applicationUrl": "http://localhost:4000/r/68bead10f7b3b996db36ca7e/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sport_03.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "62aae159ca28ca06f349a4e5",
+        "title": "Participer aux actions de notre association !",
+        "remote": "no",
+        "schedule": "",
+        "domain": "humanitaire",
+        "domainOriginal": null,
+        "organizationName": "Action Contre La Faim Seine Maritime",
+        "publisherId": "62432692651de907c463e29b",
+        "publisherName": "Action contre la Faim",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_01.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_01.jpeg",
+          "organizationLogo": null,
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/62432692651de907c463e29b/logo"
+        },
+        "location": {
+          "city": "Rouen",
+          "closestLat": 49.443,
+          "closestLon": 1.09817,
+          "closestAddress": "2 Place du Général de Gaulle, 76000 Rouen, FR",
+          "addressId": "1a0a6968-aa8b-47d9-add8-08ccf651e423",
+          "distanceKm": 0.13274178857843746
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/62aae159ca28ca06f349a4e5/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "ea6d7674-4d1c-4a89-9b39-612228e1e72c",
+        "totalScore": 0.697705,
+        "taxonomyScore": 0.4,
+        "geoScore": 0.99541,
+        "taxonomyScores": {
+          "tranche_age": 1,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "international_humanitaire",
+            "taxonomyValueLabel": "International et humanitaire",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Action contre la faim / lutte contre la faim dans le monde / organisation mène une réponse coordonnée dans près de 50 pays / Sa mission est de sauver des vies en éliminant la faim par la prévention, la détection et le traitement de la sous-nutrition",
+              "reasoning": "La mission est explicitement liée à l'action humanitaire internationale contre la faim."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "gestion_projet",
+            "taxonomyValueLabel": "Gestion de projet",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "vous participez à la mise en place des grandes opérations de sensibilisation et de collecte / Force de proposition, vous construisez chaque année de nouveaux projets en équipe / La mission de la délégation est de promouvoir et soutenir le mandat d’Action contre la Faim en alertant sur les causes et conséquences de la faim dans le monde mais aussi en présentant concrètement les solutions que l'ONG met en place sur le terrain",
+              "reasoning": "Les tâches décrites portent principalement sur la coordination, la proposition et la construction de projets, ce qui relève de la gestion de projet."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "gestion_commerce_organisation",
+            "taxonomyValueLabel": "Gestion, commerce et organisation",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "vous participez à la mise en place des grandes opérations de sensibilisation et de collecte / Force de proposition, vous construisez chaque année de nouveaux projets en équipe / La mission de la délégation est de promouvoir et soutenir le mandat d’Action contre la Faim",
+              "reasoning": "Les activités décrites relèvent de l'organisation, de la coordination et de la promotion, typiques du secteur gestion/commerce/organisation."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Fréquence : Libre (+/- 1h par semaine selon la période) / Durée : Mission régulière, sur le long terme",
+              "reasoning": "La mission est explicitement décrite comme régulière et sur le long terme, avec une fréquence hebdomadaire."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Force de proposition, vous construisez chaque année de nouveaux projets en équipe / les bénévoles sont organisés en groupes locaux, les délégations. Ils agissent ensemble et portent des projets locaux",
+              "reasoning": "La mission met en avant le travail collaboratif, la proposition de projets et l'organisation en équipe."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "relation_client_commerce_strategie",
+            "taxonomyValueLabel": "Relation client, commerce, stratégie",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "promouvoir et soutenir le mandat d’Action contre la Faim en alertant sur les causes et conséquences de la faim dans le monde mais aussi en présentant concrètement les solutions que l'ONG met en place sur le terrain",
+              "reasoning": "La mission inclut des activités de promotion, de sensibilisation et de présentation de solutions, relevant de la relation client/commerce/stratégie."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "vous participez à la mise en place des grandes opérations de sensibilisation et de collecte / Force de proposition, vous construisez chaque année de nouveaux projets en équipe / promouvoir et soutenir le mandat d’Action contre la Faim",
+              "reasoning": "Les tâches principales consistent à soutenir l'organisation via la mise en place d'opérations, la construction de projets et la promotion de l'ONG."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "promouvoir et soutenir le mandat d’Action contre la Faim en alertant sur les causes et conséquences de la faim dans le monde / présenter concrètement les solutions que l'ONG met en place sur le terrain",
+              "reasoning": "La mission relève de la sensibilisation et de la promotion de causes humanitaires, liées à des enjeux de société et de politique internationale."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "62aae159ca28ca06f349a4e5",
+        "title": "Participer aux actions de notre association !",
+        "domain": "humanitaire",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_01.jpeg",
+        "type": "benevolat",
+        "publisherId": "62432692651de907c463e29b",
+        "publisherName": "Action contre la Faim",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/62432692651de907c463e29b/logo",
+        "organizationName": "Action Contre La Faim Seine Maritime",
+        "organizationLogo": null,
+        "location": {
+          "city": "Rouen",
+          "address": "2 Place du Général de Gaulle, 76000 Rouen",
+          "lat": 49.443,
+          "lon": 1.09817
+        },
+        "startAt": "2025-08-25T19:35:19.068Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "",
+        "compensation": null,
+        "descriptionHtml": "   Rouen (76)<br>   Dès que possible<br><br><br>En devenant bénévole pour Action contre la faim, vous participez à la mise en place des grandes opérations de sensibilisation et de collecte. Force de proposition, vous construisez chaque année de nouveaux projets en équipe. Que ce soit pour des conférences, des récits de retour de mission, des expositions photos, des évènements sportifs, des opérations de mécénat de proximité, des stands d’information, des projets étudiants, des concerts de soutien... Nous avons besoin de vous !<br><br><p><strong>Informations pratiques</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Etre bénévole au sein de la délégation Action contre la Faim Seine-Maritime, c’est rejoindre un réseau de bénévoles dynamiques et engagés qui se mobilisent au quotidien et mettent leurs compétences au service de la lutte contre la Faim. La mission de la délégation est de promouvoir et soutenir le mandat d’Action contre la Faim en alertant sur les causes et conséquences de la faim dans le monde mais aussi en présentant concrètement les solutions que l’ONG met en place sur le terrain.<br><br>Fréquence : Libre (+/- 1h par semaine selon la période)<br>Durée : Mission régulière, sur le long terme<br><br><p><strong>Informations sur l'association Action Contre La Faim Seine Maritime</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Fondée en France en 1979, Action contre la Faim est une organisation non gouvernementale,\napolitique, non confessionnelle, sans but lucratif. Sa mission est de sauver des vies en éliminant la faim par la prévention, la détection et le traitement de la sous-nutrition. Notre organisation mène une réponse coordonnée dans près de 50 pays. \n\nNotre priorité est d’agir concrètement sur le terrain et témoigner sur le sort des populations.<br><p><strong>Formation des bénévoles</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>En France, les opérations d’Action contre la Faim sont orientées sur la sensibilisation et la mobilisation. Action contre la Faim forme les bénévoles aux messages importants et fournit tous les supports nécessaires. Dans certains départements, les bénévoles sont organisés en groupes locaux, les délégations. Ils agissent ensemble et portent des projets locaux.",
+        "description": "Rouen (76)\nDès que possible\n\n\nEn devenant bénévole pour Action contre la faim, vous participez à la mise en\nplace des grandes opérations de sensibilisation et de collecte. Force de\nproposition, vous construisez chaque année de nouveaux projets en équipe. Que ce\nsoit pour des conférences, des récits de retour de mission, des expositions\nphotos, des évènements sportifs, des opérations de mécénat de proximité, des\nstands d’information, des projets étudiants, des concerts de soutien... Nous\navons besoin de vous !\n\n\n\nInformations pratiques\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nEtre bénévole au sein de la délégation Action contre la Faim Seine-Maritime,\nc’est rejoindre un réseau de bénévoles dynamiques et engagés qui se mobilisent\nau quotidien et mettent leurs compétences au service de la lutte contre la Faim.\nLa mission de la délégation est de promouvoir et soutenir le mandat d’Action\ncontre la Faim en alertant sur les causes et conséquences de la faim dans le\nmonde mais aussi en présentant concrètement les solutions que l’ONG met en place\nsur le terrain.\n\nFréquence : Libre (+/- 1h par semaine selon la période)\nDurée : Mission régulière, sur le long terme\n\n\n\nInformations sur l'association Action Contre La Faim Seine Maritime\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nFondée en France en 1979, Action contre la Faim est une organisation non\ngouvernementale,\napolitique, non confessionnelle, sans but lucratif. Sa mission est de sauver des\nvies en éliminant la faim par la prévention, la détection et le traitement de la\nsous-nutrition. Notre organisation mène une réponse coordonnée dans près de 50\npays.\n\nNotre priorité est d’agir concrètement sur le terrain et témoigner sur le sort\ndes populations.\n\n\nFormation des bénévoles\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nEn France, les opérations d’Action contre la Faim sont orientées sur la\nsensibilisation et la mobilisation. Action contre la Faim forme les bénévoles\naux messages importants et fournit tous les supports nécessaires. Dans certains\ndépartements, les bénévoles sont organisés en groupes locaux, les délégations.\nIls agissent ensemble et portent des projets locaux.",
+        "applicationUrl": "http://localhost:4000/r/62aae159ca28ca06f349a4e5/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_01.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    }
+  ],
+  "deterministic": {
+    "geo": 5,
+    "format": 5,
+    "missionsSansTagFormat": [],
+    "gateViolations": []
+  },
+  "judgeRuns": [
+    {
+      "runIndex": 0,
+      "seed": 2514026741,
+      "order": [
+        "65bcd2a3465156f505e9b0d6",
+        "68bead10f7b3b996db36ca7e",
+        "62b0b752d559470714fc2c5a",
+        "62aae159ca28ca06f349a4e5",
+        "6194def9a99ff4075b5edc34"
+      ],
+      "output": {
+        "coherence": {
+          "score": 3,
+          "missionsPertinentes": [
+            2,
+            4,
+            1
+          ],
+          "justification": "Parmi les 5 missions proposées, 3 sont pertinentes pour Nadia qui souhaite reprendre une activité dans le bâtiment, l'industrie ou la logistique. La mission 2 (réparateur au Repair Café) correspond à des compétences techniques proches de l'industrie et la réparation. La mission 4 (logistique et transport de matériel) correspond directement à la logistique. La mission 1 (encadrement de jeunes filles au football) est moins directement liée mais peut correspondre à une activité régulière et encadrante. Les missions 0 et 3 sont hors secteur d'activité souhaité.",
+          "missionIdsPertinents": [
+            "68bead10f7b3b996db36ca7e",
+            "62aae159ca28ca06f349a4e5",
+            "65bcd2a3465156f505e9b0d6"
+          ]
+        },
+        "homogeneite": {
+          "score": 3,
+          "familles": [
+            "Bâtiment/Industrie/Logistique",
+            "Sport",
+            "Social/Événementiel"
+          ],
+          "justification": "Les missions pertinentes appartiennent à 3 familles différentes : réparation technique (industrie), logistique/transport, et encadrement sportif. Il n'y a pas de famille majoritaire avec au moins 3 missions, donc la diversité est moyenne."
+        },
+        "cause": "offre"
+      }
+    },
+    {
+      "runIndex": 1,
+      "seed": 2497249122,
+      "order": [
+        "6194def9a99ff4075b5edc34",
+        "65bcd2a3465156f505e9b0d6",
+        "62b0b752d559470714fc2c5a",
+        "62aae159ca28ca06f349a4e5",
+        "68bead10f7b3b996db36ca7e"
+      ],
+      "output": {
+        "coherence": {
+          "score": 2,
+          "missionsPertinentes": [
+            2,
+            4
+          ],
+          "justification": "Parmi les 5 missions proposées, seules deux semblent pertinentes pour Nadia qui souhaite reprendre une activité dans le bâtiment, l'industrie ou la logistique. La mission 2 (réparateur au Repair Café) correspond à des compétences techniques proches de l'industrie et la réparation, et la mission 4 (encadrement de jeunes filles au football) est moins directement liée mais peut impliquer une activité régulière et encadrée. Les autres missions sont plutôt orientées vers la logistique événementielle, la transition écologique ou l'action humanitaire, qui ne correspondent pas directement à son souhait de reprendre une activité dans le bâtiment, l'industrie ou la logistique.",
+          "missionIdsPertinents": [
+            "65bcd2a3465156f505e9b0d6",
+            "62aae159ca28ca06f349a4e5"
+          ]
+        },
+        "homogeneite": {
+          "score": 4,
+          "familles": [
+            "Réparation technique",
+            "Encadrement sportif",
+            "Autres"
+          ],
+          "justification": "Les missions proposées appartiennent à plusieurs familles différentes : réparation technique (mission 2), encadrement sportif (mission 4), logistique événementielle (mission 0), accompagnement écologique (mission 1), et action humanitaire (mission 3). Il y a 5 missions réparties dans 5 familles distinctes, mais deux missions sont proches (réparation et logistique peuvent être considérées comme liées au secteur technique). La majorité n'est pas clairement définie, donc la note est 4."
+        },
+        "cause": "offre"
+      }
+    }
+  ],
+  "engineVersion": "m2",
+  "startedAt": "2026-07-07T12:46:32.068Z",
+  "finishedAt": "2026-07-07T12:46:50.644Z",
+  "verdict": 4,
+  "cleanup": {
+    "userScoringDeleted": true
+  }
+}

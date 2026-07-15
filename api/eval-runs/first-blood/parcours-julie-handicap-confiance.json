@@ -1,0 +1,2566 @@
+{
+  "status": "success",
+  "parcours": {
+    "id": "julie-handicap-confiance",
+    "segment": "demandeur_emploi",
+    "label": "Julie, 26 ans, demandeuse d'emploi à Montpellier, en situation de handicap, veut reprendre confiance",
+    "locationLabel": "Montpellier (34)",
+    "age": 26,
+    "handicap": "oui",
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 26,
+          "handicap": true
+        }
+      },
+      {
+        "taxonomy": "handicap",
+        "value": "oui"
+      },
+      {
+        "taxonomy": "statut",
+        "value": "demandeur_emploi"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 43.610769,
+          "lon": 3.876716,
+          "country_code": "fr",
+          "label": "Montpellier (34)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "reguliere"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "reprendre_confiance"
+      },
+      {
+        "taxonomy": "engagement_intent",
+        "value": "animation"
+      },
+      {
+        "taxonomy": "engagement_intent",
+        "value": "aide_directe"
+      }
+    ]
+  },
+  "payload": {
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 26,
+          "handicap": true
+        }
+      },
+      {
+        "taxonomy": "handicap",
+        "value": "oui"
+      },
+      {
+        "taxonomy": "statut",
+        "value": "demandeur_emploi"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 43.610769,
+          "lon": 3.876716,
+          "country_code": "fr",
+          "label": "Montpellier (34)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "reguliere"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "reprendre_confiance"
+      },
+      {
+        "taxonomy": "engagement_intent",
+        "value": "animation"
+      },
+      {
+        "taxonomy": "engagement_intent",
+        "value": "aide_directe"
+      }
+    ],
+    "distinctId": "eval:first-blood:julie-handicap-confiance",
+    "missionAlertEnabled": false
+  },
+  "userScoringId": "07fb1340-dc7e-4623-8106-829fb753f302",
+  "match": {
+    "tookMs": 103,
+    "engineVersion": "m2",
+    "items": [
+      {
+        "mission": {
+          "id": "a5a92db7-d608-4696-9ecf-fa8fc18eeebb",
+          "title": "Contribuer au lien social dans un quartier Politique de la ville de Montpellier (Petit Bard/Pergola)",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "education",
+          "domainOriginal": "Éducation pour tous",
+          "organizationName": "ESSOR savoirs et partage",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_02.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_02.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Montpellier",
+            "closestLat": 43.61761,
+            "closestLon": 3.836311,
+            "closestAddress": "153 allée de la Gardiole, 34080 Montpellier, FR",
+            "addressId": "96643c0a-75b2-4c5f-9006-5f58ad1c863f",
+            "distanceKm": 3.340575106081287
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/a5a92db7-d608-4696-9ecf-fa8fc18eeebb/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "2c90b52b-4fec-48cc-9f7d-8ebe0e62368e",
+          "totalScore": 0.602421,
+          "taxonomyScore": 0.314167,
+          "geoScore": 0.890675,
+          "taxonomyScores": {
+            "engagement_intent": 0.985,
+            "tranche_age": 0.9
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "créer les conditions nécessaires au partage des expériences et des idées en développant des temps d’accueil et de convivialité pour les adhérents bénévoles et bénéficiaires / créer du lien / faciliter et encourager les adhérents à participer aux activités proposées / proposer, mettre en place ou d'animer des activités/temps conviviaux qui permettront de récréer du lien social",
+                "reasoning": "La mission est centrée sur la création de lien social, l'inclusion et l'accompagnement de publics variés, ce qui relève clairement du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "soutenir l’équipe et les bénévoles sur les temps d'accompagnement scolaire / participer à l’amélioration de l'information et de l'orientation des publics / assurer un rôle d'information, d'orientation et d'accompagnement",
+                "reasoning": "La mission inclut des activités d'accompagnement scolaire, d'information et d'orientation, ce qui relève de l'éducation et de la transmission."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "créer les conditions nécessaires au partage des expériences et des idées en développant des temps d’accueil et de convivialité pour les adhérents bénévoles et bénéficiaires / soutien l’équipe et les bénévoles sur les temps d'accompagnement scolaire",
+                "reasoning": "La mission s'inscrit dans le secteur de l'aide à la personne et du social, avec un accompagnement éducatif et social des publics."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "soutenir l’équipe et les bénévoles sur les temps d'accompagnement scolaire / participer à tous les temps de valorisation (expositions, semaine des arts etc.) et de convivialité / proposer, mettre en place ou d'animer des activités/temps conviviaux",
+                "reasoning": "La mission inclut des activités d'animation, de valorisation et d'accompagnement éducatif, relevant du secteur éducation et formation."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "assurer un rôle d'information, d'orientation et d'accompagnement / aider et accompagner physiquement les adhérents dans leurs démarches quotidiennes / créer du lien",
+                "reasoning": "La mission implique un accompagnement humain, social et une aide directe aux publics, relevant des compétences sociales et de soin."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "participer au recensement des besoins des adhérents et plus largement des habitants du quartier / proposer d'activités et de sorties / création / amélioration des outils de suivi",
+                "reasoning": "La mission inclut des activités de coordination, d'organisation et de travail collaboratif, relevant des soft skills et de la coopération."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "communication_creation_numerique",
+              "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "participer à l’amélioration de l'information et de l'orientation des publics (affichage, supports communication)",
+                "reasoning": "La mission inclut des activités de communication et de création de supports, relevant des compétences numériques et de création."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "aider et accompagner physiquement les adhérents dans leurs démarches quotidiennes / créer du lien / faciliter et encourager les adhérents à participer aux activités proposées",
+                "reasoning": "La mission implique une interaction directe et un accompagnement concret des bénéficiaires."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "participer à tous les temps de valorisation (expositions, semaine des arts etc.) et de convivialité / proposer, mettre en place ou d'animer des activités/temps conviviaux",
+                "reasoning": "La mission inclut explicitement l'animation d'activités et de temps conviviaux."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "soutenir l’équipe et les bénévoles sur les temps d'accompagnement scolaire / assurer un rôle d'information, d'orientation et d'accompagnement",
+                "reasoning": "La mission inclut des activités de transmission, d'information et d'orientation, relevant de la pédagogie."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "participer au recensement des besoins des adhérents / participer à l’amélioration de l'information et de l'orientation des publics / proposer d'activités et de sorties",
+                "reasoning": "La mission inclut des activités de soutien organisationnel et de coordination."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Type de mission : volontariat_service_civique / Tutorat et accompagnement : Un(e) tuteur/trice référent secondé(e) par l'équipe encadrante salariée et bénévole / Formations obligatoires proposées",
+                "reasoning": "La mission s'inscrit dans un cadre structuré de service civique, avec un tutorat et des formations obligatoires, relevant d'un engagement en cadre structuré."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "engager chacun dans une participation civique et citoyenne / éducation à la citoyenneté / sensibilisation aux grands débats de société (écologie, solidarité..)",
+                "reasoning": "La mission inclut des activités liées à la citoyenneté, à l'éducation civique et aux débats de société, relevant de ce domaine de formation."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "education_culture_creation",
+              "taxonomyValueLabel": "Éducation, culture et création",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "ouverture culturelle : promotion de la pratique artistique et sportive / participer à tous les temps de valorisation (expositions, semaine des arts etc.)",
+                "reasoning": "La mission inclut des activités culturelles et artistiques, relevant de ce domaine de formation."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "social_sante_sport",
+              "taxonomyValueLabel": "Social, santé et sport",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "l’aide à la réussite scolaire et à la formation / soutien aux parents dans leur rôle d’éducateurs / favoriser l'égalité des chances",
+                "reasoning": "La mission inclut des activités sociales, éducatives et d'accompagnement, relevant de ce domaine de formation."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_18_ans",
+              "taxonomyValueLabel": "Moins de 18 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_31_ans_handicap",
+              "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "service_civique",
+              "taxonomyValueLabel": "Service civique",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "e34e97a8-0bbc-4854-80e6-4a45595b76f6",
+          "title": "Sensibilisation et Promotion du Voyage participatif",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "culture-loisirs",
+          "domainOriginal": "Culture et loisirs",
+          "organizationName": "ALIORE,LES ATELIERS AUTOUR DU MONDE WORLDWIDE WORKSHOPS",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_02.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_02.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "MONTPELLIER",
+            "closestLat": 43.619265,
+            "closestLon": 3.833667,
+            "closestAddress": "23 RUE JEAN GIONO, 34080 MONTPELLIER, FR",
+            "addressId": "508ca2ab-4d1a-447b-bd19-b9a8eda5be10",
+            "distanceKm": 3.5920774352519627
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/e34e97a8-0bbc-4854-80e6-4a45595b76f6/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "bddd8a3c-92f7-4150-9cca-bb4fa395237c",
+          "totalScore": 0.588139,
+          "taxonomyScore": 0.293333,
+          "geoScore": 0.882945,
+          "taxonomyScores": {
+            "engagement_intent": 0.86,
+            "tranche_age": 0.9
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "culture_arts",
+              "taxonomyValueLabel": "Culture et arts",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "propose à ses adhérents de pratiquer des activités traditionnelles dans leur pays d'origine pour favoriser l'immersion culturelle, la transmission des savoirs / stages culinaires, d’artisanat, de danses ou de musique",
+                "reasoning": "La mission et les activités de l'association sont centrées sur la transmission culturelle, les arts et les traditions, ce qui correspond au domaine 'culture_arts'."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "favoriser l'immersion culturelle, la transmission des savoirs / transmission_pedagogie / Le volontaire contribue à la promotion du voyage participatif en France et dans le monde",
+                "reasoning": "La mission inclut explicitement la transmission de savoirs et la pédagogie, ce qui relève du domaine 'education_transmission'."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "culture_creation_medias",
+              "taxonomyValueLabel": "Culture, création et médias",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "stages culinaires, d’artisanat, de danses ou de musique / communication sur les réseaux sociaux (Facebook, Instagram, TikTok) en créant des contenus sur canva",
+                "reasoning": "Les activités principales relèvent de la culture, de la création et des médias, notamment via la communication digitale."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "favoriser l'immersion culturelle, la transmission des savoirs / transmission_pedagogie / Le volontaire contribue à la promotion du voyage participatif",
+                "reasoning": "La mission inclut une dimension éducative et d'animation, bien que moins centrale que la culture."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "communication_creation_numerique",
+              "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "contribue à la communication sur les réseaux sociaux (Facebook, Instagram, TikTok) en créant des contenus sur canva",
+                "reasoning": "La mission inclut explicitement la création de contenus digitaux et la gestion des réseaux sociaux."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "En lien avec la directrice, le volontaire contribue à la promotion du voyage participatif / participe à la prospection de nouveaux partenaires",
+                "reasoning": "La mission implique une collaboration avec la directrice et des partenaires, ainsi que des tâches d'organisation et de prospection."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "relation_client_commerce_strategie",
+              "taxonomyValueLabel": "Relation client, commerce, stratégie",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "aide à l'accueil des personnes qui cherchent à s'informer / prospection de nouveaux partenaires et programmes dans le monde",
+                "reasoning": "La mission inclut des interactions avec des clients ou partenaires et des actions de prospection, relevant de la relation client et du commerce."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "favoriser l'immersion culturelle, la transmission des savoirs / transmission_pedagogie",
+                "reasoning": "La mission est explicitement axée sur la transmission de savoirs et la pédagogie."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "contribue à la promotion du voyage participatif / participe à la prospection de nouveaux partenaires / communication sur les réseaux sociaux",
+                "reasoning": "Le volontaire soutient l'organisation via des tâches de promotion, de prospection et de communication."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "sensibilisation sur la problématique du tourisme participatif lors de salons et foires",
+                "reasoning": "La mission inclut des actions de sensibilisation et d'animation lors d'événements publics."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "education_culture_creation",
+              "taxonomyValueLabel": "Éducation, culture et création",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "favoriser l'immersion culturelle, la transmission des savoirs / stages culinaires, d’artisanat, de danses ou de musique",
+                "reasoning": "La mission relève de l'éducation, de la culture et de la création, notamment via la transmission de savoirs et d'activités artistiques."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "numerique_communication",
+              "taxonomyValueLabel": "Numérique et communication",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "communication sur les réseaux sociaux (Facebook, Instagram, TikTok) en créant des contenus sur canva",
+                "reasoning": "La mission inclut une dimension numérique et de communication digitale."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Mission du volontaire : rendre le voyage participatif accessible au plus grand nombre / type de mission : volontariat_service_civique",
+                "reasoning": "Le cadre de service civique implique un engagement structuré et institutionnel, justifiant cette classification."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_18_ans",
+              "taxonomyValueLabel": "Moins de 18 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_31_ans_handicap",
+              "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "service_civique",
+              "taxonomyValueLabel": "Service civique",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "0d132648-b9ac-46d4-bc3a-1d654fc05208",
+          "title": "Contribuer au vivre ensemble et accompagner les élèves dans leur développement global",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "education",
+          "domainOriginal": "Éducation pour tous",
+          "organizationName": "ETABLISSEMENT SCOLAIRE PROTESTANT EVANGELIQUE ET DE RESSOURCES EDUCATIVES",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "SAINT AUNES",
+            "closestLat": 43.619794,
+            "closestLon": 3.962581,
+            "closestAddress": "103 CHE DE MAZES DE MESOUL, 34130 SAINT AUNES, FR",
+            "addressId": "6dd641e7-f816-4a6c-8145-0ea007b1e9f0",
+            "distanceKm": 6.984922437985889
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/0d132648-b9ac-46d4-bc3a-1d654fc05208/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "d141ef30-f63d-4222-af5d-3c86f51b05bc",
+          "totalScore": 0.54958,
+          "taxonomyScore": 0.314167,
+          "geoScore": 0.784994,
+          "taxonomyScores": {
+            "engagement_intent": 0.985,
+            "tranche_age": 0.9
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Participer à l’éducation de futurs citoyens / Soutenir les enseignants dans certaines activités pédagogiques / Proposer et animer des activités favorisant la coopération, le respect et l’inclusion / Participer à des projets éducatifs (artistiques, culturels, citoyens ou liés à la nature)",
+                "reasoning": "La mission est centrée sur l'accompagnement éducatif, la pédagogie et la transmission de valeurs citoyennes."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Contribuer à un climat scolaire apaisé en accompagnant les élèves dans la gestion des relations et des émotions / Aider à prévenir et à gérer les conflits par le dialogue et la médiation simple / Encourager les comportements responsables et valoriser les initiatives positives des élèves",
+                "reasoning": "Les tâches incluent explicitement la gestion des relations, la médiation et la promotion de comportements inclusifs, relevant du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Soutenir les enseignants dans certaines activités pédagogiques / Participer à des projets éducatifs (artistiques, culturels, citoyens ou liés à la nature)",
+                "reasoning": "La mission s'inscrit dans le secteur de l'éducation, de la formation et de l'animation éducative."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Accompagner les élèves dans la gestion des relations et des émotions / Aider à prévenir et à gérer les conflits par le dialogue et la médiation simple / Être à l’écoute des élèves et favoriser leur expression dans un cadre bienveillant",
+                "reasoning": "Les tâches impliquent un accompagnement humain, une écoute active et une médiation, relevant du management social et soin."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Proposer et animer des activités favorisant la coopération / Participer à l’organisation matérielle de la vie de classe et des espaces communs / Le volontaire est encouragé à proposer des projets et activités en lien avec ses talents",
+                "reasoning": "La mission met en avant la coopération, l'animation collective et l'organisation de projets, relevant des soft skills et de la coopération."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Participer à l’éducation de futurs citoyens / Soutenir les enseignants dans certaines activités pédagogiques / Proposer et animer des activités favorisant la coopération, le respect et l’inclusion",
+                "reasoning": "La mission est clairement axée sur la transmission de savoirs, de valeurs et de compétences aux élèves."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Proposer et animer des activités favorisant la coopération, le respect et l’inclusion / Participer à des projets éducatifs (artistiques, culturels, citoyens ou liés à la nature)",
+                "reasoning": "Les tâches incluent explicitement l'animation d'activités et de projets collectifs."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Contribuer à un climat scolaire apaisé en accompagnant les élèves dans la gestion des relations et des émotions / Être à l’écoute des élèves et favoriser leur expression dans un cadre bienveillant",
+                "reasoning": "La mission implique un accompagnement direct et bienveillant des élèves, relevant de l'aide directe."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Contribuer à l’organisation matérielle de la vie de classe et des espaces communs / Participer à l’organisation matérielle de la vie de classe et des espaces communs",
+                "reasoning": "Les tâches incluent des aspects organisationnels et logistiques liés au fonctionnement de l'école."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "volontariat_service_civique / Formations obligatoires proposées : PSC1 + formation civique et citoyenne / Suivi régulier par un tuteur, avec accompagnement personnalisé",
+                "reasoning": "La mission s'inscrit dans un cadre structuré de service civique avec formations obligatoires, tutorat et suivi personnalisé."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "education_culture_creation",
+              "taxonomyValueLabel": "Éducation, culture et création",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Participer à l’éducation de futurs citoyens / Proposer et animer des activités favorisant la coopération, le respect et l’inclusion / Participer à des projets éducatifs (artistiques, culturels, citoyens ou liés à la nature)",
+                "reasoning": "La mission combine éducation, culture et création à travers des projets variés et des activités d'animation."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Participer à l’éducation de futurs citoyens / Encourager les comportements responsables et valoriser les initiatives positives des élèves / formation civique et citoyenne",
+                "reasoning": "La mission inclut une dimension civique et citoyenne explicite, relevant de la formation en société, droit et politique."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_18_ans",
+              "taxonomyValueLabel": "Moins de 18 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_31_ans_handicap",
+              "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "service_civique",
+              "taxonomyValueLabel": "Service civique",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "78e15443-cbc3-4cb9-bbb1-ee0644dbba18",
+          "title": "Sensibiliser le grand public sur les défis climatiques et environnementaux.",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "environnement",
+          "domainOriginal": "Environnement",
+          "organizationName": "MAIRIE BALARUC LES BAINS",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_03.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_03.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "BALARUC LES BAINS",
+            "closestLat": 43.442892,
+            "closestLon": 3.67655,
+            "closestAddress": "23 avenue de la cadole, 34540 BALARUC LES BAINS, FR",
+            "addressId": "2fbc4bd4-61a4-4e03-a1cd-91a5a889f442",
+            "distanceKm": 24.67564376304319
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/78e15443-cbc3-4cb9-bbb1-ee0644dbba18/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "67d90227-6bdf-4382-8eb3-0351797362ad",
+          "totalScore": 0.362601,
+          "taxonomyScore": 0.3,
+          "geoScore": 0.425201,
+          "taxonomyScores": {
+            "engagement_intent": 0.9,
+            "tranche_age": 0.9
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "sensibiliser aux enjeux climatiques / actions pédagogiques / ateliers de sensibilisation / coorganiser et animer des ateliers de sensibilisation",
+                "reasoning": "La mission inclut une forte dimension de transmission de savoirs et de pédagogie, notamment via des ateliers et des actions de sensibilisation."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "environnement_agriculture",
+              "taxonomyValueLabel": "Environnement et agriculture",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "enjeux climatiques, écologiques et urbains / transition écologique et d’aménagement durable / ateliers de sensibilisation (biodiversité, gestion de l'eau, végétalisation)",
+                "reasoning": "La mission relève du secteur environnemental et agricole, avec un focus sur la gestion de l'eau, la biodiversité et l'aménagement durable."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "actions pédagogiques / ateliers de sensibilisation / coorganiser et animer des ateliers de sensibilisation",
+                "reasoning": "La mission inclut une dimension éducative et d'animation, notamment via des ateliers et des actions de sensibilisation."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "communication_creation_numerique",
+              "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "création de supports de communication (visuels, brochures, posts sur réseaux sociaux, panneaux d’exposition)",
+                "reasoning": "La mission inclut la création de supports de communication, notamment numériques et visuels."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "coorganiser et animer des ateliers / contribuer à l’organisation d’événements publics / appuyer les démarches de concertation citoyenne",
+                "reasoning": "La mission implique une forte dimension de coopération, d'organisation et de soft skills, notamment via la coorganisation d'ateliers et d'événements."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "gestion_pilotage_juridique",
+              "taxonomyValueLabel": "Gestion, pilotage, juridique",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "appuyer les démarches de concertation citoyenne / participer à la création de supports de communication",
+                "reasoning": "La mission inclut des tâches de coordination et de gestion de projet, notamment via la concertation citoyenne et la création de supports."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "sensibiliser aux enjeux climatiques / actions pédagogiques / ateliers de sensibilisation",
+                "reasoning": "La mission est clairement axée sur la transmission de savoirs et la sensibilisation des publics."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "coorganiser et animer des ateliers de sensibilisation / contribuer à l’organisation d’événements publics",
+                "reasoning": "La mission inclut explicitement l'animation d'ateliers et d'événements publics."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "participer à la création de supports de communication / contribuer à l’organisation d’événements publics / appuyer les démarches de concertation citoyenne",
+                "reasoning": "La mission inclut des tâches de soutien organisationnel, notamment via la création de supports et l'organisation d'événements."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "action_terrain",
+              "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "aller à la rencontre des habitants / recueillir leurs attentes / présenter les projets du service",
+                "reasoning": "La mission implique des actions concrètes sur le terrain, comme la rencontre avec les habitants et la présentation de projets."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "environnement_nature_sciences",
+              "taxonomyValueLabel": "Environnement, nature et sciences",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "sensibiliser aux enjeux climatiques, écologiques et urbains / ateliers de sensibilisation (biodiversité, gestion de l'eau, végétalisation)",
+                "reasoning": "La mission relève du domaine environnemental et scientifique, avec un focus sur les enjeux climatiques et écologiques."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "appuyer les démarches de concertation citoyenne / participer à la création de supports de communication",
+                "reasoning": "La mission inclut des aspects liés à la participation citoyenne et à la communication, relevant du domaine société, droit et politique."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_18_ans",
+              "taxonomyValueLabel": "Moins de 18 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_31_ans_handicap",
+              "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "service_civique",
+              "taxonomyValueLabel": "Service civique",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "97883a6b-9d6a-4d1b-8300-1a465ce0f4ce",
+          "title": "Service civique : Participer au bonheur de nos résidents au sein de l'EHPAD LES MAZETS DE L'ARGILIER",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "solidarite-insertion",
+          "domainOriginal": "Solidarité",
+          "organizationName": "EHPAD LES MAZETS DE L'ARGILIER",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Aubais",
+            "closestLat": 43.751354,
+            "closestLon": 4.149073,
+            "closestAddress": "231 Rue de l’Argilier, 30250 Aubais, FR",
+            "addressId": "e2e6d2a3-2751-4493-9520-6b609240dacf",
+            "distanceKm": 26.908292575247305
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/97883a6b-9d6a-4d1b-8300-1a465ce0f4ce/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "8b9cf65a-deb1-4a0b-9a8a-8a5d4293a25f",
+          "totalScore": 0.355104,
+          "taxonomyScore": 0.316667,
+          "geoScore": 0.393541,
+          "taxonomyScores": {
+            "engagement_intent": 1,
+            "tranche_age": 0.9
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "créer du lien social auprès des résidents et à animer des moments de convivialité / participer aux animations et jeux de société auprès des résidents / réaliser des temps d'échanges individuels auprès des personnes âgées",
+                "reasoning": "Les tâches principales visent explicitement la création de lien social, l'animation et l'accompagnement des résidents, ce qui relève du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "créer du lien social auprès des résidents / participer aux animations et jeux de société / réaliser des temps d'échanges individuels",
+                "reasoning": "La mission implique un contact direct et régulier avec les bénéficiaires pour les soutenir et les accompagner."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "animer des moments de convivialité, récréatifs et culturels / participer aux animations et jeux de société / participer à l'animation des activités physiques adaptées",
+                "reasoning": "Les tâches incluent explicitement l'animation d'activités collectives et récréatives."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "proposer de nouvelles idées en lien avec vos appétences et les besoins des personnes âgées",
+                "reasoning": "La mission encourage l'initiative et la proposition d'idées, ce qui relève d'une forme de transmission ou d'accompagnement personnalisé."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "créer du lien social auprès des résidents / réaliser des temps d'échanges individuels / participer aux animations",
+                "reasoning": "Les tâches principales relèvent de l'accompagnement social, de l'aide aux personnes et de la création de lien, ce qui correspond à cette compétence."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "créer du lien social auprès des résidents / participer aux animations et jeux de société / réaliser des temps d'échanges individuels",
+                "reasoning": "La mission se déroule dans un EHPAD, un établissement dédié à l'aide à la personne âgée, ce qui relève du secteur santé, social et aide à la personne."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Type de mission : volontariat_service_civique / Vous serez accompagné tout au long de votre service civique / Formations obligatoires proposées",
+                "reasoning": "Le cadre du service civique est explicitement structuré avec un tutorat, des formations obligatoires et un accompagnement, ce qui relève d'un engagement en cadre structuré."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "social_sante_sport",
+              "taxonomyValueLabel": "Social, santé et sport",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "créer du lien social auprès des résidents / participer aux animations et jeux de société / réaliser des temps d'échanges individuels",
+                "reasoning": "La mission combine des aspects sociaux, de santé (EHPAD) et d'animation, ce qui correspond au domaine social, santé et sport."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_18_ans",
+              "taxonomyValueLabel": "Moins de 18 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_31_ans_handicap",
+              "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "service_civique",
+              "taxonomyValueLabel": "Service civique",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      }
+    ],
+    "total": 1019,
+    "avgDistanceKmTop5": 13.1
+  },
+  "missions": [
+    {
+      "mission": {
+        "id": "a5a92db7-d608-4696-9ecf-fa8fc18eeebb",
+        "title": "Contribuer au lien social dans un quartier Politique de la ville de Montpellier (Petit Bard/Pergola)",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "education",
+        "domainOriginal": "Éducation pour tous",
+        "organizationName": "ESSOR savoirs et partage",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_02.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_02.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Montpellier",
+          "closestLat": 43.61761,
+          "closestLon": 3.836311,
+          "closestAddress": "153 allée de la Gardiole, 34080 Montpellier, FR",
+          "addressId": "96643c0a-75b2-4c5f-9006-5f58ad1c863f",
+          "distanceKm": 3.340575106081287
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/a5a92db7-d608-4696-9ecf-fa8fc18eeebb/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "2c90b52b-4fec-48cc-9f7d-8ebe0e62368e",
+        "totalScore": 0.602421,
+        "taxonomyScore": 0.314167,
+        "geoScore": 0.890675,
+        "taxonomyScores": {
+          "engagement_intent": 0.985,
+          "tranche_age": 0.9
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "créer les conditions nécessaires au partage des expériences et des idées en développant des temps d’accueil et de convivialité pour les adhérents bénévoles et bénéficiaires / créer du lien / faciliter et encourager les adhérents à participer aux activités proposées / proposer, mettre en place ou d'animer des activités/temps conviviaux qui permettront de récréer du lien social",
+              "reasoning": "La mission est centrée sur la création de lien social, l'inclusion et l'accompagnement de publics variés, ce qui relève clairement du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "soutenir l’équipe et les bénévoles sur les temps d'accompagnement scolaire / participer à l’amélioration de l'information et de l'orientation des publics / assurer un rôle d'information, d'orientation et d'accompagnement",
+              "reasoning": "La mission inclut des activités d'accompagnement scolaire, d'information et d'orientation, ce qui relève de l'éducation et de la transmission."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "créer les conditions nécessaires au partage des expériences et des idées en développant des temps d’accueil et de convivialité pour les adhérents bénévoles et bénéficiaires / soutien l’équipe et les bénévoles sur les temps d'accompagnement scolaire",
+              "reasoning": "La mission s'inscrit dans le secteur de l'aide à la personne et du social, avec un accompagnement éducatif et social des publics."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "soutenir l’équipe et les bénévoles sur les temps d'accompagnement scolaire / participer à tous les temps de valorisation (expositions, semaine des arts etc.) et de convivialité / proposer, mettre en place ou d'animer des activités/temps conviviaux",
+              "reasoning": "La mission inclut des activités d'animation, de valorisation et d'accompagnement éducatif, relevant du secteur éducation et formation."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "assurer un rôle d'information, d'orientation et d'accompagnement / aider et accompagner physiquement les adhérents dans leurs démarches quotidiennes / créer du lien",
+              "reasoning": "La mission implique un accompagnement humain, social et une aide directe aux publics, relevant des compétences sociales et de soin."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "participer au recensement des besoins des adhérents et plus largement des habitants du quartier / proposer d'activités et de sorties / création / amélioration des outils de suivi",
+              "reasoning": "La mission inclut des activités de coordination, d'organisation et de travail collaboratif, relevant des soft skills et de la coopération."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "communication_creation_numerique",
+            "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "participer à l’amélioration de l'information et de l'orientation des publics (affichage, supports communication)",
+              "reasoning": "La mission inclut des activités de communication et de création de supports, relevant des compétences numériques et de création."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "aider et accompagner physiquement les adhérents dans leurs démarches quotidiennes / créer du lien / faciliter et encourager les adhérents à participer aux activités proposées",
+              "reasoning": "La mission implique une interaction directe et un accompagnement concret des bénéficiaires."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "participer à tous les temps de valorisation (expositions, semaine des arts etc.) et de convivialité / proposer, mettre en place ou d'animer des activités/temps conviviaux",
+              "reasoning": "La mission inclut explicitement l'animation d'activités et de temps conviviaux."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "soutenir l’équipe et les bénévoles sur les temps d'accompagnement scolaire / assurer un rôle d'information, d'orientation et d'accompagnement",
+              "reasoning": "La mission inclut des activités de transmission, d'information et d'orientation, relevant de la pédagogie."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "participer au recensement des besoins des adhérents / participer à l’amélioration de l'information et de l'orientation des publics / proposer d'activités et de sorties",
+              "reasoning": "La mission inclut des activités de soutien organisationnel et de coordination."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Type de mission : volontariat_service_civique / Tutorat et accompagnement : Un(e) tuteur/trice référent secondé(e) par l'équipe encadrante salariée et bénévole / Formations obligatoires proposées",
+              "reasoning": "La mission s'inscrit dans un cadre structuré de service civique, avec un tutorat et des formations obligatoires, relevant d'un engagement en cadre structuré."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "engager chacun dans une participation civique et citoyenne / éducation à la citoyenneté / sensibilisation aux grands débats de société (écologie, solidarité..)",
+              "reasoning": "La mission inclut des activités liées à la citoyenneté, à l'éducation civique et aux débats de société, relevant de ce domaine de formation."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "education_culture_creation",
+            "taxonomyValueLabel": "Éducation, culture et création",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "ouverture culturelle : promotion de la pratique artistique et sportive / participer à tous les temps de valorisation (expositions, semaine des arts etc.)",
+              "reasoning": "La mission inclut des activités culturelles et artistiques, relevant de ce domaine de formation."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "social_sante_sport",
+            "taxonomyValueLabel": "Social, santé et sport",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "l’aide à la réussite scolaire et à la formation / soutien aux parents dans leur rôle d’éducateurs / favoriser l'égalité des chances",
+              "reasoning": "La mission inclut des activités sociales, éducatives et d'accompagnement, relevant de ce domaine de formation."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_18_ans",
+            "taxonomyValueLabel": "Moins de 18 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_31_ans_handicap",
+            "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "service_civique",
+            "taxonomyValueLabel": "Service civique",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "a5a92db7-d608-4696-9ecf-fa8fc18eeebb",
+        "title": "Contribuer au lien social dans un quartier Politique de la ville de Montpellier (Petit Bard/Pergola)",
+        "domain": "education",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_02.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "ESSOR savoirs et partage",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Montpellier",
+          "address": "153 allée de la Gardiole, 34080 Montpellier",
+          "lat": 43.61761,
+          "lon": 3.836311
+        },
+        "startAt": "2026-04-01T00:00:00.000Z",
+        "endAt": "2026-12-01T01:00:00.000Z",
+        "duration": 8,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>La mission proposée consiste à créer les conditions nécessaires au partage des expériences et des idées en développant des temps d’accueil et de convivialité pour les adhérents bénévoles et bénéficiaires (enfants, adolescents, familles, habitants).</p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p>Le (la) volontaire assurera un rôle d'information, d'orientation et d'accompagnement. Il s'agira de créer du lien, de bien informer les adhérents des activités de l'association et d'engager chacun dans une participation civique et citoyenne.</p></p><br>\n<b>Actions</b><br><p><p>Pour cela, le (la) volontaire sera amené(e) à:</p><p>- accueillir et informer les publics sur les activités de l'association et des structures partenaires</p><p>- participer au recensement des besoins des adhérents et plus largement des habitants du quartier</p><p>- participer à l’amélioration de l'information et de l'orientation des publics (affichage, supports communication)</p><p>- aider et accompagner physiquement les adhérents dans leurs démarches quotidiennes</p><p>- faciliter et encourager les adhérents à participer aux activités proposées</p><p>- soutenir l’équipe et les bénévoles sur les temps d'accompagnement scolaire</p><p>- participer à tous les temps de valorisation (expositions, semaine des arts etc.) et de convivialité</p><p>- proposer, mettre en place ou d'animer des activités/temps conviviaux qui permettront de récréer du lien social</p></p><br>\n<b>Capacité d’initiative</b><br><p>Proposition d'activités et de sorties destinées aux publics accueillis, création / amélioration des outils de outils de suivi.</p><br>\n<b>VOTRE ENVIRONNEMENT</b><br><b>Formations obligatoires proposées</b><br><p>La formation civique et citoyenne est choisie par le / la jeune accueilli(e) en fonction de son projet d'avenir et / ou de ses centres d'intérêts.</p><br><b>Tutorat et accompagnement</b><br><p>Un(e) tuteur/trice référent secondé(e) par l'équipe encadrante salariée et bénévole.</p>",
+        "description": "EN QUELQUES MOTS\n\n\nLa mission proposée consiste à créer les conditions nécessaires au partage des\nexpériences et des idées en développant des temps d’accueil et de convivialité\npour les adhérents bénévoles et bénéficiaires (enfants, adolescents, familles,\nhabitants).\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nLe (la) volontaire assurera un rôle d'information, d'orientation et\nd'accompagnement. Il s'agira de créer du lien, de bien informer les adhérents\ndes activités de l'association et d'engager chacun dans une participation\ncivique et citoyenne.\n\n\n\n\n\nActions\n\n\n\n\nPour cela, le (la) volontaire sera amené(e) à:\n\n- accueillir et informer les publics sur les activités de l'association et des\nstructures partenaires\n\n- participer au recensement des besoins des adhérents et plus largement des\nhabitants du quartier\n\n- participer à l’amélioration de l'information et de l'orientation des publics\n(affichage, supports communication)\n\n- aider et accompagner physiquement les adhérents dans leurs démarches\nquotidiennes\n\n- faciliter et encourager les adhérents à participer aux activités proposées\n\n- soutenir l’équipe et les bénévoles sur les temps d'accompagnement scolaire\n\n- participer à tous les temps de valorisation (expositions, semaine des arts\netc.) et de convivialité\n\n- proposer, mettre en place ou d'animer des activités/temps conviviaux qui\npermettront de récréer du lien social\n\n\n\n\n\nCapacité d’initiative\n\n\nProposition d'activités et de sorties destinées aux publics accueillis, création\n/ amélioration des outils de outils de suivi.\n\n\n\nVOTRE ENVIRONNEMENT\nFormations obligatoires proposées\n\n\nLa formation civique et citoyenne est choisie par le / la jeune accueilli(e) en\nfonction de son projet d'avenir et / ou de ses centres d'intérêts.\n\n\nTutorat et accompagnement\n\n\nUn(e) tuteur/trice référent secondé(e) par l'équipe encadrante salariée et\nbénévole.",
+        "applicationUrl": "http://localhost:4000/r/a5a92db7-d608-4696-9ecf-fa8fc18eeebb/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_02.jpeg",
+        "remote": "no",
+        "openToMinors": true,
+        "reducedMobilityAccessible": true,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "e34e97a8-0bbc-4854-80e6-4a45595b76f6",
+        "title": "Sensibilisation et Promotion du Voyage participatif",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "culture-loisirs",
+        "domainOriginal": "Culture et loisirs",
+        "organizationName": "ALIORE,LES ATELIERS AUTOUR DU MONDE WORLDWIDE WORKSHOPS",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_02.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_02.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "MONTPELLIER",
+          "closestLat": 43.619265,
+          "closestLon": 3.833667,
+          "closestAddress": "23 RUE JEAN GIONO, 34080 MONTPELLIER, FR",
+          "addressId": "508ca2ab-4d1a-447b-bd19-b9a8eda5be10",
+          "distanceKm": 3.5920774352519627
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/e34e97a8-0bbc-4854-80e6-4a45595b76f6/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "bddd8a3c-92f7-4150-9cca-bb4fa395237c",
+        "totalScore": 0.588139,
+        "taxonomyScore": 0.293333,
+        "geoScore": 0.882945,
+        "taxonomyScores": {
+          "engagement_intent": 0.86,
+          "tranche_age": 0.9
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "culture_arts",
+            "taxonomyValueLabel": "Culture et arts",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "propose à ses adhérents de pratiquer des activités traditionnelles dans leur pays d'origine pour favoriser l'immersion culturelle, la transmission des savoirs / stages culinaires, d’artisanat, de danses ou de musique",
+              "reasoning": "La mission et les activités de l'association sont centrées sur la transmission culturelle, les arts et les traditions, ce qui correspond au domaine 'culture_arts'."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "favoriser l'immersion culturelle, la transmission des savoirs / transmission_pedagogie / Le volontaire contribue à la promotion du voyage participatif en France et dans le monde",
+              "reasoning": "La mission inclut explicitement la transmission de savoirs et la pédagogie, ce qui relève du domaine 'education_transmission'."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "culture_creation_medias",
+            "taxonomyValueLabel": "Culture, création et médias",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "stages culinaires, d’artisanat, de danses ou de musique / communication sur les réseaux sociaux (Facebook, Instagram, TikTok) en créant des contenus sur canva",
+              "reasoning": "Les activités principales relèvent de la culture, de la création et des médias, notamment via la communication digitale."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "favoriser l'immersion culturelle, la transmission des savoirs / transmission_pedagogie / Le volontaire contribue à la promotion du voyage participatif",
+              "reasoning": "La mission inclut une dimension éducative et d'animation, bien que moins centrale que la culture."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "communication_creation_numerique",
+            "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "contribue à la communication sur les réseaux sociaux (Facebook, Instagram, TikTok) en créant des contenus sur canva",
+              "reasoning": "La mission inclut explicitement la création de contenus digitaux et la gestion des réseaux sociaux."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "En lien avec la directrice, le volontaire contribue à la promotion du voyage participatif / participe à la prospection de nouveaux partenaires",
+              "reasoning": "La mission implique une collaboration avec la directrice et des partenaires, ainsi que des tâches d'organisation et de prospection."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "relation_client_commerce_strategie",
+            "taxonomyValueLabel": "Relation client, commerce, stratégie",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "aide à l'accueil des personnes qui cherchent à s'informer / prospection de nouveaux partenaires et programmes dans le monde",
+              "reasoning": "La mission inclut des interactions avec des clients ou partenaires et des actions de prospection, relevant de la relation client et du commerce."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "favoriser l'immersion culturelle, la transmission des savoirs / transmission_pedagogie",
+              "reasoning": "La mission est explicitement axée sur la transmission de savoirs et la pédagogie."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "contribue à la promotion du voyage participatif / participe à la prospection de nouveaux partenaires / communication sur les réseaux sociaux",
+              "reasoning": "Le volontaire soutient l'organisation via des tâches de promotion, de prospection et de communication."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "sensibilisation sur la problématique du tourisme participatif lors de salons et foires",
+              "reasoning": "La mission inclut des actions de sensibilisation et d'animation lors d'événements publics."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "education_culture_creation",
+            "taxonomyValueLabel": "Éducation, culture et création",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "favoriser l'immersion culturelle, la transmission des savoirs / stages culinaires, d’artisanat, de danses ou de musique",
+              "reasoning": "La mission relève de l'éducation, de la culture et de la création, notamment via la transmission de savoirs et d'activités artistiques."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "numerique_communication",
+            "taxonomyValueLabel": "Numérique et communication",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "communication sur les réseaux sociaux (Facebook, Instagram, TikTok) en créant des contenus sur canva",
+              "reasoning": "La mission inclut une dimension numérique et de communication digitale."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Mission du volontaire : rendre le voyage participatif accessible au plus grand nombre / type de mission : volontariat_service_civique",
+              "reasoning": "Le cadre de service civique implique un engagement structuré et institutionnel, justifiant cette classification."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_18_ans",
+            "taxonomyValueLabel": "Moins de 18 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_31_ans_handicap",
+            "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "service_civique",
+            "taxonomyValueLabel": "Service civique",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "e34e97a8-0bbc-4854-80e6-4a45595b76f6",
+        "title": "Sensibilisation et Promotion du Voyage participatif",
+        "domain": "culture-loisirs",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_02.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "ALIORE,LES ATELIERS AUTOUR DU MONDE WORLDWIDE WORKSHOPS",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "MONTPELLIER",
+          "address": "23 RUE JEAN GIONO, 34080 MONTPELLIER",
+          "lat": 43.619265,
+          "lon": 3.833667
+        },
+        "startAt": "2026-06-15T00:00:00.000Z",
+        "endAt": "2027-02-15T01:00:00.000Z",
+        "duration": 8,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>ALIORE, les ateliers autour du monde est une association de voyage participatif. Depuis 20 ans, elle propose à ses adhérents de pratiquer des activités traditionnelles dans leur pays d'origine pour favoriser l'immersion culturelle, la transmission des savoirs et le développement local. </p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p><strong>Mission du volontaire :</strong> rendre le voyage participatif accessible au plus grand nombre, en favorisant des immersions culturelles respectueuses et des rencontres interculturelles lesquelles renforcent la cohésion sociale. </p><p><br></p><p><br></p></p><br>\n<b>Actions</b><br><p><p>En lien avec la directrice, le volontaire contribue à la promotion du voyage participatif en France et dans le monde. Le</p><p>bureau se situe dans une petite boutique rue de la Méditerranée dans le centre de Montpellier. Le volontaire aide à</p><p>l'accueil des personnes qui cherchent à s'informer et à comprendre ce que nous faisons. Le volontaire participe aussi à la</p><p>sensibilisation sur la problématique du tourisme participatif lors de salons et foires. Le volontaire participe à la</p><p>prospection de nouveaux partenaires et programmes dans le monde en fonction de ses goûts / envies (par exemple un</p><p>passionné de cuisine peut prospecter de nouveaux programmes culinaires) ou de ses origines culturelles (par exemple</p><p>un volontaire d'origine chilienne peut prospecter dans son pays, etc… Le volontaire contribue également à la</p><p>communication sur les réseaux sociaux (Facebook, Instagram, TikTok) en créant des contenus sur canva.</p><p>Le bureau de l'association sera fermé trois semaines en été.</p></p><br>\n<b>Capacité d’initiative</b><br><p>La mission est accessible à toute personne intéressée par l'interculturalité.</p><br>",
+        "description": "EN QUELQUES MOTS\n\n\nALIORE, les ateliers autour du monde est une association de voyage participatif.\nDepuis 20 ans, elle propose à ses adhérents de pratiquer des activités\ntraditionnelles dans leur pays d'origine pour favoriser l'immersion culturelle,\nla transmission des savoirs et le développement local.\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nMission du volontaire : rendre le voyage participatif accessible au plus grand\nnombre, en favorisant des immersions culturelles respectueuses et des rencontres\ninterculturelles lesquelles renforcent la cohésion sociale.\n\n\n\n\n\n\n\n\n\n\n\nActions\n\n\n\n\nEn lien avec la directrice, le volontaire contribue à la promotion du voyage\nparticipatif en France et dans le monde. Le\n\nbureau se situe dans une petite boutique rue de la Méditerranée dans le centre\nde Montpellier. Le volontaire aide à\n\nl'accueil des personnes qui cherchent à s'informer et à comprendre ce que nous\nfaisons. Le volontaire participe aussi à la\n\nsensibilisation sur la problématique du tourisme participatif lors de salons et\nfoires. Le volontaire participe à la\n\nprospection de nouveaux partenaires et programmes dans le monde en fonction de\nses goûts / envies (par exemple un\n\npassionné de cuisine peut prospecter de nouveaux programmes culinaires) ou de\nses origines culturelles (par exemple\n\nun volontaire d'origine chilienne peut prospecter dans son pays, etc… Le\nvolontaire contribue également à la\n\ncommunication sur les réseaux sociaux (Facebook, Instagram, TikTok) en créant\ndes contenus sur canva.\n\nLe bureau de l'association sera fermé trois semaines en été.\n\n\n\n\n\nCapacité d’initiative\n\n\nLa mission est accessible à toute personne intéressée par l'interculturalité.\n",
+        "applicationUrl": "http://localhost:4000/r/e34e97a8-0bbc-4854-80e6-4a45595b76f6/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_02.jpeg",
+        "remote": "no",
+        "openToMinors": true,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "0d132648-b9ac-46d4-bc3a-1d654fc05208",
+        "title": "Contribuer au vivre ensemble et accompagner les élèves dans leur développement global",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "education",
+        "domainOriginal": "Éducation pour tous",
+        "organizationName": "ETABLISSEMENT SCOLAIRE PROTESTANT EVANGELIQUE ET DE RESSOURCES EDUCATIVES",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "SAINT AUNES",
+          "closestLat": 43.619794,
+          "closestLon": 3.962581,
+          "closestAddress": "103 CHE DE MAZES DE MESOUL, 34130 SAINT AUNES, FR",
+          "addressId": "6dd641e7-f816-4a6c-8145-0ea007b1e9f0",
+          "distanceKm": 6.984922437985889
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/0d132648-b9ac-46d4-bc3a-1d654fc05208/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "d141ef30-f63d-4222-af5d-3c86f51b05bc",
+        "totalScore": 0.54958,
+        "taxonomyScore": 0.314167,
+        "geoScore": 0.784994,
+        "taxonomyScores": {
+          "engagement_intent": 0.985,
+          "tranche_age": 0.9
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Participer à l’éducation de futurs citoyens / Soutenir les enseignants dans certaines activités pédagogiques / Proposer et animer des activités favorisant la coopération, le respect et l’inclusion / Participer à des projets éducatifs (artistiques, culturels, citoyens ou liés à la nature)",
+              "reasoning": "La mission est centrée sur l'accompagnement éducatif, la pédagogie et la transmission de valeurs citoyennes."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Contribuer à un climat scolaire apaisé en accompagnant les élèves dans la gestion des relations et des émotions / Aider à prévenir et à gérer les conflits par le dialogue et la médiation simple / Encourager les comportements responsables et valoriser les initiatives positives des élèves",
+              "reasoning": "Les tâches incluent explicitement la gestion des relations, la médiation et la promotion de comportements inclusifs, relevant du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Soutenir les enseignants dans certaines activités pédagogiques / Participer à des projets éducatifs (artistiques, culturels, citoyens ou liés à la nature)",
+              "reasoning": "La mission s'inscrit dans le secteur de l'éducation, de la formation et de l'animation éducative."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Accompagner les élèves dans la gestion des relations et des émotions / Aider à prévenir et à gérer les conflits par le dialogue et la médiation simple / Être à l’écoute des élèves et favoriser leur expression dans un cadre bienveillant",
+              "reasoning": "Les tâches impliquent un accompagnement humain, une écoute active et une médiation, relevant du management social et soin."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Proposer et animer des activités favorisant la coopération / Participer à l’organisation matérielle de la vie de classe et des espaces communs / Le volontaire est encouragé à proposer des projets et activités en lien avec ses talents",
+              "reasoning": "La mission met en avant la coopération, l'animation collective et l'organisation de projets, relevant des soft skills et de la coopération."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Participer à l’éducation de futurs citoyens / Soutenir les enseignants dans certaines activités pédagogiques / Proposer et animer des activités favorisant la coopération, le respect et l’inclusion",
+              "reasoning": "La mission est clairement axée sur la transmission de savoirs, de valeurs et de compétences aux élèves."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Proposer et animer des activités favorisant la coopération, le respect et l’inclusion / Participer à des projets éducatifs (artistiques, culturels, citoyens ou liés à la nature)",
+              "reasoning": "Les tâches incluent explicitement l'animation d'activités et de projets collectifs."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Contribuer à un climat scolaire apaisé en accompagnant les élèves dans la gestion des relations et des émotions / Être à l’écoute des élèves et favoriser leur expression dans un cadre bienveillant",
+              "reasoning": "La mission implique un accompagnement direct et bienveillant des élèves, relevant de l'aide directe."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Contribuer à l’organisation matérielle de la vie de classe et des espaces communs / Participer à l’organisation matérielle de la vie de classe et des espaces communs",
+              "reasoning": "Les tâches incluent des aspects organisationnels et logistiques liés au fonctionnement de l'école."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "volontariat_service_civique / Formations obligatoires proposées : PSC1 + formation civique et citoyenne / Suivi régulier par un tuteur, avec accompagnement personnalisé",
+              "reasoning": "La mission s'inscrit dans un cadre structuré de service civique avec formations obligatoires, tutorat et suivi personnalisé."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "education_culture_creation",
+            "taxonomyValueLabel": "Éducation, culture et création",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Participer à l’éducation de futurs citoyens / Proposer et animer des activités favorisant la coopération, le respect et l’inclusion / Participer à des projets éducatifs (artistiques, culturels, citoyens ou liés à la nature)",
+              "reasoning": "La mission combine éducation, culture et création à travers des projets variés et des activités d'animation."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Participer à l’éducation de futurs citoyens / Encourager les comportements responsables et valoriser les initiatives positives des élèves / formation civique et citoyenne",
+              "reasoning": "La mission inclut une dimension civique et citoyenne explicite, relevant de la formation en société, droit et politique."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_18_ans",
+            "taxonomyValueLabel": "Moins de 18 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_31_ans_handicap",
+            "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "service_civique",
+            "taxonomyValueLabel": "Service civique",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "0d132648-b9ac-46d4-bc3a-1d654fc05208",
+        "title": "Contribuer au vivre ensemble et accompagner les élèves dans leur développement global",
+        "domain": "education",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "ETABLISSEMENT SCOLAIRE PROTESTANT EVANGELIQUE ET DE RESSOURCES EDUCATIVES",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "SAINT AUNES",
+          "address": "103 CHE DE MAZES DE MESOUL, 34130 SAINT AUNES",
+          "lat": 43.619794,
+          "lon": 3.962581
+        },
+        "startAt": "2026-09-01T00:00:00.000Z",
+        "endAt": "2027-05-01T00:00:00.000Z",
+        "duration": 8,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>S’engager auprès d’une école pour accompagner les élèves dans leur vie quotidienne : favoriser un climat serein, soutenir les apprentissages, encourager l’autonomie, la coopération et le respect, et participer à des projets éducatifs variés.</p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p>Participer à l’éducation de futurs citoyens en contribuant à un environnement scolaire bienveillant, structurant et responsabilisant. La mission vise à développer le respect, l’engagement, l’entraide et la capacité à vivre ensemble dans une société.</p></p><br>\n<b>Actions</b><br><p><ul><li>Contribuer à un climat scolaire apaisé en accompagnant les élèves dans la gestion des relations et des émotions</li><li>Soutenir les enseignants dans certaines activités pédagogiques (accompagnement de groupes, aide à l’autonomie)</li><li>Participer aux temps de vie quotidienne (accueil, récréations, pause méridienne) pour favoriser un cadre sécurisant</li><li>Aider à prévenir et à gérer les conflits par le dialogue et la médiation simple</li><li>Proposer et animer des activités favorisant la coopération, le respect et l’inclusion</li><li>Participer à des projets éducatifs (artistiques, culturels, citoyens ou liés à la nature)</li><li>Encourager les comportements responsables et valoriser les initiatives positives des élèves</li><li>Contribuer à l’organisation matérielle de la vie de classe et des espaces communs</li><li>Être à l’écoute des élèves et favoriser leur expression dans un cadre bienveillant</li></ul></p><br>\n<b>Capacité d’initiative</b><br><p>Le volontaire est encouragé à proposer des projets et activités en lien avec ses talents et les besoins des élèves.</p><br>\n<b>VOTRE ENVIRONNEMENT</b><br><b>Formations obligatoires proposées</b><br><p>PSC1 + formation civique et citoyenne (valeurs, engagement, éducation, posture éducative, vivre ensemble)</p><br><b>Tutorat et accompagnement</b><br><p>Suivi régulier par un tuteur, avec accompagnement personnalisé et aide à la réflexion sur le projet d’avenir.</p>",
+        "description": "EN QUELQUES MOTS\n\n\nS’engager auprès d’une école pour accompagner les élèves dans leur vie\nquotidienne : favoriser un climat serein, soutenir les apprentissages,\nencourager l’autonomie, la coopération et le respect, et participer à des\nprojets éducatifs variés.\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nParticiper à l’éducation de futurs citoyens en contribuant à un environnement\nscolaire bienveillant, structurant et responsabilisant. La mission vise à\ndévelopper le respect, l’engagement, l’entraide et la capacité à vivre ensemble\ndans une société.\n\n\n\n\n\nActions\n\n\n\n\n • Contribuer à un climat scolaire apaisé en accompagnant les élèves dans la\n   gestion des relations et des émotions\n • Soutenir les enseignants dans certaines activités pédagogiques\n   (accompagnement de groupes, aide à l’autonomie)\n • Participer aux temps de vie quotidienne (accueil, récréations, pause\n   méridienne) pour favoriser un cadre sécurisant\n • Aider à prévenir et à gérer les conflits par le dialogue et la médiation\n   simple\n • Proposer et animer des activités favorisant la coopération, le respect et\n   l’inclusion\n • Participer à des projets éducatifs (artistiques, culturels, citoyens ou liés\n   à la nature)\n • Encourager les comportements responsables et valoriser les initiatives\n   positives des élèves\n • Contribuer à l’organisation matérielle de la vie de classe et des espaces\n   communs\n • Être à l’écoute des élèves et favoriser leur expression dans un cadre\n   bienveillant\n\n\n\n\n\nCapacité d’initiative\n\n\nLe volontaire est encouragé à proposer des projets et activités en lien avec ses\ntalents et les besoins des élèves.\n\n\n\nVOTRE ENVIRONNEMENT\nFormations obligatoires proposées\n\n\nPSC1 + formation civique et citoyenne (valeurs, engagement, éducation, posture\néducative, vivre ensemble)\n\n\nTutorat et accompagnement\n\n\nSuivi régulier par un tuteur, avec accompagnement personnalisé et aide à la\nréflexion sur le projet d’avenir.",
+        "applicationUrl": "http://localhost:4000/r/0d132648-b9ac-46d4-bc3a-1d654fc05208/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+        "remote": "no",
+        "openToMinors": true,
+        "reducedMobilityAccessible": true,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "78e15443-cbc3-4cb9-bbb1-ee0644dbba18",
+        "title": "Sensibiliser le grand public sur les défis climatiques et environnementaux.",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "environnement",
+        "domainOriginal": "Environnement",
+        "organizationName": "MAIRIE BALARUC LES BAINS",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_03.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_03.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "BALARUC LES BAINS",
+          "closestLat": 43.442892,
+          "closestLon": 3.67655,
+          "closestAddress": "23 avenue de la cadole, 34540 BALARUC LES BAINS, FR",
+          "addressId": "2fbc4bd4-61a4-4e03-a1cd-91a5a889f442",
+          "distanceKm": 24.67564376304319
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/78e15443-cbc3-4cb9-bbb1-ee0644dbba18/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "67d90227-6bdf-4382-8eb3-0351797362ad",
+        "totalScore": 0.362601,
+        "taxonomyScore": 0.3,
+        "geoScore": 0.425201,
+        "taxonomyScores": {
+          "engagement_intent": 0.9,
+          "tranche_age": 0.9
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "sensibiliser aux enjeux climatiques / actions pédagogiques / ateliers de sensibilisation / coorganiser et animer des ateliers de sensibilisation",
+              "reasoning": "La mission inclut une forte dimension de transmission de savoirs et de pédagogie, notamment via des ateliers et des actions de sensibilisation."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "environnement_agriculture",
+            "taxonomyValueLabel": "Environnement et agriculture",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "enjeux climatiques, écologiques et urbains / transition écologique et d’aménagement durable / ateliers de sensibilisation (biodiversité, gestion de l'eau, végétalisation)",
+              "reasoning": "La mission relève du secteur environnemental et agricole, avec un focus sur la gestion de l'eau, la biodiversité et l'aménagement durable."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "actions pédagogiques / ateliers de sensibilisation / coorganiser et animer des ateliers de sensibilisation",
+              "reasoning": "La mission inclut une dimension éducative et d'animation, notamment via des ateliers et des actions de sensibilisation."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "communication_creation_numerique",
+            "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "création de supports de communication (visuels, brochures, posts sur réseaux sociaux, panneaux d’exposition)",
+              "reasoning": "La mission inclut la création de supports de communication, notamment numériques et visuels."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "coorganiser et animer des ateliers / contribuer à l’organisation d’événements publics / appuyer les démarches de concertation citoyenne",
+              "reasoning": "La mission implique une forte dimension de coopération, d'organisation et de soft skills, notamment via la coorganisation d'ateliers et d'événements."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "gestion_pilotage_juridique",
+            "taxonomyValueLabel": "Gestion, pilotage, juridique",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "appuyer les démarches de concertation citoyenne / participer à la création de supports de communication",
+              "reasoning": "La mission inclut des tâches de coordination et de gestion de projet, notamment via la concertation citoyenne et la création de supports."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "sensibiliser aux enjeux climatiques / actions pédagogiques / ateliers de sensibilisation",
+              "reasoning": "La mission est clairement axée sur la transmission de savoirs et la sensibilisation des publics."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "coorganiser et animer des ateliers de sensibilisation / contribuer à l’organisation d’événements publics",
+              "reasoning": "La mission inclut explicitement l'animation d'ateliers et d'événements publics."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "participer à la création de supports de communication / contribuer à l’organisation d’événements publics / appuyer les démarches de concertation citoyenne",
+              "reasoning": "La mission inclut des tâches de soutien organisationnel, notamment via la création de supports et l'organisation d'événements."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "action_terrain",
+            "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "aller à la rencontre des habitants / recueillir leurs attentes / présenter les projets du service",
+              "reasoning": "La mission implique des actions concrètes sur le terrain, comme la rencontre avec les habitants et la présentation de projets."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "environnement_nature_sciences",
+            "taxonomyValueLabel": "Environnement, nature et sciences",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "sensibiliser aux enjeux climatiques, écologiques et urbains / ateliers de sensibilisation (biodiversité, gestion de l'eau, végétalisation)",
+              "reasoning": "La mission relève du domaine environnemental et scientifique, avec un focus sur les enjeux climatiques et écologiques."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "appuyer les démarches de concertation citoyenne / participer à la création de supports de communication",
+              "reasoning": "La mission inclut des aspects liés à la participation citoyenne et à la communication, relevant du domaine société, droit et politique."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_18_ans",
+            "taxonomyValueLabel": "Moins de 18 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_31_ans_handicap",
+            "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "service_civique",
+            "taxonomyValueLabel": "Service civique",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "78e15443-cbc3-4cb9-bbb1-ee0644dbba18",
+        "title": "Sensibiliser le grand public sur les défis climatiques et environnementaux.",
+        "domain": "environnement",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_03.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "MAIRIE BALARUC LES BAINS",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "BALARUC LES BAINS",
+          "address": "23 avenue de la cadole, 34540 BALARUC LES BAINS",
+          "lat": 43.442892,
+          "lon": 3.67655
+        },
+        "startAt": "2026-04-01T00:00:00.000Z",
+        "endAt": "2026-12-01T01:00:00.000Z",
+        "duration": 8,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Balaruc-les-Bains renforce ses actions pour l’adaptation climatique et la renaturation.La ville sensibilise habitants et acteurs aux enjeux environnementaux afin de limiter chaleur,ruissellement et inondations.Elle souhaite accueillir un volontaire en service civique pour accompagner cette démarche.</p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p>Cette mission relève du service civique car elle engage le volontaire dans des actions d’intérêt général : sensibiliser aux enjeux climatiques, encourager des comportements durables et renforcer la participation citoyenne pour un territoire plus résilient.</p></p><br>\n<b>Actions</b><br><p><p>-Participer à la sensibilisation des publics aux enjeux climatiques, écologiques et urbains en favorisant la participation citoyenne dans les projets de transition écologique et d’aménagement durable.</p><p>-Soutenir la mise en œuvre d’actions pédagogiques et la diffusion de bonnes pratiques environnementales et découvrir d'autres initiatives via une immersion sur le bassin de Thau (Mission Shadowing)</p><p>-Coorganiser et animer des ateliers de sensibilisation (biodiversité, gestion de l'eau, végétalisation…)</p><p>-Participer à la création de supports de communication ((visuels, brochures, posts sur réseaux sociaux, panneaux d’exposition…) dans un cadre collectif (mobilisation d'habitants, de jeunes...)</p><p>-Contribuer à l’organisation d’événements publics (balades urbaines, journées à thèmes, concertations autour de projets de réaménagement…)</p><p>-Aller à la rencontre des habitants, recueillir leurs attentes, et présenter les projets du service.</p><p>-Appuyer les démarches de concertation citoyenne.</p></p><br>",
+        "description": "EN QUELQUES MOTS\n\n\nBalaruc-les-Bains renforce ses actions pour l’adaptation climatique et la\nrenaturation.La ville sensibilise habitants et acteurs aux enjeux\nenvironnementaux afin de limiter chaleur,ruissellement et inondations.Elle\nsouhaite accueillir un volontaire en service civique pour accompagner cette\ndémarche.\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nCette mission relève du service civique car elle engage le volontaire dans des\nactions d’intérêt général : sensibiliser aux enjeux climatiques, encourager des\ncomportements durables et renforcer la participation citoyenne pour un\nterritoire plus résilient.\n\n\n\n\n\nActions\n\n\n\n\n-Participer à la sensibilisation des publics aux enjeux climatiques, écologiques\net urbains en favorisant la participation citoyenne dans les projets de\ntransition écologique et d’aménagement durable.\n\n-Soutenir la mise en œuvre d’actions pédagogiques et la diffusion de bonnes\npratiques environnementales et découvrir d'autres initiatives via une immersion\nsur le bassin de Thau (Mission Shadowing)\n\n-Coorganiser et animer des ateliers de sensibilisation (biodiversité, gestion de\nl'eau, végétalisation…)\n\n-Participer à la création de supports de communication ((visuels, brochures,\nposts sur réseaux sociaux, panneaux d’exposition…) dans un cadre collectif\n(mobilisation d'habitants, de jeunes...)\n\n-Contribuer à l’organisation d’événements publics (balades urbaines, journées à\nthèmes, concertations autour de projets de réaménagement…)\n\n-Aller à la rencontre des habitants, recueillir leurs attentes, et présenter les\nprojets du service.\n\n-Appuyer les démarches de concertation citoyenne.\n\n\n",
+        "applicationUrl": "http://localhost:4000/r/78e15443-cbc3-4cb9-bbb1-ee0644dbba18/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_03.jpeg",
+        "remote": "no",
+        "openToMinors": true,
+        "reducedMobilityAccessible": true,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "97883a6b-9d6a-4d1b-8300-1a465ce0f4ce",
+        "title": "Service civique : Participer au bonheur de nos résidents au sein de l'EHPAD LES MAZETS DE L'ARGILIER",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "solidarite-insertion",
+        "domainOriginal": "Solidarité",
+        "organizationName": "EHPAD LES MAZETS DE L'ARGILIER",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Aubais",
+          "closestLat": 43.751354,
+          "closestLon": 4.149073,
+          "closestAddress": "231 Rue de l’Argilier, 30250 Aubais, FR",
+          "addressId": "e2e6d2a3-2751-4493-9520-6b609240dacf",
+          "distanceKm": 26.908292575247305
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/97883a6b-9d6a-4d1b-8300-1a465ce0f4ce/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "8b9cf65a-deb1-4a0b-9a8a-8a5d4293a25f",
+        "totalScore": 0.355104,
+        "taxonomyScore": 0.316667,
+        "geoScore": 0.393541,
+        "taxonomyScores": {
+          "engagement_intent": 1,
+          "tranche_age": 0.9
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "créer du lien social auprès des résidents et à animer des moments de convivialité / participer aux animations et jeux de société auprès des résidents / réaliser des temps d'échanges individuels auprès des personnes âgées",
+              "reasoning": "Les tâches principales visent explicitement la création de lien social, l'animation et l'accompagnement des résidents, ce qui relève du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "créer du lien social auprès des résidents / participer aux animations et jeux de société / réaliser des temps d'échanges individuels",
+              "reasoning": "La mission implique un contact direct et régulier avec les bénéficiaires pour les soutenir et les accompagner."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "animer des moments de convivialité, récréatifs et culturels / participer aux animations et jeux de société / participer à l'animation des activités physiques adaptées",
+              "reasoning": "Les tâches incluent explicitement l'animation d'activités collectives et récréatives."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "proposer de nouvelles idées en lien avec vos appétences et les besoins des personnes âgées",
+              "reasoning": "La mission encourage l'initiative et la proposition d'idées, ce qui relève d'une forme de transmission ou d'accompagnement personnalisé."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "créer du lien social auprès des résidents / réaliser des temps d'échanges individuels / participer aux animations",
+              "reasoning": "Les tâches principales relèvent de l'accompagnement social, de l'aide aux personnes et de la création de lien, ce qui correspond à cette compétence."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "créer du lien social auprès des résidents / participer aux animations et jeux de société / réaliser des temps d'échanges individuels",
+              "reasoning": "La mission se déroule dans un EHPAD, un établissement dédié à l'aide à la personne âgée, ce qui relève du secteur santé, social et aide à la personne."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Type de mission : volontariat_service_civique / Vous serez accompagné tout au long de votre service civique / Formations obligatoires proposées",
+              "reasoning": "Le cadre du service civique est explicitement structuré avec un tutorat, des formations obligatoires et un accompagnement, ce qui relève d'un engagement en cadre structuré."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "social_sante_sport",
+            "taxonomyValueLabel": "Social, santé et sport",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "créer du lien social auprès des résidents / participer aux animations et jeux de société / réaliser des temps d'échanges individuels",
+              "reasoning": "La mission combine des aspects sociaux, de santé (EHPAD) et d'animation, ce qui correspond au domaine social, santé et sport."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_18_ans",
+            "taxonomyValueLabel": "Moins de 18 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_31_ans_handicap",
+            "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "service_civique",
+            "taxonomyValueLabel": "Service civique",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "97883a6b-9d6a-4d1b-8300-1a465ce0f4ce",
+        "title": "Service civique : Participer au bonheur de nos résidents au sein de l'EHPAD LES MAZETS DE L'ARGILIER",
+        "domain": "solidarite-insertion",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "EHPAD LES MAZETS DE L'ARGILIER",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Aubais",
+          "address": "231 Rue de l’Argilier, 30250 Aubais",
+          "lat": 43.751354,
+          "lon": 4.149073
+        },
+        "startAt": "2026-04-13T00:00:00.000Z",
+        "endAt": "2026-12-13T01:00:00.000Z",
+        "duration": 8,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Vous contribuerez à créer du lien social auprès des résidents et à animer des moments de convivialité, récréatifs et culturels. Vous pourrez faire preuve d'initiative et proposer de nouvelles idées.</p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p>Votre mission citoyenne est de permettre aux résidents de sortir du quotidien et parfois de l'isolement en proposant des animations et des temps de partage intergénérationnel.</p></p><br>\n<b>Actions</b><br><p><p>Tout au long de votre volontariat, vous serez accompagné par votre tutrice. </p><p>Vos missions seront de : </p><p>- Participer aux animations et jeux de société auprès des résidents ;</p><p>- Participer à l'animation des activités physiques adaptées ;</p><p>- Réaliser des temps d'échanges individuels auprès des personnes âgées.</p><p><br></p></p><br>\n<b>Capacité d’initiative</b><br><p>Vous serez encouragé à proposer de nouvelles idées en lien avec vos appétences et les besoins des personnes âgées. </p><br>\n<b>VOTRE ENVIRONNEMENT</b><br><b>Formations obligatoires proposées</b><br><p>Vous bénéficierez de la formation civique et citoyenne ainsi que de la formation aux premiers secours.</p><br><b>Tutorat et accompagnement</b><br><p>Vous serez accompagné tout au long de votre service civique dans vos missions et également dans le développement de votre projet d'avenir.</p>",
+        "description": "EN QUELQUES MOTS\n\n\nVous contribuerez à créer du lien social auprès des résidents et à animer des\nmoments de convivialité, récréatifs et culturels. Vous pourrez faire preuve\nd'initiative et proposer de nouvelles idées.\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nVotre mission citoyenne est de permettre aux résidents de sortir du quotidien et\nparfois de l'isolement en proposant des animations et des temps de partage\nintergénérationnel.\n\n\n\n\n\nActions\n\n\n\n\nTout au long de votre volontariat, vous serez accompagné par votre tutrice.\n\nVos missions seront de :\n\n- Participer aux animations et jeux de société auprès des résidents ;\n\n- Participer à l'animation des activités physiques adaptées ;\n\n- Réaliser des temps d'échanges individuels auprès des personnes âgées.\n\n\n\n\n\n\n\n\nCapacité d’initiative\n\n\nVous serez encouragé à proposer de nouvelles idées en lien avec vos appétences\net les besoins des personnes âgées.\n\n\n\nVOTRE ENVIRONNEMENT\nFormations obligatoires proposées\n\n\nVous bénéficierez de la formation civique et citoyenne ainsi que de la formation\naux premiers secours.\n\n\nTutorat et accompagnement\n\n\nVous serez accompagné tout au long de votre service civique dans vos missions et\négalement dans le développement de votre projet d'avenir.",
+        "applicationUrl": "http://localhost:4000/r/97883a6b-9d6a-4d1b-8300-1a465ce0f4ce/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+        "remote": "no",
+        "openToMinors": true,
+        "reducedMobilityAccessible": true,
+        "places": 1
+      },
+      "descriptionMissing": false
+    }
+  ],
+  "deterministic": {
+    "geo": 4,
+    "format": 1,
+    "missionsSansTagFormat": [],
+    "gateViolations": []
+  },
+  "judgeRuns": [
+    {
+      "runIndex": 0,
+      "seed": 298917916,
+      "order": [
+        "78e15443-cbc3-4cb9-bbb1-ee0644dbba18",
+        "e34e97a8-0bbc-4854-80e6-4a45595b76f6",
+        "a5a92db7-d608-4696-9ecf-fa8fc18eeebb",
+        "0d132648-b9ac-46d4-bc3a-1d654fc05208",
+        "97883a6b-9d6a-4d1b-8300-1a465ce0f4ce"
+      ],
+      "output": {
+        "coherence": {
+          "score": 4,
+          "missionsPertinentes": [
+            2,
+            3,
+            4,
+            1
+          ],
+          "justification": "Les missions 2, 3 et 4 sont clairement en lien avec l'objectif de reprendre confiance par l'engagement social et l'animation, avec un contact direct et un accompagnement des publics (quartier, élèves, personnes âgées). La mission 1, bien que centrée sur le voyage participatif, inclut de l'animation et de la sensibilisation à Montpellier, ce qui peut aussi correspondre à ses motivations. La mission 0 est moins pertinente car elle est éloignée géographiquement et centrée sur l'environnement, sans lien direct avec l'animation ou l'aide directe.",
+          "missionIdsPertinents": [
+            "e34e97a8-0bbc-4854-80e6-4a45595b76f6",
+            "a5a92db7-d608-4696-9ecf-fa8fc18eeebb",
+            "0d132648-b9ac-46d4-bc3a-1d654fc05208",
+            "78e15443-cbc3-4cb9-bbb1-ee0644dbba18"
+          ]
+        },
+        "homogeneite": {
+          "score": 4,
+          "familles": [
+            "animation sociale et accompagnement",
+            "sensibilisation et promotion",
+            "éducation"
+          ],
+          "justification": "Les missions pertinentes se répartissent en trois familles : animation sociale et accompagnement (2,3,4), sensibilisation et promotion (1), et éducation (3). La famille animation sociale est majoritaire avec au moins 3 missions, ce qui donne une bonne homogénéité."
+        },
+        "cause": null
+      }
+    },
+    {
+      "runIndex": 1,
+      "seed": 315695535,
+      "order": [
+        "a5a92db7-d608-4696-9ecf-fa8fc18eeebb",
+        "0d132648-b9ac-46d4-bc3a-1d654fc05208",
+        "78e15443-cbc3-4cb9-bbb1-ee0644dbba18",
+        "e34e97a8-0bbc-4854-80e6-4a45595b76f6",
+        "97883a6b-9d6a-4d1b-8300-1a465ce0f4ce"
+      ],
+      "output": {
+        "coherence": {
+          "score": 3,
+          "missionsPertinentes": [
+            1,
+            4,
+            5
+          ],
+          "justification": "Parmi les 5 missions, trois sont pertinentes pour Julie qui souhaite reprendre confiance via un engagement régulier en animation et aide directe. La mission 0 (lien social quartier) est partiellement pertinente mais moins ciblée sur animation directe. La mission 1 (accompagnement élèves) correspond bien à l'animation et aide directe, favorisant la confiance. La mission 4 (EHPAD) propose animation et lien social, adaptée à son profil. La mission 3 (voyage participatif) est moins en lien avec aide directe ou animation locale. La mission 2 (sensibilisation environnement) est éloignée de ses motivations et compétences.",
+          "missionIdsPertinents": [
+            "a5a92db7-d608-4696-9ecf-fa8fc18eeebb",
+            "e34e97a8-0bbc-4854-80e6-4a45595b76f6",
+            "97883a6b-9d6a-4d1b-8300-1a465ce0f4ce"
+          ]
+        },
+        "homogeneite": {
+          "score": 4,
+          "familles": [
+            "Animation sociale et éducative",
+            "Sensibilisation environnementale",
+            "Promotion culturelle"
+          ],
+          "justification": "Les missions pertinentes se regroupent majoritairement dans la famille animation sociale et éducative (missions 0,1,4). La mission 2 relève de la sensibilisation environnementale et la mission 3 de la promotion culturelle. Il y a donc 3 familles dont une avec au moins 3 missions."
+        },
+        "cause": "offre"
+      }
+    }
+  ],
+  "engineVersion": "m2",
+  "startedAt": "2026-07-07T12:02:09.739Z",
+  "finishedAt": "2026-07-07T12:02:19.818Z",
+  "verdict": 3.2,
+  "cleanup": {
+    "userScoringDeleted": true
+  }
+}

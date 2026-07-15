@@ -1,0 +1,2499 @@
+{
+  "status": "success",
+  "parcours": {
+    "id": "julie-handicap-confiance",
+    "segment": "demandeur_emploi",
+    "label": "Julie, 26 ans, demandeuse d'emploi à Montpellier, en situation de handicap, veut reprendre confiance",
+    "locationLabel": "Montpellier (34)",
+    "age": 26,
+    "handicap": "oui",
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 26,
+          "handicap": true
+        }
+      },
+      {
+        "taxonomy": "handicap",
+        "value": "oui"
+      },
+      {
+        "taxonomy": "statut",
+        "value": "demandeur_emploi"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 43.610769,
+          "lon": 3.876716,
+          "country_code": "fr",
+          "label": "Montpellier (34)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "reguliere"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "reprendre_confiance"
+      },
+      {
+        "taxonomy": "engagement_intent",
+        "value": "animation"
+      },
+      {
+        "taxonomy": "engagement_intent",
+        "value": "aide_directe"
+      }
+    ]
+  },
+  "payload": {
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 26,
+          "handicap": true
+        }
+      },
+      {
+        "taxonomy": "handicap",
+        "value": "oui"
+      },
+      {
+        "taxonomy": "statut",
+        "value": "demandeur_emploi"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 43.610769,
+          "lon": 3.876716,
+          "country_code": "fr",
+          "label": "Montpellier (34)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "reguliere"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "reprendre_confiance"
+      },
+      {
+        "taxonomy": "engagement_intent",
+        "value": "animation"
+      },
+      {
+        "taxonomy": "engagement_intent",
+        "value": "aide_directe"
+      }
+    ],
+    "distinctId": "eval:m2-260707:julie-handicap-confiance",
+    "missionAlertEnabled": false
+  },
+  "userScoringId": "aa03f69f-3869-4b3b-a943-ffc8a8574916",
+  "match": {
+    "tookMs": 7729,
+    "engineVersion": "m2",
+    "items": [
+      {
+        "mission": {
+          "id": "362dfc32-8609-4811-bab7-5f4049b4d576",
+          "title": "Médiateur numérique pour l'accompagnement des usagers en préfecture (DEN/PFINAT)",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "solidarite-insertion",
+          "domainOriginal": "Solidarité",
+          "organizationName": "Préfecture de l'Hérault",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Montpellier",
+            "closestLat": 43.610624,
+            "closestLon": 3.876669,
+            "closestAddress": "34, Place des Martyrs de la Résistance, 34000 Montpellier, FR",
+            "addressId": "4dacf43f-65c5-437b-a9aa-941b05434b6f",
+            "distanceKm": 0.016561342161231035
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/362dfc32-8609-4811-bab7-5f4049b4d576/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "7cd7e970-9932-4669-9cf8-2f2fbdf42db5",
+          "totalScore": 0.731796,
+          "taxonomyScore": 0.464167,
+          "geoScore": 0.999426,
+          "taxonomyScores": {
+            "engagement_intent": 0.885,
+            "tranche_age": 0.9,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Le médiateur numérique sert d'intermédiaire dans la relation entre les usagers et l'administration / accompagner les usagers de la préfecture dans la réalisation de leurs démarches dématérialisées / Public cible : adultes seniors handicap marginalisees_fragilisees refugiees",
+                "reasoning": "La mission cible explicitement l'accompagnement de publics fragilisés (seniors, handicapés, marginalisés, réfugiés) dans des démarches administratives, ce qui relève du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "gestion_projet",
+              "taxonomyValueLabel": "Gestion de projet",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "concurrer au fonctionnement quotidien de la Plateforme Interdépartementale de la Naturalisation (PFINAT) / tenir le planning des rendez-vous / tri, le suivi et la répartition des demandes",
+                "reasoning": "Les tâches décrites (organisation, coordination, gestion administrative) relèvent principalement de la gestion de projet."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Public cible : adultes seniors handicap marginalisees_fragilisees refugiees / accompagnement des usagers dans la réalisation de leurs démarches administratives en ligne",
+                "reasoning": "La mission s'inscrit dans le secteur de l'aide à la personne et du social, avec un public vulnérable."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "gestion_commerce_organisation",
+              "taxonomyValueLabel": "Gestion, commerce et organisation",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "tenir le planning des rendez-vous / tri, le suivi et la répartition des demandes / assurer le fonctionnement quotidien de la Plateforme Interdépartementale de la Naturalisation",
+                "reasoning": "Les tâches incluent une forte dimension organisationnelle et administrative."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Durée : 8 heures — De 24h à 30h / Dates : du 1 septembre 2026 au 1 mai 2027",
+                "reasoning": "Mission s'étalant sur plusieurs mois avec un volume horaire régulier (24h à 30h au total)."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.92,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "faire preuve de courtoisie, de pédagogie et de capacités d'adaptation face au rapport au numérique de l'usager / accompagnement des usagers",
+                "reasoning": "La mission implique un accompagnement humain, social et pédagogique des usagers."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "gestion_pilotage_juridique",
+              "taxonomyValueLabel": "Gestion, pilotage, juridique",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "assurer le tri, le suivi et la répartition des demandes adressées au service par voie postale / tenir le planning des rendez-vous",
+                "reasoning": "Les tâches incluent une dimension administrative, organisationnelle et de gestion de processus."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "assurer le fonctionnement quotidien de la Plateforme Interdépartementale de la Naturalisation / tri, le suivi et la répartition des demandes",
+                "reasoning": "La mission nécessite une bonne organisation, une adaptation aux besoins des usagers et un travail collaboratif."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "faire preuve de courtoisie, de pédagogie et de capacités d'adaptation face au rapport au numérique de l'usager / accompagnement des usagers dans la réalisation de leurs démarches administratives en ligne",
+                "reasoning": "La mission inclut explicitement la transmission de connaissances et l'accompagnement pédagogique."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "accueillir physiquement et téléphoniquement les usagers / assister les usagers dans la réalisation de leurs démarches au point d'accès numérique",
+                "reasoning": "Contact direct et assistance aux usagers dans leurs démarches."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "concurrer au fonctionnement quotidien de la Plateforme Interdépartementale de la Naturalisation / tenir le planning des rendez-vous / tri, le suivi et la répartition des demandes",
+                "reasoning": "La mission soutient le fonctionnement organisationnel et administratif de la plateforme."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Type de mission : volontariat_service_civique / Organisation porteuse : Préfecture de l'Hérault (service déconcentré du ministère de l'Intérieur)",
+                "reasoning": "La mission s'inscrit dans un cadre institutionnel très structuré (service civique au sein d'une préfecture)."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "accompagner les usagers de la préfecture dans la réalisation de leurs démarches dématérialisées / Organisation porteuse : Préfecture de l'Hérault (représente l’État dans le département)",
+                "reasoning": "La mission est liée aux institutions publiques, au droit et à la vie administrative."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "social_sante_sport",
+              "taxonomyValueLabel": "Social, santé et sport",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Public cible : adultes seniors handicap marginalisees_fragilisees refugiees / accompagnement des usagers",
+                "reasoning": "La mission cible des publics fragilisés et relève du domaine social et de l'aide à la personne."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_18_ans",
+              "taxonomyValueLabel": "Moins de 18 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_31_ans_handicap",
+              "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "8e2968b0-53e1-44bf-ae52-d71c403496ce",
+          "title": "Favoriser l’accès à la santé pour tous et toutes - Ville de Montpellier",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "sante",
+          "domainOriginal": "Santé",
+          "organizationName": "Mission Locale Jeunes de l'Agglomération de Montpellier",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_02.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_02.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Montpellier",
+            "closestLat": 43.605353,
+            "closestLon": 3.879102,
+            "closestAddress": "16 Rue de la République, 34000 Montpellier, FR",
+            "addressId": "2ed2c3da-75c5-414e-a9b9-4b2f9d6a9c42",
+            "distanceKm": 0.6321292683431071
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/8e2968b0-53e1-44bf-ae52-d71c403496ce/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "a6b70f23-cfb4-44d1-8998-10db7454e70f",
+          "totalScore": 0.729582,
+          "taxonomyScore": 0.480833,
+          "geoScore": 0.97833,
+          "taxonomyScores": {
+            "engagement_intent": 0.985,
+            "tranche_age": 0.9,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "sante_soins",
+              "taxonomyValueLabel": "Santé et soins",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "unité mobile de prévention santé / informer, dépister et accompagner / ateliers d’activité physique et des entretiens sur la santé, les addictions et l’accès aux droits",
+                "reasoning": "La mission est explicitement centrée sur la prévention santé, les dépistages et l'accompagnement médical ou médico-social."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "réduction des inégalités sociales et territoriales de santé / aller à la rencontre des habitants du quartier / identification par les habitants et les partenaires relais",
+                "reasoning": "La mission vise à réduire les inégalités d'accès à la santé, ce qui relève de la solidarité et de l'inclusion sociale."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "unité mobile de prévention santé / informer, dépister et accompagner / ateliers d’activité physique et des entretiens sur la santé",
+                "reasoning": "La mission s'inscrit dans le secteur de la santé et de l'aide à la personne."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "gestion_commerce_organisation",
+              "taxonomyValueLabel": "Gestion, commerce et organisation",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "contribuer au suivi des actions du projet de prévention santé / participer aux actions et évènements",
+                "reasoning": "Les tâches incluent un volet de coordination et de suivi des actions, relevant de la gestion de projet."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Durée : 8 heures — De 24h à 30h / Dates : du 20 juin 2026 au 20 février 2027",
+                "reasoning": "Mission s'étalant sur plusieurs mois avec un volume horaire significatif mais inférieur à 20h par semaine."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "informer, dépister et accompagner / ateliers d’activité physique et des entretiens sur la santé",
+                "reasoning": "Les tâches principales impliquent un accompagnement direct et une interaction avec les publics."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "aller à la rencontre des habitants du quartier / contribuer à l’identification par les habitants et les partenaires relais / participer aux actions et évènements",
+                "reasoning": "La mission nécessite une forte capacité à travailler en équipe, à organiser des actions et à interagir avec divers partenaires."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "gestion_pilotage_juridique",
+              "taxonomyValueLabel": "Gestion, pilotage, juridique",
+              "enrichmentConfidence": 0.6,
+              "scoringScore": 0.35,
+              "evidence": {
+                "extract": "contribuer au suivi des actions du projet de prévention santé",
+                "reasoning": "Le suivi des actions implique une dimension de pilotage et de gestion administrative, bien que moins centrale que les autres compétences."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "informer, dépister et accompagner / ateliers d’activité physique et des entretiens sur la santé",
+                "reasoning": "La mission implique un contact direct avec les bénéficiaires pour des actions de prévention et d'accompagnement."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "ateliers nutrition, dépistages diabète, accès aux droits de santé / moments de convivialité",
+                "reasoning": "La mission inclut des actions de sensibilisation et de transmission d'informations sur la santé."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "participer aux actions et évènements (ateliers nutrition, dépistages diabète, accès aux droits de santé, moments de convivialité etc.)",
+                "reasoning": "La mission implique l'animation d'ateliers et d'événements collectifs."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "contribuer au suivi des actions du projet de prévention santé / contribuer à la communication autour de ces actions",
+                "reasoning": "Les tâches incluent un volet de soutien organisationnel et de communication."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "volontaires en Service Civique / dans le cadre des actions du Service Cohésion Sociale de la Ville de Montpellier",
+                "reasoning": "La mission s'inscrit dans un cadre institutionnel structuré (Service Civique, Ville de Montpellier)."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_18_ans",
+              "taxonomyValueLabel": "Moins de 18 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_31_ans_handicap",
+              "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "65081fea0dbd937c61bbcce6",
+          "title": "J'anime un atelier d'épanouissement ou une sortie culturelle",
+          "remote": "no",
+          "schedule": "",
+          "domain": "humanitaire",
+          "domainOriginal": null,
+          "organizationName": "Gammes",
+          "publisherId": "62f3b71494055510cc771e09",
+          "publisherName": "Fehap",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_03.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_03.jpeg",
+            "organizationLogo": null,
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/62f3b71494055510cc771e09/logo"
+          },
+          "location": {
+            "city": "Montpellier",
+            "closestLat": 43.611242,
+            "closestLon": 3.876734,
+            "closestAddress": "34000 Montpellier, FR",
+            "addressId": "7ef5557e-29bc-481b-bb4b-7b78c131d6f5",
+            "distanceKm": 0.05261516123520421
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/65081fea0dbd937c61bbcce6/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "ad6cc3e4-121e-4ae2-984e-e666620dd1e2",
+          "totalScore": 0.728672,
+          "taxonomyScore": 0.459167,
+          "geoScore": 0.998178,
+          "taxonomyScores": {
+            "engagement_intent": 0.885,
+            "tranche_age": 0.9,
+            "type_mission": 0.97
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "culture_arts",
+              "taxonomyValueLabel": "Culture et arts",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "En complément de l’accompagnement social ou médical apportés, les activités de loisirs, sociales, artistiques ou culturelles sont très importantes pour l’épanouissement des personnes suivies / organiser la séance / animer la séance / faire découvrir un loisir ou un lieu culturel",
+                "reasoning": "Les tâches principales consistent à organiser et animer des activités de loisirs, sociales, artistiques ou culturelles pour des personnes en difficulté, ce qui relève clairement de l'animation et de la transmission."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "En complément de l’accompagnement social ou médical apportés, les activités de loisirs, sociales, artistiques ou culturelles sont très importantes pour l’épanouissement des personnes suivies / organiser la séance / animer la séance / faire découvrir un loisir ou un lieu culturel",
+                "reasoning": "Les activités décrites visent l'épanouissement des personnes en difficulté, ce qui relève du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Organiser la séance / Animer la séance / Faire découvrir un loisir ou un lieu culturel / Apporter une aide si nécessaire, favoriser l’entraide générale et valoriser l’implication de chacun / Transmettre les bons gestes ou attitudes",
+                "reasoning": "Les tâches incluent explicitement l'animation d'ateliers et la transmission de savoirs ou d'attitudes, ce qui correspond à l'intention d'engagement."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Transmettre les bons gestes ou attitudes / Informer et échanger avec l’équipe",
+                "reasoning": "La mission implique une transmission de savoirs ou de comportements, ce qui relève de la pédagogie."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Il faut posséder le goût pour les loisirs, les arts et la culture ainsi que des capacités d'adaptation et une pédagogie adaptée aux personnes en précarité.",
+                "reasoning": "Les compétences requises incluent l'adaptation et la pédagogie, ce qui relève des soft skills et de l'organisation."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Depuis 1946, notre association agit auprès des personnes fragilisées par l’âge, l’état de santé, la perte d’un emploi, l’exclusion, les discriminations afin qu’elles préservent ou retrouvent leur autonomie.",
+                "reasoning": "L'organisation porteuse est clairement centrée sur l'aide à la personne et le social, ce qui correspond au secteur d'activité."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Fréquence : A définir selon vos disponibilités et les besoins / Durée : Selon vos disponibilités",
+                "reasoning": "La mission est décrite comme flexible en termes de fréquence et de durée, mais sans précision sur une régularité ou un volume horaire minimal."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "67bf499b73fbd982c16c789a",
+          "title": "Je donne un coup de pouce à la mobilité professionnelle en levant les freins à l'emploi",
+          "remote": "no",
+          "schedule": "",
+          "domain": "emploi",
+          "domainOriginal": null,
+          "organizationName": "Adie Occitanie",
+          "publisherId": "619fb52a7d373e07aea8be35",
+          "publisherName": "Adie",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/emploi_02.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/emploi_02.jpeg",
+            "organizationLogo": null,
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/619fb52a7d373e07aea8be35/logo"
+          },
+          "location": {
+            "city": "Montpellier",
+            "closestLat": 43.610073,
+            "closestLon": 3.87727,
+            "closestAddress": "34000 Montpellier, FR",
+            "addressId": "cbba5110-6f24-48d8-8d40-67cad952b93d",
+            "distanceKm": 0.08932452777362504
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/67bf499b73fbd982c16c789a/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "31445522-38b3-4c74-bd7f-f2587f596cf9",
+          "totalScore": 0.728455,
+          "taxonomyScore": 0.46,
+          "geoScore": 0.996909,
+          "taxonomyScores": {
+            "engagement_intent": 0.86,
+            "tranche_age": 0.9,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Aidez au maintien ou à l’insertion des personnes dans l’emploi salarié / accompagnez les personnes rencontrant une difficulté à financer leur projet",
+                "reasoning": "La mission vise explicitement l'insertion professionnelle et l'accompagnement social des personnes en difficulté, ce qui relève du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "gestion_projet",
+              "taxonomyValueLabel": "Gestion de projet",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Montage du dossier et présentation en comité de crédit / Décaissement et suivi post-décaissement",
+                "reasoning": "Les tâches décrites relèvent principalement de l'organisation, du suivi et de la coordination de projets financiers, typiques de la gestion de projet."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "gestion_commerce_organisation",
+              "taxonomyValueLabel": "Gestion, commerce et organisation",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Analyse de la demande de prêt au regard de l’emploi et de la capacité de remboursement / Montage du dossier et présentation en comité de crédit",
+                "reasoning": "Les activités décrites sont centrées sur l'analyse financière, le montage de dossiers et la gestion de projets, relevant du secteur gestion, commerce et organisation."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Fréquence : 1 journée par semaine (à déterminer ensemble) / Engagement souhaité de 1 à 2 ans",
+                "reasoning": "La mission est prévue sur une durée longue avec une fréquence hebdomadaire explicite, ce qui correspond à une mission régulière."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "gestion_pilotage_juridique",
+              "taxonomyValueLabel": "Gestion, pilotage, juridique",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Analyse de la demande de prêt au regard de l’emploi et de la capacité de remboursement / Montage du dossier et présentation en comité de crédit",
+                "reasoning": "Les tâches impliquent une analyse financière, juridique et administrative, typique de la gestion, pilotage et aspects réglementaires."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "relation_client_commerce_strategie",
+              "taxonomyValueLabel": "Relation client, commerce, stratégie",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Sens du relationnel, capacités d’écoute et d'empathie / Accompagnement des personnes",
+                "reasoning": "La mission nécessite des compétences en relation client et accompagnement des bénéficiaires, relevant de la catégorie relation client, commerce et stratégie."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Alternance entre distanciel et présentiel / Disponibilité en semaine / Formation des bénévoles",
+                "reasoning": "La mission implique une adaptation aux outils, une intégration dans une équipe et une formation, relevant des soft skills et de l'organisation."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Montage du dossier et présentation en comité de crédit / Décaissement et suivi post-décaissement / Formation des bénévoles",
+                "reasoning": "Les tâches principales consistent à soutenir l'organisation en analysant, montant des dossiers et accompagnant les bénéficiaires, ce qui relève du support organisationnel."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Accompagnez les personnes rencontrant une difficulté à financer leur projet / Sens du relationnel, capacités d’écoute et d'empathie",
+                "reasoning": "Bien que l'aide soit indirecte (financement), l'accompagnement des bénéficiaires et l'écoute relèvent d'une aide directe aux personnes."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "commerce_gestion_finance",
+              "taxonomyValueLabel": "Commerce, gestion, finance et services",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Analyse de la demande de prêt au regard de l’emploi et de la capacité de remboursement / Montage du dossier et présentation en comité de crédit",
+                "reasoning": "Les tâches décrites sont directement liées à la gestion financière, au commerce et à l'analyse de projets, relevant du domaine commerce, gestion et finance."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "L’Adie est une grande association française d'utilité publique / défense de l’idée que chacun peut devenir entrepreneur",
+                "reasoning": "L'association porte une mission d'utilité publique et d'insertion professionnelle, relevant du domaine société, droit et politique."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "686e9cb8819b0b2efaa2b274",
+          "title": " ‍♂️Apprentissage du Français",
+          "remote": "no",
+          "schedule": "",
+          "domain": "humanitaire",
+          "domainOriginal": null,
+          "organizationName": "Gammes",
+          "publisherId": "62f3b71494055510cc771e09",
+          "publisherName": "Fehap",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_03.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_03.jpeg",
+            "organizationLogo": null,
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/62f3b71494055510cc771e09/logo"
+          },
+          "location": {
+            "city": "Montpellier",
+            "closestLat": 43.610073,
+            "closestLon": 3.87727,
+            "closestAddress": "34000 Montpellier, FR",
+            "addressId": "faa605bb-fe32-4c65-b2c8-efaa21ae3c64",
+            "distanceKm": 0.08932452777362504
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/686e9cb8819b0b2efaa2b274/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "c1bc955a-6198-417c-b818-db57d2f1fc04",
+          "totalScore": 0.728455,
+          "taxonomyScore": 0.46,
+          "geoScore": 0.996909,
+          "taxonomyScores": {
+            "engagement_intent": 0.86,
+            "tranche_age": 0.9,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Accompagner les adultes dans l’apprentissage du français en se basant sur des outils et une méthodologie appropriés (Français Langue Intégration) / L'objectif est de permettre aux apprenants d'améliorer leur autonomie dans la vie quotidienne",
+                "reasoning": "La mission est centrée sur la transmission de savoirs (apprentissage du français) et l'accompagnement pédagogique des adultes."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Accompagner les adultes dans l’apprentissage du français / Les thématiques peuvent être de l'ordre de la santé, de l'identité, de la mobilité, etc... / L'objectif est de permettre aux apprenants d'améliorer leur autonomie dans la vie quotidienne",
+                "reasoning": "L'accompagnement d'adultes en situation de fragilité (apprentissage du français pour l'intégration) relève du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Accompagner les adultes dans l’apprentissage du français / L'objectif est de permettre aux apprenants d'améliorer leur autonomie dans la vie quotidienne",
+                "reasoning": "La mission s'inscrit dans le secteur de l'aide à la personne et de l'accompagnement social, bien que l'activité principale soit pédagogique."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Accompagner les adultes dans l’apprentissage du français en se basant sur des outils et une méthodologie appropriés / Les séances de 2h qui ont lieu le lundi, mardi, jeudi et vendredi",
+                "reasoning": "La mission relève clairement du secteur de l'éducation et de la formation, avec une dimension pédagogique explicite."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Fréquence : 1 fois par semaine / Durée : De Septembre à juin hors vacances scolaire",
+                "reasoning": "La mission est régulière avec une fréquence hebdomadaire et une durée étendue sur plusieurs mois."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Accompagner les adultes dans l’apprentissage du français / Le goût pour la transmission, la pédagogie et l'interculturalité sont requis",
+                "reasoning": "L'accompagnement pédagogique d'adultes en situation de fragilité relève du management social et soin, bien que l'aspect 'soin' soit indirect."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Des échanges de pratique sont régulièrement prévus avec les autres bénévoles et salariés / Vous serez accompagné tout au long de votre engagement bénévole",
+                "reasoning": "La mission implique une forte dimension collaborative et organisationnelle (échanges, accompagnement)."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Accompagner les adultes dans l’apprentissage du français en se basant sur des outils et une méthodologie appropriés / Le goût pour la transmission, la pédagogie et l'interculturalité sont requis",
+                "reasoning": "La mission est explicitement centrée sur la transmission de savoirs et l'accompagnement pédagogique."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Accompagner les adultes dans l’apprentissage du français / L'objectif est de permettre aux apprenants d'améliorer leur autonomie dans la vie quotidienne",
+                "reasoning": "L'accompagnement des apprenants en situation de fragilité relève d'une aide directe, bien que l'aspect 'soin' soit indirect."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.6,
+              "scoringScore": 0.35,
+              "evidence": {
+                "extract": "Des formations vous seront proposées tout au long de l’année en fonction des vos besoins, envies et places disponibles / Vous serez accompagné tout au long de votre engagement bénévole",
+                "reasoning": "La mission inclut un soutien organisationnel (formations, accompagnement), mais ce n'est pas l'intention principale."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "education_culture_creation",
+              "taxonomyValueLabel": "Éducation, culture et création",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Accompagner les adultes dans l’apprentissage du français en se basant sur des outils et une méthodologie appropriés / Le goût pour la transmission, la pédagogie et l'interculturalité sont requis",
+                "reasoning": "La mission relève de l'éducation et de la transmission culturelle, avec une dimension pédagogique explicite."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Les thématiques peuvent être de l'ordre de la santé, de l'identité, de la mobilité, etc... / L'objectif est de permettre aux apprenants d'améliorer leur autonomie dans la vie quotidienne et de mieux appréhender les codes de la société française",
+                "reasoning": "L'apprentissage du français pour l'intégration sociale relève des enjeux de société et de politique d'intégration."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      }
+    ],
+    "total": 2940,
+    "avgDistanceKmTop5": 0.18
+  },
+  "missions": [
+    {
+      "mission": {
+        "id": "362dfc32-8609-4811-bab7-5f4049b4d576",
+        "title": "Médiateur numérique pour l'accompagnement des usagers en préfecture (DEN/PFINAT)",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "solidarite-insertion",
+        "domainOriginal": "Solidarité",
+        "organizationName": "Préfecture de l'Hérault",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Montpellier",
+          "closestLat": 43.610624,
+          "closestLon": 3.876669,
+          "closestAddress": "34, Place des Martyrs de la Résistance, 34000 Montpellier, FR",
+          "addressId": "4dacf43f-65c5-437b-a9aa-941b05434b6f",
+          "distanceKm": 0.016561342161231035
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/362dfc32-8609-4811-bab7-5f4049b4d576/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "7cd7e970-9932-4669-9cf8-2f2fbdf42db5",
+        "totalScore": 0.731796,
+        "taxonomyScore": 0.464167,
+        "geoScore": 0.999426,
+        "taxonomyScores": {
+          "engagement_intent": 0.885,
+          "tranche_age": 0.9,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Le médiateur numérique sert d'intermédiaire dans la relation entre les usagers et l'administration / accompagner les usagers de la préfecture dans la réalisation de leurs démarches dématérialisées / Public cible : adultes seniors handicap marginalisees_fragilisees refugiees",
+              "reasoning": "La mission cible explicitement l'accompagnement de publics fragilisés (seniors, handicapés, marginalisés, réfugiés) dans des démarches administratives, ce qui relève du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "gestion_projet",
+            "taxonomyValueLabel": "Gestion de projet",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "concurrer au fonctionnement quotidien de la Plateforme Interdépartementale de la Naturalisation (PFINAT) / tenir le planning des rendez-vous / tri, le suivi et la répartition des demandes",
+              "reasoning": "Les tâches décrites (organisation, coordination, gestion administrative) relèvent principalement de la gestion de projet."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Public cible : adultes seniors handicap marginalisees_fragilisees refugiees / accompagnement des usagers dans la réalisation de leurs démarches administratives en ligne",
+              "reasoning": "La mission s'inscrit dans le secteur de l'aide à la personne et du social, avec un public vulnérable."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "gestion_commerce_organisation",
+            "taxonomyValueLabel": "Gestion, commerce et organisation",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "tenir le planning des rendez-vous / tri, le suivi et la répartition des demandes / assurer le fonctionnement quotidien de la Plateforme Interdépartementale de la Naturalisation",
+              "reasoning": "Les tâches incluent une forte dimension organisationnelle et administrative."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Durée : 8 heures — De 24h à 30h / Dates : du 1 septembre 2026 au 1 mai 2027",
+              "reasoning": "Mission s'étalant sur plusieurs mois avec un volume horaire régulier (24h à 30h au total)."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.92,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "faire preuve de courtoisie, de pédagogie et de capacités d'adaptation face au rapport au numérique de l'usager / accompagnement des usagers",
+              "reasoning": "La mission implique un accompagnement humain, social et pédagogique des usagers."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "gestion_pilotage_juridique",
+            "taxonomyValueLabel": "Gestion, pilotage, juridique",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "assurer le tri, le suivi et la répartition des demandes adressées au service par voie postale / tenir le planning des rendez-vous",
+              "reasoning": "Les tâches incluent une dimension administrative, organisationnelle et de gestion de processus."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "assurer le fonctionnement quotidien de la Plateforme Interdépartementale de la Naturalisation / tri, le suivi et la répartition des demandes",
+              "reasoning": "La mission nécessite une bonne organisation, une adaptation aux besoins des usagers et un travail collaboratif."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "faire preuve de courtoisie, de pédagogie et de capacités d'adaptation face au rapport au numérique de l'usager / accompagnement des usagers dans la réalisation de leurs démarches administratives en ligne",
+              "reasoning": "La mission inclut explicitement la transmission de connaissances et l'accompagnement pédagogique."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "accueillir physiquement et téléphoniquement les usagers / assister les usagers dans la réalisation de leurs démarches au point d'accès numérique",
+              "reasoning": "Contact direct et assistance aux usagers dans leurs démarches."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "concurrer au fonctionnement quotidien de la Plateforme Interdépartementale de la Naturalisation / tenir le planning des rendez-vous / tri, le suivi et la répartition des demandes",
+              "reasoning": "La mission soutient le fonctionnement organisationnel et administratif de la plateforme."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Type de mission : volontariat_service_civique / Organisation porteuse : Préfecture de l'Hérault (service déconcentré du ministère de l'Intérieur)",
+              "reasoning": "La mission s'inscrit dans un cadre institutionnel très structuré (service civique au sein d'une préfecture)."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "accompagner les usagers de la préfecture dans la réalisation de leurs démarches dématérialisées / Organisation porteuse : Préfecture de l'Hérault (représente l’État dans le département)",
+              "reasoning": "La mission est liée aux institutions publiques, au droit et à la vie administrative."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "social_sante_sport",
+            "taxonomyValueLabel": "Social, santé et sport",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Public cible : adultes seniors handicap marginalisees_fragilisees refugiees / accompagnement des usagers",
+              "reasoning": "La mission cible des publics fragilisés et relève du domaine social et de l'aide à la personne."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_18_ans",
+            "taxonomyValueLabel": "Moins de 18 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_31_ans_handicap",
+            "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "362dfc32-8609-4811-bab7-5f4049b4d576",
+        "title": "Médiateur numérique pour l'accompagnement des usagers en préfecture (DEN/PFINAT)",
+        "domain": "solidarite-insertion",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "Préfecture de l'Hérault",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Montpellier",
+          "address": "34, Place des Martyrs de la Résistance, 34000 Montpellier",
+          "lat": 43.610624,
+          "lon": 3.876669
+        },
+        "startAt": "2026-09-01T00:00:00.000Z",
+        "endAt": "2027-05-01T00:00:00.000Z",
+        "duration": 8,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Le médiateur numérique sert d'intermédiaire dans la relation entre les usagers et l'administration. Sa mission consiste essentiellement en l'accueil des usagers en préfecture, et à les accompagner dans la réalisation de leurs démarches administratives en ligne.</p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p>Accompagner les usagers de la préfecture dans la réalisation de leurs démarches dématérialisées et concourir au fonctionnement quotidien de la Plateforme Interdépartementale de la Naturalisation (PFINAT).</p></p><br>\n<b>Actions</b><br><p><p>Le médiateur numérique sert d'intermédiaire dans la relation entre les usagers et l'administration. Le volontaire engagé aura pour missions d'accueillir physiquement et téléphoniquement les usagers s'adressant à la PFINAT, de tenir le planning des rendez-vous et d'assister les usagers dans la réalisation de leurs démarches au point d'accès numérique de la préfecture (PAN-ÉMERAUDE). L'engagé devra faire preuve de courtoisie, de pédagogie et de capacités d'adaptation face au rapport au numérique de l'usager. Le volontaire pourra également être amené à assurer le tri, le suivi et la répartition des demandes adressées au service par voie postale.</p></p><br>",
+        "description": "EN QUELQUES MOTS\n\n\nLe médiateur numérique sert d'intermédiaire dans la relation entre les usagers\net l'administration. Sa mission consiste essentiellement en l'accueil des\nusagers en préfecture, et à les accompagner dans la réalisation de leurs\ndémarches administratives en ligne.\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nAccompagner les usagers de la préfecture dans la réalisation de leurs démarches\ndématérialisées et concourir au fonctionnement quotidien de la Plateforme\nInterdépartementale de la Naturalisation (PFINAT).\n\n\n\n\n\nActions\n\n\n\n\nLe médiateur numérique sert d'intermédiaire dans la relation entre les usagers\net l'administration. Le volontaire engagé aura pour missions d'accueillir\nphysiquement et téléphoniquement les usagers s'adressant à la PFINAT, de tenir\nle planning des rendez-vous et d'assister les usagers dans la réalisation de\nleurs démarches au point d'accès numérique de la préfecture (PAN-ÉMERAUDE).\nL'engagé devra faire preuve de courtoisie, de pédagogie et de capacités\nd'adaptation face au rapport au numérique de l'usager. Le volontaire pourra\négalement être amené à assurer le tri, le suivi et la répartition des demandes\nadressées au service par voie postale.\n\n\n",
+        "applicationUrl": "http://localhost:4000/r/362dfc32-8609-4811-bab7-5f4049b4d576/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": true,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "8e2968b0-53e1-44bf-ae52-d71c403496ce",
+        "title": "Favoriser l’accès à la santé pour tous et toutes - Ville de Montpellier",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "sante",
+        "domainOriginal": "Santé",
+        "organizationName": "Mission Locale Jeunes de l'Agglomération de Montpellier",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_02.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_02.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Montpellier",
+          "closestLat": 43.605353,
+          "closestLon": 3.879102,
+          "closestAddress": "16 Rue de la République, 34000 Montpellier, FR",
+          "addressId": "2ed2c3da-75c5-414e-a9b9-4b2f9d6a9c42",
+          "distanceKm": 0.6321292683431071
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/8e2968b0-53e1-44bf-ae52-d71c403496ce/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "a6b70f23-cfb4-44d1-8998-10db7454e70f",
+        "totalScore": 0.729582,
+        "taxonomyScore": 0.480833,
+        "geoScore": 0.97833,
+        "taxonomyScores": {
+          "engagement_intent": 0.985,
+          "tranche_age": 0.9,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "sante_soins",
+            "taxonomyValueLabel": "Santé et soins",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "unité mobile de prévention santé / informer, dépister et accompagner / ateliers d’activité physique et des entretiens sur la santé, les addictions et l’accès aux droits",
+              "reasoning": "La mission est explicitement centrée sur la prévention santé, les dépistages et l'accompagnement médical ou médico-social."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "réduction des inégalités sociales et territoriales de santé / aller à la rencontre des habitants du quartier / identification par les habitants et les partenaires relais",
+              "reasoning": "La mission vise à réduire les inégalités d'accès à la santé, ce qui relève de la solidarité et de l'inclusion sociale."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "unité mobile de prévention santé / informer, dépister et accompagner / ateliers d’activité physique et des entretiens sur la santé",
+              "reasoning": "La mission s'inscrit dans le secteur de la santé et de l'aide à la personne."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "gestion_commerce_organisation",
+            "taxonomyValueLabel": "Gestion, commerce et organisation",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "contribuer au suivi des actions du projet de prévention santé / participer aux actions et évènements",
+              "reasoning": "Les tâches incluent un volet de coordination et de suivi des actions, relevant de la gestion de projet."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Durée : 8 heures — De 24h à 30h / Dates : du 20 juin 2026 au 20 février 2027",
+              "reasoning": "Mission s'étalant sur plusieurs mois avec un volume horaire significatif mais inférieur à 20h par semaine."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "informer, dépister et accompagner / ateliers d’activité physique et des entretiens sur la santé",
+              "reasoning": "Les tâches principales impliquent un accompagnement direct et une interaction avec les publics."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "aller à la rencontre des habitants du quartier / contribuer à l’identification par les habitants et les partenaires relais / participer aux actions et évènements",
+              "reasoning": "La mission nécessite une forte capacité à travailler en équipe, à organiser des actions et à interagir avec divers partenaires."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "gestion_pilotage_juridique",
+            "taxonomyValueLabel": "Gestion, pilotage, juridique",
+            "enrichmentConfidence": 0.6,
+            "scoringScore": 0.35,
+            "evidence": {
+              "extract": "contribuer au suivi des actions du projet de prévention santé",
+              "reasoning": "Le suivi des actions implique une dimension de pilotage et de gestion administrative, bien que moins centrale que les autres compétences."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "informer, dépister et accompagner / ateliers d’activité physique et des entretiens sur la santé",
+              "reasoning": "La mission implique un contact direct avec les bénéficiaires pour des actions de prévention et d'accompagnement."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "ateliers nutrition, dépistages diabète, accès aux droits de santé / moments de convivialité",
+              "reasoning": "La mission inclut des actions de sensibilisation et de transmission d'informations sur la santé."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "participer aux actions et évènements (ateliers nutrition, dépistages diabète, accès aux droits de santé, moments de convivialité etc.)",
+              "reasoning": "La mission implique l'animation d'ateliers et d'événements collectifs."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "contribuer au suivi des actions du projet de prévention santé / contribuer à la communication autour de ces actions",
+              "reasoning": "Les tâches incluent un volet de soutien organisationnel et de communication."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "volontaires en Service Civique / dans le cadre des actions du Service Cohésion Sociale de la Ville de Montpellier",
+              "reasoning": "La mission s'inscrit dans un cadre institutionnel structuré (Service Civique, Ville de Montpellier)."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_18_ans",
+            "taxonomyValueLabel": "Moins de 18 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_31_ans_handicap",
+            "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "8e2968b0-53e1-44bf-ae52-d71c403496ce",
+        "title": "Favoriser l’accès à la santé pour tous et toutes - Ville de Montpellier",
+        "domain": "sante",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_02.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "Mission Locale Jeunes de l'Agglomération de Montpellier",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Montpellier",
+          "address": "16 Rue de la République, 34000 Montpellier",
+          "lat": 43.605353,
+          "lon": 3.879102
+        },
+        "startAt": "2026-09-01T00:00:00.000Z",
+        "endAt": "2027-05-01T00:00:00.000Z",
+        "duration": 8,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Ma.P, unité mobile de prévention santé, va à la rencontre de tous les publics pour informer, dépister et accompagner. Elle propose gratuitement des dépistages, des vaccinations sans rendez-vous, des ateliers d’activité physique et des entretiens sur la santé, les addictions et l’accès aux droits.</p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p><span style=\"color: rgb(78, 78, 78);\">La Ma.P est une unité mobile multithématique dédiée à la promotion de la santé. Elle intervient au cœur des quartiers, sur les places de marchés, au plus près des habitants dans une logique de réduction des inégalités sociales et territoriales de santé.&nbsp;</span></p></p><br>\n<b>Actions</b><br><p><p class=\"ql-align-justify\"><strong>DEMARRAGE DE LA MISSION SEPTEMBRE 2026</strong></p><p class=\"ql-align-justify\"><br></p><p class=\"ql-align-justify\">Dans le cadre des actions du Service Cohésion Sociale de la Ville de Montpellier, et de son projet de prévention santé en proximité, les volontaires en Service Civique seront amené.es à :</p><p>&nbsp;</p><p>-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Aller à la rencontre des habitants du quartier à l’occasion des déplacements de l’unité mobile de prévention santé (camion itinérant), en lien avec le chef de projet santé et l’animateur référent</p><p>&nbsp;</p><p>-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Contribuer à l’identification par les habitants et les partenaires relais de l’unité mobile</p><p>&nbsp;</p><p>-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Participer aux actions et évènements (ateliers nutrition, dépistages diabète, accès aux droits de santé, moments de convivialité etc.) et contribuer à la communication autour de ces actions</p><p>&nbsp;</p><p>-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Contribuer au suivi des actions du projet de prévention santé</p></p><br>",
+        "description": "EN QUELQUES MOTS\n\n\nMa.P, unité mobile de prévention santé, va à la rencontre de tous les publics\npour informer, dépister et accompagner. Elle propose gratuitement des\ndépistages, des vaccinations sans rendez-vous, des ateliers d’activité physique\net des entretiens sur la santé, les addictions et l’accès aux droits.\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nLa Ma.P est une unité mobile multithématique dédiée à la promotion de la santé.\nElle intervient au cœur des quartiers, sur les places de marchés, au plus près\ndes habitants dans une logique de réduction des inégalités sociales et\nterritoriales de santé. \n\n\n\n\n\nActions\n\n\n\n\nDEMARRAGE DE LA MISSION SEPTEMBRE 2026\n\n\n\n\nDans le cadre des actions du Service Cohésion Sociale de la Ville de\nMontpellier, et de son projet de prévention santé en proximité, les volontaires\nen Service Civique seront amené.es à :\n\n \n\n-       Aller à la rencontre des habitants du quartier à l’occasion des\ndéplacements de l’unité mobile de prévention santé (camion itinérant), en lien\navec le chef de projet santé et l’animateur référent\n\n \n\n-       Contribuer à l’identification par les habitants et les partenaires\nrelais de l’unité mobile\n\n \n\n-       Participer aux actions et évènements (ateliers nutrition, dépistages\ndiabète, accès aux droits de santé, moments de convivialité etc.) et contribuer\nà la communication autour de ces actions\n\n \n\n-       Contribuer au suivi des actions du projet de prévention santé\n\n\n",
+        "applicationUrl": "http://localhost:4000/r/8e2968b0-53e1-44bf-ae52-d71c403496ce/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_02.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": true,
+        "places": 2
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "65081fea0dbd937c61bbcce6",
+        "title": "J'anime un atelier d'épanouissement ou une sortie culturelle",
+        "remote": "no",
+        "schedule": "",
+        "domain": "humanitaire",
+        "domainOriginal": null,
+        "organizationName": "Gammes",
+        "publisherId": "62f3b71494055510cc771e09",
+        "publisherName": "Fehap",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_03.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_03.jpeg",
+          "organizationLogo": null,
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/62f3b71494055510cc771e09/logo"
+        },
+        "location": {
+          "city": "Montpellier",
+          "closestLat": 43.611242,
+          "closestLon": 3.876734,
+          "closestAddress": "34000 Montpellier, FR",
+          "addressId": "7ef5557e-29bc-481b-bb4b-7b78c131d6f5",
+          "distanceKm": 0.05261516123520421
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/65081fea0dbd937c61bbcce6/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "ad6cc3e4-121e-4ae2-984e-e666620dd1e2",
+        "totalScore": 0.728672,
+        "taxonomyScore": 0.459167,
+        "geoScore": 0.998178,
+        "taxonomyScores": {
+          "engagement_intent": 0.885,
+          "tranche_age": 0.9,
+          "type_mission": 0.97
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "culture_arts",
+            "taxonomyValueLabel": "Culture et arts",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "En complément de l’accompagnement social ou médical apportés, les activités de loisirs, sociales, artistiques ou culturelles sont très importantes pour l’épanouissement des personnes suivies / organiser la séance / animer la séance / faire découvrir un loisir ou un lieu culturel",
+              "reasoning": "Les tâches principales consistent à organiser et animer des activités de loisirs, sociales, artistiques ou culturelles pour des personnes en difficulté, ce qui relève clairement de l'animation et de la transmission."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "En complément de l’accompagnement social ou médical apportés, les activités de loisirs, sociales, artistiques ou culturelles sont très importantes pour l’épanouissement des personnes suivies / organiser la séance / animer la séance / faire découvrir un loisir ou un lieu culturel",
+              "reasoning": "Les activités décrites visent l'épanouissement des personnes en difficulté, ce qui relève du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Organiser la séance / Animer la séance / Faire découvrir un loisir ou un lieu culturel / Apporter une aide si nécessaire, favoriser l’entraide générale et valoriser l’implication de chacun / Transmettre les bons gestes ou attitudes",
+              "reasoning": "Les tâches incluent explicitement l'animation d'ateliers et la transmission de savoirs ou d'attitudes, ce qui correspond à l'intention d'engagement."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Transmettre les bons gestes ou attitudes / Informer et échanger avec l’équipe",
+              "reasoning": "La mission implique une transmission de savoirs ou de comportements, ce qui relève de la pédagogie."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Il faut posséder le goût pour les loisirs, les arts et la culture ainsi que des capacités d'adaptation et une pédagogie adaptée aux personnes en précarité.",
+              "reasoning": "Les compétences requises incluent l'adaptation et la pédagogie, ce qui relève des soft skills et de l'organisation."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Depuis 1946, notre association agit auprès des personnes fragilisées par l’âge, l’état de santé, la perte d’un emploi, l’exclusion, les discriminations afin qu’elles préservent ou retrouvent leur autonomie.",
+              "reasoning": "L'organisation porteuse est clairement centrée sur l'aide à la personne et le social, ce qui correspond au secteur d'activité."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Fréquence : A définir selon vos disponibilités et les besoins / Durée : Selon vos disponibilités",
+              "reasoning": "La mission est décrite comme flexible en termes de fréquence et de durée, mais sans précision sur une régularité ou un volume horaire minimal."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "65081fea0dbd937c61bbcce6",
+        "title": "J'anime un atelier d'épanouissement ou une sortie culturelle",
+        "domain": "humanitaire",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_03.jpeg",
+        "type": "benevolat",
+        "publisherId": "62f3b71494055510cc771e09",
+        "publisherName": "Fehap",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/62f3b71494055510cc771e09/logo",
+        "organizationName": "Gammes",
+        "organizationLogo": null,
+        "location": {
+          "city": "Montpellier",
+          "address": "34000 Montpellier",
+          "lat": 43.611242,
+          "lon": 3.876734
+        },
+        "startAt": "2025-08-25T19:35:36.951Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "",
+        "compensation": null,
+        "descriptionHtml": "   Montpellier (34)<br>   Dès que possible<br><br><br>En complément de l’accompagnement social ou médical apportés, les activités de loisirs, sociales, artistiques ou culturelles sont très importantes pour l’épanouissement des personnes suivies. Durant ces temps destinés aux adultes comme aux enfants en difficultés, on se retrouve dans un esprit convivial et bienveillant pour partager un loisir.\nAu-delà des activités déjà définies, les bénévoles, en proposant de nouvelles  activités en fonction de leurs ressources, permettent d'enrichir le quotidien des participants dans différents domaines (cuisine, tricot, bricolage, art créatif, bien-être, jardinage..)\nLe \"Gammes Tour\", une journée de découverte de l’association vous est fortement recommandé<br><br><p><strong>Informations pratiques</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>La mission implique de:\n-Organiser la séance \n-Animer la séance \n-Faire découvrir un loisir ou un lieu culturel\n-Apporter une aide si nécessaire, favoriser l’entraide générale et valoriser l’implication de chacun\n-Transmettre les bons gestes ou attitudes\n-Informer et échanger avec l’équipe\n\nIl faut posséder le goût pour les loisirs, les arts et la culture ainsi que des capacités d'adaptation et une pédagogie adaptée aux personnes en précarité.\nLe contenu et les modalités sont à définir ensemble.<br><br>Fréquence : A définir selon vos disponibilités et les besoins<br>Durée : Selon vos disponibilités<br><br><p><strong>Informations sur l'association Gammes</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Depuis 1946, notre association agit auprès des personnes fragilisées par l’âge, l’état de santé, la perte d’un emploi, l’exclusion, les discriminations afin qu’elles préservent ou retrouvent leur autonomie.\n\nAssociant la solidarité collective et la générosité individuelle, nous représentons aujourd’hui un acteur majeur de l’action sociale, médico-sociale et sanitaire du département de l’Hérault. \n\nVous avez envie de donner votre temps ? Vous souhaitez développer vos compétences en apportant votre soutien ?\nRejoignez-nous et devenez bénévole à Gammes !   <br><p><strong>Formation des bénévoles</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Vous pouvez participer à une réunion d'information collective ou un échange individuel, vous serez ensuite orienté vers un \"référent bénévole\" en fonction de votre appétence. \nUne journée de découverte vous est dédiée, avec la visite de plusieurs sites.\nVous serez accompagné tout au long de votre engagement bénévole (échanges réguliers, formations, valorisation des compétences, temps conviviaux,...)\nUne adhésion gratuite vous sera aussi proposée (Lettre d'information, participation aux AG..)",
+        "description": "Montpellier (34)\nDès que possible\n\n\nEn complément de l’accompagnement social ou médical apportés, les activités de\nloisirs, sociales, artistiques ou culturelles sont très importantes pour\nl’épanouissement des personnes suivies. Durant ces temps destinés aux adultes\ncomme aux enfants en difficultés, on se retrouve dans un esprit convivial et\nbienveillant pour partager un loisir.\nAu-delà des activités déjà définies, les bénévoles, en proposant de nouvelles\nactivités en fonction de leurs ressources, permettent d'enrichir le quotidien\ndes participants dans différents domaines (cuisine, tricot, bricolage, art\ncréatif, bien-être, jardinage..)\nLe \"Gammes Tour\", une journée de découverte de l’association vous est fortement\nrecommandé\n\n\n\nInformations pratiques\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nLa mission implique de:\n-Organiser la séance\n-Animer la séance\n-Faire découvrir un loisir ou un lieu culturel\n-Apporter une aide si nécessaire, favoriser l’entraide générale et valoriser\nl’implication de chacun\n-Transmettre les bons gestes ou attitudes\n-Informer et échanger avec l’équipe\n\nIl faut posséder le goût pour les loisirs, les arts et la culture ainsi que des\ncapacités d'adaptation et une pédagogie adaptée aux personnes en précarité.\nLe contenu et les modalités sont à définir ensemble.\n\nFréquence : A définir selon vos disponibilités et les besoins\nDurée : Selon vos disponibilités\n\n\n\nInformations sur l'association Gammes\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nDepuis 1946, notre association agit auprès des personnes fragilisées par l’âge,\nl’état de santé, la perte d’un emploi, l’exclusion, les discriminations afin\nqu’elles préservent ou retrouvent leur autonomie.\n\nAssociant la solidarité collective et la générosité individuelle, nous\nreprésentons aujourd’hui un acteur majeur de l’action sociale, médico-sociale et\nsanitaire du département de l’Hérault.\n\nVous avez envie de donner votre temps ? Vous souhaitez développer vos\ncompétences en apportant votre soutien ?\nRejoignez-nous et devenez bénévole à Gammes !\n\n\nFormation des bénévoles\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nVous pouvez participer à une réunion d'information collective ou un échange\nindividuel, vous serez ensuite orienté vers un \"référent bénévole\" en fonction\nde votre appétence.\nUne journée de découverte vous est dédiée, avec la visite de plusieurs sites.\nVous serez accompagné tout au long de votre engagement bénévole (échanges\nréguliers, formations, valorisation des compétences, temps conviviaux,...)\nUne adhésion gratuite vous sera aussi proposée (Lettre d'information,\nparticipation aux AG..)",
+        "applicationUrl": "http://localhost:4000/r/65081fea0dbd937c61bbcce6/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_03.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "67bf499b73fbd982c16c789a",
+        "title": "Je donne un coup de pouce à la mobilité professionnelle en levant les freins à l'emploi",
+        "remote": "no",
+        "schedule": "",
+        "domain": "emploi",
+        "domainOriginal": null,
+        "organizationName": "Adie Occitanie",
+        "publisherId": "619fb52a7d373e07aea8be35",
+        "publisherName": "Adie",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/emploi_02.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/emploi_02.jpeg",
+          "organizationLogo": null,
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/619fb52a7d373e07aea8be35/logo"
+        },
+        "location": {
+          "city": "Montpellier",
+          "closestLat": 43.610073,
+          "closestLon": 3.87727,
+          "closestAddress": "34000 Montpellier, FR",
+          "addressId": "cbba5110-6f24-48d8-8d40-67cad952b93d",
+          "distanceKm": 0.08932452777362504
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/67bf499b73fbd982c16c789a/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "31445522-38b3-4c74-bd7f-f2587f596cf9",
+        "totalScore": 0.728455,
+        "taxonomyScore": 0.46,
+        "geoScore": 0.996909,
+        "taxonomyScores": {
+          "engagement_intent": 0.86,
+          "tranche_age": 0.9,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Aidez au maintien ou à l’insertion des personnes dans l’emploi salarié / accompagnez les personnes rencontrant une difficulté à financer leur projet",
+              "reasoning": "La mission vise explicitement l'insertion professionnelle et l'accompagnement social des personnes en difficulté, ce qui relève du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "gestion_projet",
+            "taxonomyValueLabel": "Gestion de projet",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Montage du dossier et présentation en comité de crédit / Décaissement et suivi post-décaissement",
+              "reasoning": "Les tâches décrites relèvent principalement de l'organisation, du suivi et de la coordination de projets financiers, typiques de la gestion de projet."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "gestion_commerce_organisation",
+            "taxonomyValueLabel": "Gestion, commerce et organisation",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Analyse de la demande de prêt au regard de l’emploi et de la capacité de remboursement / Montage du dossier et présentation en comité de crédit",
+              "reasoning": "Les activités décrites sont centrées sur l'analyse financière, le montage de dossiers et la gestion de projets, relevant du secteur gestion, commerce et organisation."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Fréquence : 1 journée par semaine (à déterminer ensemble) / Engagement souhaité de 1 à 2 ans",
+              "reasoning": "La mission est prévue sur une durée longue avec une fréquence hebdomadaire explicite, ce qui correspond à une mission régulière."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "gestion_pilotage_juridique",
+            "taxonomyValueLabel": "Gestion, pilotage, juridique",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Analyse de la demande de prêt au regard de l’emploi et de la capacité de remboursement / Montage du dossier et présentation en comité de crédit",
+              "reasoning": "Les tâches impliquent une analyse financière, juridique et administrative, typique de la gestion, pilotage et aspects réglementaires."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "relation_client_commerce_strategie",
+            "taxonomyValueLabel": "Relation client, commerce, stratégie",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Sens du relationnel, capacités d’écoute et d'empathie / Accompagnement des personnes",
+              "reasoning": "La mission nécessite des compétences en relation client et accompagnement des bénéficiaires, relevant de la catégorie relation client, commerce et stratégie."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Alternance entre distanciel et présentiel / Disponibilité en semaine / Formation des bénévoles",
+              "reasoning": "La mission implique une adaptation aux outils, une intégration dans une équipe et une formation, relevant des soft skills et de l'organisation."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Montage du dossier et présentation en comité de crédit / Décaissement et suivi post-décaissement / Formation des bénévoles",
+              "reasoning": "Les tâches principales consistent à soutenir l'organisation en analysant, montant des dossiers et accompagnant les bénéficiaires, ce qui relève du support organisationnel."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Accompagnez les personnes rencontrant une difficulté à financer leur projet / Sens du relationnel, capacités d’écoute et d'empathie",
+              "reasoning": "Bien que l'aide soit indirecte (financement), l'accompagnement des bénéficiaires et l'écoute relèvent d'une aide directe aux personnes."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "commerce_gestion_finance",
+            "taxonomyValueLabel": "Commerce, gestion, finance et services",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Analyse de la demande de prêt au regard de l’emploi et de la capacité de remboursement / Montage du dossier et présentation en comité de crédit",
+              "reasoning": "Les tâches décrites sont directement liées à la gestion financière, au commerce et à l'analyse de projets, relevant du domaine commerce, gestion et finance."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "L’Adie est une grande association française d'utilité publique / défense de l’idée que chacun peut devenir entrepreneur",
+              "reasoning": "L'association porte une mission d'utilité publique et d'insertion professionnelle, relevant du domaine société, droit et politique."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "67bf499b73fbd982c16c789a",
+        "title": "Je donne un coup de pouce à la mobilité professionnelle en levant les freins à l'emploi",
+        "domain": "emploi",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/emploi_02.jpeg",
+        "type": "benevolat",
+        "publisherId": "619fb52a7d373e07aea8be35",
+        "publisherName": "Adie",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/619fb52a7d373e07aea8be35/logo",
+        "organizationName": "Adie Occitanie",
+        "organizationLogo": null,
+        "location": {
+          "city": "Montpellier",
+          "address": "34000 Montpellier",
+          "lat": 43.610073,
+          "lon": 3.87727
+        },
+        "startAt": "2025-08-25T19:34:24.377Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "",
+        "compensation": null,
+        "descriptionHtml": "   Montpellier (34)<br>   Dès que possible<br><br><br>Vous recherchez une mission à forte utilité sociale ?\n\nAidez au maintien ou à l’insertion des personnes dans l’emploi salarié en finançant des projets qui permettent réellement de lever les freins à l’emploi : permis de conduire, véhicule, formation, déménagement, etc.\n\nVous accompagnez les personnes rencontrant une difficulté à financer leur projet (public non éligible au prêt bancaire traditionnel) :\n• Analyse de la demande de prêt au regard de l’emploi et de la capacité de remboursement \n• Montage du dossier et présentation en comité de crédit\n• Décaissement et suivi post-décaissement.\n\nRejoignez nos équipes et donnez un coup de pouce aux personnes salarié·e·s ou en passe de le devenir !<br><br><p><strong>Informations pratiques</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>  Connaissances financières, commerciales ou administratives\n  Sens du relationnel, capacités d’écoute et d'empathie\n ️ Utilisation des outils informatiques\n  Pas de stress, nous accompagnons et formons toujours les bénévoles à leur nouvelle mission\n\n  Alternance entre distanciel et présentiel dans une de nos agences\n  Disponibilité en semaine (entre 9h et 17h)<br><br>Fréquence : 1 journée par semaine (à déterminer ensemble)<br>Durée : Engagement souhaité de 1 à 2 ans<br><br><p><strong>Informations sur l'association Adie Occitanie</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>L’Adie est une grande association française d'utilité publique, qui défend l’idée que chacun, même sans capital, même sans diplôme, peut devenir entrepreneur, s'il a accès au crédit et à un accompagnement personnalisé.\n\nDepuis 30 ans, notre réseau de 800 salariés et 1200 bénévoles, répartis sur 180 antennes, finance et\naccompagne les créateurs d’entreprise pour une économie plus solidaire.<br><p><strong>Formation des bénévoles</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>L’Adie est une association apprenante, pour les entrepreneurs, comme pour nos équipes ! \n\nLors de votre intégration dans l'équipe de salariés et bénévoles, vous bénéficiez d'un temps d'immersion, d’un tutorat, et de formations de qualité, en présentiel et en ligne, pour appréhender le public de l’Adie, l’environnement de la création d’entreprise, nos process et outils.\n\n  Venez vivre une aventure humaine au sein de nos équipes intergénérationnelles, optimistes et bienveillantes !",
+        "description": "Montpellier (34)\nDès que possible\n\n\nVous recherchez une mission à forte utilité sociale ?\n\nAidez au maintien ou à l’insertion des personnes dans l’emploi salarié en\nfinançant des projets qui permettent réellement de lever les freins à l’emploi :\npermis de conduire, véhicule, formation, déménagement, etc.\n\nVous accompagnez les personnes rencontrant une difficulté à financer leur projet\n(public non éligible au prêt bancaire traditionnel) :\n• Analyse de la demande de prêt au regard de l’emploi et de la capacité de\nremboursement\n• Montage du dossier et présentation en comité de crédit\n• Décaissement et suivi post-décaissement.\n\nRejoignez nos équipes et donnez un coup de pouce aux personnes salarié·e·s ou en\npasse de le devenir !\n\n\n\nInformations pratiques\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nConnaissances financières, commerciales ou administratives\nSens du relationnel, capacités d’écoute et d'empathie\n️ Utilisation des outils informatiques\nPas de stress, nous accompagnons et formons toujours les bénévoles à leur\nnouvelle mission\n\nAlternance entre distanciel et présentiel dans une de nos agences\nDisponibilité en semaine (entre 9h et 17h)\n\nFréquence : 1 journée par semaine (à déterminer ensemble)\nDurée : Engagement souhaité de 1 à 2 ans\n\n\n\nInformations sur l'association Adie Occitanie\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nL’Adie est une grande association française d'utilité publique, qui défend\nl’idée que chacun, même sans capital, même sans diplôme, peut devenir\nentrepreneur, s'il a accès au crédit et à un accompagnement personnalisé.\n\nDepuis 30 ans, notre réseau de 800 salariés et 1200 bénévoles, répartis sur 180\nantennes, finance et\naccompagne les créateurs d’entreprise pour une économie plus solidaire.\n\n\nFormation des bénévoles\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nL’Adie est une association apprenante, pour les entrepreneurs, comme pour nos\néquipes !\n\nLors de votre intégration dans l'équipe de salariés et bénévoles, vous\nbénéficiez d'un temps d'immersion, d’un tutorat, et de formations de qualité, en\nprésentiel et en ligne, pour appréhender le public de l’Adie, l’environnement de\nla création d’entreprise, nos process et outils.\n\nVenez vivre une aventure humaine au sein de nos équipes intergénérationnelles,\noptimistes et bienveillantes !",
+        "applicationUrl": "http://localhost:4000/r/67bf499b73fbd982c16c789a/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/emploi_02.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "686e9cb8819b0b2efaa2b274",
+        "title": " ‍♂️Apprentissage du Français",
+        "remote": "no",
+        "schedule": "",
+        "domain": "humanitaire",
+        "domainOriginal": null,
+        "organizationName": "Gammes",
+        "publisherId": "62f3b71494055510cc771e09",
+        "publisherName": "Fehap",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_03.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_03.jpeg",
+          "organizationLogo": null,
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/62f3b71494055510cc771e09/logo"
+        },
+        "location": {
+          "city": "Montpellier",
+          "closestLat": 43.610073,
+          "closestLon": 3.87727,
+          "closestAddress": "34000 Montpellier, FR",
+          "addressId": "faa605bb-fe32-4c65-b2c8-efaa21ae3c64",
+          "distanceKm": 0.08932452777362504
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/686e9cb8819b0b2efaa2b274/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "c1bc955a-6198-417c-b818-db57d2f1fc04",
+        "totalScore": 0.728455,
+        "taxonomyScore": 0.46,
+        "geoScore": 0.996909,
+        "taxonomyScores": {
+          "engagement_intent": 0.86,
+          "tranche_age": 0.9,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Accompagner les adultes dans l’apprentissage du français en se basant sur des outils et une méthodologie appropriés (Français Langue Intégration) / L'objectif est de permettre aux apprenants d'améliorer leur autonomie dans la vie quotidienne",
+              "reasoning": "La mission est centrée sur la transmission de savoirs (apprentissage du français) et l'accompagnement pédagogique des adultes."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Accompagner les adultes dans l’apprentissage du français / Les thématiques peuvent être de l'ordre de la santé, de l'identité, de la mobilité, etc... / L'objectif est de permettre aux apprenants d'améliorer leur autonomie dans la vie quotidienne",
+              "reasoning": "L'accompagnement d'adultes en situation de fragilité (apprentissage du français pour l'intégration) relève du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Accompagner les adultes dans l’apprentissage du français / L'objectif est de permettre aux apprenants d'améliorer leur autonomie dans la vie quotidienne",
+              "reasoning": "La mission s'inscrit dans le secteur de l'aide à la personne et de l'accompagnement social, bien que l'activité principale soit pédagogique."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Accompagner les adultes dans l’apprentissage du français en se basant sur des outils et une méthodologie appropriés / Les séances de 2h qui ont lieu le lundi, mardi, jeudi et vendredi",
+              "reasoning": "La mission relève clairement du secteur de l'éducation et de la formation, avec une dimension pédagogique explicite."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Fréquence : 1 fois par semaine / Durée : De Septembre à juin hors vacances scolaire",
+              "reasoning": "La mission est régulière avec une fréquence hebdomadaire et une durée étendue sur plusieurs mois."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Accompagner les adultes dans l’apprentissage du français / Le goût pour la transmission, la pédagogie et l'interculturalité sont requis",
+              "reasoning": "L'accompagnement pédagogique d'adultes en situation de fragilité relève du management social et soin, bien que l'aspect 'soin' soit indirect."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Des échanges de pratique sont régulièrement prévus avec les autres bénévoles et salariés / Vous serez accompagné tout au long de votre engagement bénévole",
+              "reasoning": "La mission implique une forte dimension collaborative et organisationnelle (échanges, accompagnement)."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Accompagner les adultes dans l’apprentissage du français en se basant sur des outils et une méthodologie appropriés / Le goût pour la transmission, la pédagogie et l'interculturalité sont requis",
+              "reasoning": "La mission est explicitement centrée sur la transmission de savoirs et l'accompagnement pédagogique."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Accompagner les adultes dans l’apprentissage du français / L'objectif est de permettre aux apprenants d'améliorer leur autonomie dans la vie quotidienne",
+              "reasoning": "L'accompagnement des apprenants en situation de fragilité relève d'une aide directe, bien que l'aspect 'soin' soit indirect."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.6,
+            "scoringScore": 0.35,
+            "evidence": {
+              "extract": "Des formations vous seront proposées tout au long de l’année en fonction des vos besoins, envies et places disponibles / Vous serez accompagné tout au long de votre engagement bénévole",
+              "reasoning": "La mission inclut un soutien organisationnel (formations, accompagnement), mais ce n'est pas l'intention principale."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "education_culture_creation",
+            "taxonomyValueLabel": "Éducation, culture et création",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Accompagner les adultes dans l’apprentissage du français en se basant sur des outils et une méthodologie appropriés / Le goût pour la transmission, la pédagogie et l'interculturalité sont requis",
+              "reasoning": "La mission relève de l'éducation et de la transmission culturelle, avec une dimension pédagogique explicite."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Les thématiques peuvent être de l'ordre de la santé, de l'identité, de la mobilité, etc... / L'objectif est de permettre aux apprenants d'améliorer leur autonomie dans la vie quotidienne et de mieux appréhender les codes de la société française",
+              "reasoning": "L'apprentissage du français pour l'intégration sociale relève des enjeux de société et de politique d'intégration."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "686e9cb8819b0b2efaa2b274",
+        "title": " ‍♂️Apprentissage du Français",
+        "domain": "humanitaire",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_03.jpeg",
+        "type": "benevolat",
+        "publisherId": "62f3b71494055510cc771e09",
+        "publisherName": "Fehap",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/62f3b71494055510cc771e09/logo",
+        "organizationName": "Gammes",
+        "organizationLogo": null,
+        "location": {
+          "city": "Montpellier",
+          "address": "34000 Montpellier",
+          "lat": 43.610073,
+          "lon": 3.87727
+        },
+        "startAt": "2025-08-25T19:35:36.777Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "",
+        "compensation": null,
+        "descriptionHtml": "   Montpellier (34)<br>   Dès que possible<br><br><br>Accompagner les adultes dans l’apprentissage du français en se basant sur des outils et une méthodologie appropriés (Français Langue Intégration)\nLes thématiques peuvent être de l'ordre de la santé, de l'identité, de la mobilité, etc... L'objectif est de permettre aux apprenants d'améliorer leur autonomie dans la vie quotidienne et de mieux appréhender les codes de la société française.\nNous intervenons dans 5 quartiers : Gambetta, Mosson, Millénaire, Les Aubes et Boutonnet.\nDes formations vous seront proposées tout au long de l’année en fonction des vos besoins, envies et places disponibles.\nLe \"Gammes Tour\", une journée de découverte de l’association est fortement recommandé<br><br><p><strong>Informations pratiques</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Les séances de 2h qui ont lieu le lundi, mardi, jeudi et vendredi dans la journée s'accompagnent d'un temps de préparation pédagogique et matériel.\nIl n'y a pas besoin de bagages ni de formation particulière pour cette mission. Les outils méthodologiques sont à disposition.\nLe goût pour la transmission, la pédagogie et l'interculturalité sont requis.\nDes échanges de pratique sont régulièrement prévus avec les autres bénévoles et salariés qui interviennent sur l'action.<br><br>Fréquence : 1 fois par semaine<br>Durée : De Septembre à juin hors vacances scolaire<br><br><p><strong>Informations sur l'association Gammes</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Depuis 1946, notre association agit auprès des personnes fragilisées par l’âge, l’état de santé, la perte d’un emploi, l’exclusion, les discriminations afin qu’elles préservent ou retrouvent leur autonomie.\n\nAssociant la solidarité collective et la générosité individuelle, nous représentons aujourd’hui un acteur majeur de l’action sociale, médico-sociale et sanitaire du département de l’Hérault. \n\nVous avez envie de donner votre temps ? Vous souhaitez développer vos compétences en apportant votre soutien ?\nRejoignez-nous et devenez bénévole à Gammes !   <br><p><strong>Formation des bénévoles</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Vous pouvez participer à une réunion d'information collective ou un échange individuel, vous serez ensuite orienté vers un \"référent bénévole\" en fonction de votre appétence. \nUne journée de découverte vous est dédiée, avec la visite de plusieurs sites.\nVous serez accompagné tout au long de votre engagement bénévole (échanges réguliers, formations, valorisation des compétences, temps conviviaux,...)\nUne adhésion gratuite vous sera aussi proposée (Lettre d'information, participation aux AG..)",
+        "description": "Montpellier (34)\nDès que possible\n\n\nAccompagner les adultes dans l’apprentissage du français en se basant sur des\noutils et une méthodologie appropriés (Français Langue Intégration)\nLes thématiques peuvent être de l'ordre de la santé, de l'identité, de la\nmobilité, etc... L'objectif est de permettre aux apprenants d'améliorer leur\nautonomie dans la vie quotidienne et de mieux appréhender les codes de la\nsociété française.\nNous intervenons dans 5 quartiers : Gambetta, Mosson, Millénaire, Les Aubes et\nBoutonnet.\nDes formations vous seront proposées tout au long de l’année en fonction des vos\nbesoins, envies et places disponibles.\nLe \"Gammes Tour\", une journée de découverte de l’association est fortement\nrecommandé\n\n\n\nInformations pratiques\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nLes séances de 2h qui ont lieu le lundi, mardi, jeudi et vendredi dans la\njournée s'accompagnent d'un temps de préparation pédagogique et matériel.\nIl n'y a pas besoin de bagages ni de formation particulière pour cette mission.\nLes outils méthodologiques sont à disposition.\nLe goût pour la transmission, la pédagogie et l'interculturalité sont requis.\nDes échanges de pratique sont régulièrement prévus avec les autres bénévoles et\nsalariés qui interviennent sur l'action.\n\nFréquence : 1 fois par semaine\nDurée : De Septembre à juin hors vacances scolaire\n\n\n\nInformations sur l'association Gammes\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nDepuis 1946, notre association agit auprès des personnes fragilisées par l’âge,\nl’état de santé, la perte d’un emploi, l’exclusion, les discriminations afin\nqu’elles préservent ou retrouvent leur autonomie.\n\nAssociant la solidarité collective et la générosité individuelle, nous\nreprésentons aujourd’hui un acteur majeur de l’action sociale, médico-sociale et\nsanitaire du département de l’Hérault.\n\nVous avez envie de donner votre temps ? Vous souhaitez développer vos\ncompétences en apportant votre soutien ?\nRejoignez-nous et devenez bénévole à Gammes !\n\n\nFormation des bénévoles\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nVous pouvez participer à une réunion d'information collective ou un échange\nindividuel, vous serez ensuite orienté vers un \"référent bénévole\" en fonction\nde votre appétence.\nUne journée de découverte vous est dédiée, avec la visite de plusieurs sites.\nVous serez accompagné tout au long de votre engagement bénévole (échanges\nréguliers, formations, valorisation des compétences, temps conviviaux,...)\nUne adhésion gratuite vous sera aussi proposée (Lettre d'information,\nparticipation aux AG..)",
+        "applicationUrl": "http://localhost:4000/r/686e9cb8819b0b2efaa2b274/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_03.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    }
+  ],
+  "deterministic": {
+    "geo": 5,
+    "format": 5,
+    "missionsSansTagFormat": [],
+    "gateViolations": []
+  },
+  "judgeRuns": [
+    {
+      "runIndex": 0,
+      "seed": 3177761099,
+      "order": [
+        "8e2968b0-53e1-44bf-ae52-d71c403496ce",
+        "65081fea0dbd937c61bbcce6",
+        "362dfc32-8609-4811-bab7-5f4049b4d576",
+        "686e9cb8819b0b2efaa2b274",
+        "67bf499b73fbd982c16c789a"
+      ],
+      "output": {
+        "coherence": {
+          "score": 4,
+          "missionsPertinentes": [
+            1,
+            3,
+            4,
+            2
+          ],
+          "justification": "Quatre missions sur cinq correspondent bien au profil de Julie, qui souhaite un engagement régulier à Montpellier, avec un intérêt pour l'animation et l'aide directe. Les missions 1 (animation d'ateliers), 3 (apprentissage du français), 4 (aide à la mobilité professionnelle) et 2 (médiateur numérique) sont adaptées à ses motivations et capacités. La mission 0, bien que localisée à Montpellier, est plus axée sur la santé et la prévention, ce qui semble moins en phase avec ses attentes.",
+          "missionIdsPertinents": [
+            "8e2968b0-53e1-44bf-ae52-d71c403496ce",
+            "362dfc32-8609-4811-bab7-5f4049b4d576",
+            "686e9cb8819b0b2efaa2b274",
+            "65081fea0dbd937c61bbcce6"
+          ]
+        },
+        "homogeneite": {
+          "score": 4,
+          "familles": [
+            "Animation sociale et culturelle",
+            "Accompagnement social et éducatif",
+            "Soutien administratif"
+          ],
+          "justification": "Les missions proposées relèvent principalement de trois familles : animation sociale et culturelle (mission 1), accompagnement social et éducatif (missions 3 et 4), et soutien administratif (mission 2). La majorité des missions appartiennent à ces familles, avec au moins une famille comprenant plusieurs missions."
+        },
+        "cause": "signal"
+      }
+    },
+    {
+      "runIndex": 1,
+      "seed": 3160983480,
+      "order": [
+        "362dfc32-8609-4811-bab7-5f4049b4d576",
+        "686e9cb8819b0b2efaa2b274",
+        "65081fea0dbd937c61bbcce6",
+        "8e2968b0-53e1-44bf-ae52-d71c403496ce",
+        "67bf499b73fbd982c16c789a"
+      ],
+      "output": {
+        "coherence": {
+          "score": 4,
+          "missionsPertinentes": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "justification": "Les missions 1, 2, 3 et 4 sont pertinentes pour Julie car elles correspondent à ses motivations de reprendre confiance et à ses intentions d'engagement dans l'animation et l'aide directe. La mission 1 (apprentissage du français) et la mission 2 (animation d'ateliers d'épanouissement) sont clairement en lien avec l'animation et le soutien direct, favorisant la confiance en soi. La mission 3 (accès à la santé) implique un accompagnement direct et social, ce qui peut aussi aider à reprendre confiance. La mission 4 (aide à la mobilité professionnelle) est en lien avec l'insertion professionnelle, ce qui peut aussi contribuer à sa motivation. La mission 0, bien que localisée à Montpellier, est plus administrative et moins centrée sur l'animation ou l'aide directe, donc moins pertinente.",
+          "missionIdsPertinents": [
+            "362dfc32-8609-4811-bab7-5f4049b4d576",
+            "686e9cb8819b0b2efaa2b274",
+            "65081fea0dbd937c61bbcce6",
+            "8e2968b0-53e1-44bf-ae52-d71c403496ce"
+          ]
+        },
+        "homogeneite": {
+          "score": 4,
+          "familles": [
+            "animation sociale et culturelle",
+            "accompagnement social et santé",
+            "insertion professionnelle"
+          ],
+          "justification": "Les missions pertinentes couvrent trois familles principales : animation sociale et culturelle (missions 1 et 2), accompagnement social et santé (mission 3), et insertion professionnelle (mission 4). Parmi ces familles, l'animation sociale et culturelle regroupe au moins deux missions, ce qui crée une majorité relative. Cette diversité reste cohérente avec le profil et les motivations de Julie."
+        },
+        "cause": null
+      }
+    }
+  ],
+  "engineVersion": "m2",
+  "startedAt": "2026-07-07T12:46:13.905Z",
+  "finishedAt": "2026-07-07T12:46:32.015Z",
+  "verdict": 4.5,
+  "cleanup": {
+    "userScoringDeleted": true
+  }
+}

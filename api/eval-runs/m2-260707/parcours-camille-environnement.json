@@ -1,0 +1,2576 @@
+{
+  "status": "success",
+  "parcours": {
+    "id": "camille-environnement",
+    "segment": "etudiant",
+    "label": "Camille, 24 ans, étudiante à Grenoble, veut découvrir le domaine de l'environnement et de la nature",
+    "locationLabel": "Grenoble (38)",
+    "age": 24,
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 24,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "statut",
+        "value": "etudiant"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 45.188529,
+          "lon": 5.724524,
+          "country_code": "fr",
+          "label": "Grenoble (38)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "reguliere"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "decouvrir_domaine"
+      },
+      {
+        "taxonomy": "domaine",
+        "value": "environnement_nature"
+      }
+    ]
+  },
+  "payload": {
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 24,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "statut",
+        "value": "etudiant"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 45.188529,
+          "lon": 5.724524,
+          "country_code": "fr",
+          "label": "Grenoble (38)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "reguliere"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "decouvrir_domaine"
+      },
+      {
+        "taxonomy": "domaine",
+        "value": "environnement_nature"
+      }
+    ],
+    "distinctId": "eval:m2-260707:camille-environnement",
+    "missionAlertEnabled": false
+  },
+  "userScoringId": "e9829192-ee37-4ef4-9730-e67bb431d341",
+  "match": {
+    "tookMs": 8455,
+    "engineVersion": "m2",
+    "items": [
+      {
+        "mission": {
+          "id": "69453515f5bb8e756debcbe8",
+          "title": "Je suis bénévole à la recyclerie sportive",
+          "remote": "no",
+          "schedule": "",
+          "domain": "environnement",
+          "domainOriginal": null,
+          "organizationName": "Recyclerie Sportive",
+          "publisherId": "650d35c6a38ec86077eee8f6",
+          "publisherName": "Volontaires de Grenoble",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/generique.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/generique.jpeg",
+            "organizationLogo": null,
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/650d35c6a38ec86077eee8f6/VolontdG%20de%20Nassim%20Merzouk.png"
+          },
+          "location": {
+            "city": "Grenoble",
+            "closestLat": 45.190065,
+            "closestLon": 5.729617,
+            "closestAddress": "3 Rue Raoul Blanchard, 38000 Grenoble, FR",
+            "addressId": "c6c55f62-6b67-4b81-a0c9-8b734903f912",
+            "distanceKm": 0.4341293105251093
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/69453515f5bb8e756debcbe8/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "2597f80e-2887-409d-aac4-bd4b15707927",
+          "totalScore": 0.792533,
+          "taxonomyScore": 0.6,
+          "geoScore": 0.985067,
+          "taxonomyScores": {
+            "domaine": 1,
+            "tranche_age": 1,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "environnement_nature",
+              "taxonomyValueLabel": "Environnement et nature",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Réparer Des Vélos / Réparer Des Textiles / Collecter, TRIER, VÉRIFIER / Les collectes au Pôle R / dans les déchetteries du Grésivaudan",
+                "reasoning": "Les activités principales (réparation, collecte, tri) sont explicitement centrées sur la réutilisation, le recyclage et la gestion des déchets, ce qui relève clairement de l'environnement et de la nature."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "gestion_projet",
+              "taxonomyValueLabel": "Gestion de projet",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "TENIR LA BOUTIQUE : Deux créneaux de 3h par mois, du mercredi au samedi entre 13h et 19h",
+                "reasoning": "La mission inclut une responsabilité de gestion opérationnelle (tenue de boutique) qui relève de l'organisation et de la coordination."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "batiment_industrie_logistique",
+              "taxonomyValueLabel": "Bâtiment, industrie et logistique",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Réparer Des Vélos / Réparer Des Textiles / Collecter, TRIER, VÉRIFIER / Les collectes au Pôle R / dans les déchetteries du Grésivaudan",
+                "reasoning": "Les activités décrites (réparation, collecte, tri) relèvent principalement du secteur de la logistique, de l'industrie (réparation) et de la gestion des déchets."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "gestion_commerce_organisation",
+              "taxonomyValueLabel": "Gestion, commerce et organisation",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "TENIR LA BOUTIQUE : Deux créneaux de 3h par mois, du mercredi au samedi entre 13h et 19h",
+                "reasoning": "La tenue de boutique implique des tâches de gestion, d'organisation et de relation client, relevant du secteur gestion/commerce."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Tous les vendredis après-midi, entre 14h et 19h / Tous les 2ème samedis du mois, de 14h à 17h / Les collectes au Pôle R ont lieu tous les jeudis de 14h à 16h / un vendredi sur 2 de 14h à 17h / Deux créneaux de 3h par mois, du mercredi au samedi entre 13h et 19h",
+                "reasoning": "La mission s'étend sur plusieurs mois avec des interventions répétées à intervalles réguliers (hebdomadaires, mensuelles), ce qui correspond à une mission régulière."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "production_construction_qualite_logistique",
+              "taxonomyValueLabel": "Production, construction, qualité, logistique",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Réparer Des Vélos / Réparer Des Textiles / Collecter, TRIER, VÉRIFIER / Les collectes au Pôle R / dans les déchetteries du Grésivaudan",
+                "reasoning": "Les tâches principales (réparation, collecte, tri) relèvent de la production, de la logistique et de la gestion des flux matériels."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Accompagner l’équipe à une co-réparation en exterieur / Conseiller à une Permanence Couture / Accompagner les participantes des Permanences En Mixité Choisie / Encadrer les bénéficiaires d'une permanence ski / Aider à une permanence vélo",
+                "reasoning": "Les missions incluent un accompagnement, un encadrement et une coopération avec des bénéficiaires et une équipe, relevant des soft skills et de l'organisation."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "action_terrain",
+              "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Réparer Des Vélos / Réparer Des Textiles / Collecter, TRIER, VÉRIFIER / Les collectes au Pôle R / dans les déchetteries du Grésivaudan / Participer à un Atelier Mobile",
+                "reasoning": "Les activités décrites sont des actions concrètes sur le terrain (réparation, collecte, tri, ateliers mobiles)."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Accompagner l’équipe à une co-réparation en exterieur / Conseiller à une Permanence Couture / Accompagner les participantes des Permanences En Mixité Choisie / Encadrer les bénéficiaires d'une permanence ski / Aider à une permanence vélo",
+                "reasoning": "Les missions incluent un accompagnement, un encadrement et une animation d'ateliers ou de permanences, relevant de l'animation."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "TENIR LA BOUTIQUE : Deux créneaux de 3h par mois, du mercredi au samedi entre 13h et 19h",
+                "reasoning": "La tenue de boutique implique une responsabilité organisationnelle et logistique au service de l'activité principale."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "technique_industrie_construction",
+              "taxonomyValueLabel": "Technique, industrie et construction",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Collecter, TRIER, VÉRIFIER / Les collectes au Pôle R / dans les déchetteries du Grésivaudan",
+                "reasoning": "Les activités de collecte et de tri relèvent de l'environnement, de la gestion des déchets et des sciences appliquées à la durabilité."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "74ef6230-d018-4c6c-9109-ab609c4e8a0d",
+          "title": "Je donne une seconde vie solidaire à des ordinateurs, smartphones, tablettes, pour équiper les personnes éloignées du numérique",
+          "remote": "no",
+          "schedule": "1 jour par mois",
+          "domain": "solidarite-insertion",
+          "domainOriginal": null,
+          "organizationName": "Emmaüs Connect",
+          "publisherId": "5f5931496c7ea514150a818f",
+          "publisherName": "JeVeuxAider.gouv.fr",
+          "media": {
+            "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/59908/8auxr9I27JUU3izaq6MnkiGdOJMW6n.jpg?v=1737022218",
+            "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/59908/8auxr9I27JUU3izaq6MnkiGdOJMW6n.jpg?v=1737022218",
+            "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/5999/kO5eHT4DjMKlSDsQATdi8lHX5VFvNO.png?v=1737381536",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+          },
+          "location": {
+            "city": "Grenoble",
+            "closestLat": 45.189808,
+            "closestLon": 5.717027,
+            "closestAddress": "Avenue Alsace Lorraine, 38000 Grenoble, FR",
+            "addressId": "c637b3da-4ce6-4a8e-8ee5-5941336d0981",
+            "distanceKm": 0.6044830677841925
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/74ef6230-d018-4c6c-9109-ab609c4e8a0d/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "8242bede-38c3-440c-b600-7b313c73c605",
+          "totalScore": 0.786634,
+          "taxonomyScore": 0.594,
+          "geoScore": 0.979268,
+          "taxonomyScores": {
+            "domaine": 0.97,
+            "tranche_age": 1,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Pour plus d'inclusion numérique, Emmaüs Connect collecte du matériel informatique inutilisé auprès de professionnels, pour lui donner une seconde vie solidaire / Vous voulez contribuer à l'inclusion des personnes en situation de précarité / lutte contre les injustices sociales et les diverses formes d'exclusion",
+                "reasoning": "La mission est explicitement centrée sur l'inclusion numérique et la lutte contre l'exclusion, ce qui relève du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "environnement_nature",
+              "taxonomyValueLabel": "Environnement et nature",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Vous voulez participer à la transition écologique / donner une seconde vie solidaire",
+                "reasoning": "La mission inclut une dimension écologique explicite via le reconditionnement et la lutte contre le gaspillage."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "numerique_communication",
+              "taxonomyValueLabel": "Numérique et communication",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Réceptionner et identifier le matériel reçu (tri, étiquetage, référencement dans l'outil de suivi interne) / Reconditionner le matériel informatique / Gérer le suivi administratif des dons",
+                "reasoning": "Les tâches principales sont centrées sur le numérique, le reconditionnement et la gestion administrative liée au matériel informatique."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Durée : 10 heures — 1 jour par mois / Vous apportez votre soutien selon vos disponibilités, aucune contrainte mais une présence régulière est appréciée / Les ateliers de reconditionnement sont généralement planifiés les lundi et mardi après-midi",
+                "reasoning": "La mission s'étend sur plusieurs mois avec une présence régulière (1 jour par mois) et une planification hebdomadaire des ateliers."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "production_construction_qualite_logistique",
+              "taxonomyValueLabel": "Production, construction, qualité, logistique",
+              "enrichmentConfidence": 0.92,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Reconditionner le matériel informatique (auditer le matériel, effacer les données, changer les pièces détachées, mettre à jour l'outil de suivi) / Réparer le matériel informatique retourné par les bénéficiaires / Organiser l'espace de reconditionnement (stockage, organisation et optimisation de l'espace)",
+                "reasoning": "Les tâches incluent des activités manuelles et techniques de reconditionnement, de réparation et de gestion logistique de matériel."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Accompagner et former les nouveaux/nouvelles bénévoles pour renforcer l'équipe / Vous avez un excellent sens relationnel et aimez travailler dans un environnement de bénévoles techniques / gestion du SAV en cas de besoin (diagnostic, retour par colis et suivi)",
+                "reasoning": "La mission implique un travail d'équipe, de formation, de coordination et de gestion des relations avec les bénéficiaires et les autres bénévoles."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "action_terrain",
+              "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Réceptionner et identifier le matériel reçu / Reconditionner le matériel informatique / Réparer le matériel informatique retourné par les bénéficiaires / Préparer le matériel à la vente",
+                "reasoning": "Les tâches décrites sont des actions concrètes et pratiques sur le terrain, centrées sur le reconditionnement et la préparation du matériel."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Gérer le suivi administratif des dons durant leur reconditionnement / Organiser l'espace de reconditionnement / Gérer le SAV en cas de besoin",
+                "reasoning": "La mission inclut des activités de gestion administrative, d'organisation et de suivi, en soutien au fonctionnement du projet."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Accompagner et former les nouveaux/nouvelles bénévoles pour renforcer l'équipe de l'espace de solidarité",
+                "reasoning": "La mission inclut explicitement une activité de formation et d'accompagnement des nouveaux bénévoles."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "numerique_communication",
+              "taxonomyValueLabel": "Numérique et communication",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Reconditionner le matériel informatique / Gérer le suivi administratif des dons / Préparer le matériel à la vente",
+                "reasoning": "Les tâches et le contexte de la mission relèvent clairement du domaine numérique et de la gestion des outils digitaux."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "social_sante_sport",
+              "taxonomyValueLabel": "Social, santé et sport",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Pour plus d'inclusion numérique / lutte contre les injustices sociales et les diverses formes d'exclusion / personnes en situation de précarité",
+                "reasoning": "La mission a une finalité sociale explicite, visant l'inclusion et la lutte contre l'exclusion."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "68e7b5e6188c14db9da43c3c",
+          "title": "Je pédale pour la solidarité !",
+          "remote": "no",
+          "schedule": "Une demi-journée",
+          "domain": "solidarite-insertion",
+          "domainOriginal": null,
+          "organizationName": "EPISOL",
+          "publisherId": "5f5931496c7ea514150a818f",
+          "publisherName": "JeVeuxAider.gouv.fr",
+          "media": {
+            "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12167/solidarite-et-insertion-3.webp?v=1737022224",
+            "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12167/solidarite-et-insertion-3.webp?v=1737022224",
+            "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/6039/B4mD5fOpxa9K7IDXfeAEQJIXsw0weL.png?v=1737381740",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+          },
+          "location": {
+            "city": "Grenoble",
+            "closestLat": 45.182828,
+            "closestLon": 5.724369,
+            "closestAddress": "38000 Grenoble, FR",
+            "addressId": "4488ad96-3313-42dc-beb3-e50a657e3faf",
+            "distanceKm": 0.6340386554985248
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/68e7b5e6188c14db9da43c3c/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "3c194aaf-16a9-4a6e-ada2-f65863c39a59",
+          "totalScore": 0.786133,
+          "taxonomyScore": 0.594,
+          "geoScore": 0.978266,
+          "taxonomyScores": {
+            "domaine": 0.97,
+            "tranche_age": 1,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "vous permettrez à des personnes en situation de précarité alimentaire de manger des légumes bio et locaux / l'association episol a pour objet de participer à la satisfaction des besoins essentiels des êtres humains, notamment alimentaires, en promouvant des valeurs de solidarité",
+                "reasoning": "La mission vise explicitement la lutte contre la précarité alimentaire et la solidarité, ce qui correspond au domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "environnement_nature",
+              "taxonomyValueLabel": "Environnement et nature",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "favoriserez le soutien à une agriculture locale et durable / vélo-cargo",
+                "reasoning": "La mission promeut une agriculture locale et durable, ainsi que l'utilisation d'un vélo-cargo, ce qui relève de l'environnement et de la nature."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "permettrez à des personnes en situation de précarité alimentaire de manger des légumes bio et locaux / l'association episol a pour objet de participer à la satisfaction des besoins essentiels des êtres humains, notamment alimentaires",
+                "reasoning": "La mission s'inscrit dans le secteur de l'aide à la personne et de la solidarité sociale."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "environnement_agriculture",
+              "taxonomyValueLabel": "Environnement et agriculture",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "soutien à une agriculture locale et durable / récupérerez des légumes chez un maraicher",
+                "reasoning": "La mission est liée à l'agriculture locale et durable, ce qui relève du secteur environnement et agriculture."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Il faut compter 1h30 à 2h pour la mission complète, chaque mardi et chaque jeudi matin (8h-10h)",
+                "reasoning": "La mission est répétée régulièrement sur plusieurs mois, avec une fréquence hebdomadaire explicite."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "production_construction_qualite_logistique",
+              "taxonomyValueLabel": "Production, construction, qualité, logistique",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "récupérerez tout le matériel nécessaire fourni par EPISOL (cargo-vélo, casque, indications du parcours)",
+                "reasoning": "La mission implique la manipulation de matériel (vélo-cargo) et le suivi d'un parcours, ce qui relève de la logistique."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Vous serez d'abord accueilli au sein de l'épicerie pour une explication de la mission / puis vous récupérerez tout le matériel nécessaire",
+                "reasoning": "La mission nécessite une bonne organisation personnelle et une adaptation aux consignes, ce qui relève des soft skills."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "action_terrain",
+              "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "il s'agira d'aller chercher des légumes chez un maraicher à Meylan grâce à notre super vélo-cargo / faire la mission",
+                "reasoning": "La mission consiste en une action concrète sur le terrain (collecte de légumes)."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "vous permettrez à des personnes en situation de précarité alimentaire de manger des légumes bio et locaux",
+                "reasoning": "La mission a un impact direct sur l'accès à une alimentation saine pour des personnes en précarité."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "social_sante_sport",
+              "taxonomyValueLabel": "Social, santé et sport",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "permettrez à des personnes en situation de précarité alimentaire de manger des légumes bio et locaux / l'association episol a pour objet de participer à la satisfaction des besoins essentiels des êtres humains",
+                "reasoning": "La mission relève du domaine social, de la santé (alimentation) et du sport (vélo), ce qui correspond à la formation ONISEP 'Social, santé et sport'."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "environnement_nature_sciences",
+              "taxonomyValueLabel": "Environnement, nature et sciences",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "favoriserez le soutien à une agriculture locale et durable / vélo-cargo",
+                "reasoning": "La mission promeut une agriculture durable et l'utilisation d'un vélo-cargo, ce qui relève de l'environnement et des sciences."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "660cda455bb0982e86ec124a",
+          "title": "Pratiques sportives comme vecteur d'intégration dans l'agglomération grenobloise",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "solidarite-insertion",
+          "domainOriginal": "Solidarité",
+          "organizationName": "Humacoop-Amel France",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "GRENOBLE",
+            "closestLat": 45.193394,
+            "closestLon": 5.731262,
+            "closestAddress": "8 RUE CHENOISE, 38000 GRENOBLE, FR",
+            "addressId": "b1c00553-2f3a-4ecc-a467-9f3e3ffbcb3b",
+            "distanceKm": 0.755939324318779
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/660cda455bb0982e86ec124a/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "220c784e-5032-43f5-a6de-f4e796354b61",
+          "totalScore": 0.784071,
+          "taxonomyScore": 0.594,
+          "geoScore": 0.974141,
+          "taxonomyScores": {
+            "domaine": 0.97,
+            "tranche_age": 1,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Permettre à des publics éloignés des pratiques sportives de découvrir la montagne de Grenoble, grâce à des activités sportives pour lutter contre la discrimination, et participer à une meilleure inclusion des populations en situation migratoire et d’exclusion dans le bassin grenoblois / renforcer l’inclusion et l’autonomie du public en organisant des sorties natures, et autres activités sportives et culturelles afin de créer du lien",
+                "reasoning": "La mission est explicitement centrée sur l'inclusion sociale, la lutte contre les discriminations et l'accompagnement de publics marginalisés ou en situation d'exil."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "sport_animation",
+              "taxonomyValueLabel": "Sport et animation sportive",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "activités sportives pour lutter contre la discrimination / Organisation d’activités en montagne et dans le bassin grenoblois : éco-randonnées, visites de musées, observation des étoiles en montagne, et activités axées sur la mobilité",
+                "reasoning": "Les activités décrites sont principalement des pratiques sportives et d'animation en lien avec la nature et la montagne."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "environnement_nature",
+              "taxonomyValueLabel": "Environnement et nature",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "éco-randonnées / sensibiliser au développement durable, à la préservation de l'environnement / activités axées sur la mobilité",
+                "reasoning": "Les activités incluent explicitement des dimensions écologiques et environnementales."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Permettre à des publics éloignés des pratiques sportives de découvrir la montagne de Grenoble, grâce à des activités sportives pour lutter contre la discrimination, et participer à une meilleure inclusion des populations en situation migratoire et d’exclusion dans le bassin grenoblois",
+                "reasoning": "La mission relève du secteur de l'aide à la personne et de l'accompagnement social."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "renforcer l’inclusion et l’autonomie du public en organisant des sorties natures, et autres activités sportives et culturelles afin de créer du lien, sensibiliser au développement durable, à la préservation de l'environnement et à l’égalité de genre",
+                "reasoning": "Les activités incluent de la sensibilisation, de l'animation et de la transmission de valeurs, relevant de l'éducation et de la formation."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Durée : 9 heures — De 24h à 30h / du 29 juin 2026 au 1 mars 2027",
+                "reasoning": "La mission s'étend sur plusieurs mois avec un volume horaire significatif, ce qui correspond à une mission régulière."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Accompagner les publics lors des activités / renforcer l’inclusion et l’autonomie du public",
+                "reasoning": "La mission implique un accompagnement humain et social des publics cibles."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Organisation d’activités en montagne et dans le bassin grenoblois / en partenariat avec les structures sportives et associations du territoire",
+                "reasoning": "La mission nécessite de l'organisation, de la coordination et du travail en partenariat."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "securite_environnement_action_publique",
+              "taxonomyValueLabel": "Protection des personnes, de la société ou de l'environnement",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "éco-randonnées / sensibiliser au développement durable, à la préservation de l'environnement",
+                "reasoning": "Les activités incluent des dimensions de protection de l'environnement et de sensibilisation écologique."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Accompagner les publics lors des activités / renforcer l’inclusion et l’autonomie du public",
+                "reasoning": "La mission implique un accompagnement direct et régulier des bénéficiaires."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Organisation d’activités en montagne et dans le bassin grenoblois : éco-randonnées, visites de musées, observation des étoiles en montagne / créer du lien",
+                "reasoning": "Les activités décrites incluent explicitement de l'animation et de la création de lien social."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "sensibiliser au développement durable, à la préservation de l'environnement et à l’égalité de genre / promotion de la diversité culturelle et du patrimoine montagneux",
+                "reasoning": "La mission inclut une dimension de transmission de connaissances et de sensibilisation."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Type de mission : volontariat_service_civique / Format : Présentiel / Durée : 9 heures — De 24h à 30h / du 29 juin 2026 au 1 mars 2027",
+                "reasoning": "La mission est explicitement un service civique, ce qui implique un cadre structuré et institutionnel."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "social_sante_sport",
+              "taxonomyValueLabel": "Social, santé et sport",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Permettre à des publics éloignés des pratiques sportives de découvrir la montagne de Grenoble, grâce à des activités sportives pour lutter contre la discrimination, et participer à une meilleure inclusion des populations en situation migratoire et d’exclusion dans le bassin grenoblois / renforcer l’inclusion et l’autonomie du public",
+                "reasoning": "La mission combine des dimensions sociales, sportives et d'accompagnement de publics fragilisés."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "environnement_nature_sciences",
+              "taxonomyValueLabel": "Environnement, nature et sciences",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "éco-randonnées / sensibiliser au développement durable, à la préservation de l'environnement",
+                "reasoning": "Les activités incluent des dimensions écologiques et environnementales."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_18_ans",
+              "taxonomyValueLabel": "Moins de 18 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_31_ans_handicap",
+              "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "65ca2582357e3a12cd907acd",
+          "title": "Animation, activités nature et en collectif",
+          "remote": "no",
+          "schedule": "",
+          "domain": "education",
+          "domainOriginal": null,
+          "organizationName": "Eclaireurs Et Eclaireuses Unionistes De France - Région Rhônes-Alpes Auvergne",
+          "publisherId": "5f592d415655a711feb4460e",
+          "publisherName": "Benevolt",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+            "organizationLogo": null,
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo"
+          },
+          "location": {
+            "city": "Grenoble",
+            "closestLat": 45.18756,
+            "closestLon": 5.735782,
+            "closestAddress": "38000 Grenoble, FR",
+            "addressId": "744be6be-95f8-41a1-8ef5-df2aaefb21b2",
+            "distanceKm": 0.8888243704640367
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/65ca2582357e3a12cd907acd/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "6891cf4b-0dff-4d23-8f87-34fc1981f754",
+          "totalScore": 0.778833,
+          "taxonomyScore": 0.588,
+          "geoScore": 0.969665,
+          "taxonomyScores": {
+            "domaine": 0.97,
+            "tranche_age": 1,
+            "type_mission": 0.97
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Préparation des animations, de la vie quotidienne / Éducation par le jeu, vie dans la nature et autonomisation des jeunes / Préparation d'animation pour des jeunes âgé.e.s de 8 à 16 ans / Notre pédagogie est plutôt pensé 'par les jeunes pour les jeunes'",
+                "reasoning": "La mission est centrée sur la transmission de savoirs, de valeurs et d'autonomisation via des activités éducatives et ludiques."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "environnement_nature",
+              "taxonomyValueLabel": "Environnement et nature",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Éducation par le jeu, vie dans la nature et autonomisation des jeunes / vie dans la nature",
+                "reasoning": "La mission inclut explicitement des activités liées à la nature et à l'environnement."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Activités menant à la réflexion sur les thématiques démocratiques, inclusives, collectives et sociétales / valeurs d'inclusion et est ouvert à toutes et à tous",
+                "reasoning": "La mission promeut l'inclusion, la démocratie et la vie collective, ce qui relève du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Préparation des animations, de la vie quotidienne / Préparation d'animation pour des jeunes âgé.e.s de 8 à 16 ans / association d'éducation populaire",
+                "reasoning": "La mission relève clairement du secteur de l'éducation, de la formation et de l'animation."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Fréquence : 1 WE par mois, camps de 2/3 semaines en juillet",
+                "reasoning": "La mission est répétée à intervalles réguliers sur plusieurs semaines, avec une fréquence mensuelle et des camps estivaux."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Préparation des animations, de la vie quotidienne / vie en groupe / vie en communauté importante",
+                "reasoning": "La mission met en jeu la coopération, l'organisation et les soft skills via la préparation d'animations et la vie collective."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Éducation par le jeu / autonomisation des jeunes / Préparation d'animation pour des jeunes",
+                "reasoning": "La mission consiste à transmettre des savoirs, des valeurs et des compétences aux jeunes via des activités éducatives."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Préparation des animations / Préparation d'animation pour des jeunes",
+                "reasoning": "La mission inclut explicitement la préparation et l'animation d'activités pour des jeunes."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "action_terrain",
+              "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "vie dans la nature / camps de 2/3 semaines en juillet",
+                "reasoning": "La mission implique des actions concrètes sur le terrain, notamment en milieu naturel."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "education_culture_creation",
+              "taxonomyValueLabel": "Éducation, culture et création",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Éducation par le jeu / Préparation d'animation pour des jeunes / association d'éducation populaire",
+                "reasoning": "La mission relève de l'éducation, de la culture et de la création via des activités pédagogiques et ludiques."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Activités menant à la réflexion sur les thématiques démocratiques, inclusives, collectives et sociétales",
+                "reasoning": "La mission aborde des thèmes sociétaux et démocratiques, relevant de ce domaine de formation."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      }
+    ],
+    "total": 2938,
+    "avgDistanceKmTop5": 0.66
+  },
+  "missions": [
+    {
+      "mission": {
+        "id": "69453515f5bb8e756debcbe8",
+        "title": "Je suis bénévole à la recyclerie sportive",
+        "remote": "no",
+        "schedule": "",
+        "domain": "environnement",
+        "domainOriginal": null,
+        "organizationName": "Recyclerie Sportive",
+        "publisherId": "650d35c6a38ec86077eee8f6",
+        "publisherName": "Volontaires de Grenoble",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/generique.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/generique.jpeg",
+          "organizationLogo": null,
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/650d35c6a38ec86077eee8f6/VolontdG%20de%20Nassim%20Merzouk.png"
+        },
+        "location": {
+          "city": "Grenoble",
+          "closestLat": 45.190065,
+          "closestLon": 5.729617,
+          "closestAddress": "3 Rue Raoul Blanchard, 38000 Grenoble, FR",
+          "addressId": "c6c55f62-6b67-4b81-a0c9-8b734903f912",
+          "distanceKm": 0.4341293105251093
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/69453515f5bb8e756debcbe8/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "2597f80e-2887-409d-aac4-bd4b15707927",
+        "totalScore": 0.792533,
+        "taxonomyScore": 0.6,
+        "geoScore": 0.985067,
+        "taxonomyScores": {
+          "domaine": 1,
+          "tranche_age": 1,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "environnement_nature",
+            "taxonomyValueLabel": "Environnement et nature",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Réparer Des Vélos / Réparer Des Textiles / Collecter, TRIER, VÉRIFIER / Les collectes au Pôle R / dans les déchetteries du Grésivaudan",
+              "reasoning": "Les activités principales (réparation, collecte, tri) sont explicitement centrées sur la réutilisation, le recyclage et la gestion des déchets, ce qui relève clairement de l'environnement et de la nature."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "gestion_projet",
+            "taxonomyValueLabel": "Gestion de projet",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "TENIR LA BOUTIQUE : Deux créneaux de 3h par mois, du mercredi au samedi entre 13h et 19h",
+              "reasoning": "La mission inclut une responsabilité de gestion opérationnelle (tenue de boutique) qui relève de l'organisation et de la coordination."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "batiment_industrie_logistique",
+            "taxonomyValueLabel": "Bâtiment, industrie et logistique",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Réparer Des Vélos / Réparer Des Textiles / Collecter, TRIER, VÉRIFIER / Les collectes au Pôle R / dans les déchetteries du Grésivaudan",
+              "reasoning": "Les activités décrites (réparation, collecte, tri) relèvent principalement du secteur de la logistique, de l'industrie (réparation) et de la gestion des déchets."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "gestion_commerce_organisation",
+            "taxonomyValueLabel": "Gestion, commerce et organisation",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "TENIR LA BOUTIQUE : Deux créneaux de 3h par mois, du mercredi au samedi entre 13h et 19h",
+              "reasoning": "La tenue de boutique implique des tâches de gestion, d'organisation et de relation client, relevant du secteur gestion/commerce."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Tous les vendredis après-midi, entre 14h et 19h / Tous les 2ème samedis du mois, de 14h à 17h / Les collectes au Pôle R ont lieu tous les jeudis de 14h à 16h / un vendredi sur 2 de 14h à 17h / Deux créneaux de 3h par mois, du mercredi au samedi entre 13h et 19h",
+              "reasoning": "La mission s'étend sur plusieurs mois avec des interventions répétées à intervalles réguliers (hebdomadaires, mensuelles), ce qui correspond à une mission régulière."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "production_construction_qualite_logistique",
+            "taxonomyValueLabel": "Production, construction, qualité, logistique",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Réparer Des Vélos / Réparer Des Textiles / Collecter, TRIER, VÉRIFIER / Les collectes au Pôle R / dans les déchetteries du Grésivaudan",
+              "reasoning": "Les tâches principales (réparation, collecte, tri) relèvent de la production, de la logistique et de la gestion des flux matériels."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Accompagner l’équipe à une co-réparation en exterieur / Conseiller à une Permanence Couture / Accompagner les participantes des Permanences En Mixité Choisie / Encadrer les bénéficiaires d'une permanence ski / Aider à une permanence vélo",
+              "reasoning": "Les missions incluent un accompagnement, un encadrement et une coopération avec des bénéficiaires et une équipe, relevant des soft skills et de l'organisation."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "action_terrain",
+            "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Réparer Des Vélos / Réparer Des Textiles / Collecter, TRIER, VÉRIFIER / Les collectes au Pôle R / dans les déchetteries du Grésivaudan / Participer à un Atelier Mobile",
+              "reasoning": "Les activités décrites sont des actions concrètes sur le terrain (réparation, collecte, tri, ateliers mobiles)."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Accompagner l’équipe à une co-réparation en exterieur / Conseiller à une Permanence Couture / Accompagner les participantes des Permanences En Mixité Choisie / Encadrer les bénéficiaires d'une permanence ski / Aider à une permanence vélo",
+              "reasoning": "Les missions incluent un accompagnement, un encadrement et une animation d'ateliers ou de permanences, relevant de l'animation."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "TENIR LA BOUTIQUE : Deux créneaux de 3h par mois, du mercredi au samedi entre 13h et 19h",
+              "reasoning": "La tenue de boutique implique une responsabilité organisationnelle et logistique au service de l'activité principale."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "technique_industrie_construction",
+            "taxonomyValueLabel": "Technique, industrie et construction",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Collecter, TRIER, VÉRIFIER / Les collectes au Pôle R / dans les déchetteries du Grésivaudan",
+              "reasoning": "Les activités de collecte et de tri relèvent de l'environnement, de la gestion des déchets et des sciences appliquées à la durabilité."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "69453515f5bb8e756debcbe8",
+        "title": "Je suis bénévole à la recyclerie sportive",
+        "domain": "environnement",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/generique.jpeg",
+        "type": "benevolat",
+        "publisherId": "650d35c6a38ec86077eee8f6",
+        "publisherName": "Volontaires de Grenoble",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/650d35c6a38ec86077eee8f6/VolontdG%20de%20Nassim%20Merzouk.png",
+        "organizationName": "Recyclerie Sportive",
+        "organizationLogo": null,
+        "location": {
+          "city": "Grenoble",
+          "address": "3 Rue Raoul Blanchard, 38000 Grenoble",
+          "lat": 45.190065,
+          "lon": 5.729617
+        },
+        "startAt": "2026-01-01T00:00:00.000Z",
+        "endAt": "2026-12-31T00:00:00.000Z",
+        "duration": 11,
+        "schedule": "",
+        "compensation": null,
+        "descriptionHtml": "AIDER À RÉPARER\nRéparer Des Vélos :\nTous les vendredis après-midi, entre 14h et 19h\n\nRéparer Des Textiles :\nTous les 2ème samedis du mois, de 14h à 17h\n\nACCOMPAGNER & CO-REPARER\nParticiper à un Atelier Mobile :\nAccompagner l’équipe à une co-réparation en exterieur\n\nConseiller  à une Permanence Couture :\nTous les 2ème samedis du mois, de 14h à 17h\n\nAccompagner les participantes des Permanences En Mixité Choisie : \nChaque dernier samedis du mois de 10h à 13h\n\nEncadrer les bénéficiaires d'une permanence ski :\nEn hiver, les vendredis entre 16h30 et 18h30\n\nAider à une permanence vélo :\nTous les mercredis et samedis entre 13h30 et 18h30\n\nCOLLECTER, TRIER, VÉRIFIER\nLes collectes au Pôle R ont lieu tous les jeudis de 14h à 16h et dans les déchetteries du Grésivaudan un vendredi sur 2 de 14h à 17h.\n\nTENIR LA BOUTIQUE : \nDeux créneaux de 3h par mois, du mercredi au samedi entre 13h et 19h",
+        "description": "AIDER À RÉPARER\nRéparer Des Vélos :\nTous les vendredis après-midi, entre 14h et 19h\n\nRéparer Des Textiles :\nTous les 2ème samedis du mois, de 14h à 17h\n\nACCOMPAGNER & CO-REPARER\nParticiper à un Atelier Mobile :\nAccompagner l’équipe à une co-réparation en exterieur\n\nConseiller à une Permanence Couture :\nTous les 2ème samedis du mois, de 14h à 17h\n\nAccompagner les participantes des Permanences En Mixité Choisie :\nChaque dernier samedis du mois de 10h à 13h\n\nEncadrer les bénéficiaires d'une permanence ski :\nEn hiver, les vendredis entre 16h30 et 18h30\n\nAider à une permanence vélo :\nTous les mercredis et samedis entre 13h30 et 18h30\n\nCOLLECTER, TRIER, VÉRIFIER\nLes collectes au Pôle R ont lieu tous les jeudis de 14h à 16h et dans les\ndéchetteries du Grésivaudan un vendredi sur 2 de 14h à 17h.\n\nTENIR LA BOUTIQUE :\nDeux créneaux de 3h par mois, du mercredi au samedi entre 13h et 19h",
+        "applicationUrl": "http://localhost:4000/r/69453515f5bb8e756debcbe8/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/generique.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 10
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "74ef6230-d018-4c6c-9109-ab609c4e8a0d",
+        "title": "Je donne une seconde vie solidaire à des ordinateurs, smartphones, tablettes, pour équiper les personnes éloignées du numérique",
+        "remote": "no",
+        "schedule": "1 jour par mois",
+        "domain": "solidarite-insertion",
+        "domainOriginal": null,
+        "organizationName": "Emmaüs Connect",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "media": {
+          "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/59908/8auxr9I27JUU3izaq6MnkiGdOJMW6n.jpg?v=1737022218",
+          "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/59908/8auxr9I27JUU3izaq6MnkiGdOJMW6n.jpg?v=1737022218",
+          "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/5999/kO5eHT4DjMKlSDsQATdi8lHX5VFvNO.png?v=1737381536",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+        },
+        "location": {
+          "city": "Grenoble",
+          "closestLat": 45.189808,
+          "closestLon": 5.717027,
+          "closestAddress": "Avenue Alsace Lorraine, 38000 Grenoble, FR",
+          "addressId": "c637b3da-4ce6-4a8e-8ee5-5941336d0981",
+          "distanceKm": 0.6044830677841925
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/74ef6230-d018-4c6c-9109-ab609c4e8a0d/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "8242bede-38c3-440c-b600-7b313c73c605",
+        "totalScore": 0.786634,
+        "taxonomyScore": 0.594,
+        "geoScore": 0.979268,
+        "taxonomyScores": {
+          "domaine": 0.97,
+          "tranche_age": 1,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Pour plus d'inclusion numérique, Emmaüs Connect collecte du matériel informatique inutilisé auprès de professionnels, pour lui donner une seconde vie solidaire / Vous voulez contribuer à l'inclusion des personnes en situation de précarité / lutte contre les injustices sociales et les diverses formes d'exclusion",
+              "reasoning": "La mission est explicitement centrée sur l'inclusion numérique et la lutte contre l'exclusion, ce qui relève du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "environnement_nature",
+            "taxonomyValueLabel": "Environnement et nature",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Vous voulez participer à la transition écologique / donner une seconde vie solidaire",
+              "reasoning": "La mission inclut une dimension écologique explicite via le reconditionnement et la lutte contre le gaspillage."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "numerique_communication",
+            "taxonomyValueLabel": "Numérique et communication",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Réceptionner et identifier le matériel reçu (tri, étiquetage, référencement dans l'outil de suivi interne) / Reconditionner le matériel informatique / Gérer le suivi administratif des dons",
+              "reasoning": "Les tâches principales sont centrées sur le numérique, le reconditionnement et la gestion administrative liée au matériel informatique."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Durée : 10 heures — 1 jour par mois / Vous apportez votre soutien selon vos disponibilités, aucune contrainte mais une présence régulière est appréciée / Les ateliers de reconditionnement sont généralement planifiés les lundi et mardi après-midi",
+              "reasoning": "La mission s'étend sur plusieurs mois avec une présence régulière (1 jour par mois) et une planification hebdomadaire des ateliers."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "production_construction_qualite_logistique",
+            "taxonomyValueLabel": "Production, construction, qualité, logistique",
+            "enrichmentConfidence": 0.92,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Reconditionner le matériel informatique (auditer le matériel, effacer les données, changer les pièces détachées, mettre à jour l'outil de suivi) / Réparer le matériel informatique retourné par les bénéficiaires / Organiser l'espace de reconditionnement (stockage, organisation et optimisation de l'espace)",
+              "reasoning": "Les tâches incluent des activités manuelles et techniques de reconditionnement, de réparation et de gestion logistique de matériel."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Accompagner et former les nouveaux/nouvelles bénévoles pour renforcer l'équipe / Vous avez un excellent sens relationnel et aimez travailler dans un environnement de bénévoles techniques / gestion du SAV en cas de besoin (diagnostic, retour par colis et suivi)",
+              "reasoning": "La mission implique un travail d'équipe, de formation, de coordination et de gestion des relations avec les bénéficiaires et les autres bénévoles."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "action_terrain",
+            "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Réceptionner et identifier le matériel reçu / Reconditionner le matériel informatique / Réparer le matériel informatique retourné par les bénéficiaires / Préparer le matériel à la vente",
+              "reasoning": "Les tâches décrites sont des actions concrètes et pratiques sur le terrain, centrées sur le reconditionnement et la préparation du matériel."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Gérer le suivi administratif des dons durant leur reconditionnement / Organiser l'espace de reconditionnement / Gérer le SAV en cas de besoin",
+              "reasoning": "La mission inclut des activités de gestion administrative, d'organisation et de suivi, en soutien au fonctionnement du projet."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Accompagner et former les nouveaux/nouvelles bénévoles pour renforcer l'équipe de l'espace de solidarité",
+              "reasoning": "La mission inclut explicitement une activité de formation et d'accompagnement des nouveaux bénévoles."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "numerique_communication",
+            "taxonomyValueLabel": "Numérique et communication",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Reconditionner le matériel informatique / Gérer le suivi administratif des dons / Préparer le matériel à la vente",
+              "reasoning": "Les tâches et le contexte de la mission relèvent clairement du domaine numérique et de la gestion des outils digitaux."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "social_sante_sport",
+            "taxonomyValueLabel": "Social, santé et sport",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Pour plus d'inclusion numérique / lutte contre les injustices sociales et les diverses formes d'exclusion / personnes en situation de précarité",
+              "reasoning": "La mission a une finalité sociale explicite, visant l'inclusion et la lutte contre l'exclusion."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "74ef6230-d018-4c6c-9109-ab609c4e8a0d",
+        "title": "Je donne une seconde vie solidaire à des ordinateurs, smartphones, tablettes, pour équiper les personnes éloignées du numérique",
+        "domain": "solidarite-insertion",
+        "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/59908/8auxr9I27JUU3izaq6MnkiGdOJMW6n.jpg?v=1737022218",
+        "type": "benevolat",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png",
+        "organizationName": "Emmaüs Connect",
+        "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/5999/kO5eHT4DjMKlSDsQATdi8lHX5VFvNO.png?v=1737381536",
+        "location": {
+          "city": "Grenoble",
+          "address": "Avenue Alsace Lorraine, 38000 Grenoble",
+          "lat": 45.189808,
+          "lon": 5.717027
+        },
+        "startAt": "2026-06-11T00:00:00.000Z",
+        "endAt": "2027-04-30T00:00:00.000Z",
+        "duration": 10,
+        "schedule": "1 jour par mois",
+        "compensation": null,
+        "descriptionHtml": "<b>Présentation de la mission</b><br><p>Actuellement, 8 millions de personnes en France n'ont ni téléphone, ni ordinateur, ni tablette, faute de moyen pour s'équiper (INSEE).&nbsp;</p><p><strong>Pour plus d'inclusion numérique, Emmaüs Connect collecte du matériel informatique inutilisé auprès de professionnels, pour lui donner une seconde vie solidaire.</strong></p><p><strong>En lien avec les équipes bénévoles et salariées</strong>, et au sein de l'espace de solidarité numérique Emmaüs, vos missions consisteront à :&nbsp;</p><ul><li><strong>Réceptionner et identifier le matériel reçu </strong>(tri, étiquetage, référencement dans l'outil de suivi interne) ;</li><li><strong>Gérer le suivi administratif des dons</strong> durant leur reconditionnement (implémentation des dons dans le logiciel de traçabilité, veille du système, identification et commande du matériel à acheter) ;</li><li><strong>Organiser l'espace de reconditionnement</strong> (stockage, organisation et optimisation de l'espace) ;</li><li><strong>Reconditionner le matériel informatique</strong> (auditer le matériel, effacer les données, changer les pièces détachées, mettre à jour l'outil de suivi) ;</li><li><strong>Réparer le matériel informatique</strong> retourné par les bénéficiaires</li><li><strong>Préparer le matériel à la vente</strong> (mise à jour, chargement de la batterie, alimentation, propreté de la machine) ;</li><li><strong>Accompagner et former l</strong>es nouveaux/nouvelles bénévoles pour renforcer l'équipe de l'espace de solidarité ;</li><li><strong>Gérer le SAV en cas de besoin</strong> (diagnostic, retour par colis et suivi)</li></ul><br><br><b>Sautez le pas</b><br><ul><li>Vous voulez contribuer à l'inclusion des personnes en situation de précarité,</li><li>Vous avez des compétences spécifiques en reconditionnement,</li><li>Vous voulez participer à la transition écologique,</li><li>Vous souhaitez vous former dans ce domaine,</li><li>Vous avez un excellent sens relationnel et aimez travailler dans un environnement de bénévoles techniques</li><li>Vous êtes sensible aux valeurs de notre collectif (Bienveillance, Solidarité, Entrepreneuriat et Responsabilité)</li><li>Vous souhaitez vous engager et prendre des responsabilités dans une association dynamique.</li></ul><p>Cette mission est faite pour vous.</p><br><br><b>Précisions</b><br><p>Les ateliers de reconditionnement sont généralement planifiés<strong> les lundi et mardi après-midi de 14h à 17h </strong>au sein de notre Espace de Solidarité Numérique.</p><p>Vous apportez votre soutien selon vos disponibilités, aucune contrainte mais <strong>une présence régulière est appréciée.</strong></p>",
+        "description": "Présentation de la mission\n\n\nActuellement, 8 millions de personnes en France n'ont ni téléphone, ni\nordinateur, ni tablette, faute de moyen pour s'équiper (INSEE). \n\nPour plus d'inclusion numérique, Emmaüs Connect collecte du matériel\ninformatique inutilisé auprès de professionnels, pour lui donner une seconde vie\nsolidaire.\n\nEn lien avec les équipes bénévoles et salariées, et au sein de l'espace de\nsolidarité numérique Emmaüs, vos missions consisteront à : \n\n • Réceptionner et identifier le matériel reçu (tri, étiquetage, référencement\n   dans l'outil de suivi interne) ;\n • Gérer le suivi administratif des dons durant leur reconditionnement\n   (implémentation des dons dans le logiciel de traçabilité, veille du système,\n   identification et commande du matériel à acheter) ;\n • Organiser l'espace de reconditionnement (stockage, organisation et\n   optimisation de l'espace) ;\n • Reconditionner le matériel informatique (auditer le matériel, effacer les\n   données, changer les pièces détachées, mettre à jour l'outil de suivi) ;\n • Réparer le matériel informatique retourné par les bénéficiaires\n • Préparer le matériel à la vente (mise à jour, chargement de la batterie,\n   alimentation, propreté de la machine) ;\n • Accompagner et former les nouveaux/nouvelles bénévoles pour renforcer\n   l'équipe de l'espace de solidarité ;\n • Gérer le SAV en cas de besoin (diagnostic, retour par colis et suivi)\n\n\n\nSautez le pas\n\n • Vous voulez contribuer à l'inclusion des personnes en situation de précarité,\n • Vous avez des compétences spécifiques en reconditionnement,\n • Vous voulez participer à la transition écologique,\n • Vous souhaitez vous former dans ce domaine,\n • Vous avez un excellent sens relationnel et aimez travailler dans un\n   environnement de bénévoles techniques\n • Vous êtes sensible aux valeurs de notre collectif (Bienveillance, Solidarité,\n   Entrepreneuriat et Responsabilité)\n • Vous souhaitez vous engager et prendre des responsabilités dans une\n   association dynamique.\n\nCette mission est faite pour vous.\n\n\n\nPrécisions\n\n\nLes ateliers de reconditionnement sont généralement planifiés les lundi et mardi\naprès-midi de 14h à 17h au sein de notre Espace de Solidarité Numérique.\n\nVous apportez votre soutien selon vos disponibilités, aucune contrainte mais une\nprésence régulière est appréciée.",
+        "applicationUrl": "http://localhost:4000/r/74ef6230-d018-4c6c-9109-ab609c4e8a0d/c4a9ce23692082d70af2b16d",
+        "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/59908/8auxr9I27JUU3izaq6MnkiGdOJMW6n.jpg?v=1737022218",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": null,
+        "places": 20
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "68e7b5e6188c14db9da43c3c",
+        "title": "Je pédale pour la solidarité !",
+        "remote": "no",
+        "schedule": "Une demi-journée",
+        "domain": "solidarite-insertion",
+        "domainOriginal": null,
+        "organizationName": "EPISOL",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "media": {
+          "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12167/solidarite-et-insertion-3.webp?v=1737022224",
+          "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12167/solidarite-et-insertion-3.webp?v=1737022224",
+          "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/6039/B4mD5fOpxa9K7IDXfeAEQJIXsw0weL.png?v=1737381740",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+        },
+        "location": {
+          "city": "Grenoble",
+          "closestLat": 45.182828,
+          "closestLon": 5.724369,
+          "closestAddress": "38000 Grenoble, FR",
+          "addressId": "4488ad96-3313-42dc-beb3-e50a657e3faf",
+          "distanceKm": 0.6340386554985248
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/68e7b5e6188c14db9da43c3c/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "3c194aaf-16a9-4a6e-ada2-f65863c39a59",
+        "totalScore": 0.786133,
+        "taxonomyScore": 0.594,
+        "geoScore": 0.978266,
+        "taxonomyScores": {
+          "domaine": 0.97,
+          "tranche_age": 1,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "vous permettrez à des personnes en situation de précarité alimentaire de manger des légumes bio et locaux / l'association episol a pour objet de participer à la satisfaction des besoins essentiels des êtres humains, notamment alimentaires, en promouvant des valeurs de solidarité",
+              "reasoning": "La mission vise explicitement la lutte contre la précarité alimentaire et la solidarité, ce qui correspond au domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "environnement_nature",
+            "taxonomyValueLabel": "Environnement et nature",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "favoriserez le soutien à une agriculture locale et durable / vélo-cargo",
+              "reasoning": "La mission promeut une agriculture locale et durable, ainsi que l'utilisation d'un vélo-cargo, ce qui relève de l'environnement et de la nature."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "permettrez à des personnes en situation de précarité alimentaire de manger des légumes bio et locaux / l'association episol a pour objet de participer à la satisfaction des besoins essentiels des êtres humains, notamment alimentaires",
+              "reasoning": "La mission s'inscrit dans le secteur de l'aide à la personne et de la solidarité sociale."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "environnement_agriculture",
+            "taxonomyValueLabel": "Environnement et agriculture",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "soutien à une agriculture locale et durable / récupérerez des légumes chez un maraicher",
+              "reasoning": "La mission est liée à l'agriculture locale et durable, ce qui relève du secteur environnement et agriculture."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Il faut compter 1h30 à 2h pour la mission complète, chaque mardi et chaque jeudi matin (8h-10h)",
+              "reasoning": "La mission est répétée régulièrement sur plusieurs mois, avec une fréquence hebdomadaire explicite."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "production_construction_qualite_logistique",
+            "taxonomyValueLabel": "Production, construction, qualité, logistique",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "récupérerez tout le matériel nécessaire fourni par EPISOL (cargo-vélo, casque, indications du parcours)",
+              "reasoning": "La mission implique la manipulation de matériel (vélo-cargo) et le suivi d'un parcours, ce qui relève de la logistique."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Vous serez d'abord accueilli au sein de l'épicerie pour une explication de la mission / puis vous récupérerez tout le matériel nécessaire",
+              "reasoning": "La mission nécessite une bonne organisation personnelle et une adaptation aux consignes, ce qui relève des soft skills."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "action_terrain",
+            "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "il s'agira d'aller chercher des légumes chez un maraicher à Meylan grâce à notre super vélo-cargo / faire la mission",
+              "reasoning": "La mission consiste en une action concrète sur le terrain (collecte de légumes)."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "vous permettrez à des personnes en situation de précarité alimentaire de manger des légumes bio et locaux",
+              "reasoning": "La mission a un impact direct sur l'accès à une alimentation saine pour des personnes en précarité."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "social_sante_sport",
+            "taxonomyValueLabel": "Social, santé et sport",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "permettrez à des personnes en situation de précarité alimentaire de manger des légumes bio et locaux / l'association episol a pour objet de participer à la satisfaction des besoins essentiels des êtres humains",
+              "reasoning": "La mission relève du domaine social, de la santé (alimentation) et du sport (vélo), ce qui correspond à la formation ONISEP 'Social, santé et sport'."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "environnement_nature_sciences",
+            "taxonomyValueLabel": "Environnement, nature et sciences",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "favoriserez le soutien à une agriculture locale et durable / vélo-cargo",
+              "reasoning": "La mission promeut une agriculture durable et l'utilisation d'un vélo-cargo, ce qui relève de l'environnement et des sciences."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "68e7b5e6188c14db9da43c3c",
+        "title": "Je pédale pour la solidarité !",
+        "domain": "solidarite-insertion",
+        "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12167/solidarite-et-insertion-3.webp?v=1737022224",
+        "type": "benevolat",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png",
+        "organizationName": "EPISOL",
+        "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/6039/B4mD5fOpxa9K7IDXfeAEQJIXsw0weL.png?v=1737381740",
+        "location": {
+          "city": "Grenoble",
+          "address": "38000 Grenoble",
+          "lat": 45.182828,
+          "lon": 5.724369
+        },
+        "startAt": "2025-10-02T00:00:00.000Z",
+        "endAt": "2026-09-29T00:00:00.000Z",
+        "duration": 11,
+        "schedule": "Une demi-journée",
+        "compensation": null,
+        "descriptionHtml": "<b>Présentation de la mission</b><br><p>Vous aimez pédaler ? Vous aimez la solidarité ?</p><p>Alors cette mission est faite pour vous !</p><p>Une fois par semaine, par mois ou par an, il s'agira d'aller chercher des légumes chez un maraicher à Meylan grâce à notre super vélo-cargo, afin que nous puissions vendre ces bons produits à des tarifs solidaires au sein de l'épicerie EPISOL.</p><br><br><b>Sautez le pas</b><br><p>Non seulement vous permettrez à des personnes en situation de précarité alimentaire de manger des légumes bio et locaux, mais en plus vous favoriserez le soutien à une agriculture locale et durable, avec comme bonus le fait de vous maintenir en forme graçe au vélo !!</p><br><br><b>Précisions</b><br><p>Vous serez d'abord accueilli au sein de l'épicerie pour une explication de la mission, puis vous récupérerez tout le matériel nécessaire fourni par EPISOL (cargo-vélo, casque, indications du parcours) avant de finalement faire la mission.</p><p>Il faut compter 1h30 à 2h pour la mission complète, chaque mardi et chaque jeudi matin (8h-10h).</p>",
+        "description": "Présentation de la mission\n\n\nVous aimez pédaler ? Vous aimez la solidarité ?\n\nAlors cette mission est faite pour vous !\n\nUne fois par semaine, par mois ou par an, il s'agira d'aller chercher des\nlégumes chez un maraicher à Meylan grâce à notre super vélo-cargo, afin que nous\npuissions vendre ces bons produits à des tarifs solidaires au sein de l'épicerie\nEPISOL.\n\n\n\nSautez le pas\n\n\nNon seulement vous permettrez à des personnes en situation de précarité\nalimentaire de manger des légumes bio et locaux, mais en plus vous favoriserez\nle soutien à une agriculture locale et durable, avec comme bonus le fait de vous\nmaintenir en forme graçe au vélo !!\n\n\n\nPrécisions\n\n\nVous serez d'abord accueilli au sein de l'épicerie pour une explication de la\nmission, puis vous récupérerez tout le matériel nécessaire fourni par EPISOL\n(cargo-vélo, casque, indications du parcours) avant de finalement faire la\nmission.\n\nIl faut compter 1h30 à 2h pour la mission complète, chaque mardi et chaque jeudi\nmatin (8h-10h).",
+        "applicationUrl": "http://localhost:4000/r/68e7b5e6188c14db9da43c3c/c4a9ce23692082d70af2b16d",
+        "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12167/solidarite-et-insertion-3.webp?v=1737022224",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "660cda455bb0982e86ec124a",
+        "title": "Pratiques sportives comme vecteur d'intégration dans l'agglomération grenobloise",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "solidarite-insertion",
+        "domainOriginal": "Solidarité",
+        "organizationName": "Humacoop-Amel France",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "GRENOBLE",
+          "closestLat": 45.193394,
+          "closestLon": 5.731262,
+          "closestAddress": "8 RUE CHENOISE, 38000 GRENOBLE, FR",
+          "addressId": "b1c00553-2f3a-4ecc-a467-9f3e3ffbcb3b",
+          "distanceKm": 0.755939324318779
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/660cda455bb0982e86ec124a/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "220c784e-5032-43f5-a6de-f4e796354b61",
+        "totalScore": 0.784071,
+        "taxonomyScore": 0.594,
+        "geoScore": 0.974141,
+        "taxonomyScores": {
+          "domaine": 0.97,
+          "tranche_age": 1,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Permettre à des publics éloignés des pratiques sportives de découvrir la montagne de Grenoble, grâce à des activités sportives pour lutter contre la discrimination, et participer à une meilleure inclusion des populations en situation migratoire et d’exclusion dans le bassin grenoblois / renforcer l’inclusion et l’autonomie du public en organisant des sorties natures, et autres activités sportives et culturelles afin de créer du lien",
+              "reasoning": "La mission est explicitement centrée sur l'inclusion sociale, la lutte contre les discriminations et l'accompagnement de publics marginalisés ou en situation d'exil."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "sport_animation",
+            "taxonomyValueLabel": "Sport et animation sportive",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "activités sportives pour lutter contre la discrimination / Organisation d’activités en montagne et dans le bassin grenoblois : éco-randonnées, visites de musées, observation des étoiles en montagne, et activités axées sur la mobilité",
+              "reasoning": "Les activités décrites sont principalement des pratiques sportives et d'animation en lien avec la nature et la montagne."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "environnement_nature",
+            "taxonomyValueLabel": "Environnement et nature",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "éco-randonnées / sensibiliser au développement durable, à la préservation de l'environnement / activités axées sur la mobilité",
+              "reasoning": "Les activités incluent explicitement des dimensions écologiques et environnementales."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Permettre à des publics éloignés des pratiques sportives de découvrir la montagne de Grenoble, grâce à des activités sportives pour lutter contre la discrimination, et participer à une meilleure inclusion des populations en situation migratoire et d’exclusion dans le bassin grenoblois",
+              "reasoning": "La mission relève du secteur de l'aide à la personne et de l'accompagnement social."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "renforcer l’inclusion et l’autonomie du public en organisant des sorties natures, et autres activités sportives et culturelles afin de créer du lien, sensibiliser au développement durable, à la préservation de l'environnement et à l’égalité de genre",
+              "reasoning": "Les activités incluent de la sensibilisation, de l'animation et de la transmission de valeurs, relevant de l'éducation et de la formation."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Durée : 9 heures — De 24h à 30h / du 29 juin 2026 au 1 mars 2027",
+              "reasoning": "La mission s'étend sur plusieurs mois avec un volume horaire significatif, ce qui correspond à une mission régulière."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Accompagner les publics lors des activités / renforcer l’inclusion et l’autonomie du public",
+              "reasoning": "La mission implique un accompagnement humain et social des publics cibles."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Organisation d’activités en montagne et dans le bassin grenoblois / en partenariat avec les structures sportives et associations du territoire",
+              "reasoning": "La mission nécessite de l'organisation, de la coordination et du travail en partenariat."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "securite_environnement_action_publique",
+            "taxonomyValueLabel": "Protection des personnes, de la société ou de l'environnement",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "éco-randonnées / sensibiliser au développement durable, à la préservation de l'environnement",
+              "reasoning": "Les activités incluent des dimensions de protection de l'environnement et de sensibilisation écologique."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Accompagner les publics lors des activités / renforcer l’inclusion et l’autonomie du public",
+              "reasoning": "La mission implique un accompagnement direct et régulier des bénéficiaires."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Organisation d’activités en montagne et dans le bassin grenoblois : éco-randonnées, visites de musées, observation des étoiles en montagne / créer du lien",
+              "reasoning": "Les activités décrites incluent explicitement de l'animation et de la création de lien social."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "sensibiliser au développement durable, à la préservation de l'environnement et à l’égalité de genre / promotion de la diversité culturelle et du patrimoine montagneux",
+              "reasoning": "La mission inclut une dimension de transmission de connaissances et de sensibilisation."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Type de mission : volontariat_service_civique / Format : Présentiel / Durée : 9 heures — De 24h à 30h / du 29 juin 2026 au 1 mars 2027",
+              "reasoning": "La mission est explicitement un service civique, ce qui implique un cadre structuré et institutionnel."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "social_sante_sport",
+            "taxonomyValueLabel": "Social, santé et sport",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Permettre à des publics éloignés des pratiques sportives de découvrir la montagne de Grenoble, grâce à des activités sportives pour lutter contre la discrimination, et participer à une meilleure inclusion des populations en situation migratoire et d’exclusion dans le bassin grenoblois / renforcer l’inclusion et l’autonomie du public",
+              "reasoning": "La mission combine des dimensions sociales, sportives et d'accompagnement de publics fragilisés."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "environnement_nature_sciences",
+            "taxonomyValueLabel": "Environnement, nature et sciences",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "éco-randonnées / sensibiliser au développement durable, à la préservation de l'environnement",
+              "reasoning": "Les activités incluent des dimensions écologiques et environnementales."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_18_ans",
+            "taxonomyValueLabel": "Moins de 18 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_31_ans_handicap",
+            "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "660cda455bb0982e86ec124a",
+        "title": "Pratiques sportives comme vecteur d'intégration dans l'agglomération grenobloise",
+        "domain": "solidarite-insertion",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "Humacoop-Amel France",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "GRENOBLE",
+          "address": "8 RUE CHENOISE, 38000 GRENOBLE",
+          "lat": 45.193394,
+          "lon": 5.731262
+        },
+        "startAt": "2026-06-29T00:00:00.000Z",
+        "endAt": "2027-03-01T01:00:00.000Z",
+        "duration": 9,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Permettre à des publics éloignés des pratiques sportives de découvrir la montagne de Grenoble, grâce à des activités sportives pour lutter contre la discrimination, et participer à une meilleure inclusion des populations en situation migratoire et d’exclusion dans le bassin grenoblois</p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p><span style=\"background-color: transparent; color: rgb(74, 74, 74);\">L’objectif est de renforcer l’inclusion et l’autonomie du public en organisant des sorties natures, et autres activités sportives et culturelles afin de créer du lien, sensibiliser au développement durable, à la préservation de l'environnement et à l’égalité de genre.&nbsp;</span></p></p><br>\n<b>Actions</b><br><p><p><span style=\"background-color: transparent; color: rgb(74, 74, 74);\">Organisation d’activités en montagne et dans le bassin grenoblois : éco-randonnées, visites de musées, observation des étoiles en montagne, et activités axées sur la mobilité… en partenariat avec les structures sportives et associations du territoire engagées dans l'accueil et l’inclusion des personnes en situation d’exil et isolées.&nbsp;</span></p><p><span style=\"background-color: transparent; color: rgb(74, 74, 74);\">Accompagner les publics lors des activités&nbsp;</span></p><p><br></p><p><span style=\"background-color: transparent; color: rgb(74, 74, 74);\">Les activités iront dans le sens de la promotion de la diversité culturelle et du patrimoine montagneux de Grenoble, de la lutte contre la marginalisation des cultures issues de l’immigration, contre la discrimination et l’intolérance, et dans le sens d’un partage respectueux de différents univers culturels et de l’inclusion des publics en situation d’exclusion.</span></p></p><br>",
+        "description": "EN QUELQUES MOTS\n\n\nPermettre à des publics éloignés des pratiques sportives de découvrir la\nmontagne de Grenoble, grâce à des activités sportives pour lutter contre la\ndiscrimination, et participer à une meilleure inclusion des populations en\nsituation migratoire et d’exclusion dans le bassin grenoblois\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nL’objectif est de renforcer l’inclusion et l’autonomie du public en organisant\ndes sorties natures, et autres activités sportives et culturelles afin de créer\ndu lien, sensibiliser au développement durable, à la préservation de\nl'environnement et à l’égalité de genre. \n\n\n\n\n\nActions\n\n\n\n\nOrganisation d’activités en montagne et dans le bassin grenoblois :\néco-randonnées, visites de musées, observation des étoiles en montagne, et\nactivités axées sur la mobilité… en partenariat avec les structures sportives et\nassociations du territoire engagées dans l'accueil et l’inclusion des personnes\nen situation d’exil et isolées. \n\nAccompagner les publics lors des activités \n\n\n\n\nLes activités iront dans le sens de la promotion de la diversité culturelle et\ndu patrimoine montagneux de Grenoble, de la lutte contre la marginalisation des\ncultures issues de l’immigration, contre la discrimination et l’intolérance, et\ndans le sens d’un partage respectueux de différents univers culturels et de\nl’inclusion des publics en situation d’exclusion.\n\n\n",
+        "applicationUrl": "http://localhost:4000/r/660cda455bb0982e86ec124a/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "65ca2582357e3a12cd907acd",
+        "title": "Animation, activités nature et en collectif",
+        "remote": "no",
+        "schedule": "",
+        "domain": "education",
+        "domainOriginal": null,
+        "organizationName": "Eclaireurs Et Eclaireuses Unionistes De France - Région Rhônes-Alpes Auvergne",
+        "publisherId": "5f592d415655a711feb4460e",
+        "publisherName": "Benevolt",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+          "organizationLogo": null,
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo"
+        },
+        "location": {
+          "city": "Grenoble",
+          "closestLat": 45.18756,
+          "closestLon": 5.735782,
+          "closestAddress": "38000 Grenoble, FR",
+          "addressId": "744be6be-95f8-41a1-8ef5-df2aaefb21b2",
+          "distanceKm": 0.8888243704640367
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/65ca2582357e3a12cd907acd/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "6891cf4b-0dff-4d23-8f87-34fc1981f754",
+        "totalScore": 0.778833,
+        "taxonomyScore": 0.588,
+        "geoScore": 0.969665,
+        "taxonomyScores": {
+          "domaine": 0.97,
+          "tranche_age": 1,
+          "type_mission": 0.97
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Préparation des animations, de la vie quotidienne / Éducation par le jeu, vie dans la nature et autonomisation des jeunes / Préparation d'animation pour des jeunes âgé.e.s de 8 à 16 ans / Notre pédagogie est plutôt pensé 'par les jeunes pour les jeunes'",
+              "reasoning": "La mission est centrée sur la transmission de savoirs, de valeurs et d'autonomisation via des activités éducatives et ludiques."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "environnement_nature",
+            "taxonomyValueLabel": "Environnement et nature",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Éducation par le jeu, vie dans la nature et autonomisation des jeunes / vie dans la nature",
+              "reasoning": "La mission inclut explicitement des activités liées à la nature et à l'environnement."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Activités menant à la réflexion sur les thématiques démocratiques, inclusives, collectives et sociétales / valeurs d'inclusion et est ouvert à toutes et à tous",
+              "reasoning": "La mission promeut l'inclusion, la démocratie et la vie collective, ce qui relève du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Préparation des animations, de la vie quotidienne / Préparation d'animation pour des jeunes âgé.e.s de 8 à 16 ans / association d'éducation populaire",
+              "reasoning": "La mission relève clairement du secteur de l'éducation, de la formation et de l'animation."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Fréquence : 1 WE par mois, camps de 2/3 semaines en juillet",
+              "reasoning": "La mission est répétée à intervalles réguliers sur plusieurs semaines, avec une fréquence mensuelle et des camps estivaux."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Préparation des animations, de la vie quotidienne / vie en groupe / vie en communauté importante",
+              "reasoning": "La mission met en jeu la coopération, l'organisation et les soft skills via la préparation d'animations et la vie collective."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Éducation par le jeu / autonomisation des jeunes / Préparation d'animation pour des jeunes",
+              "reasoning": "La mission consiste à transmettre des savoirs, des valeurs et des compétences aux jeunes via des activités éducatives."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Préparation des animations / Préparation d'animation pour des jeunes",
+              "reasoning": "La mission inclut explicitement la préparation et l'animation d'activités pour des jeunes."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "action_terrain",
+            "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "vie dans la nature / camps de 2/3 semaines en juillet",
+              "reasoning": "La mission implique des actions concrètes sur le terrain, notamment en milieu naturel."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "education_culture_creation",
+            "taxonomyValueLabel": "Éducation, culture et création",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Éducation par le jeu / Préparation d'animation pour des jeunes / association d'éducation populaire",
+              "reasoning": "La mission relève de l'éducation, de la culture et de la création via des activités pédagogiques et ludiques."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Activités menant à la réflexion sur les thématiques démocratiques, inclusives, collectives et sociétales",
+              "reasoning": "La mission aborde des thèmes sociétaux et démocratiques, relevant de ce domaine de formation."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "65ca2582357e3a12cd907acd",
+        "title": "Animation, activités nature et en collectif",
+        "domain": "education",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+        "type": "benevolat",
+        "publisherId": "5f592d415655a711feb4460e",
+        "publisherName": "Benevolt",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo",
+        "organizationName": "Eclaireurs Et Eclaireuses Unionistes De France - Région Rhônes-Alpes Auvergne",
+        "organizationLogo": null,
+        "location": {
+          "city": "Grenoble",
+          "address": "38000 Grenoble",
+          "lat": 45.18756,
+          "lon": 5.735782
+        },
+        "startAt": "2025-08-25T19:15:42.581Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "",
+        "compensation": null,
+        "descriptionHtml": "   Grenoble (38)<br>   Dès que possible<br><br><br>Préparation des animations, de la vie quotidienne. Activités menant à la réflexion sur les thématiques démocratiques, inclusives, collectives et sociétales. Place des valeurs, de la progression personnelle, de la convivialité et de la vie en communauté importante. Éducation par le jeu, vie dans la nature et autonomisation des jeunes.<br><br><p><strong>Informations pratiques</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Préparation d'animation pour des jeunes âgé.e.s de 8 à 16 ans. Notre pédagogie est plutôt pensé \"par les jeunes pour les jeunes\" même si nous restons *** à toutes et à tous.<br><br>Fréquence : 1 WE par mois, camps de 2/3 semaines en juillet<br>Durée : Selon envie du bénévole<br><br><p><strong>Informations sur l'association Eclaireurs Et Eclaireuses Unionistes De France - Région Rhônes-Alpes Auvergne</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Notre association, reconnue d'utilité publique, est une association d'éducation populaire qui vise à l'émancipation des jeunes individus par la vie en groupe, le jeu et la vie dans la nature. Nous sommes convaincus que rendre  les individus épanouis et libres de leurs choix permet de tendre vers une société plus démocratique, fraternelle et respectueuse de son environnement. Notre mouvement d'origine protestante porte des valeurs d'inclusion et est ouvert à toutes et à tous.<br><p><strong>Formation des bénévoles</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Les bénévoles débutent par un weekend d'essai non engageant. Il n'y a pas besoin de compétences pour cela, le cadre est assuré par les animatrices et animateurs plus experimenté.e.s. Par la suite si la mission plait, les bénévoles sont intégré.e.s aux équipes de la tranche d'âge préférentielle (nous avons trois branche pédagogiques : 8-12 ans; 12-16 ans; 16-19ans). De nombreuses formations sont proposées par l’association afin de gagner en compétences.",
+        "description": "Grenoble (38)\nDès que possible\n\n\nPréparation des animations, de la vie quotidienne. Activités menant à la\nréflexion sur les thématiques démocratiques, inclusives, collectives et\nsociétales. Place des valeurs, de la progression personnelle, de la convivialité\net de la vie en communauté importante. Éducation par le jeu, vie dans la nature\net autonomisation des jeunes.\n\n\n\nInformations pratiques\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nPréparation d'animation pour des jeunes âgé.e.s de 8 à 16 ans. Notre pédagogie\nest plutôt pensé \"par les jeunes pour les jeunes\" même si nous restons *** à\ntoutes et à tous.\n\nFréquence : 1 WE par mois, camps de 2/3 semaines en juillet\nDurée : Selon envie du bénévole\n\n\n\nInformations sur l'association Eclaireurs Et Eclaireuses Unionistes De France -\nRégion Rhônes-Alpes Auvergne\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nNotre association, reconnue d'utilité publique, est une association d'éducation\npopulaire qui vise à l'émancipation des jeunes individus par la vie en groupe,\nle jeu et la vie dans la nature. Nous sommes convaincus que rendre les individus\népanouis et libres de leurs choix permet de tendre vers une société plus\ndémocratique, fraternelle et respectueuse de son environnement. Notre mouvement\nd'origine protestante porte des valeurs d'inclusion et est ouvert à toutes et à\ntous.\n\n\nFormation des bénévoles\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nLes bénévoles débutent par un weekend d'essai non engageant. Il n'y a pas besoin\nde compétences pour cela, le cadre est assuré par les animatrices et animateurs\nplus experimenté.e.s. Par la suite si la mission plait, les bénévoles sont\nintégré.e.s aux équipes de la tranche d'âge préférentielle (nous avons trois\nbranche pédagogiques : 8-12 ans; 12-16 ans; 16-19ans). De nombreuses formations\nsont proposées par l’association afin de gagner en compétences.",
+        "applicationUrl": "http://localhost:4000/r/65ca2582357e3a12cd907acd/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    }
+  ],
+  "deterministic": {
+    "geo": 5,
+    "format": 5,
+    "missionsSansTagFormat": [],
+    "gateViolations": []
+  },
+  "judgeRuns": [
+    {
+      "runIndex": 0,
+      "seed": 1536605286,
+      "order": [
+        "68e7b5e6188c14db9da43c3c",
+        "65ca2582357e3a12cd907acd",
+        "69453515f5bb8e756debcbe8",
+        "74ef6230-d018-4c6c-9109-ab609c4e8a0d",
+        "660cda455bb0982e86ec124a"
+      ],
+      "output": {
+        "coherence": {
+          "score": 4,
+          "missionsPertinentes": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "justification": "Quatre missions sur cinq correspondent bien au profil de Camille qui souhaite découvrir le domaine de l'environnement et de la nature : la mission 1 propose des animations nature et vie en communauté, la mission 2 est liée à la recyclerie sportive avec réparation et tri, la mission 3 concerne le reconditionnement d'appareils électroniques pour inclusion numérique (environnement social et solidaire), et la mission 4 propose des activités sportives en nature avec sensibilisation à la préservation de l'environnement. La mission 0, bien que liée à une agriculture locale durable, est plus centrée sur la solidarité alimentaire et la logistique, moins directement sur la découverte de l'environnement et de la nature.",
+          "missionIdsPertinents": [
+            "68e7b5e6188c14db9da43c3c",
+            "65ca2582357e3a12cd907acd",
+            "69453515f5bb8e756debcbe8",
+            "74ef6230-d018-4c6c-9109-ab609c4e8a0d"
+          ]
+        },
+        "homogeneite": {
+          "score": 4,
+          "familles": [
+            "éducation et animation nature",
+            "recyclage et réparation",
+            "inclusion numérique",
+            "activités sportives et nature"
+          ],
+          "justification": "Les missions pertinentes couvrent quatre familles distinctes : animation nature et collective (1), recyclerie et réparation (2), inclusion numérique (3), et activités sportives en nature avec sensibilisation environnementale (4). Il y a donc 4 familles représentées, sans majorité marquée."
+        },
+        "cause": "offre"
+      }
+    },
+    {
+      "runIndex": 1,
+      "seed": 1553382905,
+      "order": [
+        "660cda455bb0982e86ec124a",
+        "69453515f5bb8e756debcbe8",
+        "65ca2582357e3a12cd907acd",
+        "68e7b5e6188c14db9da43c3c",
+        "74ef6230-d018-4c6c-9109-ab609c4e8a0d"
+      ],
+      "output": {
+        "coherence": {
+          "score": 4,
+          "missionsPertinentes": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "justification": "Quatre missions (1, 2, 3, 4) sont clairement en lien avec l'environnement, la nature ou le développement durable, ce qui correspond au souhait de Camille de découvrir ce domaine. La mission 0, bien que mentionnant la nature, est davantage axée sur l'inclusion sociale et culturelle, moins directement liée à la découverte du domaine environnemental.",
+          "missionIdsPertinents": [
+            "660cda455bb0982e86ec124a",
+            "69453515f5bb8e756debcbe8",
+            "65ca2582357e3a12cd907acd",
+            "68e7b5e6188c14db9da43c3c"
+          ]
+        },
+        "homogeneite": {
+          "score": 4,
+          "familles": [
+            "Environnement et nature",
+            "Solidarité sociale",
+            "Inclusion numérique"
+          ],
+          "justification": "Les missions pertinentes se répartissent principalement en trois familles : environnement et nature (missions 1, 2, 3), solidarité sociale (mission 1 aussi), et inclusion numérique (mission 4). La majorité des missions tournent autour de l'environnement et la nature, avec une autre famille bien représentée (solidarité sociale) et une troisième (inclusion numérique) moins liée mais présente."
+        },
+        "cause": null
+      }
+    }
+  ],
+  "engineVersion": "m2",
+  "startedAt": "2026-07-07T12:45:00.894Z",
+  "finishedAt": "2026-07-07T12:45:21.503Z",
+  "verdict": 4.5,
+  "cleanup": {
+    "userScoringDeleted": true
+  }
+}

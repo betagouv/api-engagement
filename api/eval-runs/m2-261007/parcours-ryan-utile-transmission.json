@@ -1,0 +1,2194 @@
+{
+  "status": "success",
+  "parcours": {
+    "id": "ryan-utile-transmission",
+    "segment": "lyceen",
+    "label": "Ryan, 16 ans, lycéen à Saint-Denis, veut se sentir utile en transmettant et en accompagnant d'autres jeunes",
+    "locationLabel": "Saint-Denis (93)",
+    "age": 16,
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 16,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "statut",
+        "value": "lyceen"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 48.936181,
+          "lon": 2.357443,
+          "country_code": "fr",
+          "label": "Saint-Denis (93)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "reguliere"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "me_sentir_utile"
+      },
+      {
+        "taxonomy": "engagement_intent",
+        "value": "transmission"
+      }
+    ],
+    "notes": [
+      "Paire controlee avec manon-utile-terrain: meme motivation, intent transmission (offre mineurs a priori large: soutien scolaire) et territoire banlieue dense."
+    ]
+  },
+  "payload": {
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 16,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "statut",
+        "value": "lyceen"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 48.936181,
+          "lon": 2.357443,
+          "country_code": "fr",
+          "label": "Saint-Denis (93)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "reguliere"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "me_sentir_utile"
+      },
+      {
+        "taxonomy": "engagement_intent",
+        "value": "transmission"
+      }
+    ],
+    "distinctId": "eval:m2-261007:ryan-utile-transmission",
+    "missionAlertEnabled": false
+  },
+  "userScoringId": "0d91873a-b22d-4127-bc53-43a949455624",
+  "match": {
+    "tookMs": 2525,
+    "engineVersion": "m2",
+    "items": [
+      {
+        "mission": {
+          "id": "8178a323-404c-46e1-bbbc-f011038751bf",
+          "title": "J'accompagne les personnes exilées",
+          "remote": "no",
+          "schedule": "",
+          "domain": "solidarite-insertion",
+          "domainOriginal": null,
+          "organizationName": "Dom'Asile",
+          "publisherId": "5f592d415655a711feb4460e",
+          "publisherName": "Benevolt",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+            "organizationLogo": null,
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo"
+          },
+          "location": {
+            "city": "Saint-Denis",
+            "closestLat": 48.936043,
+            "closestLon": 2.355084,
+            "closestAddress": "93200 Saint-Denis, FR",
+            "addressId": "3c86617d-ae94-4f99-9459-a25499c483b6",
+            "distanceKm": 0.172992625258669
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/8178a323-404c-46e1-bbbc-f011038751bf/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "3be45f43-005a-4ef9-b45d-6603cbf5a3df",
+          "totalScore": 0.694011,
+          "taxonomyScore": 0.394,
+          "geoScore": 0.994022,
+          "taxonomyScores": {
+            "engagement_intent": 0.97,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Fréquence : 1 ou 2 fois par semaine / Durée : 1 an",
+                "reasoning": "La mission est clairement régulière, avec une fréquence hebdomadaire et une durée d'un an."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "accompagner les personnes en exil qui se trouvent en situation de précarité / Il s'agit d'être à l'écoute, de les informer et d'orienter vers d'autres partenaires associatifs",
+                "reasoning": "L'accompagnement humain et social des personnes exilées relève des compétences de management, social et soin."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "gestion_pilotage_juridique",
+              "taxonomyValueLabel": "Gestion, pilotage, juridique",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "accompagner les personnes en exil dans leurs démarches administratives auprès de différentes structures (Sécurité sociale, OFII, Recherche d'hébergement, scolarisation des enfants, banques etc.)",
+                "reasoning": "L'accompagnement dans des démarches administratives et l'orientation relèvent de compétences en gestion, pilotage ou juridique."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "accompagner les personnes en exil qui se trouvent en situation de précarité face à l'absence d'hébergement, de soins etc. / Il s'agit d'accueillir les personnes et de les accompagner dans leurs démarches administratives auprès de différentes structures (Sécurité sociale, OFII, Recherche d'hébergement, scolarisation des enfants, banques etc.) / Il s'agit d'être à l'écoute, de les informer et d'orienter vers d'autres partenaires associatifs",
+                "reasoning": "La mission est centrée sur l'accompagnement social et administratif de personnes exilées en situation de précarité, ce qui relève clairement du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "accompagner les personnes en exil qui se trouvent en situation de précarité / Il s'agit d'être à l'écoute, de les informer et d'orienter vers d'autres partenaires associatifs",
+                "reasoning": "L'accompagnement direct des personnes exilées en situation de précarité implique une aide concrète et une interaction humaine forte."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Il s'agit d'être à l'écoute, de les informer et d'orienter vers d'autres partenaires associatifs / accompagner les personnes en exil dans leurs démarches administratives",
+                "reasoning": "La mission inclut une dimension de transmission d'informations et d'accompagnement dans des démarches, ce qui relève de la pédagogie et de l'orientation."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "accompagner les personnes en exil dans leurs démarches administratives auprès de différentes structures (Sécurité sociale, OFII, Recherche d'hébergement, scolarisation des enfants, banques etc.)",
+                "reasoning": "L'accompagnement dans des démarches administratives et l'orientation vers des structures partenaires relèvent d'une action de support organisationnel."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "sante_social_aide_personne",
+                "reasoning": "La mission s'inscrit dans le secteur de l'aide à la personne, notamment pour des publics en situation de précarité et d'exil."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "formation des bénévoles tout au long de l'année / en binôme avec un.e autre bénévole le temps nécessaire à sa formation",
+                "reasoning": "La mission s'inscrit dans un cadre associatif structuré avec formation et accompagnement des bénévoles, ce qui relève d'un engagement en cadre structuré."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "social_sante_sport",
+              "taxonomyValueLabel": "Social, santé et sport",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Dom'Asile apporte, par le biais de son réseau de bénévoles, une aide aux personnes exilées (demandeur.euse.s d'asile, réfugié.e.s, personnes sans-papier)",
+                "reasoning": "La mission est liée à l'accompagnement des personnes exilées, ce qui relève du domaine social, santé et sport."
+              }
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "benevolat",
+              "taxonomyValueLabel": "Bénévolat",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "0040c106-3786-4225-8a9d-8f8d44402e56",
+          "title": "Je crée du lien en animant des conversations artistiques",
+          "remote": "no",
+          "schedule": "",
+          "domain": "culture-loisirs",
+          "domainOriginal": null,
+          "organizationName": "Art Explora - Délégation territoriale de Paris",
+          "publisherId": "63acaa616e3d3a2286a70624",
+          "publisherName": "Art Explora",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_03.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_03.jpeg",
+            "organizationLogo": null,
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/63acaa616e3d3a2286a70624/Capture-2025-10-21-102312.png"
+          },
+          "location": {
+            "city": "Saint-Denis",
+            "closestLat": 48.936043,
+            "closestLon": 2.355084,
+            "closestAddress": "93200 Saint-Denis, FR",
+            "addressId": "fd11e17e-77f3-46bf-a687-01bdf924a87d",
+            "distanceKm": 0.172992625258669
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/0040c106-3786-4225-8a9d-8f8d44402e56/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "74c20fdb-6437-4b52-bcde-5ba547950730",
+          "totalScore": 0.686011,
+          "taxonomyScore": 0.378,
+          "geoScore": 0.994022,
+          "taxonomyScores": {
+            "engagement_intent": 0.97,
+            "type_mission": 0.92
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "avec différents publics en situation d'isolement, de fragilité ou pour lesquels la place de l’art mérite d’être amplifiée : personnes âgées, hospitalisées, accompagnées par des structures sociales, ou encore publics scolaires / créer du lien social",
+                "reasoning": "La mission cible explicitement des publics fragilisés ou en situation d'isolement, ce qui relève du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "culture_arts",
+              "taxonomyValueLabel": "Culture et arts",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "animer des conversations artistiques / Autour d’un tableau, d’un livre, d’une photo ou d’un morceau de musique / Les Apartés ne sont ni des cours d’histoire de l’art ni des conférences mais des moments de rencontre et d’échanges autour d’un sujet artistique",
+                "reasoning": "La mission est centrée sur l'animation de discussions autour d'œuvres artistiques, ce qui relève clairement du domaine culturel et artistique."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "culture_creation_medias",
+              "taxonomyValueLabel": "Culture, création et médias",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "animer des conversations artistiques / Autour d’un tableau, d’un livre, d’une photo ou d’un morceau de musique",
+                "reasoning": "La mission s'inscrit dans le secteur culturel et médiatique, avec une forte composante artistique et de médiation."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Il est possible de se mobiliser toutes les semaines comme 1 fois par mois, c’est selon vos envies et disponibilités / Fréquence : Selon vos disponibilités",
+                "reasoning": "La mission est conçue pour être répétée à intervalles réguliers, même si la fréquence exacte dépend des disponibilités du bénévole."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "communication_creation_numerique",
+              "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "animer des conversations artistiques / Autour d’un tableau, d’un livre, d’une photo ou d’un morceau de musique",
+                "reasoning": "La mission implique la création de contenus et la communication autour d'œuvres artistiques, ce qui relève des compétences numériques et créatives."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "en équipe de 5 développeurs / formation commune / puis formation spécifique à la mission bénévole",
+                "reasoning": "La mission nécessite des compétences en coopération et organisation, notamment pour travailler avec des publics variés et suivre des formations."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "animer des conversations artistiques / Les Apartés ne sont ni des cours d’histoire de l’art ni des conférences mais des moments de rencontre et d’échanges autour d’un sujet artistique",
+                "reasoning": "La mission est explicitement centrée sur l'animation d'actions collectives autour de l'art."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "rendre l'art plus accessible / créer du lien social / encourager la mobilité des personnes en situation d'isolement en faisant de l'art un vecteur de rencontres humaines",
+                "reasoning": "La mission implique une transmission de connaissances et de valeurs culturelles, ainsi qu'un accompagnement des publics."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "avec différents publics en situation d'isolement, de fragilité ou pour lesquels la place de l’art mérite d’être amplifiée : personnes âgées, hospitalisées, accompagnées par des structures sociales",
+                "reasoning": "La mission cible des publics fragilisés, ce qui implique une forme d'aide directe par l'art et le lien social."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "education_culture_creation",
+              "taxonomyValueLabel": "Éducation, culture et création",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "animer des conversations artistiques / Autour d’un tableau, d’un livre, d’une photo ou d’un morceau de musique / rendre l'art plus accessible",
+                "reasoning": "La mission relève de l'éducation, de la culture et de la création, avec une forte dimension pédagogique et artistique."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.6,
+              "scoringScore": 0.35,
+              "evidence": {
+                "extract": "encourager la mobilité des personnes en situation d'isolement en faisant de l'art un vecteur de rencontres humaines / contribuer à la naissance de projets culturels alternatifs, novateurs, concrets et de promouvoir des pratiques culturelles ouvertes à tous",
+                "reasoning": "La mission a une dimension citoyenne et politique, visant à promouvoir l'accès à la culture pour tous, ce qui relève de la société et du droit."
+              }
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "benevolat",
+              "taxonomyValueLabel": "Bénévolat",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "1756c910-041a-4cfe-ba45-bbffc388a398",
+          "title": "Je participe à l'animation d'un festival de littérature jeunesse",
+          "remote": "no",
+          "schedule": "4 jours",
+          "domain": "culture-loisirs",
+          "domainOriginal": null,
+          "organizationName": "D'ici à Là",
+          "publisherId": "5f5931496c7ea514150a818f",
+          "publisherName": "JeVeuxAider.gouv.fr",
+          "media": {
+            "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12144/gelufMReJB88J6wHM5UeTL1lsSwuzo.jpg?v=1748280679",
+            "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12144/gelufMReJB88J6wHM5UeTL1lsSwuzo.jpg?v=1748280679",
+            "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/155628/jBoCCIr0IxOALwhoyk1nHcaIow1nlc.jpg?v=1777034546",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+          },
+          "location": {
+            "city": "Saint-Denis",
+            "closestLat": 48.939494,
+            "closestLon": 2.341523,
+            "closestAddress": "Quai de Seine, 93200 Saint-Denis, FR",
+            "addressId": "1a6cb8c0-76f4-4fc8-8a62-e07cec0ba5f6",
+            "distanceKm": 1.2197786822878085
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/1756c910-041a-4cfe-ba45-bbffc388a398/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "1614eb03-210b-4892-88d7-7c4268d46cee",
+          "totalScore": 0.679303,
+          "taxonomyScore": 0.4,
+          "geoScore": 0.958607,
+          "taxonomyScores": {
+            "engagement_intent": 1,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "culture_arts",
+              "taxonomyValueLabel": "Culture et arts",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "festival de littérature jeunesse / lectures partagées / ateliers créatifs / rencontres avec des auteurs et autrices / ateliers participatifs",
+                "reasoning": "La mission est centrée sur la médiation littéraire, la création artistique et la valorisation du patrimoine culturel, ce qui correspond clairement au domaine culturel et artistique."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "lire des histoires aux enfants / ateliers participatifs / échanges et d’expérimentation autour du livre",
+                "reasoning": "La mission implique une transmission de savoirs et de connaissances, notamment à travers la lecture et l'animation d'ateliers éducatifs."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "culture_creation_medias",
+              "taxonomyValueLabel": "Culture, création et médias",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "festival de littérature jeunesse / ateliers créatifs / rencontres avec des auteurs et autrices / médiation littéraire",
+                "reasoning": "La mission relève du secteur culturel et médiatique, avec une forte composante de création et de diffusion artistique."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "lire des histoires aux enfants / ateliers participatifs / échanges et d’expérimentation autour du livre",
+                "reasoning": "La mission inclut des activités d'animation éducative et de transmission, relevant du secteur de l'éducation et de la formation."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Durée : 1 heures — 4 jours / Dates : du 17 juin 2026 au 18 juillet 2026",
+                "reasoning": "La mission s'étend sur une période de plusieurs semaines avec des interventions répétées, ce qui correspond à une mission régulière."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "communication_creation_numerique",
+              "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "médiation littéraire / ateliers créatifs",
+                "reasoning": "La mission implique des activités de création et de médiation culturelle, relevant des compétences numériques et créatives."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Nous réunissons les bénévoles afin de leur présenter l'association, le festival et les différentes missions / former une équipe où chacun apporte son savoir-faire",
+                "reasoning": "La mission met en avant le travail collaboratif, l'organisation d'équipe et les compétences comportementales."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "lire des histoires aux enfants / ateliers participatifs",
+                "reasoning": "La mission implique une interaction directe avec des enfants, relevant des compétences sociales et d'accompagnement."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "animation d'un festival de littérature jeunesse / ateliers participatifs / lectures partagées / rencontres avec des auteurs et autrices",
+                "reasoning": "La mission est explicitement centrée sur l'animation d'événements culturels et d'ateliers collectifs."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "lire des histoires aux enfants / ateliers participatifs / échanges et d’expérimentation autour du livre",
+                "reasoning": "La mission implique une transmission de connaissances et de savoirs, notamment à travers la lecture et l'animation d'ateliers."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "action_terrain",
+              "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "aider au montage et démontage / accueillir le public",
+                "reasoning": "La mission inclut des actions concrètes sur le terrain, comme l'accueil du public et la logistique d'événements."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "education_culture_creation",
+              "taxonomyValueLabel": "Éducation, culture et création",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "festival de littérature jeunesse / ateliers créatifs / médiation littéraire",
+                "reasoning": "La mission relève clairement du domaine de l'éducation, de la culture et de la création, avec une forte composante artistique et pédagogique."
+              }
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "benevolat",
+              "taxonomyValueLabel": "Bénévolat",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "0a7f5ba1-4bd5-4533-8d87-cdcc1abe3668",
+          "title": "Je transmets mes compétences en couture à des femmes du quartier",
+          "remote": "no",
+          "schedule": "4 jours par mois",
+          "domain": "solidarite-insertion",
+          "domainOriginal": null,
+          "organizationName": "Association des Femmes du Franc Moisin",
+          "publisherId": "5f5931496c7ea514150a818f",
+          "publisherName": "JeVeuxAider.gouv.fr",
+          "media": {
+            "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12173/solidarite-et-insertion-9.webp?v=1737022223",
+            "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12173/solidarite-et-insertion-9.webp?v=1737022223",
+            "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/143659/qIO0TbDZcpRCSpCFG4lTvAdKOJxbNe.png?v=1770382879",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+          },
+          "location": {
+            "city": "Saint-Denis",
+            "closestLat": 48.925748,
+            "closestLon": 2.371699,
+            "closestAddress": "Rue du Languedoc, 93200 Saint-Denis, FR",
+            "addressId": "1ae072c7-d000-4dc8-b067-cab183cf3db2",
+            "distanceKm": 1.5589690033841157
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/0a7f5ba1-4bd5-4533-8d87-cdcc1abe3668/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "f997084b-5f22-4ca8-a462-03e04e2bf397",
+          "totalScore": 0.673702,
+          "taxonomyScore": 0.4,
+          "geoScore": 0.947404,
+          "taxonomyScores": {
+            "engagement_intent": 1,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "œuvres depuis de nombreuses années à l’accompagnement des femmes du quartier dans leur autonomie sociale, éducative et personnelle / accompagnement des femmes réparties en quatre groupes d’alphabétisation / proposer des ateliers couture / transmettre ses compétences et son savoir-faire / créer du lien humain et interculturel / participer à des moments de partage riches de sens",
+                "reasoning": "La mission est centrée sur l'accompagnement social, l'insertion et la création de lien humain, ce qui relève clairement du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "transmettre ses compétences et son savoir-faire / ateliers couture / alphabétisation / apprentissage du français",
+                "reasoning": "La mission inclut explicitement la transmission de compétences et de savoir-faire, notamment via des ateliers couture et d'alphabétisation."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "œuvres depuis de nombreuses années à l’accompagnement des femmes du quartier dans leur autonomie sociale, éducative et personnelle / insertion sociale et économique des femmes comme clé de voute de l’amélioration des conditions de vie des familles",
+                "reasoning": "La mission relève du secteur de l'aide à la personne et du social, avec un focus sur l'insertion et l'accompagnement des femmes."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "alphabétisation / apprentissage du français / ateliers couture / transmettre ses compétences et son savoir-faire",
+                "reasoning": "La mission inclut des activités d'animation éducative et de formation, notamment via des ateliers et des cours."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.99,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Durée : 3 heures — 4 jours par mois / Les cours de coutures se déroulent en semaine sur des créneaux de deux heures",
+                "reasoning": "La mission s'étend sur plusieurs mois avec une fréquence régulière (4 jours par mois), ce qui correspond à une mission régulière."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "créer du lien humain et interculturel / participer à des moments de partage riches de sens",
+                "reasoning": "La mission met en avant des compétences relationnelles, d'adaptation et de travail collaboratif."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "transmettre ses compétences et son savoir-faire / ateliers couture / alphabétisation",
+                "reasoning": "La mission est explicitement centrée sur la transmission de compétences et de savoir-faire."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "proposer des ateliers couture / créer du lien humain et interculturel / participer à des moments de partage riches de sens",
+                "reasoning": "La mission inclut l'animation d'ateliers et la création de dynamiques collectives."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "soutenir des femmes dans leur apprentissage du français, leur autonomie, leur confiance en elles et leur insertion dans la société",
+                "reasoning": "La mission vise un soutien direct aux femmes, bien que l'aide soit indirecte via l'animation et la transmission."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "social_sante_sport",
+              "taxonomyValueLabel": "Social, santé et sport",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "insertion sociale et économique des femmes comme clé de voute de l’amélioration des conditions de vie des familles / alphabétisation / apprentissage du français",
+                "reasoning": "La mission relève du domaine social, de la santé (autonomie) et du sport (activités collectives), avec un focus sur l'insertion."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "education_culture_creation",
+              "taxonomyValueLabel": "Éducation, culture et création",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "ateliers couture / transmettre ses compétences et son savoir-faire / alphabétisation",
+                "reasoning": "La mission inclut des activités de transmission culturelle et éducative, notamment via des ateliers manuels."
+              }
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "benevolat",
+              "taxonomyValueLabel": "Bénévolat",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "f9adfbac-481b-486b-9823-0cea559958ef",
+          "title": "Soutien au développement d’une agriculture urbaine sociale et participative avec Engrainage",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "environnement",
+          "domainOriginal": "Environnement",
+          "organizationName": "Ligue de l'enseignement de Seine-Saint-Denis",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_02.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_02.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Saint-Denis",
+            "closestLat": 48.940814,
+            "closestLon": 2.341437,
+            "closestAddress": "10 Quai de Seine, 93200 Saint-Denis, FR",
+            "addressId": "fa6f1683-7a9d-4acf-a719-aa21156b2e66",
+            "distanceKm": 1.2775593144830382
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/f9adfbac-481b-486b-9823-0cea559958ef/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "1f3a2728-ac3c-4d85-a6e4-9fc4dabb5329",
+          "totalScore": 0.668345,
+          "taxonomyScore": 0.38,
+          "geoScore": 0.956689,
+          "taxonomyScores": {
+            "engagement_intent": 1,
+            "tranche_age": 0.9
+          },
+          "values": [
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "action_terrain",
+              "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Entretien et suivi des cultures : semis, plantation, désherbage / actions logistique, livraison et transformation des produits du jardin",
+                "reasoning": "Les tâches décrites relèvent d'actions concrètes sur le terrain."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "aider les salariés à mettre en place de nouvelles procédures ou pratiques permettant d’améliorer le fonctionnement de l’association",
+                "reasoning": "La mission inclut un soutien à l'organisation et à l'amélioration des processus internes."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Type de mission : volontariat_service_civique / Tutorat et accompagnement : 1 mois d’observation, puis appui aux missions. Suivi mensuel avec le tuteur",
+                "reasoning": "Le cadre du service civique, avec un tutorat structuré et un suivi régulier, relève clairement d'un engagement en cadre structuré."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "environnement_nature_sciences",
+              "taxonomyValueLabel": "Environnement, nature et sciences",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "agriculture urbaine / ateliers pédagogiques autour de l'agriculture urbaine / formation sur les forêts comestibles",
+                "reasoning": "La mission est directement liée à l'environnement, la nature et la transmission de connaissances scientifiques ou techniques."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "education_culture_creation",
+              "taxonomyValueLabel": "Éducation, culture et création",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "coanimation des ateliers pédagogiques / participation à l’organisation et à l’animation des événements culturels",
+                "reasoning": "La mission inclut une dimension éducative et culturelle, notamment via l'animation d'ateliers et d'événements."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "environnement_nature",
+              "taxonomyValueLabel": "Environnement et nature",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "agriculture urbaine / Entretien et suivi des cultures sur les deux jardins de l'association : semis, plantation, désherbage / ateliers pédagogiques autour de l'agriculture urbaine",
+                "reasoning": "La mission est centrée sur l'agriculture urbaine, l'entretien des cultures et la pédagogie écologique, ce qui relève clairement du domaine environnement et nature."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "coanimation des ateliers pédagogiques autour de l'agriculture urbaine auprès d'enfants, d'habitants ou de publics spécialisés / transmettre des connaissances écologiques et pédagogiques",
+                "reasoning": "La mission inclut explicitement la transmission de savoirs et l'animation d'ateliers pédagogiques."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "environnement_agriculture",
+              "taxonomyValueLabel": "Environnement et agriculture",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "agriculture urbaine / Entretien et suivi des cultures / ateliers pédagogiques autour de l'agriculture urbaine",
+                "reasoning": "La mission relève directement du secteur de l'environnement et de l'agriculture urbaine."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "coanimation des ateliers pédagogiques / transmission des connaissances écologiques et pédagogiques",
+                "reasoning": "La mission inclut une dimension éducative et d'animation, bien que secondaire par rapport à l'agriculture."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Participation à l’accueil de différents publics / encadrer une communauté de bénévoles / aider les salariés à mettre en place de nouvelles procédures",
+                "reasoning": "La mission implique du travail collaboratif, de l'organisation et de l'animation de groupes."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "production_construction_qualite_logistique",
+              "taxonomyValueLabel": "Production, construction, qualité, logistique",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Entretien et suivi des cultures : semis, plantation, désherbage / actions logistique, livraison et transformation des produits du jardin",
+                "reasoning": "Les tâches incluent des activités manuelles et logistiques liées à l'agriculture."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "encadrer une communauté de bénévoles / coanimation des ateliers pédagogiques",
+                "reasoning": "La mission implique un accompagnement et une animation auprès de publics variés, avec une dimension sociale."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "coanimation des ateliers pédagogiques autour de l'agriculture urbaine / transmettre des connaissances écologiques et pédagogiques",
+                "reasoning": "La mission est explicitement centrée sur la transmission de savoirs et la pédagogie."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "coanimation des ateliers pédagogiques / participation à l’organisation et à l’animation des événements culturels",
+                "reasoning": "La mission inclut l'animation d'ateliers et d'événements collectifs."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_18_ans",
+              "taxonomyValueLabel": "Moins de 18 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_31_ans_handicap",
+              "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "service_civique",
+              "taxonomyValueLabel": "Service civique",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      }
+    ],
+    "total": 2686,
+    "avgDistanceKmTop5": 0.88
+  },
+  "missions": [
+    {
+      "mission": {
+        "id": "8178a323-404c-46e1-bbbc-f011038751bf",
+        "title": "J'accompagne les personnes exilées",
+        "remote": "no",
+        "schedule": "",
+        "domain": "solidarite-insertion",
+        "domainOriginal": null,
+        "organizationName": "Dom'Asile",
+        "publisherId": "5f592d415655a711feb4460e",
+        "publisherName": "Benevolt",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+          "organizationLogo": null,
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo"
+        },
+        "location": {
+          "city": "Saint-Denis",
+          "closestLat": 48.936043,
+          "closestLon": 2.355084,
+          "closestAddress": "93200 Saint-Denis, FR",
+          "addressId": "3c86617d-ae94-4f99-9459-a25499c483b6",
+          "distanceKm": 0.172992625258669
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/8178a323-404c-46e1-bbbc-f011038751bf/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "3be45f43-005a-4ef9-b45d-6603cbf5a3df",
+        "totalScore": 0.694011,
+        "taxonomyScore": 0.394,
+        "geoScore": 0.994022,
+        "taxonomyScores": {
+          "engagement_intent": 0.97,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Fréquence : 1 ou 2 fois par semaine / Durée : 1 an",
+              "reasoning": "La mission est clairement régulière, avec une fréquence hebdomadaire et une durée d'un an."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "accompagner les personnes en exil qui se trouvent en situation de précarité / Il s'agit d'être à l'écoute, de les informer et d'orienter vers d'autres partenaires associatifs",
+              "reasoning": "L'accompagnement humain et social des personnes exilées relève des compétences de management, social et soin."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "gestion_pilotage_juridique",
+            "taxonomyValueLabel": "Gestion, pilotage, juridique",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "accompagner les personnes en exil dans leurs démarches administratives auprès de différentes structures (Sécurité sociale, OFII, Recherche d'hébergement, scolarisation des enfants, banques etc.)",
+              "reasoning": "L'accompagnement dans des démarches administratives et l'orientation relèvent de compétences en gestion, pilotage ou juridique."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "accompagner les personnes en exil qui se trouvent en situation de précarité face à l'absence d'hébergement, de soins etc. / Il s'agit d'accueillir les personnes et de les accompagner dans leurs démarches administratives auprès de différentes structures (Sécurité sociale, OFII, Recherche d'hébergement, scolarisation des enfants, banques etc.) / Il s'agit d'être à l'écoute, de les informer et d'orienter vers d'autres partenaires associatifs",
+              "reasoning": "La mission est centrée sur l'accompagnement social et administratif de personnes exilées en situation de précarité, ce qui relève clairement du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "accompagner les personnes en exil qui se trouvent en situation de précarité / Il s'agit d'être à l'écoute, de les informer et d'orienter vers d'autres partenaires associatifs",
+              "reasoning": "L'accompagnement direct des personnes exilées en situation de précarité implique une aide concrète et une interaction humaine forte."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Il s'agit d'être à l'écoute, de les informer et d'orienter vers d'autres partenaires associatifs / accompagner les personnes en exil dans leurs démarches administratives",
+              "reasoning": "La mission inclut une dimension de transmission d'informations et d'accompagnement dans des démarches, ce qui relève de la pédagogie et de l'orientation."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "accompagner les personnes en exil dans leurs démarches administratives auprès de différentes structures (Sécurité sociale, OFII, Recherche d'hébergement, scolarisation des enfants, banques etc.)",
+              "reasoning": "L'accompagnement dans des démarches administratives et l'orientation vers des structures partenaires relèvent d'une action de support organisationnel."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "sante_social_aide_personne",
+              "reasoning": "La mission s'inscrit dans le secteur de l'aide à la personne, notamment pour des publics en situation de précarité et d'exil."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "formation des bénévoles tout au long de l'année / en binôme avec un.e autre bénévole le temps nécessaire à sa formation",
+              "reasoning": "La mission s'inscrit dans un cadre associatif structuré avec formation et accompagnement des bénévoles, ce qui relève d'un engagement en cadre structuré."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "social_sante_sport",
+            "taxonomyValueLabel": "Social, santé et sport",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Dom'Asile apporte, par le biais de son réseau de bénévoles, une aide aux personnes exilées (demandeur.euse.s d'asile, réfugié.e.s, personnes sans-papier)",
+              "reasoning": "La mission est liée à l'accompagnement des personnes exilées, ce qui relève du domaine social, santé et sport."
+            }
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "benevolat",
+            "taxonomyValueLabel": "Bénévolat",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "8178a323-404c-46e1-bbbc-f011038751bf",
+        "title": "J'accompagne les personnes exilées",
+        "domain": "solidarite-insertion",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+        "type": "benevolat",
+        "publisherId": "5f592d415655a711feb4460e",
+        "publisherName": "Benevolt",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo",
+        "organizationName": "Dom'Asile",
+        "organizationLogo": null,
+        "location": {
+          "city": "Saint-Denis",
+          "address": "93200 Saint-Denis",
+          "lat": 48.936043,
+          "lon": 2.355084
+        },
+        "startAt": "2026-06-16T16:22:14.898Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "",
+        "compensation": null,
+        "descriptionHtml": "   Saint-Denis (93)<br>   Dès que possible<br><br><br>Nous recherchons des bénévoles disponibles pour accompagner les personnes en exil qui se trouvent en situation de précarité face à l'absence d'hébergement, de soins etc. Il s'agit d'accueillir les personnes et de les accompagner dans leurs démarches administratives auprès de différentes structures (Sécurité sociale, OFII, Recherche d'hébergement, scolarisation des enfants, banques etc.). Il s'agit d'être à l'écoute, de les informer et d'orienter vers d'autres partenaires associatifs.<br><br><p><strong>Informations pratiques</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>La mission s'effectue au sein d'une équipe locale bénévole.<br><br>Fréquence : 1 ou 2 fois par semaine<br>Durée : 1 an<br><br><p><strong>Informations sur l'association Dom'Asile</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Dom'Asile apporte, par le biais de son réseau de bénévoles, une aide aux personnes exilées (demandeur.euse.s d'asile, réfugié.e.s, personnes sans-papier), en Ile de France. Cette aide se matérialise notamment par un service de domiciliation postale, qui permet aux personnes exilées sans domicile fixe l’exercice de leurs droits. Nos actions se déroulent dans neuf centres de domiciliation et d’accompagnement, et dans 3 permanences droits sociaux répartis dans toute l’île de France.<br><p><strong>Formation des bénévoles</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Accueillis dans un de nos centres, les bénévoles s'intégreront à une équipe et seront en binôme avec un.e autre bénévole le temps nécessaire à sa formation. Dom'Asile assure la formation des bénévoles tout au long de l'année.",
+        "description": "Saint-Denis (93)\nDès que possible\n\n\nNous recherchons des bénévoles disponibles pour accompagner les personnes en\nexil qui se trouvent en situation de précarité face à l'absence d'hébergement,\nde soins etc. Il s'agit d'accueillir les personnes et de les accompagner dans\nleurs démarches administratives auprès de différentes structures (Sécurité\nsociale, OFII, Recherche d'hébergement, scolarisation des enfants, banques\netc.). Il s'agit d'être à l'écoute, de les informer et d'orienter vers d'autres\npartenaires associatifs.\n\n\n\nInformations pratiques\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nLa mission s'effectue au sein d'une équipe locale bénévole.\n\nFréquence : 1 ou 2 fois par semaine\nDurée : 1 an\n\n\n\nInformations sur l'association Dom'Asile\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nDom'Asile apporte, par le biais de son réseau de bénévoles, une aide aux\npersonnes exilées (demandeur.euse.s d'asile, réfugié.e.s, personnes\nsans-papier), en Ile de France. Cette aide se matérialise notamment par un\nservice de domiciliation postale, qui permet aux personnes exilées sans domicile\nfixe l’exercice de leurs droits. Nos actions se déroulent dans neuf centres de\ndomiciliation et d’accompagnement, et dans 3 permanences droits sociaux répartis\ndans toute l’île de France.\n\n\nFormation des bénévoles\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nAccueillis dans un de nos centres, les bénévoles s'intégreront à une équipe et\nseront en binôme avec un.e autre bénévole le temps nécessaire à sa formation.\nDom'Asile assure la formation des bénévoles tout au long de l'année.",
+        "applicationUrl": "http://localhost:4000/r/8178a323-404c-46e1-bbbc-f011038751bf/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+        "remote": "no",
+        "openToMinors": null,
+        "reducedMobilityAccessible": null,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "0040c106-3786-4225-8a9d-8f8d44402e56",
+        "title": "Je crée du lien en animant des conversations artistiques",
+        "remote": "no",
+        "schedule": "",
+        "domain": "culture-loisirs",
+        "domainOriginal": null,
+        "organizationName": "Art Explora - Délégation territoriale de Paris",
+        "publisherId": "63acaa616e3d3a2286a70624",
+        "publisherName": "Art Explora",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_03.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_03.jpeg",
+          "organizationLogo": null,
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/63acaa616e3d3a2286a70624/Capture-2025-10-21-102312.png"
+        },
+        "location": {
+          "city": "Saint-Denis",
+          "closestLat": 48.936043,
+          "closestLon": 2.355084,
+          "closestAddress": "93200 Saint-Denis, FR",
+          "addressId": "fd11e17e-77f3-46bf-a687-01bdf924a87d",
+          "distanceKm": 0.172992625258669
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/0040c106-3786-4225-8a9d-8f8d44402e56/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "74c20fdb-6437-4b52-bcde-5ba547950730",
+        "totalScore": 0.686011,
+        "taxonomyScore": 0.378,
+        "geoScore": 0.994022,
+        "taxonomyScores": {
+          "engagement_intent": 0.97,
+          "type_mission": 0.92
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "avec différents publics en situation d'isolement, de fragilité ou pour lesquels la place de l’art mérite d’être amplifiée : personnes âgées, hospitalisées, accompagnées par des structures sociales, ou encore publics scolaires / créer du lien social",
+              "reasoning": "La mission cible explicitement des publics fragilisés ou en situation d'isolement, ce qui relève du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "culture_arts",
+            "taxonomyValueLabel": "Culture et arts",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "animer des conversations artistiques / Autour d’un tableau, d’un livre, d’une photo ou d’un morceau de musique / Les Apartés ne sont ni des cours d’histoire de l’art ni des conférences mais des moments de rencontre et d’échanges autour d’un sujet artistique",
+              "reasoning": "La mission est centrée sur l'animation de discussions autour d'œuvres artistiques, ce qui relève clairement du domaine culturel et artistique."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "culture_creation_medias",
+            "taxonomyValueLabel": "Culture, création et médias",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "animer des conversations artistiques / Autour d’un tableau, d’un livre, d’une photo ou d’un morceau de musique",
+              "reasoning": "La mission s'inscrit dans le secteur culturel et médiatique, avec une forte composante artistique et de médiation."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Il est possible de se mobiliser toutes les semaines comme 1 fois par mois, c’est selon vos envies et disponibilités / Fréquence : Selon vos disponibilités",
+              "reasoning": "La mission est conçue pour être répétée à intervalles réguliers, même si la fréquence exacte dépend des disponibilités du bénévole."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "communication_creation_numerique",
+            "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "animer des conversations artistiques / Autour d’un tableau, d’un livre, d’une photo ou d’un morceau de musique",
+              "reasoning": "La mission implique la création de contenus et la communication autour d'œuvres artistiques, ce qui relève des compétences numériques et créatives."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "en équipe de 5 développeurs / formation commune / puis formation spécifique à la mission bénévole",
+              "reasoning": "La mission nécessite des compétences en coopération et organisation, notamment pour travailler avec des publics variés et suivre des formations."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "animer des conversations artistiques / Les Apartés ne sont ni des cours d’histoire de l’art ni des conférences mais des moments de rencontre et d’échanges autour d’un sujet artistique",
+              "reasoning": "La mission est explicitement centrée sur l'animation d'actions collectives autour de l'art."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "rendre l'art plus accessible / créer du lien social / encourager la mobilité des personnes en situation d'isolement en faisant de l'art un vecteur de rencontres humaines",
+              "reasoning": "La mission implique une transmission de connaissances et de valeurs culturelles, ainsi qu'un accompagnement des publics."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "avec différents publics en situation d'isolement, de fragilité ou pour lesquels la place de l’art mérite d’être amplifiée : personnes âgées, hospitalisées, accompagnées par des structures sociales",
+              "reasoning": "La mission cible des publics fragilisés, ce qui implique une forme d'aide directe par l'art et le lien social."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "education_culture_creation",
+            "taxonomyValueLabel": "Éducation, culture et création",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "animer des conversations artistiques / Autour d’un tableau, d’un livre, d’une photo ou d’un morceau de musique / rendre l'art plus accessible",
+              "reasoning": "La mission relève de l'éducation, de la culture et de la création, avec une forte dimension pédagogique et artistique."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.6,
+            "scoringScore": 0.35,
+            "evidence": {
+              "extract": "encourager la mobilité des personnes en situation d'isolement en faisant de l'art un vecteur de rencontres humaines / contribuer à la naissance de projets culturels alternatifs, novateurs, concrets et de promouvoir des pratiques culturelles ouvertes à tous",
+              "reasoning": "La mission a une dimension citoyenne et politique, visant à promouvoir l'accès à la culture pour tous, ce qui relève de la société et du droit."
+            }
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "benevolat",
+            "taxonomyValueLabel": "Bénévolat",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "0040c106-3786-4225-8a9d-8f8d44402e56",
+        "title": "Je crée du lien en animant des conversations artistiques",
+        "domain": "culture-loisirs",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_03.jpeg",
+        "type": "benevolat",
+        "publisherId": "63acaa616e3d3a2286a70624",
+        "publisherName": "Art Explora",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/63acaa616e3d3a2286a70624/Capture-2025-10-21-102312.png",
+        "organizationName": "Art Explora - Délégation territoriale de Paris",
+        "organizationLogo": null,
+        "location": {
+          "city": "Saint-Denis",
+          "address": "93200 Saint-Denis",
+          "lat": 48.936043,
+          "lon": 2.355084
+        },
+        "startAt": "2026-04-08T10:15:39.045Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "",
+        "compensation": null,
+        "descriptionHtml": "   Saint-Denis (93)<br>   Dès que possible<br><br><br>Les Apartés  , ce sont des parenthèses où faire vivre la culture !\n\n  Votre mission ? Autour d’un tableau, d’un livre, d’une photo ou d’un morceau de musique... animez des conversations artistiques pleines de curiosité et d’émotions avec différents publics en situation d'isolement, de fragilité ou pour lesquels la place de l’art mérite d’être amplifiée : personnes âgées, hospitalisées, accompagnées par des structures sociales, ou encore publics scolaires. Ces échanges sont des moments privilégiés pour créer du lien social et rendre l'art plus accessible  \n\n  Le petit truc en plus : cette mission est également disponible en visio.\n\n⏳ Durée : une séance dure entre 45 minutes et 1h.<br><br><p><strong>Informations pratiques</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p> Les Apartés ne sont ni des cours d’histoire de l’art ni des conférences mais des moments de rencontre et d’échanges autour d’un sujet artistique. Il n’y a donc aucun pré-requis autre que l’envie de partager !  \n\n  Pour vous guider, une formation vous sera proposée. \n\n ️ Que présenter ? Vous pouvez présenter un sujet choisi ou piocher parmi notre bibliothèque de contenus. \n\n⚠️ Il est possible de se mobiliser toutes les semaines comme 1 fois par mois, c’est selon vos envies et disponibilités.<br><br>Fréquence : Selon vos disponibilités<br><br><p><strong>Informations sur Art Explora - Délégation territoriale de Paris</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Pour favoriser le partage de la culture avec le plus grand nombre, la fondation reconnue d'utilité publique Art Explora renouvelle le dialogue entre les arts et les publics à l’échelle locale, nationale et internationale. Convaincue que la mobilité et le numérique permettent de repousser les limites de l’imagination, Art Explora encourage de nouvelles formes d’accès et d’engagement des publics. Avec les artistes, les organisations culturelles et les acteurs de terrain, nous explorons la création contemporaine sous toutes ses formes. Art Explora est une aventure collective qui réunit de nombreux partenaires et a déjà mobilisé plus de 3500 bénévoles.<br><p><strong>Formation des bénévoles</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>ℹ️ Dans un premier temps, vous serez invités à une réunion d'information en ligne de 30 minutes vous permettant d'en apprendre plus sur la Fondation et sur les missions de bénévolat. \n\n  Ensuite un parcours de formations vous sera proposé : \n- Formation commune\n- Puis formation spécifique à la mission bénévole dans laquelle vous souhaitez vous engager. \n\n  Des rendez-vous bénévoles sont également organisés régulièrement pour partager des moments de convivialité !",
+        "description": "Saint-Denis (93)\nDès que possible\n\n\nLes Apartés , ce sont des parenthèses où faire vivre la culture !\n\nVotre mission ? Autour d’un tableau, d’un livre, d’une photo ou d’un morceau de\nmusique... animez des conversations artistiques pleines de curiosité et\nd’émotions avec différents publics en situation d'isolement, de fragilité ou\npour lesquels la place de l’art mérite d’être amplifiée : personnes âgées,\nhospitalisées, accompagnées par des structures sociales, ou encore publics\nscolaires. Ces échanges sont des moments privilégiés pour créer du lien social\net rendre l'art plus accessible\n\nLe petit truc en plus : cette mission est également disponible en visio.\n\n⏳ Durée : une séance dure entre 45 minutes et 1h.\n\n\n\nInformations pratiques\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nLes Apartés ne sont ni des cours d’histoire de l’art ni des conférences mais des\nmoments de rencontre et d’échanges autour d’un sujet artistique. Il n’y a donc\naucun pré-requis autre que l’envie de partager !\n\nPour vous guider, une formation vous sera proposée.\n\n️ Que présenter ? Vous pouvez présenter un sujet choisi ou piocher parmi notre\nbibliothèque de contenus.\n\n⚠️ Il est possible de se mobiliser toutes les semaines comme 1 fois par mois,\nc’est selon vos envies et disponibilités.\n\nFréquence : Selon vos disponibilités\n\n\n\nInformations sur Art Explora - Délégation territoriale de Paris\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nPour favoriser le partage de la culture avec le plus grand nombre, la fondation\nreconnue d'utilité publique Art Explora renouvelle le dialogue entre les arts et\nles publics à l’échelle locale, nationale et internationale. Convaincue que la\nmobilité et le numérique permettent de repousser les limites de l’imagination,\nArt Explora encourage de nouvelles formes d’accès et d’engagement des publics.\nAvec les artistes, les organisations culturelles et les acteurs de terrain, nous\nexplorons la création contemporaine sous toutes ses formes. Art Explora est une\naventure collective qui réunit de nombreux partenaires et a déjà mobilisé plus\nde 3500 bénévoles.\n\n\nFormation des bénévoles\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nℹ️ Dans un premier temps, vous serez invités à une réunion d'information en\nligne de 30 minutes vous permettant d'en apprendre plus sur la Fondation et sur\nles missions de bénévolat.\n\nEnsuite un parcours de formations vous sera proposé :\n- Formation commune\n- Puis formation spécifique à la mission bénévole dans laquelle vous souhaitez\nvous engager.\n\nDes rendez-vous bénévoles sont également organisés régulièrement pour partager\ndes moments de convivialité !",
+        "applicationUrl": "http://localhost:4000/r/0040c106-3786-4225-8a9d-8f8d44402e56/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_03.jpeg",
+        "remote": "no",
+        "openToMinors": null,
+        "reducedMobilityAccessible": null,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "1756c910-041a-4cfe-ba45-bbffc388a398",
+        "title": "Je participe à l'animation d'un festival de littérature jeunesse",
+        "remote": "no",
+        "schedule": "4 jours",
+        "domain": "culture-loisirs",
+        "domainOriginal": null,
+        "organizationName": "D'ici à Là",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "media": {
+          "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12144/gelufMReJB88J6wHM5UeTL1lsSwuzo.jpg?v=1748280679",
+          "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12144/gelufMReJB88J6wHM5UeTL1lsSwuzo.jpg?v=1748280679",
+          "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/155628/jBoCCIr0IxOALwhoyk1nHcaIow1nlc.jpg?v=1777034546",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+        },
+        "location": {
+          "city": "Saint-Denis",
+          "closestLat": 48.939494,
+          "closestLon": 2.341523,
+          "closestAddress": "Quai de Seine, 93200 Saint-Denis, FR",
+          "addressId": "1a6cb8c0-76f4-4fc8-8a62-e07cec0ba5f6",
+          "distanceKm": 1.2197786822878085
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/1756c910-041a-4cfe-ba45-bbffc388a398/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "1614eb03-210b-4892-88d7-7c4268d46cee",
+        "totalScore": 0.679303,
+        "taxonomyScore": 0.4,
+        "geoScore": 0.958607,
+        "taxonomyScores": {
+          "engagement_intent": 1,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "culture_arts",
+            "taxonomyValueLabel": "Culture et arts",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "festival de littérature jeunesse / lectures partagées / ateliers créatifs / rencontres avec des auteurs et autrices / ateliers participatifs",
+              "reasoning": "La mission est centrée sur la médiation littéraire, la création artistique et la valorisation du patrimoine culturel, ce qui correspond clairement au domaine culturel et artistique."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "lire des histoires aux enfants / ateliers participatifs / échanges et d’expérimentation autour du livre",
+              "reasoning": "La mission implique une transmission de savoirs et de connaissances, notamment à travers la lecture et l'animation d'ateliers éducatifs."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "culture_creation_medias",
+            "taxonomyValueLabel": "Culture, création et médias",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "festival de littérature jeunesse / ateliers créatifs / rencontres avec des auteurs et autrices / médiation littéraire",
+              "reasoning": "La mission relève du secteur culturel et médiatique, avec une forte composante de création et de diffusion artistique."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "lire des histoires aux enfants / ateliers participatifs / échanges et d’expérimentation autour du livre",
+              "reasoning": "La mission inclut des activités d'animation éducative et de transmission, relevant du secteur de l'éducation et de la formation."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Durée : 1 heures — 4 jours / Dates : du 17 juin 2026 au 18 juillet 2026",
+              "reasoning": "La mission s'étend sur une période de plusieurs semaines avec des interventions répétées, ce qui correspond à une mission régulière."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "communication_creation_numerique",
+            "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "médiation littéraire / ateliers créatifs",
+              "reasoning": "La mission implique des activités de création et de médiation culturelle, relevant des compétences numériques et créatives."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Nous réunissons les bénévoles afin de leur présenter l'association, le festival et les différentes missions / former une équipe où chacun apporte son savoir-faire",
+              "reasoning": "La mission met en avant le travail collaboratif, l'organisation d'équipe et les compétences comportementales."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "lire des histoires aux enfants / ateliers participatifs",
+              "reasoning": "La mission implique une interaction directe avec des enfants, relevant des compétences sociales et d'accompagnement."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "animation d'un festival de littérature jeunesse / ateliers participatifs / lectures partagées / rencontres avec des auteurs et autrices",
+              "reasoning": "La mission est explicitement centrée sur l'animation d'événements culturels et d'ateliers collectifs."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "lire des histoires aux enfants / ateliers participatifs / échanges et d’expérimentation autour du livre",
+              "reasoning": "La mission implique une transmission de connaissances et de savoirs, notamment à travers la lecture et l'animation d'ateliers."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "action_terrain",
+            "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "aider au montage et démontage / accueillir le public",
+              "reasoning": "La mission inclut des actions concrètes sur le terrain, comme l'accueil du public et la logistique d'événements."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "education_culture_creation",
+            "taxonomyValueLabel": "Éducation, culture et création",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "festival de littérature jeunesse / ateliers créatifs / médiation littéraire",
+              "reasoning": "La mission relève clairement du domaine de l'éducation, de la culture et de la création, avec une forte composante artistique et pédagogique."
+            }
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "benevolat",
+            "taxonomyValueLabel": "Bénévolat",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "1756c910-041a-4cfe-ba45-bbffc388a398",
+        "title": "Je participe à l'animation d'un festival de littérature jeunesse",
+        "domain": "culture-loisirs",
+        "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12144/gelufMReJB88J6wHM5UeTL1lsSwuzo.jpg?v=1748280679",
+        "type": "benevolat",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png",
+        "organizationName": "D'ici à Là",
+        "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/155628/jBoCCIr0IxOALwhoyk1nHcaIow1nlc.jpg?v=1777034546",
+        "location": {
+          "city": "Saint-Denis",
+          "address": "Quai de Seine, 93200 Saint-Denis",
+          "lat": 48.939494,
+          "lon": 2.341523
+        },
+        "startAt": "2026-06-17T00:00:00.000Z",
+        "endAt": "2026-07-18T00:00:00.000Z",
+        "duration": 1,
+        "schedule": "4 jours",
+        "compensation": null,
+        "descriptionHtml": "<b>Présentation de la mission</b><br><p>Si tu aimes partager ton goût pour la lecture ou tu veux découvrir la médiation littéraire, n'hésite pas à rejoindre l'équipe Livres en Herbe #7 !</p><p>La septième édition du festival se déroulera pour la première fois en itinérance dans quatre points d'interêt en Seine-Saint-Denis. Ce festival propose des temps d’échanges et d’expérimentation autour du livre, avec au programme : des lectures partagées, des ateliers créatifs, des rencontres avec des auteurs et autrices, et bien plus encore !</p><p>Parmi les missions bénévoles, tu pourras participer au bon déroulement des ateliers participatifs, accueillir le public, lire des histoires aux enfants, aider au montage et démontage !</p><br><br><b>Précisions</b><br><p>Nous réunissons les bénévoles afin de leur présenter l'association, le festival et les différentes missions. Nous formons une équipe où chacun apporte son savoir-faire, ses compétences et ses initiatives dans une ambiance familiale et conviviale.</p>",
+        "description": "Présentation de la mission\n\n\nSi tu aimes partager ton goût pour la lecture ou tu veux découvrir la médiation\nlittéraire, n'hésite pas à rejoindre l'équipe Livres en Herbe #7 !\n\nLa septième édition du festival se déroulera pour la première fois en itinérance\ndans quatre points d'interêt en Seine-Saint-Denis. Ce festival propose des temps\nd’échanges et d’expérimentation autour du livre, avec au programme : des\nlectures partagées, des ateliers créatifs, des rencontres avec des auteurs et\nautrices, et bien plus encore !\n\nParmi les missions bénévoles, tu pourras participer au bon déroulement des\nateliers participatifs, accueillir le public, lire des histoires aux enfants,\naider au montage et démontage !\n\n\n\nPrécisions\n\n\nNous réunissons les bénévoles afin de leur présenter l'association, le festival\net les différentes missions. Nous formons une équipe où chacun apporte son\nsavoir-faire, ses compétences et ses initiatives dans une ambiance familiale et\nconviviale.",
+        "applicationUrl": "http://localhost:4000/r/1756c910-041a-4cfe-ba45-bbffc388a398/c4a9ce23692082d70af2b16d",
+        "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12144/gelufMReJB88J6wHM5UeTL1lsSwuzo.jpg?v=1748280679",
+        "remote": "no",
+        "openToMinors": true,
+        "reducedMobilityAccessible": null,
+        "places": 3
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "0a7f5ba1-4bd5-4533-8d87-cdcc1abe3668",
+        "title": "Je transmets mes compétences en couture à des femmes du quartier",
+        "remote": "no",
+        "schedule": "4 jours par mois",
+        "domain": "solidarite-insertion",
+        "domainOriginal": null,
+        "organizationName": "Association des Femmes du Franc Moisin",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "media": {
+          "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12173/solidarite-et-insertion-9.webp?v=1737022223",
+          "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12173/solidarite-et-insertion-9.webp?v=1737022223",
+          "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/143659/qIO0TbDZcpRCSpCFG4lTvAdKOJxbNe.png?v=1770382879",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+        },
+        "location": {
+          "city": "Saint-Denis",
+          "closestLat": 48.925748,
+          "closestLon": 2.371699,
+          "closestAddress": "Rue du Languedoc, 93200 Saint-Denis, FR",
+          "addressId": "1ae072c7-d000-4dc8-b067-cab183cf3db2",
+          "distanceKm": 1.5589690033841157
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/0a7f5ba1-4bd5-4533-8d87-cdcc1abe3668/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "f997084b-5f22-4ca8-a462-03e04e2bf397",
+        "totalScore": 0.673702,
+        "taxonomyScore": 0.4,
+        "geoScore": 0.947404,
+        "taxonomyScores": {
+          "engagement_intent": 1,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "œuvres depuis de nombreuses années à l’accompagnement des femmes du quartier dans leur autonomie sociale, éducative et personnelle / accompagnement des femmes réparties en quatre groupes d’alphabétisation / proposer des ateliers couture / transmettre ses compétences et son savoir-faire / créer du lien humain et interculturel / participer à des moments de partage riches de sens",
+              "reasoning": "La mission est centrée sur l'accompagnement social, l'insertion et la création de lien humain, ce qui relève clairement du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "transmettre ses compétences et son savoir-faire / ateliers couture / alphabétisation / apprentissage du français",
+              "reasoning": "La mission inclut explicitement la transmission de compétences et de savoir-faire, notamment via des ateliers couture et d'alphabétisation."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "œuvres depuis de nombreuses années à l’accompagnement des femmes du quartier dans leur autonomie sociale, éducative et personnelle / insertion sociale et économique des femmes comme clé de voute de l’amélioration des conditions de vie des familles",
+              "reasoning": "La mission relève du secteur de l'aide à la personne et du social, avec un focus sur l'insertion et l'accompagnement des femmes."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "alphabétisation / apprentissage du français / ateliers couture / transmettre ses compétences et son savoir-faire",
+              "reasoning": "La mission inclut des activités d'animation éducative et de formation, notamment via des ateliers et des cours."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.99,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Durée : 3 heures — 4 jours par mois / Les cours de coutures se déroulent en semaine sur des créneaux de deux heures",
+              "reasoning": "La mission s'étend sur plusieurs mois avec une fréquence régulière (4 jours par mois), ce qui correspond à une mission régulière."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "créer du lien humain et interculturel / participer à des moments de partage riches de sens",
+              "reasoning": "La mission met en avant des compétences relationnelles, d'adaptation et de travail collaboratif."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "transmettre ses compétences et son savoir-faire / ateliers couture / alphabétisation",
+              "reasoning": "La mission est explicitement centrée sur la transmission de compétences et de savoir-faire."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "proposer des ateliers couture / créer du lien humain et interculturel / participer à des moments de partage riches de sens",
+              "reasoning": "La mission inclut l'animation d'ateliers et la création de dynamiques collectives."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "soutenir des femmes dans leur apprentissage du français, leur autonomie, leur confiance en elles et leur insertion dans la société",
+              "reasoning": "La mission vise un soutien direct aux femmes, bien que l'aide soit indirecte via l'animation et la transmission."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "social_sante_sport",
+            "taxonomyValueLabel": "Social, santé et sport",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "insertion sociale et économique des femmes comme clé de voute de l’amélioration des conditions de vie des familles / alphabétisation / apprentissage du français",
+              "reasoning": "La mission relève du domaine social, de la santé (autonomie) et du sport (activités collectives), avec un focus sur l'insertion."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "education_culture_creation",
+            "taxonomyValueLabel": "Éducation, culture et création",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "ateliers couture / transmettre ses compétences et son savoir-faire / alphabétisation",
+              "reasoning": "La mission inclut des activités de transmission culturelle et éducative, notamment via des ateliers manuels."
+            }
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "benevolat",
+            "taxonomyValueLabel": "Bénévolat",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "0a7f5ba1-4bd5-4533-8d87-cdcc1abe3668",
+        "title": "Je transmets mes compétences en couture à des femmes du quartier",
+        "domain": "solidarite-insertion",
+        "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12173/solidarite-et-insertion-9.webp?v=1737022223",
+        "type": "benevolat",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png",
+        "organizationName": "Association des Femmes du Franc Moisin",
+        "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/143659/qIO0TbDZcpRCSpCFG4lTvAdKOJxbNe.png?v=1770382879",
+        "location": {
+          "city": "Saint-Denis",
+          "address": "Rue du Languedoc, 93200 Saint-Denis",
+          "lat": 48.925748,
+          "lon": 2.371699
+        },
+        "startAt": "2026-10-05T00:00:00.000Z",
+        "endAt": "2027-01-29T00:00:00.000Z",
+        "duration": 3,
+        "schedule": "4 jours par mois",
+        "compensation": null,
+        "descriptionHtml": "<b>Présentation de la mission</b><br><p>L’Association des Femmes du Franc-Moisin est une association loi 1901 qui œuvre depuis de nombreuses années à l’accompagnement des femmes du quartier dans leur autonomie sociale, éducative et personnelle. Nous menons des actions autour de l’alphabétisation, de l’apprentissage du français, de l’accès aux droits, de la santé des femmes, de la parentalité et du lien social.</p><p>Nous accompagnons actuellement des femmes réparties en quatre groupes d’alphabétisation selon leur niveau.</p><p>Par ailleurs, afin de développer les activités d’insertion et de valorisation des compétences, nous souhaitons proposer des ateliers couture. Nous serions donc à la recherche d’un ou plusieurs bénévoles disponibles pour animer ces cours. Nous disposons déjà du matériel nécessaire, notamment le tissu et les machines à coudre.</p><br><br><b>Sautez le pas</b><br><p>Devenir bénévole, c’est avant tout donner un peu de son temps pour avoir un vrai impact autour de soi. À l’Association des Femmes du Franc-Moisin, chaque bénévole contribue concrètement à soutenir des femmes dans leur apprentissage du français, leur autonomie, leur confiance en elles et leur insertion dans la société.</p><p>C’est aussi :</p><ul><li>transmettre ses compétences et son savoir-faire,</li><li>créer du lien humain et interculturel,</li><li>se sentir utile et engagé localement,</li><li>participer à des moments de partage riches de sens.</li></ul><p>Que ce soit pour l’alphabétisation, la couture ou d’autres ateliers, chaque aide compte. Même quelques heures par semaine peuvent faire la différence.</p><p>👉 Rejoindre l’association, c’est s’engager dans une action solidaire et humaine au cœur du quartier.</p><br><br><b>Précisions</b><br><p>Les cours de coutures se déroulent en semaine sur des créneaux de deux heures.&nbsp;</p>",
+        "description": "Présentation de la mission\n\n\nL’Association des Femmes du Franc-Moisin est une association loi 1901 qui œuvre\ndepuis de nombreuses années à l’accompagnement des femmes du quartier dans leur\nautonomie sociale, éducative et personnelle. Nous menons des actions autour de\nl’alphabétisation, de l’apprentissage du français, de l’accès aux droits, de la\nsanté des femmes, de la parentalité et du lien social.\n\nNous accompagnons actuellement des femmes réparties en quatre groupes\nd’alphabétisation selon leur niveau.\n\nPar ailleurs, afin de développer les activités d’insertion et de valorisation\ndes compétences, nous souhaitons proposer des ateliers couture. Nous serions\ndonc à la recherche d’un ou plusieurs bénévoles disponibles pour animer ces\ncours. Nous disposons déjà du matériel nécessaire, notamment le tissu et les\nmachines à coudre.\n\n\n\nSautez le pas\n\n\nDevenir bénévole, c’est avant tout donner un peu de son temps pour avoir un vrai\nimpact autour de soi. À l’Association des Femmes du Franc-Moisin, chaque\nbénévole contribue concrètement à soutenir des femmes dans leur apprentissage du\nfrançais, leur autonomie, leur confiance en elles et leur insertion dans la\nsociété.\n\nC’est aussi :\n\n • transmettre ses compétences et son savoir-faire,\n • créer du lien humain et interculturel,\n • se sentir utile et engagé localement,\n • participer à des moments de partage riches de sens.\n\nQue ce soit pour l’alphabétisation, la couture ou d’autres ateliers, chaque aide\ncompte. Même quelques heures par semaine peuvent faire la différence.\n\n👉 Rejoindre l’association, c’est s’engager dans une action solidaire et humaine\nau cœur du quartier.\n\n\n\nPrécisions\n\n\nLes cours de coutures se déroulent en semaine sur des créneaux de deux heures. ",
+        "applicationUrl": "http://localhost:4000/r/0a7f5ba1-4bd5-4533-8d87-cdcc1abe3668/c4a9ce23692082d70af2b16d",
+        "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12173/solidarite-et-insertion-9.webp?v=1737022223",
+        "remote": "no",
+        "openToMinors": true,
+        "reducedMobilityAccessible": null,
+        "places": 3
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "f9adfbac-481b-486b-9823-0cea559958ef",
+        "title": "Soutien au développement d’une agriculture urbaine sociale et participative avec Engrainage",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "environnement",
+        "domainOriginal": "Environnement",
+        "organizationName": "Ligue de l'enseignement de Seine-Saint-Denis",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_02.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_02.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Saint-Denis",
+          "closestLat": 48.940814,
+          "closestLon": 2.341437,
+          "closestAddress": "10 Quai de Seine, 93200 Saint-Denis, FR",
+          "addressId": "fa6f1683-7a9d-4acf-a719-aa21156b2e66",
+          "distanceKm": 1.2775593144830382
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/f9adfbac-481b-486b-9823-0cea559958ef/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "1f3a2728-ac3c-4d85-a6e4-9fc4dabb5329",
+        "totalScore": 0.668345,
+        "taxonomyScore": 0.38,
+        "geoScore": 0.956689,
+        "taxonomyScores": {
+          "engagement_intent": 1,
+          "tranche_age": 0.9
+        },
+        "values": [
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "action_terrain",
+            "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Entretien et suivi des cultures : semis, plantation, désherbage / actions logistique, livraison et transformation des produits du jardin",
+              "reasoning": "Les tâches décrites relèvent d'actions concrètes sur le terrain."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "aider les salariés à mettre en place de nouvelles procédures ou pratiques permettant d’améliorer le fonctionnement de l’association",
+              "reasoning": "La mission inclut un soutien à l'organisation et à l'amélioration des processus internes."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Type de mission : volontariat_service_civique / Tutorat et accompagnement : 1 mois d’observation, puis appui aux missions. Suivi mensuel avec le tuteur",
+              "reasoning": "Le cadre du service civique, avec un tutorat structuré et un suivi régulier, relève clairement d'un engagement en cadre structuré."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "environnement_nature_sciences",
+            "taxonomyValueLabel": "Environnement, nature et sciences",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "agriculture urbaine / ateliers pédagogiques autour de l'agriculture urbaine / formation sur les forêts comestibles",
+              "reasoning": "La mission est directement liée à l'environnement, la nature et la transmission de connaissances scientifiques ou techniques."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "education_culture_creation",
+            "taxonomyValueLabel": "Éducation, culture et création",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "coanimation des ateliers pédagogiques / participation à l’organisation et à l’animation des événements culturels",
+              "reasoning": "La mission inclut une dimension éducative et culturelle, notamment via l'animation d'ateliers et d'événements."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "environnement_nature",
+            "taxonomyValueLabel": "Environnement et nature",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "agriculture urbaine / Entretien et suivi des cultures sur les deux jardins de l'association : semis, plantation, désherbage / ateliers pédagogiques autour de l'agriculture urbaine",
+              "reasoning": "La mission est centrée sur l'agriculture urbaine, l'entretien des cultures et la pédagogie écologique, ce qui relève clairement du domaine environnement et nature."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "coanimation des ateliers pédagogiques autour de l'agriculture urbaine auprès d'enfants, d'habitants ou de publics spécialisés / transmettre des connaissances écologiques et pédagogiques",
+              "reasoning": "La mission inclut explicitement la transmission de savoirs et l'animation d'ateliers pédagogiques."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "environnement_agriculture",
+            "taxonomyValueLabel": "Environnement et agriculture",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "agriculture urbaine / Entretien et suivi des cultures / ateliers pédagogiques autour de l'agriculture urbaine",
+              "reasoning": "La mission relève directement du secteur de l'environnement et de l'agriculture urbaine."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "coanimation des ateliers pédagogiques / transmission des connaissances écologiques et pédagogiques",
+              "reasoning": "La mission inclut une dimension éducative et d'animation, bien que secondaire par rapport à l'agriculture."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Participation à l’accueil de différents publics / encadrer une communauté de bénévoles / aider les salariés à mettre en place de nouvelles procédures",
+              "reasoning": "La mission implique du travail collaboratif, de l'organisation et de l'animation de groupes."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "production_construction_qualite_logistique",
+            "taxonomyValueLabel": "Production, construction, qualité, logistique",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Entretien et suivi des cultures : semis, plantation, désherbage / actions logistique, livraison et transformation des produits du jardin",
+              "reasoning": "Les tâches incluent des activités manuelles et logistiques liées à l'agriculture."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "encadrer une communauté de bénévoles / coanimation des ateliers pédagogiques",
+              "reasoning": "La mission implique un accompagnement et une animation auprès de publics variés, avec une dimension sociale."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "coanimation des ateliers pédagogiques autour de l'agriculture urbaine / transmettre des connaissances écologiques et pédagogiques",
+              "reasoning": "La mission est explicitement centrée sur la transmission de savoirs et la pédagogie."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "coanimation des ateliers pédagogiques / participation à l’organisation et à l’animation des événements culturels",
+              "reasoning": "La mission inclut l'animation d'ateliers et d'événements collectifs."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_18_ans",
+            "taxonomyValueLabel": "Moins de 18 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_31_ans_handicap",
+            "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "service_civique",
+            "taxonomyValueLabel": "Service civique",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "f9adfbac-481b-486b-9823-0cea559958ef",
+        "title": "Soutien au développement d’une agriculture urbaine sociale et participative avec Engrainage",
+        "domain": "environnement",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_02.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "Ligue de l'enseignement de Seine-Saint-Denis",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Saint-Denis",
+          "address": "10 Quai de Seine, 93200 Saint-Denis",
+          "lat": 48.940814,
+          "lon": 2.341437
+        },
+        "startAt": "2026-09-15T00:00:00.000Z",
+        "endAt": "2027-06-15T00:00:00.000Z",
+        "duration": 9,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Participez participation aux activités quotidiennes de l’association (agriculture urbaine et événementiel), il s'agira d’aider au développement des jardins de l’association à Saint-Denis et à coanimer les ateliers autour de l’agriculture urbaine auprès de différents publics (scolaires, bénévoles...)</p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p>En complément des activités de l’association, le volontaire participera au développement des jardins à Saint-Denis et à l’animation d’ateliers pour divers publics. Il contribuera à transmettre des connaissances écologiques et pédagogiques acquises durant son service civique..</p></p><br>\n<b>Actions</b><br><p><p class=\"ql-align-justify\"><strong>Le/la volontaire sera toujours encadré par un salarié pour ses missions&nbsp;:</strong></p><p class=\"ql-align-justify\">- Entretien et suivi des cultures sur les deux jardins de l’association : semis, plantation, désherbage...</p><p class=\"ql-align-justify\"><br></p><p class=\"ql-align-justify\">- Participation à l’accueil de différents publics (bénévoles, habitants…), faire le suivi et encadrer une communauté de bénévoles sur les sites de l’association ou des chantiers participatifs.</p><p class=\"ql-align-justify\"><br></p><p class=\"ql-align-justify\">- Coanimation des ateliers pédagogiques autour de l’agriculture urbaine auprès d’enfants, d’habitants ou de publics spécialisés dans le cadre des animations faites par l’association.</p><p class=\"ql-align-justify\"><br></p><p class=\"ql-align-justify\">- Aider les salariés à mettre en place de nouvelles procédures ou pratiques permettant d’améliorer le fonctionnement de l’association et son ancrage territoriale : liens avec les structures de quartier, récupération d’invendus, actions logistique, livraison et transformation des produits du jardin.</p><p class=\"ql-align-justify\"><br></p><p class=\"ql-align-justify\">Selon ses centres d’intérêt, il ou elle pourra aussi participer à l’organisation et à l’animation des événements culturels de l’association.</p></p><br>\n<b>Capacité d’initiative</b><br><p>Le volontaire arrive en soutien des différentes missions de l’associations. Son rôle peut évoluer en fonction de ses qualités, de ses envies.</p><br>\n<b>VOTRE ENVIRONNEMENT</b><br><b>Formations obligatoires proposées</b><br><p>Une formation sur les forêts comestibles en début d’année</p><br><b>Tutorat et accompagnement</b><br><p>1 mois d’observation, puis appui aux missions. Suivi mensuel avec le tuteur et 3 bilans pour préparer l'après service civique. </p>",
+        "description": "EN QUELQUES MOTS\n\n\nParticipez participation aux activités quotidiennes de l’association\n(agriculture urbaine et événementiel), il s'agira d’aider au développement des\njardins de l’association à Saint-Denis et à coanimer les ateliers autour de\nl’agriculture urbaine auprès de différents publics (scolaires, bénévoles...)\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nEn complément des activités de l’association, le volontaire participera au\ndéveloppement des jardins à Saint-Denis et à l’animation d’ateliers pour divers\npublics. Il contribuera à transmettre des connaissances écologiques et\npédagogiques acquises durant son service civique..\n\n\n\n\n\nActions\n\n\n\n\nLe/la volontaire sera toujours encadré par un salarié pour ses missions :\n\n- Entretien et suivi des cultures sur les deux jardins de l’association : semis,\nplantation, désherbage...\n\n\n\n\n- Participation à l’accueil de différents publics (bénévoles, habitants…), faire\nle suivi et encadrer une communauté de bénévoles sur les sites de l’association\nou des chantiers participatifs.\n\n\n\n\n- Coanimation des ateliers pédagogiques autour de l’agriculture urbaine auprès\nd’enfants, d’habitants ou de publics spécialisés dans le cadre des animations\nfaites par l’association.\n\n\n\n\n- Aider les salariés à mettre en place de nouvelles procédures ou pratiques\npermettant d’améliorer le fonctionnement de l’association et son ancrage\nterritoriale : liens avec les structures de quartier, récupération d’invendus,\nactions logistique, livraison et transformation des produits du jardin.\n\n\n\n\nSelon ses centres d’intérêt, il ou elle pourra aussi participer à l’organisation\net à l’animation des événements culturels de l’association.\n\n\n\n\n\nCapacité d’initiative\n\n\nLe volontaire arrive en soutien des différentes missions de l’associations. Son\nrôle peut évoluer en fonction de ses qualités, de ses envies.\n\n\n\nVOTRE ENVIRONNEMENT\nFormations obligatoires proposées\n\n\nUne formation sur les forêts comestibles en début d’année\n\n\nTutorat et accompagnement\n\n\n1 mois d’observation, puis appui aux missions. Suivi mensuel avec le tuteur et 3\nbilans pour préparer l'après service civique.",
+        "applicationUrl": "http://localhost:4000/r/f9adfbac-481b-486b-9823-0cea559958ef/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_02.jpeg",
+        "remote": "no",
+        "openToMinors": true,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    }
+  ],
+  "deterministic": {
+    "geo": 5,
+    "format": 4,
+    "missionsSansTagFormat": [],
+    "gateViolations": []
+  },
+  "judgeRuns": [
+    {
+      "runIndex": 0,
+      "seed": 3914277377,
+      "order": [
+        "f9adfbac-481b-486b-9823-0cea559958ef",
+        "0a7f5ba1-4bd5-4533-8d87-cdcc1abe3668",
+        "8178a323-404c-46e1-bbbc-f011038751bf",
+        "0040c106-3786-4225-8a9d-8f8d44402e56",
+        "1756c910-041a-4cfe-ba45-bbffc388a398"
+      ],
+      "output": {
+        "coherence": {
+          "score": 4,
+          "missionsPertinentes": [
+            1,
+            3,
+            4,
+            2
+          ],
+          "justification": "Quatre missions sur cinq correspondent bien au profil de Ryan, qui souhaite transmettre et accompagner d'autres jeunes. La mission 1 (couture) implique transmission de compétences, la mission 3 (conversations artistiques) favorise le lien social et la transmission culturelle, la mission 4 (animation festival littérature jeunesse) est centrée sur la médiation et le partage avec des jeunes, et la mission 2 (accompagnement personnes exilées) implique un accompagnement humain et social. La mission 0, bien que à Saint-Denis, est plus axée sur l'agriculture urbaine et moins sur la transmission à des jeunes, donc moins pertinente.",
+          "missionIdsPertinents": [
+            "f9adfbac-481b-486b-9823-0cea559958ef",
+            "8178a323-404c-46e1-bbbc-f011038751bf",
+            "0040c106-3786-4225-8a9d-8f8d44402e56",
+            "0a7f5ba1-4bd5-4533-8d87-cdcc1abe3668"
+          ]
+        },
+        "homogeneite": {
+          "score": 4,
+          "familles": [
+            "Transmission de compétences et savoir-faire",
+            "Accompagnement social et humain",
+            "Animation culturelle"
+          ],
+          "justification": "Les missions pertinentes se répartissent en trois familles principales : transmission de compétences (couture), accompagnement social (personnes exilées), et animation culturelle (conversations artistiques, festival littérature). Parmi ces familles, la famille animation culturelle regroupe au moins deux missions, ce qui crée une majorité relative. La diversité reste modérée avec trois familles."
+        },
+        "cause": null
+      }
+    },
+    {
+      "runIndex": 1,
+      "seed": 3897499758,
+      "order": [
+        "0040c106-3786-4225-8a9d-8f8d44402e56",
+        "1756c910-041a-4cfe-ba45-bbffc388a398",
+        "f9adfbac-481b-486b-9823-0cea559958ef",
+        "0a7f5ba1-4bd5-4533-8d87-cdcc1abe3668",
+        "8178a323-404c-46e1-bbbc-f011038751bf"
+      ],
+      "output": {
+        "coherence": {
+          "score": 4,
+          "missionsPertinentes": [
+            1,
+            3,
+            4,
+            5
+          ],
+          "justification": "Les missions 0, 1, 3 et 4 correspondent bien au profil de Ryan qui souhaite transmettre et accompagner d'autres jeunes, avec un engagement régulier à Saint-Denis. La mission 2, bien que intéressante, est plus axée sur l'agriculture urbaine et moins sur la transmission directe à des jeunes, donc moins pertinente.",
+          "missionIdsPertinents": [
+            "0040c106-3786-4225-8a9d-8f8d44402e56",
+            "f9adfbac-481b-486b-9823-0cea559958ef",
+            "0a7f5ba1-4bd5-4533-8d87-cdcc1abe3668",
+            "8178a323-404c-46e1-bbbc-f011038751bf"
+          ]
+        },
+        "homogeneite": {
+          "score": 4,
+          "familles": [
+            "Animation culturelle et artistique",
+            "Accompagnement social",
+            "Transmission de compétences"
+          ],
+          "justification": "Les missions proposées couvrent trois familles principales : animation culturelle (missions 0 et 1), accompagnement social (mission 4), et transmission de compétences (mission 3). Parmi elles, l'animation culturelle regroupe au moins 3 missions (0,1,3), ce qui crée une homogénéité satisfaisante."
+        },
+        "cause": null
+      }
+    }
+  ],
+  "engineVersion": "m2",
+  "startedAt": "2026-07-10T13:24:55.299Z",
+  "finishedAt": "2026-07-10T13:25:10.505Z",
+  "verdict": 4.5,
+  "cleanup": {
+    "userScoringDeleted": true
+  }
+}

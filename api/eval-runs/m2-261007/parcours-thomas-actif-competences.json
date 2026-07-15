@@ -1,0 +1,2415 @@
+{
+  "status": "success",
+  "parcours": {
+    "id": "thomas-actif-competences",
+    "segment": "actif",
+    "label": "Thomas, 29 ans, salarié à Rennes, veut mettre ses compétences pro en gestion et management au service de l'intérêt général sur des missions ponctuelles",
+    "locationLabel": "Rennes (35)",
+    "age": 29,
+    "handicap": "non",
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 29,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "handicap",
+        "value": "non"
+      },
+      {
+        "taxonomy": "statut",
+        "value": "actif"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 48.117266,
+          "lon": -1.677793,
+          "country_code": "fr",
+          "label": "Rennes (35)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "ponctuelle"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "competences_interet_general"
+      },
+      {
+        "taxonomy": "competence_rome",
+        "value": "management_social_soin"
+      },
+      {
+        "taxonomy": "competence_rome",
+        "value": "gestion_pilotage_juridique"
+      },
+      {
+        "taxonomy": "competence_rome",
+        "value": "cooperation_organisation_soft_skills"
+      }
+    ]
+  },
+  "payload": {
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 29,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "handicap",
+        "value": "non"
+      },
+      {
+        "taxonomy": "statut",
+        "value": "actif"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 48.117266,
+          "lon": -1.677793,
+          "country_code": "fr",
+          "label": "Rennes (35)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "ponctuelle"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "competences_interet_general"
+      },
+      {
+        "taxonomy": "competence_rome",
+        "value": "management_social_soin"
+      },
+      {
+        "taxonomy": "competence_rome",
+        "value": "gestion_pilotage_juridique"
+      },
+      {
+        "taxonomy": "competence_rome",
+        "value": "cooperation_organisation_soft_skills"
+      }
+    ],
+    "distinctId": "eval:m2-261007:thomas-actif-competences",
+    "missionAlertEnabled": false
+  },
+  "userScoringId": "fea452d0-008f-42b6-abd5-2fe527d38eb2",
+  "match": {
+    "tookMs": 6355,
+    "engineVersion": "m2",
+    "items": [
+      {
+        "mission": {
+          "id": "6194dd25a99ff4075b5ed9ec",
+          "title": "Evenement culturel",
+          "remote": "no",
+          "schedule": "",
+          "domain": "vivre-ensemble",
+          "domainOriginal": null,
+          "organizationName": "Innov Actions - Stop Solo",
+          "publisherId": "5f592d415655a711feb4460e",
+          "publisherName": "Benevolt",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/generique.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/generique.jpeg",
+            "organizationLogo": null,
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo"
+          },
+          "location": {
+            "city": "Rennes",
+            "closestLat": 48.1143,
+            "closestLon": -1.68072,
+            "closestAddress": "35000 Rennes, FR",
+            "addressId": "61312a24-b8da-4c06-93d8-86cc869a51fe",
+            "distanceKm": 0.3949508768145638
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/6194dd25a99ff4075b5ed9ec/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "3ff56877-bad1-4feb-a6b7-ac8f421daaf5",
+          "totalScore": 0.731258,
+          "taxonomyScore": 0.476111,
+          "geoScore": 0.986405,
+          "taxonomyScores": {
+            "competence_rome": 0.856667,
+            "tranche_age": 1,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "culture_arts",
+              "taxonomyValueLabel": "Culture et arts",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "organiser une soirée culturelle et festive",
+                "reasoning": "La mission est explicitement centrée sur l'organisation d'un événement culturel."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "renforcer un lien social humaniste, développer la solidarité, l'entraide / combat contre la solitude et la pauvreté / favoriser la construction du lien social et susciter des échanges entre des personnes quels que soient leurs différences",
+                "reasoning": "Les valeurs et objectifs de l'association et de la mission sont clairement axés sur la solidarité et la lutte contre l'isolement."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "culture_creation_medias",
+              "taxonomyValueLabel": "Culture, création et médias",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "organiser une soirée culturelle et festive",
+                "reasoning": "La mission relève principalement du secteur culturel et médiatique."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "renforcer un lien social humaniste, développer la solidarité, l'entraide / combat contre la solitude et la pauvreté",
+                "reasoning": "L'association et la mission ont une finalité sociale et d'aide aux personnes, bien que l'activité principale soit culturelle."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "ponctuelle",
+              "taxonomyValueLabel": "Mission ponctuelle",
+              "enrichmentConfidence": 0.99,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Durée : 1 jour",
+                "reasoning": "La mission est explicitement décrite comme ayant une durée d'une journée."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Nous aurons besoin, des hôtesses, d'un traiteur et de la sécurité / Formation des bénévoles : secrétaire, trésorier, responsable de communication",
+                "reasoning": "La mission implique une forte dimension organisationnelle et collaborative."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "relation_client_commerce_strategie",
+              "taxonomyValueLabel": "Relation client, commerce, stratégie",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "responsable de communication",
+                "reasoning": "Le rôle de responsable de communication implique des compétences en relation client et stratégie."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "organiser une soirée culturelle et festive",
+                "reasoning": "La mission inclut explicitement l'animation d'un événement culturel."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Nous aurons besoin, des hôtesses, d'un traiteur et de la sécurité / Formation des bénévoles : secrétaire, trésorier, responsable de communication",
+                "reasoning": "Les tâches décrites relèvent principalement de l'organisation et du soutien logistique."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "education_culture_creation",
+              "taxonomyValueLabel": "Éducation, culture et création",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "organiser une soirée culturelle et festive",
+                "reasoning": "La mission est liée à l'organisation d'événements culturels, relevant de l'éducation et de la création."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "social_sante_sport",
+              "taxonomyValueLabel": "Social, santé et sport",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "renforcer un lien social humaniste, développer la solidarité, l'entraide / combat contre la solitude et la pauvreté",
+                "reasoning": "L'association et la mission ont une finalité sociale et d'aide aux personnes, relevant de ce domaine de formation."
+              }
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "benevolat",
+              "taxonomyValueLabel": "Bénévolat",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "609b4a8ce5444207489ac84d",
+          "title": "Je témoigne de mon métier et de mon parcours",
+          "remote": "no",
+          "schedule": "1 heure",
+          "domain": "education",
+          "domainOriginal": null,
+          "organizationName": "ExplorJob (Association AVDTM)",
+          "publisherId": "5f5931496c7ea514150a818f",
+          "publisherName": "JeVeuxAider.gouv.fr",
+          "media": {
+            "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/8475/a26fP7ibvc7fB1r.jpg?v=1737369547",
+            "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/8475/a26fP7ibvc7fB1r.jpg?v=1737369547",
+            "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/5992/Hn3nYrge7dfVzo87mgBHQfdxYavks7.jpg?v=1737381572",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+          },
+          "location": {
+            "city": "Rennes",
+            "closestLat": 48.1143,
+            "closestLon": -1.68072,
+            "closestAddress": "Rennes, 35000 Rennes, FR",
+            "addressId": "c073e210-821c-4118-9021-d13f5e440311",
+            "distanceKm": 0.3949508768145638
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/609b4a8ce5444207489ac84d/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "09889d92-f500-40a8-9bea-b645294dc662",
+          "totalScore": 0.729869,
+          "taxonomyScore": 0.473333,
+          "geoScore": 0.986405,
+          "taxonomyScores": {
+            "competence_rome": 0.84,
+            "tranche_age": 1,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "vous témoignez de votre métier pour aider des personnes à construire leur orientation professionnelle / vous répondez à ses questions / vous lui expliquez votre parcours, vos missions, pour quelles raisons vous aimez votre métier / que l'Explorateur ait une vision juste du métier qu'il envisage afin de pouvoir valider ou invalider ses choix",
+                "reasoning": "La mission consiste à transmettre des connaissances sur un métier et à accompagner des personnes dans leur orientation professionnelle, ce qui relève clairement de la transmission et de l'éducation."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "vous répondez à ses questions / vous lui expliquez votre parcours, vos missions / que l'Explorateur ait une vision juste du métier qu'il envisage",
+                "reasoning": "Les tâches décrites sont centrées sur l'explication, la transmission de savoirs et l'accompagnement dans un processus d'orientation, ce qui correspond à une intention de transmission."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "vous répondez à ses questions / vous lui expliquez votre parcours, vos missions, pour quelles raisons vous aimez votre métier",
+                "reasoning": "La mission implique une interaction directe avec les bénéficiaires pour leur fournir des informations et des conseils, ce qui relève de l'aide directe."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "vous êtes contacté occasionnellement par des Explorateurs (collégiens, lycéens, jeunes déscolarisés, personnes en recherche d'emploi ou en reconversion professionnelle)",
+                "reasoning": "La mission cible des publics variés en situation de choix professionnel ou de reconversion, ce qui relève du secteur de l'éducation et de la formation."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "communication_creation_numerique",
+              "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+              "enrichmentConfidence": 0.92,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "vous répondez à ses questions / vous lui expliquez votre parcours, vos missions",
+                "reasoning": "Les tâches décrites impliquent une communication claire et une transmission de savoirs, ce qui relève des compétences en communication et création."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "vous fixez [l'entretien] en fonction de vos disponibilités",
+                "reasoning": "La mission implique une organisation personnelle et une adaptation aux besoins des bénéficiaires, ce qui relève des soft skills et de l'autonomie."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "ponctuelle",
+              "taxonomyValueLabel": "Mission ponctuelle",
+              "enrichmentConfidence": 0.99,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "1 heure",
+                "reasoning": "La durée de la mission est explicitement indiquée comme étant de 1 heure, ce qui correspond à une mission ponctuelle."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "vous témoignez de votre métier pour aider des personnes à construire leur orientation professionnelle / que l'orientation devienne une étape inspirante",
+                "reasoning": "La mission vise à inspirer et à guider des personnes dans leur choix professionnel, ce qui relève de la société, du droit et de la politique (orientation professionnelle)."
+              }
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "benevolat",
+              "taxonomyValueLabel": "Bénévolat",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "68da5c617cee915183abeca5",
+          "title": "je plante des arbres pour les générations futures",
+          "remote": "no",
+          "schedule": "",
+          "domain": "environnement",
+          "domainOriginal": null,
+          "organizationName": "LES PLANTEURS DU BOIZH'ELOUPS",
+          "publisherId": "5f592d415655a711feb4460e",
+          "publisherName": "Benevolt",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_01.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_01.jpeg",
+            "organizationLogo": null,
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo"
+          },
+          "location": {
+            "city": "Rennes",
+            "closestLat": 48.111678,
+            "closestLon": -1.677997,
+            "closestAddress": "2 Place du Parlement de Bretagne, 35000 Rennes, FR",
+            "addressId": "3170f0f6-8592-41a3-9a0e-47d77408351d",
+            "distanceKm": 0.6215417877550782
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/68da5c617cee915183abeca5/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "f0855d54-805e-4816-a4c6-fff20fafbf97",
+          "totalScore": 0.7274,
+          "taxonomyScore": 0.476111,
+          "geoScore": 0.978689,
+          "taxonomyScores": {
+            "competence_rome": 0.856667,
+            "tranche_age": 1,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "environnement_nature",
+              "taxonomyValueLabel": "Environnement et nature",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "planter des arbres et arbustes / projet participatif où petits et grands peuvent planter ensemble / promouvoir et développer les écosystèmes forestiers",
+                "reasoning": "La mission est explicitement centrée sur la plantation d'arbres et la protection des écosystèmes forestiers, domaine environnement et nature."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "environnement_agriculture",
+              "taxonomyValueLabel": "Environnement et agriculture",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "planter des arbres et arbustes / promouvoir et développer les écosystèmes forestiers",
+                "reasoning": "La mission relève du secteur environnement et agriculture, avec une action concrète de plantation et de gestion des écosystèmes."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "ponctuelle",
+              "taxonomyValueLabel": "Mission ponctuelle",
+              "enrichmentConfidence": 0.99,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Nos plantations sont des évènements ponctuels sur une 1/2 ou 1 journée / plantation jusqu'à environ 13h / Durée : Une matinée",
+                "reasoning": "La mission est explicitement décrite comme ponctuelle, limitée à une demi-journée ou une journée."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "production_construction_qualite_logistique",
+              "taxonomyValueLabel": "Production, construction, qualité, logistique",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "planter des arbres et arbustes / Pas besoin d'être un expert en plantation / Nous en avons en réserve",
+                "reasoning": "La mission implique des activités manuelles de plantation, relevant de la production et de la logistique."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "projet participatif où petits et grands peuvent planter ensemble / Chacun peut trouver sa place et son action / Nous comptons sur vous pour partager ce moment convivial",
+                "reasoning": "La mission met en avant le travail collaboratif, l'inclusion et la convivialité, relevant des soft skills et de l'organisation."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "action_terrain",
+              "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "planter des arbres et arbustes / plantation sera protégée par un convention / plantation jusqu'à environ 13h",
+                "reasoning": "La mission consiste en une action concrète et pratique sur le terrain, avec une dimension collective et protégée."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "projet participatif où petits et grands peuvent planter ensemble / Nous comptons sur vous pour partager ce moment convivial",
+                "reasoning": "La mission inclut une dimension d'animation et de convivialité autour d'une activité collective."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "environnement_nature_sciences",
+              "taxonomyValueLabel": "Environnement, nature et sciences",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "planter des arbres et arbustes / promouvoir et développer les écosystèmes forestiers",
+                "reasoning": "La mission est liée à l'environnement, la nature et les sciences écologiques, relevant de la formation ONISEP correspondante."
+              }
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "benevolat",
+              "taxonomyValueLabel": "Bénévolat",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "395edc05-d17e-4c4b-9ca5-6e264f134dbd",
+          "title": "J'aide à organiser les départs et arrivées des jeunes en échanges internationaux",
+          "remote": "no",
+          "schedule": "5 jours",
+          "domain": "vivre-ensemble",
+          "domainOriginal": null,
+          "organizationName": "AFS Vivre Sans Frontière (Nord Est)",
+          "publisherId": "5f5931496c7ea514150a818f",
+          "publisherName": "JeVeuxAider.gouv.fr",
+          "media": {
+            "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/57121/ylmQbK83rwqFozaMkMP30tTeDhlRzc.jpg?v=1737369626",
+            "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/57121/ylmQbK83rwqFozaMkMP30tTeDhlRzc.jpg?v=1737369626",
+            "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/33773/63vgV5FjgABp7zwUoKDLOJVv4BK9fK.jpg?v=1737383063",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+          },
+          "location": {
+            "city": "Rennes",
+            "closestLat": 48.110899,
+            "closestLon": -1.68365,
+            "closestAddress": "35000 Rennes, FR",
+            "addressId": "4fdb059b-2c8e-46dd-881a-ab7ae3c1f744",
+            "distanceKm": 0.830843418833391
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/395edc05-d17e-4c4b-9ca5-6e264f134dbd/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "8d759392-db19-4586-8e48-b899a5320445",
+          "totalScore": 0.724419,
+          "taxonomyScore": 0.477222,
+          "geoScore": 0.971616,
+          "taxonomyScores": {
+            "competence_rome": 0.863333,
+            "tranche_age": 1,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "international_humanitaire",
+              "taxonomyValueLabel": "International et humanitaire",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "J'aide à organiser les départs et arrivées des jeunes en échanges internationaux",
+                "reasoning": "La mission décrit explicitement l'organisation logistique d'échanges internationaux pour des jeunes, ce qui relève directement de l'international et de l'humanitaire."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "action_terrain",
+              "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "J'aide à organiser les départs et arrivées des jeunes en échanges internationaux",
+                "reasoning": "La mission implique une coordination et une logistique d'accueil et de départ pour des jeunes en échange, ce qui correspond à une action terrain concrète."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "J'aide à organiser les départs et arrivées des jeunes en échanges internationaux",
+                "reasoning": "L'organisation d'échanges internationaux implique une coordination, une planification et un suivi, typiques de la gestion de projet."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "réaliser des échanges à caractère éducatif entre la France et tous les autres pays ; préparer et assurer le suivi d'expériences individuelles ou de groupes",
+                "reasoning": "L'objet social de l'organisation décrit des échanges éducatifs internationaux, ce qui relève du secteur de l'éducation et de la formation."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "gestion_pilotage_juridique",
+              "taxonomyValueLabel": "Gestion, pilotage, juridique",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "J'aide à organiser les départs et arrivées des jeunes en échanges internationaux",
+                "reasoning": "L'organisation logistique d'échanges internationaux implique des compétences en gestion, coordination et organisation."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.65,
+              "scoringScore": 0.35,
+              "evidence": {
+                "extract": "J'aide à organiser les départs et arrivées des jeunes en échanges internationaux",
+                "reasoning": "La mission implique une interaction avec des jeunes en échange, ce qui peut mobiliser des compétences en communication et coopération."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "ponctuelle",
+              "taxonomyValueLabel": "Mission ponctuelle",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Durée : 63 heures — 5 jours",
+                "reasoning": "La mission est explicitement décrite comme ayant une durée de 63 heures sur 5 jours, ce qui correspond à une mission ponctuelle."
+              }
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "benevolat",
+              "taxonomyValueLabel": "Bénévolat",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "cbf4df0d-9a4f-475d-a87b-d3115384eb33",
+          "title": "Je participe puis anime un atelier de la Fresque Océane pour sensibiliser à la protection des océans",
+          "remote": "no",
+          "schedule": "Une demi-journée",
+          "domain": "environnement",
+          "domainOriginal": null,
+          "organizationName": "LA FRESQUE OCÉANE",
+          "publisherId": "5f5931496c7ea514150a818f",
+          "publisherName": "JeVeuxAider.gouv.fr",
+          "media": {
+            "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12193/xCzJ16WiRXUKTu3NyyC8dhwkfai7Yh.jpg?v=1746620053",
+            "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12193/xCzJ16WiRXUKTu3NyyC8dhwkfai7Yh.jpg?v=1746620053",
+            "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/154390/ChobOe2Rupy9pnYM0Lfk2F0hSt0IPR.png?v=1776267750",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+          },
+          "location": {
+            "city": "Rennes",
+            "closestLat": 48.110899,
+            "closestLon": -1.68365,
+            "closestAddress": "35000 Rennes, FR",
+            "addressId": "3ac5de07-0a53-4f8c-98b3-5bfcafc044db",
+            "distanceKm": 0.830843418833391
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/cbf4df0d-9a4f-475d-a87b-d3115384eb33/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "a9206d28-03c7-43f9-85b3-9f9b0cd1a9c9",
+          "totalScore": 0.723863,
+          "taxonomyScore": 0.476111,
+          "geoScore": 0.971616,
+          "taxonomyScores": {
+            "competence_rome": 0.856667,
+            "tranche_age": 1,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "sensibiliser de manière systémique aux enjeux liés à l’Océan / donner des clés pour agir / échanger sur des idées d'action / pédagogie collaborative / animer un jeu",
+                "reasoning": "La mission inclut une forte dimension de transmission de connaissances et de sensibilisation pédagogique."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "sensibiliser de manière systémique / donner des clés pour agir / échanger sur des idées d'action / animer un jeu",
+                "reasoning": "La mission relève du secteur de l'éducation, de la formation et de l'animation."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "environnement_agriculture",
+              "taxonomyValueLabel": "Environnement et agriculture",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "sensibiliser aux enjeux liés à l’Océan / transition écologique / préserver l'océan",
+                "reasoning": "La mission est liée à l'environnement et à la préservation des écosystèmes naturels."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "ponctuelle",
+              "taxonomyValueLabel": "Mission ponctuelle",
+              "enrichmentConfidence": 0.99,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "8 heures — Une demi-journée / du 15 avril 2026 au 31 décembre 2026",
+                "reasoning": "La mission est explicitement décrite comme une demi-journée, soit une durée ponctuelle."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "communication_creation_numerique",
+              "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "utiliser des cartes pour reconstituer la Fresque Océane / animer un jeu",
+                "reasoning": "La mission implique l'utilisation d'outils pédagogiques visuels et interactifs, proches du numérique ou de la médiation."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "animer un jeu / pédagogie collaborative / travailler en équipe / rejoindre une communauté",
+                "reasoning": "La mission nécessite des compétences en animation, travail collaboratif et soft skills."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "sensibiliser de manière systémique / donner des clés pour agir / échanger sur des idées d'action / pédagogie collaborative",
+                "reasoning": "La mission est clairement axée sur la transmission de connaissances et la sensibilisation."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "animer un jeu / faciliter l'atelier / animer l'atelier",
+                "reasoning": "La mission inclut explicitement l'animation d'ateliers."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "action_terrain",
+              "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "faciliter l'atelier / animer l'atelier / participer à l'atelier pour le vivre",
+                "reasoning": "La mission implique une action concrète sur le terrain, même si elle est pédagogique."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "environnement_nature_sciences",
+              "taxonomyValueLabel": "Environnement, nature et sciences",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "sensibiliser aux enjeux liés à l’Océan / transition écologique / préserver l'océan",
+                "reasoning": "La mission est liée à l'environnement, à la nature et aux sciences."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "education_culture_creation",
+              "taxonomyValueLabel": "Éducation, culture et création",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "pédagogie collaborative / animer un jeu / donner des clés pour agir",
+                "reasoning": "La mission combine éducation et médiation culturelle ou pédagogique."
+              }
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "benevolat",
+              "taxonomyValueLabel": "Bénévolat",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      }
+    ],
+    "total": 2905,
+    "avgDistanceKmTop5": 0.61
+  },
+  "missions": [
+    {
+      "mission": {
+        "id": "6194dd25a99ff4075b5ed9ec",
+        "title": "Evenement culturel",
+        "remote": "no",
+        "schedule": "",
+        "domain": "vivre-ensemble",
+        "domainOriginal": null,
+        "organizationName": "Innov Actions - Stop Solo",
+        "publisherId": "5f592d415655a711feb4460e",
+        "publisherName": "Benevolt",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/generique.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/generique.jpeg",
+          "organizationLogo": null,
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo"
+        },
+        "location": {
+          "city": "Rennes",
+          "closestLat": 48.1143,
+          "closestLon": -1.68072,
+          "closestAddress": "35000 Rennes, FR",
+          "addressId": "61312a24-b8da-4c06-93d8-86cc869a51fe",
+          "distanceKm": 0.3949508768145638
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/6194dd25a99ff4075b5ed9ec/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "3ff56877-bad1-4feb-a6b7-ac8f421daaf5",
+        "totalScore": 0.731258,
+        "taxonomyScore": 0.476111,
+        "geoScore": 0.986405,
+        "taxonomyScores": {
+          "competence_rome": 0.856667,
+          "tranche_age": 1,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "culture_arts",
+            "taxonomyValueLabel": "Culture et arts",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "organiser une soirée culturelle et festive",
+              "reasoning": "La mission est explicitement centrée sur l'organisation d'un événement culturel."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "renforcer un lien social humaniste, développer la solidarité, l'entraide / combat contre la solitude et la pauvreté / favoriser la construction du lien social et susciter des échanges entre des personnes quels que soient leurs différences",
+              "reasoning": "Les valeurs et objectifs de l'association et de la mission sont clairement axés sur la solidarité et la lutte contre l'isolement."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "culture_creation_medias",
+            "taxonomyValueLabel": "Culture, création et médias",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "organiser une soirée culturelle et festive",
+              "reasoning": "La mission relève principalement du secteur culturel et médiatique."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "renforcer un lien social humaniste, développer la solidarité, l'entraide / combat contre la solitude et la pauvreté",
+              "reasoning": "L'association et la mission ont une finalité sociale et d'aide aux personnes, bien que l'activité principale soit culturelle."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "ponctuelle",
+            "taxonomyValueLabel": "Mission ponctuelle",
+            "enrichmentConfidence": 0.99,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Durée : 1 jour",
+              "reasoning": "La mission est explicitement décrite comme ayant une durée d'une journée."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Nous aurons besoin, des hôtesses, d'un traiteur et de la sécurité / Formation des bénévoles : secrétaire, trésorier, responsable de communication",
+              "reasoning": "La mission implique une forte dimension organisationnelle et collaborative."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "relation_client_commerce_strategie",
+            "taxonomyValueLabel": "Relation client, commerce, stratégie",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "responsable de communication",
+              "reasoning": "Le rôle de responsable de communication implique des compétences en relation client et stratégie."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "organiser une soirée culturelle et festive",
+              "reasoning": "La mission inclut explicitement l'animation d'un événement culturel."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Nous aurons besoin, des hôtesses, d'un traiteur et de la sécurité / Formation des bénévoles : secrétaire, trésorier, responsable de communication",
+              "reasoning": "Les tâches décrites relèvent principalement de l'organisation et du soutien logistique."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "education_culture_creation",
+            "taxonomyValueLabel": "Éducation, culture et création",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "organiser une soirée culturelle et festive",
+              "reasoning": "La mission est liée à l'organisation d'événements culturels, relevant de l'éducation et de la création."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "social_sante_sport",
+            "taxonomyValueLabel": "Social, santé et sport",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "renforcer un lien social humaniste, développer la solidarité, l'entraide / combat contre la solitude et la pauvreté",
+              "reasoning": "L'association et la mission ont une finalité sociale et d'aide aux personnes, relevant de ce domaine de formation."
+            }
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "benevolat",
+            "taxonomyValueLabel": "Bénévolat",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "6194dd25a99ff4075b5ed9ec",
+        "title": "Evenement culturel",
+        "domain": "vivre-ensemble",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/generique.jpeg",
+        "type": "benevolat",
+        "publisherId": "5f592d415655a711feb4460e",
+        "publisherName": "Benevolt",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo",
+        "organizationName": "Innov Actions - Stop Solo",
+        "organizationLogo": null,
+        "location": {
+          "city": "Rennes",
+          "address": "35000 Rennes",
+          "lat": 48.1143,
+          "lon": -1.68072
+        },
+        "startAt": "2025-08-25T19:16:22.765Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "",
+        "compensation": null,
+        "descriptionHtml": "   Rennes (35)<br>   Dès que possible<br><br><br>Nous recherchons des bénévoles pour organiser une soirée  culturelle et festive à l'occasion de la journée  de la femme le 08 Mars 2019.<br><br><p><strong>Informations pratiques</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Nous aurons besoin, des hôtesses, d'un traiteur et  de la sécurité.<br><br>Durée : 1 jour<br><br><p><strong>Informations sur l'association Innov Actions - Stop Solo</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Nous sommes un réseau de personnes qui agissent ensemble\ndans le but de renforcer un lien social humaniste, de développer la solidarité, l'entraide.\nNotre priorité : le combat contre la solitude et  la pauvreté.\nNotre vision : bâtir une société plus ouverte et fraternelle, équitable, tolérante, solidaire et innovante.\nNos valeurs : la solidarité, l'entraide, l'empathie, la diversité.<br><p><strong>Formation des bénévoles</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Pour renforcer notre équipe, nous recherchons un.e secrétaire, un.e trésorier.e et un.e responsable de communication.",
+        "description": "Rennes (35)\nDès que possible\n\n\nNous recherchons des bénévoles pour organiser une soirée culturelle et festive à\nl'occasion de la journée de la femme le 08 Mars 2019.\n\n\n\nInformations pratiques\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nNous aurons besoin, des hôtesses, d'un traiteur et de la sécurité.\n\nDurée : 1 jour\n\n\n\nInformations sur l'association Innov Actions - Stop Solo\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nNous sommes un réseau de personnes qui agissent ensemble\ndans le but de renforcer un lien social humaniste, de développer la solidarité,\nl'entraide.\nNotre priorité : le combat contre la solitude et la pauvreté.\nNotre vision : bâtir une société plus ouverte et fraternelle, équitable,\ntolérante, solidaire et innovante.\nNos valeurs : la solidarité, l'entraide, l'empathie, la diversité.\n\n\nFormation des bénévoles\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nPour renforcer notre équipe, nous recherchons un.e secrétaire, un.e trésorier.e\net un.e responsable de communication.",
+        "applicationUrl": "http://localhost:4000/r/6194dd25a99ff4075b5ed9ec/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/generique.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "609b4a8ce5444207489ac84d",
+        "title": "Je témoigne de mon métier et de mon parcours",
+        "remote": "no",
+        "schedule": "1 heure",
+        "domain": "education",
+        "domainOriginal": null,
+        "organizationName": "ExplorJob (Association AVDTM)",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "media": {
+          "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/8475/a26fP7ibvc7fB1r.jpg?v=1737369547",
+          "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/8475/a26fP7ibvc7fB1r.jpg?v=1737369547",
+          "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/5992/Hn3nYrge7dfVzo87mgBHQfdxYavks7.jpg?v=1737381572",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+        },
+        "location": {
+          "city": "Rennes",
+          "closestLat": 48.1143,
+          "closestLon": -1.68072,
+          "closestAddress": "Rennes, 35000 Rennes, FR",
+          "addressId": "c073e210-821c-4118-9021-d13f5e440311",
+          "distanceKm": 0.3949508768145638
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/609b4a8ce5444207489ac84d/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "09889d92-f500-40a8-9bea-b645294dc662",
+        "totalScore": 0.729869,
+        "taxonomyScore": 0.473333,
+        "geoScore": 0.986405,
+        "taxonomyScores": {
+          "competence_rome": 0.84,
+          "tranche_age": 1,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "vous témoignez de votre métier pour aider des personnes à construire leur orientation professionnelle / vous répondez à ses questions / vous lui expliquez votre parcours, vos missions, pour quelles raisons vous aimez votre métier / que l'Explorateur ait une vision juste du métier qu'il envisage afin de pouvoir valider ou invalider ses choix",
+              "reasoning": "La mission consiste à transmettre des connaissances sur un métier et à accompagner des personnes dans leur orientation professionnelle, ce qui relève clairement de la transmission et de l'éducation."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "vous répondez à ses questions / vous lui expliquez votre parcours, vos missions / que l'Explorateur ait une vision juste du métier qu'il envisage",
+              "reasoning": "Les tâches décrites sont centrées sur l'explication, la transmission de savoirs et l'accompagnement dans un processus d'orientation, ce qui correspond à une intention de transmission."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "vous répondez à ses questions / vous lui expliquez votre parcours, vos missions, pour quelles raisons vous aimez votre métier",
+              "reasoning": "La mission implique une interaction directe avec les bénéficiaires pour leur fournir des informations et des conseils, ce qui relève de l'aide directe."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "vous êtes contacté occasionnellement par des Explorateurs (collégiens, lycéens, jeunes déscolarisés, personnes en recherche d'emploi ou en reconversion professionnelle)",
+              "reasoning": "La mission cible des publics variés en situation de choix professionnel ou de reconversion, ce qui relève du secteur de l'éducation et de la formation."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "communication_creation_numerique",
+            "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+            "enrichmentConfidence": 0.92,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "vous répondez à ses questions / vous lui expliquez votre parcours, vos missions",
+              "reasoning": "Les tâches décrites impliquent une communication claire et une transmission de savoirs, ce qui relève des compétences en communication et création."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "vous fixez [l'entretien] en fonction de vos disponibilités",
+              "reasoning": "La mission implique une organisation personnelle et une adaptation aux besoins des bénéficiaires, ce qui relève des soft skills et de l'autonomie."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "ponctuelle",
+            "taxonomyValueLabel": "Mission ponctuelle",
+            "enrichmentConfidence": 0.99,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "1 heure",
+              "reasoning": "La durée de la mission est explicitement indiquée comme étant de 1 heure, ce qui correspond à une mission ponctuelle."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "vous témoignez de votre métier pour aider des personnes à construire leur orientation professionnelle / que l'orientation devienne une étape inspirante",
+              "reasoning": "La mission vise à inspirer et à guider des personnes dans leur choix professionnel, ce qui relève de la société, du droit et de la politique (orientation professionnelle)."
+            }
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "benevolat",
+            "taxonomyValueLabel": "Bénévolat",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "609b4a8ce5444207489ac84d",
+        "title": "Je témoigne de mon métier et de mon parcours",
+        "domain": "education",
+        "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/8475/a26fP7ibvc7fB1r.jpg?v=1737369547",
+        "type": "benevolat",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png",
+        "organizationName": "ExplorJob (Association AVDTM)",
+        "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/5992/Hn3nYrge7dfVzo87mgBHQfdxYavks7.jpg?v=1737381572",
+        "location": {
+          "city": "Rennes",
+          "address": "Rennes, 35000 Rennes",
+          "lat": 48.1143,
+          "lon": -1.68072
+        },
+        "startAt": "2020-11-16T09:00:00.000Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "1 heure",
+        "compensation": null,
+        "descriptionHtml": "<b>Présentation de la mission</b><br><br><br><b>Sautez le pas</b><br><p>En vous inscrivant sur ExplorJob, vous témoignez de votre métier pour aider des personnes à construire leur orientation professionnelle !</p><p>Vous êtes contacté occasionnellement par des Explorateurs (collégiens, lycéens, jeunes déscolarisés, personnes en recherche d'emploi ou en reconversion professionnelle) qui s'interrogent sur la réalité du métier que vous exercez.Au cours d'un entretien d'environ 1 heure (en face à face, par téléphone ou par visio), que vous fixez en fonction de vos disponibilités, vous répondez à ses questions. Vous lui expliquez votre parcours, vos missions, pour quelles raisons vous aimez votre métier, mais aussi quelles en sont ses difficultés... bref vous partagez votre expérience !</p><p><strong>L'objectif :</strong> que l'Explorateur ait une vision juste du métier qu'il envisage afin de pouvoir valider ou invalider ses choix !</p><p><strong>Notre ambition : que l'orientation devienne une étape inspirante, riche en rencontres et que le plus grand nombre puisse bénéficier d'un avenir choisi !</strong></p><br><br>",
+        "description": "Présentation de la mission\n\n\nSautez le pas\n\n\nEn vous inscrivant sur ExplorJob, vous témoignez de votre métier pour aider des\npersonnes à construire leur orientation professionnelle !\n\nVous êtes contacté occasionnellement par des Explorateurs (collégiens, lycéens,\njeunes déscolarisés, personnes en recherche d'emploi ou en reconversion\nprofessionnelle) qui s'interrogent sur la réalité du métier que vous exercez.Au\ncours d'un entretien d'environ 1 heure (en face à face, par téléphone ou par\nvisio), que vous fixez en fonction de vos disponibilités, vous répondez à ses\nquestions. Vous lui expliquez votre parcours, vos missions, pour quelles raisons\nvous aimez votre métier, mais aussi quelles en sont ses difficultés... bref vous\npartagez votre expérience !\n\nL'objectif : que l'Explorateur ait une vision juste du métier qu'il envisage\nafin de pouvoir valider ou invalider ses choix !\n\nNotre ambition : que l'orientation devienne une étape inspirante, riche en\nrencontres et que le plus grand nombre puisse bénéficier d'un avenir choisi !\n\n",
+        "applicationUrl": "http://localhost:4000/r/609b4a8ce5444207489ac84d/c4a9ce23692082d70af2b16d",
+        "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/8475/a26fP7ibvc7fB1r.jpg?v=1737369547",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 136
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "68da5c617cee915183abeca5",
+        "title": "je plante des arbres pour les générations futures",
+        "remote": "no",
+        "schedule": "",
+        "domain": "environnement",
+        "domainOriginal": null,
+        "organizationName": "LES PLANTEURS DU BOIZH'ELOUPS",
+        "publisherId": "5f592d415655a711feb4460e",
+        "publisherName": "Benevolt",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_01.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_01.jpeg",
+          "organizationLogo": null,
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo"
+        },
+        "location": {
+          "city": "Rennes",
+          "closestLat": 48.111678,
+          "closestLon": -1.677997,
+          "closestAddress": "2 Place du Parlement de Bretagne, 35000 Rennes, FR",
+          "addressId": "3170f0f6-8592-41a3-9a0e-47d77408351d",
+          "distanceKm": 0.6215417877550782
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/68da5c617cee915183abeca5/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "f0855d54-805e-4816-a4c6-fff20fafbf97",
+        "totalScore": 0.7274,
+        "taxonomyScore": 0.476111,
+        "geoScore": 0.978689,
+        "taxonomyScores": {
+          "competence_rome": 0.856667,
+          "tranche_age": 1,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "environnement_nature",
+            "taxonomyValueLabel": "Environnement et nature",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "planter des arbres et arbustes / projet participatif où petits et grands peuvent planter ensemble / promouvoir et développer les écosystèmes forestiers",
+              "reasoning": "La mission est explicitement centrée sur la plantation d'arbres et la protection des écosystèmes forestiers, domaine environnement et nature."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "environnement_agriculture",
+            "taxonomyValueLabel": "Environnement et agriculture",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "planter des arbres et arbustes / promouvoir et développer les écosystèmes forestiers",
+              "reasoning": "La mission relève du secteur environnement et agriculture, avec une action concrète de plantation et de gestion des écosystèmes."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "ponctuelle",
+            "taxonomyValueLabel": "Mission ponctuelle",
+            "enrichmentConfidence": 0.99,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Nos plantations sont des évènements ponctuels sur une 1/2 ou 1 journée / plantation jusqu'à environ 13h / Durée : Une matinée",
+              "reasoning": "La mission est explicitement décrite comme ponctuelle, limitée à une demi-journée ou une journée."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "production_construction_qualite_logistique",
+            "taxonomyValueLabel": "Production, construction, qualité, logistique",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "planter des arbres et arbustes / Pas besoin d'être un expert en plantation / Nous en avons en réserve",
+              "reasoning": "La mission implique des activités manuelles de plantation, relevant de la production et de la logistique."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "projet participatif où petits et grands peuvent planter ensemble / Chacun peut trouver sa place et son action / Nous comptons sur vous pour partager ce moment convivial",
+              "reasoning": "La mission met en avant le travail collaboratif, l'inclusion et la convivialité, relevant des soft skills et de l'organisation."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "action_terrain",
+            "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "planter des arbres et arbustes / plantation sera protégée par un convention / plantation jusqu'à environ 13h",
+              "reasoning": "La mission consiste en une action concrète et pratique sur le terrain, avec une dimension collective et protégée."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "projet participatif où petits et grands peuvent planter ensemble / Nous comptons sur vous pour partager ce moment convivial",
+              "reasoning": "La mission inclut une dimension d'animation et de convivialité autour d'une activité collective."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "environnement_nature_sciences",
+            "taxonomyValueLabel": "Environnement, nature et sciences",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "planter des arbres et arbustes / promouvoir et développer les écosystèmes forestiers",
+              "reasoning": "La mission est liée à l'environnement, la nature et les sciences écologiques, relevant de la formation ONISEP correspondante."
+            }
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "benevolat",
+            "taxonomyValueLabel": "Bénévolat",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "68da5c617cee915183abeca5",
+        "title": "je plante des arbres pour les générations futures",
+        "domain": "environnement",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_01.jpeg",
+        "type": "benevolat",
+        "publisherId": "5f592d415655a711feb4460e",
+        "publisherName": "Benevolt",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo",
+        "organizationName": "LES PLANTEURS DU BOIZH'ELOUPS",
+        "organizationLogo": null,
+        "location": {
+          "city": "Rennes",
+          "address": "2 Place du Parlement de Bretagne, 35000 Rennes",
+          "lat": 48.111678,
+          "lon": -1.677997
+        },
+        "startAt": "2025-10-10T22:00:00.000Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "",
+        "compensation": null,
+        "descriptionHtml": "   Rennes (35)<br>   Dès que possible<br><br><br>Venez planter des arbres et arbustes sur un terrain communal avec un collectif local et notre association. La plantation sera protégée par un convention. C'est un projet participatif où petits et grands peuvent planter ensemble accompagnés par les conseils des responsables.\nChacun peut trouver sa place et son action. Pas besoin d'être un expert en plantation !\nVenez avec des des bottes et des gants !! Et une bêche si vous avez une sinon nous en avons en réserve.\nNous comptons sur vous pour partager ce moment convivial !!!<br><br><p><strong>Informations pratiques</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>RDV parking de la mine pour 9h30 et plantation jusqu'à environ 13h<br><br>Durée : Une matinée<br><br><p><strong>Informations sur l'association LES PLANTEURS DU BOIZH'ELOUPS</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Notre association de bénévoles se donne pour objectif de planter le plus possible d'arbres et arbustes pour les générations futures. Nos plantations sont des moments participatifs qui s'adressent à tout le monde, petits et grands. Planter ensemble dans la bonne humeur est utile pour nous tous et procure un vrai plaisir!!<br><p><strong>Formation des bénévoles</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Nos plantations sont des évènements ponctuels sur une 1/2 ou 1 journée. Nous accueillons les bénévoles sur le site avec une boisson chaude et des viennoiseries avant de commencer à planter.\nPuis nous faisons des groupes avec une personne responsable d'expliquer où, quoi et comment planter. Pas besoin de connaissances pour venir planter. Même les enfants peuvent planter accompagnés d'un adulte.",
+        "description": "Rennes (35)\nDès que possible\n\n\nVenez planter des arbres et arbustes sur un terrain communal avec un collectif\nlocal et notre association. La plantation sera protégée par un convention. C'est\nun projet participatif où petits et grands peuvent planter ensemble accompagnés\npar les conseils des responsables.\nChacun peut trouver sa place et son action. Pas besoin d'être un expert en\nplantation !\nVenez avec des des bottes et des gants !! Et une bêche si vous avez une sinon\nnous en avons en réserve.\nNous comptons sur vous pour partager ce moment convivial !!!\n\n\n\nInformations pratiques\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nRDV parking de la mine pour 9h30 et plantation jusqu'à environ 13h\n\nDurée : Une matinée\n\n\n\nInformations sur l'association LES PLANTEURS DU BOIZH'ELOUPS\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nNotre association de bénévoles se donne pour objectif de planter le plus\npossible d'arbres et arbustes pour les générations futures. Nos plantations sont\ndes moments participatifs qui s'adressent à tout le monde, petits et grands.\nPlanter ensemble dans la bonne humeur est utile pour nous tous et procure un\nvrai plaisir!!\n\n\nFormation des bénévoles\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nNos plantations sont des évènements ponctuels sur une 1/2 ou 1 journée. Nous\naccueillons les bénévoles sur le site avec une boisson chaude et des\nviennoiseries avant de commencer à planter.\nPuis nous faisons des groupes avec une personne responsable d'expliquer où, quoi\net comment planter. Pas besoin de connaissances pour venir planter. Même les\nenfants peuvent planter accompagnés d'un adulte.",
+        "applicationUrl": "http://localhost:4000/r/68da5c617cee915183abeca5/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_01.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "395edc05-d17e-4c4b-9ca5-6e264f134dbd",
+        "title": "J'aide à organiser les départs et arrivées des jeunes en échanges internationaux",
+        "remote": "no",
+        "schedule": "5 jours",
+        "domain": "vivre-ensemble",
+        "domainOriginal": null,
+        "organizationName": "AFS Vivre Sans Frontière (Nord Est)",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "media": {
+          "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/57121/ylmQbK83rwqFozaMkMP30tTeDhlRzc.jpg?v=1737369626",
+          "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/57121/ylmQbK83rwqFozaMkMP30tTeDhlRzc.jpg?v=1737369626",
+          "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/33773/63vgV5FjgABp7zwUoKDLOJVv4BK9fK.jpg?v=1737383063",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+        },
+        "location": {
+          "city": "Rennes",
+          "closestLat": 48.110899,
+          "closestLon": -1.68365,
+          "closestAddress": "35000 Rennes, FR",
+          "addressId": "4fdb059b-2c8e-46dd-881a-ab7ae3c1f744",
+          "distanceKm": 0.830843418833391
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/395edc05-d17e-4c4b-9ca5-6e264f134dbd/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "8d759392-db19-4586-8e48-b899a5320445",
+        "totalScore": 0.724419,
+        "taxonomyScore": 0.477222,
+        "geoScore": 0.971616,
+        "taxonomyScores": {
+          "competence_rome": 0.863333,
+          "tranche_age": 1,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "international_humanitaire",
+            "taxonomyValueLabel": "International et humanitaire",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "J'aide à organiser les départs et arrivées des jeunes en échanges internationaux",
+              "reasoning": "La mission décrit explicitement l'organisation logistique d'échanges internationaux pour des jeunes, ce qui relève directement de l'international et de l'humanitaire."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "action_terrain",
+            "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "J'aide à organiser les départs et arrivées des jeunes en échanges internationaux",
+              "reasoning": "La mission implique une coordination et une logistique d'accueil et de départ pour des jeunes en échange, ce qui correspond à une action terrain concrète."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "J'aide à organiser les départs et arrivées des jeunes en échanges internationaux",
+              "reasoning": "L'organisation d'échanges internationaux implique une coordination, une planification et un suivi, typiques de la gestion de projet."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "réaliser des échanges à caractère éducatif entre la France et tous les autres pays ; préparer et assurer le suivi d'expériences individuelles ou de groupes",
+              "reasoning": "L'objet social de l'organisation décrit des échanges éducatifs internationaux, ce qui relève du secteur de l'éducation et de la formation."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "gestion_pilotage_juridique",
+            "taxonomyValueLabel": "Gestion, pilotage, juridique",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "J'aide à organiser les départs et arrivées des jeunes en échanges internationaux",
+              "reasoning": "L'organisation logistique d'échanges internationaux implique des compétences en gestion, coordination et organisation."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.65,
+            "scoringScore": 0.35,
+            "evidence": {
+              "extract": "J'aide à organiser les départs et arrivées des jeunes en échanges internationaux",
+              "reasoning": "La mission implique une interaction avec des jeunes en échange, ce qui peut mobiliser des compétences en communication et coopération."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "ponctuelle",
+            "taxonomyValueLabel": "Mission ponctuelle",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Durée : 63 heures — 5 jours",
+              "reasoning": "La mission est explicitement décrite comme ayant une durée de 63 heures sur 5 jours, ce qui correspond à une mission ponctuelle."
+            }
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "benevolat",
+            "taxonomyValueLabel": "Bénévolat",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "395edc05-d17e-4c4b-9ca5-6e264f134dbd",
+        "title": "J'aide à organiser les départs et arrivées des jeunes en échanges internationaux",
+        "domain": "vivre-ensemble",
+        "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/57121/ylmQbK83rwqFozaMkMP30tTeDhlRzc.jpg?v=1737369626",
+        "type": "benevolat",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png",
+        "organizationName": "AFS Vivre Sans Frontière (Nord Est)",
+        "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/33773/63vgV5FjgABp7zwUoKDLOJVv4BK9fK.jpg?v=1737383063",
+        "location": {
+          "city": "Rennes",
+          "address": "35000 Rennes",
+          "lat": 48.110899,
+          "lon": -1.68365
+        },
+        "startAt": "2023-09-01T00:00:00.000Z",
+        "endAt": "2028-12-31T00:00:00.000Z",
+        "duration": 63,
+        "schedule": "5 jours",
+        "compensation": null,
+        "descriptionHtml": "<b>Présentation de la mission</b><br><br><br>",
+        "description": "Présentation de la mission\n\n\n",
+        "applicationUrl": "http://localhost:4000/r/395edc05-d17e-4c4b-9ca5-6e264f134dbd/c4a9ce23692082d70af2b16d",
+        "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/57121/ylmQbK83rwqFozaMkMP30tTeDhlRzc.jpg?v=1737369626",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": null,
+        "places": 5
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "cbf4df0d-9a4f-475d-a87b-d3115384eb33",
+        "title": "Je participe puis anime un atelier de la Fresque Océane pour sensibiliser à la protection des océans",
+        "remote": "no",
+        "schedule": "Une demi-journée",
+        "domain": "environnement",
+        "domainOriginal": null,
+        "organizationName": "LA FRESQUE OCÉANE",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "media": {
+          "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12193/xCzJ16WiRXUKTu3NyyC8dhwkfai7Yh.jpg?v=1746620053",
+          "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12193/xCzJ16WiRXUKTu3NyyC8dhwkfai7Yh.jpg?v=1746620053",
+          "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/154390/ChobOe2Rupy9pnYM0Lfk2F0hSt0IPR.png?v=1776267750",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+        },
+        "location": {
+          "city": "Rennes",
+          "closestLat": 48.110899,
+          "closestLon": -1.68365,
+          "closestAddress": "35000 Rennes, FR",
+          "addressId": "3ac5de07-0a53-4f8c-98b3-5bfcafc044db",
+          "distanceKm": 0.830843418833391
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/cbf4df0d-9a4f-475d-a87b-d3115384eb33/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "a9206d28-03c7-43f9-85b3-9f9b0cd1a9c9",
+        "totalScore": 0.723863,
+        "taxonomyScore": 0.476111,
+        "geoScore": 0.971616,
+        "taxonomyScores": {
+          "competence_rome": 0.856667,
+          "tranche_age": 1,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "sensibiliser de manière systémique aux enjeux liés à l’Océan / donner des clés pour agir / échanger sur des idées d'action / pédagogie collaborative / animer un jeu",
+              "reasoning": "La mission inclut une forte dimension de transmission de connaissances et de sensibilisation pédagogique."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "sensibiliser de manière systémique / donner des clés pour agir / échanger sur des idées d'action / animer un jeu",
+              "reasoning": "La mission relève du secteur de l'éducation, de la formation et de l'animation."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "environnement_agriculture",
+            "taxonomyValueLabel": "Environnement et agriculture",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "sensibiliser aux enjeux liés à l’Océan / transition écologique / préserver l'océan",
+              "reasoning": "La mission est liée à l'environnement et à la préservation des écosystèmes naturels."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "ponctuelle",
+            "taxonomyValueLabel": "Mission ponctuelle",
+            "enrichmentConfidence": 0.99,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "8 heures — Une demi-journée / du 15 avril 2026 au 31 décembre 2026",
+              "reasoning": "La mission est explicitement décrite comme une demi-journée, soit une durée ponctuelle."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "communication_creation_numerique",
+            "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "utiliser des cartes pour reconstituer la Fresque Océane / animer un jeu",
+              "reasoning": "La mission implique l'utilisation d'outils pédagogiques visuels et interactifs, proches du numérique ou de la médiation."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "animer un jeu / pédagogie collaborative / travailler en équipe / rejoindre une communauté",
+              "reasoning": "La mission nécessite des compétences en animation, travail collaboratif et soft skills."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "sensibiliser de manière systémique / donner des clés pour agir / échanger sur des idées d'action / pédagogie collaborative",
+              "reasoning": "La mission est clairement axée sur la transmission de connaissances et la sensibilisation."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "animer un jeu / faciliter l'atelier / animer l'atelier",
+              "reasoning": "La mission inclut explicitement l'animation d'ateliers."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "action_terrain",
+            "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "faciliter l'atelier / animer l'atelier / participer à l'atelier pour le vivre",
+              "reasoning": "La mission implique une action concrète sur le terrain, même si elle est pédagogique."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "environnement_nature_sciences",
+            "taxonomyValueLabel": "Environnement, nature et sciences",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "sensibiliser aux enjeux liés à l’Océan / transition écologique / préserver l'océan",
+              "reasoning": "La mission est liée à l'environnement, à la nature et aux sciences."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "education_culture_creation",
+            "taxonomyValueLabel": "Éducation, culture et création",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "pédagogie collaborative / animer un jeu / donner des clés pour agir",
+              "reasoning": "La mission combine éducation et médiation culturelle ou pédagogique."
+            }
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "benevolat",
+            "taxonomyValueLabel": "Bénévolat",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "cbf4df0d-9a4f-475d-a87b-d3115384eb33",
+        "title": "Je participe puis anime un atelier de la Fresque Océane pour sensibiliser à la protection des océans",
+        "domain": "environnement",
+        "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12193/xCzJ16WiRXUKTu3NyyC8dhwkfai7Yh.jpg?v=1746620053",
+        "type": "benevolat",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png",
+        "organizationName": "LA FRESQUE OCÉANE",
+        "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/154390/ChobOe2Rupy9pnYM0Lfk2F0hSt0IPR.png?v=1776267750",
+        "location": {
+          "city": "Rennes",
+          "address": "35000 Rennes",
+          "lat": 48.110899,
+          "lon": -1.68365
+        },
+        "startAt": "2026-04-15T00:00:00.000Z",
+        "endAt": "2026-12-31T00:00:00.000Z",
+        "duration": 8,
+        "schedule": "Une demi-journée",
+        "compensation": null,
+        "descriptionHtml": "<b>Présentation de la mission</b><br><p>L'atelier de la <strong>Fresque Océane</strong> sensibilise de manière systémique aux enjeux liés à l’<strong>Océan</strong> et aux impacts de nos activités sur cet écosystème afin de donner des clés pour <strong>agir</strong> !​</p><p>D'une durée d'environ 3h, il invite les participants à utiliser des cartes pour reconstituer la <strong>Fresque Océane</strong>, puis échanger sur des idées d'action à mettre en œuvre pour limiter son érosion.</p><p>​Les scientifiques nous appellent à considérer l'Océan dans son ensemble. À la <strong>Fresque Océane</strong>, nous avons fait de cette approche globale notre ADN en explorant tous les enjeux de sa préservation.</p><p>Pollution, surpêche, changement climatique, transport maritime… L’Océan est menacé par nos activités alors qu’il est au cœur de la transition écologique et des solutions de demain.</p><p>Il est urgent de mieux le <strong>comprendre</strong> pour le <strong>préserver</strong> à toutes les échelles. Nous avons <strong>TOUTES</strong> et <strong>TOUS</strong> un rôle à jouer !</p><p>_____</p><p>Dans cette mission vous êtes invité.e.s à participer dans premier temps à l'atelier pour le vivre, puis après une courte formation à l'animation vous serez en charge de faciliter l'atelier.</p><p>La formation vous permet d'animer cet atelier auprès de tous publics que ce soit dans votre région mais aussi partout en France (enfants, adultes, en entreprise, en festivals locaux...).&nbsp;</p><br><br><b>Sautez le pas</b><br><p>Vous souhaitez apporter votre pierre à l'édifice de la transition écologique mais ne savez pas par où commencer ?&nbsp;</p><p>Vous êtes convaincus que la transition passe par une pédagogie collaborative et joyeuse ?</p><p>Vous souhaitez rejoindre une communauté sympathique proche de chez vous avec des rendez-vous réguliers ?&nbsp;</p><p>Vous adorez l'Océan et voulez en apprendre plus sur le sujet ?&nbsp;</p><p>Rejoignez-nous !&nbsp;</p><br><br><b>Précisions</b><br><p>Prérequis : pour devenir animateur, il est nécessaire d'avoir participé à une Fresque Océane en tant que participant.</p>",
+        "description": "Présentation de la mission\n\n\nL'atelier de la Fresque Océane sensibilise de manière systémique aux enjeux liés\nà l’Océan et aux impacts de nos activités sur cet écosystème afin de donner des\nclés pour agir !\n\nD'une durée d'environ 3h, il invite les participants à utiliser des cartes pour\nreconstituer la Fresque Océane, puis échanger sur des idées d'action à mettre en\nœuvre pour limiter son érosion.\n\nLes scientifiques nous appellent à considérer l'Océan dans son ensemble. À la\nFresque Océane, nous avons fait de cette approche globale notre ADN en explorant\ntous les enjeux de sa préservation.\n\nPollution, surpêche, changement climatique, transport maritime… L’Océan est\nmenacé par nos activités alors qu’il est au cœur de la transition écologique et\ndes solutions de demain.\n\nIl est urgent de mieux le comprendre pour le préserver à toutes les échelles.\nNous avons TOUTES et TOUS un rôle à jouer !\n\n_____\n\nDans cette mission vous êtes invité.e.s à participer dans premier temps à\nl'atelier pour le vivre, puis après une courte formation à l'animation vous\nserez en charge de faciliter l'atelier.\n\nLa formation vous permet d'animer cet atelier auprès de tous publics que ce soit\ndans votre région mais aussi partout en France (enfants, adultes, en entreprise,\nen festivals locaux...). \n\n\n\nSautez le pas\n\n\nVous souhaitez apporter votre pierre à l'édifice de la transition écologique\nmais ne savez pas par où commencer ? \n\nVous êtes convaincus que la transition passe par une pédagogie collaborative et\njoyeuse ?\n\nVous souhaitez rejoindre une communauté sympathique proche de chez vous avec des\nrendez-vous réguliers ? \n\nVous adorez l'Océan et voulez en apprendre plus sur le sujet ? \n\nRejoignez-nous ! \n\n\n\nPrécisions\n\n\nPrérequis : pour devenir animateur, il est nécessaire d'avoir participé à une\nFresque Océane en tant que participant.",
+        "applicationUrl": "http://localhost:4000/r/cbf4df0d-9a4f-475d-a87b-d3115384eb33/c4a9ce23692082d70af2b16d",
+        "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12193/xCzJ16WiRXUKTu3NyyC8dhwkfai7Yh.jpg?v=1746620053",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": null,
+        "places": 14
+      },
+      "descriptionMissing": false
+    }
+  ],
+  "deterministic": {
+    "geo": 5,
+    "format": 5,
+    "missionsSansTagFormat": [],
+    "gateViolations": []
+  },
+  "judgeRuns": [
+    {
+      "runIndex": 0,
+      "seed": 2022085165,
+      "order": [
+        "6194dd25a99ff4075b5ed9ec",
+        "68da5c617cee915183abeca5",
+        "609b4a8ce5444207489ac84d",
+        "cbf4df0d-9a4f-475d-a87b-d3115384eb33",
+        "395edc05-d17e-4c4b-9ca5-6e264f134dbd"
+      ],
+      "output": {
+        "coherence": {
+          "score": 3,
+          "missionsPertinentes": [
+            2,
+            3,
+            4
+          ],
+          "justification": "Parmi les 5 missions proposées, 3 correspondent bien au profil de Thomas qui souhaite utiliser ses compétences en gestion, management et coopération dans des missions ponctuelles d'intérêt général. La mission 2 (témoignage métier) correspond à un engagement ponctuel valorisant ses compétences professionnelles. La mission 3 (animation atelier Fresque Océane) implique des compétences d'animation et gestion de groupe, en lien avec ses compétences soft skills. La mission 4 (organisation échanges internationaux) correspond à une mission de gestion et coordination. Les missions 0 et 1 sont plus orientées vers des actions manuelles ou événementielles sans lien direct avec ses compétences professionnelles.",
+          "missionIdsPertinents": [
+            "68da5c617cee915183abeca5",
+            "609b4a8ce5444207489ac84d",
+            "cbf4df0d-9a4f-475d-a87b-d3115384eb33"
+          ]
+        },
+        "homogeneite": {
+          "score": 3,
+          "familles": [
+            "éducation/animation",
+            "gestion/organisation",
+            "environnement"
+          ],
+          "justification": "Les missions pertinentes couvrent trois familles différentes : la mission 2 est dans l'éducation et le témoignage professionnel, la mission 3 dans la sensibilisation environnementale et animation, la mission 4 dans la gestion et organisation d'événements internationaux. Il n'y a pas de famille majoritaire avec au moins 3 missions, ce qui correspond à un score 3."
+        },
+        "cause": "signal"
+      }
+    },
+    {
+      "runIndex": 1,
+      "seed": 2005307546,
+      "order": [
+        "6194dd25a99ff4075b5ed9ec",
+        "609b4a8ce5444207489ac84d",
+        "395edc05-d17e-4c4b-9ca5-6e264f134dbd",
+        "68da5c617cee915183abeca5",
+        "cbf4df0d-9a4f-475d-a87b-d3115384eb33"
+      ],
+      "output": {
+        "coherence": {
+          "score": 2,
+          "missionsPertinentes": [
+            1,
+            4
+          ],
+          "justification": "Parmi les 5 missions proposées, seules deux semblent pertinentes pour Thomas qui souhaite utiliser ses compétences en gestion et management pour des missions ponctuelles à Rennes. La mission 1 (témoignage de métier) peut valoriser ses compétences professionnelles et est ponctuelle. La mission 4 (animation d'atelier Fresque Océane) implique une formation et animation, ce qui peut mobiliser ses compétences en gestion et animation de groupe. Les autres missions sont plutôt orientées vers des actions manuelles, événementielles ou logistiques sans lien direct avec ses compétences professionnelles.",
+          "missionIdsPertinents": [
+            "6194dd25a99ff4075b5ed9ec",
+            "68da5c617cee915183abeca5"
+          ]
+        },
+        "homogeneite": {
+          "score": 4,
+          "familles": [
+            "Orientation professionnelle",
+            "Sensibilisation environnementale",
+            "Organisation d'événements"
+          ],
+          "justification": "Les missions proposées couvrent plusieurs familles : orientation professionnelle (mission 1), sensibilisation environnementale (mission 4), organisation d'événements (mission 0), actions logistiques (mission 2), et plantation d'arbres (mission 3). Parmi ces familles, la famille 'Sensibilisation environnementale' a au moins 3 missions (3,4,2), ce qui correspond à un score 4 selon la grille."
+        },
+        "cause": "offre"
+      }
+    }
+  ],
+  "engineVersion": "m2",
+  "startedAt": "2026-07-10T13:28:31.046Z",
+  "finishedAt": "2026-07-10T13:28:52.920Z",
+  "verdict": 4,
+  "cleanup": {
+    "userScoringDeleted": true
+  }
+}

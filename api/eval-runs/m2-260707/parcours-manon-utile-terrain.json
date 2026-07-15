@@ -1,0 +1,2076 @@
+{
+  "status": "success",
+  "parcours": {
+    "id": "manon-utile-terrain",
+    "segment": "lyceen",
+    "label": "Manon, 16 ans, lycéenne à Lille, cherche une mission ponctuelle utile et concrète sur le terrain",
+    "locationLabel": "Lille (59)",
+    "age": 16,
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 16,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "statut",
+        "value": "lyceen"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 50.636565,
+          "lon": 3.063528,
+          "country_code": "fr",
+          "label": "Lille (59)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "ponctuelle"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "me_sentir_utile"
+      },
+      {
+        "taxonomy": "engagement_intent",
+        "value": "aide_directe"
+      },
+      {
+        "taxonomy": "engagement_intent",
+        "value": "action_terrain"
+      }
+    ]
+  },
+  "payload": {
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 16,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "statut",
+        "value": "lyceen"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 50.636565,
+          "lon": 3.063528,
+          "country_code": "fr",
+          "label": "Lille (59)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "ponctuelle"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "me_sentir_utile"
+      },
+      {
+        "taxonomy": "engagement_intent",
+        "value": "aide_directe"
+      },
+      {
+        "taxonomy": "engagement_intent",
+        "value": "action_terrain"
+      }
+    ],
+    "distinctId": "eval:m2-260707:manon-utile-terrain",
+    "missionAlertEnabled": false
+  },
+  "userScoringId": "44209b79-a290-48a4-b875-673e7399f2a8",
+  "match": {
+    "tookMs": 4693,
+    "engineVersion": "m2",
+    "items": [
+      {
+        "mission": {
+          "id": "6226eb86285e0d07a0699c90",
+          "title": "Je m'engage en tant que mécanicien au sein d'un atelier de réparation de vélos",
+          "remote": "no",
+          "schedule": "Une demi-journée",
+          "domain": "solidarite-insertion",
+          "domainOriginal": null,
+          "organizationName": "INSERSOL",
+          "publisherId": "5f5931496c7ea514150a818f",
+          "publisherName": "JeVeuxAider.gouv.fr",
+          "media": {
+            "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12166/dRHWvAk9ViLSUPbMRWEttmsNvituig.jpg?v=1753367089",
+            "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12166/dRHWvAk9ViLSUPbMRWEttmsNvituig.jpg?v=1753367089",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/jva-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+          },
+          "location": {
+            "city": "Lille",
+            "closestLat": 50.633,
+            "closestLon": 3.05858,
+            "closestAddress": "Lille, 59000 Lille, FR",
+            "addressId": "c368b401-e72b-492c-af89-4a96972f2d4c",
+            "distanceKm": 0.5281268334646892
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/6226eb86285e0d07a0699c90/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "95b8a6e2-fcf7-4221-b0e8-87c49af8db35",
+          "totalScore": 0.679432,
+          "taxonomyScore": 0.377,
+          "geoScore": 0.981863,
+          "taxonomyScores": {
+            "engagement_intent": 0.885,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "gestion_projet",
+              "taxonomyValueLabel": "Gestion de projet",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "un atelier vélo participatif et solidaire, un lieu de mutualisation d’outils dédiés à l’auto-réparation des vélos",
+                "reasoning": "La mission implique une coordination et une organisation des activités au sein d'un atelier, avec des outils partagés et une gestion des ressources."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "un atelier vélo participatif et solidaire / aider les cyclistes à entretenir et réparer leurs vélos par l’échange et la transmission de connaissances pratiques / lutter contre les exclusions et la précarité à travers la mise en oeuvre d'actions visant la remobilisation sociale",
+                "reasoning": "La mission s'inscrit dans une démarche d'inclusion sociale et de solidarité, avec un public varié et une finalité sociale explicite."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "batiment_industrie_logistique",
+              "taxonomyValueLabel": "Bâtiment, industrie et logistique",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "mécanicien au sein d'un atelier de réparation de vélos / régler les freins ; réparer les crevaisons ; régler les roues, les pédaliers ; changer les chaînes ; régler selle et guidons ; installer une dynamo, un câblage électrique, des ampoules ; régler ou changer le dérailleur ; conseiller dans le choix d’un vélo (taille, usage, etc) ; installer des pièces détachées ; démonter des vélos destinés au recyclage",
+                "reasoning": "Les tâches décrites relèvent principalement de la mécanique, de la maintenance et de la logistique, typiques du secteur industriel ou technique."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "gestion_commerce_organisation",
+              "taxonomyValueLabel": "Gestion, commerce et organisation",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "un atelier vélo participatif et solidaire, un lieu de mutualisation d’outils / aider les cyclistes à entretenir et réparer leurs vélos par l’échange et la transmission de connaissances pratiques",
+                "reasoning": "La mission implique une gestion des ressources, des outils et des échanges, typique d'une organisation ou d'une coordination."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "ponctuelle",
+              "taxonomyValueLabel": "Mission ponctuelle",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Une demi-journée / du 1 mars 2022",
+                "reasoning": "La mission est explicitement décrite comme une demi-journée ponctuelle."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "production_construction_qualite_logistique",
+              "taxonomyValueLabel": "Production, construction, qualité, logistique",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "régler les freins ; réparer les crevaisons ; régler les roues, les pédaliers ; changer les chaînes ; régler selle et guidons ; installer une dynamo, un câblage électrique, des ampoules ; régler ou changer le dérailleur ; installer des pièces détachées ; démonter des vélos destinés au recyclage",
+                "reasoning": "Les tâches décrites relèvent de la mécanique, de la maintenance et de la logistique, typiques de la production et de la construction."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "un atelier vélo participatif et solidaire / aider les cyclistes à entretenir et réparer leurs vélos par l’échange et la transmission de connaissances pratiques",
+                "reasoning": "La mission implique un travail collaboratif et l'échange de savoir-faire, typique des soft skills et de l'organisation."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "action_terrain",
+              "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "régler les freins ; réparer les crevaisons ; régler les roues, les pédaliers ; changer les chaînes ; régler selle et guidons ; installer une dynamo, un câblage électrique, des ampoules ; régler ou changer le dérailleur ; installer des pièces détachées ; démonter des vélos destinés au recyclage",
+                "reasoning": "Les tâches décrites sont des actions concrètes et pratiques sur le terrain, typiques d'une mission d'action terrain."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "aider les cyclistes à entretenir et réparer leurs vélos par l’échange et la transmission de connaissances pratiques / conseiller dans le choix d’un vélo (taille, usage, etc)",
+                "reasoning": "La mission inclut explicitement la transmission de savoir-faire et de conseils pratiques."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "technique_industrie_construction",
+              "taxonomyValueLabel": "Technique, industrie et construction",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "mécanicien au sein d'un atelier de réparation de vélos / régler les freins ; réparer les crevaisons ; régler les roues, les pédaliers ; changer les chaînes ; régler selle et guidons ; installer une dynamo, un câblage électrique, des ampoules ; régler ou changer le dérailleur",
+                "reasoning": "Les tâches décrites relèvent de la mécanique et de la maintenance, typiques des formations techniques et industrielles."
+              }
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "616a5cc97dd83e074d7409a3",
+          "title": "Je suis psychiatre : je témoigne de mon métier auprès des jeunes et des adultes en reconversion",
+          "remote": "no",
+          "schedule": "1 heure",
+          "domain": "education",
+          "domainOriginal": null,
+          "organizationName": "ExplorJob (Association AVDTM)",
+          "publisherId": "5f5931496c7ea514150a818f",
+          "publisherName": "JeVeuxAider.gouv.fr",
+          "media": {
+            "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12177/education-pour-tous-1.webp?v=1737022256",
+            "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12177/education-pour-tous-1.webp?v=1737022256",
+            "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/5992/Hn3nYrge7dfVzo87mgBHQfdxYavks7.jpg?v=1737381572",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+          },
+          "location": {
+            "city": "Lille",
+            "closestLat": 50.632,
+            "closestLon": 3.05749,
+            "closestAddress": "Lille, 59000 Lille, FR",
+            "addressId": "dba85f60-5574-439d-b480-d690cb14d33f",
+            "distanceKm": 0.6625753546404891
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/616a5cc97dd83e074d7409a3/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "07cba390-0762-43de-b47f-db2e1c7686c8",
+          "totalScore": 0.677149,
+          "taxonomyScore": 0.377,
+          "geoScore": 0.977299,
+          "taxonomyScores": {
+            "engagement_intent": 0.885,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Présenter votre métier pour aider des personnes à construire leur orientation professionnelle / Conseiller les jeunes sur les formations et les débouchés dans votre secteur d'activité / Aider des jeunes à construire leur projet professionnel",
+                "reasoning": "La mission est centrée sur la transmission de savoirs, l'orientation professionnelle et l'accompagnement des jeunes dans leur projet d'avenir."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Permettre à des jeunes de se projeter dans leur projet d’avenir et renforcer leur confiance en eux / l'association s'ouvre à tous les publics, notamment les plus fragiles",
+                "reasoning": "La mission vise à soutenir des jeunes dans leur parcours, ce qui relève de la solidarité et de l'inclusion."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Conseiller les jeunes sur les formations et les débouchés dans votre secteur d'activité / Aider des jeunes à construire leur projet professionnel / animer des ateliers collectifs dans les établissements scolaires",
+                "reasoning": "La mission s'inscrit dans le secteur de l'éducation, de la formation et de l'animation éducative."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Je suis psychiatre : je témoigne de mon métier",
+                "reasoning": "Le métier de psychiatre relève du secteur de la santé et de l'aide à la personne, bien que la mission soit principalement axée sur l'orientation."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Aider des jeunes à construire leur projet professionnel, les accompagner dans leur recherche de stage ou d’alternance, leur permettre d'identifier et de valoriser leurs compétences",
+                "reasoning": "La mission implique un accompagnement humain et un soutien aux jeunes dans leur parcours."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Raconter votre parcours professionnel et partager vos expériences / Conseiller les jeunes sur les formations et les débouchés",
+                "reasoning": "La mission nécessite des compétences en communication, écoute et adaptation pour interagir avec les jeunes."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.99,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Vous répondez à ses questions. Vous lui expliquez votre parcours, vos missions, pour quelles raisons vous aimez votre métier / Conseiller les jeunes sur les formations et les débouchés dans votre secteur d'activité",
+                "reasoning": "La mission est clairement axée sur la transmission de connaissances et d'expériences."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Permettre à des jeunes de se projeter dans leur projet d’avenir et renforcer leur confiance en eux / Aider des jeunes à construire leur projet professionnel",
+                "reasoning": "La mission implique un accompagnement direct des jeunes dans leur parcours."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Selon les besoins et possibilités, animer des ateliers collectifs dans les établissements scolaires",
+                "reasoning": "La mission inclut une dimension d'animation d'ateliers collectifs."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "ponctuelle",
+              "taxonomyValueLabel": "Mission ponctuelle",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "durée : non précisée — 1 heure / Dates : du 15 octobre 2021",
+                "reasoning": "La mission est décrite comme ponctuelle, avec une durée d'environ 1 heure."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "education_culture_creation",
+              "taxonomyValueLabel": "Éducation, culture et création",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Conseiller les jeunes sur les formations et les débouchés dans votre secteur d'activité / Aider des jeunes à construire leur projet professionnel",
+                "reasoning": "La mission relève de l'éducation, de la transmission et de l'accompagnement des jeunes dans leur projet professionnel."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "social_sante_sport",
+              "taxonomyValueLabel": "Social, santé et sport",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Je suis psychiatre : je témoigne de mon métier",
+                "reasoning": "Le métier de psychiatre relève du domaine social et de la santé, bien que la mission soit principalement axée sur l'orientation."
+              }
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "1bbc82a3-ae08-4ef2-933f-1abda19eb4c6",
+          "title": "J'accompagne des personnes en situation de handicap lors d'un séjour à Amiens",
+          "remote": "no",
+          "schedule": "2 jours",
+          "domain": "solidarite-insertion",
+          "domainOriginal": null,
+          "organizationName": "APF France Handicap - 59 - 62 Nord Pas De Calais",
+          "publisherId": "5f5931496c7ea514150a818f",
+          "publisherName": "JeVeuxAider.gouv.fr",
+          "media": {
+            "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/59906/MOFQtSDT88m21SXC0BDi8OCwZBr5Ct.jpg?v=1737022227",
+            "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/59906/MOFQtSDT88m21SXC0BDi8OCwZBr5Ct.jpg?v=1737022227",
+            "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/10808/FfxbDOC8YvICjopfiS9vROdONUrzQo.jpg?v=1737382304",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+          },
+          "location": {
+            "city": "Lille",
+            "closestLat": 50.631087,
+            "closestLon": 3.048861,
+            "closestAddress": "Rue Nationale, 59800 Lille, FR",
+            "addressId": "22d22af5-4f34-4773-99bc-60ee64ed1daf",
+            "distanceKm": 1.2004542998493537
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/1bbc82a3-ae08-4ef2-933f-1abda19eb4c6/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "c307309b-55fd-450c-a0b0-07e19a7d33f0",
+          "totalScore": 0.676625,
+          "taxonomyScore": 0.394,
+          "geoScore": 0.959249,
+          "taxonomyScores": {
+            "engagement_intent": 0.97,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "accompagner, depuis Lille, les membre du club Soleil / Transporter les personnes accompagnées jusqu'à Amiens / Conduire le groupe aux différentes activités prévues sur place",
+                "reasoning": "La mission implique un accompagnement direct et concret de personnes en situation de handicap lors d'un séjour, avec des tâches de transport et de participation aux activités."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "accompagner, depuis Lille, les membre du club Soleil / Transporter les personnes accompagnées jusqu'à Amiens / Conduire le groupe aux différentes activités prévues sur place",
+                "reasoning": "L'accompagnement et le transport de personnes en situation de handicap relèvent de l'aide directe et de l'action terrain concrète."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "action_terrain",
+              "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Transporter les personnes accompagnées jusqu'à Amiens / Conduire le groupe aux différentes activités prévues sur place / Participer aux repas et aux activités",
+                "reasoning": "La mission inclut des actions pratiques sur le terrain (transport, conduite, participation aux activités) et une interaction directe avec les bénéficiaires."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "secours",
+              "taxonomyValueLabel": "Secours / intervention",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Transporter les personnes accompagnées jusqu'à Amiens / Conduire le groupe aux différentes activités prévues sur place",
+                "reasoning": "Les tâches de transport et de conduite d'un groupe de personnes en situation de handicap impliquent une action terrain concrète et une responsabilité directe."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Transporter les personnes accompagnées jusqu'à Amiens / Conduire le groupe aux différentes activités prévues sur place / Passer des moments sympas avec la chouette équipe du club Soleil",
+                "reasoning": "La mission nécessite une interaction directe avec les bénéficiaires et une participation aux activités, ce qui relève de l'aide directe et de l'animation."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "production_construction_qualite_logistique",
+              "taxonomyValueLabel": "Production, construction, qualité, logistique",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Transporter les personnes accompagnées jusqu'à Amiens / Conduire le groupe aux différentes activités prévues sur place",
+                "reasoning": "Les tâches de transport et de conduite d'un groupe de personnes en situation de handicap relèvent de la production, construction, qualité, logistique (ici, logistique de transport adapté)."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "ponctuelle",
+              "taxonomyValueLabel": "Mission ponctuelle",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "séjour à Amiens de 2 jours / Mission ponctuelle sur un weekend",
+                "reasoning": "La mission est explicitement décrite comme un séjour de 2 jours, ce qui correspond à une mission ponctuelle."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "APF France Handicap - 59 - 62 Nord Pas De Calais",
+                "reasoning": "L'organisation porteuse est une association spécialisée dans l'accompagnement des personnes en situation de handicap, ce qui place la mission dans le secteur de la santé, du social et de l'aide à la personne."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "formation à la mise en sécurité des fauteuils et à l'utilisation du véhicule adapté sera prévue avant le départ",
+                "reasoning": "La mission implique un cadre structuré avec une formation obligatoire, ce qui relève d'un engagement en cadre structuré."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "securite_defense_logistique",
+              "taxonomyValueLabel": "Sécurité, défense et logistique",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "formation à la mise en sécurité des fauteuils et à l'utilisation du véhicule adapté sera prévue avant le départ",
+                "reasoning": "La mission inclut une formation spécifique liée à la sécurité et à l'utilisation d'un véhicule adapté, ce qui relève de la sécurité, défense et logistique."
+              }
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "ec9b2056-6a4d-4331-ae80-bfb6f494989b",
+          "title": "Sensibiliser aux comportements éco-responsables (VRAC)",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "environnement",
+          "domainOriginal": "Environnement",
+          "organizationName": "MISSION LOCALE METROPOLE EST",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_02.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_02.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Lille",
+            "closestLat": 50.635311,
+            "closestLon": 3.068275,
+            "closestAddress": "15 Rue Saint-Génois, 59800 Lille, FR",
+            "addressId": "3b5c4908-dfe1-420d-940d-e6f80ec22cef",
+            "distanceKm": 0.3626594523609257
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/ec9b2056-6a4d-4331-ae80-bfb6f494989b/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "ad0c10e8-3d80-4b88-9c8d-3d635f170c45",
+          "totalScore": 0.675755,
+          "taxonomyScore": 0.364,
+          "geoScore": 0.98751,
+          "taxonomyScores": {
+            "engagement_intent": 0.92,
+            "tranche_age": 0.9
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "environnement_nature",
+              "taxonomyValueLabel": "Environnement et nature",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Lutter contre les inégalités de consommation et de santé / 4 axes: ... environnement : réduction de la production de déchets, circuits courts et écologiques / Participer à l'organisation d'animations dans la rue ou au sein d'associations de quartier, à la mobilisation des habitants, informer sur les groupements d'achats",
+                "reasoning": "La mission est explicitement centrée sur la réduction des déchets, les circuits courts et l'alimentation durable, ce qui relève clairement du domaine environnement et nature."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Lutter contre les inégalités de consommation et de santé / 4 axes: économique : produits bio, locaux, équitables à prix accessibles; social : développer l'entraide, la coopération / Favoriser le lien social entre les adhérents sur les temps d'épicerie, accompagner les personnes éloignées du numérique dans la prise de commande",
+                "reasoning": "La mission inclut des objectifs explicites de lutte contre les inégalités sociales, d'entraide et de coopération, ainsi que l'accompagnement de publics fragilisés."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "environnement_agriculture",
+              "taxonomyValueLabel": "Environnement et agriculture",
+              "enrichmentConfidence": 0.92,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Lutter contre les inégalités de consommation et de santé / 4 axes: économique : produits bio, locaux, équitables à prix accessibles; environnement : réduction de la production de déchets, circuits courts et écologiques / Participer à l'organisation d'animations dans la rue ou au sein d'associations de quartier, à la mobilisation des habitants, informer sur les groupements d'achats",
+                "reasoning": "La mission est clairement liée à l'agriculture durable, aux circuits courts et à l'alimentation locale, ce qui relève du secteur environnement et agriculture."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Lutter contre les inégalités de consommation et de santé / social : développer l'entraide, la coopération / Favoriser le lien social entre les adhérents sur les temps d'épicerie, accompagner les personnes éloignées du numérique dans la prise de commande",
+                "reasoning": "La mission inclut des actions d'accompagnement social et d'aide à l'inclusion numérique, relevant du secteur santé, social et aide à la personne."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.99,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "24h/semaine du Lundi au Jeudi (et parfois le week-end sur des animations) / Durée : 8 heures — De 24h à 30h / du 8 septembre 2026 au 8 mai 2027",
+                "reasoning": "La mission s'étend sur plusieurs mois avec un volume horaire régulier et significatif (24h/semaine), ce qui correspond à une mission régulière."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Coorganiser des stands pour présenter le projet (dégustations, animations ludiques au sein de structures relais ou en extérieur, ateliers, repas, sorties, jeux autour de l'alimentation...) et participer à faire du lien avec les associations et aux dynamiques collectives (animations communes...) / Favoriser le lien social entre les adhérents",
+                "reasoning": "La mission implique fortement la coopération, l'organisation d'événements collectifs et le travail en dynamique de groupe."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "communication_creation_numerique",
+              "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "accompagner les personnes éloignées du numérique dans la prise de commande",
+                "reasoning": "La mission inclut un volet d'accompagnement numérique, relevant des compétences de communication et numérique."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "gestion_pilotage_juridique",
+              "taxonomyValueLabel": "Gestion, pilotage, juridique",
+              "enrichmentConfidence": 0.6,
+              "scoringScore": 0.35,
+              "evidence": {
+                "extract": "Coorganiser des stands pour présenter le projet / participer à faire du lien avec les associations et aux dynamiques collectives",
+                "reasoning": "La mission implique une part d'organisation et de coordination, bien que ce ne soit pas le cœur de l'activité."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Faire connaître le projet (Vers un réseau d'Achat en Commun) d'une manière conviviale et joyeuse, échanger avec les habitants autour de l'alimentation / informer sur les groupements d'achats",
+                "reasoning": "La mission inclut explicitement la transmission d'informations et la sensibilisation autour de l'alimentation durable."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.93,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Coorganiser des stands pour présenter le projet (dégustations, animations ludiques au sein de structures relais ou en extérieur, ateliers, repas, sorties, jeux autour de l'alimentation...)",
+                "reasoning": "La mission inclut l'organisation et l'animation d'ateliers, de stands et d'événements ludiques."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "accompagner les personnes éloignées du numérique dans la prise de commande / Favoriser le lien social entre les adhérents",
+                "reasoning": "La mission implique un accompagnement direct des publics, notamment les personnes éloignées du numérique."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Coorganiser des stands pour présenter le projet / participer à faire du lien avec les associations et aux dynamiques collectives",
+                "reasoning": "La mission inclut une part importante de coordination et de soutien à l'organisation d'événements."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "action_terrain",
+              "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Participer à l'organisation d'animations dans la rue ou au sein d'associations de quartier, à la mobilisation des habitants / NB: Nombreux déplacements sur la MEL (Villeneuve d'Ascq, Lille,...)",
+                "reasoning": "La mission implique des actions concrètes sur le terrain, avec des déplacements fréquents."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "environnement_nature_sciences",
+              "taxonomyValueLabel": "Environnement, nature et sciences",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Lutter contre les inégalités de consommation et de santé / 4 axes: ... environnement : réduction de la production de déchets, circuits courts et écologiques / Participer à l'organisation d'animations dans la rue ou au sein d'associations de quartier, à la mobilisation des habitants, informer sur les groupements d'achats",
+                "reasoning": "La mission est clairement liée à l'environnement, aux circuits courts et à l'alimentation durable, relevant du domaine environnement, nature et sciences."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Lutter contre les inégalités de consommation et de santé / social : développer l'entraide, la coopération",
+                "reasoning": "La mission inclut des objectifs de lutte contre les inégalités et de promotion de la coopération, relevant du domaine société, droit et politique."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Type de mission : volontariat_service_civique / Accompagné par un tuteur, il pourra aussi participer à la vie associative du réseau",
+                "reasoning": "La mission est réalisée dans le cadre structuré du service civique, avec un accompagnement par un tuteur et une intégration dans une dynamique associative organisée."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_18_ans",
+              "taxonomyValueLabel": "Moins de 18 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_31_ans_handicap",
+              "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "656682cf7faba68de3d6b95d",
+          "title": "J'assure un parrainage de Proximité, pour aider un enfant à grandir",
+          "remote": "no",
+          "schedule": "Une demi-journée",
+          "domain": "solidarite-insertion",
+          "domainOriginal": null,
+          "organizationName": "Udaf du nord",
+          "publisherId": "5f5931496c7ea514150a818f",
+          "publisherName": "JeVeuxAider.gouv.fr",
+          "media": {
+            "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12166/dRHWvAk9ViLSUPbMRWEttmsNvituig.jpg?v=1753367089",
+            "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12166/dRHWvAk9ViLSUPbMRWEttmsNvituig.jpg?v=1753367089",
+            "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/10235/X8VtoGkIw8j8F72r1eR031lLcsHlMB.png?v=1737382248",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+          },
+          "location": {
+            "city": "Lille",
+            "closestLat": 50.631073,
+            "closestLon": 3.064111,
+            "closestAddress": "10 Rue Baptiste Monnoyer, 59000 Lille, FR",
+            "addressId": "033b8261-2bb9-437c-94d5-6b05f68c545b",
+            "distanceKm": 0.6120652257814542
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/656682cf7faba68de3d6b95d/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "7a46add3-e3d6-47cb-b501-ba73faff2939",
+          "totalScore": 0.675005,
+          "taxonomyScore": 0.371,
+          "geoScore": 0.979011,
+          "taxonomyScores": {
+            "engagement_intent": 0.885,
+            "type_mission": 0.97
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "action de parrainage de proximité / permettre à l'enfant de créer un lien privilégié avec son parrain/marraine / action de solidarité",
+                "reasoning": "La mission est centrée sur l'accompagnement social, l'inclusion et la création de liens pour un enfant, ce qui relève clairement du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "action de parrainage de proximité / permettre à l'enfant de créer un lien privilégié avec son parrain/marraine / action de solidarité",
+                "reasoning": "Le secteur d'activité est lié à l'aide à la personne et au soutien social, notamment pour un enfant."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.92,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "proposer des temps d'activité et de loisir à un enfant / créer un lien privilégié avec son parrain/marraine",
+                "reasoning": "La mission implique une interaction directe et régulière avec un enfant pour l'accompagner et lui offrir un soutien."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "temps collectifs mensuels (jeux de sociétés, goûter partagé, animations ludiques ou sportives...) / proposer des temps d'activité et de loisir à un enfant",
+                "reasoning": "La mission inclut l'animation d'activités collectives et individuelles pour favoriser les liens sociaux."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "passer des moments agréables et favorable à son développement / coéducation",
+                "reasoning": "La mission vise à contribuer au développement de l'enfant, ce qui implique une dimension pédagogique et d'accompagnement."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.88,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "proposer des temps d'activité et de loisir à un enfant / créer un lien privilégié avec son parrain/marraine / action de solidarité",
+                "reasoning": "La mission implique un accompagnement humain et social direct auprès d'un enfant."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "intégrer notre réseau afin d'intégrer ces temps collectifs / s'adapter et répondre à vos besoins",
+                "reasoning": "La mission nécessite une capacité à travailler en collectif et à s'adapter aux besoins des autres."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "ponctuelle",
+              "taxonomyValueLabel": "Mission ponctuelle",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Une demi-journée / temps de rencontre mensuels",
+                "reasoning": "La mission est décrite comme une action ponctuelle ou mensuelle, sans durée fixe ou temps plein."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "social_sante_sport",
+              "taxonomyValueLabel": "Social, santé et sport",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "action de parrainage de proximité / permettre à l'enfant de créer un lien privilégié avec son parrain/marraine / action de solidarité",
+                "reasoning": "La mission relève du domaine social, de l'accompagnement et de la santé (développement de l'enfant), ce qui correspond à ce domaine de formation."
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "total": 2913,
+    "avgDistanceKmTop5": 0.67
+  },
+  "missions": [
+    {
+      "mission": {
+        "id": "6226eb86285e0d07a0699c90",
+        "title": "Je m'engage en tant que mécanicien au sein d'un atelier de réparation de vélos",
+        "remote": "no",
+        "schedule": "Une demi-journée",
+        "domain": "solidarite-insertion",
+        "domainOriginal": null,
+        "organizationName": "INSERSOL",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "media": {
+          "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12166/dRHWvAk9ViLSUPbMRWEttmsNvituig.jpg?v=1753367089",
+          "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12166/dRHWvAk9ViLSUPbMRWEttmsNvituig.jpg?v=1753367089",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/jva-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+        },
+        "location": {
+          "city": "Lille",
+          "closestLat": 50.633,
+          "closestLon": 3.05858,
+          "closestAddress": "Lille, 59000 Lille, FR",
+          "addressId": "c368b401-e72b-492c-af89-4a96972f2d4c",
+          "distanceKm": 0.5281268334646892
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/6226eb86285e0d07a0699c90/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "95b8a6e2-fcf7-4221-b0e8-87c49af8db35",
+        "totalScore": 0.679432,
+        "taxonomyScore": 0.377,
+        "geoScore": 0.981863,
+        "taxonomyScores": {
+          "engagement_intent": 0.885,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "gestion_projet",
+            "taxonomyValueLabel": "Gestion de projet",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "un atelier vélo participatif et solidaire, un lieu de mutualisation d’outils dédiés à l’auto-réparation des vélos",
+              "reasoning": "La mission implique une coordination et une organisation des activités au sein d'un atelier, avec des outils partagés et une gestion des ressources."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "un atelier vélo participatif et solidaire / aider les cyclistes à entretenir et réparer leurs vélos par l’échange et la transmission de connaissances pratiques / lutter contre les exclusions et la précarité à travers la mise en oeuvre d'actions visant la remobilisation sociale",
+              "reasoning": "La mission s'inscrit dans une démarche d'inclusion sociale et de solidarité, avec un public varié et une finalité sociale explicite."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "batiment_industrie_logistique",
+            "taxonomyValueLabel": "Bâtiment, industrie et logistique",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "mécanicien au sein d'un atelier de réparation de vélos / régler les freins ; réparer les crevaisons ; régler les roues, les pédaliers ; changer les chaînes ; régler selle et guidons ; installer une dynamo, un câblage électrique, des ampoules ; régler ou changer le dérailleur ; conseiller dans le choix d’un vélo (taille, usage, etc) ; installer des pièces détachées ; démonter des vélos destinés au recyclage",
+              "reasoning": "Les tâches décrites relèvent principalement de la mécanique, de la maintenance et de la logistique, typiques du secteur industriel ou technique."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "gestion_commerce_organisation",
+            "taxonomyValueLabel": "Gestion, commerce et organisation",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "un atelier vélo participatif et solidaire, un lieu de mutualisation d’outils / aider les cyclistes à entretenir et réparer leurs vélos par l’échange et la transmission de connaissances pratiques",
+              "reasoning": "La mission implique une gestion des ressources, des outils et des échanges, typique d'une organisation ou d'une coordination."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "ponctuelle",
+            "taxonomyValueLabel": "Mission ponctuelle",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Une demi-journée / du 1 mars 2022",
+              "reasoning": "La mission est explicitement décrite comme une demi-journée ponctuelle."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "production_construction_qualite_logistique",
+            "taxonomyValueLabel": "Production, construction, qualité, logistique",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "régler les freins ; réparer les crevaisons ; régler les roues, les pédaliers ; changer les chaînes ; régler selle et guidons ; installer une dynamo, un câblage électrique, des ampoules ; régler ou changer le dérailleur ; installer des pièces détachées ; démonter des vélos destinés au recyclage",
+              "reasoning": "Les tâches décrites relèvent de la mécanique, de la maintenance et de la logistique, typiques de la production et de la construction."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "un atelier vélo participatif et solidaire / aider les cyclistes à entretenir et réparer leurs vélos par l’échange et la transmission de connaissances pratiques",
+              "reasoning": "La mission implique un travail collaboratif et l'échange de savoir-faire, typique des soft skills et de l'organisation."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "action_terrain",
+            "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "régler les freins ; réparer les crevaisons ; régler les roues, les pédaliers ; changer les chaînes ; régler selle et guidons ; installer une dynamo, un câblage électrique, des ampoules ; régler ou changer le dérailleur ; installer des pièces détachées ; démonter des vélos destinés au recyclage",
+              "reasoning": "Les tâches décrites sont des actions concrètes et pratiques sur le terrain, typiques d'une mission d'action terrain."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "aider les cyclistes à entretenir et réparer leurs vélos par l’échange et la transmission de connaissances pratiques / conseiller dans le choix d’un vélo (taille, usage, etc)",
+              "reasoning": "La mission inclut explicitement la transmission de savoir-faire et de conseils pratiques."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "technique_industrie_construction",
+            "taxonomyValueLabel": "Technique, industrie et construction",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "mécanicien au sein d'un atelier de réparation de vélos / régler les freins ; réparer les crevaisons ; régler les roues, les pédaliers ; changer les chaînes ; régler selle et guidons ; installer une dynamo, un câblage électrique, des ampoules ; régler ou changer le dérailleur",
+              "reasoning": "Les tâches décrites relèvent de la mécanique et de la maintenance, typiques des formations techniques et industrielles."
+            }
+          }
+        ]
+      },
+      "detail": {
+        "id": "6226eb86285e0d07a0699c90",
+        "title": "Je m'engage en tant que mécanicien au sein d'un atelier de réparation de vélos",
+        "domain": "solidarite-insertion",
+        "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12166/dRHWvAk9ViLSUPbMRWEttmsNvituig.jpg?v=1753367089",
+        "type": "benevolat",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png",
+        "organizationName": "INSERSOL",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/jva-logo.png",
+        "location": {
+          "city": "Lille",
+          "address": "Lille, 59000 Lille",
+          "lat": 50.633,
+          "lon": 3.05858
+        },
+        "startAt": "2022-03-01T09:00:00.000Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "Une demi-journée",
+        "compensation": null,
+        "descriptionHtml": "<b>Présentation de la mission</b><br><p>ATTENTION VOUS DEVEZ PAYER 15 EUROS POUR DEVENIR BENEVOL ET NOUS AIDER</p><p>Biclou est un atelier vélo participatif et solidaire, un lieu de mutualisation d’outils dédiés à l’auto-réparation des vélos et où ses animateurs dispensent des conseils aux cyclistes.</p><p>Il repose avant toute chose sur l’implication de bénévoles adhérents à l’association qui aident les cyclistes à entretenir et réparer leurs vélos par l’échange et la transmission de connaissances pratiques sur l’usage et la mécanique des cycles non motorisés.</p><p>Des outils de base et spécialisés sont mis à disposition des cyclistes pour réparer et entretenir leurs vélos. La seconde activité indispensable à son fonctionnement est celle du réemploi des vélos et pièces détachées issues de dons de Décathlon, des particuliers</p><br><br><b>Sautez le pas</b><br><p>Venez partager une ambiance sympathique et bonne enfant</p><br><br><b>Précisions</b><br><p>Voici les principales tâches qui vous seront confiées :* régler les freins ;* réparer les crevaisons ;* régler les roues, les pédaliers ;* changer les chaînes ;* régler selle et guidons ;* installer une dynamo, un câblage électrique, des ampoules ;* régler ou changer le dérailleur ;* conseiller dans le choix d’un vélo (taille, usage, etc) ;* installer des pièces détachées (porte-bagage, garde-boues, sonnette ;* démonter des vélos destinés au recyclage, pour récupérer les pièces en bon état.&nbsp;</p>",
+        "description": "Présentation de la mission\n\n\nATTENTION VOUS DEVEZ PAYER 15 EUROS POUR DEVENIR BENEVOL ET NOUS AIDER\n\nBiclou est un atelier vélo participatif et solidaire, un lieu de mutualisation\nd’outils dédiés à l’auto-réparation des vélos et où ses animateurs dispensent\ndes conseils aux cyclistes.\n\nIl repose avant toute chose sur l’implication de bénévoles adhérents à\nl’association qui aident les cyclistes à entretenir et réparer leurs vélos par\nl’échange et la transmission de connaissances pratiques sur l’usage et la\nmécanique des cycles non motorisés.\n\nDes outils de base et spécialisés sont mis à disposition des cyclistes pour\nréparer et entretenir leurs vélos. La seconde activité indispensable à son\nfonctionnement est celle du réemploi des vélos et pièces détachées issues de\ndons de Décathlon, des particuliers\n\n\n\nSautez le pas\n\n\nVenez partager une ambiance sympathique et bonne enfant\n\n\n\nPrécisions\n\n\nVoici les principales tâches qui vous seront confiées :* régler les freins ;*\nréparer les crevaisons ;* régler les roues, les pédaliers ;* changer les chaînes\n;* régler selle et guidons ;* installer une dynamo, un câblage électrique, des\nampoules ;* régler ou changer le dérailleur ;* conseiller dans le choix d’un\nvélo (taille, usage, etc) ;* installer des pièces détachées (porte-bagage,\ngarde-boues, sonnette ;* démonter des vélos destinés au recyclage, pour\nrécupérer les pièces en bon état. ",
+        "applicationUrl": "http://localhost:4000/r/6226eb86285e0d07a0699c90/c4a9ce23692082d70af2b16d",
+        "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12166/dRHWvAk9ViLSUPbMRWEttmsNvituig.jpg?v=1753367089",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "616a5cc97dd83e074d7409a3",
+        "title": "Je suis psychiatre : je témoigne de mon métier auprès des jeunes et des adultes en reconversion",
+        "remote": "no",
+        "schedule": "1 heure",
+        "domain": "education",
+        "domainOriginal": null,
+        "organizationName": "ExplorJob (Association AVDTM)",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "media": {
+          "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12177/education-pour-tous-1.webp?v=1737022256",
+          "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12177/education-pour-tous-1.webp?v=1737022256",
+          "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/5992/Hn3nYrge7dfVzo87mgBHQfdxYavks7.jpg?v=1737381572",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+        },
+        "location": {
+          "city": "Lille",
+          "closestLat": 50.632,
+          "closestLon": 3.05749,
+          "closestAddress": "Lille, 59000 Lille, FR",
+          "addressId": "dba85f60-5574-439d-b480-d690cb14d33f",
+          "distanceKm": 0.6625753546404891
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/616a5cc97dd83e074d7409a3/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "07cba390-0762-43de-b47f-db2e1c7686c8",
+        "totalScore": 0.677149,
+        "taxonomyScore": 0.377,
+        "geoScore": 0.977299,
+        "taxonomyScores": {
+          "engagement_intent": 0.885,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Présenter votre métier pour aider des personnes à construire leur orientation professionnelle / Conseiller les jeunes sur les formations et les débouchés dans votre secteur d'activité / Aider des jeunes à construire leur projet professionnel",
+              "reasoning": "La mission est centrée sur la transmission de savoirs, l'orientation professionnelle et l'accompagnement des jeunes dans leur projet d'avenir."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Permettre à des jeunes de se projeter dans leur projet d’avenir et renforcer leur confiance en eux / l'association s'ouvre à tous les publics, notamment les plus fragiles",
+              "reasoning": "La mission vise à soutenir des jeunes dans leur parcours, ce qui relève de la solidarité et de l'inclusion."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Conseiller les jeunes sur les formations et les débouchés dans votre secteur d'activité / Aider des jeunes à construire leur projet professionnel / animer des ateliers collectifs dans les établissements scolaires",
+              "reasoning": "La mission s'inscrit dans le secteur de l'éducation, de la formation et de l'animation éducative."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Je suis psychiatre : je témoigne de mon métier",
+              "reasoning": "Le métier de psychiatre relève du secteur de la santé et de l'aide à la personne, bien que la mission soit principalement axée sur l'orientation."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Aider des jeunes à construire leur projet professionnel, les accompagner dans leur recherche de stage ou d’alternance, leur permettre d'identifier et de valoriser leurs compétences",
+              "reasoning": "La mission implique un accompagnement humain et un soutien aux jeunes dans leur parcours."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Raconter votre parcours professionnel et partager vos expériences / Conseiller les jeunes sur les formations et les débouchés",
+              "reasoning": "La mission nécessite des compétences en communication, écoute et adaptation pour interagir avec les jeunes."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.99,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Vous répondez à ses questions. Vous lui expliquez votre parcours, vos missions, pour quelles raisons vous aimez votre métier / Conseiller les jeunes sur les formations et les débouchés dans votre secteur d'activité",
+              "reasoning": "La mission est clairement axée sur la transmission de connaissances et d'expériences."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Permettre à des jeunes de se projeter dans leur projet d’avenir et renforcer leur confiance en eux / Aider des jeunes à construire leur projet professionnel",
+              "reasoning": "La mission implique un accompagnement direct des jeunes dans leur parcours."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Selon les besoins et possibilités, animer des ateliers collectifs dans les établissements scolaires",
+              "reasoning": "La mission inclut une dimension d'animation d'ateliers collectifs."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "ponctuelle",
+            "taxonomyValueLabel": "Mission ponctuelle",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "durée : non précisée — 1 heure / Dates : du 15 octobre 2021",
+              "reasoning": "La mission est décrite comme ponctuelle, avec une durée d'environ 1 heure."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "education_culture_creation",
+            "taxonomyValueLabel": "Éducation, culture et création",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Conseiller les jeunes sur les formations et les débouchés dans votre secteur d'activité / Aider des jeunes à construire leur projet professionnel",
+              "reasoning": "La mission relève de l'éducation, de la transmission et de l'accompagnement des jeunes dans leur projet professionnel."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "social_sante_sport",
+            "taxonomyValueLabel": "Social, santé et sport",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Je suis psychiatre : je témoigne de mon métier",
+              "reasoning": "Le métier de psychiatre relève du domaine social et de la santé, bien que la mission soit principalement axée sur l'orientation."
+            }
+          }
+        ]
+      },
+      "detail": {
+        "id": "616a5cc97dd83e074d7409a3",
+        "title": "Je suis psychiatre : je témoigne de mon métier auprès des jeunes et des adultes en reconversion",
+        "domain": "education",
+        "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12177/education-pour-tous-1.webp?v=1737022256",
+        "type": "benevolat",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png",
+        "organizationName": "ExplorJob (Association AVDTM)",
+        "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/5992/Hn3nYrge7dfVzo87mgBHQfdxYavks7.jpg?v=1737381572",
+        "location": {
+          "city": "Lille",
+          "address": "Lille, 59000 Lille",
+          "lat": 50.632,
+          "lon": 3.05749
+        },
+        "startAt": "2021-10-15T09:00:00.000Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "1 heure",
+        "compensation": null,
+        "descriptionHtml": "<b>Présentation de la mission</b><br><p>Permettre à des jeunes de se projeter dans leur projet d’avenir et renforcer leur confiance en eux.&nbsp;</p><br><br><b>Sautez le pas</b><br><p>En vous inscrivant sur ExplorJob, vous témoignez de votre métier pour aider des personnes à construire leur orientation professionnelle !</p><p>Vous êtes contacté occasionnellement par des Explorateurs (collégiens, lycéens, jeunes déscolarisés, personnes en recherche d'emploi ou en reconversion professionnelle) qui s'interrogent sur la réalité du métier que vous exercez.Au cours d'un entretien d'environ 1 heure (en face à face, par téléphone ou par visio), que vous fixez en fonction de vos disponibilités, vous répondez à ses questions. Vous lui expliquez votre parcours, vos missions, pour quelles raisons vous aimez votre métier, mais aussi quelles en sont ses difficultés... bref vous partagez votre expérience !</p><p><strong>L'objectif :</strong> que l'Explorateur ait une vision juste du métier qu'il envisage afin de pouvoir valider ou invalider ses choix !</p><p><strong>Notre ambition : que l'orientation devienne une étape inspirante, riche en rencontres et que le plus grand nombre puisse bénéficier d'un avenir choisi !</strong></p><br><br><b>Précisions</b><br><p>Votre mission consiste à :</p><ul><li>Raconter votre parcours professionnel et partager vos expériences</li><li>Conseiller les jeunes sur les formations et les débouchés dans votre secteur d'activité, leur faire découvrir les codes du monde professionnel</li><li>Selon les besoins et possibilités, animer des ateliers collectifs dans les établissements scolaires (collèges, lycées …)</li><li>Aider des jeunes à construire leur projet professionnel, les accompagner dans leur recherche de stage ou d’alternance, leur permettre d’identifier et de valoriser leurs compétences...</li></ul>",
+        "description": "Présentation de la mission\n\n\nPermettre à des jeunes de se projeter dans leur projet d’avenir et renforcer\nleur confiance en eux. \n\n\n\nSautez le pas\n\n\nEn vous inscrivant sur ExplorJob, vous témoignez de votre métier pour aider des\npersonnes à construire leur orientation professionnelle !\n\nVous êtes contacté occasionnellement par des Explorateurs (collégiens, lycéens,\njeunes déscolarisés, personnes en recherche d'emploi ou en reconversion\nprofessionnelle) qui s'interrogent sur la réalité du métier que vous exercez.Au\ncours d'un entretien d'environ 1 heure (en face à face, par téléphone ou par\nvisio), que vous fixez en fonction de vos disponibilités, vous répondez à ses\nquestions. Vous lui expliquez votre parcours, vos missions, pour quelles raisons\nvous aimez votre métier, mais aussi quelles en sont ses difficultés... bref vous\npartagez votre expérience !\n\nL'objectif : que l'Explorateur ait une vision juste du métier qu'il envisage\nafin de pouvoir valider ou invalider ses choix !\n\nNotre ambition : que l'orientation devienne une étape inspirante, riche en\nrencontres et que le plus grand nombre puisse bénéficier d'un avenir choisi !\n\n\n\nPrécisions\n\n\nVotre mission consiste à :\n\n • Raconter votre parcours professionnel et partager vos expériences\n • Conseiller les jeunes sur les formations et les débouchés dans votre secteur\n   d'activité, leur faire découvrir les codes du monde professionnel\n • Selon les besoins et possibilités, animer des ateliers collectifs dans les\n   établissements scolaires (collèges, lycées …)\n • Aider des jeunes à construire leur projet professionnel, les accompagner dans\n   leur recherche de stage ou d’alternance, leur permettre d’identifier et de\n   valoriser leurs compétences...",
+        "applicationUrl": "http://localhost:4000/r/616a5cc97dd83e074d7409a3/c4a9ce23692082d70af2b16d",
+        "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12177/education-pour-tous-1.webp?v=1737022256",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 8
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "1bbc82a3-ae08-4ef2-933f-1abda19eb4c6",
+        "title": "J'accompagne des personnes en situation de handicap lors d'un séjour à Amiens",
+        "remote": "no",
+        "schedule": "2 jours",
+        "domain": "solidarite-insertion",
+        "domainOriginal": null,
+        "organizationName": "APF France Handicap - 59 - 62 Nord Pas De Calais",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "media": {
+          "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/59906/MOFQtSDT88m21SXC0BDi8OCwZBr5Ct.jpg?v=1737022227",
+          "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/59906/MOFQtSDT88m21SXC0BDi8OCwZBr5Ct.jpg?v=1737022227",
+          "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/10808/FfxbDOC8YvICjopfiS9vROdONUrzQo.jpg?v=1737382304",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+        },
+        "location": {
+          "city": "Lille",
+          "closestLat": 50.631087,
+          "closestLon": 3.048861,
+          "closestAddress": "Rue Nationale, 59800 Lille, FR",
+          "addressId": "22d22af5-4f34-4773-99bc-60ee64ed1daf",
+          "distanceKm": 1.2004542998493537
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/1bbc82a3-ae08-4ef2-933f-1abda19eb4c6/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "c307309b-55fd-450c-a0b0-07e19a7d33f0",
+        "totalScore": 0.676625,
+        "taxonomyScore": 0.394,
+        "geoScore": 0.959249,
+        "taxonomyScores": {
+          "engagement_intent": 0.97,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "accompagner, depuis Lille, les membre du club Soleil / Transporter les personnes accompagnées jusqu'à Amiens / Conduire le groupe aux différentes activités prévues sur place",
+              "reasoning": "La mission implique un accompagnement direct et concret de personnes en situation de handicap lors d'un séjour, avec des tâches de transport et de participation aux activités."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "accompagner, depuis Lille, les membre du club Soleil / Transporter les personnes accompagnées jusqu'à Amiens / Conduire le groupe aux différentes activités prévues sur place",
+              "reasoning": "L'accompagnement et le transport de personnes en situation de handicap relèvent de l'aide directe et de l'action terrain concrète."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "action_terrain",
+            "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Transporter les personnes accompagnées jusqu'à Amiens / Conduire le groupe aux différentes activités prévues sur place / Participer aux repas et aux activités",
+              "reasoning": "La mission inclut des actions pratiques sur le terrain (transport, conduite, participation aux activités) et une interaction directe avec les bénéficiaires."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "secours",
+            "taxonomyValueLabel": "Secours / intervention",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Transporter les personnes accompagnées jusqu'à Amiens / Conduire le groupe aux différentes activités prévues sur place",
+              "reasoning": "Les tâches de transport et de conduite d'un groupe de personnes en situation de handicap impliquent une action terrain concrète et une responsabilité directe."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Transporter les personnes accompagnées jusqu'à Amiens / Conduire le groupe aux différentes activités prévues sur place / Passer des moments sympas avec la chouette équipe du club Soleil",
+              "reasoning": "La mission nécessite une interaction directe avec les bénéficiaires et une participation aux activités, ce qui relève de l'aide directe et de l'animation."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "production_construction_qualite_logistique",
+            "taxonomyValueLabel": "Production, construction, qualité, logistique",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Transporter les personnes accompagnées jusqu'à Amiens / Conduire le groupe aux différentes activités prévues sur place",
+              "reasoning": "Les tâches de transport et de conduite d'un groupe de personnes en situation de handicap relèvent de la production, construction, qualité, logistique (ici, logistique de transport adapté)."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "ponctuelle",
+            "taxonomyValueLabel": "Mission ponctuelle",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "séjour à Amiens de 2 jours / Mission ponctuelle sur un weekend",
+              "reasoning": "La mission est explicitement décrite comme un séjour de 2 jours, ce qui correspond à une mission ponctuelle."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "APF France Handicap - 59 - 62 Nord Pas De Calais",
+              "reasoning": "L'organisation porteuse est une association spécialisée dans l'accompagnement des personnes en situation de handicap, ce qui place la mission dans le secteur de la santé, du social et de l'aide à la personne."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "formation à la mise en sécurité des fauteuils et à l'utilisation du véhicule adapté sera prévue avant le départ",
+              "reasoning": "La mission implique un cadre structuré avec une formation obligatoire, ce qui relève d'un engagement en cadre structuré."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "securite_defense_logistique",
+            "taxonomyValueLabel": "Sécurité, défense et logistique",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "formation à la mise en sécurité des fauteuils et à l'utilisation du véhicule adapté sera prévue avant le départ",
+              "reasoning": "La mission inclut une formation spécifique liée à la sécurité et à l'utilisation d'un véhicule adapté, ce qui relève de la sécurité, défense et logistique."
+            }
+          }
+        ]
+      },
+      "detail": {
+        "id": "1bbc82a3-ae08-4ef2-933f-1abda19eb4c6",
+        "title": "J'accompagne des personnes en situation de handicap lors d'un séjour à Amiens",
+        "domain": "solidarite-insertion",
+        "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/59906/MOFQtSDT88m21SXC0BDi8OCwZBr5Ct.jpg?v=1737022227",
+        "type": "benevolat",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png",
+        "organizationName": "APF France Handicap - 59 - 62 Nord Pas De Calais",
+        "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/10808/FfxbDOC8YvICjopfiS9vROdONUrzQo.jpg?v=1737382304",
+        "location": {
+          "city": "Lille",
+          "address": "Rue Nationale, 59800 Lille",
+          "lat": 50.631087,
+          "lon": 3.048861
+        },
+        "startAt": "2026-09-03T00:00:00.000Z",
+        "endAt": "2026-09-03T00:00:00.000Z",
+        "duration": 0,
+        "schedule": "2 jours",
+        "compensation": null,
+        "descriptionHtml": "<b>Présentation de la mission</b><br><p>Nous organisons une sortie à Amiens de 2 jours et recherchons une personne ayant le permis B depuis plus de 3 ans pour accompagner, depuis Lille, les membre du club Soleil.</p><p>Sous la responsabilité de Patricia, la référente du groupe, tu seras amené·e à</p><ul><li data-list-item-id=\"ea1c734ae9ef9b593741ccabd6e895f6c\">Transporter les personnes accompagnées jusqu'à Amiens (et les ramener bien sûr :)&nbsp;</li><li data-list-item-id=\"e40d7fd4dd998edfd4464b29b76bee8dc\">Conduire le groupe aux différentes activités prévues sur place (musée, plage, etc...)</li><li data-list-item-id=\"ed46d79fe4a412a04ec3e61e7a3893e06\">Participer aux repas et aux activités (si tu le souhaites)</li><li data-list-item-id=\"e7169091a9263c3f21ccbc66b2ad2236e\">Passer des moments sympas avec la chouette équipe du club Soleil</li></ul><br><br><b>Sautez le pas</b><br><p>Si tu veux faire une bonne action en te joignant à ce joli petit groupe, c'est ici !</p><br><br><b>Précisions</b><br><p>L'hébergement à l'hôtel est compris dans le séjour.&nbsp;Cette sortie aura lieu le jeudi 3 et vendredi 4 septembre 2026 (départ à 9h, retour à 20h le lendemain). Une formation à la mise en sécurité des fauteuils et à l'utilisation du véhicule adapté sera prévue avant le départ.</p>",
+        "description": "Présentation de la mission\n\n\nNous organisons une sortie à Amiens de 2 jours et recherchons une personne ayant\nle permis B depuis plus de 3 ans pour accompagner, depuis Lille, les membre du\nclub Soleil.\n\nSous la responsabilité de Patricia, la référente du groupe, tu seras amené·e à\n\n • Transporter les personnes accompagnées jusqu'à Amiens (et les ramener bien\n   sûr :) \n • Conduire le groupe aux différentes activités prévues sur place (musée, plage,\n   etc...)\n • Participer aux repas et aux activités (si tu le souhaites)\n • Passer des moments sympas avec la chouette équipe du club Soleil\n\n\n\nSautez le pas\n\n\nSi tu veux faire une bonne action en te joignant à ce joli petit groupe, c'est\nici !\n\n\n\nPrécisions\n\n\nL'hébergement à l'hôtel est compris dans le séjour. Cette sortie aura lieu le\njeudi 3 et vendredi 4 septembre 2026 (départ à 9h, retour à 20h le lendemain).\nUne formation à la mise en sécurité des fauteuils et à l'utilisation du véhicule\nadapté sera prévue avant le départ.",
+        "applicationUrl": "http://localhost:4000/r/1bbc82a3-ae08-4ef2-933f-1abda19eb4c6/c4a9ce23692082d70af2b16d",
+        "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/59906/MOFQtSDT88m21SXC0BDi8OCwZBr5Ct.jpg?v=1737022227",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": null,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "ec9b2056-6a4d-4331-ae80-bfb6f494989b",
+        "title": "Sensibiliser aux comportements éco-responsables (VRAC)",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "environnement",
+        "domainOriginal": "Environnement",
+        "organizationName": "MISSION LOCALE METROPOLE EST",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_02.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_02.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Lille",
+          "closestLat": 50.635311,
+          "closestLon": 3.068275,
+          "closestAddress": "15 Rue Saint-Génois, 59800 Lille, FR",
+          "addressId": "3b5c4908-dfe1-420d-940d-e6f80ec22cef",
+          "distanceKm": 0.3626594523609257
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/ec9b2056-6a4d-4331-ae80-bfb6f494989b/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "ad0c10e8-3d80-4b88-9c8d-3d635f170c45",
+        "totalScore": 0.675755,
+        "taxonomyScore": 0.364,
+        "geoScore": 0.98751,
+        "taxonomyScores": {
+          "engagement_intent": 0.92,
+          "tranche_age": 0.9
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "environnement_nature",
+            "taxonomyValueLabel": "Environnement et nature",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Lutter contre les inégalités de consommation et de santé / 4 axes: ... environnement : réduction de la production de déchets, circuits courts et écologiques / Participer à l'organisation d'animations dans la rue ou au sein d'associations de quartier, à la mobilisation des habitants, informer sur les groupements d'achats",
+              "reasoning": "La mission est explicitement centrée sur la réduction des déchets, les circuits courts et l'alimentation durable, ce qui relève clairement du domaine environnement et nature."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Lutter contre les inégalités de consommation et de santé / 4 axes: économique : produits bio, locaux, équitables à prix accessibles; social : développer l'entraide, la coopération / Favoriser le lien social entre les adhérents sur les temps d'épicerie, accompagner les personnes éloignées du numérique dans la prise de commande",
+              "reasoning": "La mission inclut des objectifs explicites de lutte contre les inégalités sociales, d'entraide et de coopération, ainsi que l'accompagnement de publics fragilisés."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "environnement_agriculture",
+            "taxonomyValueLabel": "Environnement et agriculture",
+            "enrichmentConfidence": 0.92,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Lutter contre les inégalités de consommation et de santé / 4 axes: économique : produits bio, locaux, équitables à prix accessibles; environnement : réduction de la production de déchets, circuits courts et écologiques / Participer à l'organisation d'animations dans la rue ou au sein d'associations de quartier, à la mobilisation des habitants, informer sur les groupements d'achats",
+              "reasoning": "La mission est clairement liée à l'agriculture durable, aux circuits courts et à l'alimentation locale, ce qui relève du secteur environnement et agriculture."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Lutter contre les inégalités de consommation et de santé / social : développer l'entraide, la coopération / Favoriser le lien social entre les adhérents sur les temps d'épicerie, accompagner les personnes éloignées du numérique dans la prise de commande",
+              "reasoning": "La mission inclut des actions d'accompagnement social et d'aide à l'inclusion numérique, relevant du secteur santé, social et aide à la personne."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.99,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "24h/semaine du Lundi au Jeudi (et parfois le week-end sur des animations) / Durée : 8 heures — De 24h à 30h / du 8 septembre 2026 au 8 mai 2027",
+              "reasoning": "La mission s'étend sur plusieurs mois avec un volume horaire régulier et significatif (24h/semaine), ce qui correspond à une mission régulière."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Coorganiser des stands pour présenter le projet (dégustations, animations ludiques au sein de structures relais ou en extérieur, ateliers, repas, sorties, jeux autour de l'alimentation...) et participer à faire du lien avec les associations et aux dynamiques collectives (animations communes...) / Favoriser le lien social entre les adhérents",
+              "reasoning": "La mission implique fortement la coopération, l'organisation d'événements collectifs et le travail en dynamique de groupe."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "communication_creation_numerique",
+            "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "accompagner les personnes éloignées du numérique dans la prise de commande",
+              "reasoning": "La mission inclut un volet d'accompagnement numérique, relevant des compétences de communication et numérique."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "gestion_pilotage_juridique",
+            "taxonomyValueLabel": "Gestion, pilotage, juridique",
+            "enrichmentConfidence": 0.6,
+            "scoringScore": 0.35,
+            "evidence": {
+              "extract": "Coorganiser des stands pour présenter le projet / participer à faire du lien avec les associations et aux dynamiques collectives",
+              "reasoning": "La mission implique une part d'organisation et de coordination, bien que ce ne soit pas le cœur de l'activité."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Faire connaître le projet (Vers un réseau d'Achat en Commun) d'une manière conviviale et joyeuse, échanger avec les habitants autour de l'alimentation / informer sur les groupements d'achats",
+              "reasoning": "La mission inclut explicitement la transmission d'informations et la sensibilisation autour de l'alimentation durable."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.93,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Coorganiser des stands pour présenter le projet (dégustations, animations ludiques au sein de structures relais ou en extérieur, ateliers, repas, sorties, jeux autour de l'alimentation...)",
+              "reasoning": "La mission inclut l'organisation et l'animation d'ateliers, de stands et d'événements ludiques."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "accompagner les personnes éloignées du numérique dans la prise de commande / Favoriser le lien social entre les adhérents",
+              "reasoning": "La mission implique un accompagnement direct des publics, notamment les personnes éloignées du numérique."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Coorganiser des stands pour présenter le projet / participer à faire du lien avec les associations et aux dynamiques collectives",
+              "reasoning": "La mission inclut une part importante de coordination et de soutien à l'organisation d'événements."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "action_terrain",
+            "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Participer à l'organisation d'animations dans la rue ou au sein d'associations de quartier, à la mobilisation des habitants / NB: Nombreux déplacements sur la MEL (Villeneuve d'Ascq, Lille,...)",
+              "reasoning": "La mission implique des actions concrètes sur le terrain, avec des déplacements fréquents."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "environnement_nature_sciences",
+            "taxonomyValueLabel": "Environnement, nature et sciences",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Lutter contre les inégalités de consommation et de santé / 4 axes: ... environnement : réduction de la production de déchets, circuits courts et écologiques / Participer à l'organisation d'animations dans la rue ou au sein d'associations de quartier, à la mobilisation des habitants, informer sur les groupements d'achats",
+              "reasoning": "La mission est clairement liée à l'environnement, aux circuits courts et à l'alimentation durable, relevant du domaine environnement, nature et sciences."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Lutter contre les inégalités de consommation et de santé / social : développer l'entraide, la coopération",
+              "reasoning": "La mission inclut des objectifs de lutte contre les inégalités et de promotion de la coopération, relevant du domaine société, droit et politique."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Type de mission : volontariat_service_civique / Accompagné par un tuteur, il pourra aussi participer à la vie associative du réseau",
+              "reasoning": "La mission est réalisée dans le cadre structuré du service civique, avec un accompagnement par un tuteur et une intégration dans une dynamique associative organisée."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_18_ans",
+            "taxonomyValueLabel": "Moins de 18 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_31_ans_handicap",
+            "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "ec9b2056-6a4d-4331-ae80-bfb6f494989b",
+        "title": "Sensibiliser aux comportements éco-responsables (VRAC)",
+        "domain": "environnement",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_02.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "MISSION LOCALE METROPOLE EST",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Lille",
+          "address": "15 Rue Saint-Génois, 59800 Lille",
+          "lat": 50.635311,
+          "lon": 3.068275
+        },
+        "startAt": "2026-09-08T00:00:00.000Z",
+        "endAt": "2027-05-08T00:00:00.000Z",
+        "duration": 8,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Rendre accessible aux habitants des quartiers populaires l'alimentation durable, les produits de qualité, biologiques ou locaux. Participer à l'organisation d'animations dans la rue ou au sein d'associations de quartier, à la mobilisation des habitants, informer sur les groupements d'achats</p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p>Lutter contre les inégalités de consommation et de santé / 4 axes: économique : produits bio, locaux, équitables à prix accessibles; social : développer l'entraide, la coopération; santé : alimentation saine; environnement : réduction de la production de déchets, circuits courts et écologiques</p></p><br>\n<b>Actions</b><br><p><p>Faire connaître le projet (Vers un réseau d'Achat en Commun) d'une manière conviviale et joyeuse, échanger avec les habitants autour de l'alimentation.</p><p>Coorganiser des stands pour présenter le projet (dégustations, animations ludiques au sein de structures relais ou en extérieur, ateliers, repas, sorties, jeux autour de l'alimentation...) et participer à faire du lien avec les associations et aux dynamiques collectives (animations communes...).</p><p>Favoriser le lien social entre les adhérents sur les temps d'épicerie, accompagner les personnes éloignées du numérique dans la prise de commande</p></p><br>\n<b>Capacité d’initiative</b><br><p>NB: Nombreux déplacements sur la MEL (Villeneuve d'Ascq, Lille,...) - 24h/semaine du Lundi au Jeudi (et parfois le week-end sur des animations)</p><br>\n<b>VOTRE ENVIRONNEMENT</b><br><b>Tutorat et accompagnement</b><br><p>Accompagné par un tuteur, il pourra aussi participer à la vie associative du réseau (échanges avec d'autres volontaires, évènements…).</p>",
+        "description": "EN QUELQUES MOTS\n\n\nRendre accessible aux habitants des quartiers populaires l'alimentation durable,\nles produits de qualité, biologiques ou locaux. Participer à l'organisation\nd'animations dans la rue ou au sein d'associations de quartier, à la\nmobilisation des habitants, informer sur les groupements d'achats\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nLutter contre les inégalités de consommation et de santé / 4 axes: économique :\nproduits bio, locaux, équitables à prix accessibles; social : développer\nl'entraide, la coopération; santé : alimentation saine; environnement :\nréduction de la production de déchets, circuits courts et écologiques\n\n\n\n\n\nActions\n\n\n\n\nFaire connaître le projet (Vers un réseau d'Achat en Commun) d'une manière\nconviviale et joyeuse, échanger avec les habitants autour de l'alimentation.\n\nCoorganiser des stands pour présenter le projet (dégustations, animations\nludiques au sein de structures relais ou en extérieur, ateliers, repas, sorties,\njeux autour de l'alimentation...) et participer à faire du lien avec les\nassociations et aux dynamiques collectives (animations communes...).\n\nFavoriser le lien social entre les adhérents sur les temps d'épicerie,\naccompagner les personnes éloignées du numérique dans la prise de commande\n\n\n\n\n\nCapacité d’initiative\n\n\nNB: Nombreux déplacements sur la MEL (Villeneuve d'Ascq, Lille,...) -\n24h/semaine du Lundi au Jeudi (et parfois le week-end sur des animations)\n\n\n\nVOTRE ENVIRONNEMENT\nTutorat et accompagnement\n\n\nAccompagné par un tuteur, il pourra aussi participer à la vie associative du\nréseau (échanges avec d'autres volontaires, évènements…).",
+        "applicationUrl": "http://localhost:4000/r/ec9b2056-6a4d-4331-ae80-bfb6f494989b/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_02.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "656682cf7faba68de3d6b95d",
+        "title": "J'assure un parrainage de Proximité, pour aider un enfant à grandir",
+        "remote": "no",
+        "schedule": "Une demi-journée",
+        "domain": "solidarite-insertion",
+        "domainOriginal": null,
+        "organizationName": "Udaf du nord",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "media": {
+          "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12166/dRHWvAk9ViLSUPbMRWEttmsNvituig.jpg?v=1753367089",
+          "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12166/dRHWvAk9ViLSUPbMRWEttmsNvituig.jpg?v=1753367089",
+          "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/10235/X8VtoGkIw8j8F72r1eR031lLcsHlMB.png?v=1737382248",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+        },
+        "location": {
+          "city": "Lille",
+          "closestLat": 50.631073,
+          "closestLon": 3.064111,
+          "closestAddress": "10 Rue Baptiste Monnoyer, 59000 Lille, FR",
+          "addressId": "033b8261-2bb9-437c-94d5-6b05f68c545b",
+          "distanceKm": 0.6120652257814542
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/656682cf7faba68de3d6b95d/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "7a46add3-e3d6-47cb-b501-ba73faff2939",
+        "totalScore": 0.675005,
+        "taxonomyScore": 0.371,
+        "geoScore": 0.979011,
+        "taxonomyScores": {
+          "engagement_intent": 0.885,
+          "type_mission": 0.97
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "action de parrainage de proximité / permettre à l'enfant de créer un lien privilégié avec son parrain/marraine / action de solidarité",
+              "reasoning": "La mission est centrée sur l'accompagnement social, l'inclusion et la création de liens pour un enfant, ce qui relève clairement du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "action de parrainage de proximité / permettre à l'enfant de créer un lien privilégié avec son parrain/marraine / action de solidarité",
+              "reasoning": "Le secteur d'activité est lié à l'aide à la personne et au soutien social, notamment pour un enfant."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.92,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "proposer des temps d'activité et de loisir à un enfant / créer un lien privilégié avec son parrain/marraine",
+              "reasoning": "La mission implique une interaction directe et régulière avec un enfant pour l'accompagner et lui offrir un soutien."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "temps collectifs mensuels (jeux de sociétés, goûter partagé, animations ludiques ou sportives...) / proposer des temps d'activité et de loisir à un enfant",
+              "reasoning": "La mission inclut l'animation d'activités collectives et individuelles pour favoriser les liens sociaux."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "passer des moments agréables et favorable à son développement / coéducation",
+              "reasoning": "La mission vise à contribuer au développement de l'enfant, ce qui implique une dimension pédagogique et d'accompagnement."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.88,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "proposer des temps d'activité et de loisir à un enfant / créer un lien privilégié avec son parrain/marraine / action de solidarité",
+              "reasoning": "La mission implique un accompagnement humain et social direct auprès d'un enfant."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "intégrer notre réseau afin d'intégrer ces temps collectifs / s'adapter et répondre à vos besoins",
+              "reasoning": "La mission nécessite une capacité à travailler en collectif et à s'adapter aux besoins des autres."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "ponctuelle",
+            "taxonomyValueLabel": "Mission ponctuelle",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Une demi-journée / temps de rencontre mensuels",
+              "reasoning": "La mission est décrite comme une action ponctuelle ou mensuelle, sans durée fixe ou temps plein."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "social_sante_sport",
+            "taxonomyValueLabel": "Social, santé et sport",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "action de parrainage de proximité / permettre à l'enfant de créer un lien privilégié avec son parrain/marraine / action de solidarité",
+              "reasoning": "La mission relève du domaine social, de l'accompagnement et de la santé (développement de l'enfant), ce qui correspond à ce domaine de formation."
+            }
+          }
+        ]
+      },
+      "detail": {
+        "id": "656682cf7faba68de3d6b95d",
+        "title": "J'assure un parrainage de Proximité, pour aider un enfant à grandir",
+        "domain": "solidarite-insertion",
+        "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12166/dRHWvAk9ViLSUPbMRWEttmsNvituig.jpg?v=1753367089",
+        "type": "benevolat",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png",
+        "organizationName": "Udaf du nord",
+        "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/10235/X8VtoGkIw8j8F72r1eR031lLcsHlMB.png?v=1737382248",
+        "location": {
+          "city": "Lille",
+          "address": "10 Rue Baptiste Monnoyer, 59000 Lille",
+          "lat": 50.631073,
+          "lon": 3.064111
+        },
+        "startAt": "2023-01-01T00:00:00.000Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "Une demi-journée",
+        "compensation": null,
+        "descriptionHtml": "<b>Présentation de la mission</b><br><p>RESPIRE est une action de parrainage de proximité. Nous proposons de mettre des bénévoles en relation avec un enfant et sa famille, dans l'objectif qu'il devienne le parrain ou la marraine de cet enfant.&nbsp;</p><p>Le parrainage a pour objectif de permettre à l'enfant de créer un lien privilégié avec son parrain/marraine et de passer des moments agréables et favorable à son développement.</p><p>Pour l’enfant, c’est créer un nouveau lien social, pour les parents, un réseau de sympathie, d’ouverture et de coéducation et pour celui qui s’engage dans le parrainage de proximité, c’est une action de solidarité.</p><p>Nous sommes actuellement implantés sur la Métropole Lilloise et le Valenciennois.&nbsp;</p><br><br><b>Sautez le pas</b><br><p>Votre engagement permet de participer à la construction et au développement d'un enfant et de passer des moments agréables au sein d'un collectif dynamique et bienveillant</p><p>Durant votre action, vous serez accompagné et soutenu par des professionnels en capacité de s'adapter et de répondre à vos besoins.</p><p>Cette action de parrainage s'adapte au rythme et aux possibilités de chacun. Il peut s'agir de temps de rencontre mensuels, ou de moments plus engageants si vous en ressentez l'envie (des week-ends complets, des temps de vacances, etc…)</p><p>Avant tout engagement, n’hésitez pas à nous contacter. Nous réalisons des réunions d'informations afin de vous expliquer notre action. Ces réunions se font en Visio, si vous souhaitez y participer, vous pouvez nous contacter afin de vous inscrire</p><br><br><b>Précisions</b><br><p>Le rôle du bénévole est de proposer des temps d'activité et de loisir à un enfant. Il n'y a pas de rythme fixé. Cela dépend des possibilités du bénévole et des besoins de l'enfant.</p><p>RESPIRE propose des temps collectifs mensuels (jeux de sociétés, goûter partagé, animations ludiques ou sportives...) pour permettre aux enfants, parents et adultes bénévoles de se rencontrer et d'apprendre à se connaitre. Si une relation se tisse entre un enfant et un bénévole, ils peuvent se voir en dehors des temps collectifs à un rythme qui convient à chacun en accord avec les parents, pour partager des moments simples ou des loisirs.</p><p>Le bénévole s'engage donc à intégrer notre réseau afin d'intégrer ces temps collectifs, nécessaires à la rencontre et à la création d'un premier lien de confiance.</p>",
+        "description": "Présentation de la mission\n\n\nRESPIRE est une action de parrainage de proximité. Nous proposons de mettre des\nbénévoles en relation avec un enfant et sa famille, dans l'objectif qu'il\ndevienne le parrain ou la marraine de cet enfant. \n\nLe parrainage a pour objectif de permettre à l'enfant de créer un lien\nprivilégié avec son parrain/marraine et de passer des moments agréables et\nfavorable à son développement.\n\nPour l’enfant, c’est créer un nouveau lien social, pour les parents, un réseau\nde sympathie, d’ouverture et de coéducation et pour celui qui s’engage dans le\nparrainage de proximité, c’est une action de solidarité.\n\nNous sommes actuellement implantés sur la Métropole Lilloise et le\nValenciennois. \n\n\n\nSautez le pas\n\n\nVotre engagement permet de participer à la construction et au développement d'un\nenfant et de passer des moments agréables au sein d'un collectif dynamique et\nbienveillant\n\nDurant votre action, vous serez accompagné et soutenu par des professionnels en\ncapacité de s'adapter et de répondre à vos besoins.\n\nCette action de parrainage s'adapte au rythme et aux possibilités de chacun. Il\npeut s'agir de temps de rencontre mensuels, ou de moments plus engageants si\nvous en ressentez l'envie (des week-ends complets, des temps de vacances, etc…)\n\nAvant tout engagement, n’hésitez pas à nous contacter. Nous réalisons des\nréunions d'informations afin de vous expliquer notre action. Ces réunions se\nfont en Visio, si vous souhaitez y participer, vous pouvez nous contacter afin\nde vous inscrire\n\n\n\nPrécisions\n\n\nLe rôle du bénévole est de proposer des temps d'activité et de loisir à un\nenfant. Il n'y a pas de rythme fixé. Cela dépend des possibilités du bénévole et\ndes besoins de l'enfant.\n\nRESPIRE propose des temps collectifs mensuels (jeux de sociétés, goûter partagé,\nanimations ludiques ou sportives...) pour permettre aux enfants, parents et\nadultes bénévoles de se rencontrer et d'apprendre à se connaitre. Si une\nrelation se tisse entre un enfant et un bénévole, ils peuvent se voir en dehors\ndes temps collectifs à un rythme qui convient à chacun en accord avec les\nparents, pour partager des moments simples ou des loisirs.\n\nLe bénévole s'engage donc à intégrer notre réseau afin d'intégrer ces temps\ncollectifs, nécessaires à la rencontre et à la création d'un premier lien de\nconfiance.",
+        "applicationUrl": "http://localhost:4000/r/656682cf7faba68de3d6b95d/c4a9ce23692082d70af2b16d",
+        "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12166/dRHWvAk9ViLSUPbMRWEttmsNvituig.jpg?v=1753367089",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 13
+      },
+      "descriptionMissing": false
+    }
+  ],
+  "deterministic": {
+    "geo": 5,
+    "format": 4,
+    "missionsSansTagFormat": [],
+    "gateViolations": []
+  },
+  "judgeRuns": [
+    {
+      "runIndex": 0,
+      "seed": 1774880313,
+      "order": [
+        "616a5cc97dd83e074d7409a3",
+        "1bbc82a3-ae08-4ef2-933f-1abda19eb4c6",
+        "ec9b2056-6a4d-4331-ae80-bfb6f494989b",
+        "6226eb86285e0d07a0699c90",
+        "656682cf7faba68de3d6b95d"
+      ],
+      "output": {
+        "coherence": {
+          "score": 3,
+          "missionsPertinentes": [
+            1,
+            3,
+            4
+          ],
+          "justification": "Parmi les 5 missions proposées, 3 correspondent bien au profil de Manon, une lycéenne de 16 ans cherchant une mission ponctuelle, utile et concrète sur le terrain avec aide directe et action terrain à Lille. La mission 1 (accompagnement de personnes en situation de handicap lors d'un séjour) est ponctuelle (2 jours) et sur le terrain, avec aide directe. La mission 3 (mécanicien vélo) est une mission concrète sur le terrain, ponctuelle (une demi-journée), utile et engageante. La mission 4 (parrainage de proximité) est aussi une action de terrain, utile et concrète, avec engagement flexible et ponctuel. Les missions 0 (témoignage métier) et 2 (sensibilisation éco-responsable) ne correspondent pas bien : la 0 est plutôt un témoignage à distance, pas d'action terrain directe, et la 2 est un engagement long (24h/semaine) et moins ponctuel.",
+          "missionIdsPertinents": [
+            "616a5cc97dd83e074d7409a3",
+            "ec9b2056-6a4d-4331-ae80-bfb6f494989b",
+            "6226eb86285e0d07a0699c90"
+          ]
+        },
+        "homogeneite": {
+          "score": 4,
+          "familles": [
+            "Accompagnement social et humain",
+            "Action terrain et aide directe",
+            "Sensibilisation et animation"
+          ],
+          "justification": "Les missions pertinentes se répartissent principalement dans deux familles : accompagnement social et humain (missions 1 et 4) et action terrain et aide directe (mission 3). La mission 2 est dans sensibilisation, mais non pertinente ici. La diversité est donc de 3 familles, avec une majorité dans accompagnement social et humain (2 missions). Cela correspond à un score 4."
+        },
+        "cause": "offre"
+      }
+    },
+    {
+      "runIndex": 1,
+      "seed": 1758102694,
+      "order": [
+        "616a5cc97dd83e074d7409a3",
+        "656682cf7faba68de3d6b95d",
+        "1bbc82a3-ae08-4ef2-933f-1abda19eb4c6",
+        "ec9b2056-6a4d-4331-ae80-bfb6f494989b",
+        "6226eb86285e0d07a0699c90"
+      ],
+      "output": {
+        "coherence": {
+          "score": 2,
+          "missionsPertinentes": [
+            1,
+            2
+          ],
+          "justification": "Parmi les 5 missions proposées, seules les missions 1 (parrainage d'enfant) et 2 (accompagnement de personnes handicapées lors d'un séjour) correspondent bien au profil de Manon, qui cherche une mission ponctuelle, utile et concrète sur le terrain avec aide directe. La mission 1 est une action de terrain avec un engagement direct auprès d'un enfant, et la mission 2 est une sortie concrète sur 2 jours avec accompagnement direct. Les autres missions sont soit trop longues, trop théoriques, ou ne correspondent pas à une action ponctuelle sur le terrain.",
+          "missionIdsPertinents": [
+            "616a5cc97dd83e074d7409a3",
+            "656682cf7faba68de3d6b95d"
+          ]
+        },
+        "homogeneite": {
+          "score": 3,
+          "familles": [
+            "aide sociale/enfance",
+            "accompagnement handicap",
+            "sensibilisation environnement",
+            "mécanique vélo"
+          ],
+          "justification": "Les missions proposées couvrent plusieurs familles différentes : parrainage et aide à l'enfance (mission 1), accompagnement handicap (mission 2), sensibilisation éco-responsable (mission 3), et mécanique vélo (mission 4). Il y a 4 familles distinctes, sans majorité d'une famille avec au moins 3 missions."
+        },
+        "cause": "offre"
+      }
+    }
+  ],
+  "engineVersion": "m2",
+  "startedAt": "2026-07-07T12:44:05.890Z",
+  "finishedAt": "2026-07-07T12:44:21.754Z",
+  "verdict": 3.5,
+  "cleanup": {
+    "userScoringDeleted": true
+  }
+}

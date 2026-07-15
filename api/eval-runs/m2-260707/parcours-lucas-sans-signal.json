@@ -1,0 +1,2564 @@
+{
+  "status": "success",
+  "parcours": {
+    "id": "lucas-sans-signal",
+    "segment": "etudiant",
+    "label": "Lucas, 19 ans, étudiant à Toulouse, n'a pas encore de préférence claire et veut explorer les missions disponibles",
+    "locationLabel": "Toulouse (31)",
+    "age": 19,
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 19,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "statut",
+        "value": "etudiant"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 43.604652,
+          "lon": 1.444209,
+          "country_code": "fr",
+          "label": "Toulouse (31)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "je_ne_sais_pas"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "ne_sais_pas"
+      },
+      {
+        "taxonomy": "domaine",
+        "value": "je_ne_sais_pas"
+      }
+    ]
+  },
+  "payload": {
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 19,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "statut",
+        "value": "etudiant"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 43.604652,
+          "lon": 1.444209,
+          "country_code": "fr",
+          "label": "Toulouse (31)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "je_ne_sais_pas"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "ne_sais_pas"
+      },
+      {
+        "taxonomy": "domaine",
+        "value": "je_ne_sais_pas"
+      }
+    ],
+    "distinctId": "eval:m2-260707:lucas-sans-signal",
+    "missionAlertEnabled": false
+  },
+  "userScoringId": "02bb68db-caba-4975-a7a4-bd8094a911e9",
+  "match": {
+    "tookMs": 5485,
+    "engineVersion": "m2",
+    "items": [
+      {
+        "mission": {
+          "id": "6537bff6557894a1b7b05331",
+          "title": "J'accompagne des porteurs de projets en précarité à créer leur activité en milieu rural",
+          "remote": "no",
+          "schedule": "",
+          "domain": "humanitaire",
+          "domainOriginal": null,
+          "organizationName": "Fondation Raoul Follereau Siège",
+          "publisherId": "634e641783b660072d4c597e",
+          "publisherName": "Fondation Raoul-Follereau",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_01.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_01.jpeg",
+            "organizationLogo": null,
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/634e641783b660072d4c597e/logo"
+          },
+          "location": {
+            "city": "Toulouse",
+            "closestLat": 43.604462,
+            "closestLon": 1.444247,
+            "closestAddress": "31000 Toulouse, FR",
+            "addressId": "6c14bc64-4846-4413-ada8-1eea97e2671c",
+            "distanceKm": 0.021347443665208077
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/6537bff6557894a1b7b05331/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "c850e62e-1957-43d7-9530-23e5c26207aa",
+          "totalScore": 0.59963,
+          "taxonomyScore": 0.2,
+          "geoScore": 0.99926,
+          "taxonomyScores": {
+            "tranche_age": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "aider des personnes en difficultés / accompagnement et un suivi personnalisé de la part d'un responsable de la Fondation / lutter contre toute forme d’exclusion causée par la maladie, l'ignorance ou la pauvreté",
+                "reasoning": "La mission est centrée sur l'accompagnement de personnes en précarité et la lutte contre l'exclusion, ce qui relève clairement du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "gestion_projet",
+              "taxonomyValueLabel": "Gestion de projet",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "étudier les demandes d'aide et assurer un suivi régulier de porteurs de projet / développer le réseau de partenaires locaux / gestion de projet seront appréciées",
+                "reasoning": "Les tâches décrites incluent une forte composante de coordination, suivi et organisation, typique de la gestion de projet."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "aider des personnes en difficultés / accompagnement et un suivi personnalisé / lutter contre toute forme d’exclusion causée par la maladie, l'ignorance ou la pauvreté",
+                "reasoning": "La mission s'inscrit dans le secteur de l'aide à la personne et du social, avec une dimension d'insertion et de réinsertion."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "gestion_commerce_organisation",
+              "taxonomyValueLabel": "Gestion, commerce et organisation",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "étudier les demandes d'aide et assurer un suivi régulier de porteurs de projet / développer le réseau de partenaires locaux / gestion de projet seront appréciées",
+                "reasoning": "Les tâches incluent une forte composante de gestion, coordination et développement de partenariats."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Fréquence : Selon vos disponibilités / Implication sur la durée",
+                "reasoning": "La mission est décrite comme une implication sur la durée avec une fréquence adaptée aux disponibilités, ce qui correspond à une mission régulière."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "gestion_pilotage_juridique",
+              "taxonomyValueLabel": "Gestion, pilotage, juridique",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "étudier les demandes d'aide et assurer un suivi régulier de porteurs de projet / gestion de projet seront appréciées",
+                "reasoning": "Les tâches incluent l'étude de demandes et le suivi de projets, ce qui relève de la gestion et du pilotage."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "développer le réseau de partenaires locaux / accompagnement et un suivi personnalisé",
+                "reasoning": "La mission implique le développement de partenariats et un accompagnement personnalisé, ce qui relève de la coopération et des soft skills."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "étudier les demandes d'aide et assurer un suivi régulier de porteurs de projet / développer le réseau de partenaires locaux",
+                "reasoning": "Les tâches principales consistent à soutenir l'organisation en étudiant des demandes, assurant un suivi et développant des partenariats."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "La Fondation assure la formation et guide chaque accompagnateur bénévole dans sa mission / accompagnement et un suivi personnalisé",
+                "reasoning": "La mission inclut une dimension de transmission de connaissances et de compétences via la formation et l'accompagnement."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "commerce_gestion_finance",
+              "taxonomyValueLabel": "Commerce, gestion, finance et services",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Des compétences en gestion/finance ou marketing/communication ou gestion de projet ou encore création d’activité seront appréciées",
+                "reasoning": "Les compétences recherchées incluent explicitement la gestion, la finance et la gestion de projet, ce qui relève de ce domaine de formation."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "social_sante_sport",
+              "taxonomyValueLabel": "Social, santé et sport",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "aider des personnes en difficultés / lutter contre toute forme d’exclusion causée par la maladie, l'ignorance ou la pauvreté / insertion",
+                "reasoning": "La mission est clairement orientée vers l'aide aux personnes en précarité et l'insertion, ce qui relève de ce domaine de formation."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "6900a5e5c5967b5e05e5531e",
+          "title": "J'agis en Afrique sur la gestion et la valorisation des déchets",
+          "remote": "no",
+          "schedule": "",
+          "domain": "emploi",
+          "domainOriginal": null,
+          "organizationName": "ECTI Siège / International",
+          "publisherId": "5f592d415655a711feb4460e",
+          "publisherName": "Benevolt",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/emploi_01.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/emploi_01.jpeg",
+            "organizationLogo": null,
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo"
+          },
+          "location": {
+            "city": "Toulouse",
+            "closestLat": 43.604462,
+            "closestLon": 1.444247,
+            "closestAddress": "31000 Toulouse, FR",
+            "addressId": "77fd8eac-f212-442c-afb6-6ed8613eb829",
+            "distanceKm": 0.021347443665208077
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/6900a5e5c5967b5e05e5531e/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "0b903853-1008-499e-b822-444094d06e6b",
+          "totalScore": 0.59963,
+          "taxonomyScore": 0.2,
+          "geoScore": 0.99926,
+          "taxonomyScores": {
+            "tranche_age": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "gestion_projet",
+              "taxonomyValueLabel": "Gestion de projet",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "conduire des missions d'audit, conseils et gestion de projet auprès des autorités locales",
+                "reasoning": "Les tâches principales consistent en de l'audit, du conseil et de la gestion de projet, ce qui relève clairement de la gestion de projet."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "environnement_nature",
+              "taxonomyValueLabel": "Environnement et nature",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "gestion et la valorisation des déchets urbains / gestion d'un grand centre de tri urbain mais surtout de la valorisation des déchets",
+                "reasoning": "La mission porte sur la gestion et la valorisation des déchets, domaine environnemental."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "gestion_commerce_organisation",
+              "taxonomyValueLabel": "Gestion, commerce et organisation",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "conduire des missions d'audit, conseils et gestion de projet auprès des autorités locales",
+                "reasoning": "Les tâches décrites relèvent de l'organisation, de la gestion et du conseil, typiques du secteur gestion/commerce/organisation."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "environnement_agriculture",
+              "taxonomyValueLabel": "Environnement et agriculture",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "gestion et la valorisation des déchets urbains / gestion d'un grand centre de tri urbain",
+                "reasoning": "La mission est centrée sur la gestion des déchets, secteur lié à l'environnement et à l'agriculture (gestion des ressources)."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "ponctuelle",
+              "taxonomyValueLabel": "Mission ponctuelle",
+              "enrichmentConfidence": 0.99,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "La durée prévue est de deux semaines / mission consiste à réaliser un audit des installations existantes à Garoua (Nord CAMEROUN)",
+                "reasoning": "La mission est explicitement limitée à deux semaines, ce qui correspond à une mission ponctuelle."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "gestion_pilotage_juridique",
+              "taxonomyValueLabel": "Gestion, pilotage, juridique",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "conduire des missions d'audit, conseils et gestion de projet auprès des autorités locales",
+                "reasoning": "Les tâches incluent de l'audit et de la gestion de projet, compétences relevant de la gestion et du pilotage."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "conduire des missions d'audit, conseils et gestion de projet auprès des autorités locales / Après avoir constitué une équipe",
+                "reasoning": "La mission implique la constitution d'une équipe et la collaboration avec des autorités locales, relevant des soft skills et de l'organisation."
+              }
+            },
+            {
+              "taxonomyKey": "region_internationale",
+              "taxonomyValueKey": "afrique",
+              "taxonomyValueLabel": "Afrique",
+              "enrichmentConfidence": 0.99,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Dans le cadre de projets en Afrique, et plus particulièrement au Cameroun / réaliser un audit des installations existantes à Garoua (Nord CAMEROUN)",
+                "reasoning": "La mission se déroule explicitement au Cameroun, en Afrique."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "conduire des missions d'audit, conseils et gestion de projet auprès des autorités locales / partager votre expertise dans la gestion et la valorisation des déchets urbains",
+                "reasoning": "La mission consiste à apporter un soutien organisationnel et technique via des missions d'audit et de conseil."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "commerce_gestion_finance",
+              "taxonomyValueLabel": "Commerce, gestion, finance et services",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "conduire des missions d'audit, conseils et gestion de projet",
+                "reasoning": "Les tâches relèvent de la gestion, de l'audit et du conseil, domaines couverts par la formation en commerce et gestion."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "environnement_nature_sciences",
+              "taxonomyValueLabel": "Environnement, nature et sciences",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "gestion et la valorisation des déchets urbains / gestion d'un grand centre de tri urbain",
+                "reasoning": "La mission porte sur la gestion des déchets, domaine lié à l'environnement et aux sciences."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "63fc9c771b1e29d98663ff24",
+          "title": "Je modélise un système économique post-croissance",
+          "remote": "no",
+          "schedule": "",
+          "domain": "environnement",
+          "domainOriginal": null,
+          "organizationName": "Ex Naturae",
+          "publisherId": "5f592d415655a711feb4460e",
+          "publisherName": "Benevolt",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_02.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_02.jpeg",
+            "organizationLogo": null,
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo"
+          },
+          "location": {
+            "city": "Toulouse",
+            "closestLat": 43.6044,
+            "closestLon": 1.4442,
+            "closestAddress": "Capitole - Mairie de Toulouse, 31000 Toulouse, FR",
+            "addressId": "0e83f8dc-d866-4bff-a8e4-a53d4ced7166",
+            "distanceKm": 0.02803049033285733
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/63fc9c771b1e29d98663ff24/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "d9996fd8-623b-4334-8f64-3679d1887685",
+          "totalScore": 0.599515,
+          "taxonomyScore": 0.2,
+          "geoScore": 0.999029,
+          "taxonomyScores": {
+            "tranche_age": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "environnement_nature",
+              "taxonomyValueLabel": "Environnement et nature",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "l’ONG Ex Naturae recherche une personne capable de penser en dehors des cadres imposés par la pensée dominante et qui souhaiterait mettre ses compétences à profit pour bâtir l’économie de demain ! / l’économie homéostatique. Il s’agit d’une nouvelle approche monétaire s’inspirant du fonctionnement du vivant et visant à concilier la réalité économique avec la réalité physique et biologique",
+                "reasoning": "La mission est centrée sur une approche économique écologique inspirée du vivant, clairement liée à l'environnement et à la nature."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Vous intégrerez une équipe pluridisciplinaire s’attachant à construire une modélisation stock/flux de la théorie économique post-croissance / Les bénévoles sont formés s’ils le souhaitent dans différents domaines : l’économie, l’écologie, la systémique, l’organisation, littératie, etc.",
+                "reasoning": "La mission implique la transmission de savoirs et la formation des bénévoles, ce qui relève de l'éducation et de la transmission."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "numerique_communication",
+              "taxonomyValueLabel": "Numérique et communication",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "analyse de données, la mise en équation d’interactions complexes",
+                "reasoning": "La mission mentionne explicitement l'analyse de données et la modélisation mathématique, compétences liées au numérique et à la communication."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "gestion_commerce_organisation",
+              "taxonomyValueLabel": "Gestion, commerce et organisation",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Vous intégrerez une équipe pluridisciplinaire s’attachant à construire une modélisation stock/flux / Les bénévoles sont formés s’ils le souhaitent dans différents domaines : l’économie, l’écologie, la systémique, l’organisation",
+                "reasoning": "La mission implique une participation à la construction d'un modèle économique et à l'organisation d'une équipe, relevant de la gestion et de l'organisation."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "communication_creation_numerique",
+              "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "analyse de données, la mise en équation d’interactions complexes, une compréhension de la logique systémique",
+                "reasoning": "La mission nécessite des compétences en analyse de données, modélisation mathématique et systémique, typiques du domaine numérique et de la création."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "gestion_pilotage_juridique",
+              "taxonomyValueLabel": "Gestion, pilotage, juridique",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "construire une modélisation stock/flux de la théorie économique post-croissance",
+                "reasoning": "La modélisation économique implique une approche structurée et organisationnelle, proche de la gestion et du pilotage."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Les bénévoles sont formés s’ils le souhaitent dans différents domaines : l’économie, l’écologie, la systémique, l’organisation / Un accompagnement personnalisé est à disposition de chaque arrivant",
+                "reasoning": "La mission inclut explicitement la formation et l'accompagnement des bénévoles, relevant de la transmission de savoirs."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Vous intégrerez une équipe pluridisciplinaire s’attachant à construire une modélisation stock/flux / Les bénévoles sont formés s’ils le souhaitent dans différents domaines",
+                "reasoning": "La mission consiste à contribuer à la construction d'un modèle économique et à soutenir l'organisation de l'équipe, relevant du support organisationnel."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "environnement_nature_sciences",
+              "taxonomyValueLabel": "Environnement, nature et sciences",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "l’économie homéostatique. Il s’agit d’une nouvelle approche monétaire s’inspirant du fonctionnement du vivant et visant à concilier la réalité économique avec la réalité physique et biologique / Ex naturae est une ONG qui promeut l’économie écologique",
+                "reasoning": "La mission est clairement liée à l'environnement, la nature et les sciences, notamment via l'économie écologique et la modélisation systémique."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "promouvoir l'Économie à Equilibre Dynamique, la paix et l'équilibre environnemental",
+                "reasoning": "La mission aborde des enjeux systémiques et économiques liés à la société, au droit et à la politique, notamment via la promotion de l'équilibre environnemental."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Fréquence : Un à plusieurs jours par semaine (selon dispo) / Durée : Indéterminée",
+                "reasoning": "La mission est prévue pour se dérouler sur une durée indéterminée avec une fréquence hebdomadaire, relevant d'une mission régulière."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "689b3edb0289c68c013fda77",
+          "title": "Je contribue à des projets à impact positifs locaux et internationaux",
+          "remote": "no",
+          "schedule": "",
+          "domain": "environnement",
+          "domainOriginal": null,
+          "organizationName": "Global Shapers Toulouse",
+          "publisherId": "5f592d415655a711feb4460e",
+          "publisherName": "Benevolt",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_03.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_03.jpeg",
+            "organizationLogo": null,
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo"
+          },
+          "location": {
+            "city": "Toulouse",
+            "closestLat": 43.603824,
+            "closestLon": 1.442935,
+            "closestAddress": "Place Du Capitole, 31000 Toulouse, FR",
+            "addressId": "99444cfd-806e-4534-a2de-95f24c6d1de1",
+            "distanceKm": 0.1378389072865465
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/689b3edb0289c68c013fda77/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "2679cb91-ef4c-405f-998d-7977c223847e",
+          "totalScore": 0.597617,
+          "taxonomyScore": 0.2,
+          "geoScore": 0.995234,
+          "taxonomyScores": {
+            "tranche_age": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "environnement_nature",
+              "taxonomyValueLabel": "Environnement et nature",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Participez à des projets locaux et globaux, échangez avec des acteurs engagés, développez vos compétences tout en faisant la différence / Nous organisons des rencontres hebdomadaires pour permettre à chacun·e de s’engager selon ses disponibilités / Ensemble, nous travaillons sur des projets autour de l’environnement, de l’inclusion et de la citoyenneté",
+                "reasoning": "La mission décrit explicitement des projets locaux et internationaux centrés sur l'environnement, l'inclusion et la citoyenneté, avec une participation active des bénévoles."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Participez à des projets locaux et globaux, échangez avec des acteurs engagés, développez vos compétences tout en faisant la différence / Ensemble, nous travaillons sur des projets autour de l’environnement, de l’inclusion et de la citoyenneté",
+                "reasoning": "Les projets mentionnés couvrent explicitement l'environnement, l'inclusion sociale et la citoyenneté, ce qui justifie plusieurs domaines."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Participez à des projets locaux et globaux, échangez avec des acteurs engagés, développez vos compétences tout en faisant la différence / Ensemble, nous travaillons sur des projets autour de l’environnement, de l’inclusion et de la citoyenneté",
+                "reasoning": "Les projets incluent explicitement des actions liées à la citoyenneté et à l'inclusion sociale."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Nous organisons des rencontres hebdomadaires pour permettre à chacun·e de s’engager selon ses disponibilités / Plusieurs fois par an, nous participons aussi à des rencontres internationales pour échanger et grandir collectivement",
+                "reasoning": "La mission décrit une participation active à des projets et rencontres, avec une dimension collective et internationale."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "action_terrain",
+              "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Participez à des projets locaux et globaux / Nous organisons des rencontres hebdomadaires pour permettre à chacun·e de s’engager selon ses disponibilités / Ensemble, nous travaillons sur des projets autour de l’environnement, de l’inclusion et de la citoyenneté",
+                "reasoning": "La mission implique une participation concrète à des projets et actions, avec une dimension collective et structurée."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Nous organisons des rencontres hebdomadaires pour permettre à chacun·e de s’engager selon ses disponibilités / Formation des bénévoles : échange personnalisé, kit de bienvenue, parrain, sessions d’introduction, suivi régulier",
+                "reasoning": "La mission décrit une organisation structurée avec des rencontres régulières, une formation et un suivi des bénévoles."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Formation des bénévoles : échange personnalisé pour comprendre ses motivations et lui présenter notre mission / Un kit de bienvenue et un parrain facilitent son intégration / Des sessions d’introduction et des ressources en ligne assurent sa formation / Un suivi régulier, des moments conviviaux et des opportunités de responsabilité encouragent son engagement",
+                "reasoning": "La mission inclut une formation, un accompagnement personnalisé et un suivi régulier des bénévoles, ce qui relève de la transmission et de l'organisation."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Global Shapers Toulouse fait partie du Global Shapers Community, une initiative du Forum Économique Mondial / Ce réseau mondial regroupe des jeunes leaders âgés de 18 à 27 ans, engagés à avoir un impact positif sur leurs communautés locales et à contribuer à relever les grands défis mondiaux",
+                "reasoning": "La mission s'inscrit dans un cadre structuré et international, avec une organisation mondiale et des projets locaux et globaux."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "gestion_commerce_organisation",
+              "taxonomyValueLabel": "Gestion, commerce et organisation",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Participez à des projets locaux et globaux / Nous organisons des rencontres hebdomadaires / Plusieurs fois par an, nous participons aussi à des rencontres internationales",
+                "reasoning": "La mission implique une participation active à des projets et rencontres, avec une dimension collective et internationale."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "gestion_pilotage_juridique",
+              "taxonomyValueLabel": "Gestion, pilotage, juridique",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Formation des bénévoles : échange personnalisé, kit de bienvenue, parrain, sessions d’introduction, suivi régulier / Opportunités de responsabilité",
+                "reasoning": "La mission décrit une formation, un accompagnement et des opportunités de responsabilité, ce qui relève de la gestion et de l'organisation."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Formation des bénévoles : échange personnalisé pour comprendre ses motivations / Un kit de bienvenue et un parrain facilitent son intégration / Des sessions d’introduction et des ressources en ligne assurent sa formation",
+                "reasoning": "La mission inclut une formation, un accompagnement personnalisé et des ressources, ce qui relève de la coopération et des soft skills."
+              }
+            },
+            {
+              "taxonomyKey": "region_internationale",
+              "taxonomyValueKey": "europe",
+              "taxonomyValueLabel": "Europe",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Plusieurs fois par an, nous participons aussi à des rencontres internationales pour échanger et grandir collectivement",
+                "reasoning": "La mission mentionne explicitement des rencontres internationales, ce qui justifie une classification en région internationale."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Rejoignez une communauté internationale de jeunes de 18 à 27 ans, basée à Toulouse / Plusieurs fois par an, nous participons aussi à des rencontres internationales",
+                "reasoning": "La mission décrit une communauté internationale basée à Toulouse, avec des rencontres internationales régulières."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "68c2a2fbc08da2ec50a06b68",
+          "title": "Je rejoins une équipe proche de chez moi pour participer à la lutte contre la Faim !",
+          "remote": "no",
+          "schedule": "",
+          "domain": "humanitaire",
+          "domainOriginal": null,
+          "organizationName": "Action Contre La Faim - Siège",
+          "publisherId": "62432692651de907c463e29b",
+          "publisherName": "Action contre la Faim",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_02.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_02.jpeg",
+            "organizationLogo": null,
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/62432692651de907c463e29b/logo"
+          },
+          "location": {
+            "city": "Toulouse",
+            "closestLat": 43.60372,
+            "closestLon": 1.445711,
+            "closestAddress": "31000 Toulouse, FR",
+            "addressId": "f0bff4f0-2c4f-4e04-865a-638514d77009",
+            "distanceKm": 0.15926762676545184
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/68c2a2fbc08da2ec50a06b68/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "9acba929-eba6-45c4-8fb5-85ab2a35ef1d",
+          "totalScore": 0.597248,
+          "taxonomyScore": 0.2,
+          "geoScore": 0.994495,
+          "taxonomyScores": {
+            "tranche_age": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "international_humanitaire",
+              "taxonomyValueLabel": "International et humanitaire",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Lutte contre la Faim / Action contre la Faim / humanitaire / Nous sauvons des vies et réduisons l’insécurité nutritionnelle / acteurs de terrain / militants / Nous agissons partout, dans tous les contextes",
+                "reasoning": "La mission est explicitement liée à l'action humanitaire internationale de l'organisation, avec une finalité claire de lutte contre la faim et d'insécurité nutritionnelle."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Soutien à l’organisation d’événements solidaires / Sensibilisation du public aux enjeux de la lutte contre la faim / Participation à la vie associative et aux projets de terrain",
+                "reasoning": "Les activités décrites visent l'entraide, la sensibilisation et l'inclusion, caractéristiques du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Sensibilisation du public aux enjeux de la lutte contre la faim / Soutien à l’organisation d’événements solidaires",
+                "reasoning": "La mission relève du secteur de l'aide à la personne et du social, avec un focus sur la lutte contre la faim."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Fréquence : Quelques heures par mois / Durée : Flexible",
+                "reasoning": "La mission s'étend sur plusieurs semaines avec une fréquence mensuelle, ce qui correspond à une mission régulière."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Participer activement à la vie de l’antenne en fonction de tes envies et disponibilités / Participation à la vie associative et aux projets de terrain / Une réunion mensuelle d'équipe pour se retrouver et discuter ensemble des actions futures",
+                "reasoning": "La mission met en avant la coopération, l'organisation collective et les soft skills pour s'adapter aux besoins et aux envies."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "communication_creation_numerique",
+              "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Appui à la communication locale",
+                "reasoning": "La mission inclut un appui à la communication, ce qui relève des compétences en communication et outils numériques."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Sensibilisation du public aux enjeux de la lutte contre la faim",
+                "reasoning": "La mission implique explicitement la transmission de connaissances et la sensibilisation du public."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Soutien à l’organisation d’événements solidaires / Participation à la vie associative et aux projets de terrain",
+                "reasoning": "La mission inclut l'animation d'actions collectives et la participation à des projets associatifs."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Participer activement à la vie de l’antenne en fonction de tes envies et disponibilités / Appui à la communication locale",
+                "reasoning": "La mission décrit un soutien à l'organisation et à la communication, central pour le fonctionnement de l'antenne."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Sensibilisation du public aux enjeux de la lutte contre la faim / Nous croyons à la puissance du collectif / mobilisation collective",
+                "reasoning": "La mission relève des enjeux de société, de la politique publique et de la mobilisation citoyenne."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "social_sante_sport",
+              "taxonomyValueLabel": "Social, santé et sport",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Lutte contre la Faim / réduction de l’insécurité nutritionnelle / aide à la personne",
+                "reasoning": "La mission est liée à des enjeux sociaux et de santé publique, notamment la lutte contre la faim."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      }
+    ],
+    "total": 2937,
+    "avgDistanceKmTop5": 0.07
+  },
+  "missions": [
+    {
+      "mission": {
+        "id": "6537bff6557894a1b7b05331",
+        "title": "J'accompagne des porteurs de projets en précarité à créer leur activité en milieu rural",
+        "remote": "no",
+        "schedule": "",
+        "domain": "humanitaire",
+        "domainOriginal": null,
+        "organizationName": "Fondation Raoul Follereau Siège",
+        "publisherId": "634e641783b660072d4c597e",
+        "publisherName": "Fondation Raoul-Follereau",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_01.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_01.jpeg",
+          "organizationLogo": null,
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/634e641783b660072d4c597e/logo"
+        },
+        "location": {
+          "city": "Toulouse",
+          "closestLat": 43.604462,
+          "closestLon": 1.444247,
+          "closestAddress": "31000 Toulouse, FR",
+          "addressId": "6c14bc64-4846-4413-ada8-1eea97e2671c",
+          "distanceKm": 0.021347443665208077
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/6537bff6557894a1b7b05331/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "c850e62e-1957-43d7-9530-23e5c26207aa",
+        "totalScore": 0.59963,
+        "taxonomyScore": 0.2,
+        "geoScore": 0.99926,
+        "taxonomyScores": {
+          "tranche_age": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "aider des personnes en difficultés / accompagnement et un suivi personnalisé de la part d'un responsable de la Fondation / lutter contre toute forme d’exclusion causée par la maladie, l'ignorance ou la pauvreté",
+              "reasoning": "La mission est centrée sur l'accompagnement de personnes en précarité et la lutte contre l'exclusion, ce qui relève clairement du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "gestion_projet",
+            "taxonomyValueLabel": "Gestion de projet",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "étudier les demandes d'aide et assurer un suivi régulier de porteurs de projet / développer le réseau de partenaires locaux / gestion de projet seront appréciées",
+              "reasoning": "Les tâches décrites incluent une forte composante de coordination, suivi et organisation, typique de la gestion de projet."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "aider des personnes en difficultés / accompagnement et un suivi personnalisé / lutter contre toute forme d’exclusion causée par la maladie, l'ignorance ou la pauvreté",
+              "reasoning": "La mission s'inscrit dans le secteur de l'aide à la personne et du social, avec une dimension d'insertion et de réinsertion."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "gestion_commerce_organisation",
+            "taxonomyValueLabel": "Gestion, commerce et organisation",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "étudier les demandes d'aide et assurer un suivi régulier de porteurs de projet / développer le réseau de partenaires locaux / gestion de projet seront appréciées",
+              "reasoning": "Les tâches incluent une forte composante de gestion, coordination et développement de partenariats."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Fréquence : Selon vos disponibilités / Implication sur la durée",
+              "reasoning": "La mission est décrite comme une implication sur la durée avec une fréquence adaptée aux disponibilités, ce qui correspond à une mission régulière."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "gestion_pilotage_juridique",
+            "taxonomyValueLabel": "Gestion, pilotage, juridique",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "étudier les demandes d'aide et assurer un suivi régulier de porteurs de projet / gestion de projet seront appréciées",
+              "reasoning": "Les tâches incluent l'étude de demandes et le suivi de projets, ce qui relève de la gestion et du pilotage."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "développer le réseau de partenaires locaux / accompagnement et un suivi personnalisé",
+              "reasoning": "La mission implique le développement de partenariats et un accompagnement personnalisé, ce qui relève de la coopération et des soft skills."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "étudier les demandes d'aide et assurer un suivi régulier de porteurs de projet / développer le réseau de partenaires locaux",
+              "reasoning": "Les tâches principales consistent à soutenir l'organisation en étudiant des demandes, assurant un suivi et développant des partenariats."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "La Fondation assure la formation et guide chaque accompagnateur bénévole dans sa mission / accompagnement et un suivi personnalisé",
+              "reasoning": "La mission inclut une dimension de transmission de connaissances et de compétences via la formation et l'accompagnement."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "commerce_gestion_finance",
+            "taxonomyValueLabel": "Commerce, gestion, finance et services",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Des compétences en gestion/finance ou marketing/communication ou gestion de projet ou encore création d’activité seront appréciées",
+              "reasoning": "Les compétences recherchées incluent explicitement la gestion, la finance et la gestion de projet, ce qui relève de ce domaine de formation."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "social_sante_sport",
+            "taxonomyValueLabel": "Social, santé et sport",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "aider des personnes en difficultés / lutter contre toute forme d’exclusion causée par la maladie, l'ignorance ou la pauvreté / insertion",
+              "reasoning": "La mission est clairement orientée vers l'aide aux personnes en précarité et l'insertion, ce qui relève de ce domaine de formation."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "6537bff6557894a1b7b05331",
+        "title": "J'accompagne des porteurs de projets en précarité à créer leur activité en milieu rural",
+        "domain": "humanitaire",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_01.jpeg",
+        "type": "benevolat",
+        "publisherId": "634e641783b660072d4c597e",
+        "publisherName": "Fondation Raoul-Follereau",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/634e641783b660072d4c597e/logo",
+        "organizationName": "Fondation Raoul Follereau Siège",
+        "organizationLogo": null,
+        "location": {
+          "city": "Toulouse",
+          "address": "31000 Toulouse",
+          "lat": 43.604462,
+          "lon": 1.444247
+        },
+        "startAt": "2025-08-25T19:35:51.380Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "",
+        "compensation": null,
+        "descriptionHtml": "   Toulouse (31)<br>   Dès que possible<br><br><br>Vous voulez soutenir la création d'entreprise, aider des personnes en difficultés et le développement rural vous intéresse, tout cela à la fois ? \nRejoignez la Fondation Raoul Follereau qui apporte un soutien humain et financier à des personnes en précarité dans le lancement et le développement de leur activité en milieu rural.\nNous avons besoin de vous pour étudier les demandes d'aide et assurer un suivi régulier de porteurs de projet.\nSi vous avez la fibre d'un ambassadeur, vous pourrez également développer le réseau de partenaires locaux et répondre aux sollicitations de la presse.<br><br><p><strong>Informations pratiques</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Vous résidez en Occitanie où une majorité de nos porteurs de projet sont implantés. Cela vous permettra d’être au plus proche du terrain et de rendre visites aux porteurs de projet accompagnés.\nDes compétences en gestion/finance ou marketing/communication ou gestion de projet ou encore création d’activité seront appréciées.\nLa Fondation assure la formation et guide chaque accompagnateur bénévole dans sa mission.<br><br>Fréquence : Selon vos disponibilités<br>Durée : Implication sur la durée<br><br><p><strong>Informations sur l'association Fondation Raoul Follereau Siège</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>La Fondation Raoul Follereau poursuit le combat de son fondateur :  Bâtir un monde sans lèpre.\n\nEn plaçant l’homme au cœur de ses projets et en privilégiant les actions visant à soigner, éduquer et réinsérer, la Fondation lutte contre toute forme d’exclusion causée par la maladie, l’ignorance ou la pauvreté. Elle mobilise une véritable communauté de générosité qui associe donateurs, partenaires et bénévoles.<br><p><strong>Formation des bénévoles</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Le bénévole est accueilli par une équipe, il aura un accompagnement et un suivi personnalisé de la part d'un responsable  de la Fondation durant son parcours d'intégration.",
+        "description": "Toulouse (31)\nDès que possible\n\n\nVous voulez soutenir la création d'entreprise, aider des personnes en\ndifficultés et le développement rural vous intéresse, tout cela à la fois ?\nRejoignez la Fondation Raoul Follereau qui apporte un soutien humain et\nfinancier à des personnes en précarité dans le lancement et le développement de\nleur activité en milieu rural.\nNous avons besoin de vous pour étudier les demandes d'aide et assurer un suivi\nrégulier de porteurs de projet.\nSi vous avez la fibre d'un ambassadeur, vous pourrez également développer le\nréseau de partenaires locaux et répondre aux sollicitations de la presse.\n\n\n\nInformations pratiques\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nVous résidez en Occitanie où une majorité de nos porteurs de projet sont\nimplantés. Cela vous permettra d’être au plus proche du terrain et de rendre\nvisites aux porteurs de projet accompagnés.\nDes compétences en gestion/finance ou marketing/communication ou gestion de\nprojet ou encore création d’activité seront appréciées.\nLa Fondation assure la formation et guide chaque accompagnateur bénévole dans sa\nmission.\n\nFréquence : Selon vos disponibilités\nDurée : Implication sur la durée\n\n\n\nInformations sur l'association Fondation Raoul Follereau Siège\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nLa Fondation Raoul Follereau poursuit le combat de son fondateur : Bâtir un\nmonde sans lèpre.\n\nEn plaçant l’homme au cœur de ses projets et en privilégiant les actions visant\nà soigner, éduquer et réinsérer, la Fondation lutte contre toute forme\nd’exclusion causée par la maladie, l’ignorance ou la pauvreté. Elle mobilise une\nvéritable communauté de générosité qui associe donateurs, partenaires et\nbénévoles.\n\n\nFormation des bénévoles\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nLe bénévole est accueilli par une équipe, il aura un accompagnement et un suivi\npersonnalisé de la part d'un responsable de la Fondation durant son parcours\nd'intégration.",
+        "applicationUrl": "http://localhost:4000/r/6537bff6557894a1b7b05331/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_01.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "6900a5e5c5967b5e05e5531e",
+        "title": "J'agis en Afrique sur la gestion et la valorisation des déchets",
+        "remote": "no",
+        "schedule": "",
+        "domain": "emploi",
+        "domainOriginal": null,
+        "organizationName": "ECTI Siège / International",
+        "publisherId": "5f592d415655a711feb4460e",
+        "publisherName": "Benevolt",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/emploi_01.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/emploi_01.jpeg",
+          "organizationLogo": null,
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo"
+        },
+        "location": {
+          "city": "Toulouse",
+          "closestLat": 43.604462,
+          "closestLon": 1.444247,
+          "closestAddress": "31000 Toulouse, FR",
+          "addressId": "77fd8eac-f212-442c-afb6-6ed8613eb829",
+          "distanceKm": 0.021347443665208077
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/6900a5e5c5967b5e05e5531e/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "0b903853-1008-499e-b822-444094d06e6b",
+        "totalScore": 0.59963,
+        "taxonomyScore": 0.2,
+        "geoScore": 0.99926,
+        "taxonomyScores": {
+          "tranche_age": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "gestion_projet",
+            "taxonomyValueLabel": "Gestion de projet",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "conduire des missions d'audit, conseils et gestion de projet auprès des autorités locales",
+              "reasoning": "Les tâches principales consistent en de l'audit, du conseil et de la gestion de projet, ce qui relève clairement de la gestion de projet."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "environnement_nature",
+            "taxonomyValueLabel": "Environnement et nature",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "gestion et la valorisation des déchets urbains / gestion d'un grand centre de tri urbain mais surtout de la valorisation des déchets",
+              "reasoning": "La mission porte sur la gestion et la valorisation des déchets, domaine environnemental."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "gestion_commerce_organisation",
+            "taxonomyValueLabel": "Gestion, commerce et organisation",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "conduire des missions d'audit, conseils et gestion de projet auprès des autorités locales",
+              "reasoning": "Les tâches décrites relèvent de l'organisation, de la gestion et du conseil, typiques du secteur gestion/commerce/organisation."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "environnement_agriculture",
+            "taxonomyValueLabel": "Environnement et agriculture",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "gestion et la valorisation des déchets urbains / gestion d'un grand centre de tri urbain",
+              "reasoning": "La mission est centrée sur la gestion des déchets, secteur lié à l'environnement et à l'agriculture (gestion des ressources)."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "ponctuelle",
+            "taxonomyValueLabel": "Mission ponctuelle",
+            "enrichmentConfidence": 0.99,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "La durée prévue est de deux semaines / mission consiste à réaliser un audit des installations existantes à Garoua (Nord CAMEROUN)",
+              "reasoning": "La mission est explicitement limitée à deux semaines, ce qui correspond à une mission ponctuelle."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "gestion_pilotage_juridique",
+            "taxonomyValueLabel": "Gestion, pilotage, juridique",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "conduire des missions d'audit, conseils et gestion de projet auprès des autorités locales",
+              "reasoning": "Les tâches incluent de l'audit et de la gestion de projet, compétences relevant de la gestion et du pilotage."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "conduire des missions d'audit, conseils et gestion de projet auprès des autorités locales / Après avoir constitué une équipe",
+              "reasoning": "La mission implique la constitution d'une équipe et la collaboration avec des autorités locales, relevant des soft skills et de l'organisation."
+            }
+          },
+          {
+            "taxonomyKey": "region_internationale",
+            "taxonomyValueKey": "afrique",
+            "taxonomyValueLabel": "Afrique",
+            "enrichmentConfidence": 0.99,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Dans le cadre de projets en Afrique, et plus particulièrement au Cameroun / réaliser un audit des installations existantes à Garoua (Nord CAMEROUN)",
+              "reasoning": "La mission se déroule explicitement au Cameroun, en Afrique."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "conduire des missions d'audit, conseils et gestion de projet auprès des autorités locales / partager votre expertise dans la gestion et la valorisation des déchets urbains",
+              "reasoning": "La mission consiste à apporter un soutien organisationnel et technique via des missions d'audit et de conseil."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "commerce_gestion_finance",
+            "taxonomyValueLabel": "Commerce, gestion, finance et services",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "conduire des missions d'audit, conseils et gestion de projet",
+              "reasoning": "Les tâches relèvent de la gestion, de l'audit et du conseil, domaines couverts par la formation en commerce et gestion."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "environnement_nature_sciences",
+            "taxonomyValueLabel": "Environnement, nature et sciences",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "gestion et la valorisation des déchets urbains / gestion d'un grand centre de tri urbain",
+              "reasoning": "La mission porte sur la gestion des déchets, domaine lié à l'environnement et aux sciences."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "6900a5e5c5967b5e05e5531e",
+        "title": "J'agis en Afrique sur la gestion et la valorisation des déchets",
+        "domain": "emploi",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/emploi_01.jpeg",
+        "type": "benevolat",
+        "publisherId": "5f592d415655a711feb4460e",
+        "publisherName": "Benevolt",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo",
+        "organizationName": "ECTI Siège / International",
+        "organizationLogo": null,
+        "location": {
+          "city": "Toulouse",
+          "address": "31000 Toulouse",
+          "lat": 43.604462,
+          "lon": 1.444247
+        },
+        "startAt": "2025-10-28T11:15:31.939Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "",
+        "compensation": null,
+        "descriptionHtml": "   Toulouse (31)<br>   Dès que possible<br><br><br>Vous voulez partager votre expertise dans la gestion et la valorisation des déchets urbains avec des pays émergents. \n\nDans le cadre de projets en Afrique, et plus particulièrement au Cameroun, nous recherchons des spécialistes de la gestion d'un grand centre de tri urbain mais surtout de la valorisation des déchets.\n\nAprès avoir constitué une équipe, il s'agit de conduire des missions d'audit, conseils et gestion de projet auprès des autorités locales au cours du premier semestre 2023. \n\nDans un premier temps, la mission consiste à réaliser un audit des installations existantes à Garoua (Nord CAMEROUN). La durée prévue est de deux semaines.<br><br><p><strong>Informations pratiques</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>La connaissance de l'Afrique Centrale est souhaitable, mais pas indispensable. \nTous les frais de mission sont à la charge de l'organisation.\nECTI est une association de référence en bénévolat de compétence. Reconnue d'utilité publique, nous avons conduit, en 2022, 81 missions à l'étranger dont 75 % en partenariat avec l'ONUDI.\n\nCette mission s'adresse uniquement à des bénévoles retraités.<br><br><p><strong>Informations sur l'association ECTI Siège / International</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>.",
+        "description": "Toulouse (31)\nDès que possible\n\n\nVous voulez partager votre expertise dans la gestion et la valorisation des\ndéchets urbains avec des pays émergents.\n\nDans le cadre de projets en Afrique, et plus particulièrement au Cameroun, nous\nrecherchons des spécialistes de la gestion d'un grand centre de tri urbain mais\nsurtout de la valorisation des déchets.\n\nAprès avoir constitué une équipe, il s'agit de conduire des missions d'audit,\nconseils et gestion de projet auprès des autorités locales au cours du premier\nsemestre 2023.\n\nDans un premier temps, la mission consiste à réaliser un audit des installations\nexistantes à Garoua (Nord CAMEROUN). La durée prévue est de deux semaines.\n\n\n\nInformations pratiques\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nLa connaissance de l'Afrique Centrale est souhaitable, mais pas indispensable.\nTous les frais de mission sont à la charge de l'organisation.\nECTI est une association de référence en bénévolat de compétence. Reconnue\nd'utilité publique, nous avons conduit, en 2022, 81 missions à l'étranger dont\n75 % en partenariat avec l'ONUDI.\n\nCette mission s'adresse uniquement à des bénévoles retraités.\n\n\n\nInformations sur l'association ECTI Siège / International\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\n.",
+        "applicationUrl": "http://localhost:4000/r/6900a5e5c5967b5e05e5531e/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/emploi_01.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "63fc9c771b1e29d98663ff24",
+        "title": "Je modélise un système économique post-croissance",
+        "remote": "no",
+        "schedule": "",
+        "domain": "environnement",
+        "domainOriginal": null,
+        "organizationName": "Ex Naturae",
+        "publisherId": "5f592d415655a711feb4460e",
+        "publisherName": "Benevolt",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_02.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_02.jpeg",
+          "organizationLogo": null,
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo"
+        },
+        "location": {
+          "city": "Toulouse",
+          "closestLat": 43.6044,
+          "closestLon": 1.4442,
+          "closestAddress": "Capitole - Mairie de Toulouse, 31000 Toulouse, FR",
+          "addressId": "0e83f8dc-d866-4bff-a8e4-a53d4ced7166",
+          "distanceKm": 0.02803049033285733
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/63fc9c771b1e29d98663ff24/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "d9996fd8-623b-4334-8f64-3679d1887685",
+        "totalScore": 0.599515,
+        "taxonomyScore": 0.2,
+        "geoScore": 0.999029,
+        "taxonomyScores": {
+          "tranche_age": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "environnement_nature",
+            "taxonomyValueLabel": "Environnement et nature",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "l’ONG Ex Naturae recherche une personne capable de penser en dehors des cadres imposés par la pensée dominante et qui souhaiterait mettre ses compétences à profit pour bâtir l’économie de demain ! / l’économie homéostatique. Il s’agit d’une nouvelle approche monétaire s’inspirant du fonctionnement du vivant et visant à concilier la réalité économique avec la réalité physique et biologique",
+              "reasoning": "La mission est centrée sur une approche économique écologique inspirée du vivant, clairement liée à l'environnement et à la nature."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Vous intégrerez une équipe pluridisciplinaire s’attachant à construire une modélisation stock/flux de la théorie économique post-croissance / Les bénévoles sont formés s’ils le souhaitent dans différents domaines : l’économie, l’écologie, la systémique, l’organisation, littératie, etc.",
+              "reasoning": "La mission implique la transmission de savoirs et la formation des bénévoles, ce qui relève de l'éducation et de la transmission."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "numerique_communication",
+            "taxonomyValueLabel": "Numérique et communication",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "analyse de données, la mise en équation d’interactions complexes",
+              "reasoning": "La mission mentionne explicitement l'analyse de données et la modélisation mathématique, compétences liées au numérique et à la communication."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "gestion_commerce_organisation",
+            "taxonomyValueLabel": "Gestion, commerce et organisation",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Vous intégrerez une équipe pluridisciplinaire s’attachant à construire une modélisation stock/flux / Les bénévoles sont formés s’ils le souhaitent dans différents domaines : l’économie, l’écologie, la systémique, l’organisation",
+              "reasoning": "La mission implique une participation à la construction d'un modèle économique et à l'organisation d'une équipe, relevant de la gestion et de l'organisation."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "communication_creation_numerique",
+            "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "analyse de données, la mise en équation d’interactions complexes, une compréhension de la logique systémique",
+              "reasoning": "La mission nécessite des compétences en analyse de données, modélisation mathématique et systémique, typiques du domaine numérique et de la création."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "gestion_pilotage_juridique",
+            "taxonomyValueLabel": "Gestion, pilotage, juridique",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "construire une modélisation stock/flux de la théorie économique post-croissance",
+              "reasoning": "La modélisation économique implique une approche structurée et organisationnelle, proche de la gestion et du pilotage."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Les bénévoles sont formés s’ils le souhaitent dans différents domaines : l’économie, l’écologie, la systémique, l’organisation / Un accompagnement personnalisé est à disposition de chaque arrivant",
+              "reasoning": "La mission inclut explicitement la formation et l'accompagnement des bénévoles, relevant de la transmission de savoirs."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Vous intégrerez une équipe pluridisciplinaire s’attachant à construire une modélisation stock/flux / Les bénévoles sont formés s’ils le souhaitent dans différents domaines",
+              "reasoning": "La mission consiste à contribuer à la construction d'un modèle économique et à soutenir l'organisation de l'équipe, relevant du support organisationnel."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "environnement_nature_sciences",
+            "taxonomyValueLabel": "Environnement, nature et sciences",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "l’économie homéostatique. Il s’agit d’une nouvelle approche monétaire s’inspirant du fonctionnement du vivant et visant à concilier la réalité économique avec la réalité physique et biologique / Ex naturae est une ONG qui promeut l’économie écologique",
+              "reasoning": "La mission est clairement liée à l'environnement, la nature et les sciences, notamment via l'économie écologique et la modélisation systémique."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "promouvoir l'Économie à Equilibre Dynamique, la paix et l'équilibre environnemental",
+              "reasoning": "La mission aborde des enjeux systémiques et économiques liés à la société, au droit et à la politique, notamment via la promotion de l'équilibre environnemental."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Fréquence : Un à plusieurs jours par semaine (selon dispo) / Durée : Indéterminée",
+              "reasoning": "La mission est prévue pour se dérouler sur une durée indéterminée avec une fréquence hebdomadaire, relevant d'une mission régulière."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "63fc9c771b1e29d98663ff24",
+        "title": "Je modélise un système économique post-croissance",
+        "domain": "environnement",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_02.jpeg",
+        "type": "benevolat",
+        "publisherId": "5f592d415655a711feb4460e",
+        "publisherName": "Benevolt",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo",
+        "organizationName": "Ex Naturae",
+        "organizationLogo": null,
+        "location": {
+          "city": "Toulouse",
+          "address": "Capitole - Mairie de Toulouse, 31000 Toulouse",
+          "lat": 43.6044,
+          "lon": 1.4442
+        },
+        "startAt": "2025-08-25T19:17:53.080Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "",
+        "compensation": null,
+        "descriptionHtml": "   Toulouse (31)<br>   Dès que possible<br><br><br>Vous êtes économiste ou étudiant(e) en économie, vous voulez aider bénévolement sur un projet hors des sentiers battus ?\n\nCela tombe bien, l’ONG Ex Naturae recherche une personne capable de penser en dehors des cadres imposés par la pensée dominante et qui souhaiterait mettre ses compétences à profit pour bâtir l’économie de demain !\n\nVous intégrerez une équipe pluridisciplinaire s’attachant à construire une modélisation stock/flux de la théorie économique post-croissance que nous développons : l’économie homéostatique. Il s’agit d’une nouvelle approche monétaire s’inspirant du fonctionnement du vivant et visant à concilier la réalité économique avec la réalité physique et biologique.<br><br><p><strong>Informations pratiques</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Si vous avez des compétences dans la compréhension des systèmes monétaires, l’analyse de données, la mise en équation d’interactions complexes, une compréhension de la logique systémique et une facilité à désapprendre pour mieux réapprendre eh bien ! nous vous attendons !\n\n*Activité en télétravail.<br><br>Fréquence : Un à plusieurs jours par semaine (selon dispo)<br>Durée : Indéterminée<br><br><p><strong>Informations sur l'association Ex Naturae</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Ex naturae est une ONG qui promeut l’économie écologique. Elle propose une solution monétaire basée sur des éléments objectifs qui mesurent l’état du système Terre et du Vivant. En relation à l’international son siège se situ en France. Son activité se concentre sur l’étude des solutions économiques et écologiques, ainsi que la sensibilisation auprès du grand public sur les enjeux systémiques.<br><p><strong>Formation des bénévoles</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Les bénévoles sont formés s’ils le souhaitent dans différents domaines : l’économie, l’écologie, la systémique, l’organisation, littératie, etc. \nUn accompagnement personnalisé est à disposition de chaque arrivant dans l’ONG, le temps qu’il se décide autonome.",
+        "description": "Toulouse (31)\nDès que possible\n\n\nVous êtes économiste ou étudiant(e) en économie, vous voulez aider bénévolement\nsur un projet hors des sentiers battus ?\n\nCela tombe bien, l’ONG Ex Naturae recherche une personne capable de penser en\ndehors des cadres imposés par la pensée dominante et qui souhaiterait mettre ses\ncompétences à profit pour bâtir l’économie de demain !\n\nVous intégrerez une équipe pluridisciplinaire s’attachant à construire une\nmodélisation stock/flux de la théorie économique post-croissance que nous\ndéveloppons : l’économie homéostatique. Il s’agit d’une nouvelle approche\nmonétaire s’inspirant du fonctionnement du vivant et visant à concilier la\nréalité économique avec la réalité physique et biologique.\n\n\n\nInformations pratiques\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nSi vous avez des compétences dans la compréhension des systèmes monétaires,\nl’analyse de données, la mise en équation d’interactions complexes, une\ncompréhension de la logique systémique et une facilité à désapprendre pour mieux\nréapprendre eh bien ! nous vous attendons !\n\n*Activité en télétravail.\n\nFréquence : Un à plusieurs jours par semaine (selon dispo)\nDurée : Indéterminée\n\n\n\nInformations sur l'association Ex Naturae\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nEx naturae est une ONG qui promeut l’économie écologique. Elle propose une\nsolution monétaire basée sur des éléments objectifs qui mesurent l’état du\nsystème Terre et du Vivant. En relation à l’international son siège se situ en\nFrance. Son activité se concentre sur l’étude des solutions économiques et\nécologiques, ainsi que la sensibilisation auprès du grand public sur les enjeux\nsystémiques.\n\n\nFormation des bénévoles\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nLes bénévoles sont formés s’ils le souhaitent dans différents domaines :\nl’économie, l’écologie, la systémique, l’organisation, littératie, etc.\nUn accompagnement personnalisé est à disposition de chaque arrivant dans l’ONG,\nle temps qu’il se décide autonome.",
+        "applicationUrl": "http://localhost:4000/r/63fc9c771b1e29d98663ff24/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_02.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "689b3edb0289c68c013fda77",
+        "title": "Je contribue à des projets à impact positifs locaux et internationaux",
+        "remote": "no",
+        "schedule": "",
+        "domain": "environnement",
+        "domainOriginal": null,
+        "organizationName": "Global Shapers Toulouse",
+        "publisherId": "5f592d415655a711feb4460e",
+        "publisherName": "Benevolt",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_03.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_03.jpeg",
+          "organizationLogo": null,
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo"
+        },
+        "location": {
+          "city": "Toulouse",
+          "closestLat": 43.603824,
+          "closestLon": 1.442935,
+          "closestAddress": "Place Du Capitole, 31000 Toulouse, FR",
+          "addressId": "99444cfd-806e-4534-a2de-95f24c6d1de1",
+          "distanceKm": 0.1378389072865465
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/689b3edb0289c68c013fda77/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "2679cb91-ef4c-405f-998d-7977c223847e",
+        "totalScore": 0.597617,
+        "taxonomyScore": 0.2,
+        "geoScore": 0.995234,
+        "taxonomyScores": {
+          "tranche_age": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "environnement_nature",
+            "taxonomyValueLabel": "Environnement et nature",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Participez à des projets locaux et globaux, échangez avec des acteurs engagés, développez vos compétences tout en faisant la différence / Nous organisons des rencontres hebdomadaires pour permettre à chacun·e de s’engager selon ses disponibilités / Ensemble, nous travaillons sur des projets autour de l’environnement, de l’inclusion et de la citoyenneté",
+              "reasoning": "La mission décrit explicitement des projets locaux et internationaux centrés sur l'environnement, l'inclusion et la citoyenneté, avec une participation active des bénévoles."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Participez à des projets locaux et globaux, échangez avec des acteurs engagés, développez vos compétences tout en faisant la différence / Ensemble, nous travaillons sur des projets autour de l’environnement, de l’inclusion et de la citoyenneté",
+              "reasoning": "Les projets mentionnés couvrent explicitement l'environnement, l'inclusion sociale et la citoyenneté, ce qui justifie plusieurs domaines."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Participez à des projets locaux et globaux, échangez avec des acteurs engagés, développez vos compétences tout en faisant la différence / Ensemble, nous travaillons sur des projets autour de l’environnement, de l’inclusion et de la citoyenneté",
+              "reasoning": "Les projets incluent explicitement des actions liées à la citoyenneté et à l'inclusion sociale."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Nous organisons des rencontres hebdomadaires pour permettre à chacun·e de s’engager selon ses disponibilités / Plusieurs fois par an, nous participons aussi à des rencontres internationales pour échanger et grandir collectivement",
+              "reasoning": "La mission décrit une participation active à des projets et rencontres, avec une dimension collective et internationale."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "action_terrain",
+            "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Participez à des projets locaux et globaux / Nous organisons des rencontres hebdomadaires pour permettre à chacun·e de s’engager selon ses disponibilités / Ensemble, nous travaillons sur des projets autour de l’environnement, de l’inclusion et de la citoyenneté",
+              "reasoning": "La mission implique une participation concrète à des projets et actions, avec une dimension collective et structurée."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Nous organisons des rencontres hebdomadaires pour permettre à chacun·e de s’engager selon ses disponibilités / Formation des bénévoles : échange personnalisé, kit de bienvenue, parrain, sessions d’introduction, suivi régulier",
+              "reasoning": "La mission décrit une organisation structurée avec des rencontres régulières, une formation et un suivi des bénévoles."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Formation des bénévoles : échange personnalisé pour comprendre ses motivations et lui présenter notre mission / Un kit de bienvenue et un parrain facilitent son intégration / Des sessions d’introduction et des ressources en ligne assurent sa formation / Un suivi régulier, des moments conviviaux et des opportunités de responsabilité encouragent son engagement",
+              "reasoning": "La mission inclut une formation, un accompagnement personnalisé et un suivi régulier des bénévoles, ce qui relève de la transmission et de l'organisation."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Global Shapers Toulouse fait partie du Global Shapers Community, une initiative du Forum Économique Mondial / Ce réseau mondial regroupe des jeunes leaders âgés de 18 à 27 ans, engagés à avoir un impact positif sur leurs communautés locales et à contribuer à relever les grands défis mondiaux",
+              "reasoning": "La mission s'inscrit dans un cadre structuré et international, avec une organisation mondiale et des projets locaux et globaux."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "gestion_commerce_organisation",
+            "taxonomyValueLabel": "Gestion, commerce et organisation",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Participez à des projets locaux et globaux / Nous organisons des rencontres hebdomadaires / Plusieurs fois par an, nous participons aussi à des rencontres internationales",
+              "reasoning": "La mission implique une participation active à des projets et rencontres, avec une dimension collective et internationale."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "gestion_pilotage_juridique",
+            "taxonomyValueLabel": "Gestion, pilotage, juridique",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Formation des bénévoles : échange personnalisé, kit de bienvenue, parrain, sessions d’introduction, suivi régulier / Opportunités de responsabilité",
+              "reasoning": "La mission décrit une formation, un accompagnement et des opportunités de responsabilité, ce qui relève de la gestion et de l'organisation."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Formation des bénévoles : échange personnalisé pour comprendre ses motivations / Un kit de bienvenue et un parrain facilitent son intégration / Des sessions d’introduction et des ressources en ligne assurent sa formation",
+              "reasoning": "La mission inclut une formation, un accompagnement personnalisé et des ressources, ce qui relève de la coopération et des soft skills."
+            }
+          },
+          {
+            "taxonomyKey": "region_internationale",
+            "taxonomyValueKey": "europe",
+            "taxonomyValueLabel": "Europe",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Plusieurs fois par an, nous participons aussi à des rencontres internationales pour échanger et grandir collectivement",
+              "reasoning": "La mission mentionne explicitement des rencontres internationales, ce qui justifie une classification en région internationale."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Rejoignez une communauté internationale de jeunes de 18 à 27 ans, basée à Toulouse / Plusieurs fois par an, nous participons aussi à des rencontres internationales",
+              "reasoning": "La mission décrit une communauté internationale basée à Toulouse, avec des rencontres internationales régulières."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "689b3edb0289c68c013fda77",
+        "title": "Je contribue à des projets à impact positifs locaux et internationaux",
+        "domain": "environnement",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_03.jpeg",
+        "type": "benevolat",
+        "publisherId": "5f592d415655a711feb4460e",
+        "publisherName": "Benevolt",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo",
+        "organizationName": "Global Shapers Toulouse",
+        "organizationLogo": null,
+        "location": {
+          "city": "Toulouse",
+          "address": "Place Du Capitole, 31000 Toulouse",
+          "lat": 43.603824,
+          "lon": 1.442935
+        },
+        "startAt": "2025-08-25T19:18:23.076Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "",
+        "compensation": null,
+        "descriptionHtml": "   Toulouse (31)<br>   Dès que possible<br><br><br>Rejoignez une communauté internationale de jeunes de 18 à 27 ans, basée à Toulouse, qui agissent concrètement pour un avenir durable. Participez à des projets locaux et globaux, échangez avec des acteurs engagés, développez vos compétences tout en faisant la différence. \n\nQue vous soyez étudiant·e, jeune professionnel·le ou simplement motivé·e, votre énergie compte ! \n\nEnsemble, construisons un monde meilleur, ici et ailleurs.<br><br><p><strong>Informations pratiques</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Nous organisons des rencontres hebdomadaires pour permettre à chacun·e de s’engager selon ses disponibilités. Ensemble, nous travaillons sur des projets autour de l’environnement, de l’inclusion et de la citoyenneté. \n\nPlusieurs fois par an, nous participons aussi à des rencontres internationales pour échanger et grandir collectivement.<br><br>Fréquence : Rencontre une fois par semaine<br>Durée : Selon vos disponibilités<br><br><p><strong>Informations sur l'association Global Shapers Toulouse</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Global Shapers Toulouse fait partie du Global Shapers Community, une initiative du Forum Économique Mondial. Ce réseau mondial regroupe des jeunes leaders âgés de 18 à 27 ans, engagés à avoir un impact positif sur leurs communautés locales et à contribuer à relever les grands défis mondiaux.\n\nLe hub de Toulouse réunit des membres aux parcours variés – entrepreneurs, chercheurs, ingénieurs, artistes, étudiants, acteurs associatifs – autour de projets locaux et internationaux liés au développement durable, à l’inclusion sociale, à l’innovation et à la citoyenneté.<br><p><strong>Formation des bénévoles</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Nous accueillons chaque bénévole par un échange personnalisé pour comprendre ses motivations et lui présenter notre mission. Un kit de bienvenue et un parrain facilitent son intégration. Des sessions d’introduction et des ressources en ligne assurent sa formation. Un suivi régulier, des moments conviviaux et des opportunités de responsabilité encouragent son engagement et son développement au sein du Hub.",
+        "description": "Toulouse (31)\nDès que possible\n\n\nRejoignez une communauté internationale de jeunes de 18 à 27 ans, basée à\nToulouse, qui agissent concrètement pour un avenir durable. Participez à des\nprojets locaux et globaux, échangez avec des acteurs engagés, développez vos\ncompétences tout en faisant la différence.\n\nQue vous soyez étudiant·e, jeune professionnel·le ou simplement motivé·e, votre\nénergie compte !\n\nEnsemble, construisons un monde meilleur, ici et ailleurs.\n\n\n\nInformations pratiques\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nNous organisons des rencontres hebdomadaires pour permettre à chacun·e de\ns’engager selon ses disponibilités. Ensemble, nous travaillons sur des projets\nautour de l’environnement, de l’inclusion et de la citoyenneté.\n\nPlusieurs fois par an, nous participons aussi à des rencontres internationales\npour échanger et grandir collectivement.\n\nFréquence : Rencontre une fois par semaine\nDurée : Selon vos disponibilités\n\n\n\nInformations sur l'association Global Shapers Toulouse\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nGlobal Shapers Toulouse fait partie du Global Shapers Community, une initiative\ndu Forum Économique Mondial. Ce réseau mondial regroupe des jeunes leaders âgés\nde 18 à 27 ans, engagés à avoir un impact positif sur leurs communautés locales\net à contribuer à relever les grands défis mondiaux.\n\nLe hub de Toulouse réunit des membres aux parcours variés – entrepreneurs,\nchercheurs, ingénieurs, artistes, étudiants, acteurs associatifs – autour de\nprojets locaux et internationaux liés au développement durable, à l’inclusion\nsociale, à l’innovation et à la citoyenneté.\n\n\nFormation des bénévoles\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nNous accueillons chaque bénévole par un échange personnalisé pour comprendre ses\nmotivations et lui présenter notre mission. Un kit de bienvenue et un parrain\nfacilitent son intégration. Des sessions d’introduction et des ressources en\nligne assurent sa formation. Un suivi régulier, des moments conviviaux et des\nopportunités de responsabilité encouragent son engagement et son développement\nau sein du Hub.",
+        "applicationUrl": "http://localhost:4000/r/689b3edb0289c68c013fda77/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_03.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "68c2a2fbc08da2ec50a06b68",
+        "title": "Je rejoins une équipe proche de chez moi pour participer à la lutte contre la Faim !",
+        "remote": "no",
+        "schedule": "",
+        "domain": "humanitaire",
+        "domainOriginal": null,
+        "organizationName": "Action Contre La Faim - Siège",
+        "publisherId": "62432692651de907c463e29b",
+        "publisherName": "Action contre la Faim",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_02.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_02.jpeg",
+          "organizationLogo": null,
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/62432692651de907c463e29b/logo"
+        },
+        "location": {
+          "city": "Toulouse",
+          "closestLat": 43.60372,
+          "closestLon": 1.445711,
+          "closestAddress": "31000 Toulouse, FR",
+          "addressId": "f0bff4f0-2c4f-4e04-865a-638514d77009",
+          "distanceKm": 0.15926762676545184
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/68c2a2fbc08da2ec50a06b68/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "9acba929-eba6-45c4-8fb5-85ab2a35ef1d",
+        "totalScore": 0.597248,
+        "taxonomyScore": 0.2,
+        "geoScore": 0.994495,
+        "taxonomyScores": {
+          "tranche_age": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "international_humanitaire",
+            "taxonomyValueLabel": "International et humanitaire",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Lutte contre la Faim / Action contre la Faim / humanitaire / Nous sauvons des vies et réduisons l’insécurité nutritionnelle / acteurs de terrain / militants / Nous agissons partout, dans tous les contextes",
+              "reasoning": "La mission est explicitement liée à l'action humanitaire internationale de l'organisation, avec une finalité claire de lutte contre la faim et d'insécurité nutritionnelle."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Soutien à l’organisation d’événements solidaires / Sensibilisation du public aux enjeux de la lutte contre la faim / Participation à la vie associative et aux projets de terrain",
+              "reasoning": "Les activités décrites visent l'entraide, la sensibilisation et l'inclusion, caractéristiques du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Sensibilisation du public aux enjeux de la lutte contre la faim / Soutien à l’organisation d’événements solidaires",
+              "reasoning": "La mission relève du secteur de l'aide à la personne et du social, avec un focus sur la lutte contre la faim."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Fréquence : Quelques heures par mois / Durée : Flexible",
+              "reasoning": "La mission s'étend sur plusieurs semaines avec une fréquence mensuelle, ce qui correspond à une mission régulière."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Participer activement à la vie de l’antenne en fonction de tes envies et disponibilités / Participation à la vie associative et aux projets de terrain / Une réunion mensuelle d'équipe pour se retrouver et discuter ensemble des actions futures",
+              "reasoning": "La mission met en avant la coopération, l'organisation collective et les soft skills pour s'adapter aux besoins et aux envies."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "communication_creation_numerique",
+            "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Appui à la communication locale",
+              "reasoning": "La mission inclut un appui à la communication, ce qui relève des compétences en communication et outils numériques."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Sensibilisation du public aux enjeux de la lutte contre la faim",
+              "reasoning": "La mission implique explicitement la transmission de connaissances et la sensibilisation du public."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Soutien à l’organisation d’événements solidaires / Participation à la vie associative et aux projets de terrain",
+              "reasoning": "La mission inclut l'animation d'actions collectives et la participation à des projets associatifs."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Participer activement à la vie de l’antenne en fonction de tes envies et disponibilités / Appui à la communication locale",
+              "reasoning": "La mission décrit un soutien à l'organisation et à la communication, central pour le fonctionnement de l'antenne."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Sensibilisation du public aux enjeux de la lutte contre la faim / Nous croyons à la puissance du collectif / mobilisation collective",
+              "reasoning": "La mission relève des enjeux de société, de la politique publique et de la mobilisation citoyenne."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "social_sante_sport",
+            "taxonomyValueLabel": "Social, santé et sport",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Lutte contre la Faim / réduction de l’insécurité nutritionnelle / aide à la personne",
+              "reasoning": "La mission est liée à des enjeux sociaux et de santé publique, notamment la lutte contre la faim."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "68c2a2fbc08da2ec50a06b68",
+        "title": "Je rejoins une équipe proche de chez moi pour participer à la lutte contre la Faim !",
+        "domain": "humanitaire",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_02.jpeg",
+        "type": "benevolat",
+        "publisherId": "62432692651de907c463e29b",
+        "publisherName": "Action contre la Faim",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/62432692651de907c463e29b/logo",
+        "organizationName": "Action Contre La Faim - Siège",
+        "organizationLogo": null,
+        "location": {
+          "city": "Toulouse",
+          "address": "31000 Toulouse",
+          "lat": 43.60372,
+          "lon": 1.445711
+        },
+        "startAt": "2025-09-11T10:22:50.921Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "",
+        "compensation": null,
+        "descriptionHtml": "   Toulouse (31)<br>   Dès que possible<br><br><br>Tu veux t’engager pour une cause essentielle ? L’antenne départementale d’Action contre la Faim recherche des bénévoles motivé·es pour renforcer son équipe locale et contribuer aux projets de la délégation !\n  Ta mission : Participer activement à la vie de l’antenne en fonction de tes envies et disponibilités :\nSoutien à l’organisation d’événements solidaires\nSensibilisation du public aux enjeux de la lutte contre la faim\nAppui à la communication locale\nParticipation à la vie associative et aux projets de terrain\n  Tous les profils sont les bienvenus ! \n  Une mission flexible : Tu choisis les actions qui te parlent le plus, selon tes compétences et ton temps<br><br><p><strong>Informations pratiques</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Formation :\n Intégration avec le siège ACF Paris (1h en visio)\n Intégration locale avec la/le délégué.e  \n Invitation aux visios d’infos terrain et aux évènements de l’association\n Un encadrement par une équipe bienveillante pour te donner tous les éléments pas à pas\nUne réunion mensuelle d'équipe pour se retrouver et discuter ensemble des actions futures!<br><br>Fréquence : Quelques heures par mois<br>Durée : Flexible<br><br><p><strong>Informations sur l'association Action Contre La Faim - Siège</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Chez Action contre la Faim, nous sauvons des vies et réduisons l’insécurité nutritionnelle, nous sommes acteurs de terrain donc nous sommes militants et nous croyons à la puissance du collectif depuis 45 ans. \nNotre approche de l’aide humanitaire repose sur la conviction que la mobilisation collective est nécessaire pour que nos actions aient un impact partout. Nous agissons  partout, dans tous les contextes, et développons autant notre capacité à sauver des vies dans l’urgence qu’à co-construire des environnements vertueux dans la durée. Nous intervenons directement avec et aux côtés des communautés dans 55 pays grâce à nos solides expertises déployées en local.<br><p><strong>Formation des bénévoles</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>En France, les opérations d’Action contre la Faim sont orientées sur la sensibilisation et la mobilisation. Action contre la Faim forme les bénévoles aux messages importants et fournit tous les supports nécessaires. Dans certains départements, les bénévoles sont organisés en groupes locaux, les délégations. Ils agissent ensemble et portent des projets locaux.",
+        "description": "Toulouse (31)\nDès que possible\n\n\nTu veux t’engager pour une cause essentielle ? L’antenne départementale d’Action\ncontre la Faim recherche des bénévoles motivé·es pour renforcer son équipe\nlocale et contribuer aux projets de la délégation !\nTa mission : Participer activement à la vie de l’antenne en fonction de tes\nenvies et disponibilités :\nSoutien à l’organisation d’événements solidaires\nSensibilisation du public aux enjeux de la lutte contre la faim\nAppui à la communication locale\nParticipation à la vie associative et aux projets de terrain\nTous les profils sont les bienvenus !\nUne mission flexible : Tu choisis les actions qui te parlent le plus, selon tes\ncompétences et ton temps\n\n\n\nInformations pratiques\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nFormation :\nIntégration avec le siège ACF Paris (1h en visio)\nIntégration locale avec la/le délégué.e\nInvitation aux visios d’infos terrain et aux évènements de l’association\nUn encadrement par une équipe bienveillante pour te donner tous les éléments pas\nà pas\nUne réunion mensuelle d'équipe pour se retrouver et discuter ensemble des\nactions futures!\n\nFréquence : Quelques heures par mois\nDurée : Flexible\n\n\n\nInformations sur l'association Action Contre La Faim - Siège\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nChez Action contre la Faim, nous sauvons des vies et réduisons l’insécurité\nnutritionnelle, nous sommes acteurs de terrain donc nous sommes militants et\nnous croyons à la puissance du collectif depuis 45 ans.\nNotre approche de l’aide humanitaire repose sur la conviction que la\nmobilisation collective est nécessaire pour que nos actions aient un impact\npartout. Nous agissons partout, dans tous les contextes, et développons autant\nnotre capacité à sauver des vies dans l’urgence qu’à co-construire des\nenvironnements vertueux dans la durée. Nous intervenons directement avec et aux\ncôtés des communautés dans 55 pays grâce à nos solides expertises déployées en\nlocal.\n\n\nFormation des bénévoles\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nEn France, les opérations d’Action contre la Faim sont orientées sur la\nsensibilisation et la mobilisation. Action contre la Faim forme les bénévoles\naux messages importants et fournit tous les supports nécessaires. Dans certains\ndépartements, les bénévoles sont organisés en groupes locaux, les délégations.\nIls agissent ensemble et portent des projets locaux.",
+        "applicationUrl": "http://localhost:4000/r/68c2a2fbc08da2ec50a06b68/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_02.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    }
+  ],
+  "deterministic": {
+    "geo": 5,
+    "format": 5,
+    "missionsSansTagFormat": [],
+    "gateViolations": []
+  },
+  "judgeRuns": [
+    {
+      "runIndex": 0,
+      "seed": 2257339473,
+      "order": [
+        "689b3edb0289c68c013fda77",
+        "6900a5e5c5967b5e05e5531e",
+        "63fc9c771b1e29d98663ff24",
+        "6537bff6557894a1b7b05331",
+        "68c2a2fbc08da2ec50a06b68"
+      ],
+      "output": {
+        "coherence": {
+          "score": 5,
+          "missionsPertinentes": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "justification": "Toutes les missions proposées sont localisées à Toulouse et accessibles à un jeune de 19 ans sans préférence claire, offrant une diversité d'engagements possibles, ce qui correspond bien au profil d'un étudiant souhaitant explorer différentes missions.",
+          "missionIdsPertinents": [
+            "689b3edb0289c68c013fda77",
+            "6900a5e5c5967b5e05e5531e",
+            "63fc9c771b1e29d98663ff24",
+            "6537bff6557894a1b7b05331",
+            "68c2a2fbc08da2ec50a06b68"
+          ]
+        },
+        "homogeneite": {
+          "score": 3,
+          "familles": [
+            "Environnement et développement durable",
+            "Économie et innovation sociale",
+            "Aide sociale et solidarité"
+          ],
+          "justification": "Les missions couvrent trois grandes familles : environnement et développement durable (missions 0,1,4), économie et innovation sociale (mission 2), et aide sociale/solidarité (mission 3). Il n'y a pas de famille majoritaire avec au moins 3 missions, donc homogénéité moyenne."
+        },
+        "cause": null
+      }
+    },
+    {
+      "runIndex": 1,
+      "seed": 2240561854,
+      "order": [
+        "689b3edb0289c68c013fda77",
+        "6900a5e5c5967b5e05e5531e",
+        "68c2a2fbc08da2ec50a06b68",
+        "6537bff6557894a1b7b05331",
+        "63fc9c771b1e29d98663ff24"
+      ],
+      "output": {
+        "coherence": {
+          "score": 5,
+          "missionsPertinentes": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "justification": "Toutes les missions proposées sont localisées à Toulouse et accessibles à un jeune étudiant sans préférence claire, offrant une diversité d'engagements possibles. Elles couvrent des domaines variés mais restent adaptés à un profil exploratoire comme celui de Lucas.",
+          "missionIdsPertinents": [
+            "689b3edb0289c68c013fda77",
+            "6900a5e5c5967b5e05e5531e",
+            "68c2a2fbc08da2ec50a06b68",
+            "6537bff6557894a1b7b05331",
+            "63fc9c771b1e29d98663ff24"
+          ]
+        },
+        "homogeneite": {
+          "score": 3,
+          "familles": [
+            "Environnement et développement durable",
+            "Lutte contre la précarité et solidarité",
+            "Économie et innovation sociale"
+          ],
+          "justification": "Les missions se répartissent en trois grandes familles : environnement et développement durable (missions 0,1,4), lutte contre la précarité et solidarité (missions 2,3), et économie/innovation sociale (mission 4). Il n'y a pas de famille majoritaire, ce qui montre une diversité équilibrée."
+        },
+        "cause": null
+      }
+    }
+  ],
+  "engineVersion": "m2",
+  "startedAt": "2026-07-07T12:45:41.187Z",
+  "finishedAt": "2026-07-07T12:45:58.472Z",
+  "verdict": 5,
+  "cleanup": {
+    "userScoringDeleted": true
+  }
+}

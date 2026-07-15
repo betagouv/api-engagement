@@ -1,0 +1,11 @@
+{
+  "campaign": "m2-261007",
+  "env": "local",
+  "algo": "m2",
+  "publisherId": "c4a9ce23692082d70af2b16d",
+  "dryRun": false,
+  "parcours": null,
+  "gitSha": "95471b19ffcb5ed43e3846c201edbf772b58aacd",
+  "judgeModel": "gpt-4.1-mini",
+  "date": "2026-07-10T13:23:24.611Z"
+}

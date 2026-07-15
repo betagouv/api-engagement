@@ -1,0 +1,2307 @@
+{
+  "status": "success",
+  "parcours": {
+    "id": "ines-rural-aide-directe",
+    "segment": "etudiant",
+    "label": "Inès, 24 ans, étudiante en M1 à Figeac, veut se sentir utile et aider directement des personnes en zone rurale",
+    "locationLabel": "Figeac (46)",
+    "age": 24,
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 24,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "statut",
+        "value": "etudiant"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 44.608333,
+          "lon": 2.031944,
+          "country_code": "fr",
+          "label": "Figeac (46)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "ponctuelle"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "me_sentir_utile"
+      },
+      {
+        "taxonomy": "engagement_intent",
+        "value": "aide_directe"
+      }
+    ]
+  },
+  "payload": {
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 24,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "statut",
+        "value": "etudiant"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 44.608333,
+          "lon": 2.031944,
+          "country_code": "fr",
+          "label": "Figeac (46)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "ponctuelle"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "me_sentir_utile"
+      },
+      {
+        "taxonomy": "engagement_intent",
+        "value": "aide_directe"
+      }
+    ],
+    "distinctId": "eval:m2-261007:ines-rural-aide-directe",
+    "missionAlertEnabled": false
+  },
+  "userScoringId": "eea434de-0146-494a-a50a-98471572bfe6",
+  "match": {
+    "tookMs": 7837,
+    "engineVersion": "m2",
+    "items": [
+      {
+        "mission": {
+          "id": "64092877f563558c4ff64b0e",
+          "title": "Je participe à un accueil de jour à Figeac",
+          "remote": "no",
+          "schedule": "Une demi-journée par semaine",
+          "domain": "solidarite-insertion",
+          "domainOriginal": null,
+          "organizationName": "Secours Catholique Caritas France - Délégation du Quercy",
+          "publisherId": "5f5931496c7ea514150a818f",
+          "publisherName": "JeVeuxAider.gouv.fr",
+          "media": {
+            "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12165/solidarite-et-insertion-1.webp?v=1737022221",
+            "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12165/solidarite-et-insertion-1.webp?v=1737022221",
+            "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/14805/WzGUfGpY0mk2txSxXeRlizI4oHhYoB.jpg?v=1737382490",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+          },
+          "location": {
+            "city": "Figeac",
+            "closestLat": 44.606657,
+            "closestLon": 2.035569,
+            "closestAddress": "Rue du Griffoul, 46100 Figeac, FR",
+            "addressId": "a8197c1a-5ef1-48df-8ac3-63456a7fef99",
+            "distanceKm": 0.3421716616500488
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/64092877f563558c4ff64b0e/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "ffea21a7-bfad-4bfd-a45f-fbb96851aa79",
+          "totalScore": 0.694106,
+          "taxonomyScore": 0.4,
+          "geoScore": 0.988211,
+          "taxonomyScores": {
+            "engagement_intent": 1,
+            "tranche_age": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "ouvrent un accueil de jour afin d'offrir un petit-déjeuner, une douche et la possibilités de laver et sécher son linges à toutes personnes en ayant besoin / Au-delà de l'accueil, c'est un réseau d’entraide qui se dessine entre des personnes autour de l’accès à l’emploi, la recherche de logement et d’équipement, la mobilité des personnes, l’orientation vers des services et l’accès aux droits",
+                "reasoning": "La mission est centrée sur l'entraide, l'accompagnement social et la lutte contre l'isolement, ce qui relève clairement du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "ouvrent un accueil de jour afin d'offrir un petit-déjeuner, une douche et la possibilités de laver et sécher son linges à toutes personnes en ayant besoin / réseau d’entraide qui se dessine entre des personnes autour de l’accès à l’emploi, la recherche de logement et d’équipement, la mobilité des personnes, l’orientation vers des services et l’accès aux droits",
+                "reasoning": "Les tâches et objectifs de la mission relèvent directement du secteur de l'aide à la personne et du social."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Vous accueillez les personnes, vous prenez le temps de discuter avec elles et d'échanger autour d’un café / offrir un petit-déjeuner, une douche et la possibilités de laver et sécher son linges à toutes personnes en ayant besoin",
+                "reasoning": "La mission implique un contact direct et une interaction humaine avec les bénéficiaires pour répondre à leurs besoins immédiats."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Vous participez à l’organisation en amont et à la mise en place de l’accueil convivial / Vous prenez part au réflexion sur les actions et l’organisation lors de temps d’échange en équipe",
+                "reasoning": "Les tâches incluent une part importante d'organisation, de coordination et de réflexion collective pour le bon fonctionnement de l'accueil."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "L’équipe organise également un atelier de coiffure solidaire et dispose de l'espace nécessaire pour imaginer de nouvelles activités / Nous vous accueillons également avec vos envies et initiatives et sommes ouvert aux nouvelles propositions d’actions",
+                "reasoning": "La mission inclut l'animation d'ateliers et la proposition d'activités collectives, ce qui relève de l'animation."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.92,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Avoir le sens de l’accueil, des capacités d’écoute et aimer partager avec d’autres / Vous accueillez les personnes, vous prenez le temps de discuter avec elles et d'échanger autour d’un café",
+                "reasoning": "Les tâches principales impliquent l'accueil, l'écoute et l'accompagnement des personnes, ce qui relève des compétences sociales et de soin."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.88,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Savoir travailler en équipe et vouloir suivre les formations nécessaires à cette activité / Vous participez à l’organisation en amont et à la mise en place de l’accueil convivial / Vous prenez part au réflexion sur les actions et l’organisation lors de temps d’échange en équipe",
+                "reasoning": "La mission nécessite un travail d'équipe, de l'organisation et des compétences comportementales pour collaborer efficacement."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.99,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "11 heures — Une demi-journée par semaine / du 15 janvier 2026 au 15 décembre 2026",
+                "reasoning": "La mission s'étend sur plusieurs mois avec une fréquence hebdomadaire explicite, ce qui correspond à une mission régulière."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "social_sante_sport",
+              "taxonomyValueLabel": "Social, santé et sport",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Avoir le sens de l’accueil, des capacités d’écoute et aimer partager avec d’autres / réseau d’entraide qui se dessine entre des personnes autour de l’accès à l’emploi, la recherche de logement et d’équipement",
+                "reasoning": "La mission combine des aspects sociaux, d'aide à la personne et d'insertion, ce qui relève du domaine social, santé et sport."
+              }
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "benevolat",
+              "taxonomyValueLabel": "Bénévolat",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "6703bca573fbd982c101392a",
+          "title": "Accompagner les usagers dans les services des préfectures et sous-préfectures.",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "solidarite-insertion",
+          "domainOriginal": "Solidarité",
+          "organizationName": "Préfecture du Lot",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Figeac",
+            "closestLat": 44.608791,
+            "closestLon": 2.032452,
+            "closestAddress": "22 Rue Caviale, 46100 Figeac, FR",
+            "addressId": "a9a7cffb-7d67-4a1e-bb15-bb92f94476dd",
+            "distanceKm": 0.06489050569939657
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/6703bca573fbd982c101392a/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "10697912-a289-4bb9-8716-a416f4151a37",
+          "totalScore": 0.690877,
+          "taxonomyScore": 0.384,
+          "geoScore": 0.997754,
+          "taxonomyScores": {
+            "engagement_intent": 0.92,
+            "tranche_age": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "gestion_projet",
+              "taxonomyValueLabel": "Gestion de projet",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Accueillir et renseigner les usagers de la sous-préfecture de Figeac / Accueil, accompagnement et conseil aux usagers",
+                "reasoning": "Les tâches décrites relèvent principalement de l'organisation, de l'accueil et du conseil, typiques de la gestion de projet ou de l'administration publique."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "securite_service_public",
+              "taxonomyValueLabel": "Sécurité et service public",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Les préfectures remplissent cinq missions essentielles: La garantie de la sécurité - maintien de l’ordre, protection des personnes et des biens... / La citoyenneté, la réglementation et la garantie des libertés publiques... / La conduite et la cohérence des actions de l’Etat",
+                "reasoning": "La mission s'inscrit dans le cadre des services publics de l'État, notamment la préfecture, avec des activités liées à l'ordre public, la réglementation et l'administration."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "gestion_pilotage_juridique",
+              "taxonomyValueLabel": "Gestion, pilotage, juridique",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Écouter et conseiller les usagers sur la constitution et la complétude de leurs dossiers de demande de titres (cartes grises, permis de conduite, étrangers) et des dossiers associations / Expliquer les procédures aux usagers et vérifier les dossiers présentés",
+                "reasoning": "Les tâches incluent un accompagnement administratif et juridique, typique de la gestion, du pilotage et des aspects réglementaires."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "relation_client_commerce_strategie",
+              "taxonomyValueLabel": "Relation client, commerce, stratégie",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Accueillir et renseigner les usagers / Écouter et conseiller les usagers / Les aider dans les démarches réalisées par internet",
+                "reasoning": "La mission implique une forte interaction avec le public, typique de la relation client et de l'accompagnement des usagers."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Accueillir et renseigner les usagers de la sous-préfecture de Figeac / Accueil, accompagnement et conseil aux usagers",
+                "reasoning": "La mission consiste principalement à soutenir le fonctionnement administratif et l'accueil des usagers, ce qui relève du support organisationnel."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Écouter et conseiller les usagers sur la constitution et la complétude de leurs dossiers / Les aider dans les démarches réalisées par internet",
+                "reasoning": "Bien que l'aide soit indirecte (administrative), elle implique un contact direct avec les usagers pour les accompagner dans leurs démarches."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Type de mission : volontariat_service_civique / Organisation porteuse : Préfecture du Lot / Description de l'organisation : Les préfectures remplissent cinq missions essentielles...",
+                "reasoning": "La mission s'inscrit dans un cadre institutionnel très structuré (préfecture, service civique), avec des tâches administratives et réglementaires encadrées."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Écouter et conseiller les usagers sur la constitution et la complétude de leurs dossiers de demande de titres (cartes grises, permis de conduite, étrangers) et des dossiers associations / Expliquer les procédures aux usagers",
+                "reasoning": "La mission implique des tâches liées à la réglementation, aux droits et aux procédures administratives, typiques du domaine société, droit et politique."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "commerce_gestion_finance",
+              "taxonomyValueLabel": "Commerce, gestion, finance et services",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Les aider dans les démarches réalisées par internet / Expliquer les procédures aux usagers",
+                "reasoning": "Les tâches incluent un accompagnement dans des démarches administratives et numériques, relevant de la gestion et de l'organisation."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_18_ans",
+              "taxonomyValueLabel": "Moins de 18 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_31_ans_handicap",
+              "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "service_civique",
+              "taxonomyValueLabel": "Service civique",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "6830b9d0d9770eb19bbeea58",
+          "title": "J'accompagne des personnes déficientes visuelles lors d’activités et de sorties dans le Lot",
+          "remote": "no",
+          "schedule": "2 jours par mois",
+          "domain": "solidarite-insertion",
+          "domainOriginal": null,
+          "organizationName": "Voir Ensemble",
+          "publisherId": "5f5931496c7ea514150a818f",
+          "publisherName": "JeVeuxAider.gouv.fr",
+          "media": {
+            "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/59913/LoYRHwtG8V2a5N3YXDy29Mf5tfqSlZ.jpg?v=1737022234",
+            "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/59913/LoYRHwtG8V2a5N3YXDy29Mf5tfqSlZ.jpg?v=1737022234",
+            "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/150464/OwGVP0TtW08Ig5EcY7I2RFm7jecq0m.jpg?v=1774000508",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+          },
+          "location": {
+            "city": "Figeac",
+            "closestLat": 44.609226,
+            "closestLon": 2.02419,
+            "closestAddress": "46100 Figeac, FR",
+            "addressId": "25a41240-2ca7-4382-b698-f117683b71a3",
+            "distanceKm": 0.6217996990143283
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/6830b9d0d9770eb19bbeea58/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "f84a0af8-c0f5-4515-ad24-068679b939de",
+          "totalScore": 0.68934,
+          "taxonomyScore": 0.4,
+          "geoScore": 0.978681,
+          "taxonomyScores": {
+            "engagement_intent": 1,
+            "tranche_age": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Accompagner les personnes déficientes visuelles lors de sorties culturelles et de loisirs / Guider une personne déficiente visuelle (lors des activités, dans les transports en commun….) / Proposer et organiser des activités avec le groupe",
+                "reasoning": "Les tâches principales consistent à accompagner, guider et organiser des activités pour des personnes déficientes visuelles, ce qui relève clairement du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Accompagner les personnes déficientes visuelles lors de sorties culturelles et de loisirs / Guider une personne déficiente visuelle / Proposer et organiser des activités avec le groupe",
+                "reasoning": "Les activités décrites impliquent une interaction directe et un accompagnement humain avec des personnes en situation de handicap visuel."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Accompagner les personnes déficientes visuelles lors de sorties culturelles et de loisirs / Proposer et organiser des activités avec le groupe",
+                "reasoning": "La mission inclut explicitement l'animation et l'organisation d'activités collectives pour un groupe."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "action_terrain",
+              "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Assurer le covoiturage afin de faciliter leur accès aux activités / l'association peut prendre en charge les frais liés à l’essence",
+                "reasoning": "Le covoiturage est une action concrète sur le terrain pour faciliter l'accès aux activités, relevant d'une action terrain."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.92,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Accompagner les personnes déficientes visuelles / Guider une personne déficiente visuelle / Proposer et organiser des activités avec le groupe",
+                "reasoning": "Les tâches principales relèvent de l'accompagnement humain, du soin et de la gestion sociale, typiques du management social et soin."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Proposer et organiser des activités avec le groupe",
+                "reasoning": "L'organisation d'activités et la coordination avec un groupe impliquent des compétences en coopération et organisation."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "sante_social_aide_personne",
+                "reasoning": "La mission cible explicitement des personnes en situation de handicap visuel, relevant du secteur santé, social et aide à la personne."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Être disponible 1 à 2 samedis par mois en fonction des activités prévues",
+                "reasoning": "La mission est régulière, avec une fréquence mensuelle et une durée de 2 jours par mois."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "social_sante_sport",
+              "taxonomyValueLabel": "Social, santé et sport",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Formation à la technique de guidage",
+                "reasoning": "La mission inclut une formation spécifique, ce qui peut être lié à des domaines de formation en social ou santé."
+              }
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "benevolat",
+              "taxonomyValueLabel": "Bénévolat",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "6830b9e3d9770eb19bbf6742",
+          "title": "Je deviens chauffeur pour des personnes déficientes visuelles dans le Lot",
+          "remote": "no",
+          "schedule": "2 heures par semaine",
+          "domain": "solidarite-insertion",
+          "domainOriginal": null,
+          "organizationName": "Voir Ensemble",
+          "publisherId": "5f5931496c7ea514150a818f",
+          "publisherName": "JeVeuxAider.gouv.fr",
+          "media": {
+            "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12166/dRHWvAk9ViLSUPbMRWEttmsNvituig.jpg?v=1753367089",
+            "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12166/dRHWvAk9ViLSUPbMRWEttmsNvituig.jpg?v=1753367089",
+            "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/150464/OwGVP0TtW08Ig5EcY7I2RFm7jecq0m.jpg?v=1774000508",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+          },
+          "location": {
+            "city": "Figeac",
+            "closestLat": 44.609226,
+            "closestLon": 2.02419,
+            "closestAddress": "46100 Figeac, FR",
+            "addressId": "156db9ab-4125-4cda-83fe-cff72db6bfe5",
+            "distanceKm": 0.6217996990143283
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/6830b9e3d9770eb19bbf6742/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "f7e4a3fa-dd3e-4d0f-ab6c-008430c4c0e1",
+          "totalScore": 0.68934,
+          "taxonomyScore": 0.4,
+          "geoScore": 0.978681,
+          "taxonomyScores": {
+            "engagement_intent": 1,
+            "tranche_age": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "accompagner nos adhérents dans leurs déplacements (sorties, courses, rendez-vous médicaux, etc.) / agir pour maintenir le lien social entre les personnes déficientes visuelles",
+                "reasoning": "La mission est centrée sur l'accompagnement social et le maintien du lien social pour des personnes en situation de handicap visuel, ce qui relève clairement du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "accompagner nos adhérents dans leurs déplacements (sorties, courses, rendez-vous médicaux, etc.)",
+                "reasoning": "La mission implique une interaction directe et concrète avec les bénéficiaires pour répondre à leurs besoins de mobilité."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "action_terrain",
+              "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "assurer des trajets en voiture dans le secteur de Cahors",
+                "reasoning": "La mission consiste en une action concrète sur le terrain, ici des déplacements en voiture pour faciliter la mobilité des bénéficiaires."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "accompagner nos adhérents dans leurs déplacements",
+                "reasoning": "L'accompagnement humain et le soutien aux personnes en situation de vulnérabilité (handicap visuel) sont au cœur de la mission."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Disponibilité régulière / Posséder une voiture",
+                "reasoning": "La mission nécessite une bonne organisation personnelle et une capacité à s'adapter aux besoins des bénéficiaires, bien que ce ne soit pas le cœur de l'activité."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "accompagner nos adhérents dans leurs déplacements / personnes déficientes visuelles",
+                "reasoning": "La mission s'inscrit dans le secteur de l'aide à la personne, avec un public cible en situation de handicap."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Durée : non précisée — 2 heures par semaine / Disponibilité régulière",
+                "reasoning": "La mission est décrite comme régulière avec une fréquence hebdomadaire explicite."
+              }
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "benevolat",
+              "taxonomyValueLabel": "Bénévolat",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "69285d8da20cd8f9e5cb42c0",
+          "title": "Je deviens famille d'accueil temporaire pour animaux",
+          "remote": "no",
+          "schedule": "Plus de 5 jours",
+          "domain": "environnement",
+          "domainOriginal": null,
+          "organizationName": "Kiweeto",
+          "publisherId": "5f5931496c7ea514150a818f",
+          "publisherName": "JeVeuxAider.gouv.fr",
+          "media": {
+            "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/59846/TwiK9zfgNJUBnSVCjdkvV4nfaWzGIv.jpg?v=1737022291",
+            "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/59846/TwiK9zfgNJUBnSVCjdkvV4nfaWzGIv.jpg?v=1737022291",
+            "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/89313/JEWMT6QsrDhcohd3vGFfElRIFotXvG.png?v=1739552282",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+          },
+          "location": {
+            "city": "Figeac",
+            "closestLat": 44.609226,
+            "closestLon": 2.02419,
+            "closestAddress": "46100 Figeac, FR",
+            "addressId": "fafcf57e-bbdc-48e4-8918-04bf4c201a0c",
+            "distanceKm": 0.6217996990143283
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/69285d8da20cd8f9e5cb42c0/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "cef1c3d9-654a-4d16-95f4-674f7b57f0ec",
+          "totalScore": 0.68934,
+          "taxonomyScore": 0.4,
+          "geoScore": 0.978681,
+          "taxonomyScores": {
+            "engagement_intent": 1,
+            "tranche_age": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "environnement_nature",
+              "taxonomyValueLabel": "Environnement et nature",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Accueillir temporairement un animal, pour lui offrir une seconde chance / Les associations manquent cruellement de solutions pour héberger les animaux en attente d’adoption ou de formation / offrir un foyer chaleureux à un animal (chien, chat, lapin, souris, mouton, reptile...)",
+                "reasoning": "La mission est centrée sur l'accueil et les soins aux animaux, ce qui relève clairement du domaine environnement et nature."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "permettre à un animal de sortir du refuge, d’éviter l’euthanasie ou de suivre son éducation avant d’être remis à une personne en situation de handicap / chaque place libérée en refuge permet de sauver un autre animal",
+                "reasoning": "La mission a une dimension de solidarité envers les animaux et les associations, ainsi qu'un impact social indirect en évitant l'euthanasie."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "environnement_agriculture",
+              "taxonomyValueLabel": "Environnement et agriculture",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Accueillir temporairement un animal, pour lui offrir une seconde chance / offrir un foyer chaleureux à un animal (chien, chat, lapin, souris, mouton, reptile...)",
+                "reasoning": "La mission relève du secteur environnement et agriculture, notamment en raison de la diversité des animaux accueillis (y compris des animaux de ferme)."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Durée flexible : quelques jours à plusieurs mois selon vos disponibilités / vous accueillez un animal temporairement, selon vos disponibilités",
+                "reasoning": "La mission est flexible mais s'étend sur une durée significative (plusieurs jours à plusieurs mois), ce qui correspond à une mission régulière."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Accueillir temporairement un animal, pour lui offrir une seconde chance / offrir un foyer chaleureux à un animal",
+                "reasoning": "La mission implique un accompagnement et des soins directs aux animaux, ce qui relève du management social et soin."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Accueillir temporairement un animal, pour lui offrir une seconde chance / offrir un foyer chaleureux à un animal",
+                "reasoning": "La mission consiste à apporter un soutien direct et concret aux animaux en attente d'adoption ou de formation."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "action_terrain",
+              "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Offrir un foyer chaleureux à un animal jusqu’à ce qu’il trouve sa famille définitive / partager le quotidien d’un animal",
+                "reasoning": "La mission implique une action concrète sur le terrain, à savoir l'accueil et le soin des animaux au quotidien."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Kiweeto vous accompagne à chaque étape / En devenant famille d’accueil temporaire avec Kiweeto, vous recevrez des propositions d’animaux à accueillir, adaptées à votre mode de vie",
+                "reasoning": "La mission inclut un soutien organisationnel via l'accompagnement par Kiweeto, qui facilite la mise en relation et l'adaptation des propositions."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "environnement_nature_sciences",
+              "taxonomyValueLabel": "Environnement, nature et sciences",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Accueillir temporairement un animal, pour lui offrir une seconde chance / offrir un foyer chaleureux à un animal (chien, chat, lapin, souris, mouton, reptile...)",
+                "reasoning": "La mission est liée à l'environnement, la nature et les sciences animales, ce qui correspond au domaine de formation ONISEP."
+              }
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "benevolat",
+              "taxonomyValueLabel": "Bénévolat",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      }
+    ],
+    "total": 2951,
+    "avgDistanceKmTop5": 0.45
+  },
+  "missions": [
+    {
+      "mission": {
+        "id": "64092877f563558c4ff64b0e",
+        "title": "Je participe à un accueil de jour à Figeac",
+        "remote": "no",
+        "schedule": "Une demi-journée par semaine",
+        "domain": "solidarite-insertion",
+        "domainOriginal": null,
+        "organizationName": "Secours Catholique Caritas France - Délégation du Quercy",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "media": {
+          "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12165/solidarite-et-insertion-1.webp?v=1737022221",
+          "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12165/solidarite-et-insertion-1.webp?v=1737022221",
+          "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/14805/WzGUfGpY0mk2txSxXeRlizI4oHhYoB.jpg?v=1737382490",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+        },
+        "location": {
+          "city": "Figeac",
+          "closestLat": 44.606657,
+          "closestLon": 2.035569,
+          "closestAddress": "Rue du Griffoul, 46100 Figeac, FR",
+          "addressId": "a8197c1a-5ef1-48df-8ac3-63456a7fef99",
+          "distanceKm": 0.3421716616500488
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/64092877f563558c4ff64b0e/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "ffea21a7-bfad-4bfd-a45f-fbb96851aa79",
+        "totalScore": 0.694106,
+        "taxonomyScore": 0.4,
+        "geoScore": 0.988211,
+        "taxonomyScores": {
+          "engagement_intent": 1,
+          "tranche_age": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "ouvrent un accueil de jour afin d'offrir un petit-déjeuner, une douche et la possibilités de laver et sécher son linges à toutes personnes en ayant besoin / Au-delà de l'accueil, c'est un réseau d’entraide qui se dessine entre des personnes autour de l’accès à l’emploi, la recherche de logement et d’équipement, la mobilité des personnes, l’orientation vers des services et l’accès aux droits",
+              "reasoning": "La mission est centrée sur l'entraide, l'accompagnement social et la lutte contre l'isolement, ce qui relève clairement du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "ouvrent un accueil de jour afin d'offrir un petit-déjeuner, une douche et la possibilités de laver et sécher son linges à toutes personnes en ayant besoin / réseau d’entraide qui se dessine entre des personnes autour de l’accès à l’emploi, la recherche de logement et d’équipement, la mobilité des personnes, l’orientation vers des services et l’accès aux droits",
+              "reasoning": "Les tâches et objectifs de la mission relèvent directement du secteur de l'aide à la personne et du social."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Vous accueillez les personnes, vous prenez le temps de discuter avec elles et d'échanger autour d’un café / offrir un petit-déjeuner, une douche et la possibilités de laver et sécher son linges à toutes personnes en ayant besoin",
+              "reasoning": "La mission implique un contact direct et une interaction humaine avec les bénéficiaires pour répondre à leurs besoins immédiats."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Vous participez à l’organisation en amont et à la mise en place de l’accueil convivial / Vous prenez part au réflexion sur les actions et l’organisation lors de temps d’échange en équipe",
+              "reasoning": "Les tâches incluent une part importante d'organisation, de coordination et de réflexion collective pour le bon fonctionnement de l'accueil."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "L’équipe organise également un atelier de coiffure solidaire et dispose de l'espace nécessaire pour imaginer de nouvelles activités / Nous vous accueillons également avec vos envies et initiatives et sommes ouvert aux nouvelles propositions d’actions",
+              "reasoning": "La mission inclut l'animation d'ateliers et la proposition d'activités collectives, ce qui relève de l'animation."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.92,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Avoir le sens de l’accueil, des capacités d’écoute et aimer partager avec d’autres / Vous accueillez les personnes, vous prenez le temps de discuter avec elles et d'échanger autour d’un café",
+              "reasoning": "Les tâches principales impliquent l'accueil, l'écoute et l'accompagnement des personnes, ce qui relève des compétences sociales et de soin."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.88,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Savoir travailler en équipe et vouloir suivre les formations nécessaires à cette activité / Vous participez à l’organisation en amont et à la mise en place de l’accueil convivial / Vous prenez part au réflexion sur les actions et l’organisation lors de temps d’échange en équipe",
+              "reasoning": "La mission nécessite un travail d'équipe, de l'organisation et des compétences comportementales pour collaborer efficacement."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.99,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "11 heures — Une demi-journée par semaine / du 15 janvier 2026 au 15 décembre 2026",
+              "reasoning": "La mission s'étend sur plusieurs mois avec une fréquence hebdomadaire explicite, ce qui correspond à une mission régulière."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "social_sante_sport",
+            "taxonomyValueLabel": "Social, santé et sport",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Avoir le sens de l’accueil, des capacités d’écoute et aimer partager avec d’autres / réseau d’entraide qui se dessine entre des personnes autour de l’accès à l’emploi, la recherche de logement et d’équipement",
+              "reasoning": "La mission combine des aspects sociaux, d'aide à la personne et d'insertion, ce qui relève du domaine social, santé et sport."
+            }
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "benevolat",
+            "taxonomyValueLabel": "Bénévolat",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "64092877f563558c4ff64b0e",
+        "title": "Je participe à un accueil de jour à Figeac",
+        "domain": "solidarite-insertion",
+        "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12165/solidarite-et-insertion-1.webp?v=1737022221",
+        "type": "benevolat",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png",
+        "organizationName": "Secours Catholique Caritas France - Délégation du Quercy",
+        "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/14805/WzGUfGpY0mk2txSxXeRlizI4oHhYoB.jpg?v=1737382490",
+        "location": {
+          "city": "Figeac",
+          "address": "Rue du Griffoul, 46100 Figeac",
+          "lat": 44.606657,
+          "lon": 2.035569
+        },
+        "startAt": "2026-01-15T00:00:00.000Z",
+        "endAt": "2026-12-15T00:00:00.000Z",
+        "duration": 11,
+        "schedule": "Une demi-journée par semaine",
+        "compensation": null,
+        "descriptionHtml": "<b>Présentation de la mission</b><br><p><strong>Le Secours Catholique de Figeac&nbsp;</strong>agit quotidiennement aux côtés de tous,&nbsp; à cette fin les bénévoles assurent l'ouverture d'un accueil de jour dans ces locaux.&nbsp;</p><p>Les lundis, mercredi et vendredis de 9h à 11h, des équipes de bénévoles ouvrent un accueil de jour afin d'offrir un petit-déjeuner, une douche et la possibilités de laver et sécher son linges à toutes personnes en ayant besoin.</p><p>L'accueil s'intensifie depuis quelque temps et nous sommes à la recherche de nouveaux bénévoles soit pour renforcer les équipes déjà en place soit pour proposer de nouveaux jours d'ouverture en semaine et éventuellement le week end. &nbsp;</p><p>Au-delà de l'accueil, c'est un réseau d’entraide qui se dessine entre des personnes autour de l’accès à l’emploi, la recherche de logement et d’équipement, la mobilité des personnes, l’orientation vers des services et&nbsp;l’accès aux droits …</p><p>L’équipe organise également un atelier de coiffure solidaire et dispose de l'espace nécessaire pour imaginer de nouvelles activités.&nbsp;</p><br><br><b>Sautez le pas</b><br><p><strong>Ce qui vous aidera dans cette mission&nbsp;:&nbsp;</strong></p><ul><li>Avoir le sens de l’accueil, des capacités d’écoute et aimer partager avec d’autres,</li><li>Accepter la démarche humanitaire et sociale,</li><li>Avoir le sens du contact,</li><li>Savoir travailler en équipe et vouloir suivre les formations nécessaires à cette activité,</li><li>Avoir le temps de consacrer en moyenne une demi-journée par semaine à votre bénévolat.</li></ul><br><br><b>Précisions</b><br><p><strong>Et vous dans l’équipe…</strong></p><p>Afin de continuer à répondre au mieux aux besoins des personnes, l’équipe est ravie de vous accueillir. En tant que bénévole et avec les autres membres de l’équipe, vous participez à l’accueil :&nbsp;</p><ul><li>Vous accueillez les personnes, vous prenez le temps de discuter avec elles et d'échanger autour d’un café.</li><li>Vous participez à l’organisation en amont et à la mise en place de l’accueil convivial.</li><li>Vous prenez part au réflexion sur les actions et l’organisation lors de temps d’échange en équipe.&nbsp;</li></ul><p>Nous vous accueillons également avec vos envies et initiatives et sommes ouvert aux nouvelles propositions d’actions.&nbsp;</p>",
+        "description": "Présentation de la mission\n\n\nLe Secours Catholique de Figeac agit quotidiennement aux côtés de tous,  à cette\nfin les bénévoles assurent l'ouverture d'un accueil de jour dans ces locaux. \n\nLes lundis, mercredi et vendredis de 9h à 11h, des équipes de bénévoles ouvrent\nun accueil de jour afin d'offrir un petit-déjeuner, une douche et la\npossibilités de laver et sécher son linges à toutes personnes en ayant besoin.\n\nL'accueil s'intensifie depuis quelque temps et nous sommes à la recherche de\nnouveaux bénévoles soit pour renforcer les équipes déjà en place soit pour\nproposer de nouveaux jours d'ouverture en semaine et éventuellement le week end.\n \n\nAu-delà de l'accueil, c'est un réseau d’entraide qui se dessine entre des\npersonnes autour de l’accès à l’emploi, la recherche de logement et\nd’équipement, la mobilité des personnes, l’orientation vers des services\net l’accès aux droits …\n\nL’équipe organise également un atelier de coiffure solidaire et dispose de\nl'espace nécessaire pour imaginer de nouvelles activités. \n\n\n\nSautez le pas\n\n\nCe qui vous aidera dans cette mission : \n\n • Avoir le sens de l’accueil, des capacités d’écoute et aimer partager avec\n   d’autres,\n • Accepter la démarche humanitaire et sociale,\n • Avoir le sens du contact,\n • Savoir travailler en équipe et vouloir suivre les formations nécessaires à\n   cette activité,\n • Avoir le temps de consacrer en moyenne une demi-journée par semaine à votre\n   bénévolat.\n\n\n\nPrécisions\n\n\nEt vous dans l’équipe…\n\nAfin de continuer à répondre au mieux aux besoins des personnes, l’équipe est\nravie de vous accueillir. En tant que bénévole et avec les autres membres de\nl’équipe, vous participez à l’accueil : \n\n • Vous accueillez les personnes, vous prenez le temps de discuter avec elles et\n   d'échanger autour d’un café.\n • Vous participez à l’organisation en amont et à la mise en place de l’accueil\n   convivial.\n • Vous prenez part au réflexion sur les actions et l’organisation lors de temps\n   d’échange en équipe. \n\nNous vous accueillons également avec vos envies et initiatives et sommes ouvert\naux nouvelles propositions d’actions. ",
+        "applicationUrl": "http://localhost:4000/r/64092877f563558c4ff64b0e/c4a9ce23692082d70af2b16d",
+        "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12165/solidarite-et-insertion-1.webp?v=1737022221",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 3
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "6703bca573fbd982c101392a",
+        "title": "Accompagner les usagers dans les services des préfectures et sous-préfectures.",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "solidarite-insertion",
+        "domainOriginal": "Solidarité",
+        "organizationName": "Préfecture du Lot",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Figeac",
+          "closestLat": 44.608791,
+          "closestLon": 2.032452,
+          "closestAddress": "22 Rue Caviale, 46100 Figeac, FR",
+          "addressId": "a9a7cffb-7d67-4a1e-bb15-bb92f94476dd",
+          "distanceKm": 0.06489050569939657
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/6703bca573fbd982c101392a/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "10697912-a289-4bb9-8716-a416f4151a37",
+        "totalScore": 0.690877,
+        "taxonomyScore": 0.384,
+        "geoScore": 0.997754,
+        "taxonomyScores": {
+          "engagement_intent": 0.92,
+          "tranche_age": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "gestion_projet",
+            "taxonomyValueLabel": "Gestion de projet",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Accueillir et renseigner les usagers de la sous-préfecture de Figeac / Accueil, accompagnement et conseil aux usagers",
+              "reasoning": "Les tâches décrites relèvent principalement de l'organisation, de l'accueil et du conseil, typiques de la gestion de projet ou de l'administration publique."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "securite_service_public",
+            "taxonomyValueLabel": "Sécurité et service public",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Les préfectures remplissent cinq missions essentielles: La garantie de la sécurité - maintien de l’ordre, protection des personnes et des biens... / La citoyenneté, la réglementation et la garantie des libertés publiques... / La conduite et la cohérence des actions de l’Etat",
+              "reasoning": "La mission s'inscrit dans le cadre des services publics de l'État, notamment la préfecture, avec des activités liées à l'ordre public, la réglementation et l'administration."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "gestion_pilotage_juridique",
+            "taxonomyValueLabel": "Gestion, pilotage, juridique",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Écouter et conseiller les usagers sur la constitution et la complétude de leurs dossiers de demande de titres (cartes grises, permis de conduite, étrangers) et des dossiers associations / Expliquer les procédures aux usagers et vérifier les dossiers présentés",
+              "reasoning": "Les tâches incluent un accompagnement administratif et juridique, typique de la gestion, du pilotage et des aspects réglementaires."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "relation_client_commerce_strategie",
+            "taxonomyValueLabel": "Relation client, commerce, stratégie",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Accueillir et renseigner les usagers / Écouter et conseiller les usagers / Les aider dans les démarches réalisées par internet",
+              "reasoning": "La mission implique une forte interaction avec le public, typique de la relation client et de l'accompagnement des usagers."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Accueillir et renseigner les usagers de la sous-préfecture de Figeac / Accueil, accompagnement et conseil aux usagers",
+              "reasoning": "La mission consiste principalement à soutenir le fonctionnement administratif et l'accueil des usagers, ce qui relève du support organisationnel."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Écouter et conseiller les usagers sur la constitution et la complétude de leurs dossiers / Les aider dans les démarches réalisées par internet",
+              "reasoning": "Bien que l'aide soit indirecte (administrative), elle implique un contact direct avec les usagers pour les accompagner dans leurs démarches."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Type de mission : volontariat_service_civique / Organisation porteuse : Préfecture du Lot / Description de l'organisation : Les préfectures remplissent cinq missions essentielles...",
+              "reasoning": "La mission s'inscrit dans un cadre institutionnel très structuré (préfecture, service civique), avec des tâches administratives et réglementaires encadrées."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Écouter et conseiller les usagers sur la constitution et la complétude de leurs dossiers de demande de titres (cartes grises, permis de conduite, étrangers) et des dossiers associations / Expliquer les procédures aux usagers",
+              "reasoning": "La mission implique des tâches liées à la réglementation, aux droits et aux procédures administratives, typiques du domaine société, droit et politique."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "commerce_gestion_finance",
+            "taxonomyValueLabel": "Commerce, gestion, finance et services",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Les aider dans les démarches réalisées par internet / Expliquer les procédures aux usagers",
+              "reasoning": "Les tâches incluent un accompagnement dans des démarches administratives et numériques, relevant de la gestion et de l'organisation."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_18_ans",
+            "taxonomyValueLabel": "Moins de 18 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_31_ans_handicap",
+            "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "service_civique",
+            "taxonomyValueLabel": "Service civique",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "6703bca573fbd982c101392a",
+        "title": "Accompagner les usagers dans les services des préfectures et sous-préfectures.",
+        "domain": "solidarite-insertion",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "Préfecture du Lot",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Figeac",
+          "address": "22 Rue Caviale, 46100 Figeac",
+          "lat": 44.608791,
+          "lon": 2.032452
+        },
+        "startAt": "2026-08-01T00:00:00.000Z",
+        "endAt": "2027-04-01T00:00:00.000Z",
+        "duration": 8,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>-Accueillir et renseigner les usagers de la sous-préfecture de Figeac.</p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p>Accueil, accompagnement et conseil aux usagers.</p></p><br>\n<b>Actions</b><br><p><p>-Accueillir et renseigner les usagers de la sous-préfecture de Figeac</p><p>-Écouter et conseiller les usagers sur la constitution et la complétude de leurs dossiers de demande de titres (cartes grises, permis de conduite, étrangers) et des dossiers associations. -Expliquer les procédures aux usagers et vérifier les dossiers présentés.</p><p>-Les aider dans les démarches réalisées par internet</p></p><br>",
+        "description": "EN QUELQUES MOTS\n\n\n-Accueillir et renseigner les usagers de la sous-préfecture de Figeac.\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nAccueil, accompagnement et conseil aux usagers.\n\n\n\n\n\nActions\n\n\n\n\n-Accueillir et renseigner les usagers de la sous-préfecture de Figeac\n\n-Écouter et conseiller les usagers sur la constitution et la complétude de leurs\ndossiers de demande de titres (cartes grises, permis de conduite, étrangers) et\ndes dossiers associations. -Expliquer les procédures aux usagers et vérifier les\ndossiers présentés.\n\n-Les aider dans les démarches réalisées par internet\n\n\n",
+        "applicationUrl": "http://localhost:4000/r/6703bca573fbd982c101392a/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+        "remote": "no",
+        "openToMinors": true,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "6830b9d0d9770eb19bbeea58",
+        "title": "J'accompagne des personnes déficientes visuelles lors d’activités et de sorties dans le Lot",
+        "remote": "no",
+        "schedule": "2 jours par mois",
+        "domain": "solidarite-insertion",
+        "domainOriginal": null,
+        "organizationName": "Voir Ensemble",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "media": {
+          "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/59913/LoYRHwtG8V2a5N3YXDy29Mf5tfqSlZ.jpg?v=1737022234",
+          "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/59913/LoYRHwtG8V2a5N3YXDy29Mf5tfqSlZ.jpg?v=1737022234",
+          "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/150464/OwGVP0TtW08Ig5EcY7I2RFm7jecq0m.jpg?v=1774000508",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+        },
+        "location": {
+          "city": "Figeac",
+          "closestLat": 44.609226,
+          "closestLon": 2.02419,
+          "closestAddress": "46100 Figeac, FR",
+          "addressId": "25a41240-2ca7-4382-b698-f117683b71a3",
+          "distanceKm": 0.6217996990143283
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/6830b9d0d9770eb19bbeea58/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "f84a0af8-c0f5-4515-ad24-068679b939de",
+        "totalScore": 0.68934,
+        "taxonomyScore": 0.4,
+        "geoScore": 0.978681,
+        "taxonomyScores": {
+          "engagement_intent": 1,
+          "tranche_age": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Accompagner les personnes déficientes visuelles lors de sorties culturelles et de loisirs / Guider une personne déficiente visuelle (lors des activités, dans les transports en commun….) / Proposer et organiser des activités avec le groupe",
+              "reasoning": "Les tâches principales consistent à accompagner, guider et organiser des activités pour des personnes déficientes visuelles, ce qui relève clairement du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Accompagner les personnes déficientes visuelles lors de sorties culturelles et de loisirs / Guider une personne déficiente visuelle / Proposer et organiser des activités avec le groupe",
+              "reasoning": "Les activités décrites impliquent une interaction directe et un accompagnement humain avec des personnes en situation de handicap visuel."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Accompagner les personnes déficientes visuelles lors de sorties culturelles et de loisirs / Proposer et organiser des activités avec le groupe",
+              "reasoning": "La mission inclut explicitement l'animation et l'organisation d'activités collectives pour un groupe."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "action_terrain",
+            "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Assurer le covoiturage afin de faciliter leur accès aux activités / l'association peut prendre en charge les frais liés à l’essence",
+              "reasoning": "Le covoiturage est une action concrète sur le terrain pour faciliter l'accès aux activités, relevant d'une action terrain."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.92,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Accompagner les personnes déficientes visuelles / Guider une personne déficiente visuelle / Proposer et organiser des activités avec le groupe",
+              "reasoning": "Les tâches principales relèvent de l'accompagnement humain, du soin et de la gestion sociale, typiques du management social et soin."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Proposer et organiser des activités avec le groupe",
+              "reasoning": "L'organisation d'activités et la coordination avec un groupe impliquent des compétences en coopération et organisation."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "sante_social_aide_personne",
+              "reasoning": "La mission cible explicitement des personnes en situation de handicap visuel, relevant du secteur santé, social et aide à la personne."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Être disponible 1 à 2 samedis par mois en fonction des activités prévues",
+              "reasoning": "La mission est régulière, avec une fréquence mensuelle et une durée de 2 jours par mois."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "social_sante_sport",
+            "taxonomyValueLabel": "Social, santé et sport",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Formation à la technique de guidage",
+              "reasoning": "La mission inclut une formation spécifique, ce qui peut être lié à des domaines de formation en social ou santé."
+            }
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "benevolat",
+            "taxonomyValueLabel": "Bénévolat",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "6830b9d0d9770eb19bbeea58",
+        "title": "J'accompagne des personnes déficientes visuelles lors d’activités et de sorties dans le Lot",
+        "domain": "solidarite-insertion",
+        "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/59913/LoYRHwtG8V2a5N3YXDy29Mf5tfqSlZ.jpg?v=1737022234",
+        "type": "benevolat",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png",
+        "organizationName": "Voir Ensemble",
+        "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/150464/OwGVP0TtW08Ig5EcY7I2RFm7jecq0m.jpg?v=1774000508",
+        "location": {
+          "city": "Figeac",
+          "address": "46100 Figeac",
+          "lat": 44.609226,
+          "lon": 2.02419
+        },
+        "startAt": "2025-09-08T00:00:00.000Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "2 jours par mois",
+        "compensation": null,
+        "descriptionHtml": "<b>Présentation de la mission</b><br><p>Le Groupe local du Lot de Voir Ensemble œuvre pour maintenir le lien social des personnes déficientes visuelles dans le département. Il propose ainsi des activités culturelles et de loisirs.</p><p>Pour poursuivre ces missions, le groupe recherche des bénévoles. Les actions proposées sont les suivantes :</p><ul><li>Accompagner les personnes déficientes visuelles lors de sorties culturelles et de loisirs</li><li>Assurer le covoiturage afin de faciliter leur accès aux activités (dans ce cas-là, l'association peut prendre en charge les frais liés à l’essence)</li><li>Guider une personne déficiente visuelle (lors des activités, dans les transports en commun….)</li><li>Proposer et organiser des activités avec le groupe</li></ul><br><br><b>Précisions</b><br><ul><li>Echange avec un membre du groupe local</li><li>Formation à la technique de guidage</li><li>Être disponible 1 à 2 samedis par mois en fonction des activités &nbsp;prévues</li></ul>",
+        "description": "Présentation de la mission\n\n\nLe Groupe local du Lot de Voir Ensemble œuvre pour maintenir le lien social des\npersonnes déficientes visuelles dans le département. Il propose ainsi des\nactivités culturelles et de loisirs.\n\nPour poursuivre ces missions, le groupe recherche des bénévoles. Les actions\nproposées sont les suivantes :\n\n • Accompagner les personnes déficientes visuelles lors de sorties culturelles\n   et de loisirs\n • Assurer le covoiturage afin de faciliter leur accès aux activités (dans ce\n   cas-là, l'association peut prendre en charge les frais liés à l’essence)\n • Guider une personne déficiente visuelle (lors des activités, dans les\n   transports en commun….)\n • Proposer et organiser des activités avec le groupe\n\n\n\nPrécisions\n\n • Echange avec un membre du groupe local\n • Formation à la technique de guidage\n • Être disponible 1 à 2 samedis par mois en fonction des activités  prévues",
+        "applicationUrl": "http://localhost:4000/r/6830b9d0d9770eb19bbeea58/c4a9ce23692082d70af2b16d",
+        "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/59913/LoYRHwtG8V2a5N3YXDy29Mf5tfqSlZ.jpg?v=1737022234",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 4
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "6830b9e3d9770eb19bbf6742",
+        "title": "Je deviens chauffeur pour des personnes déficientes visuelles dans le Lot",
+        "remote": "no",
+        "schedule": "2 heures par semaine",
+        "domain": "solidarite-insertion",
+        "domainOriginal": null,
+        "organizationName": "Voir Ensemble",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "media": {
+          "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12166/dRHWvAk9ViLSUPbMRWEttmsNvituig.jpg?v=1753367089",
+          "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12166/dRHWvAk9ViLSUPbMRWEttmsNvituig.jpg?v=1753367089",
+          "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/150464/OwGVP0TtW08Ig5EcY7I2RFm7jecq0m.jpg?v=1774000508",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+        },
+        "location": {
+          "city": "Figeac",
+          "closestLat": 44.609226,
+          "closestLon": 2.02419,
+          "closestAddress": "46100 Figeac, FR",
+          "addressId": "156db9ab-4125-4cda-83fe-cff72db6bfe5",
+          "distanceKm": 0.6217996990143283
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/6830b9e3d9770eb19bbf6742/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "f7e4a3fa-dd3e-4d0f-ab6c-008430c4c0e1",
+        "totalScore": 0.68934,
+        "taxonomyScore": 0.4,
+        "geoScore": 0.978681,
+        "taxonomyScores": {
+          "engagement_intent": 1,
+          "tranche_age": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "accompagner nos adhérents dans leurs déplacements (sorties, courses, rendez-vous médicaux, etc.) / agir pour maintenir le lien social entre les personnes déficientes visuelles",
+              "reasoning": "La mission est centrée sur l'accompagnement social et le maintien du lien social pour des personnes en situation de handicap visuel, ce qui relève clairement du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "accompagner nos adhérents dans leurs déplacements (sorties, courses, rendez-vous médicaux, etc.)",
+              "reasoning": "La mission implique une interaction directe et concrète avec les bénéficiaires pour répondre à leurs besoins de mobilité."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "action_terrain",
+            "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "assurer des trajets en voiture dans le secteur de Cahors",
+              "reasoning": "La mission consiste en une action concrète sur le terrain, ici des déplacements en voiture pour faciliter la mobilité des bénéficiaires."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "accompagner nos adhérents dans leurs déplacements",
+              "reasoning": "L'accompagnement humain et le soutien aux personnes en situation de vulnérabilité (handicap visuel) sont au cœur de la mission."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Disponibilité régulière / Posséder une voiture",
+              "reasoning": "La mission nécessite une bonne organisation personnelle et une capacité à s'adapter aux besoins des bénéficiaires, bien que ce ne soit pas le cœur de l'activité."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "accompagner nos adhérents dans leurs déplacements / personnes déficientes visuelles",
+              "reasoning": "La mission s'inscrit dans le secteur de l'aide à la personne, avec un public cible en situation de handicap."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Durée : non précisée — 2 heures par semaine / Disponibilité régulière",
+              "reasoning": "La mission est décrite comme régulière avec une fréquence hebdomadaire explicite."
+            }
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "benevolat",
+            "taxonomyValueLabel": "Bénévolat",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "6830b9e3d9770eb19bbf6742",
+        "title": "Je deviens chauffeur pour des personnes déficientes visuelles dans le Lot",
+        "domain": "solidarite-insertion",
+        "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12166/dRHWvAk9ViLSUPbMRWEttmsNvituig.jpg?v=1753367089",
+        "type": "benevolat",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png",
+        "organizationName": "Voir Ensemble",
+        "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/150464/OwGVP0TtW08Ig5EcY7I2RFm7jecq0m.jpg?v=1774000508",
+        "location": {
+          "city": "Figeac",
+          "address": "46100 Figeac",
+          "lat": 44.609226,
+          "lon": 2.02419
+        },
+        "startAt": "2025-09-01T00:00:00.000Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "2 heures par semaine",
+        "compensation": null,
+        "descriptionHtml": "<b>Présentation de la mission</b><br><p>Le Groupe local du Lot de Voir Ensemble agit pour maintenir le lien social entre les personnes déficientes visuelles du département, en proposant des activités culturelles et de loisirs.</p><p>Nous recherchons actuellement des bénévoles pour accompagner nos adhérents dans leurs déplacements (sorties, courses, rendez-vous médicaux, etc.).</p><p>La mission consiste principalement à assurer des trajets en voiture dans le secteur de Cahors. Vos frais de carburant seront pris en charge par l’association.</p><br><br><b>Précisions</b><br><ul><li>Découverte de la déficience visuelle</li><li>Permis B requis</li><li>Disponibilité régulière</li><li>Posséder une voiture&nbsp;</li></ul>",
+        "description": "Présentation de la mission\n\n\nLe Groupe local du Lot de Voir Ensemble agit pour maintenir le lien social entre\nles personnes déficientes visuelles du département, en proposant des activités\nculturelles et de loisirs.\n\nNous recherchons actuellement des bénévoles pour accompagner nos adhérents dans\nleurs déplacements (sorties, courses, rendez-vous médicaux, etc.).\n\nLa mission consiste principalement à assurer des trajets en voiture dans le\nsecteur de Cahors. Vos frais de carburant seront pris en charge par\nl’association.\n\n\n\nPrécisions\n\n • Découverte de la déficience visuelle\n • Permis B requis\n • Disponibilité régulière\n • Posséder une voiture ",
+        "applicationUrl": "http://localhost:4000/r/6830b9e3d9770eb19bbf6742/c4a9ce23692082d70af2b16d",
+        "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12166/dRHWvAk9ViLSUPbMRWEttmsNvituig.jpg?v=1753367089",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 5
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "69285d8da20cd8f9e5cb42c0",
+        "title": "Je deviens famille d'accueil temporaire pour animaux",
+        "remote": "no",
+        "schedule": "Plus de 5 jours",
+        "domain": "environnement",
+        "domainOriginal": null,
+        "organizationName": "Kiweeto",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "media": {
+          "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/59846/TwiK9zfgNJUBnSVCjdkvV4nfaWzGIv.jpg?v=1737022291",
+          "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/59846/TwiK9zfgNJUBnSVCjdkvV4nfaWzGIv.jpg?v=1737022291",
+          "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/89313/JEWMT6QsrDhcohd3vGFfElRIFotXvG.png?v=1739552282",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+        },
+        "location": {
+          "city": "Figeac",
+          "closestLat": 44.609226,
+          "closestLon": 2.02419,
+          "closestAddress": "46100 Figeac, FR",
+          "addressId": "fafcf57e-bbdc-48e4-8918-04bf4c201a0c",
+          "distanceKm": 0.6217996990143283
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/69285d8da20cd8f9e5cb42c0/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "cef1c3d9-654a-4d16-95f4-674f7b57f0ec",
+        "totalScore": 0.68934,
+        "taxonomyScore": 0.4,
+        "geoScore": 0.978681,
+        "taxonomyScores": {
+          "engagement_intent": 1,
+          "tranche_age": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "environnement_nature",
+            "taxonomyValueLabel": "Environnement et nature",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Accueillir temporairement un animal, pour lui offrir une seconde chance / Les associations manquent cruellement de solutions pour héberger les animaux en attente d’adoption ou de formation / offrir un foyer chaleureux à un animal (chien, chat, lapin, souris, mouton, reptile...)",
+              "reasoning": "La mission est centrée sur l'accueil et les soins aux animaux, ce qui relève clairement du domaine environnement et nature."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "permettre à un animal de sortir du refuge, d’éviter l’euthanasie ou de suivre son éducation avant d’être remis à une personne en situation de handicap / chaque place libérée en refuge permet de sauver un autre animal",
+              "reasoning": "La mission a une dimension de solidarité envers les animaux et les associations, ainsi qu'un impact social indirect en évitant l'euthanasie."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "environnement_agriculture",
+            "taxonomyValueLabel": "Environnement et agriculture",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Accueillir temporairement un animal, pour lui offrir une seconde chance / offrir un foyer chaleureux à un animal (chien, chat, lapin, souris, mouton, reptile...)",
+              "reasoning": "La mission relève du secteur environnement et agriculture, notamment en raison de la diversité des animaux accueillis (y compris des animaux de ferme)."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Durée flexible : quelques jours à plusieurs mois selon vos disponibilités / vous accueillez un animal temporairement, selon vos disponibilités",
+              "reasoning": "La mission est flexible mais s'étend sur une durée significative (plusieurs jours à plusieurs mois), ce qui correspond à une mission régulière."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Accueillir temporairement un animal, pour lui offrir une seconde chance / offrir un foyer chaleureux à un animal",
+              "reasoning": "La mission implique un accompagnement et des soins directs aux animaux, ce qui relève du management social et soin."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Accueillir temporairement un animal, pour lui offrir une seconde chance / offrir un foyer chaleureux à un animal",
+              "reasoning": "La mission consiste à apporter un soutien direct et concret aux animaux en attente d'adoption ou de formation."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "action_terrain",
+            "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Offrir un foyer chaleureux à un animal jusqu’à ce qu’il trouve sa famille définitive / partager le quotidien d’un animal",
+              "reasoning": "La mission implique une action concrète sur le terrain, à savoir l'accueil et le soin des animaux au quotidien."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Kiweeto vous accompagne à chaque étape / En devenant famille d’accueil temporaire avec Kiweeto, vous recevrez des propositions d’animaux à accueillir, adaptées à votre mode de vie",
+              "reasoning": "La mission inclut un soutien organisationnel via l'accompagnement par Kiweeto, qui facilite la mise en relation et l'adaptation des propositions."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "environnement_nature_sciences",
+            "taxonomyValueLabel": "Environnement, nature et sciences",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Accueillir temporairement un animal, pour lui offrir une seconde chance / offrir un foyer chaleureux à un animal (chien, chat, lapin, souris, mouton, reptile...)",
+              "reasoning": "La mission est liée à l'environnement, la nature et les sciences animales, ce qui correspond au domaine de formation ONISEP."
+            }
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "benevolat",
+            "taxonomyValueLabel": "Bénévolat",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "69285d8da20cd8f9e5cb42c0",
+        "title": "Je deviens famille d'accueil temporaire pour animaux",
+        "domain": "environnement",
+        "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/59846/TwiK9zfgNJUBnSVCjdkvV4nfaWzGIv.jpg?v=1737022291",
+        "type": "benevolat",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png",
+        "organizationName": "Kiweeto",
+        "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/89313/JEWMT6QsrDhcohd3vGFfElRIFotXvG.png?v=1739552282",
+        "location": {
+          "city": "Figeac",
+          "address": "46100 Figeac",
+          "lat": 44.609226,
+          "lon": 2.02419
+        },
+        "startAt": "2025-11-21T00:00:00.000Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "Plus de 5 jours",
+        "compensation": null,
+        "descriptionHtml": "<b>Présentation de la mission</b><br><p>Accueillir temporairement un animal, pour lui offrir une seconde chance.&nbsp;</p><p>Les associations manquent cruellement de solutions pour héberger les animaux en attente d’adoption ou de formation (chien guide, chien d'assistance). En devenant <strong>famille d’accueil temporaire</strong>, vous permettez à un animal de <strong>sortir du refuge, d’éviter l’euthanasie ou de suivre son éducation avant d’être remis à une personne en situation de handicap</strong>.</p><p><strong>Votre rôle ?</strong> Offrir un foyer chaleureux à un animal (chien, chat, lapin, souris, mouton, reptile... peu importe !) jusqu’à ce qu’il trouve sa famille définitive.&nbsp;</p><p>Kiweeto vous accompagne à chaque étape.</p><p>&nbsp;</p><p>❤️ Découvrez la liste des animaux en recherche de famille d'accueil sur <strong>kiweeto.com (rubrique \"ils cherchent un foyer temporaire\")&nbsp;</strong></p><br><br><b>Sautez le pas</b><br><p>👉 <strong>Pas d’engagement définitif :</strong> vous accueillez un animal temporairement, selon vos disponibilités</p><p>👉 <strong>Une vraie différence :</strong> chaque place libérée en refuge permet de sauver un autre animal</p><p>👉 <strong>Une expérience unique : </strong>partager le quotidien d’un animal en attendant de lui offrir un meilleur avenir</p><p>🐾 Kiweeto, c’est un coup de pouce aux assos et un vrai soutien aux animaux. Prêt à tenter l’expérience ?</p><br><br><b>Précisions</b><br><p>Tout le monde peut le faire ! Il suffit juste d'aimer les animaux et d'avoir une petite place à leur offrir pendant quelque temps.&nbsp;</p><p>En devenant famille d’accueil temporaire avec Kiweeto, vous recevrez des propositions d’animaux à accueillir, adaptées à votre mode de vie et à vos disponibilités. Nous vous mettrons en relation avec les associations qui recherchent une famille d’accueil pour leurs animaux et nous vous accompagnerons à chaque étape.</p><p>✅ <strong>Durée flexible</strong> : quelques jours à plusieurs mois selon vos disponibilités</p><p>✅ <strong>Types d’animaux</strong> : chiens, chats, nouveaux animaux de compagnie (NAC), reptiles et même animaux de ferme !</p><p>✅ <strong>Aucun frais vétérinaire</strong> : frais à minima pris en charge par les associations (certaines acceptent aussi de prendre en charge la nourriture, les accessoires...).&nbsp;</p><p>✅ <strong>Encadrement &amp; suivi</strong> : conseils, accompagnement et réseau de soutien</p><p>Que vous viviez en appartement ou en maison, en ville ou à la campagne, il existe forcément un animal qui correspond à votre mode de vie.&nbsp;</p><p>Vous choisissez l'animal que vous souhaitez accueillir !</p>",
+        "description": "Présentation de la mission\n\n\nAccueillir temporairement un animal, pour lui offrir une seconde chance. \n\nLes associations manquent cruellement de solutions pour héberger les animaux en\nattente d’adoption ou de formation (chien guide, chien d'assistance). En\ndevenant famille d’accueil temporaire, vous permettez à un animal de sortir du\nrefuge, d’éviter l’euthanasie ou de suivre son éducation avant d’être remis à\nune personne en situation de handicap.\n\nVotre rôle ? Offrir un foyer chaleureux à un animal (chien, chat, lapin, souris,\nmouton, reptile... peu importe !) jusqu’à ce qu’il trouve sa famille\ndéfinitive. \n\nKiweeto vous accompagne à chaque étape.\n\n \n\n❤️ Découvrez la liste des animaux en recherche de famille d'accueil sur\nkiweeto.com (rubrique \"ils cherchent un foyer temporaire\") \n\n\n\nSautez le pas\n\n\n👉 Pas d’engagement définitif : vous accueillez un animal temporairement, selon\nvos disponibilités\n\n👉 Une vraie différence : chaque place libérée en refuge permet de sauver un\nautre animal\n\n👉 Une expérience unique : partager le quotidien d’un animal en attendant de lui\noffrir un meilleur avenir\n\n🐾 Kiweeto, c’est un coup de pouce aux assos et un vrai soutien aux animaux.\nPrêt à tenter l’expérience ?\n\n\n\nPrécisions\n\n\nTout le monde peut le faire ! Il suffit juste d'aimer les animaux et d'avoir une\npetite place à leur offrir pendant quelque temps. \n\nEn devenant famille d’accueil temporaire avec Kiweeto, vous recevrez des\npropositions d’animaux à accueillir, adaptées à votre mode de vie et à vos\ndisponibilités. Nous vous mettrons en relation avec les associations qui\nrecherchent une famille d’accueil pour leurs animaux et nous vous accompagnerons\nà chaque étape.\n\n✅ Durée flexible : quelques jours à plusieurs mois selon vos disponibilités\n\n✅ Types d’animaux : chiens, chats, nouveaux animaux de compagnie (NAC), reptiles\net même animaux de ferme !\n\n✅ Aucun frais vétérinaire : frais à minima pris en charge par les associations\n(certaines acceptent aussi de prendre en charge la nourriture, les\naccessoires...). \n\n✅ Encadrement & suivi : conseils, accompagnement et réseau de soutien\n\nQue vous viviez en appartement ou en maison, en ville ou à la campagne, il\nexiste forcément un animal qui correspond à votre mode de vie. \n\nVous choisissez l'animal que vous souhaitez accueillir !",
+        "applicationUrl": "http://localhost:4000/r/69285d8da20cd8f9e5cb42c0/c4a9ce23692082d70af2b16d",
+        "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/59846/TwiK9zfgNJUBnSVCjdkvV4nfaWzGIv.jpg?v=1737022291",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 18
+      },
+      "descriptionMissing": false
+    }
+  ],
+  "deterministic": {
+    "geo": 5,
+    "format": 1,
+    "missionsSansTagFormat": [],
+    "gateViolations": []
+  },
+  "judgeRuns": [
+    {
+      "runIndex": 0,
+      "seed": 1554323927,
+      "order": [
+        "6703bca573fbd982c101392a",
+        "6830b9e3d9770eb19bbf6742",
+        "6830b9d0d9770eb19bbeea58",
+        "64092877f563558c4ff64b0e",
+        "69285d8da20cd8f9e5cb42c0"
+      ],
+      "output": {
+        "coherence": {
+          "score": 3,
+          "missionsPertinentes": [
+            1,
+            2,
+            3
+          ],
+          "justification": "Parmi les 5 missions proposées, 3 sont pertinentes pour Inès qui souhaite aider directement des personnes en zone rurale. Les missions 1 et 2 concernent l'accompagnement direct de personnes déficientes visuelles, ce qui correspond bien à son souhait d'aide directe. La mission 3 propose un accueil de jour pour des personnes en difficulté, ce qui est également un engagement direct auprès de personnes. Les missions 0 (accueil administratif) et 4 (famille d'accueil pour animaux) ne correspondent pas directement à son souhait d'aide humaine directe.",
+          "missionIdsPertinents": [
+            "6703bca573fbd982c101392a",
+            "6830b9e3d9770eb19bbf6742",
+            "6830b9d0d9770eb19bbeea58"
+          ]
+        },
+        "homogeneite": {
+          "score": 4,
+          "familles": [
+            "Accompagnement social et aide aux personnes",
+            "Accueil et soutien social",
+            "Protection animale"
+          ],
+          "justification": "Les missions pertinentes appartiennent majoritairement à deux familles : accompagnement social (missions 1 et 2) et accueil/soutien social (mission 3). La mission 4 est dans la famille protection animale, distincte des autres. La mission 0 est dans une famille administrative. Il y a donc 3 familles représentées, avec une majorité dans l'accompagnement social."
+        },
+        "cause": null
+      }
+    },
+    {
+      "runIndex": 1,
+      "seed": 1537546308,
+      "order": [
+        "6830b9d0d9770eb19bbeea58",
+        "69285d8da20cd8f9e5cb42c0",
+        "6830b9e3d9770eb19bbf6742",
+        "6703bca573fbd982c101392a",
+        "64092877f563558c4ff64b0e"
+      ],
+      "output": {
+        "coherence": {
+          "score": 4,
+          "missionsPertinentes": [
+            1,
+            3,
+            4,
+            5
+          ],
+          "justification": "Les missions 0, 2, 3 et 5 (index 0,2,3,4) proposent un engagement direct auprès de personnes en zone rurale autour de Figeac, ce qui correspond bien au profil d'Inès qui souhaite aider directement des personnes en zone rurale. La mission 1 (famille d'accueil pour animaux) ne correspond pas à son souhait d'aide directe aux personnes. La mission 2 (chauffeur pour personnes déficientes visuelles) est moins proche car elle demande une disponibilité régulière et un engagement plus long, ce qui peut être moins adapté à une étudiante cherchant un engagement ponctuel.",
+          "missionIdsPertinents": [
+            "6830b9d0d9770eb19bbeea58",
+            "6830b9e3d9770eb19bbf6742",
+            "6703bca573fbd982c101392a",
+            "64092877f563558c4ff64b0e"
+          ]
+        },
+        "homogeneite": {
+          "score": 4,
+          "familles": [
+            "aide aux personnes en situation de handicap",
+            "aide sociale et accueil",
+            "aide aux animaux"
+          ],
+          "justification": "Les missions pertinentes appartiennent majoritairement à deux familles : aide aux personnes en situation de handicap (missions 0 et 2) et aide sociale et accueil (missions 3 et 4). La mission 1 est isolée dans la famille aide aux animaux. Il y a donc 3 familles dont une avec au moins 3 missions (aide aux personnes)."
+        },
+        "cause": "offre"
+      }
+    }
+  ],
+  "engineVersion": "m2",
+  "startedAt": "2026-07-10T13:26:35.625Z",
+  "finishedAt": "2026-07-10T13:26:53.838Z",
+  "verdict": 3.5,
+  "cleanup": {
+    "userScoringDeleted": true
+  }
+}

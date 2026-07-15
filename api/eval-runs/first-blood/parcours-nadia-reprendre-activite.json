@@ -1,0 +1,2415 @@
+{
+  "status": "success",
+  "parcours": {
+    "id": "nadia-reprendre-activite",
+    "segment": "demandeur_emploi",
+    "label": "Nadia, 24 ans, demandeuse d'emploi à Rouen, veut reprendre une activité dans le bâtiment, l'industrie ou la logistique",
+    "locationLabel": "Rouen (76)",
+    "age": 24,
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 24,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "statut",
+        "value": "demandeur_emploi"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 49.443232,
+          "lon": 1.099971,
+          "country_code": "fr",
+          "label": "Rouen (76)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "reguliere"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "reprendre_activite"
+      },
+      {
+        "taxonomy": "secteur_activite",
+        "value": "batiment_industrie_logistique"
+      }
+    ]
+  },
+  "payload": {
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 24,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "statut",
+        "value": "demandeur_emploi"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 49.443232,
+          "lon": 1.099971,
+          "country_code": "fr",
+          "label": "Rouen (76)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "reguliere"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "reprendre_activite"
+      },
+      {
+        "taxonomy": "secteur_activite",
+        "value": "batiment_industrie_logistique"
+      }
+    ],
+    "distinctId": "eval:first-blood:nadia-reprendre-activite",
+    "missionAlertEnabled": false
+  },
+  "userScoringId": "184c7569-ce30-4281-8b16-58c281b49bff",
+  "match": {
+    "tookMs": 304,
+    "engineVersion": "m2",
+    "items": [
+      {
+        "mission": {
+          "id": "91b9216e-ac8c-4998-ac2f-8cd71b8ff2c6",
+          "title": "Promotion de l'aviron en milieu scolaire et universitaire et de l'aviron indoor",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "sport",
+          "domainOriginal": "Sport",
+          "organizationName": "CLUB NAUTIQUE ATHLETIQUE ROUEN",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sport_03.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sport_03.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Rouen",
+            "closestLat": 49.435363,
+            "closestLon": 1.097559,
+            "closestAddress": "20 rue de l'Industrie, 76000 Rouen, FR",
+            "addressId": "2249a97a-f66f-4e7f-9c6d-3c8aa7d938e2",
+            "distanceKm": 0.8922038256229489
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/91b9216e-ac8c-4998-ac2f-8cd71b8ff2c6/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "af03c2ab-1633-4770-b62c-12bc27fd6eb2",
+          "totalScore": 0.584776,
+          "taxonomyScore": 0.2,
+          "geoScore": 0.969552,
+          "taxonomyScores": {
+            "tranche_age": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "sport_animation",
+              "taxonomyValueLabel": "Sport et animation sportive",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Promotion de l'aviron en milieu scolaire et universitaire et de l'aviron indoor / animer les réseaux sociaux / participer à l'organisation de manifestation / encourager la pratique du sport, en ciblant la population jeune / participer à la promotion de l’aviron indoor / développer la présence du club sur les différents réseaux sociaux / participer notamment à l'organisation des 2 événements organisés par le CNAR, le Défi Seine 2027 et l'Open d'aviron indoor de décembre 2026",
+                "reasoning": "Les tâches principales sont centrées sur l'animation sportive, la promotion et l'organisation d'événements liés à l'aviron, ce qui relève clairement du domaine sport et animation."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Promotion de l'aviron en milieu scolaire et universitaire / animer les réseaux sociaux / encourager la pratique du sport, en ciblant la population jeune / participer à l'organisation de manifestation",
+                "reasoning": "La mission implique l'animation, la formation et la promotion dans un cadre éducatif et sportif, notamment en milieu scolaire et universitaire."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "communication_creation_numerique",
+              "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+              "enrichmentConfidence": 0.92,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "animer les réseaux sociaux / développer la présence du club sur les différents réseaux sociaux",
+                "reasoning": "La mission inclut explicitement la gestion et l'animation des réseaux sociaux, ce qui relève des compétences numériques et de communication."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "être force de proposition / participer à l'organisation de manifestation / participer notamment à l'organisation des 2 événements organisés par le CNAR",
+                "reasoning": "La mission implique une forte dimension de travail en équipe, de proposition et d'organisation d'événements, ce qui relève des soft skills et de la coopération."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "animer les réseaux sociaux / encourager la pratique du sport, en ciblant la population jeune / participer à l'organisation de manifestation / mettre en place des animations visant à : encourager la pratique du sport",
+                "reasoning": "Les tâches principales incluent l'animation d'actions collectives, la promotion et l'organisation d'événements, ce qui correspond à l'intention d'animation."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Promotion de l'aviron en milieu scolaire et universitaire / encourager la pratique du sport, en ciblant la population jeune",
+                "reasoning": "La mission vise à promouvoir et encourager la pratique sportive auprès des jeunes, ce qui implique une dimension de transmission et de sensibilisation."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "prendre part au développement et à l'organisation d'une association sportive / participer à l'organisation de manifestation / participer notamment à l'organisation des 2 événements organisés par le CNAR",
+                "reasoning": "La mission inclut explicitement le soutien à l'organisation et au développement de l'association, ce qui relève du support organisationnel."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Type de mission : volontariat_service_civique / La mission proposée par le Club Nautique et Athlétique de Rouen permet au volontaire de découvrir le monde du travail en apportant son soutien à une association sportive",
+                "reasoning": "Le cadre du service civique est un engagement structuré et institutionnel, ce qui justifie cette classification."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "education_culture_creation",
+              "taxonomyValueLabel": "Éducation, culture et création",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Promotion de l'aviron en milieu scolaire et universitaire / encourager la pratique du sport, en ciblant la population jeune",
+                "reasoning": "La mission combine éducation (milieu scolaire et universitaire) et animation culturelle/sportive, ce qui relève de ce domaine de formation."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "social_sante_sport",
+              "taxonomyValueLabel": "Social, santé et sport",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "développer le sport santé / encourager la pratique du sport, en ciblant la population jeune",
+                "reasoning": "La mission inclut des aspects liés à la santé (sport santé) et à l'inclusion par le sport, ce qui relève de ce domaine de formation."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_18_ans",
+              "taxonomyValueLabel": "Moins de 18 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_31_ans_handicap",
+              "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "service_civique",
+              "taxonomyValueLabel": "Service civique",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "c59da33b-dc6d-417c-b97b-871d89cb5f8a",
+          "title": "Accompagnement du développement du tennis chez les jeunes et valorisation des clubs",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "sport",
+          "domainOriginal": "Sport",
+          "organizationName": "COMITE DEPART TENNIS DE LA FFT",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sport_03.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sport_03.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Rouen",
+            "closestLat": 49.443889,
+            "closestLon": 1.08595,
+            "closestAddress": "23 Rue de Crosne, 76000 Rouen, FR",
+            "addressId": "0f0eb06e-c11c-4a6c-8a48-80b0019b283d",
+            "distanceKm": 1.0163274779618583
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/c59da33b-dc6d-417c-b97b-871d89cb5f8a/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "da4e1304-3ab5-4978-a1b5-87c088facba2",
+          "totalScore": 0.582695,
+          "taxonomyScore": 0.2,
+          "geoScore": 0.96539,
+          "taxonomyScores": {
+            "tranche_age": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "sport_animation",
+              "taxonomyValueLabel": "Sport et animation sportive",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Participer au développement de la pratique du tennis en Seine-Maritime en animant et valorisant des circuits jeunes / Animation, Valorisation / Aide ponctuelle sur la mise en place d'événements et l'animation",
+                "reasoning": "La mission est centrée sur l'animation et la valorisation de l'activité sportive (tennis), avec des actions explicites d'animation et d'événementiel."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Participer au développement de la pratique du tennis en Seine-Maritime en animant et valorisant des circuits jeunes / Favoriser l’accès au sport pour tous, encourager la participation des jeunes et renforcer le lien social entre clubs",
+                "reasoning": "La mission relève de l'animation sportive et de la formation des jeunes, dans le secteur de l'éducation et de l'animation."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Gestion du comptage des points individuels des compétiteurs et suivi régulier / Faire la promotion des circuits sur les réseaux de communication du CD76 / Mettre à jour le formulaire de planification des dates d’accueil dans les centres de matchs sur Google Forms / Stimuler le réseau des orange et vert pour qu’ils puissent s’inscrire dans les clubs centres de matchs",
+                "reasoning": "La mission implique une forte dimension d'organisation, de coordination entre clubs et de travail collaboratif."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "communication_creation_numerique",
+              "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Faire la promotion des circuits sur les réseaux de communication du CD76 / Mettre à jour le formulaire de planification des dates d’accueil dans les centres de matchs sur Google Forms",
+                "reasoning": "La mission inclut des tâches de communication digitale et de gestion de supports numériques."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Participer au développement de la pratique du tennis en Seine-Maritime en animant et valorisant des circuits jeunes / Aide ponctuelle sur la mise en place d'événements et l'animation",
+                "reasoning": "La mission inclut explicitement des actions d'animation et de valorisation, notamment pour les jeunes."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Gestion du comptage des points individuels des compétiteurs et suivi régulier / Faire la promotion des circuits sur les réseaux de communication du CD76 / Mettre à jour le formulaire de planification des dates d’accueil dans les centres de matchs sur Google Forms",
+                "reasoning": "La mission consiste principalement à soutenir l'organisation et la gestion des circuits, des clubs et des compétitions."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Favoriser l’accès au sport pour tous, encourager la participation des jeunes et renforcer le lien social entre clubs / renforcer le lien social entre clubs",
+                "reasoning": "La mission vise à encourager la participation des jeunes et à renforcer les liens entre clubs, ce qui implique une dimension de transmission et de sensibilisation."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "education_culture_creation",
+              "taxonomyValueLabel": "Éducation, culture et création",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Participer au développement de la pratique du tennis en Seine-Maritime en animant et valorisant des circuits jeunes / Favoriser l’accès au sport pour tous, encourager la participation des jeunes",
+                "reasoning": "La mission relève de l'animation sportive et de la transmission de valeurs éducatives et culturelles via le sport."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "social_sante_sport",
+              "taxonomyValueLabel": "Social, santé et sport",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Favoriser l’accès au sport pour tous, encourager la participation des jeunes et renforcer le lien social entre clubs",
+                "reasoning": "La mission a une finalité sociale et inclusive, en favorisant l'accès au sport pour tous et en renforçant les liens sociaux."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_18_ans",
+              "taxonomyValueLabel": "Moins de 18 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_31_ans_handicap",
+              "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "service_civique",
+              "taxonomyValueLabel": "Service civique",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "d2b12b5f-0481-4352-b002-1e9d29481923",
+          "title": "Contribuer au développement de l'utilisation de l'Agnel - la monnaie locale du grand Diepp",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "environnement",
+          "domainOriginal": "Environnement",
+          "organizationName": "ASSOCIATION MONNAIE LOCALE COMPLEMENTAIRE ET CITOYENNE DU GRAND DIEPPE ",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_03.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_03.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Rouen",
+            "closestLat": 49.444465,
+            "closestLon": 1.078549,
+            "closestAddress": "11 Avenue Pasteur, 76000 Rouen, FR",
+            "addressId": "de885ce6-68d7-4c24-90ce-c8b948f6e66d",
+            "distanceKm": 1.5548277586214945
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/d2b12b5f-0481-4352-b002-1e9d29481923/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "76b7a6c3-0ac8-4493-a56f-582cc965cb9e",
+          "totalScore": 0.57377,
+          "taxonomyScore": 0.2,
+          "geoScore": 0.94754,
+          "taxonomyScores": {
+            "tranche_age": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "environnement_nature",
+              "taxonomyValueLabel": "Environnement et nature",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "promouvoir une dynamique d'économie locale, écologique et démocratique / monnaie locale qui fonctionne sur le territoire Normand / monnaie locale complémentaire et citoyenne",
+                "reasoning": "La mission est explicitement centrée sur une monnaie locale écologique et citoyenne, ce qui relève directement de l'environnement et de la transition écologique."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Participer à la dynamisation et la sensibilisation, la formation et l'information sur l'AGNEL / Faire connaître son fonctionnement et son intérêt pour le territoire, les centres-villes, le savoir-faire local et la qualité de vie",
+                "reasoning": "Les activités principales incluent la sensibilisation, la formation et l'information, ce qui relève de la transmission et de la pédagogie."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "ASSURER L'ORGANISATION D'EVENEMENTS PUBLICS: soirées d'information, soirée débat, marchés de producteurs / Une participation sur le marché de Dieppe su Samedi matin est demandée",
+                "reasoning": "L'organisation d'événements publics et la participation à des marchés relèvent clairement de l'animation et de la médiation."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "communication_creation_numerique",
+              "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "ASSURER LA COMMUNICATION SUR LES RESEAUX SOCIAUX à l'aide de notre outil Canva et Newsletter par emailing / Des connaissances marketing sont demandé",
+                "reasoning": "La mission inclut une composante de communication digitale et marketing, ce qui relève des compétences numériques et de création."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "relation_client_commerce_strategie",
+              "taxonomyValueLabel": "Relation client, commerce, stratégie",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "ASSURER LA PROSPECTION ET LE SUIVI DE NOS MEMBRES à l'aide de notre nouveau système d'information dédié aux monnaies locales et basé sur Odoo / le repérage et la fidélisation des consom’acteurs, prestataires et partenaires",
+                "reasoning": "La prospection et le suivi des membres impliquent des compétences en relation client et en stratégie de développement."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Le volontaire est accompagné par un tuteur au sein de l'organisme d'accueil pour mener à bien sa mission / Formation interne + Formation certifiante PSC1 + Formation Civique Et Citoyenne",
+                "reasoning": "Le cadre structuré avec tutorat et formations obligatoires correspond à un engagement en cadre structuré."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "environnement_agriculture",
+              "taxonomyValueLabel": "Environnement et agriculture",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Le volontaire participera au développement de la Monnaie Locale l'Agnel / promouvoir une dynamique d'économie locale, écologique et démocratique",
+                "reasoning": "La mission s'inscrit dans le secteur de l'environnement et de l'agriculture (économie locale et écologique)."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Formation interne + Formation certifiante PSC1 + Formation Civique Et Citoyenne / Le volontaire est accompagné par un tuteur",
+                "reasoning": "Le cadre institutionnel et les formations obligatoires indiquent un engagement en service civique structuré."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "environnement_nature_sciences",
+              "taxonomyValueLabel": "Environnement, nature et sciences",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "promouvoir une dynamique d'économie locale, écologique et démocratique / monnaie locale complémentaire et citoyenne",
+                "reasoning": "La mission relève de l'environnement, de la nature et des sciences (économie locale écologique)."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "service_civique",
+              "taxonomyValueLabel": "Service civique",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "9c04a2fe-e19b-4c7c-a471-4992652741be",
+          "title": "Soutien à l'animation d'un tiers-lieu militant, associatif, social et environnemental ",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "environnement",
+          "domainOriginal": "Environnement",
+          "organizationName": "UNE BASE A ROUEN",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_01.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_01.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": null,
+            "closestLat": 49.433556,
+            "closestLon": 1.081909,
+            "closestAddress": "5 Rue Geuffroy, Rouen, France, FR",
+            "addressId": "121e547b-1062-4bb9-bde3-fd793c3659ec",
+            "distanceKm": 1.6921082204030178
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/9c04a2fe-e19b-4c7c-a471-4992652741be/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "f0b21c4d-314e-4be7-beeb-b6767040b512",
+          "totalScore": 0.571521,
+          "taxonomyScore": 0.2,
+          "geoScore": 0.943042,
+          "taxonomyScores": {
+            "tranche_age": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "environnement_nature",
+              "taxonomyValueLabel": "Environnement et nature",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Appui à la diffusion de l'information / faire la promotion et la diffusion des activités de la base en interne entre les associations adhérentes et en direction des publics (outils numériques) notamment le public éloigné des questions environnementales, les étudiants, les habitants du quartier ... / Développement de temps de sensibilisation et d'animation en lien avec les thématiques développées par les associations adhérentes / Donner de la visibilité à l'association Une base à Rouen en participant à des événements / forum",
+                "reasoning": "Les activités décrites sont centrées sur la promotion, la sensibilisation et l'animation autour des thématiques environnementales et sociales, avec un public varié incluant des personnes éloignées des questions environnementales."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "gestion_projet",
+              "taxonomyValueLabel": "Gestion de projet",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Appui à la diffusion de l'information / faire la promotion et la diffusion des activités de la base en interne entre les associations adhérentes et en direction des publics (outils numériques) notamment le public éloigné des questions environnementales, les étudiants, les habitants du quartier ... / Appui à l'accueil du public et à son orientation vers les différents structures adhérentes (environnementales, solidaires)",
+                "reasoning": "Les tâches incluent la promotion, la communication et l'accueil, ce qui relève du domaine de la gestion de projet et de l'organisation."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.92,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Appui à la diffusion de l'information / faire la promotion et la diffusion des activités de la base en interne entre les associations adhérentes et en direction des publics (outils numériques) notamment le public éloigné des questions environnementales, les étudiants, les habitants du quartier ... / Développement de temps de sensibilisation et d'animation en lien avec les thématiques développées par les associations adhérentes",
+                "reasoning": "Les activités décrites incluent la promotion, la sensibilisation et l'animation, ce qui relève du domaine de l'éducation et de la transmission."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Appui à l'accueil du public et à son orientation vers les différents structures adhérentes (environnementales, solidaires)",
+                "reasoning": "L'accueil et l'orientation du public, notamment vers des structures solidaires, relèvent du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "gestion_commerce_organisation",
+              "taxonomyValueLabel": "Gestion, commerce et organisation",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Appui à la diffusion de l'information / faire la promotion et la diffusion des activités de la base en interne entre les associations adhérentes et en direction des publics (outils numériques) / Gestion du lieu, animation, mise à jour des fichiers d'adhérent.e.s, gestion du café associatif ....",
+                "reasoning": "Les tâches incluent la gestion de projet, la communication numérique et l'animation, ce qui relève du secteur de la gestion, commerce et organisation."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Appui à la diffusion de l'information / faire la promotion et la diffusion des activités de la base en interne entre les associations adhérentes et en direction des publics (outils numériques) / Développement de temps de sensibilisation et d'animation en lien avec les thématiques développées par les associations adhérentes",
+                "reasoning": "Les activités décrites incluent la promotion, la sensibilisation et l'animation, ce qui relève du secteur de l'éducation, formation et animation."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Appui à l'accueil du public et à son orientation vers les différents structures adhérentes (environnementales, solidaires)",
+                "reasoning": "L'accueil et l'orientation du public vers des structures solidaires relèvent du secteur de la santé, social et aide à la personne."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "gestion_pilotage_juridique",
+              "taxonomyValueLabel": "Gestion, pilotage, juridique",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Gestion du lieu, animation, mise à jour des fichiers d'adhérent.e.s, gestion du café associatif ....",
+                "reasoning": "Les tâches incluent la gestion de projet, l'animation et la communication numérique, ce qui relève des compétences de gestion, pilotage et juridique."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "communication_creation_numerique",
+              "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Appui à la diffusion de l'information / faire la promotion et la diffusion des activités de la base en interne entre les associations adhérentes et en direction des publics (outils numériques) / Développement de temps de sensibilisation et d'animation en lien avec les thématiques développées par les associations adhérentes",
+                "reasoning": "Les activités décrites incluent la promotion, la sensibilisation et l'animation, ce qui relève des compétences de communication, création et numérique."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Appui à l'accueil du public et à son orientation vers les différents structures adhérentes (environnementales, solidaires)",
+                "reasoning": "L'accueil et l'orientation du public vers des structures solidaires relèvent des compétences de management, social et soin."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Appui à la diffusion de l'information / faire la promotion et la diffusion des activités de la base en interne entre les associations adhérentes et en direction des publics (outils numériques) / Développement de temps de sensibilisation et d'animation en lien avec les thématiques développées par les associations adhérentes / Donner de la visibilité à l'association Une base à Rouen en participant à des événements / forum",
+                "reasoning": "Les activités décrites incluent la promotion, la sensibilisation et l'animation, ce qui relève de l'intention d'engagement de transmission et d'animation."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Appui à la diffusion de l'information / faire la promotion et la diffusion des activités de la base en interne entre les associations adhérentes et en direction des publics (outils numériques) / Développement de temps de sensibilisation et d'animation en lien avec les thématiques développées par les associations adhérentes / Donner de la visibilité à l'association Une base à Rouen en participant à des événements / forum",
+                "reasoning": "Les activités décrites incluent la promotion, la sensibilisation et l'animation, ce qui relève de l'intention d'engagement d'animation."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Appui à l'accueil du public et à son orientation vers les différents structures adhérentes (environnementales, solidaires)",
+                "reasoning": "L'accueil et l'orientation du public vers des structures solidaires relèvent de l'intention d'engagement d'aide directe."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Type de mission : volontariat_service_civique / Durée : 8 heures — De 24h à 30h / Dates : du 13 avril 2026 au 13 décembre 2026",
+                "reasoning": "La mission est explicitement un service civique, ce qui relève du cadre structuré d'engagement."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Appui à la diffusion de l'information / faire la promotion et la diffusion des activités de la base en interne entre les associations adhérentes et en direction des publics (outils numériques) / Gestion du lieu, animation, mise à jour des fichiers d'adhérent.e.s, gestion du café associatif ....",
+                "reasoning": "Les tâches incluent la gestion de projet et l'organisation, ce qui relève de l'intention d'engagement de support_organisation."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "environnement_nature_sciences",
+              "taxonomyValueLabel": "Environnement, nature et sciences",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Domaine (classification existante) : environnement / Tags : Service Civique Écologique",
+                "reasoning": "La mission est explicitement liée à l'environnement et au service civique écologique."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "numerique_communication",
+              "taxonomyValueLabel": "Numérique et communication",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Appui à la diffusion de l'information / faire la promotion et la diffusion des activités de la base en interne entre les associations adhérentes et en direction des publics (outils numériques)",
+                "reasoning": "Les activités incluent la communication numérique, ce qui relève du domaine de formation ONISEP du numérique et communication."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "service_civique",
+              "taxonomyValueLabel": "Service civique",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "f3b9eaf2-10e7-4c8b-9531-b2e9b6d0554e",
+          "title": "Accompagner les usagers dans l’utilisation des outils numériques de France Travail",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "solidarite-insertion",
+          "domainOriginal": "Solidarité",
+          "organizationName": "France Travail de Rouen Aubette",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Rouen",
+            "closestLat": 49.437288,
+            "closestLon": 1.130234,
+            "closestAddress": "17 Rue de l'Aubette, 76000 Rouen, FR",
+            "addressId": "d385dab2-6919-4ccf-95a4-89e501ad79a7",
+            "distanceKm": 2.285762691095423
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/f3b9eaf2-10e7-4c8b-9531-b2e9b6d0554e/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "b3b94bb2-1501-4dec-91aa-ecbfbb07ca21",
+          "totalScore": 0.561919,
+          "taxonomyScore": 0.2,
+          "geoScore": 0.923838,
+          "taxonomyScores": {
+            "tranche_age": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "participer à des activités favorisant le lien social",
+                "reasoning": "Animation d'activités collectives pour renforcer le lien social."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Fait le lien avec les associations d’e-inclusion pour un appui personnalisé",
+                "reasoning": "Coordination et mise en relation avec des partenaires pour un accompagnement personnalisé."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Accompagner les usagers dans l’utilisation des outils numériques de France Travail afin d'être facilitateur d’inclusion numérique / participer à des activités favorisant le lien social",
+                "reasoning": "La mission vise explicitement l'inclusion numérique et le lien social, domaines centraux du social et de la solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Aide à l'écrit, la lecture, la compréhension des outils ; Facilite l'expression et soutient les participants lors des ateliers dédiés / Participe à la « prise en main » des outils digitaux présentés",
+                "reasoning": "La mission inclut une dimension pédagogique et de transmission de compétences numériques."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.92,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Accompagner les usagers dans l’utilisation des outils numériques de France Travail / faciliter les démarches des demandeurs d’emploi en situation de handicap",
+                "reasoning": "Mission dans le secteur de l'aide à la personne, notamment pour des publics en situation de handicap."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "numerique_communication",
+              "taxonomyValueLabel": "Numérique et communication",
+              "enrichmentConfidence": 0.88,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Aide à l'appropriation des services numériques et outils digitaux par les usagers / outils informatiques, internet",
+                "reasoning": "La mission est centrée sur l'accompagnement à l'utilisation d'outils numériques."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Aide à l'écrit, la lecture, la compréhension des outils ; Facilite l'expression et soutient les participants / accompagner les usagers",
+                "reasoning": "Accompagnement humain et soutien aux usagers, notamment en situation de vulnérabilité."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "communication_creation_numerique",
+              "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Aide à l'appropriation des services numériques et outils digitaux par les usagers / outils informatiques, internet",
+                "reasoning": "Compétences numériques et accompagnement à l'utilisation d'outils digitaux."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Fait le lien avec les associations d’e-inclusion pour un appui personnalisé / participe à des activités favorisant le lien social",
+                "reasoning": "Travail collaboratif avec des partenaires et animation de dynamiques collectives."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Aide à l'écrit, la lecture, la compréhension des outils ; Facilite l'expression et soutient les participants lors des ateliers dédiés / Participe à la « prise en main » des outils digitaux présentés",
+                "reasoning": "Mission centrée sur la transmission de compétences et l'accompagnement pédagogique."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Accompagner les usagers dans l’utilisation des outils numériques / faciliter les démarches des demandeurs d’emploi en situation de handicap",
+                "reasoning": "Interaction directe et personnalisée avec les bénéficiaires."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "volontariat_service_civique / France Travail Premier acteur du marché du travail en France avec 55 000 collaborateurs",
+                "reasoning": "Mission encadrée dans un cadre institutionnel structuré (service civique au sein d'un grand organisme public)."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Accompagner les usagers dans l’utilisation des outils numériques de France Travail / faciliter les démarches des demandeurs d’emploi",
+                "reasoning": "Mission liée aux enjeux d'insertion professionnelle et d'accès aux droits, domaine de la société et du politique."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "numerique_communication",
+              "taxonomyValueLabel": "Numérique et communication",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Aide à l'appropriation des services numériques et outils digitaux par les usagers",
+                "reasoning": "Compétences numériques et accompagnement à l'utilisation d'outils digitaux."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "service_civique",
+              "taxonomyValueLabel": "Service civique",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      }
+    ],
+    "total": 2220,
+    "avgDistanceKmTop5": 1.49
+  },
+  "missions": [
+    {
+      "mission": {
+        "id": "91b9216e-ac8c-4998-ac2f-8cd71b8ff2c6",
+        "title": "Promotion de l'aviron en milieu scolaire et universitaire et de l'aviron indoor",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "sport",
+        "domainOriginal": "Sport",
+        "organizationName": "CLUB NAUTIQUE ATHLETIQUE ROUEN",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sport_03.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sport_03.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Rouen",
+          "closestLat": 49.435363,
+          "closestLon": 1.097559,
+          "closestAddress": "20 rue de l'Industrie, 76000 Rouen, FR",
+          "addressId": "2249a97a-f66f-4e7f-9c6d-3c8aa7d938e2",
+          "distanceKm": 0.8922038256229489
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/91b9216e-ac8c-4998-ac2f-8cd71b8ff2c6/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "af03c2ab-1633-4770-b62c-12bc27fd6eb2",
+        "totalScore": 0.584776,
+        "taxonomyScore": 0.2,
+        "geoScore": 0.969552,
+        "taxonomyScores": {
+          "tranche_age": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "sport_animation",
+            "taxonomyValueLabel": "Sport et animation sportive",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Promotion de l'aviron en milieu scolaire et universitaire et de l'aviron indoor / animer les réseaux sociaux / participer à l'organisation de manifestation / encourager la pratique du sport, en ciblant la population jeune / participer à la promotion de l’aviron indoor / développer la présence du club sur les différents réseaux sociaux / participer notamment à l'organisation des 2 événements organisés par le CNAR, le Défi Seine 2027 et l'Open d'aviron indoor de décembre 2026",
+              "reasoning": "Les tâches principales sont centrées sur l'animation sportive, la promotion et l'organisation d'événements liés à l'aviron, ce qui relève clairement du domaine sport et animation."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Promotion de l'aviron en milieu scolaire et universitaire / animer les réseaux sociaux / encourager la pratique du sport, en ciblant la population jeune / participer à l'organisation de manifestation",
+              "reasoning": "La mission implique l'animation, la formation et la promotion dans un cadre éducatif et sportif, notamment en milieu scolaire et universitaire."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "communication_creation_numerique",
+            "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+            "enrichmentConfidence": 0.92,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "animer les réseaux sociaux / développer la présence du club sur les différents réseaux sociaux",
+              "reasoning": "La mission inclut explicitement la gestion et l'animation des réseaux sociaux, ce qui relève des compétences numériques et de communication."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "être force de proposition / participer à l'organisation de manifestation / participer notamment à l'organisation des 2 événements organisés par le CNAR",
+              "reasoning": "La mission implique une forte dimension de travail en équipe, de proposition et d'organisation d'événements, ce qui relève des soft skills et de la coopération."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "animer les réseaux sociaux / encourager la pratique du sport, en ciblant la population jeune / participer à l'organisation de manifestation / mettre en place des animations visant à : encourager la pratique du sport",
+              "reasoning": "Les tâches principales incluent l'animation d'actions collectives, la promotion et l'organisation d'événements, ce qui correspond à l'intention d'animation."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Promotion de l'aviron en milieu scolaire et universitaire / encourager la pratique du sport, en ciblant la population jeune",
+              "reasoning": "La mission vise à promouvoir et encourager la pratique sportive auprès des jeunes, ce qui implique une dimension de transmission et de sensibilisation."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "prendre part au développement et à l'organisation d'une association sportive / participer à l'organisation de manifestation / participer notamment à l'organisation des 2 événements organisés par le CNAR",
+              "reasoning": "La mission inclut explicitement le soutien à l'organisation et au développement de l'association, ce qui relève du support organisationnel."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Type de mission : volontariat_service_civique / La mission proposée par le Club Nautique et Athlétique de Rouen permet au volontaire de découvrir le monde du travail en apportant son soutien à une association sportive",
+              "reasoning": "Le cadre du service civique est un engagement structuré et institutionnel, ce qui justifie cette classification."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "education_culture_creation",
+            "taxonomyValueLabel": "Éducation, culture et création",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Promotion de l'aviron en milieu scolaire et universitaire / encourager la pratique du sport, en ciblant la population jeune",
+              "reasoning": "La mission combine éducation (milieu scolaire et universitaire) et animation culturelle/sportive, ce qui relève de ce domaine de formation."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "social_sante_sport",
+            "taxonomyValueLabel": "Social, santé et sport",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "développer le sport santé / encourager la pratique du sport, en ciblant la population jeune",
+              "reasoning": "La mission inclut des aspects liés à la santé (sport santé) et à l'inclusion par le sport, ce qui relève de ce domaine de formation."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_18_ans",
+            "taxonomyValueLabel": "Moins de 18 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_31_ans_handicap",
+            "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "service_civique",
+            "taxonomyValueLabel": "Service civique",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "91b9216e-ac8c-4998-ac2f-8cd71b8ff2c6",
+        "title": "Promotion de l'aviron en milieu scolaire et universitaire et de l'aviron indoor",
+        "domain": "sport",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sport_03.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "CLUB NAUTIQUE ATHLETIQUE ROUEN",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Rouen",
+          "address": "20 rue de l'Industrie, 76000 Rouen",
+          "lat": 49.435363,
+          "lon": 1.097559
+        },
+        "startAt": "2026-09-01T00:00:00.000Z",
+        "endAt": "2027-07-01T00:00:00.000Z",
+        "duration": 10,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>La mission répond à la stratégie de la vie du club « recrutement, formation et dynamique sportive ». Faire connaître les activités « aviron scolaire et universitaire et aviron Indoor » du CNAR. Etre force de proposition, animer les réseaux sociaux, participer à l'organisation de manifestation.</p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p>La mission proposée par le Club Nautique et Athlétique de Rouen permet au volontaire de découvrir le monde du travail en apportant son soutien à une association sportive.</p><p>L'objectif est de prendre part au développement et à l'organisation d'une association sportive.</p></p><br>\n<b>Actions</b><br><p><p>Les activités confiées au jeune volontaire se déclinent en deux grands axes visant à faire connaître les activités « aviron scolaire et universitaire et aviron Indoor » du CNAR. </p><p>Il proposera de nouvelles actions de sensibilisation, d'autres approches de développement du nombre de licenciés et mettra en place des animations visant à : encourager la pratique du sport, en ciblant la population jeune, développer le sport santé, participer à la promotion de l’aviron indoor, développer la présence du club sur les différents réseaux sociaux.</p><p>Le volontaire participera notamment à l'organisation des 2 événements organisés par le CNAR, le Défi Seine 2027 et l'Open d'aviron indoor de décembre 2026.</p></p><br>",
+        "description": "EN QUELQUES MOTS\n\n\nLa mission répond à la stratégie de la vie du club « recrutement, formation et\ndynamique sportive ». Faire connaître les activités « aviron scolaire et\nuniversitaire et aviron Indoor » du CNAR. Etre force de proposition, animer les\nréseaux sociaux, participer à l'organisation de manifestation.\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nLa mission proposée par le Club Nautique et Athlétique de Rouen permet au\nvolontaire de découvrir le monde du travail en apportant son soutien à une\nassociation sportive.\n\nL'objectif est de prendre part au développement et à l'organisation d'une\nassociation sportive.\n\n\n\n\n\nActions\n\n\n\n\nLes activités confiées au jeune volontaire se déclinent en deux grands axes\nvisant à faire connaître les activités « aviron scolaire et universitaire et\naviron Indoor » du CNAR.\n\nIl proposera de nouvelles actions de sensibilisation, d'autres approches de\ndéveloppement du nombre de licenciés et mettra en place des animations visant à\n: encourager la pratique du sport, en ciblant la population jeune, développer le\nsport santé, participer à la promotion de l’aviron indoor, développer la\nprésence du club sur les différents réseaux sociaux.\n\nLe volontaire participera notamment à l'organisation des 2 événements organisés\npar le CNAR, le Défi Seine 2027 et l'Open d'aviron indoor de décembre 2026.\n\n\n",
+        "applicationUrl": "http://localhost:4000/r/91b9216e-ac8c-4998-ac2f-8cd71b8ff2c6/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sport_03.jpeg",
+        "remote": "no",
+        "openToMinors": true,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "c59da33b-dc6d-417c-b97b-871d89cb5f8a",
+        "title": "Accompagnement du développement du tennis chez les jeunes et valorisation des clubs",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "sport",
+        "domainOriginal": "Sport",
+        "organizationName": "COMITE DEPART TENNIS DE LA FFT",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sport_03.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sport_03.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Rouen",
+          "closestLat": 49.443889,
+          "closestLon": 1.08595,
+          "closestAddress": "23 Rue de Crosne, 76000 Rouen, FR",
+          "addressId": "0f0eb06e-c11c-4a6c-8a48-80b0019b283d",
+          "distanceKm": 1.0163274779618583
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/c59da33b-dc6d-417c-b97b-871d89cb5f8a/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "da4e1304-3ab5-4978-a1b5-87c088facba2",
+        "totalScore": 0.582695,
+        "taxonomyScore": 0.2,
+        "geoScore": 0.96539,
+        "taxonomyScores": {
+          "tranche_age": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "sport_animation",
+            "taxonomyValueLabel": "Sport et animation sportive",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Participer au développement de la pratique du tennis en Seine-Maritime en animant et valorisant des circuits jeunes / Animation, Valorisation / Aide ponctuelle sur la mise en place d'événements et l'animation",
+              "reasoning": "La mission est centrée sur l'animation et la valorisation de l'activité sportive (tennis), avec des actions explicites d'animation et d'événementiel."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Participer au développement de la pratique du tennis en Seine-Maritime en animant et valorisant des circuits jeunes / Favoriser l’accès au sport pour tous, encourager la participation des jeunes et renforcer le lien social entre clubs",
+              "reasoning": "La mission relève de l'animation sportive et de la formation des jeunes, dans le secteur de l'éducation et de l'animation."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Gestion du comptage des points individuels des compétiteurs et suivi régulier / Faire la promotion des circuits sur les réseaux de communication du CD76 / Mettre à jour le formulaire de planification des dates d’accueil dans les centres de matchs sur Google Forms / Stimuler le réseau des orange et vert pour qu’ils puissent s’inscrire dans les clubs centres de matchs",
+              "reasoning": "La mission implique une forte dimension d'organisation, de coordination entre clubs et de travail collaboratif."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "communication_creation_numerique",
+            "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Faire la promotion des circuits sur les réseaux de communication du CD76 / Mettre à jour le formulaire de planification des dates d’accueil dans les centres de matchs sur Google Forms",
+              "reasoning": "La mission inclut des tâches de communication digitale et de gestion de supports numériques."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Participer au développement de la pratique du tennis en Seine-Maritime en animant et valorisant des circuits jeunes / Aide ponctuelle sur la mise en place d'événements et l'animation",
+              "reasoning": "La mission inclut explicitement des actions d'animation et de valorisation, notamment pour les jeunes."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Gestion du comptage des points individuels des compétiteurs et suivi régulier / Faire la promotion des circuits sur les réseaux de communication du CD76 / Mettre à jour le formulaire de planification des dates d’accueil dans les centres de matchs sur Google Forms",
+              "reasoning": "La mission consiste principalement à soutenir l'organisation et la gestion des circuits, des clubs et des compétitions."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Favoriser l’accès au sport pour tous, encourager la participation des jeunes et renforcer le lien social entre clubs / renforcer le lien social entre clubs",
+              "reasoning": "La mission vise à encourager la participation des jeunes et à renforcer les liens entre clubs, ce qui implique une dimension de transmission et de sensibilisation."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "education_culture_creation",
+            "taxonomyValueLabel": "Éducation, culture et création",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Participer au développement de la pratique du tennis en Seine-Maritime en animant et valorisant des circuits jeunes / Favoriser l’accès au sport pour tous, encourager la participation des jeunes",
+              "reasoning": "La mission relève de l'animation sportive et de la transmission de valeurs éducatives et culturelles via le sport."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "social_sante_sport",
+            "taxonomyValueLabel": "Social, santé et sport",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Favoriser l’accès au sport pour tous, encourager la participation des jeunes et renforcer le lien social entre clubs",
+              "reasoning": "La mission a une finalité sociale et inclusive, en favorisant l'accès au sport pour tous et en renforçant les liens sociaux."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_18_ans",
+            "taxonomyValueLabel": "Moins de 18 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_31_ans_handicap",
+            "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "service_civique",
+            "taxonomyValueLabel": "Service civique",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "c59da33b-dc6d-417c-b97b-871d89cb5f8a",
+        "title": "Accompagnement du développement du tennis chez les jeunes et valorisation des clubs",
+        "domain": "sport",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sport_03.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "COMITE DEPART TENNIS DE LA FFT",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Rouen",
+          "address": "23 Rue de Crosne, 76000 Rouen",
+          "lat": 49.443889,
+          "lon": 1.08595
+        },
+        "startAt": "2026-04-30T00:00:00.000Z",
+        "endAt": "2026-12-30T01:00:00.000Z",
+        "duration": 8,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Participer au développement de la pratique du tennis en Seine-Maritime en animant et valorisant des circuits jeunes, en accompagnant les clubs et en favorisant l’engagement des licenciés à travers des actions de communication et de suivi des compétitions.</p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p>Favoriser l’accès au sport pour tous, encourager la participation des jeunes et renforcer le lien social entre clubs. La mission vise à développer l’engagement, le respect des règles et la dynamique associative sur le territoire.</p></p><br>\n<b>Actions</b><br><p><p><strong><u>Challenger les circuits&nbsp;</u></strong></p><ul><li class=\"ql-indent-2\">Gestion du comptage des points individuels des compétiteurs et suivi régulier</li><li class=\"ql-indent-2\">Faire la promotion des circuits sur les réseaux de communication du CD76.</li></ul><p><strong><u>Challenger le podium des clubs.</u></strong></p><p>Le podium des clubs permet de récompenser les clubs les plus dynamiques selon des critères définis par le CD76.</p><ul><li class=\"ql-indent-2\">Gestion du comptage des points gagnés aux clubs remplissant les différents critères </li><li class=\"ql-indent-2\">Faire la promotion du podium</li></ul><p><strong><u>Challenger les centres de matchs.</u></strong></p><p>Les centres de matchs regroupent 5 clubs du CD76 qui accueillent une trentaine de fois des matchs libres en orange et vert les samedis après midi entre 14h00 et 17h00.</p><ul><li class=\"ql-indent-2\">Faire la promotion des centres de matchs</li><li class=\"ql-indent-2\">Mettre à jour le formulaire de planification des dates d’accueil dans les centres de matchs sur Google Forms.</li><li class=\"ql-indent-2\">Stimuler le réseau des orange et vert pour qu’ils puissent s’inscrire dans les clubs centres de matchs<em>.</em></li></ul><p><strong><u>Evénementiel</u></strong></p><ul><li>Aide ponctuelle sur la mise en place d'événements et l'animation</li></ul></p><br>",
+        "description": "EN QUELQUES MOTS\n\n\nParticiper au développement de la pratique du tennis en Seine-Maritime en\nanimant et valorisant des circuits jeunes, en accompagnant les clubs et en\nfavorisant l’engagement des licenciés à travers des actions de communication et\nde suivi des compétitions.\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nFavoriser l’accès au sport pour tous, encourager la participation des jeunes et\nrenforcer le lien social entre clubs. La mission vise à développer l’engagement,\nle respect des règles et la dynamique associative sur le territoire.\n\n\n\n\n\nActions\n\n\n\n\nChallenger les circuits \n\n • Gestion du comptage des points individuels des compétiteurs et suivi régulier\n • Faire la promotion des circuits sur les réseaux de communication du CD76.\n\nChallenger le podium des clubs.\n\nLe podium des clubs permet de récompenser les clubs les plus dynamiques selon\ndes critères définis par le CD76.\n\n • Gestion du comptage des points gagnés aux clubs remplissant les différents\n   critères\n • Faire la promotion du podium\n\nChallenger les centres de matchs.\n\nLes centres de matchs regroupent 5 clubs du CD76 qui accueillent une trentaine\nde fois des matchs libres en orange et vert les samedis après midi entre 14h00\net 17h00.\n\n • Faire la promotion des centres de matchs\n • Mettre à jour le formulaire de planification des dates d’accueil dans les\n   centres de matchs sur Google Forms.\n • Stimuler le réseau des orange et vert pour qu’ils puissent s’inscrire dans\n   les clubs centres de matchs.\n\nEvénementiel\n\n • Aide ponctuelle sur la mise en place d'événements et l'animation\n\n\n",
+        "applicationUrl": "http://localhost:4000/r/c59da33b-dc6d-417c-b97b-871d89cb5f8a/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sport_03.jpeg",
+        "remote": "no",
+        "openToMinors": true,
+        "reducedMobilityAccessible": true,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "d2b12b5f-0481-4352-b002-1e9d29481923",
+        "title": "Contribuer au développement de l'utilisation de l'Agnel - la monnaie locale du grand Diepp",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "environnement",
+        "domainOriginal": "Environnement",
+        "organizationName": "ASSOCIATION MONNAIE LOCALE COMPLEMENTAIRE ET CITOYENNE DU GRAND DIEPPE ",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_03.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_03.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Rouen",
+          "closestLat": 49.444465,
+          "closestLon": 1.078549,
+          "closestAddress": "11 Avenue Pasteur, 76000 Rouen, FR",
+          "addressId": "de885ce6-68d7-4c24-90ce-c8b948f6e66d",
+          "distanceKm": 1.5548277586214945
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/d2b12b5f-0481-4352-b002-1e9d29481923/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "76b7a6c3-0ac8-4493-a56f-582cc965cb9e",
+        "totalScore": 0.57377,
+        "taxonomyScore": 0.2,
+        "geoScore": 0.94754,
+        "taxonomyScores": {
+          "tranche_age": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "environnement_nature",
+            "taxonomyValueLabel": "Environnement et nature",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "promouvoir une dynamique d'économie locale, écologique et démocratique / monnaie locale qui fonctionne sur le territoire Normand / monnaie locale complémentaire et citoyenne",
+              "reasoning": "La mission est explicitement centrée sur une monnaie locale écologique et citoyenne, ce qui relève directement de l'environnement et de la transition écologique."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Participer à la dynamisation et la sensibilisation, la formation et l'information sur l'AGNEL / Faire connaître son fonctionnement et son intérêt pour le territoire, les centres-villes, le savoir-faire local et la qualité de vie",
+              "reasoning": "Les activités principales incluent la sensibilisation, la formation et l'information, ce qui relève de la transmission et de la pédagogie."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "ASSURER L'ORGANISATION D'EVENEMENTS PUBLICS: soirées d'information, soirée débat, marchés de producteurs / Une participation sur le marché de Dieppe su Samedi matin est demandée",
+              "reasoning": "L'organisation d'événements publics et la participation à des marchés relèvent clairement de l'animation et de la médiation."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "communication_creation_numerique",
+            "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "ASSURER LA COMMUNICATION SUR LES RESEAUX SOCIAUX à l'aide de notre outil Canva et Newsletter par emailing / Des connaissances marketing sont demandé",
+              "reasoning": "La mission inclut une composante de communication digitale et marketing, ce qui relève des compétences numériques et de création."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "relation_client_commerce_strategie",
+            "taxonomyValueLabel": "Relation client, commerce, stratégie",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "ASSURER LA PROSPECTION ET LE SUIVI DE NOS MEMBRES à l'aide de notre nouveau système d'information dédié aux monnaies locales et basé sur Odoo / le repérage et la fidélisation des consom’acteurs, prestataires et partenaires",
+              "reasoning": "La prospection et le suivi des membres impliquent des compétences en relation client et en stratégie de développement."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Le volontaire est accompagné par un tuteur au sein de l'organisme d'accueil pour mener à bien sa mission / Formation interne + Formation certifiante PSC1 + Formation Civique Et Citoyenne",
+              "reasoning": "Le cadre structuré avec tutorat et formations obligatoires correspond à un engagement en cadre structuré."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "environnement_agriculture",
+            "taxonomyValueLabel": "Environnement et agriculture",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Le volontaire participera au développement de la Monnaie Locale l'Agnel / promouvoir une dynamique d'économie locale, écologique et démocratique",
+              "reasoning": "La mission s'inscrit dans le secteur de l'environnement et de l'agriculture (économie locale et écologique)."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Formation interne + Formation certifiante PSC1 + Formation Civique Et Citoyenne / Le volontaire est accompagné par un tuteur",
+              "reasoning": "Le cadre institutionnel et les formations obligatoires indiquent un engagement en service civique structuré."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "environnement_nature_sciences",
+            "taxonomyValueLabel": "Environnement, nature et sciences",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "promouvoir une dynamique d'économie locale, écologique et démocratique / monnaie locale complémentaire et citoyenne",
+              "reasoning": "La mission relève de l'environnement, de la nature et des sciences (économie locale écologique)."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "service_civique",
+            "taxonomyValueLabel": "Service civique",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "d2b12b5f-0481-4352-b002-1e9d29481923",
+        "title": "Contribuer au développement de l'utilisation de l'Agnel - la monnaie locale du grand Diepp",
+        "domain": "environnement",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_03.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "ASSOCIATION MONNAIE LOCALE COMPLEMENTAIRE ET CITOYENNE DU GRAND DIEPPE ",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Rouen",
+          "address": "11 Avenue Pasteur, 76000 Rouen",
+          "lat": 49.444465,
+          "lon": 1.078549
+        },
+        "startAt": "2026-05-04T00:00:00.000Z",
+        "endAt": "2027-01-04T01:00:00.000Z",
+        "duration": 8,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Le volontaire participera au développement de la Monnaie Locale l'Agnel, afin de promouvoir une dynamique d'économie locale, écologique et démocratique.</p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p>Participer à la dynamisation et la sensibilisation, la formation et l'information sur l'AGNEL une monnaie locale qui fonctionne sur le territoire Normand.</p><p><br></p><p>Faire connaître son fonctionnement et son intérêt pour le territoire, les centres-villes, le savoir-faire local et la qualité de vie...&nbsp;</p></p><br>\n<b>Actions</b><br><p><p><strong>AU CHOIX en fonction du profil du candidat&nbsp;:</strong></p><p><br></p><p><br></p><p><strong>ACTION 1: </strong>ASSURER L'ORGANISATION D'EVENEMENTS PUBLICS: soirées d'information, soirée débat, marchés de producteurs</p><p>Une participation sur le marché de Dieppe su Samedi matin est demandée</p><p><br></p><p>Une bonne organisation et un bon relationnel sont demandés pour cette action passionnante</p><p><br></p><p><br></p><p><strong>ACTION 2: </strong>ASSURER LA COMMUNICATION SUR LES RESEAUX SOCIAUX à l'aide de notre outil Canva et Newsletter par emailing.</p><p>Des connaissances marketing sont demandé</p><p><br></p><p><br></p><p><strong>ACTION 3:</strong> ASSURER LA PROSPECTION ET LE SUIVI DE NOS MEMBRES à l'aide de notre nouveau système d'information dédié aux monnaies locales et basé sur Odoo.</p><p>Et assurer :</p><p><br></p><p>- le repérage et la fidélisation des consom’acteurs, prestataires et partenaires</p><p><br></p><p>- la diffusion et la circulation de la monnaie locale sur le territoire du grand Dieppe, la sensibilisation, la formation et l'information sur les monnaies locales, leur intérêt et leur fonctionnement</p></p><br>\n<b>Capacité d’initiative</b><br><p>Nous sommes à l'écoute des propositions du service civique que nous pouvons mettre en place après sa période de formation</p><br>\n<b>VOTRE ENVIRONNEMENT</b><br><b>Formations obligatoires proposées</b><br><p>Formation interne + Formation certifiante PSC1 + Formation Civique Et Citoyenne. </p><br><b>Tutorat et accompagnement</b><br><p>Le volontaire est accompagné par un tuteur au sein de l'organisme d'accueil pour mener à bien sa mission.</p>",
+        "description": "EN QUELQUES MOTS\n\n\nLe volontaire participera au développement de la Monnaie Locale l'Agnel, afin de\npromouvoir une dynamique d'économie locale, écologique et démocratique.\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nParticiper à la dynamisation et la sensibilisation, la formation et\nl'information sur l'AGNEL une monnaie locale qui fonctionne sur le territoire\nNormand.\n\n\n\n\nFaire connaître son fonctionnement et son intérêt pour le territoire, les\ncentres-villes, le savoir-faire local et la qualité de vie... \n\n\n\n\n\nActions\n\n\n\n\nAU CHOIX en fonction du profil du candidat :\n\n\n\n\n\n\n\nACTION 1: ASSURER L'ORGANISATION D'EVENEMENTS PUBLICS: soirées d'information,\nsoirée débat, marchés de producteurs\n\nUne participation sur le marché de Dieppe su Samedi matin est demandée\n\n\n\n\nUne bonne organisation et un bon relationnel sont demandés pour cette action\npassionnante\n\n\n\n\n\n\n\nACTION 2: ASSURER LA COMMUNICATION SUR LES RESEAUX SOCIAUX à l'aide de notre\noutil Canva et Newsletter par emailing.\n\nDes connaissances marketing sont demandé\n\n\n\n\n\n\n\nACTION 3: ASSURER LA PROSPECTION ET LE SUIVI DE NOS MEMBRES à l'aide de notre\nnouveau système d'information dédié aux monnaies locales et basé sur Odoo.\n\nEt assurer :\n\n\n\n\n- le repérage et la fidélisation des consom’acteurs, prestataires et partenaires\n\n\n\n\n- la diffusion et la circulation de la monnaie locale sur le territoire du grand\nDieppe, la sensibilisation, la formation et l'information sur les monnaies\nlocales, leur intérêt et leur fonctionnement\n\n\n\n\n\nCapacité d’initiative\n\n\nNous sommes à l'écoute des propositions du service civique que nous pouvons\nmettre en place après sa période de formation\n\n\n\nVOTRE ENVIRONNEMENT\nFormations obligatoires proposées\n\n\nFormation interne + Formation certifiante PSC1 + Formation Civique Et Citoyenne.\n\n\nTutorat et accompagnement\n\n\nLe volontaire est accompagné par un tuteur au sein de l'organisme d'accueil pour\nmener à bien sa mission.",
+        "applicationUrl": "http://localhost:4000/r/d2b12b5f-0481-4352-b002-1e9d29481923/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_03.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": true,
+        "places": 2
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "9c04a2fe-e19b-4c7c-a471-4992652741be",
+        "title": "Soutien à l'animation d'un tiers-lieu militant, associatif, social et environnemental ",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "environnement",
+        "domainOriginal": "Environnement",
+        "organizationName": "UNE BASE A ROUEN",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_01.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_01.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": null,
+          "closestLat": 49.433556,
+          "closestLon": 1.081909,
+          "closestAddress": "5 Rue Geuffroy, Rouen, France, FR",
+          "addressId": "121e547b-1062-4bb9-bde3-fd793c3659ec",
+          "distanceKm": 1.6921082204030178
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/9c04a2fe-e19b-4c7c-a471-4992652741be/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "f0b21c4d-314e-4be7-beeb-b6767040b512",
+        "totalScore": 0.571521,
+        "taxonomyScore": 0.2,
+        "geoScore": 0.943042,
+        "taxonomyScores": {
+          "tranche_age": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "environnement_nature",
+            "taxonomyValueLabel": "Environnement et nature",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Appui à la diffusion de l'information / faire la promotion et la diffusion des activités de la base en interne entre les associations adhérentes et en direction des publics (outils numériques) notamment le public éloigné des questions environnementales, les étudiants, les habitants du quartier ... / Développement de temps de sensibilisation et d'animation en lien avec les thématiques développées par les associations adhérentes / Donner de la visibilité à l'association Une base à Rouen en participant à des événements / forum",
+              "reasoning": "Les activités décrites sont centrées sur la promotion, la sensibilisation et l'animation autour des thématiques environnementales et sociales, avec un public varié incluant des personnes éloignées des questions environnementales."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "gestion_projet",
+            "taxonomyValueLabel": "Gestion de projet",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Appui à la diffusion de l'information / faire la promotion et la diffusion des activités de la base en interne entre les associations adhérentes et en direction des publics (outils numériques) notamment le public éloigné des questions environnementales, les étudiants, les habitants du quartier ... / Appui à l'accueil du public et à son orientation vers les différents structures adhérentes (environnementales, solidaires)",
+              "reasoning": "Les tâches incluent la promotion, la communication et l'accueil, ce qui relève du domaine de la gestion de projet et de l'organisation."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.92,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Appui à la diffusion de l'information / faire la promotion et la diffusion des activités de la base en interne entre les associations adhérentes et en direction des publics (outils numériques) notamment le public éloigné des questions environnementales, les étudiants, les habitants du quartier ... / Développement de temps de sensibilisation et d'animation en lien avec les thématiques développées par les associations adhérentes",
+              "reasoning": "Les activités décrites incluent la promotion, la sensibilisation et l'animation, ce qui relève du domaine de l'éducation et de la transmission."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Appui à l'accueil du public et à son orientation vers les différents structures adhérentes (environnementales, solidaires)",
+              "reasoning": "L'accueil et l'orientation du public, notamment vers des structures solidaires, relèvent du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "gestion_commerce_organisation",
+            "taxonomyValueLabel": "Gestion, commerce et organisation",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Appui à la diffusion de l'information / faire la promotion et la diffusion des activités de la base en interne entre les associations adhérentes et en direction des publics (outils numériques) / Gestion du lieu, animation, mise à jour des fichiers d'adhérent.e.s, gestion du café associatif ....",
+              "reasoning": "Les tâches incluent la gestion de projet, la communication numérique et l'animation, ce qui relève du secteur de la gestion, commerce et organisation."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Appui à la diffusion de l'information / faire la promotion et la diffusion des activités de la base en interne entre les associations adhérentes et en direction des publics (outils numériques) / Développement de temps de sensibilisation et d'animation en lien avec les thématiques développées par les associations adhérentes",
+              "reasoning": "Les activités décrites incluent la promotion, la sensibilisation et l'animation, ce qui relève du secteur de l'éducation, formation et animation."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Appui à l'accueil du public et à son orientation vers les différents structures adhérentes (environnementales, solidaires)",
+              "reasoning": "L'accueil et l'orientation du public vers des structures solidaires relèvent du secteur de la santé, social et aide à la personne."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "gestion_pilotage_juridique",
+            "taxonomyValueLabel": "Gestion, pilotage, juridique",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Gestion du lieu, animation, mise à jour des fichiers d'adhérent.e.s, gestion du café associatif ....",
+              "reasoning": "Les tâches incluent la gestion de projet, l'animation et la communication numérique, ce qui relève des compétences de gestion, pilotage et juridique."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "communication_creation_numerique",
+            "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Appui à la diffusion de l'information / faire la promotion et la diffusion des activités de la base en interne entre les associations adhérentes et en direction des publics (outils numériques) / Développement de temps de sensibilisation et d'animation en lien avec les thématiques développées par les associations adhérentes",
+              "reasoning": "Les activités décrites incluent la promotion, la sensibilisation et l'animation, ce qui relève des compétences de communication, création et numérique."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Appui à l'accueil du public et à son orientation vers les différents structures adhérentes (environnementales, solidaires)",
+              "reasoning": "L'accueil et l'orientation du public vers des structures solidaires relèvent des compétences de management, social et soin."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Appui à la diffusion de l'information / faire la promotion et la diffusion des activités de la base en interne entre les associations adhérentes et en direction des publics (outils numériques) / Développement de temps de sensibilisation et d'animation en lien avec les thématiques développées par les associations adhérentes / Donner de la visibilité à l'association Une base à Rouen en participant à des événements / forum",
+              "reasoning": "Les activités décrites incluent la promotion, la sensibilisation et l'animation, ce qui relève de l'intention d'engagement de transmission et d'animation."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Appui à la diffusion de l'information / faire la promotion et la diffusion des activités de la base en interne entre les associations adhérentes et en direction des publics (outils numériques) / Développement de temps de sensibilisation et d'animation en lien avec les thématiques développées par les associations adhérentes / Donner de la visibilité à l'association Une base à Rouen en participant à des événements / forum",
+              "reasoning": "Les activités décrites incluent la promotion, la sensibilisation et l'animation, ce qui relève de l'intention d'engagement d'animation."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Appui à l'accueil du public et à son orientation vers les différents structures adhérentes (environnementales, solidaires)",
+              "reasoning": "L'accueil et l'orientation du public vers des structures solidaires relèvent de l'intention d'engagement d'aide directe."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Type de mission : volontariat_service_civique / Durée : 8 heures — De 24h à 30h / Dates : du 13 avril 2026 au 13 décembre 2026",
+              "reasoning": "La mission est explicitement un service civique, ce qui relève du cadre structuré d'engagement."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Appui à la diffusion de l'information / faire la promotion et la diffusion des activités de la base en interne entre les associations adhérentes et en direction des publics (outils numériques) / Gestion du lieu, animation, mise à jour des fichiers d'adhérent.e.s, gestion du café associatif ....",
+              "reasoning": "Les tâches incluent la gestion de projet et l'organisation, ce qui relève de l'intention d'engagement de support_organisation."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "environnement_nature_sciences",
+            "taxonomyValueLabel": "Environnement, nature et sciences",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Domaine (classification existante) : environnement / Tags : Service Civique Écologique",
+              "reasoning": "La mission est explicitement liée à l'environnement et au service civique écologique."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "numerique_communication",
+            "taxonomyValueLabel": "Numérique et communication",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Appui à la diffusion de l'information / faire la promotion et la diffusion des activités de la base en interne entre les associations adhérentes et en direction des publics (outils numériques)",
+              "reasoning": "Les activités incluent la communication numérique, ce qui relève du domaine de formation ONISEP du numérique et communication."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "service_civique",
+            "taxonomyValueLabel": "Service civique",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "9c04a2fe-e19b-4c7c-a471-4992652741be",
+        "title": "Soutien à l'animation d'un tiers-lieu militant, associatif, social et environnemental ",
+        "domain": "environnement",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_01.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "UNE BASE A ROUEN",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": null,
+          "address": "5 Rue Geuffroy, Rouen, France",
+          "lat": 49.433556,
+          "lon": 1.081909
+        },
+        "startAt": "2026-04-13T00:00:00.000Z",
+        "endAt": "2026-12-13T01:00:00.000Z",
+        "duration": 8,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Enjeu général : Comprendre le fonctionnement pour pouvoir développer le lien entre associations de la Base et nouveaux publics. Animer et communiquer autour du Tiers lieu</p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p>Mission 4 points</p><p> Appui à la diffusion de l'information / faire la promotion et la diffusion des activités de la base en interne entre les associations adhérentes et en direction des publics (outils numériques) notamment le public éloigné des questions environnementales, les étudiants, les habitants du quartier ...</p><p> Appui à l'accueil du public et à son orientation vers les différents structures adhérentes (environnementales, solidaires)</p><p> Développement de temps de sensibilisation et d'animation en lien avec les thématiques développées par les associations adhérentes</p><p> Donner de la visibilité à l'association Une base à <span style=\"color: rgb(4, 53, 157);\">Rouen</span> en participant à des événements / forum</p></p><br>\n<b>Actions</b><br><p><p>Gestion du lieu, animation, mise à jour des fichiers d'adhérent.e.s, gestion du café associatif ....</p></p><br>",
+        "description": "EN QUELQUES MOTS\n\n\nEnjeu général : Comprendre le fonctionnement pour pouvoir développer le lien\nentre associations de la Base et nouveaux publics. Animer et communiquer autour\ndu Tiers lieu\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nMission 4 points\n\n Appui à la diffusion de l'information / faire la promotion et la diffusion des\nactivités de la base en interne entre les associations adhérentes et en\ndirection des publics (outils numériques) notamment le public éloigné des\nquestions environnementales, les étudiants, les habitants du quartier ...\n\n Appui à l'accueil du public et à son orientation vers les différents\nstructures adhérentes (environnementales, solidaires)\n\n Développement de temps de sensibilisation et d'animation en lien avec les\nthématiques développées par les associations adhérentes\n\n Donner de la visibilité à l'association Une base à Rouen en participant à des\névénements / forum\n\n\n\n\n\nActions\n\n\n\n\nGestion du lieu, animation, mise à jour des fichiers d'adhérent.e.s, gestion du\ncafé associatif ....\n\n\n",
+        "applicationUrl": "http://localhost:4000/r/9c04a2fe-e19b-4c7c-a471-4992652741be/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_01.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 2
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "f3b9eaf2-10e7-4c8b-9531-b2e9b6d0554e",
+        "title": "Accompagner les usagers dans l’utilisation des outils numériques de France Travail",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "solidarite-insertion",
+        "domainOriginal": "Solidarité",
+        "organizationName": "France Travail de Rouen Aubette",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Rouen",
+          "closestLat": 49.437288,
+          "closestLon": 1.130234,
+          "closestAddress": "17 Rue de l'Aubette, 76000 Rouen, FR",
+          "addressId": "d385dab2-6919-4ccf-95a4-89e501ad79a7",
+          "distanceKm": 2.285762691095423
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/f3b9eaf2-10e7-4c8b-9531-b2e9b6d0554e/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "b3b94bb2-1501-4dec-91aa-ecbfbb07ca21",
+        "totalScore": 0.561919,
+        "taxonomyScore": 0.2,
+        "geoScore": 0.923838,
+        "taxonomyScores": {
+          "tranche_age": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "participer à des activités favorisant le lien social",
+              "reasoning": "Animation d'activités collectives pour renforcer le lien social."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Fait le lien avec les associations d’e-inclusion pour un appui personnalisé",
+              "reasoning": "Coordination et mise en relation avec des partenaires pour un accompagnement personnalisé."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Accompagner les usagers dans l’utilisation des outils numériques de France Travail afin d'être facilitateur d’inclusion numérique / participer à des activités favorisant le lien social",
+              "reasoning": "La mission vise explicitement l'inclusion numérique et le lien social, domaines centraux du social et de la solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Aide à l'écrit, la lecture, la compréhension des outils ; Facilite l'expression et soutient les participants lors des ateliers dédiés / Participe à la « prise en main » des outils digitaux présentés",
+              "reasoning": "La mission inclut une dimension pédagogique et de transmission de compétences numériques."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.92,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Accompagner les usagers dans l’utilisation des outils numériques de France Travail / faciliter les démarches des demandeurs d’emploi en situation de handicap",
+              "reasoning": "Mission dans le secteur de l'aide à la personne, notamment pour des publics en situation de handicap."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "numerique_communication",
+            "taxonomyValueLabel": "Numérique et communication",
+            "enrichmentConfidence": 0.88,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Aide à l'appropriation des services numériques et outils digitaux par les usagers / outils informatiques, internet",
+              "reasoning": "La mission est centrée sur l'accompagnement à l'utilisation d'outils numériques."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Aide à l'écrit, la lecture, la compréhension des outils ; Facilite l'expression et soutient les participants / accompagner les usagers",
+              "reasoning": "Accompagnement humain et soutien aux usagers, notamment en situation de vulnérabilité."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "communication_creation_numerique",
+            "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Aide à l'appropriation des services numériques et outils digitaux par les usagers / outils informatiques, internet",
+              "reasoning": "Compétences numériques et accompagnement à l'utilisation d'outils digitaux."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Fait le lien avec les associations d’e-inclusion pour un appui personnalisé / participe à des activités favorisant le lien social",
+              "reasoning": "Travail collaboratif avec des partenaires et animation de dynamiques collectives."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Aide à l'écrit, la lecture, la compréhension des outils ; Facilite l'expression et soutient les participants lors des ateliers dédiés / Participe à la « prise en main » des outils digitaux présentés",
+              "reasoning": "Mission centrée sur la transmission de compétences et l'accompagnement pédagogique."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Accompagner les usagers dans l’utilisation des outils numériques / faciliter les démarches des demandeurs d’emploi en situation de handicap",
+              "reasoning": "Interaction directe et personnalisée avec les bénéficiaires."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "volontariat_service_civique / France Travail Premier acteur du marché du travail en France avec 55 000 collaborateurs",
+              "reasoning": "Mission encadrée dans un cadre institutionnel structuré (service civique au sein d'un grand organisme public)."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Accompagner les usagers dans l’utilisation des outils numériques de France Travail / faciliter les démarches des demandeurs d’emploi",
+              "reasoning": "Mission liée aux enjeux d'insertion professionnelle et d'accès aux droits, domaine de la société et du politique."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "numerique_communication",
+            "taxonomyValueLabel": "Numérique et communication",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Aide à l'appropriation des services numériques et outils digitaux par les usagers",
+              "reasoning": "Compétences numériques et accompagnement à l'utilisation d'outils digitaux."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "service_civique",
+            "taxonomyValueLabel": "Service civique",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "f3b9eaf2-10e7-4c8b-9531-b2e9b6d0554e",
+        "title": "Accompagner les usagers dans l’utilisation des outils numériques de France Travail",
+        "domain": "solidarite-insertion",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "France Travail de Rouen Aubette",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Rouen",
+          "address": "17 Rue de l'Aubette, 76000 Rouen",
+          "lat": 49.437288,
+          "lon": 1.130234
+        },
+        "startAt": "2026-06-01T00:00:00.000Z",
+        "endAt": "2027-02-01T01:00:00.000Z",
+        "duration": 8,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Accompagner les usagers dans l’utilisation des outils numériques de France Travail afin d'être facilitateur d’inclusion numérique et participer à des activités favorisant le lien social.</p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p class=\"ql-align-justify\">France Travail Premier acteur du marché du travail en France avec 55 000 collaborateurs, plus de 900 agences et relais de proximité ainsi qu'un réseau de partenaires sur l'ensemble du territoire.</p></p><br>\n<b>Actions</b><br><p><p class=\"ql-align-justify\">Le ou la volontaire aide à l'appropriation des services numériques et outils digitaux par les usagers. Aide à l’écriture, la lecture, la compréhension des outils ; Facilite l'expression et soutient les participants lors des ateliers dédiés. Participe à la « prise en main » des outils digitaux présentés. Fait le lien avec les associations d’e-inclusion pour un appui personnalisé à l’utilisation des outils informatiques, internet, Le ou la volontaire facilite les démarches des demandeurs d’emploi en situation de handicap se présentant en agences locales et sensibilise aux gestes barrières.</p><p><br></p></p><br>",
+        "description": "EN QUELQUES MOTS\n\n\nAccompagner les usagers dans l’utilisation des outils numériques de France\nTravail afin d'être facilitateur d’inclusion numérique et participer à des\nactivités favorisant le lien social.\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nFrance Travail Premier acteur du marché du travail en France avec 55 000\ncollaborateurs, plus de 900 agences et relais de proximité ainsi qu'un réseau de\npartenaires sur l'ensemble du territoire.\n\n\n\n\n\nActions\n\n\n\n\nLe ou la volontaire aide à l'appropriation des services numériques et outils\ndigitaux par les usagers. Aide à l’écriture, la lecture, la compréhension des\noutils ; Facilite l'expression et soutient les participants lors des ateliers\ndédiés. Participe à la « prise en main » des outils digitaux présentés. Fait le\nlien avec les associations d’e-inclusion pour un appui personnalisé à\nl’utilisation des outils informatiques, internet, Le ou la volontaire facilite\nles démarches des demandeurs d’emploi en situation de handicap se présentant en\nagences locales et sensibilise aux gestes barrières.\n\n\n\n\n\n",
+        "applicationUrl": "http://localhost:4000/r/f3b9eaf2-10e7-4c8b-9531-b2e9b6d0554e/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": true,
+        "places": 1
+      },
+      "descriptionMissing": false
+    }
+  ],
+  "deterministic": {
+    "geo": 5,
+    "format": 1,
+    "missionsSansTagFormat": [],
+    "gateViolations": []
+  },
+  "judgeRuns": [
+    {
+      "runIndex": 0,
+      "seed": 1882410226,
+      "order": [
+        "d2b12b5f-0481-4352-b002-1e9d29481923",
+        "c59da33b-dc6d-417c-b97b-871d89cb5f8a",
+        "f3b9eaf2-10e7-4c8b-9531-b2e9b6d0554e",
+        "9c04a2fe-e19b-4c7c-a471-4992652741be",
+        "91b9216e-ac8c-4998-ac2f-8cd71b8ff2c6"
+      ],
+      "output": {
+        "coherence": {
+          "score": 2,
+          "missionsPertinentes": [
+            2,
+            3
+          ],
+          "justification": "Parmi les 5 missions proposées, seules les missions 2 et 3 peuvent être considérées comme partiellement pertinentes pour Nadia. La mission 2 concerne l'accompagnement numérique pour demandeurs d'emploi, ce qui peut aider Nadia dans sa recherche d'emploi et sa réinsertion professionnelle. La mission 3, bien que plus généraliste et associative, peut offrir une expérience d'animation et de gestion qui pourrait être utile. Les autres missions sont centrées sur le sport ou la promotion d'une monnaie locale, sans lien direct avec le secteur bâtiment, industrie ou logistique, ni avec la reprise d'activité professionnelle.",
+          "missionIdsPertinents": [
+            "c59da33b-dc6d-417c-b97b-871d89cb5f8a",
+            "f3b9eaf2-10e7-4c8b-9531-b2e9b6d0554e"
+          ]
+        },
+        "homogeneite": {
+          "score": 4,
+          "familles": [
+            "Accompagnement social et numérique",
+            "Animation associative",
+            "Sport"
+          ],
+          "justification": "Les missions proposées couvrent plusieurs familles : accompagnement social et numérique (mission 2), animation associative (mission 3), et sport (missions 1 et 4). La mission 0 est liée à l'économie locale et communication. Il y a donc au moins 4 familles distinctes, ce qui correspond à un score de 4 en homogénéité."
+        },
+        "cause": "offre"
+      }
+    },
+    {
+      "runIndex": 1,
+      "seed": 1899187845,
+      "order": [
+        "d2b12b5f-0481-4352-b002-1e9d29481923",
+        "c59da33b-dc6d-417c-b97b-871d89cb5f8a",
+        "91b9216e-ac8c-4998-ac2f-8cd71b8ff2c6",
+        "f3b9eaf2-10e7-4c8b-9531-b2e9b6d0554e",
+        "9c04a2fe-e19b-4c7c-a471-4992652741be"
+      ],
+      "output": {
+        "coherence": {
+          "score": 2,
+          "missionsPertinentes": [
+            3,
+            4
+          ],
+          "justification": "Parmi les 5 missions proposées, seules les missions 3 et 4 peuvent être considérées comme partiellement pertinentes. La mission 3 concerne l'accompagnement numérique pour les demandeurs d'emploi, ce qui peut aider Nadia dans sa recherche d'emploi et reprise d'activité. La mission 4, bien que moins directement liée au bâtiment, industrie ou logistique, propose une animation et gestion d'un tiers-lieu associatif, ce qui peut offrir une expérience professionnelle régulière. Les autres missions sont centrées sur le sport ou la monnaie locale, sans lien avec le secteur d'activité souhaité.",
+          "missionIdsPertinents": [
+            "91b9216e-ac8c-4998-ac2f-8cd71b8ff2c6",
+            "f3b9eaf2-10e7-4c8b-9531-b2e9b6d0554e"
+          ]
+        },
+        "homogeneite": {
+          "score": 4,
+          "familles": [
+            "Insertion sociale et emploi",
+            "Animation associative",
+            "Sport"
+          ],
+          "justification": "Les missions proposées couvrent plusieurs familles : animation associative (missions 0 et 4), sport (missions 1 et 2), et insertion sociale/emploi (mission 3). La majorité des missions sont dans l'animation associative et sport, avec une mission liée à l'insertion sociale. Il y a donc 3 familles avec une majorité dans l'animation associative."
+        },
+        "cause": "offre"
+      }
+    }
+  ],
+  "engineVersion": "m2",
+  "startedAt": "2026-07-07T12:02:19.827Z",
+  "finishedAt": "2026-07-07T12:02:31.854Z",
+  "verdict": 2.9,
+  "cleanup": {
+    "userScoringDeleted": true
+  }
+}

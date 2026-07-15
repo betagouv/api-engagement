@@ -1,0 +1,2618 @@
+{
+  "status": "success",
+  "parcours": {
+    "id": "lea-parcoursup-ifsi",
+    "segment": "lyceen",
+    "label": "Léa, 17 ans, lycéenne en Terminale à Lyon, veut booster son dossier Parcoursup pour une formation en soins infirmiers, avec peu de temps hors week-ends",
+    "locationLabel": "Lyon (69)",
+    "age": 17,
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 17,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "statut",
+        "value": "lyceen"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 45.7578137,
+          "lon": 4.8320114,
+          "country_code": "fr",
+          "label": "Lyon (69)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "ponctuelle"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "booster_parcoursup"
+      },
+      {
+        "taxonomy": "parcoursup_formation",
+        "value": "oui"
+      },
+      {
+        "taxonomy": "domaine",
+        "value": "sante_soins"
+      }
+    ],
+    "notes": [
+      "Texte libre Parcoursup non envoye: buildPayload ignore les answers text et le moteur consomme domaine=sante_soins."
+    ]
+  },
+  "payload": {
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 17,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "statut",
+        "value": "lyceen"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 45.7578137,
+          "lon": 4.8320114,
+          "country_code": "fr",
+          "label": "Lyon (69)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "ponctuelle"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "booster_parcoursup"
+      },
+      {
+        "taxonomy": "parcoursup_formation",
+        "value": "oui"
+      },
+      {
+        "taxonomy": "domaine",
+        "value": "sante_soins"
+      }
+    ],
+    "distinctId": "eval:first-blood:lea-parcoursup-ifsi",
+    "missionAlertEnabled": false
+  },
+  "userScoringId": "23267da4-9031-493d-9ead-c0e61267c80f",
+  "match": {
+    "tookMs": 1538,
+    "engineVersion": "m2",
+    "items": [
+      {
+        "mission": {
+          "id": "4b885232-0829-4b2e-8c9d-956c406ff58a",
+          "title": "Va à la rencontre de jeunes pour participer à la déstigmatisation de la santé mentale",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "sante",
+          "domainOriginal": "Santé",
+          "organizationName": "Unis-cité Rhône",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_03.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_03.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Lyon",
+            "closestLat": 45.752006,
+            "closestLon": 4.839114,
+            "closestAddress": "60 Rue Pasteur, 69007 Lyon, FR",
+            "addressId": "d7afa15c-1cea-402b-b183-d3544d10fbda",
+            "distanceKm": 0.8489370206513055
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/4b885232-0829-4b2e-8c9d-956c406ff58a/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "0b3b71e6-f4d2-44f5-9c0b-ad018dbb2559",
+          "totalScore": 0.641337,
+          "taxonomyScore": 0.311667,
+          "geoScore": 0.971007,
+          "taxonomyScores": {
+            "domaine": 0.97,
+            "tranche_age": 0.9
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Anime des ateliers de prévention et promotion de la santé mentale, de déstigmatisation et d’ouverture de la parole auprès d’un public jeune parfois en situation de fragilité et/ou vulnérable",
+                "reasoning": "La mission cible explicitement la lutte contre la stigmatisation et l'accompagnement de publics fragilisés, ce qui relève du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "sante_soins",
+              "taxonomyValueLabel": "Santé et soins",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Anime des ateliers de prévention et promotion de la santé mentale / Sensibiliser aux troubles psychiques, le bien-être, la gestion du stress, l’estime de soi",
+                "reasoning": "La mission aborde directement la santé mentale, la prévention et le bien-être, ce qui relève du domaine santé et soins."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Anime des ateliers de prévention et promotion de la santé mentale, de déstigmatisation et d’ouverture de la parole auprès d’un public jeune parfois en situation de fragilité et/ou vulnérable",
+                "reasoning": "La mission s'inscrit dans le secteur de la santé et de l'aide à la personne, avec un public vulnérable."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Concevoir et animer des ateliers dans un climat de confiance via des activités ludiques, des débats, des groupes de discussion / Participer au développement des compétences psychosociales",
+                "reasoning": "La mission inclut explicitement des activités d'animation, de transmission et de formation, relevant du secteur éducation et formation."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Anime des ateliers de prévention et promotion de la santé mentale, de déstigmatisation et d’ouverture de la parole auprès d’un public jeune parfois en situation de fragilité et/ou vulnérable / Sensibiliser aux troubles psychiques, le bien-être, la gestion du stress, l’estime de soi",
+                "reasoning": "La mission implique un accompagnement humain, une écoute et une aide directe à des publics fragilisés, relevant des compétences sociales et de soin."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "En équipe, tu seras amené à: Encourager la prise de conscience de leur santé mentale en soutien aux acteurs locaux / Développer des partenariats avec des structures jeunesses / Contribuer à l’animation des réseaux sociaux",
+                "reasoning": "La mission implique un travail d'équipe, la coordination avec des partenaires et la gestion de projets, relevant des compétences en coopération et organisation."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Concevoir et animer des ateliers dans un climat de confiance via des activités ludiques, des débats, des groupes de discussion / Participer au développement des compétences psychosociales",
+                "reasoning": "La mission inclut explicitement la transmission de connaissances et la pédagogie auprès d'un public jeune."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Concevoir et animer des ateliers dans un climat de confiance via des activités ludiques, des débats, des groupes de discussion",
+                "reasoning": "La mission implique l'animation d'ateliers et d'activités collectives."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Développer des partenariats avec des structures jeunesses / Contribuer à l’animation des réseaux sociaux en proposant des contenus de déstigmatisation",
+                "reasoning": "La mission inclut des tâches de coordination, de partenariat et de communication, relevant du support organisationnel."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Anime des ateliers de prévention et promotion de la santé mentale, de déstigmatisation et d’ouverture de la parole auprès d’un public jeune parfois en situation de fragilité et/ou vulnérable",
+                "reasoning": "Bien que la mission soit principalement pédagogique, l'accompagnement de publics fragilisés implique une forme d'aide directe."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Anime des ateliers de prévention et promotion de la santé mentale, de déstigmatisation et d’ouverture de la parole auprès d’un public jeune",
+                "reasoning": "La mission aborde des enjeux de société liés à la santé mentale et à la stigmatisation, relevant du domaine société, droit et politique."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "social_sante_sport",
+              "taxonomyValueLabel": "Social, santé et sport",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Anime des ateliers de prévention et promotion de la santé mentale, de déstigmatisation et d’ouverture de la parole auprès d’un public jeune parfois en situation de fragilité et/ou vulnérable / Sensibiliser aux troubles psychiques, le bien-être, la gestion du stress, l’estime de soi",
+                "reasoning": "La mission est centrée sur la santé mentale, le bien-être et l'accompagnement de publics fragilisés, relevant du domaine social, santé et sport."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Type de mission : volontariat_service_civique / Tu seras formé.e et accompagné.e tout au long de ta mission par la Fondation ARHM et Unis-Cité / Tu deviendras Secouriste en Santé Mentale",
+                "reasoning": "La mission s'inscrit dans un cadre structuré de service civique, avec un accompagnement et des formations obligatoires, relevant d'un engagement en cadre structuré."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_18_ans",
+              "taxonomyValueLabel": "Moins de 18 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_31_ans_handicap",
+              "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "service_civique",
+              "taxonomyValueLabel": "Service civique",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "55baa380-a094-4003-a400-d2d5e73ef655",
+          "title": "🦽 Viens aider les personnes en situation de handicap et leur famille! - LYON ",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "sante",
+          "domainOriginal": "Santé",
+          "organizationName": "Unis-cité Rhône",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_02.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_02.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Lyon",
+            "closestLat": 45.752006,
+            "closestLon": 4.839114,
+            "closestAddress": "60 Rue Pasteur, 69007 Lyon, FR",
+            "addressId": "1aaad8f3-b55e-412b-9b10-c718811b5a8f",
+            "distanceKm": 0.8489370206513055
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/55baa380-a094-4003-a400-d2d5e73ef655/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "42246fa5-2057-4855-bbb6-f50901f684de",
+          "totalScore": 0.641337,
+          "taxonomyScore": 0.311667,
+          "geoScore": 0.971007,
+          "taxonomyScores": {
+            "domaine": 0.97,
+            "tranche_age": 0.9
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "soutenir et d'accompagner des familles dont l'un des membres est en situation de handicap ou en perte d'autonomie / Soutien des familles à travers de visites à domicile / Sensibilise le grand public à la thématique, et aux dispositifs existant sur le territoire du Rhône",
+                "reasoning": "La mission est centrée sur l'accompagnement social et la solidarité envers des personnes en situation de handicap et leurs familles."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "sante_soins",
+              "taxonomyValueLabel": "Santé et soins",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "soutenir et d'accompagner des familles dont l'un des membres est en situation de handicap ou en perte d'autonomie / handicap psychique, personnes agées, alzeimer",
+                "reasoning": "Le public cible inclut des personnes en situation de handicap ou de perte d'autonomie, ce qui relève du domaine de la santé et des soins."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "soutenir et d'accompagner des familles dont l'un des membres est en situation de handicap ou en perte d'autonomie / Soutien des familles à travers de visites à domicile",
+                "reasoning": "La mission relève clairement du secteur de la santé, du social et de l'aide à la personne."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "soutenir et d'accompagner des familles dont l'un des membres est en situation de handicap ou en perte d'autonomie / Soutien des familles à travers de visites à domicile",
+                "reasoning": "La mission implique un accompagnement humain et social direct avec des personnes en situation de vulnérabilité."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Au sein d'une équipe de 20 volontaires / Propose-nous tes idées ! / formations: citoyennes (6 jours) + liées à tes missions + au travail d'équipe + gestion de projet",
+                "reasoning": "La mission implique un travail en équipe, l'initiative personnelle et des formations, ce qui relève des compétences d'organisation et de soft skills."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "soutenir et d'accompagner des familles dont l'un des membres est en situation de handicap ou en perte d'autonomie / Soutien des familles à travers de visites à domicile",
+                "reasoning": "La mission inclut un accompagnement direct et régulier des bénéficiaires."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Sensibilise le grand public à la thématique, et aux dispositifs existant sur le territoire du Rhône",
+                "reasoning": "La mission inclut une dimension de sensibilisation et de transmission d'informations au public."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "sortie au parc, ateliers artistiques, jeux de société / Réalise des activités collectives avec l'une de nos association partenaire",
+                "reasoning": "La mission inclut l'animation d'activités collectives et de loisirs pour les bénéficiaires."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Au sein d'une équipe de 20 volontaires / formations: citoyennes (6 jours) + liées à tes missions + au travail d'équipe + gestion de projet",
+                "reasoning": "La mission implique un travail en équipe structuré et des formations, ce qui relève du support organisationnel."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Type de mission : volontariat_service_civique / formations obligatoires proposées / Tutorat et accompagnement / Ton tuteur t'aidera à travailler: ton bien être en missions; tes difficultés; le post service civique",
+                "reasoning": "La mission s'inscrit dans un cadre structuré de service civique avec des formations obligatoires, un tutorat et un accompagnement formalisé."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "social_sante_sport",
+              "taxonomyValueLabel": "Social, santé et sport",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "soutenir et d'accompagner des familles dont l'un des membres est en situation de handicap ou en perte d'autonomie / Soutien des familles à travers de visites à domicile",
+                "reasoning": "La mission relève du domaine social, de la santé et du sport (activités d'animation et de soutien)."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Sensibilise le grand public à la thématique, et aux dispositifs existant sur le territoire du Rhône / formations: citoyennes (6 jours)",
+                "reasoning": "La mission inclut une dimension de sensibilisation citoyenne et de compréhension des dispositifs publics."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_18_ans",
+              "taxonomyValueLabel": "Moins de 18 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_31_ans_handicap",
+              "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "service_civique",
+              "taxonomyValueLabel": "Service civique",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "75d91afb-7897-4b9e-8402-b8ac19c4dd9c",
+          "title": "Lyon - 👧🏼👦🏿 - Agis pour promouvoir les droits de l’enfant - Ambassadeur des Droits de l’Enfant",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "education",
+          "domainOriginal": "Éducation pour tous",
+          "organizationName": "Unis-cité Rhône",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Lyon",
+            "closestLat": 45.752006,
+            "closestLon": 4.839114,
+            "closestAddress": "60 Rue Pasteur, 69007 Lyon, FR",
+            "addressId": "a44c9249-cebd-4aaa-9789-2502e64487c4",
+            "distanceKm": 0.8489370206513055
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/75d91afb-7897-4b9e-8402-b8ac19c4dd9c/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "82d9d590-addd-43e7-bd16-ba75e223347e",
+          "totalScore": 0.560503,
+          "taxonomyScore": 0.15,
+          "geoScore": 0.971007,
+          "taxonomyScores": {
+            "tranche_age": 0.9
+          },
+          "values": [
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "sensibiliser et informer les enfants, et plus largement les 11-18 ans, sur leurs droits fondamentaux / foyers de protection de l'enfance, les hôpitaux",
+                "reasoning": "La mission cible des publics fragilisés (enfants en protection de l'enfance, hôpitaux) et vise à les soutenir, ce qui relève du secteur social et de l'aide à la personne."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "animer des interventions, pour faire connaître de manière ludique les droits de l’enfant / Promouvoir de manière ludique, les droits fondamentaux des enfants / Informer sur le rôle et les compétences du Défenseur des droits / Sensibiliser aux droits, développer l’esprit de citoyenneté",
+                "reasoning": "La mission est centrée sur la transmission de connaissances et la sensibilisation des jeunes sur leurs droits, ce qui relève clairement de l'éducation et de la transmission."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "sensibiliser et informer les enfants, et plus largement les 11-18 ans, sur leurs droits fondamentaux / Promouvoir de manière ludique, les droits fondamentaux des enfants",
+                "reasoning": "La mission vise à soutenir et protéger les droits des enfants, ce qui relève du domaine social et de la solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "animer des interventions, pour faire connaître de manière ludique les droits de l’enfant / Promouvoir de manière ludique, les droits fondamentaux des enfants",
+                "reasoning": "Les activités principales sont l'animation éducative et la formation, ce qui correspond au secteur de l'éducation et de l'animation."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "sensibiliser et informer les enfants, et plus largement les 11-18 ans, sur leurs droits fondamentaux / Promouvoir de manière ludique, les droits fondamentaux des enfants",
+                "reasoning": "La mission implique un accompagnement éducatif et social des jeunes, ce qui relève du management social et du soin."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "En binôme ou en équipe de 4 / Tu seras accompagné par l’équipe du Défenseur des droits et tu bénéficieras de plusieurs formations",
+                "reasoning": "La mission implique un travail en équipe et une forte dimension collaborative, ce qui relève des soft skills et de l'organisation."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "communication_creation_numerique",
+              "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Tu devras créer des outils afin de rendre accessible l’information pour tous",
+                "reasoning": "La création d'outils pédagogiques pour rendre l'information accessible peut impliquer des compétences numériques ou créatives."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.99,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "animer des interventions, pour faire connaître de manière ludique les droits de l’enfant / Promouvoir de manière ludique, les droits fondamentaux des enfants / Informer sur le rôle et les compétences du Défenseur des droits / Sensibiliser aux droits, développer l’esprit de citoyenneté",
+                "reasoning": "La mission est explicitement centrée sur la transmission de connaissances et la sensibilisation, ce qui correspond à l'intention de transmission."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "animer des interventions / En binôme ou en équipe de 4",
+                "reasoning": "La mission inclut l'animation d'ateliers et de groupes, ce qui relève de l'animation."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Tu représenteras directement l’institution du Défenseur des droits / Tu seras accompagné par l’équipe du Défenseur des Droits et tu bénéficieras de plusieurs formations",
+                "reasoning": "La mission implique un soutien à l'organisation et une représentation institutionnelle, ce qui relève du support organisationnel."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "volontariat_service_civique / Tu seras accompagné par un salariés d'Unis-cité / Formations obligatoires proposées / Tu représenteras directement l’institution du Défenseur des droits",
+                "reasoning": "La mission s'inscrit dans un cadre structuré (service civique, accompagnement par une association, formations obligatoires, représentation institutionnelle), ce qui correspond à un engagement en cadre structuré."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Promouvoir de manière ludique, les droits fondamentaux des enfants / Informer sur le rôle et les compétences du Défenseur des droits / Sensibiliser aux droits, développer l’esprit de citoyenneté",
+                "reasoning": "La mission est centrée sur les droits de l'enfant, la citoyenneté et les institutions, ce qui relève du domaine société, droit et politique."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "education_culture_creation",
+              "taxonomyValueLabel": "Éducation, culture et création",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "animer des interventions, pour faire connaître de manière ludique les droits de l’enfant / créer des outils afin de rendre accessible l’information pour tous",
+                "reasoning": "La mission inclut des activités éducatives et créatives (animation, création d'outils), ce qui relève de l'éducation et de la création."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_18_ans",
+              "taxonomyValueLabel": "Moins de 18 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_31_ans_handicap",
+              "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "service_civique",
+              "taxonomyValueLabel": "Service civique",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "ddf0159f-bd8c-443c-aab9-ca3387708086",
+          "title": "👵 Personnes âgées : contribue à la vie sociale, culturelle et citoyenne des plus isolées ! LYON 👴",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "solidarite-insertion",
+          "domainOriginal": "Solidarité",
+          "organizationName": "Unis-cité Rhône",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_02.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_02.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Lyon",
+            "closestLat": 45.752006,
+            "closestLon": 4.839114,
+            "closestAddress": "60 Rue Pasteur, 69007 Lyon, FR",
+            "addressId": "ef9eadde-f374-4331-8302-ca5fd2e091b5",
+            "distanceKm": 0.8489370206513055
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/ddf0159f-bd8c-443c-aab9-ca3387708086/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "8457642a-1d84-4827-9828-90a6bfc8dc6f",
+          "totalScore": 0.560503,
+          "taxonomyScore": 0.15,
+          "geoScore": 0.971007,
+          "taxonomyScores": {
+            "tranche_age": 0.9
+          },
+          "values": [
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "soutiens les dans leur accès aux droits / mise en valeur des dispositifs mis en place par le CCAS",
+                "reasoning": "Sensibilisation et accompagnement vers l'accès aux droits et à la citoyenneté."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "visites à domicile auprès de personnes âgées isolées / proposer des activités en fonction de leurs envies",
+                "reasoning": "Interaction directe et régulière avec les bénéficiaires pour leur apporter un soutien concret."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "animation de temps conviviaux / conception et animation de plannings d'activités",
+                "reasoning": "Animation d'ateliers et d'événements collectifs."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "participer à la conception et à l'animation de plannings d'activités / organiser des visites régulières / gestion de partenariats",
+                "reasoning": "Travail collaboratif, organisation de projets et prise d'initiative."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Engage toi pour les personnes âgées les plus fragiles / lutte contre leur isolement / soutien aux personnes âgées isolées",
+                "reasoning": "La mission est explicitement centrée sur l'accompagnement social et la lutte contre l'isolement des personnes âgées, domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "facilite leurs vies sociales, culturelles et citoyennes / animation de temps conviviaux / participer à la conception et à l'animation de leurs plannings d'activités",
+                "reasoning": "La mission inclut une dimension de transmission, d'animation et de sensibilisation aux droits et à la citoyenneté."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "visites à domicile + SPOT Séniors / lutte contre l'isolement des personnes âgées / CCAS de la Ville de Lyon",
+                "reasoning": "Mission dans le secteur de l'aide à la personne et du social, avec un public cible de seniors."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.92,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "visites à domicile / accompagnement des personnes âgées / animation de temps conviviaux",
+                "reasoning": "Accompagnement humain, soutien et animation auprès de publics fragilisés."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "identifier et rendre visibles les activités proposées par d'autres associations / mise en valeur des dispositifs du CCAS",
+                "reasoning": "Contribution à l'organisation et à la communication autour des activités et dispositifs."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "volontariat_service_civique / formations obligatoires / tutorat avec le CCAS / mission structurée sur 8 mois",
+                "reasoning": "Mission encadrée dans un cadre institutionnel structuré (service civique, formations, tutorat)."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_18_ans",
+              "taxonomyValueLabel": "Moins de 18 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_31_ans_handicap",
+              "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "service_civique",
+              "taxonomyValueLabel": "Service civique",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "e15ea290-6cbf-4449-b6c1-4265b9240a9a",
+          "title": "🌍 Réalise des chantiers natures et sensibilise aux enjeux de la transition écologique - Lyon",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "environnement",
+          "domainOriginal": "Environnement",
+          "organizationName": "Unis-cité Rhône",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_01.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_01.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Lyon",
+            "closestLat": 45.752006,
+            "closestLon": 4.839114,
+            "closestAddress": "60 Rue Pasteur, 69007 Lyon, FR",
+            "addressId": "b4cf43f1-d0ec-4019-9dea-bba0f6df5913",
+            "distanceKm": 0.8489370206513055
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/e15ea290-6cbf-4449-b6c1-4265b9240a9a/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "3f799c29-9ebe-4f48-9a7f-2b4d500803f8",
+          "totalScore": 0.560503,
+          "taxonomyScore": 0.15,
+          "geoScore": 0.971007,
+          "taxonomyScores": {
+            "tranche_age": 0.9
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "environnement_nature",
+              "taxonomyValueLabel": "Environnement et nature",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Réalise des chantiers natures et sensibilise aux enjeux de la transition écologique / Participer à des chantiers nature (aménagement, observation, protection, ramassage, …) / Participer à des actions collectives de sensibilisation et d’information des citoyens au bénévolat nature / Sensibiliser les familles aux enjeux de l’éco-citoyenneté",
+                "reasoning": "La mission est explicitement centrée sur des actions de protection de l'environnement, des chantiers nature et de la sensibilisation écologique."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "sensibiliser aux enjeux de la transition écologique / Participer à des actions collectives de sensibilisation et d’information des citoyens / Réaliser avec les familles un diagnostic de leurs comportements et modes de consommation / Animer des sorties pédagogiques et des ateliers collectifs avec les familles / Évaluer les progrès et changements de comportement des familles / formations obligatoires proposées : fresque du Climat et de la biodiversité, les enjeux climatiques",
+                "reasoning": "La mission inclut une forte dimension de transmission, de pédagogie et de sensibilisation, notamment auprès des familles."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "environnement_agriculture",
+              "taxonomyValueLabel": "Environnement et agriculture",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "chantiers natures (gestion des plantes invasives, jardins partagés, etc) / plantation d’arbres, construction de nichoirs, observations naturalistes / Participer à des chantiers nature (aménagement, observation, protection, ramassage, …)",
+                "reasoning": "Les activités décrites relèvent directement du secteur de l'environnement et de la gestion des espaces naturels."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.92,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "sensibiliser aux enjeux de la transition écologique / Participer à des actions collectives de sensibilisation / Animer des sorties pédagogiques et des ateliers collectifs avec les familles / formations obligatoires : fresque du Climat et de la biodiversité",
+                "reasoning": "La mission inclut une forte composante éducative et d'animation, notamment via des ateliers et des formations."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "production_construction_qualite_logistique",
+              "taxonomyValueLabel": "Production, construction, qualité, logistique",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Participer à des chantiers nature (aménagement, observation, protection, ramassage, …) / plantation d’arbres, construction de nichoirs",
+                "reasoning": "Les tâches incluent des actions concrètes de construction, d'aménagement et de protection de l'environnement."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "communication_creation_numerique",
+              "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "formations obligatoires proposées : fresque du Climat et de la biodiversité, les enjeux climatiques, les média",
+                "reasoning": "La mission inclut une formation aux outils de médiation et de sensibilisation, notamment numériques (fresque du Climat)."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Ta mission sera en équipe 2 jours par semaine / En plus de tes missions si tu souhaites développer un projet ou monter un évènement d'envergure, c'est possible! / Tu seras accompagné par un salariés d'Unis-cité sur: le développement de ta mission, la vie d'équipe",
+                "reasoning": "La mission implique un travail en équipe, l'organisation de projets et le développement de compétences transversales."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "gestion_pilotage_juridique",
+              "taxonomyValueLabel": "Gestion, pilotage, juridique",
+              "enrichmentConfidence": 0.6,
+              "scoringScore": 0.35,
+              "evidence": {
+                "extract": "Évaluer les progrès et changements de comportement des familles / formations obligatoires proposées : fresque du Climat et de la biodiversité",
+                "reasoning": "La mission inclut une dimension de suivi et d'évaluation, bien que moins centrale que d'autres compétences."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "action_terrain",
+              "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Participer à des chantiers nature (aménagement, observation, protection, ramassage, …) / plantation d’arbres, construction de nichoirs / Participer à des actions collectives de sensibilisation et d’information des citoyens au bénévolat nature",
+                "reasoning": "La mission inclut des actions concrètes sur le terrain, comme des chantiers nature et des actions de ramassage."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "sensibiliser aux enjeux de la transition écologique / Participer à des actions collectives de sensibilisation / Réaliser avec les familles un diagnostic de leurs comportements / Animer des sorties pédagogiques et des ateliers collectifs avec les familles",
+                "reasoning": "La mission inclut une forte dimension de transmission et de pédagogie, notamment auprès des familles."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Animer des sorties pédagogiques et des ateliers collectifs avec les familles pour motiver et valoriser leur démarche",
+                "reasoning": "La mission inclut explicitement l'animation d'ateliers et de sorties collectives."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "En plus de tes missions si tu souhaites développer un projet ou monter un évènement d'envergure, c'est possible! / formations obligatoires proposées : fresque du Climat et de la biodiversité",
+                "reasoning": "La mission inclut un accompagnement et des formations pour soutenir l'engagement et le développement de projets."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Type de mission : volontariat_service_civique / Tu seras accompagné par un salariés d'Unis-cité sur: le développement de ta mission, la vie d'équipe / Formations obligatoires proposées : fresque du Climat et de la biodiversité, les enjeux climatiques",
+                "reasoning": "La mission s'inscrit dans un cadre structuré de service civique, avec un accompagnement et des formations obligatoires."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "environnement_nature_sciences",
+              "taxonomyValueLabel": "Environnement, nature et sciences",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Réalise des chantiers natures et sensibilise aux enjeux de la transition écologique / Participer à des chantiers nature (aménagement, observation, protection, ramassage, …) / formations obligatoires proposées : fresque du Climat et de la biodiversité, les enjeux climatiques",
+                "reasoning": "La mission est clairement liée à l'environnement, la nature et les sciences, avec des formations spécifiques sur ces thèmes."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "sensibiliser aux enjeux de la transition écologique / formations obligatoires proposées : les enjeux climatiques, les média",
+                "reasoning": "La mission inclut une dimension de sensibilisation aux enjeux sociétaux et politiques, notamment climatiques."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_18_ans",
+              "taxonomyValueLabel": "Moins de 18 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_31_ans_handicap",
+              "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "service_civique",
+              "taxonomyValueLabel": "Service civique",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      }
+    ],
+    "total": 885,
+    "avgDistanceKmTop5": 0.85
+  },
+  "missions": [
+    {
+      "mission": {
+        "id": "4b885232-0829-4b2e-8c9d-956c406ff58a",
+        "title": "Va à la rencontre de jeunes pour participer à la déstigmatisation de la santé mentale",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "sante",
+        "domainOriginal": "Santé",
+        "organizationName": "Unis-cité Rhône",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_03.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_03.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Lyon",
+          "closestLat": 45.752006,
+          "closestLon": 4.839114,
+          "closestAddress": "60 Rue Pasteur, 69007 Lyon, FR",
+          "addressId": "d7afa15c-1cea-402b-b183-d3544d10fbda",
+          "distanceKm": 0.8489370206513055
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/4b885232-0829-4b2e-8c9d-956c406ff58a/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "0b3b71e6-f4d2-44f5-9c0b-ad018dbb2559",
+        "totalScore": 0.641337,
+        "taxonomyScore": 0.311667,
+        "geoScore": 0.971007,
+        "taxonomyScores": {
+          "domaine": 0.97,
+          "tranche_age": 0.9
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Anime des ateliers de prévention et promotion de la santé mentale, de déstigmatisation et d’ouverture de la parole auprès d’un public jeune parfois en situation de fragilité et/ou vulnérable",
+              "reasoning": "La mission cible explicitement la lutte contre la stigmatisation et l'accompagnement de publics fragilisés, ce qui relève du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "sante_soins",
+            "taxonomyValueLabel": "Santé et soins",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Anime des ateliers de prévention et promotion de la santé mentale / Sensibiliser aux troubles psychiques, le bien-être, la gestion du stress, l’estime de soi",
+              "reasoning": "La mission aborde directement la santé mentale, la prévention et le bien-être, ce qui relève du domaine santé et soins."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Anime des ateliers de prévention et promotion de la santé mentale, de déstigmatisation et d’ouverture de la parole auprès d’un public jeune parfois en situation de fragilité et/ou vulnérable",
+              "reasoning": "La mission s'inscrit dans le secteur de la santé et de l'aide à la personne, avec un public vulnérable."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Concevoir et animer des ateliers dans un climat de confiance via des activités ludiques, des débats, des groupes de discussion / Participer au développement des compétences psychosociales",
+              "reasoning": "La mission inclut explicitement des activités d'animation, de transmission et de formation, relevant du secteur éducation et formation."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Anime des ateliers de prévention et promotion de la santé mentale, de déstigmatisation et d’ouverture de la parole auprès d’un public jeune parfois en situation de fragilité et/ou vulnérable / Sensibiliser aux troubles psychiques, le bien-être, la gestion du stress, l’estime de soi",
+              "reasoning": "La mission implique un accompagnement humain, une écoute et une aide directe à des publics fragilisés, relevant des compétences sociales et de soin."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "En équipe, tu seras amené à: Encourager la prise de conscience de leur santé mentale en soutien aux acteurs locaux / Développer des partenariats avec des structures jeunesses / Contribuer à l’animation des réseaux sociaux",
+              "reasoning": "La mission implique un travail d'équipe, la coordination avec des partenaires et la gestion de projets, relevant des compétences en coopération et organisation."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Concevoir et animer des ateliers dans un climat de confiance via des activités ludiques, des débats, des groupes de discussion / Participer au développement des compétences psychosociales",
+              "reasoning": "La mission inclut explicitement la transmission de connaissances et la pédagogie auprès d'un public jeune."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Concevoir et animer des ateliers dans un climat de confiance via des activités ludiques, des débats, des groupes de discussion",
+              "reasoning": "La mission implique l'animation d'ateliers et d'activités collectives."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Développer des partenariats avec des structures jeunesses / Contribuer à l’animation des réseaux sociaux en proposant des contenus de déstigmatisation",
+              "reasoning": "La mission inclut des tâches de coordination, de partenariat et de communication, relevant du support organisationnel."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Anime des ateliers de prévention et promotion de la santé mentale, de déstigmatisation et d’ouverture de la parole auprès d’un public jeune parfois en situation de fragilité et/ou vulnérable",
+              "reasoning": "Bien que la mission soit principalement pédagogique, l'accompagnement de publics fragilisés implique une forme d'aide directe."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Anime des ateliers de prévention et promotion de la santé mentale, de déstigmatisation et d’ouverture de la parole auprès d’un public jeune",
+              "reasoning": "La mission aborde des enjeux de société liés à la santé mentale et à la stigmatisation, relevant du domaine société, droit et politique."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "social_sante_sport",
+            "taxonomyValueLabel": "Social, santé et sport",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Anime des ateliers de prévention et promotion de la santé mentale, de déstigmatisation et d’ouverture de la parole auprès d’un public jeune parfois en situation de fragilité et/ou vulnérable / Sensibiliser aux troubles psychiques, le bien-être, la gestion du stress, l’estime de soi",
+              "reasoning": "La mission est centrée sur la santé mentale, le bien-être et l'accompagnement de publics fragilisés, relevant du domaine social, santé et sport."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Type de mission : volontariat_service_civique / Tu seras formé.e et accompagné.e tout au long de ta mission par la Fondation ARHM et Unis-Cité / Tu deviendras Secouriste en Santé Mentale",
+              "reasoning": "La mission s'inscrit dans un cadre structuré de service civique, avec un accompagnement et des formations obligatoires, relevant d'un engagement en cadre structuré."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_18_ans",
+            "taxonomyValueLabel": "Moins de 18 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_31_ans_handicap",
+            "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "service_civique",
+            "taxonomyValueLabel": "Service civique",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "4b885232-0829-4b2e-8c9d-956c406ff58a",
+        "title": "Va à la rencontre de jeunes pour participer à la déstigmatisation de la santé mentale",
+        "domain": "sante",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_03.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "Unis-cité Rhône",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Lyon",
+          "address": "60 Rue Pasteur, 69007 Lyon",
+          "lat": 45.752006,
+          "lon": 4.839114
+        },
+        "startAt": "2026-10-13T00:00:00.000Z",
+        "endAt": "2027-06-13T00:00:00.000Z",
+        "duration": 8,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Anime des ateliers de prévention et promotion de la santé mentale, de déstigmatisation et d’ouverture de la parole auprès d’un public jeune parfois en situation de fragilité et/ou vulnérable en s’appuyant sur le pair à pair. Fais connaitre les structures ressources du territoire !</p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p class=\"ql-align-justify\"><span style=\"color: rgb(0, 0, 0);\">La santé mentale est une composante essentielle de la santé et représente bien plus que l’absence de troubles. Il y a encore des tabous et idées reçues... Engage-toi pour sensibiliser les jeunes et leur permettre de se sentir mieux en les invitant à prendre conscience de leurs ressources.</span></p></p><br>\n<b>Actions</b><br><p><p>En équipe, tu seras amené à:</p><p>- Encourager la prise de conscience de leur santé mentale en soutien aux acteurs locaux.</p><p>- Sensibiliser aux troubles psychiques, le bien-être, la gestion du stress, l’estime de soi...</p><p>- Concevoir et animer des ateliers dans un climat de confiance via des activités ludiques, des débats, des groupes de discussion</p><p>- Participer au développement des compétences psychosociales</p><p>- Faire connaitre les lieux ressources du territoire</p><p>- Développer des partenariats avec des structures jeunesses</p><p>- Contribuer à l’animation des réseaux sociaux en proposant des contenus de déstigmatisation de santé mentale pour toucher les plus éloignés</p><p><br></p><p>En partenariat avec la Fondation ARHM qui t’accompagnera dans la conception des interventions. Les lieux d’interventions sont variés : CROUS, des Foyers Jeunes Travailleurs, l’AFPA, des lycées, des associations comme les Cités d’Or, etc.</p></p><br>\n<b>Capacité d’initiative</b><br><p>La mission appartient aux volontaires, de la conception d’intervention à la gestion de partenariat. Tu auras l’espace pour prendre des initiatives.</p><br>\n<b>VOTRE ENVIRONNEMENT</b><br><b>Formations obligatoires proposées</b><br><p>Tu seras formé.e et accompagné.e tout au long de ta mission par la Fondation ARHM et Unis-Cité. Tu deviendras Secouriste en Santé Mentale </p><br><b>Tutorat et accompagnement</b><br><p>Tu seras accompagné.e par un salarié. d'Unis-Cité sur :le développement de ta mission, la vie d'équipe et la construction de ton avenir professionnel</p>",
+        "description": "EN QUELQUES MOTS\n\n\nAnime des ateliers de prévention et promotion de la santé mentale, de\ndéstigmatisation et d’ouverture de la parole auprès d’un public jeune parfois en\nsituation de fragilité et/ou vulnérable en s’appuyant sur le pair à pair. Fais\nconnaitre les structures ressources du territoire !\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nLa santé mentale est une composante essentielle de la santé et représente bien\nplus que l’absence de troubles. Il y a encore des tabous et idées reçues...\nEngage-toi pour sensibiliser les jeunes et leur permettre de se sentir mieux en\nles invitant à prendre conscience de leurs ressources.\n\n\n\n\n\nActions\n\n\n\n\nEn équipe, tu seras amené à:\n\n- Encourager la prise de conscience de leur santé mentale en soutien aux acteurs\nlocaux.\n\n- Sensibiliser aux troubles psychiques, le bien-être, la gestion du stress,\nl’estime de soi...\n\n- Concevoir et animer des ateliers dans un climat de confiance via des activités\nludiques, des débats, des groupes de discussion\n\n- Participer au développement des compétences psychosociales\n\n- Faire connaitre les lieux ressources du territoire\n\n- Développer des partenariats avec des structures jeunesses\n\n- Contribuer à l’animation des réseaux sociaux en proposant des contenus de\ndéstigmatisation de santé mentale pour toucher les plus éloignés\n\n\n\n\nEn partenariat avec la Fondation ARHM qui t’accompagnera dans la conception des\ninterventions. Les lieux d’interventions sont variés : CROUS, des Foyers Jeunes\nTravailleurs, l’AFPA, des lycées, des associations comme les Cités d’Or, etc.\n\n\n\n\n\nCapacité d’initiative\n\n\nLa mission appartient aux volontaires, de la conception d’intervention à la\ngestion de partenariat. Tu auras l’espace pour prendre des initiatives.\n\n\n\nVOTRE ENVIRONNEMENT\nFormations obligatoires proposées\n\n\nTu seras formé.e et accompagné.e tout au long de ta mission par la Fondation\nARHM et Unis-Cité. Tu deviendras Secouriste en Santé Mentale\n\n\nTutorat et accompagnement\n\n\nTu seras accompagné.e par un salarié. d'Unis-Cité sur :le développement de ta\nmission, la vie d'équipe et la construction de ton avenir professionnel",
+        "applicationUrl": "http://localhost:4000/r/4b885232-0829-4b2e-8c9d-956c406ff58a/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_03.jpeg",
+        "remote": "no",
+        "openToMinors": true,
+        "reducedMobilityAccessible": true,
+        "places": 8
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "55baa380-a094-4003-a400-d2d5e73ef655",
+        "title": "🦽 Viens aider les personnes en situation de handicap et leur famille! - LYON ",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "sante",
+        "domainOriginal": "Santé",
+        "organizationName": "Unis-cité Rhône",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_02.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_02.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Lyon",
+          "closestLat": 45.752006,
+          "closestLon": 4.839114,
+          "closestAddress": "60 Rue Pasteur, 69007 Lyon, FR",
+          "addressId": "1aaad8f3-b55e-412b-9b10-c718811b5a8f",
+          "distanceKm": 0.8489370206513055
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/55baa380-a094-4003-a400-d2d5e73ef655/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "42246fa5-2057-4855-bbb6-f50901f684de",
+        "totalScore": 0.641337,
+        "taxonomyScore": 0.311667,
+        "geoScore": 0.971007,
+        "taxonomyScores": {
+          "domaine": 0.97,
+          "tranche_age": 0.9
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "soutenir et d'accompagner des familles dont l'un des membres est en situation de handicap ou en perte d'autonomie / Soutien des familles à travers de visites à domicile / Sensibilise le grand public à la thématique, et aux dispositifs existant sur le territoire du Rhône",
+              "reasoning": "La mission est centrée sur l'accompagnement social et la solidarité envers des personnes en situation de handicap et leurs familles."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "sante_soins",
+            "taxonomyValueLabel": "Santé et soins",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "soutenir et d'accompagner des familles dont l'un des membres est en situation de handicap ou en perte d'autonomie / handicap psychique, personnes agées, alzeimer",
+              "reasoning": "Le public cible inclut des personnes en situation de handicap ou de perte d'autonomie, ce qui relève du domaine de la santé et des soins."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "soutenir et d'accompagner des familles dont l'un des membres est en situation de handicap ou en perte d'autonomie / Soutien des familles à travers de visites à domicile",
+              "reasoning": "La mission relève clairement du secteur de la santé, du social et de l'aide à la personne."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "soutenir et d'accompagner des familles dont l'un des membres est en situation de handicap ou en perte d'autonomie / Soutien des familles à travers de visites à domicile",
+              "reasoning": "La mission implique un accompagnement humain et social direct avec des personnes en situation de vulnérabilité."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Au sein d'une équipe de 20 volontaires / Propose-nous tes idées ! / formations: citoyennes (6 jours) + liées à tes missions + au travail d'équipe + gestion de projet",
+              "reasoning": "La mission implique un travail en équipe, l'initiative personnelle et des formations, ce qui relève des compétences d'organisation et de soft skills."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "soutenir et d'accompagner des familles dont l'un des membres est en situation de handicap ou en perte d'autonomie / Soutien des familles à travers de visites à domicile",
+              "reasoning": "La mission inclut un accompagnement direct et régulier des bénéficiaires."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Sensibilise le grand public à la thématique, et aux dispositifs existant sur le territoire du Rhône",
+              "reasoning": "La mission inclut une dimension de sensibilisation et de transmission d'informations au public."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "sortie au parc, ateliers artistiques, jeux de société / Réalise des activités collectives avec l'une de nos association partenaire",
+              "reasoning": "La mission inclut l'animation d'activités collectives et de loisirs pour les bénéficiaires."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Au sein d'une équipe de 20 volontaires / formations: citoyennes (6 jours) + liées à tes missions + au travail d'équipe + gestion de projet",
+              "reasoning": "La mission implique un travail en équipe structuré et des formations, ce qui relève du support organisationnel."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Type de mission : volontariat_service_civique / formations obligatoires proposées / Tutorat et accompagnement / Ton tuteur t'aidera à travailler: ton bien être en missions; tes difficultés; le post service civique",
+              "reasoning": "La mission s'inscrit dans un cadre structuré de service civique avec des formations obligatoires, un tutorat et un accompagnement formalisé."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "social_sante_sport",
+            "taxonomyValueLabel": "Social, santé et sport",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "soutenir et d'accompagner des familles dont l'un des membres est en situation de handicap ou en perte d'autonomie / Soutien des familles à travers de visites à domicile",
+              "reasoning": "La mission relève du domaine social, de la santé et du sport (activités d'animation et de soutien)."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Sensibilise le grand public à la thématique, et aux dispositifs existant sur le territoire du Rhône / formations: citoyennes (6 jours)",
+              "reasoning": "La mission inclut une dimension de sensibilisation citoyenne et de compréhension des dispositifs publics."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_18_ans",
+            "taxonomyValueLabel": "Moins de 18 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_31_ans_handicap",
+            "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "service_civique",
+            "taxonomyValueLabel": "Service civique",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "55baa380-a094-4003-a400-d2d5e73ef655",
+        "title": "🦽 Viens aider les personnes en situation de handicap et leur famille! - LYON ",
+        "domain": "sante",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_02.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "Unis-cité Rhône",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Lyon",
+          "address": "60 Rue Pasteur, 69007 Lyon",
+          "lat": 45.752006,
+          "lon": 4.839114
+        },
+        "startAt": "2026-10-13T00:00:00.000Z",
+        "endAt": "2027-06-13T00:00:00.000Z",
+        "duration": 8,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Au sein d'une équipe de 20 volontaires, ton rôle sera de soutenir et d'accompagner des familles dont l'un des membres est en situation de handicap ou en perte d'autonomie.  </p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p>Viens découvrir la richesse des personnes en situation de handicap et de leur famille: Enfants, ado, adultes, propose leur de sortir de leur quotidien et leur donne le sourire. Rejoins nos équipes en mettant la rencontre, le lien et le partage au coeur de ta mission.</p></p><br>\n<b>Actions</b><br><p><p>Rejoins nos équipes pour venir à la rencontre de ces familles très diverse et découvrir le champ du handicap grace à nos nombreux partenaires:</p><p>-Soutien des familles à travers de visites à domicile (sortie au parc, ateliers artistiques, jeux de société, etc.) par binôme. Les bénéficiaires de cette action sont très variés: Autiste, personnes à mobilités réduites, handicap psychique, personnes agées, alzeimer, etc. Vous visiterez 5 familles par semaine tout au long de l'année.</p><p>-Réalise des activités collectives avec l'une de nos association partenaire pour offrir du répit à l’aidant pour qu’il puisse s’occuper de lui, et accompagner l’aidé comme son proche</p><p>-Sensibilise le grand public à la thématique, et aux dispositifs existant sur le territoire du Rhône.</p><p><br></p><p>✨Tu veux en savoir plus sur la mission ? C’est par ici : https://www.youtube.com/watch?v=mUpfbidoZAg</p></p><br>\n<b>Capacité d’initiative</b><br><p>En plus de tes missions si tu souhaites développer un projet ou monter un évènement d'envergure, c'est possible! Propose-nous tes idées !</p><br>\n<b>VOTRE ENVIRONNEMENT</b><br><b>Formations obligatoires proposées</b><br><p>Nous proposons aux volontaires de réaliser des formations: citoyennes (6 jours) + liées à tes missions + au travail d'équipe + gestion de projet</p><br><b>Tutorat et accompagnement</b><br><p>Ton tuteur t'aidera à travailler: ton bien être en missions; tes difficultés; le post service civique; la valorisation de tes acquis etc.</p>",
+        "description": "EN QUELQUES MOTS\n\n\nAu sein d'une équipe de 20 volontaires, ton rôle sera de soutenir et\nd'accompagner des familles dont l'un des membres est en situation de handicap ou\nen perte d'autonomie.\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nViens découvrir la richesse des personnes en situation de handicap et de leur\nfamille: Enfants, ado, adultes, propose leur de sortir de leur quotidien et leur\ndonne le sourire. Rejoins nos équipes en mettant la rencontre, le lien et le\npartage au coeur de ta mission.\n\n\n\n\n\nActions\n\n\n\n\nRejoins nos équipes pour venir à la rencontre de ces familles très diverse et\ndécouvrir le champ du handicap grace à nos nombreux partenaires:\n\n-Soutien des familles à travers de visites à domicile (sortie au parc, ateliers\nartistiques, jeux de société, etc.) par binôme. Les bénéficiaires de cette\naction sont très variés: Autiste, personnes à mobilités réduites, handicap\npsychique, personnes agées, alzeimer, etc. Vous visiterez 5 familles par semaine\ntout au long de l'année.\n\n-Réalise des activités collectives avec l'une de nos association partenaire pour\noffrir du répit à l’aidant pour qu’il puisse s’occuper de lui, et accompagner\nl’aidé comme son proche\n\n-Sensibilise le grand public à la thématique, et aux dispositifs existant sur le\nterritoire du Rhône.\n\n\n\n\n✨Tu veux en savoir plus sur la mission ? C’est par ici :\nhttps://www.youtube.com/watch?v=mUpfbidoZAg\n\n\n\n\n\nCapacité d’initiative\n\n\nEn plus de tes missions si tu souhaites développer un projet ou monter un\névènement d'envergure, c'est possible! Propose-nous tes idées !\n\n\n\nVOTRE ENVIRONNEMENT\nFormations obligatoires proposées\n\n\nNous proposons aux volontaires de réaliser des formations: citoyennes (6 jours)\n+ liées à tes missions + au travail d'équipe + gestion de projet\n\n\nTutorat et accompagnement\n\n\nTon tuteur t'aidera à travailler: ton bien être en missions; tes difficultés; le\npost service civique; la valorisation de tes acquis etc.",
+        "applicationUrl": "http://localhost:4000/r/55baa380-a094-4003-a400-d2d5e73ef655/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_02.jpeg",
+        "remote": "no",
+        "openToMinors": true,
+        "reducedMobilityAccessible": true,
+        "places": 24
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "75d91afb-7897-4b9e-8402-b8ac19c4dd9c",
+        "title": "Lyon - 👧🏼👦🏿 - Agis pour promouvoir les droits de l’enfant - Ambassadeur des Droits de l’Enfant",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "education",
+        "domainOriginal": "Éducation pour tous",
+        "organizationName": "Unis-cité Rhône",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Lyon",
+          "closestLat": 45.752006,
+          "closestLon": 4.839114,
+          "closestAddress": "60 Rue Pasteur, 69007 Lyon, FR",
+          "addressId": "a44c9249-cebd-4aaa-9789-2502e64487c4",
+          "distanceKm": 0.8489370206513055
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/75d91afb-7897-4b9e-8402-b8ac19c4dd9c/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "82d9d590-addd-43e7-bd16-ba75e223347e",
+        "totalScore": 0.560503,
+        "taxonomyScore": 0.15,
+        "geoScore": 0.971007,
+        "taxonomyScores": {
+          "tranche_age": 0.9
+        },
+        "values": [
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "sensibiliser et informer les enfants, et plus largement les 11-18 ans, sur leurs droits fondamentaux / foyers de protection de l'enfance, les hôpitaux",
+              "reasoning": "La mission cible des publics fragilisés (enfants en protection de l'enfance, hôpitaux) et vise à les soutenir, ce qui relève du secteur social et de l'aide à la personne."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "animer des interventions, pour faire connaître de manière ludique les droits de l’enfant / Promouvoir de manière ludique, les droits fondamentaux des enfants / Informer sur le rôle et les compétences du Défenseur des droits / Sensibiliser aux droits, développer l’esprit de citoyenneté",
+              "reasoning": "La mission est centrée sur la transmission de connaissances et la sensibilisation des jeunes sur leurs droits, ce qui relève clairement de l'éducation et de la transmission."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "sensibiliser et informer les enfants, et plus largement les 11-18 ans, sur leurs droits fondamentaux / Promouvoir de manière ludique, les droits fondamentaux des enfants",
+              "reasoning": "La mission vise à soutenir et protéger les droits des enfants, ce qui relève du domaine social et de la solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "animer des interventions, pour faire connaître de manière ludique les droits de l’enfant / Promouvoir de manière ludique, les droits fondamentaux des enfants",
+              "reasoning": "Les activités principales sont l'animation éducative et la formation, ce qui correspond au secteur de l'éducation et de l'animation."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "sensibiliser et informer les enfants, et plus largement les 11-18 ans, sur leurs droits fondamentaux / Promouvoir de manière ludique, les droits fondamentaux des enfants",
+              "reasoning": "La mission implique un accompagnement éducatif et social des jeunes, ce qui relève du management social et du soin."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "En binôme ou en équipe de 4 / Tu seras accompagné par l’équipe du Défenseur des droits et tu bénéficieras de plusieurs formations",
+              "reasoning": "La mission implique un travail en équipe et une forte dimension collaborative, ce qui relève des soft skills et de l'organisation."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "communication_creation_numerique",
+            "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Tu devras créer des outils afin de rendre accessible l’information pour tous",
+              "reasoning": "La création d'outils pédagogiques pour rendre l'information accessible peut impliquer des compétences numériques ou créatives."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.99,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "animer des interventions, pour faire connaître de manière ludique les droits de l’enfant / Promouvoir de manière ludique, les droits fondamentaux des enfants / Informer sur le rôle et les compétences du Défenseur des droits / Sensibiliser aux droits, développer l’esprit de citoyenneté",
+              "reasoning": "La mission est explicitement centrée sur la transmission de connaissances et la sensibilisation, ce qui correspond à l'intention de transmission."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "animer des interventions / En binôme ou en équipe de 4",
+              "reasoning": "La mission inclut l'animation d'ateliers et de groupes, ce qui relève de l'animation."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Tu représenteras directement l’institution du Défenseur des droits / Tu seras accompagné par l’équipe du Défenseur des Droits et tu bénéficieras de plusieurs formations",
+              "reasoning": "La mission implique un soutien à l'organisation et une représentation institutionnelle, ce qui relève du support organisationnel."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "volontariat_service_civique / Tu seras accompagné par un salariés d'Unis-cité / Formations obligatoires proposées / Tu représenteras directement l’institution du Défenseur des droits",
+              "reasoning": "La mission s'inscrit dans un cadre structuré (service civique, accompagnement par une association, formations obligatoires, représentation institutionnelle), ce qui correspond à un engagement en cadre structuré."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Promouvoir de manière ludique, les droits fondamentaux des enfants / Informer sur le rôle et les compétences du Défenseur des droits / Sensibiliser aux droits, développer l’esprit de citoyenneté",
+              "reasoning": "La mission est centrée sur les droits de l'enfant, la citoyenneté et les institutions, ce qui relève du domaine société, droit et politique."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "education_culture_creation",
+            "taxonomyValueLabel": "Éducation, culture et création",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "animer des interventions, pour faire connaître de manière ludique les droits de l’enfant / créer des outils afin de rendre accessible l’information pour tous",
+              "reasoning": "La mission inclut des activités éducatives et créatives (animation, création d'outils), ce qui relève de l'éducation et de la création."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_18_ans",
+            "taxonomyValueLabel": "Moins de 18 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_31_ans_handicap",
+            "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "service_civique",
+            "taxonomyValueLabel": "Service civique",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "75d91afb-7897-4b9e-8402-b8ac19c4dd9c",
+        "title": "Lyon - 👧🏼👦🏿 - Agis pour promouvoir les droits de l’enfant - Ambassadeur des Droits de l’Enfant",
+        "domain": "education",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "Unis-cité Rhône",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Lyon",
+          "address": "60 Rue Pasteur, 69007 Lyon",
+          "lat": 45.752006,
+          "lon": 4.839114
+        },
+        "startAt": "2026-10-13T00:00:00.000Z",
+        "endAt": "2027-06-13T00:00:00.000Z",
+        "duration": 8,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Les JADEs (Jeune Ambassadeur des Droits de l’Enfant) animent des ateliers éducatifs et ludiques pour sensibiliser et informer les enfants, et plus largement les 11-18 ans, sur leurs droits fondamentaux, énoncés par la Convention relative aux droits de l’enfants.</p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p>Les JADEs ont pour rôle de&nbsp;:</p><p>- <em>Promouvoir de manière ludique, les droits fondamentaux des enfants</em></p><p><em>- Informer sur le rôle et les compétences du Défenseur des droits</em></p><p><em>- Sensibiliser aux droits, développer l’esprit de citoyenneté </em></p><p><br></p></p><br>\n<b>Actions</b><br><p><p><br></p><p>En binôme ou en équipe de 4, tu interviendras dans des classes ou d’autres structures d’accueil comme les foyers de protection de l’enfance, les hôpitaux, sur toute la Métropole de Lyon. Tu animeras des interventions, pour faire connaître de manière ludique les droits de l’enfant. Tu représenteras directement l’institution du Défenseur des Droits.</p><p>Tu devras créer des outils afin de rendre accessible l’information pour tous.</p><p>Tout au long de la mission, tu seras aussi accompagné par l’équipe du Défenseur des Droits et tu bénéficieras de plusieurs formations.&nbsp;</p><p>&nbsp;</p><p>Des témoignages et plus d’informations sur&nbsp;: https://www.defenseurdesdroits.fr/fr/les-jeunes-ambassadeurs-des-droits-jade</p><p><br></p></p><br>\n<b>VOTRE ENVIRONNEMENT</b><br><b>Formations obligatoires proposées</b><br><p>En plus des 4 formations civique et du PSC1 vous serez pris en charge pour 2 Formations avec le Défenseur des Droits à Paris (en octobre et janvier) </p><br><b>Tutorat et accompagnement</b><br><p>Tu seras accompagné par un salariés d'Unis-cité sur: le développement de ta mission,  la vie d'équipe et la construction de ton avenir professionnel</p>",
+        "description": "EN QUELQUES MOTS\n\n\nLes JADEs (Jeune Ambassadeur des Droits de l’Enfant) animent des ateliers\néducatifs et ludiques pour sensibiliser et informer les enfants, et plus\nlargement les 11-18 ans, sur leurs droits fondamentaux, énoncés par la\nConvention relative aux droits de l’enfants.\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nLes JADEs ont pour rôle de :\n\n- Promouvoir de manière ludique, les droits fondamentaux des enfants\n\n- Informer sur le rôle et les compétences du Défenseur des droits\n\n- Sensibiliser aux droits, développer l’esprit de citoyenneté\n\n\n\n\n\n\n\n\nActions\n\n\n\n\n\n\n\nEn binôme ou en équipe de 4, tu interviendras dans des classes ou d’autres\nstructures d’accueil comme les foyers de protection de l’enfance, les hôpitaux,\nsur toute la Métropole de Lyon. Tu animeras des interventions, pour faire\nconnaître de manière ludique les droits de l’enfant. Tu représenteras\ndirectement l’institution du Défenseur des Droits.\n\nTu devras créer des outils afin de rendre accessible l’information pour tous.\n\nTout au long de la mission, tu seras aussi accompagné par l’équipe du Défenseur\ndes Droits et tu bénéficieras de plusieurs formations. \n\n \n\nDes témoignages et plus d’informations sur :\nhttps://www.defenseurdesdroits.fr/fr/les-jeunes-ambassadeurs-des-droits-jade\n\n\n\n\n\n\n\n\nVOTRE ENVIRONNEMENT\nFormations obligatoires proposées\n\n\nEn plus des 4 formations civique et du PSC1 vous serez pris en charge pour 2\nFormations avec le Défenseur des Droits à Paris (en octobre et janvier)\n\n\nTutorat et accompagnement\n\n\nTu seras accompagné par un salariés d'Unis-cité sur: le développement de ta\nmission, la vie d'équipe et la construction de ton avenir professionnel",
+        "applicationUrl": "http://localhost:4000/r/75d91afb-7897-4b9e-8402-b8ac19c4dd9c/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+        "remote": "no",
+        "openToMinors": true,
+        "reducedMobilityAccessible": true,
+        "places": 4
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "ddf0159f-bd8c-443c-aab9-ca3387708086",
+        "title": "👵 Personnes âgées : contribue à la vie sociale, culturelle et citoyenne des plus isolées ! LYON 👴",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "solidarite-insertion",
+        "domainOriginal": "Solidarité",
+        "organizationName": "Unis-cité Rhône",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_02.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_02.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Lyon",
+          "closestLat": 45.752006,
+          "closestLon": 4.839114,
+          "closestAddress": "60 Rue Pasteur, 69007 Lyon, FR",
+          "addressId": "ef9eadde-f374-4331-8302-ca5fd2e091b5",
+          "distanceKm": 0.8489370206513055
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/ddf0159f-bd8c-443c-aab9-ca3387708086/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "8457642a-1d84-4827-9828-90a6bfc8dc6f",
+        "totalScore": 0.560503,
+        "taxonomyScore": 0.15,
+        "geoScore": 0.971007,
+        "taxonomyScores": {
+          "tranche_age": 0.9
+        },
+        "values": [
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "soutiens les dans leur accès aux droits / mise en valeur des dispositifs mis en place par le CCAS",
+              "reasoning": "Sensibilisation et accompagnement vers l'accès aux droits et à la citoyenneté."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "visites à domicile auprès de personnes âgées isolées / proposer des activités en fonction de leurs envies",
+              "reasoning": "Interaction directe et régulière avec les bénéficiaires pour leur apporter un soutien concret."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "animation de temps conviviaux / conception et animation de plannings d'activités",
+              "reasoning": "Animation d'ateliers et d'événements collectifs."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "participer à la conception et à l'animation de plannings d'activités / organiser des visites régulières / gestion de partenariats",
+              "reasoning": "Travail collaboratif, organisation de projets et prise d'initiative."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Engage toi pour les personnes âgées les plus fragiles / lutte contre leur isolement / soutien aux personnes âgées isolées",
+              "reasoning": "La mission est explicitement centrée sur l'accompagnement social et la lutte contre l'isolement des personnes âgées, domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "facilite leurs vies sociales, culturelles et citoyennes / animation de temps conviviaux / participer à la conception et à l'animation de leurs plannings d'activités",
+              "reasoning": "La mission inclut une dimension de transmission, d'animation et de sensibilisation aux droits et à la citoyenneté."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "visites à domicile + SPOT Séniors / lutte contre l'isolement des personnes âgées / CCAS de la Ville de Lyon",
+              "reasoning": "Mission dans le secteur de l'aide à la personne et du social, avec un public cible de seniors."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.92,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "visites à domicile / accompagnement des personnes âgées / animation de temps conviviaux",
+              "reasoning": "Accompagnement humain, soutien et animation auprès de publics fragilisés."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "identifier et rendre visibles les activités proposées par d'autres associations / mise en valeur des dispositifs du CCAS",
+              "reasoning": "Contribution à l'organisation et à la communication autour des activités et dispositifs."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "volontariat_service_civique / formations obligatoires / tutorat avec le CCAS / mission structurée sur 8 mois",
+              "reasoning": "Mission encadrée dans un cadre institutionnel structuré (service civique, formations, tutorat)."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_18_ans",
+            "taxonomyValueLabel": "Moins de 18 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_31_ans_handicap",
+            "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "service_civique",
+            "taxonomyValueLabel": "Service civique",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "ddf0159f-bd8c-443c-aab9-ca3387708086",
+        "title": "👵 Personnes âgées : contribue à la vie sociale, culturelle et citoyenne des plus isolées ! LYON 👴",
+        "domain": "solidarite-insertion",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_02.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "Unis-cité Rhône",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Lyon",
+          "address": "60 Rue Pasteur, 69007 Lyon",
+          "lat": 45.752006,
+          "lon": 4.839114
+        },
+        "startAt": "2026-10-13T00:00:00.000Z",
+        "endAt": "2027-06-13T00:00:00.000Z",
+        "duration": 8,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Engage toi pour les personnes âgées les plus fragiles : vis des moments de rencontres et de partage intergénérationnel, soutiens les dans leur accès aux droits, facilite leurs vies sociales, culturelles et citoyennes, anime des temps conviviaux dans des associations de proximité </p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p class=\"ql-align-justify\">Le CCAS de la Ville de Lyon veille sur les personnes les plus vulnérables. Il lutte contre leur isolement et les aide à accéder à leurs droits. Pour cela, il anime les SPOT séniors<span style=\"color: red;\">; </span><span style=\"color: black;\">c'est un réseau d’associations engagées dans l’accueil inconditionnel de personnes âgées (MJC, Centres Sociaux,..)&nbsp;</span></p><p><br></p></p><br>\n<b>Actions</b><br><p><p>📅 <span style=\"color: black;\">Du</span><span style=\"color: red;\"> </span>mardi au vendredi, 28h</p><p>🤝 Centre Communal d’Action Sociale de la Ville de Lyon</p><p>📍Visites à <span style=\"color: black;\">domicile + SPOT Séniors</span></p><p>👩🏾‍🤝‍🧑🏼 <span style=\"color: black;\">En équipe sur 2 arrondissements : </span>1,2,4/5,9/3,6/7,8ème arrondissement de Lyon&nbsp;</p><p class=\"ql-align-justify\">&nbsp;</p><p class=\"ql-align-justify\"><span style=\"color: black;\">Tu participeras à&nbsp;: </span></p><p class=\"ql-align-justify\"><span style=\"color: rgb(31, 73, 125);\">&nbsp;</span></p><p class=\"ql-align-justify\"><span style=\"color: black;\">° La vie du Spot senior où tu seras basé</span><span style=\"color: red;\"> </span></p><ul><li class=\"ql-align-justify\">Tu contribueras à l’inclusion des personnes âgées en Spots seniors</li><li class=\"ql-align-justify\">Tu participeras à la conception et à l’animation de leurs plannings d’activités</li><li class=\"ql-align-justify\">Tu identifieras et rendra visibles les activités proposées par d’autres associations</li></ul><p>&nbsp;</p><p>° Visites de convivialité auprès de <span style=\"color: black;\">personnes-âgées isolées</span></p><ul><li>Tu participeras à leur identification</li><li>Tu organiseras des visites régulières à leur domicile</li><li><span style=\"color: black;\">Tu leur proposeras </span>des activités en fonction de leurs envies et <span style=\"color: black;\">capacité (jeux, ballades, musée, …) </span></li></ul><p><br></p><p>° La vie du CCAS de la Ville de Lyon</p><ul><li>Tu participeras à la mise en valeur des dispositifs mis en place par le CCAS (carte culture, offre séniors, …)</li><li>Tu rencontreras régulièrement des partenaires&nbsp;(musées, Angela, RH de la Ville, cuisines solidaires…)</li></ul></p><br>\n<b>Capacité d’initiative</b><br><p>La mission appartient aux volontaires, de la conception d’intervention à la gestion de partenariat. Tu auras cet espace pour prendre des initiatives.</p><br>\n<b>VOTRE ENVIRONNEMENT</b><br><b>Formations obligatoires proposées</b><br><p>En plus des formations citoyennes : isolement des personnes âgées, institutions du Grand Âge, animations adaptées, analyse de pratiques, …</p><br><b>Tutorat et accompagnement</b><br><p>Avec Unis-cité : ta mission, vie d'équipe, projet d’avenir et avec le CCAS (2 travailleuses sociales) : lien avec les personnes âgées</p>",
+        "description": "EN QUELQUES MOTS\n\n\nEngage toi pour les personnes âgées les plus fragiles : vis des moments de\nrencontres et de partage intergénérationnel, soutiens les dans leur accès aux\ndroits, facilite leurs vies sociales, culturelles et citoyennes, anime des temps\nconviviaux dans des associations de proximité\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nLe CCAS de la Ville de Lyon veille sur les personnes les plus vulnérables. Il\nlutte contre leur isolement et les aide à accéder à leurs droits. Pour cela, il\nanime les SPOT séniors; c'est un réseau d’associations engagées dans l’accueil\ninconditionnel de personnes âgées (MJC, Centres Sociaux,..) \n\n\n\n\n\n\n\n\nActions\n\n\n\n\n📅 Du mardi au vendredi, 28h\n\n🤝 Centre Communal d’Action Sociale de la Ville de Lyon\n\n📍Visites à domicile + SPOT Séniors\n\n👩🏾‍🤝‍🧑🏼 En équipe sur 2 arrondissements : 1,2,4/5,9/3,6/7,8ème\narrondissement de Lyon \n\n \n\nTu participeras à :\n\n \n\n° La vie du Spot senior où tu seras basé\n\n • Tu contribueras à l’inclusion des personnes âgées en Spots seniors\n • Tu participeras à la conception et à l’animation de leurs plannings\n   d’activités\n • Tu identifieras et rendra visibles les activités proposées par d’autres\n   associations\n\n \n\n° Visites de convivialité auprès de personnes-âgées isolées\n\n • Tu participeras à leur identification\n • Tu organiseras des visites régulières à leur domicile\n • Tu leur proposeras des activités en fonction de leurs envies et capacité\n   (jeux, ballades, musée, …)\n\n\n\n\n° La vie du CCAS de la Ville de Lyon\n\n • Tu participeras à la mise en valeur des dispositifs mis en place par le CCAS\n   (carte culture, offre séniors, …)\n • Tu rencontreras régulièrement des partenaires (musées, Angela, RH de la\n   Ville, cuisines solidaires…)\n\n\n\n\n\nCapacité d’initiative\n\n\nLa mission appartient aux volontaires, de la conception d’intervention à la\ngestion de partenariat. Tu auras cet espace pour prendre des initiatives.\n\n\n\nVOTRE ENVIRONNEMENT\nFormations obligatoires proposées\n\n\nEn plus des formations citoyennes : isolement des personnes âgées, institutions\ndu Grand Âge, animations adaptées, analyse de pratiques, …\n\n\nTutorat et accompagnement\n\n\nAvec Unis-cité : ta mission, vie d'équipe, projet d’avenir et avec le CCAS (2\ntravailleuses sociales) : lien avec les personnes âgées",
+        "applicationUrl": "http://localhost:4000/r/ddf0159f-bd8c-443c-aab9-ca3387708086/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_02.jpeg",
+        "remote": "no",
+        "openToMinors": true,
+        "reducedMobilityAccessible": true,
+        "places": 20
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "e15ea290-6cbf-4449-b6c1-4265b9240a9a",
+        "title": "🌍 Réalise des chantiers natures et sensibilise aux enjeux de la transition écologique - Lyon",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "environnement",
+        "domainOriginal": "Environnement",
+        "organizationName": "Unis-cité Rhône",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_01.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_01.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Lyon",
+          "closestLat": 45.752006,
+          "closestLon": 4.839114,
+          "closestAddress": "60 Rue Pasteur, 69007 Lyon, FR",
+          "addressId": "b4cf43f1-d0ec-4019-9dea-bba0f6df5913",
+          "distanceKm": 0.8489370206513055
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/e15ea290-6cbf-4449-b6c1-4265b9240a9a/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "3f799c29-9ebe-4f48-9a7f-2b4d500803f8",
+        "totalScore": 0.560503,
+        "taxonomyScore": 0.15,
+        "geoScore": 0.971007,
+        "taxonomyScores": {
+          "tranche_age": 0.9
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "environnement_nature",
+            "taxonomyValueLabel": "Environnement et nature",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Réalise des chantiers natures et sensibilise aux enjeux de la transition écologique / Participer à des chantiers nature (aménagement, observation, protection, ramassage, …) / Participer à des actions collectives de sensibilisation et d’information des citoyens au bénévolat nature / Sensibiliser les familles aux enjeux de l’éco-citoyenneté",
+              "reasoning": "La mission est explicitement centrée sur des actions de protection de l'environnement, des chantiers nature et de la sensibilisation écologique."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "sensibiliser aux enjeux de la transition écologique / Participer à des actions collectives de sensibilisation et d’information des citoyens / Réaliser avec les familles un diagnostic de leurs comportements et modes de consommation / Animer des sorties pédagogiques et des ateliers collectifs avec les familles / Évaluer les progrès et changements de comportement des familles / formations obligatoires proposées : fresque du Climat et de la biodiversité, les enjeux climatiques",
+              "reasoning": "La mission inclut une forte dimension de transmission, de pédagogie et de sensibilisation, notamment auprès des familles."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "environnement_agriculture",
+            "taxonomyValueLabel": "Environnement et agriculture",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "chantiers natures (gestion des plantes invasives, jardins partagés, etc) / plantation d’arbres, construction de nichoirs, observations naturalistes / Participer à des chantiers nature (aménagement, observation, protection, ramassage, …)",
+              "reasoning": "Les activités décrites relèvent directement du secteur de l'environnement et de la gestion des espaces naturels."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.92,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "sensibiliser aux enjeux de la transition écologique / Participer à des actions collectives de sensibilisation / Animer des sorties pédagogiques et des ateliers collectifs avec les familles / formations obligatoires : fresque du Climat et de la biodiversité",
+              "reasoning": "La mission inclut une forte composante éducative et d'animation, notamment via des ateliers et des formations."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "production_construction_qualite_logistique",
+            "taxonomyValueLabel": "Production, construction, qualité, logistique",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Participer à des chantiers nature (aménagement, observation, protection, ramassage, …) / plantation d’arbres, construction de nichoirs",
+              "reasoning": "Les tâches incluent des actions concrètes de construction, d'aménagement et de protection de l'environnement."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "communication_creation_numerique",
+            "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "formations obligatoires proposées : fresque du Climat et de la biodiversité, les enjeux climatiques, les média",
+              "reasoning": "La mission inclut une formation aux outils de médiation et de sensibilisation, notamment numériques (fresque du Climat)."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Ta mission sera en équipe 2 jours par semaine / En plus de tes missions si tu souhaites développer un projet ou monter un évènement d'envergure, c'est possible! / Tu seras accompagné par un salariés d'Unis-cité sur: le développement de ta mission, la vie d'équipe",
+              "reasoning": "La mission implique un travail en équipe, l'organisation de projets et le développement de compétences transversales."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "gestion_pilotage_juridique",
+            "taxonomyValueLabel": "Gestion, pilotage, juridique",
+            "enrichmentConfidence": 0.6,
+            "scoringScore": 0.35,
+            "evidence": {
+              "extract": "Évaluer les progrès et changements de comportement des familles / formations obligatoires proposées : fresque du Climat et de la biodiversité",
+              "reasoning": "La mission inclut une dimension de suivi et d'évaluation, bien que moins centrale que d'autres compétences."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "action_terrain",
+            "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Participer à des chantiers nature (aménagement, observation, protection, ramassage, …) / plantation d’arbres, construction de nichoirs / Participer à des actions collectives de sensibilisation et d’information des citoyens au bénévolat nature",
+              "reasoning": "La mission inclut des actions concrètes sur le terrain, comme des chantiers nature et des actions de ramassage."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "sensibiliser aux enjeux de la transition écologique / Participer à des actions collectives de sensibilisation / Réaliser avec les familles un diagnostic de leurs comportements / Animer des sorties pédagogiques et des ateliers collectifs avec les familles",
+              "reasoning": "La mission inclut une forte dimension de transmission et de pédagogie, notamment auprès des familles."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Animer des sorties pédagogiques et des ateliers collectifs avec les familles pour motiver et valoriser leur démarche",
+              "reasoning": "La mission inclut explicitement l'animation d'ateliers et de sorties collectives."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "En plus de tes missions si tu souhaites développer un projet ou monter un évènement d'envergure, c'est possible! / formations obligatoires proposées : fresque du Climat et de la biodiversité",
+              "reasoning": "La mission inclut un accompagnement et des formations pour soutenir l'engagement et le développement de projets."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Type de mission : volontariat_service_civique / Tu seras accompagné par un salariés d'Unis-cité sur: le développement de ta mission, la vie d'équipe / Formations obligatoires proposées : fresque du Climat et de la biodiversité, les enjeux climatiques",
+              "reasoning": "La mission s'inscrit dans un cadre structuré de service civique, avec un accompagnement et des formations obligatoires."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "environnement_nature_sciences",
+            "taxonomyValueLabel": "Environnement, nature et sciences",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Réalise des chantiers natures et sensibilise aux enjeux de la transition écologique / Participer à des chantiers nature (aménagement, observation, protection, ramassage, …) / formations obligatoires proposées : fresque du Climat et de la biodiversité, les enjeux climatiques",
+              "reasoning": "La mission est clairement liée à l'environnement, la nature et les sciences, avec des formations spécifiques sur ces thèmes."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "sensibiliser aux enjeux de la transition écologique / formations obligatoires proposées : les enjeux climatiques, les média",
+              "reasoning": "La mission inclut une dimension de sensibilisation aux enjeux sociétaux et politiques, notamment climatiques."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_18_ans",
+            "taxonomyValueLabel": "Moins de 18 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_31_ans_handicap",
+            "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "service_civique",
+            "taxonomyValueLabel": "Service civique",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "e15ea290-6cbf-4449-b6c1-4265b9240a9a",
+        "title": "🌍 Réalise des chantiers natures et sensibilise aux enjeux de la transition écologique - Lyon",
+        "domain": "environnement",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_01.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "Unis-cité Rhône",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Lyon",
+          "address": "60 Rue Pasteur, 69007 Lyon",
+          "lat": 45.752006,
+          "lon": 4.839114
+        },
+        "startAt": "2026-10-13T00:00:00.000Z",
+        "endAt": "2027-06-13T00:00:00.000Z",
+        "duration": 8,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Agis concrètement en équipe sur divers actions permettant de protéger l'environnement: Chantiers concrêts (gestion des plantes invasives, jardins partagés, etc) et des actions de sensibilisation en lien avec : LPO, Maison de l’environnement, Métropole de Lyon, Grand parc Méribel Jonage, CNR, etc.</p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p><span style=\"background-color: white;\">Tu participeras à lutter contre l’érosion de la biodiversité à travers des chantiers nature : plantation d’arbres, construction de nichoirs, observations naturalistes, etc. Tu auras également pour mission de sensibiliser d’autres citoyen.nes sur le sujet. </span>#Service civique écologique</p></p><br>\n<b>Actions</b><br><p><p>Ta mission sera en équipe 2 jours par semaine de :</p><p>Participer à des chantiers nature (aménagement, observation, protection, ramassage, …) avec différentes associations lyonnaises : Sea Cleaner, Espèce parmi Lyon, parc de Miribel, etc.</p><p>Participer à des actions collectives de sensibilisation et d’information des citoyens au bénévolat nature</p><p>La deuxième partie, 2 jours par semaine, de la mission sera de la sensibilisation aux économies d'énergie:</p><p>Sensibiliser les familles aux enjeux de l’éco-citoyenneté</p><p>Réaliser avec les familles un diagnostic de leurs comportements et modes de consommation</p><p>Leur proposer un accompagnement personnalisé à domicile pour adopter des éco -gestes (couper la veille des appareils électriques ; mettre des ampoules basse consommation…)</p><p>Animer des sorties pédagogiques et des ateliers collectifs avec les familles pour motiver et valoriser leur démarche</p><p>Evaluer les progrès et changements de comportement des familles</p></p><br>\n<b>Capacité d’initiative</b><br><p>En plus de tes missions si tu souhaites développer un projet ou monter un évènement d'envergure, c'est possible! Propose nous tes idées !</p><br>\n<b>VOTRE ENVIRONNEMENT</b><br><b>Formations obligatoires proposées</b><br><p>En plus des formations civiques et du PSC1 nous te formerons à la fresque du Climat et de la biodiversité, les enjeux climatiques, les média etc</p><br><b>Tutorat et accompagnement</b><br><p>Tu seras accompagné par un salariés d'Unis-cité sur: le développement de ta mission,  la vie d'équipe et la construction de ton avenir professionnel</p>",
+        "description": "EN QUELQUES MOTS\n\n\nAgis concrètement en équipe sur divers actions permettant de protéger\nl'environnement: Chantiers concrêts (gestion des plantes invasives, jardins\npartagés, etc) et des actions de sensibilisation en lien avec : LPO, Maison de\nl’environnement, Métropole de Lyon, Grand parc Méribel Jonage, CNR, etc.\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nTu participeras à lutter contre l’érosion de la biodiversité à travers des\nchantiers nature : plantation d’arbres, construction de nichoirs, observations\nnaturalistes, etc. Tu auras également pour mission de sensibiliser d’autres\ncitoyen.nes sur le sujet. #Service civique écologique\n\n\n\n\n\nActions\n\n\n\n\nTa mission sera en équipe 2 jours par semaine de :\n\nParticiper à des chantiers nature (aménagement, observation, protection,\nramassage, …) avec différentes associations lyonnaises : Sea Cleaner, Espèce\nparmi Lyon, parc de Miribel, etc.\n\nParticiper à des actions collectives de sensibilisation et d’information des\ncitoyens au bénévolat nature\n\nLa deuxième partie, 2 jours par semaine, de la mission sera de la\nsensibilisation aux économies d'énergie:\n\nSensibiliser les familles aux enjeux de l’éco-citoyenneté\n\nRéaliser avec les familles un diagnostic de leurs comportements et modes de\nconsommation\n\nLeur proposer un accompagnement personnalisé à domicile pour adopter des éco\n-gestes (couper la veille des appareils électriques ; mettre des ampoules basse\nconsommation…)\n\nAnimer des sorties pédagogiques et des ateliers collectifs avec les familles\npour motiver et valoriser leur démarche\n\nEvaluer les progrès et changements de comportement des familles\n\n\n\n\n\nCapacité d’initiative\n\n\nEn plus de tes missions si tu souhaites développer un projet ou monter un\névènement d'envergure, c'est possible! Propose nous tes idées !\n\n\n\nVOTRE ENVIRONNEMENT\nFormations obligatoires proposées\n\n\nEn plus des formations civiques et du PSC1 nous te formerons à la fresque du\nClimat et de la biodiversité, les enjeux climatiques, les média etc\n\n\nTutorat et accompagnement\n\n\nTu seras accompagné par un salariés d'Unis-cité sur: le développement de ta\nmission, la vie d'équipe et la construction de ton avenir professionnel",
+        "applicationUrl": "http://localhost:4000/r/e15ea290-6cbf-4449-b6c1-4265b9240a9a/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_01.jpeg",
+        "remote": "no",
+        "openToMinors": true,
+        "reducedMobilityAccessible": true,
+        "places": 20
+      },
+      "descriptionMissing": false
+    }
+  ],
+  "deterministic": {
+    "geo": 5,
+    "format": 1,
+    "missionsSansTagFormat": [],
+    "gateViolations": []
+  },
+  "judgeRuns": [
+    {
+      "runIndex": 0,
+      "seed": 3836667102,
+      "order": [
+        "55baa380-a094-4003-a400-d2d5e73ef655",
+        "e15ea290-6cbf-4449-b6c1-4265b9240a9a",
+        "4b885232-0829-4b2e-8c9d-956c406ff58a",
+        "75d91afb-7897-4b9e-8402-b8ac19c4dd9c",
+        "ddf0159f-bd8c-443c-aab9-ca3387708086"
+      ],
+      "output": {
+        "coherence": {
+          "score": 3,
+          "missionsPertinentes": [
+            2,
+            4,
+            5
+          ],
+          "justification": "Parmi les 5 missions proposées, 3 sont pertinentes pour Léa qui souhaite un engagement ponctuel en santé/soins pour booster son dossier Parcoursup. La mission 2 est directement liée à la santé mentale, ce qui correspond bien à son domaine d'intérêt. La mission 4, bien que centrée sur les personnes âgées, touche à l'accompagnement social et pourrait être valorisée dans un dossier santé. La mission 0, liée au handicap, est aussi dans le domaine santé mais demande un engagement plus long et régulier, ce qui semble moins compatible avec son temps disponible. Les missions 1 et 3 sont hors domaine santé et moins pertinentes.",
+          "missionIdsPertinents": [
+            "e15ea290-6cbf-4449-b6c1-4265b9240a9a",
+            "75d91afb-7897-4b9e-8402-b8ac19c4dd9c",
+            "ddf0159f-bd8c-443c-aab9-ca3387708086"
+          ]
+        },
+        "homogeneite": {
+          "score": 4,
+          "familles": [
+            "Santé et accompagnement social",
+            "Droits et citoyenneté",
+            "Environnement"
+          ],
+          "justification": "Les missions proposées couvrent principalement trois familles : santé et accompagnement social (missions 0,2,4), droits et citoyenneté (mission 3), et environnement (mission 1). Parmi ces, la famille santé et accompagnement social est majoritaire avec 3 missions, ce donne une homogénéité assez bonne."
+        },
+        "cause": "offre"
+      }
+    },
+    {
+      "runIndex": 1,
+      "seed": 3853444721,
+      "order": [
+        "75d91afb-7897-4b9e-8402-b8ac19c4dd9c",
+        "4b885232-0829-4b2e-8c9d-956c406ff58a",
+        "55baa380-a094-4003-a400-d2d5e73ef655",
+        "ddf0159f-bd8c-443c-aab9-ca3387708086",
+        "e15ea290-6cbf-4449-b6c1-4265b9240a9a"
+      ],
+      "output": {
+        "coherence": {
+          "score": 3,
+          "missionsPertinentes": [
+            1,
+            2,
+            3
+          ],
+          "justification": "Les missions 1, 2 et 3 sont pertinentes car elles touchent au domaine de la santé et du soin, ce qui correspond à l'objectif de Léa de préparer une formation en soins infirmiers. La mission 1 traite de la santé mentale, la mission 2 de l'accompagnement des personnes en situation de handicap, et la mission 3 de l'aide aux personnes âgées, toutes liées au secteur sanitaire et social. Les missions 0 et 4 sont moins pertinentes car elles concernent les droits de l'enfant et l'environnement, qui ne correspondent pas directement au domaine santé-soins.",
+          "missionIdsPertinents": [
+            "75d91afb-7897-4b9e-8402-b8ac19c4dd9c",
+            "4b885232-0829-4b2e-8c9d-956c406ff58a",
+            "55baa380-a094-4003-a400-d2d5e73ef655"
+          ]
+        },
+        "homogeneite": {
+          "score": 4,
+          "familles": [
+            "santé et social",
+            "droits de l'enfant",
+            "environnement"
+          ],
+          "justification": "Les missions proposées couvrent trois familles distinctes : santé et social (missions 1, 2, 3), droits de l'enfant (mission 0) et environnement (mission 4). Parmi ces, la famille santé et social est majoritaire avec 3 missions, ce montre une certaine homogénéité mais pas totale."
+        },
+        "cause": null
+      }
+    }
+  ],
+  "engineVersion": "m2",
+  "startedAt": "2026-07-07T12:00:07.520Z",
+  "finishedAt": "2026-07-07T12:00:22.987Z",
+  "verdict": 3.3000000000000003,
+  "cleanup": {
+    "userScoringDeleted": true
+  }
+}

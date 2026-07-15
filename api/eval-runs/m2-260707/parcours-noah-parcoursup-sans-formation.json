@@ -1,0 +1,1647 @@
+{
+  "status": "success",
+  "parcours": {
+    "id": "noah-parcoursup-sans-formation",
+    "segment": "lyceen",
+    "label": "Noah, 16 ans, lycéen à Aurillac, veut booster Parcoursup sans formation précise et reste ouvert sur le domaine",
+    "locationLabel": "Aurillac (15)",
+    "age": 16,
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 16,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "statut",
+        "value": "lyceen"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 44.930953,
+          "lon": 2.444997,
+          "country_code": "fr",
+          "label": "Aurillac (15)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "reguliere"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "booster_parcoursup"
+      },
+      {
+        "taxonomy": "parcoursup_formation",
+        "value": "non"
+      },
+      {
+        "taxonomy": "domaine",
+        "value": "je_ne_sais_pas"
+      }
+    ]
+  },
+  "payload": {
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 16,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "statut",
+        "value": "lyceen"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 44.930953,
+          "lon": 2.444997,
+          "country_code": "fr",
+          "label": "Aurillac (15)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "reguliere"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "booster_parcoursup"
+      },
+      {
+        "taxonomy": "parcoursup_formation",
+        "value": "non"
+      },
+      {
+        "taxonomy": "domaine",
+        "value": "je_ne_sais_pas"
+      }
+    ],
+    "distinctId": "eval:m2-260707:noah-parcoursup-sans-formation",
+    "missionAlertEnabled": false
+  },
+  "userScoringId": "7a5d267a-8cc0-40b1-86d7-f054212285d5",
+  "match": {
+    "tookMs": 6005,
+    "engineVersion": "m2",
+    "items": [
+      {
+        "mission": {
+          "id": "61f027b7a0706f079c6b7cd0",
+          "title": "Contribuer à lutter contre l'isolement des personnes en situation de handicap.",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "solidarite-insertion",
+          "domainOriginal": "Solidarité",
+          "organizationName": "APF France handicap Délégation Territoriale Cantal Loire Haute-Loire",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Aurillac",
+            "closestLat": 44.915976,
+            "closestLon": 2.44131,
+            "closestAddress": "14 rue de la Jordanne, 15000 Aurillac, FR",
+            "addressId": "1e25cb60-67f9-49f4-ab74-b4b5c20f4efe",
+            "distanceKm": 1.6904762211734568
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/61f027b7a0706f079c6b7cd0/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "bcb43341-94e9-49be-8500-77d951f631cc",
+          "totalScore": 0.629881,
+          "taxonomyScore": 0.316667,
+          "geoScore": 0.943096,
+          "taxonomyScores": {
+            "tranche_age": 0.9,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "lutter contre l'isolement des personnes en situation de handicap / rompre l'isolement des personnes en situation de handicap / accompagnement des actions de la Délégation APF France handicap du Cantal",
+                "reasoning": "La mission est explicitement centrée sur l'accompagnement social et la lutte contre l'isolement des personnes en situation de handicap."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "gestion_projet",
+              "taxonomyValueLabel": "Gestion de projet",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "élaboration d'actions visant à rompre l'isolement / mettre en place des activités de loisirs / contribuer au développement et à la mise en œuvre des actions de sensibilisations / participer à la mise en œuvre de projets / être force de proposition et acteur du développement des actions",
+                "reasoning": "Les tâches incluent une forte dimension de coordination, d'organisation et de développement de projets, typique de la gestion de projet."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Délégation APF France handicap du Cantal / personnes en situation de handicap / accompagnement des actions de la Délégation APF France handicap",
+                "reasoning": "La mission s'inscrit dans le secteur de l'aide à la personne, spécifiquement pour les personnes en situation de handicap."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.99,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Durée : 8 heures — De 24h à 30h / Dates : du 28 septembre 2026 au 28 mai 2027",
+                "reasoning": "Mission s'étalant sur plusieurs mois avec un volume horaire significatif, typique d'une mission régulière."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "aider et accompagner les actions / rompre l'isolement des personnes en situation de handicap / participer à la mise en œuvre de projets",
+                "reasoning": "Les tâches impliquent un accompagnement social et humain direct des bénéficiaires."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Au sein d'une équipe de 3 personnes / être force de proposition et acteur du développement des actions / aider les groupes à mener à bien leurs projets",
+                "reasoning": "La mission nécessite une forte coopération, organisation et prise d'initiative au sein d'une équipe."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "gestion_pilotage_juridique",
+              "taxonomyValueLabel": "Gestion, pilotage, juridique",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "contribuer au développement et à la mise en œuvre des actions de revendications départementales / participer à la mise en œuvre de projets",
+                "reasoning": "Les tâches incluent des aspects de coordination et de pilotage de projets, avec une dimension revendicative et organisationnelle."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "aider et accompagner les actions / rompre l'isolement des personnes en situation de handicap / participer à la mise en œuvre de projets",
+                "reasoning": "La mission implique un accompagnement direct et concret des personnes en situation de handicap."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "mettre en place des activités de loisirs comme les sorties cinéma, ateliers cuisine / participer aux grands temps forts de la délégation (Assemblée départementale, repas de Noël…)",
+                "reasoning": "La mission inclut explicitement l'animation d'activités collectives et d'événements."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "élaboration d'actions visant à rompre l'isolement / être force de proposition et acteur du développement des actions / aider les groupes à mener à bien leurs projets",
+                "reasoning": "La mission consiste à soutenir et organiser des actions au sein de l'association."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "contribuer au développement et à la mise en œuvre des actions de sensibilisations aux handicaps",
+                "reasoning": "La mission inclut une dimension de sensibilisation et de transmission d'informations sur le handicap."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "social_sante_sport",
+              "taxonomyValueLabel": "Social, santé et sport",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "lutter contre l'isolement des personnes en situation de handicap / accompagnement des actions de la Délégation APF France handicap",
+                "reasoning": "La mission relève du domaine social, de la santé et du sport, avec un focus sur l'accompagnement des personnes en situation de handicap."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Type de mission : volontariat_service_civique / Durée : 8 heures — De 24h à 30h / Dates : du 28 septembre 2026 au 28 mai 2027",
+                "reasoning": "La mission est réalisée dans le cadre structuré du service civique, avec des dates et un volume horaire précis."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_18_ans",
+              "taxonomyValueLabel": "Moins de 18 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_31_ans_handicap",
+              "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "08c05709-e619-4d51-b9e0-ace023dcc15c",
+          "title": "Accompagner les publics dans leur parcours de formation ",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "education",
+          "domainOriginal": "Éducation pour tous",
+          "organizationName": "INST NAT FORMAT APPLIC CTRE CULTURE OUVR",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_03.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_03.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Aurillac",
+            "closestLat": 44.913307,
+            "closestLon": 2.444948,
+            "closestAddress": "7 Avenue Georges Pompidou, 15000 Aurillac, FR",
+            "addressId": "c2456258-2149-4b4b-b6a0-00339e379cc8",
+            "distanceKm": 1.9621494682770142
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/08c05709-e619-4d51-b9e0-ace023dcc15c/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "55a98b4c-0419-4752-ba69-238769eb8106",
+          "totalScore": 0.625462,
+          "taxonomyScore": 0.316667,
+          "geoScore": 0.934258,
+          "taxonomyScores": {
+            "tranche_age": 0.9,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Accueillir, orienter et sensibiliser les candidats / accompagner dans la formalisation de leur projet de formation / Assister l'équipe pédagogique dans l'éducation à la citoyenneté",
+                "reasoning": "La mission est centrée sur la transmission, l'orientation et l'accompagnement pédagogique des publics."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "soutenir l'égalité des chances dans l'accès à des formations / lever les freins rencontrés par les publics face à des difficultés d'ordre social et pécunier / publics marginalisés, fragilisés",
+                "reasoning": "La mission vise à réduire les inégalités sociales et à accompagner des publics fragilisés, ce qui relève du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Accueillir, orienter et sensibiliser les candidats / accompagner dans la formalisation de leur projet de formation / Assister l'équipe pédagogique",
+                "reasoning": "La mission relève clairement du secteur de l'éducation, de la formation et de l'animation."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "lever les freins rencontrés par les publics face à des difficultés d'ordre social et pécunier / publics marginalisés, fragilisés / accompagnement socio-professionnel",
+                "reasoning": "L'accompagnement des publics fragilisés et marginalisés relève du secteur social et de l'aide à la personne."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Durée : 6 heures — De 24h à 30h / du 1 juin 2026 au 1 décembre 2026",
+                "reasoning": "La mission s'étend sur plusieurs mois avec un volume horaire significatif, ce qui correspond à une mission régulière."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Accompagner les candidats dans la formalisation de leur projet de formation / soutenir dans leur démarches / accompagnement socio-professionnel",
+                "reasoning": "La mission implique un accompagnement humain, social et éducatif des publics."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Participer à la préparation et organisation des informations collectives / Apporter une aide administrative à la gestion numérique des dossiers",
+                "reasoning": "La mission inclut des tâches d'organisation, de coordination et de travail en équipe."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "relation_client_commerce_strategie",
+              "taxonomyValueLabel": "Relation client, commerce, stratégie",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Aider à l'accueil téléphonique et physique des publics / Participer au recrutement et à la sélection des candidats",
+                "reasoning": "La mission implique une relation directe avec les publics et une participation à des processus de sélection."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Accompagner les candidats dans la formalisation de leur projet de formation / Assister l'équipe pédagogique dans l'éducation à la citoyenneté",
+                "reasoning": "La mission est centrée sur la transmission de savoirs, l'orientation et l'accompagnement pédagogique."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "soutenir l'égalité des chances / lever les freins sociaux et pécuniers / publics marginalisés, fragilisés",
+                "reasoning": "La mission implique un soutien direct aux publics en difficulté."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Participer à la préparation et organisation des informations collectives / Apporter une aide administrative à la gestion numérique des dossiers",
+                "reasoning": "La mission inclut des tâches de soutien organisationnel et administratif."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "soutenir l'égalité des chances dans l'accès à des formations / lever les freins sociaux et pécuniers / éducation à la citoyenneté",
+                "reasoning": "La mission aborde des enjeux de société, de droits et de politiques publiques liés à l'accès à la formation."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "education_culture_creation",
+              "taxonomyValueLabel": "Éducation, culture et création",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Accompagner les candidats dans la formalisation de leur projet de formation / Assister l'équipe pédagogique dans l'éducation à la citoyenneté",
+                "reasoning": "La mission relève de l'éducation, de la transmission et de la culture, notamment via l'accompagnement pédagogique."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_18_ans",
+              "taxonomyValueLabel": "Moins de 18 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_31_ans_handicap",
+              "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "20beebe2-d735-4a67-8605-e6b8f8b72237",
+          "title": "🌍 Agis pour la nature et la biodiversité !  (AURILLAC)",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "environnement",
+          "domainOriginal": "Environnement",
+          "organizationName": "Unis Cité Auvergne",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_01.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_01.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Aurillac",
+            "closestLat": 44.930679,
+            "closestLon": 2.443518,
+            "closestAddress": "19 Rue de la Coste, 15000 Aurillac, FR",
+            "addressId": "77609a68-1f30-4dba-8543-aa919cad348b",
+            "distanceKm": 0.12034958330573202
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/20beebe2-d735-4a67-8605-e6b8f8b72237/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "6570f4c4-c36b-4904-971d-71d3e27c51b1",
+          "totalScore": 0.572919,
+          "taxonomyScore": 0.15,
+          "geoScore": 0.995838,
+          "taxonomyScores": {
+            "tranche_age": 0.9
+          },
+          "values": [
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_18_ans",
+              "taxonomyValueLabel": "Moins de 18 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_31_ans_handicap",
+              "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "32aae998-a4a2-4a56-9dad-9f237ee7586d",
+          "title": "🎬Engage toi pour sensibiliser les jeunes sur des sujets de société ! (AURILLAC) ",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "culture-loisirs",
+          "domainOriginal": "Culture et loisirs",
+          "organizationName": "Unis Cité Auvergne",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_01.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_01.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Aurillac",
+            "closestLat": 44.930679,
+            "closestLon": 2.443518,
+            "closestAddress": "19 Rue de la Coste, 15000 Aurillac, FR",
+            "addressId": "21af3ac1-648a-4393-8b1b-1c0ee46f91a7",
+            "distanceKm": 0.12034958330573202
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/32aae998-a4a2-4a56-9dad-9f237ee7586d/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "aa81c36d-0241-4515-9e9d-ff134f5bda4a",
+          "totalScore": 0.572919,
+          "taxonomyScore": 0.15,
+          "geoScore": 0.995838,
+          "taxonomyScores": {
+            "tranche_age": 0.9
+          },
+          "values": [
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_18_ans",
+              "taxonomyValueLabel": "Moins de 18 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_31_ans_handicap",
+              "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "c2b468e0-ea6e-4bef-8305-dd09b9157a81",
+          "title": "👵Engage-toi pour lutter contre l’isolement des seniors - (AURILLAC) ",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "solidarite-insertion",
+          "domainOriginal": "Solidarité",
+          "organizationName": "Unis Cité Auvergne",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Aurillac",
+            "closestLat": 44.930679,
+            "closestLon": 2.443518,
+            "closestAddress": "19 Rue de la Coste, 15000 Aurillac, FR",
+            "addressId": "6f101944-2735-4bfb-bd12-f652eea08364",
+            "distanceKm": 0.12034958330573202
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/c2b468e0-ea6e-4bef-8305-dd09b9157a81/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "b3c10d5f-0ece-40aa-8507-09d1b4339d3e",
+          "totalScore": 0.572919,
+          "taxonomyScore": 0.15,
+          "geoScore": 0.995838,
+          "taxonomyScores": {
+            "tranche_age": 0.9
+          },
+          "values": [
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_18_ans",
+              "taxonomyValueLabel": "Moins de 18 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_31_ans_handicap",
+              "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      }
+    ],
+    "total": 2893,
+    "avgDistanceKmTop5": 0.8
+  },
+  "missions": [
+    {
+      "mission": {
+        "id": "61f027b7a0706f079c6b7cd0",
+        "title": "Contribuer à lutter contre l'isolement des personnes en situation de handicap.",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "solidarite-insertion",
+        "domainOriginal": "Solidarité",
+        "organizationName": "APF France handicap Délégation Territoriale Cantal Loire Haute-Loire",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Aurillac",
+          "closestLat": 44.915976,
+          "closestLon": 2.44131,
+          "closestAddress": "14 rue de la Jordanne, 15000 Aurillac, FR",
+          "addressId": "1e25cb60-67f9-49f4-ab74-b4b5c20f4efe",
+          "distanceKm": 1.6904762211734568
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/61f027b7a0706f079c6b7cd0/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "bcb43341-94e9-49be-8500-77d951f631cc",
+        "totalScore": 0.629881,
+        "taxonomyScore": 0.316667,
+        "geoScore": 0.943096,
+        "taxonomyScores": {
+          "tranche_age": 0.9,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "lutter contre l'isolement des personnes en situation de handicap / rompre l'isolement des personnes en situation de handicap / accompagnement des actions de la Délégation APF France handicap du Cantal",
+              "reasoning": "La mission est explicitement centrée sur l'accompagnement social et la lutte contre l'isolement des personnes en situation de handicap."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "gestion_projet",
+            "taxonomyValueLabel": "Gestion de projet",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "élaboration d'actions visant à rompre l'isolement / mettre en place des activités de loisirs / contribuer au développement et à la mise en œuvre des actions de sensibilisations / participer à la mise en œuvre de projets / être force de proposition et acteur du développement des actions",
+              "reasoning": "Les tâches incluent une forte dimension de coordination, d'organisation et de développement de projets, typique de la gestion de projet."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Délégation APF France handicap du Cantal / personnes en situation de handicap / accompagnement des actions de la Délégation APF France handicap",
+              "reasoning": "La mission s'inscrit dans le secteur de l'aide à la personne, spécifiquement pour les personnes en situation de handicap."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.99,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Durée : 8 heures — De 24h à 30h / Dates : du 28 septembre 2026 au 28 mai 2027",
+              "reasoning": "Mission s'étalant sur plusieurs mois avec un volume horaire significatif, typique d'une mission régulière."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "aider et accompagner les actions / rompre l'isolement des personnes en situation de handicap / participer à la mise en œuvre de projets",
+              "reasoning": "Les tâches impliquent un accompagnement social et humain direct des bénéficiaires."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Au sein d'une équipe de 3 personnes / être force de proposition et acteur du développement des actions / aider les groupes à mener à bien leurs projets",
+              "reasoning": "La mission nécessite une forte coopération, organisation et prise d'initiative au sein d'une équipe."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "gestion_pilotage_juridique",
+            "taxonomyValueLabel": "Gestion, pilotage, juridique",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "contribuer au développement et à la mise en œuvre des actions de revendications départementales / participer à la mise en œuvre de projets",
+              "reasoning": "Les tâches incluent des aspects de coordination et de pilotage de projets, avec une dimension revendicative et organisationnelle."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "aider et accompagner les actions / rompre l'isolement des personnes en situation de handicap / participer à la mise en œuvre de projets",
+              "reasoning": "La mission implique un accompagnement direct et concret des personnes en situation de handicap."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "mettre en place des activités de loisirs comme les sorties cinéma, ateliers cuisine / participer aux grands temps forts de la délégation (Assemblée départementale, repas de Noël…)",
+              "reasoning": "La mission inclut explicitement l'animation d'activités collectives et d'événements."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "élaboration d'actions visant à rompre l'isolement / être force de proposition et acteur du développement des actions / aider les groupes à mener à bien leurs projets",
+              "reasoning": "La mission consiste à soutenir et organiser des actions au sein de l'association."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "contribuer au développement et à la mise en œuvre des actions de sensibilisations aux handicaps",
+              "reasoning": "La mission inclut une dimension de sensibilisation et de transmission d'informations sur le handicap."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "social_sante_sport",
+            "taxonomyValueLabel": "Social, santé et sport",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "lutter contre l'isolement des personnes en situation de handicap / accompagnement des actions de la Délégation APF France handicap",
+              "reasoning": "La mission relève du domaine social, de la santé et du sport, avec un focus sur l'accompagnement des personnes en situation de handicap."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Type de mission : volontariat_service_civique / Durée : 8 heures — De 24h à 30h / Dates : du 28 septembre 2026 au 28 mai 2027",
+              "reasoning": "La mission est réalisée dans le cadre structuré du service civique, avec des dates et un volume horaire précis."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_18_ans",
+            "taxonomyValueLabel": "Moins de 18 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_31_ans_handicap",
+            "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "61f027b7a0706f079c6b7cd0",
+        "title": "Contribuer à lutter contre l'isolement des personnes en situation de handicap.",
+        "domain": "solidarite-insertion",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "APF France handicap Délégation Territoriale Cantal Loire Haute-Loire",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Aurillac",
+          "address": "14 rue de la Jordanne, 15000 Aurillac",
+          "lat": 44.915976,
+          "lon": 2.44131
+        },
+        "startAt": "2026-09-28T00:00:00.000Z",
+        "endAt": "2027-05-28T00:00:00.000Z",
+        "duration": 8,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Au sein d'une équipe de 3 personnes, vous aidez et accompagnez les actions de la Délégation APF France handicap du Cantal (préparation et participation aux animations/loisirs, sensibilisation au handicap...)</p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p>Vous participerez avec l'équipe de salariées et de bénévoles à l'élaboration d'actions visant à rompre l'isolement des personnes en situation de handicap et à sensibiliser le grand public.</p></p><br>\n<b>Actions</b><br><p><p>Au sein d'une équipe de 3 personnes, vous aidez et accompagnez les actions de la Délégation APF France handicap du Cantal. </p><p>Missions :</p><p>-&nbsp;mettre en place des activités de loisirs comme les sorties cinéma, ateliers cuisine...</p><p>- contribuer au développement et à la mise en œuvre des actions de sensibilisations aux handicaps et aux actions de revendications départementales avec l'équipe de la délégation (salariés, adhérents et bénévoles).</p><p>- participer à la mise en œuvre de projets</p><p>- participer aux grands temps forts de la délégation (Assemblée départementale,repas de Noël…)</p><p>- être force de proposition et acteur (actrice) du développement des actions de la délégation</p><p>- aider les groupes à mener à bien leurs projets avec l'appui des salariés et de l'équipe de bénévoles</p></p><br>\n<b>Capacité d’initiative</b><br><p>Toutes les propositions et initiatives sont les bienvenues au sein de notre équipe ! N'hésitez pas à nous en faire part. Elles seront appréciées !</p><br>",
+        "description": "EN QUELQUES MOTS\n\n\nAu sein d'une équipe de 3 personnes, vous aidez et accompagnez les actions de la\nDélégation APF France handicap du Cantal (préparation et participation aux\nanimations/loisirs, sensibilisation au handicap...)\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nVous participerez avec l'équipe de salariées et de bénévoles à l'élaboration\nd'actions visant à rompre l'isolement des personnes en situation de handicap et\nà sensibiliser le grand public.\n\n\n\n\n\nActions\n\n\n\n\nAu sein d'une équipe de 3 personnes, vous aidez et accompagnez les actions de la\nDélégation APF France handicap du Cantal.\n\nMissions :\n\n- mettre en place des activités de loisirs comme les sorties cinéma, ateliers\ncuisine...\n\n- contribuer au développement et à la mise en œuvre des actions de\nsensibilisations aux handicaps et aux actions de revendications départementales\navec l'équipe de la délégation (salariés, adhérents et bénévoles).\n\n- participer à la mise en œuvre de projets\n\n- participer aux grands temps forts de la délégation (Assemblée\ndépartementale,repas de Noël…)\n\n- être force de proposition et acteur (actrice) du développement des actions de\nla délégation\n\n- aider les groupes à mener à bien leurs projets avec l'appui des salariés et de\nl'équipe de bénévoles\n\n\n\n\n\nCapacité d’initiative\n\n\nToutes les propositions et initiatives sont les bienvenues au sein de notre\néquipe ! N'hésitez pas à nous en faire part. Elles seront appréciées !\n",
+        "applicationUrl": "http://localhost:4000/r/61f027b7a0706f079c6b7cd0/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": true,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "08c05709-e619-4d51-b9e0-ace023dcc15c",
+        "title": "Accompagner les publics dans leur parcours de formation ",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "education",
+        "domainOriginal": "Éducation pour tous",
+        "organizationName": "INST NAT FORMAT APPLIC CTRE CULTURE OUVR",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_03.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_03.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Aurillac",
+          "closestLat": 44.913307,
+          "closestLon": 2.444948,
+          "closestAddress": "7 Avenue Georges Pompidou, 15000 Aurillac, FR",
+          "addressId": "c2456258-2149-4b4b-b6a0-00339e379cc8",
+          "distanceKm": 1.9621494682770142
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/08c05709-e619-4d51-b9e0-ace023dcc15c/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "55a98b4c-0419-4752-ba69-238769eb8106",
+        "totalScore": 0.625462,
+        "taxonomyScore": 0.316667,
+        "geoScore": 0.934258,
+        "taxonomyScores": {
+          "tranche_age": 0.9,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Accueillir, orienter et sensibiliser les candidats / accompagner dans la formalisation de leur projet de formation / Assister l'équipe pédagogique dans l'éducation à la citoyenneté",
+              "reasoning": "La mission est centrée sur la transmission, l'orientation et l'accompagnement pédagogique des publics."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "soutenir l'égalité des chances dans l'accès à des formations / lever les freins rencontrés par les publics face à des difficultés d'ordre social et pécunier / publics marginalisés, fragilisés",
+              "reasoning": "La mission vise à réduire les inégalités sociales et à accompagner des publics fragilisés, ce qui relève du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Accueillir, orienter et sensibiliser les candidats / accompagner dans la formalisation de leur projet de formation / Assister l'équipe pédagogique",
+              "reasoning": "La mission relève clairement du secteur de l'éducation, de la formation et de l'animation."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "lever les freins rencontrés par les publics face à des difficultés d'ordre social et pécunier / publics marginalisés, fragilisés / accompagnement socio-professionnel",
+              "reasoning": "L'accompagnement des publics fragilisés et marginalisés relève du secteur social et de l'aide à la personne."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Durée : 6 heures — De 24h à 30h / du 1 juin 2026 au 1 décembre 2026",
+              "reasoning": "La mission s'étend sur plusieurs mois avec un volume horaire significatif, ce qui correspond à une mission régulière."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Accompagner les candidats dans la formalisation de leur projet de formation / soutenir dans leur démarches / accompagnement socio-professionnel",
+              "reasoning": "La mission implique un accompagnement humain, social et éducatif des publics."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Participer à la préparation et organisation des informations collectives / Apporter une aide administrative à la gestion numérique des dossiers",
+              "reasoning": "La mission inclut des tâches d'organisation, de coordination et de travail en équipe."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "relation_client_commerce_strategie",
+            "taxonomyValueLabel": "Relation client, commerce, stratégie",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Aider à l'accueil téléphonique et physique des publics / Participer au recrutement et à la sélection des candidats",
+              "reasoning": "La mission implique une relation directe avec les publics et une participation à des processus de sélection."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Accompagner les candidats dans la formalisation de leur projet de formation / Assister l'équipe pédagogique dans l'éducation à la citoyenneté",
+              "reasoning": "La mission est centrée sur la transmission de savoirs, l'orientation et l'accompagnement pédagogique."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "soutenir l'égalité des chances / lever les freins sociaux et pécuniers / publics marginalisés, fragilisés",
+              "reasoning": "La mission implique un soutien direct aux publics en difficulté."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Participer à la préparation et organisation des informations collectives / Apporter une aide administrative à la gestion numérique des dossiers",
+              "reasoning": "La mission inclut des tâches de soutien organisationnel et administratif."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "soutenir l'égalité des chances dans l'accès à des formations / lever les freins sociaux et pécuniers / éducation à la citoyenneté",
+              "reasoning": "La mission aborde des enjeux de société, de droits et de politiques publiques liés à l'accès à la formation."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "education_culture_creation",
+            "taxonomyValueLabel": "Éducation, culture et création",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Accompagner les candidats dans la formalisation de leur projet de formation / Assister l'équipe pédagogique dans l'éducation à la citoyenneté",
+              "reasoning": "La mission relève de l'éducation, de la transmission et de la culture, notamment via l'accompagnement pédagogique."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_18_ans",
+            "taxonomyValueLabel": "Moins de 18 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_31_ans_handicap",
+            "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "08c05709-e619-4d51-b9e0-ace023dcc15c",
+        "title": "Accompagner les publics dans leur parcours de formation ",
+        "domain": "education",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_03.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "INST NAT FORMAT APPLIC CTRE CULTURE OUVR",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Aurillac",
+          "address": "7 Avenue Georges Pompidou, 15000 Aurillac",
+          "lat": 44.913307,
+          "lon": 2.444948
+        },
+        "startAt": "2026-06-01T00:00:00.000Z",
+        "endAt": "2026-12-01T01:00:00.000Z",
+        "duration": 6,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Accueillir, orienter et sensibiliser les candidats ( demandeurs d'emploi , salariés en reconversion) en les accompagnant dans la formalisation de leur projet de formation et en assurant un suivi tout au long de leur parcours. Assister l'équipe pédagogique dans l'éducation à la citoyenneté pour tous </p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p>La mission vise à soutenir l'égalité des chances dans l'accès à des formations de qualité sur des filières-métier d'avenir et à lever les freins rencontrés par les publics face à des difficultés d'ordre social et pécunier. Elle permet un tremplin vers l'emploi, gage d'une insertion durable.</p></p><br>\n<b>Actions</b><br><p><p>Aider à l'accueil téléphonique et physique des publics. <span style=\"color: black;\">Participer au recrutement et à la sélection des candidats.</span> Accompagner les candidats dans la complétude de leur dossier d'entrée en formation. <span style=\"color: black;\">Participer à la préparation et organisation des informations collectives et journées portes ouvertes. Sensibiliser les publics en difficultés et les soutenir dans leur démarches en lien avec le référent handicap et le référent </span> en charge de l'accompagnement socio-professionnel et éducatif.&nbsp;Sensibiliser les publics concernés sur leurs besoins spécifiques d'ordre social et pécunier, et faciliter leur recherche en mobilisant des dispositifs appropriés en fonction d'une liste pré-établie. Apporter une aide administrative à la gestion numérique des dossiers et en assurer un suivi.</p></p><br>",
+        "description": "EN QUELQUES MOTS\n\n\nAccueillir, orienter et sensibiliser les candidats ( demandeurs d'emploi ,\nsalariés en reconversion) en les accompagnant dans la formalisation de leur\nprojet de formation et en assurant un suivi tout au long de leur parcours.\nAssister l'équipe pédagogique dans l'éducation à la citoyenneté pour tous\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nLa mission vise à soutenir l'égalité des chances dans l'accès à des formations\nde qualité sur des filières-métier d'avenir et à lever les freins rencontrés par\nles publics face à des difficultés d'ordre social et pécunier. Elle permet un\ntremplin vers l'emploi, gage d'une insertion durable.\n\n\n\n\n\nActions\n\n\n\n\nAider à l'accueil téléphonique et physique des publics. Participer au\nrecrutement et à la sélection des candidats. Accompagner les candidats dans la\ncomplétude de leur dossier d'entrée en formation. Participer à la préparation et\norganisation des informations collectives et journées portes ouvertes.\nSensibiliser les publics en difficultés et les soutenir dans leur démarches en\nlien avec le référent handicap et le référent en charge de l'accompagnement\nsocio-professionnel et éducatif. Sensibiliser les publics concernés sur leurs\nbesoins spécifiques d'ordre social et pécunier, et faciliter leur recherche en\nmobilisant des dispositifs appropriés en fonction d'une liste pré-établie.\nApporter une aide administrative à la gestion numérique des dossiers et en\nassurer un suivi.\n\n\n",
+        "applicationUrl": "http://localhost:4000/r/08c05709-e619-4d51-b9e0-ace023dcc15c/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_03.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": true,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "20beebe2-d735-4a67-8605-e6b8f8b72237",
+        "title": "🌍 Agis pour la nature et la biodiversité !  (AURILLAC)",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "environnement",
+        "domainOriginal": "Environnement",
+        "organizationName": "Unis Cité Auvergne",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_01.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_01.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Aurillac",
+          "closestLat": 44.930679,
+          "closestLon": 2.443518,
+          "closestAddress": "19 Rue de la Coste, 15000 Aurillac, FR",
+          "addressId": "77609a68-1f30-4dba-8543-aa919cad348b",
+          "distanceKm": 0.12034958330573202
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/20beebe2-d735-4a67-8605-e6b8f8b72237/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "6570f4c4-c36b-4904-971d-71d3e27c51b1",
+        "totalScore": 0.572919,
+        "taxonomyScore": 0.15,
+        "geoScore": 0.995838,
+        "taxonomyScores": {
+          "tranche_age": 0.9
+        },
+        "values": [
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_18_ans",
+            "taxonomyValueLabel": "Moins de 18 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_31_ans_handicap",
+            "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "20beebe2-d735-4a67-8605-e6b8f8b72237",
+        "title": "🌍 Agis pour la nature et la biodiversité !  (AURILLAC)",
+        "domain": "environnement",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_01.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "Unis Cité Auvergne",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Aurillac",
+          "address": "19 Rue de la Coste, 15000 Aurillac",
+          "lat": 44.930679,
+          "lon": 2.443518
+        },
+        "startAt": "2026-10-13T00:00:00.000Z",
+        "endAt": "2027-06-13T00:00:00.000Z",
+        "duration": 8,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Tu souhaites agir concrètement pour la planète ? Tu es prêt à consacrer 8 mois de ta vie pour œuvrer en faveur de la biodiversité et aider à préserver de nombreuses espèces d’animaux et de plantes ? Alors rejoins une mission autour de l’environnement avec Unis-Cité !  </p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p class=\"ql-align-justify\">🍃<strong>&nbsp;Être utile pour la nature : un engagement essentiel !&nbsp;</strong><span style=\"background-color: rgb(96, 96, 96);\">&nbsp;</span></p><p><br></p><p class=\"ql-align-justify\">Sais-tu qu’il est possible d’agir pour lutter contre l’érosion de la biodiversité ? Que des projets variés sont construits dans le département ? Que beaucoup de structures, collèges ou lycées sont prêts à se sensibiliser et à changer leur mode de fonctionnement ? Rejoins cette mission pour intégrer un collectif qui veut se rendre utile et être présent sur le terrain !&nbsp;</p></p><br>\n<b>Actions</b><br><p><p class=\"ql-align-justify\"><strong>Contribue à ta hauteur pour la biodiversité dans le&nbsp;Cantal&nbsp;!</strong></p><p class=\"ql-align-justify\"><br></p><p class=\"ql-align-justify\">Participe à des chantiers de protection de la nature : plantation de haies, observation&nbsp;et comptage naturaliste&nbsp;de la faune et de la flore, entretien de sentiers de randonnées, etc. Tu vas aussi sensibiliser le public à la question de la biodiversité : <strong>intervention dans les écoles,</strong>&nbsp;<strong>animation d’ateliers dans divers lieux, sensibilisation des usagers des espaces naturels, mise en valeur de sites remarquables, etc. </strong></p><p class=\"ql-align-justify\"><br></p><p class=\"ql-align-justify\">Tu vas apprendre à travailler en collectif avec d’autres jeunes volontaires, en partenariat avec des collectivités territoriales&nbsp;Conseil départemental du Cantal, Aurillac Agglomération&nbsp;des associations de protection de la biodiversité&nbsp;(LPO, le CPIE&nbsp;etc.),&nbsp;des professionnels de la biodiversité (PNR Volcans d’Auvergne,CEN), etc.</p><p class=\"ql-align-justify\"><br></p><p class=\"ql-align-justify\">Cette mission se déroulera pendant 8 mois&nbsp;du mardi au vendredi de 9h à 17h et s'effectue en bi-mission sur un projet autour de la santé mentale (plus d'informations à ce lien : urlr.me/6SKT7v</p></p><br>\n<b>VOTRE ENVIRONNEMENT</b><br><b>Formations obligatoires proposées</b><br><p>Rencontre des structures professionnelles de la biodiversité pour être formé de manière concrète et participative.</p><br>",
+        "description": "EN QUELQUES MOTS\n\n\nTu souhaites agir concrètement pour la planète ? Tu es prêt à consacrer 8 mois\nde ta vie pour œuvrer en faveur de la biodiversité et aider à préserver de\nnombreuses espèces d’animaux et de plantes ? Alors rejoins une mission autour de\nl’environnement avec Unis-Cité !\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\n🍃 Être utile pour la nature : un engagement essentiel !  \n\n\n\n\nSais-tu qu’il est possible d’agir pour lutter contre l’érosion de la\nbiodiversité ? Que des projets variés sont construits dans le département ? Que\nbeaucoup de structures, collèges ou lycées sont prêts à se sensibiliser et à\nchanger leur mode de fonctionnement ? Rejoins cette mission pour intégrer un\ncollectif qui veut se rendre utile et être présent sur le terrain ! \n\n\n\n\n\nActions\n\n\n\n\nContribue à ta hauteur pour la biodiversité dans le Cantal !\n\n\n\n\nParticipe à des chantiers de protection de la nature : plantation de haies,\nobservation et comptage naturaliste de la faune et de la flore, entretien de\nsentiers de randonnées, etc. Tu vas aussi sensibiliser le public à la question\nde la biodiversité : intervention dans les écoles, animation d’ateliers dans\ndivers lieux, sensibilisation des usagers des espaces naturels, mise en valeur\nde sites remarquables, etc.\n\n\n\n\nTu vas apprendre à travailler en collectif avec d’autres jeunes volontaires, en\npartenariat avec des collectivités territoriales Conseil départemental du\nCantal, Aurillac Agglomération des associations de protection de la\nbiodiversité (LPO, le CPIE etc.), des professionnels de la biodiversité (PNR\nVolcans d’Auvergne,CEN), etc.\n\n\n\n\nCette mission se déroulera pendant 8 mois du mardi au vendredi de 9h à 17h et\ns'effectue en bi-mission sur un projet autour de la santé mentale (plus\nd'informations à ce lien : urlr.me/6SKT7v\n\n\n\n\n\nVOTRE ENVIRONNEMENT\nFormations obligatoires proposées\n\n\nRencontre des structures professionnelles de la biodiversité pour être formé de\nmanière concrète et participative.\n",
+        "applicationUrl": "http://localhost:4000/r/20beebe2-d735-4a67-8605-e6b8f8b72237/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_01.jpeg",
+        "remote": "no",
+        "openToMinors": true,
+        "reducedMobilityAccessible": true,
+        "places": 3
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "32aae998-a4a2-4a56-9dad-9f237ee7586d",
+        "title": "🎬Engage toi pour sensibiliser les jeunes sur des sujets de société ! (AURILLAC) ",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "culture-loisirs",
+        "domainOriginal": "Culture et loisirs",
+        "organizationName": "Unis Cité Auvergne",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_01.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_01.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Aurillac",
+          "closestLat": 44.930679,
+          "closestLon": 2.443518,
+          "closestAddress": "19 Rue de la Coste, 15000 Aurillac, FR",
+          "addressId": "21af3ac1-648a-4393-8b1b-1c0ee46f91a7",
+          "distanceKm": 0.12034958330573202
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/32aae998-a4a2-4a56-9dad-9f237ee7586d/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "aa81c36d-0241-4515-9e9d-ff134f5bda4a",
+        "totalScore": 0.572919,
+        "taxonomyScore": 0.15,
+        "geoScore": 0.995838,
+        "taxonomyScores": {
+          "tranche_age": 0.9
+        },
+        "values": [
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_18_ans",
+            "taxonomyValueLabel": "Moins de 18 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_31_ans_handicap",
+            "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "32aae998-a4a2-4a56-9dad-9f237ee7586d",
+        "title": "🎬Engage toi pour sensibiliser les jeunes sur des sujets de société ! (AURILLAC) ",
+        "domain": "culture-loisirs",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_01.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "Unis Cité Auvergne",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Aurillac",
+          "address": "19 Rue de la Coste, 15000 Aurillac",
+          "lat": 44.930679,
+          "lon": 2.443518
+        },
+        "startAt": "2026-10-13T00:00:00.000Z",
+        "endAt": "2027-06-13T00:00:00.000Z",
+        "duration": 8,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>🎥Tu veux présenter des court-métrages sur des sujets qui te tiennent à cœur ? Tu veux te rendre utile et tu souhaites faire de la prévention sur des thèmes importants ? Alors engage-toi avec Unis-Cité ! </p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p class=\"ql-align-justify\">Les films permettent de développer notre esprit critique et de mieux comprendre le monde. En t'engageant avec la mission Cinéma et Citoyenneté, tu vas :</p><p><br></p><p class=\"ql-align-justify\">👉Promouvoir le cinéma auprès de lycéens, collégiens et autres jeunes de 11 à 25 ans.</p><p class=\"ql-align-justify\">👉Débattre de l’actualité et de la citoyenneté avec eux.</p></p><br>\n<b>Actions</b><br><p><p class=\"ql-align-justify\">En tant que volontaire tu seras amené(e) à :</p><p><br></p><p>🎥&nbsp;<strong>Regarder et choisir des films dans un corpus défini avec le CNC (Centre National du Cinéma) sur différentes thématiques</strong>&nbsp;(environnement, discriminations, harcèlement, égalité…).</p><p>🗣&nbsp;<strong>Animer des ciné-clubs</strong>&nbsp;et débattre avec des collégiens et lycéens&nbsp;sur les enjeux de société grâce au cinéma.</p><p>🎉&nbsp;<strong>Participer à des événements autour du cinéma</strong>&nbsp;comme&nbsp;le&nbsp;Festival International du Court-Métrage, Plein la Bobine&nbsp;ou le&nbsp;Festival Tête à Clap.</p><p>🤝&nbsp;<strong>Travailler en équipe</strong>&nbsp;avec d’autres volontaires.</p><p>🎬&nbsp;<strong>Réaliser un court-métrage</strong>&nbsp;sur une thématique imposée et participer&nbsp;à un concours.</p><p><br></p><p>&nbsp;Et surtout :&nbsp;<strong>imaginer tes propres projets</strong>&nbsp;avec ton équipe&nbsp;!</p></p><br>\n<b>VOTRE ENVIRONNEMENT</b><br><b>Formations obligatoires proposées</b><br><p>Tu seras formé avec des structures partenaires telles que La Jetée, le planning familial, Addiction France et bien d'autres.</p><br>",
+        "description": "EN QUELQUES MOTS\n\n\n🎥Tu veux présenter des court-métrages sur des sujets qui te tiennent à cœur ?\nTu veux te rendre utile et tu souhaites faire de la prévention sur des thèmes\nimportants ? Alors engage-toi avec Unis-Cité !\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nLes films permettent de développer notre esprit critique et de mieux comprendre\nle monde. En t'engageant avec la mission Cinéma et Citoyenneté, tu vas :\n\n\n\n\n👉Promouvoir le cinéma auprès de lycéens, collégiens et autres jeunes de 11 à 25\nans.\n\n👉Débattre de l’actualité et de la citoyenneté avec eux.\n\n\n\n\n\nActions\n\n\n\n\nEn tant que volontaire tu seras amené(e) à :\n\n\n\n\n🎥 Regarder et choisir des films dans un corpus défini avec le CNC (Centre\nNational du Cinéma) sur différentes thématiques (environnement, discriminations,\nharcèlement, égalité…).\n\n🗣 Animer des ciné-clubs et débattre avec des collégiens et lycéens sur les\nenjeux de société grâce au cinéma.\n\n🎉 Participer à des événements autour du cinéma comme le Festival International\ndu Court-Métrage, Plein la Bobine ou le Festival Tête à Clap.\n\n🤝 Travailler en équipe avec d’autres volontaires.\n\n🎬 Réaliser un court-métrage sur une thématique imposée et participer à un\nconcours.\n\n\n\n\n Et surtout : imaginer tes propres projets avec ton équipe !\n\n\n\n\n\nVOTRE ENVIRONNEMENT\nFormations obligatoires proposées\n\n\nTu seras formé avec des structures partenaires telles que La Jetée, le planning\nfamilial, Addiction France et bien d'autres.\n",
+        "applicationUrl": "http://localhost:4000/r/32aae998-a4a2-4a56-9dad-9f237ee7586d/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_01.jpeg",
+        "remote": "no",
+        "openToMinors": true,
+        "reducedMobilityAccessible": true,
+        "places": 3
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "c2b468e0-ea6e-4bef-8305-dd09b9157a81",
+        "title": "👵Engage-toi pour lutter contre l’isolement des seniors - (AURILLAC) ",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "solidarite-insertion",
+        "domainOriginal": "Solidarité",
+        "organizationName": "Unis Cité Auvergne",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Aurillac",
+          "closestLat": 44.930679,
+          "closestLon": 2.443518,
+          "closestAddress": "19 Rue de la Coste, 15000 Aurillac, FR",
+          "addressId": "6f101944-2735-4bfb-bd12-f652eea08364",
+          "distanceKm": 0.12034958330573202
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/c2b468e0-ea6e-4bef-8305-dd09b9157a81/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "b3c10d5f-0ece-40aa-8507-09d1b4339d3e",
+        "totalScore": 0.572919,
+        "taxonomyScore": 0.15,
+        "geoScore": 0.995838,
+        "taxonomyScores": {
+          "tranche_age": 0.9
+        },
+        "values": [
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_18_ans",
+            "taxonomyValueLabel": "Moins de 18 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_31_ans_handicap",
+            "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "c2b468e0-ea6e-4bef-8305-dd09b9157a81",
+        "title": "👵Engage-toi pour lutter contre l’isolement des seniors - (AURILLAC) ",
+        "domain": "solidarite-insertion",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "Unis Cité Auvergne",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Aurillac",
+          "address": "19 Rue de la Coste, 15000 Aurillac",
+          "lat": 44.930679,
+          "lon": 2.443518
+        },
+        "startAt": "2026-10-13T00:00:00.000Z",
+        "endAt": "2027-06-13T00:00:00.000Z",
+        "duration": 8,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Deux millions de seniors souffrent aujourd’hui de solitude et d’isolement. Agis pour créer un lien fort avec eux, partage des moments de convivialité, d’écoute, améliore le quotidien de nos aînés … et fais vraiment la différence !  Engage-toi avec Unis-Cité !</p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p class=\"ql-align-justify\">Avec ton équipe, tu vas :<span style=\"background-color: rgb(96, 96, 96);\">&nbsp;</span></p><p class=\"ql-align-justify\"><span style=\"background-color: rgb(96, 96, 96);\">&nbsp;</span></p><p>💛&nbsp;<strong>Egayer le quotidien&nbsp;des personnes âgées isolées&nbsp;par des actions concrètes</strong></p><p>💻&nbsp;<strong>Les aider à&nbsp;mieux comprendre le numérique&nbsp;</strong>(smartphone, internet, réseaux&nbsp;sociaux,...)<span style=\"background-color: rgb(96, 96, 96);\">&nbsp;</span></p><p>🤝&nbsp;<strong>Créer un lien&nbsp;social&nbsp;marquant&nbsp;</strong>qui&nbsp;contribue à renforcer les&nbsp;relations&nbsp;intergénérationnelles.</p></p><br>\n<b>Actions</b><br><p><p class=\"ql-align-justify\">Si tu l’acceptes, tes missions seront de :<span style=\"background-color: rgb(96, 96, 96);\">&nbsp;</span></p><p><br></p><ul><li class=\"ql-align-justify\"><strong>Rendre visite&nbsp;aux&nbsp;personnes âges&nbsp;</strong>: discuter, partager un goûter, jouer, se balader… ou même leur apprendre à utiliser une tablette. Bref, créer du lien et apporter de la bonne humeur (tout en apprenant plein de choses&nbsp;d’eux&nbsp;!)&nbsp;<span style=\"background-color: rgb(96, 96, 96);\">&nbsp;</span></li><li class=\"ql-align-justify\"><strong>Animer des ateliers numériques chaque semaine</strong>&nbsp;: des conseils pour bien utiliser internet,&nbsp;les&nbsp;objets connectés<span style=\"background-color: rgb(96, 96, 96);\">&nbsp;</span></li><li class=\"ql-align-justify\"><strong>Organiser des activités en groupe</strong>&nbsp;: préparer, construire et animer des temps ludiques et créatifs pour&nbsp;développer des rencontres entre séniors et&nbsp;favoriser leur bien être&nbsp;<span style=\"background-color: rgb(96, 96, 96);\">&nbsp;</span></li></ul><p><br></p><p class=\"ql-align-justify\">👉&nbsp;Mais aussi,&nbsp;préparer&nbsp;les semaines avec&nbsp;l’équipe&nbsp;de volontaire, échanger&nbsp;et construire&nbsp;les projets avec différents partenaires (Centre Social,&nbsp;MARPA,&nbsp;MDS..), appeler&nbsp;les séniors&nbsp;pour planifier les rencontres... et&nbsp;gagner&nbsp;en&nbsp;capacité d’initiative et&nbsp;d’autonomie durant toute l'année !</p><p><br></p></p><br>\n<b>VOTRE ENVIRONNEMENT</b><br><b>Tutorat et accompagnement</b><br><p>Formations thématiques avec des professionnels du grand âge, mais également des partenariats avec les structures d’accompagnement des personnes âgées.</p>",
+        "description": "EN QUELQUES MOTS\n\n\nDeux millions de seniors souffrent aujourd’hui de solitude et d’isolement. Agis\npour créer un lien fort avec eux, partage des moments de convivialité, d’écoute,\naméliore le quotidien de nos aînés … et fais vraiment la différence ! Engage-toi\navec Unis-Cité !\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nAvec ton équipe, tu vas : \n\n \n\n💛 Egayer le quotidien des personnes âgées isolées par des actions concrètes\n\n💻 Les aider à mieux comprendre le numérique (smartphone, internet,\nréseaux sociaux,...) \n\n🤝 Créer un lien social marquant qui contribue à renforcer\nles relations intergénérationnelles.\n\n\n\n\n\nActions\n\n\n\n\nSi tu l’acceptes, tes missions seront de : \n\n\n\n\n • Rendre visite aux personnes âges : discuter, partager un goûter, jouer, se\n   balader… ou même leur apprendre à utiliser une tablette. Bref, créer du lien\n   et apporter de la bonne humeur (tout en apprenant plein de choses d’eux !)  \n • Animer des ateliers numériques chaque semaine : des conseils pour bien\n   utiliser internet, les objets connectés \n • Organiser des activités en groupe : préparer, construire et animer des temps\n   ludiques et créatifs pour développer des rencontres entre séniors\n   et favoriser leur bien être  \n\n\n\n\n👉 Mais aussi, préparer les semaines avec l’équipe de volontaire, échanger et\nconstruire les projets avec différents partenaires (Centre\nSocial, MARPA, MDS..), appeler les séniors pour planifier les rencontres...\net gagner en capacité d’initiative et d’autonomie durant toute l'année !\n\n\n\n\n\n\n\n\nVOTRE ENVIRONNEMENT\nTutorat et accompagnement\n\n\nFormations thématiques avec des professionnels du grand âge, mais également des\npartenariats avec les structures d’accompagnement des personnes âgées.",
+        "applicationUrl": "http://localhost:4000/r/c2b468e0-ea6e-4bef-8305-dd09b9157a81/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+        "remote": "no",
+        "openToMinors": true,
+        "reducedMobilityAccessible": true,
+        "places": 10
+      },
+      "descriptionMissing": false
+    }
+  ],
+  "deterministic": {
+    "geo": 5,
+    "format": 2,
+    "missionsSansTagFormat": [
+      "20beebe2-d735-4a67-8605-e6b8f8b72237",
+      "32aae998-a4a2-4a56-9dad-9f237ee7586d",
+      "c2b468e0-ea6e-4bef-8305-dd09b9157a81"
+    ],
+    "gateViolations": []
+  },
+  "judgeRuns": [
+    {
+      "runIndex": 0,
+      "seed": 96114387,
+      "order": [
+        "20beebe2-d735-4a67-8605-e6b8f8b72237",
+        "32aae998-a4a2-4a56-9dad-9f237ee7586d",
+        "08c05709-e619-4d51-b9e0-ace023dcc15c",
+        "61f027b7a0706f079c6b7cd0",
+        "c2b468e0-ea6e-4bef-8305-dd09b9157a81"
+      ],
+      "output": {
+        "coherence": {
+          "score": 3,
+          "missionsPertinentes": [
+            1,
+            2,
+            3
+          ],
+          "justification": "Parmi les 5 missions proposées, 3 sont pertinentes pour Noah qui est lycéen à Aurillac cherchant à booster son dossier Parcoursup sans domaine précis. La mission 1 (sensibilisation par le cinéma) est adaptée à un jeune lycéen et développe des compétences utiles. La mission 2 (accompagnement dans les parcours de formation) est directement liée à l'orientation et formation, ce qui correspond bien à son besoin de booster Parcoursup. La mission 3 (lutte contre l'isolement des personnes handicapées) est aussi pertinente car elle propose un engagement social accessible et valorisant. Les missions 0 (environnement) et 4 (isolement des seniors) sont moins directement liées à son profil et motivation, bien qu intéressantes, elles sont moins ciblées sur son objectif Parcoursup.",
+          "missionIdsPertinents": [
+            "20beebe2-d735-4a67-8605-e6b8f8b72237",
+            "32aae998-a4a2-4a56-9dad-9f237ee7586d",
+            "08c05709-e619-4d51-b9e0-ace023dcc15c"
+          ]
+        },
+        "homogeneite": {
+          "score": 4,
+          "familles": [
+            "Sensibilisation et animation",
+            "Accompagnement social et formation",
+            "Inclusion sociale"
+          ],
+          "justification": "Les missions pertinentes se répartissent en 3 familles : la sensibilisation et animation (mission 1), l'accompagnement social et formation (mission 2), et l'inclusion sociale (mission 3). La famille de l'accompagnement social et formation regroupe au moins une mission majeure (mission 2). Les autres missions sont dans des familles distinctes mais cohérentes avec un engagement social. La diversité est modérée, ce qui justifie un score de 4."
+        },
+        "cause": null
+      }
+    },
+    {
+      "runIndex": 1,
+      "seed": 79336768,
+      "order": [
+        "32aae998-a4a2-4a56-9dad-9f237ee7586d",
+        "20beebe2-d735-4a67-8605-e6b8f8b72237",
+        "c2b468e0-ea6e-4bef-8305-dd09b9157a81",
+        "61f027b7a0706f079c6b7cd0",
+        "08c05709-e619-4d51-b9e0-ace023dcc15c"
+      ],
+      "output": {
+        "coherence": {
+          "score": 4,
+          "missionsPertinentes": [
+            4,
+            2,
+            3,
+            1
+          ],
+          "justification": "Quatre missions sur cinq sont pertinentes pour un lycéen de 16 ans souhaitant booster son dossier Parcoursup sans domaine précis. La mission 4 (accompagnement dans le parcours de formation) est directement liée à l'objectif Parcoursup. Les missions 2 et 3 (lutte contre l'isolement des seniors et des personnes handicapées) offrent un engagement social valorisant. La mission 1 (environnement et biodiversité) est aussi pertinente pour un engagement citoyen. La mission 0, bien que intéressante, est plus spécifique à la sensibilisation par le cinéma et moins directement liée à un profil ouvert sans domaine précis.",
+          "missionIdsPertinents": [
+            "61f027b7a0706f079c6b7cd0",
+            "20beebe2-d735-4a67-8605-e6b8f8b72237",
+            "c2b468e0-ea6e-4bef-8305-dd09b9157a81",
+            "32aae998-a4a2-4a56-9dad-9f237ee7586d"
+          ]
+        },
+        "homogeneite": {
+          "score": 3,
+          "familles": [
+            "Accompagnement social et éducatif",
+            "Environnement",
+            "Culture"
+          ],
+          "justification": "Les missions couvrent trois familles principales : accompagnement social et éducatif (missions 2,3,4), environnement (mission 1), et culture (mission 0). Il n'y a pas de famille majoritaire avec au moins 3 missions, mais trois familles distinctes sont représentées."
+        },
+        "cause": null
+      }
+    }
+  ],
+  "engineVersion": "m2",
+  "startedAt": "2026-07-07T12:43:32.083Z",
+  "finishedAt": "2026-07-07T12:43:49.182Z",
+  "verdict": 3.5,
+  "cleanup": {
+    "userScoringDeleted": true
+  }
+}

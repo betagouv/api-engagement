@@ -21,6 +21,7 @@ import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 
 const prismaMock = prisma as unknown as {
   $queryRaw: ReturnType<typeof vi.fn>;
+  $transaction: ReturnType<typeof vi.fn>;
 };
 
 const missionMatchingResultRepositoryMock = missionMatchingResultRepository as unknown as {
@@ -58,6 +59,10 @@ const getSqlValues = (query: unknown): unknown[] => {
 describe("matchingEngineService", () => {
   beforeEach(() => {
     prismaMock.$queryRaw.mockReset();
+    // La requête de ranking passe par prisma.$transaction (SET LOCAL jit = off) : on exécute le
+    // callback avec le client mocké, de sorte que tx.$queryRaw reste le même mock (ordre préservé).
+    prismaMock.$transaction.mockReset();
+    prismaMock.$transaction.mockImplementation((callback: (tx: typeof prisma) => unknown) => callback(prisma));
     missionMatchingResultRepositoryMock.createForUserScoringVersion.mockReset();
     publisherDiffusionRuleServiceMock.buildMissionPublisherDiffusionRuleSql.mockReset();
   });

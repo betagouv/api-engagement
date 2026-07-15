@@ -1,0 +1,2473 @@
+{
+  "status": "success",
+  "parcours": {
+    "id": "hugo-terrain-temps-plein",
+    "segment": "etudiant",
+    "label": "Hugo, 22 ans, étudiant en césure à Nantes, veut une vraie première expérience terrain à temps plein, ouvert au service civique indemnisé",
+    "locationLabel": "Nantes (44)",
+    "age": 22,
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 22,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "statut",
+        "value": "etudiant"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 47.218371,
+          "lon": -1.553621,
+          "country_code": "fr",
+          "label": "Nantes (44)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "temps_plein"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "experience_terrain"
+      },
+      {
+        "taxonomy": "formation_onisep",
+        "value": "social_sante_sport"
+      }
+    ]
+  },
+  "payload": {
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 22,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "statut",
+        "value": "etudiant"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 47.218371,
+          "lon": -1.553621,
+          "country_code": "fr",
+          "label": "Nantes (44)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "temps_plein"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "experience_terrain"
+      },
+      {
+        "taxonomy": "formation_onisep",
+        "value": "social_sante_sport"
+      }
+    ],
+    "distinctId": "eval:first-blood:hugo-terrain-temps-plein",
+    "missionAlertEnabled": false
+  },
+  "userScoringId": "f7fecc40-f581-43d1-a5ef-ef4c2681d7a3",
+  "match": {
+    "tookMs": 332,
+    "engineVersion": "m2",
+    "items": [
+      {
+        "mission": {
+          "id": "b2f179ee-f855-49ba-9a8d-fc3e15343862",
+          "title": "Participer aux actions de prévention santé auprès des jeunes à Nantes 🪩",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "solidarite-insertion",
+          "domainOriginal": "Solidarité",
+          "organizationName": "Association Avenir Santé",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_02.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_02.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Nantes",
+            "closestLat": 47.213622,
+            "closestLon": -1.557673,
+            "closestAddress": "4 Place du Commerce, 44000 Nantes, FR",
+            "addressId": "025240e5-7e22-4fc5-bc62-5797539bbe0a",
+            "distanceKm": 0.6103372849382245
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/b2f179ee-f855-49ba-9a8d-fc3e15343862/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "c4865ec3-07fd-443c-b9fb-f29643921749",
+          "totalScore": 0.786535,
+          "taxonomyScore": 0.594,
+          "geoScore": 0.979069,
+          "taxonomyScores": {
+            "formation_onisep": 0.97,
+            "tranche_age": 1,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "améliorer la santé des jeunes, prioritairement, par la mise en place d'actions de prévention et de promotion de la santé de proximité / accompagnement vers des choix plus éclairés / informer, orienter, écouter — vraiment écouter",
+                "reasoning": "La mission cible explicitement l'accompagnement social et la prévention auprès de jeunes, avec une dimension d'aide et de soutien."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "sante_soins",
+              "taxonomyValueLabel": "Santé et soins",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "actions de prévention et de promotion de la santé de proximité / prévention santé auprès des jeunes / addictions et produits psychoactifs, risques auditifs, vie affective et sexuelle et accidents de la circulation",
+                "reasoning": "Les thèmes abordés relèvent directement de la santé et de la prévention médicale ou sanitaire."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "améliorer la santé des jeunes / actions de prévention et de promotion de la santé de proximité / prévention santé auprès des jeunes",
+                "reasoning": "La mission s'inscrit dans le secteur de la santé et de l'aide à la personne, avec un public jeune."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "séances collectives dans les collèges, lycées, CFA / utiliser des outils participatifs et ludiques (jeux, débats, mises en situation, brainstorming…) / informer, orienter, écouter",
+                "reasoning": "Les actions incluent une forte dimension éducative et d'animation pédagogique auprès des jeunes."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "accompagner vers des choix plus éclairés / informer, orienter, écouter — vraiment écouter / écouter les jeunes pour ouvrir le dialogue sur les questions de santé",
+                "reasoning": "La mission implique un accompagnement humain, une écoute active et un soutien aux jeunes."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "participer à la vie associative à travers des réunions d’équipe / co-construire, adapter les modalités d'intervention / proposer de nouveaux outils, des lieux d’intervention",
+                "reasoning": "Travail collaboratif, organisation d'actions et adaptation de projets en équipe."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "communication_creation_numerique",
+              "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "participer à la vie associative à travers les réseaux sociaux (www.montetasoiree.com, www.auvernight.org…) / proposer des thématiques à aborder sur nos réseaux",
+                "reasoning": "Utilisation d'outils numériques et de communication digitale pour la prévention et la sensibilisation."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "faire réfléchir à leurs pratiques et les accompagner vers des choix plus éclairés / utiliser des outils participatifs et ludiques (jeux, débats, mises en situation) / informer, orienter",
+                "reasoning": "La mission est centrée sur la transmission de connaissances et la sensibilisation des jeunes."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "utiliser des outils participatifs et ludiques (jeux, débats, mises en situation, brainstorming…) / participer à la vie associative",
+                "reasoning": "Animation d'ateliers et d'actions collectives auprès des jeunes."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "aller à la rencontre des jeunes pour ouvrir le dialogue sur les questions de santé / informer, orienter, écouter — vraiment écouter",
+                "reasoning": "Interaction directe avec les jeunes pour les soutenir et les informer."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "participer à la vie associative à travers des réunions d’équipe, l'assemblée générale / co-construire, adapter les modalités d'intervention",
+                "reasoning": "Soutien à l'organisation et à la coordination des actions de prévention."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "mission de service civique / formations obligatoires (PSC1, formation civique et citoyenne) / tutorat et accompagnement par une tutrice référente",
+                "reasoning": "Mission encadrée dans un cadre institutionnel structuré (service civique) avec formations et accompagnement."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "actions de prévention (alcool, cannabis, tabac, accidents de la route, sexualité et risques auditifs) / améliorer la santé des jeunes",
+                "reasoning": "La mission aborde des enjeux de santé publique et de prévention, liés à des questions sociétales et politiques."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "social_sante_sport",
+              "taxonomyValueLabel": "Social, santé et sport",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "améliorer la santé des jeunes par des actions de prévention / prévention santé auprès des jeunes",
+                "reasoning": "La mission relève directement du domaine social, de la santé et du sport (prévention et éducation)."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "service_civique",
+              "taxonomyValueLabel": "Service civique",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "f20c3900-28de-4a18-a6ac-c6bbf63ce1e7",
+          "title": "Partager des activités avec des personnes en situation de handicap au sein d'un GEM",
+          "remote": "no",
+          "schedule": "Plus de 30h",
+          "domain": "solidarite-insertion",
+          "domainOriginal": "Solidarité",
+          "organizationName": "ASSOCIATION SIMON DE CYRENE NANTES",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Nantes",
+            "closestLat": 47.214606,
+            "closestLon": -1.560663,
+            "closestAddress": "5 RUE BOILEAU, 44000 Nantes, FR",
+            "addressId": "32054688-43ab-4fd1-9bc6-a5738eb83bda",
+            "distanceKm": 0.6768624270212342
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/f20c3900-28de-4a18-a6ac-c6bbf63ce1e7/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "654b2e83-dc38-4d1a-a615-ac61a314c9b3",
+          "totalScore": 0.785407,
+          "taxonomyScore": 0.594,
+          "geoScore": 0.976815,
+          "taxonomyScores": {
+            "formation_onisep": 0.97,
+            "tranche_age": 1,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Pratiquer des activités diverses (jeux de société, activités manuelles : peinture, bricolage divers…) / Favoriser la participation et la responsabilisation des personnes handicapées",
+                "reasoning": "La mission inclut explicitement l'animation d'activités collectives et la participation des bénéficiaires."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "participer au développement et à l’animation d' un groupe d'activités pour améliorer le lien social des personnes cérébro-lésées souvent isolées / Prendre soin de son prochain et appréhender la fragilité dans l'échange et de partage",
+                "reasoning": "La mission est centrée sur l'accompagnement social et la lutte contre l'isolement des personnes en situation de handicap, ce qui relève clairement du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "améliorer le lien social des personnes cérébro-lésées souvent isolées / personnes atteintes d’un handicap",
+                "reasoning": "La mission s'inscrit dans le secteur de l'aide à la personne, spécifiquement pour des publics en situation de handicap."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.92,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Prendre soin de son prochain et appréhender la fragilité dans l'échange et de partage / A l’écoute et bienveillant",
+                "reasoning": "La mission implique un accompagnement humain et bienveillant envers des personnes en situation de fragilité."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Esprit d'initiative et sens de l’organisation / Capacité d’animation et créativité / Savoir rendre compte de ses activités",
+                "reasoning": "Les tâches décrites nécessitent des compétences en organisation, animation et travail collaboratif."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "participer au développement et à l’animation d' un groupe d'activités pour améliorer le lien social des personnes cérébro-lésées souvent isolées",
+                "reasoning": "La mission implique une interaction directe avec les bénéficiaires pour leur apporter un soutien social."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Aider à l'organisation technique et logistique des activités proposées / Assurer la bonne tenue du lieu d’activité et du matériel",
+                "reasoning": "Une partie des tâches consiste à organiser et soutenir le fonctionnement des activités."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "social_sante_sport",
+              "taxonomyValueLabel": "Social, santé et sport",
+              "enrichmentConfidence": 0.93,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "améliorer le lien social des personnes cérébro-lésées souvent isolées / personnes atteintes d’un handicap",
+                "reasoning": "La mission relève du domaine social, de la santé et du sport, notamment par l'accompagnement de publics fragilisés."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "le volontaire sera sous l’autorité directe du responsable GEM / mission de service civique",
+                "reasoning": "La mission s'inscrit dans un cadre structuré et institutionnel (service civique, autorité hiérarchique claire)."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "service_civique",
+              "taxonomyValueLabel": "Service civique",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "887ea189-8be9-470f-baa7-2f69e48be65a",
+          "title": "Valoriser les actions et la parole des personnes en situation de handicap intellectuel.",
+          "remote": "no",
+          "schedule": "Plus de 30h",
+          "domain": "solidarite-insertion",
+          "domainOriginal": "Solidarité",
+          "organizationName": "Adapeila",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Nantes",
+            "closestLat": 47.219571,
+            "closestLon": -1.562931,
+            "closestAddress": "11 Rue Joseph Caillé, 44000 Nantes, FR",
+            "addressId": "df1cae90-92de-498a-873b-448903db80de",
+            "distanceKm": 0.7156720330169122
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/887ea189-8be9-470f-baa7-2f69e48be65a/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "3c23d5ff-3d78-4bc1-9411-2e56943f517a",
+          "totalScore": 0.784751,
+          "taxonomyScore": 0.594,
+          "geoScore": 0.975502,
+          "taxonomyScores": {
+            "formation_onisep": 0.97,
+            "tranche_age": 1,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Cette mission s’intègre dans la stratégie de communication de l’association qui vise à valoriser la parole et les actions des personnes en situation de handicap / En favorisant le partage de témoignages, cette mission contribue à faire évoluer les regards, à renforcer l’inclusion sociale et à affirmer le pouvoir d’agir des personnes accompagnées",
+                "reasoning": "La mission est centrée sur l'accompagnement social, l'inclusion et la valorisation des personnes en situation de handicap, ce qui relève clairement du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Recueillir des témoignages lors d'événements ou d’activités associatives / Contribuer, en collectant les témoignages, à la création de formats courts de sensibilisation à destination du grand public",
+                "reasoning": "La mission inclut une dimension pédagogique et de transmission de savoirs (sensibilisation) via la collecte et la valorisation de témoignages."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Cette mission s’intègre dans la stratégie de communication de l’association qui vise à valoriser la parole et les actions des personnes en situation de handicap / L’Adapeila milite pour l’accompagnement adapté des personnes qui présentent un handicap mental, de l’autisme, un polyhandicap, un handicap psychique",
+                "reasoning": "L'organisation et la mission sont clairement orientées vers le secteur de la santé, du social et de l'aide à la personne."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "numerique_communication",
+              "taxonomyValueLabel": "Numérique et communication",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Contribuer, en collectant les témoignages, à la création de formats courts de sensibilisation à destination du grand public / Être force de proposition sur les supports et messages diffusés en lien avec l'équipe communication",
+                "reasoning": "La mission implique la création de contenus de communication (formats courts) et une collaboration avec une équipe communication, relevant du secteur numérique et communication."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "communication_creation_numerique",
+              "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Contribuer, en collectant les témoignages, à la création de formats courts de sensibilisation à destination du grand public / Être force de proposition sur les supports et messages diffusés en lien avec l'équipe communication",
+                "reasoning": "La mission implique la création de contenus numériques (formats courts) et une collaboration avec une équipe communication, relevant des compétences numériques et créatives."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Être force de proposition sur les projets et témoignages à mettre en avant, les supports et messages diffusés en lien avec l'équipe communication et les personnes concernées",
+                "reasoning": "La mission nécessite une forte capacité à travailler en équipe, à proposer des idées et à s'adapter aux besoins des parties prenantes, relevant des soft skills et de la coopération."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Recueillir des témoignages lors d'événements ou d’activités associatives / Contribuer à la création de formats courts de sensibilisation à destination du grand public",
+                "reasoning": "La mission inclut explicitement la collecte de témoignages et la création de supports de sensibilisation, ce qui relève de la transmission et de la pédagogie."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Aller à la rencontre de personnes accompagnées sur des projets menés dans différents établissements de l’association / Valoriser les projets de l'association et les témoignages des personnes accompagnées",
+                "reasoning": "La mission implique des rencontres avec des publics et la valorisation de projets, ce qui relève de l'animation d'actions ou de collectifs."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Être force de proposition sur les projets et témoignages à mettre en avant, les supports et messages diffusés en lien avec l'équipe communication et les personnes concernées",
+                "reasoning": "La mission inclut une contribution à l'organisation et à la valorisation des actions de l'association, relevant du support organisationnel."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Aller à la rencontre de personnes accompagnées sur des projets menés dans différents établissements de l’association",
+                "reasoning": "La mission implique un contact direct avec les personnes accompagnées, ce qui relève de l'aide directe, bien que l'accent soit mis sur la valorisation plutôt que sur l'accompagnement direct."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Cette mission s’intègre dans la stratégie de communication de l’association qui vise à valoriser la parole et les actions des personnes en situation de handicap / L’Adapeila milite pour l’accompagnement adapté des personnes qui présentent un handicap mental",
+                "reasoning": "La mission et l'organisation porteuse sont liées à des enjeux de société, de droits et de politique publique en faveur des personnes en situation de handicap."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "social_sante_sport",
+              "taxonomyValueLabel": "Social, santé et sport",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Cette mission s’intègre dans la stratégie de communication de l’association qui vise à valoriser la parole et les actions des personnes en situation de handicap / L’Adapeila milite pour l’accompagnement adapté des personnes qui présentent un handicap mental",
+                "reasoning": "La mission et l'organisation porteuse sont clairement orientées vers le social, la santé et le soutien aux personnes en situation de handicap."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Type de mission : volontariat_service_civique / Être force de proposition sur les projets et témoignages à mettre en avant, les supports et messages diffusés en lien avec l'équipe communication",
+                "reasoning": "Le cadre de service civique est un engagement structuré et institutionnel, et la mission implique une collaboration avec une équipe communication, renforçant le caractère cadre structuré."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "service_civique",
+              "taxonomyValueLabel": "Service civique",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "7db283bb-2183-48b9-a756-5c0393ba8e54",
+          "title": "Accompagnement de binômes (étudiant.e.s bénévoles/enfants) et animation d’ateliers collectifs CM2>3e",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "education",
+          "domainOriginal": "Éducation pour tous",
+          "organizationName": "Afev Nantes",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Nantes",
+            "closestLat": 47.21425,
+            "closestLon": -1.540093,
+            "closestAddress": "43 Rue du Pré Gauchet, 44000 Nantes, FR",
+            "addressId": "65d91102-dee4-4b3d-9287-d0033fe33fc6",
+            "distanceKm": 1.1197833680980702
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/7db283bb-2183-48b9-a756-5c0393ba8e54/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "40943f8e-6ee8-4cd8-869f-655b5a5d0db7",
+          "totalScore": 0.777967,
+          "taxonomyScore": 0.594,
+          "geoScore": 0.961935,
+          "taxonomyScores": {
+            "formation_onisep": 0.97,
+            "tranche_age": 1,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "réduire les inégalités socio-éducatives / accompagner un.e enfant pour un accompagnement global et individuel / Accompagne individuellement un.e jeune dans son épanouissement",
+                "reasoning": "La mission vise explicitement la réduction des inégalités et l'accompagnement individuel de jeunes en fragilité, ce qui relève du social et de la solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "animer des ateliers collectifs en primaire et collège / accompagnement à la scolarité / aide aux devoirs",
+                "reasoning": "Les activités décrites relèvent directement du secteur de l'éducation, de la formation et de l'animation."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "réduire les inégalités socio-éducatives / accompagner un.e enfant pour un accompagnement global et individuel",
+                "reasoning": "L'accompagnement individuel et la lutte contre les inégalités socio-éducatives relèvent aussi du secteur social et de l'aide à la personne."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "animer des ateliers collectifs en primaire et collège autour de différentes thématiques (passerelle CM2/6ème, accompagnement à la scolarité, aide aux devoirs) / Accompagne individuellement un.e jeune dans son épanouissement et son ouverture culturelle",
+                "reasoning": "La mission est centrée sur la transmission de savoirs, l'accompagnement scolaire et l'épanouissement des jeunes, ce qui relève clairement de l'éducation et de la transmission."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "accompagner un.e enfant pour un accompagnement global et individuel / Accompagne individuellement un.e jeune dans son épanouissement",
+                "reasoning": "La mission implique un accompagnement humain et individuel, relevant du management social et du soin."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Des réunions hebdomadaires pour donner son avis et prendre des décisions collectives / possibilité de proposer des nouveaux projets pour l'Afev",
+                "reasoning": "La mission inclut une forte dimension collective et collaborative, avec des prises de décision en équipe."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "animer des ateliers collectifs en primaire et collège / accompagnement à la scolarité / aide aux devoirs / Accompagne individuellement un.e jeune dans son épanouissement",
+                "reasoning": "La mission est clairement axée sur la transmission de savoirs, la pédagogie et l'accompagnement éducatif."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "accompagner un.e enfant pour un accompagnement global et individuel / Accompagne individuellement un.e jeune dans son épanouissement",
+                "reasoning": "L'accompagnement individuel et personnalisé des jeunes relève d'une aide directe."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "animer des ateliers collectifs en primaire et collège",
+                "reasoning": "La mission inclut explicitement l'animation d'ateliers collectifs."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Mets en relation chaque bénévole avec un.e enfant / rédiger des comptes-rendus de vos échanges / Des réunions hebdomadaires pour donner son avis et prendre des décisions collectives",
+                "reasoning": "La mission implique une coordination entre bénévoles, un suivi administratif et une participation à la vie collective de l'association."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Tu vas animer des ateliers collectifs (passerelle CM2/6ème et Devoirs Faits au collège) et contribuer à l’accompagnement individuel de jeunes en fragilité dans leurs parcours avec des bénévoles étudiant.e.s (mentorat). / VOTRE MISSION DE SERVICE CIVIQUE / Formations obligatoires proposées / Tutorat et accompagnement / Entretiens individuels réguliers avec ton.ta tuteur.rice",
+                "reasoning": "La mission est encadrée dans le cadre d'un service civique, avec des formations obligatoires, un tutorat et un accompagnement structuré, ce qui relève d'un cadre engagé."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "education_culture_creation",
+              "taxonomyValueLabel": "Éducation, culture et création",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "animer des ateliers collectifs en primaire et collège / accompagnement à la scolarité / aide aux devoirs",
+                "reasoning": "Les activités décrites relèvent de l'éducation, de la transmission et de la création d'ateliers pédagogiques."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "social_sante_sport",
+              "taxonomyValueLabel": "Social, santé et sport",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "réduire les inégalités socio-éducatives / accompagner un.e enfant pour un accompagnement global et individuel",
+                "reasoning": "La mission vise l'accompagnement de jeunes en fragilité, ce qui relève du social et de la santé."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "service_civique",
+              "taxonomyValueLabel": "Service civique",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "1b6732a5-b37e-4777-b9cc-a7cf2e0f4e50",
+          "title": "Animateur.rice Lien social : Crée du lien sur Nantes entre personnes avec et sans domicile !",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "solidarite-insertion",
+          "domainOriginal": "Solidarité",
+          "organizationName": "LA CLOCHE",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "NANTES",
+            "closestLat": 47.21993,
+            "closestLon": -1.535639,
+            "closestAddress": "5 B PLACE DE LA MANU, 44000 NANTES, FR",
+            "addressId": "b5d7aac6-6bb1-4781-830e-6227f4cf1c0f",
+            "distanceKm": 1.3690766621850896
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/1b6732a5-b37e-4777-b9cc-a7cf2e0f4e50/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "4e03fcc9-3db5-4be2-89f8-43c3696fe07c",
+          "totalScore": 0.77383,
+          "taxonomyScore": 0.594,
+          "geoScore": 0.95366,
+          "taxonomyScores": {
+            "formation_onisep": 0.97,
+            "tranche_age": 1,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Créer des temps conviviaux, favoriser l'échange et participer au changement de regard sur le monde de la rue / lutter contre l'isolement, de favoriser le lien social / créer une société plus inclusive",
+                "reasoning": "La mission est explicitement centrée sur la création de lien social, la lutte contre l'isolement et l'inclusion des personnes marginalisées, ce qui relève clairement du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "gestion_projet",
+              "taxonomyValueLabel": "Gestion de projet",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Participer à l’organisation des événements et activités / Organiser et animer des stands de sensibilisation / Contribuer à l'animation du réseau du Carillon / Améliorer les outils de communication existants",
+                "reasoning": "Les tâches décrites incluent une forte composante de coordination, d'organisation et d'amélioration de processus, typique de la gestion de projet."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Créer des temps conviviaux, favoriser l'échange et participer au changement de regard sur le monde de la rue / lutter contre l'isolement, de favoriser le lien social",
+                "reasoning": "La mission s'inscrit dans le secteur de l'aide à la personne et du social, avec un focus sur l'accompagnement des publics fragilisés."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "gestion_commerce_organisation",
+              "taxonomyValueLabel": "Gestion, commerce et organisation",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Contribuer à l'animation du réseau du Carillon (Commerçants solidaires) / Organiser et animer des stands de sensibilisation",
+                "reasoning": "Les tâches incluent l'animation d'un réseau de commerçants solidaires et l'organisation d'événements, relevant du secteur de la gestion et de l'organisation."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.92,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Animer nos repères, nos temps d’accueil des personnes sans domicile / créer des temps conviviaux, favoriser l'échange / lutter contre l'isolement",
+                "reasoning": "La mission implique un accompagnement humain, la création de lien social et l'aide aux personnes vulnérables, relevant du management social et soin."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Participer à l’organisation des événements et activités / Organiser et animer des stands de sensibilisation / Contribuer à l'animation du réseau du Carillon",
+                "reasoning": "Les tâches nécessitent une forte coopération, de l'organisation et des compétences relationnelles pour travailler en équipe et animer des réseaux."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "communication_creation_numerique",
+              "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Co-animer les réseaux sociaux (Création de contenus pour Instagram et Facebook) / Créer des visuels pour les différents évènements et activités (affiches, flyers)",
+                "reasoning": "La mission inclut explicitement la création de contenus numériques et de supports de communication visuelle."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Animer nos repères, nos temps d’accueil des personnes sans domicile / Participer à l’organisation des événements et activités : cuisine, bricolage, pétanque, karaoké / Organiser et animer des stands de sensibilisation",
+                "reasoning": "La mission est centrée sur l'animation d'activités, d'événements et de temps collectifs, ce qui relève clairement de l'intention d'animation."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Animer nos repères, nos temps d’accueil des personnes sans domicile / créer des temps conviviaux, favoriser l'échange",
+                "reasoning": "La mission implique un contact direct et régulier avec des personnes sans domicile, relevant de l'aide directe."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Rencontres chez des partenaires de l’action sociale (Restaurant social, bains douche, caarud...) pour présenter La Cloche à leur public / co-animer les réseaux sociaux",
+                "reasoning": "La mission inclut des actions de sensibilisation et de présentation de l'association, relevant d'une forme de transmission ou de médiation."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Améliorer les outils de communication existants / Contribuer à l'animation du réseau du Carillon",
+                "reasoning": "Les tâches incluent le soutien organisationnel et la gestion de projets, relevant du support organisationnel."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Type de mission : volontariat_service_civique / Formations obligatoires proposées : PSC1, formation à casser les clichés sur le monde de la rue",
+                "reasoning": "Le cadre du service civique, avec des formations obligatoires et un engagement structuré, relève d'un cadre structuré d'engagement."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Créer des temps conviviaux, favoriser l'échange et participer au changement de regard sur le monde de la rue / lutter contre l'isolement, de favoriser le lien social",
+                "reasoning": "La mission s'inscrit dans une démarche citoyenne et de changement social, relevant du domaine société, droit et politique."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "social_sante_sport",
+              "taxonomyValueLabel": "Social, santé et sport",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Animer nos repères, nos temps d’accueil des personnes sans domicile / créer des temps conviviaux, favoriser l'échange / lutter contre l'isolement",
+                "reasoning": "La mission est centrée sur l'accompagnement social et la santé mentale des publics fragilisés, relevant du domaine social, santé et sport."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "service_civique",
+              "taxonomyValueLabel": "Service civique",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      }
+    ],
+    "total": 2062,
+    "avgDistanceKmTop5": 0.9
+  },
+  "missions": [
+    {
+      "mission": {
+        "id": "b2f179ee-f855-49ba-9a8d-fc3e15343862",
+        "title": "Participer aux actions de prévention santé auprès des jeunes à Nantes 🪩",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "solidarite-insertion",
+        "domainOriginal": "Solidarité",
+        "organizationName": "Association Avenir Santé",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_02.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_02.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Nantes",
+          "closestLat": 47.213622,
+          "closestLon": -1.557673,
+          "closestAddress": "4 Place du Commerce, 44000 Nantes, FR",
+          "addressId": "025240e5-7e22-4fc5-bc62-5797539bbe0a",
+          "distanceKm": 0.6103372849382245
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/b2f179ee-f855-49ba-9a8d-fc3e15343862/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "c4865ec3-07fd-443c-b9fb-f29643921749",
+        "totalScore": 0.786535,
+        "taxonomyScore": 0.594,
+        "geoScore": 0.979069,
+        "taxonomyScores": {
+          "formation_onisep": 0.97,
+          "tranche_age": 1,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "améliorer la santé des jeunes, prioritairement, par la mise en place d'actions de prévention et de promotion de la santé de proximité / accompagnement vers des choix plus éclairés / informer, orienter, écouter — vraiment écouter",
+              "reasoning": "La mission cible explicitement l'accompagnement social et la prévention auprès de jeunes, avec une dimension d'aide et de soutien."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "sante_soins",
+            "taxonomyValueLabel": "Santé et soins",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "actions de prévention et de promotion de la santé de proximité / prévention santé auprès des jeunes / addictions et produits psychoactifs, risques auditifs, vie affective et sexuelle et accidents de la circulation",
+              "reasoning": "Les thèmes abordés relèvent directement de la santé et de la prévention médicale ou sanitaire."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "améliorer la santé des jeunes / actions de prévention et de promotion de la santé de proximité / prévention santé auprès des jeunes",
+              "reasoning": "La mission s'inscrit dans le secteur de la santé et de l'aide à la personne, avec un public jeune."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "séances collectives dans les collèges, lycées, CFA / utiliser des outils participatifs et ludiques (jeux, débats, mises en situation, brainstorming…) / informer, orienter, écouter",
+              "reasoning": "Les actions incluent une forte dimension éducative et d'animation pédagogique auprès des jeunes."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "accompagner vers des choix plus éclairés / informer, orienter, écouter — vraiment écouter / écouter les jeunes pour ouvrir le dialogue sur les questions de santé",
+              "reasoning": "La mission implique un accompagnement humain, une écoute active et un soutien aux jeunes."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "participer à la vie associative à travers des réunions d’équipe / co-construire, adapter les modalités d'intervention / proposer de nouveaux outils, des lieux d’intervention",
+              "reasoning": "Travail collaboratif, organisation d'actions et adaptation de projets en équipe."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "communication_creation_numerique",
+            "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "participer à la vie associative à travers les réseaux sociaux (www.montetasoiree.com, www.auvernight.org…) / proposer des thématiques à aborder sur nos réseaux",
+              "reasoning": "Utilisation d'outils numériques et de communication digitale pour la prévention et la sensibilisation."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "faire réfléchir à leurs pratiques et les accompagner vers des choix plus éclairés / utiliser des outils participatifs et ludiques (jeux, débats, mises en situation) / informer, orienter",
+              "reasoning": "La mission est centrée sur la transmission de connaissances et la sensibilisation des jeunes."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "utiliser des outils participatifs et ludiques (jeux, débats, mises en situation, brainstorming…) / participer à la vie associative",
+              "reasoning": "Animation d'ateliers et d'actions collectives auprès des jeunes."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "aller à la rencontre des jeunes pour ouvrir le dialogue sur les questions de santé / informer, orienter, écouter — vraiment écouter",
+              "reasoning": "Interaction directe avec les jeunes pour les soutenir et les informer."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "participer à la vie associative à travers des réunions d’équipe, l'assemblée générale / co-construire, adapter les modalités d'intervention",
+              "reasoning": "Soutien à l'organisation et à la coordination des actions de prévention."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "mission de service civique / formations obligatoires (PSC1, formation civique et citoyenne) / tutorat et accompagnement par une tutrice référente",
+              "reasoning": "Mission encadrée dans un cadre institutionnel structuré (service civique) avec formations et accompagnement."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "actions de prévention (alcool, cannabis, tabac, accidents de la route, sexualité et risques auditifs) / améliorer la santé des jeunes",
+              "reasoning": "La mission aborde des enjeux de santé publique et de prévention, liés à des questions sociétales et politiques."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "social_sante_sport",
+            "taxonomyValueLabel": "Social, santé et sport",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "améliorer la santé des jeunes par des actions de prévention / prévention santé auprès des jeunes",
+              "reasoning": "La mission relève directement du domaine social, de la santé et du sport (prévention et éducation)."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "service_civique",
+            "taxonomyValueLabel": "Service civique",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "b2f179ee-f855-49ba-9a8d-fc3e15343862",
+        "title": "Participer aux actions de prévention santé auprès des jeunes à Nantes 🪩",
+        "domain": "solidarite-insertion",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_02.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "Association Avenir Santé",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Nantes",
+          "address": "4 Place du Commerce, 44000 Nantes",
+          "lat": 47.213622,
+          "lon": -1.557673
+        },
+        "startAt": "2026-05-26T00:00:00.000Z",
+        "endAt": "2026-11-26T01:00:00.000Z",
+        "duration": 6,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>La mission proposée par Avenir Santé est en lien direct avec son objet social, qui est d’améliorer la santé des jeunes, prioritairement, par la mise en place d’actions de prévention et de promotion de la santé de proximité.</p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p>Ta mission&nbsp;: t’engager pour la santé des jeunes, avec bienveillance, en menant des actions de prévention sur 4 thèmes : addictions et produits psychoactifs, risques auditifs, vie affective et sexuelle et accidents de la circulation.</p><p>&nbsp;</p><p>L’association prend en charge 50% de ton abonnement transport, tes frais de missions (repas, déplacements, hébergements) et t’offre une demi-journée de congé supplémentaire par mois d’engagement.</p></p><br>\n<b>Actions</b><br><p><p>Tu exerceras ta mission au sein d’équipes composées de permanents salariés et de bénévoles. Les actions auxquelles tu participeras se dérouleront sous différentes modalités :</p><p>🏫 Dans les collèges, lycées, CFA, MFR, lors de séances collectives.</p><p>🎓 Sur les campus universitaires.</p><p>🎶 En milieux festifs (concerts, festivals…).</p><p>🌍 Dans l’espace public, lors d’actions de proximité.</p><p>&nbsp;</p><p>Concrètement, tu pourras :</p><ul><li>Aller à la rencontre des jeunes pour ouvrir le dialogue sur les questions de santé,</li><li>Les faire réfléchir à leurs pratiques et les accompagner vers des choix plus éclairés,</li><li>Utiliser des outils participatifs et ludiques (jeux, débats, mises en situation, brainstorming…),</li><li>Les informer, orienter, écouter — vraiment écouter,</li><li>Participer à la vie associative à travers des réunions d’équipe, l'assemblée générale, les regroupements des intervenants (mutualisation des formations, co-animation d'actions).</li></ul><p>&nbsp;&nbsp;</p><p>Des temps collectifs, sous forme de réunions hebdomadaires dans les locaux de l’association, seront organisés pour réfléchir, co-construire, adapter les modalités d'intervention et évaluer les projets de prévention.</p><p>N’hésite pas à consulter notre insta @avenirsante_pdl et notre site <a href=\"http://www.avenir-sante.com/\" rel=\"noopener noreferrer\" target=\"_blank\">www.avenir-sante.com</a>&nbsp;!</p></p><br>\n<b>Capacité d’initiative</b><br><p>Toute idée sera la bienvenue ! Tu pourras proposer de nouveaux outils, des lieux d’intervention, des thématiques à aborder sur nos réseaux, etc.</p><br>\n<b>VOTRE ENVIRONNEMENT</b><br><b>Formations obligatoires proposées</b><br><p>Tu bénéficieras de la formation certifiante PSC1 pour acquérir les gestes de premiers secours et d'une formation civique et citoyenne de ton choix !</p><br><b>Tutorat et accompagnement</b><br><p>Tu seras accompagné·e par une tutrice référente pour mener à bien ta mission. Elle sera à tes côtés et t'aidera à préparer ton projet d’avenir</p>",
+        "description": "EN QUELQUES MOTS\n\n\nLa mission proposée par Avenir Santé est en lien direct avec son objet social,\nqui est d’améliorer la santé des jeunes, prioritairement, par la mise en place\nd’actions de prévention et de promotion de la santé de proximité.\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nTa mission : t’engager pour la santé des jeunes, avec bienveillance, en menant\ndes actions de prévention sur 4 thèmes : addictions et produits psychoactifs,\nrisques auditifs, vie affective et sexuelle et accidents de la circulation.\n\n \n\nL’association prend en charge 50% de ton abonnement transport, tes frais de\nmissions (repas, déplacements, hébergements) et t’offre une demi-journée de\ncongé supplémentaire par mois d’engagement.\n\n\n\n\n\nActions\n\n\n\n\nTu exerceras ta mission au sein d’équipes composées de permanents salariés et de\nbénévoles. Les actions auxquelles tu participeras se dérouleront sous\ndifférentes modalités :\n\n🏫 Dans les collèges, lycées, CFA, MFR, lors de séances collectives.\n\n🎓 Sur les campus universitaires.\n\n🎶 En milieux festifs (concerts, festivals…).\n\n🌍 Dans l’espace public, lors d’actions de proximité.\n\n \n\nConcrètement, tu pourras :\n\n • Aller à la rencontre des jeunes pour ouvrir le dialogue sur les questions de\n   santé,\n • Les faire réfléchir à leurs pratiques et les accompagner vers des choix plus\n   éclairés,\n • Utiliser des outils participatifs et ludiques (jeux, débats, mises en\n   situation, brainstorming…),\n • Les informer, orienter, écouter — vraiment écouter,\n • Participer à la vie associative à travers des réunions d’équipe, l'assemblée\n   générale, les regroupements des intervenants (mutualisation des formations,\n   co-animation d'actions).\n\n  \n\nDes temps collectifs, sous forme de réunions hebdomadaires dans les locaux de\nl’association, seront organisés pour réfléchir, co-construire, adapter les\nmodalités d'intervention et évaluer les projets de prévention.\n\nN’hésite pas à consulter notre insta @avenirsante_pdl et notre site\nwww.avenir-sante.com [http://www.avenir-sante.com/] !\n\n\n\n\n\nCapacité d’initiative\n\n\nToute idée sera la bienvenue ! Tu pourras proposer de nouveaux outils, des lieux\nd’intervention, des thématiques à aborder sur nos réseaux, etc.\n\n\n\nVOTRE ENVIRONNEMENT\nFormations obligatoires proposées\n\n\nTu bénéficieras de la formation certifiante PSC1 pour acquérir les gestes de\npremiers secours et d'une formation civique et citoyenne de ton choix !\n\n\nTutorat et accompagnement\n\n\nTu seras accompagné·e par une tutrice référente pour mener à bien ta mission.\nElle sera à tes côtés et t'aidera à préparer ton projet d’avenir",
+        "applicationUrl": "http://localhost:4000/r/b2f179ee-f855-49ba-9a8d-fc3e15343862/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_02.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 2
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "f20c3900-28de-4a18-a6ac-c6bbf63ce1e7",
+        "title": "Partager des activités avec des personnes en situation de handicap au sein d'un GEM",
+        "remote": "no",
+        "schedule": "Plus de 30h",
+        "domain": "solidarite-insertion",
+        "domainOriginal": "Solidarité",
+        "organizationName": "ASSOCIATION SIMON DE CYRENE NANTES",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Nantes",
+          "closestLat": 47.214606,
+          "closestLon": -1.560663,
+          "closestAddress": "5 RUE BOILEAU, 44000 Nantes, FR",
+          "addressId": "32054688-43ab-4fd1-9bc6-a5738eb83bda",
+          "distanceKm": 0.6768624270212342
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/f20c3900-28de-4a18-a6ac-c6bbf63ce1e7/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "654b2e83-dc38-4d1a-a615-ac61a314c9b3",
+        "totalScore": 0.785407,
+        "taxonomyScore": 0.594,
+        "geoScore": 0.976815,
+        "taxonomyScores": {
+          "formation_onisep": 0.97,
+          "tranche_age": 1,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Pratiquer des activités diverses (jeux de société, activités manuelles : peinture, bricolage divers…) / Favoriser la participation et la responsabilisation des personnes handicapées",
+              "reasoning": "La mission inclut explicitement l'animation d'activités collectives et la participation des bénéficiaires."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "participer au développement et à l’animation d' un groupe d'activités pour améliorer le lien social des personnes cérébro-lésées souvent isolées / Prendre soin de son prochain et appréhender la fragilité dans l'échange et de partage",
+              "reasoning": "La mission est centrée sur l'accompagnement social et la lutte contre l'isolement des personnes en situation de handicap, ce qui relève clairement du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "améliorer le lien social des personnes cérébro-lésées souvent isolées / personnes atteintes d’un handicap",
+              "reasoning": "La mission s'inscrit dans le secteur de l'aide à la personne, spécifiquement pour des publics en situation de handicap."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.92,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Prendre soin de son prochain et appréhender la fragilité dans l'échange et de partage / A l’écoute et bienveillant",
+              "reasoning": "La mission implique un accompagnement humain et bienveillant envers des personnes en situation de fragilité."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Esprit d'initiative et sens de l’organisation / Capacité d’animation et créativité / Savoir rendre compte de ses activités",
+              "reasoning": "Les tâches décrites nécessitent des compétences en organisation, animation et travail collaboratif."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "participer au développement et à l’animation d' un groupe d'activités pour améliorer le lien social des personnes cérébro-lésées souvent isolées",
+              "reasoning": "La mission implique une interaction directe avec les bénéficiaires pour leur apporter un soutien social."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Aider à l'organisation technique et logistique des activités proposées / Assurer la bonne tenue du lieu d’activité et du matériel",
+              "reasoning": "Une partie des tâches consiste à organiser et soutenir le fonctionnement des activités."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "social_sante_sport",
+            "taxonomyValueLabel": "Social, santé et sport",
+            "enrichmentConfidence": 0.93,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "améliorer le lien social des personnes cérébro-lésées souvent isolées / personnes atteintes d’un handicap",
+              "reasoning": "La mission relève du domaine social, de la santé et du sport, notamment par l'accompagnement de publics fragilisés."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "le volontaire sera sous l’autorité directe du responsable GEM / mission de service civique",
+              "reasoning": "La mission s'inscrit dans un cadre structuré et institutionnel (service civique, autorité hiérarchique claire)."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "service_civique",
+            "taxonomyValueLabel": "Service civique",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "f20c3900-28de-4a18-a6ac-c6bbf63ce1e7",
+        "title": "Partager des activités avec des personnes en situation de handicap au sein d'un GEM",
+        "domain": "solidarite-insertion",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "ASSOCIATION SIMON DE CYRENE NANTES",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Nantes",
+          "address": "5 RUE BOILEAU, 44000 Nantes",
+          "lat": 47.214606,
+          "lon": -1.560663
+        },
+        "startAt": "2026-05-18T00:00:00.000Z",
+        "endAt": "2027-01-18T01:00:00.000Z",
+        "duration": 8,
+        "schedule": "Plus de 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Missions confiées au volontaire :Trois jours par semaine, ainsi que certains samedis, le volontaire aura pour missions de participer au développement et à l’animation d' un groupe d'activités basé à Nantes pour améliorer le lien social des personnes cérébro-lésées souvent isolées.</p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p>Prendre soin de son prochain et appréhender la fragilité dans l'échange et de partage. </p></p><br>\n<b>Actions</b><br><p><p><u>Missions confiées au volontaire </u>: </p><p>Le volontaire aura pour missions de participer au développement et à l’animation d' un groupe d'activités pour améliorer le lien social des personnes cérébro-lésées souvent isolées du fait de leur handicap. Il sera sous l’autorité directe du responsable GEM. Les priorités de la mission sont : </p><p>Aider à l'organisation technique et logistique des activités proposées</p><p>Pratiquer des activités diverses (jeux de société, activités manuelles : peinture, bricolage divers… ) </p><p>Favoriser la participation et la responsabilisation des personnes handicapées dans le choix et l'organisation des activités.</p><p>Assurer la bonne tenue du lieu d’activité et du matériel </p><p><u>Les qualités attendues pour cette mission sont : </u></p><p>Esprit d’initiative et sens de l’organisation </p><p>Capacité d’animation et créativité </p><p>A l’écoute et bienveillant </p><p>Savoir rendre compte de ses activités et des difficultés rencontrées </p><p>Pour postuler à cette mission, merci d'envoyer un CV et une lettre de motivation à jour. </p></p><br>",
+        "description": "EN QUELQUES MOTS\n\n\nMissions confiées au volontaire :Trois jours par semaine, ainsi que certains\nsamedis, le volontaire aura pour missions de participer au développement et à\nl’animation d' un groupe d'activités basé à Nantes pour améliorer le lien social\ndes personnes cérébro-lésées souvent isolées.\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nPrendre soin de son prochain et appréhender la fragilité dans l'échange et de\npartage.\n\n\n\n\n\nActions\n\n\n\n\nMissions confiées au volontaire :\n\nLe volontaire aura pour missions de participer au développement et à l’animation\nd' un groupe d'activités pour améliorer le lien social des personnes\ncérébro-lésées souvent isolées du fait de leur handicap. Il sera sous l’autorité\ndirecte du responsable GEM. Les priorités de la mission sont :\n\nAider à l'organisation technique et logistique des activités proposées\n\nPratiquer des activités diverses (jeux de société, activités manuelles :\npeinture, bricolage divers… )\n\nFavoriser la participation et la responsabilisation des personnes handicapées\ndans le choix et l'organisation des activités.\n\nAssurer la bonne tenue du lieu d’activité et du matériel\n\nLes qualités attendues pour cette mission sont :\n\nEsprit d’initiative et sens de l’organisation\n\nCapacité d’animation et créativité\n\nA l’écoute et bienveillant\n\nSavoir rendre compte de ses activités et des difficultés rencontrées\n\nPour postuler à cette mission, merci d'envoyer un CV et une lettre de motivation\nà jour.\n\n\n",
+        "applicationUrl": "http://localhost:4000/r/f20c3900-28de-4a18-a6ac-c6bbf63ce1e7/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": true,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "887ea189-8be9-470f-baa7-2f69e48be65a",
+        "title": "Valoriser les actions et la parole des personnes en situation de handicap intellectuel.",
+        "remote": "no",
+        "schedule": "Plus de 30h",
+        "domain": "solidarite-insertion",
+        "domainOriginal": "Solidarité",
+        "organizationName": "Adapeila",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Nantes",
+          "closestLat": 47.219571,
+          "closestLon": -1.562931,
+          "closestAddress": "11 Rue Joseph Caillé, 44000 Nantes, FR",
+          "addressId": "df1cae90-92de-498a-873b-448903db80de",
+          "distanceKm": 0.7156720330169122
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/887ea189-8be9-470f-baa7-2f69e48be65a/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "3c23d5ff-3d78-4bc1-9411-2e56943f517a",
+        "totalScore": 0.784751,
+        "taxonomyScore": 0.594,
+        "geoScore": 0.975502,
+        "taxonomyScores": {
+          "formation_onisep": 0.97,
+          "tranche_age": 1,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Cette mission s’intègre dans la stratégie de communication de l’association qui vise à valoriser la parole et les actions des personnes en situation de handicap / En favorisant le partage de témoignages, cette mission contribue à faire évoluer les regards, à renforcer l’inclusion sociale et à affirmer le pouvoir d’agir des personnes accompagnées",
+              "reasoning": "La mission est centrée sur l'accompagnement social, l'inclusion et la valorisation des personnes en situation de handicap, ce qui relève clairement du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Recueillir des témoignages lors d'événements ou d’activités associatives / Contribuer, en collectant les témoignages, à la création de formats courts de sensibilisation à destination du grand public",
+              "reasoning": "La mission inclut une dimension pédagogique et de transmission de savoirs (sensibilisation) via la collecte et la valorisation de témoignages."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Cette mission s’intègre dans la stratégie de communication de l’association qui vise à valoriser la parole et les actions des personnes en situation de handicap / L’Adapeila milite pour l’accompagnement adapté des personnes qui présentent un handicap mental, de l’autisme, un polyhandicap, un handicap psychique",
+              "reasoning": "L'organisation et la mission sont clairement orientées vers le secteur de la santé, du social et de l'aide à la personne."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "numerique_communication",
+            "taxonomyValueLabel": "Numérique et communication",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Contribuer, en collectant les témoignages, à la création de formats courts de sensibilisation à destination du grand public / Être force de proposition sur les supports et messages diffusés en lien avec l'équipe communication",
+              "reasoning": "La mission implique la création de contenus de communication (formats courts) et une collaboration avec une équipe communication, relevant du secteur numérique et communication."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "communication_creation_numerique",
+            "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Contribuer, en collectant les témoignages, à la création de formats courts de sensibilisation à destination du grand public / Être force de proposition sur les supports et messages diffusés en lien avec l'équipe communication",
+              "reasoning": "La mission implique la création de contenus numériques (formats courts) et une collaboration avec une équipe communication, relevant des compétences numériques et créatives."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Être force de proposition sur les projets et témoignages à mettre en avant, les supports et messages diffusés en lien avec l'équipe communication et les personnes concernées",
+              "reasoning": "La mission nécessite une forte capacité à travailler en équipe, à proposer des idées et à s'adapter aux besoins des parties prenantes, relevant des soft skills et de la coopération."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Recueillir des témoignages lors d'événements ou d’activités associatives / Contribuer à la création de formats courts de sensibilisation à destination du grand public",
+              "reasoning": "La mission inclut explicitement la collecte de témoignages et la création de supports de sensibilisation, ce qui relève de la transmission et de la pédagogie."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Aller à la rencontre de personnes accompagnées sur des projets menés dans différents établissements de l’association / Valoriser les projets de l'association et les témoignages des personnes accompagnées",
+              "reasoning": "La mission implique des rencontres avec des publics et la valorisation de projets, ce qui relève de l'animation d'actions ou de collectifs."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Être force de proposition sur les projets et témoignages à mettre en avant, les supports et messages diffusés en lien avec l'équipe communication et les personnes concernées",
+              "reasoning": "La mission inclut une contribution à l'organisation et à la valorisation des actions de l'association, relevant du support organisationnel."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Aller à la rencontre de personnes accompagnées sur des projets menés dans différents établissements de l’association",
+              "reasoning": "La mission implique un contact direct avec les personnes accompagnées, ce qui relève de l'aide directe, bien que l'accent soit mis sur la valorisation plutôt que sur l'accompagnement direct."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Cette mission s’intègre dans la stratégie de communication de l’association qui vise à valoriser la parole et les actions des personnes en situation de handicap / L’Adapeila milite pour l’accompagnement adapté des personnes qui présentent un handicap mental",
+              "reasoning": "La mission et l'organisation porteuse sont liées à des enjeux de société, de droits et de politique publique en faveur des personnes en situation de handicap."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "social_sante_sport",
+            "taxonomyValueLabel": "Social, santé et sport",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Cette mission s’intègre dans la stratégie de communication de l’association qui vise à valoriser la parole et les actions des personnes en situation de handicap / L’Adapeila milite pour l’accompagnement adapté des personnes qui présentent un handicap mental",
+              "reasoning": "La mission et l'organisation porteuse sont clairement orientées vers le social, la santé et le soutien aux personnes en situation de handicap."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Type de mission : volontariat_service_civique / Être force de proposition sur les projets et témoignages à mettre en avant, les supports et messages diffusés en lien avec l'équipe communication",
+              "reasoning": "Le cadre de service civique est un engagement structuré et institutionnel, et la mission implique une collaboration avec une équipe communication, renforçant le caractère cadre structuré."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "service_civique",
+            "taxonomyValueLabel": "Service civique",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "887ea189-8be9-470f-baa7-2f69e48be65a",
+        "title": "Valoriser les actions et la parole des personnes en situation de handicap intellectuel.",
+        "domain": "solidarite-insertion",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "Adapeila",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Nantes",
+          "address": "11 Rue Joseph Caillé, 44000 Nantes",
+          "lat": 47.219571,
+          "lon": -1.562931
+        },
+        "startAt": "2026-05-04T00:00:00.000Z",
+        "endAt": "2027-01-04T01:00:00.000Z",
+        "duration": 8,
+        "schedule": "Plus de 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Cette mission s’intègre dans la stratégie de communication de l’association qui vise à valoriser la parole et les actions des personnes en situation de handicap. </p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p class=\"ql-align-justify\"><span style=\"color: rgb(0, 112, 192);\">En favorisant le partage de témoignages, cette mission contribue à faire évoluer les regards, à renforcer l’inclusion sociale et à affirmer le pouvoir d’agir des personnes accompagnées.</span></p></p><br>\n<b>Actions</b><br><p><p class=\"ql-align-justify\"><span style=\"color: rgb(0, 112, 192);\">Le volontaire sera amené à : &nbsp;</span></p><ul><li class=\"ql-align-justify\"><span style=\"color: rgb(0, 112, 192);\">Aller à la rencontre de personnes accompagnées sur des projets menés dans différents établissements de l’association, comme : les travailleurs de l’ESAT de Thouaré qui pratiquent le foot adapté, les habitants du foyer des Lucines à Montbert qui organisent une journée festive autour des voitures anciennes, les enfants du centre de loisirs \"Loisirs Pluriel\" à Nantes, les habitants du foyer de Blain qui transforment leur espace de vie ; &nbsp;</span></li></ul><p class=\"ql-align-justify\"><br></p><p class=\"ql-align-justify\"><span style=\"color: rgb(0, 112, 192);\">Valoriser les projets de l'association et les témoignages des personnes accompagnées : &nbsp;</span></p><ul><li class=\"ql-align-justify\"><span style=\"color: rgb(0, 112, 192);\">Recueillir des témoignages lors d'événements ou d’activités associatives ; &nbsp;</span></li><li class=\"ql-align-justify\"><span style=\"color: rgb(0, 112, 192);\">Contribuer, en collectant les témoignages, à la création de formats courts de sensibilisation à destination du grand public ; &nbsp;</span></li><li class=\"ql-align-justify\"><span style=\"color: rgb(0, 112, 192);\">Être force de proposition sur les projets et témoignages à mettre en avant, les supports et messages diffusés en lien avec l'équipe communication et les personnes concernées. &nbsp;</span></li></ul><p><br></p></p><br>",
+        "description": "EN QUELQUES MOTS\n\n\nCette mission s’intègre dans la stratégie de communication de l’association qui\nvise à valoriser la parole et les actions des personnes en situation de\nhandicap.\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nEn favorisant le partage de témoignages, cette mission contribue à faire évoluer\nles regards, à renforcer l’inclusion sociale et à affirmer le pouvoir d’agir des\npersonnes accompagnées.\n\n\n\n\n\nActions\n\n\n\n\nLe volontaire sera amené à :  \n\n • Aller à la rencontre de personnes accompagnées sur des projets menés dans\n   différents établissements de l’association, comme : les travailleurs de\n   l’ESAT de Thouaré qui pratiquent le foot adapté, les habitants du foyer\n   des Lucines à Montbert qui organisent une journée festive autour des voitures\n   anciennes, les enfants du centre de loisirs \"Loisirs Pluriel\" à Nantes, les\n   habitants du foyer de Blain qui transforment leur espace de vie ;  \n\n\n\n\nValoriser les projets de l'association et les témoignages des personnes\naccompagnées :  \n\n • Recueillir des témoignages lors d'événements ou d’activités associatives ;  \n • Contribuer, en collectant les témoignages, à la création de formats courts de\n   sensibilisation à destination du grand public ;  \n • Être force de proposition sur les projets et témoignages à mettre en avant,\n   les supports et messages diffusés en lien avec l'équipe communication et les\n   personnes concernées.  \n\n\n\n\n\n",
+        "applicationUrl": "http://localhost:4000/r/887ea189-8be9-470f-baa7-2f69e48be65a/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "7db283bb-2183-48b9-a756-5c0393ba8e54",
+        "title": "Accompagnement de binômes (étudiant.e.s bénévoles/enfants) et animation d’ateliers collectifs CM2>3e",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "education",
+        "domainOriginal": "Éducation pour tous",
+        "organizationName": "Afev Nantes",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Nantes",
+          "closestLat": 47.21425,
+          "closestLon": -1.540093,
+          "closestAddress": "43 Rue du Pré Gauchet, 44000 Nantes, FR",
+          "addressId": "65d91102-dee4-4b3d-9287-d0033fe33fc6",
+          "distanceKm": 1.1197833680980702
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/7db283bb-2183-48b9-a756-5c0393ba8e54/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "40943f8e-6ee8-4cd8-869f-655b5a5d0db7",
+        "totalScore": 0.777967,
+        "taxonomyScore": 0.594,
+        "geoScore": 0.961935,
+        "taxonomyScores": {
+          "formation_onisep": 0.97,
+          "tranche_age": 1,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "réduire les inégalités socio-éducatives / accompagner un.e enfant pour un accompagnement global et individuel / Accompagne individuellement un.e jeune dans son épanouissement",
+              "reasoning": "La mission vise explicitement la réduction des inégalités et l'accompagnement individuel de jeunes en fragilité, ce qui relève du social et de la solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "animer des ateliers collectifs en primaire et collège / accompagnement à la scolarité / aide aux devoirs",
+              "reasoning": "Les activités décrites relèvent directement du secteur de l'éducation, de la formation et de l'animation."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "réduire les inégalités socio-éducatives / accompagner un.e enfant pour un accompagnement global et individuel",
+              "reasoning": "L'accompagnement individuel et la lutte contre les inégalités socio-éducatives relèvent aussi du secteur social et de l'aide à la personne."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "animer des ateliers collectifs en primaire et collège autour de différentes thématiques (passerelle CM2/6ème, accompagnement à la scolarité, aide aux devoirs) / Accompagne individuellement un.e jeune dans son épanouissement et son ouverture culturelle",
+              "reasoning": "La mission est centrée sur la transmission de savoirs, l'accompagnement scolaire et l'épanouissement des jeunes, ce qui relève clairement de l'éducation et de la transmission."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "accompagner un.e enfant pour un accompagnement global et individuel / Accompagne individuellement un.e jeune dans son épanouissement",
+              "reasoning": "La mission implique un accompagnement humain et individuel, relevant du management social et du soin."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Des réunions hebdomadaires pour donner son avis et prendre des décisions collectives / possibilité de proposer des nouveaux projets pour l'Afev",
+              "reasoning": "La mission inclut une forte dimension collective et collaborative, avec des prises de décision en équipe."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "animer des ateliers collectifs en primaire et collège / accompagnement à la scolarité / aide aux devoirs / Accompagne individuellement un.e jeune dans son épanouissement",
+              "reasoning": "La mission est clairement axée sur la transmission de savoirs, la pédagogie et l'accompagnement éducatif."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "accompagner un.e enfant pour un accompagnement global et individuel / Accompagne individuellement un.e jeune dans son épanouissement",
+              "reasoning": "L'accompagnement individuel et personnalisé des jeunes relève d'une aide directe."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "animer des ateliers collectifs en primaire et collège",
+              "reasoning": "La mission inclut explicitement l'animation d'ateliers collectifs."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Mets en relation chaque bénévole avec un.e enfant / rédiger des comptes-rendus de vos échanges / Des réunions hebdomadaires pour donner son avis et prendre des décisions collectives",
+              "reasoning": "La mission implique une coordination entre bénévoles, un suivi administratif et une participation à la vie collective de l'association."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Tu vas animer des ateliers collectifs (passerelle CM2/6ème et Devoirs Faits au collège) et contribuer à l’accompagnement individuel de jeunes en fragilité dans leurs parcours avec des bénévoles étudiant.e.s (mentorat). / VOTRE MISSION DE SERVICE CIVIQUE / Formations obligatoires proposées / Tutorat et accompagnement / Entretiens individuels réguliers avec ton.ta tuteur.rice",
+              "reasoning": "La mission est encadrée dans le cadre d'un service civique, avec des formations obligatoires, un tutorat et un accompagnement structuré, ce qui relève d'un cadre engagé."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "education_culture_creation",
+            "taxonomyValueLabel": "Éducation, culture et création",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "animer des ateliers collectifs en primaire et collège / accompagnement à la scolarité / aide aux devoirs",
+              "reasoning": "Les activités décrites relèvent de l'éducation, de la transmission et de la création d'ateliers pédagogiques."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "social_sante_sport",
+            "taxonomyValueLabel": "Social, santé et sport",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "réduire les inégalités socio-éducatives / accompagner un.e enfant pour un accompagnement global et individuel",
+              "reasoning": "La mission vise l'accompagnement de jeunes en fragilité, ce qui relève du social et de la santé."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "service_civique",
+            "taxonomyValueLabel": "Service civique",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "7db283bb-2183-48b9-a756-5c0393ba8e54",
+        "title": "Accompagnement de binômes (étudiant.e.s bénévoles/enfants) et animation d’ateliers collectifs CM2>3e",
+        "domain": "education",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "Afev Nantes",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Nantes",
+          "address": "43 Rue du Pré Gauchet, 44000 Nantes",
+          "lat": 47.21425,
+          "lon": -1.540093
+        },
+        "startAt": "2026-09-07T00:00:00.000Z",
+        "endAt": "2027-05-07T00:00:00.000Z",
+        "duration": 8,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Tu aimes être au contact des élèves et transmettre un autre regard sur l’école ? Tu vas animer des ateliers collectifs (passerelle CM2/6ème et Devoirs Faits au collège) et contribuer à l’accompagnement individuel de jeunes en fragilité dans leurs parcours avec des bénévoles étudiant.e.s (mentorat).</p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p><span style=\"color: rgb(0, 0, 0);\">A Nantes, nous proposons à notre équipe de choisir parmi plusieurs missions. Suivant ton appétence tu pourras mener des actions pour réduire les inégalités socio-éducatives (ex : lecture, orientation), pour promouvoir la convivialité dans les quartiers ou pour fédérer les bénévoles de l’association.</span></p></p><br>\n<b>Actions</b><br><p><p><strong style=\"color: rgb(0, 0, 0); background-color: transparent;\">🤝 Partage une expérience collective avec 30 jeunes en service civique :</strong></p><ul><li><span style=\"background-color: transparent;\">2 semaines d’intégration pour connaître ton équipe et découvrir ta mission</span></li><li><span style=\"background-color: transparent;\">Des formations pour débattre ensemble et s’ouvrir au monde</span></li><li><span style=\"background-color: transparent;\">Des événements pour rencontrer les jeunes bénévoles</span></li><li><span style=\"background-color: transparent;\">Un accompagnement dans ta mission et pour construire ton projet d’avenir</span></li></ul><p><br></p><p><strong style=\"color: rgb(0, 0, 0); background-color: transparent;\">✊ Agis concrètement sur un territoire :&nbsp;</strong></p><ul><li><span style=\"background-color: transparent;\">Mets en relation chaque bénévole avec un.e enfant pour un accompagnement global et individuel&nbsp; : l’accompagner lors de la première rencontre, l’écouter, lui donner des conseils, et rédiger des comptes-rendus de vos échanges</span></li><li><span style=\"background-color: transparent;\">Animer des ateliers collectifs en primaire et collège autour de différentes thématiques (passerelle CM2/6ème, accompagnement à la scolarité, aide aux devoirs)&nbsp;</span></li><li><span style=\"background-color: transparent;\">Rencontre des professionnel.le.s de l’éducation</span></li></ul><p><br></p><p><strong style=\"color: rgb(0, 0, 0); background-color: transparent;\">🧑‍🤝‍🧑 Vis une belle histoire de mentorat :&nbsp;</strong></p><ul><li><span style=\"background-color: transparent;\">Accompagne individuellement un.e jeune dans son épanouissement et son ouverture culturelle</span></li></ul><p><br></p><p>(!) Possibilité d’être logé.e en colocation contre un loyer modéré</p></p><br>\n<b>Capacité d’initiative</b><br><p>Des réunions hebdomadaires pour donner son avis et prendre des décisions collectives, avec possibilité de proposer des nouveaux projets pour l'Afev</p><br>\n<b>VOTRE ENVIRONNEMENT</b><br><b>Formations obligatoires proposées</b><br><p>Formations ludiques et participatives (migration, discriminations, écologie, santé mentale, PSC1…) et rencontre avec d’autres associations locales</p><br><b>Tutorat et accompagnement</b><br><p>Entretiens individuels réguliers avec ton.ta tuteur.rice à propos de ta mission, tes initiatives et ton projet d’avenir et soutien de toute l’équipe</p>",
+        "description": "EN QUELQUES MOTS\n\n\nTu aimes être au contact des élèves et transmettre un autre regard sur l’école ?\nTu vas animer des ateliers collectifs (passerelle CM2/6ème et Devoirs Faits au\ncollège) et contribuer à l’accompagnement individuel de jeunes en fragilité dans\nleurs parcours avec des bénévoles étudiant.e.s (mentorat).\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nA Nantes, nous proposons à notre équipe de choisir parmi plusieurs missions.\nSuivant ton appétence tu pourras mener des actions pour réduire les inégalités\nsocio-éducatives (ex : lecture, orientation), pour promouvoir la convivialité\ndans les quartiers ou pour fédérer les bénévoles de l’association.\n\n\n\n\n\nActions\n\n\n\n\n🤝 Partage une expérience collective avec 30 jeunes en service civique :\n\n • 2 semaines d’intégration pour connaître ton équipe et découvrir ta mission\n • Des formations pour débattre ensemble et s’ouvrir au monde\n • Des événements pour rencontrer les jeunes bénévoles\n • Un accompagnement dans ta mission et pour construire ton projet d’avenir\n\n\n\n\n✊ Agis concrètement sur un territoire : \n\n • Mets en relation chaque bénévole avec un.e enfant pour un accompagnement\n   global et individuel  : l’accompagner lors de la première rencontre,\n   l’écouter, lui donner des conseils, et rédiger des comptes-rendus de vos\n   échanges\n • Animer des ateliers collectifs en primaire et collège autour de différentes\n   thématiques (passerelle CM2/6ème, accompagnement à la scolarité, aide aux\n   devoirs) \n • Rencontre des professionnel.le.s de l’éducation\n\n\n\n\n🧑‍🤝‍🧑 Vis une belle histoire de mentorat : \n\n • Accompagne individuellement un.e jeune dans son épanouissement et son\n   ouverture culturelle\n\n\n\n\n(!) Possibilité d’être logé.e en colocation contre un loyer modéré\n\n\n\n\n\nCapacité d’initiative\n\n\nDes réunions hebdomadaires pour donner son avis et prendre des décisions\ncollectives, avec possibilité de proposer des nouveaux projets pour l'Afev\n\n\n\nVOTRE ENVIRONNEMENT\nFormations obligatoires proposées\n\n\nFormations ludiques et participatives (migration, discriminations, écologie,\nsanté mentale, PSC1…) et rencontre avec d’autres associations locales\n\n\nTutorat et accompagnement\n\n\nEntretiens individuels réguliers avec ton.ta tuteur.rice à propos de ta mission,\ntes initiatives et ton projet d’avenir et soutien de toute l’équipe",
+        "applicationUrl": "http://localhost:4000/r/7db283bb-2183-48b9-a756-5c0393ba8e54/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 6
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "1b6732a5-b37e-4777-b9cc-a7cf2e0f4e50",
+        "title": "Animateur.rice Lien social : Crée du lien sur Nantes entre personnes avec et sans domicile !",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "solidarite-insertion",
+        "domainOriginal": "Solidarité",
+        "organizationName": "LA CLOCHE",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "NANTES",
+          "closestLat": 47.21993,
+          "closestLon": -1.535639,
+          "closestAddress": "5 B PLACE DE LA MANU, 44000 NANTES, FR",
+          "addressId": "b5d7aac6-6bb1-4781-830e-6227f4cf1c0f",
+          "distanceKm": 1.3690766621850896
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/1b6732a5-b37e-4777-b9cc-a7cf2e0f4e50/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "4e03fcc9-3db5-4be2-89f8-43c3696fe07c",
+        "totalScore": 0.77383,
+        "taxonomyScore": 0.594,
+        "geoScore": 0.95366,
+        "taxonomyScores": {
+          "formation_onisep": 0.97,
+          "tranche_age": 1,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Créer des temps conviviaux, favoriser l'échange et participer au changement de regard sur le monde de la rue / lutter contre l'isolement, de favoriser le lien social / créer une société plus inclusive",
+              "reasoning": "La mission est explicitement centrée sur la création de lien social, la lutte contre l'isolement et l'inclusion des personnes marginalisées, ce qui relève clairement du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "gestion_projet",
+            "taxonomyValueLabel": "Gestion de projet",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Participer à l’organisation des événements et activités / Organiser et animer des stands de sensibilisation / Contribuer à l'animation du réseau du Carillon / Améliorer les outils de communication existants",
+              "reasoning": "Les tâches décrites incluent une forte composante de coordination, d'organisation et d'amélioration de processus, typique de la gestion de projet."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Créer des temps conviviaux, favoriser l'échange et participer au changement de regard sur le monde de la rue / lutter contre l'isolement, de favoriser le lien social",
+              "reasoning": "La mission s'inscrit dans le secteur de l'aide à la personne et du social, avec un focus sur l'accompagnement des publics fragilisés."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "gestion_commerce_organisation",
+            "taxonomyValueLabel": "Gestion, commerce et organisation",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Contribuer à l'animation du réseau du Carillon (Commerçants solidaires) / Organiser et animer des stands de sensibilisation",
+              "reasoning": "Les tâches incluent l'animation d'un réseau de commerçants solidaires et l'organisation d'événements, relevant du secteur de la gestion et de l'organisation."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.92,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Animer nos repères, nos temps d’accueil des personnes sans domicile / créer des temps conviviaux, favoriser l'échange / lutter contre l'isolement",
+              "reasoning": "La mission implique un accompagnement humain, la création de lien social et l'aide aux personnes vulnérables, relevant du management social et soin."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Participer à l’organisation des événements et activités / Organiser et animer des stands de sensibilisation / Contribuer à l'animation du réseau du Carillon",
+              "reasoning": "Les tâches nécessitent une forte coopération, de l'organisation et des compétences relationnelles pour travailler en équipe et animer des réseaux."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "communication_creation_numerique",
+            "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Co-animer les réseaux sociaux (Création de contenus pour Instagram et Facebook) / Créer des visuels pour les différents évènements et activités (affiches, flyers)",
+              "reasoning": "La mission inclut explicitement la création de contenus numériques et de supports de communication visuelle."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Animer nos repères, nos temps d’accueil des personnes sans domicile / Participer à l’organisation des événements et activités : cuisine, bricolage, pétanque, karaoké / Organiser et animer des stands de sensibilisation",
+              "reasoning": "La mission est centrée sur l'animation d'activités, d'événements et de temps collectifs, ce qui relève clairement de l'intention d'animation."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Animer nos repères, nos temps d’accueil des personnes sans domicile / créer des temps conviviaux, favoriser l'échange",
+              "reasoning": "La mission implique un contact direct et régulier avec des personnes sans domicile, relevant de l'aide directe."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Rencontres chez des partenaires de l’action sociale (Restaurant social, bains douche, caarud...) pour présenter La Cloche à leur public / co-animer les réseaux sociaux",
+              "reasoning": "La mission inclut des actions de sensibilisation et de présentation de l'association, relevant d'une forme de transmission ou de médiation."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Améliorer les outils de communication existants / Contribuer à l'animation du réseau du Carillon",
+              "reasoning": "Les tâches incluent le soutien organisationnel et la gestion de projets, relevant du support organisationnel."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Type de mission : volontariat_service_civique / Formations obligatoires proposées : PSC1, formation à casser les clichés sur le monde de la rue",
+              "reasoning": "Le cadre du service civique, avec des formations obligatoires et un engagement structuré, relève d'un cadre structuré d'engagement."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Créer des temps conviviaux, favoriser l'échange et participer au changement de regard sur le monde de la rue / lutter contre l'isolement, de favoriser le lien social",
+              "reasoning": "La mission s'inscrit dans une démarche citoyenne et de changement social, relevant du domaine société, droit et politique."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "social_sante_sport",
+            "taxonomyValueLabel": "Social, santé et sport",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Animer nos repères, nos temps d’accueil des personnes sans domicile / créer des temps conviviaux, favoriser l'échange / lutter contre l'isolement",
+              "reasoning": "La mission est centrée sur l'accompagnement social et la santé mentale des publics fragilisés, relevant du domaine social, santé et sport."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "service_civique",
+            "taxonomyValueLabel": "Service civique",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "1b6732a5-b37e-4777-b9cc-a7cf2e0f4e50",
+        "title": "Animateur.rice Lien social : Crée du lien sur Nantes entre personnes avec et sans domicile !",
+        "domain": "solidarite-insertion",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "LA CLOCHE",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "NANTES",
+          "address": "5 B PLACE DE LA MANU, 44000 NANTES",
+          "lat": 47.21993,
+          "lon": -1.535639
+        },
+        "startAt": "2026-05-12T00:00:00.000Z",
+        "endAt": "2027-01-12T01:00:00.000Z",
+        "duration": 8,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Avec l’équipe de La Cloche Nantes, composée de 3 salariées et de bénévoles avec ou sans domicile, tu auras pour mission d’animer et de prendre part aux activités ou événements. Le but ? Créer des temps conviviaux, favoriser l’échange et participer au changement de regard sur le monde de la rue !</p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p>À La Cloche, on pense que tout le monde peut agir, que l'on soit avec ou sans domicile, commerçant·e, étudiant·e pour créer du lien social et une société plus inclusive.</p><p>Cette mission permet de t’engager dans une association qui promeut des valeurs de solidarité à l’égard des plus vulnérables. 🌱🤝</p></p><br>\n<b>Actions</b><br><p><p>Rattaché·e à la Coordinatrice de Nantes, ta mission sera de :</p><p><br></p><ul><li>Participer à l’organisation des événements et activités : cuisine, bricolage, pétanque, karaoké... 🌻🎤</li><li>Animer nos repères, nos temps d’accueil des personnes sans domicile 🕒</li><li>Rencontres chez des partenaires de l’action sociale (Restaurant social, bains douche, caarud...) pour présenter La Cloche à leur public</li><li>Organiser et animer des stands de sensibilisation lors de festivals et événements</li><li>Co-animer les réseaux sociaux (Création de contenus pour Instagram et Facebook)&nbsp;</li><li>Créer des visuels pour les différents évènements et activités (affiches, flyers)&nbsp;</li><li>Contribuer à l'animation du réseau du Carillon ( Commerçants solidaires)</li><li>Améliorer les outils de communication existants.&nbsp;</li></ul><p><br></p><p>Toutes ces missions sont réalisées en équipe, tout au long de l'année. Tu connaitras Nantes comme ta poche et fera une multitude de rencontre de tout horizon !</p><p><br></p></p><br>\n<b>Capacité d’initiative</b><br><p>Nous t'accompagnerons à réaliser un projet qui te plaise et t'anime pour clôturer joyeusement ton service civique !</p><br>\n<b>VOTRE ENVIRONNEMENT</b><br><b>Formations obligatoires proposées</b><br><p>PSC1Tu seras également formé a casser les clichés sur le monde de la rue, à l'écoute active, et mieux comprendre la grande exclusion.</p><br>",
+        "description": "EN QUELQUES MOTS\n\n\nAvec l’équipe de La Cloche Nantes, composée de 3 salariées et de bénévoles avec\nou sans domicile, tu auras pour mission d’animer et de prendre part aux\nactivités ou événements. Le but ? Créer des temps conviviaux, favoriser\nl’échange et participer au changement de regard sur le monde de la rue !\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nÀ La Cloche, on pense que tout le monde peut agir, que l'on soit avec ou sans\ndomicile, commerçant·e, étudiant·e pour créer du lien social et une société plus\ninclusive.\n\nCette mission permet de t’engager dans une association qui promeut des valeurs\nde solidarité à l’égard des plus vulnérables. 🌱🤝\n\n\n\n\n\nActions\n\n\n\n\nRattaché·e à la Coordinatrice de Nantes, ta mission sera de :\n\n\n\n\n • Participer à l’organisation des événements et activités : cuisine, bricolage,\n   pétanque, karaoké... 🌻🎤\n • Animer nos repères, nos temps d’accueil des personnes sans domicile 🕒\n • Rencontres chez des partenaires de l’action sociale (Restaurant social, bains\n   douche, caarud...) pour présenter La Cloche à leur public\n • Organiser et animer des stands de sensibilisation lors de festivals et\n   événements\n • Co-animer les réseaux sociaux (Création de contenus pour Instagram et\n   Facebook) \n • Créer des visuels pour les différents évènements et activités (affiches,\n   flyers) \n • Contribuer à l'animation du réseau du Carillon ( Commerçants solidaires)\n • Améliorer les outils de communication existants. \n\n\n\n\nToutes ces missions sont réalisées en équipe, tout au long de l'année. Tu\nconnaitras Nantes comme ta poche et fera une multitude de rencontre de tout\nhorizon !\n\n\n\n\n\n\n\n\nCapacité d’initiative\n\n\nNous t'accompagnerons à réaliser un projet qui te plaise et t'anime pour\nclôturer joyeusement ton service civique !\n\n\n\nVOTRE ENVIRONNEMENT\nFormations obligatoires proposées\n\n\nPSC1Tu seras également formé a casser les clichés sur le monde de la rue, à\nl'écoute active, et mieux comprendre la grande exclusion.\n",
+        "applicationUrl": "http://localhost:4000/r/1b6732a5-b37e-4777-b9cc-a7cf2e0f4e50/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": true,
+        "places": 1
+      },
+      "descriptionMissing": false
+    }
+  ],
+  "deterministic": {
+    "geo": 5,
+    "format": 5,
+    "missionsSansTagFormat": [],
+    "gateViolations": []
+  },
+  "judgeRuns": [
+    {
+      "runIndex": 0,
+      "seed": 1809720685,
+      "order": [
+        "7db283bb-2183-48b9-a756-5c0393ba8e54",
+        "887ea189-8be9-470f-baa7-2f69e48be65a",
+        "b2f179ee-f855-49ba-9a8d-fc3e15343862",
+        "1b6732a5-b37e-4777-b9cc-a7cf2e0f4e50",
+        "f20c3900-28de-4a18-a6ac-c6bbf63ce1e7"
+      ],
+      "output": {
+        "coherence": {
+          "score": 5,
+          "missionsPertinentes": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "justification": "Toutes les missions proposées sont en service civique à Nantes, à temps plein ou plus de 24h par semaine, ce qui correspond parfaitement à la demande d'Hugo pour une première expérience terrain à temps plein en service civique indemnisé. Les missions couvrent des domaines liés à la santé, au social, à l'animation et à l'accompagnement, en lien avec sa formation sociale, santé, sport et sa motivation pour une expérience terrain.",
+          "missionIdsPertinents": [
+            "7db283bb-2183-48b9-a756-5c0393ba8e54",
+            "887ea189-8be9-470f-baa7-2f69e48be65a",
+            "b2f179ee-f855-49ba-9a8d-fc3e15343862",
+            "1b6732a5-b37e-4777-b9cc-a7cf2e0f4e50",
+            "f20c3900-28de-4a18-a6ac-c6bbf63ce1e7"
+          ]
+        },
+        "homogeneite": {
+          "score": 4,
+          "familles": [
+            "Education et accompagnement scolaire",
+            "Santé et prévention",
+            "Lien social et inclusion",
+            "Handicap"
+          ],
+          "justification": "Les missions se répartissent en 4 familles principales : accompagnement scolaire et mentorat (mission 0), prévention santé (mission 2), animation sociale et lien social (mission 3), et accompagnement de personnes en situation de handicap (missions 1 et 4). La famille handicap regroupe 2 missions, les autres familles ont une ou deux missions, ce qui correspond à une homogénéité de niveau 4."
+        },
+        "cause": null
+      }
+    },
+    {
+      "runIndex": 1,
+      "seed": 1792943066,
+      "order": [
+        "b2f179ee-f855-49ba-9a8d-fc3e15343862",
+        "f20c3900-28de-4a18-a6ac-c6bbf63ce1e7",
+        "7db283bb-2183-48b9-a756-5c0393ba8e54",
+        "1b6732a5-b37e-4777-b9cc-a7cf2e0f4e50",
+        "887ea189-8be9-470f-baa7-2f69e48be65a"
+      ],
+      "output": {
+        "coherence": {
+          "score": 5,
+          "missionsPertinentes": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "justification": "Toutes les missions proposées sont en service civique à Nantes, à temps plein ou proche, et offrent une expérience terrain concrète, ce qui correspond parfaitement à la demande d'Hugo, étudiant en césure à Nantes cherchant une première expérience terrain à temps plein en service civique.",
+          "missionIdsPertinents": [
+            "b2f179ee-f855-49ba-9a8d-fc3e15343862",
+            "f20c3900-28de-4a18-a6ac-c6bbf63ce1e7",
+            "7db283bb-2183-48b9-a756-5c0393ba8e54",
+            "1b6732a5-b37e-4777-b9cc-a7cf2e0f4e50",
+            "887ea189-8be9-470f-baa7-2f69e48be65a"
+          ]
+        },
+        "homogeneite": {
+          "score": 4,
+          "familles": [
+            "Santé et prévention",
+            "Handicap et inclusion sociale",
+            "Éducation et accompagnement scolaire",
+            "Lien social et communication"
+          ],
+          "justification": "Les missions couvrent quatre familles distinctes : prévention santé (mission 0), handicap et inclusion (missions 1 et 4), éducation et accompagnement scolaire (mission 2), et lien social/animation (mission 3). La famille handicap a au moins deux missions, ce qui crée une certaine majorité."
+        },
+        "cause": null
+      }
+    }
+  ],
+  "engineVersion": "m2",
+  "startedAt": "2026-07-07T12:01:16.632Z",
+  "finishedAt": "2026-07-07T12:01:25.342Z",
+  "verdict": 4.9,
+  "cleanup": {
+    "userScoringDeleted": true
+  }
+}

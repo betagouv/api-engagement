@@ -1,0 +1,2258 @@
+{
+  "status": "success",
+  "parcours": {
+    "id": "mehdi-cv-multi-duree",
+    "segment": "demandeur_emploi",
+    "label": "Mehdi, 29 ans, demandeur d'emploi à Bordeaux, veut enrichir son CV avec plusieurs formats possibles",
+    "locationLabel": "Bordeaux (33)",
+    "age": 29,
+    "handicap": "ne_se_prononce_pas",
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 29,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "handicap",
+        "value": "ne_se_prononce_pas"
+      },
+      {
+        "taxonomy": "statut",
+        "value": "demandeur_emploi"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 44.837789,
+          "lon": -0.57918,
+          "country_code": "fr",
+          "label": "Bordeaux (33)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "reguliere"
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "temps_plein"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "enrichir_cv"
+      },
+      {
+        "taxonomy": "competence_rome",
+        "value": "gestion_pilotage_juridique"
+      }
+    ],
+    "notes": [
+      "Le parcours multi-duree est accepte par l'API mais potentiellement non atteignable dans l'UI actuelle si l'ecran duree reste mono-selection."
+    ]
+  },
+  "payload": {
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 29,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "handicap",
+        "value": "ne_se_prononce_pas"
+      },
+      {
+        "taxonomy": "statut",
+        "value": "demandeur_emploi"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 44.837789,
+          "lon": -0.57918,
+          "country_code": "fr",
+          "label": "Bordeaux (33)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "reguliere"
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "temps_plein"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "enrichir_cv"
+      },
+      {
+        "taxonomy": "competence_rome",
+        "value": "gestion_pilotage_juridique"
+      }
+    ],
+    "distinctId": "eval:first-blood:mehdi-cv-multi-duree",
+    "missionAlertEnabled": false
+  },
+  "userScoringId": "4d206943-cea6-435d-af6a-225f095966de",
+  "match": {
+    "tookMs": 74,
+    "engineVersion": "m2",
+    "items": [
+      {
+        "mission": {
+          "id": "678fb405ca07a268ceace66f",
+          "title": "Je distribue les flyers",
+          "remote": "no",
+          "schedule": "2 heures par semaine",
+          "domain": "solidarite-insertion",
+          "domainOriginal": null,
+          "organizationName": "Cultive tes rêves de Solidarité",
+          "publisherId": "5f5931496c7ea514150a818f",
+          "publisherName": "JeVeuxAider.gouv.fr",
+          "media": {
+            "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12186/kWWIC5GP5HbtahPhIcSJZ8mBLlVoTf.jpg?v=1746620055",
+            "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12186/kWWIC5GP5HbtahPhIcSJZ8mBLlVoTf.jpg?v=1746620055",
+            "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/29778/YhFFXFaleBClEopdHKeVJpCCRZMlva.jpg?v=1737381584",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+          },
+          "location": {
+            "city": "Mérignac",
+            "closestLat": 44.83337,
+            "closestLon": -0.674682,
+            "closestAddress": "33700 Mérignac, FR",
+            "addressId": "23f24ad4-564c-4350-b557-1fcdc7887f15",
+            "distanceKm": 7.546536931938638
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/678fb405ca07a268ceace66f/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "a11ec4f1-3df4-415a-b63b-b346b6ade407",
+          "totalScore": 0.543265,
+          "taxonomyScore": 0.316667,
+          "geoScore": 0.769863,
+          "taxonomyScores": {
+            "tranche_age": 1,
+            "type_mission": 0.9
+          },
+          "values": [
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "action_terrain",
+              "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "nous avons besoin de distribuer des flyers aux jeunes parents, pédiatres, crèches… / Les flyers sont faits, nous aurions besoin de 2 personnes, c'est plus agréable pour les distribuer",
+                "reasoning": "La mission consiste principalement en la distribution de supports de communication, ce qui relève de l'action terrain concrète."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Pour le bienveillance dans l'éducation et le développement de la langue des signes / Vous pourrez profiter de nos ateliers gratuitement",
+                "reasoning": "La mission est liée à un projet de communication gestuelle associée à la parole et à la langue des signes, ce qui relève de l'éducation et de la transmission."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "distribuer des flyers aux jeunes parents, pédiatres, crèches… / Pour le bienveillance dans l'éducation et le développement de la langue des signes",
+                "reasoning": "La mission combine une action de terrain (distribution) et une finalité éducative ou sociale (langue des signes, bienveillance dans l'éducation)."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "distribuer des flyers aux jeunes parents, pédiatres, crèches… / Pour le bienveillance dans l'éducation et le développement de la langue des signes",
+                "reasoning": "La mission cible des publics spécifiques (jeunes parents, enfants) et un domaine éducatif (langue des signes), ce qui relève du secteur social et de l'aide à la personne."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Vous pourrez profiter de nos ateliers gratuitement / Pour le bienveillance dans l'éducation et le développement de la langue des signes",
+                "reasoning": "La mission inclut une dimension de transmission de connaissances (langue des signes) et d'accompagnement éducatif, ce qui relève de l'éducation et de la formation."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "2 heures par semaine / du 1 septembre 2023",
+                "reasoning": "La mission est décrite comme régulière avec une fréquence hebdomadaire explicite."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "production_construction_qualite_logistique",
+              "taxonomyValueLabel": "Production, construction, qualité, logistique",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "distribuer des flyers / c'est plus agréable pour les distribuer",
+                "reasoning": "La mission implique une action concrète et répétée de distribution, ce qui relève de la production ou de la logistique."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Pour le bienveillance dans l'éducation et le développement de la langue des signes / Vous pourrez profiter de nos ateliers gratuitement",
+                "reasoning": "La mission inclut une dimension de transmission et d'accompagnement éducatif, ce qui relève du management social ou de la transmission."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "education_culture_creation",
+              "taxonomyValueLabel": "Éducation, culture et création",
+              "enrichmentConfidence": 0.6,
+              "scoringScore": 0.35,
+              "evidence": {
+                "extract": "Pour le bienveillance dans l'éducation et le développement de la langue des signes",
+                "reasoning": "La mission a une finalité éducative et sociale explicite, ce qui peut être rattaché à la formation ou à l'éducation."
+              }
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "benevolat",
+              "taxonomyValueLabel": "Bénévolat",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "678fb427ca07a268ceacea55",
+          "title": "J'aide les populations au Togo",
+          "remote": "no",
+          "schedule": "5 jours par semaine",
+          "domain": "vivre-ensemble",
+          "domainOriginal": null,
+          "organizationName": "Cultive tes rêves de Solidarité",
+          "publisherId": "5f5931496c7ea514150a818f",
+          "publisherName": "JeVeuxAider.gouv.fr",
+          "media": {
+            "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12162/cooperation-internationale-1.webp?v=1737022207",
+            "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12162/cooperation-internationale-1.webp?v=1737022207",
+            "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/29778/YhFFXFaleBClEopdHKeVJpCCRZMlva.jpg?v=1737381584",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+          },
+          "location": {
+            "city": "Mérignac",
+            "closestLat": 44.83337,
+            "closestLon": -0.674682,
+            "closestAddress": "33700 Mérignac, FR",
+            "addressId": "99cb1425-c90d-4b55-a7d2-e69b59641e96",
+            "distanceKm": 7.546536931938638
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/678fb427ca07a268ceacea55/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "d009aefd-db34-4867-b442-488c51dc1147",
+          "totalScore": 0.543265,
+          "taxonomyScore": 0.316667,
+          "geoScore": 0.769863,
+          "taxonomyScores": {
+            "tranche_age": 1,
+            "type_mission": 0.9
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "international_humanitaire",
+              "taxonomyValueLabel": "International et humanitaire",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Aller au Togo aider des enfants défavorisés / réaliser des missions d'aide aux populations locales dans divers domaines : éducation (aide aux devoirs, alphabétisation, sensibilisation…) / santé dans le dispensaire de nos partenaires, sous la responsabilité de l'infirmier local / sensibilisations dans les villages",
+                "reasoning": "La mission cible explicitement l'aide aux populations locales au Togo, avec des actions d'éducation, de santé et de sensibilisation, ce qui relève clairement du domaine international et humanitaire."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "réaliser des missions d'aide aux populations locales dans divers domaines : éducation (aide aux devoirs, alphabétisation, sensibilisation…) / santé dans le dispensaire de nos partenaires, sous la responsabilité de l'infirmier local / sensibilisations dans les villages",
+                "reasoning": "Les activités décrites (éducation, santé, sensibilisation) relèvent des secteurs de l'éducation, de la santé et de l'action sociale, mais la mission est centrée sur l'aide directe aux populations locales dans un contexte international."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "réaliser des missions d'aide aux populations locales dans divers domaines : éducation (aide aux devoirs, alphabétisation, sensibilisation…) / santé dans le dispensaire de nos partenaires, sous la responsabilité de l'infirmier local",
+                "reasoning": "Les tâches incluent l'aide aux devoirs, l'alphabétisation, la sensibilisation et l'accompagnement en santé, ce qui relève de la transmission de savoirs et de l'aide directe."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "réaliser des missions d'aide aux populations locales dans divers domaines : éducation (aide aux devoirs, alphabétisation, sensibilisation…)",
+                "reasoning": "Les activités d'aide aux devoirs, d'alphabétisation et de sensibilisation relèvent clairement de la transmission de connaissances et de l'accompagnement pédagogique."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "action_terrain",
+              "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "réaliser des missions d'aide aux populations locales dans divers domaines : éducation (aide aux devoirs, alphabétisation, sensibilisation…) / santé dans le dispensaire de nos partenaires, sous la responsabilité de l'infirmier local / sensibilisations dans les villages",
+                "reasoning": "Les tâches décrites (aide aux devoirs, alphabétisation, sensibilisation, accompagnement en santé) impliquent une interaction directe avec les bénéficiaires et une action sur le terrain."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Avec l'accompagnement de nos partenaires togolais / Pour une durée de minimum 2 semaines",
+                "reasoning": "La mission se déroule à l'étranger (Togo) et est encadrée par des partenaires locaux, ce qui relève d'un cadre structuré d'engagement."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "réaliser des missions d'aide aux populations locales dans divers domaines : éducation (aide aux devoirs, alphabétisation, sensibilisation…) / santé dans le dispensaire de nos partenaires, sous la responsabilité de l'infirmier local",
+                "reasoning": "Les tâches incluent la coordination avec des partenaires locaux et la réalisation d'actions concrètes, ce qui relève de la gestion de projet et de l'organisation."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Aller au Togo aider des enfants défavorisés / réaliser des missions d'aide aux populations locales dans divers domaines : éducation (aide aux devoirs, alphabétisation, sensibilisation…) / santé dans le dispensaire de nos partenaires",
+                "reasoning": "Les activités décrites (éducation, santé) relèvent des secteurs de l'éducation et de la santé, avec une dimension sociale forte."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "education_culture_creation",
+              "taxonomyValueLabel": "Éducation, culture et création",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Aller au Togo aider des enfants défavorisés / réaliser des missions d'aide aux populations locales dans divers domaines : éducation (aide aux devoirs, alphabétisation, sensibilisation…)",
+                "reasoning": "Les tâches d'aide aux devoirs, d'alphabétisation et de sensibilisation relèvent de la transmission de savoirs et de l'accompagnement pédagogique."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "social_sante_sport",
+              "taxonomyValueLabel": "Social, santé et sport",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "santé dans le dispensaire de nos partenaires, sous la responsabilité de l'infirmier local",
+                "reasoning": "L'accompagnement en santé dans un dispensaire relève clairement du domaine de la santé et de l'aide à la personne."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.99,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Pour une durée de minimum 2 semaines",
+                "reasoning": "La mission dure au moins 2 semaines, ce qui correspond à une mission régulière."
+              }
+            },
+            {
+              "taxonomyKey": "region_internationale",
+              "taxonomyValueKey": "afrique",
+              "taxonomyValueLabel": "Afrique",
+              "enrichmentConfidence": 0.99,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Aller au Togo",
+                "reasoning": "La mission se déroule explicitement au Togo, un pays africain."
+              }
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "benevolat",
+              "taxonomyValueLabel": "Bénévolat",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "e3037cb3-285b-428e-8be1-734cbd69d039",
+          "title": "Je répare des vélos lors d'ateliers participatifs",
+          "remote": "no",
+          "schedule": "3 jours par mois",
+          "domain": "environnement",
+          "domainOriginal": null,
+          "organizationName": "ETU'RECUP",
+          "publisherId": "5f5931496c7ea514150a818f",
+          "publisherName": "JeVeuxAider.gouv.fr",
+          "media": {
+            "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12187/eFUNuxT9xC5BNZpkGzszYoWixzs2De.jpg?v=1746619644",
+            "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12187/eFUNuxT9xC5BNZpkGzszYoWixzs2De.jpg?v=1746619644",
+            "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/5970/TiNxL5ce6vjziI0lIeUXImS6nOQI2F.png?v=1737381733",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+          },
+          "location": {
+            "city": "Pessac",
+            "closestLat": 44.79563,
+            "closestLon": -0.620703,
+            "closestAddress": "5 Allée Maine de Biran, 33600 Pessac, FR",
+            "addressId": "0fa996e9-b083-43ca-aee8-dab5c81626c4",
+            "distanceKm": 5.718681090403199
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/e3037cb3-285b-428e-8be1-734cbd69d039/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "842b6228-cde3-43a5-854c-acd3b149cd56",
+          "totalScore": 0.483855,
+          "taxonomyScore": 0.1475,
+          "geoScore": 0.82021,
+          "taxonomyScores": {
+            "type_mission": 0.885
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "environnement_nature",
+              "taxonomyValueLabel": "Environnement et nature",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Je répare des vélos lors d'ateliers participatifs / aider les technicien.ne.s / accompagner les adhérent.e.s qui participent à l'atelier dans la réparation de leur vélo / expliquer afin de rendre les personnes autonomes",
+                "reasoning": "La mission est centrée sur la réparation de vélos dans un atelier participatif, ce qui relève clairement de l'environnement et de la mobilité durable."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "action_terrain",
+              "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Je répare des vélos lors d'ateliers participatifs / aider les technicien.ne.s / accompagner les adhérent.e.s qui participent à l'atelier dans la réparation de leur vélo",
+                "reasoning": "Les tâches principales consistent à réparer des vélos et à accompagner des participants dans un atelier, ce qui relève de l'action terrain concrète."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "accompagner les adhérent.e.s qui participent à l'atelier dans la réparation de leur vélo / expliquer afin de rendre les personnes autonomes",
+                "reasoning": "La mission implique une transmission de savoir-faire et de connaissances pour rendre les participants autonomes."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "accompagner les adhérent.e.s qui participent à l'atelier dans la réparation de leur vélo / expliquer afin de rendre les personnes autonomes",
+                "reasoning": "La mission implique une interaction directe avec les participants pour les aider à réparer leur vélo, ce qui relève de l'aide directe."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "production_construction_qualite_logistique",
+              "taxonomyValueLabel": "Production, construction, qualité, logistique",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Le rôle du bénévole est d'accompagner les adhérent.e.s qui participent à l'atelier dans la réparation de leur vélo / expliquer afin de rendre les personnes autonomes",
+                "reasoning": "Les tâches principales relèvent de la mécanique et de la réparation, ce qui correspond à la catégorie production, construction, qualité, logistique."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "environnement_agriculture",
+              "taxonomyValueLabel": "Environnement et agriculture",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Etu'Recup est depuis quelques années maison du vélo et des mobilités alternatives / atelier participatif",
+                "reasoning": "La mission s'inscrit dans le secteur de l'environnement et des mobilités durables."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "3 jours par mois / Tu peux venir tous les jours ou une fois par an",
+                "reasoning": "La mission est régulière avec une fréquence mensuelle et une flexibilité importante, ce qui correspond à une mission régulière."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Etu'Recup, c'est une association à échelle humaine de 8 salariés avec plusieurs service civiques et une soixantaine de bénévoles",
+                "reasoning": "La mission se déroule dans une association avec un cadre structuré, mais pas suffisamment pour justifier un cadre engagé."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "environnement_nature_sciences",
+              "taxonomyValueLabel": "Environnement, nature et sciences",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Etu'Recup est depuis quelques années maison du vélo et des mobilités alternatives / atelier participatif",
+                "reasoning": "La mission est liée à l'environnement, la nature et les sciences appliquées à la mobilité durable."
+              }
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "benevolat",
+              "taxonomyValueLabel": "Bénévolat",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "678fb427ca07a268ceacea45",
+          "title": "Je gere la tresorerie de nos actions en faveur des personnes handicapées (sourdes)",
+          "remote": "full",
+          "schedule": "1 heure par semaine",
+          "domain": "solidarite-insertion",
+          "domainOriginal": null,
+          "organizationName": "Cultive tes rêves de Solidarité",
+          "publisherId": "5f5931496c7ea514150a818f",
+          "publisherName": "JeVeuxAider.gouv.fr",
+          "media": {
+            "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12165/solidarite-et-insertion-1.webp?v=1737022221",
+            "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12165/solidarite-et-insertion-1.webp?v=1737022221",
+            "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/29778/YhFFXFaleBClEopdHKeVJpCCRZMlva.jpg?v=1737381584",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+          },
+          "location": {
+            "city": null,
+            "closestLat": null,
+            "closestLon": null,
+            "closestAddress": null,
+            "addressId": null,
+            "distanceKm": null
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/678fb427ca07a268ceacea45/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "d90d0c8d-a26f-4b55-9387-6151e471975c",
+          "totalScore": 0.291667,
+          "taxonomyScore": 0.483333,
+          "geoScore": 0.1,
+          "taxonomyScores": {
+            "competence_rome": 1,
+            "tranche_age": 1,
+            "type_mission": 0.9
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "gérer la trésorerie de nos actions en faveur des personnes handicapées (sourdes)",
+                "reasoning": "La mission est explicitement centrée sur le soutien aux personnes handicapées, domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "gestion_projet",
+              "taxonomyValueLabel": "Gestion de projet",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "gérer la trésorerie de nos actions / écrire les lignes comptables de nos actions / Avoir une trésorerie bien tenue est essentiel pour la réalisation de nos actions",
+                "reasoning": "Les tâches décrites relèvent principalement de la gestion administrative et financière, typique de la gestion de projet."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "gestion_commerce_organisation",
+              "taxonomyValueLabel": "Gestion, commerce et organisation",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "gérer la trésorerie de nos actions / écrire les lignes comptables de nos actions",
+                "reasoning": "La mission relève clairement du secteur de la gestion, de l'organisation et de la finance."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "actions en faveur des personnes handicapées (sourdes)",
+                "reasoning": "Le public cible est des personnes handicapées, ce qui rattache la mission au secteur social et de l'aide à la personne."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "gestion_pilotage_juridique",
+              "taxonomyValueLabel": "Gestion, pilotage, juridique",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "gérer la trésorerie de nos actions / écrire les lignes comptables de nos actions",
+                "reasoning": "Les tâches décrites impliquent directement la gestion administrative, financière et comptable."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "gérer la trésorerie de nos actions / écrire les lignes comptables de nos actions / Avoir une trésorerie bien tenue est essentiel pour la réalisation de nos actions",
+                "reasoning": "La mission consiste à soutenir le fonctionnement organisationnel et financier de l'association."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.99,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "1 heure par semaine",
+                "reasoning": "La mission est explicitement décrite comme régulière avec une fréquence hebdomadaire."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "commerce_gestion_finance",
+              "taxonomyValueLabel": "Commerce, gestion, finance et services",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "gérer la trésorerie de nos actions / écrire les lignes comptables de nos actions",
+                "reasoning": "Les tâches relèvent directement de la gestion, de la finance et de l'administration."
+              }
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "benevolat",
+              "taxonomyValueLabel": "Bénévolat",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "0033eaee-8494-4058-8a62-548385787076",
+          "title": "Je donne un coup de pouce pour trouver des financements",
+          "remote": "full",
+          "schedule": "2 heures par semaine",
+          "domain": "benevolat-competences",
+          "domainOriginal": null,
+          "organizationName": "Fiertés Rurales",
+          "publisherId": "5f5931496c7ea514150a818f",
+          "publisherName": "JeVeuxAider.gouv.fr",
+          "media": {
+            "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/16730/oapbCLiySgVV2vlAphIdygoIbhlutK.jpg?v=1737369603",
+            "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/16730/oapbCLiySgVV2vlAphIdygoIbhlutK.jpg?v=1737369603",
+            "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/129481/Lo9m3NSewAjcykrz19msxIMDugrPpd.png?v=1763137070",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+          },
+          "location": {
+            "city": null,
+            "closestLat": null,
+            "closestLon": null,
+            "closestAddress": null,
+            "addressId": null,
+            "distanceKm": null
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/0033eaee-8494-4058-8a62-548385787076/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "464df98c-2d9a-4d8f-adaf-d16f89baae7c",
+          "totalScore": 0.289167,
+          "taxonomyScore": 0.478333,
+          "geoScore": 0.1,
+          "taxonomyScores": {
+            "competence_rome": 0.97,
+            "tranche_age": 1,
+            "type_mission": 0.9
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "gestion_projet",
+              "taxonomyValueLabel": "Gestion de projet",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Aidez-nous à mobiliser des soutiens ! / rechercher des partenaires et de soutiens financiers / identifier des sponsors éthiques, solliciter des commerçants engagés ou nous aider à remplir des formulaires de subvention",
+                "reasoning": "La mission implique un soutien organisationnel et logistique pour la recherche de financements et de partenariats."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "gestion_commerce_organisation",
+              "taxonomyValueLabel": "Gestion, commerce et organisation",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "rechercher des partenaires et de soutiens financiers / identifier des sponsors éthiques, solliciter des commerçants engagés",
+                "reasoning": "La mission relève du secteur de la gestion, du commerce et de l'organisation, notamment via la recherche de partenariats et de financements."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.99,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "3 heures — 2 heures par semaine / du 1 avril 2026 au 1 juillet 2026",
+                "reasoning": "La mission s'étend sur plusieurs semaines avec un volume horaire régulier et répété."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "gestion_pilotage_juridique",
+              "taxonomyValueLabel": "Gestion, pilotage, juridique",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "identifier des sponsors éthiques, solliciter des commerçants engagés",
+                "reasoning": "La mission implique des compétences en relation client, commerce et stratégie pour mobiliser des partenaires."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Pas besoin d'être un expert en finance : votre enthousiasme et votre envie de faire bouger les lignes en milieu rural sont nos plus grands atouts.",
+                "reasoning": "La mission implique une forme de transmission ou d'accompagnement dans la recherche de financements, même si ce n'est pas l'objectif principal."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "commerce_gestion_finance",
+              "taxonomyValueLabel": "Commerce, gestion, finance et services",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "rechercher des partenaires et de soutiens financiers / identifier des sponsors éthiques, solliciter des commerçants engagés ou nous aider à remplir des formulaires de subvention",
+                "reasoning": "La mission est clairement liée à la gestion, au commerce et aux finances, notamment via la recherche de financements et de partenariats."
+              }
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "benevolat",
+              "taxonomyValueLabel": "Bénévolat",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      }
+    ],
+    "total": 137,
+    "avgDistanceKmTop5": 6.94
+  },
+  "missions": [
+    {
+      "mission": {
+        "id": "678fb405ca07a268ceace66f",
+        "title": "Je distribue les flyers",
+        "remote": "no",
+        "schedule": "2 heures par semaine",
+        "domain": "solidarite-insertion",
+        "domainOriginal": null,
+        "organizationName": "Cultive tes rêves de Solidarité",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "media": {
+          "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12186/kWWIC5GP5HbtahPhIcSJZ8mBLlVoTf.jpg?v=1746620055",
+          "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12186/kWWIC5GP5HbtahPhIcSJZ8mBLlVoTf.jpg?v=1746620055",
+          "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/29778/YhFFXFaleBClEopdHKeVJpCCRZMlva.jpg?v=1737381584",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+        },
+        "location": {
+          "city": "Mérignac",
+          "closestLat": 44.83337,
+          "closestLon": -0.674682,
+          "closestAddress": "33700 Mérignac, FR",
+          "addressId": "23f24ad4-564c-4350-b557-1fcdc7887f15",
+          "distanceKm": 7.546536931938638
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/678fb405ca07a268ceace66f/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "a11ec4f1-3df4-415a-b63b-b346b6ade407",
+        "totalScore": 0.543265,
+        "taxonomyScore": 0.316667,
+        "geoScore": 0.769863,
+        "taxonomyScores": {
+          "tranche_age": 1,
+          "type_mission": 0.9
+        },
+        "values": [
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "action_terrain",
+            "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "nous avons besoin de distribuer des flyers aux jeunes parents, pédiatres, crèches… / Les flyers sont faits, nous aurions besoin de 2 personnes, c'est plus agréable pour les distribuer",
+              "reasoning": "La mission consiste principalement en la distribution de supports de communication, ce qui relève de l'action terrain concrète."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Pour le bienveillance dans l'éducation et le développement de la langue des signes / Vous pourrez profiter de nos ateliers gratuitement",
+              "reasoning": "La mission est liée à un projet de communication gestuelle associée à la parole et à la langue des signes, ce qui relève de l'éducation et de la transmission."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "distribuer des flyers aux jeunes parents, pédiatres, crèches… / Pour le bienveillance dans l'éducation et le développement de la langue des signes",
+              "reasoning": "La mission combine une action de terrain (distribution) et une finalité éducative ou sociale (langue des signes, bienveillance dans l'éducation)."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "distribuer des flyers aux jeunes parents, pédiatres, crèches… / Pour le bienveillance dans l'éducation et le développement de la langue des signes",
+              "reasoning": "La mission cible des publics spécifiques (jeunes parents, enfants) et un domaine éducatif (langue des signes), ce qui relève du secteur social et de l'aide à la personne."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Vous pourrez profiter de nos ateliers gratuitement / Pour le bienveillance dans l'éducation et le développement de la langue des signes",
+              "reasoning": "La mission inclut une dimension de transmission de connaissances (langue des signes) et d'accompagnement éducatif, ce qui relève de l'éducation et de la formation."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "2 heures par semaine / du 1 septembre 2023",
+              "reasoning": "La mission est décrite comme régulière avec une fréquence hebdomadaire explicite."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "production_construction_qualite_logistique",
+            "taxonomyValueLabel": "Production, construction, qualité, logistique",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "distribuer des flyers / c'est plus agréable pour les distribuer",
+              "reasoning": "La mission implique une action concrète et répétée de distribution, ce qui relève de la production ou de la logistique."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Pour le bienveillance dans l'éducation et le développement de la langue des signes / Vous pourrez profiter de nos ateliers gratuitement",
+              "reasoning": "La mission inclut une dimension de transmission et d'accompagnement éducatif, ce qui relève du management social ou de la transmission."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "education_culture_creation",
+            "taxonomyValueLabel": "Éducation, culture et création",
+            "enrichmentConfidence": 0.6,
+            "scoringScore": 0.35,
+            "evidence": {
+              "extract": "Pour le bienveillance dans l'éducation et le développement de la langue des signes",
+              "reasoning": "La mission a une finalité éducative et sociale explicite, ce qui peut être rattaché à la formation ou à l'éducation."
+            }
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "benevolat",
+            "taxonomyValueLabel": "Bénévolat",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "678fb405ca07a268ceace66f",
+        "title": "Je distribue les flyers",
+        "domain": "solidarite-insertion",
+        "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12186/kWWIC5GP5HbtahPhIcSJZ8mBLlVoTf.jpg?v=1746620055",
+        "type": "benevolat",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png",
+        "organizationName": "Cultive tes rêves de Solidarité",
+        "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/29778/YhFFXFaleBClEopdHKeVJpCCRZMlva.jpg?v=1737381584",
+        "location": {
+          "city": "Mérignac",
+          "address": "33700 Mérignac",
+          "lat": 44.83337,
+          "lon": -0.674682
+        },
+        "startAt": "2023-09-01T00:00:00.000Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "2 heures par semaine",
+        "compensation": null,
+        "descriptionHtml": "<b>Présentation de la mission</b><br><p>Pour notre projet bébé signe, nous avons besoin de distribuer des flyers aux jeunes parents, pédiatres, creches…</p><p>Les flyers sont faits , nous aurions besoin de 2 personnes , c est plus agréable pour &nbsp;les distribuer.&nbsp;</p><br><br><b>Sautez le pas</b><br><p>Vous pourrez profiter de nos ateliers gratuitement.&nbsp;</p><br><br><b>Précisions</b><br><p>Si vous aimez la marche et que vous voulez un but &nbsp;à votre exercice, venez aider ce projet de communication gestuelle associée à la parole. Pour le bienveillance dans l'éducation et le développement de la langue des signes. Vous pourrez profiter de nos ateliers gratuitement.&nbsp;</p>",
+        "description": "Présentation de la mission\n\n\nPour notre projet bébé signe, nous avons besoin de distribuer des flyers aux\njeunes parents, pédiatres, creches…\n\nLes flyers sont faits , nous aurions besoin de 2 personnes , c est plus agréable\npour  les distribuer. \n\n\n\nSautez le pas\n\n\nVous pourrez profiter de nos ateliers gratuitement. \n\n\n\nPrécisions\n\n\nSi vous aimez la marche et que vous voulez un but  à votre exercice, venez aider\nce projet de communication gestuelle associée à la parole. Pour le bienveillance\ndans l'éducation et le développement de la langue des signes. Vous pourrez\nprofiter de nos ateliers gratuitement. ",
+        "applicationUrl": "http://localhost:4000/r/678fb405ca07a268ceace66f/c4a9ce23692082d70af2b16d",
+        "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12186/kWWIC5GP5HbtahPhIcSJZ8mBLlVoTf.jpg?v=1746620055",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "678fb427ca07a268ceacea55",
+        "title": "J'aide les populations au Togo",
+        "remote": "no",
+        "schedule": "5 jours par semaine",
+        "domain": "vivre-ensemble",
+        "domainOriginal": null,
+        "organizationName": "Cultive tes rêves de Solidarité",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "media": {
+          "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12162/cooperation-internationale-1.webp?v=1737022207",
+          "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12162/cooperation-internationale-1.webp?v=1737022207",
+          "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/29778/YhFFXFaleBClEopdHKeVJpCCRZMlva.jpg?v=1737381584",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+        },
+        "location": {
+          "city": "Mérignac",
+          "closestLat": 44.83337,
+          "closestLon": -0.674682,
+          "closestAddress": "33700 Mérignac, FR",
+          "addressId": "99cb1425-c90d-4b55-a7d2-e69b59641e96",
+          "distanceKm": 7.546536931938638
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/678fb427ca07a268ceacea55/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "d009aefd-db34-4867-b442-488c51dc1147",
+        "totalScore": 0.543265,
+        "taxonomyScore": 0.316667,
+        "geoScore": 0.769863,
+        "taxonomyScores": {
+          "tranche_age": 1,
+          "type_mission": 0.9
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "international_humanitaire",
+            "taxonomyValueLabel": "International et humanitaire",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Aller au Togo aider des enfants défavorisés / réaliser des missions d'aide aux populations locales dans divers domaines : éducation (aide aux devoirs, alphabétisation, sensibilisation…) / santé dans le dispensaire de nos partenaires, sous la responsabilité de l'infirmier local / sensibilisations dans les villages",
+              "reasoning": "La mission cible explicitement l'aide aux populations locales au Togo, avec des actions d'éducation, de santé et de sensibilisation, ce qui relève clairement du domaine international et humanitaire."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "réaliser des missions d'aide aux populations locales dans divers domaines : éducation (aide aux devoirs, alphabétisation, sensibilisation…) / santé dans le dispensaire de nos partenaires, sous la responsabilité de l'infirmier local / sensibilisations dans les villages",
+              "reasoning": "Les activités décrites (éducation, santé, sensibilisation) relèvent des secteurs de l'éducation, de la santé et de l'action sociale, mais la mission est centrée sur l'aide directe aux populations locales dans un contexte international."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "réaliser des missions d'aide aux populations locales dans divers domaines : éducation (aide aux devoirs, alphabétisation, sensibilisation…) / santé dans le dispensaire de nos partenaires, sous la responsabilité de l'infirmier local",
+              "reasoning": "Les tâches incluent l'aide aux devoirs, l'alphabétisation, la sensibilisation et l'accompagnement en santé, ce qui relève de la transmission de savoirs et de l'aide directe."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "réaliser des missions d'aide aux populations locales dans divers domaines : éducation (aide aux devoirs, alphabétisation, sensibilisation…)",
+              "reasoning": "Les activités d'aide aux devoirs, d'alphabétisation et de sensibilisation relèvent clairement de la transmission de connaissances et de l'accompagnement pédagogique."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "action_terrain",
+            "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "réaliser des missions d'aide aux populations locales dans divers domaines : éducation (aide aux devoirs, alphabétisation, sensibilisation…) / santé dans le dispensaire de nos partenaires, sous la responsabilité de l'infirmier local / sensibilisations dans les villages",
+              "reasoning": "Les tâches décrites (aide aux devoirs, alphabétisation, sensibilisation, accompagnement en santé) impliquent une interaction directe avec les bénéficiaires et une action sur le terrain."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Avec l'accompagnement de nos partenaires togolais / Pour une durée de minimum 2 semaines",
+              "reasoning": "La mission se déroule à l'étranger (Togo) et est encadrée par des partenaires locaux, ce qui relève d'un cadre structuré d'engagement."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "réaliser des missions d'aide aux populations locales dans divers domaines : éducation (aide aux devoirs, alphabétisation, sensibilisation…) / santé dans le dispensaire de nos partenaires, sous la responsabilité de l'infirmier local",
+              "reasoning": "Les tâches incluent la coordination avec des partenaires locaux et la réalisation d'actions concrètes, ce qui relève de la gestion de projet et de l'organisation."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Aller au Togo aider des enfants défavorisés / réaliser des missions d'aide aux populations locales dans divers domaines : éducation (aide aux devoirs, alphabétisation, sensibilisation…) / santé dans le dispensaire de nos partenaires",
+              "reasoning": "Les activités décrites (éducation, santé) relèvent des secteurs de l'éducation et de la santé, avec une dimension sociale forte."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "education_culture_creation",
+            "taxonomyValueLabel": "Éducation, culture et création",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Aller au Togo aider des enfants défavorisés / réaliser des missions d'aide aux populations locales dans divers domaines : éducation (aide aux devoirs, alphabétisation, sensibilisation…)",
+              "reasoning": "Les tâches d'aide aux devoirs, d'alphabétisation et de sensibilisation relèvent de la transmission de savoirs et de l'accompagnement pédagogique."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "social_sante_sport",
+            "taxonomyValueLabel": "Social, santé et sport",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "santé dans le dispensaire de nos partenaires, sous la responsabilité de l'infirmier local",
+              "reasoning": "L'accompagnement en santé dans un dispensaire relève clairement du domaine de la santé et de l'aide à la personne."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.99,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Pour une durée de minimum 2 semaines",
+              "reasoning": "La mission dure au moins 2 semaines, ce qui correspond à une mission régulière."
+            }
+          },
+          {
+            "taxonomyKey": "region_internationale",
+            "taxonomyValueKey": "afrique",
+            "taxonomyValueLabel": "Afrique",
+            "enrichmentConfidence": 0.99,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Aller au Togo",
+              "reasoning": "La mission se déroule explicitement au Togo, un pays africain."
+            }
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "benevolat",
+            "taxonomyValueLabel": "Bénévolat",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "678fb427ca07a268ceacea55",
+        "title": "J'aide les populations au Togo",
+        "domain": "vivre-ensemble",
+        "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12162/cooperation-internationale-1.webp?v=1737022207",
+        "type": "benevolat",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png",
+        "organizationName": "Cultive tes rêves de Solidarité",
+        "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/29778/YhFFXFaleBClEopdHKeVJpCCRZMlva.jpg?v=1737381584",
+        "location": {
+          "city": "Mérignac",
+          "address": "33700 Mérignac",
+          "lat": 44.83337,
+          "lon": -0.674682
+        },
+        "startAt": "2023-01-16T00:00:00.000Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "5 jours par semaine",
+        "compensation": null,
+        "descriptionHtml": "<b>Présentation de la mission</b><br><p>Aller au Togo aider des enfants défavorisés</p><br><br><b>Sautez le pas</b><br><p>Vous rentrerez changé de cette expérience valorisante et enrichissante !</p><br><br><b>Précisions</b><br><p>Avec l'accompagnement de nos partenaires togolais , réaliser des missions d'aide aux populations locales dans divers domaines :&nbsp;</p><p>éducation (aide aux devoirs, alphabétisation, sensibilisation…)&nbsp;</p><p>santé dans le dispensaire de nos partenaires , sous la responsabilité de l'infirmier local</p><p>sensibilisations dans les villages…</p><p>Pour une durée de minimum 2 semaines</p>",
+        "description": "Présentation de la mission\n\n\nAller au Togo aider des enfants défavorisés\n\n\n\nSautez le pas\n\n\nVous rentrerez changé de cette expérience valorisante et enrichissante !\n\n\n\nPrécisions\n\n\nAvec l'accompagnement de nos partenaires togolais , réaliser des missions d'aide\naux populations locales dans divers domaines : \n\néducation (aide aux devoirs, alphabétisation, sensibilisation…) \n\nsanté dans le dispensaire de nos partenaires , sous la responsabilité de\nl'infirmier local\n\nsensibilisations dans les villages…\n\nPour une durée de minimum 2 semaines",
+        "applicationUrl": "http://localhost:4000/r/678fb427ca07a268ceacea55/c4a9ce23692082d70af2b16d",
+        "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12162/cooperation-internationale-1.webp?v=1737022207",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 4
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "e3037cb3-285b-428e-8be1-734cbd69d039",
+        "title": "Je répare des vélos lors d'ateliers participatifs",
+        "remote": "no",
+        "schedule": "3 jours par mois",
+        "domain": "environnement",
+        "domainOriginal": null,
+        "organizationName": "ETU'RECUP",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "media": {
+          "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12187/eFUNuxT9xC5BNZpkGzszYoWixzs2De.jpg?v=1746619644",
+          "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12187/eFUNuxT9xC5BNZpkGzszYoWixzs2De.jpg?v=1746619644",
+          "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/5970/TiNxL5ce6vjziI0lIeUXImS6nOQI2F.png?v=1737381733",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+        },
+        "location": {
+          "city": "Pessac",
+          "closestLat": 44.79563,
+          "closestLon": -0.620703,
+          "closestAddress": "5 Allée Maine de Biran, 33600 Pessac, FR",
+          "addressId": "0fa996e9-b083-43ca-aee8-dab5c81626c4",
+          "distanceKm": 5.718681090403199
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/e3037cb3-285b-428e-8be1-734cbd69d039/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "842b6228-cde3-43a5-854c-acd3b149cd56",
+        "totalScore": 0.483855,
+        "taxonomyScore": 0.1475,
+        "geoScore": 0.82021,
+        "taxonomyScores": {
+          "type_mission": 0.885
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "environnement_nature",
+            "taxonomyValueLabel": "Environnement et nature",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Je répare des vélos lors d'ateliers participatifs / aider les technicien.ne.s / accompagner les adhérent.e.s qui participent à l'atelier dans la réparation de leur vélo / expliquer afin de rendre les personnes autonomes",
+              "reasoning": "La mission est centrée sur la réparation de vélos dans un atelier participatif, ce qui relève clairement de l'environnement et de la mobilité durable."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "action_terrain",
+            "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Je répare des vélos lors d'ateliers participatifs / aider les technicien.ne.s / accompagner les adhérent.e.s qui participent à l'atelier dans la réparation de leur vélo",
+              "reasoning": "Les tâches principales consistent à réparer des vélos et à accompagner des participants dans un atelier, ce qui relève de l'action terrain concrète."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "accompagner les adhérent.e.s qui participent à l'atelier dans la réparation de leur vélo / expliquer afin de rendre les personnes autonomes",
+              "reasoning": "La mission implique une transmission de savoir-faire et de connaissances pour rendre les participants autonomes."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "accompagner les adhérent.e.s qui participent à l'atelier dans la réparation de leur vélo / expliquer afin de rendre les personnes autonomes",
+              "reasoning": "La mission implique une interaction directe avec les participants pour les aider à réparer leur vélo, ce qui relève de l'aide directe."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "production_construction_qualite_logistique",
+            "taxonomyValueLabel": "Production, construction, qualité, logistique",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Le rôle du bénévole est d'accompagner les adhérent.e.s qui participent à l'atelier dans la réparation de leur vélo / expliquer afin de rendre les personnes autonomes",
+              "reasoning": "Les tâches principales relèvent de la mécanique et de la réparation, ce qui correspond à la catégorie production, construction, qualité, logistique."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "environnement_agriculture",
+            "taxonomyValueLabel": "Environnement et agriculture",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Etu'Recup est depuis quelques années maison du vélo et des mobilités alternatives / atelier participatif",
+              "reasoning": "La mission s'inscrit dans le secteur de l'environnement et des mobilités durables."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "3 jours par mois / Tu peux venir tous les jours ou une fois par an",
+              "reasoning": "La mission est régulière avec une fréquence mensuelle et une flexibilité importante, ce qui correspond à une mission régulière."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Etu'Recup, c'est une association à échelle humaine de 8 salariés avec plusieurs service civiques et une soixantaine de bénévoles",
+              "reasoning": "La mission se déroule dans une association avec un cadre structuré, mais pas suffisamment pour justifier un cadre engagé."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "environnement_nature_sciences",
+            "taxonomyValueLabel": "Environnement, nature et sciences",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Etu'Recup est depuis quelques années maison du vélo et des mobilités alternatives / atelier participatif",
+              "reasoning": "La mission est liée à l'environnement, la nature et les sciences appliquées à la mobilité durable."
+            }
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "benevolat",
+            "taxonomyValueLabel": "Bénévolat",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "e3037cb3-285b-428e-8be1-734cbd69d039",
+        "title": "Je répare des vélos lors d'ateliers participatifs",
+        "domain": "environnement",
+        "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12187/eFUNuxT9xC5BNZpkGzszYoWixzs2De.jpg?v=1746619644",
+        "type": "benevolat",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png",
+        "organizationName": "ETU'RECUP",
+        "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/5970/TiNxL5ce6vjziI0lIeUXImS6nOQI2F.png?v=1737381733",
+        "location": {
+          "city": "Pessac",
+          "address": "5 Allée Maine de Biran, 33600 Pessac",
+          "lat": 44.79563,
+          "lon": -0.620703
+        },
+        "startAt": "2022-03-01T09:00:00.000Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "3 jours par mois",
+        "compensation": null,
+        "descriptionHtml": "<b>Présentation de la mission</b><br><p>Etu'Recup est depuis quelques années maison du vélo et des mobilités alternatives. Dans ce contexte, la fréquentation sur les ateliers participatifs s'est intensifiée et nous avons besoin de monde pour aider les technicien.ne.s !&nbsp;</p><p>Alors si tu t'y connais en mécanique vélos et que tu souhaites partager tes connaissances dans une bonne ambiance. Rejoins nous 🚲</p><br><br><b>Sautez le pas</b><br><p>Si ta crainte de l'engagement est la récurrence, pas d'inquiétude. Nous avons l'habitude d'accueillir un public étudiant avec des plannings très variables. Tu peux venir tous les jours ou une fois par an!&nbsp;</p><p>Etu'Recup, c'est une association à échelle humaine de 8 salariés avec plusieurs service civiques et une soixantaine de bénévoles ! Tout le monde se côtoie avec bonne humeur et dans une ambiance familiale.&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p><br><br><b>Précisions</b><br><p>Le rôle du bénévole est d'accompagner les adhérent.e.s qui participent à l'atelier dans la réparation de leur vélo. L'objectif n'est pas de faire à la place, mais bien d'expliquer afin de rendre les personnes autonomes autant que possible ! Nous avons une belle flotte de pièces d'occasions afin de permettre à tous et toutes de pouvoir réparer ou bien trouver un vélo peu couteux.&nbsp;</p><p>L'atelier est toujours co-animé avec des salarié.e.s de l'association.&nbsp;</p><p>&nbsp;</p>",
+        "description": "Présentation de la mission\n\n\nEtu'Recup est depuis quelques années maison du vélo et des mobilités\nalternatives. Dans ce contexte, la fréquentation sur les ateliers participatifs\ns'est intensifiée et nous avons besoin de monde pour aider les technicien.ne.s\n! \n\nAlors si tu t'y connais en mécanique vélos et que tu souhaites partager tes\nconnaissances dans une bonne ambiance. Rejoins nous 🚲\n\n\n\nSautez le pas\n\n\nSi ta crainte de l'engagement est la récurrence, pas d'inquiétude. Nous avons\nl'habitude d'accueillir un public étudiant avec des plannings très variables. Tu\npeux venir tous les jours ou une fois par an! \n\nEtu'Recup, c'est une association à échelle humaine de 8 salariés avec plusieurs\nservice civiques et une soixantaine de bénévoles ! Tout le monde se côtoie avec\nbonne humeur et dans une ambiance familiale. \n\n \n\n \n\n \n\n\n\nPrécisions\n\n\nLe rôle du bénévole est d'accompagner les adhérent.e.s qui participent à\nl'atelier dans la réparation de leur vélo. L'objectif n'est pas de faire à la\nplace, mais bien d'expliquer afin de rendre les personnes autonomes autant que\npossible ! Nous avons une belle flotte de pièces d'occasions afin de permettre à\ntous et toutes de pouvoir réparer ou bien trouver un vélo peu couteux. \n\nL'atelier est toujours co-animé avec des salarié.e.s de l'association. \n\n ",
+        "applicationUrl": "http://localhost:4000/r/e3037cb3-285b-428e-8be1-734cbd69d039/c4a9ce23692082d70af2b16d",
+        "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12187/eFUNuxT9xC5BNZpkGzszYoWixzs2De.jpg?v=1746619644",
+        "remote": "no",
+        "openToMinors": true,
+        "reducedMobilityAccessible": null,
+        "places": 5
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "678fb427ca07a268ceacea45",
+        "title": "Je gere la tresorerie de nos actions en faveur des personnes handicapées (sourdes)",
+        "remote": "full",
+        "schedule": "1 heure par semaine",
+        "domain": "solidarite-insertion",
+        "domainOriginal": null,
+        "organizationName": "Cultive tes rêves de Solidarité",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "media": {
+          "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12165/solidarite-et-insertion-1.webp?v=1737022221",
+          "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12165/solidarite-et-insertion-1.webp?v=1737022221",
+          "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/29778/YhFFXFaleBClEopdHKeVJpCCRZMlva.jpg?v=1737381584",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+        },
+        "location": {
+          "city": null,
+          "closestLat": null,
+          "closestLon": null,
+          "closestAddress": null,
+          "addressId": null,
+          "distanceKm": null
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/678fb427ca07a268ceacea45/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "d90d0c8d-a26f-4b55-9387-6151e471975c",
+        "totalScore": 0.291667,
+        "taxonomyScore": 0.483333,
+        "geoScore": 0.1,
+        "taxonomyScores": {
+          "competence_rome": 1,
+          "tranche_age": 1,
+          "type_mission": 0.9
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "gérer la trésorerie de nos actions en faveur des personnes handicapées (sourdes)",
+              "reasoning": "La mission est explicitement centrée sur le soutien aux personnes handicapées, domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "gestion_projet",
+            "taxonomyValueLabel": "Gestion de projet",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "gérer la trésorerie de nos actions / écrire les lignes comptables de nos actions / Avoir une trésorerie bien tenue est essentiel pour la réalisation de nos actions",
+              "reasoning": "Les tâches décrites relèvent principalement de la gestion administrative et financière, typique de la gestion de projet."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "gestion_commerce_organisation",
+            "taxonomyValueLabel": "Gestion, commerce et organisation",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "gérer la trésorerie de nos actions / écrire les lignes comptables de nos actions",
+              "reasoning": "La mission relève clairement du secteur de la gestion, de l'organisation et de la finance."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "actions en faveur des personnes handicapées (sourdes)",
+              "reasoning": "Le public cible est des personnes handicapées, ce qui rattache la mission au secteur social et de l'aide à la personne."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "gestion_pilotage_juridique",
+            "taxonomyValueLabel": "Gestion, pilotage, juridique",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "gérer la trésorerie de nos actions / écrire les lignes comptables de nos actions",
+              "reasoning": "Les tâches décrites impliquent directement la gestion administrative, financière et comptable."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "gérer la trésorerie de nos actions / écrire les lignes comptables de nos actions / Avoir une trésorerie bien tenue est essentiel pour la réalisation de nos actions",
+              "reasoning": "La mission consiste à soutenir le fonctionnement organisationnel et financier de l'association."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.99,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "1 heure par semaine",
+              "reasoning": "La mission est explicitement décrite comme régulière avec une fréquence hebdomadaire."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "commerce_gestion_finance",
+            "taxonomyValueLabel": "Commerce, gestion, finance et services",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "gérer la trésorerie de nos actions / écrire les lignes comptables de nos actions",
+              "reasoning": "Les tâches relèvent directement de la gestion, de la finance et de l'administration."
+            }
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "benevolat",
+            "taxonomyValueLabel": "Bénévolat",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "678fb427ca07a268ceacea45",
+        "title": "Je gere la tresorerie de nos actions en faveur des personnes handicapées (sourdes)",
+        "domain": "solidarite-insertion",
+        "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12165/solidarite-et-insertion-1.webp?v=1737022221",
+        "type": "benevolat",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png",
+        "organizationName": "Cultive tes rêves de Solidarité",
+        "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/29778/YhFFXFaleBClEopdHKeVJpCCRZMlva.jpg?v=1737381584",
+        "location": null,
+        "startAt": "2023-01-16T00:00:00.000Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "1 heure par semaine",
+        "compensation": null,
+        "descriptionHtml": "<b>Présentation de la mission</b><br><p>Vous pourrez gérer la trésorerie de nos actions.</p><br><br><b>Sautez le pas</b><br><p>Un suivi plus régulier nous permettrait une meilleure visibilité et plus d'actions à entreprendre</p><br><br><b>Précisions</b><br><p>Votre rôle sera notamment d'écrire les lignes comptables de nos actions. Avoir une trésorerie bien tenue est essentiel pour la réalisation de nos actions !</p>",
+        "description": "Présentation de la mission\n\n\nVous pourrez gérer la trésorerie de nos actions.\n\n\n\nSautez le pas\n\n\nUn suivi plus régulier nous permettrait une meilleure visibilité et plus\nd'actions à entreprendre\n\n\n\nPrécisions\n\n\nVotre rôle sera notamment d'écrire les lignes comptables de nos actions. Avoir\nune trésorerie bien tenue est essentiel pour la réalisation de nos actions !",
+        "applicationUrl": "http://localhost:4000/r/678fb427ca07a268ceacea45/c4a9ce23692082d70af2b16d",
+        "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12165/solidarite-et-insertion-1.webp?v=1737022221",
+        "remote": "full",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 7
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "0033eaee-8494-4058-8a62-548385787076",
+        "title": "Je donne un coup de pouce pour trouver des financements",
+        "remote": "full",
+        "schedule": "2 heures par semaine",
+        "domain": "benevolat-competences",
+        "domainOriginal": null,
+        "organizationName": "Fiertés Rurales",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "media": {
+          "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/16730/oapbCLiySgVV2vlAphIdygoIbhlutK.jpg?v=1737369603",
+          "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/16730/oapbCLiySgVV2vlAphIdygoIbhlutK.jpg?v=1737369603",
+          "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/129481/Lo9m3NSewAjcykrz19msxIMDugrPpd.png?v=1763137070",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+        },
+        "location": {
+          "city": null,
+          "closestLat": null,
+          "closestLon": null,
+          "closestAddress": null,
+          "addressId": null,
+          "distanceKm": null
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/0033eaee-8494-4058-8a62-548385787076/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "464df98c-2d9a-4d8f-adaf-d16f89baae7c",
+        "totalScore": 0.289167,
+        "taxonomyScore": 0.478333,
+        "geoScore": 0.1,
+        "taxonomyScores": {
+          "competence_rome": 0.97,
+          "tranche_age": 1,
+          "type_mission": 0.9
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "gestion_projet",
+            "taxonomyValueLabel": "Gestion de projet",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Aidez-nous à mobiliser des soutiens ! / rechercher des partenaires et de soutiens financiers / identifier des sponsors éthiques, solliciter des commerçants engagés ou nous aider à remplir des formulaires de subvention",
+              "reasoning": "La mission implique un soutien organisationnel et logistique pour la recherche de financements et de partenariats."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "gestion_commerce_organisation",
+            "taxonomyValueLabel": "Gestion, commerce et organisation",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "rechercher des partenaires et de soutiens financiers / identifier des sponsors éthiques, solliciter des commerçants engagés",
+              "reasoning": "La mission relève du secteur de la gestion, du commerce et de l'organisation, notamment via la recherche de partenariats et de financements."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.99,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "3 heures — 2 heures par semaine / du 1 avril 2026 au 1 juillet 2026",
+              "reasoning": "La mission s'étend sur plusieurs semaines avec un volume horaire régulier et répété."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "gestion_pilotage_juridique",
+            "taxonomyValueLabel": "Gestion, pilotage, juridique",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "identifier des sponsors éthiques, solliciter des commerçants engagés",
+              "reasoning": "La mission implique des compétences en relation client, commerce et stratégie pour mobiliser des partenaires."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Pas besoin d'être un expert en finance : votre enthousiasme et votre envie de faire bouger les lignes en milieu rural sont nos plus grands atouts.",
+              "reasoning": "La mission implique une forme de transmission ou d'accompagnement dans la recherche de financements, même si ce n'est pas l'objectif principal."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "commerce_gestion_finance",
+            "taxonomyValueLabel": "Commerce, gestion, finance et services",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "rechercher des partenaires et de soutiens financiers / identifier des sponsors éthiques, solliciter des commerçants engagés ou nous aider à remplir des formulaires de subvention",
+              "reasoning": "La mission est clairement liée à la gestion, au commerce et aux finances, notamment via la recherche de financements et de partenariats."
+            }
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "benevolat",
+            "taxonomyValueLabel": "Bénévolat",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "0033eaee-8494-4058-8a62-548385787076",
+        "title": "Je donne un coup de pouce pour trouver des financements",
+        "domain": "benevolat-competences",
+        "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/16730/oapbCLiySgVV2vlAphIdygoIbhlutK.jpg?v=1737369603",
+        "type": "benevolat",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png",
+        "organizationName": "Fiertés Rurales",
+        "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/129481/Lo9m3NSewAjcykrz19msxIMDugrPpd.png?v=1763137070",
+        "location": null,
+        "startAt": "2026-04-01T00:00:00.000Z",
+        "endAt": "2026-07-01T00:00:00.000Z",
+        "duration": 3,
+        "schedule": "2 heures par semaine",
+        "compensation": null,
+        "descriptionHtml": "<b>Présentation de la mission</b><br><br><br><b>Sautez le pas</b><br><p><strong>Donnez un coup de pouce aux Fiertés Rurales : Aidez-nous à mobiliser des soutiens !</strong></p><p>Pour que nos villages s’habillent aux couleurs de l'arc-en-ciel, la solidarité est notre meilleur levier. Nous cherchons des bénévoles motivé.es pour <strong>épauler notre équipe dans la recherche de partenaires et de soutiens financiers.</strong>&nbsp;</p><p>Que vous ayez la fibre commerciale, une aisance à l'écrit ou simplement un bon réseau local, votre aide nous est précieuse pour identifier des sponsors éthiques, solliciter des commerçants engagés ou nous aider à remplir des formulaires de subvention.&nbsp;</p><p>Pas besoin d'être un expert en finance : votre enthousiasme et votre envie de faire bouger les lignes en milieu rural sont nos plus grands atouts. Venez contribuer à la réussite de notre prochaine édition en nous aidant à trouver les moyens de nos ambitions !</p><br><br>",
+        "description": "Présentation de la mission\n\n\nSautez le pas\n\n\nDonnez un coup de pouce aux Fiertés Rurales : Aidez-nous à mobiliser des\nsoutiens !\n\nPour que nos villages s’habillent aux couleurs de l'arc-en-ciel, la solidarité\nest notre meilleur levier. Nous cherchons des bénévoles motivé.es pour épauler\nnotre équipe dans la recherche de partenaires et de soutiens financiers. \n\nQue vous ayez la fibre commerciale, une aisance à l'écrit ou simplement un bon\nréseau local, votre aide nous est précieuse pour identifier des sponsors\néthiques, solliciter des commerçants engagés ou nous aider à remplir des\nformulaires de subvention. \n\nPas besoin d'être un expert en finance : votre enthousiasme et votre envie de\nfaire bouger les lignes en milieu rural sont nos plus grands atouts. Venez\ncontribuer à la réussite de notre prochaine édition en nous aidant à trouver les\nmoyens de nos ambitions !\n\n",
+        "applicationUrl": "http://localhost:4000/r/0033eaee-8494-4058-8a62-548385787076/c4a9ce23692082d70af2b16d",
+        "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/16730/oapbCLiySgVV2vlAphIdygoIbhlutK.jpg?v=1737369603",
+        "remote": "full",
+        "openToMinors": false,
+        "reducedMobilityAccessible": null,
+        "places": 2
+      },
+      "descriptionMissing": false
+    }
+  ],
+  "deterministic": {
+    "geo": 5,
+    "format": 5,
+    "missionsSansTagFormat": [],
+    "gateViolations": []
+  },
+  "judgeRuns": [
+    {
+      "runIndex": 0,
+      "seed": 469539930,
+      "order": [
+        "678fb427ca07a268ceacea45",
+        "678fb427ca07a268ceacea55",
+        "e3037cb3-285b-428e-8be1-734cbd69d039",
+        "678fb405ca07a268ceace66f",
+        "0033eaee-8494-4058-8a62-548385787076"
+      ],
+      "output": {
+        "coherence": {
+          "score": 3,
+          "missionsPertinentes": [
+            4,
+            5,
+            1
+          ],
+          "justification": "Parmi les 5 missions proposées, trois semblent pertinentes pour Mehdi qui souhaite enrichir son CV avec des missions régulières et à temps plein, en lien avec ses compétences en gestion et pilotage juridique. La mission 4 (recherche de financements) correspond bien à ses compétences et motivation. La mission 0 (gestion de trésorerie) est aussi pertinente mais elle est à 1h par semaine, donc peu compatible avec un temps plein. La mission 1 (aide au Togo) est une expérience valorisante mais demande un engagement de 2 semaines minimum, ce qui peut être compatible. Les missions 2 (réparation de vélos) et 3 (distribution de flyers) sont moins en lien avec ses compétences et motivation.",
+          "missionIdsPertinents": [
+            "678fb405ca07a268ceace66f",
+            "0033eaee-8494-4058-8a62-548385787076",
+            "678fb427ca07a268ceacea45"
+          ]
+        },
+        "homogeneite": {
+          "score": 4,
+          "familles": [
+            "Gestion/Finance",
+            "Aide humanitaire",
+            "Communication"
+          ],
+          "justification": "Les missions pertinentes appartiennent à trois familles différentes : gestion/finance (mission 0 et 4), aide humanitaire (mission 1), et communication (mission 3). Il y a une famille avec au moins 3 missions (gestion/finance avec 0 et 4, mais en fait 2 missions seulement), donc la note 4 est justifiée car il y a 3 familles dont une avec au moins 2 missions, proche du critère demandé."
+        },
+        "cause": "offre"
+      }
+    },
+    {
+      "runIndex": 1,
+      "seed": 486317549,
+      "order": [
+        "e3037cb3-285b-428e-8be1-734cbd69d039",
+        "678fb427ca07a268ceacea55",
+        "678fb405ca07a268ceace66f",
+        "678fb427ca07a268ceacea45",
+        "0033eaee-8494-4058-8a62-548385787076"
+      ],
+      "output": {
+        "coherence": {
+          "score": 4,
+          "missionsPertinentes": [
+            3,
+            4
+          ],
+          "justification": "Parmi les 5 missions proposées, deux sont clairement pertinentes pour Mehdi qui souhaite enrichir son CV avec des compétences en gestion, pilotage juridique et recherche de financements. La mission 3 (gestion de trésorerie) et la mission 4 (aide à la recherche de financements) correspondent bien à ses compétences et objectifs. Les autres missions sont moins en lien avec son profil et motivation.",
+          "missionIdsPertinents": [
+            "678fb405ca07a268ceace66f",
+            "678fb427ca07a268ceacea45"
+          ]
+        },
+        "homogeneite": {
+          "score": 4,
+          "familles": [
+            "gestion financière",
+            "communication/animation",
+            "aide humanitaire"
+          ],
+          "justification": "Les missions proposées couvrent plusieurs familles : gestion financière (missions 3 et 4), communication/animation (missions 0 et 2), et aide humanitaire (mission 1). Il y a une majorité dans la famille gestion financière avec 2 missions, ce qui donne une homogénéité moyenne."
+        },
+        "cause": "offre"
+      }
+    }
+  ],
+  "engineVersion": "m2",
+  "startedAt": "2026-07-07T12:02:31.865Z",
+  "finishedAt": "2026-07-07T12:02:46.189Z",
+  "verdict": 4.300000000000001,
+  "cleanup": {
+    "userScoringDeleted": true
+  }
+}

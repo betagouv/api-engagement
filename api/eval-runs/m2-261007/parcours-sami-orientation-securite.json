@@ -1,0 +1,1790 @@
+{
+  "status": "success",
+  "parcours": {
+    "id": "sami-orientation-securite",
+    "segment": "lyceen",
+    "label": "Sami, 16 ans, lycéen en Seconde à Marseille, attiré par les métiers en uniforme et la sécurité, veut tester avant de choisir sa voie",
+    "locationLabel": "Marseille (13)",
+    "age": 16,
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 16,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "statut",
+        "value": "lyceen"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 43.296482,
+          "lon": 5.36978,
+          "country_code": "fr",
+          "label": "Marseille (13)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "reguliere"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "tester_orientation"
+      },
+      {
+        "taxonomy": "formation_onisep",
+        "value": "securite_defense_logistique"
+      }
+    ]
+  },
+  "payload": {
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 16,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "statut",
+        "value": "lyceen"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 43.296482,
+          "lon": 5.36978,
+          "country_code": "fr",
+          "label": "Marseille (13)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "reguliere"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "tester_orientation"
+      },
+      {
+        "taxonomy": "formation_onisep",
+        "value": "securite_defense_logistique"
+      }
+    ],
+    "distinctId": "eval:m2-261007:sami-orientation-securite",
+    "missionAlertEnabled": false
+  },
+  "userScoringId": "28f5a41b-a956-4aa6-a8f5-815505991b01",
+  "match": {
+    "tookMs": 1999,
+    "engineVersion": "m2",
+    "items": [
+      {
+        "mission": {
+          "id": "6703bbb473fbd982c1012924",
+          "title": "J'intégre une association de sécurité civile",
+          "remote": "no",
+          "schedule": "Une demi-journée par semaine",
+          "domain": "prevention-protection",
+          "domainOriginal": null,
+          "organizationName": "Association Marseillaise de Sauvetage et de Secourisme",
+          "publisherId": "5f5931496c7ea514150a818f",
+          "publisherName": "JeVeuxAider.gouv.fr",
+          "media": {
+            "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12125/sante-pour-tous-3.webp?v=1737022111",
+            "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12125/sante-pour-tous-3.webp?v=1737022111",
+            "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/11378/0N5dRxv3Hhrsvs2zIxlltdvD07zf6w.png?v=1737381487",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+          },
+          "location": {
+            "city": "Marseille",
+            "closestLat": 43.328018,
+            "closestLon": 5.397619,
+            "closestAddress": "Avenue prosper merimee, 13014 Marseille, FR",
+            "addressId": "13b0dd34-b911-482c-a166-f7d0ae3fb348",
+            "distanceKm": 4.167719233342941
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/6703bbb473fbd982c1012924/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "1db6ad53-d150-451b-be2c-3335dd115ede",
+          "totalScore": 0.626752,
+          "taxonomyScore": 0.388,
+          "geoScore": 0.865505,
+          "taxonomyScores": {
+            "formation_onisep": 0.97,
+            "type_mission": 0.97
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "securite_defense",
+              "taxonomyValueLabel": "Sécurité et défense",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Participer à des missions de sécurité civile / DEVENIR SECOURISTE BENEVOLE AU SEIN DE L’ASSOCIATION MARSEILLAISE DE SAUVETAGE ET DE SECOURISME / habilité à porter secours et assistance aux populations notamment sur :– Des Dispositifs Prévisionnels de Secours (événement festifs et sportifs accueillant du public) ;– Des missions de soutien aux populations (catastrophe naturelle, attentat terroriste)",
+                "reasoning": "La mission est explicitement centrée sur la sécurité civile, le secours et l'assistance aux populations, avec des missions opérationnelles claires."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "secours",
+              "taxonomyValueLabel": "Secours / intervention",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "DEVENIR SECOURISTE BENEVOLE AU SEIN DE L’ASSOCIATION MARSEILLAISE DE SAUVETAGE ET DE SECOURISME / Vous former au secourisme ou au sauvetage aquatique / formé à des agréments opérationnels et professionnels en fonction de vos envies et de votre temps (Premiers Secours en Équipe de Niveau 1 et 2, Brevet National de Sécurité et Sauvetage Aquatique, Chef de Poste, Permis Bateau, Permis Blanc, etc.)",
+                "reasoning": "La mission implique une formation et une intervention directe dans le domaine du secours et de la sécurité civile."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Une demi-journée par semaine / DEVENIR SECOURISTE BENEVOLE AU SEIN DE L’ASSOCIATION MARSEILLAISE DE SAUVETAGE ET DE SECOURISME",
+                "reasoning": "La mission est régulière, avec une fréquence hebdomadaire explicite."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "DEVENIR SECOURISTE BENEVOLE AU SEIN DE L’ASSOCIATION MARSEILLAISE DE SAUVETAGE ET DE SECOURISME / Rejoignez nous! Une équipe dynamique et professionnelle avec une ambiance de travail exceptionnelle!",
+                "reasoning": "La mission s'inscrit dans un cadre associatif structuré, avec une formation et une intégration dans une équipe professionnelle."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "securite_environnement_action_publique",
+              "taxonomyValueLabel": "Protection des personnes, de la société ou de l'environnement",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "DEVENIR SECOURISTE BENEVOLE AU SEIN DE L’ASSOCIATION MARSEILLAISE DE SAUVETAGE ET DE SECOURISME / habilité à porter secours et assistance aux populations",
+                "reasoning": "La mission implique une action directe de protection et d'assistance aux personnes."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "securite_service_public",
+              "taxonomyValueLabel": "Sécurité et service public",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "DEVENIR SECOURISTE BENEVOLE AU SEIN DE L’ASSOCIATION MARSEILLAISE DE SAUVETAGE ET DE SECOURISME / diffuser entre tous ses membres les techniques et les connaissances dans le domaine du sauvetage, du secourisme et des missions de sécurité civile",
+                "reasoning": "La mission relève du secteur de la sécurité et du service public, avec une dimension opérationnelle et de protection civile."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "securite_defense_logistique",
+              "taxonomyValueLabel": "Sécurité, défense et logistique",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "DEVENIR SECOURISTE BENEVOLE AU SEIN DE L’ASSOCIATION MARSEILLAISE DE SAUVETAGE ET DE SECOURISME / Vous former au secourisme ou au sauvetage aquatique / formé à des agréments opérationnels et professionnels",
+                "reasoning": "La mission implique une formation et une transmission de compétences en secourisme et sécurité civile."
+              }
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "benevolat",
+              "taxonomyValueLabel": "Bénévolat",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "a7a31578-594e-49ac-83da-2fd8e4115119",
+          "title": "Je veux donner un coup de pouce à la mobilité professionnelle",
+          "remote": "possible",
+          "schedule": "",
+          "domain": "emploi",
+          "domainOriginal": null,
+          "organizationName": "Adie Paca & Corse",
+          "publisherId": "619fb52a7d373e07aea8be35",
+          "publisherName": "Adie",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/emploi_01.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/emploi_01.jpeg",
+            "organizationLogo": null,
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/619fb52a7d373e07aea8be35/logo"
+          },
+          "location": {
+            "city": "Marseille 2e Arrondissement",
+            "closestLat": 43.3003,
+            "closestLon": 5.36654,
+            "closestAddress": "43 Rue de l'Évêché, 13002 Marseille 2e Arrondissement, FR",
+            "addressId": "d7ec2a73-7752-430b-82bb-4e64356dc437",
+            "distanceKm": 0.4989853663948833
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/a7a31578-594e-49ac-83da-2fd8e4115119/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "c3005ec7-5666-4077-aa22-64cb906c915c",
+          "totalScore": 0.591428,
+          "taxonomyScore": 0.2,
+          "geoScore": 0.982855,
+          "taxonomyScores": {
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "aider des personnes à accéder ou rester dans l’emploi / accompagner des personnes qui rencontrent des difficultés pour financer un projet indispensable à leur emploi / mission à forte utilité sociale",
+                "reasoning": "La mission vise explicitement l'accompagnement social et l'inclusion professionnelle, domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "gestion_projet",
+              "taxonomyValueLabel": "Gestion de projet",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "analyser leur demande de prêt en lien avec leur situation professionnelle / évaluer la capacité de remboursement / accompagner le montage du dossier / présenter le projet en comité",
+                "reasoning": "Les tâches décrites relèvent principalement de la coordination, de l'analyse et de l'organisation, typiques de la gestion de projet."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "gestion_commerce_organisation",
+              "taxonomyValueLabel": "Gestion, commerce et organisation",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "analyser leur demande de prêt en lien avec leur situation professionnelle / évaluer la capacité de remboursement / accompagner le montage du dossier",
+                "reasoning": "Les activités sont centrées sur l'analyse financière, le montage de dossiers et l'accompagnement, typiques du secteur gestion et organisation."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "aider des personnes à accéder ou rester dans l’emploi / accompagner des personnes qui rencontrent des difficultés pour financer un projet indispensable à leur emploi",
+                "reasoning": "L'accompagnement des personnes en difficulté d'insertion professionnelle relève du secteur social et aide à la personne."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Fréquence : 1 jour / semaine / Durée : 1 à 2 ans",
+                "reasoning": "La mission est explicitement décrite comme régulière sur une durée longue (1 à 2 ans)."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "gestion_pilotage_juridique",
+              "taxonomyValueLabel": "Gestion, pilotage, juridique",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "analyser leur demande de prêt en lien avec leur situation professionnelle / évaluer la capacité de remboursement / accompagner le montage du dossier",
+                "reasoning": "Les tâches impliquent l'analyse de dossiers financiers et juridiques, typiques de la gestion et du pilotage."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "accompagner le montage du dossier / présenter le projet en comité / être à l’écoute, bienveillant·e et empathique",
+                "reasoning": "La mission nécessite des compétences relationnelles, d'organisation et de travail en équipe."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "relation_client_commerce_strategie",
+              "taxonomyValueLabel": "Relation client, commerce, stratégie",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "présenter le projet en comité / aider des personnes à accéder ou rester dans l’emploi",
+                "reasoning": "La présentation de projets et l'accompagnement des bénéficiaires relèvent de la relation client et de la stratégie."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "aider des personnes à accéder ou rester dans l’emploi / accompagner des personnes qui rencontrent des difficultés pour financer un projet indispensable à leur emploi",
+                "reasoning": "La mission implique un accompagnement direct et personnalisé des bénéficiaires."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "analyser leur demande de prêt / évaluer la capacité de remboursement / accompagner le montage du dossier / présenter le projet en comité",
+                "reasoning": "Les tâches sont centrées sur l'organisation, l'analyse et la présentation de dossiers, typiques du support organisationnel."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "commerce_gestion_finance",
+              "taxonomyValueLabel": "Commerce, gestion, finance et services",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "analyser leur demande de prêt en lien avec leur situation professionnelle / évaluer la capacité de remboursement / accompagner le montage du dossier",
+                "reasoning": "Les activités sont directement liées à la gestion, la finance et l'accompagnement des projets professionnels."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "aider des personnes à accéder ou rester dans l’emploi / mission à forte utilité sociale / L’Adie est une grande association française qui défend l’idée que chacun, même sans capital, même sans diplôme, peut devenir entrepreneur",
+                "reasoning": "La mission s'inscrit dans une dimension sociale et politique d'inclusion et d'accès à l'emploi, typique des enjeux de société."
+              }
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "benevolat",
+              "taxonomyValueLabel": "Bénévolat",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "fd7dd9a3-9f26-4be5-a429-c767c834f993",
+          "title": "Bénévole Analyste",
+          "remote": "no",
+          "schedule": "",
+          "domain": "emploi",
+          "domainOriginal": null,
+          "organizationName": "Adie Paca & Corse",
+          "publisherId": "619fb52a7d373e07aea8be35",
+          "publisherName": "Adie",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/emploi_03.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/emploi_03.jpeg",
+            "organizationLogo": null,
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/619fb52a7d373e07aea8be35/logo"
+          },
+          "location": {
+            "city": "Marseille 2e Arrondissement",
+            "closestLat": 43.3003,
+            "closestLon": 5.36654,
+            "closestAddress": "43 Rue de l'Évêché, 13002 Marseille 2e Arrondissement, FR",
+            "addressId": "85911652-8bd4-44fd-87f6-7224e37bd331",
+            "distanceKm": 0.4989853663948833
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/fd7dd9a3-9f26-4be5-a429-c767c834f993/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "4751faea-f6d0-4ef3-a2c0-fe82d4d622af",
+          "totalScore": 0.591428,
+          "taxonomyScore": 0.2,
+          "geoScore": 0.982855,
+          "taxonomyScores": {
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "gestion_projet",
+              "taxonomyValueLabel": "Gestion de projet",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "réaliser des évaluations des dossiers de financement à posteriori / sortir une note mensuelle d'analyse d'activité / participer au comité des risques pour présenter la synthèse des évaluations réalisées sur la période et le plan d’actions",
+                "reasoning": "Les tâches principales consistent en l'analyse, la synthèse et la présentation de données pour le pilotage d'un projet, ce qui relève de la gestion de projet."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "gestion_commerce_organisation",
+              "taxonomyValueLabel": "Gestion, commerce et organisation",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "réaliser des évaluations des dossiers de financement à posteriori / sortir une note mensuelle d'analyse d'activité / participer au comité des risques",
+                "reasoning": "Les activités décrites relèvent de la gestion, de l'analyse financière et de l'organisation, typiques du secteur gestion, commerce et organisation."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Fréquence : 2 jours par mois (horaires flexibles) / Durée : Dans l'idéal 2 ans",
+                "reasoning": "La mission s'étend sur une durée significative avec une fréquence mensuelle explicite, ce qui correspond à une mission régulière."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "gestion_pilotage_juridique",
+              "taxonomyValueLabel": "Gestion, pilotage, juridique",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "réaliser des évaluations des dossiers de financement à posteriori / participer au comité des risques",
+                "reasoning": "Les tâches incluent l'évaluation de dossiers financiers et la participation à un comité de pilotage, ce qui relève de la gestion, du pilotage et des aspects réglementaires."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Autonomie, rigueur et organisation / Qualités relationnelles et pédagogiques / Les bénévoles intègrent une équipe constituée de salariés et d'autres bénévoles",
+                "reasoning": "La mission met en avant des compétences comportementales (autonomie, rigueur, organisation, relationnelles) et un travail en équipe, typiques de cette catégorie."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "réaliser des évaluations des dossiers de financement à posteriori / sortir une note mensuelle d'analyse d'activité / participer au comité des risques pour présenter la synthèse des évaluations réalisées sur la période et le plan d’actions",
+                "reasoning": "Les tâches décrites consistent principalement à soutenir l'organisation par l'analyse, la synthèse et la présentation de données pour le pilotage du projet."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "commerce_gestion_finance",
+              "taxonomyValueLabel": "Commerce, gestion, finance et services",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "réaliser des évaluations des dossiers de financement à posteriori / sortir une note mensuelle d'analyse d'activité / Capacités d’analyse de dossiers de crédit / Maitrise des outils informatiques (Excel, Google Drive)",
+                "reasoning": "Les activités et compétences mobilisées relèvent clairement du domaine de la gestion, de la finance et des outils numériques, typiques de cette formation."
+              }
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "benevolat",
+              "taxonomyValueLabel": "Bénévolat",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "65c40b69-bb96-4446-a3c1-5f29eca06fd8",
+          "title": "J'anime une équipe de bénévoles engagement des jeunes !",
+          "remote": "no",
+          "schedule": "",
+          "domain": "humanitaire",
+          "domainOriginal": null,
+          "organizationName": "Unicef Alpes Provence",
+          "publisherId": "622228e795a80b07b8e6dff7",
+          "publisherName": "UNICEF",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_02.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_02.jpeg",
+            "organizationLogo": null,
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/622228e795a80b07b8e6dff7/logo"
+          },
+          "location": {
+            "city": "2e arrondissement",
+            "closestLat": 43.300918,
+            "closestLon": 5.367291,
+            "closestAddress": "1 Place Francis Chirat, 13002 2e arrondissement, FR",
+            "addressId": "7f3438b4-9cb4-4d1f-99f7-8290a62c6c0d",
+            "distanceKm": 0.5328024381502497
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/65c40b69-bb96-4446-a3c1-5f29eca06fd8/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "845e2f4b-8a9f-482d-8928-a7b5e51727ac",
+          "totalScore": 0.590852,
+          "taxonomyScore": 0.2,
+          "geoScore": 0.981704,
+          "taxonomyScores": {
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "gestion_projet",
+              "taxonomyValueLabel": "Gestion de projet",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Assurer le dynamisme et la cohésion de l’équipe de bénévoles « Accompagnement des Enfants et des Jeunes » / Assurer la coordination des activités / Avec l’équipe créer un plan d’actions pour développer le nombre de jeunes engagés et leurs actions et en assurer sa mise en place",
+                "reasoning": "Les tâches principales consistent à animer une équipe de bénévoles et à coordonner des activités, ce qui relève clairement de la gestion de projet."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Assurer le dynamisme et la cohésion de l’équipe de bénévoles « Accompagnement des Enfants et des Jeunes » / Assurer la coordination des activités",
+                "reasoning": "La mission implique l'animation d'une équipe et la coordination d'activités, ce qui relève de l'organisation et de la coopération."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "gestion_pilotage_juridique",
+              "taxonomyValueLabel": "Gestion, pilotage, juridique",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Assurer le dynamisme et la cohésion de l’équipe de bénévoles « Accompagnement des Enfants et des Jeunes » / Assurer la coordination des activités",
+                "reasoning": "Les tâches incluent l'animation d'une équipe et la coordination, ce qui relève de la gestion et du pilotage."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "L’engagement des enfants et des jeunes est une priorité d’Unicef. / Vous êtes sensible à cette thématique et avez envie d’animer une équipe de bénévoles qui partagent votre volonté de favoriser la participation des jeunes ?",
+                "reasoning": "La mission est explicitement liée à l'engagement des jeunes et à la participation citoyenne, domaine de l'éducation et de la transmission."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Assurer le dynamisme et la cohésion de l’équipe de bénévoles « Accompagnement des Enfants et des Jeunes » / Assurer la coordination des activités / Avec l’équipe créer un plan d’actions pour développer le nombre de jeunes engagés",
+                "reasoning": "La mission implique l'animation d'une équipe et la coordination d'activités, ce qui relève de l'animation collective."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Assurer le dynamisme et la cohésion de l’équipe de bénévoles « Accompagnement des Enfants et des Jeunes » / Assurer la coordination des activités",
+                "reasoning": "La mission implique l'animation d'une équipe et la coordination d'activités, ce qui relève du support organisationnel."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Fréquence : 1/2 journée par semaine / Durée : Année scolaire",
+                "reasoning": "La mission s'étend sur une année scolaire avec une fréquence hebdomadaire, ce qui correspond à une mission régulière."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "L’UNICEF promeut les droits et le bien-être de chaque enfant dans toutes ses actions. / Nous travaillons dans 190 pays et territoires du monde entier avec nos partenaires pour faire de cet engagement une réalité",
+                "reasoning": "L'organisation porteuse est l'UNICEF, dont la mission est centrée sur les droits des enfants et la solidarité internationale, ce qui relève du secteur de l'éducation et de la formation."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "L’engagement des enfants et des jeunes est une priorité d’Unicef. / Vous êtes sensible à cette thématique et avez envie d’animer une équipe de bénévoles qui partagent votre volonté de favoriser la participation des jeunes ?",
+                "reasoning": "La mission est liée à l'engagement des jeunes et à la participation citoyenne, ce qui relève du domaine de la société, du droit et de la politique."
+              }
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "benevolat",
+              "taxonomyValueLabel": "Bénévolat",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "cad5bf78-9753-4edb-b7a4-6e1111cf4621",
+          "title": "Je fais connaitre les droits de l’enfant !",
+          "remote": "no",
+          "schedule": "",
+          "domain": "humanitaire",
+          "domainOriginal": null,
+          "organizationName": "Unicef Alpes Provence",
+          "publisherId": "622228e795a80b07b8e6dff7",
+          "publisherName": "UNICEF",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_03.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_03.jpeg",
+            "organizationLogo": null,
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/622228e795a80b07b8e6dff7/logo"
+          },
+          "location": {
+            "city": "2e arrondissement",
+            "closestLat": 43.300918,
+            "closestLon": 5.367291,
+            "closestAddress": "1 Place Francis Chirat, 13002 2e arrondissement, FR",
+            "addressId": "e1db8332-7e0d-4315-bd1b-38a0963bf64a",
+            "distanceKm": 0.5328024381502497
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/cad5bf78-9753-4edb-b7a4-6e1111cf4621/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "fe90cdfe-b46e-4b68-aacb-6f2b94b11c22",
+          "totalScore": 0.590852,
+          "taxonomyScore": 0.2,
+          "geoScore": 0.981704,
+          "taxonomyScores": {
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "vous animerez des séances de sensibilisation aux droits de l’enfant auprès d’écoles (primaire et secondaire), centres de loisirs, bibliothèques… / Vous participerez à des programmes nationaux comme le Prix littérature jeunesse Unicef ou la célébration de la convention internationale des droits de l’enfant",
+                "reasoning": "La mission consiste principalement à transmettre des connaissances et sensibiliser un public jeune sur les droits de l’enfant, ce qui correspond à la transmission et à l’éducation."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "gestion_projet",
+              "taxonomyValueLabel": "Gestion de projet",
+              "enrichmentConfidence": 0.92,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "vous animerez des séances de sensibilisation aux droits de l’enfant auprès d’écoles (primaire et secondaire), centres de loisirs, bibliothèques… / Vous développerez le réseau des partenaires éducatifs",
+                "reasoning": "Les tâches principales incluent l’animation d’ateliers et la coordination de partenariats, ce qui relève de la gestion de projet."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "vous animerez des séances de sensibilisation aux droits de l’enfant auprès d’écoles (primaire et secondaire), centres de loisirs, bibliothèques…",
+                "reasoning": "La mission implique une interaction directe avec un public jeune pour transmettre des connaissances, ce qui correspond à une transmission pédagogique."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Vous développerez le réseau des partenaires éducatifs",
+                "reasoning": "La mission inclut une dimension de coordination et de développement de partenariats, ce qui relève du support organisationnel."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "vous animerez des séances de sensibilisation aux droits de l’enfant",
+                "reasoning": "L’animation d’ateliers collectifs est explicitement mentionnée dans les tâches."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "vous animerez des séances de sensibilisation aux droits de l’enfant auprès d’écoles (primaire et secondaire), centres de loisirs, bibliothèques…",
+                "reasoning": "La mission se déroule dans des structures éducatives et vise un public jeune, ce qui correspond au secteur de l’éducation et de la formation."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "gestion_pilotage_juridique",
+              "taxonomyValueLabel": "Gestion, pilotage, juridique",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Vous développerez le réseau des partenaires éducatifs / Un parcours de formation, des webinaires thématiques, des outils UNICEF",
+                "reasoning": "La mission implique des compétences en gestion, coordination et formation, relevant de la gestion et de l’organisation."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Un parcours de formation, des webinaires thématiques, des outils UNICEF et l’appui de votre comité",
+                "reasoning": "La mission met en avant la coopération, l’organisation et les soft skills via la formation et le travail en équipe."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.99,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Fréquence : 1/2 journée par semaine selon votre disponibilité",
+                "reasoning": "La mission est explicitement décrite comme régulière, avec une fréquence hebdomadaire."
+              }
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "benevolat",
+              "taxonomyValueLabel": "Bénévolat",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      }
+    ],
+    "total": 2282,
+    "avgDistanceKmTop5": 1.25
+  },
+  "missions": [
+    {
+      "mission": {
+        "id": "6703bbb473fbd982c1012924",
+        "title": "J'intégre une association de sécurité civile",
+        "remote": "no",
+        "schedule": "Une demi-journée par semaine",
+        "domain": "prevention-protection",
+        "domainOriginal": null,
+        "organizationName": "Association Marseillaise de Sauvetage et de Secourisme",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "media": {
+          "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12125/sante-pour-tous-3.webp?v=1737022111",
+          "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12125/sante-pour-tous-3.webp?v=1737022111",
+          "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/11378/0N5dRxv3Hhrsvs2zIxlltdvD07zf6w.png?v=1737381487",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+        },
+        "location": {
+          "city": "Marseille",
+          "closestLat": 43.328018,
+          "closestLon": 5.397619,
+          "closestAddress": "Avenue prosper merimee, 13014 Marseille, FR",
+          "addressId": "13b0dd34-b911-482c-a166-f7d0ae3fb348",
+          "distanceKm": 4.167719233342941
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/6703bbb473fbd982c1012924/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "1db6ad53-d150-451b-be2c-3335dd115ede",
+        "totalScore": 0.626752,
+        "taxonomyScore": 0.388,
+        "geoScore": 0.865505,
+        "taxonomyScores": {
+          "formation_onisep": 0.97,
+          "type_mission": 0.97
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "securite_defense",
+            "taxonomyValueLabel": "Sécurité et défense",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Participer à des missions de sécurité civile / DEVENIR SECOURISTE BENEVOLE AU SEIN DE L’ASSOCIATION MARSEILLAISE DE SAUVETAGE ET DE SECOURISME / habilité à porter secours et assistance aux populations notamment sur :– Des Dispositifs Prévisionnels de Secours (événement festifs et sportifs accueillant du public) ;– Des missions de soutien aux populations (catastrophe naturelle, attentat terroriste)",
+              "reasoning": "La mission est explicitement centrée sur la sécurité civile, le secours et l'assistance aux populations, avec des missions opérationnelles claires."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "secours",
+            "taxonomyValueLabel": "Secours / intervention",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "DEVENIR SECOURISTE BENEVOLE AU SEIN DE L’ASSOCIATION MARSEILLAISE DE SAUVETAGE ET DE SECOURISME / Vous former au secourisme ou au sauvetage aquatique / formé à des agréments opérationnels et professionnels en fonction de vos envies et de votre temps (Premiers Secours en Équipe de Niveau 1 et 2, Brevet National de Sécurité et Sauvetage Aquatique, Chef de Poste, Permis Bateau, Permis Blanc, etc.)",
+              "reasoning": "La mission implique une formation et une intervention directe dans le domaine du secours et de la sécurité civile."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Une demi-journée par semaine / DEVENIR SECOURISTE BENEVOLE AU SEIN DE L’ASSOCIATION MARSEILLAISE DE SAUVETAGE ET DE SECOURISME",
+              "reasoning": "La mission est régulière, avec une fréquence hebdomadaire explicite."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "DEVENIR SECOURISTE BENEVOLE AU SEIN DE L’ASSOCIATION MARSEILLAISE DE SAUVETAGE ET DE SECOURISME / Rejoignez nous! Une équipe dynamique et professionnelle avec une ambiance de travail exceptionnelle!",
+              "reasoning": "La mission s'inscrit dans un cadre associatif structuré, avec une formation et une intégration dans une équipe professionnelle."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "securite_environnement_action_publique",
+            "taxonomyValueLabel": "Protection des personnes, de la société ou de l'environnement",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "DEVENIR SECOURISTE BENEVOLE AU SEIN DE L’ASSOCIATION MARSEILLAISE DE SAUVETAGE ET DE SECOURISME / habilité à porter secours et assistance aux populations",
+              "reasoning": "La mission implique une action directe de protection et d'assistance aux personnes."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "securite_service_public",
+            "taxonomyValueLabel": "Sécurité et service public",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "DEVENIR SECOURISTE BENEVOLE AU SEIN DE L’ASSOCIATION MARSEILLAISE DE SAUVETAGE ET DE SECOURISME / diffuser entre tous ses membres les techniques et les connaissances dans le domaine du sauvetage, du secourisme et des missions de sécurité civile",
+              "reasoning": "La mission relève du secteur de la sécurité et du service public, avec une dimension opérationnelle et de protection civile."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "securite_defense_logistique",
+            "taxonomyValueLabel": "Sécurité, défense et logistique",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "DEVENIR SECOURISTE BENEVOLE AU SEIN DE L’ASSOCIATION MARSEILLAISE DE SAUVETAGE ET DE SECOURISME / Vous former au secourisme ou au sauvetage aquatique / formé à des agréments opérationnels et professionnels",
+              "reasoning": "La mission implique une formation et une transmission de compétences en secourisme et sécurité civile."
+            }
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "benevolat",
+            "taxonomyValueLabel": "Bénévolat",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "6703bbb473fbd982c1012924",
+        "title": "J'intégre une association de sécurité civile",
+        "domain": "prevention-protection",
+        "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12125/sante-pour-tous-3.webp?v=1737022111",
+        "type": "benevolat",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png",
+        "organizationName": "Association Marseillaise de Sauvetage et de Secourisme",
+        "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/11378/0N5dRxv3Hhrsvs2zIxlltdvD07zf6w.png?v=1737381487",
+        "location": {
+          "city": "Marseille",
+          "address": "Avenue prosper merimee, 13014 Marseille",
+          "lat": 43.328018,
+          "lon": 5.397619
+        },
+        "startAt": "2020-10-06T09:00:00.000Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "Une demi-journée par semaine",
+        "compensation": null,
+        "descriptionHtml": "<b>Présentation de la mission</b><br><p>Participer à des missions de sécurité civile</p><br><br><b>Sautez le pas</b><br><p>Vous souhaitez aidez votre prochain! Participer à une aventure humaine enrichissante! Vous former au secourisme ou au sauvetage aquatique. Rejoignez nous! Une équipe dynamique et professionnelle avec une ambiance de travail exceptionnelle!</p><br><br><b>Précisions</b><br><p>DEVENIR SECOURISTE BENEVOLE AU SEIN DE L’ASSOCIATION MARSEILLAISE DE SAUVETAGE ET DE SECOURISME</p><p><strong>Où ?</strong></p><p>Marseille et ses environs avec possibilité de participer à des renforts sur toute la France.</p><p><strong>Quoi ?</strong></p><p>En nous rejoignant vous serez formé à des agréments opérationnels et professionnels en fonction de vos envies et de votre temps (Premiers Secours en Equipe de Niveau 1 et 2, Brevet National de Sécurité et Sauvetage Aquatique, Chef de Poste, Permis Bateau, Permis Blanc, etc.).Une fois formé, vous serez habilité à porter secours et assistance aux populations notamment sur :– Des Dispositifs Prévisionnels de Secours (événement festifs et sportifs accueillant du public) ;– Des missions de soutien aux populations (catastrophe naturelle, attentat terroriste) ;– Participer à des renforts sur toute la France.</p>",
+        "description": "Présentation de la mission\n\n\nParticiper à des missions de sécurité civile\n\n\n\nSautez le pas\n\n\nVous souhaitez aidez votre prochain! Participer à une aventure humaine\nenrichissante! Vous former au secourisme ou au sauvetage aquatique. Rejoignez\nnous! Une équipe dynamique et professionnelle avec une ambiance de travail\nexceptionnelle!\n\n\n\nPrécisions\n\n\nDEVENIR SECOURISTE BENEVOLE AU SEIN DE L’ASSOCIATION MARSEILLAISE DE SAUVETAGE\nET DE SECOURISME\n\nOù ?\n\nMarseille et ses environs avec possibilité de participer à des renforts sur\ntoute la France.\n\nQuoi ?\n\nEn nous rejoignant vous serez formé à des agréments opérationnels et\nprofessionnels en fonction de vos envies et de votre temps (Premiers Secours en\nEquipe de Niveau 1 et 2, Brevet National de Sécurité et Sauvetage Aquatique,\nChef de Poste, Permis Bateau, Permis Blanc, etc.).Une fois formé, vous serez\nhabilité à porter secours et assistance aux populations notamment sur :– Des\nDispositifs Prévisionnels de Secours (événement festifs et sportifs accueillant\ndu public) ;– Des missions de soutien aux populations (catastrophe naturelle,\nattentat terroriste) ;– Participer à des renforts sur toute la France.",
+        "applicationUrl": "http://localhost:4000/r/6703bbb473fbd982c1012924/c4a9ce23692082d70af2b16d",
+        "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12125/sante-pour-tous-3.webp?v=1737022111",
+        "remote": "no",
+        "openToMinors": true,
+        "reducedMobilityAccessible": false,
+        "places": 42
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "a7a31578-594e-49ac-83da-2fd8e4115119",
+        "title": "Je veux donner un coup de pouce à la mobilité professionnelle",
+        "remote": "possible",
+        "schedule": "",
+        "domain": "emploi",
+        "domainOriginal": null,
+        "organizationName": "Adie Paca & Corse",
+        "publisherId": "619fb52a7d373e07aea8be35",
+        "publisherName": "Adie",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/emploi_01.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/emploi_01.jpeg",
+          "organizationLogo": null,
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/619fb52a7d373e07aea8be35/logo"
+        },
+        "location": {
+          "city": "Marseille 2e Arrondissement",
+          "closestLat": 43.3003,
+          "closestLon": 5.36654,
+          "closestAddress": "43 Rue de l'Évêché, 13002 Marseille 2e Arrondissement, FR",
+          "addressId": "d7ec2a73-7752-430b-82bb-4e64356dc437",
+          "distanceKm": 0.4989853663948833
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/a7a31578-594e-49ac-83da-2fd8e4115119/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "c3005ec7-5666-4077-aa22-64cb906c915c",
+        "totalScore": 0.591428,
+        "taxonomyScore": 0.2,
+        "geoScore": 0.982855,
+        "taxonomyScores": {
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "aider des personnes à accéder ou rester dans l’emploi / accompagner des personnes qui rencontrent des difficultés pour financer un projet indispensable à leur emploi / mission à forte utilité sociale",
+              "reasoning": "La mission vise explicitement l'accompagnement social et l'inclusion professionnelle, domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "gestion_projet",
+            "taxonomyValueLabel": "Gestion de projet",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "analyser leur demande de prêt en lien avec leur situation professionnelle / évaluer la capacité de remboursement / accompagner le montage du dossier / présenter le projet en comité",
+              "reasoning": "Les tâches décrites relèvent principalement de la coordination, de l'analyse et de l'organisation, typiques de la gestion de projet."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "gestion_commerce_organisation",
+            "taxonomyValueLabel": "Gestion, commerce et organisation",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "analyser leur demande de prêt en lien avec leur situation professionnelle / évaluer la capacité de remboursement / accompagner le montage du dossier",
+              "reasoning": "Les activités sont centrées sur l'analyse financière, le montage de dossiers et l'accompagnement, typiques du secteur gestion et organisation."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "aider des personnes à accéder ou rester dans l’emploi / accompagner des personnes qui rencontrent des difficultés pour financer un projet indispensable à leur emploi",
+              "reasoning": "L'accompagnement des personnes en difficulté d'insertion professionnelle relève du secteur social et aide à la personne."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Fréquence : 1 jour / semaine / Durée : 1 à 2 ans",
+              "reasoning": "La mission est explicitement décrite comme régulière sur une durée longue (1 à 2 ans)."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "gestion_pilotage_juridique",
+            "taxonomyValueLabel": "Gestion, pilotage, juridique",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "analyser leur demande de prêt en lien avec leur situation professionnelle / évaluer la capacité de remboursement / accompagner le montage du dossier",
+              "reasoning": "Les tâches impliquent l'analyse de dossiers financiers et juridiques, typiques de la gestion et du pilotage."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "accompagner le montage du dossier / présenter le projet en comité / être à l’écoute, bienveillant·e et empathique",
+              "reasoning": "La mission nécessite des compétences relationnelles, d'organisation et de travail en équipe."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "relation_client_commerce_strategie",
+            "taxonomyValueLabel": "Relation client, commerce, stratégie",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "présenter le projet en comité / aider des personnes à accéder ou rester dans l’emploi",
+              "reasoning": "La présentation de projets et l'accompagnement des bénéficiaires relèvent de la relation client et de la stratégie."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "aider des personnes à accéder ou rester dans l’emploi / accompagner des personnes qui rencontrent des difficultés pour financer un projet indispensable à leur emploi",
+              "reasoning": "La mission implique un accompagnement direct et personnalisé des bénéficiaires."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "analyser leur demande de prêt / évaluer la capacité de remboursement / accompagner le montage du dossier / présenter le projet en comité",
+              "reasoning": "Les tâches sont centrées sur l'organisation, l'analyse et la présentation de dossiers, typiques du support organisationnel."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "commerce_gestion_finance",
+            "taxonomyValueLabel": "Commerce, gestion, finance et services",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "analyser leur demande de prêt en lien avec leur situation professionnelle / évaluer la capacité de remboursement / accompagner le montage du dossier",
+              "reasoning": "Les activités sont directement liées à la gestion, la finance et l'accompagnement des projets professionnels."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "aider des personnes à accéder ou rester dans l’emploi / mission à forte utilité sociale / L’Adie est une grande association française qui défend l’idée que chacun, même sans capital, même sans diplôme, peut devenir entrepreneur",
+              "reasoning": "La mission s'inscrit dans une dimension sociale et politique d'inclusion et d'accès à l'emploi, typique des enjeux de société."
+            }
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "benevolat",
+            "taxonomyValueLabel": "Bénévolat",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "a7a31578-594e-49ac-83da-2fd8e4115119",
+        "title": "Je veux donner un coup de pouce à la mobilité professionnelle",
+        "domain": "emploi",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/emploi_01.jpeg",
+        "type": "benevolat",
+        "publisherId": "619fb52a7d373e07aea8be35",
+        "publisherName": "Adie",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/619fb52a7d373e07aea8be35/logo",
+        "organizationName": "Adie Paca & Corse",
+        "organizationLogo": null,
+        "location": {
+          "city": "Marseille 2e Arrondissement",
+          "address": "43 Rue de l'Évêché, 13002 Marseille 2e Arrondissement",
+          "lat": 43.3003,
+          "lon": 5.36654
+        },
+        "startAt": "2026-06-19T16:15:38.529Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "",
+        "compensation": null,
+        "descriptionHtml": "   Mission réalisable à distance (13)<br>   Dès que possible<br><br><br>  Votre mission : aider des personnes à accéder ou rester dans l’emploi\nVous souhaitez vous engager dans une mission à forte utilité sociale ?\nEn tant que bénévole instructeur – mobilité professionnelle, vous accompagnez des personnes qui rencontrent des difficultés pour financer un projet indispensable à leur emploi : permis de conduire, véhicule, formation, déménagement…\nVotre rôle consiste à les aider à accéder à un microcrédit mobilité.\n•\tanalysez leur demande de prêt en lien avec leur situation professionnelle\n•\tévaluez la capacité de remboursement\n•\taccompagnez le montage du dossier\n•\tprésentez le projet en comité \nVous aurez une période d'intégration et de formation<br><br><p><strong>Informations pratiques</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>•\tMission réalisée majoritairement à distance pour la  région PACA  (présence physique ponctuelle dans une agence Adie) \n  Le profil recherché \n•\taimer aider les autres et vous engager dans une mission utile\n•\têtre à l’écoute, bienveillant·e et empathique\n•\tavoir des capacités d’analyse\n•\têtre à l’aise avec les outils informatiques\n•\têtre disponible en semaine (possible aussi le samedi)<br><br>Fréquence : 1 jour / semaine<br>Durée : 1 à 2 ans<br><br><p><strong>Informations sur l'association Adie Paca & Corse</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>L’Adie est une grande association française qui défend l’idée que chacun, même sans capital, même sans diplôme, peut devenir entrepreneur, s'il a accès au crédit et à un accompagnement personnalisé.\nDepuis 30 ans son réseau de spécialistes finance et accompagne les créateurs d’entreprise pour une économie plus solidaire.<br><p><strong>Formation des bénévoles</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Les bénévoles intègrent une équipe constituée de salariés et d'autres bénévoles. Après un temps d'immersion, ils bénéficient d'un accompagnement par leur référent salarié, complété par de nombreuses formations, délivrées dans nos centre régionaux et en ligne.\nCes formations permettent de mieux comprendre l'environnement de la création d'entreprise, d'appréhender le public de l'Adie et de bien sûr de réaliser ses missions de bénévolat.",
+        "description": "Mission réalisable à distance (13)\nDès que possible\n\n\nVotre mission : aider des personnes à accéder ou rester dans l’emploi\nVous souhaitez vous engager dans une mission à forte utilité sociale ?\nEn tant que bénévole instructeur – mobilité professionnelle, vous accompagnez\ndes personnes qui rencontrent des difficultés pour financer un projet\nindispensable à leur emploi : permis de conduire, véhicule, formation,\ndéménagement…\nVotre rôle consiste à les aider à accéder à un microcrédit mobilité.\n• analysez leur demande de prêt en lien avec leur situation professionnelle\n• évaluez la capacité de remboursement\n• accompagnez le montage du dossier\n• présentez le projet en comité\nVous aurez une période d'intégration et de formation\n\n\n\nInformations pratiques\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\n• Mission réalisée majoritairement à distance pour la région PACA (présence\nphysique ponctuelle dans une agence Adie)\nLe profil recherché\n• aimer aider les autres et vous engager dans une mission utile\n• être à l’écoute, bienveillant·e et empathique\n• avoir des capacités d’analyse\n• être à l’aise avec les outils informatiques\n• être disponible en semaine (possible aussi le samedi)\n\nFréquence : 1 jour / semaine\nDurée : 1 à 2 ans\n\n\n\nInformations sur l'association Adie Paca & Corse\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nL’Adie est une grande association française qui défend l’idée que chacun, même\nsans capital, même sans diplôme, peut devenir entrepreneur, s'il a accès au\ncrédit et à un accompagnement personnalisé.\nDepuis 30 ans son réseau de spécialistes finance et accompagne les créateurs\nd’entreprise pour une économie plus solidaire.\n\n\nFormation des bénévoles\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nLes bénévoles intègrent une équipe constituée de salariés et d'autres bénévoles.\nAprès un temps d'immersion, ils bénéficient d'un accompagnement par leur\nréférent salarié, complété par de nombreuses formations, délivrées dans nos\ncentre régionaux et en ligne.\nCes formations permettent de mieux comprendre l'environnement de la création\nd'entreprise, d'appréhender le public de l'Adie et de bien sûr de réaliser ses\nmissions de bénévolat.",
+        "applicationUrl": "http://localhost:4000/r/a7a31578-594e-49ac-83da-2fd8e4115119/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/emploi_01.jpeg",
+        "remote": "possible",
+        "openToMinors": null,
+        "reducedMobilityAccessible": null,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "fd7dd9a3-9f26-4be5-a429-c767c834f993",
+        "title": "Bénévole Analyste",
+        "remote": "no",
+        "schedule": "",
+        "domain": "emploi",
+        "domainOriginal": null,
+        "organizationName": "Adie Paca & Corse",
+        "publisherId": "619fb52a7d373e07aea8be35",
+        "publisherName": "Adie",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/emploi_03.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/emploi_03.jpeg",
+          "organizationLogo": null,
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/619fb52a7d373e07aea8be35/logo"
+        },
+        "location": {
+          "city": "Marseille 2e Arrondissement",
+          "closestLat": 43.3003,
+          "closestLon": 5.36654,
+          "closestAddress": "43 Rue de l'Évêché, 13002 Marseille 2e Arrondissement, FR",
+          "addressId": "85911652-8bd4-44fd-87f6-7224e37bd331",
+          "distanceKm": 0.4989853663948833
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/fd7dd9a3-9f26-4be5-a429-c767c834f993/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "4751faea-f6d0-4ef3-a2c0-fe82d4d622af",
+        "totalScore": 0.591428,
+        "taxonomyScore": 0.2,
+        "geoScore": 0.982855,
+        "taxonomyScores": {
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "gestion_projet",
+            "taxonomyValueLabel": "Gestion de projet",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "réaliser des évaluations des dossiers de financement à posteriori / sortir une note mensuelle d'analyse d'activité / participer au comité des risques pour présenter la synthèse des évaluations réalisées sur la période et le plan d’actions",
+              "reasoning": "Les tâches principales consistent en l'analyse, la synthèse et la présentation de données pour le pilotage d'un projet, ce qui relève de la gestion de projet."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "gestion_commerce_organisation",
+            "taxonomyValueLabel": "Gestion, commerce et organisation",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "réaliser des évaluations des dossiers de financement à posteriori / sortir une note mensuelle d'analyse d'activité / participer au comité des risques",
+              "reasoning": "Les activités décrites relèvent de la gestion, de l'analyse financière et de l'organisation, typiques du secteur gestion, commerce et organisation."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Fréquence : 2 jours par mois (horaires flexibles) / Durée : Dans l'idéal 2 ans",
+              "reasoning": "La mission s'étend sur une durée significative avec une fréquence mensuelle explicite, ce qui correspond à une mission régulière."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "gestion_pilotage_juridique",
+            "taxonomyValueLabel": "Gestion, pilotage, juridique",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "réaliser des évaluations des dossiers de financement à posteriori / participer au comité des risques",
+              "reasoning": "Les tâches incluent l'évaluation de dossiers financiers et la participation à un comité de pilotage, ce qui relève de la gestion, du pilotage et des aspects réglementaires."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Autonomie, rigueur et organisation / Qualités relationnelles et pédagogiques / Les bénévoles intègrent une équipe constituée de salariés et d'autres bénévoles",
+              "reasoning": "La mission met en avant des compétences comportementales (autonomie, rigueur, organisation, relationnelles) et un travail en équipe, typiques de cette catégorie."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "réaliser des évaluations des dossiers de financement à posteriori / sortir une note mensuelle d'analyse d'activité / participer au comité des risques pour présenter la synthèse des évaluations réalisées sur la période et le plan d’actions",
+              "reasoning": "Les tâches décrites consistent principalement à soutenir l'organisation par l'analyse, la synthèse et la présentation de données pour le pilotage du projet."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "commerce_gestion_finance",
+            "taxonomyValueLabel": "Commerce, gestion, finance et services",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "réaliser des évaluations des dossiers de financement à posteriori / sortir une note mensuelle d'analyse d'activité / Capacités d’analyse de dossiers de crédit / Maitrise des outils informatiques (Excel, Google Drive)",
+              "reasoning": "Les activités et compétences mobilisées relèvent clairement du domaine de la gestion, de la finance et des outils numériques, typiques de cette formation."
+            }
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "benevolat",
+            "taxonomyValueLabel": "Bénévolat",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "fd7dd9a3-9f26-4be5-a429-c767c834f993",
+        "title": "Bénévole Analyste",
+        "domain": "emploi",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/emploi_03.jpeg",
+        "type": "benevolat",
+        "publisherId": "619fb52a7d373e07aea8be35",
+        "publisherName": "Adie",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/619fb52a7d373e07aea8be35/logo",
+        "organizationName": "Adie Paca & Corse",
+        "organizationLogo": null,
+        "location": {
+          "city": "Marseille 2e Arrondissement",
+          "address": "43 Rue de l'Évêché, 13002 Marseille 2e Arrondissement",
+          "lat": 43.3003,
+          "lon": 5.36654
+        },
+        "startAt": "2026-04-10T10:15:19.387Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "",
+        "compensation": null,
+        "descriptionHtml": "   Marseille 2e Arrondissement (13)<br>   Dès que possible<br><br><br>Cette mission doit contribuer à une amélioration de la maîtrise des risques sur le territoire :\n- en réalisant des évaluations des dossiers de financement à posteriori,\n- en sortant une note mensuelle d'analyse d'activité à partager avec les bénévoles et les salariés. \n- en participant au comité des risques pour présenter la synthèse des évaluations réalisées sur la période et le plan d’actions.<br><br><p><strong>Informations pratiques</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>- Aptitudes et compétences :\nConnaissance et intérêt pour le public de l'Adie et les métiers des clients\nCapacités d’analyse de dossiers de crédit \nMaitrise des outils informatiques l’informatique (Excel, Google Drive et systèmes d’information Adie après formation)\nExtraction de donnée, d'analyse, de rédaction et une synthèse d'activité\nAutonomie, rigueur et organisation\nQualités relationnelles et pédagogiques<br><br>Fréquence : 2 jours par mois (horaires flexibles)<br>Durée : Dans l'idéal 2 ans<br><br><p><strong>Informations sur l'association Adie Paca & Corse</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>L’Adie est une grande association française qui défend l’idée que chacun, même sans capital, même sans diplôme, peut devenir entrepreneur, s'il a accès au crédit et à un accompagnement personnalisé.\nDepuis 30 ans son réseau de spécialistes finance et accompagne les créateurs d’entreprise pour une économie plus solidaire.<br><p><strong>Formation des bénévoles</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Les bénévoles intègrent une équipe constituée de salariés et d'autres bénévoles. Après un temps d'immersion, ils bénéficient d'un accompagnement par leur référent salarié, complété par de nombreuses formations, délivrées dans nos centre régionaux et en ligne.\nCes formations permettent de mieux comprendre l'environnement de la création d'entreprise, d'appréhender le public de l'Adie et de bien sûr de réaliser ses missions de bénévolat.",
+        "description": "Marseille 2e Arrondissement (13)\nDès que possible\n\n\nCette mission doit contribuer à une amélioration de la maîtrise des risques sur\nle territoire :\n- en réalisant des évaluations des dossiers de financement à posteriori,\n- en sortant une note mensuelle d'analyse d'activité à partager avec les\nbénévoles et les salariés.\n- en participant au comité des risques pour présenter la synthèse des\névaluations réalisées sur la période et le plan d’actions.\n\n\n\nInformations pratiques\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\n- Aptitudes et compétences :\nConnaissance et intérêt pour le public de l'Adie et les métiers des clients\nCapacités d’analyse de dossiers de crédit\nMaitrise des outils informatiques l’informatique (Excel, Google Drive et\nsystèmes d’information Adie après formation)\nExtraction de donnée, d'analyse, de rédaction et une synthèse d'activité\nAutonomie, rigueur et organisation\nQualités relationnelles et pédagogiques\n\nFréquence : 2 jours par mois (horaires flexibles)\nDurée : Dans l'idéal 2 ans\n\n\n\nInformations sur l'association Adie Paca & Corse\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nL’Adie est une grande association française qui défend l’idée que chacun, même\nsans capital, même sans diplôme, peut devenir entrepreneur, s'il a accès au\ncrédit et à un accompagnement personnalisé.\nDepuis 30 ans son réseau de spécialistes finance et accompagne les créateurs\nd’entreprise pour une économie plus solidaire.\n\n\nFormation des bénévoles\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nLes bénévoles intègrent une équipe constituée de salariés et d'autres bénévoles.\nAprès un temps d'immersion, ils bénéficient d'un accompagnement par leur\nréférent salarié, complété par de nombreuses formations, délivrées dans nos\ncentre régionaux et en ligne.\nCes formations permettent de mieux comprendre l'environnement de la création\nd'entreprise, d'appréhender le public de l'Adie et de bien sûr de réaliser ses\nmissions de bénévolat.",
+        "applicationUrl": "http://localhost:4000/r/fd7dd9a3-9f26-4be5-a429-c767c834f993/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/emploi_03.jpeg",
+        "remote": "no",
+        "openToMinors": null,
+        "reducedMobilityAccessible": null,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "65c40b69-bb96-4446-a3c1-5f29eca06fd8",
+        "title": "J'anime une équipe de bénévoles engagement des jeunes !",
+        "remote": "no",
+        "schedule": "",
+        "domain": "humanitaire",
+        "domainOriginal": null,
+        "organizationName": "Unicef Alpes Provence",
+        "publisherId": "622228e795a80b07b8e6dff7",
+        "publisherName": "UNICEF",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_02.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_02.jpeg",
+          "organizationLogo": null,
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/622228e795a80b07b8e6dff7/logo"
+        },
+        "location": {
+          "city": "2e arrondissement",
+          "closestLat": 43.300918,
+          "closestLon": 5.367291,
+          "closestAddress": "1 Place Francis Chirat, 13002 2e arrondissement, FR",
+          "addressId": "7f3438b4-9cb4-4d1f-99f7-8290a62c6c0d",
+          "distanceKm": 0.5328024381502497
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/65c40b69-bb96-4446-a3c1-5f29eca06fd8/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "845e2f4b-8a9f-482d-8928-a7b5e51727ac",
+        "totalScore": 0.590852,
+        "taxonomyScore": 0.2,
+        "geoScore": 0.981704,
+        "taxonomyScores": {
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "gestion_projet",
+            "taxonomyValueLabel": "Gestion de projet",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Assurer le dynamisme et la cohésion de l’équipe de bénévoles « Accompagnement des Enfants et des Jeunes » / Assurer la coordination des activités / Avec l’équipe créer un plan d’actions pour développer le nombre de jeunes engagés et leurs actions et en assurer sa mise en place",
+              "reasoning": "Les tâches principales consistent à animer une équipe de bénévoles et à coordonner des activités, ce qui relève clairement de la gestion de projet."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Assurer le dynamisme et la cohésion de l’équipe de bénévoles « Accompagnement des Enfants et des Jeunes » / Assurer la coordination des activités",
+              "reasoning": "La mission implique l'animation d'une équipe et la coordination d'activités, ce qui relève de l'organisation et de la coopération."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "gestion_pilotage_juridique",
+            "taxonomyValueLabel": "Gestion, pilotage, juridique",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Assurer le dynamisme et la cohésion de l’équipe de bénévoles « Accompagnement des Enfants et des Jeunes » / Assurer la coordination des activités",
+              "reasoning": "Les tâches incluent l'animation d'une équipe et la coordination, ce qui relève de la gestion et du pilotage."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "L’engagement des enfants et des jeunes est une priorité d’Unicef. / Vous êtes sensible à cette thématique et avez envie d’animer une équipe de bénévoles qui partagent votre volonté de favoriser la participation des jeunes ?",
+              "reasoning": "La mission est explicitement liée à l'engagement des jeunes et à la participation citoyenne, domaine de l'éducation et de la transmission."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Assurer le dynamisme et la cohésion de l’équipe de bénévoles « Accompagnement des Enfants et des Jeunes » / Assurer la coordination des activités / Avec l’équipe créer un plan d’actions pour développer le nombre de jeunes engagés",
+              "reasoning": "La mission implique l'animation d'une équipe et la coordination d'activités, ce qui relève de l'animation collective."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Assurer le dynamisme et la cohésion de l’équipe de bénévoles « Accompagnement des Enfants et des Jeunes » / Assurer la coordination des activités",
+              "reasoning": "La mission implique l'animation d'une équipe et la coordination d'activités, ce qui relève du support organisationnel."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Fréquence : 1/2 journée par semaine / Durée : Année scolaire",
+              "reasoning": "La mission s'étend sur une année scolaire avec une fréquence hebdomadaire, ce qui correspond à une mission régulière."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "L’UNICEF promeut les droits et le bien-être de chaque enfant dans toutes ses actions. / Nous travaillons dans 190 pays et territoires du monde entier avec nos partenaires pour faire de cet engagement une réalité",
+              "reasoning": "L'organisation porteuse est l'UNICEF, dont la mission est centrée sur les droits des enfants et la solidarité internationale, ce qui relève du secteur de l'éducation et de la formation."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "L’engagement des enfants et des jeunes est une priorité d’Unicef. / Vous êtes sensible à cette thématique et avez envie d’animer une équipe de bénévoles qui partagent votre volonté de favoriser la participation des jeunes ?",
+              "reasoning": "La mission est liée à l'engagement des jeunes et à la participation citoyenne, ce qui relève du domaine de la société, du droit et de la politique."
+            }
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "benevolat",
+            "taxonomyValueLabel": "Bénévolat",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "65c40b69-bb96-4446-a3c1-5f29eca06fd8",
+        "title": "J'anime une équipe de bénévoles engagement des jeunes !",
+        "domain": "humanitaire",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_02.jpeg",
+        "type": "benevolat",
+        "publisherId": "622228e795a80b07b8e6dff7",
+        "publisherName": "UNICEF",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/622228e795a80b07b8e6dff7/logo",
+        "organizationName": "Unicef Alpes Provence",
+        "organizationLogo": null,
+        "location": {
+          "city": "2e arrondissement",
+          "address": "1 Place Francis Chirat, 13002 2e arrondissement",
+          "lat": 43.300918,
+          "lon": 5.367291
+        },
+        "startAt": "2026-05-18T10:19:13.787Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "",
+        "compensation": null,
+        "descriptionHtml": "   2e arrondissement (13)<br>   Dès que possible<br><br><br>L’engagement des enfants et des jeunes est une priorité d’Unicef.\nVous êtes sensible à cette thématique et avez envie d’animer une équipe de bénévoles qui partagent votre volonté de favoriser la participation des jeunes ? Cette mission est faite pour vous !\nConcrètement que ferez-vous ?\n•Assurer le dynamisme et la cohésion de l’équipe de bénévoles « Accompagnement des Enfants et des Jeunes » et chargé clubs jeunesse\n•Assurer la coordination des activités\n•Avec l’équipe créer un plan d’actions pour développer le nombre de jeunes engagés et leurs actions et en assurer sa mise en place\nVous pourrez réaliser ce type de mission en distanciel mais des rencontres seront à prévoir.<br><br><p><strong>Informations pratiques</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Vous pourrez réaliser beaucoup de missions en distanciel (WhatsApp, visios…) sur votre temps disponible mais des rencontres et temps d’échange en présentiel seront à privilégier au cours de l’année. \nCompétences souhaitées : Aisance orale, dynamisme, sens de l’écoute \nUn parcours de formations sur notre application UNICEF Académie et en présentiel sur certaines missions, des webinaires thématiques, des outils UNICEF et l’appui de votre comité. Une fiche descriptive est à votre disposition.<br><br>Fréquence : 1/2 journée par semaine<br>Durée : Année scolaire<br><br><p><strong>Informations sur l'association Unicef Alpes Provence</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>L’UNICEF  promeut  les  droits  et  le  bien-être  de  chaque  enfant  dans  toutes  ses  actions.  Nous  travaillons  dans  190  pays  et  territoires  du  monde entier avec nos partenaires pour faire de cet engagement une réalité,  avec  un  effort  particulier  pour  atteindre  les  enfants  les  plus vulnérables. \n\nCréé en 1964, UNICEF France est une association à but non lucratif, qui représente UNICEF en France, auprès  des pouvoirs publics.<br><p><strong>Formation des bénévoles</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Dès votre inscription, vous recevez un kit adhérent et vous êtes associé à la vie statutaire de l’association.\n\nVous avez accès aux ressources matérielles et bénéficiez de notre programme de formations (en présentiel ou à distance) sur des thématiques variées comme par exemple : la prise de parole en public, l’expertise plaidoyer avec un focus sur les migrants et réfugiés, les actions éducatives, la lutte contre le changement climatique ou pour l’égalité filles/garçons, les droits des enfants.",
+        "description": "2e arrondissement (13)\nDès que possible\n\n\nL’engagement des enfants et des jeunes est une priorité d’Unicef.\nVous êtes sensible à cette thématique et avez envie d’animer une équipe de\nbénévoles qui partagent votre volonté de favoriser la participation des jeunes ?\nCette mission est faite pour vous !\nConcrètement que ferez-vous ?\n•Assurer le dynamisme et la cohésion de l’équipe de bénévoles « Accompagnement\ndes Enfants et des Jeunes » et chargé clubs jeunesse\n•Assurer la coordination des activités\n•Avec l’équipe créer un plan d’actions pour développer le nombre de jeunes\nengagés et leurs actions et en assurer sa mise en place\nVous pourrez réaliser ce type de mission en distanciel mais des rencontres\nseront à prévoir.\n\n\n\nInformations pratiques\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nVous pourrez réaliser beaucoup de missions en distanciel (WhatsApp, visios…) sur\nvotre temps disponible mais des rencontres et temps d’échange en présentiel\nseront à privilégier au cours de l’année.\nCompétences souhaitées : Aisance orale, dynamisme, sens de l’écoute\nUn parcours de formations sur notre application UNICEF Académie et en présentiel\nsur certaines missions, des webinaires thématiques, des outils UNICEF et l’appui\nde votre comité. Une fiche descriptive est à votre disposition.\n\nFréquence : 1/2 journée par semaine\nDurée : Année scolaire\n\n\n\nInformations sur l'association Unicef Alpes Provence\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nL’UNICEF promeut les droits et le bien-être de chaque enfant dans toutes ses\nactions. Nous travaillons dans 190 pays et territoires du monde entier avec nos\npartenaires pour faire de cet engagement une réalité, avec un effort particulier\npour atteindre les enfants les plus vulnérables.\n\nCréé en 1964, UNICEF France est une association à but non lucratif, qui\nreprésente UNICEF en France, auprès des pouvoirs publics.\n\n\nFormation des bénévoles\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nDès votre inscription, vous recevez un kit adhérent et vous êtes associé à la\nvie statutaire de l’association.\n\nVous avez accès aux ressources matérielles et bénéficiez de notre programme de\nformations (en présentiel ou à distance) sur des thématiques variées comme par\nexemple : la prise de parole en public, l’expertise plaidoyer avec un focus sur\nles migrants et réfugiés, les actions éducatives, la lutte contre le changement\nclimatique ou pour l’égalité filles/garçons, les droits des enfants.",
+        "applicationUrl": "http://localhost:4000/r/65c40b69-bb96-4446-a3c1-5f29eca06fd8/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_02.jpeg",
+        "remote": "no",
+        "openToMinors": null,
+        "reducedMobilityAccessible": null,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "cad5bf78-9753-4edb-b7a4-6e1111cf4621",
+        "title": "Je fais connaitre les droits de l’enfant !",
+        "remote": "no",
+        "schedule": "",
+        "domain": "humanitaire",
+        "domainOriginal": null,
+        "organizationName": "Unicef Alpes Provence",
+        "publisherId": "622228e795a80b07b8e6dff7",
+        "publisherName": "UNICEF",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_03.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_03.jpeg",
+          "organizationLogo": null,
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/622228e795a80b07b8e6dff7/logo"
+        },
+        "location": {
+          "city": "2e arrondissement",
+          "closestLat": 43.300918,
+          "closestLon": 5.367291,
+          "closestAddress": "1 Place Francis Chirat, 13002 2e arrondissement, FR",
+          "addressId": "e1db8332-7e0d-4315-bd1b-38a0963bf64a",
+          "distanceKm": 0.5328024381502497
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/cad5bf78-9753-4edb-b7a4-6e1111cf4621/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "fe90cdfe-b46e-4b68-aacb-6f2b94b11c22",
+        "totalScore": 0.590852,
+        "taxonomyScore": 0.2,
+        "geoScore": 0.981704,
+        "taxonomyScores": {
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "vous animerez des séances de sensibilisation aux droits de l’enfant auprès d’écoles (primaire et secondaire), centres de loisirs, bibliothèques… / Vous participerez à des programmes nationaux comme le Prix littérature jeunesse Unicef ou la célébration de la convention internationale des droits de l’enfant",
+              "reasoning": "La mission consiste principalement à transmettre des connaissances et sensibiliser un public jeune sur les droits de l’enfant, ce qui correspond à la transmission et à l’éducation."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "gestion_projet",
+            "taxonomyValueLabel": "Gestion de projet",
+            "enrichmentConfidence": 0.92,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "vous animerez des séances de sensibilisation aux droits de l’enfant auprès d’écoles (primaire et secondaire), centres de loisirs, bibliothèques… / Vous développerez le réseau des partenaires éducatifs",
+              "reasoning": "Les tâches principales incluent l’animation d’ateliers et la coordination de partenariats, ce qui relève de la gestion de projet."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "vous animerez des séances de sensibilisation aux droits de l’enfant auprès d’écoles (primaire et secondaire), centres de loisirs, bibliothèques…",
+              "reasoning": "La mission implique une interaction directe avec un public jeune pour transmettre des connaissances, ce qui correspond à une transmission pédagogique."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Vous développerez le réseau des partenaires éducatifs",
+              "reasoning": "La mission inclut une dimension de coordination et de développement de partenariats, ce qui relève du support organisationnel."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "vous animerez des séances de sensibilisation aux droits de l’enfant",
+              "reasoning": "L’animation d’ateliers collectifs est explicitement mentionnée dans les tâches."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "vous animerez des séances de sensibilisation aux droits de l’enfant auprès d’écoles (primaire et secondaire), centres de loisirs, bibliothèques…",
+              "reasoning": "La mission se déroule dans des structures éducatives et vise un public jeune, ce qui correspond au secteur de l’éducation et de la formation."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "gestion_pilotage_juridique",
+            "taxonomyValueLabel": "Gestion, pilotage, juridique",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Vous développerez le réseau des partenaires éducatifs / Un parcours de formation, des webinaires thématiques, des outils UNICEF",
+              "reasoning": "La mission implique des compétences en gestion, coordination et formation, relevant de la gestion et de l’organisation."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Un parcours de formation, des webinaires thématiques, des outils UNICEF et l’appui de votre comité",
+              "reasoning": "La mission met en avant la coopération, l’organisation et les soft skills via la formation et le travail en équipe."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.99,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Fréquence : 1/2 journée par semaine selon votre disponibilité",
+              "reasoning": "La mission est explicitement décrite comme régulière, avec une fréquence hebdomadaire."
+            }
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "benevolat",
+            "taxonomyValueLabel": "Bénévolat",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "cad5bf78-9753-4edb-b7a4-6e1111cf4621",
+        "title": "Je fais connaitre les droits de l’enfant !",
+        "domain": "humanitaire",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_03.jpeg",
+        "type": "benevolat",
+        "publisherId": "622228e795a80b07b8e6dff7",
+        "publisherName": "UNICEF",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/622228e795a80b07b8e6dff7/logo",
+        "organizationName": "Unicef Alpes Provence",
+        "organizationLogo": null,
+        "location": {
+          "city": "2e arrondissement",
+          "address": "1 Place Francis Chirat, 13002 2e arrondissement",
+          "lat": 43.300918,
+          "lon": 5.367291
+        },
+        "startAt": "2026-05-15T10:18:29.842Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "",
+        "compensation": null,
+        "descriptionHtml": "   2e arrondissement (13)<br>   Dès que possible<br><br><br>Grace à l’action de bénévoles, chaque année, les enfants en apprennent plus sur leurs droits et les actions d’Unicef.\nVous avez envie de transmettre ces informations auprès d’un public jeune et travailler en équipe ? Cette mission est faite pour vous !\nConcrètement, que ferez-vous ?\n•En vous appuyant sur les outils Unicef France, vous animerez des séances de sensibilisation aux droits de l’enfant auprès d’écoles (primaire et secondaire), centres de loisirs, bibliothèques…\n•Vous participerez à des programmes nationaux comme le Prix littérature jeunesse Unicef ou la célébration de la convention internationale des droits de l’enfant\n•Vous développerez le réseau des partenaires éducatifs<br><br><p><strong>Informations pratiques</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Vous interviendrez majoritairement dans des écoles ou des structures qui accueillent des jeunes, vous devrez donc être disponible en journée.\nQuelques interventions ont lieu le week-end en journée également.\nPour vous aider dans votre mission : \nUn parcours de formation, des webinaires thématiques, des outils UNICEF et l’appui de votre comité et de l’équipe « Sensibilisation aux Droits de l’Enfant » du comité.<br><br>Fréquence : 1/2 journée par semaine selon votre disponibilité<br><br><p><strong>Informations sur l'association Unicef Alpes Provence</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>L’UNICEF  promeut  les  droits  et  le  bien-être  de  chaque  enfant  dans  toutes  ses  actions.  Nous  travaillons  dans  190  pays  et  territoires  du  monde entier avec nos partenaires pour faire de cet engagement une réalité,  avec  un  effort  particulier  pour  atteindre  les  enfants  les  plus vulnérables. \n\nCréé en 1964, UNICEF France est une association à but non lucratif, qui représente UNICEF en France, auprès  des pouvoirs publics.<br><p><strong>Formation des bénévoles</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Dès votre inscription, vous recevez un kit adhérent et vous êtes associé à la vie statutaire de l’association.\n\nVous avez accès aux ressources matérielles et bénéficiez de notre programme de formations (en présentiel ou à distance) sur des thématiques variées comme par exemple : la prise de parole en public, l’expertise plaidoyer avec un focus sur les migrants et réfugiés, les actions éducatives, la lutte contre le changement climatique ou pour l’égalité filles/garçons, les droits des enfants.",
+        "description": "2e arrondissement (13)\nDès que possible\n\n\nGrace à l’action de bénévoles, chaque année, les enfants en apprennent plus sur\nleurs droits et les actions d’Unicef.\nVous avez envie de transmettre ces informations auprès d’un public jeune et\ntravailler en équipe ? Cette mission est faite pour vous !\nConcrètement, que ferez-vous ?\n•En vous appuyant sur les outils Unicef France, vous animerez des séances de\nsensibilisation aux droits de l’enfant auprès d’écoles (primaire et secondaire),\ncentres de loisirs, bibliothèques…\n•Vous participerez à des programmes nationaux comme le Prix littérature jeunesse\nUnicef ou la célébration de la convention internationale des droits de l’enfant\n•Vous développerez le réseau des partenaires éducatifs\n\n\n\nInformations pratiques\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nVous interviendrez majoritairement dans des écoles ou des structures qui\naccueillent des jeunes, vous devrez donc être disponible en journée.\nQuelques interventions ont lieu le week-end en journée également.\nPour vous aider dans votre mission :\nUn parcours de formation, des webinaires thématiques, des outils UNICEF et\nl’appui de votre comité et de l’équipe « Sensibilisation aux Droits de l’Enfant\n» du comité.\n\nFréquence : 1/2 journée par semaine selon votre disponibilité\n\n\n\nInformations sur l'association Unicef Alpes Provence\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nL’UNICEF promeut les droits et le bien-être de chaque enfant dans toutes ses\nactions. Nous travaillons dans 190 pays et territoires du monde entier avec nos\npartenaires pour faire de cet engagement une réalité, avec un effort particulier\npour atteindre les enfants les plus vulnérables.\n\nCréé en 1964, UNICEF France est une association à but non lucratif, qui\nreprésente UNICEF en France, auprès des pouvoirs publics.\n\n\nFormation des bénévoles\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nDès votre inscription, vous recevez un kit adhérent et vous êtes associé à la\nvie statutaire de l’association.\n\nVous avez accès aux ressources matérielles et bénéficiez de notre programme de\nformations (en présentiel ou à distance) sur des thématiques variées comme par\nexemple : la prise de parole en public, l’expertise plaidoyer avec un focus sur\nles migrants et réfugiés, les actions éducatives, la lutte contre le changement\nclimatique ou pour l’égalité filles/garçons, les droits des enfants.",
+        "applicationUrl": "http://localhost:4000/r/cad5bf78-9753-4edb-b7a4-6e1111cf4621/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_03.jpeg",
+        "remote": "no",
+        "openToMinors": null,
+        "reducedMobilityAccessible": null,
+        "places": 1
+      },
+      "descriptionMissing": false
+    }
+  ],
+  "deterministic": {
+    "geo": 5,
+    "format": 5,
+    "missionsSansTagFormat": [],
+    "gateViolations": []
+  },
+  "judgeRuns": [
+    {
+      "runIndex": 0,
+      "seed": 4124756052,
+      "order": [
+        "6703bbb473fbd982c1012924",
+        "a7a31578-594e-49ac-83da-2fd8e4115119",
+        "fd7dd9a3-9f26-4be5-a429-c767c834f993",
+        "cad5bf78-9753-4edb-b7a4-6e1111cf4621",
+        "65c40b69-bb96-4446-a3c1-5f29eca06fd8"
+      ],
+      "output": {
+        "coherence": {
+          "score": 2,
+          "missionsPertinentes": [
+            1,
+            2
+          ],
+          "justification": "Parmi les 5 missions proposées, seules les missions 0 et 1 sont en lien avec la sécurité, la formation et l'orientation vers des métiers en uniforme et sécurité. La mission 0 est très pertinente car elle propose une formation en secourisme et sécurité civile, ce qui correspond bien à l'intérêt de Sami. La mission 1, bien que plus orientée vers l'accompagnement social et la mobilité professionnelle, peut intéresser un jeune souhaitant tester une mission utile et régulière. Les autres missions (2, 3, 4) sont davantage centrées sur l'analyse, les droits de l'enfant et l'animation de bénévoles, ce qui ne correspond pas directement à l'orientation sécurité et uniforme recherchée.",
+          "missionIdsPertinents": [
+            "6703bbb473fbd982c1012924",
+            "a7a31578-594e-49ac-83da-2fd8e4115119"
+          ]
+        },
+        "homogeneite": {
+          "score": 4,
+          "familles": [
+            "Sécurité et secours",
+            "Accompagnement social",
+            "Sensibilisation et animation"
+          ],
+          "justification": "Les missions proposées appartiennent à 3 familles distinctes : la sécurité et secours (mission 0), l'accompagnement social et analyse (missions 1 et 2), et la sensibilisation/animation (missions 3 et 4). Parmi ces familles, la famille accompagnement social comprend 2 missions, ce qui constitue une majorité relative. Cela donne une homogénéité moyenne à l'ensemble des missions proposées."
+        },
+        "cause": "offre"
+      }
+    },
+    {
+      "runIndex": 1,
+      "seed": 4141533671,
+      "order": [
+        "65c40b69-bb96-4446-a3c1-5f29eca06fd8",
+        "a7a31578-594e-49ac-83da-2fd8e4115119",
+        "cad5bf78-9753-4edb-b7a4-6e1111cf4621",
+        "6703bbb473fbd982c1012924",
+        "fd7dd9a3-9f26-4be5-a429-c767c834f993"
+      ],
+      "output": {
+        "coherence": {
+          "score": 3,
+          "missionsPertinentes": [
+            3,
+            4,
+            1
+          ],
+          "justification": "Parmi les 5 missions proposées, 3 sont pertinentes pour Sami. La mission 3 (sécurité civile) correspond bien à son intérêt pour les métiers en uniforme et la sécurité. La mission 4 (analyste) est moins directement liée mais peut intéresser un lycéen curieux de comprendre les risques et la gestion, avec un aspect formation et rigueur. La mission 1 (mobilité professionnelle) est un engagement social utile, accessible à distance, qui peut convenir à un jeune motivé par l'aide aux autres. Les missions 0 et 2 sont centrées sur l'engagement des jeunes et la sensibilisation aux droits de l'enfant, moins en lien avec son profil orienté vers la sécurité et les métiers en uniforme.",
+          "missionIdsPertinents": [
+            "cad5bf78-9753-4edb-b7a4-6e1111cf4621",
+            "6703bbb473fbd982c1012924",
+            "65c40b69-bb96-4446-a3c1-5f29eca06fd8"
+          ]
+        },
+        "homogeneite": {
+          "score": 3,
+          "familles": [
+            "Sécurité et secours",
+            "Accompagnement social",
+            "Engagement jeunesse"
+          ],
+          "justification": "Les missions pertinentes couvrent trois familles distinctes : la sécurité civile (mission 3), l'accompagnement social et analyse (missions 1 et 4), et l'engagement jeunesse (missions 0 et 2). Il n'y a pas de majorité claire dans une famille, mais les missions sont regroupées en trois familles."
+        },
+        "cause": "signal"
+      }
+    }
+  ],
+  "engineVersion": "m2",
+  "startedAt": "2026-07-10T13:23:53.630Z",
+  "finishedAt": "2026-07-10T13:24:07.834Z",
+  "verdict": 4,
+  "cleanup": {
+    "userScoringDeleted": true
+  }
+}

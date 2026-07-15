@@ -1,0 +1,2476 @@
+{
+  "status": "success",
+  "parcours": {
+    "id": "karim-reconversion",
+    "segment": "demandeur_emploi",
+    "label": "Karim, 28 ans, demandeur d'emploi à Saint-Étienne, en reconversion, veut tester un nouveau secteur avant de se former",
+    "locationLabel": "Saint-Etienne (42)",
+    "age": 28,
+    "handicap": "non",
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 28,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "handicap",
+        "value": "non"
+      },
+      {
+        "taxonomy": "statut",
+        "value": "demandeur_emploi"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 45.439695,
+          "lon": 4.387178,
+          "country_code": "fr",
+          "label": "Saint-Etienne (42)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "temps_plein"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "preparer_reconversion"
+      },
+      {
+        "taxonomy": "formation_onisep",
+        "value": "technique_industrie_construction"
+      }
+    ]
+  },
+  "payload": {
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 28,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "handicap",
+        "value": "non"
+      },
+      {
+        "taxonomy": "statut",
+        "value": "demandeur_emploi"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 45.439695,
+          "lon": 4.387178,
+          "country_code": "fr",
+          "label": "Saint-Etienne (42)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "temps_plein"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "preparer_reconversion"
+      },
+      {
+        "taxonomy": "formation_onisep",
+        "value": "technique_industrie_construction"
+      }
+    ],
+    "distinctId": "eval:m2-260707:karim-reconversion",
+    "missionAlertEnabled": false
+  },
+  "userScoringId": "8063d21d-9388-4e81-86fa-75ae2a68694e",
+  "match": {
+    "tookMs": 3059,
+    "engineVersion": "m2",
+    "items": [
+      {
+        "mission": {
+          "id": "619518541206b80750dabb18",
+          "title": "Missions humanitaires de formation au Laos",
+          "remote": "no",
+          "schedule": "",
+          "domain": "humanitaire",
+          "domainOriginal": null,
+          "organizationName": "Peuples Et Montagnes Du Mékong",
+          "publisherId": "5f592d415655a711feb4460e",
+          "publisherName": "Benevolt",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_01.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_01.jpeg",
+            "organizationLogo": null,
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo"
+          },
+          "location": {
+            "city": "Saint-Étienne",
+            "closestLat": 45.4293,
+            "closestLon": 4.39213,
+            "closestAddress": "79 Rue Francis Baulier, 42100 Saint-Étienne, FR",
+            "addressId": "31f18755-20ef-41a9-b004-759179d39bfe",
+            "distanceKm": 1.218745201384708
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/619518541206b80750dabb18/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "9d2e8a87-2506-4bcb-92c4-84b7dd7b35ce",
+          "totalScore": 0.643487,
+          "taxonomyScore": 0.328333,
+          "geoScore": 0.958641,
+          "taxonomyScores": {
+            "tranche_age": 1,
+            "type_mission": 0.97
+          },
+          "values": [
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.92,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "missions médicales de formation / accompagnement médical des personnels de santé",
+                "reasoning": "La mission implique des compétences médicales et d'accompagnement direct des professionnels de santé."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "sante_soins",
+              "taxonomyValueLabel": "Santé et soins",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Nous recherchons des médecins généralistes et spécialistes pour des missions de formation dans le Nord Laos / missions médicales de formation",
+                "reasoning": "La mission est explicitement centrée sur la formation médicale et les soins, domaine de la santé."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "international_humanitaire",
+              "taxonomyValueLabel": "International et humanitaire",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "missions de formation dans le Nord Laos / association de solidarité internationale / aide aux peuples et ethnies minoritaires et isolées vivant dans le Nord Laos",
+                "reasoning": "La mission se déroule à l'étranger (Laos) et relève clairement de l'humanitaire et de la solidarité internationale."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "missions médicales de formation / accompagnement médical des personnels de santé",
+                "reasoning": "La mission relève du secteur de la santé et de l'aide à la personne."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "gestion_commerce_organisation",
+              "taxonomyValueLabel": "Gestion, commerce et organisation",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Une mission dure environ trois semaines et le bénévole bénéficie d'une prise en charge de la totalité de ses frais / organisation de missions médicales",
+                "reasoning": "La mission implique une organisation logistique et administrative structurée, typique de la gestion de projet."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Une mission dure environ trois semaines / Une à deux par an selon les disponibilités",
+                "reasoning": "Durée de 3 semaines par mission, avec un volume horaire implicite élevé (mission médicale intensive)."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "gestion_pilotage_juridique",
+              "taxonomyValueLabel": "Gestion, pilotage, juridique",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "bénévole bénéficie d'une prise en charge de la totalité de ses frais dans le cadre de l'abandon de frais. A ce titre, il reçoit une reçu fiscal à déduire de ses impôts",
+                "reasoning": "La mission implique des aspects administratifs et juridiques liés à la gestion des frais et des reçus fiscaux."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "bénévole bénéficie de la logistique de l'association en matière d'accompagnement mais aussi en déplacements et hébergements / missions médicales de formation",
+                "reasoning": "La mission nécessite une forte capacité d'adaptation, de coopération et d'organisation dans un contexte international."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "missions de formation dans le Nord Laos / missions médicales de formation",
+                "reasoning": "La mission est explicitement axée sur la transmission de savoirs et de compétences médicales."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "bénévole bénéficie de la logistique de l'association en matière d'accompagnement mais aussi en déplacements et hébergements / organisation de missions",
+                "reasoning": "La mission inclut un soutien logistique et organisationnel fourni par l'association."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "social_sante_sport",
+              "taxonomyValueLabel": "Social, santé et sport",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "missions médicales de formation / accompagnement médical des personnels de santé",
+                "reasoning": "La mission relève du domaine de la santé et de l'accompagnement social, avec une dimension médicale forte."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "association de solidarité internationale, reconnue d’intérêt général / aide au développement et mise en œuvre d’actions de prévention et de formation à caractère sanitaire, sociale et humanitaire",
+                "reasoning": "La mission s'inscrit dans un cadre associatif et humanitaire, avec des enjeux de société et de droit (solidarité internationale)."
+              }
+            },
+            {
+              "taxonomyKey": "region_internationale",
+              "taxonomyValueKey": "asie",
+              "taxonomyValueLabel": "Asie",
+              "enrichmentConfidence": 0.99,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "missions de formation dans le Nord Laos",
+                "reasoning": "La mission se déroule explicitement au Laos, en Asie."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "623bf0abafe67c079c1ff8bd",
+          "title": "Accompagnez une personne souffrant de solitude",
+          "remote": "no",
+          "schedule": "",
+          "domain": "vivre-ensemble",
+          "domainOriginal": null,
+          "organizationName": "Association Astrée",
+          "publisherId": "5f592d415655a711feb4460e",
+          "publisherName": "Benevolt",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/generique.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/generique.jpeg",
+            "organizationLogo": null,
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo"
+          },
+          "location": {
+            "city": "Saint-Étienne",
+            "closestLat": 45.4397,
+            "closestLon": 4.38504,
+            "closestAddress": "4 Rue André Malraux, 42000 Saint-Étienne, FR",
+            "addressId": "62a2a852-9af7-46c5-ba3e-95547ac4607f",
+            "distanceKm": 0.16680978782429504
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/623bf0abafe67c079c1ff8bd/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "a415377a-2c7a-4c64-8a40-a1cd9074f6f7",
+          "totalScore": 0.580451,
+          "taxonomyScore": 0.166667,
+          "geoScore": 0.994235,
+          "taxonomyScores": {
+            "tranche_age": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "accompagner un adulte isolé ou en situation de fragilité personnelle et/ou relationnelle par l'écoute active, bienveillante et sans jugement / Astrée accompagne les personnes en situation de fragilité en mettant en place un suivi individualisé des personnes rencontrant des difficultés. Elle a pour principale vocation de maintenir et renforcer le lien social",
+                "reasoning": "La mission est explicitement centrée sur l'accompagnement social et la lutte contre l'isolement, ce qui relève clairement du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "accompagner un adulte isolé ou en situation de fragilité personnelle et/ou relationnelle par l'écoute active, bienveillante et sans jugement",
+                "reasoning": "La mission implique une interaction directe et régulière avec des bénéficiaires en situation de fragilité, ce qui correspond à une aide directe."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Formation à l'écoute et à l'accompagnement / Tout bénévole reçoit une formation à l'écoute relationnelle / il bénéficie également de groupes d'échanges de pratiques pour parfaire ses compétences",
+                "reasoning": "La mission inclut une dimension de transmission de compétences et de savoir-faire via des formations et des échanges de pratiques."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "participer au développement de notre antenne pour venir en aide à un plus grand nombre de personne dans votre ville ! / Pour le fonctionnement de l'antenne, il est formé aux outils de communication d'Astrée, à l'encadrement des accompagnements et/ou aux process liés à des actions spécifiques",
+                "reasoning": "La mission mentionne explicitement la participation au développement de l'antenne locale, ce qui relève du soutien organisationnel."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "accompagner un adulte isolé ou en situation de fragilité personnelle et/ou relationnelle / Astrée accompagne les personnes en situation de fragilité en mettant en place un suivi individualisé",
+                "reasoning": "La mission relève clairement du secteur de l'aide à la personne et du social."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.92,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "accompagner un adulte isolé ou en situation de fragilité personnelle et/ou relationnelle par l'écoute active, bienveillante et sans jugement",
+                "reasoning": "L'accompagnement humain et l'écoute active relèvent des compétences sociales et de soin."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Formation à l'écoute et à l'accompagnement / groupes d'échanges de pratiques / formé aux outils de communication d'Astrée, à l'encadrement des accompagnements",
+                "reasoning": "La mission met en avant des compétences de coopération, d'organisation et de soft skills via les formations et les échanges de pratiques."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.99,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Fréquence : 2h par semaine / Durée : 1 an minimum",
+                "reasoning": "La mission est explicitement régulière avec une fréquence hebdomadaire et une durée minimale d'un an."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "68dea572620a2c8312f0f88b",
+          "title": "Ateliers du mardi soir et du mercredi après-midi",
+          "remote": "no",
+          "schedule": "",
+          "domain": "education",
+          "domainOriginal": null,
+          "organizationName": "Groupe Archéologique Forez-Jarez",
+          "publisherId": "5f592d415655a711feb4460e",
+          "publisherName": "Benevolt",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_02.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_02.jpeg",
+            "organizationLogo": null,
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo"
+          },
+          "location": {
+            "city": "Saint-Étienne",
+            "closestLat": 45.4397,
+            "closestLon": 4.38504,
+            "closestAddress": "4 bis Rue André Malraux, 42000 Saint-Étienne, FR",
+            "addressId": "210abecf-2da2-4614-9ebb-068691eeb905",
+            "distanceKm": 0.16680978782429504
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/68dea572620a2c8312f0f88b/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "4ee32d6d-077b-469e-aca8-09164ae318da",
+          "totalScore": 0.580451,
+          "taxonomyScore": 0.166667,
+          "geoScore": 0.994235,
+          "taxonomyScores": {
+            "tranche_age": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "culture_arts",
+              "taxonomyValueLabel": "Culture et arts",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Études et dessins archéologiques - Inventaires - Restauration et fac simile d'objets (vases, pendentifs, corne néolithique...) - petite sculpture, gravure, dessin, peinture. Création d'une exposition en lien avec l'archéologie.",
+                "reasoning": "Les activités décrites (restauration, dessin, peinture, création d'exposition) relèvent clairement du domaine culturel et artistique."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Pour Saint-Etienne et sa métropole, ce lieu permet au public et aux enfants des écoles et autres structures d'avoir accès à la Culture. Il donne aussi au plus grand nombre des connaissances et des compétences scientifiques et techniques des époques anciennes à l'aide de revues, d'expositions temporaires, de conférences, de sorties, voyages.",
+                "reasoning": "La mission inclut la transmission de connaissances scientifiques et culturelles, notamment vers des publics scolaires."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "culture_creation_medias",
+              "taxonomyValueLabel": "Culture, création et médias",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Études et dessins archéologiques - Inventaires - Restauration et fac simile d'objets (vases, pendentifs, corne néolithique...) - petite sculpture, gravure, dessin, peinture. Création d'une exposition en lien avec l'archéologie.",
+                "reasoning": "Les activités (restauration, création d'objets, exposition) relèvent du secteur culturel et créatif."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Pour Saint-Etienne et sa métropole, ce lieu permet au public et aux enfants des écoles et autres structures d'avoir accès à la Culture. Il donne aussi au plus grand nombre des connaissances et des compétences scientifiques et techniques des époques anciennes à l'aide de revues, d'expositions temporaires, de conférences, de sorties, voyages.",
+                "reasoning": "La mission inclut la transmission de savoirs et l'animation culturelle vers différents publics."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.99,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Tous les mardis soirs de 20 h à 22 h et mercredis après-midi de 14h30 à 16h30 / Fréquence : Au choix : 2h : mardi 20 h ou mercredi 14 h 30 / Durée : 2 heures",
+                "reasoning": "Mission répétée chaque semaine sur plusieurs mois avec une durée hebdomadaire de 2h, ce qui correspond à une mission régulière."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "production_construction_qualite_logistique",
+              "taxonomyValueLabel": "Production, construction, qualité, logistique",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Restauration et fac simile d'objets (vases, pendentifs, corne néolithique...) - petite sculpture, gravure, dessin, peinture.",
+                "reasoning": "Les tâches décrites (restauration, sculpture, gravure, dessin) relèvent de compétences manuelles et techniques."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "sous la houlette d'un passionné de recherche en archéologie, suivi de quelques passionnés aussi / Le bénévole peut-être dans le conseil d'administration ou au cœur de l'étude archéologique dans un atelier.",
+                "reasoning": "La mission implique un travail collaboratif en équipe et une participation possible à des instances organisées (conseil d'administration)."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Il donne aussi au plus grand nombre des connaissances et des compétences scientifiques et techniques des époques anciennes à l'aide de revues, d'expositions temporaires, de conférences, de sorties, voyages.",
+                "reasoning": "La mission inclut explicitement la transmission de connaissances scientifiques et culturelles."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Création d'une exposition en lien avec l'archéologie / conférences, de sorties, voyages",
+                "reasoning": "La mission inclut la création d'expositions et l'organisation d'événements culturels, ce qui relève de l'animation."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "action_terrain",
+              "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Maintenance et amélioration de l'Espace Archéologique (Maison des Associations - rue Malraux)",
+                "reasoning": "La mission inclut des actions concrètes de maintenance et d'amélioration d'un espace physique."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "education_culture_creation",
+              "taxonomyValueLabel": "Éducation, culture et création",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Études et dessins archéologiques - Inventaires - Restauration et fac simile d'objets (vases, pendentifs, corne néolithique...) - petite sculpture, gravure, dessin, peinture. Création d'une exposition en lien avec l'archéologie.",
+                "reasoning": "Les activités (dessin, restauration, création d'objets, exposition) relèvent de la formation en éducation, culture et création."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "environnement_nature_sciences",
+              "taxonomyValueLabel": "Environnement, nature et sciences",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Études et dessins archéologiques / connaissances et compétences scientifiques et techniques des époques anciennes",
+                "reasoning": "La mission inclut des activités scientifiques (études archéologiques) et la transmission de connaissances scientifiques."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "62d0a662c4b896071489b475",
+          "title": "Intervenants Français Langues Etrangères (FLE)",
+          "remote": "no",
+          "schedule": "",
+          "domain": "solidarite-insertion",
+          "domainOriginal": null,
+          "organizationName": "Agirabcd Loire",
+          "publisherId": "62d0741f9c6e66716c81f1fc",
+          "publisherName": "AGIRAbcd",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+            "organizationLogo": null,
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/62d0741f9c6e66716c81f1fc/logo"
+          },
+          "location": {
+            "city": "Saint-Étienne",
+            "closestLat": 45.4397,
+            "closestLon": 4.385,
+            "closestAddress": "4 Rue André Malraux, 42000 Saint-Étienne, FR",
+            "addressId": "43e39ab1-74d0-4ae8-807b-644829e320f6",
+            "distanceKm": 0.1699306101213159
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/62d0a662c4b896071489b475/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "ee11b371-0abe-4a90-a784-8fc2269678a6",
+          "totalScore": 0.580397,
+          "taxonomyScore": 0.166667,
+          "geoScore": 0.994128,
+          "taxonomyScores": {
+            "tranche_age": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "intervenir auprès de personnes issues de l'immigration, de réfugiés",
+                "reasoning": "Accompagnement de publics en situation de précarité ou d'insertion, impliquant une relation d'aide."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "en binôme ou en solo avec un(e) bénévole / animation hebdomadaire d' ateliers",
+                "reasoning": "Travail collaboratif et organisation d'ateliers collectifs."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "animation hebdomadaire d' ateliers de Français Langues Etrangères / Formation assurée",
+                "reasoning": "Mission centrée sur la transmission de savoirs linguistiques."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "intervenir auprès de personnes issues de l'immigration, de réfugiés",
+                "reasoning": "Contact direct avec des bénéficiaires en situation de précarité."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.99,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Fréquence : hebdomadaire sauf pendant les vacances scolaires",
+                "reasoning": "Mission avec une fréquence hebdomadaire explicite sur plusieurs semaines."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "intervenir auprès de personnes issues de l'immigration, de réfugiés / insertion des populations précaires et en difficultés",
+                "reasoning": "La mission cible explicitement l'insertion et l'accompagnement de publics fragilisés, domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "animation hebdomadaire (sauf vacances scolaires) d' ateliers (1h30 à 2h) de Français Langues Etrangères / Formation assurée",
+                "reasoning": "La mission consiste principalement à transmettre des savoirs linguistiques, domaine éducation et transmission."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "intervenir auprès de personnes issues de l'immigration, de réfugiés / insertion des populations précaires et en difficultés",
+                "reasoning": "Mission dans le secteur de l'aide à la personne et de l'insertion sociale."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "animation hebdomadaire d' ateliers de Français Langues Etrangères / Formation assurée",
+                "reasoning": "Mission liée à l'animation éducative et à la formation."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "intervenir auprès de personnes issues de l'immigration, de réfugiés / insertion des populations précaires",
+                "reasoning": "Mission liée à l'insertion et à l'accompagnement de publics en difficulté, domaine société, droit et politique."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "education_culture_creation",
+              "taxonomyValueLabel": "Éducation, culture et création",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "animation hebdomadaire d' ateliers de Français Langues Etrangères / Formation assurée",
+                "reasoning": "Mission d'animation éducative et de transmission linguistique, domaine éducation, culture et création."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "662417decd17d7c1686d57b5",
+          "title": "J'aide des adultes à obtenir ou réviser le code de la route",
+          "remote": "no",
+          "schedule": "",
+          "domain": "solidarite-insertion",
+          "domainOriginal": null,
+          "organizationName": "Agirabcd Loire",
+          "publisherId": "62d0741f9c6e66716c81f1fc",
+          "publisherName": "AGIRAbcd",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+            "organizationLogo": null,
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/62d0741f9c6e66716c81f1fc/logo"
+          },
+          "location": {
+            "city": "Saint-Étienne",
+            "closestLat": 45.4397,
+            "closestLon": 4.385,
+            "closestAddress": "4 Rue André Malraux, 42000 Saint-Étienne, FR",
+            "addressId": "88e4860c-fddd-4a07-b465-6c3d23aa1823",
+            "distanceKm": 0.1699306101213159
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/662417decd17d7c1686d57b5/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "5777e7e8-8712-493e-9831-1497dfd3a07a",
+          "totalScore": 0.580397,
+          "taxonomyScore": 0.166667,
+          "geoScore": 0.994128,
+          "taxonomyScores": {
+            "tranche_age": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.99,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Fréquence : 1 à 2 fois par semaine / Durée : 1 an ou + selon dispos",
+                "reasoning": "La mission est explicitement régulière sur une durée d'au moins un an."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Travail sur le vocabulaire du code de la route pour des personnes en difficultés de lecture de la langue Française / Préparation à l'examen du code de la route / Révision du code de la route pour des conducteurs expérimentés et agés",
+                "reasoning": "La mission consiste principalement à transmettre des savoirs liés au code de la route, ce qui relève de l'éducation et de la transmission."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Travail sur le vocabulaire du code de la route pour des personnes en difficultés de lecture de la langue Française / insertion des populations précaires et en difficultés",
+                "reasoning": "La mission cible des publics en difficulté (lecture, insertion), ce qui relève de la solidarité et de l'accompagnement social."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Travail sur le vocabulaire du code de la route / Préparation à l'examen du code de la route / Révision du code de la route",
+                "reasoning": "La mission relève clairement du secteur de l'éducation et de la formation."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "insertion des populations précaires et en difficultés / autonomie des seniors",
+                "reasoning": "La mission s'inscrit dans un contexte d'aide à la personne et d'insertion sociale."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Travail sur le vocabulaire du code de la route pour des personnes en difficultés / Préparation à l'examen du code de la route",
+                "reasoning": "La mission implique une interaction humaine et une adaptation aux besoins des bénéficiaires, relevant des soft skills."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Travail sur le vocabulaire du code de la route / Préparation à l'examen du code de la route / Révision du code de la route",
+                "reasoning": "La mission consiste principalement à transmettre des connaissances et à accompagner des apprentissages."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Travail sur le vocabulaire du code de la route pour des personnes en difficultés de lecture de la langue Française",
+                "reasoning": "La mission implique un accompagnement direct et personnalisé des bénéficiaires."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Travail sur le vocabulaire du code de la route / Préparation à l'examen du code de la route / Révision du code de la route",
+                "reasoning": "La mission est liée à des enjeux de droit (code de la route) et de société (insertion, autonomie)."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      }
+    ],
+    "total": 2923,
+    "avgDistanceKmTop5": 0.38
+  },
+  "missions": [
+    {
+      "mission": {
+        "id": "619518541206b80750dabb18",
+        "title": "Missions humanitaires de formation au Laos",
+        "remote": "no",
+        "schedule": "",
+        "domain": "humanitaire",
+        "domainOriginal": null,
+        "organizationName": "Peuples Et Montagnes Du Mékong",
+        "publisherId": "5f592d415655a711feb4460e",
+        "publisherName": "Benevolt",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_01.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_01.jpeg",
+          "organizationLogo": null,
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo"
+        },
+        "location": {
+          "city": "Saint-Étienne",
+          "closestLat": 45.4293,
+          "closestLon": 4.39213,
+          "closestAddress": "79 Rue Francis Baulier, 42100 Saint-Étienne, FR",
+          "addressId": "31f18755-20ef-41a9-b004-759179d39bfe",
+          "distanceKm": 1.218745201384708
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/619518541206b80750dabb18/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "9d2e8a87-2506-4bcb-92c4-84b7dd7b35ce",
+        "totalScore": 0.643487,
+        "taxonomyScore": 0.328333,
+        "geoScore": 0.958641,
+        "taxonomyScores": {
+          "tranche_age": 1,
+          "type_mission": 0.97
+        },
+        "values": [
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.92,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "missions médicales de formation / accompagnement médical des personnels de santé",
+              "reasoning": "La mission implique des compétences médicales et d'accompagnement direct des professionnels de santé."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "sante_soins",
+            "taxonomyValueLabel": "Santé et soins",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Nous recherchons des médecins généralistes et spécialistes pour des missions de formation dans le Nord Laos / missions médicales de formation",
+              "reasoning": "La mission est explicitement centrée sur la formation médicale et les soins, domaine de la santé."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "international_humanitaire",
+            "taxonomyValueLabel": "International et humanitaire",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "missions de formation dans le Nord Laos / association de solidarité internationale / aide aux peuples et ethnies minoritaires et isolées vivant dans le Nord Laos",
+              "reasoning": "La mission se déroule à l'étranger (Laos) et relève clairement de l'humanitaire et de la solidarité internationale."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "missions médicales de formation / accompagnement médical des personnels de santé",
+              "reasoning": "La mission relève du secteur de la santé et de l'aide à la personne."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "gestion_commerce_organisation",
+            "taxonomyValueLabel": "Gestion, commerce et organisation",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Une mission dure environ trois semaines et le bénévole bénéficie d'une prise en charge de la totalité de ses frais / organisation de missions médicales",
+              "reasoning": "La mission implique une organisation logistique et administrative structurée, typique de la gestion de projet."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Une mission dure environ trois semaines / Une à deux par an selon les disponibilités",
+              "reasoning": "Durée de 3 semaines par mission, avec un volume horaire implicite élevé (mission médicale intensive)."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "gestion_pilotage_juridique",
+            "taxonomyValueLabel": "Gestion, pilotage, juridique",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "bénévole bénéficie d'une prise en charge de la totalité de ses frais dans le cadre de l'abandon de frais. A ce titre, il reçoit une reçu fiscal à déduire de ses impôts",
+              "reasoning": "La mission implique des aspects administratifs et juridiques liés à la gestion des frais et des reçus fiscaux."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "bénévole bénéficie de la logistique de l'association en matière d'accompagnement mais aussi en déplacements et hébergements / missions médicales de formation",
+              "reasoning": "La mission nécessite une forte capacité d'adaptation, de coopération et d'organisation dans un contexte international."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "missions de formation dans le Nord Laos / missions médicales de formation",
+              "reasoning": "La mission est explicitement axée sur la transmission de savoirs et de compétences médicales."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "bénévole bénéficie de la logistique de l'association en matière d'accompagnement mais aussi en déplacements et hébergements / organisation de missions",
+              "reasoning": "La mission inclut un soutien logistique et organisationnel fourni par l'association."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "social_sante_sport",
+            "taxonomyValueLabel": "Social, santé et sport",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "missions médicales de formation / accompagnement médical des personnels de santé",
+              "reasoning": "La mission relève du domaine de la santé et de l'accompagnement social, avec une dimension médicale forte."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "association de solidarité internationale, reconnue d’intérêt général / aide au développement et mise en œuvre d’actions de prévention et de formation à caractère sanitaire, sociale et humanitaire",
+              "reasoning": "La mission s'inscrit dans un cadre associatif et humanitaire, avec des enjeux de société et de droit (solidarité internationale)."
+            }
+          },
+          {
+            "taxonomyKey": "region_internationale",
+            "taxonomyValueKey": "asie",
+            "taxonomyValueLabel": "Asie",
+            "enrichmentConfidence": 0.99,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "missions de formation dans le Nord Laos",
+              "reasoning": "La mission se déroule explicitement au Laos, en Asie."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "619518541206b80750dabb18",
+        "title": "Missions humanitaires de formation au Laos",
+        "domain": "humanitaire",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_01.jpeg",
+        "type": "benevolat",
+        "publisherId": "5f592d415655a711feb4460e",
+        "publisherName": "Benevolt",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo",
+        "organizationName": "Peuples Et Montagnes Du Mékong",
+        "organizationLogo": null,
+        "location": {
+          "city": "Saint-Étienne",
+          "address": "79 Rue Francis Baulier, 42100 Saint-Étienne",
+          "lat": 45.4293,
+          "lon": 4.39213
+        },
+        "startAt": "2025-08-25T19:18:33.716Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "",
+        "compensation": null,
+        "descriptionHtml": "   Saint-Étienne (42)<br>   Dès que possible<br><br><br>Nous recherchons des médecins généralistes et spécialistes pour des missions de formation dans le Nord Laos. Une mission dure environ trois semaines et le bénévole bénéficie d'une pris en charge de la totalité de ses frais dans le cadre de l'abandon de frais. A ce titre, il reçoit une reçu fiscal à déduire de ses impôts...\nUn bénévole peut faire de une à trois missions par an selon ses disponibilités.\nNous recherchons également un infographiste pour nous aider dans notre communication.<br><br><p><strong>Informations pratiques</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p><br><br>Fréquence : Une à deux par an selon les disponibilités<br>Durée : Une mission dure environ 3 semaines.<br><br><p><strong>Informations sur l'association Peuples Et Montagnes Du Mékong</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Peuples et Montagnes du Mékong (PEMM) est une association de solidarité internationale, reconnue d’intérêt général. Elle a été créée en juin 2011 par des personnes désireuses d’apporter leur aide aux peuples et ethnies minoritaires et isolées vivant dans le Nord Laos. \nNous effectuons auprès de ces populations des missions médicales de formation et des chantiers d'adduction d'eau pour les dispensaires et les écoles.<br><p><strong>Formation des bénévoles</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Nos bénévoles quand ils sont en mission au Laos bénéficient tous de la logistique de l'association en matière d'accompagnement mais aussi en déplacements et hébergements.",
+        "description": "Saint-Étienne (42)\nDès que possible\n\n\nNous recherchons des médecins généralistes et spécialistes pour des missions de\nformation dans le Nord Laos. Une mission dure environ trois semaines et le\nbénévole bénéficie d'une pris en charge de la totalité de ses frais dans le\ncadre de l'abandon de frais. A ce titre, il reçoit une reçu fiscal à déduire de\nses impôts...\nUn bénévole peut faire de une à trois missions par an selon ses disponibilités.\nNous recherchons également un infographiste pour nous aider dans notre\ncommunication.\n\n\n\nInformations pratiques\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\n\n\nFréquence : Une à deux par an selon les disponibilités\nDurée : Une mission dure environ 3 semaines.\n\n\n\nInformations sur l'association Peuples Et Montagnes Du Mékong\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nPeuples et Montagnes du Mékong (PEMM) est une association de solidarité\ninternationale, reconnue d’intérêt général. Elle a été créée en juin 2011 par\ndes personnes désireuses d’apporter leur aide aux peuples et ethnies\nminoritaires et isolées vivant dans le Nord Laos.\nNous effectuons auprès de ces populations des missions médicales de formation et\ndes chantiers d'adduction d'eau pour les dispensaires et les écoles.\n\n\nFormation des bénévoles\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nNos bénévoles quand ils sont en mission au Laos bénéficient tous de la\nlogistique de l'association en matière d'accompagnement mais aussi en\ndéplacements et hébergements.",
+        "applicationUrl": "http://localhost:4000/r/619518541206b80750dabb18/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_01.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "623bf0abafe67c079c1ff8bd",
+        "title": "Accompagnez une personne souffrant de solitude",
+        "remote": "no",
+        "schedule": "",
+        "domain": "vivre-ensemble",
+        "domainOriginal": null,
+        "organizationName": "Association Astrée",
+        "publisherId": "5f592d415655a711feb4460e",
+        "publisherName": "Benevolt",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/generique.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/generique.jpeg",
+          "organizationLogo": null,
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo"
+        },
+        "location": {
+          "city": "Saint-Étienne",
+          "closestLat": 45.4397,
+          "closestLon": 4.38504,
+          "closestAddress": "4 Rue André Malraux, 42000 Saint-Étienne, FR",
+          "addressId": "62a2a852-9af7-46c5-ba3e-95547ac4607f",
+          "distanceKm": 0.16680978782429504
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/623bf0abafe67c079c1ff8bd/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "a415377a-2c7a-4c64-8a40-a1cd9074f6f7",
+        "totalScore": 0.580451,
+        "taxonomyScore": 0.166667,
+        "geoScore": 0.994235,
+        "taxonomyScores": {
+          "tranche_age": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "accompagner un adulte isolé ou en situation de fragilité personnelle et/ou relationnelle par l'écoute active, bienveillante et sans jugement / Astrée accompagne les personnes en situation de fragilité en mettant en place un suivi individualisé des personnes rencontrant des difficultés. Elle a pour principale vocation de maintenir et renforcer le lien social",
+              "reasoning": "La mission est explicitement centrée sur l'accompagnement social et la lutte contre l'isolement, ce qui relève clairement du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "accompagner un adulte isolé ou en situation de fragilité personnelle et/ou relationnelle par l'écoute active, bienveillante et sans jugement",
+              "reasoning": "La mission implique une interaction directe et régulière avec des bénéficiaires en situation de fragilité, ce qui correspond à une aide directe."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Formation à l'écoute et à l'accompagnement / Tout bénévole reçoit une formation à l'écoute relationnelle / il bénéficie également de groupes d'échanges de pratiques pour parfaire ses compétences",
+              "reasoning": "La mission inclut une dimension de transmission de compétences et de savoir-faire via des formations et des échanges de pratiques."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "participer au développement de notre antenne pour venir en aide à un plus grand nombre de personne dans votre ville ! / Pour le fonctionnement de l'antenne, il est formé aux outils de communication d'Astrée, à l'encadrement des accompagnements et/ou aux process liés à des actions spécifiques",
+              "reasoning": "La mission mentionne explicitement la participation au développement de l'antenne locale, ce qui relève du soutien organisationnel."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "accompagner un adulte isolé ou en situation de fragilité personnelle et/ou relationnelle / Astrée accompagne les personnes en situation de fragilité en mettant en place un suivi individualisé",
+              "reasoning": "La mission relève clairement du secteur de l'aide à la personne et du social."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.92,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "accompagner un adulte isolé ou en situation de fragilité personnelle et/ou relationnelle par l'écoute active, bienveillante et sans jugement",
+              "reasoning": "L'accompagnement humain et l'écoute active relèvent des compétences sociales et de soin."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Formation à l'écoute et à l'accompagnement / groupes d'échanges de pratiques / formé aux outils de communication d'Astrée, à l'encadrement des accompagnements",
+              "reasoning": "La mission met en avant des compétences de coopération, d'organisation et de soft skills via les formations et les échanges de pratiques."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.99,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Fréquence : 2h par semaine / Durée : 1 an minimum",
+              "reasoning": "La mission est explicitement régulière avec une fréquence hebdomadaire et une durée minimale d'un an."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "623bf0abafe67c079c1ff8bd",
+        "title": "Accompagnez une personne souffrant de solitude",
+        "domain": "vivre-ensemble",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/generique.jpeg",
+        "type": "benevolat",
+        "publisherId": "5f592d415655a711feb4460e",
+        "publisherName": "Benevolt",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo",
+        "organizationName": "Association Astrée",
+        "organizationLogo": null,
+        "location": {
+          "city": "Saint-Étienne",
+          "address": "4 Rue André Malraux, 42000 Saint-Étienne",
+          "lat": 45.4397,
+          "lon": 4.38504
+        },
+        "startAt": "2025-08-25T19:18:24.449Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "",
+        "compensation": null,
+        "descriptionHtml": "   Saint-Étienne (42)<br>   Dès que possible<br><br><br>Vous souhaitez prendre part à une aventure humaine de solidarité ? L’isolement social vous interpelle ? Vous avez le pouvoir d’agir ! Selon vos envies, vos compétences, vos disponibilités, vous pouvez participer au développement de notre antenne pour venir en aide à un plus grand nombre de personne dans votre ville !\n\nVous pourrez accompagner un adulte isolé ou en situation de fragilité personnelle et/ou relationnelle par l'écoute active, bienveillante et sans jugement.<br><br><p><strong>Informations pratiques</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Formation à l'écoute et à l'accompagnement<br><br>Fréquence : 2h par semaine<br>Durée : 1 an minimum<br><br><p><strong>Informations sur l'association Association Astrée</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Astrée accompagne les personnes en situation de fragilité en mettant en place un suivi individualisé des personnes rencontrant des difficultés. Elle a pour principale vocation de maintenir et renforcer le lien social. Astrée a aussi pour mission de former des relais d’écoute afin de démultiplier son action.<br><p><strong>Formation des bénévoles</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Tout bénévole reçoit une formation à l'écoute relationnelle.\n- Pour les accompagnements, il bénéficie également de groupes d'échanges de pratiques pour parfaire ses compétences;\n- Pour le fonctionnement de l'antenne, il est formé aux outils de communication d'Astrée, à l'encadrement des accompagnements et/ou aux process liés à des actions spécifiques.",
+        "description": "Saint-Étienne (42)\nDès que possible\n\n\nVous souhaitez prendre part à une aventure humaine de solidarité ? L’isolement\nsocial vous interpelle ? Vous avez le pouvoir d’agir ! Selon vos envies, vos\ncompétences, vos disponibilités, vous pouvez participer au développement de\nnotre antenne pour venir en aide à un plus grand nombre de personne dans votre\nville !\n\nVous pourrez accompagner un adulte isolé ou en situation de fragilité\npersonnelle et/ou relationnelle par l'écoute active, bienveillante et sans\njugement.\n\n\n\nInformations pratiques\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nFormation à l'écoute et à l'accompagnement\n\nFréquence : 2h par semaine\nDurée : 1 an minimum\n\n\n\nInformations sur l'association Association Astrée\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nAstrée accompagne les personnes en situation de fragilité en mettant en place un\nsuivi individualisé des personnes rencontrant des difficultés. Elle a pour\nprincipale vocation de maintenir et renforcer le lien social. Astrée a aussi\npour mission de former des relais d’écoute afin de démultiplier son action.\n\n\nFormation des bénévoles\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nTout bénévole reçoit une formation à l'écoute relationnelle.\n- Pour les accompagnements, il bénéficie également de groupes d'échanges de\npratiques pour parfaire ses compétences;\n- Pour le fonctionnement de l'antenne, il est formé aux outils de communication\nd'Astrée, à l'encadrement des accompagnements et/ou aux process liés à des\nactions spécifiques.",
+        "applicationUrl": "http://localhost:4000/r/623bf0abafe67c079c1ff8bd/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/generique.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "68dea572620a2c8312f0f88b",
+        "title": "Ateliers du mardi soir et du mercredi après-midi",
+        "remote": "no",
+        "schedule": "",
+        "domain": "education",
+        "domainOriginal": null,
+        "organizationName": "Groupe Archéologique Forez-Jarez",
+        "publisherId": "5f592d415655a711feb4460e",
+        "publisherName": "Benevolt",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_02.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_02.jpeg",
+          "organizationLogo": null,
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo"
+        },
+        "location": {
+          "city": "Saint-Étienne",
+          "closestLat": 45.4397,
+          "closestLon": 4.38504,
+          "closestAddress": "4 bis Rue André Malraux, 42000 Saint-Étienne, FR",
+          "addressId": "210abecf-2da2-4614-9ebb-068691eeb905",
+          "distanceKm": 0.16680978782429504
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/68dea572620a2c8312f0f88b/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "4ee32d6d-077b-469e-aca8-09164ae318da",
+        "totalScore": 0.580451,
+        "taxonomyScore": 0.166667,
+        "geoScore": 0.994235,
+        "taxonomyScores": {
+          "tranche_age": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "culture_arts",
+            "taxonomyValueLabel": "Culture et arts",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Études et dessins archéologiques - Inventaires - Restauration et fac simile d'objets (vases, pendentifs, corne néolithique...) - petite sculpture, gravure, dessin, peinture. Création d'une exposition en lien avec l'archéologie.",
+              "reasoning": "Les activités décrites (restauration, dessin, peinture, création d'exposition) relèvent clairement du domaine culturel et artistique."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Pour Saint-Etienne et sa métropole, ce lieu permet au public et aux enfants des écoles et autres structures d'avoir accès à la Culture. Il donne aussi au plus grand nombre des connaissances et des compétences scientifiques et techniques des époques anciennes à l'aide de revues, d'expositions temporaires, de conférences, de sorties, voyages.",
+              "reasoning": "La mission inclut la transmission de connaissances scientifiques et culturelles, notamment vers des publics scolaires."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "culture_creation_medias",
+            "taxonomyValueLabel": "Culture, création et médias",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Études et dessins archéologiques - Inventaires - Restauration et fac simile d'objets (vases, pendentifs, corne néolithique...) - petite sculpture, gravure, dessin, peinture. Création d'une exposition en lien avec l'archéologie.",
+              "reasoning": "Les activités (restauration, création d'objets, exposition) relèvent du secteur culturel et créatif."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Pour Saint-Etienne et sa métropole, ce lieu permet au public et aux enfants des écoles et autres structures d'avoir accès à la Culture. Il donne aussi au plus grand nombre des connaissances et des compétences scientifiques et techniques des époques anciennes à l'aide de revues, d'expositions temporaires, de conférences, de sorties, voyages.",
+              "reasoning": "La mission inclut la transmission de savoirs et l'animation culturelle vers différents publics."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.99,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Tous les mardis soirs de 20 h à 22 h et mercredis après-midi de 14h30 à 16h30 / Fréquence : Au choix : 2h : mardi 20 h ou mercredi 14 h 30 / Durée : 2 heures",
+              "reasoning": "Mission répétée chaque semaine sur plusieurs mois avec une durée hebdomadaire de 2h, ce qui correspond à une mission régulière."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "production_construction_qualite_logistique",
+            "taxonomyValueLabel": "Production, construction, qualité, logistique",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Restauration et fac simile d'objets (vases, pendentifs, corne néolithique...) - petite sculpture, gravure, dessin, peinture.",
+              "reasoning": "Les tâches décrites (restauration, sculpture, gravure, dessin) relèvent de compétences manuelles et techniques."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "sous la houlette d'un passionné de recherche en archéologie, suivi de quelques passionnés aussi / Le bénévole peut-être dans le conseil d'administration ou au cœur de l'étude archéologique dans un atelier.",
+              "reasoning": "La mission implique un travail collaboratif en équipe et une participation possible à des instances organisées (conseil d'administration)."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Il donne aussi au plus grand nombre des connaissances et des compétences scientifiques et techniques des époques anciennes à l'aide de revues, d'expositions temporaires, de conférences, de sorties, voyages.",
+              "reasoning": "La mission inclut explicitement la transmission de connaissances scientifiques et culturelles."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Création d'une exposition en lien avec l'archéologie / conférences, de sorties, voyages",
+              "reasoning": "La mission inclut la création d'expositions et l'organisation d'événements culturels, ce qui relève de l'animation."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "action_terrain",
+            "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Maintenance et amélioration de l'Espace Archéologique (Maison des Associations - rue Malraux)",
+              "reasoning": "La mission inclut des actions concrètes de maintenance et d'amélioration d'un espace physique."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "education_culture_creation",
+            "taxonomyValueLabel": "Éducation, culture et création",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Études et dessins archéologiques - Inventaires - Restauration et fac simile d'objets (vases, pendentifs, corne néolithique...) - petite sculpture, gravure, dessin, peinture. Création d'une exposition en lien avec l'archéologie.",
+              "reasoning": "Les activités (dessin, restauration, création d'objets, exposition) relèvent de la formation en éducation, culture et création."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "environnement_nature_sciences",
+            "taxonomyValueLabel": "Environnement, nature et sciences",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Études et dessins archéologiques / connaissances et compétences scientifiques et techniques des époques anciennes",
+              "reasoning": "La mission inclut des activités scientifiques (études archéologiques) et la transmission de connaissances scientifiques."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "68dea572620a2c8312f0f88b",
+        "title": "Ateliers du mardi soir et du mercredi après-midi",
+        "domain": "education",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_02.jpeg",
+        "type": "benevolat",
+        "publisherId": "5f592d415655a711feb4460e",
+        "publisherName": "Benevolt",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo",
+        "organizationName": "Groupe Archéologique Forez-Jarez",
+        "organizationLogo": null,
+        "location": {
+          "city": "Saint-Étienne",
+          "address": "4 bis Rue André Malraux, 42000 Saint-Étienne",
+          "lat": 45.4397,
+          "lon": 4.38504
+        },
+        "startAt": "2025-10-02T16:16:39.204Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "",
+        "compensation": null,
+        "descriptionHtml": "   Saint-Étienne (42)<br>   Dès que possible<br><br><br>Études et dessins archéologiques - Inventaires - Restauration et fac simile d'objets (vases, pendentifs, corne néolithique...) - petite sculpture, gravure, dessin, peinture. Création d'une exposition en lien avec l'archéologie.  Maintenance et amélioration de l'Espace Archéologique (Maison des Associations - rue Malraux) - Activité bénévole.<br><br><p><strong>Informations pratiques</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Tous les mardis soirs de 20 h à 22 h et  mercredis après-midi de 14h30 à 16h30 sous la houlette d'un passionné de recherche en archéologie, suivi de quelques passionnés aussi.\nMerci Dalila<br><br>Fréquence : Au choix : 2h : mardi 20 h ou mercredi 14 h 30<br>Durée : 2 heures<br><br><p><strong>Informations sur l'association Groupe Archéologique Forez-Jarez</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>8 salles d'exposition sur les thèmes préhistoire, périodes gauloise, romaine, l'écriture, bibliothèque... \nPour Saint-Etienne et sa métropole, ce lieu permet au public et aux enfants des écoles et autres structures d'avoir accès à la Culture. Il donne aussi au plus grand nombre des connaissances et des compétences scientifiques et techniques des époques anciennes à l'aide de revues, d'expositions temporaires, de conférences, de sorties, voyages.\nL'atelier du mardi soir et du mercredi après-midi vous accueille avec joie.<br><p><strong>Formation des bénévoles</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Le bénévolat permet un contact avec l'Histoire, la Culture, la recherche et la réalisation d'exposition. Le bénévole peut-être dans le conseil d'administration ou au cœur de l'étude archéologique dans un atelier.\nDans le conseil d'administration, il pourra être secrétaire, trésorier ou membre.\nDans l'atelier du mardi soir et du mercredi après-midi, il sera accompagné par un bénévole passionné par la recherche (les Gaulois, les routes anciennes, les villes anciennes).",
+        "description": "Saint-Étienne (42)\nDès que possible\n\n\nÉtudes et dessins archéologiques - Inventaires - Restauration et fac simile\nd'objets (vases, pendentifs, corne néolithique...) - petite sculpture, gravure,\ndessin, peinture. Création d'une exposition en lien avec l'archéologie.\nMaintenance et amélioration de l'Espace Archéologique (Maison des Associations -\nrue Malraux) - Activité bénévole.\n\n\n\nInformations pratiques\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nTous les mardis soirs de 20 h à 22 h et mercredis après-midi de 14h30 à 16h30\nsous la houlette d'un passionné de recherche en archéologie, suivi de quelques\npassionnés aussi.\nMerci Dalila\n\nFréquence : Au choix : 2h : mardi 20 h ou mercredi 14 h 30\nDurée : 2 heures\n\n\n\nInformations sur l'association Groupe Archéologique Forez-Jarez\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\n8 salles d'exposition sur les thèmes préhistoire, périodes gauloise, romaine,\nl'écriture, bibliothèque...\nPour Saint-Etienne et sa métropole, ce lieu permet au public et aux enfants des\nécoles et autres structures d'avoir accès à la Culture. Il donne aussi au plus\ngrand nombre des connaissances et des compétences scientifiques et techniques\ndes époques anciennes à l'aide de revues, d'expositions temporaires, de\nconférences, de sorties, voyages.\nL'atelier du mardi soir et du mercredi après-midi vous accueille avec joie.\n\n\nFormation des bénévoles\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nLe bénévolat permet un contact avec l'Histoire, la Culture, la recherche et la\nréalisation d'exposition. Le bénévole peut-être dans le conseil d'administration\nou au cœur de l'étude archéologique dans un atelier.\nDans le conseil d'administration, il pourra être secrétaire, trésorier ou\nmembre.\nDans l'atelier du mardi soir et du mercredi après-midi, il sera accompagné par\nun bénévole passionné par la recherche (les Gaulois, les routes anciennes, les\nvilles anciennes).",
+        "applicationUrl": "http://localhost:4000/r/68dea572620a2c8312f0f88b/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_02.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "62d0a662c4b896071489b475",
+        "title": "Intervenants Français Langues Etrangères (FLE)",
+        "remote": "no",
+        "schedule": "",
+        "domain": "solidarite-insertion",
+        "domainOriginal": null,
+        "organizationName": "Agirabcd Loire",
+        "publisherId": "62d0741f9c6e66716c81f1fc",
+        "publisherName": "AGIRAbcd",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+          "organizationLogo": null,
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/62d0741f9c6e66716c81f1fc/logo"
+        },
+        "location": {
+          "city": "Saint-Étienne",
+          "closestLat": 45.4397,
+          "closestLon": 4.385,
+          "closestAddress": "4 Rue André Malraux, 42000 Saint-Étienne, FR",
+          "addressId": "43e39ab1-74d0-4ae8-807b-644829e320f6",
+          "distanceKm": 0.1699306101213159
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/62d0a662c4b896071489b475/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "ee11b371-0abe-4a90-a784-8fc2269678a6",
+        "totalScore": 0.580397,
+        "taxonomyScore": 0.166667,
+        "geoScore": 0.994128,
+        "taxonomyScores": {
+          "tranche_age": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "intervenir auprès de personnes issues de l'immigration, de réfugiés",
+              "reasoning": "Accompagnement de publics en situation de précarité ou d'insertion, impliquant une relation d'aide."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "en binôme ou en solo avec un(e) bénévole / animation hebdomadaire d' ateliers",
+              "reasoning": "Travail collaboratif et organisation d'ateliers collectifs."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "animation hebdomadaire d' ateliers de Français Langues Etrangères / Formation assurée",
+              "reasoning": "Mission centrée sur la transmission de savoirs linguistiques."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "intervenir auprès de personnes issues de l'immigration, de réfugiés",
+              "reasoning": "Contact direct avec des bénéficiaires en situation de précarité."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.99,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Fréquence : hebdomadaire sauf pendant les vacances scolaires",
+              "reasoning": "Mission avec une fréquence hebdomadaire explicite sur plusieurs semaines."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "intervenir auprès de personnes issues de l'immigration, de réfugiés / insertion des populations précaires et en difficultés",
+              "reasoning": "La mission cible explicitement l'insertion et l'accompagnement de publics fragilisés, domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "animation hebdomadaire (sauf vacances scolaires) d' ateliers (1h30 à 2h) de Français Langues Etrangères / Formation assurée",
+              "reasoning": "La mission consiste principalement à transmettre des savoirs linguistiques, domaine éducation et transmission."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "intervenir auprès de personnes issues de l'immigration, de réfugiés / insertion des populations précaires et en difficultés",
+              "reasoning": "Mission dans le secteur de l'aide à la personne et de l'insertion sociale."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "animation hebdomadaire d' ateliers de Français Langues Etrangères / Formation assurée",
+              "reasoning": "Mission liée à l'animation éducative et à la formation."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "intervenir auprès de personnes issues de l'immigration, de réfugiés / insertion des populations précaires",
+              "reasoning": "Mission liée à l'insertion et à l'accompagnement de publics en difficulté, domaine société, droit et politique."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "education_culture_creation",
+            "taxonomyValueLabel": "Éducation, culture et création",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "animation hebdomadaire d' ateliers de Français Langues Etrangères / Formation assurée",
+              "reasoning": "Mission d'animation éducative et de transmission linguistique, domaine éducation, culture et création."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "62d0a662c4b896071489b475",
+        "title": "Intervenants Français Langues Etrangères (FLE)",
+        "domain": "solidarite-insertion",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+        "type": "benevolat",
+        "publisherId": "62d0741f9c6e66716c81f1fc",
+        "publisherName": "AGIRAbcd",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/62d0741f9c6e66716c81f1fc/logo",
+        "organizationName": "Agirabcd Loire",
+        "organizationLogo": null,
+        "location": {
+          "city": "Saint-Étienne",
+          "address": "4 Rue André Malraux, 42000 Saint-Étienne",
+          "lat": 45.4397,
+          "lon": 4.385
+        },
+        "startAt": "2025-08-25T19:35:32.655Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "",
+        "compensation": null,
+        "descriptionHtml": "   Saint-Étienne (42)<br>   Dès que possible<br><br><br>Français Langues Etrangères\nPour intervenir auprès de personnes issues de l'immigration, de réfugiés…en binôme ou en solo avec un(e) bénévole, nous recherchons 2 à 3 bénévoles pour participer à l'animation hebdomadaire (sauf vacances scolaires) d' ateliers (1h30 à 2h) de Français Langues Etrangères \nFormation assurée<br><br><p><strong>Informations pratiques</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p><br><br>Fréquence : hebdomadaire sauf pendant les vacances scolaires<br><br><p><strong>Informations sur l'association Agirabcd Loire</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>AGIRabcd est une ONG nationale, reconnue d'utilité publique qui place la solidarité et l'aide au développement au coeur de ses actions. 3000 bénévoles dans 57 délégations. 30 bénévoles dans la délégation de la Loire interviennent, en bénévolat de compétence, auprès des jeunes, pour l'autonomie des seniors, pour l'insertion des populations précaires et en difficultés, pour le retour à l'emploi et à l'international<br><p><strong>Formation des bénévoles</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Entretien avec le Délégué puis suivant les actions nous faisons appel aux compétences du bénévole sinon il est formé pour les interventions qu'il souhaite soit sur place avec les équipes concernées (par exemple :sécurité routière avec d'anciens moniteurs d'auto-école; FLE avec des enseignants diplômés) soit avec les ressources des équipes thématiques de notre siège national",
+        "description": "Saint-Étienne (42)\nDès que possible\n\n\nFrançais Langues Etrangères\nPour intervenir auprès de personnes issues de l'immigration, de réfugiés…en\nbinôme ou en solo avec un(e) bénévole, nous recherchons 2 à 3 bénévoles pour\nparticiper à l'animation hebdomadaire (sauf vacances scolaires) d' ateliers\n(1h30 à 2h) de Français Langues Etrangères\nFormation assurée\n\n\n\nInformations pratiques\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\n\n\nFréquence : hebdomadaire sauf pendant les vacances scolaires\n\n\n\nInformations sur l'association Agirabcd Loire\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nAGIRabcd est une ONG nationale, reconnue d'utilité publique qui place la\nsolidarité et l'aide au développement au coeur de ses actions. 3000 bénévoles\ndans 57 délégations. 30 bénévoles dans la délégation de la Loire interviennent,\nen bénévolat de compétence, auprès des jeunes, pour l'autonomie des seniors,\npour l'insertion des populations précaires et en difficultés, pour le retour à\nl'emploi et à l'international\n\n\nFormation des bénévoles\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nEntretien avec le Délégué puis suivant les actions nous faisons appel aux\ncompétences du bénévole sinon il est formé pour les interventions qu'il souhaite\nsoit sur place avec les équipes concernées (par exemple :sécurité routière avec\nd'anciens moniteurs d'auto-école; FLE avec des enseignants diplômés) soit avec\nles ressources des équipes thématiques de notre siège national",
+        "applicationUrl": "http://localhost:4000/r/62d0a662c4b896071489b475/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "662417decd17d7c1686d57b5",
+        "title": "J'aide des adultes à obtenir ou réviser le code de la route",
+        "remote": "no",
+        "schedule": "",
+        "domain": "solidarite-insertion",
+        "domainOriginal": null,
+        "organizationName": "Agirabcd Loire",
+        "publisherId": "62d0741f9c6e66716c81f1fc",
+        "publisherName": "AGIRAbcd",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+          "organizationLogo": null,
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/62d0741f9c6e66716c81f1fc/logo"
+        },
+        "location": {
+          "city": "Saint-Étienne",
+          "closestLat": 45.4397,
+          "closestLon": 4.385,
+          "closestAddress": "4 Rue André Malraux, 42000 Saint-Étienne, FR",
+          "addressId": "88e4860c-fddd-4a07-b465-6c3d23aa1823",
+          "distanceKm": 0.1699306101213159
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/662417decd17d7c1686d57b5/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "5777e7e8-8712-493e-9831-1497dfd3a07a",
+        "totalScore": 0.580397,
+        "taxonomyScore": 0.166667,
+        "geoScore": 0.994128,
+        "taxonomyScores": {
+          "tranche_age": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.99,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Fréquence : 1 à 2 fois par semaine / Durée : 1 an ou + selon dispos",
+              "reasoning": "La mission est explicitement régulière sur une durée d'au moins un an."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Travail sur le vocabulaire du code de la route pour des personnes en difficultés de lecture de la langue Française / Préparation à l'examen du code de la route / Révision du code de la route pour des conducteurs expérimentés et agés",
+              "reasoning": "La mission consiste principalement à transmettre des savoirs liés au code de la route, ce qui relève de l'éducation et de la transmission."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Travail sur le vocabulaire du code de la route pour des personnes en difficultés de lecture de la langue Française / insertion des populations précaires et en difficultés",
+              "reasoning": "La mission cible des publics en difficulté (lecture, insertion), ce qui relève de la solidarité et de l'accompagnement social."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Travail sur le vocabulaire du code de la route / Préparation à l'examen du code de la route / Révision du code de la route",
+              "reasoning": "La mission relève clairement du secteur de l'éducation et de la formation."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "insertion des populations précaires et en difficultés / autonomie des seniors",
+              "reasoning": "La mission s'inscrit dans un contexte d'aide à la personne et d'insertion sociale."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Travail sur le vocabulaire du code de la route pour des personnes en difficultés / Préparation à l'examen du code de la route",
+              "reasoning": "La mission implique une interaction humaine et une adaptation aux besoins des bénéficiaires, relevant des soft skills."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Travail sur le vocabulaire du code de la route / Préparation à l'examen du code de la route / Révision du code de la route",
+              "reasoning": "La mission consiste principalement à transmettre des connaissances et à accompagner des apprentissages."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Travail sur le vocabulaire du code de la route pour des personnes en difficultés de lecture de la langue Française",
+              "reasoning": "La mission implique un accompagnement direct et personnalisé des bénéficiaires."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Travail sur le vocabulaire du code de la route / Préparation à l'examen du code de la route / Révision du code de la route",
+              "reasoning": "La mission est liée à des enjeux de droit (code de la route) et de société (insertion, autonomie)."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "662417decd17d7c1686d57b5",
+        "title": "J'aide des adultes à obtenir ou réviser le code de la route",
+        "domain": "solidarite-insertion",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+        "type": "benevolat",
+        "publisherId": "62d0741f9c6e66716c81f1fc",
+        "publisherName": "AGIRAbcd",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/62d0741f9c6e66716c81f1fc/logo",
+        "organizationName": "Agirabcd Loire",
+        "organizationLogo": null,
+        "location": {
+          "city": "Saint-Étienne",
+          "address": "4 Rue André Malraux, 42000 Saint-Étienne",
+          "lat": 45.4397,
+          "lon": 4.385
+        },
+        "startAt": "2025-08-25T19:35:32.696Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "",
+        "compensation": null,
+        "descriptionHtml": "   Saint-Étienne (42)<br>   Dès que possible<br><br><br>[Profils recherchés: Retraités bénévoles]\n\nTravail sur le vocabulaire du code de la route pour des personnes en difficultés de lecture de la langue Française.\nPréparation à l'examen du code de la route.\nRévision du code de la route pour des conducteurs expérimentés et agés<br><br><p><strong>Informations pratiques</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p><br><br>Fréquence : 1 à 2 fois par semaine<br>Durée : 1 an ou + selon dispos<br><br><p><strong>Informations sur l'association Agirabcd Loire</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>AGIRabcd est une ONG nationale, reconnue d'utilité publique qui place la solidarité et l'aide au développement au coeur de ses actions. 3000 bénévoles dans 57 délégations. 30 bénévoles dans la délégation de la Loire interviennent, en bénévolat de compétence, auprès des jeunes, pour l'autonomie des seniors, pour l'insertion des populations précaires et en difficultés, pour le retour à l'emploi et à l'international<br><p><strong>Formation des bénévoles</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Entretien avec le Délégué puis suivant les actions nous faisons appel aux compétences du bénévole sinon il est formé pour les interventions qu'il souhaite soit sur place avec les équipes concernées (par exemple :sécurité routière avec d'anciens moniteurs d'auto-école; FLE avec des enseignants diplômés) soit avec les ressources des équipes thématiques de notre siège national",
+        "description": "Saint-Étienne (42)\nDès que possible\n\n\n[Profils recherchés: Retraités bénévoles]\n\nTravail sur le vocabulaire du code de la route pour des personnes en difficultés\nde lecture de la langue Française.\nPréparation à l'examen du code de la route.\nRévision du code de la route pour des conducteurs expérimentés et agés\n\n\n\nInformations pratiques\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\n\n\nFréquence : 1 à 2 fois par semaine\nDurée : 1 an ou + selon dispos\n\n\n\nInformations sur l'association Agirabcd Loire\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nAGIRabcd est une ONG nationale, reconnue d'utilité publique qui place la\nsolidarité et l'aide au développement au coeur de ses actions. 3000 bénévoles\ndans 57 délégations. 30 bénévoles dans la délégation de la Loire interviennent,\nen bénévolat de compétence, auprès des jeunes, pour l'autonomie des seniors,\npour l'insertion des populations précaires et en difficultés, pour le retour à\nl'emploi et à l'international\n\n\nFormation des bénévoles\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nEntretien avec le Délégué puis suivant les actions nous faisons appel aux\ncompétences du bénévole sinon il est formé pour les interventions qu'il souhaite\nsoit sur place avec les équipes concernées (par exemple :sécurité routière avec\nd'anciens moniteurs d'auto-école; FLE avec des enseignants diplômés) soit avec\nles ressources des équipes thématiques de notre siège national",
+        "applicationUrl": "http://localhost:4000/r/662417decd17d7c1686d57b5/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    }
+  ],
+  "deterministic": {
+    "geo": 5,
+    "format": 1,
+    "missionsSansTagFormat": [],
+    "gateViolations": []
+  },
+  "judgeRuns": [
+    {
+      "runIndex": 0,
+      "seed": 1467602790,
+      "order": [
+        "623bf0abafe67c079c1ff8bd",
+        "68dea572620a2c8312f0f88b",
+        "662417decd17d7c1686d57b5",
+        "62d0a662c4b896071489b475",
+        "619518541206b80750dabb18"
+      ],
+      "output": {
+        "coherence": {
+          "score": 2,
+          "missionsPertinentes": [
+            2,
+            3
+          ],
+          "justification": "Parmi les 5 missions proposées, seules les missions 2 (aide à la préparation du code de la route) et 3 (intervention en Français Langues Étrangères) peuvent être considérées comme pertinentes pour Karim, qui souhaite tester un nouveau secteur avant de se former, notamment dans un domaine technique ou industriel. Ces missions impliquent un engagement à temps plein et une formation, ce qui correspond à sa volonté de préparation à une reconversion. Les autres missions sont plus orientées vers le social, la culture ou l'humanitaire, sans lien direct avec sa motivation et son projet de formation technique.",
+          "missionIdsPertinents": [
+            "68dea572620a2c8312f0f88b",
+            "662417decd17d7c1686d57b5"
+          ]
+        },
+        "homogeneite": {
+          "score": 4,
+          "familles": [
+            "éducation et formation",
+            "social"
+          ],
+          "justification": "Les missions pertinentes appartiennent à deux familles principales : éducation et formation (missions 2 et 3). Les autres missions appartiennent à des familles différentes (social, culture, humanitaire), ce qui donne une homogénéité moyenne avec 3 familles dont une avec au moins 3 missions."
+        },
+        "cause": "offre"
+      }
+    },
+    {
+      "runIndex": 1,
+      "seed": 1484380409,
+      "order": [
+        "619518541206b80750dabb18",
+        "62d0a662c4b896071489b475",
+        "623bf0abafe67c079c1ff8bd",
+        "662417decd17d7c1686d57b5",
+        "68dea572620a2c8312f0f88b"
+      ],
+      "output": {
+        "coherence": {
+          "score": 3,
+          "missionsPertinentes": [
+            1,
+            2,
+            3
+          ],
+          "justification": "Parmi les 5 missions proposées, trois sont pertinentes pour Karim qui souhaite tester un nouveau secteur avant une formation technique ou industrielle. Les missions 1 (enseignement du français), 2 (accompagnement social) et 3 (aide à la préparation du code de la route) sont des activités d'engagement social et éducatif accessibles et utiles pour une reconversion. Les missions 0 (mission humanitaire médicale au Laos) et 4 (atelier archéologique) sont moins en lien avec son projet de reconversion technique ou industrielle.",
+          "missionIdsPertinents": [
+            "619518541206b80750dabb18",
+            "62d0a662c4b896071489b475",
+            "623bf0abafe67c079c1ff8bd"
+          ]
+        },
+        "homogeneite": {
+          "score": 4,
+          "familles": [
+            "Education et insertion sociale",
+            "Accompagnement social",
+            "Culture et patrimoine"
+          ],
+          "justification": "Les missions pertinentes se répartissent en trois familles : éducation (missions 1 et 3), accompagnement social (mission 2) et culture (mission 4). La majorité des missions pertinentes sont dans l'éducation et l'accompagnement social, ce qui donne une homogénéité correcte."
+        },
+        "cause": null
+      }
+    }
+  ],
+  "engineVersion": "m2",
+  "startedAt": "2026-07-07T12:45:58.516Z",
+  "finishedAt": "2026-07-07T12:46:13.857Z",
+  "verdict": 3,
+  "cleanup": {
+    "userScoringDeleted": true
+  }
+}

@@ -1,0 +1,2450 @@
+{
+  "status": "success",
+  "parcours": {
+    "id": "clara-cesure-humanitaire",
+    "segment": "autre",
+    "label": "Clara, 25 ans, en césure à Paris, cherche une mission humanitaire ou solidaire à temps plein",
+    "locationLabel": "Paris (75)",
+    "age": 25,
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 25,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "statut",
+        "value": "autre"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 48.856614,
+          "lon": 2.352222,
+          "country_code": "fr",
+          "label": "Paris (75)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "temps_plein"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "decouvrir_domaine"
+      },
+      {
+        "taxonomy": "domaine",
+        "value": "international_humanitaire"
+      },
+      {
+        "taxonomy": "domaine",
+        "value": "social_solidarite"
+      }
+    ]
+  },
+  "payload": {
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 25,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "statut",
+        "value": "autre"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 48.856614,
+          "lon": 2.352222,
+          "country_code": "fr",
+          "label": "Paris (75)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "temps_plein"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "decouvrir_domaine"
+      },
+      {
+        "taxonomy": "domaine",
+        "value": "international_humanitaire"
+      },
+      {
+        "taxonomy": "domaine",
+        "value": "social_solidarite"
+      }
+    ],
+    "distinctId": "eval:m2-261007:clara-cesure-humanitaire",
+    "missionAlertEnabled": false
+  },
+  "userScoringId": "0c7a2e50-aaa7-44d4-a379-c969d8355055",
+  "match": {
+    "tookMs": 8166,
+    "engineVersion": "m2",
+    "items": [
+      {
+        "mission": {
+          "id": "a135853f-2eb7-40da-ae05-652262311d64",
+          "title": "Soutien aux animations socio-éducatives, citoyennes et européennes des MIJE",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "education",
+          "domainOriginal": "Éducation pour tous",
+          "organizationName": "MIJE - MAISON INTERNATIONALES DES JEUNES ETUDIANTS",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_02.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_02.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Paris",
+            "closestLat": 48.854769,
+            "closestLon": 2.359165,
+            "closestAddress": "6 Rue de Fourcy, 75004 Paris, FR",
+            "addressId": "18951fa2-1895-42f1-9413-e99db1485361",
+            "distanceKm": 0.5478253160469969
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/a135853f-2eb7-40da-ae05-652262311d64/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "40f17ccd-bc27-477d-b620-543f7cba017d",
+          "totalScore": 0.785096,
+          "taxonomyScore": 0.589,
+          "geoScore": 0.981193,
+          "taxonomyScores": {
+            "domaine": 0.945,
+            "tranche_age": 1,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "international_humanitaire",
+              "taxonomyValueLabel": "International et humanitaire",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Découvrir et contribuer à des projets européens Erasmus+ / Contribue à des projets éducatifs, citoyens, culturels, environnementaux et européens",
+                "reasoning": "La mission inclut une dimension européenne explicite via Erasmus+, bien que l'aspect éducatif domine."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Contribue à des projets éducatifs, citoyens, culturels, environnementaux et européens auprès de jeunes, scolaires, voyageurs et habitants du quartier / Participer à la préparation et à l'animation d'ateliers, d'événements et d'actions de sensibilisation auprès de jeunes, scolaires, voyageurs autour de la citoyenneté, de la culture, de l'environnement, de l'Europe et de la solidarité",
+                "reasoning": "La mission est centrée sur la transmission de savoirs, la pédagogie et la sensibilisation, avec une dimension éducative explicite."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "favorisant les rencontres, le vivre-ensemble, l'engagement et l'ouverture au monde / Favoriser les rencontres interculturelles et le vivre-ensemble au sein des auberges et dans le quartier / contribuer à des projets éducatifs favorisant la citoyenneté, la participation des jeunes, la solidarité, l'interculturalité",
+                "reasoning": "La mission inclut des actions de solidarité, de vivre-ensemble et d'interculturalité, bien que l'aspect éducatif domine."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "environnement_nature",
+              "taxonomyValueLabel": "Environnement et nature",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Contribuer aux actions de développement durable et à la valorisation du label Clef Verte",
+                "reasoning": "La mission mentionne explicitement des actions liées au développement durable et à un label environnemental."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "culture_arts",
+              "taxonomyValueLabel": "Culture et arts",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "projets éducatifs, citoyens, culturels, environnementaux et européens / animation d'ateliers, d'événiers et d'actions de sensibilisation autour de la citoyenneté, de la culture",
+                "reasoning": "La mission inclut des activités culturelles (médiation, valorisation) bien que l'aspect éducatif domine."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Contribue à des projets éducatifs, citoyens, culturels, environnementaux et européens / Participer à la préparation et à l'animation d'ateliers, d'événements et d'actions de sensibilisation",
+                "reasoning": "La mission relève clairement du secteur de l'éducation, de la formation et de l'animation."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Participer à la préparation et à l'animation d'ateliers, d'événements et d'actions de sensibilisation / Les MIJE encouragent les volontaires à proposer leurs idées d'animations",
+                "reasoning": "La mission met en avant la coopération, l'organisation d'activités et l'autonomie dans la proposition d'initiatives."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "communication_creation_numerique",
+              "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Participer à la communication des projets (photos, affiches, réseaux sociaux, témoignages...)",
+                "reasoning": "La mission inclut des tâches de communication digitale et de création de supports visuels."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Participer à la préparation et à l'animation d'ateliers, d'événements et d'actions de sensibilisation auprès de jeunes, scolaires, voyageurs autour de la citoyenneté, de la culture, de l'environnement, de l'Europe et de la solidarité",
+                "reasoning": "La mission est centrée sur la transmission de savoirs et la pédagogie auprès de publics variés."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Participer à la préparation et à l'animation d'ateliers, d'événiers et d'actions de sensibilisation / Favoriser les rencontres interculturelles et le vivre-ensemble",
+                "reasoning": "La mission inclut explicitement l'animation d'ateliers et la dynamique collective."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Participer à la communication des projets (photos, affiches, réseaux sociaux, témoignages...)",
+                "reasoning": "La mission inclut des tâches de communication et de valorisation des projets, relevant du support organisationnel."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "projets éducatifs favorisant la citoyenneté, la participation des jeunes, la solidarité, l'interculturalité / Contribue à des projets éducatifs, citoyens, culturels, environnementaux et européens",
+                "reasoning": "La mission relève des enjeux de société, de citoyenneté et de politique éducative."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "education_culture_creation",
+              "taxonomyValueLabel": "Éducation, culture et création",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Participer à la préparation et à l'animation d'ateliers, d'événements et d'actions de sensibilisation / Contribue à des projets éducatifs, citoyens, culturels",
+                "reasoning": "La mission inclut des activités de médiation culturelle et d'éducation, relevant de ce domaine."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "environnement_nature_sciences",
+              "taxonomyValueLabel": "Environnement, nature et sciences",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Contribuer aux actions de développement durable et à la valorisation du label Clef Verte",
+                "reasoning": "La mission inclut une dimension environnementale explicite, bien que secondaire."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "service_civique",
+              "taxonomyValueLabel": "Service civique",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "6194dd02a99ff4075b5ed9cc",
+          "title": "Animation d'ateliers numériques",
+          "remote": "no",
+          "schedule": "",
+          "domain": "education",
+          "domainOriginal": null,
+          "organizationName": "Bridge The Gap",
+          "publisherId": "5f592d415655a711feb4460e",
+          "publisherName": "Benevolt",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_03.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_03.jpeg",
+            "organizationLogo": null,
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo"
+          },
+          "location": {
+            "city": "Paris",
+            "closestLat": 48.8546,
+            "closestLon": 2.3477,
+            "closestAddress": "75004 Paris, FR",
+            "addressId": "1f863668-8f28-41da-b06c-9c85f7e3b830",
+            "distanceKm": 0.39950633093812504
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/6194dd02a99ff4075b5ed9cc/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "d4fc9eaf-b1af-41a1-b339-c3782dc00ca6",
+          "totalScore": 0.781625,
+          "taxonomyScore": 0.577,
+          "geoScore": 0.98625,
+          "taxonomyScores": {
+            "domaine": 0.885,
+            "tranche_age": 1,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "initiation aux outils numériques au profit des personnes du 3e âge et des personnes en situation précaire, et à leur accompagnement dans leurs démarches administratives / alphabétisation et initiation aux outils du numérique / missions d'enseignement",
+                "reasoning": "La mission est centrée sur la transmission de savoirs numériques et l'accompagnement pédagogique, ce qui relève clairement de l'éducation et de la transmission."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "initiation aux outils numériques au profit des personnes du 3e âge et des personnes en situation précaire / promotion et le rayonnement des valeurs de partage et de solidarité",
+                "reasoning": "La mission cible des publics fragilisés (personnes âgées, précaires) et s'inscrit dans une démarche de solidarité et d'inclusion."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "numerique_communication",
+              "taxonomyValueLabel": "Numérique et communication",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "initiation aux outils numériques / initiation aux outils du numérique",
+                "reasoning": "La mission est explicitement centrée sur l'initiation aux outils numériques, relevant du secteur numérique."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "initiation aux outils numériques / alphabétisation et initiation aux outils du numérique / missions d'enseignement",
+                "reasoning": "La mission implique une activité d'enseignement et de formation, relevant du secteur éducatif."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Fréquence : Quotidien / Durée : 2 mois",
+                "reasoning": "La mission est décrite comme quotidienne sur une durée de 2 mois, ce qui correspond à un engagement à temps plein."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "communication_creation_numerique",
+              "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "initiation aux outils numériques / initiation aux outils du numérique",
+                "reasoning": "La mission implique l'utilisation et la transmission d'outils numériques, relevant des compétences numériques."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "organiser des ateliers dans 50 communes rurales / Formation des bénévoles",
+                "reasoning": "La mission implique l'organisation d'ateliers et la collaboration avec des bénévoles, mobilisant des compétences d'organisation et de travail collectif."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "initiation aux outils numériques / alphabétisation et initiation aux outils du numérique / missions d'enseignement",
+                "reasoning": "La mission consiste principalement à transmettre des savoirs et accompagner des publics dans leurs démarches."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "organiser des ateliers dans 50 communes rurales / alphabétisation et initiation aux outils du numérique",
+                "reasoning": "La mission inclut l'animation d'ateliers collectifs, même si l'aspect pédagogique domine."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "initiation aux outils numériques au profit des personnes du 3e âge et des personnes en situation précaire",
+                "reasoning": "La mission implique un accompagnement direct de publics fragilisés, relevant de l'aide directe."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "numerique_communication",
+              "taxonomyValueLabel": "Numérique et communication",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "initiation aux outils numériques / initiation aux outils du numérique",
+                "reasoning": "La mission est clairement liée à l'initiation aux outils numériques, relevant de la formation numérique."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "accompagnement dans leurs démarches administratives",
+                "reasoning": "L'accompagnement dans les démarches administratives relève des enjeux de société et de droit, bien que moins central que le numérique."
+              }
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "benevolat",
+              "taxonomyValueLabel": "Bénévolat",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "cd896723-adf8-4f65-8b27-9bda4a5bfff3",
+          "title": "Intervenir dans les établissements scolaire pour favoriser la réussite des élèves - PARIS",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "education",
+          "domainOriginal": "Éducation pour tous",
+          "organizationName": "ENERGIE JEUNES",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Paris",
+            "closestLat": 48.859,
+            "closestLon": 2.347,
+            "closestAddress": "Paris, 75001 Paris, FR",
+            "addressId": "783a9211-d0ad-4b28-94c2-f49762bbb628",
+            "distanceKm": 0.4651232374922405
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/cd896723-adf8-4f65-8b27-9bda4a5bfff3/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "27c45a7e-a36f-4a31-bdc1-12a243d4de1e",
+          "totalScore": 0.780505,
+          "taxonomyScore": 0.577,
+          "geoScore": 0.984009,
+          "taxonomyScores": {
+            "domaine": 0.885,
+            "tranche_age": 1,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "coanimes nos 2 programmes : « Progresser chaque jour » qui provoque des déclics positifs sur le comportement et les résultats scolaires des élèves ainsi que « Grandir ensemble » qui favorise les échanges et réflexions autour de la santé mentale / Tu contribues à la réussite des élèves des écoles, collèges et lycées professionnels de ta région en les aidant à aimer apprendre et à croire en leurs capacités / renforcer le goût d’apprendre en développant des compétences psychosociales essentielles",
+                "reasoning": "La mission est centrée sur la transmission de savoirs, la pédagogie et l'accompagnement des élèves pour favoriser leur réussite scolaire."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "favoriser la réussite des élèves / réduire les inégalités scolaires / dans les territoires les moins favorisés / renforcer la persévérance scolaire chez les élèves",
+                "reasoning": "La mission vise à réduire les inégalités et à soutenir des publics fragilisés (élèves en territoires défavorisés), ce qui relève du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "coanimes nos 2 programmes / interventions en classe / renforcer le goût d’apprendre / compétences psychosociales / programmes pédagogiques innovants",
+                "reasoning": "La mission relève clairement du secteur de l'éducation, de la formation et de l'animation éducative."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "coanimes nos 2 programmes / interventions en classe / renforcer la confiance en soi / motivation / persévérance",
+                "reasoning": "La mission implique un accompagnement humain, une transmission de compétences psychosociales et un soutien aux élèves."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "collabores avec un animateur expert / partages les bonnes pratiques / participes aux projets régionaux et nationaux / échanges avec les autres volontaires",
+                "reasoning": "La mission nécessite une forte coopération, l'organisation d'interventions et des compétences comportementales (soft skills)."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "coanimes nos 2 programmes / interventions en classe / renforcer le goût d’apprendre / développer des compétences psychosociales",
+                "reasoning": "La mission est explicitement centrée sur la transmission de savoirs, la pédagogie et l'accompagnement des élèves."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "coanimes nos 2 programmes / interventions en classe / animer des ateliers",
+                "reasoning": "La mission inclut l'animation d'interventions en classe et d'ateliers pédagogiques."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "collabores avec un animateur expert / partages les bonnes pratiques / participes aux projets régionaux et nationaux / échanges avec les autres volontaires",
+                "reasoning": "La mission implique une contribution à l'organisation, la coordination et la communication au sein de l'association."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Type de mission : volontariat_service_civique / Tu intègres une équipe régionale et tu es accompagné.e tout au long de ta mission / formations obligatoires / tutorat dédié",
+                "reasoning": "La mission s'inscrit dans un cadre structuré (service civique) avec un accompagnement formalisé, des formations et un tutorat."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "education_culture_creation",
+              "taxonomyValueLabel": "Éducation, culture et création",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "coanimes nos 2 programmes / interventions en classe / renforcer le goût d’apprendre / compétences psychosociales / programmes pédagogiques innovants",
+                "reasoning": "La mission relève de l'éducation, de la transmission de savoirs et de la création de contenus pédagogiques."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "réduire les inégalités scolaires / dans les territoires les moins favorisés / renforcer la persévérance scolaire",
+                "reasoning": "La mission a une dimension citoyenne et sociale liée à l'égalité des chances et à l'inclusion."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "service_civique",
+              "taxonomyValueLabel": "Service civique",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "74c67973-59f4-4393-90bd-56cba1984bac",
+          "title": "Animation d'un Café Social destinés aux seniors survivants de la Shoah. ",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "solidarite-insertion",
+          "domainOriginal": "Solidarité",
+          "organizationName": "OEUVRE DE SECOURS AUX ENFANTS",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Paris",
+            "closestLat": 48.857048,
+            "closestLon": 2.359787,
+            "closestAddress": "16 ter Rue des Rosiers, 75004 Paris, FR",
+            "addressId": "a23d59ff-ad71-412b-9c47-4260938982d4",
+            "distanceKm": 0.555554650021684
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/74c67973-59f4-4393-90bd-56cba1984bac/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "02e9dd3f-64bd-4988-816f-0aa1fc932a74",
+          "totalScore": 0.780465,
+          "taxonomyScore": 0.58,
+          "geoScore": 0.98093,
+          "taxonomyScores": {
+            "domaine": 0.9,
+            "tranche_age": 1,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.82,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "volontariat_service_civique / OEUVRE DE SECOURS AUX ENFANTS [...] reconnue d'utilité publique",
+                "reasoning": "Mission exercée dans un cadre institutionnel structuré (service civique) au sein d'une association reconnue d'utilité publique."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "maintenir un lien intergénérationnel, mais aussi rompre l’isolement des personnes âgées à Paris / seniors marginalisees_fragilisees",
+                "reasoning": "La mission cible explicitement la lutte contre l'isolement des seniors et le maintien du lien social, cœur du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "préserver et transmettre le patrimoine juif de la Rue des Rosiers / Animation d'ateliers d'éducation aux outils numériques / organiser des activités pour les bénéficiaires en rapport avec ses gouts et passions",
+                "reasoning": "La mission inclut explicitement la transmission de savoirs, de compétences et de patrimoine culturel."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Café des Psaumes est un café social [...] pour des survivants de la Shoah / seniors marginalisees_fragilisees / 4 centres d’accueil de jour pour personnes atteintes de la maladie d’Alzheimer",
+                "reasoning": "La mission s'inscrit dans le secteur de l'aide à la personne, notamment pour des publics fragilisés."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.92,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Accueil des publics au sein du café / Réorientation vers d'autres services (médicaux ou sociaux) de l'OSE si le besoin est perçu / seniors marginalisees_fragilisees",
+                "reasoning": "Accompagnement humain, écoute et soutien aux personnes vulnérables."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Supervision du programme événementiel du café et animation des événements / organiser des activités pour les bénéficiaires en rapport avec ses gouts et passions",
+                "reasoning": "Organisation d'événements, travail collaboratif et adaptation aux besoins des bénéficiaires."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "maintenir un lien intergénérationnel, mais aussi rompre l’isolement des personnes âgées à Paris / Accueil des publics au sein du café",
+                "reasoning": "Interaction directe avec les bénéficiaires pour rompre l'isolement et créer du lien."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.93,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "préserver et transmettre le patrimoine juif de la Rue des Rosiers / Animation d'ateliers d'éducation aux outils numériques",
+                "reasoning": "Transmission de savoirs, de compétences et de patrimoine culturel aux bénéficiaires."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Animation d'ateliers 'bien vivre' [...] prévention chute, prévention Alzheimer / Supervision du programme événementiel du café et animation des événements",
+                "reasoning": "Animation d'ateliers et d'événements collectifs."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Supervision du programme événementiel du café et animation des événements / organiser des activités pour les bénéficiaires en rapport avec ses gouts et passions",
+                "reasoning": "Organisation et coordination d'activités et d'événements."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "social_sante_sport",
+              "taxonomyValueLabel": "Social, santé et sport",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Café des Psaumes est un café social [...] pour des survivants de la Shoah / seniors marginalisees_fragilisees / prévention chute, prévention Alzheimer",
+                "reasoning": "Mission tournée vers l'accompagnement social, la santé et le soutien aux personnes âgées."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "préserver et transmettre le patrimoine juif de la Rue des Rosiers",
+                "reasoning": "Transmission de patrimoine culturel et historique, lié à la mémoire et à l'histoire."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "service_civique",
+              "taxonomyValueLabel": "Service civique",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "9d150c5e-7d33-4f6e-b63b-a26095a976d2",
+          "title": "Créer du lien en auberge grâce à la musique et aux animations conviviales",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "culture-loisirs",
+          "domainOriginal": "Culture et loisirs",
+          "organizationName": "MIJE - MAISON INTERNATIONALES DES JEUNES ETUDIANTS",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_01.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_01.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Paris",
+            "closestLat": 48.854769,
+            "closestLon": 2.359165,
+            "closestAddress": "6 Rue de Fourcy, 75004 Paris, FR",
+            "addressId": "61dccfe8-5b0e-4ff3-9d7b-6fecc77929cf",
+            "distanceKm": 0.5478253160469969
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/9d150c5e-7d33-4f6e-b63b-a26095a976d2/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "7d64b3e4-e50f-454a-9140-a177106d4372",
+          "totalScore": 0.779096,
+          "taxonomyScore": 0.577,
+          "geoScore": 0.981193,
+          "taxonomyScores": {
+            "domaine": 0.885,
+            "tranche_age": 1,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "culture_arts",
+              "taxonomyValueLabel": "Culture et arts",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Créer du lien en auberge grâce à la musique et aux animations conviviales / Animer des temps conviviaux autour de la musique (chant, scènes ouvertes, concerts acoustiques, karaoké...) / Organiser des animations culturelles et ludiques (ciné-débat, soirées jeux, expositions...)",
+                "reasoning": "Les tâches principales sont centrées sur l'animation culturelle, musicale et conviviale, ce qui relève clairement du domaine culture et arts."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Favorise les rencontres entre voyageurs du monde entier / favoriser les rencontres et les échanges interculturels et le vivre-ensemble / Les animations ont lieu principalement en semaine et en fin de journée",
+                "reasoning": "La mission vise explicitement à créer du lien social et des échanges interculturels, ce qui relève du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Animer des temps conviviaux autour de la musique / Organiser des animations culturelles et ludiques / Contribuer à la communication des animations",
+                "reasoning": "Les tâches relèvent principalement de l'animation éducative et culturelle, ce qui correspond au secteur éducation, formation et animation."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Animer des temps conviviaux / Organiser des animations culturelles et ludiques / Contribuer à la communication des animations / Les MIJE encouragent les volontaires à proposer leurs idées d'animations",
+                "reasoning": "La mission met en avant l'animation collective, l'organisation d'activités et la proposition d'initiatives, ce qui relève des compétences en coopération et soft skills."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "communication_creation_numerique",
+              "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Contribuer à la communication des animations (photos, vidéos, affiches, réseaux sociaux...)",
+                "reasoning": "La mission inclut une composante de communication via des supports numériques et visuels, ce qui relève des compétences numériques et de création."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Animer des temps conviviaux autour de la musique / Organiser des animations culturelles et ludiques / Favorise les rencontres entre voyageurs du monde entier",
+                "reasoning": "La mission consiste principalement à animer des activités collectives et à favoriser les rencontres, ce qui relève clairement de l'intention d'animation."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "favoriser les rencontres et les échanges interculturels / développer tes propres idées d'animations avec l'équipe",
+                "reasoning": "La mission inclut une dimension de transmission culturelle et d'échanges, bien que moins centrale que l'animation."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.6,
+              "scoringScore": 0.35,
+              "evidence": {
+                "extract": "Contribuer à la communication des animations (photos, vidéos, affiches, réseaux sociaux...) / Participer ponctuellement à d'autres animations proposées par les MIJE",
+                "reasoning": "La mission inclut des tâches de soutien à l'organisation (communication, participation à des animations existantes), mais ce n'est pas l'intention principale."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "education_culture_creation",
+              "taxonomyValueLabel": "Éducation, culture et création",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Animer des temps conviviaux autour de la musique / Organiser des animations culturelles et ludiques / Contribuer à la communication des animations",
+                "reasoning": "Les tâches relèvent principalement de l'animation éducative et culturelle, ce qui correspond au domaine éducation, culture et création."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.6,
+              "scoringScore": 0.35,
+              "evidence": {
+                "extract": "favoriser les rencontres et les échanges interculturels / vivre-ensemble",
+                "reasoning": "La mission inclut une dimension d'échanges interculturels et de vivre-ensemble, mais ce n'est pas le cœur de la mission."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "service_civique",
+              "taxonomyValueLabel": "Service civique",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      }
+    ],
+    "total": 2954,
+    "avgDistanceKmTop5": 0.5
+  },
+  "missions": [
+    {
+      "mission": {
+        "id": "a135853f-2eb7-40da-ae05-652262311d64",
+        "title": "Soutien aux animations socio-éducatives, citoyennes et européennes des MIJE",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "education",
+        "domainOriginal": "Éducation pour tous",
+        "organizationName": "MIJE - MAISON INTERNATIONALES DES JEUNES ETUDIANTS",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_02.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_02.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Paris",
+          "closestLat": 48.854769,
+          "closestLon": 2.359165,
+          "closestAddress": "6 Rue de Fourcy, 75004 Paris, FR",
+          "addressId": "18951fa2-1895-42f1-9413-e99db1485361",
+          "distanceKm": 0.5478253160469969
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/a135853f-2eb7-40da-ae05-652262311d64/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "40f17ccd-bc27-477d-b620-543f7cba017d",
+        "totalScore": 0.785096,
+        "taxonomyScore": 0.589,
+        "geoScore": 0.981193,
+        "taxonomyScores": {
+          "domaine": 0.945,
+          "tranche_age": 1,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "international_humanitaire",
+            "taxonomyValueLabel": "International et humanitaire",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Découvrir et contribuer à des projets européens Erasmus+ / Contribue à des projets éducatifs, citoyens, culturels, environnementaux et européens",
+              "reasoning": "La mission inclut une dimension européenne explicite via Erasmus+, bien que l'aspect éducatif domine."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Contribue à des projets éducatifs, citoyens, culturels, environnementaux et européens auprès de jeunes, scolaires, voyageurs et habitants du quartier / Participer à la préparation et à l'animation d'ateliers, d'événements et d'actions de sensibilisation auprès de jeunes, scolaires, voyageurs autour de la citoyenneté, de la culture, de l'environnement, de l'Europe et de la solidarité",
+              "reasoning": "La mission est centrée sur la transmission de savoirs, la pédagogie et la sensibilisation, avec une dimension éducative explicite."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "favorisant les rencontres, le vivre-ensemble, l'engagement et l'ouverture au monde / Favoriser les rencontres interculturelles et le vivre-ensemble au sein des auberges et dans le quartier / contribuer à des projets éducatifs favorisant la citoyenneté, la participation des jeunes, la solidarité, l'interculturalité",
+              "reasoning": "La mission inclut des actions de solidarité, de vivre-ensemble et d'interculturalité, bien que l'aspect éducatif domine."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "environnement_nature",
+            "taxonomyValueLabel": "Environnement et nature",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Contribuer aux actions de développement durable et à la valorisation du label Clef Verte",
+              "reasoning": "La mission mentionne explicitement des actions liées au développement durable et à un label environnemental."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "culture_arts",
+            "taxonomyValueLabel": "Culture et arts",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "projets éducatifs, citoyens, culturels, environnementaux et européens / animation d'ateliers, d'événiers et d'actions de sensibilisation autour de la citoyenneté, de la culture",
+              "reasoning": "La mission inclut des activités culturelles (médiation, valorisation) bien que l'aspect éducatif domine."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Contribue à des projets éducatifs, citoyens, culturels, environnementaux et européens / Participer à la préparation et à l'animation d'ateliers, d'événements et d'actions de sensibilisation",
+              "reasoning": "La mission relève clairement du secteur de l'éducation, de la formation et de l'animation."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Participer à la préparation et à l'animation d'ateliers, d'événements et d'actions de sensibilisation / Les MIJE encouragent les volontaires à proposer leurs idées d'animations",
+              "reasoning": "La mission met en avant la coopération, l'organisation d'activités et l'autonomie dans la proposition d'initiatives."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "communication_creation_numerique",
+            "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Participer à la communication des projets (photos, affiches, réseaux sociaux, témoignages...)",
+              "reasoning": "La mission inclut des tâches de communication digitale et de création de supports visuels."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Participer à la préparation et à l'animation d'ateliers, d'événements et d'actions de sensibilisation auprès de jeunes, scolaires, voyageurs autour de la citoyenneté, de la culture, de l'environnement, de l'Europe et de la solidarité",
+              "reasoning": "La mission est centrée sur la transmission de savoirs et la pédagogie auprès de publics variés."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Participer à la préparation et à l'animation d'ateliers, d'événiers et d'actions de sensibilisation / Favoriser les rencontres interculturelles et le vivre-ensemble",
+              "reasoning": "La mission inclut explicitement l'animation d'ateliers et la dynamique collective."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Participer à la communication des projets (photos, affiches, réseaux sociaux, témoignages...)",
+              "reasoning": "La mission inclut des tâches de communication et de valorisation des projets, relevant du support organisationnel."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "projets éducatifs favorisant la citoyenneté, la participation des jeunes, la solidarité, l'interculturalité / Contribue à des projets éducatifs, citoyens, culturels, environnementaux et européens",
+              "reasoning": "La mission relève des enjeux de société, de citoyenneté et de politique éducative."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "education_culture_creation",
+            "taxonomyValueLabel": "Éducation, culture et création",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Participer à la préparation et à l'animation d'ateliers, d'événements et d'actions de sensibilisation / Contribue à des projets éducatifs, citoyens, culturels",
+              "reasoning": "La mission inclut des activités de médiation culturelle et d'éducation, relevant de ce domaine."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "environnement_nature_sciences",
+            "taxonomyValueLabel": "Environnement, nature et sciences",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Contribuer aux actions de développement durable et à la valorisation du label Clef Verte",
+              "reasoning": "La mission inclut une dimension environnementale explicite, bien que secondaire."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "service_civique",
+            "taxonomyValueLabel": "Service civique",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "a135853f-2eb7-40da-ae05-652262311d64",
+        "title": "Soutien aux animations socio-éducatives, citoyennes et européennes des MIJE",
+        "domain": "education",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_02.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "MIJE - MAISON INTERNATIONALES DES JEUNES ETUDIANTS",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Paris",
+          "address": "6 Rue de Fourcy, 75004 Paris",
+          "lat": 48.854769,
+          "lon": 2.359165
+        },
+        "startAt": "2026-09-14T00:00:00.000Z",
+        "endAt": "2027-05-14T00:00:00.000Z",
+        "duration": 8,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Contribue à des projets éducatifs, citoyens, culturels, environnementaux et européens auprès de jeunes, scolaires, voyageurs et habitants du quartier. Une mission variée favorisant les rencontres, le vivre-ensemble, l'engagement et l'ouverture au monde. \"Mission non logée\"</p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p>Aux côtés des MIJE, tu contribueras à des projets éducatifs favorisant la citoyenneté, la participation des jeunes, la solidarité, l'interculturalité et le développement durable. Tu découvriras également les dimensions européenne (Erasmus+) et environnementale (label Clef Verte) de l'association.</p></p><br>\n<b>Actions</b><br><p><ul><li>Participer à la préparation et à l'animation d'ateliers, d'événements et d'actions de sensibilisation auprès de jeunes, scolaires, voyageurs autour de la citoyenneté, de la culture, de l'environnement, de l'Europe et de la solidarité.</li><li>Favoriser les rencontres interculturelles et le vivre-ensemble au sein des auberges et dans le quartier.</li><li>Contribuer aux actions de développement durable et à la valorisation du label Clef Verte.</li><li>Découvrir et contribuer à des projets européens Erasmus+.</li><li>Participer à la communication des projets (photos, affiches, réseaux sociaux, témoignages...).</li></ul><p><br></p><p>Les MIJE encouragent les volontaires à proposer leurs idées d'animations. Toute initiative favorisant les rencontres est la bienvenue. Mission principalement en semaine, en journée et sur le temps scolaire. Quelques interventions ponctuelles pourront avoir lieu en soirée ou le samedi. </p><p><br></p><p><strong>Entretiens du 28 juillet au 7 août, puis du 17 août au 11 septembre 2026.</strong></p></p><br>",
+        "description": "EN QUELQUES MOTS\n\n\nContribue à des projets éducatifs, citoyens, culturels, environnementaux et\neuropéens auprès de jeunes, scolaires, voyageurs et habitants du quartier. Une\nmission variée favorisant les rencontres, le vivre-ensemble, l'engagement et\nl'ouverture au monde. \"Mission non logée\"\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nAux côtés des MIJE, tu contribueras à des projets éducatifs favorisant la\ncitoyenneté, la participation des jeunes, la solidarité, l'interculturalité et\nle développement durable. Tu découvriras également les dimensions européenne\n(Erasmus+) et environnementale (label Clef Verte) de l'association.\n\n\n\n\n\nActions\n\n\n\n\n • Participer à la préparation et à l'animation d'ateliers, d'événements et\n   d'actions de sensibilisation auprès de jeunes, scolaires, voyageurs autour de\n   la citoyenneté, de la culture, de l'environnement, de l'Europe et de la\n   solidarité.\n • Favoriser les rencontres interculturelles et le vivre-ensemble au sein des\n   auberges et dans le quartier.\n • Contribuer aux actions de développement durable et à la valorisation du label\n   Clef Verte.\n • Découvrir et contribuer à des projets européens Erasmus+.\n • Participer à la communication des projets (photos, affiches, réseaux sociaux,\n   témoignages...).\n\n\n\n\nLes MIJE encouragent les volontaires à proposer leurs idées d'animations. Toute\ninitiative favorisant les rencontres est la bienvenue. Mission principalement en\nsemaine, en journée et sur le temps scolaire. Quelques interventions ponctuelles\npourront avoir lieu en soirée ou le samedi.\n\n\n\n\nEntretiens du 28 juillet au 7 août, puis du 17 août au 11 septembre 2026.\n\n\n",
+        "applicationUrl": "http://localhost:4000/r/a135853f-2eb7-40da-ae05-652262311d64/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_02.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": true,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "6194dd02a99ff4075b5ed9cc",
+        "title": "Animation d'ateliers numériques",
+        "remote": "no",
+        "schedule": "",
+        "domain": "education",
+        "domainOriginal": null,
+        "organizationName": "Bridge The Gap",
+        "publisherId": "5f592d415655a711feb4460e",
+        "publisherName": "Benevolt",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_03.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_03.jpeg",
+          "organizationLogo": null,
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo"
+        },
+        "location": {
+          "city": "Paris",
+          "closestLat": 48.8546,
+          "closestLon": 2.3477,
+          "closestAddress": "75004 Paris, FR",
+          "addressId": "1f863668-8f28-41da-b06c-9c85f7e3b830",
+          "distanceKm": 0.39950633093812504
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/6194dd02a99ff4075b5ed9cc/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "d4fc9eaf-b1af-41a1-b339-c3782dc00ca6",
+        "totalScore": 0.781625,
+        "taxonomyScore": 0.577,
+        "geoScore": 0.98625,
+        "taxonomyScores": {
+          "domaine": 0.885,
+          "tranche_age": 1,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "initiation aux outils numériques au profit des personnes du 3e âge et des personnes en situation précaire, et à leur accompagnement dans leurs démarches administratives / alphabétisation et initiation aux outils du numérique / missions d'enseignement",
+              "reasoning": "La mission est centrée sur la transmission de savoirs numériques et l'accompagnement pédagogique, ce qui relève clairement de l'éducation et de la transmission."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "initiation aux outils numériques au profit des personnes du 3e âge et des personnes en situation précaire / promotion et le rayonnement des valeurs de partage et de solidarité",
+              "reasoning": "La mission cible des publics fragilisés (personnes âgées, précaires) et s'inscrit dans une démarche de solidarité et d'inclusion."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "numerique_communication",
+            "taxonomyValueLabel": "Numérique et communication",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "initiation aux outils numériques / initiation aux outils du numérique",
+              "reasoning": "La mission est explicitement centrée sur l'initiation aux outils numériques, relevant du secteur numérique."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "initiation aux outils numériques / alphabétisation et initiation aux outils du numérique / missions d'enseignement",
+              "reasoning": "La mission implique une activité d'enseignement et de formation, relevant du secteur éducatif."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Fréquence : Quotidien / Durée : 2 mois",
+              "reasoning": "La mission est décrite comme quotidienne sur une durée de 2 mois, ce qui correspond à un engagement à temps plein."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "communication_creation_numerique",
+            "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "initiation aux outils numériques / initiation aux outils du numérique",
+              "reasoning": "La mission implique l'utilisation et la transmission d'outils numériques, relevant des compétences numériques."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "organiser des ateliers dans 50 communes rurales / Formation des bénévoles",
+              "reasoning": "La mission implique l'organisation d'ateliers et la collaboration avec des bénévoles, mobilisant des compétences d'organisation et de travail collectif."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "initiation aux outils numériques / alphabétisation et initiation aux outils du numérique / missions d'enseignement",
+              "reasoning": "La mission consiste principalement à transmettre des savoirs et accompagner des publics dans leurs démarches."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "organiser des ateliers dans 50 communes rurales / alphabétisation et initiation aux outils du numérique",
+              "reasoning": "La mission inclut l'animation d'ateliers collectifs, même si l'aspect pédagogique domine."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "initiation aux outils numériques au profit des personnes du 3e âge et des personnes en situation précaire",
+              "reasoning": "La mission implique un accompagnement direct de publics fragilisés, relevant de l'aide directe."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "numerique_communication",
+            "taxonomyValueLabel": "Numérique et communication",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "initiation aux outils numériques / initiation aux outils du numérique",
+              "reasoning": "La mission est clairement liée à l'initiation aux outils numériques, relevant de la formation numérique."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "accompagnement dans leurs démarches administratives",
+              "reasoning": "L'accompagnement dans les démarches administratives relève des enjeux de société et de droit, bien que moins central que le numérique."
+            }
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "benevolat",
+            "taxonomyValueLabel": "Bénévolat",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "6194dd02a99ff4075b5ed9cc",
+        "title": "Animation d'ateliers numériques",
+        "domain": "education",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_03.jpeg",
+        "type": "benevolat",
+        "publisherId": "5f592d415655a711feb4460e",
+        "publisherName": "Benevolt",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo",
+        "organizationName": "Bridge The Gap",
+        "organizationLogo": null,
+        "location": {
+          "city": "Paris",
+          "address": "75004 Paris",
+          "lat": 48.8546,
+          "lon": 2.3477
+        },
+        "startAt": "2025-08-25T19:16:06.764Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "",
+        "compensation": null,
+        "descriptionHtml": "   Paris (75)<br>   Dès que possible<br><br><br>La mission consiste à l'initiation aux outils numériques au profit des personnes du 3e âge et des personnes en situation précaire, et à leur accompagnement dans leurs démarches administratives.<br><br><p><strong>Informations pratiques</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Nous envisageons d'organiser des ateliers dans 50 communes rurales d'île-de-France, à raison d'une journée d'atelier par commune, en avril et mai 2020.<br><br>Fréquence : Quotidien<br>Durée : 2 mois<br><br><p><strong>Informations sur l'association Bridge The Gap</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Nois oeuvrons, en France et en Afrique, pour des problématiques liées à l'éducation (illettrisme, innumérisme, illectronisme, analphabétisme, fracture numérique, scolarisation...)  \nNous oeuvrons également pour la promotion et le rayonnement des valeurs de partage et de solidarité.<br><p><strong>Formation des bénévoles</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Nous souhaitions accueillir et collaborer avec des bénévoles formés dans divers domaines liés a l'éducation pour nos ateliers (alphabétisation et initiation aux outils du numerique) et nos missions d'enseignement.",
+        "description": "Paris (75)\nDès que possible\n\n\nLa mission consiste à l'initiation aux outils numériques au profit des personnes\ndu 3e âge et des personnes en situation précaire, et à leur accompagnement dans\nleurs démarches administratives.\n\n\n\nInformations pratiques\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nNous envisageons d'organiser des ateliers dans 50 communes rurales\nd'île-de-France, à raison d'une journée d'atelier par commune, en avril et mai\n2020.\n\nFréquence : Quotidien\nDurée : 2 mois\n\n\n\nInformations sur l'association Bridge The Gap\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nNois oeuvrons, en France et en Afrique, pour des problématiques liées à\nl'éducation (illettrisme, innumérisme, illectronisme, analphabétisme, fracture\nnumérique, scolarisation...)\nNous oeuvrons également pour la promotion et le rayonnement des valeurs de\npartage et de solidarité.\n\n\nFormation des bénévoles\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nNous souhaitions accueillir et collaborer avec des bénévoles formés dans divers\ndomaines liés a l'éducation pour nos ateliers (alphabétisation et initiation aux\noutils du numerique) et nos missions d'enseignement.",
+        "applicationUrl": "http://localhost:4000/r/6194dd02a99ff4075b5ed9cc/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_03.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "cd896723-adf8-4f65-8b27-9bda4a5bfff3",
+        "title": "Intervenir dans les établissements scolaire pour favoriser la réussite des élèves - PARIS",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "education",
+        "domainOriginal": "Éducation pour tous",
+        "organizationName": "ENERGIE JEUNES",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Paris",
+          "closestLat": 48.859,
+          "closestLon": 2.347,
+          "closestAddress": "Paris, 75001 Paris, FR",
+          "addressId": "783a9211-d0ad-4b28-94c2-f49762bbb628",
+          "distanceKm": 0.4651232374922405
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/cd896723-adf8-4f65-8b27-9bda4a5bfff3/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "27c45a7e-a36f-4a31-bdc1-12a243d4de1e",
+        "totalScore": 0.780505,
+        "taxonomyScore": 0.577,
+        "geoScore": 0.984009,
+        "taxonomyScores": {
+          "domaine": 0.885,
+          "tranche_age": 1,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "coanimes nos 2 programmes : « Progresser chaque jour » qui provoque des déclics positifs sur le comportement et les résultats scolaires des élèves ainsi que « Grandir ensemble » qui favorise les échanges et réflexions autour de la santé mentale / Tu contribues à la réussite des élèves des écoles, collèges et lycées professionnels de ta région en les aidant à aimer apprendre et à croire en leurs capacités / renforcer le goût d’apprendre en développant des compétences psychosociales essentielles",
+              "reasoning": "La mission est centrée sur la transmission de savoirs, la pédagogie et l'accompagnement des élèves pour favoriser leur réussite scolaire."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "favoriser la réussite des élèves / réduire les inégalités scolaires / dans les territoires les moins favorisés / renforcer la persévérance scolaire chez les élèves",
+              "reasoning": "La mission vise à réduire les inégalités et à soutenir des publics fragilisés (élèves en territoires défavorisés), ce qui relève du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "coanimes nos 2 programmes / interventions en classe / renforcer le goût d’apprendre / compétences psychosociales / programmes pédagogiques innovants",
+              "reasoning": "La mission relève clairement du secteur de l'éducation, de la formation et de l'animation éducative."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "coanimes nos 2 programmes / interventions en classe / renforcer la confiance en soi / motivation / persévérance",
+              "reasoning": "La mission implique un accompagnement humain, une transmission de compétences psychosociales et un soutien aux élèves."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "collabores avec un animateur expert / partages les bonnes pratiques / participes aux projets régionaux et nationaux / échanges avec les autres volontaires",
+              "reasoning": "La mission nécessite une forte coopération, l'organisation d'interventions et des compétences comportementales (soft skills)."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "coanimes nos 2 programmes / interventions en classe / renforcer le goût d’apprendre / développer des compétences psychosociales",
+              "reasoning": "La mission est explicitement centrée sur la transmission de savoirs, la pédagogie et l'accompagnement des élèves."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "coanimes nos 2 programmes / interventions en classe / animer des ateliers",
+              "reasoning": "La mission inclut l'animation d'interventions en classe et d'ateliers pédagogiques."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "collabores avec un animateur expert / partages les bonnes pratiques / participes aux projets régionaux et nationaux / échanges avec les autres volontaires",
+              "reasoning": "La mission implique une contribution à l'organisation, la coordination et la communication au sein de l'association."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Type de mission : volontariat_service_civique / Tu intègres une équipe régionale et tu es accompagné.e tout au long de ta mission / formations obligatoires / tutorat dédié",
+              "reasoning": "La mission s'inscrit dans un cadre structuré (service civique) avec un accompagnement formalisé, des formations et un tutorat."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "education_culture_creation",
+            "taxonomyValueLabel": "Éducation, culture et création",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "coanimes nos 2 programmes / interventions en classe / renforcer le goût d’apprendre / compétences psychosociales / programmes pédagogiques innovants",
+              "reasoning": "La mission relève de l'éducation, de la transmission de savoirs et de la création de contenus pédagogiques."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "réduire les inégalités scolaires / dans les territoires les moins favorisés / renforcer la persévérance scolaire",
+              "reasoning": "La mission a une dimension citoyenne et sociale liée à l'égalité des chances et à l'inclusion."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "service_civique",
+            "taxonomyValueLabel": "Service civique",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "cd896723-adf8-4f65-8b27-9bda4a5bfff3",
+        "title": "Intervenir dans les établissements scolaire pour favoriser la réussite des élèves - PARIS",
+        "domain": "education",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "ENERGIE JEUNES",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Paris",
+          "address": "Paris, 75001 Paris",
+          "lat": 48.859,
+          "lon": 2.347
+        },
+        "startAt": "2026-09-02T00:00:00.000Z",
+        "endAt": "2027-06-02T00:00:00.000Z",
+        "duration": 9,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Accompagné.e par un animateur expert, tu coanimes nos 2 programmes : « Progresser chaque jour » qui provoque des déclics positifs sur le comportement et les résultats scolaires des élèves ainsi que « Grandir ensemble » qui favorise les échanges et réflexions autour de la santé mentale. </p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p>Tu contribues à la réussite des élèves des écoles, collèges et lycées professionnels de ta région en les aidant à <strong>aimer apprendre </strong>et à croire en leurs capacités. </p><p>Tu bénéficies d’une expérience enrichissante grâce à la diversité des publics : acteurs éducatifs, volontaires et professionnels.</p></p><br>\n<b>Actions</b><br><p><p>Tu intègres une équipe régionale et tu es accompagné.e tout au long de ta mission.</p><ul><li>Tu <strong>collabores </strong>avec un animateur expert pour préparer, animer des interventions en classe et réaliser les bilans.</li><li>Tu<strong> partages</strong> les bonnes pratiques avec ton équipe.</li><li>Tu <strong>participes </strong>aux projets régionaux et nationaux de l’association.</li><li>Tu <strong>échanges </strong>avec les autres volontaires en service civique.</li></ul><p><br></p><p>Pourquoi rejoindre Énergie Jeunes ?</p><ul><li><strong>T’engager</strong> dans une mission solidaire au sein d’une équipe dynamique.</li><li><strong>Renforcer </strong>ton aisance à l’oral et ta confiance en toi.</li><li><strong>Développer</strong> de nouvelles compétences (animation, pédagogie, organisation…).</li><li><strong>Valoriser</strong> ton CV avec une expérience formatrice et enrichissante.</li><li><strong>Rencontrer</strong> des professionnels aux profils variés.</li><li><strong>Être accompagné.e </strong>par un tuteur dédié tout au long de ta mission et dans la construction de ton projet d’avenir.</li><li><strong>Bénéficier</strong> d’ateliers spécialement conçus pour les volontaires.</li></ul></p><br>\n<b>Capacité d’initiative</b><br><p>Tu pourras proposer/participer à un projet régional ou national. Tu pourras évoluer au cours de ta mission grâce à tes compétences/qualités humaines.</p><br>\n<b>VOTRE ENVIRONNEMENT</b><br><b>Formations obligatoires proposées</b><br><p>En plus des formations obligatoires, tu seras formé.e à nos programmes pédagogiques, aux techniques d’animation et à notre environnement numérique.</p><br><b>Tutorat et accompagnement</b><br><p>Ton tuteur t'accompagnera, sur le terrain et tout au long de ta mission, lors de rdv réguliers dédiés à tes compétences et à ton projet d'avenir.</p>",
+        "description": "EN QUELQUES MOTS\n\n\nAccompagné.e par un animateur expert, tu coanimes nos 2 programmes : «\nProgresser chaque jour » qui provoque des déclics positifs sur le comportement\net les résultats scolaires des élèves ainsi que « Grandir ensemble » qui\nfavorise les échanges et réflexions autour de la santé mentale.\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nTu contribues à la réussite des élèves des écoles, collèges et lycées\nprofessionnels de ta région en les aidant à aimer apprendre et à croire en leurs\ncapacités.\n\nTu bénéficies d’une expérience enrichissante grâce à la diversité des publics :\nacteurs éducatifs, volontaires et professionnels.\n\n\n\n\n\nActions\n\n\n\n\nTu intègres une équipe régionale et tu es accompagné.e tout au long de ta\nmission.\n\n • Tu collabores avec un animateur expert pour préparer, animer des\n   interventions en classe et réaliser les bilans.\n • Tu partages les bonnes pratiques avec ton équipe.\n • Tu participes aux projets régionaux et nationaux de l’association.\n • Tu échanges avec les autres volontaires en service civique.\n\n\n\n\nPourquoi rejoindre Énergie Jeunes ?\n\n • T’engager dans une mission solidaire au sein d’une équipe dynamique.\n • Renforcer ton aisance à l’oral et ta confiance en toi.\n • Développer de nouvelles compétences (animation, pédagogie, organisation…).\n • Valoriser ton CV avec une expérience formatrice et enrichissante.\n • Rencontrer des professionnels aux profils variés.\n • Être accompagné.e par un tuteur dédié tout au long de ta mission et dans la\n   construction de ton projet d’avenir.\n • Bénéficier d’ateliers spécialement conçus pour les volontaires.\n\n\n\n\n\nCapacité d’initiative\n\n\nTu pourras proposer/participer à un projet régional ou national. Tu pourras\névoluer au cours de ta mission grâce à tes compétences/qualités humaines.\n\n\n\nVOTRE ENVIRONNEMENT\nFormations obligatoires proposées\n\n\nEn plus des formations obligatoires, tu seras formé.e à nos programmes\npédagogiques, aux techniques d’animation et à notre environnement numérique.\n\n\nTutorat et accompagnement\n\n\nTon tuteur t'accompagnera, sur le terrain et tout au long de ta mission, lors de\nrdv réguliers dédiés à tes compétences et à ton projet d'avenir.",
+        "applicationUrl": "http://localhost:4000/r/cd896723-adf8-4f65-8b27-9bda4a5bfff3/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 2
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "74c67973-59f4-4393-90bd-56cba1984bac",
+        "title": "Animation d'un Café Social destinés aux seniors survivants de la Shoah. ",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "solidarite-insertion",
+        "domainOriginal": "Solidarité",
+        "organizationName": "OEUVRE DE SECOURS AUX ENFANTS",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Paris",
+          "closestLat": 48.857048,
+          "closestLon": 2.359787,
+          "closestAddress": "16 ter Rue des Rosiers, 75004 Paris, FR",
+          "addressId": "a23d59ff-ad71-412b-9c47-4260938982d4",
+          "distanceKm": 0.555554650021684
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/74c67973-59f4-4393-90bd-56cba1984bac/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "02e9dd3f-64bd-4988-816f-0aa1fc932a74",
+        "totalScore": 0.780465,
+        "taxonomyScore": 0.58,
+        "geoScore": 0.98093,
+        "taxonomyScores": {
+          "domaine": 0.9,
+          "tranche_age": 1,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.82,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "volontariat_service_civique / OEUVRE DE SECOURS AUX ENFANTS [...] reconnue d'utilité publique",
+              "reasoning": "Mission exercée dans un cadre institutionnel structuré (service civique) au sein d'une association reconnue d'utilité publique."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "maintenir un lien intergénérationnel, mais aussi rompre l’isolement des personnes âgées à Paris / seniors marginalisees_fragilisees",
+              "reasoning": "La mission cible explicitement la lutte contre l'isolement des seniors et le maintien du lien social, cœur du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "préserver et transmettre le patrimoine juif de la Rue des Rosiers / Animation d'ateliers d'éducation aux outils numériques / organiser des activités pour les bénéficiaires en rapport avec ses gouts et passions",
+              "reasoning": "La mission inclut explicitement la transmission de savoirs, de compétences et de patrimoine culturel."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Café des Psaumes est un café social [...] pour des survivants de la Shoah / seniors marginalisees_fragilisees / 4 centres d’accueil de jour pour personnes atteintes de la maladie d’Alzheimer",
+              "reasoning": "La mission s'inscrit dans le secteur de l'aide à la personne, notamment pour des publics fragilisés."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.92,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Accueil des publics au sein du café / Réorientation vers d'autres services (médicaux ou sociaux) de l'OSE si le besoin est perçu / seniors marginalisees_fragilisees",
+              "reasoning": "Accompagnement humain, écoute et soutien aux personnes vulnérables."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Supervision du programme événementiel du café et animation des événements / organiser des activités pour les bénéficiaires en rapport avec ses gouts et passions",
+              "reasoning": "Organisation d'événements, travail collaboratif et adaptation aux besoins des bénéficiaires."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "maintenir un lien intergénérationnel, mais aussi rompre l’isolement des personnes âgées à Paris / Accueil des publics au sein du café",
+              "reasoning": "Interaction directe avec les bénéficiaires pour rompre l'isolement et créer du lien."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.93,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "préserver et transmettre le patrimoine juif de la Rue des Rosiers / Animation d'ateliers d'éducation aux outils numériques",
+              "reasoning": "Transmission de savoirs, de compétences et de patrimoine culturel aux bénéficiaires."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Animation d'ateliers 'bien vivre' [...] prévention chute, prévention Alzheimer / Supervision du programme événementiel du café et animation des événements",
+              "reasoning": "Animation d'ateliers et d'événements collectifs."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Supervision du programme événementiel du café et animation des événements / organiser des activités pour les bénéficiaires en rapport avec ses gouts et passions",
+              "reasoning": "Organisation et coordination d'activités et d'événements."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "social_sante_sport",
+            "taxonomyValueLabel": "Social, santé et sport",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Café des Psaumes est un café social [...] pour des survivants de la Shoah / seniors marginalisees_fragilisees / prévention chute, prévention Alzheimer",
+              "reasoning": "Mission tournée vers l'accompagnement social, la santé et le soutien aux personnes âgées."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "préserver et transmettre le patrimoine juif de la Rue des Rosiers",
+              "reasoning": "Transmission de patrimoine culturel et historique, lié à la mémoire et à l'histoire."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "service_civique",
+            "taxonomyValueLabel": "Service civique",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "74c67973-59f4-4393-90bd-56cba1984bac",
+        "title": "Animation d'un Café Social destinés aux seniors survivants de la Shoah. ",
+        "domain": "solidarite-insertion",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "OEUVRE DE SECOURS AUX ENFANTS",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Paris",
+          "address": "16 ter Rue des Rosiers, 75004 Paris",
+          "lat": 48.857048,
+          "lon": 2.359787
+        },
+        "startAt": "2026-06-01T00:00:00.000Z",
+        "endAt": "2026-12-01T01:00:00.000Z",
+        "duration": 6,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Le Café des Psaumes est un café social au coeur du Marais qui anime une vie sociale et un lien intergenerationnel pour des survivants de la Shoah, et organise des ateliers pour et rencontres pour transmettre le patrimoine juif.  </p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p>La mission a pour objectif de faire rencontrer le volontaire et les bénéficiaires afin de maintenir un lien  intergénérationnel, mais aussi rompre l’isolement des personnes âgées à Paris, et d’autrepart, préserver et transmettre le patrimoine juif de la Rue des Rosiers. </p><p><br></p></p><br>\n<b>Actions</b><br><p><ul><li>&nbsp;Accueil des publics au sein du café</li><li>Animation d'ateliers \"bien vivre\" en partenariat avec d'autres services de l'OSE pour les habitués du café ; prévention chute, prévention Alzheimer</li><li>Animation d'ateliers d'éducation aux outils numériques ;  démarches en ligne, WhatsApp....</li><li>Supervision du programme événementiel du café et animation des événements ; fête annuel du café, salon du livre....</li><li>Réorientation vers d'autres services (médicaux ou sociaux) de l'OSE si le besoin est perçu</li><li>Le volontaire est aussi le bienvenue pour apporter de lui même pour l'animation du café ; il pourra ainsi organiser des activités pour les bénéficiaires en rapport avec ses gouts et passions.</li></ul><p><br></p><p>Une personne étant disponible un dimanche sur deux serait appréciée !</p></p><br>\n<b>Capacité d’initiative</b><br><p>Le volontaire pourra avec plaisir apporter de lui même au Café ; il pourra ainsi organiser des activités en rapport avec ses passions et intérêts.</p><br>",
+        "description": "EN QUELQUES MOTS\n\n\nLe Café des Psaumes est un café social au coeur du Marais qui anime une vie\nsociale et un lien intergenerationnel pour des survivants de la Shoah, et\norganise des ateliers pour et rencontres pour transmettre le patrimoine juif.\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nLa mission a pour objectif de faire rencontrer le volontaire et les\nbénéficiaires afin de maintenir un lien intergénérationnel, mais aussi rompre\nl’isolement des personnes âgées à Paris, et d’autrepart, préserver et\ntransmettre le patrimoine juif de la Rue des Rosiers.\n\n\n\n\n\n\n\n\nActions\n\n\n\n\n •  Accueil des publics au sein du café\n • Animation d'ateliers \"bien vivre\" en partenariat avec d'autres services de\n   l'OSE pour les habitués du café ; prévention chute, prévention Alzheimer\n • Animation d'ateliers d'éducation aux outils numériques ; démarches en ligne,\n   WhatsApp....\n • Supervision du programme événementiel du café et animation des événements ;\n   fête annuel du café, salon du livre....\n • Réorientation vers d'autres services (médicaux ou sociaux) de l'OSE si le\n   besoin est perçu\n • Le volontaire est aussi le bienvenue pour apporter de lui même pour\n   l'animation du café ; il pourra ainsi organiser des activités pour les\n   bénéficiaires en rapport avec ses gouts et passions.\n\n\n\n\nUne personne étant disponible un dimanche sur deux serait appréciée !\n\n\n\n\n\nCapacité d’initiative\n\n\nLe volontaire pourra avec plaisir apporter de lui même au Café ; il pourra ainsi\norganiser des activités en rapport avec ses passions et intérêts.\n",
+        "applicationUrl": "http://localhost:4000/r/74c67973-59f4-4393-90bd-56cba1984bac/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "9d150c5e-7d33-4f6e-b63b-a26095a976d2",
+        "title": "Créer du lien en auberge grâce à la musique et aux animations conviviales",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "culture-loisirs",
+        "domainOriginal": "Culture et loisirs",
+        "organizationName": "MIJE - MAISON INTERNATIONALES DES JEUNES ETUDIANTS",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_01.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_01.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Paris",
+          "closestLat": 48.854769,
+          "closestLon": 2.359165,
+          "closestAddress": "6 Rue de Fourcy, 75004 Paris, FR",
+          "addressId": "61dccfe8-5b0e-4ff3-9d7b-6fecc77929cf",
+          "distanceKm": 0.5478253160469969
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/9d150c5e-7d33-4f6e-b63b-a26095a976d2/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "7d64b3e4-e50f-454a-9140-a177106d4372",
+        "totalScore": 0.779096,
+        "taxonomyScore": 0.577,
+        "geoScore": 0.981193,
+        "taxonomyScores": {
+          "domaine": 0.885,
+          "tranche_age": 1,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "culture_arts",
+            "taxonomyValueLabel": "Culture et arts",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Créer du lien en auberge grâce à la musique et aux animations conviviales / Animer des temps conviviaux autour de la musique (chant, scènes ouvertes, concerts acoustiques, karaoké...) / Organiser des animations culturelles et ludiques (ciné-débat, soirées jeux, expositions...)",
+              "reasoning": "Les tâches principales sont centrées sur l'animation culturelle, musicale et conviviale, ce qui relève clairement du domaine culture et arts."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Favorise les rencontres entre voyageurs du monde entier / favoriser les rencontres et les échanges interculturels et le vivre-ensemble / Les animations ont lieu principalement en semaine et en fin de journée",
+              "reasoning": "La mission vise explicitement à créer du lien social et des échanges interculturels, ce qui relève du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Animer des temps conviviaux autour de la musique / Organiser des animations culturelles et ludiques / Contribuer à la communication des animations",
+              "reasoning": "Les tâches relèvent principalement de l'animation éducative et culturelle, ce qui correspond au secteur éducation, formation et animation."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Animer des temps conviviaux / Organiser des animations culturelles et ludiques / Contribuer à la communication des animations / Les MIJE encouragent les volontaires à proposer leurs idées d'animations",
+              "reasoning": "La mission met en avant l'animation collective, l'organisation d'activités et la proposition d'initiatives, ce qui relève des compétences en coopération et soft skills."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "communication_creation_numerique",
+            "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Contribuer à la communication des animations (photos, vidéos, affiches, réseaux sociaux...)",
+              "reasoning": "La mission inclut une composante de communication via des supports numériques et visuels, ce qui relève des compétences numériques et de création."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Animer des temps conviviaux autour de la musique / Organiser des animations culturelles et ludiques / Favorise les rencontres entre voyageurs du monde entier",
+              "reasoning": "La mission consiste principalement à animer des activités collectives et à favoriser les rencontres, ce qui relève clairement de l'intention d'animation."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "favoriser les rencontres et les échanges interculturels / développer tes propres idées d'animations avec l'équipe",
+              "reasoning": "La mission inclut une dimension de transmission culturelle et d'échanges, bien que moins centrale que l'animation."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.6,
+            "scoringScore": 0.35,
+            "evidence": {
+              "extract": "Contribuer à la communication des animations (photos, vidéos, affiches, réseaux sociaux...) / Participer ponctuellement à d'autres animations proposées par les MIJE",
+              "reasoning": "La mission inclut des tâches de soutien à l'organisation (communication, participation à des animations existantes), mais ce n'est pas l'intention principale."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "education_culture_creation",
+            "taxonomyValueLabel": "Éducation, culture et création",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Animer des temps conviviaux autour de la musique / Organiser des animations culturelles et ludiques / Contribuer à la communication des animations",
+              "reasoning": "Les tâches relèvent principalement de l'animation éducative et culturelle, ce qui correspond au domaine éducation, culture et création."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.6,
+            "scoringScore": 0.35,
+            "evidence": {
+              "extract": "favoriser les rencontres et les échanges interculturels / vivre-ensemble",
+              "reasoning": "La mission inclut une dimension d'échanges interculturels et de vivre-ensemble, mais ce n'est pas le cœur de la mission."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "service_civique",
+            "taxonomyValueLabel": "Service civique",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "9d150c5e-7d33-4f6e-b63b-a26095a976d2",
+        "title": "Créer du lien en auberge grâce à la musique et aux animations conviviales",
+        "domain": "culture-loisirs",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_01.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "MIJE - MAISON INTERNATIONALES DES JEUNES ETUDIANTS",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Paris",
+          "address": "6 Rue de Fourcy, 75004 Paris",
+          "lat": 48.854769,
+          "lon": 2.359165
+        },
+        "startAt": "2026-09-14T00:00:00.000Z",
+        "endAt": "2027-05-14T00:00:00.000Z",
+        "duration": 8,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Contribue à faire vivre les auberges MIJE en créant des animations musicales et conviviales. Concerts acoustiques, karaokés, jeux, ciné-débat, découverte de Paris… Favorise les rencontres entre voyageurs du monde entier et développe tes propres idées d'animations avec l'équipe.\"Mission non logée\"</p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p>Aux côtés de l'équipe des MIJE, tu contribueras à faire des auberges des lieux vivants, conviviaux et ouverts sur le monde. La musique sera le fil conducteur de ta mission pour favoriser les rencontres, les échanges interculturels et le vivre-ensemble à travers des animations accessibles à tous.</p></p><br>\n<b>Actions</b><br><p><p>Actions confiées au volontaire</p><ul><li>Animer des temps conviviaux autour de la musique (chant, scènes ouvertes, concerts acoustiques, karaoké...) pour les groupes et les voyageurs.</li><li>Organiser des animations culturelles et ludiques (ciné-débat, soirées jeux, expositions...) favorisant les rencontres et les échanges interculturels.</li><li>Utiliser le matériel mis à disposition (piano, enceintes, jeux, expositions...) pour faire vivre les espaces communs et le restaurant.</li><li>Contribuer à la communication des animations (photos, vidéos, affiches, réseaux sociaux...).</li><li>Participer ponctuellement à d'autres animations proposées par les MIJE dans les auberges et le quartier.</li></ul><p><br></p><p>Les MIJE encouragent les volontaires à proposer leurs idées d'animations. Toute initiative favorisant les rencontres est la bienvenue. Les animations ont lieu principalement en semaine et en fin de journée, avec des interventions très occasionnellement le samedi.</p><p><br></p><p><strong>Entretiens prévus du 28 juillet au 7 août, puis du 17 août au 11 septembre 2026.</strong></p></p><br>",
+        "description": "EN QUELQUES MOTS\n\n\nContribue à faire vivre les auberges MIJE en créant des animations musicales et\nconviviales. Concerts acoustiques, karaokés, jeux, ciné-débat, découverte de\nParis… Favorise les rencontres entre voyageurs du monde entier et développe tes\npropres idées d'animations avec l'équipe.\"Mission non logée\"\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nAux côtés de l'équipe des MIJE, tu contribueras à faire des auberges des lieux\nvivants, conviviaux et ouverts sur le monde. La musique sera le fil conducteur\nde ta mission pour favoriser les rencontres, les échanges interculturels et le\nvivre-ensemble à travers des animations accessibles à tous.\n\n\n\n\n\nActions\n\n\n\n\nActions confiées au volontaire\n\n • Animer des temps conviviaux autour de la musique (chant, scènes ouvertes,\n   concerts acoustiques, karaoké...) pour les groupes et les voyageurs.\n • Organiser des animations culturelles et ludiques (ciné-débat, soirées jeux,\n   expositions...) favorisant les rencontres et les échanges interculturels.\n • Utiliser le matériel mis à disposition (piano, enceintes, jeux,\n   expositions...) pour faire vivre les espaces communs et le restaurant.\n • Contribuer à la communication des animations (photos, vidéos, affiches,\n   réseaux sociaux...).\n • Participer ponctuellement à d'autres animations proposées par les MIJE dans\n   les auberges et le quartier.\n\n\n\n\nLes MIJE encouragent les volontaires à proposer leurs idées d'animations. Toute\ninitiative favorisant les rencontres est la bienvenue. Les animations ont lieu\nprincipalement en semaine et en fin de journée, avec des interventions très\noccasionnellement le samedi.\n\n\n\n\nEntretiens prévus du 28 juillet au 7 août, puis du 17 août au 11 septembre 2026.\n\n\n",
+        "applicationUrl": "http://localhost:4000/r/9d150c5e-7d33-4f6e-b63b-a26095a976d2/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_01.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": true,
+        "places": 1
+      },
+      "descriptionMissing": false
+    }
+  ],
+  "deterministic": {
+    "geo": 5,
+    "format": 5,
+    "missionsSansTagFormat": [],
+    "gateViolations": []
+  },
+  "judgeRuns": [
+    {
+      "runIndex": 0,
+      "seed": 995908297,
+      "order": [
+        "cd896723-adf8-4f65-8b27-9bda4a5bfff3",
+        "9d150c5e-7d33-4f6e-b63b-a26095a976d2",
+        "74c67973-59f4-4393-90bd-56cba1984bac",
+        "6194dd02a99ff4075b5ed9cc",
+        "a135853f-2eb7-40da-ae05-652262311d64"
+      ],
+      "output": {
+        "coherence": {
+          "score": 3,
+          "missionsPertinentes": [
+            2,
+            3,
+            4
+          ],
+          "justification": "Parmi les 5 missions proposées, trois sont clairement en lien avec le domaine social et solidaire, notamment l'accompagnement des seniors, l'animation d'ateliers numériques pour personnes en difficulté, et le soutien aux animations socio-éducatives et citoyennes. Ces missions correspondent bien à la recherche d'une mission humanitaire ou solidaire à temps plein à Paris. Les deux autres missions (0 et 1) sont plus orientées vers l'éducation scolaire et l'animation culturelle en auberge, moins directement liées au domaine humanitaire ou social ciblé.",
+          "missionIdsPertinents": [
+            "9d150c5e-7d33-4f6e-b63b-a26095a976d2",
+            "74c67973-59f4-4393-90bd-56cba1984bac",
+            "6194dd02a99ff4075b5ed9cc"
+          ]
+        },
+        "homogeneite": {
+          "score": 3,
+          "familles": [
+            "Social et solidarité",
+            "Animation culturelle",
+            "Éducation"
+          ],
+          "justification": "Les missions pertinentes appartiennent majoritairement à la famille 'Social et solidarité' (missions 2,3,4). Les autres missions relèvent d'autres familles comme l'éducation (mission 0) et l'animation culturelle (mission 1). Il y a donc trois familles représentées sans majorité claire, ce qui correspond à un score de 3."
+        },
+        "cause": "signal"
+      }
+    },
+    {
+      "runIndex": 1,
+      "seed": 979130678,
+      "order": [
+        "cd896723-adf8-4f65-8b27-9bda4a5bfff3",
+        "9d150c5e-7d33-4f6e-b63b-a26095a976d2",
+        "a135853f-2eb7-40da-ae05-652262311d64",
+        "6194dd02a99ff4075b5ed9cc",
+        "74c67973-59f4-4393-90bd-56cba1984bac"
+      ],
+      "output": {
+        "coherence": {
+          "score": 4,
+          "missionsPertinentes": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "justification": "Quatre missions (1, 2, 3, 4) correspondent bien au profil de Clara qui cherche une mission humanitaire ou solidaire à temps plein à Paris. Elles impliquent un engagement social, solidaire, interculturel ou d'accompagnement, ce qui correspond à ses motivations et domaines d'intérêt. La mission 0 est moins pertinente car elle est plus éducative scolaire et moins clairement humanitaire ou solidaire international/social.",
+          "missionIdsPertinents": [
+            "cd896723-adf8-4f65-8b27-9bda4a5bfff3",
+            "9d150c5e-7d33-4f6e-b63b-a26095a976d2",
+            "a135853f-2eb7-40da-ae05-652262311d64",
+            "6194dd02a99ff4075b5ed9cc"
+          ]
+        },
+        "homogeneite": {
+          "score": 4,
+          "familles": [
+            "Animation sociale et culturelle",
+            "Accompagnement social et éducatif",
+            "Engagement interculturel"
+          ],
+          "justification": "Les missions pertinentes se répartissent en trois familles principales : animation sociale et culturelle (missions 1, 2, 4), accompagnement social et éducatif (missions 0, 3), et engagement interculturel (missions 1, 2). La majorité des missions (1, 2, 4) appartiennent à la famille animation sociale et culturelle, ce qui crée une certaine homogénéité avec une diversité modérée."
+        },
+        "cause": null
+      }
+    }
+  ],
+  "engineVersion": "m2",
+  "startedAt": "2026-07-10T13:28:52.958Z",
+  "finishedAt": "2026-07-10T13:29:11.779Z",
+  "verdict": 4.5,
+  "cleanup": {
+    "userScoringDeleted": true
+  }
+}

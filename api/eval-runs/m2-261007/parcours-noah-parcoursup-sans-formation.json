@@ -1,0 +1,2342 @@
+{
+  "status": "success",
+  "parcours": {
+    "id": "noah-parcoursup-sans-formation",
+    "segment": "lyceen",
+    "label": "Noah, 16 ans, lycéen à Aurillac, veut booster Parcoursup sans formation précise et reste ouvert sur le domaine",
+    "locationLabel": "Aurillac (15)",
+    "age": 16,
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 16,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "statut",
+        "value": "lyceen"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 44.930953,
+          "lon": 2.444997,
+          "country_code": "fr",
+          "label": "Aurillac (15)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "reguliere"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "booster_parcoursup"
+      },
+      {
+        "taxonomy": "parcoursup_formation",
+        "value": "non"
+      },
+      {
+        "taxonomy": "domaine",
+        "value": "je_ne_sais_pas"
+      }
+    ]
+  },
+  "payload": {
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 16,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "statut",
+        "value": "lyceen"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 44.930953,
+          "lon": 2.444997,
+          "country_code": "fr",
+          "label": "Aurillac (15)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "reguliere"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "booster_parcoursup"
+      },
+      {
+        "taxonomy": "parcoursup_formation",
+        "value": "non"
+      },
+      {
+        "taxonomy": "domaine",
+        "value": "je_ne_sais_pas"
+      }
+    ],
+    "distinctId": "eval:m2-261007:noah-parcoursup-sans-formation",
+    "missionAlertEnabled": false
+  },
+  "userScoringId": "641406d8-8412-4ac3-a811-95ce7bdc56ae",
+  "match": {
+    "tookMs": 2226,
+    "engineVersion": "m2",
+    "items": [
+      {
+        "mission": {
+          "id": "20beebe2-d735-4a67-8605-e6b8f8b72237",
+          "title": "🌍 Agis pour la nature et la biodiversité !  (AURILLAC)",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "environnement",
+          "domainOriginal": "Environnement",
+          "organizationName": "Unis Cité Auvergne",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_01.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_01.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Aurillac",
+            "closestLat": 44.930679,
+            "closestLon": 2.443518,
+            "closestAddress": "19 Rue de la Coste, 15000 Aurillac, FR",
+            "addressId": "77609a68-1f30-4dba-8543-aa919cad348b",
+            "distanceKm": 0.12034958330573202
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/20beebe2-d735-4a67-8605-e6b8f8b72237/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "6570f4c4-c36b-4904-971d-71d3e27c51b1",
+          "totalScore": 0.572919,
+          "taxonomyScore": 0.15,
+          "geoScore": 0.995838,
+          "taxonomyScores": {
+            "tranche_age": 0.9
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "environnement_nature",
+              "taxonomyValueLabel": "Environnement et nature",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "agir pour la planète / œuvrer en faveur de la biodiversité et aider à préserver de nombreuses espèces d’animaux et de plantes / Contribue à ta hauteur pour la biodiversité dans le Cantal / Participe à des chantiers de protection de la nature : plantation de haies, observation et comptage naturaliste de la faie et de la flore, entretien de sentiers de randonnées / sensibiliser le public à la question de la biodiversité",
+                "reasoning": "La mission est explicitement centrée sur la protection de la nature, la biodiversité et des actions concrètes de préservation."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "sensibiliser le public à la question de la biodiversité : intervention dans les écoles, animation d’ateliers dans divers lieux, sensibilisation des usagers des espaces naturels",
+                "reasoning": "La mission inclut des actions de sensibilisation et d'animation, ce qui relève de l'éducation et de la transmission."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "environnement_agriculture",
+              "taxonomyValueLabel": "Environnement et agriculture",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "agir pour la planète / œuvrer en faveur de la biodiversité / Participe à des chantiers de protection de la nature : plantation de haies, observation et comptage naturaliste de la faie et de la flore, entretien de sentiers de randonnées",
+                "reasoning": "Les activités décrites relèvent directement du secteur de l'environnement et de l'agriculture (biodiversité, nature, entretien de sentiers)."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Tu vas apprendre à travailler en collectif avec d’autres jeunes volontaires, en partenariat avec des collectivités territoriales, des associations de protection de la biodiversité, des professionnels de la biodiversité",
+                "reasoning": "La mission met en avant le travail en collectif et la coopération avec divers partenaires."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Type de mission : volontariat_service_civique / Cette mission se déroulera pendant 8 mois du mardi au vendredi de 9h à 17h",
+                "reasoning": "Le cadre du service civique est explicitement mentionné, avec un engagement structuré et régulier."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "environnement_nature_sciences",
+              "taxonomyValueLabel": "Environnement, nature et sciences",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "agir pour la planète / œuvrer en faveur de la biodiversité / Participe à des chantiers de protection de la nature : plantation de haies, observation et comptage naturaliste de la faie et de la flore",
+                "reasoning": "La mission combine des actions environnementales et des aspects scientifiques (observation, comptage naturaliste), relevant du domaine environnement, nature et sciences."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_18_ans",
+              "taxonomyValueLabel": "Moins de 18 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_31_ans_handicap",
+              "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "service_civique",
+              "taxonomyValueLabel": "Service civique",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "32aae998-a4a2-4a56-9dad-9f237ee7586d",
+          "title": "🎬Engage toi pour sensibiliser les jeunes sur des sujets de société ! (AURILLAC) ",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "culture-loisirs",
+          "domainOriginal": "Culture et loisirs",
+          "organizationName": "Unis Cité Auvergne",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_01.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_01.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Aurillac",
+            "closestLat": 44.930679,
+            "closestLon": 2.443518,
+            "closestAddress": "19 Rue de la Coste, 15000 Aurillac, FR",
+            "addressId": "21af3ac1-648a-4393-8b1b-1c0ee46f91a7",
+            "distanceKm": 0.12034958330573202
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/32aae998-a4a2-4a56-9dad-9f237ee7586d/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "aa81c36d-0241-4515-9e9d-ff134f5bda4a",
+          "totalScore": 0.572919,
+          "taxonomyScore": 0.15,
+          "geoScore": 0.995838,
+          "taxonomyScores": {
+            "tranche_age": 0.9
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "culture_arts",
+              "taxonomyValueLabel": "Culture et arts",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Promouvoir le cinéma auprès de lycéens, collégiens et autres jeunes / Animer des ciné-clubs / Participer à des événements autour du cinéma / Réaliser un court-métrage",
+                "reasoning": "La mission est centrée sur la promotion du cinéma, l'animation de ciné-clubs et la réalisation de courts-métrages, ce qui relève clairement du domaine culturel et artistique."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Débattre de l’actualité et de la citoyenneté avec eux / Animer des ciné-clubs et débattre avec des collégiens et lycéens sur les enjeux de société grâce au cinéma",
+                "reasoning": "La mission inclut une dimension pédagogique et de transmission de savoirs et de réflexion critique auprès des jeunes."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.92,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Promouvoir le cinéma auprès de lycéens, collégiens et autres jeunes / Animer des ciné-clubs / Débattre de l’actualité et de la citoyenneté",
+                "reasoning": "Les activités décrites relèvent de l'animation éducative et de la formation, notamment auprès de jeunes publics."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "communication_creation_numerique",
+              "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Regarder et choisir des films dans un corpus défini / Réaliser un court-métrage",
+                "reasoning": "La mission implique la création et la sélection de contenus audiovisuels, ce qui relève des compétences numériques et créatives."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Travailler en équipe avec d’autres volontaires / imaginer tes propres projets avec ton équipe",
+                "reasoning": "La mission met en avant le travail collaboratif et l'organisation collective de projets."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Débattre de l’actualité et de la citoyenneté avec eux / Animer des ciné-clubs et débattre avec des collégiens et lycéens",
+                "reasoning": "L'animation de débats et la transmission de savoirs auprès de jeunes peuvent impliquer une dimension d'accompagnement et de soutien."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Débattre de l’actualité et de la citoyenneté avec eux / Animer des ciné-clubs et débattre avec des collégiens et lycéens sur les enjeux de société",
+                "reasoning": "La mission inclut explicitement la transmission de savoirs et la sensibilisation des jeunes sur des sujets de société."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Animer des ciné-clubs / Participer à des événements autour du cinéma",
+                "reasoning": "La mission implique l'animation d'activités collectives et la participation à des événements culturels."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Travailler en équipe avec d’autres volontaires / imaginer tes propres projets avec ton équipe",
+                "reasoning": "La mission inclut la collaboration et l'organisation de projets collectifs, ce qui relève du support organisationnel."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Type de mission : volontariat_service_civique / Formations obligatoires proposées",
+                "reasoning": "Le cadre du service civique et les formations obligatoires indiquent un engagement structuré et institutionnalisé."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "education_culture_creation",
+              "taxonomyValueLabel": "Éducation, culture et création",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Promouvoir le cinéma auprès de lycéens, collégiens et autres jeunes / Animer des ciné-clubs / Réaliser un court-métrage",
+                "reasoning": "La mission combine éducation, culture et création artistique, ce qui correspond au domaine de formation ONISEP visé."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Débattre de l’actualité et de la citoyenneté avec eux / Animer des ciné-clubs et débattre avec des collégiens et lycéens sur les enjeux de société",
+                "reasoning": "La mission inclut une dimension de sensibilisation aux enjeux de société et de citoyenneté, relevant de ce domaine de formation."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_18_ans",
+              "taxonomyValueLabel": "Moins de 18 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_31_ans_handicap",
+              "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "service_civique",
+              "taxonomyValueLabel": "Service civique",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "c2b468e0-ea6e-4bef-8305-dd09b9157a81",
+          "title": "👵Engage-toi pour lutter contre l’isolement des seniors - (AURILLAC) ",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "solidarite-insertion",
+          "domainOriginal": "Solidarité",
+          "organizationName": "Unis Cité Auvergne",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Aurillac",
+            "closestLat": 44.930679,
+            "closestLon": 2.443518,
+            "closestAddress": "19 Rue de la Coste, 15000 Aurillac, FR",
+            "addressId": "6f101944-2735-4bfb-bd12-f652eea08364",
+            "distanceKm": 0.12034958330573202
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/c2b468e0-ea6e-4bef-8305-dd09b9157a81/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "b3c10d5f-0ece-40aa-8507-09d1b4339d3e",
+          "totalScore": 0.572919,
+          "taxonomyScore": 0.15,
+          "geoScore": 0.995838,
+          "taxonomyScores": {
+            "tranche_age": 0.9
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "lutter contre l’isolement des seniors / Rendre visite aux personnes âgées isolées / créer un lien social marquant / renforcer les relations intergénérationnelles",
+                "reasoning": "La mission est explicitement centrée sur la lutte contre l'isolement des seniors et la création de liens sociaux, ce qui relève clairement du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Les aider à mieux comprendre le numérique (smartphone, internet, réseaux sociaux...) / Animer des ateliers numériques chaque semaine",
+                "reasoning": "La mission inclut une dimension pédagogique explicite avec l'accompagnement au numérique, relevant de l'éducation et transmission."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "lutter contre l’isolement des seniors / Rendre visite aux personnes âgées isolées / seniors",
+                "reasoning": "Les bénéficiaires sont des seniors, et les actions visent leur accompagnement social et leur bien-être, relevant du secteur santé, social et aide à la personne."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.92,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Rendre visite aux personnes âgées isolées / créer un lien social marquant / renforcer les relations intergénérationnelles",
+                "reasoning": "La mission implique un accompagnement humain et social direct des seniors, relevant du management, social et soin."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "préparer les semaines avec l’équipe de volontaire / échanger et construire les projets avec différents partenaires / gagner en capacité d’initiative et d’autonomie",
+                "reasoning": "La mission inclut une forte dimension de travail d'équipe, de coordination et de développement de soft skills."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Rendre visite aux personnes âgées isolées / discuter, partager un goûter, jouer, se balader / créer du lien et apporter de la bonne humeur",
+                "reasoning": "La mission implique une interaction directe et régulière avec les bénéficiaires pour leur apporter du soutien et de la convivialité."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Les aider à mieux comprendre le numérique / Animer des ateliers numériques chaque semaine",
+                "reasoning": "La mission inclut une dimension pédagogique explicite avec l'accompagnement au numérique."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Animer des ateliers numériques chaque semaine / Organiser des activités en groupe / préparer, construire et animer des temps ludiques et créatifs",
+                "reasoning": "La mission inclut l'animation d'ateliers et d'activités collectives pour favoriser les rencontres et le bien-être."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "préparer les semaines avec l’équipe de volontaire / échanger et construire les projets avec différents partenaires / appeler les séniors pour planifier les rencontres",
+                "reasoning": "La mission inclut des tâches de coordination, de planification et de partenariat, relevant du support organisationnel."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Type de mission : volontariat_service_civique / Tutorat et accompagnement / Formations thématiques avec des professionnels",
+                "reasoning": "La mission est explicitement un service civique, avec un cadre structuré, un tutorat et des formations, relevant d'un engagement en cadre structuré."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "social_sante_sport",
+              "taxonomyValueLabel": "Social, santé et sport",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "lutter contre l’isolement des seniors / Rendre visite aux personnes âgées isolées / seniors",
+                "reasoning": "La mission est clairement orientée vers l'accompagnement social et la santé des seniors, relevant du domaine social, santé et sport."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Type de mission : volontariat_service_civique / Tutorat et accompagnement / Formations thématiques",
+                "reasoning": "Le service civique est un engagement civique et citoyen, relevant du domaine société, droit et politique."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_18_ans",
+              "taxonomyValueLabel": "Moins de 18 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_31_ans_handicap",
+              "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "service_civique",
+              "taxonomyValueLabel": "Service civique",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "ec004e87-38df-4065-8553-fe41198ed553",
+          "title": "🧠 Agis pour les questions de santé mentale : Brise les préjugés et informe les jeunes - (AURILLAC)",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "sante",
+          "domainOriginal": "Santé",
+          "organizationName": "Unis Cité Auvergne",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_03.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_03.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Aurillac",
+            "closestLat": 44.930679,
+            "closestLon": 2.443518,
+            "closestAddress": "19 Rue de la Coste, 15000 Aurillac, FR",
+            "addressId": "a170af50-603b-49c2-8be0-c1f874984a9b",
+            "distanceKm": 0.12034958330573202
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/ec004e87-38df-4065-8553-fe41198ed553/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "336df6c8-680d-417f-baf1-0117a76dee68",
+          "totalScore": 0.572919,
+          "taxonomyScore": 0.15,
+          "geoScore": 0.995838,
+          "taxonomyScores": {
+            "tranche_age": 0.9
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "sante_soins",
+              "taxonomyValueLabel": "Santé et soins",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "santé mentale est une composante essentielle de la santé / sensibiliser les jeunes et leur permettre de se sentir mieux grâce à la santé mentale positive / Parler santé mentale sans tabou / Sensibiliser aux impacts de certains comportements sur la santé mentale",
+                "reasoning": "La mission est explicitement centrée sur la santé mentale, un sous-domaine de la santé et des soins."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Créer des espaces de discussion où chacun peut s’exprimer librement / Parler santé mentale sans tabou avec des jeunes / Faire passer des messages positifs pour se sentir mieux au quotidien / Déconstruire les clichés sur les maladies psychiques / Sensibiliser aux impacts de certains comportements sur la santé mentale / Orienter vers les bonnes ressources et structures près de chez eux / créer et animer des ateliers ludiques auprès de jeunes",
+                "reasoning": "La mission consiste principalement à transmettre des connaissances, sensibiliser et éduquer sur la santé mentale."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "santé mentale est une composante essentielle de la santé / sensibiliser les jeunes et leur permettre de se sentir mieux grâce à la santé mentale positive",
+                "reasoning": "La mission relève du secteur de la santé et de l'aide à la personne, notamment pour les publics fragilisés."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Créer des espaces de discussion / créer et animer des ateliers ludiques auprès de jeunes / Tu seras formé(e) sur ces thématiques pour pouvoir animer ces ateliers",
+                "reasoning": "La mission inclut une forte dimension d'animation éducative et de formation."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Créer des espaces de discussion où chacun peut s’exprimer librement / Parler santé mentale sans tabou avec des jeunes / Déconstruire les clichés sur les maladies psychiques / Sensibiliser aux impacts de certains comportements sur la santé mentale",
+                "reasoning": "La mission implique un accompagnement social, une écoute et une aide à la compréhension des enjeux de santé mentale."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Tu seras formé(e) sur ces thématiques pour pouvoir animer ces ateliers avec les autres volontaires de ton équipe en toute confiance / créer et animer des ateliers ludiques",
+                "reasoning": "Travail en équipe, animation collective et soft skills sont centraux dans la mission."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Parler santé mentale sans tabou avec des jeunes / Faire passer des messages positifs pour se sentir mieux au quotidien / Déconstruire les clichés sur les maladies psychiques / Sensibiliser aux impacts de certains comportements sur la santé mentale / créer et animer des ateliers ludiques",
+                "reasoning": "La mission est clairement axée sur la transmission de connaissances et la sensibilisation."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Créer des espaces de discussion / créer et animer des ateliers ludiques auprès de jeunes",
+                "reasoning": "Animation d'ateliers et d'espaces de discussion est une activité centrale."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "sensibiliser les jeunes et leur permettre de se sentir mieux grâce à la santé mentale positive / Orienter vers les bonnes ressources et structures près de chez eux",
+                "reasoning": "Bien que l'aide directe ne soit pas le cœur de la mission, l'orientation vers des ressources et l'accompagnement des jeunes dans leur bien-être relèvent d'une aide indirecte."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Tu seras formé(e) sur ces thématiques pour pouvoir animer ces ateliers avec les autres volontaires de ton équipe en toute confiance",
+                "reasoning": "La mission inclut un volet de formation et de coordination avec l'équipe, bien que ce ne soit pas l'activité principale."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Type de mission : volontariat_service_civique / Tu seras formé(e) sur ces thématiques / formations obligatoires proposées",
+                "reasoning": "Le cadre du service civique est explicitement mentionné, avec des formations obligatoires et un engagement structuré."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "santé mentale est une composante essentielle de la santé / sensibiliser les jeunes et leur permettre de se sentir mieux grâce à la santé mentale positive",
+                "reasoning": "La mission aborde des enjeux de société liés à la santé mentale et à l'inclusion des jeunes fragilisés."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "social_sante_sport",
+              "taxonomyValueLabel": "Social, santé et sport",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "santé mentale est une composente essentielle de la santé / sensibiliser les jeunes et leur permettre de se sentir mieux grâce à la santé mentale positive / Public cible : young handicap marginalisees_fragilisees",
+                "reasoning": "La mission est clairement liée au domaine social, à la santé et au soutien aux publics fragilisés."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_18_ans",
+              "taxonomyValueLabel": "Moins de 18 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_31_ans_handicap",
+              "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "service_civique",
+              "taxonomyValueLabel": "Service civique",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "64ac2eb15c26891bfc0f5395",
+          "title": "Je réalise des cours d'alphabétisation/français langue étrangère",
+          "remote": "no",
+          "schedule": "Une demi-journée par semaine",
+          "domain": "solidarite-insertion",
+          "domainOriginal": null,
+          "organizationName": "Secours catholique - Cantal Puy-de-Dôme",
+          "publisherId": "5f5931496c7ea514150a818f",
+          "publisherName": "JeVeuxAider.gouv.fr",
+          "media": {
+            "photo": "https://jeveuxaider.fra1.cdn.digitaloceanspaces.com/public/card-thumbnail-default.jpg",
+            "domainLogo": "https://jeveuxaider.fra1.cdn.digitaloceanspaces.com/public/card-thumbnail-default.jpg",
+            "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/5775/5dCcw5VhPPT5wRp7EZjAfSFP2bH3lO.jpg?v=1737381617",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+          },
+          "location": {
+            "city": "Aurillac",
+            "closestLat": 44.92383,
+            "closestLon": 2.431269,
+            "closestAddress": "Boulevard Louis Dauzier, 15000 Aurillac, FR",
+            "addressId": "29116ad5-8038-48da-acb8-9a42353d55e4",
+            "distanceKm": 1.3399101461080252
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/64ac2eb15c26891bfc0f5395/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "9716cf18-cf8c-4b5c-b4b3-14cd75faa018",
+          "totalScore": 0.560645,
+          "taxonomyScore": 0.166667,
+          "geoScore": 0.954624,
+          "taxonomyScores": {
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "réaliser des cours de français/alphabétisation",
+                "reasoning": "La mission consiste explicitement à transmettre des savoirs linguistiques, domaine de l'éducation et de la transmission."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "public récemment arrivé sur le territoire ou ne maîtrisant pas le français / refugees / people_being_excluded",
+                "reasoning": "La mission cible des publics fragilisés ou en situation d'exclusion, relevant du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "réaliser des cours de français/alphabétisation",
+                "reasoning": "La mission relève clairement du secteur de l'éducation et de la formation."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "public récemment arrivé sur le territoire ou ne maîtrisant pas le français / refugees / people_being_excluded",
+                "reasoning": "Le public cible relève de l'aide à la personne et du social, bien que la mission soit centrée sur l'enseignement."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.99,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Une demi-journée par semaine / du 1 septembre 2024",
+                "reasoning": "La mission est décrite comme régulière avec une fréquence hebdomadaire explicite."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "public récemment arrivé sur le territoire ou ne maîtrisant pas le français / refugees / people_being_excluded",
+                "reasoning": "Accompagnement de publics fragilisés, impliquant des compétences sociales et d'aide."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Vous serez accompagné de bénévoles réalisant déjà des cours de français si vous le souhaitez / Des ressources, personnes support ainsi des formations pourront vous être proposées",
+                "reasoning": "La mission implique un travail collaboratif et une adaptation aux besoins des bénéficiaires."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "réaliser des cours de français/alphabétisation",
+                "reasoning": "La mission consiste explicitement à transmettre des connaissances linguistiques."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "public récemment arrivé sur le territoire ou ne maîtrisant pas le français / refugees / people_being_excluded",
+                "reasoning": "L'accompagnement de publics en situation de fragilité relève d'une aide directe."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "education_culture_creation",
+              "taxonomyValueLabel": "Éducation, culture et création",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "réaliser des cours de français/alphabétisation",
+                "reasoning": "La mission relève de l'éducation et de la transmission culturelle et linguistique."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "public récemment arrivé sur le territoire ou ne maîtrisant pas le français / refugees",
+                "reasoning": "L'accompagnement de réfugiés ou personnes en exclusion peut relever des enjeux de société et d'intégration."
+              }
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "benevolat",
+              "taxonomyValueLabel": "Bénévolat",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      }
+    ],
+    "total": 2165,
+    "avgDistanceKmTop5": 0.36
+  },
+  "missions": [
+    {
+      "mission": {
+        "id": "20beebe2-d735-4a67-8605-e6b8f8b72237",
+        "title": "🌍 Agis pour la nature et la biodiversité !  (AURILLAC)",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "environnement",
+        "domainOriginal": "Environnement",
+        "organizationName": "Unis Cité Auvergne",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_01.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_01.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Aurillac",
+          "closestLat": 44.930679,
+          "closestLon": 2.443518,
+          "closestAddress": "19 Rue de la Coste, 15000 Aurillac, FR",
+          "addressId": "77609a68-1f30-4dba-8543-aa919cad348b",
+          "distanceKm": 0.12034958330573202
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/20beebe2-d735-4a67-8605-e6b8f8b72237/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "6570f4c4-c36b-4904-971d-71d3e27c51b1",
+        "totalScore": 0.572919,
+        "taxonomyScore": 0.15,
+        "geoScore": 0.995838,
+        "taxonomyScores": {
+          "tranche_age": 0.9
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "environnement_nature",
+            "taxonomyValueLabel": "Environnement et nature",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "agir pour la planète / œuvrer en faveur de la biodiversité et aider à préserver de nombreuses espèces d’animaux et de plantes / Contribue à ta hauteur pour la biodiversité dans le Cantal / Participe à des chantiers de protection de la nature : plantation de haies, observation et comptage naturaliste de la faie et de la flore, entretien de sentiers de randonnées / sensibiliser le public à la question de la biodiversité",
+              "reasoning": "La mission est explicitement centrée sur la protection de la nature, la biodiversité et des actions concrètes de préservation."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "sensibiliser le public à la question de la biodiversité : intervention dans les écoles, animation d’ateliers dans divers lieux, sensibilisation des usagers des espaces naturels",
+              "reasoning": "La mission inclut des actions de sensibilisation et d'animation, ce qui relève de l'éducation et de la transmission."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "environnement_agriculture",
+            "taxonomyValueLabel": "Environnement et agriculture",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "agir pour la planète / œuvrer en faveur de la biodiversité / Participe à des chantiers de protection de la nature : plantation de haies, observation et comptage naturaliste de la faie et de la flore, entretien de sentiers de randonnées",
+              "reasoning": "Les activités décrites relèvent directement du secteur de l'environnement et de l'agriculture (biodiversité, nature, entretien de sentiers)."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Tu vas apprendre à travailler en collectif avec d’autres jeunes volontaires, en partenariat avec des collectivités territoriales, des associations de protection de la biodiversité, des professionnels de la biodiversité",
+              "reasoning": "La mission met en avant le travail en collectif et la coopération avec divers partenaires."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Type de mission : volontariat_service_civique / Cette mission se déroulera pendant 8 mois du mardi au vendredi de 9h à 17h",
+              "reasoning": "Le cadre du service civique est explicitement mentionné, avec un engagement structuré et régulier."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "environnement_nature_sciences",
+            "taxonomyValueLabel": "Environnement, nature et sciences",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "agir pour la planète / œuvrer en faveur de la biodiversité / Participe à des chantiers de protection de la nature : plantation de haies, observation et comptage naturaliste de la faie et de la flore",
+              "reasoning": "La mission combine des actions environnementales et des aspects scientifiques (observation, comptage naturaliste), relevant du domaine environnement, nature et sciences."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_18_ans",
+            "taxonomyValueLabel": "Moins de 18 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_31_ans_handicap",
+            "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "service_civique",
+            "taxonomyValueLabel": "Service civique",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "20beebe2-d735-4a67-8605-e6b8f8b72237",
+        "title": "🌍 Agis pour la nature et la biodiversité !  (AURILLAC)",
+        "domain": "environnement",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_01.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "Unis Cité Auvergne",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Aurillac",
+          "address": "19 Rue de la Coste, 15000 Aurillac",
+          "lat": 44.930679,
+          "lon": 2.443518
+        },
+        "startAt": "2026-10-13T00:00:00.000Z",
+        "endAt": "2027-06-13T00:00:00.000Z",
+        "duration": 8,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Tu souhaites agir concrètement pour la planète ? Tu es prêt à consacrer 8 mois de ta vie pour œuvrer en faveur de la biodiversité et aider à préserver de nombreuses espèces d’animaux et de plantes ? Alors rejoins une mission autour de l’environnement avec Unis-Cité !  </p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p class=\"ql-align-justify\">🍃<strong>&nbsp;Être utile pour la nature : un engagement essentiel !&nbsp;</strong><span style=\"background-color: rgb(96, 96, 96);\">&nbsp;</span></p><p><br></p><p class=\"ql-align-justify\">Sais-tu qu’il est possible d’agir pour lutter contre l’érosion de la biodiversité ? Que des projets variés sont construits dans le département ? Que beaucoup de structures, collèges ou lycées sont prêts à se sensibiliser et à changer leur mode de fonctionnement ? Rejoins cette mission pour intégrer un collectif qui veut se rendre utile et être présent sur le terrain !&nbsp;</p></p><br>\n<b>Actions</b><br><p><p class=\"ql-align-justify\"><strong>Contribue à ta hauteur pour la biodiversité dans le&nbsp;Cantal&nbsp;!</strong></p><p class=\"ql-align-justify\"><br></p><p class=\"ql-align-justify\">Participe à des chantiers de protection de la nature : plantation de haies, observation&nbsp;et comptage naturaliste&nbsp;de la faune et de la flore, entretien de sentiers de randonnées, etc. Tu vas aussi sensibiliser le public à la question de la biodiversité : <strong>intervention dans les écoles,</strong>&nbsp;<strong>animation d’ateliers dans divers lieux, sensibilisation des usagers des espaces naturels, mise en valeur de sites remarquables, etc. </strong></p><p class=\"ql-align-justify\"><br></p><p class=\"ql-align-justify\">Tu vas apprendre à travailler en collectif avec d’autres jeunes volontaires, en partenariat avec des collectivités territoriales&nbsp;Conseil départemental du Cantal, Aurillac Agglomération&nbsp;des associations de protection de la biodiversité&nbsp;(LPO, le CPIE&nbsp;etc.),&nbsp;des professionnels de la biodiversité (PNR Volcans d’Auvergne,CEN), etc.</p><p class=\"ql-align-justify\"><br></p><p class=\"ql-align-justify\">Cette mission se déroulera pendant 8 mois&nbsp;du mardi au vendredi de 9h à 17h et s'effectue en bi-mission sur un projet autour de la santé mentale (plus d'informations à ce lien : urlr.me/6SKT7v</p></p><br>\n<b>VOTRE ENVIRONNEMENT</b><br><b>Formations obligatoires proposées</b><br><p>Rencontre des structures professionnelles de la biodiversité pour être formé de manière concrète et participative.</p><br>",
+        "description": "EN QUELQUES MOTS\n\n\nTu souhaites agir concrètement pour la planète ? Tu es prêt à consacrer 8 mois\nde ta vie pour œuvrer en faveur de la biodiversité et aider à préserver de\nnombreuses espèces d’animaux et de plantes ? Alors rejoins une mission autour de\nl’environnement avec Unis-Cité !\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\n🍃 Être utile pour la nature : un engagement essentiel !  \n\n\n\n\nSais-tu qu’il est possible d’agir pour lutter contre l’érosion de la\nbiodiversité ? Que des projets variés sont construits dans le département ? Que\nbeaucoup de structures, collèges ou lycées sont prêts à se sensibiliser et à\nchanger leur mode de fonctionnement ? Rejoins cette mission pour intégrer un\ncollectif qui veut se rendre utile et être présent sur le terrain ! \n\n\n\n\n\nActions\n\n\n\n\nContribue à ta hauteur pour la biodiversité dans le Cantal !\n\n\n\n\nParticipe à des chantiers de protection de la nature : plantation de haies,\nobservation et comptage naturaliste de la faune et de la flore, entretien de\nsentiers de randonnées, etc. Tu vas aussi sensibiliser le public à la question\nde la biodiversité : intervention dans les écoles, animation d’ateliers dans\ndivers lieux, sensibilisation des usagers des espaces naturels, mise en valeur\nde sites remarquables, etc.\n\n\n\n\nTu vas apprendre à travailler en collectif avec d’autres jeunes volontaires, en\npartenariat avec des collectivités territoriales Conseil départemental du\nCantal, Aurillac Agglomération des associations de protection de la\nbiodiversité (LPO, le CPIE etc.), des professionnels de la biodiversité (PNR\nVolcans d’Auvergne,CEN), etc.\n\n\n\n\nCette mission se déroulera pendant 8 mois du mardi au vendredi de 9h à 17h et\ns'effectue en bi-mission sur un projet autour de la santé mentale (plus\nd'informations à ce lien : urlr.me/6SKT7v\n\n\n\n\n\nVOTRE ENVIRONNEMENT\nFormations obligatoires proposées\n\n\nRencontre des structures professionnelles de la biodiversité pour être formé de\nmanière concrète et participative.\n",
+        "applicationUrl": "http://localhost:4000/r/20beebe2-d735-4a67-8605-e6b8f8b72237/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_01.jpeg",
+        "remote": "no",
+        "openToMinors": true,
+        "reducedMobilityAccessible": true,
+        "places": 3
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "32aae998-a4a2-4a56-9dad-9f237ee7586d",
+        "title": "🎬Engage toi pour sensibiliser les jeunes sur des sujets de société ! (AURILLAC) ",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "culture-loisirs",
+        "domainOriginal": "Culture et loisirs",
+        "organizationName": "Unis Cité Auvergne",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_01.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_01.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Aurillac",
+          "closestLat": 44.930679,
+          "closestLon": 2.443518,
+          "closestAddress": "19 Rue de la Coste, 15000 Aurillac, FR",
+          "addressId": "21af3ac1-648a-4393-8b1b-1c0ee46f91a7",
+          "distanceKm": 0.12034958330573202
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/32aae998-a4a2-4a56-9dad-9f237ee7586d/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "aa81c36d-0241-4515-9e9d-ff134f5bda4a",
+        "totalScore": 0.572919,
+        "taxonomyScore": 0.15,
+        "geoScore": 0.995838,
+        "taxonomyScores": {
+          "tranche_age": 0.9
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "culture_arts",
+            "taxonomyValueLabel": "Culture et arts",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Promouvoir le cinéma auprès de lycéens, collégiens et autres jeunes / Animer des ciné-clubs / Participer à des événements autour du cinéma / Réaliser un court-métrage",
+              "reasoning": "La mission est centrée sur la promotion du cinéma, l'animation de ciné-clubs et la réalisation de courts-métrages, ce qui relève clairement du domaine culturel et artistique."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Débattre de l’actualité et de la citoyenneté avec eux / Animer des ciné-clubs et débattre avec des collégiens et lycéens sur les enjeux de société grâce au cinéma",
+              "reasoning": "La mission inclut une dimension pédagogique et de transmission de savoirs et de réflexion critique auprès des jeunes."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.92,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Promouvoir le cinéma auprès de lycéens, collégiens et autres jeunes / Animer des ciné-clubs / Débattre de l’actualité et de la citoyenneté",
+              "reasoning": "Les activités décrites relèvent de l'animation éducative et de la formation, notamment auprès de jeunes publics."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "communication_creation_numerique",
+            "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Regarder et choisir des films dans un corpus défini / Réaliser un court-métrage",
+              "reasoning": "La mission implique la création et la sélection de contenus audiovisuels, ce qui relève des compétences numériques et créatives."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Travailler en équipe avec d’autres volontaires / imaginer tes propres projets avec ton équipe",
+              "reasoning": "La mission met en avant le travail collaboratif et l'organisation collective de projets."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Débattre de l’actualité et de la citoyenneté avec eux / Animer des ciné-clubs et débattre avec des collégiens et lycéens",
+              "reasoning": "L'animation de débats et la transmission de savoirs auprès de jeunes peuvent impliquer une dimension d'accompagnement et de soutien."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Débattre de l’actualité et de la citoyenneté avec eux / Animer des ciné-clubs et débattre avec des collégiens et lycéens sur les enjeux de société",
+              "reasoning": "La mission inclut explicitement la transmission de savoirs et la sensibilisation des jeunes sur des sujets de société."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Animer des ciné-clubs / Participer à des événements autour du cinéma",
+              "reasoning": "La mission implique l'animation d'activités collectives et la participation à des événements culturels."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Travailler en équipe avec d’autres volontaires / imaginer tes propres projets avec ton équipe",
+              "reasoning": "La mission inclut la collaboration et l'organisation de projets collectifs, ce qui relève du support organisationnel."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Type de mission : volontariat_service_civique / Formations obligatoires proposées",
+              "reasoning": "Le cadre du service civique et les formations obligatoires indiquent un engagement structuré et institutionnalisé."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "education_culture_creation",
+            "taxonomyValueLabel": "Éducation, culture et création",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Promouvoir le cinéma auprès de lycéens, collégiens et autres jeunes / Animer des ciné-clubs / Réaliser un court-métrage",
+              "reasoning": "La mission combine éducation, culture et création artistique, ce qui correspond au domaine de formation ONISEP visé."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Débattre de l’actualité et de la citoyenneté avec eux / Animer des ciné-clubs et débattre avec des collégiens et lycéens sur les enjeux de société",
+              "reasoning": "La mission inclut une dimension de sensibilisation aux enjeux de société et de citoyenneté, relevant de ce domaine de formation."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_18_ans",
+            "taxonomyValueLabel": "Moins de 18 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_31_ans_handicap",
+            "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "service_civique",
+            "taxonomyValueLabel": "Service civique",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "32aae998-a4a2-4a56-9dad-9f237ee7586d",
+        "title": "🎬Engage toi pour sensibiliser les jeunes sur des sujets de société ! (AURILLAC) ",
+        "domain": "culture-loisirs",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_01.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "Unis Cité Auvergne",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Aurillac",
+          "address": "19 Rue de la Coste, 15000 Aurillac",
+          "lat": 44.930679,
+          "lon": 2.443518
+        },
+        "startAt": "2026-10-13T00:00:00.000Z",
+        "endAt": "2027-06-13T00:00:00.000Z",
+        "duration": 8,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>🎥Tu veux présenter des court-métrages sur des sujets qui te tiennent à cœur ? Tu veux te rendre utile et tu souhaites faire de la prévention sur des thèmes importants ? Alors engage-toi avec Unis-Cité ! </p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p class=\"ql-align-justify\">Les films permettent de développer notre esprit critique et de mieux comprendre le monde. En t'engageant avec la mission Cinéma et Citoyenneté, tu vas :</p><p><br></p><p class=\"ql-align-justify\">👉Promouvoir le cinéma auprès de lycéens, collégiens et autres jeunes de 11 à 25 ans.</p><p class=\"ql-align-justify\">👉Débattre de l’actualité et de la citoyenneté avec eux.</p></p><br>\n<b>Actions</b><br><p><p class=\"ql-align-justify\">En tant que volontaire tu seras amené(e) à :</p><p><br></p><p>🎥&nbsp;<strong>Regarder et choisir des films dans un corpus défini avec le CNC (Centre National du Cinéma) sur différentes thématiques</strong>&nbsp;(environnement, discriminations, harcèlement, égalité…).</p><p>🗣&nbsp;<strong>Animer des ciné-clubs</strong>&nbsp;et débattre avec des collégiens et lycéens&nbsp;sur les enjeux de société grâce au cinéma.</p><p>🎉&nbsp;<strong>Participer à des événements autour du cinéma</strong>&nbsp;comme&nbsp;le&nbsp;Festival International du Court-Métrage, Plein la Bobine&nbsp;ou le&nbsp;Festival Tête à Clap.</p><p>🤝&nbsp;<strong>Travailler en équipe</strong>&nbsp;avec d’autres volontaires.</p><p>🎬&nbsp;<strong>Réaliser un court-métrage</strong>&nbsp;sur une thématique imposée et participer&nbsp;à un concours.</p><p><br></p><p>&nbsp;Et surtout :&nbsp;<strong>imaginer tes propres projets</strong>&nbsp;avec ton équipe&nbsp;!</p></p><br>\n<b>VOTRE ENVIRONNEMENT</b><br><b>Formations obligatoires proposées</b><br><p>Tu seras formé avec des structures partenaires telles que La Jetée, le planning familial, Addiction France et bien d'autres.</p><br>",
+        "description": "EN QUELQUES MOTS\n\n\n🎥Tu veux présenter des court-métrages sur des sujets qui te tiennent à cœur ?\nTu veux te rendre utile et tu souhaites faire de la prévention sur des thèmes\nimportants ? Alors engage-toi avec Unis-Cité !\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nLes films permettent de développer notre esprit critique et de mieux comprendre\nle monde. En t'engageant avec la mission Cinéma et Citoyenneté, tu vas :\n\n\n\n\n👉Promouvoir le cinéma auprès de lycéens, collégiens et autres jeunes de 11 à 25\nans.\n\n👉Débattre de l’actualité et de la citoyenneté avec eux.\n\n\n\n\n\nActions\n\n\n\n\nEn tant que volontaire tu seras amené(e) à :\n\n\n\n\n🎥 Regarder et choisir des films dans un corpus défini avec le CNC (Centre\nNational du Cinéma) sur différentes thématiques (environnement, discriminations,\nharcèlement, égalité…).\n\n🗣 Animer des ciné-clubs et débattre avec des collégiens et lycéens sur les\nenjeux de société grâce au cinéma.\n\n🎉 Participer à des événements autour du cinéma comme le Festival International\ndu Court-Métrage, Plein la Bobine ou le Festival Tête à Clap.\n\n🤝 Travailler en équipe avec d’autres volontaires.\n\n🎬 Réaliser un court-métrage sur une thématique imposée et participer à un\nconcours.\n\n\n\n\n Et surtout : imaginer tes propres projets avec ton équipe !\n\n\n\n\n\nVOTRE ENVIRONNEMENT\nFormations obligatoires proposées\n\n\nTu seras formé avec des structures partenaires telles que La Jetée, le planning\nfamilial, Addiction France et bien d'autres.\n",
+        "applicationUrl": "http://localhost:4000/r/32aae998-a4a2-4a56-9dad-9f237ee7586d/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_01.jpeg",
+        "remote": "no",
+        "openToMinors": true,
+        "reducedMobilityAccessible": true,
+        "places": 3
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "c2b468e0-ea6e-4bef-8305-dd09b9157a81",
+        "title": "👵Engage-toi pour lutter contre l’isolement des seniors - (AURILLAC) ",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "solidarite-insertion",
+        "domainOriginal": "Solidarité",
+        "organizationName": "Unis Cité Auvergne",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Aurillac",
+          "closestLat": 44.930679,
+          "closestLon": 2.443518,
+          "closestAddress": "19 Rue de la Coste, 15000 Aurillac, FR",
+          "addressId": "6f101944-2735-4bfb-bd12-f652eea08364",
+          "distanceKm": 0.12034958330573202
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/c2b468e0-ea6e-4bef-8305-dd09b9157a81/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "b3c10d5f-0ece-40aa-8507-09d1b4339d3e",
+        "totalScore": 0.572919,
+        "taxonomyScore": 0.15,
+        "geoScore": 0.995838,
+        "taxonomyScores": {
+          "tranche_age": 0.9
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "lutter contre l’isolement des seniors / Rendre visite aux personnes âgées isolées / créer un lien social marquant / renforcer les relations intergénérationnelles",
+              "reasoning": "La mission est explicitement centrée sur la lutte contre l'isolement des seniors et la création de liens sociaux, ce qui relève clairement du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Les aider à mieux comprendre le numérique (smartphone, internet, réseaux sociaux...) / Animer des ateliers numériques chaque semaine",
+              "reasoning": "La mission inclut une dimension pédagogique explicite avec l'accompagnement au numérique, relevant de l'éducation et transmission."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "lutter contre l’isolement des seniors / Rendre visite aux personnes âgées isolées / seniors",
+              "reasoning": "Les bénéficiaires sont des seniors, et les actions visent leur accompagnement social et leur bien-être, relevant du secteur santé, social et aide à la personne."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.92,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Rendre visite aux personnes âgées isolées / créer un lien social marquant / renforcer les relations intergénérationnelles",
+              "reasoning": "La mission implique un accompagnement humain et social direct des seniors, relevant du management, social et soin."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "préparer les semaines avec l’équipe de volontaire / échanger et construire les projets avec différents partenaires / gagner en capacité d’initiative et d’autonomie",
+              "reasoning": "La mission inclut une forte dimension de travail d'équipe, de coordination et de développement de soft skills."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Rendre visite aux personnes âgées isolées / discuter, partager un goûter, jouer, se balader / créer du lien et apporter de la bonne humeur",
+              "reasoning": "La mission implique une interaction directe et régulière avec les bénéficiaires pour leur apporter du soutien et de la convivialité."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Les aider à mieux comprendre le numérique / Animer des ateliers numériques chaque semaine",
+              "reasoning": "La mission inclut une dimension pédagogique explicite avec l'accompagnement au numérique."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Animer des ateliers numériques chaque semaine / Organiser des activités en groupe / préparer, construire et animer des temps ludiques et créatifs",
+              "reasoning": "La mission inclut l'animation d'ateliers et d'activités collectives pour favoriser les rencontres et le bien-être."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "préparer les semaines avec l’équipe de volontaire / échanger et construire les projets avec différents partenaires / appeler les séniors pour planifier les rencontres",
+              "reasoning": "La mission inclut des tâches de coordination, de planification et de partenariat, relevant du support organisationnel."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Type de mission : volontariat_service_civique / Tutorat et accompagnement / Formations thématiques avec des professionnels",
+              "reasoning": "La mission est explicitement un service civique, avec un cadre structuré, un tutorat et des formations, relevant d'un engagement en cadre structuré."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "social_sante_sport",
+            "taxonomyValueLabel": "Social, santé et sport",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "lutter contre l’isolement des seniors / Rendre visite aux personnes âgées isolées / seniors",
+              "reasoning": "La mission est clairement orientée vers l'accompagnement social et la santé des seniors, relevant du domaine social, santé et sport."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Type de mission : volontariat_service_civique / Tutorat et accompagnement / Formations thématiques",
+              "reasoning": "Le service civique est un engagement civique et citoyen, relevant du domaine société, droit et politique."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_18_ans",
+            "taxonomyValueLabel": "Moins de 18 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_31_ans_handicap",
+            "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "service_civique",
+            "taxonomyValueLabel": "Service civique",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "c2b468e0-ea6e-4bef-8305-dd09b9157a81",
+        "title": "👵Engage-toi pour lutter contre l’isolement des seniors - (AURILLAC) ",
+        "domain": "solidarite-insertion",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "Unis Cité Auvergne",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Aurillac",
+          "address": "19 Rue de la Coste, 15000 Aurillac",
+          "lat": 44.930679,
+          "lon": 2.443518
+        },
+        "startAt": "2026-10-13T00:00:00.000Z",
+        "endAt": "2027-06-13T00:00:00.000Z",
+        "duration": 8,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Deux millions de seniors souffrent aujourd’hui de solitude et d’isolement. Agis pour créer un lien fort avec eux, partage des moments de convivialité, d’écoute, améliore le quotidien de nos aînés … et fais vraiment la différence !  Engage-toi avec Unis-Cité !</p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p class=\"ql-align-justify\">Avec ton équipe, tu vas :<span style=\"background-color: rgb(96, 96, 96);\">&nbsp;</span></p><p class=\"ql-align-justify\"><span style=\"background-color: rgb(96, 96, 96);\">&nbsp;</span></p><p>💛&nbsp;<strong>Egayer le quotidien&nbsp;des personnes âgées isolées&nbsp;par des actions concrètes</strong></p><p>💻&nbsp;<strong>Les aider à&nbsp;mieux comprendre le numérique&nbsp;</strong>(smartphone, internet, réseaux&nbsp;sociaux,...)<span style=\"background-color: rgb(96, 96, 96);\">&nbsp;</span></p><p>🤝&nbsp;<strong>Créer un lien&nbsp;social&nbsp;marquant&nbsp;</strong>qui&nbsp;contribue à renforcer les&nbsp;relations&nbsp;intergénérationnelles.</p></p><br>\n<b>Actions</b><br><p><p class=\"ql-align-justify\">Si tu l’acceptes, tes missions seront de :<span style=\"background-color: rgb(96, 96, 96);\">&nbsp;</span></p><p><br></p><ul><li class=\"ql-align-justify\"><strong>Rendre visite&nbsp;aux&nbsp;personnes âges&nbsp;</strong>: discuter, partager un goûter, jouer, se balader… ou même leur apprendre à utiliser une tablette. Bref, créer du lien et apporter de la bonne humeur (tout en apprenant plein de choses&nbsp;d’eux&nbsp;!)&nbsp;<span style=\"background-color: rgb(96, 96, 96);\">&nbsp;</span></li><li class=\"ql-align-justify\"><strong>Animer des ateliers numériques chaque semaine</strong>&nbsp;: des conseils pour bien utiliser internet,&nbsp;les&nbsp;objets connectés<span style=\"background-color: rgb(96, 96, 96);\">&nbsp;</span></li><li class=\"ql-align-justify\"><strong>Organiser des activités en groupe</strong>&nbsp;: préparer, construire et animer des temps ludiques et créatifs pour&nbsp;développer des rencontres entre séniors et&nbsp;favoriser leur bien être&nbsp;<span style=\"background-color: rgb(96, 96, 96);\">&nbsp;</span></li></ul><p><br></p><p class=\"ql-align-justify\">👉&nbsp;Mais aussi,&nbsp;préparer&nbsp;les semaines avec&nbsp;l’équipe&nbsp;de volontaire, échanger&nbsp;et construire&nbsp;les projets avec différents partenaires (Centre Social,&nbsp;MARPA,&nbsp;MDS..), appeler&nbsp;les séniors&nbsp;pour planifier les rencontres... et&nbsp;gagner&nbsp;en&nbsp;capacité d’initiative et&nbsp;d’autonomie durant toute l'année !</p><p><br></p></p><br>\n<b>VOTRE ENVIRONNEMENT</b><br><b>Tutorat et accompagnement</b><br><p>Formations thématiques avec des professionnels du grand âge, mais également des partenariats avec les structures d’accompagnement des personnes âgées.</p>",
+        "description": "EN QUELQUES MOTS\n\n\nDeux millions de seniors souffrent aujourd’hui de solitude et d’isolement. Agis\npour créer un lien fort avec eux, partage des moments de convivialité, d’écoute,\naméliore le quotidien de nos aînés … et fais vraiment la différence ! Engage-toi\navec Unis-Cité !\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nAvec ton équipe, tu vas : \n\n \n\n💛 Egayer le quotidien des personnes âgées isolées par des actions concrètes\n\n💻 Les aider à mieux comprendre le numérique (smartphone, internet,\nréseaux sociaux,...) \n\n🤝 Créer un lien social marquant qui contribue à renforcer\nles relations intergénérationnelles.\n\n\n\n\n\nActions\n\n\n\n\nSi tu l’acceptes, tes missions seront de : \n\n\n\n\n • Rendre visite aux personnes âges : discuter, partager un goûter, jouer, se\n   balader… ou même leur apprendre à utiliser une tablette. Bref, créer du lien\n   et apporter de la bonne humeur (tout en apprenant plein de choses d’eux !)  \n • Animer des ateliers numériques chaque semaine : des conseils pour bien\n   utiliser internet, les objets connectés \n • Organiser des activités en groupe : préparer, construire et animer des temps\n   ludiques et créatifs pour développer des rencontres entre séniors\n   et favoriser leur bien être  \n\n\n\n\n👉 Mais aussi, préparer les semaines avec l’équipe de volontaire, échanger et\nconstruire les projets avec différents partenaires (Centre\nSocial, MARPA, MDS..), appeler les séniors pour planifier les rencontres...\net gagner en capacité d’initiative et d’autonomie durant toute l'année !\n\n\n\n\n\n\n\n\nVOTRE ENVIRONNEMENT\nTutorat et accompagnement\n\n\nFormations thématiques avec des professionnels du grand âge, mais également des\npartenariats avec les structures d’accompagnement des personnes âgées.",
+        "applicationUrl": "http://localhost:4000/r/c2b468e0-ea6e-4bef-8305-dd09b9157a81/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+        "remote": "no",
+        "openToMinors": true,
+        "reducedMobilityAccessible": true,
+        "places": 10
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "ec004e87-38df-4065-8553-fe41198ed553",
+        "title": "🧠 Agis pour les questions de santé mentale : Brise les préjugés et informe les jeunes - (AURILLAC)",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "sante",
+        "domainOriginal": "Santé",
+        "organizationName": "Unis Cité Auvergne",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_03.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_03.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Aurillac",
+          "closestLat": 44.930679,
+          "closestLon": 2.443518,
+          "closestAddress": "19 Rue de la Coste, 15000 Aurillac, FR",
+          "addressId": "a170af50-603b-49c2-8be0-c1f874984a9b",
+          "distanceKm": 0.12034958330573202
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/ec004e87-38df-4065-8553-fe41198ed553/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "336df6c8-680d-417f-baf1-0117a76dee68",
+        "totalScore": 0.572919,
+        "taxonomyScore": 0.15,
+        "geoScore": 0.995838,
+        "taxonomyScores": {
+          "tranche_age": 0.9
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "sante_soins",
+            "taxonomyValueLabel": "Santé et soins",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "santé mentale est une composante essentielle de la santé / sensibiliser les jeunes et leur permettre de se sentir mieux grâce à la santé mentale positive / Parler santé mentale sans tabou / Sensibiliser aux impacts de certains comportements sur la santé mentale",
+              "reasoning": "La mission est explicitement centrée sur la santé mentale, un sous-domaine de la santé et des soins."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Créer des espaces de discussion où chacun peut s’exprimer librement / Parler santé mentale sans tabou avec des jeunes / Faire passer des messages positifs pour se sentir mieux au quotidien / Déconstruire les clichés sur les maladies psychiques / Sensibiliser aux impacts de certains comportements sur la santé mentale / Orienter vers les bonnes ressources et structures près de chez eux / créer et animer des ateliers ludiques auprès de jeunes",
+              "reasoning": "La mission consiste principalement à transmettre des connaissances, sensibiliser et éduquer sur la santé mentale."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "santé mentale est une composante essentielle de la santé / sensibiliser les jeunes et leur permettre de se sentir mieux grâce à la santé mentale positive",
+              "reasoning": "La mission relève du secteur de la santé et de l'aide à la personne, notamment pour les publics fragilisés."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Créer des espaces de discussion / créer et animer des ateliers ludiques auprès de jeunes / Tu seras formé(e) sur ces thématiques pour pouvoir animer ces ateliers",
+              "reasoning": "La mission inclut une forte dimension d'animation éducative et de formation."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Créer des espaces de discussion où chacun peut s’exprimer librement / Parler santé mentale sans tabou avec des jeunes / Déconstruire les clichés sur les maladies psychiques / Sensibiliser aux impacts de certains comportements sur la santé mentale",
+              "reasoning": "La mission implique un accompagnement social, une écoute et une aide à la compréhension des enjeux de santé mentale."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Tu seras formé(e) sur ces thématiques pour pouvoir animer ces ateliers avec les autres volontaires de ton équipe en toute confiance / créer et animer des ateliers ludiques",
+              "reasoning": "Travail en équipe, animation collective et soft skills sont centraux dans la mission."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Parler santé mentale sans tabou avec des jeunes / Faire passer des messages positifs pour se sentir mieux au quotidien / Déconstruire les clichés sur les maladies psychiques / Sensibiliser aux impacts de certains comportements sur la santé mentale / créer et animer des ateliers ludiques",
+              "reasoning": "La mission est clairement axée sur la transmission de connaissances et la sensibilisation."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Créer des espaces de discussion / créer et animer des ateliers ludiques auprès de jeunes",
+              "reasoning": "Animation d'ateliers et d'espaces de discussion est une activité centrale."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "sensibiliser les jeunes et leur permettre de se sentir mieux grâce à la santé mentale positive / Orienter vers les bonnes ressources et structures près de chez eux",
+              "reasoning": "Bien que l'aide directe ne soit pas le cœur de la mission, l'orientation vers des ressources et l'accompagnement des jeunes dans leur bien-être relèvent d'une aide indirecte."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Tu seras formé(e) sur ces thématiques pour pouvoir animer ces ateliers avec les autres volontaires de ton équipe en toute confiance",
+              "reasoning": "La mission inclut un volet de formation et de coordination avec l'équipe, bien que ce ne soit pas l'activité principale."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Type de mission : volontariat_service_civique / Tu seras formé(e) sur ces thématiques / formations obligatoires proposées",
+              "reasoning": "Le cadre du service civique est explicitement mentionné, avec des formations obligatoires et un engagement structuré."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "santé mentale est une composante essentielle de la santé / sensibiliser les jeunes et leur permettre de se sentir mieux grâce à la santé mentale positive",
+              "reasoning": "La mission aborde des enjeux de société liés à la santé mentale et à l'inclusion des jeunes fragilisés."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "social_sante_sport",
+            "taxonomyValueLabel": "Social, santé et sport",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "santé mentale est une composente essentielle de la santé / sensibiliser les jeunes et leur permettre de se sentir mieux grâce à la santé mentale positive / Public cible : young handicap marginalisees_fragilisees",
+              "reasoning": "La mission est clairement liée au domaine social, à la santé et au soutien aux publics fragilisés."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_18_ans",
+            "taxonomyValueLabel": "Moins de 18 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_31_ans_handicap",
+            "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "service_civique",
+            "taxonomyValueLabel": "Service civique",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "ec004e87-38df-4065-8553-fe41198ed553",
+        "title": "🧠 Agis pour les questions de santé mentale : Brise les préjugés et informe les jeunes - (AURILLAC)",
+        "domain": "sante",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_03.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "Unis Cité Auvergne",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Aurillac",
+          "address": "19 Rue de la Coste, 15000 Aurillac",
+          "lat": 44.930679,
+          "lon": 2.443518
+        },
+        "startAt": "2026-10-13T00:00:00.000Z",
+        "endAt": "2027-06-13T00:00:00.000Z",
+        "duration": 8,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Tu veux t’engager pour un sujet qui compte pour toi ? Tu souhaites rejoindre une équipe pour sensibiliser sur les sujets de santé mentale ? Alors, engage-toi avec Unis-Cité !  </p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p class=\"ql-align-justify\"><strong>La santé mentale est une composante essentielle de la santé et représente bien plus que l’absence de troubles.</strong>&nbsp;Mais il y a encore des tabous et idées reçues... On te propose de t’engager pour sensibiliser les jeunes et leur permettre de se sentir mieux grâce à la santé mentale positive !&nbsp;Rendre accessible tout ce qui gravite autour de la santé mentale est un vrai besoin !</p><p class=\"ql-align-justify\"><br></p><p class=\"ql-align-justify\">Engage-toi pour sensibiliser les jeunes, libérer la parole et rendre la santé mentale plus accessible à tous.</p></p><br>\n<b>Actions</b><br><p><p><span style=\"color: windowtext;\">Ta mission serait de&nbsp;:</span></p><p><br></p><ul><li>🤝&nbsp;<strong>Créer des espaces de discussion</strong>&nbsp;où chacun peut s’exprimer librement.</li><li>💬&nbsp;<strong>Parler santé mentale sans tabou</strong>&nbsp;avec des jeunes.</li><li>🧠&nbsp;<strong>Faire passer des messages positifs</strong>&nbsp;pour se sentir mieux au quotidien.</li><li>🚫&nbsp;<strong>Déconstruire les clichés</strong>&nbsp;sur les maladies psychiques.</li><li>⚡&nbsp;<strong>Sensibiliser aux impacts de certains comportements</strong>&nbsp;sur la santé mentale.</li><li>📍&nbsp;<strong>Orienter vers les bonnes ressources</strong>&nbsp;et structures près de chez eux.</li></ul><p><br></p><p class=\"ql-align-justify\">Tu pourras créer et animer des ateliers ludiques auprès de jeunes dans des structures d’insertion, des structures sociales, établissements scolaires… Et pas de panique, tu seras formé(e) sur ces thématiques pour pouvoir animer ces ateliers avec les autres volontaires de ton équipe en toute confiance !</p><p class=\"ql-align-justify\"><br></p><p class=\"ql-align-justify\">Cette mission se déroulera pendant 8 mois&nbsp;du mardi au vendredi de 9h à 17h et s'effectue en bi-mission sur un projet autour de l'environnement (plus d'informations à ce lien : urlr.me/4yckYT )</p></p><br>\n<b>VOTRE ENVIRONNEMENT</b><br><b>Formations obligatoires proposées</b><br><p>Une structure experte en santé mentale te formera sur les thématiques abordées et Tu participeras aussi à la formation Premier Secours Mentale.</p><br>",
+        "description": "EN QUELQUES MOTS\n\n\nTu veux t’engager pour un sujet qui compte pour toi ? Tu souhaites rejoindre une\néquipe pour sensibiliser sur les sujets de santé mentale ? Alors, engage-toi\navec Unis-Cité !\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nLa santé mentale est une composante essentielle de la santé et représente bien\nplus que l’absence de troubles. Mais il y a encore des tabous et idées reçues...\nOn te propose de t’engager pour sensibiliser les jeunes et leur permettre de se\nsentir mieux grâce à la santé mentale positive ! Rendre accessible tout ce qui\ngravite autour de la santé mentale est un vrai besoin !\n\n\n\n\nEngage-toi pour sensibiliser les jeunes, libérer la parole et rendre la santé\nmentale plus accessible à tous.\n\n\n\n\n\nActions\n\n\n\n\nTa mission serait de :\n\n\n\n\n • 🤝 Créer des espaces de discussion où chacun peut s’exprimer librement.\n • 💬 Parler santé mentale sans tabou avec des jeunes.\n • 🧠 Faire passer des messages positifs pour se sentir mieux au quotidien.\n • 🚫 Déconstruire les clichés sur les maladies psychiques.\n • ⚡ Sensibiliser aux impacts de certains comportements sur la santé mentale.\n • 📍 Orienter vers les bonnes ressources et structures près de chez eux.\n\n\n\n\nTu pourras créer et animer des ateliers ludiques auprès de jeunes dans des\nstructures d’insertion, des structures sociales, établissements scolaires… Et\npas de panique, tu seras formé(e) sur ces thématiques pour pouvoir animer ces\nateliers avec les autres volontaires de ton équipe en toute confiance !\n\n\n\n\nCette mission se déroulera pendant 8 mois du mardi au vendredi de 9h à 17h et\ns'effectue en bi-mission sur un projet autour de l'environnement (plus\nd'informations à ce lien : urlr.me/4yckYT )\n\n\n\n\n\nVOTRE ENVIRONNEMENT\nFormations obligatoires proposées\n\n\nUne structure experte en santé mentale te formera sur les thématiques abordées\net Tu participeras aussi à la formation Premier Secours Mentale.\n",
+        "applicationUrl": "http://localhost:4000/r/ec004e87-38df-4065-8553-fe41198ed553/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_03.jpeg",
+        "remote": "no",
+        "openToMinors": true,
+        "reducedMobilityAccessible": true,
+        "places": 3
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "64ac2eb15c26891bfc0f5395",
+        "title": "Je réalise des cours d'alphabétisation/français langue étrangère",
+        "remote": "no",
+        "schedule": "Une demi-journée par semaine",
+        "domain": "solidarite-insertion",
+        "domainOriginal": null,
+        "organizationName": "Secours catholique - Cantal Puy-de-Dôme",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "media": {
+          "photo": "https://jeveuxaider.fra1.cdn.digitaloceanspaces.com/public/card-thumbnail-default.jpg",
+          "domainLogo": "https://jeveuxaider.fra1.cdn.digitaloceanspaces.com/public/card-thumbnail-default.jpg",
+          "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/5775/5dCcw5VhPPT5wRp7EZjAfSFP2bH3lO.jpg?v=1737381617",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+        },
+        "location": {
+          "city": "Aurillac",
+          "closestLat": 44.92383,
+          "closestLon": 2.431269,
+          "closestAddress": "Boulevard Louis Dauzier, 15000 Aurillac, FR",
+          "addressId": "29116ad5-8038-48da-acb8-9a42353d55e4",
+          "distanceKm": 1.3399101461080252
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/64ac2eb15c26891bfc0f5395/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "9716cf18-cf8c-4b5c-b4b3-14cd75faa018",
+        "totalScore": 0.560645,
+        "taxonomyScore": 0.166667,
+        "geoScore": 0.954624,
+        "taxonomyScores": {
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "réaliser des cours de français/alphabétisation",
+              "reasoning": "La mission consiste explicitement à transmettre des savoirs linguistiques, domaine de l'éducation et de la transmission."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "public récemment arrivé sur le territoire ou ne maîtrisant pas le français / refugees / people_being_excluded",
+              "reasoning": "La mission cible des publics fragilisés ou en situation d'exclusion, relevant du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "réaliser des cours de français/alphabétisation",
+              "reasoning": "La mission relève clairement du secteur de l'éducation et de la formation."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "public récemment arrivé sur le territoire ou ne maîtrisant pas le français / refugees / people_being_excluded",
+              "reasoning": "Le public cible relève de l'aide à la personne et du social, bien que la mission soit centrée sur l'enseignement."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.99,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Une demi-journée par semaine / du 1 septembre 2024",
+              "reasoning": "La mission est décrite comme régulière avec une fréquence hebdomadaire explicite."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "public récemment arrivé sur le territoire ou ne maîtrisant pas le français / refugees / people_being_excluded",
+              "reasoning": "Accompagnement de publics fragilisés, impliquant des compétences sociales et d'aide."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Vous serez accompagné de bénévoles réalisant déjà des cours de français si vous le souhaitez / Des ressources, personnes support ainsi des formations pourront vous être proposées",
+              "reasoning": "La mission implique un travail collaboratif et une adaptation aux besoins des bénéficiaires."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "réaliser des cours de français/alphabétisation",
+              "reasoning": "La mission consiste explicitement à transmettre des connaissances linguistiques."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "public récemment arrivé sur le territoire ou ne maîtrisant pas le français / refugees / people_being_excluded",
+              "reasoning": "L'accompagnement de publics en situation de fragilité relève d'une aide directe."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "education_culture_creation",
+            "taxonomyValueLabel": "Éducation, culture et création",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "réaliser des cours de français/alphabétisation",
+              "reasoning": "La mission relève de l'éducation et de la transmission culturelle et linguistique."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "public récemment arrivé sur le territoire ou ne maîtrisant pas le français / refugees",
+              "reasoning": "L'accompagnement de réfugiés ou personnes en exclusion peut relever des enjeux de société et d'intégration."
+            }
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "benevolat",
+            "taxonomyValueLabel": "Bénévolat",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "64ac2eb15c26891bfc0f5395",
+        "title": "Je réalise des cours d'alphabétisation/français langue étrangère",
+        "domain": "solidarite-insertion",
+        "domainLogo": "https://jeveuxaider.fra1.cdn.digitaloceanspaces.com/public/card-thumbnail-default.jpg",
+        "type": "benevolat",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png",
+        "organizationName": "Secours catholique - Cantal Puy-de-Dôme",
+        "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/5775/5dCcw5VhPPT5wRp7EZjAfSFP2bH3lO.jpg?v=1737381617",
+        "location": {
+          "city": "Aurillac",
+          "address": "Boulevard Louis Dauzier, 15000 Aurillac",
+          "lat": 44.92383,
+          "lon": 2.431269
+        },
+        "startAt": "2024-09-01T00:00:00.000Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "Une demi-journée par semaine",
+        "compensation": null,
+        "descriptionHtml": "<b>Présentation de la mission</b><br><p>L'objectif de cette mission est de réaliser des cours de français/alphabétisation à un public récemment arrivé sur le territoire ou ne maîtrisant pas le français. Vous serez accompagné de bénévoles réalisant déjà des cours de français si vous le souhaitez.&nbsp;</p><br><br><b>Précisions</b><br><p>Des ressources, personnes support ainsi des formations pourront vous être proposées afin de vous sentir à l'aise sur cette mission.&nbsp;</p><p>Vous ne serez pas obligé de suivre une formation si vous décidez de vous engager et que vous vous sentez à l'aise sur la mission proposée.&nbsp;</p>",
+        "description": "Présentation de la mission\n\n\nL'objectif de cette mission est de réaliser des cours de\nfrançais/alphabétisation à un public récemment arrivé sur le territoire ou ne\nmaîtrisant pas le français. Vous serez accompagné de bénévoles réalisant déjà\ndes cours de français si vous le souhaitez. \n\n\n\nPrécisions\n\n\nDes ressources, personnes support ainsi des formations pourront vous être\nproposées afin de vous sentir à l'aise sur cette mission. \n\nVous ne serez pas obligé de suivre une formation si vous décidez de vous engager\net que vous vous sentez à l'aise sur la mission proposée. ",
+        "applicationUrl": "http://localhost:4000/r/64ac2eb15c26891bfc0f5395/c4a9ce23692082d70af2b16d",
+        "photo": "https://jeveuxaider.fra1.cdn.digitaloceanspaces.com/public/card-thumbnail-default.jpg",
+        "remote": "no",
+        "openToMinors": true,
+        "reducedMobilityAccessible": false,
+        "places": 2
+      },
+      "descriptionMissing": false
+    }
+  ],
+  "deterministic": {
+    "geo": 5,
+    "format": 1,
+    "missionsSansTagFormat": [],
+    "gateViolations": []
+  },
+  "judgeRuns": [
+    {
+      "runIndex": 0,
+      "seed": 2331677975,
+      "order": [
+        "32aae998-a4a2-4a56-9dad-9f237ee7586d",
+        "20beebe2-d735-4a67-8605-e6b8f8b72237",
+        "c2b468e0-ea6e-4bef-8305-dd09b9157a81",
+        "64ac2eb15c26891bfc0f5395",
+        "ec004e87-38df-4065-8553-fe41198ed553"
+      ],
+      "output": {
+        "coherence": {
+          "score": 5,
+          "missionsPertinentes": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "justification": "Toutes les missions proposées sont localisées à Aurillac et offrent un engagement régulier, ce qui correspond bien au profil de Noah, lycéen de 16 ans souhaitant booster son dossier Parcoursup sans domaine précis. Les missions couvrent des thématiques variées (cinéma et citoyenneté, environnement, seniors, alphabétisation, santé mentale) permettant à Noah de découvrir différents secteurs et d'acquérir des expériences valorisantes.",
+          "missionIdsPertinents": [
+            "32aae998-a4a2-4a56-9dad-9f237ee7586d",
+            "20beebe2-d735-4a67-8605-e6b8f8b72237",
+            "c2b468e0-ea6e-4bef-8305-dd09b9157a81",
+            "64ac2eb15c26891bfc0f5395",
+            "ec004e87-38df-4065-8553-fe41198ed553"
+          ]
+        },
+        "homogeneite": {
+          "score": 3,
+          "familles": [
+            "Engagement social et citoyen",
+            "Environnement",
+            "Éducation"
+          ],
+          "justification": "Les missions se répartissent en trois grandes familles : engagement social et citoyen (missions 0,2,4), environnement (mission 1), et éducation (mission 3). Il n'y a pas de famille majoritaire avec au moins 3 missions, mais les missions sont regroupées en 3 familles distinctes, ce qui donne une homogénéité moyenne."
+        },
+        "cause": null
+      }
+    },
+    {
+      "runIndex": 1,
+      "seed": 2314900356,
+      "order": [
+        "ec004e87-38df-4065-8553-fe41198ed553",
+        "64ac2eb15c26891bfc0f5395",
+        "20beebe2-d735-4a67-8605-e6b8f8b72237",
+        "c2b468e0-ea6e-4bef-8305-dd09b9157a81",
+        "32aae998-a4a2-4a56-9dad-9f237ee7586d"
+      ],
+      "output": {
+        "coherence": {
+          "score": 5,
+          "missionsPertinentes": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "justification": "Toutes les missions proposées sont localisées à Aurillac et offrent un engagement régulier, ce qui correspond bien au profil de Noah, lycéen de 16 ans à Aurillac cherchant à booster son dossier Parcoursup sans préférence de domaine. Les missions couvrent des thématiques variées (santé mentale, alphabétisation, environnement, lien social avec seniors, sensibilisation par le cinéma) permettant à Noah d'acquérir des expériences diversifiées valorisables pour Parcoursup.",
+          "missionIdsPertinents": [
+            "ec004e87-38df-4065-8553-fe41198ed553",
+            "64ac2eb15c26891bfc0f5395",
+            "20beebe2-d735-4a67-8605-e6b8f8b72237",
+            "c2b468e0-ea6e-4bef-8305-dd09b9157a81",
+            "32aae998-a4a2-4a56-9dad-9f237ee7586d"
+          ]
+        },
+        "homogeneite": {
+          "score": 4,
+          "familles": [
+            "Social / Éducation",
+            "Environnement",
+            "Culture / Citoyenneté"
+          ],
+          "justification": "Les missions se répartissent en trois grandes familles : social/éducation (missions 0,1,3), environnement (mission 2), et culture/citoyenneté (mission 4). La famille social/éducation est majoritaire avec trois missions, ce qui donne une bonne homogénéité avec diversité thématique."
+        },
+        "cause": null
+      }
+    }
+  ],
+  "engineVersion": "m2",
+  "startedAt": "2026-07-10T13:23:39.669Z",
+  "finishedAt": "2026-07-10T13:23:53.590Z",
+  "verdict": 4,
+  "cleanup": {
+    "userScoringDeleted": true
+  }
+}

@@ -1,0 +1,2393 @@
+{
+  "status": "success",
+  "parcours": {
+    "id": "sami-orientation-securite",
+    "segment": "lyceen",
+    "label": "Sami, 16 ans, lycéen en Seconde à Marseille, attiré par les métiers en uniforme et la sécurité, veut tester avant de choisir sa voie",
+    "locationLabel": "Marseille (13)",
+    "age": 16,
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 16,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "statut",
+        "value": "lyceen"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 43.296482,
+          "lon": 5.36978,
+          "country_code": "fr",
+          "label": "Marseille (13)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "reguliere"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "tester_orientation"
+      },
+      {
+        "taxonomy": "formation_onisep",
+        "value": "securite_defense_logistique"
+      }
+    ]
+  },
+  "payload": {
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 16,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "statut",
+        "value": "lyceen"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 43.296482,
+          "lon": 5.36978,
+          "country_code": "fr",
+          "label": "Marseille (13)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "reguliere"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "tester_orientation"
+      },
+      {
+        "taxonomy": "formation_onisep",
+        "value": "securite_defense_logistique"
+      }
+    ],
+    "distinctId": "eval:m2-260707:sami-orientation-securite",
+    "missionAlertEnabled": false
+  },
+  "userScoringId": "44cc8feb-6b8e-484b-bad4-d9c71de6a2e4",
+  "match": {
+    "tookMs": 5067,
+    "engineVersion": "m2",
+    "items": [
+      {
+        "mission": {
+          "id": "0eb706b9-4e56-43dd-9971-8d9aac4165c1",
+          "title": "Je deviens sapeur-pompier volontaire près de chez moi",
+          "remote": "no",
+          "schedule": "Flexible (quelques heures par semaine selon disponibilités)",
+          "domain": "prevention-protection",
+          "domainOriginal": null,
+          "organizationName": "SDIS des Bouches du Rhône",
+          "publisherId": "68594dccc9c116c1b5502d08",
+          "publisherName": "SDIS 13",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/68594dccc9c116c1b5502d08/SDIS_13.webp",
+            "domainLogo": null,
+            "organizationLogo": null,
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/68594dccc9c116c1b5502d08/SDIS_13.webp"
+          },
+          "location": {
+            "city": "Marseille",
+            "closestLat": 43.297477,
+            "closestLon": 5.379911,
+            "closestAddress": "39 Rue vincent scotto, 13001 Marseille",
+            "addressId": "441db439-7b71-420a-970a-797787bf43ff",
+            "distanceKm": 0.8273195887457664
+          },
+          "compensation": {
+            "amount": 0,
+            "amountMax": 13,
+            "unit": "hour",
+            "type": "gross"
+          },
+          "applicationUrl": "http://localhost:4000/r/0eb706b9-4e56-43dd-9971-8d9aac4165c1/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "bbedfbab-5342-411b-9a32-a745955e88ae",
+          "totalScore": 0.772867,
+          "taxonomyScore": 0.574,
+          "geoScore": 0.971734,
+          "taxonomyScores": {
+            "formation_onisep": 1,
+            "tranche_age": 0.9,
+            "type_mission": 0.97
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "securite_defense",
+              "taxonomyValueLabel": "Sécurité et défense",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "porter secours aux personnes / sécuriser des accidents de la route / protéger les habitants et les biens lors d'événements exceptionnels / participer à la lutte contre les incendies",
+                "reasoning": "Les tâches décrites sont explicitement centrées sur la sécurité, le secours et la protection civile, domaine de la sécurité et défense."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "securite_service_public",
+              "taxonomyValueLabel": "Sécurité et service public",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "En donnant quelques heures par semaine, vous rejoignez une équipe soudée au cœur de votre territoire et vous agissez concrètement pour protéger et aider la population / Le SDIS est chargé des missions de secours et d'incendie dans le département.",
+                "reasoning": "La mission relève du service public de sécurité civile, exercé par un SDIS (Service Départemental d'Incendie et de Secours)."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "L'engagement s'adapte à votre rythme : que vous puissiez quelques heures par semaine ou davantage / des gardes ou astreintes, selon vos disponibilités / des interventions lorsque vous êtes appelé·e / des formations régulières en équipe",
+                "reasoning": "La mission implique des interventions régulières (gardes, astreintes, formations) sur une durée indéterminée mais avec une fréquence hebdomadaire, ce qui correspond à une mission régulière."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "securite_environnement_action_publique",
+              "taxonomyValueLabel": "Protection des personnes, de la société ou de l'environnement",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "porter secours aux personnes / sécuriser des accidents de la route / protéger les habitants et les biens lors d'événements exceptionnels / participer à la lutte contre les incendies",
+                "reasoning": "Les tâches principales relèvent directement de la protection des personnes et de la société, ainsi que de l'action publique structurée."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "rejoindre une équipe soudée / travailler en équipe / développer des compétences reconnues (secourisme, sécurité, travail en équipe…)",
+                "reasoning": "La mission met en avant le travail en équipe, la solidarité et l'adaptation, compétences clés de cette catégorie."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "secours",
+              "taxonomyValueLabel": "Secours / intervention",
+              "enrichmentConfidence": 0.99,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "porter secours aux personnes / sécuriser des accidents de la route / protéger les habitants et les biens lors d'événements exceptionnels / participer à la lutte contre les incendies",
+                "reasoning": "Les tâches décrites sont explicitement des interventions de secours et de protection d'urgence."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "En tant que sapeur-pompier volontaire, vous accompagnerez les équipes de votre centre de secours / Le SDIS est chargé des missions de secours et d'incendie dans le département.",
+                "reasoning": "La mission s'exerce dans un cadre institutionnel très structuré (SDIS, centre de secours), avec des formations, des astreintes et un fonctionnement hiérarchisé."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "porter secours aux personnes / protéger les habitants et les biens",
+                "reasoning": "Les interventions décrites impliquent une aide directe et immédiate aux personnes et aux biens."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "securite_defense_logistique",
+              "taxonomyValueLabel": "Sécurité, défense et logistique",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "porter secours aux personnes / sécuriser des accidents de la route / participer à la lutte contre les incendies / développer des compétences reconnues (secourisme, sécurité, travail en équipe…)",
+                "reasoning": "La mission relève des domaines de la sécurité, du secours et de la logistique opérationnelle, avec une dimension de formation reconnue."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_16_17_ans",
+              "taxonomyValueLabel": "16-17 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "19f30754-cda0-4a9a-9a01-c43a6828b20f",
+          "title": " Participer à l'égalité des chances dans les collèges prioritaires marseillais ",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "education",
+          "domainOriginal": "Éducation pour tous",
+          "organizationName": "ViensVoirMonTaf",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Marseille",
+            "closestLat": 43.298773,
+            "closestLon": 5.372296,
+            "closestAddress": "36 Rue de la republique, 13001 Marseille, FR",
+            "addressId": "ee954b71-0259-453d-b26d-f842f42a1b04",
+            "distanceKm": 0.32612133528552034
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/19f30754-cda0-4a9a-9a01-c43a6828b20f/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "1ae95da6-0657-4870-8622-66f214f5ce5d",
+          "totalScore": 0.684381,
+          "taxonomyScore": 0.38,
+          "geoScore": 0.988761,
+          "taxonomyScores": {
+            "tranche_age": 0.9,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "animer des ateliers au sein de nos collèges partenaires / Animation d'ateliers / participation à l’ingénieure pédagogique (construction des ateliers, création d'outils pédagogiques) / aider les élèves qui rencontrent certaines difficultés dans leurs démarches administratives pour accéder à leur stage",
+                "reasoning": "La mission est centrée sur la transmission de savoirs, l'accompagnement pédagogique et l'aide à l'orientation des collégiens, ce qui relève clairement de l'éducation et de la transmission."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "lutter pour l’égalité des chances, contre le déterminisme social et le décrochage scolaire / accompagner les collégien·nes de l’éducation prioritaire (établissements REP et REP+) dans la construction de leur orientation",
+                "reasoning": "La mission vise explicitement à réduire les inégalités sociales et scolaires, ce qui relève du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "animer des ateliers au sein de nos collèges partenaires / Animation d'ateliers / participation à l’ingénieure pédagogique / aider les élèves qui rencontrent certaines difficultés dans leurs démarches administratives pour accéder à leur stage",
+                "reasoning": "Les tâches principales relèvent de l'animation éducative, de la formation et de l'accompagnement des jeunes dans leur parcours scolaire."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "gestion_commerce_organisation",
+              "taxonomyValueLabel": "Gestion, commerce et organisation",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Participation à l'organisation d'événements : petit-déjeuner de rencontres avec les tuteurs et tutrices, forums métiers dans nos collèges partenaires",
+                "reasoning": "La mission inclut une dimension d'organisation d'événements, ce qui relève de la gestion et de l'organisation."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Durée : 7 heures — De 24h à 30h / Dates : du 31 août 2026 au 3 mars 2027",
+                "reasoning": "La mission s'étend sur plusieurs mois avec un volume horaire significatif, ce qui correspond à une mission régulière."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "animer des ateliers au sein de nos collèges partenaires / aider les élèves qui rencontrent certaines difficultés dans leurs démarches administratives pour accéder à leur stage",
+                "reasoning": "La mission implique un accompagnement direct des jeunes, ce qui relève du management social et soin."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "interviendras directement dans les collèges en atelier, et mèneras l’animation en binôme avec une collègue de l'association / Participation à l'organisation d'événements",
+                "reasoning": "La mission nécessite un travail en équipe et une organisation collective, ce qui relève des soft skills et de la coopération."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "gestion_pilotage_juridique",
+              "taxonomyValueLabel": "Gestion, pilotage, juridique",
+              "enrichmentConfidence": 0.6,
+              "scoringScore": 0.35,
+              "evidence": {
+                "extract": "aider les élèves qui rencontrent certaines difficultés dans leurs démarches administratives pour accéder à leur stage (comment scanner sa convention de stage par exemple)",
+                "reasoning": "La mission inclut une aide administrative, ce qui peut relever de la gestion et du pilotage de processus."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "animer des ateliers au sein de nos collèges partenaires / participation à l’ingénieure pédagogique (construction des ateliers, création d'outils pédagogiques)",
+                "reasoning": "La mission est clairement axée sur la transmission de savoirs et l'accompagnement pédagogique."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "animer des ateliers au sein de nos collèges partenaires / Animation d'ateliers",
+                "reasoning": "La mission inclut explicitement l'animation d'ateliers collectifs."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "aider les élèves qui rencontrent certaines difficultés dans leurs démarches administratives pour accéder à leur stage",
+                "reasoning": "La mission implique un soutien direct aux élèves dans leurs démarches."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Participation à l'organisation d'événements : petit-déjeuner de rencontres avec les tuteurs et tutrices, forums métiers dans nos collèges partenaires",
+                "reasoning": "La mission inclut une participation à l'organisation d'événements, ce qui relève du support organisationnel."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Type de mission : volontariat_service_civique / Formations obligatoires proposées (PSC1 et Formation Civique et Citoyenne) / tutrice te proposera un temps individuel chaque semaine",
+                "reasoning": "La mission est exercée dans le cadre structuré du service civique, avec des formations obligatoires et un accompagnement tutoral."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "education_culture_creation",
+              "taxonomyValueLabel": "Éducation, culture et création",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "animer des ateliers au sein de nos collèges partenaires / participation à l’ingénieure pédagogique (construction des ateliers, création d'outils pédagogiques)",
+                "reasoning": "La mission relève de l'animation éducative et de la création d'outils pédagogiques, ce qui correspond au domaine éducation, culture et création."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "lutter pour l’égalité des chances, contre le déterminisme social et le décrochage scolaire",
+                "reasoning": "La mission aborde des enjeux sociétaux et politiques liés à l'égalité des chances et à l'éducation prioritaire."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_18_ans",
+              "taxonomyValueLabel": "Moins de 18 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_31_ans_handicap",
+              "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "7b63445b-dfce-4b22-a06f-ccd10e87785a",
+          "title": " Participer à l'égalité des chances dans les collèges prioritaires marseillais ",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "education",
+          "domainOriginal": "Éducation pour tous",
+          "organizationName": "ViensVoirMonTaf",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Marseille",
+            "closestLat": 43.298773,
+            "closestLon": 5.372296,
+            "closestAddress": "36 Rue de la republique, 13001 Marseille, FR",
+            "addressId": "9d5a39e2-40fb-4016-be5d-bac7bc95dd57",
+            "distanceKm": 0.32612133528552034
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/7b63445b-dfce-4b22-a06f-ccd10e87785a/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "99c8a7a2-7195-4d6d-8663-a05c66b52e98",
+          "totalScore": 0.684381,
+          "taxonomyScore": 0.38,
+          "geoScore": 0.988761,
+          "taxonomyScores": {
+            "tranche_age": 0.9,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "animer des ateliers au sein de nos collèges partenaires / aider les collégiens sans réseau de l’éducation prioritaire à trouver des stages de qualité et pertinents pour leur orientation / accompagnons les collégien·nes de l’éducation prioritaire dans la construction de leur orientation et dans leur découverte des métiers / Participation à l’ingénieure pédagogique (construction des ateliers, création d'outils pédagogiques)",
+                "reasoning": "La mission est centrée sur la transmission de savoirs, l'accompagnement à l'orientation et la construction de projets éducatifs, ce qui relève clairement du domaine de l'éducation et de la transmission."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "lutter pour l’égalité des chances, contre le déterminisme social et le décrochage scolaire / accompagnons les collégien·nes de l’éducation prioritaire",
+                "reasoning": "La mission vise explicitement à réduire les inégalités sociales et éducatives, ce qui relève du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "animer des ateliers au sein de nos collèges partenaires / accompagnons les collégien·nes de l’éducation prioritaire dans la construction de leur orientation / Participation à l’ingénieure pédagogique",
+                "reasoning": "Les tâches principales relèvent de l'éducation, de la formation et de l'animation éducative."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "gestion_commerce_organisation",
+              "taxonomyValueLabel": "Gestion, commerce et organisation",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Participation à l’organisation d'événements : petit-déjeuner de rencontres avec les tuteurs et tutrices, forums métiers / Participation à l’ingénieure pédagogique (construction des ateliers, création d'outils pédagogiques)",
+                "reasoning": "La mission inclut des tâches d'organisation et de coordination d'événements et d'outils pédagogiques, relevant de la gestion et de l'organisation."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.99,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Durée : 7 heures — De 24h à 30h / Dates : du 31 août 2026 au 3 mars 2027",
+                "reasoning": "La mission s'étend sur plusieurs mois avec un volume horaire significatif, ce qui correspond à une mission régulière."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "animer des ateliers au sein de nos collèges partenaires / aider les collégiens sans réseau de l’éducation prioritaire à trouver des stages de qualité / accompagnons les collégien·nes de l’éducation prioritaire dans la construction de leur orientation",
+                "reasoning": "La mission implique un accompagnement direct des jeunes, une transmission de savoirs et une aide à l'orientation, relevant du management social et soin."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "interviendras directement dans les collèges en atelier, et mèneras l’animation en binôme avec une collègue de l'association / Participation à l’organisation d'événements",
+                "reasoning": "La mission implique un travail en équipe et une organisation d'événements, relevant des soft skills et de la coopération."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "gestion_pilotage_juridique",
+              "taxonomyValueLabel": "Gestion, pilotage, juridique",
+              "enrichmentConfidence": 0.6,
+              "scoringScore": 0.35,
+              "evidence": {
+                "extract": "Aider les élèves qui rencontrent certaines difficultés dans leurs démarches administratives pour accéder à leur stage (comment scanner sa convention de stage par exemple)",
+                "reasoning": "La mission inclut une aide administrative, ce qui peut relever de la gestion et du pilotage, bien que ce ne soit pas le cœur de l'activité."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "animer des ateliers au sein de nos collèges partenaires / accompagnons les collégien·nes de l’éducation prioritaire dans la construction de leur orientation / Participation à l’ingénieure pédagogique",
+                "reasoning": "La mission est centrée sur la transmission de savoirs, l'accompagnement à l'orientation et la construction de projets éducatifs."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Animation d'ateliers, participations aux permanences candidatures dans nos collèges partenaires / Participation à l’organisation d'événements",
+                "reasoning": "La mission inclut explicitement l'animation d'ateliers et l'organisation d'événements."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Participation à l’ingénieure pédagogique (construction des ateliers, création d'outils pédagogiques) / Participation à l’organisation d'événements",
+                "reasoning": "La mission inclut des tâches de soutien organisationnel et de création d'outils pédagogiques."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Aider les élèves qui rencontrent certaines difficultés dans leurs démarches administratives pour accéder à leur stage",
+                "reasoning": "La mission implique une aide directe aux élèves, bien que ce ne soit pas l'activité principale."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "education_culture_creation",
+              "taxonomyValueLabel": "Éducation, culture et création",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "animer des ateliers au sein de nos collèges partenaires / accompagnons les collégien·nes de l’éducation prioritaire dans la construction de leur orientation / Participation à l’ingénieure pédagogique",
+                "reasoning": "La mission relève de l'éducation, de la transmission et de la création d'outils pédagogiques, relevant du domaine de l'éducation et de la culture."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.65,
+              "scoringScore": 0.35,
+              "evidence": {
+                "extract": "lutter pour l’égalité des chances, contre le déterminisme social et le décrochage scolaire",
+                "reasoning": "La mission aborde des enjeux de société et de politique éducative, relevant de ce domaine de formation."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Type de mission : volontariat_service_civique / Formations obligatoires proposées (PSC1 et Formation Civique et Citoyenne)",
+                "reasoning": "La mission est réalisée dans le cadre structuré du service civique, avec des formations obligatoires et un tutorat régulier, ce qui relève d'un engagement en cadre structuré."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_18_ans",
+              "taxonomyValueLabel": "Moins de 18 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_31_ans_handicap",
+              "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "0830a4c5-1e8d-4ff3-980b-529963f511fb",
+          "title": "Appui à la mission ESEN (Education et Sensibilisation à l'Environnement et à la Nature)",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "environnement",
+          "domainOriginal": "Environnement",
+          "organizationName": "FNE PACA",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_02.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_02.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Marseille 07",
+            "closestLat": 43.293043,
+            "closestLon": 5.370824,
+            "closestAddress": "14 Quai Rive Neuve, 13007 Marseille 07, FR",
+            "addressId": "60ee1c28-cccc-4f33-9511-e80abcfbbacd",
+            "distanceKm": 0.39162260454867026
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/0830a4c5-1e8d-4ff3-980b-529963f511fb/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "788101c7-d60a-41be-ba42-e43fa5657abc",
+          "totalScore": 0.68326,
+          "taxonomyScore": 0.38,
+          "geoScore": 0.986519,
+          "taxonomyScores": {
+            "tranche_age": 0.9,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "environnement_nature",
+              "taxonomyValueLabel": "Environnement et nature",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Appui à la création d’outils pédagogiques sur l’eau / Aide à la création d’une exposition sur le bassin versant de la Durance et d’une exposition sur les fleuves côtiers / Compréhension et mise en avant des enjeux des territoires concernés / Participation aux recherches bibliographiques et aux temps de réflexion – co-construction / Visites de site, interventions en établissement scolaire, grand public / Imaginer de nouveaux outils pédagogiques sur diverses thématiques environnementales / Analyser et caractériser la prise en compte du changement climatique dans les documents de planification littoraux / Participation à la création d’un outil de synthèse et de diffusion",
+                "reasoning": "Les tâches principales consistent en la création d'outils pédagogiques, la sensibilisation, l'animation et la médiation sur des thématiques environnementales, ce qui correspond clairement au domaine environnement et nature."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Appui à la création d’outils pédagogiques sur l’eau / Aide à la création d’une exposition sur le bassin versant de la Durance et d’une exposition sur les fleuves côtiers / Visites de site, interventions en établissement scolaire, grand public / Imaginer de nouveaux outils pédagogiques sur diverses thématiques environnementales",
+                "reasoning": "Les activités décrites relèvent principalement de la transmission de savoirs, de la pédagogie et de l'animation, ce qui correspond au secteur éducation_formation_animation."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.99,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Durée : 8 heures — De 24h à 30h / Dates : du 3 août 2026 au 3 avril 2027",
+                "reasoning": "La mission s'étend sur plusieurs mois avec un volume horaire significatif (24h à 30h), ce qui correspond à une mission régulière."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "communication_creation_numerique",
+              "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Appui à la création d’outils pédagogiques sur l’eau / Aide à la création d’une exposition sur le bassin versant de la Durance et d’une exposition sur les fleuves côtiers / Participation aux recherches bibliographiques et aux temps de réflexion – co-construction / Visites de site, interventions en établissement scolaire, grand public / Imaginer de nouveaux outils pédagogiques sur diverses thématiques environnementales / Analyser et caractériser la prise en compte du changement climatique dans les documents de planification littoraux / Participation à la création d’un outil de synthèse et de diffusion",
+                "reasoning": "Les tâches décrites impliquent la création de contenus pédagogiques, la recherche, la synthèse et la diffusion d'informations, ce qui relève de la communication, de la création et des nouvelles technologies."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Permettre de sensibiliser chaque citoyen·ne aux différents enjeux environnementaux et donner des clés de compréhension et des leviers d'actions pour un #MondeVivable ! / Visites de site, interventions en établissement scolaire, grand public / Imaginer de nouveaux outils pédagogiques sur diverses thématiques environnementales",
+                "reasoning": "La mission vise explicitement la sensibilisation, la pédagogie et l'animation auprès de différents publics, ce qui correspond à l'intention d'engagement transmission et animation."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Permettre de sensibiliser chaque citoyen·ne aux différents enjeux environnementaux et donner des clés de compréhension et des leviers d'actions pour un #MondeVivable ! / Visites de site, interventions en établissement scolaire, grand public",
+                "reasoning": "La mission inclut des actions de sensibilisation directe auprès de publics variés, ce qui correspond à l'intention d'engagement aide_directe."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Appui à la création d’outils pédagogiques sur l’eau / Aide à la création d’une exposition sur le bassin versant de la Durance et d’une exposition sur les fleuves côtiers / Participation aux recherches bibliographiques et aux temps de réflexion – co-construction / Imaginer de nouveaux outils pédagogiques sur diverses thématiques environnementales",
+                "reasoning": "La mission implique la co-construction d'outils pédagogiques et la participation à des réflexions collectives, ce qui relève de la coopération et de l'organisation."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "volontariat_service_civique / Formations obligatoires proposées / Tutorat et accompagnement / Le tutorat est réalisé avec la chargée de mission animation et la chargée de réseau Eau/Mer/Biodiversité",
+                "reasoning": "La mission est exercée dans le cadre structuré du service civique, avec un tutorat et des formations obligatoires, ce qui correspond à un engagement en cadre structuré."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "environnement_nature_sciences",
+              "taxonomyValueLabel": "Environnement, nature et sciences",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Appui à la création d’outils pédagogiques sur l’eau / Aide à la création d’une exposition sur le bassin versant de la Durance et d’une exposition sur les fleuves côtiers / Visites de site, interventions en établissement scolaire, grand public / Imaginer de nouveaux outils pédagogiques sur diverses thématiques environnementales / Analyser et caractériser la prise en compte du changement climatique dans les documents de planification littoraux",
+                "reasoning": "Les tâches principales relèvent de l'environnement, de la nature et des sciences, ce qui correspond au domaine de formation environnement_nature_sciences."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_18_ans",
+              "taxonomyValueLabel": "Moins de 18 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_31_ans_handicap",
+              "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "7c62a8af-0fe1-4356-8e47-65610e4e71e5",
+          "title": "Animer un tiers-lieu dédié à la création de lien social (MARSEILLE)",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "solidarite-insertion",
+          "domainOriginal": "Solidarité",
+          "organizationName": "KAWAA",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": null,
+            "closestLat": 43.298773,
+            "closestLon": 5.372296,
+            "closestAddress": "36 RUE DE LA REPUBLIQUE 13001 Marseille, FR",
+            "addressId": "9f4bbe37-d329-47de-a349-d31590755f94",
+            "distanceKm": 0.32612133528552034
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/7c62a8af-0fe1-4356-8e47-65610e4e71e5/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "36412806-201e-44ce-a11c-6e95de77e315",
+          "totalScore": 0.681381,
+          "taxonomyScore": 0.374,
+          "geoScore": 0.988761,
+          "taxonomyScores": {
+            "tranche_age": 0.9,
+            "type_mission": 0.97
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "créer du lien avec les voisins et les résidents / animer et faciliter la création d’événements / mobiliser les personnes plus vulnérables / accueillir et favoriser les échanges entre voisins et résidents / inviter les habitants à participer aux activités",
+                "reasoning": "La mission est centrée sur la création de lien social, l'inclusion et l'animation d'un lieu dédié à la rencontre, ce qui relève clairement du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "créer du lien avec les voisins et les résidents / mobiliser les personnes plus vulnérables / tous_publics young adults seniors handicap marginalisees_fragilisees refugiees",
+                "reasoning": "Le public cible inclut des personnes fragilisées ou marginalisées, ce qui place la mission dans le secteur de l'aide à la personne et du social."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Durée : 8 heures — De 24h à 30h / Dates : du 27 avril 2026 au 27 décembre 2026",
+                "reasoning": "La mission s'étend sur plusieurs mois avec un volume horaire significatif (24h à 30h), ce qui correspond à une mission régulière."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "accueillir et favoriser les échanges entre voisins et résidents / créer du lien de manière conviviale",
+                "reasoning": "La mission implique une interaction directe avec des publics variés, incluant des personnes vulnérables, ce qui relève du management social et soin."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "imaginer et animer des moments conviviaux (ateliers, apéros, événements…) / Laisse libre cours à ton imagination pour inventer des animations et des prétextes à la rencontre",
+                "reasoning": "La mission nécessite de l'organisation, de la créativité et des compétences relationnelles pour animer des événements et favoriser la coopération."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "animer et faciliter la création d’événements / imaginer et animer des moments conviviaux (ateliers, apéros, événements…) / inviter les habitants à participer aux activités",
+                "reasoning": "La mission est explicitement centrée sur l'animation d'actions collectives et d'événements pour créer du lien social."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "aide_directe",
+              "taxonomyValueLabel": "Aide directe aux personnes",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "mobiliser les personnes plus vulnérables / tous_publics young adults seniors handicap marginalisees_fragilisees refugiees",
+                "reasoning": "Bien que l'objectif principal soit l'animation, la mission inclut une dimension d'aide directe aux publics fragilisés, ce qui justifie cette classification."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "créer du lien avec les voisins et les résidents / faciliter la création d’événements",
+                "reasoning": "La mission implique un soutien organisationnel pour structurer les activités et favoriser les rencontres."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Tu découvriras le fonctionnement d’un tiers-lieu parisien / mission de service civique",
+                "reasoning": "La mission s'inscrit dans un cadre structuré (service civique) et implique une immersion dans un lieu organisé, ce qui justifie cette classification."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "créer du lien avec les voisins et les résidents / mobiliser les personnes plus vulnérables / tous_publics young adults seniors handicap marginalisees_fragilisees refugiees",
+                "reasoning": "La mission touche à des enjeux de société, d'inclusion et de lien social, ce qui la rattache au domaine société, droit et politique."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "social_sante_sport",
+              "taxonomyValueLabel": "Social, santé et sport",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "créer du lien avec les voisins et les résidents / mobiliser les personnes plus vulnérables / tous_publics young adults seniors handicap marginalisees_fragilisees refugiees",
+                "reasoning": "La mission inclut une dimension sociale et d'aide à la personne, ce qui la rattache au domaine social, santé et sport."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_18_ans",
+              "taxonomyValueLabel": "Moins de 18 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "moins_31_ans_handicap",
+              "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      }
+    ],
+    "total": 2862,
+    "avgDistanceKmTop5": 0.44
+  },
+  "missions": [
+    {
+      "mission": {
+        "id": "0eb706b9-4e56-43dd-9971-8d9aac4165c1",
+        "title": "Je deviens sapeur-pompier volontaire près de chez moi",
+        "remote": "no",
+        "schedule": "Flexible (quelques heures par semaine selon disponibilités)",
+        "domain": "prevention-protection",
+        "domainOriginal": null,
+        "organizationName": "SDIS des Bouches du Rhône",
+        "publisherId": "68594dccc9c116c1b5502d08",
+        "publisherName": "SDIS 13",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/68594dccc9c116c1b5502d08/SDIS_13.webp",
+          "domainLogo": null,
+          "organizationLogo": null,
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/68594dccc9c116c1b5502d08/SDIS_13.webp"
+        },
+        "location": {
+          "city": "Marseille",
+          "closestLat": 43.297477,
+          "closestLon": 5.379911,
+          "closestAddress": "39 Rue vincent scotto, 13001 Marseille",
+          "addressId": "441db439-7b71-420a-970a-797787bf43ff",
+          "distanceKm": 0.8273195887457664
+        },
+        "compensation": {
+          "amount": 0,
+          "amountMax": 13,
+          "unit": "hour",
+          "type": "gross"
+        },
+        "applicationUrl": "http://localhost:4000/r/0eb706b9-4e56-43dd-9971-8d9aac4165c1/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "bbedfbab-5342-411b-9a32-a745955e88ae",
+        "totalScore": 0.772867,
+        "taxonomyScore": 0.574,
+        "geoScore": 0.971734,
+        "taxonomyScores": {
+          "formation_onisep": 1,
+          "tranche_age": 0.9,
+          "type_mission": 0.97
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "securite_defense",
+            "taxonomyValueLabel": "Sécurité et défense",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "porter secours aux personnes / sécuriser des accidents de la route / protéger les habitants et les biens lors d'événements exceptionnels / participer à la lutte contre les incendies",
+              "reasoning": "Les tâches décrites sont explicitement centrées sur la sécurité, le secours et la protection civile, domaine de la sécurité et défense."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "securite_service_public",
+            "taxonomyValueLabel": "Sécurité et service public",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "En donnant quelques heures par semaine, vous rejoignez une équipe soudée au cœur de votre territoire et vous agissez concrètement pour protéger et aider la population / Le SDIS est chargé des missions de secours et d'incendie dans le département.",
+              "reasoning": "La mission relève du service public de sécurité civile, exercé par un SDIS (Service Départemental d'Incendie et de Secours)."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "L'engagement s'adapte à votre rythme : que vous puissiez quelques heures par semaine ou davantage / des gardes ou astreintes, selon vos disponibilités / des interventions lorsque vous êtes appelé·e / des formations régulières en équipe",
+              "reasoning": "La mission implique des interventions régulières (gardes, astreintes, formations) sur une durée indéterminée mais avec une fréquence hebdomadaire, ce qui correspond à une mission régulière."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "securite_environnement_action_publique",
+            "taxonomyValueLabel": "Protection des personnes, de la société ou de l'environnement",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "porter secours aux personnes / sécuriser des accidents de la route / protéger les habitants et les biens lors d'événements exceptionnels / participer à la lutte contre les incendies",
+              "reasoning": "Les tâches principales relèvent directement de la protection des personnes et de la société, ainsi que de l'action publique structurée."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "rejoindre une équipe soudée / travailler en équipe / développer des compétences reconnues (secourisme, sécurité, travail en équipe…)",
+              "reasoning": "La mission met en avant le travail en équipe, la solidarité et l'adaptation, compétences clés de cette catégorie."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "secours",
+            "taxonomyValueLabel": "Secours / intervention",
+            "enrichmentConfidence": 0.99,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "porter secours aux personnes / sécuriser des accidents de la route / protéger les habitants et les biens lors d'événements exceptionnels / participer à la lutte contre les incendies",
+              "reasoning": "Les tâches décrites sont explicitement des interventions de secours et de protection d'urgence."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "En tant que sapeur-pompier volontaire, vous accompagnerez les équipes de votre centre de secours / Le SDIS est chargé des missions de secours et d'incendie dans le département.",
+              "reasoning": "La mission s'exerce dans un cadre institutionnel très structuré (SDIS, centre de secours), avec des formations, des astreintes et un fonctionnement hiérarchisé."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "porter secours aux personnes / protéger les habitants et les biens",
+              "reasoning": "Les interventions décrites impliquent une aide directe et immédiate aux personnes et aux biens."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "securite_defense_logistique",
+            "taxonomyValueLabel": "Sécurité, défense et logistique",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "porter secours aux personnes / sécuriser des accidents de la route / participer à la lutte contre les incendies / développer des compétences reconnues (secourisme, sécurité, travail en équipe…)",
+              "reasoning": "La mission relève des domaines de la sécurité, du secours et de la logistique opérationnelle, avec une dimension de formation reconnue."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_16_17_ans",
+            "taxonomyValueLabel": "16-17 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "0eb706b9-4e56-43dd-9971-8d9aac4165c1",
+        "title": "Je deviens sapeur-pompier volontaire près de chez moi",
+        "domain": "prevention-protection",
+        "domainLogo": null,
+        "type": "volontariat_sapeurs_pompiers",
+        "publisherId": "68594dccc9c116c1b5502d08",
+        "publisherName": "SDIS 13",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/68594dccc9c116c1b5502d08/SDIS_13.webp",
+        "organizationName": "SDIS des Bouches du Rhône",
+        "organizationLogo": null,
+        "location": {
+          "city": "Marseille",
+          "address": "39 Rue vincent scotto, 13001 Marseille",
+          "lat": 43.297477,
+          "lon": 5.379911
+        },
+        "startAt": null,
+        "endAt": null,
+        "duration": null,
+        "schedule": "Flexible (quelques heures par semaine selon disponibilités)",
+        "compensation": {
+          "amount": 0,
+          "amountMax": 13,
+          "unit": "hour",
+          "type": "gross"
+        },
+        "descriptionHtml": "<h2>🔥 Et si vous deveniez sapeur-pompier volontaire près de chez vous ?</h2>\n<p>En donnant quelques heures par semaine, vous rejoignez une équipe soudée au cœur de votre territoire et vous agissez concrètement pour protéger et aider la population.</p>\n<p>Quel que soit votre profil – femme ou homme, étudiant·e, salarié·e, ou déjà engagé·e ailleurs – le volontariat s'adapte à vos disponibilités et à vos envies.</p>\n\n<h3>Ce que vous ferez</h3>\n<p>En tant que sapeur-pompier volontaire, vous accompagnerez les équipes de votre centre de secours pour des missions variées de secours et de protection :</p>\n<ul>\n<li>🚑 porter secours aux personnes</li>\n<li>🚗 sécuriser des accidents de la route</li>\n<li>🌪 protéger les habitants et les biens lors d'événements exceptionnels</li>\n<li>🔥 participer à la lutte contre les incendies</li>\n</ul>\n<p>👉 Vous serez formé et épaulé à chaque étape : la formation est adaptée à chacun, progressive, et vous permettra d'acquérir des compétences utiles toute la vie.</p>\n\n<h3>Pourquoi s'engager ?</h3>\n<ul>\n<li>👩‍🚒 agir concrètement pour les autres</li>\n<li>🤝 rejoindre une équipe soudée et solidaire</li>\n<li>🎓 développer des compétences reconnues (secourisme, sécurité, travail en équipe…)</li>\n<li>🏡 s'engager près de chez soi</li>\n<li>💼 compatible avec une activité professionnelle ou des études</li>\n<li>💰 indemnité : 0 à 13 € / heure selon les missions et le grade</li>\n</ul>\n\n<h3>Combien de temps faut-il donner ?</h3>\n<p>L'engagement s'adapte à votre rythme : que vous puissiez quelques heures par semaine ou davantage. Vous participerez à :</p>\n<ul>\n<li>des gardes ou astreintes, selon vos disponibilités</li>\n<li>des interventions lorsque vous êtes appelé·e</li>\n<li>des formations régulières en équipe</li>\n</ul>\n<p>Chaque centre de secours organise ses plannings pour permettre à chacun de concilier engagement et vie personnelle.</p>\n\n<h3>Qui peut devenir sapeur-pompier volontaire ?</h3>\n<p>Tout le monde peut s'engager, il suffit d'avoir la motivation d'aider et d'apprendre.</p>\n<ul>\n<li>✔ Dès 16 ans</li>\n<li>✔ Être apte médicalement</li>\n<li>✔ Habiter ou travailler à proximité d'un centre de secours</li>\n<li>✔ Suivre une formation initiale accompagnée</li>\n</ul>\n<p>Pas besoin d'être un grand sportif ou d'avoir déjà de l'expérience : vous serez préparé et formé pas à pas.</p>\n\n<h3>Comment candidater ?</h3>\n<p>Cliquez sur <strong>Je m'engage</strong> pour accéder au formulaire officiel. Vous serez ensuite contacté·e pour :</p>\n<ul>\n<li>un entretien pour échanger sur votre motivation</li>\n<li>des tests simples d'aptitude physique et médicale</li>\n<li>la formation initiale, pour débuter en toute confiance</li>\n</ul>",
+        "description": "🔥 ET SI VOUS DEVENIEZ SAPEUR-POMPIER VOLONTAIRE PRÈS DE CHEZ VOUS ?\n\n\nEn donnant quelques heures par semaine, vous rejoignez une équipe soudée au cœur\nde votre territoire et vous agissez concrètement pour protéger et aider la\npopulation.\n\n\nQuel que soit votre profil – femme ou homme, étudiant·e, salarié·e, ou déjà\nengagé·e ailleurs – le volontariat s'adapte à vos disponibilités et à vos\nenvies.\n\n\n\n\nCE QUE VOUS FEREZ\n\n\nEn tant que sapeur-pompier volontaire, vous accompagnerez les équipes de votre\ncentre de secours pour des missions variées de secours et de protection :\n\n\n • 🚑 porter secours aux personnes\n • 🚗 sécuriser des accidents de la route\n • 🌪 protéger les habitants et les biens lors d'événements exceptionnels\n • 🔥 participer à la lutte contre les incendies\n\n\n👉 Vous serez formé et épaulé à chaque étape : la formation est adaptée à\nchacun, progressive, et vous permettra d'acquérir des compétences utiles toute\nla vie.\n\n\n\n\nPOURQUOI S'ENGAGER ?\n\n\n • 👩‍🚒 agir concrètement pour les autres\n • 🤝 rejoindre une équipe soudée et solidaire\n • 🎓 développer des compétences reconnues (secourisme, sécurité, travail en\n   équipe…)\n • 🏡 s'engager près de chez soi\n • 💼 compatible avec une activité professionnelle ou des études\n • 💰 indemnité : 0 à 13 € / heure selon les missions et le grade\n\n\n\n\nCOMBIEN DE TEMPS FAUT-IL DONNER ?\n\n\nL'engagement s'adapte à votre rythme : que vous puissiez quelques heures par\nsemaine ou davantage. Vous participerez à :\n\n\n • des gardes ou astreintes, selon vos disponibilités\n • des interventions lorsque vous êtes appelé·e\n • des formations régulières en équipe\n\n\nChaque centre de secours organise ses plannings pour permettre à chacun de\nconcilier engagement et vie personnelle.\n\n\n\n\nQUI PEUT DEVENIR SAPEUR-POMPIER VOLONTAIRE ?\n\n\nTout le monde peut s'engager, il suffit d'avoir la motivation d'aider et\nd'apprendre.\n\n\n • ✔ Dès 16 ans\n • ✔ Être apte médicalement\n • ✔ Habiter ou travailler à proximité d'un centre de secours\n • ✔ Suivre une formation initiale accompagnée\n\n\nPas besoin d'être un grand sportif ou d'avoir déjà de l'expérience : vous serez\npréparé et formé pas à pas.\n\n\n\n\nCOMMENT CANDIDATER ?\n\n\nCliquez sur Je m'engage pour accéder au formulaire officiel. Vous serez ensuite\ncontacté·e pour :\n\n\n • un entretien pour échanger sur votre motivation\n • des tests simples d'aptitude physique et médicale\n • la formation initiale, pour débuter en toute confiance",
+        "applicationUrl": "http://localhost:4000/r/0eb706b9-4e56-43dd-9971-8d9aac4165c1/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/68594dccc9c116c1b5502d08/SDIS_13.webp",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "19f30754-cda0-4a9a-9a01-c43a6828b20f",
+        "title": " Participer à l'égalité des chances dans les collèges prioritaires marseillais ",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "education",
+        "domainOriginal": "Éducation pour tous",
+        "organizationName": "ViensVoirMonTaf",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Marseille",
+          "closestLat": 43.298773,
+          "closestLon": 5.372296,
+          "closestAddress": "36 Rue de la republique, 13001 Marseille, FR",
+          "addressId": "ee954b71-0259-453d-b26d-f842f42a1b04",
+          "distanceKm": 0.32612133528552034
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/19f30754-cda0-4a9a-9a01-c43a6828b20f/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "1ae95da6-0657-4870-8622-66f214f5ce5d",
+        "totalScore": 0.684381,
+        "taxonomyScore": 0.38,
+        "geoScore": 0.988761,
+        "taxonomyScores": {
+          "tranche_age": 0.9,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "animer des ateliers au sein de nos collèges partenaires / Animation d'ateliers / participation à l’ingénieure pédagogique (construction des ateliers, création d'outils pédagogiques) / aider les élèves qui rencontrent certaines difficultés dans leurs démarches administratives pour accéder à leur stage",
+              "reasoning": "La mission est centrée sur la transmission de savoirs, l'accompagnement pédagogique et l'aide à l'orientation des collégiens, ce qui relève clairement de l'éducation et de la transmission."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "lutter pour l’égalité des chances, contre le déterminisme social et le décrochage scolaire / accompagner les collégien·nes de l’éducation prioritaire (établissements REP et REP+) dans la construction de leur orientation",
+              "reasoning": "La mission vise explicitement à réduire les inégalités sociales et scolaires, ce qui relève du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "animer des ateliers au sein de nos collèges partenaires / Animation d'ateliers / participation à l’ingénieure pédagogique / aider les élèves qui rencontrent certaines difficultés dans leurs démarches administratives pour accéder à leur stage",
+              "reasoning": "Les tâches principales relèvent de l'animation éducative, de la formation et de l'accompagnement des jeunes dans leur parcours scolaire."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "gestion_commerce_organisation",
+            "taxonomyValueLabel": "Gestion, commerce et organisation",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Participation à l'organisation d'événements : petit-déjeuner de rencontres avec les tuteurs et tutrices, forums métiers dans nos collèges partenaires",
+              "reasoning": "La mission inclut une dimension d'organisation d'événements, ce qui relève de la gestion et de l'organisation."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Durée : 7 heures — De 24h à 30h / Dates : du 31 août 2026 au 3 mars 2027",
+              "reasoning": "La mission s'étend sur plusieurs mois avec un volume horaire significatif, ce qui correspond à une mission régulière."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "animer des ateliers au sein de nos collèges partenaires / aider les élèves qui rencontrent certaines difficultés dans leurs démarches administratives pour accéder à leur stage",
+              "reasoning": "La mission implique un accompagnement direct des jeunes, ce qui relève du management social et soin."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "interviendras directement dans les collèges en atelier, et mèneras l’animation en binôme avec une collègue de l'association / Participation à l'organisation d'événements",
+              "reasoning": "La mission nécessite un travail en équipe et une organisation collective, ce qui relève des soft skills et de la coopération."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "gestion_pilotage_juridique",
+            "taxonomyValueLabel": "Gestion, pilotage, juridique",
+            "enrichmentConfidence": 0.6,
+            "scoringScore": 0.35,
+            "evidence": {
+              "extract": "aider les élèves qui rencontrent certaines difficultés dans leurs démarches administratives pour accéder à leur stage (comment scanner sa convention de stage par exemple)",
+              "reasoning": "La mission inclut une aide administrative, ce qui peut relever de la gestion et du pilotage de processus."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "animer des ateliers au sein de nos collèges partenaires / participation à l’ingénieure pédagogique (construction des ateliers, création d'outils pédagogiques)",
+              "reasoning": "La mission est clairement axée sur la transmission de savoirs et l'accompagnement pédagogique."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "animer des ateliers au sein de nos collèges partenaires / Animation d'ateliers",
+              "reasoning": "La mission inclut explicitement l'animation d'ateliers collectifs."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "aider les élèves qui rencontrent certaines difficultés dans leurs démarches administratives pour accéder à leur stage",
+              "reasoning": "La mission implique un soutien direct aux élèves dans leurs démarches."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Participation à l'organisation d'événements : petit-déjeuner de rencontres avec les tuteurs et tutrices, forums métiers dans nos collèges partenaires",
+              "reasoning": "La mission inclut une participation à l'organisation d'événements, ce qui relève du support organisationnel."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Type de mission : volontariat_service_civique / Formations obligatoires proposées (PSC1 et Formation Civique et Citoyenne) / tutrice te proposera un temps individuel chaque semaine",
+              "reasoning": "La mission est exercée dans le cadre structuré du service civique, avec des formations obligatoires et un accompagnement tutoral."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "education_culture_creation",
+            "taxonomyValueLabel": "Éducation, culture et création",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "animer des ateliers au sein de nos collèges partenaires / participation à l’ingénieure pédagogique (construction des ateliers, création d'outils pédagogiques)",
+              "reasoning": "La mission relève de l'animation éducative et de la création d'outils pédagogiques, ce qui correspond au domaine éducation, culture et création."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "lutter pour l’égalité des chances, contre le déterminisme social et le décrochage scolaire",
+              "reasoning": "La mission aborde des enjeux sociétaux et politiques liés à l'égalité des chances et à l'éducation prioritaire."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_18_ans",
+            "taxonomyValueLabel": "Moins de 18 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_31_ans_handicap",
+            "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "19f30754-cda0-4a9a-9a01-c43a6828b20f",
+        "title": " Participer à l'égalité des chances dans les collèges prioritaires marseillais ",
+        "domain": "education",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "ViensVoirMonTaf",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Marseille",
+          "address": "36 Rue de la republique, 13001 Marseille",
+          "lat": 43.298773,
+          "lon": 5.372296
+        },
+        "startAt": "2026-08-31T00:00:00.000Z",
+        "endAt": "2027-03-03T01:00:00.000Z",
+        "duration": 7,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Le/La volontaire intervient aux côtés des salariés de l’association pour animer des ateliers au sein de nos collèges partenaires (REP+REP+). Ces ateliers ont lieu avant et après le stage de 3e afin de permettre aux jeunes de décrocher un super stage de 3e avec les codes du monde professionnel ! </p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p>Objectifs</p><ul><li>Tu interviendras directement dans les collèges en atelier, et mèneras l’animation en binôme avec une collègue de l'association </li><li>Grâce à notre site internet, tu aideras les collégiens sans réseau de l’éducation prioritaire à trouver des stages de qualité et pertinents pour leur orientation !&nbsp;</li></ul><p><br></p></p><br>\n<b>Actions</b><br><p><p>ViensVoirMonTaf est une association qui lutte pour l’égalité des chances, contre le déterminisme social et le décrochage scolaire. Nous accompagnons les collégien·nes de l’éducation prioritaire (établissements REP et REP+) dans la construction de leur orientation et dans leur découverte des métiers. Nous réalisons des ateliers dans les collèges et les aidons à trouver les stages de qualité.</p><ul><li>Animation d'ateliers, participations aux permanences candidatures dans nos collèges partenaires à Marseille </li><li>Participation à l’ingénieure pédagogique ( construction des ateliers, création d'outils pédagogiques)</li><li>Aider les élèves qui rencontrent certaines difficultés dans leurs démarches administratives pour accéder à leur stage (comment scanner sa convention de stage par exemple) </li><li>Participation à l'organisation d'événements : petit-déjeuner de rencontres avec les tuteurs et tutrices, forums métiers dans nos collèges partenaires</li></ul><p><br></p></p><br>\n<b>VOTRE ENVIRONNEMENT</b><br><b>Formations obligatoires proposées</b><br><p>Au delà des formations obligatoires (PSC1 et Formation Civique et Citoyenne) nous proposons en interne des formations sur des sujets variés !</p><br><b>Tutorat et accompagnement</b><br><p>Ta tutrice te proposera un temps individuel chaque semaine. Condition d'accueil : - 7€ de repas par jour - Ordinateur fourni </p>",
+        "description": "EN QUELQUES MOTS\n\n\nLe/La volontaire intervient aux côtés des salariés de l’association pour animer\ndes ateliers au sein de nos collèges partenaires (REP+REP+). Ces ateliers ont\nlieu avant et après le stage de 3e afin de permettre aux jeunes de décrocher un\nsuper stage de 3e avec les codes du monde professionnel !\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nObjectifs\n\n • Tu interviendras directement dans les collèges en atelier, et mèneras\n   l’animation en binôme avec une collègue de l'association\n • Grâce à notre site internet, tu aideras les collégiens sans réseau de\n   l’éducation prioritaire à trouver des stages de qualité et pertinents pour\n   leur orientation ! \n\n\n\n\n\n\n\n\nActions\n\n\n\n\nViensVoirMonTaf est une association qui lutte pour l’égalité des chances, contre\nle déterminisme social et le décrochage scolaire. Nous accompagnons les\ncollégien·nes de l’éducation prioritaire (établissements REP et REP+) dans la\nconstruction de leur orientation et dans leur découverte des métiers. Nous\nréalisons des ateliers dans les collèges et les aidons à trouver les stages de\nqualité.\n\n • Animation d'ateliers, participations aux permanences candidatures dans nos\n   collèges partenaires à Marseille\n • Participation à l’ingénieure pédagogique ( construction des ateliers,\n   création d'outils pédagogiques)\n • Aider les élèves qui rencontrent certaines difficultés dans leurs démarches\n   administratives pour accéder à leur stage (comment scanner sa convention de\n   stage par exemple)\n • Participation à l'organisation d'événements : petit-déjeuner de rencontres\n   avec les tuteurs et tutrices, forums métiers dans nos collèges partenaires\n\n\n\n\n\n\n\n\nVOTRE ENVIRONNEMENT\nFormations obligatoires proposées\n\n\nAu delà des formations obligatoires (PSC1 et Formation Civique et Citoyenne)\nnous proposons en interne des formations sur des sujets variés !\n\n\nTutorat et accompagnement\n\n\nTa tutrice te proposera un temps individuel chaque semaine. Condition d'accueil\n: - 7€ de repas par jour - Ordinateur fourni",
+        "applicationUrl": "http://localhost:4000/r/19f30754-cda0-4a9a-9a01-c43a6828b20f/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "7b63445b-dfce-4b22-a06f-ccd10e87785a",
+        "title": " Participer à l'égalité des chances dans les collèges prioritaires marseillais ",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "education",
+        "domainOriginal": "Éducation pour tous",
+        "organizationName": "ViensVoirMonTaf",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Marseille",
+          "closestLat": 43.298773,
+          "closestLon": 5.372296,
+          "closestAddress": "36 Rue de la republique, 13001 Marseille, FR",
+          "addressId": "9d5a39e2-40fb-4016-be5d-bac7bc95dd57",
+          "distanceKm": 0.32612133528552034
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/7b63445b-dfce-4b22-a06f-ccd10e87785a/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "99c8a7a2-7195-4d6d-8663-a05c66b52e98",
+        "totalScore": 0.684381,
+        "taxonomyScore": 0.38,
+        "geoScore": 0.988761,
+        "taxonomyScores": {
+          "tranche_age": 0.9,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "animer des ateliers au sein de nos collèges partenaires / aider les collégiens sans réseau de l’éducation prioritaire à trouver des stages de qualité et pertinents pour leur orientation / accompagnons les collégien·nes de l’éducation prioritaire dans la construction de leur orientation et dans leur découverte des métiers / Participation à l’ingénieure pédagogique (construction des ateliers, création d'outils pédagogiques)",
+              "reasoning": "La mission est centrée sur la transmission de savoirs, l'accompagnement à l'orientation et la construction de projets éducatifs, ce qui relève clairement du domaine de l'éducation et de la transmission."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "lutter pour l’égalité des chances, contre le déterminisme social et le décrochage scolaire / accompagnons les collégien·nes de l’éducation prioritaire",
+              "reasoning": "La mission vise explicitement à réduire les inégalités sociales et éducatives, ce qui relève du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "animer des ateliers au sein de nos collèges partenaires / accompagnons les collégien·nes de l’éducation prioritaire dans la construction de leur orientation / Participation à l’ingénieure pédagogique",
+              "reasoning": "Les tâches principales relèvent de l'éducation, de la formation et de l'animation éducative."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "gestion_commerce_organisation",
+            "taxonomyValueLabel": "Gestion, commerce et organisation",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Participation à l’organisation d'événements : petit-déjeuner de rencontres avec les tuteurs et tutrices, forums métiers / Participation à l’ingénieure pédagogique (construction des ateliers, création d'outils pédagogiques)",
+              "reasoning": "La mission inclut des tâches d'organisation et de coordination d'événements et d'outils pédagogiques, relevant de la gestion et de l'organisation."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.99,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Durée : 7 heures — De 24h à 30h / Dates : du 31 août 2026 au 3 mars 2027",
+              "reasoning": "La mission s'étend sur plusieurs mois avec un volume horaire significatif, ce qui correspond à une mission régulière."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "animer des ateliers au sein de nos collèges partenaires / aider les collégiens sans réseau de l’éducation prioritaire à trouver des stages de qualité / accompagnons les collégien·nes de l’éducation prioritaire dans la construction de leur orientation",
+              "reasoning": "La mission implique un accompagnement direct des jeunes, une transmission de savoirs et une aide à l'orientation, relevant du management social et soin."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "interviendras directement dans les collèges en atelier, et mèneras l’animation en binôme avec une collègue de l'association / Participation à l’organisation d'événements",
+              "reasoning": "La mission implique un travail en équipe et une organisation d'événements, relevant des soft skills et de la coopération."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "gestion_pilotage_juridique",
+            "taxonomyValueLabel": "Gestion, pilotage, juridique",
+            "enrichmentConfidence": 0.6,
+            "scoringScore": 0.35,
+            "evidence": {
+              "extract": "Aider les élèves qui rencontrent certaines difficultés dans leurs démarches administratives pour accéder à leur stage (comment scanner sa convention de stage par exemple)",
+              "reasoning": "La mission inclut une aide administrative, ce qui peut relever de la gestion et du pilotage, bien que ce ne soit pas le cœur de l'activité."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "animer des ateliers au sein de nos collèges partenaires / accompagnons les collégien·nes de l’éducation prioritaire dans la construction de leur orientation / Participation à l’ingénieure pédagogique",
+              "reasoning": "La mission est centrée sur la transmission de savoirs, l'accompagnement à l'orientation et la construction de projets éducatifs."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Animation d'ateliers, participations aux permanences candidatures dans nos collèges partenaires / Participation à l’organisation d'événements",
+              "reasoning": "La mission inclut explicitement l'animation d'ateliers et l'organisation d'événements."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Participation à l’ingénieure pédagogique (construction des ateliers, création d'outils pédagogiques) / Participation à l’organisation d'événements",
+              "reasoning": "La mission inclut des tâches de soutien organisationnel et de création d'outils pédagogiques."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Aider les élèves qui rencontrent certaines difficultés dans leurs démarches administratives pour accéder à leur stage",
+              "reasoning": "La mission implique une aide directe aux élèves, bien que ce ne soit pas l'activité principale."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "education_culture_creation",
+            "taxonomyValueLabel": "Éducation, culture et création",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "animer des ateliers au sein de nos collèges partenaires / accompagnons les collégien·nes de l’éducation prioritaire dans la construction de leur orientation / Participation à l’ingénieure pédagogique",
+              "reasoning": "La mission relève de l'éducation, de la transmission et de la création d'outils pédagogiques, relevant du domaine de l'éducation et de la culture."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.65,
+            "scoringScore": 0.35,
+            "evidence": {
+              "extract": "lutter pour l’égalité des chances, contre le déterminisme social et le décrochage scolaire",
+              "reasoning": "La mission aborde des enjeux de société et de politique éducative, relevant de ce domaine de formation."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Type de mission : volontariat_service_civique / Formations obligatoires proposées (PSC1 et Formation Civique et Citoyenne)",
+              "reasoning": "La mission est réalisée dans le cadre structuré du service civique, avec des formations obligatoires et un tutorat régulier, ce qui relève d'un engagement en cadre structuré."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_18_ans",
+            "taxonomyValueLabel": "Moins de 18 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_31_ans_handicap",
+            "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "7b63445b-dfce-4b22-a06f-ccd10e87785a",
+        "title": " Participer à l'égalité des chances dans les collèges prioritaires marseillais ",
+        "domain": "education",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "ViensVoirMonTaf",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Marseille",
+          "address": "36 Rue de la republique, 13001 Marseille",
+          "lat": 43.298773,
+          "lon": 5.372296
+        },
+        "startAt": "2026-08-31T00:00:00.000Z",
+        "endAt": "2027-03-03T01:00:00.000Z",
+        "duration": 7,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Le/La volontaire intervient aux côtés des salariés de l’association pour animer des ateliers au sein de nos collèges partenaires (REP+REP+). Ces ateliers ont lieu avant et après le stage de 3e afin de permettre aux jeunes de décrocher un super stage de 3e avec les codes du monde professionnel ! </p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p>Objectifs</p><ul><li>Tu interviendras directement dans les collèges en atelier, et mèneras l’animation en binôme avec une collègue de l'association </li><li>Grâce à notre site internet, tu aideras les collégiens sans réseau de l’éducation prioritaire à trouver des stages de qualité et pertinents pour leur orientation !&nbsp;</li></ul><p><br></p></p><br>\n<b>Actions</b><br><p><p>ViensVoirMonTaf est une association qui lutte pour l’égalité des chances, contre le déterminisme social et le décrochage scolaire. Nous accompagnons les collégien·nes de l’éducation prioritaire (établissements REP et REP+) dans la construction de leur orientation et dans leur découverte des métiers. Nous réalisons des ateliers dans les collèges et les aidons à trouver les stages de qualité.</p><ul><li>Animation d'ateliers, participations aux permanences candidatures dans nos collèges partenaires à Marseille </li><li>Participation à l’ingénieure pédagogique ( construction des ateliers, création d'outils pédagogiques)</li><li>Aider les élèves qui rencontrent certaines difficultés dans leurs démarches administratives pour accéder à leur stage (comment scanner sa convention de stage par exemple) </li><li>Participation à l'organisation d'événements : petit-déjeuner de rencontres avec les tuteurs et tutrices, forums métiers dans nos collèges partenaires</li></ul><p><br></p></p><br>\n<b>VOTRE ENVIRONNEMENT</b><br><b>Formations obligatoires proposées</b><br><p>Au delà des formations obligatoires (PSC1 et Formation Civique et Citoyenne) nous proposons en interne des formations sur des sujets variés !</p><br><b>Tutorat et accompagnement</b><br><p>Ta tutrice te proposera un temps individuel chaque semaine. Condition d'accueil : - 7€ de repas par jour - Ordinateur fourni </p>",
+        "description": "EN QUELQUES MOTS\n\n\nLe/La volontaire intervient aux côtés des salariés de l’association pour animer\ndes ateliers au sein de nos collèges partenaires (REP+REP+). Ces ateliers ont\nlieu avant et après le stage de 3e afin de permettre aux jeunes de décrocher un\nsuper stage de 3e avec les codes du monde professionnel !\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nObjectifs\n\n • Tu interviendras directement dans les collèges en atelier, et mèneras\n   l’animation en binôme avec une collègue de l'association\n • Grâce à notre site internet, tu aideras les collégiens sans réseau de\n   l’éducation prioritaire à trouver des stages de qualité et pertinents pour\n   leur orientation ! \n\n\n\n\n\n\n\n\nActions\n\n\n\n\nViensVoirMonTaf est une association qui lutte pour l’égalité des chances, contre\nle déterminisme social et le décrochage scolaire. Nous accompagnons les\ncollégien·nes de l’éducation prioritaire (établissements REP et REP+) dans la\nconstruction de leur orientation et dans leur découverte des métiers. Nous\nréalisons des ateliers dans les collèges et les aidons à trouver les stages de\nqualité.\n\n • Animation d'ateliers, participations aux permanences candidatures dans nos\n   collèges partenaires à Marseille\n • Participation à l’ingénieure pédagogique ( construction des ateliers,\n   création d'outils pédagogiques)\n • Aider les élèves qui rencontrent certaines difficultés dans leurs démarches\n   administratives pour accéder à leur stage (comment scanner sa convention de\n   stage par exemple)\n • Participation à l'organisation d'événements : petit-déjeuner de rencontres\n   avec les tuteurs et tutrices, forums métiers dans nos collèges partenaires\n\n\n\n\n\n\n\n\nVOTRE ENVIRONNEMENT\nFormations obligatoires proposées\n\n\nAu delà des formations obligatoires (PSC1 et Formation Civique et Citoyenne)\nnous proposons en interne des formations sur des sujets variés !\n\n\nTutorat et accompagnement\n\n\nTa tutrice te proposera un temps individuel chaque semaine. Condition d'accueil\n: - 7€ de repas par jour - Ordinateur fourni",
+        "applicationUrl": "http://localhost:4000/r/7b63445b-dfce-4b22-a06f-ccd10e87785a/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_01.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "0830a4c5-1e8d-4ff3-980b-529963f511fb",
+        "title": "Appui à la mission ESEN (Education et Sensibilisation à l'Environnement et à la Nature)",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "environnement",
+        "domainOriginal": "Environnement",
+        "organizationName": "FNE PACA",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_02.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_02.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Marseille 07",
+          "closestLat": 43.293043,
+          "closestLon": 5.370824,
+          "closestAddress": "14 Quai Rive Neuve, 13007 Marseille 07, FR",
+          "addressId": "60ee1c28-cccc-4f33-9511-e80abcfbbacd",
+          "distanceKm": 0.39162260454867026
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/0830a4c5-1e8d-4ff3-980b-529963f511fb/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "788101c7-d60a-41be-ba42-e43fa5657abc",
+        "totalScore": 0.68326,
+        "taxonomyScore": 0.38,
+        "geoScore": 0.986519,
+        "taxonomyScores": {
+          "tranche_age": 0.9,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "environnement_nature",
+            "taxonomyValueLabel": "Environnement et nature",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Appui à la création d’outils pédagogiques sur l’eau / Aide à la création d’une exposition sur le bassin versant de la Durance et d’une exposition sur les fleuves côtiers / Compréhension et mise en avant des enjeux des territoires concernés / Participation aux recherches bibliographiques et aux temps de réflexion – co-construction / Visites de site, interventions en établissement scolaire, grand public / Imaginer de nouveaux outils pédagogiques sur diverses thématiques environnementales / Analyser et caractériser la prise en compte du changement climatique dans les documents de planification littoraux / Participation à la création d’un outil de synthèse et de diffusion",
+              "reasoning": "Les tâches principales consistent en la création d'outils pédagogiques, la sensibilisation, l'animation et la médiation sur des thématiques environnementales, ce qui correspond clairement au domaine environnement et nature."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Appui à la création d’outils pédagogiques sur l’eau / Aide à la création d’une exposition sur le bassin versant de la Durance et d’une exposition sur les fleuves côtiers / Visites de site, interventions en établissement scolaire, grand public / Imaginer de nouveaux outils pédagogiques sur diverses thématiques environnementales",
+              "reasoning": "Les activités décrites relèvent principalement de la transmission de savoirs, de la pédagogie et de l'animation, ce qui correspond au secteur éducation_formation_animation."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.99,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Durée : 8 heures — De 24h à 30h / Dates : du 3 août 2026 au 3 avril 2027",
+              "reasoning": "La mission s'étend sur plusieurs mois avec un volume horaire significatif (24h à 30h), ce qui correspond à une mission régulière."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "communication_creation_numerique",
+            "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Appui à la création d’outils pédagogiques sur l’eau / Aide à la création d’une exposition sur le bassin versant de la Durance et d’une exposition sur les fleuves côtiers / Participation aux recherches bibliographiques et aux temps de réflexion – co-construction / Visites de site, interventions en établissement scolaire, grand public / Imaginer de nouveaux outils pédagogiques sur diverses thématiques environnementales / Analyser et caractériser la prise en compte du changement climatique dans les documents de planification littoraux / Participation à la création d’un outil de synthèse et de diffusion",
+              "reasoning": "Les tâches décrites impliquent la création de contenus pédagogiques, la recherche, la synthèse et la diffusion d'informations, ce qui relève de la communication, de la création et des nouvelles technologies."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Permettre de sensibiliser chaque citoyen·ne aux différents enjeux environnementaux et donner des clés de compréhension et des leviers d'actions pour un #MondeVivable ! / Visites de site, interventions en établissement scolaire, grand public / Imaginer de nouveaux outils pédagogiques sur diverses thématiques environnementales",
+              "reasoning": "La mission vise explicitement la sensibilisation, la pédagogie et l'animation auprès de différents publics, ce qui correspond à l'intention d'engagement transmission et animation."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Permettre de sensibiliser chaque citoyen·ne aux différents enjeux environnementaux et donner des clés de compréhension et des leviers d'actions pour un #MondeVivable ! / Visites de site, interventions en établissement scolaire, grand public",
+              "reasoning": "La mission inclut des actions de sensibilisation directe auprès de publics variés, ce qui correspond à l'intention d'engagement aide_directe."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Appui à la création d’outils pédagogiques sur l’eau / Aide à la création d’une exposition sur le bassin versant de la Durance et d’une exposition sur les fleuves côtiers / Participation aux recherches bibliographiques et aux temps de réflexion – co-construction / Imaginer de nouveaux outils pédagogiques sur diverses thématiques environnementales",
+              "reasoning": "La mission implique la co-construction d'outils pédagogiques et la participation à des réflexions collectives, ce qui relève de la coopération et de l'organisation."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "volontariat_service_civique / Formations obligatoires proposées / Tutorat et accompagnement / Le tutorat est réalisé avec la chargée de mission animation et la chargée de réseau Eau/Mer/Biodiversité",
+              "reasoning": "La mission est exercée dans le cadre structuré du service civique, avec un tutorat et des formations obligatoires, ce qui correspond à un engagement en cadre structuré."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "environnement_nature_sciences",
+            "taxonomyValueLabel": "Environnement, nature et sciences",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Appui à la création d’outils pédagogiques sur l’eau / Aide à la création d’une exposition sur le bassin versant de la Durance et d’une exposition sur les fleuves côtiers / Visites de site, interventions en établissement scolaire, grand public / Imaginer de nouveaux outils pédagogiques sur diverses thématiques environnementales / Analyser et caractériser la prise en compte du changement climatique dans les documents de planification littoraux",
+              "reasoning": "Les tâches principales relèvent de l'environnement, de la nature et des sciences, ce qui correspond au domaine de formation environnement_nature_sciences."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_18_ans",
+            "taxonomyValueLabel": "Moins de 18 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_31_ans_handicap",
+            "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "0830a4c5-1e8d-4ff3-980b-529963f511fb",
+        "title": "Appui à la mission ESEN (Education et Sensibilisation à l'Environnement et à la Nature)",
+        "domain": "environnement",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_02.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "FNE PACA",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Marseille 07",
+          "address": "14 Quai Rive Neuve, 13007 Marseille 07",
+          "lat": 43.293043,
+          "lon": 5.370824
+        },
+        "startAt": "2026-08-03T00:00:00.000Z",
+        "endAt": "2027-04-03T00:00:00.000Z",
+        "duration": 8,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Participez à la promotion du réseau ESEN et à la construction d'outils pédagogiques !28h/ semaine et date de prise de poste modulable selon les candidats Retrouvez-nous : https://fnepaca.fr/ et les réseaux sociaux YouTube, Facebook, Instagram, Bluesky, LinkedIn.</p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p>Permettre de sensibiliser chaque citoyen·ne aux différents enjeux environnementaux et donner des clés de compréhension et des leviers d'actions pour un #MondeVivable !</p><p><br></p></p><br>\n<b>Actions</b><br><p><p>À la croisée de la mission ESEN et du réseau Eau, nous vous proposons de contribuer à la création de nos prochains outils d'éducation à l'eau :</p><p><strong>Appui à la création d’outils pédagogiques sur l’eau</strong></p><ul><li class=\"ql-align-justify\">Aide à la création d’une exposition sur le bassin versant de la Durance et d’une exposition sur les fleuves côtiers </li><li class=\"ql-align-justify\">Compréhension et mise en avant des enjeux des territoires concernés</li><li class=\"ql-align-justify\">Participation aux recherches bibliographiques et aux temps de réflexion – co-construction.</li></ul><p><br></p><p><strong>Contribuer aux actions de sensibilisation et concourir à la visibilité de la mission animation </strong></p><ul><li class=\"ql-align-justify\">Visites de site, interventions en établissement scolaire, grand public, …</li><li class=\"ql-align-justify\">Imaginer de nouveaux outils pédagogiques sur diverses thématiques environnementales</li></ul><p><br></p><p>&nbsp;<strong>Analyser et caractériser la prise en compte du changement climatique dans les documents de planification littoraux </strong></p><ul><li>Participation à la création d’un outil de synthèse et de diffusion</li></ul><p><strong>&nbsp;</strong></p></p><br>\n<b>Capacité d’initiative</b><br><p>Toutes propositions sont les bienvenues !</p><br>\n<b>VOTRE ENVIRONNEMENT</b><br><b>Formations obligatoires proposées</b><br><p>Au-delà des formations obligatoires,le réseau FNE propose de nombreuses opportunité de formations sur différentes thématiques environnementales</p><br><b>Tutorat et accompagnement</b><br><p>Le tutorat est réalisé avec la chargée de mission animation et la chargée de réseau Eau/Mer/Biodiversité</p>",
+        "description": "EN QUELQUES MOTS\n\n\nParticipez à la promotion du réseau ESEN et à la construction d'outils\npédagogiques !28h/ semaine et date de prise de poste modulable selon les\ncandidats Retrouvez-nous : https://fnepaca.fr/ et les réseaux sociaux YouTube,\nFacebook, Instagram, Bluesky, LinkedIn.\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nPermettre de sensibiliser chaque citoyen·ne aux différents enjeux\nenvironnementaux et donner des clés de compréhension et des leviers d'actions\npour un #MondeVivable !\n\n\n\n\n\n\n\n\nActions\n\n\n\n\nÀ la croisée de la mission ESEN et du réseau Eau, nous vous proposons de\ncontribuer à la création de nos prochains outils d'éducation à l'eau :\n\nAppui à la création d’outils pédagogiques sur l’eau\n\n • Aide à la création d’une exposition sur le bassin versant de la Durance et\n   d’une exposition sur les fleuves côtiers\n • Compréhension et mise en avant des enjeux des territoires concernés\n • Participation aux recherches bibliographiques et aux temps de réflexion –\n   co-construction.\n\n\n\n\nContribuer aux actions de sensibilisation et concourir à la visibilité de la\nmission animation\n\n • Visites de site, interventions en établissement scolaire, grand public, …\n • Imaginer de nouveaux outils pédagogiques sur diverses thématiques\n   environnementales\n\n\n\n\n Analyser et caractériser la prise en compte du changement climatique dans les\ndocuments de planification littoraux\n\n • Participation à la création d’un outil de synthèse et de diffusion\n\n \n\n\n\n\n\nCapacité d’initiative\n\n\nToutes propositions sont les bienvenues !\n\n\n\nVOTRE ENVIRONNEMENT\nFormations obligatoires proposées\n\n\nAu-delà des formations obligatoires,le réseau FNE propose de nombreuses\nopportunité de formations sur différentes thématiques environnementales\n\n\nTutorat et accompagnement\n\n\nLe tutorat est réalisé avec la chargée de mission animation et la chargée de\nréseau Eau/Mer/Biodiversité",
+        "applicationUrl": "http://localhost:4000/r/0830a4c5-1e8d-4ff3-980b-529963f511fb/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_02.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "7c62a8af-0fe1-4356-8e47-65610e4e71e5",
+        "title": "Animer un tiers-lieu dédié à la création de lien social (MARSEILLE)",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "solidarite-insertion",
+        "domainOriginal": "Solidarité",
+        "organizationName": "KAWAA",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": null,
+          "closestLat": 43.298773,
+          "closestLon": 5.372296,
+          "closestAddress": "36 RUE DE LA REPUBLIQUE 13001 Marseille, FR",
+          "addressId": "9f4bbe37-d329-47de-a349-d31590755f94",
+          "distanceKm": 0.32612133528552034
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/7c62a8af-0fe1-4356-8e47-65610e4e71e5/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "36412806-201e-44ce-a11c-6e95de77e315",
+        "totalScore": 0.681381,
+        "taxonomyScore": 0.374,
+        "geoScore": 0.988761,
+        "taxonomyScores": {
+          "tranche_age": 0.9,
+          "type_mission": 0.97
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "créer du lien avec les voisins et les résidents / animer et faciliter la création d’événements / mobiliser les personnes plus vulnérables / accueillir et favoriser les échanges entre voisins et résidents / inviter les habitants à participer aux activités",
+              "reasoning": "La mission est centrée sur la création de lien social, l'inclusion et l'animation d'un lieu dédié à la rencontre, ce qui relève clairement du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "créer du lien avec les voisins et les résidents / mobiliser les personnes plus vulnérables / tous_publics young adults seniors handicap marginalisees_fragilisees refugiees",
+              "reasoning": "Le public cible inclut des personnes fragilisées ou marginalisées, ce qui place la mission dans le secteur de l'aide à la personne et du social."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Durée : 8 heures — De 24h à 30h / Dates : du 27 avril 2026 au 27 décembre 2026",
+              "reasoning": "La mission s'étend sur plusieurs mois avec un volume horaire significatif (24h à 30h), ce qui correspond à une mission régulière."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "accueillir et favoriser les échanges entre voisins et résidents / créer du lien de manière conviviale",
+              "reasoning": "La mission implique une interaction directe avec des publics variés, incluant des personnes vulnérables, ce qui relève du management social et soin."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "imaginer et animer des moments conviviaux (ateliers, apéros, événements…) / Laisse libre cours à ton imagination pour inventer des animations et des prétextes à la rencontre",
+              "reasoning": "La mission nécessite de l'organisation, de la créativité et des compétences relationnelles pour animer des événements et favoriser la coopération."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "animer et faciliter la création d’événements / imaginer et animer des moments conviviaux (ateliers, apéros, événements…) / inviter les habitants à participer aux activités",
+              "reasoning": "La mission est explicitement centrée sur l'animation d'actions collectives et d'événements pour créer du lien social."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "aide_directe",
+            "taxonomyValueLabel": "Aide directe aux personnes",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "mobiliser les personnes plus vulnérables / tous_publics young adults seniors handicap marginalisees_fragilisees refugiees",
+              "reasoning": "Bien que l'objectif principal soit l'animation, la mission inclut une dimension d'aide directe aux publics fragilisés, ce qui justifie cette classification."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "créer du lien avec les voisins et les résidents / faciliter la création d’événements",
+              "reasoning": "La mission implique un soutien organisationnel pour structurer les activités et favoriser les rencontres."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Tu découvriras le fonctionnement d’un tiers-lieu parisien / mission de service civique",
+              "reasoning": "La mission s'inscrit dans un cadre structuré (service civique) et implique une immersion dans un lieu organisé, ce qui justifie cette classification."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "créer du lien avec les voisins et les résidents / mobiliser les personnes plus vulnérables / tous_publics young adults seniors handicap marginalisees_fragilisees refugiees",
+              "reasoning": "La mission touche à des enjeux de société, d'inclusion et de lien social, ce qui la rattache au domaine société, droit et politique."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "social_sante_sport",
+            "taxonomyValueLabel": "Social, santé et sport",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "créer du lien avec les voisins et les résidents / mobiliser les personnes plus vulnérables / tous_publics young adults seniors handicap marginalisees_fragilisees refugiees",
+              "reasoning": "La mission inclut une dimension sociale et d'aide à la personne, ce qui la rattache au domaine social, santé et sport."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_18_ans",
+            "taxonomyValueLabel": "Moins de 18 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "moins_31_ans_handicap",
+            "taxonomyValueLabel": "Moins de 31 ans — situation de handicap",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "7c62a8af-0fe1-4356-8e47-65610e4e71e5",
+        "title": "Animer un tiers-lieu dédié à la création de lien social (MARSEILLE)",
+        "domain": "solidarite-insertion",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "KAWAA",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": null,
+          "address": "36 RUE DE LA REPUBLIQUE 13001 Marseille",
+          "lat": 43.298773,
+          "lon": 5.372296
+        },
+        "startAt": "2026-04-27T00:00:00.000Z",
+        "endAt": "2026-12-27T01:00:00.000Z",
+        "duration": 8,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Tu découvriras le fonctionnement d’un tiers-lieu parisien et feras de belles rencontres en animant un lieu de vie, en accueillant tout type de public et en créant des événements et des outils propices à la rencontre.</p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p>Créer du lien avec les voisins et les résidents, animer et faciliter la création d’événements et plus largement du quartier (voisins, passants…). La mission a aussi vocation à mobiliser les personnes plus vulnérables.</p><p><br></p></p><br>\n<b>Actions</b><br><p><p>Après une immersion dans le quartier et des rencontres avec celles et ceux qui le font vivre, tu auras pour mission de créer du lien de manière conviviale au sein du lieu et autour du kiosque solidaire :</p><ul><li>accueillir et favoriser les échanges entre voisins et résidents,</li><li>présenter Kawaa et encourager les rencontres,</li><li>imaginer et animer des moments conviviaux (ateliers, apéros, événements…),</li><li>inviter les habitants à participer aux activités.</li></ul><p>Laisse libre cours à ton imagination pour inventer des animations et des prétextes à la rencontre !</p></p><br>",
+        "description": "EN QUELQUES MOTS\n\n\nTu découvriras le fonctionnement d’un tiers-lieu parisien et feras de belles\nrencontres en animant un lieu de vie, en accueillant tout type de public et en\ncréant des événements et des outils propices à la rencontre.\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nCréer du lien avec les voisins et les résidents, animer et faciliter la création\nd’événements et plus largement du quartier (voisins, passants…). La mission a\naussi vocation à mobiliser les personnes plus vulnérables.\n\n\n\n\n\n\n\n\nActions\n\n\n\n\nAprès une immersion dans le quartier et des rencontres avec celles et ceux qui\nle font vivre, tu auras pour mission de créer du lien de manière conviviale au\nsein du lieu et autour du kiosque solidaire :\n\n • accueillir et favoriser les échanges entre voisins et résidents,\n • présenter Kawaa et encourager les rencontres,\n • imaginer et animer des moments conviviaux (ateliers, apéros, événements…),\n • inviter les habitants à participer aux activités.\n\nLaisse libre cours à ton imagination pour inventer des animations et des\nprétextes à la rencontre !\n\n\n",
+        "applicationUrl": "http://localhost:4000/r/7c62a8af-0fe1-4356-8e47-65610e4e71e5/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_03.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    }
+  ],
+  "deterministic": {
+    "geo": 5,
+    "format": 5,
+    "missionsSansTagFormat": [],
+    "gateViolations": []
+  },
+  "judgeRuns": [
+    {
+      "runIndex": 0,
+      "seed": 1042445008,
+      "order": [
+        "0eb706b9-4e56-43dd-9971-8d9aac4165c1",
+        "19f30754-cda0-4a9a-9a01-c43a6828b20f",
+        "7b63445b-dfce-4b22-a06f-ccd10e87785a",
+        "7c62a8af-0fe1-4356-8e47-65610e4e71e5",
+        "0830a4c5-1e8d-4ff3-980b-529963f511fb"
+      ],
+      "output": {
+        "coherence": {
+          "score": 2,
+          "missionsPertinentes": [
+            1,
+            2
+          ],
+          "justification": "Parmi les 5 missions proposées, seules les missions 1 et 2 concernent l'orientation scolaire et l'accompagnement des jeunes dans leur parcours, ce qui correspond partiellement à la motivation de Sami de tester une orientation. La mission 0, bien que liée à la sécurité et aux métiers en uniforme, est tronquée et ne permet pas de confirmer sa pertinence complète, mais semble très adaptée. Les missions 3 et 4 sont éloignées des intérêts de Sami (création de lien social, environnement). Cependant, faute d'informations complètes sur la mission 0, elle n'est pas comptée comme pleinement pertinente ici.",
+          "missionIdsPertinents": [
+            "0eb706b9-4e56-43dd-9971-8d9aac4165c1",
+            "19f30754-cda0-4a9a-9a01-c43a6828b20f"
+          ]
+        },
+        "homogeneite": {
+          "score": 4,
+          "familles": [
+            "Education et accompagnement scolaire",
+            "Engagement sécurité et secours"
+          ],
+          "justification": "Les missions 1 et 2 appartiennent à la même famille d'accompagnement scolaire et orientation. La mission 0, liée à la sécurité et secours, constitue une autre famille. Les missions 3 et 4 appartiennent à d'autres familles distinctes (animation sociale, environnement). Il y a donc 3 familles dont une avec au moins 3 missions (les missions 1 et 2 sont identiques, donc majoritaires dans leur famille)."
+        },
+        "cause": "offre"
+      }
+    },
+    {
+      "runIndex": 1,
+      "seed": 1059222627,
+      "order": [
+        "19f30754-cda0-4a9a-9a01-c43a6828b20f",
+        "7b63445b-dfce-4b22-a06f-ccd10e87785a",
+        "0830a4c5-1e8d-4ff3-980b-529963f511fb",
+        "0eb706b9-4e56-43dd-9971-8d9aac4165c1",
+        "7c62a8af-0fe1-4356-8e47-65610e4e71e5"
+      ],
+      "output": {
+        "coherence": {
+          "score": 2,
+          "missionsPertinentes": [
+            3,
+            4
+          ],
+          "justification": "Parmi les 5 missions proposées, seules la mission 3 (sapeur-pompier volontaire) correspond clairement à l'intérêt de Sami pour les métiers en uniforme et la sécurité, lui permettant de tester cette orientation. La mission 4, bien que moins directement liée, peut offrir une expérience d'engagement social et animation, ce qui peut intéresser un jeune lycéen en phase de découverte. Les autres missions sont centrées sur l'animation dans les collèges ou la sensibilisation environnementale, qui ne correspondent pas à son profil et motivation.",
+          "missionIdsPertinents": [
+            "0830a4c5-1e8d-4ff3-980b-529963f511fb",
+            "0eb706b9-4e56-43dd-9971-8d9aac4165c1"
+          ]
+        },
+        "homogeneite": {
+          "score": 4,
+          "familles": [
+            "Sécurité et secours",
+            "Animation sociale"
+          ],
+          "justification": "Les missions pertinentes appartiennent à deux familles principales : la sécurité (mission 3) et l'animation sociale (mission 4). Les autres missions appartiennent à une famille différente (éducation et environnement). Il y a donc 3 familles au total, avec une majorité dans l'éducation/animation, mais les missions pertinentes sont concentrées dans 2 familles."
+        },
+        "cause": "offre"
+      }
+    }
+  ],
+  "engineVersion": "m2",
+  "startedAt": "2026-07-07T12:43:49.226Z",
+  "finishedAt": "2026-07-07T12:44:05.849Z",
+  "verdict": 3.5,
+  "cleanup": {
+    "userScoringDeleted": true
+  }
+}

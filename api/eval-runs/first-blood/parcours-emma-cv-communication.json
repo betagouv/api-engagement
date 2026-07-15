@@ -1,0 +1,2350 @@
+{
+  "status": "success",
+  "parcours": {
+    "id": "emma-cv-communication",
+    "segment": "etudiant",
+    "label": "Emma, 20 ans, étudiante en L2 info-com à Paris, cherche à valoriser son CV avec des compétences en communication et numérique",
+    "locationLabel": "Paris (75)",
+    "age": 20,
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 20,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "statut",
+        "value": "etudiant"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 48.856614,
+          "lon": 2.352222,
+          "country_code": "fr",
+          "label": "Paris (75)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "reguliere"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "booster_cv"
+      },
+      {
+        "taxonomy": "competence_rome",
+        "value": "communication_creation_numerique"
+      }
+    ]
+  },
+  "payload": {
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 20,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "statut",
+        "value": "etudiant"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 48.856614,
+          "lon": 2.352222,
+          "country_code": "fr",
+          "label": "Paris (75)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "reguliere"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "booster_cv"
+      },
+      {
+        "taxonomy": "competence_rome",
+        "value": "communication_creation_numerique"
+      }
+    ],
+    "distinctId": "eval:first-blood:emma-cv-communication",
+    "missionAlertEnabled": false
+  },
+  "userScoringId": "4f0b852d-89d2-496d-9396-035dddad3e29",
+  "match": {
+    "tookMs": 571,
+    "engineVersion": "m2",
+    "items": [
+      {
+        "mission": {
+          "id": "2f4d75ad-9875-4cfe-b775-2d1b8ed0b13b",
+          "title": "Je participe à la communication d’une fédération",
+          "remote": "no",
+          "schedule": "Une demi-journée par semaine",
+          "domain": "culture-loisirs",
+          "domainOriginal": null,
+          "organizationName": "Fédération Patrimoine-Environnement",
+          "publisherId": "5f5931496c7ea514150a818f",
+          "publisherName": "JeVeuxAider.gouv.fr",
+          "media": {
+            "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12141/9fMaovllXMGLy0zSz4dKDz80aEKHbC.jpg?v=1741191191",
+            "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12141/9fMaovllXMGLy0zSz4dKDz80aEKHbC.jpg?v=1741191191",
+            "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/7904/EzPIO0wiHHr9P7eEYTnt6Yf9cHUysk.png?v=1737381944",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+          },
+          "location": {
+            "city": "Paris 9e Arrondissement",
+            "closestLat": 48.8748,
+            "closestLon": 2.342,
+            "closestAddress": "6 Passage des 2 Soeurs, 75009 Paris 9e Arrondissement, FR",
+            "addressId": "22809019-1afe-4556-a34a-b8b14a1a376f",
+            "distanceKm": 2.155997055903714
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/2f4d75ad-9875-4cfe-b775-2d1b8ed0b13b/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "02a12b73-0c50-4c59-a77b-4a7ee9104356",
+          "totalScore": 0.764001,
+          "taxonomyScore": 0.6,
+          "geoScore": 0.928002,
+          "taxonomyScores": {
+            "competence_rome": 1,
+            "tranche_age": 1,
+            "type_mission": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "culture_arts",
+              "taxonomyValueLabel": "Culture et arts",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "soutenir l'équipe dans les missions de communication de nos événements et manifestations",
+                "reasoning": "La mission est centrée sur la communication d'événements et manifestations, ce qui relève du domaine culturel et artistique."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "gestion_projet",
+              "taxonomyValueLabel": "Gestion de projet",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "soutenir l'équipe dans les missions de communication de nos événements et manifestations / Au sein d'une petite équipe dynamique",
+                "reasoning": "La mission implique un soutien à l'organisation et à la coordination des activités de communication, relevant de la gestion de projet."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "numerique_communication",
+              "taxonomyValueLabel": "Numérique et communication",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "réalisation et rédaction de supports et tenu des réseaux sociaux",
+                "reasoning": "La mission porte principalement sur la communication numérique et la création de supports, ce qui relève du secteur numérique et communication."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "culture_creation_medias",
+              "taxonomyValueLabel": "Culture, création et médias",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "soutenir l'équipe dans les missions de communication de nos événements et manifestations",
+                "reasoning": "La mission est liée à la communication d'événements culturels, relevant du secteur culturel et médiatique."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "communication_creation_numerique",
+              "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "réalisation et rédaction de supports et tenu des réseaux sociaux",
+                "reasoning": "La mission implique la création de supports de communication et la gestion des réseaux sociaux, relevant des compétences numériques et de communication."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "gestion_pilotage_juridique",
+              "taxonomyValueLabel": "Gestion, pilotage, juridique",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Au sein d'une petite équipe dynamique",
+                "reasoning": "La mission implique un travail en équipe et une coordination, relevant partiellement de la gestion et du pilotage."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "soutenir l'équipe dans les missions de communication de nos événements et manifestations",
+                "reasoning": "La mission consiste à apporter un soutien organisationnel et opérationnel à l'équipe de communication."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.99,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Une demi-journée par semaine",
+                "reasoning": "La mission est explicitement décrite comme régulière, avec une fréquence hebdomadaire."
+              }
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "benevolat",
+              "taxonomyValueLabel": "Bénévolat",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "39012138-1b27-437f-a364-0f882fbc0221",
+          "title": "Renforcer la sensibilisation environnementale en France et au Cambodge",
+          "remote": "no",
+          "schedule": "Plus de 30h",
+          "domain": "environnement",
+          "domainOriginal": "Environnement",
+          "organizationName": "Climate Fresk Foundation",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_03.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_03.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Paris",
+            "closestLat": 48.861743,
+            "closestLon": 2.349787,
+            "closestAddress": "47 Boulevard de Sébastopol, 75001 Paris, FR",
+            "addressId": "f7b13158-9680-45e0-959a-1de83cecb0fa",
+            "distanceKm": 0.5974913791705951
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/39012138-1b27-437f-a364-0f882fbc0221/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "9f3f208f-22aa-4524-aa34-25c6a276e792",
+          "totalScore": 0.689753,
+          "taxonomyScore": 0.4,
+          "geoScore": 0.979505,
+          "taxonomyScores": {
+            "competence_rome": 1,
+            "tranche_age": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "animation de la communauté de la Fresque du Climat / participation à des salons, foires et événements",
+                "reasoning": "La mission inclut explicitement l'animation d'actions collectives et d'événements."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "sensibiliser le public aux enjeux climatiques / renforcer l’engagement citoyen / participation à des animations de la Fresque du Climat / transmission_pedagogie",
+                "reasoning": "La mission inclut une forte dimension pédagogique et de transmission de savoirs, notamment via la Fresque du Climat."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.92,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "animation de la communauté de la Fresque du Climat / participation à des salons, foires et événements liés à l’environnement / transmission_pedagogie",
+                "reasoning": "Les activités décrites relèvent principalement de l'éducation, de la formation et de l'animation, dans un secteur lié à l'environnement."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "environnement_agriculture",
+              "taxonomyValueLabel": "Environnement et agriculture",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "sensibilisation au climat / transition écologique / enjeux climatiques",
+                "reasoning": "Le secteur d'activité est clairement lié à l'environnement et à la transition écologique."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "communication_creation_numerique",
+              "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Conception et rédaction de messages / Création de campagnes d’e-mailing : rédaction, conception et éléments graphiques",
+                "reasoning": "La mission implique des tâches de communication, de création de contenus et de design graphique."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Support à l’organisation de réunions de bénévoles / participation à des animations de la Fresque du Climat",
+                "reasoning": "La mission nécessite une forte coopération, de l'organisation et des compétences relationnelles."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "gestion_pilotage_juridique",
+              "taxonomyValueLabel": "Gestion, pilotage, juridique",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Appui à diverses tâches administratives et de mise en visibilité",
+                "reasoning": "Les tâches administratives et de suivi de projet relèvent de la gestion et du pilotage."
+              }
+            },
+            {
+              "taxonomyKey": "region_internationale",
+              "taxonomyValueKey": "asie",
+              "taxonomyValueLabel": "Asie",
+              "enrichmentConfidence": 0.99,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "6 mois au Cambodge",
+                "reasoning": "La mission se déroule explicitement au Cambodge, en Asie."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "sensibiliser le public aux enjeux climatiques / renforcer l’engagement citoyen / participation à des animations de la Fresque du Climat",
+                "reasoning": "La mission est centrée sur la transmission de savoirs et la sensibilisation, notamment via la Fresque du Climat."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Aide à la mise en visibilité d’une campagne de crowdfunding / Appui à diverses tâches administratives et de mise en visibilité",
+                "reasoning": "La mission implique un soutien organisationnel et logistique."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Mission de 6 mois en France puis 6 mois au Cambodge : appui à la sensibilisation au climat / volontariat_service_civique",
+                "reasoning": "La mission est structurée dans le cadre d'un service civique, avec une durée longue et un cadre institutionnel explicite."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "environnement_nature_sciences",
+              "taxonomyValueLabel": "Environnement, nature et sciences",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "sensibilisation au climat / Fresque du Climat / enjeux climatiques / transition écologique",
+                "reasoning": "La mission relève clairement de l'environnement, de la nature et des sciences, notamment via la Fresque du Climat."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "renforcer l’engagement citoyen face à l'urgence écologique / transition écologique",
+                "reasoning": "La mission a une dimension citoyenne et politique liée à l'engagement écologique."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "service_civique",
+              "taxonomyValueLabel": "Service civique",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "20ebfde0-6186-4a3e-bcb7-30d70af7e1ed",
+          "title": "Participation au projet de promotion du Jazz à Paris et en Île-de-France",
+          "remote": "no",
+          "schedule": "Plus de 30h",
+          "domain": "culture-loisirs",
+          "domainOriginal": "Culture et loisirs",
+          "organizationName": "PARIS JAZZ CLUB",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_01.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_01.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Paris",
+            "closestLat": 48.859848,
+            "closestLon": 2.347811,
+            "closestAddress": "58 rue des Lombards, 75001 Paris, FR",
+            "addressId": "dc1c79da-c389-4e77-be65-8b548a4f521e",
+            "distanceKm": 0.48316680863117567
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/20ebfde0-6186-4a3e-bcb7-30d70af7e1ed/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "38fe0d9a-0bc2-484d-9fbc-08144839a45e",
+          "totalScore": 0.688697,
+          "taxonomyScore": 0.394,
+          "geoScore": 0.983394,
+          "taxonomyScores": {
+            "competence_rome": 0.97,
+            "tranche_age": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "culture_arts",
+              "taxonomyValueLabel": "Culture et arts",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Participer au dynamisme culturel francilien en soutenant les lieux de jazz et les artistes / Aider à l'organisation d'événements culturels locaux / Aide au reportage lors des événements : photos, vidéos",
+                "reasoning": "La mission est centrée sur la promotion, l'animation et l'organisation d'événements culturels liés au jazz, domaine culturel et artistique."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Participer au dynamisme culturel francilien en soutenant les lieux de jazz et les artistes, mais aussi au travers d'actions d'initiation et de découverte auprès des plus jeunes et des plus fragiles / Favoriser l'accès au jazz auprès des publics éloignés de l'offre culturelle : enfants, étudiants, patients polyhandicapés",
+                "reasoning": "La mission inclut explicitement des actions d'initiation, de découverte et de transmission auprès de publics variés, notamment éloignés de l'offre culturelle."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "culture_creation_medias",
+              "taxonomyValueLabel": "Culture, création et médias",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Participer au dynamisme culturel francilien en soutenant les lieux de jazz et les artistes / Aider au reportage lors des événements : photos, vidéos / Aide à la vie administrative de l'association (contrats, demandes de subvention, adhésions...)",
+                "reasoning": "La mission relève du secteur culturel et médiatique, avec des tâches de communication, de création de contenus et de gestion administrative liée à des événements culturels."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "gestion_commerce_organisation",
+              "taxonomyValueLabel": "Gestion, commerce et organisation",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Participer au développement des publics au travers d'actions de communication / Participer au développement financier de l'association au travers de la prospection de nouveaux contacts marketing/nouvelles sources de financement / Aide à la vie administrative de l'association (contrats, demandes de subvention, adhésions...)",
+                "reasoning": "La mission inclut des tâches de gestion, de prospection, de communication et d'organisation administrative, typiques du secteur gestion/commerce/organisation."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "communication_creation_numerique",
+              "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Aide au reportage lors des événements : photos, vidéos / Participer au développement des publics au travers d'actions de communication",
+                "reasoning": "La mission implique la création de contenus visuels (photos, vidéos) et des actions de communication, relevant des compétences numériques et créatives."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "gestion_pilotage_juridique",
+              "taxonomyValueLabel": "Gestion, pilotage, juridique",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Aide à la vie administrative de l'association (contrats, demandes de subvention, adhésions...)",
+                "reasoning": "La mission inclut des tâches administratives et juridiques (contrats, subventions), relevant de la gestion et du pilotage."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Assister les bénévoles du Festival Jazz Sur Seine / Aider à l'organisation d'événements culturels locaux",
+                "reasoning": "La mission implique un travail collaboratif et organisationnel avec des bénévoles et pour l'organisation d'événements."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "actions d'initiation et de découverte auprès des plus jeunes et des plus fragiles / Favoriser l'accès au jazz auprès des publics éloignés de l'offre culturelle : enfants, étudiants, patients polyhandicapés",
+                "reasoning": "La mission inclut explicitement des actions de transmission et d'initiation auprès de publics variés."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Assister les bénévoles du Festival Jazz Sur Seine / Aider à l'organisation d'événements culturels locaux",
+                "reasoning": "La mission implique l'animation et l'organisation d'événements culturels, relevant de l'animation."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Participer au développement des publics au travers d'actions de communication / Participer au développement financier de l'association au travers de la prospection de nouveaux contacts marketing/nouvelles sources de financement / Aide à la vie administrative de l'association (contrats, demandes de subvention, adhésions...)",
+                "reasoning": "La mission consiste principalement à soutenir l'organisation via des tâches de communication, de prospection, de gestion administrative et de développement."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Type de mission : volontariat_service_civique / Durée : 8 heures — Plus de 30h / du 1 avril 2026 au 1 décembre 2026",
+                "reasoning": "La mission est encadrée par un service civique, ce qui implique un cadre structuré et institutionnel."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "education_culture_creation",
+              "taxonomyValueLabel": "Éducation, culture et création",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Participer au dynamisme culturel francilien en soutenant les lieux de jazz et les artistes / Aide à l'organisation d'événements culturels locaux / Aide au reportage lors des événements : photos, vidéos",
+                "reasoning": "La mission relève de l'éducation, de la culture et de la création, avec des activités de médiation, d'organisation d'événements et de création de contenus."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "numerique_communication",
+              "taxonomyValueLabel": "Numérique et communication",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Aide au reportage lors des événements : photos, vidéos / Participer au développement des publics au travers d'actions de communication",
+                "reasoning": "La mission inclut des tâches de communication et de création de contenus numériques (photos, vidéos)."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "service_civique",
+              "taxonomyValueLabel": "Service civique",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "165c3653-59eb-4d8b-ab44-d9028e305048",
+          "title": "Chargé(e) de communication Sensibilisation Entrepreneuriat Etudiant – Pépite Sorbonne Université",
+          "remote": "no",
+          "schedule": "De 24h à 30h",
+          "domain": "education",
+          "domainOriginal": "Éducation pour tous",
+          "organizationName": "SORBONNE UNIVERSITE",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_02.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_02.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Paris",
+            "closestLat": 48.846346,
+            "closestLon": 2.355041,
+            "closestAddress": "4 Place Jussieu, 75005 Paris, FR",
+            "addressId": "a03e0d99-c856-432c-90ab-793ae605a75a",
+            "distanceKm": 1.1602306007209326
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/165c3653-59eb-4d8b-ab44-d9028e305048/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "bac8ee08-5bf6-4223-b50f-f69d628ffa6d",
+          "totalScore": 0.680294,
+          "taxonomyScore": 0.4,
+          "geoScore": 0.960587,
+          "taxonomyScores": {
+            "competence_rome": 1,
+            "tranche_age": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "promouvoir l’entrepreneuriat étudiant au sein des établissements de l’Alliance / Mettre en lumière et assurer la promotion des animations de sensibilisation / Piloter la newsletter de sensibilisation à destination de la communauté étudiante et académique",
+                "reasoning": "La mission est centrée sur la transmission de connaissances, la sensibilisation et la promotion de l'entrepreneuriat étudiant, ce qui relève clairement de l'éducation et de la transmission."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "gestion_projet",
+              "taxonomyValueLabel": "Gestion de projet",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Piloter la newsletter de sensibilisation / Participer à la communication des événements majeurs / Soutenir le chargé de communication dans la création graphique des supports de communication",
+                "reasoning": "Les tâches décrites incluent la coordination, la gestion de projets de communication et le suivi de supports, ce qui relève de la gestion de projet."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "numerique_communication",
+              "taxonomyValueLabel": "Numérique et communication",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Mettre en lumière et assurer la promotion des animations de sensibilisation sur les réseaux sociaux (LinkedIn, Instagram, TikTok) / Mettre en place, lancer et gérer le compte TikTok de Pépite Sorbonne Université avec le chargé de communication (tournage, montage, rédaction des scripts, veille sur les tendances) / Soutenir le chargé de communication dans la création graphique des supports de communication de sensibilisation (via le logiciel CANVA)",
+                "reasoning": "La mission est principalement axée sur la communication numérique, la gestion des réseaux sociaux et la création de contenus digitaux."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "gestion_commerce_organisation",
+              "taxonomyValueLabel": "Gestion, commerce et organisation",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Piloter la newsletter de sensibilisation / Participer à la communication des événements majeurs / Aider à l’encadrement des emplois étudiants participant aux actions de communication",
+                "reasoning": "Les tâches incluent la gestion de projets, l'organisation d'événements et l'encadrement, ce qui relève du secteur de la gestion et de l'organisation."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "communication_creation_numerique",
+              "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+              "enrichmentConfidence": 0.98,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Mettre en lumière et assurer la promotion des animations de sensibilisation sur les réseaux sociaux (LinkedIn, Instagram, TikTok) / Mettre en place, lancer et gérer le compte TikTok de Pépite Sorbonne Université avec le chargé de communication (tournage, montage, rédaction des scripts, veille sur les tendances)",
+                "reasoning": "La mission implique la création et la gestion de contenus numériques, ainsi que l'utilisation d'outils de communication digitale."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "gestion_pilotage_juridique",
+              "taxonomyValueLabel": "Gestion, pilotage, juridique",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Piloter la newsletter de sensibilisation / Participer à la communication des événements majeurs",
+                "reasoning": "Les tâches incluent la gestion de projets et la coordination, ce qui relève de compétences en gestion et pilotage."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Aider à l’encadrement des emplois étudiants participant aux actions de communication / Capacité d’initiative : Vous aurez la possibilité de faire évoluer les formats existants pour les améliorer et de proposer de nouveaux formats de communication",
+                "reasoning": "La mission implique le travail en équipe, l'encadrement et l'initiative personnelle, ce qui relève des compétences en coopération et organisation."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "promouvoir l’entrepreneuriat étudiant au sein des établissements de l’Alliance / Mettre en lumière et assurer la promotion des animations de sensibilisation / Piloter la newsletter de sensibilisation à destination de la communauté étudiante et académique",
+                "reasoning": "La mission consiste principalement à transmettre des informations, sensibiliser et promouvoir des connaissances, ce qui relève de l'intention de transmission."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Piloter la newsletter de sensibilisation / Participer à la communication des événements majeurs / Soutenir le chargé de communication dans la création graphique des supports de communication",
+                "reasoning": "Les tâches décrites sont principalement axées sur le soutien organisationnel et la coordination des actions de communication."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Type de mission : volontariat_service_civique / Formations obligatoires proposées : formation PSC1 et civique citoyenne / Tutorat et accompagnement : RDV réguliers pour échanger sur vos missions",
+                "reasoning": "La mission s'inscrit dans un cadre structuré de service civique avec des formations obligatoires, un tutorat et un accompagnement régulier, ce qui relève d'un engagement en cadre structuré."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "numerique_communication",
+              "taxonomyValueLabel": "Numérique et communication",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Mettre en lumière et assurer la promotion des animations de sensibilisation sur les réseaux sociaux (LinkedIn, Instagram, TikTok) / Mettre en place, lancer et gérer le compte TikTok de Pépite Sorbonne Université avec le chargé de communication (tournage, montage, rédaction des scripts, veille sur les tendances)",
+                "reasoning": "La mission est clairement liée au domaine numérique et à la communication, ce qui correspond à la formation ONISEP dans ce secteur."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "commerce_gestion_finance",
+              "taxonomyValueLabel": "Commerce, gestion, finance et services",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Piloter la newsletter de sensibilisation / Participer à la communication des événements majeurs",
+                "reasoning": "Les tâches incluent la gestion de projets et la coordination, ce qui peut être rattaché à des compétences en gestion et organisation."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "service_civique",
+              "taxonomyValueLabel": "Service civique",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "e8852283-7b4c-43fb-96da-d8d31f42592d",
+          "title": "La mission est d'aider à l’évaluation de l'impact de la structure sur les bénéficiaires",
+          "remote": "no",
+          "schedule": "Plus de 30h",
+          "domain": "solidarite-insertion",
+          "domainOriginal": "Solidarité",
+          "organizationName": "TIME TO START",
+          "publisherId": "5f99dbe75eb1ad767733b206",
+          "publisherName": "Service Civique",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+            "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+          },
+          "location": {
+            "city": "Paris 04",
+            "closestLat": 48.851237,
+            "closestLon": 2.367228,
+            "closestAddress": "29 boulevard Bourdon, 75004 Paris 04, FR",
+            "addressId": "cb46a514-1392-4972-aaf1-f9267896c126",
+            "distanceKm": 1.2501462723415941
+          },
+          "compensation": {
+            "amount": 620,
+            "amountMax": null,
+            "unit": "month",
+            "type": "net"
+          },
+          "applicationUrl": "http://localhost:4000/r/e8852283-7b4c-43fb-96da-d8d31f42592d/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "3f57a148-65e3-4135-87e3-f6bdfe7336b2",
+          "totalScore": 0.675799,
+          "taxonomyScore": 0.394,
+          "geoScore": 0.957598,
+          "taxonomyScores": {
+            "competence_rome": 0.97,
+            "tranche_age": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "gestion_pilotage_juridique",
+              "taxonomyValueLabel": "Gestion, pilotage, juridique",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Participer à la mise en place et à l’amélioration des outils permettant d’évaluer l'impact de nos actions sur nos bénéficiaires et notre territoire / A travers des questionnaires, et entretiens il pourra aider Time2start à analyser l'impact de la structure sur les bénéficiaires",
+                "reasoning": "La mission implique une analyse de données et une évaluation, ce qui relève des compétences de gestion, pilotage et analyse."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.92,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Participer à la mise en place et à l’amélioration des outils permettant d’évaluer l'impact de nos actions sur nos bénéficiaires et notre territoire / Le volontaire sera en appui sur les différentes missions liés aux entrepreneurs / A travers des questionnaires, et entretiens il pourra aider Time2start à analyser l'impact de la structure sur les bénéficiaires",
+                "reasoning": "La mission est explicitement centrée sur l'évaluation de l'impact social et l'accompagnement des bénéficiaires, ce qui relève du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Participer à la mise en place et à l’amélioration des outils permettant d’évaluer l'impact de nos actions sur nos bénéficiaires et notre territoire / A travers des questionnaires, et entretiens il pourra aider Time2start à analyser l'impact de la structure sur les bénéficiaires",
+                "reasoning": "Les tâches principales consistent à évaluer l'impact social et à analyser les effets sur les bénéficiaires, ce qui relève de l'évaluation et de l'analyse dans un contexte social."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Il sera invité à participer à des réunions de travail afin de partager ses résultats / Cette mission complétera le travail d'impact qui est mené au sein de la structure en ayant le point de vue des entrepreneurs",
+                "reasoning": "La mission implique une participation active à des réunions de travail et une contribution à la réflexion collective, ce qui relève de l'organisation et de la coopération."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "action_terrain",
+              "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Le volontaire contribue à évaluer l'impact de s. et aura pour mission de faire le lien entre nos actions et son effet sur les bénéficiaires / A travers des questionnaires, et entretiens il pourra aider Time2start à analyser l'impact de la structure sur les bénéficiaires",
+                "reasoning": "Les tâches incluent la collecte de données via des questionnaires et entretiens, ce qui relève de l'action terrain concrète."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "communication_creation_numerique",
+              "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Le volontaire sera en appui sur les différentes missions liés aux entrepreneurs / Il sera sollicité sur le volet sensibilisation : les évènements organisés par la structure mais également ceux auxquels elle participe",
+                "reasoning": "La mission inclut une participation à des événements de sensibilisation, ce qui relève de la communication et de l'animation."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Cette mission permettra au volontaire de comprendre les enjeux liés à la diversité et l’inclusion par l’entrepreneuriat dans les quartiers populaires / Le volontaire contribue à évaluer l'impact de s. et aura pour mission de faire le lien entre nos actions et son effet sur les bénéficiaires",
+                "reasoning": "La mission est liée à des enjeux sociaux et d'inclusion, ce qui relève du secteur social et de l'aide à la personne."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "cadre_engage",
+              "taxonomyValueLabel": "Engagement en cadre structuré",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Type de mission : volontariat_service_civique / Durée : 7 heures — Plus de 30h / Dates : du 5 mars 2026 au 5 octobre 2026",
+                "reasoning": "La mission est explicitement un service civique, ce qui relève d'un cadre structuré et institutionnel."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Cette mission permettra au volontaire de comprendre les enjeux liés à la diversité et l’inclusion par l’entrepreneuriat dans les quartiers populaires",
+                "reasoning": "La mission est liée à des enjeux de société, de diversité et d'inclusion, ce qui relève du domaine de la société, du droit et de la politique."
+              }
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "temps_plein",
+              "taxonomyValueLabel": "Mission à temps plein",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "service_civique",
+              "taxonomyValueLabel": "Service civique",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      }
+    ],
+    "total": 2212,
+    "avgDistanceKmTop5": 1.13
+  },
+  "missions": [
+    {
+      "mission": {
+        "id": "2f4d75ad-9875-4cfe-b775-2d1b8ed0b13b",
+        "title": "Je participe à la communication d’une fédération",
+        "remote": "no",
+        "schedule": "Une demi-journée par semaine",
+        "domain": "culture-loisirs",
+        "domainOriginal": null,
+        "organizationName": "Fédération Patrimoine-Environnement",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "media": {
+          "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12141/9fMaovllXMGLy0zSz4dKDz80aEKHbC.jpg?v=1741191191",
+          "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12141/9fMaovllXMGLy0zSz4dKDz80aEKHbC.jpg?v=1741191191",
+          "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/7904/EzPIO0wiHHr9P7eEYTnt6Yf9cHUysk.png?v=1737381944",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png"
+        },
+        "location": {
+          "city": "Paris 9e Arrondissement",
+          "closestLat": 48.8748,
+          "closestLon": 2.342,
+          "closestAddress": "6 Passage des 2 Soeurs, 75009 Paris 9e Arrondissement, FR",
+          "addressId": "22809019-1afe-4556-a34a-b8b14a1a376f",
+          "distanceKm": 2.155997055903714
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/2f4d75ad-9875-4cfe-b775-2d1b8ed0b13b/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "02a12b73-0c50-4c59-a77b-4a7ee9104356",
+        "totalScore": 0.764001,
+        "taxonomyScore": 0.6,
+        "geoScore": 0.928002,
+        "taxonomyScores": {
+          "competence_rome": 1,
+          "tranche_age": 1,
+          "type_mission": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "culture_arts",
+            "taxonomyValueLabel": "Culture et arts",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "soutenir l'équipe dans les missions de communication de nos événements et manifestations",
+              "reasoning": "La mission est centrée sur la communication d'événements et manifestations, ce qui relève du domaine culturel et artistique."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "gestion_projet",
+            "taxonomyValueLabel": "Gestion de projet",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "soutenir l'équipe dans les missions de communication de nos événements et manifestations / Au sein d'une petite équipe dynamique",
+              "reasoning": "La mission implique un soutien à l'organisation et à la coordination des activités de communication, relevant de la gestion de projet."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "numerique_communication",
+            "taxonomyValueLabel": "Numérique et communication",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "réalisation et rédaction de supports et tenu des réseaux sociaux",
+              "reasoning": "La mission porte principalement sur la communication numérique et la création de supports, ce qui relève du secteur numérique et communication."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "culture_creation_medias",
+            "taxonomyValueLabel": "Culture, création et médias",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "soutenir l'équipe dans les missions de communication de nos événements et manifestations",
+              "reasoning": "La mission est liée à la communication d'événements culturels, relevant du secteur culturel et médiatique."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "communication_creation_numerique",
+            "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "réalisation et rédaction de supports et tenu des réseaux sociaux",
+              "reasoning": "La mission implique la création de supports de communication et la gestion des réseaux sociaux, relevant des compétences numériques et de communication."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "gestion_pilotage_juridique",
+            "taxonomyValueLabel": "Gestion, pilotage, juridique",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Au sein d'une petite équipe dynamique",
+              "reasoning": "La mission implique un travail en équipe et une coordination, relevant partiellement de la gestion et du pilotage."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "soutenir l'équipe dans les missions de communication de nos événements et manifestations",
+              "reasoning": "La mission consiste à apporter un soutien organisationnel et opérationnel à l'équipe de communication."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.99,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Une demi-journée par semaine",
+              "reasoning": "La mission est explicitement décrite comme régulière, avec une fréquence hebdomadaire."
+            }
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "benevolat",
+            "taxonomyValueLabel": "Bénévolat",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "2f4d75ad-9875-4cfe-b775-2d1b8ed0b13b",
+        "title": "Je participe à la communication d’une fédération",
+        "domain": "culture-loisirs",
+        "domainLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12141/9fMaovllXMGLy0zSz4dKDz80aEKHbC.jpg?v=1741191191",
+        "type": "benevolat",
+        "publisherId": "5f5931496c7ea514150a818f",
+        "publisherName": "JeVeuxAider.gouv.fr",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f5931496c7ea514150a818f/logo.png",
+        "organizationName": "Fédération Patrimoine-Environnement",
+        "organizationLogo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/7904/EzPIO0wiHHr9P7eEYTnt6Yf9cHUysk.png?v=1737381944",
+        "location": {
+          "city": "Paris 9e Arrondissement",
+          "address": "6 Passage des 2 Soeurs, 75009 Paris 9e Arrondissement",
+          "lat": 48.8748,
+          "lon": 2.342
+        },
+        "startAt": "2021-10-11T09:00:00.000Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "Une demi-journée par semaine",
+        "compensation": null,
+        "descriptionHtml": "<b>Présentation de la mission</b><br><p>L'objectif de la mission proposée est de soutenir l'équipe dans les missions de communication de nos événements et manifestations par la réalisation et rédaction de supports et tenu des réseaux sociaux.</p><br><br><b>Précisions</b><br><p>Au sein d'une petite équipe dynamique, nous recherchons des personnes, un demi-journée par semaine pour nous aider au sein du siège à Paris.</p>",
+        "description": "Présentation de la mission\n\n\nL'objectif de la mission proposée est de soutenir l'équipe dans les missions de\ncommunication de nos événements et manifestations par la réalisation et\nrédaction de supports et tenu des réseaux sociaux.\n\n\n\nPrécisions\n\n\nAu sein d'une petite équipe dynamique, nous recherchons des personnes, un\ndemi-journée par semaine pour nous aider au sein du siège à Paris.",
+        "applicationUrl": "http://localhost:4000/r/2f4d75ad-9875-4cfe-b775-2d1b8ed0b13b/c4a9ce23692082d70af2b16d",
+        "photo": "https://jeveuxaider.fra1.digitaloceanspaces.com/public/production/12141/9fMaovllXMGLy0zSz4dKDz80aEKHbC.jpg?v=1741191191",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": null,
+        "places": 5
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "39012138-1b27-437f-a364-0f882fbc0221",
+        "title": "Renforcer la sensibilisation environnementale en France et au Cambodge",
+        "remote": "no",
+        "schedule": "Plus de 30h",
+        "domain": "environnement",
+        "domainOriginal": "Environnement",
+        "organizationName": "Climate Fresk Foundation",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_03.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_03.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Paris",
+          "closestLat": 48.861743,
+          "closestLon": 2.349787,
+          "closestAddress": "47 Boulevard de Sébastopol, 75001 Paris, FR",
+          "addressId": "f7b13158-9680-45e0-959a-1de83cecb0fa",
+          "distanceKm": 0.5974913791705951
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/39012138-1b27-437f-a364-0f882fbc0221/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "9f3f208f-22aa-4524-aa34-25c6a276e792",
+        "totalScore": 0.689753,
+        "taxonomyScore": 0.4,
+        "geoScore": 0.979505,
+        "taxonomyScores": {
+          "competence_rome": 1,
+          "tranche_age": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "animation de la communauté de la Fresque du Climat / participation à des salons, foires et événements",
+              "reasoning": "La mission inclut explicitement l'animation d'actions collectives et d'événements."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "sensibiliser le public aux enjeux climatiques / renforcer l’engagement citoyen / participation à des animations de la Fresque du Climat / transmission_pedagogie",
+              "reasoning": "La mission inclut une forte dimension pédagogique et de transmission de savoirs, notamment via la Fresque du Climat."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.92,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "animation de la communauté de la Fresque du Climat / participation à des salons, foires et événements liés à l’environnement / transmission_pedagogie",
+              "reasoning": "Les activités décrites relèvent principalement de l'éducation, de la formation et de l'animation, dans un secteur lié à l'environnement."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "environnement_agriculture",
+            "taxonomyValueLabel": "Environnement et agriculture",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "sensibilisation au climat / transition écologique / enjeux climatiques",
+              "reasoning": "Le secteur d'activité est clairement lié à l'environnement et à la transition écologique."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "communication_creation_numerique",
+            "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Conception et rédaction de messages / Création de campagnes d’e-mailing : rédaction, conception et éléments graphiques",
+              "reasoning": "La mission implique des tâches de communication, de création de contenus et de design graphique."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Support à l’organisation de réunions de bénévoles / participation à des animations de la Fresque du Climat",
+              "reasoning": "La mission nécessite une forte coopération, de l'organisation et des compétences relationnelles."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "gestion_pilotage_juridique",
+            "taxonomyValueLabel": "Gestion, pilotage, juridique",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Appui à diverses tâches administratives et de mise en visibilité",
+              "reasoning": "Les tâches administratives et de suivi de projet relèvent de la gestion et du pilotage."
+            }
+          },
+          {
+            "taxonomyKey": "region_internationale",
+            "taxonomyValueKey": "asie",
+            "taxonomyValueLabel": "Asie",
+            "enrichmentConfidence": 0.99,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "6 mois au Cambodge",
+              "reasoning": "La mission se déroule explicitement au Cambodge, en Asie."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "sensibiliser le public aux enjeux climatiques / renforcer l’engagement citoyen / participation à des animations de la Fresque du Climat",
+              "reasoning": "La mission est centrée sur la transmission de savoirs et la sensibilisation, notamment via la Fresque du Climat."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Aide à la mise en visibilité d’une campagne de crowdfunding / Appui à diverses tâches administratives et de mise en visibilité",
+              "reasoning": "La mission implique un soutien organisationnel et logistique."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Mission de 6 mois en France puis 6 mois au Cambodge : appui à la sensibilisation au climat / volontariat_service_civique",
+              "reasoning": "La mission est structurée dans le cadre d'un service civique, avec une durée longue et un cadre institutionnel explicite."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "environnement_nature_sciences",
+            "taxonomyValueLabel": "Environnement, nature et sciences",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "sensibilisation au climat / Fresque du Climat / enjeux climatiques / transition écologique",
+              "reasoning": "La mission relève clairement de l'environnement, de la nature et des sciences, notamment via la Fresque du Climat."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "renforcer l’engagement citoyen face à l'urgence écologique / transition écologique",
+              "reasoning": "La mission a une dimension citoyenne et politique liée à l'engagement écologique."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "service_civique",
+            "taxonomyValueLabel": "Service civique",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "39012138-1b27-437f-a364-0f882fbc0221",
+        "title": "Renforcer la sensibilisation environnementale en France et au Cambodge",
+        "domain": "environnement",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_03.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "Climate Fresk Foundation",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Paris",
+          "address": "47 Boulevard de Sébastopol, 75001 Paris",
+          "lat": 48.861743,
+          "lon": 2.349787
+        },
+        "startAt": "2026-02-01T00:00:00.000Z",
+        "endAt": "2027-02-01T00:00:00.000Z",
+        "duration": 12,
+        "schedule": "Plus de 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Mission de 6 mois en France puis 6 mois au Cambodge : appui à la sensibilisation au climat, animation de la communauté de la Fresque du Climat, participation à des événements, et soutien à la communication et aux actions locales.</p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p>Contribuer à sensibiliser le public aux enjeux climatiques, renforcer l’engagement citoyen face à l’urgence écologique et soutenir une communauté internationale d’acteurs mobilisés pour la transition et la diffusion de la Fresque du Climat.</p></p><br>\n<b>Actions</b><br><p><p>Les missions seront les suivantes :</p><p>Aide à la mise en visibilité d’une campagne de crowdfunding:</p><p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Conception et rédaction de messages</p><p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Création de campagnes d’e-mailing : rédaction, conception et éléments graphiques</p><p>Vie de la communauté :</p><p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Support à l’organisation de réunions de bénévoles</p><p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Participation à des animations de la Fresque du Climat</p><p>·&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Participation à des salons, foires et événements liés à l’environnement et au climat</p><p>Support opérationnel : Appui à diverses tâches administratives et de mise en visibilité </p><p><br></p><p>Plus d'informations en cliquant <a href=\"https://international-impact.com/fr/job/renforcer-la-sensibilisation-environnementale-en-france-et-au-cambodge-avec-la-fresque-du-climat/\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: rgb(17, 85, 204); background-color: transparent;\"><strong>ici</strong></a></p></p><br>",
+        "description": "EN QUELQUES MOTS\n\n\nMission de 6 mois en France puis 6 mois au Cambodge : appui à la sensibilisation\nau climat, animation de la communauté de la Fresque du Climat, participation à\ndes événements, et soutien à la communication et aux actions locales.\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nContribuer à sensibiliser le public aux enjeux climatiques, renforcer\nl’engagement citoyen face à l’urgence écologique et soutenir une communauté\ninternationale d’acteurs mobilisés pour la transition et la diffusion de la\nFresque du Climat.\n\n\n\n\n\nActions\n\n\n\n\nLes missions seront les suivantes :\n\nAide à la mise en visibilité d’une campagne de crowdfunding:\n\n·     Conception et rédaction de messages\n\n·     Création de campagnes d’e-mailing : rédaction, conception et éléments\ngraphiques\n\nVie de la communauté :\n\n·     Support à l’organisation de réunions de bénévoles\n\n·     Participation à des animations de la Fresque du Climat\n\n·     Participation à des salons, foires et événements liés à l’environnement et\nau climat\n\nSupport opérationnel : Appui à diverses tâches administratives et de mise en\nvisibilité\n\n\n\n\nPlus d'informations en cliquant ici\n[https://international-impact.com/fr/job/renforcer-la-sensibilisation-environnementale-en-france-et-au-cambodge-avec-la-fresque-du-climat/]\n\n\n",
+        "applicationUrl": "http://localhost:4000/r/39012138-1b27-437f-a364-0f882fbc0221/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/environnement_03.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "20ebfde0-6186-4a3e-bcb7-30d70af7e1ed",
+        "title": "Participation au projet de promotion du Jazz à Paris et en Île-de-France",
+        "remote": "no",
+        "schedule": "Plus de 30h",
+        "domain": "culture-loisirs",
+        "domainOriginal": "Culture et loisirs",
+        "organizationName": "PARIS JAZZ CLUB",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_01.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_01.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Paris",
+          "closestLat": 48.859848,
+          "closestLon": 2.347811,
+          "closestAddress": "58 rue des Lombards, 75001 Paris, FR",
+          "addressId": "dc1c79da-c389-4e77-be65-8b548a4f521e",
+          "distanceKm": 0.48316680863117567
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/20ebfde0-6186-4a3e-bcb7-30d70af7e1ed/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "38fe0d9a-0bc2-484d-9fbc-08144839a45e",
+        "totalScore": 0.688697,
+        "taxonomyScore": 0.394,
+        "geoScore": 0.983394,
+        "taxonomyScores": {
+          "competence_rome": 0.97,
+          "tranche_age": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "culture_arts",
+            "taxonomyValueLabel": "Culture et arts",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Participer au dynamisme culturel francilien en soutenant les lieux de jazz et les artistes / Aider à l'organisation d'événements culturels locaux / Aide au reportage lors des événements : photos, vidéos",
+              "reasoning": "La mission est centrée sur la promotion, l'animation et l'organisation d'événements culturels liés au jazz, domaine culturel et artistique."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Participer au dynamisme culturel francilien en soutenant les lieux de jazz et les artistes, mais aussi au travers d'actions d'initiation et de découverte auprès des plus jeunes et des plus fragiles / Favoriser l'accès au jazz auprès des publics éloignés de l'offre culturelle : enfants, étudiants, patients polyhandicapés",
+              "reasoning": "La mission inclut explicitement des actions d'initiation, de découverte et de transmission auprès de publics variés, notamment éloignés de l'offre culturelle."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "culture_creation_medias",
+            "taxonomyValueLabel": "Culture, création et médias",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Participer au dynamisme culturel francilien en soutenant les lieux de jazz et les artistes / Aider au reportage lors des événements : photos, vidéos / Aide à la vie administrative de l'association (contrats, demandes de subvention, adhésions...)",
+              "reasoning": "La mission relève du secteur culturel et médiatique, avec des tâches de communication, de création de contenus et de gestion administrative liée à des événements culturels."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "gestion_commerce_organisation",
+            "taxonomyValueLabel": "Gestion, commerce et organisation",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Participer au développement des publics au travers d'actions de communication / Participer au développement financier de l'association au travers de la prospection de nouveaux contacts marketing/nouvelles sources de financement / Aide à la vie administrative de l'association (contrats, demandes de subvention, adhésions...)",
+              "reasoning": "La mission inclut des tâches de gestion, de prospection, de communication et d'organisation administrative, typiques du secteur gestion/commerce/organisation."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "communication_creation_numerique",
+            "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Aide au reportage lors des événements : photos, vidéos / Participer au développement des publics au travers d'actions de communication",
+              "reasoning": "La mission implique la création de contenus visuels (photos, vidéos) et des actions de communication, relevant des compétences numériques et créatives."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "gestion_pilotage_juridique",
+            "taxonomyValueLabel": "Gestion, pilotage, juridique",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Aide à la vie administrative de l'association (contrats, demandes de subvention, adhésions...)",
+              "reasoning": "La mission inclut des tâches administratives et juridiques (contrats, subventions), relevant de la gestion et du pilotage."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Assister les bénévoles du Festival Jazz Sur Seine / Aider à l'organisation d'événements culturels locaux",
+              "reasoning": "La mission implique un travail collaboratif et organisationnel avec des bénévoles et pour l'organisation d'événements."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "actions d'initiation et de découverte auprès des plus jeunes et des plus fragiles / Favoriser l'accès au jazz auprès des publics éloignés de l'offre culturelle : enfants, étudiants, patients polyhandicapés",
+              "reasoning": "La mission inclut explicitement des actions de transmission et d'initiation auprès de publics variés."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Assister les bénévoles du Festival Jazz Sur Seine / Aider à l'organisation d'événements culturels locaux",
+              "reasoning": "La mission implique l'animation et l'organisation d'événements culturels, relevant de l'animation."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Participer au développement des publics au travers d'actions de communication / Participer au développement financier de l'association au travers de la prospection de nouveaux contacts marketing/nouvelles sources de financement / Aide à la vie administrative de l'association (contrats, demandes de subvention, adhésions...)",
+              "reasoning": "La mission consiste principalement à soutenir l'organisation via des tâches de communication, de prospection, de gestion administrative et de développement."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Type de mission : volontariat_service_civique / Durée : 8 heures — Plus de 30h / du 1 avril 2026 au 1 décembre 2026",
+              "reasoning": "La mission est encadrée par un service civique, ce qui implique un cadre structuré et institutionnel."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "education_culture_creation",
+            "taxonomyValueLabel": "Éducation, culture et création",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Participer au dynamisme culturel francilien en soutenant les lieux de jazz et les artistes / Aide à l'organisation d'événements culturels locaux / Aide au reportage lors des événements : photos, vidéos",
+              "reasoning": "La mission relève de l'éducation, de la culture et de la création, avec des activités de médiation, d'organisation d'événements et de création de contenus."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "numerique_communication",
+            "taxonomyValueLabel": "Numérique et communication",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Aide au reportage lors des événements : photos, vidéos / Participer au développement des publics au travers d'actions de communication",
+              "reasoning": "La mission inclut des tâches de communication et de création de contenus numériques (photos, vidéos)."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "service_civique",
+            "taxonomyValueLabel": "Service civique",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "20ebfde0-6186-4a3e-bcb7-30d70af7e1ed",
+        "title": "Participation au projet de promotion du Jazz à Paris et en Île-de-France",
+        "domain": "culture-loisirs",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_01.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "PARIS JAZZ CLUB",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Paris",
+          "address": "58 rue des Lombards, 75001 Paris",
+          "lat": 48.859848,
+          "lon": 2.347811
+        },
+        "startAt": "2026-04-01T00:00:00.000Z",
+        "endAt": "2026-12-01T01:00:00.000Z",
+        "duration": 8,
+        "schedule": "Plus de 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Aide aux projets de promotion du Jazz en Ile-de-France organisés par PARIS JAZZ CLUB</p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p>Participer au dynamisme culturel francilien en soutenant les lieux de jazz et les artistes, mais aussi au travers d'actions d'initiation et de découverte auprès des plus jeunes et des plus fragiles.</p></p><br>\n<b>Actions</b><br><p><p>-&nbsp;Favoriser l'accès au jazz auprès des publics éloignés de l'offre culturelle : enfants, étudiants, patients polyhandicapés, grand public lors de l'organisation d'événements gratuits</p><p>- Participer au développement des publics au travers d'actions de communication</p><p>- Participer au développement financier de l'association au travers de la prospection de nouveaux contacts marketing/nouvelles sources de financement</p><p>- Assister les bénévoles du Festival Jazz Sur Seine</p><p>- Aider à l'organisation d'événements culturels locaux</p><p>- Aider au reportage lors des événements : photos, vidéos</p><p>- Aide à la vie administrative de l'association (contrats, demandes de subvention, adhésions...)</p></p><br>",
+        "description": "EN QUELQUES MOTS\n\n\nAide aux projets de promotion du Jazz en Ile-de-France organisés par PARIS JAZZ\nCLUB\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nParticiper au dynamisme culturel francilien en soutenant les lieux de jazz et\nles artistes, mais aussi au travers d'actions d'initiation et de découverte\nauprès des plus jeunes et des plus fragiles.\n\n\n\n\n\nActions\n\n\n\n\n- Favoriser l'accès au jazz auprès des publics éloignés de l'offre culturelle :\nenfants, étudiants, patients polyhandicapés, grand public lors de l'organisation\nd'événements gratuits\n\n- Participer au développement des publics au travers d'actions de communication\n\n- Participer au développement financier de l'association au travers de la\nprospection de nouveaux contacts marketing/nouvelles sources de financement\n\n- Assister les bénévoles du Festival Jazz Sur Seine\n\n- Aider à l'organisation d'événements culturels locaux\n\n- Aider au reportage lors des événements : photos, vidéos\n\n- Aide à la vie administrative de l'association (contrats, demandes de\nsubvention, adhésions...)\n\n\n",
+        "applicationUrl": "http://localhost:4000/r/20ebfde0-6186-4a3e-bcb7-30d70af7e1ed/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/arts_culture_01.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "165c3653-59eb-4d8b-ab44-d9028e305048",
+        "title": "Chargé(e) de communication Sensibilisation Entrepreneuriat Etudiant – Pépite Sorbonne Université",
+        "remote": "no",
+        "schedule": "De 24h à 30h",
+        "domain": "education",
+        "domainOriginal": "Éducation pour tous",
+        "organizationName": "SORBONNE UNIVERSITE",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_02.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_02.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Paris",
+          "closestLat": 48.846346,
+          "closestLon": 2.355041,
+          "closestAddress": "4 Place Jussieu, 75005 Paris, FR",
+          "addressId": "a03e0d99-c856-432c-90ab-793ae605a75a",
+          "distanceKm": 1.1602306007209326
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/165c3653-59eb-4d8b-ab44-d9028e305048/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "bac8ee08-5bf6-4223-b50f-f69d628ffa6d",
+        "totalScore": 0.680294,
+        "taxonomyScore": 0.4,
+        "geoScore": 0.960587,
+        "taxonomyScores": {
+          "competence_rome": 1,
+          "tranche_age": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "promouvoir l’entrepreneuriat étudiant au sein des établissements de l’Alliance / Mettre en lumière et assurer la promotion des animations de sensibilisation / Piloter la newsletter de sensibilisation à destination de la communauté étudiante et académique",
+              "reasoning": "La mission est centrée sur la transmission de connaissances, la sensibilisation et la promotion de l'entrepreneuriat étudiant, ce qui relève clairement de l'éducation et de la transmission."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "gestion_projet",
+            "taxonomyValueLabel": "Gestion de projet",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Piloter la newsletter de sensibilisation / Participer à la communication des événements majeurs / Soutenir le chargé de communication dans la création graphique des supports de communication",
+              "reasoning": "Les tâches décrites incluent la coordination, la gestion de projets de communication et le suivi de supports, ce qui relève de la gestion de projet."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "numerique_communication",
+            "taxonomyValueLabel": "Numérique et communication",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Mettre en lumière et assurer la promotion des animations de sensibilisation sur les réseaux sociaux (LinkedIn, Instagram, TikTok) / Mettre en place, lancer et gérer le compte TikTok de Pépite Sorbonne Université avec le chargé de communication (tournage, montage, rédaction des scripts, veille sur les tendances) / Soutenir le chargé de communication dans la création graphique des supports de communication de sensibilisation (via le logiciel CANVA)",
+              "reasoning": "La mission est principalement axée sur la communication numérique, la gestion des réseaux sociaux et la création de contenus digitaux."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "gestion_commerce_organisation",
+            "taxonomyValueLabel": "Gestion, commerce et organisation",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Piloter la newsletter de sensibilisation / Participer à la communication des événements majeurs / Aider à l’encadrement des emplois étudiants participant aux actions de communication",
+              "reasoning": "Les tâches incluent la gestion de projets, l'organisation d'événements et l'encadrement, ce qui relève du secteur de la gestion et de l'organisation."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "communication_creation_numerique",
+            "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+            "enrichmentConfidence": 0.98,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Mettre en lumière et assurer la promotion des animations de sensibilisation sur les réseaux sociaux (LinkedIn, Instagram, TikTok) / Mettre en place, lancer et gérer le compte TikTok de Pépite Sorbonne Université avec le chargé de communication (tournage, montage, rédaction des scripts, veille sur les tendances)",
+              "reasoning": "La mission implique la création et la gestion de contenus numériques, ainsi que l'utilisation d'outils de communication digitale."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "gestion_pilotage_juridique",
+            "taxonomyValueLabel": "Gestion, pilotage, juridique",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Piloter la newsletter de sensibilisation / Participer à la communication des événements majeurs",
+              "reasoning": "Les tâches incluent la gestion de projets et la coordination, ce qui relève de compétences en gestion et pilotage."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Aider à l’encadrement des emplois étudiants participant aux actions de communication / Capacité d’initiative : Vous aurez la possibilité de faire évoluer les formats existants pour les améliorer et de proposer de nouveaux formats de communication",
+              "reasoning": "La mission implique le travail en équipe, l'encadrement et l'initiative personnelle, ce qui relève des compétences en coopération et organisation."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "promouvoir l’entrepreneuriat étudiant au sein des établissements de l’Alliance / Mettre en lumière et assurer la promotion des animations de sensibilisation / Piloter la newsletter de sensibilisation à destination de la communauté étudiante et académique",
+              "reasoning": "La mission consiste principalement à transmettre des informations, sensibiliser et promouvoir des connaissances, ce qui relève de l'intention de transmission."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Piloter la newsletter de sensibilisation / Participer à la communication des événements majeurs / Soutenir le chargé de communication dans la création graphique des supports de communication",
+              "reasoning": "Les tâches décrites sont principalement axées sur le soutien organisationnel et la coordination des actions de communication."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Type de mission : volontariat_service_civique / Formations obligatoires proposées : formation PSC1 et civique citoyenne / Tutorat et accompagnement : RDV réguliers pour échanger sur vos missions",
+              "reasoning": "La mission s'inscrit dans un cadre structuré de service civique avec des formations obligatoires, un tutorat et un accompagnement régulier, ce qui relève d'un engagement en cadre structuré."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "numerique_communication",
+            "taxonomyValueLabel": "Numérique et communication",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Mettre en lumière et assurer la promotion des animations de sensibilisation sur les réseaux sociaux (LinkedIn, Instagram, TikTok) / Mettre en place, lancer et gérer le compte TikTok de Pépite Sorbonne Université avec le chargé de communication (tournage, montage, rédaction des scripts, veille sur les tendances)",
+              "reasoning": "La mission est clairement liée au domaine numérique et à la communication, ce qui correspond à la formation ONISEP dans ce secteur."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "commerce_gestion_finance",
+            "taxonomyValueLabel": "Commerce, gestion, finance et services",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Piloter la newsletter de sensibilisation / Participer à la communication des événements majeurs",
+              "reasoning": "Les tâches incluent la gestion de projets et la coordination, ce qui peut être rattaché à des compétences en gestion et organisation."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "service_civique",
+            "taxonomyValueLabel": "Service civique",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "165c3653-59eb-4d8b-ab44-d9028e305048",
+        "title": "Chargé(e) de communication Sensibilisation Entrepreneuriat Etudiant – Pépite Sorbonne Université",
+        "domain": "education",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_02.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "SORBONNE UNIVERSITE",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Paris",
+          "address": "4 Place Jussieu, 75005 Paris",
+          "lat": 48.846346,
+          "lon": 2.355041
+        },
+        "startAt": "2026-09-01T00:00:00.000Z",
+        "endAt": "2027-05-01T00:00:00.000Z",
+        "duration": 8,
+        "schedule": "De 24h à 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p>Vous contribuerez à la valorisation des actions, des ressources et des événements de sensibilisation à l’entrepreneuriat étudiant de l’Alliance Sorbonne Université. Votre mission : promouvoir l’entrepreneuriat étudiant au sein des établissements de l’Alliance</p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p>L'objectif est de faire connaitre à l'ensemble des étudiants de Sorbonne Université l'accompagnement gratuit proposé par Pépite pour les accompagner dans la réalisation de leurs idées et projets.</p></p><br>\n<b>Actions</b><br><p><ul><li>Mettre en lumière et assurer la promotion des animations de sensibilisation sur les réseaux sociaux (LinkedIn, Instagram, TikTok)</li><li>Mettre en place, lancer et gérer le compte TikTok de Pépite Sorbonne Université avec le chargé de communication (tournage, montage, rédaction des scripts, veille sur les tendances)</li><li>Aider à l’encadrement des emplois étudiants participant aux actions de communication.</li><li>Piloter la newsletter de sensibilisation à destination de la communauté étudiante et académique ainsi que la création de portraits d’étudiants entrepreneurs</li><li>Participer à la communication des événements majeurs (Journées de l’Engagement, Challenge Créativité et Innovation).</li><li>Soutenir le chargé de communication dans la création graphique des supports de communication de sensibilisation (via le logiciel CANVA)</li><li>Contribuer à faire connaitre le kit de 10 ressources de sensibilisation mis à disposition aux responsables de formations </li></ul><p><strong>La candidature devra être obligatoirement accompagnée d'un CV.</strong></p></p><br>\n<b>Capacité d’initiative</b><br><p>Vous aurez la possibilité de faire évoluer les formats existants pour les améliorer et de proposer de nouveaux formats de communication.</p><br>\n<b>VOTRE ENVIRONNEMENT</b><br><b>Formations obligatoires proposées</b><br><p>En complément le formation PSC1 et civique citoyenne (à choisir parmi un catalogue), plusieurs autres formations vous seront proposées par Pépite.</p><br><b>Tutorat et accompagnement</b><br><p>RDV réguliers pour échanger sur vos missions et bénéficier de l'aide et du réseau du tuteur pour réfléchir à votre projet d'avenir</p>",
+        "description": "EN QUELQUES MOTS\n\n\nVous contribuerez à la valorisation des actions, des ressources et des\névénements de sensibilisation à l’entrepreneuriat étudiant de l’Alliance\nSorbonne Université. Votre mission : promouvoir l’entrepreneuriat étudiant au\nsein des établissements de l’Alliance\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nL'objectif est de faire connaitre à l'ensemble des étudiants de Sorbonne\nUniversité l'accompagnement gratuit proposé par Pépite pour les accompagner dans\nla réalisation de leurs idées et projets.\n\n\n\n\n\nActions\n\n\n\n\n • Mettre en lumière et assurer la promotion des animations de sensibilisation\n   sur les réseaux sociaux (LinkedIn, Instagram, TikTok)\n • Mettre en place, lancer et gérer le compte TikTok de Pépite Sorbonne\n   Université avec le chargé de communication (tournage, montage, rédaction des\n   scripts, veille sur les tendances)\n • Aider à l’encadrement des emplois étudiants participant aux actions de\n   communication.\n • Piloter la newsletter de sensibilisation à destination de la communauté\n   étudiante et académique ainsi que la création de portraits d’étudiants\n   entrepreneurs\n • Participer à la communication des événements majeurs (Journées de\n   l’Engagement, Challenge Créativité et Innovation).\n • Soutenir le chargé de communication dans la création graphique des supports\n   de communication de sensibilisation (via le logiciel CANVA)\n • Contribuer à faire connaitre le kit de 10 ressources de sensibilisation mis à\n   disposition aux responsables de formations\n\nLa candidature devra être obligatoirement accompagnée d'un CV.\n\n\n\n\n\nCapacité d’initiative\n\n\nVous aurez la possibilité de faire évoluer les formats existants pour les\naméliorer et de proposer de nouveaux formats de communication.\n\n\n\nVOTRE ENVIRONNEMENT\nFormations obligatoires proposées\n\n\nEn complément le formation PSC1 et civique citoyenne (à choisir parmi un\ncatalogue), plusieurs autres formations vous seront proposées par Pépite.\n\n\nTutorat et accompagnement\n\n\nRDV réguliers pour échanger sur vos missions et bénéficier de l'aide et du\nréseau du tuteur pour réfléchir à votre projet d'avenir",
+        "applicationUrl": "http://localhost:4000/r/165c3653-59eb-4d8b-ab44-d9028e305048/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/education_02.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": true,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "e8852283-7b4c-43fb-96da-d8d31f42592d",
+        "title": "La mission est d'aider à l’évaluation de l'impact de la structure sur les bénéficiaires",
+        "remote": "no",
+        "schedule": "Plus de 30h",
+        "domain": "solidarite-insertion",
+        "domainOriginal": "Solidarité",
+        "organizationName": "TIME TO START",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+          "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo"
+        },
+        "location": {
+          "city": "Paris 04",
+          "closestLat": 48.851237,
+          "closestLon": 2.367228,
+          "closestAddress": "29 boulevard Bourdon, 75004 Paris 04, FR",
+          "addressId": "cb46a514-1392-4972-aaf1-f9267896c126",
+          "distanceKm": 1.2501462723415941
+        },
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "applicationUrl": "http://localhost:4000/r/e8852283-7b4c-43fb-96da-d8d31f42592d/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "3f57a148-65e3-4135-87e3-f6bdfe7336b2",
+        "totalScore": 0.675799,
+        "taxonomyScore": 0.394,
+        "geoScore": 0.957598,
+        "taxonomyScores": {
+          "competence_rome": 0.97,
+          "tranche_age": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "gestion_pilotage_juridique",
+            "taxonomyValueLabel": "Gestion, pilotage, juridique",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Participer à la mise en place et à l’amélioration des outils permettant d’évaluer l'impact de nos actions sur nos bénéficiaires et notre territoire / A travers des questionnaires, et entretiens il pourra aider Time2start à analyser l'impact de la structure sur les bénéficiaires",
+              "reasoning": "La mission implique une analyse de données et une évaluation, ce qui relève des compétences de gestion, pilotage et analyse."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.92,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Participer à la mise en place et à l’amélioration des outils permettant d’évaluer l'impact de nos actions sur nos bénéficiaires et notre territoire / Le volontaire sera en appui sur les différentes missions liés aux entrepreneurs / A travers des questionnaires, et entretiens il pourra aider Time2start à analyser l'impact de la structure sur les bénéficiaires",
+              "reasoning": "La mission est explicitement centrée sur l'évaluation de l'impact social et l'accompagnement des bénéficiaires, ce qui relève du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Participer à la mise en place et à l’amélioration des outils permettant d’évaluer l'impact de nos actions sur nos bénéficiaires et notre territoire / A travers des questionnaires, et entretiens il pourra aider Time2start à analyser l'impact de la structure sur les bénéficiaires",
+              "reasoning": "Les tâches principales consistent à évaluer l'impact social et à analyser les effets sur les bénéficiaires, ce qui relève de l'évaluation et de l'analyse dans un contexte social."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Il sera invité à participer à des réunions de travail afin de partager ses résultats / Cette mission complétera le travail d'impact qui est mené au sein de la structure en ayant le point de vue des entrepreneurs",
+              "reasoning": "La mission implique une participation active à des réunions de travail et une contribution à la réflexion collective, ce qui relève de l'organisation et de la coopération."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "action_terrain",
+            "taxonomyValueLabel": "Action terrain concrète (collecte, distribution, fabrication…)",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Le volontaire contribue à évaluer l'impact de s. et aura pour mission de faire le lien entre nos actions et son effet sur les bénéficiaires / A travers des questionnaires, et entretiens il pourra aider Time2start à analyser l'impact de la structure sur les bénéficiaires",
+              "reasoning": "Les tâches incluent la collecte de données via des questionnaires et entretiens, ce qui relève de l'action terrain concrète."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "communication_creation_numerique",
+            "taxonomyValueLabel": "Communication, création, innovation, nouvelles technologies",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Le volontaire sera en appui sur les différentes missions liés aux entrepreneurs / Il sera sollicité sur le volet sensibilisation : les évènements organisés par la structure mais également ceux auxquels elle participe",
+              "reasoning": "La mission inclut une participation à des événements de sensibilisation, ce qui relève de la communication et de l'animation."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Cette mission permettra au volontaire de comprendre les enjeux liés à la diversité et l’inclusion par l’entrepreneuriat dans les quartiers populaires / Le volontaire contribue à évaluer l'impact de s. et aura pour mission de faire le lien entre nos actions et son effet sur les bénéficiaires",
+              "reasoning": "La mission est liée à des enjeux sociaux et d'inclusion, ce qui relève du secteur social et de l'aide à la personne."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "cadre_engage",
+            "taxonomyValueLabel": "Engagement en cadre structuré",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Type de mission : volontariat_service_civique / Durée : 7 heures — Plus de 30h / Dates : du 5 mars 2026 au 5 octobre 2026",
+              "reasoning": "La mission est explicitement un service civique, ce qui relève d'un cadre structuré et institutionnel."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Cette mission permettra au volontaire de comprendre les enjeux liés à la diversité et l’inclusion par l’entrepreneuriat dans les quartiers populaires",
+              "reasoning": "La mission est liée à des enjeux de société, de diversité et d'inclusion, ce qui relève du domaine de la société, du droit et de la politique."
+            }
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "temps_plein",
+            "taxonomyValueLabel": "Mission à temps plein",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "service_civique",
+            "taxonomyValueLabel": "Service civique",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "e8852283-7b4c-43fb-96da-d8d31f42592d",
+        "title": "La mission est d'aider à l’évaluation de l'impact de la structure sur les bénéficiaires",
+        "domain": "solidarite-insertion",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+        "type": "volontariat_service_civique",
+        "publisherId": "5f99dbe75eb1ad767733b206",
+        "publisherName": "Service Civique",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f99dbe75eb1ad767733b206/logo",
+        "organizationName": "TIME TO START",
+        "organizationLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/asc-logo.png",
+        "location": {
+          "city": "Paris 04",
+          "address": "29 boulevard Bourdon, 75004 Paris 04",
+          "lat": 48.851237,
+          "lon": 2.367228
+        },
+        "startAt": "2026-03-05T00:00:00.000Z",
+        "endAt": "2026-10-04T23:00:00.000Z",
+        "duration": 7,
+        "schedule": "Plus de 30h",
+        "compensation": {
+          "amount": 620,
+          "amountMax": null,
+          "unit": "month",
+          "type": "net"
+        },
+        "descriptionHtml": "<b>EN QUELQUES MOTS</b><br><p> Cette mission permettra au volontaire de comprendre les enjeux liés à la diversité et l’inclusion par l’entrepreneuriat dans les quartiers populaires. Le volontaire contribue à évaluer l'impact de s. et aura pour mission de faire le lien entre nos actions  et son effet sur les bénéficiaires. </p><br>\n<b>VOTRE MISSION DE SERVICE CIVIQUE</b><br><b>Objectifs</b><br><p><p>Participer à la mise en place et à l’amélioration des outils permettant d’évaluer l’impact de nos actions sur nos bénéficiaires et notre territoire.</p></p><br>\n<b>Actions</b><br><p>Le volontaire sera en appui sur les différentes missions liés aux entrepreneurs.  A travers des questionnaires, et entretiens il pourra aider Time2start à analyser l'impact de la structure sur les bénéficiaires. Aussi, il sera sollicité sur le volet sensibilisation :  les évènements organisés par la structure mais également ceux auxquels elle participe.. Il pourra à travers ses missions proposer les outils qui lui semblent les plus pertinents pour faire ces échanges. Il sera invité à participer à des réunions de travail afin de partager ses résultats. Cette mission complètera le travail d'impact qui est mené au sein de la structure en ayant le point de vue des entrepreneurs. </p><br>",
+        "description": "EN QUELQUES MOTS\n\n\nCette mission permettra au volontaire de comprendre les enjeux liés à la\ndiversité et l’inclusion par l’entrepreneuriat dans les quartiers populaires. Le\nvolontaire contribue à évaluer l'impact de s. et aura pour mission de faire le\nlien entre nos actions et son effet sur les bénéficiaires.\n\n\n\nVOTRE MISSION DE SERVICE CIVIQUE\nObjectifs\n\n\n\n\nParticiper à la mise en place et à l’amélioration des outils permettant\nd’évaluer l’impact de nos actions sur nos bénéficiaires et notre territoire.\n\n\n\n\n\nActions\n\n\nLe volontaire sera en appui sur les différentes missions liés aux entrepreneurs.\nA travers des questionnaires, et entretiens il pourra aider Time2start à\nanalyser l'impact de la structure sur les bénéficiaires. Aussi, il sera\nsollicité sur le volet sensibilisation : les évènements organisés par la\nstructure mais également ceux auxquels elle participe.. Il pourra à travers ses\nmissions proposer les outils qui lui semblent les plus pertinents pour faire ces\néchanges. Il sera invité à participer à des réunions de travail afin de partager\nses résultats. Cette mission complètera le travail d'impact qui est mené au sein\nde la structure en ayant le point de vue des entrepreneurs.\n",
+        "applicationUrl": "http://localhost:4000/r/e8852283-7b4c-43fb-96da-d8d31f42592d/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/solidarite_01.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": true,
+        "places": 3
+      },
+      "descriptionMissing": false
+    }
+  ],
+  "deterministic": {
+    "geo": 5,
+    "format": 1,
+    "missionsSansTagFormat": [],
+    "gateViolations": []
+  },
+  "judgeRuns": [
+    {
+      "runIndex": 0,
+      "seed": 905013424,
+      "order": [
+        "39012138-1b27-437f-a364-0f882fbc0221",
+        "165c3653-59eb-4d8b-ab44-d9028e305048",
+        "2f4d75ad-9875-4cfe-b775-2d1b8ed0b13b",
+        "e8852283-7b4c-43fb-96da-d8d31f42592d",
+        "20ebfde0-6186-4a3e-bcb7-30d70af7e1ed"
+      ],
+      "output": {
+        "coherence": {
+          "score": 4,
+          "missionsPertinentes": [
+            1,
+            2,
+            4,
+            5
+          ],
+          "justification": "Les missions 1, 2 et 4 sont clairement en lien avec la communication et la création numérique, ce qui correspond bien au profil d'Emma qui souhaite valoriser ses compétences en communication et numérique. La mission 0 inclut aussi des tâches de communication mais est plus orientée vers la sensibilisation environnementale, ce qui est moins directement lié à ses objectifs. La mission 3 est centrée sur l'évaluation d'impact et l'entrepreneuriat dans les quartiers populaires, ce qui est moins pertinent pour ses compétences et motivations.",
+          "missionIdsPertinents": [
+            "39012138-1b27-437f-a364-0f882fbc0221",
+            "165c3653-59eb-4d8b-ab44-d9028e305048",
+            "e8852283-7b4c-43fb-96da-d8d31f42592d",
+            "20ebfde0-6186-4a3e-bcb7-30d70af7e1ed"
+          ]
+        },
+        "homogeneite": {
+          "score": 4,
+          "familles": [
+            "Communication et création numérique",
+            "Sensibilisation et animation",
+            "Événementiel culturel"
+          ],
+          "justification": "Les missions pertinentes se regroupent principalement dans la famille communication et création numérique (missions 1, 2, 4). La mission 0 est plus orientée vers la sensibilisation environnementale, et la mission 3 vers l'évaluation d'impact social, ce qui montre une diversité de familles mais avec une majorité dans la communication."
+        },
+        "cause": null
+      }
+    },
+    {
+      "runIndex": 1,
+      "seed": 921791043,
+      "order": [
+        "e8852283-7b4c-43fb-96da-d8d31f42592d",
+        "39012138-1b27-437f-a364-0f882fbc0221",
+        "165c3653-59eb-4d8b-ab44-d9028e305048",
+        "20ebfde0-6186-4a3e-bcb7-30d70af7e1ed",
+        "2f4d75ad-9875-4cfe-b775-2d1b8ed0b13b"
+      ],
+      "output": {
+        "coherence": {
+          "score": 5,
+          "missionsPertinentes": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "justification": "Toutes les missions proposées correspondent bien au profil d'Emma, qui cherche à valoriser ses compétences en communication et numérique. Chaque mission implique des tâches de communication, création de contenu, sensibilisation ou gestion de réseaux sociaux, ce qui est pertinent pour son objectif de booster son CV dans ce domaine.",
+          "missionIdsPertinents": [
+            "e8852283-7b4c-43fb-96da-d8d31f42592d",
+            "39012138-1b27-437f-a364-0f882fbc0221",
+            "165c3653-59eb-4d8b-ab44-d9028e305048",
+            "20ebfde0-6186-4a3e-bcb7-30d70af7e1ed",
+            "2f4d75ad-9875-4cfe-b775-2d1b8ed0b13b"
+          ]
+        },
+        "homogeneite": {
+          "score": 4,
+          "familles": [
+            "Communication et sensibilisation",
+            "Animation et événementiel",
+            "Gestion de projet et évaluation"
+          ],
+          "justification": "Les missions se répartissent principalement en trois familles : communication et sensibilisation (missions 1,2,4), animation et événementiel (missions 1,3), et gestion de projet/évaluation (mission 0). La famille communication est majoritaire avec au moins 3 missions, ce qui donne une bonne homogénéité."
+        },
+        "cause": null
+      }
+    }
+  ],
+  "engineVersion": "m2",
+  "startedAt": "2026-07-07T12:01:05.795Z",
+  "finishedAt": "2026-07-07T12:01:16.620Z",
+  "verdict": 3.9,
+  "cleanup": {
+    "userScoringDeleted": true
+  }
+}

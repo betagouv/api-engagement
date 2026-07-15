@@ -1,0 +1,2550 @@
+{
+  "status": "success",
+  "parcours": {
+    "id": "lucas-sans-signal",
+    "segment": "etudiant",
+    "label": "Lucas, 19 ans, étudiant à Toulouse, n'a pas encore de préférence claire et veut explorer les missions disponibles",
+    "locationLabel": "Toulouse (31)",
+    "age": 19,
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 19,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "statut",
+        "value": "etudiant"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 43.604652,
+          "lon": 1.444209,
+          "country_code": "fr",
+          "label": "Toulouse (31)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "je_ne_sais_pas"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "ne_sais_pas"
+      },
+      {
+        "taxonomy": "domaine",
+        "value": "je_ne_sais_pas"
+      }
+    ]
+  },
+  "payload": {
+    "answers": [
+      {
+        "taxonomy": "tranche_age",
+        "params": {
+          "age": 19,
+          "handicap": false
+        }
+      },
+      {
+        "taxonomy": "statut",
+        "value": "etudiant"
+      },
+      {
+        "taxonomy": "location",
+        "params": {
+          "lat": 43.604652,
+          "lon": 1.444209,
+          "country_code": "fr",
+          "label": "Toulouse (31)"
+        }
+      },
+      {
+        "taxonomy": "type_mission",
+        "value": "je_ne_sais_pas"
+      },
+      {
+        "taxonomy": "motivation",
+        "value": "ne_sais_pas"
+      },
+      {
+        "taxonomy": "domaine",
+        "value": "je_ne_sais_pas"
+      }
+    ],
+    "distinctId": "eval:m2-261007:lucas-sans-signal",
+    "missionAlertEnabled": false
+  },
+  "userScoringId": "64f787e1-b125-444d-8b58-191a00de481d",
+  "match": {
+    "tookMs": 7253,
+    "engineVersion": "m2",
+    "items": [
+      {
+        "mission": {
+          "id": "6537bff6557894a1b7b05331",
+          "title": "J'accompagne des porteurs de projets en précarité à créer leur activité en milieu rural",
+          "remote": "no",
+          "schedule": "",
+          "domain": "humanitaire",
+          "domainOriginal": null,
+          "organizationName": "Fondation Raoul Follereau Siège",
+          "publisherId": "634e641783b660072d4c597e",
+          "publisherName": "Fondation Raoul-Follereau",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_01.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_01.jpeg",
+            "organizationLogo": null,
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/634e641783b660072d4c597e/logo"
+          },
+          "location": {
+            "city": "Toulouse",
+            "closestLat": 43.604462,
+            "closestLon": 1.444247,
+            "closestAddress": "31000 Toulouse, FR",
+            "addressId": "6c14bc64-4846-4413-ada8-1eea97e2671c",
+            "distanceKm": 0.021347443665208077
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/6537bff6557894a1b7b05331/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "c850e62e-1957-43d7-9530-23e5c26207aa",
+          "totalScore": 0.59963,
+          "taxonomyScore": 0.2,
+          "geoScore": 0.99926,
+          "taxonomyScores": {
+            "tranche_age": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "social_solidarite",
+              "taxonomyValueLabel": "Social et solidarité",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "aider des personnes en difficultés / accompagnement et un suivi personnalisé de la part d'un responsable de la Fondation / lutter contre toute forme d’exclusion causée par la maladie, l'ignorance ou la pauvreté",
+                "reasoning": "La mission est centrée sur l'accompagnement de personnes en précarité et la lutte contre l'exclusion, ce qui relève clairement du domaine social et solidarité."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "gestion_projet",
+              "taxonomyValueLabel": "Gestion de projet",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "étudier les demandes d'aide et assurer un suivi régulier de porteurs de projet / développer le réseau de partenaires locaux / gestion de projet seront appréciées",
+                "reasoning": "Les tâches décrites incluent une forte composante de coordination, suivi et organisation, typique de la gestion de projet."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "sante_social_aide_personne",
+              "taxonomyValueLabel": "Santé, social et aide à la personne",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "aider des personnes en difficultés / accompagnement et un suivi personnalisé / lutter contre toute forme d’exclusion causée par la maladie, l'ignorance ou la pauvreté",
+                "reasoning": "La mission s'inscrit dans le secteur de l'aide à la personne et du social, avec une dimension d'insertion et de réinsertion."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "gestion_commerce_organisation",
+              "taxonomyValueLabel": "Gestion, commerce et organisation",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "étudier les demandes d'aide et assurer un suivi régulier de porteurs de projet / développer le réseau de partenaires locaux / gestion de projet seront appréciées",
+                "reasoning": "Les tâches incluent une forte composante de gestion, coordination et développement de partenariats."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "Fréquence : Selon vos disponibilités / Implication sur la durée",
+                "reasoning": "La mission est décrite comme une implication sur la durée avec une fréquence adaptée aux disponibilités, ce qui correspond à une mission régulière."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "gestion_pilotage_juridique",
+              "taxonomyValueLabel": "Gestion, pilotage, juridique",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "étudier les demandes d'aide et assurer un suivi régulier de porteurs de projet / gestion de projet seront appréciées",
+                "reasoning": "Les tâches incluent l'étude de demandes et le suivi de projets, ce qui relève de la gestion et du pilotage."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "développer le réseau de partenaires locaux / accompagnement et un suivi personnalisé",
+                "reasoning": "La mission implique le développement de partenariats et un accompagnement personnalisé, ce qui relève de la coopération et des soft skills."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "étudier les demandes d'aide et assurer un suivi régulier de porteurs de projet / développer le réseau de partenaires locaux",
+                "reasoning": "Les tâches principales consistent à soutenir l'organisation en étudiant des demandes, assurant un suivi et développant des partenariats."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "La Fondation assure la formation et guide chaque accompagnateur bénévole dans sa mission / accompagnement et un suivi personnalisé",
+                "reasoning": "La mission inclut une dimension de transmission de connaissances et de compétences via la formation et l'accompagnement."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "commerce_gestion_finance",
+              "taxonomyValueLabel": "Commerce, gestion, finance et services",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Des compétences en gestion/finance ou marketing/communication ou gestion de projet ou encore création d’activité seront appréciées",
+                "reasoning": "Les compétences recherchées incluent explicitement la gestion, la finance et la gestion de projet, ce qui relève de ce domaine de formation."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "social_sante_sport",
+              "taxonomyValueLabel": "Social, santé et sport",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "aider des personnes en difficultés / lutter contre toute forme d’exclusion causée par la maladie, l'ignorance ou la pauvreté / insertion",
+                "reasoning": "La mission est clairement orientée vers l'aide aux personnes en précarité et l'insertion, ce qui relève de ce domaine de formation."
+              }
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "benevolat",
+              "taxonomyValueLabel": "Bénévolat",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "661e52accd17d7c168601474",
+          "title": "Je sensibilise les jeunes au risque routier",
+          "remote": "no",
+          "schedule": "",
+          "domain": "prevention-protection",
+          "domainOriginal": null,
+          "organizationName": "Association Prévention Routière - Occitanie",
+          "publisherId": "619fab857d373e07aea8be1e",
+          "publisherName": "Prévention routière",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_02.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_02.jpeg",
+            "organizationLogo": null,
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/619fab857d373e07aea8be1e/logo"
+          },
+          "location": {
+            "city": "Toulouse",
+            "closestLat": 43.604462,
+            "closestLon": 1.444247,
+            "closestAddress": "31000 Toulouse, FR",
+            "addressId": "7f556aae-dac3-479d-8515-0aeb41245786",
+            "distanceKm": 0.021347443665208077
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/661e52accd17d7c168601474/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "a38c02d0-be9e-4a4f-a9cf-3dbfd595672d",
+          "totalScore": 0.59963,
+          "taxonomyScore": 0.2,
+          "geoScore": 0.99926,
+          "taxonomyScores": {
+            "tranche_age": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "animer des séances favorisant la prise de parole et l’écoute de l’autre / sensibiliser autour d’ateliers d’interaction et de simulation / informer sur différents sujets tels que le risque à la consommation d’alcool, de stupéfiants et aux distracteurs",
+                "reasoning": "La mission consiste principalement à transmettre des connaissances et à sensibiliser les jeunes sur des sujets précis, ce qui relève de l'éducation et de la transmission."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "securite_defense",
+              "taxonomyValueLabel": "Sécurité et défense",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "sensibiliser autour d’ateliers d’interaction et de simulation / informer sur différents sujets tels que le risque à la consommation d’alcool, de stupéfiants et aux distracteurs",
+                "reasoning": "La mission porte sur la prévention des risques routiers, un domaine lié à la sécurité et à la défense des usagers de la route."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "animer des séances favorisant la prise de parole et l’écoute de l’autre / sensibiliser autour d’ateliers d’interaction et de simulation",
+                "reasoning": "Les tâches décrites relèvent de l'animation éducative et de la formation, typiques du secteur éducation et formation."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "securite_service_public",
+              "taxonomyValueLabel": "Sécurité et service public",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "sensibiliser autour d’ateliers d’interaction et de simulation / informer sur différents sujets tels que le risque à la consommation d’alcool, de stupéfiants et aux distracteurs",
+                "reasoning": "La mission s'inscrit dans le cadre de la prévention routière, un domaine lié à la sécurité publique et aux services publics."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Fréquence : Selon les actions prévues et vos disponibilités.",
+                "reasoning": "La mission est décrite comme ayant une fréquence variable mais répétée selon les actions, ce qui correspond à une mission régulière."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "animer des séances favorisant la prise de parole et l’écoute de l’autre / sensibiliser autour d’ateliers d’interaction et de simulation",
+                "reasoning": "Les tâches impliquent fortement la coopération, l'animation de groupes et des compétences comportementales."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "securite_environnement_action_publique",
+              "taxonomyValueLabel": "Protection des personnes, de la société ou de l'environnement",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "sensibiliser autour d’ateliers d’interaction et de simulation / informer sur différents sujets tels que le risque à la consommation d’alcool, de stupéfiants et aux distracteurs",
+                "reasoning": "La mission est centrée sur la protection des usagers de la route et la prévention des risques, ce qui relève de la sécurité et de l'action publique."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "animer des séances favorisant la prise de parole et l’écoute de l’autre / sensibiliser autour d’ateliers d’interaction et de simulation / informer sur différents sujets",
+                "reasoning": "La mission consiste principalement à transmettre des connaissances et à sensibiliser les jeunes, ce qui relève de la transmission et de la pédagogie."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "animer des séances favorisant la prise de parole et l’écoute de l’autre / sensibiliser autour d’ateliers d’interaction et de simulation",
+                "reasoning": "Les tâches incluent explicitement l'animation d'ateliers et de séances collectives."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "sensibiliser autour d’ateliers d’interaction et de simulation / informer sur différents sujets tels que le risque à la consommation d’alcool, de stupéfiants et aux distracteurs",
+                "reasoning": "La mission aborde des enjeux de société liés à la sécurité routière, la prévention des risques et les comportements à risque."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "education_culture_creation",
+              "taxonomyValueLabel": "Éducation, culture et création",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "animer des séances favorisant la prise de parole et l’écoute de l’autre / sensibiliser autour d’ateliers d’interaction et de simulation",
+                "reasoning": "Les tâches relèvent de l'animation éducative et de la transmission de savoirs, typiques de l'éducation et de la culture."
+              }
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "benevolat",
+              "taxonomyValueLabel": "Bénévolat",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "661e52accd17d7c168601476",
+          "title": "J'anime des actions d'éducation routière",
+          "remote": "no",
+          "schedule": "",
+          "domain": "prevention-protection",
+          "domainOriginal": null,
+          "organizationName": "Association Prévention Routière - Occitanie",
+          "publisherId": "619fab857d373e07aea8be1e",
+          "publisherName": "Prévention routière",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_02.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_02.jpeg",
+            "organizationLogo": null,
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/619fab857d373e07aea8be1e/logo"
+          },
+          "location": {
+            "city": "Toulouse",
+            "closestLat": 43.604462,
+            "closestLon": 1.444247,
+            "closestAddress": "31000 Toulouse, FR",
+            "addressId": "40b1a1c8-aa14-4562-a8f3-513e2f8cda66",
+            "distanceKm": 0.021347443665208077
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/661e52accd17d7c168601476/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "ddfeac78-be97-458f-aa8b-1af215f25aab",
+          "totalScore": 0.59963,
+          "taxonomyScore": 0.2,
+          "geoScore": 0.99926,
+          "taxonomyScores": {
+            "tranche_age": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "education_transmission",
+              "taxonomyValueLabel": "Éducation et transmission",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "animer des séances utilisant le plus souvent le principe du questionnement / éveiller la curiosité des enfants lors des actions proposées par l’association / favoriser la prise de parole et l’esprit critique",
+                "reasoning": "La mission est centrée sur la transmission de connaissances et l'éveil des enfants, avec une approche pédagogique explicite."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "securite_defense",
+              "taxonomyValueLabel": "Sécurité et défense",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "actions de sensibilisation auprès d’enfants et contribue à leur éducation citoyenne / éducation routière des enfants et adolescents",
+                "reasoning": "Le domaine principal est la sécurité routière, qui relève de la sécurité et de la défense."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "education_formation_animation",
+              "taxonomyValueLabel": "Éducation, formation et animation",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "animer des séances / éducation routière des enfants et adolescents / favoriser la prise de parole et l’esprit critique",
+                "reasoning": "La mission relève clairement du secteur de l'éducation, de la formation et de l'animation."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "securite_service_public",
+              "taxonomyValueLabel": "Sécurité et service public",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "éducation routière des enfants et adolescents / sécurité routière",
+                "reasoning": "La mission s'inscrit dans le secteur de la sécurité et du service public, notamment via la prévention routière."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Fréquence : Suivant les actions prévues et vos disponibilités / Durée : Selon vos disponibilités",
+                "reasoning": "La mission est régulière, avec des interventions répétées selon les actions et les disponibilités, sur une durée non précisée mais étalée dans le temps."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "management_social_soin",
+              "taxonomyValueLabel": "Management, social, soin",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "animer des séances / éveiller la curiosité des enfants / favoriser la prise de parole et l’esprit critique",
+                "reasoning": "La mission implique une interaction avec des enfants et une approche pédagogique centrée sur leur développement."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.7,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "animer des séances utilisant le plus souvent le principe du questionnement / favoriser la prise de parole et l’esprit critique",
+                "reasoning": "La mission nécessite des compétences en animation, en gestion de groupe et en adaptation aux publics."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.97,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "contribue à leur éducation citoyenne / animer des séances / éveiller la curiosité des enfants / favoriser la prise de parole et l’esprit critique",
+                "reasoning": "La mission est explicitement centrée sur la transmission de connaissances et l'accompagnement éducatif."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "animer des séances / éveiller la curiosité des enfants",
+                "reasoning": "La mission inclut explicitement l'animation d'actions éducatives."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "éducation citoyenne / éducation routière des enfants et adolescents",
+                "reasoning": "La mission relève de la formation civique et de la sensibilisation aux enjeux de société, notamment la sécurité routière."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "education_culture_creation",
+              "taxonomyValueLabel": "Éducation, culture et création",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "animer des séances / éveiller la curiosité des enfants / favoriser la prise de parole et l’esprit critique",
+                "reasoning": "La mission combine éducation et animation, avec une dimension pédagogique et culturelle."
+              }
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "benevolat",
+              "taxonomyValueLabel": "Bénévolat",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "661e52accd17d7c168601477",
+          "title": "Je sensibilise les adultes au risque routier",
+          "remote": "no",
+          "schedule": "",
+          "domain": "prevention-protection",
+          "domainOriginal": null,
+          "organizationName": "Association Prévention Routière - Occitanie",
+          "publisherId": "619fab857d373e07aea8be1e",
+          "publisherName": "Prévention routière",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_02.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_02.jpeg",
+            "organizationLogo": null,
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/619fab857d373e07aea8be1e/logo"
+          },
+          "location": {
+            "city": "Toulouse",
+            "closestLat": 43.604462,
+            "closestLon": 1.444247,
+            "closestAddress": "31000 Toulouse, FR",
+            "addressId": "39eb944b-1ab1-4838-a367-b810f7bee43f",
+            "distanceKm": 0.021347443665208077
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/661e52accd17d7c168601477/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "a873183c-0644-48fd-893c-932cc1e97f6d",
+          "totalScore": 0.59963,
+          "taxonomyScore": 0.2,
+          "geoScore": 0.99926,
+          "taxonomyScores": {
+            "tranche_age": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "securite_defense",
+              "taxonomyValueLabel": "Sécurité et défense",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "sensibilisation auprès d’adultes et les incite à être acteur dans la prévention des risques routiers / aider les adultes à comprendre le bien fondé des règles de sécurité routière / faire émerger [...] les connaissances et comportements nécessaires pour la sécurité de tous",
+                "reasoning": "La mission est centrée sur la prévention des risques routiers, un domaine lié à la sécurité et à la défense des usagers de la route."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "securite_service_public",
+              "taxonomyValueLabel": "Sécurité et service public",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "sensibilisation auprès d’adultes et les incite à être acteur dans la prévention des risques routiers / Association Prévention Routière - Occitanie [...] reconnue d’utilité publique [...] conduit ses actions préventives dans de multiples domaines : éducation routière [...] et formation continue des conducteurs",
+                "reasoning": "La mission relève du secteur de la sécurité et du service public, notamment via une association reconnue d'utilité publique dans ce domaine."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "transmission",
+              "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "animer des séances favorisant les échanges de bonnes pratiques / sensibiliser autour d’ateliers interactifs et de simulation / aider les adultes à comprendre le bien fondé des règles de sécurité routière",
+                "reasoning": "La mission implique explicitement la transmission de connaissances et la sensibilisation des adultes sur les règles de sécurité routière."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "animation",
+              "taxonomyValueLabel": "Animation d'actions ou de collectif",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "animer des séances favorisant les échanges de bonnes pratiques / sensibiliser autour d’ateliers interactifs et de simulation",
+                "reasoning": "La mission inclut l'animation d'ateliers et de séances interactives pour transmettre des messages de prévention."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "animer des séances favorisant les échanges de bonnes pratiques / accompagnement sur le terrain en mode découverte",
+                "reasoning": "La mission nécessite des compétences en animation, échange et adaptation pour travailler avec des groupes d'adultes."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "securite_environnement_action_publique",
+              "taxonomyValueLabel": "Protection des personnes, de la société ou de l'environnement",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "sensibilisation auprès d’adultes et les incite à être acteur dans la prévention des risques routiers / aider les adultes à comprendre le bien fondé des règles de sécurité routière",
+                "reasoning": "La mission implique une action publique de prévention et de sensibilisation aux risques, relevant de la protection des personnes."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "reguliere",
+              "taxonomyValueLabel": "Mission régulière",
+              "enrichmentConfidence": 0.75,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "Fréquence : Selon les actions prévues et vos disponibilités / Durée : Selon vos disponibilités",
+                "reasoning": "La mission est décrite comme régulière, avec une fréquence et une durée dépendant des actions et des disponibilités, ce qui correspond à une mission sur plusieurs semaines ou mois."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "societe_droit_politique",
+              "taxonomyValueLabel": "Société, droit et politique",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "sensibilisation auprès d’adultes et les incite à être acteur dans la prévention des risques routiers / Association Prévention Routière [...] reconnue d’utilité publique [...] intervient régulièrement auprès des pouvoirs publics",
+                "reasoning": "La mission relève de la prévention et de la sécurité routière, un domaine lié aux enjeux de société, au droit et à la politique publique."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "securite_defense_logistique",
+              "taxonomyValueLabel": "Sécurité, défense et logistique",
+              "enrichmentConfidence": 0.8,
+              "scoringScore": 0.6,
+              "evidence": {
+                "extract": "sensibilisation auprès d’adultes et les incite à être acteur dans la prévention des risques routiers / aider les adultes à comprendre le bien fondé des règles de sécurité routière",
+                "reasoning": "La mission est liée à la sécurité routière, un domaine relevant de la sécurité et de la défense des usagers."
+              }
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "benevolat",
+              "taxonomyValueLabel": "Bénévolat",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      },
+      {
+        "mission": {
+          "id": "6900a5e5c5967b5e05e5531e",
+          "title": "J'agis en Afrique sur la gestion et la valorisation des déchets",
+          "remote": "no",
+          "schedule": "",
+          "domain": "emploi",
+          "domainOriginal": null,
+          "organizationName": "ECTI Siège / International",
+          "publisherId": "5f592d415655a711feb4460e",
+          "publisherName": "Benevolt",
+          "media": {
+            "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/emploi_01.jpeg",
+            "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/emploi_01.jpeg",
+            "organizationLogo": null,
+            "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo"
+          },
+          "location": {
+            "city": "Toulouse",
+            "closestLat": 43.604462,
+            "closestLon": 1.444247,
+            "closestAddress": "31000 Toulouse, FR",
+            "addressId": "77fd8eac-f212-442c-afb6-6ed8613eb829",
+            "distanceKm": 0.021347443665208077
+          },
+          "compensation": null,
+          "applicationUrl": "http://localhost:4000/r/6900a5e5c5967b5e05e5531e/c4a9ce23692082d70af2b16d"
+        },
+        "match": {
+          "missionScoringId": "0b903853-1008-499e-b822-444094d06e6b",
+          "totalScore": 0.59963,
+          "taxonomyScore": 0.2,
+          "geoScore": 0.99926,
+          "taxonomyScores": {
+            "tranche_age": 1
+          },
+          "values": [
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "gestion_projet",
+              "taxonomyValueLabel": "Gestion de projet",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "conduire des missions d'audit, conseils et gestion de projet auprès des autorités locales",
+                "reasoning": "Les tâches principales consistent en de l'audit, du conseil et de la gestion de projet, ce qui relève clairement de la gestion de projet."
+              }
+            },
+            {
+              "taxonomyKey": "domaine",
+              "taxonomyValueKey": "environnement_nature",
+              "taxonomyValueLabel": "Environnement et nature",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "gestion et la valorisation des déchets urbains / gestion d'un grand centre de tri urbain mais surtout de la valorisation des déchets",
+                "reasoning": "La mission porte sur la gestion et la valorisation des déchets, domaine environnemental."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "gestion_commerce_organisation",
+              "taxonomyValueLabel": "Gestion, commerce et organisation",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "conduire des missions d'audit, conseils et gestion de projet auprès des autorités locales",
+                "reasoning": "Les tâches décrites relèvent de l'organisation, de la gestion et du conseil, typiques du secteur gestion/commerce/organisation."
+              }
+            },
+            {
+              "taxonomyKey": "secteur_activite",
+              "taxonomyValueKey": "environnement_agriculture",
+              "taxonomyValueLabel": "Environnement et agriculture",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "gestion et la valorisation des déchets urbains / gestion d'un grand centre de tri urbain",
+                "reasoning": "La mission est centrée sur la gestion des déchets, secteur lié à l'environnement et à l'agriculture (gestion des ressources)."
+              }
+            },
+            {
+              "taxonomyKey": "type_mission",
+              "taxonomyValueKey": "ponctuelle",
+              "taxonomyValueLabel": "Mission ponctuelle",
+              "enrichmentConfidence": 0.99,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "La durée prévue est de deux semaines / mission consiste à réaliser un audit des installations existantes à Garoua (Nord CAMEROUN)",
+                "reasoning": "La mission est explicitement limitée à deux semaines, ce qui correspond à une mission ponctuelle."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "gestion_pilotage_juridique",
+              "taxonomyValueLabel": "Gestion, pilotage, juridique",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "conduire des missions d'audit, conseils et gestion de projet auprès des autorités locales",
+                "reasoning": "Les tâches incluent de l'audit et de la gestion de projet, compétences relevant de la gestion et du pilotage."
+              }
+            },
+            {
+              "taxonomyKey": "competence_rome",
+              "taxonomyValueKey": "cooperation_organisation_soft_skills",
+              "taxonomyValueLabel": "Coopération, organisation, soft skills",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "conduire des missions d'audit, conseils et gestion de projet auprès des autorités locales / Après avoir constitué une équipe",
+                "reasoning": "La mission implique la constitution d'une équipe et la collaboration avec des autorités locales, relevant des soft skills et de l'organisation."
+              }
+            },
+            {
+              "taxonomyKey": "region_internationale",
+              "taxonomyValueKey": "afrique",
+              "taxonomyValueLabel": "Afrique",
+              "enrichmentConfidence": 0.99,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "Dans le cadre de projets en Afrique, et plus particulièrement au Cameroun / réaliser un audit des installations existantes à Garoua (Nord CAMEROUN)",
+                "reasoning": "La mission se déroule explicitement au Cameroun, en Afrique."
+              }
+            },
+            {
+              "taxonomyKey": "engagement_intent",
+              "taxonomyValueKey": "support_organisation",
+              "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+              "enrichmentConfidence": 0.95,
+              "scoringScore": 1,
+              "evidence": {
+                "extract": "conduire des missions d'audit, conseils et gestion de projet auprès des autorités locales / partager votre expertise dans la gestion et la valorisation des déchets urbains",
+                "reasoning": "La mission consiste à apporter un soutien organisationnel et technique via des missions d'audit et de conseil."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "commerce_gestion_finance",
+              "taxonomyValueLabel": "Commerce, gestion, finance et services",
+              "enrichmentConfidence": 0.9,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "conduire des missions d'audit, conseils et gestion de projet",
+                "reasoning": "Les tâches relèvent de la gestion, de l'audit et du conseil, domaines couverts par la formation en commerce et gestion."
+              }
+            },
+            {
+              "taxonomyKey": "formation_onisep",
+              "taxonomyValueKey": "environnement_nature_sciences",
+              "taxonomyValueLabel": "Environnement, nature et sciences",
+              "enrichmentConfidence": 0.85,
+              "scoringScore": 0.85,
+              "evidence": {
+                "extract": "gestion et la valorisation des déchets urbains / gestion d'un grand centre de tri urbain",
+                "reasoning": "La mission porte sur la gestion des déchets, domaine lié à l'environnement et aux sciences."
+              }
+            },
+            {
+              "taxonomyKey": "dispositif",
+              "taxonomyValueKey": "benevolat",
+              "taxonomyValueLabel": "Bénévolat",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_18_25_ans",
+              "taxonomyValueLabel": "18-25 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_25_30_ans",
+              "taxonomyValueLabel": "25-30 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_30_45_ans",
+              "taxonomyValueLabel": "30-45 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_67_ans",
+              "taxonomyValueLabel": "46-67 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_46_66_ans",
+              "taxonomyValueLabel": "46-66 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "entre_68_72_ans",
+              "taxonomyValueLabel": "68-72 ans",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            },
+            {
+              "taxonomyKey": "tranche_age",
+              "taxonomyValueKey": "plus_72_ans",
+              "taxonomyValueLabel": "72 ans et plus",
+              "enrichmentConfidence": 0,
+              "scoringScore": 1,
+              "evidence": null
+            }
+          ]
+        }
+      }
+    ],
+    "total": 2918,
+    "avgDistanceKmTop5": 0.02
+  },
+  "missions": [
+    {
+      "mission": {
+        "id": "6537bff6557894a1b7b05331",
+        "title": "J'accompagne des porteurs de projets en précarité à créer leur activité en milieu rural",
+        "remote": "no",
+        "schedule": "",
+        "domain": "humanitaire",
+        "domainOriginal": null,
+        "organizationName": "Fondation Raoul Follereau Siège",
+        "publisherId": "634e641783b660072d4c597e",
+        "publisherName": "Fondation Raoul-Follereau",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_01.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_01.jpeg",
+          "organizationLogo": null,
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/634e641783b660072d4c597e/logo"
+        },
+        "location": {
+          "city": "Toulouse",
+          "closestLat": 43.604462,
+          "closestLon": 1.444247,
+          "closestAddress": "31000 Toulouse, FR",
+          "addressId": "6c14bc64-4846-4413-ada8-1eea97e2671c",
+          "distanceKm": 0.021347443665208077
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/6537bff6557894a1b7b05331/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "c850e62e-1957-43d7-9530-23e5c26207aa",
+        "totalScore": 0.59963,
+        "taxonomyScore": 0.2,
+        "geoScore": 0.99926,
+        "taxonomyScores": {
+          "tranche_age": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "social_solidarite",
+            "taxonomyValueLabel": "Social et solidarité",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "aider des personnes en difficultés / accompagnement et un suivi personnalisé de la part d'un responsable de la Fondation / lutter contre toute forme d’exclusion causée par la maladie, l'ignorance ou la pauvreté",
+              "reasoning": "La mission est centrée sur l'accompagnement de personnes en précarité et la lutte contre l'exclusion, ce qui relève clairement du domaine social et solidarité."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "gestion_projet",
+            "taxonomyValueLabel": "Gestion de projet",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "étudier les demandes d'aide et assurer un suivi régulier de porteurs de projet / développer le réseau de partenaires locaux / gestion de projet seront appréciées",
+              "reasoning": "Les tâches décrites incluent une forte composante de coordination, suivi et organisation, typique de la gestion de projet."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "sante_social_aide_personne",
+            "taxonomyValueLabel": "Santé, social et aide à la personne",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "aider des personnes en difficultés / accompagnement et un suivi personnalisé / lutter contre toute forme d’exclusion causée par la maladie, l'ignorance ou la pauvreté",
+              "reasoning": "La mission s'inscrit dans le secteur de l'aide à la personne et du social, avec une dimension d'insertion et de réinsertion."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "gestion_commerce_organisation",
+            "taxonomyValueLabel": "Gestion, commerce et organisation",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "étudier les demandes d'aide et assurer un suivi régulier de porteurs de projet / développer le réseau de partenaires locaux / gestion de projet seront appréciées",
+              "reasoning": "Les tâches incluent une forte composante de gestion, coordination et développement de partenariats."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "Fréquence : Selon vos disponibilités / Implication sur la durée",
+              "reasoning": "La mission est décrite comme une implication sur la durée avec une fréquence adaptée aux disponibilités, ce qui correspond à une mission régulière."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "gestion_pilotage_juridique",
+            "taxonomyValueLabel": "Gestion, pilotage, juridique",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "étudier les demandes d'aide et assurer un suivi régulier de porteurs de projet / gestion de projet seront appréciées",
+              "reasoning": "Les tâches incluent l'étude de demandes et le suivi de projets, ce qui relève de la gestion et du pilotage."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "développer le réseau de partenaires locaux / accompagnement et un suivi personnalisé",
+              "reasoning": "La mission implique le développement de partenariats et un accompagnement personnalisé, ce qui relève de la coopération et des soft skills."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "étudier les demandes d'aide et assurer un suivi régulier de porteurs de projet / développer le réseau de partenaires locaux",
+              "reasoning": "Les tâches principales consistent à soutenir l'organisation en étudiant des demandes, assurant un suivi et développant des partenariats."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "La Fondation assure la formation et guide chaque accompagnateur bénévole dans sa mission / accompagnement et un suivi personnalisé",
+              "reasoning": "La mission inclut une dimension de transmission de connaissances et de compétences via la formation et l'accompagnement."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "commerce_gestion_finance",
+            "taxonomyValueLabel": "Commerce, gestion, finance et services",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Des compétences en gestion/finance ou marketing/communication ou gestion de projet ou encore création d’activité seront appréciées",
+              "reasoning": "Les compétences recherchées incluent explicitement la gestion, la finance et la gestion de projet, ce qui relève de ce domaine de formation."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "social_sante_sport",
+            "taxonomyValueLabel": "Social, santé et sport",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "aider des personnes en difficultés / lutter contre toute forme d’exclusion causée par la maladie, l'ignorance ou la pauvreté / insertion",
+              "reasoning": "La mission est clairement orientée vers l'aide aux personnes en précarité et l'insertion, ce qui relève de ce domaine de formation."
+            }
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "benevolat",
+            "taxonomyValueLabel": "Bénévolat",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "6537bff6557894a1b7b05331",
+        "title": "J'accompagne des porteurs de projets en précarité à créer leur activité en milieu rural",
+        "domain": "humanitaire",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_01.jpeg",
+        "type": "benevolat",
+        "publisherId": "634e641783b660072d4c597e",
+        "publisherName": "Fondation Raoul-Follereau",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/634e641783b660072d4c597e/logo",
+        "organizationName": "Fondation Raoul Follereau Siège",
+        "organizationLogo": null,
+        "location": {
+          "city": "Toulouse",
+          "address": "31000 Toulouse",
+          "lat": 43.604462,
+          "lon": 1.444247
+        },
+        "startAt": "2025-08-25T19:35:51.380Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "",
+        "compensation": null,
+        "descriptionHtml": "   Toulouse (31)<br>   Dès que possible<br><br><br>Vous voulez soutenir la création d'entreprise, aider des personnes en difficultés et le développement rural vous intéresse, tout cela à la fois ? \nRejoignez la Fondation Raoul Follereau qui apporte un soutien humain et financier à des personnes en précarité dans le lancement et le développement de leur activité en milieu rural.\nNous avons besoin de vous pour étudier les demandes d'aide et assurer un suivi régulier de porteurs de projet.\nSi vous avez la fibre d'un ambassadeur, vous pourrez également développer le réseau de partenaires locaux et répondre aux sollicitations de la presse.<br><br><p><strong>Informations pratiques</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Vous résidez en Occitanie où une majorité de nos porteurs de projet sont implantés. Cela vous permettra d’être au plus proche du terrain et de rendre visites aux porteurs de projet accompagnés.\nDes compétences en gestion/finance ou marketing/communication ou gestion de projet ou encore création d’activité seront appréciées.\nLa Fondation assure la formation et guide chaque accompagnateur bénévole dans sa mission.<br><br>Fréquence : Selon vos disponibilités<br>Durée : Implication sur la durée<br><br><p><strong>Informations sur l'association Fondation Raoul Follereau Siège</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>La Fondation Raoul Follereau poursuit le combat de son fondateur :  Bâtir un monde sans lèpre.\n\nEn plaçant l’homme au cœur de ses projets et en privilégiant les actions visant à soigner, éduquer et réinsérer, la Fondation lutte contre toute forme d’exclusion causée par la maladie, l’ignorance ou la pauvreté. Elle mobilise une véritable communauté de générosité qui associe donateurs, partenaires et bénévoles.<br><p><strong>Formation des bénévoles</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Le bénévole est accueilli par une équipe, il aura un accompagnement et un suivi personnalisé de la part d'un responsable  de la Fondation durant son parcours d'intégration.",
+        "description": "Toulouse (31)\nDès que possible\n\n\nVous voulez soutenir la création d'entreprise, aider des personnes en\ndifficultés et le développement rural vous intéresse, tout cela à la fois ?\nRejoignez la Fondation Raoul Follereau qui apporte un soutien humain et\nfinancier à des personnes en précarité dans le lancement et le développement de\nleur activité en milieu rural.\nNous avons besoin de vous pour étudier les demandes d'aide et assurer un suivi\nrégulier de porteurs de projet.\nSi vous avez la fibre d'un ambassadeur, vous pourrez également développer le\nréseau de partenaires locaux et répondre aux sollicitations de la presse.\n\n\n\nInformations pratiques\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nVous résidez en Occitanie où une majorité de nos porteurs de projet sont\nimplantés. Cela vous permettra d’être au plus proche du terrain et de rendre\nvisites aux porteurs de projet accompagnés.\nDes compétences en gestion/finance ou marketing/communication ou gestion de\nprojet ou encore création d’activité seront appréciées.\nLa Fondation assure la formation et guide chaque accompagnateur bénévole dans sa\nmission.\n\nFréquence : Selon vos disponibilités\nDurée : Implication sur la durée\n\n\n\nInformations sur l'association Fondation Raoul Follereau Siège\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nLa Fondation Raoul Follereau poursuit le combat de son fondateur : Bâtir un\nmonde sans lèpre.\n\nEn plaçant l’homme au cœur de ses projets et en privilégiant les actions visant\nà soigner, éduquer et réinsérer, la Fondation lutte contre toute forme\nd’exclusion causée par la maladie, l’ignorance ou la pauvreté. Elle mobilise une\nvéritable communauté de générosité qui associe donateurs, partenaires et\nbénévoles.\n\n\nFormation des bénévoles\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nLe bénévole est accueilli par une équipe, il aura un accompagnement et un suivi\npersonnalisé de la part d'un responsable de la Fondation durant son parcours\nd'intégration.",
+        "applicationUrl": "http://localhost:4000/r/6537bff6557894a1b7b05331/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/humanitaire_01.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "661e52accd17d7c168601474",
+        "title": "Je sensibilise les jeunes au risque routier",
+        "remote": "no",
+        "schedule": "",
+        "domain": "prevention-protection",
+        "domainOriginal": null,
+        "organizationName": "Association Prévention Routière - Occitanie",
+        "publisherId": "619fab857d373e07aea8be1e",
+        "publisherName": "Prévention routière",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_02.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_02.jpeg",
+          "organizationLogo": null,
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/619fab857d373e07aea8be1e/logo"
+        },
+        "location": {
+          "city": "Toulouse",
+          "closestLat": 43.604462,
+          "closestLon": 1.444247,
+          "closestAddress": "31000 Toulouse, FR",
+          "addressId": "7f556aae-dac3-479d-8515-0aeb41245786",
+          "distanceKm": 0.021347443665208077
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/661e52accd17d7c168601474/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "a38c02d0-be9e-4a4f-a9cf-3dbfd595672d",
+        "totalScore": 0.59963,
+        "taxonomyScore": 0.2,
+        "geoScore": 0.99926,
+        "taxonomyScores": {
+          "tranche_age": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "animer des séances favorisant la prise de parole et l’écoute de l’autre / sensibiliser autour d’ateliers d’interaction et de simulation / informer sur différents sujets tels que le risque à la consommation d’alcool, de stupéfiants et aux distracteurs",
+              "reasoning": "La mission consiste principalement à transmettre des connaissances et à sensibiliser les jeunes sur des sujets précis, ce qui relève de l'éducation et de la transmission."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "securite_defense",
+            "taxonomyValueLabel": "Sécurité et défense",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "sensibiliser autour d’ateliers d’interaction et de simulation / informer sur différents sujets tels que le risque à la consommation d’alcool, de stupéfiants et aux distracteurs",
+              "reasoning": "La mission porte sur la prévention des risques routiers, un domaine lié à la sécurité et à la défense des usagers de la route."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "animer des séances favorisant la prise de parole et l’écoute de l’autre / sensibiliser autour d’ateliers d’interaction et de simulation",
+              "reasoning": "Les tâches décrites relèvent de l'animation éducative et de la formation, typiques du secteur éducation et formation."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "securite_service_public",
+            "taxonomyValueLabel": "Sécurité et service public",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "sensibiliser autour d’ateliers d’interaction et de simulation / informer sur différents sujets tels que le risque à la consommation d’alcool, de stupéfiants et aux distracteurs",
+              "reasoning": "La mission s'inscrit dans le cadre de la prévention routière, un domaine lié à la sécurité publique et aux services publics."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Fréquence : Selon les actions prévues et vos disponibilités.",
+              "reasoning": "La mission est décrite comme ayant une fréquence variable mais répétée selon les actions, ce qui correspond à une mission régulière."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "animer des séances favorisant la prise de parole et l’écoute de l’autre / sensibiliser autour d’ateliers d’interaction et de simulation",
+              "reasoning": "Les tâches impliquent fortement la coopération, l'animation de groupes et des compétences comportementales."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "securite_environnement_action_publique",
+            "taxonomyValueLabel": "Protection des personnes, de la société ou de l'environnement",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "sensibiliser autour d’ateliers d’interaction et de simulation / informer sur différents sujets tels que le risque à la consommation d’alcool, de stupéfiants et aux distracteurs",
+              "reasoning": "La mission est centrée sur la protection des usagers de la route et la prévention des risques, ce qui relève de la sécurité et de l'action publique."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "animer des séances favorisant la prise de parole et l’écoute de l’autre / sensibiliser autour d’ateliers d’interaction et de simulation / informer sur différents sujets",
+              "reasoning": "La mission consiste principalement à transmettre des connaissances et à sensibiliser les jeunes, ce qui relève de la transmission et de la pédagogie."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "animer des séances favorisant la prise de parole et l’écoute de l’autre / sensibiliser autour d’ateliers d’interaction et de simulation",
+              "reasoning": "Les tâches incluent explicitement l'animation d'ateliers et de séances collectives."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "sensibiliser autour d’ateliers d’interaction et de simulation / informer sur différents sujets tels que le risque à la consommation d’alcool, de stupéfiants et aux distracteurs",
+              "reasoning": "La mission aborde des enjeux de société liés à la sécurité routière, la prévention des risques et les comportements à risque."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "education_culture_creation",
+            "taxonomyValueLabel": "Éducation, culture et création",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "animer des séances favorisant la prise de parole et l’écoute de l’autre / sensibiliser autour d’ateliers d’interaction et de simulation",
+              "reasoning": "Les tâches relèvent de l'animation éducative et de la transmission de savoirs, typiques de l'éducation et de la culture."
+            }
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "benevolat",
+            "taxonomyValueLabel": "Bénévolat",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "661e52accd17d7c168601474",
+        "title": "Je sensibilise les jeunes au risque routier",
+        "domain": "prevention-protection",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_02.jpeg",
+        "type": "benevolat",
+        "publisherId": "619fab857d373e07aea8be1e",
+        "publisherName": "Prévention routière",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/619fab857d373e07aea8be1e/logo",
+        "organizationName": "Association Prévention Routière - Occitanie",
+        "organizationLogo": null,
+        "location": {
+          "city": "Toulouse",
+          "address": "31000 Toulouse",
+          "lat": 43.604462,
+          "lon": 1.444247
+        },
+        "startAt": "2025-08-25T19:33:35.603Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "",
+        "compensation": null,
+        "descriptionHtml": "   Toulouse (31)<br>   Dès que possible<br><br><br>Le bénévole réalise des actions de sensibilisation auprès de jeunes qui leur permettent d’effectuer des choix informés et responsables sur la route. Votre mission consiste à :\n\nanimer des séances favorisant la prise de parole et l’écoute de l’autre\nsensibiliser autour d’ateliers d’interaction et de simulation\ninformer sur différents sujets tels que le risque à la consommation d’alcool, de stupéfiants et aux distracteurs<br><br><p><strong>Informations pratiques</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>L'association met à votre disposition des outils d'autoformation via son site intranet ainsi que des séances de formation en présentiel et à distance. Un accompagnement sur le terrain en mode découverte est prévu lorsque vous intégrerez l'association.<br><br>Fréquence : Selon les actions prévues et vos disponibilités.<br>Durée : Selon vos disponibilités<br><br><p><strong>Informations sur l'association Association Prévention Routière - Occitanie</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Créée en 1949 et reconnue d’utilité publique en 1955, l’association Prévention Routière conduit ses actions préventives dans de multiples domaines : éducation routière des enfants et adolescents, sensibilisation et information du grand public et formation continue des conducteurs (infractionnistes, salariés des entreprises, seniors). Elle intervient régulièrement auprès des pouvoirs publics pour faire des propositions visant à améliorer la sécurité routière.<br><p><strong>Formation des bénévoles</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Tous les bénévoles intégrant l'association sont accompagnés par des salariés de l'association et des bénévoles référents.\n\nDes formations généralistes et techniques sont organisées régulièrement au sein des antennes locales.",
+        "description": "Toulouse (31)\nDès que possible\n\n\nLe bénévole réalise des actions de sensibilisation auprès de jeunes qui leur\npermettent d’effectuer des choix informés et responsables sur la route. Votre\nmission consiste à :\n\nanimer des séances favorisant la prise de parole et l’écoute de l’autre\nsensibiliser autour d’ateliers d’interaction et de simulation\ninformer sur différents sujets tels que le risque à la consommation d’alcool, de\nstupéfiants et aux distracteurs\n\n\n\nInformations pratiques\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nL'association met à votre disposition des outils d'autoformation via son site\nintranet ainsi que des séances de formation en présentiel et à distance. Un\naccompagnement sur le terrain en mode découverte est prévu lorsque vous\nintégrerez l'association.\n\nFréquence : Selon les actions prévues et vos disponibilités.\nDurée : Selon vos disponibilités\n\n\n\nInformations sur l'association Association Prévention Routière - Occitanie\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nCréée en 1949 et reconnue d’utilité publique en 1955, l’association Prévention\nRoutière conduit ses actions préventives dans de multiples domaines : éducation\nroutière des enfants et adolescents, sensibilisation et information du grand\npublic et formation continue des conducteurs (infractionnistes, salariés des\nentreprises, seniors). Elle intervient régulièrement auprès des pouvoirs publics\npour faire des propositions visant à améliorer la sécurité routière.\n\n\nFormation des bénévoles\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nTous les bénévoles intégrant l'association sont accompagnés par des salariés de\nl'association et des bénévoles référents.\n\nDes formations généralistes et techniques sont organisées régulièrement au sein\ndes antennes locales.",
+        "applicationUrl": "http://localhost:4000/r/661e52accd17d7c168601474/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_02.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "661e52accd17d7c168601476",
+        "title": "J'anime des actions d'éducation routière",
+        "remote": "no",
+        "schedule": "",
+        "domain": "prevention-protection",
+        "domainOriginal": null,
+        "organizationName": "Association Prévention Routière - Occitanie",
+        "publisherId": "619fab857d373e07aea8be1e",
+        "publisherName": "Prévention routière",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_02.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_02.jpeg",
+          "organizationLogo": null,
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/619fab857d373e07aea8be1e/logo"
+        },
+        "location": {
+          "city": "Toulouse",
+          "closestLat": 43.604462,
+          "closestLon": 1.444247,
+          "closestAddress": "31000 Toulouse, FR",
+          "addressId": "40b1a1c8-aa14-4562-a8f3-513e2f8cda66",
+          "distanceKm": 0.021347443665208077
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/661e52accd17d7c168601476/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "ddfeac78-be97-458f-aa8b-1af215f25aab",
+        "totalScore": 0.59963,
+        "taxonomyScore": 0.2,
+        "geoScore": 0.99926,
+        "taxonomyScores": {
+          "tranche_age": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "education_transmission",
+            "taxonomyValueLabel": "Éducation et transmission",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "animer des séances utilisant le plus souvent le principe du questionnement / éveiller la curiosité des enfants lors des actions proposées par l’association / favoriser la prise de parole et l’esprit critique",
+              "reasoning": "La mission est centrée sur la transmission de connaissances et l'éveil des enfants, avec une approche pédagogique explicite."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "securite_defense",
+            "taxonomyValueLabel": "Sécurité et défense",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "actions de sensibilisation auprès d’enfants et contribue à leur éducation citoyenne / éducation routière des enfants et adolescents",
+              "reasoning": "Le domaine principal est la sécurité routière, qui relève de la sécurité et de la défense."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "education_formation_animation",
+            "taxonomyValueLabel": "Éducation, formation et animation",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "animer des séances / éducation routière des enfants et adolescents / favoriser la prise de parole et l’esprit critique",
+              "reasoning": "La mission relève clairement du secteur de l'éducation, de la formation et de l'animation."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "securite_service_public",
+            "taxonomyValueLabel": "Sécurité et service public",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "éducation routière des enfants et adolescents / sécurité routière",
+              "reasoning": "La mission s'inscrit dans le secteur de la sécurité et du service public, notamment via la prévention routière."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Fréquence : Suivant les actions prévues et vos disponibilités / Durée : Selon vos disponibilités",
+              "reasoning": "La mission est régulière, avec des interventions répétées selon les actions et les disponibilités, sur une durée non précisée mais étalée dans le temps."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "management_social_soin",
+            "taxonomyValueLabel": "Management, social, soin",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "animer des séances / éveiller la curiosité des enfants / favoriser la prise de parole et l’esprit critique",
+              "reasoning": "La mission implique une interaction avec des enfants et une approche pédagogique centrée sur leur développement."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.7,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "animer des séances utilisant le plus souvent le principe du questionnement / favoriser la prise de parole et l’esprit critique",
+              "reasoning": "La mission nécessite des compétences en animation, en gestion de groupe et en adaptation aux publics."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.97,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "contribue à leur éducation citoyenne / animer des séances / éveiller la curiosité des enfants / favoriser la prise de parole et l’esprit critique",
+              "reasoning": "La mission est explicitement centrée sur la transmission de connaissances et l'accompagnement éducatif."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "animer des séances / éveiller la curiosité des enfants",
+              "reasoning": "La mission inclut explicitement l'animation d'actions éducatives."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "éducation citoyenne / éducation routière des enfants et adolescents",
+              "reasoning": "La mission relève de la formation civique et de la sensibilisation aux enjeux de société, notamment la sécurité routière."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "education_culture_creation",
+            "taxonomyValueLabel": "Éducation, culture et création",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "animer des séances / éveiller la curiosité des enfants / favoriser la prise de parole et l’esprit critique",
+              "reasoning": "La mission combine éducation et animation, avec une dimension pédagogique et culturelle."
+            }
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "benevolat",
+            "taxonomyValueLabel": "Bénévolat",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "661e52accd17d7c168601476",
+        "title": "J'anime des actions d'éducation routière",
+        "domain": "prevention-protection",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_02.jpeg",
+        "type": "benevolat",
+        "publisherId": "619fab857d373e07aea8be1e",
+        "publisherName": "Prévention routière",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/619fab857d373e07aea8be1e/logo",
+        "organizationName": "Association Prévention Routière - Occitanie",
+        "organizationLogo": null,
+        "location": {
+          "city": "Toulouse",
+          "address": "31000 Toulouse",
+          "lat": 43.604462,
+          "lon": 1.444247
+        },
+        "startAt": "2025-08-25T19:33:40.579Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "",
+        "compensation": null,
+        "descriptionHtml": "   Toulouse (31)<br>   Dès que possible<br><br><br>Le bénévole réalise des actions de sensibilisation auprès d’enfants et contribue à leur éducation citoyenne. Votre mission consiste à :\n\n• animer des séances utilisant le plus souvent le principe du questionnement\n• éveiller la curiosité des enfants lors des actions proposées par l’association\n• favoriser la prise de parole et l’esprit critique<br><br><p><strong>Informations pratiques</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>L'association met à votre disposition des outils d'autoformation via son site intranet ainsi que des séances de formation en présentiel et à distance. Un accompagnement sur le terrain en mode découverte est prévu lorsque vous intégrerez l'association.<br><br>Fréquence : Suivant les actions prévues et vos disponibilités<br>Durée : Selon vos disponibilités<br><br><p><strong>Informations sur l'association Association Prévention Routière - Occitanie</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Créée en 1949 et reconnue d’utilité publique en 1955, l’association Prévention Routière conduit ses actions préventives dans de multiples domaines : éducation routière des enfants et adolescents, sensibilisation et information du grand public et formation continue des conducteurs (infractionnistes, salariés des entreprises, seniors). Elle intervient régulièrement auprès des pouvoirs publics pour faire des propositions visant à améliorer la sécurité routière.<br><p><strong>Formation des bénévoles</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Tous les bénévoles intégrant l'association sont accompagnés par des salariés de l'association et des bénévoles référents.\n\nDes formations généralistes et techniques sont organisées régulièrement au sein des antennes locales.",
+        "description": "Toulouse (31)\nDès que possible\n\n\nLe bénévole réalise des actions de sensibilisation auprès d’enfants et contribue\nà leur éducation citoyenne. Votre mission consiste à :\n\n• animer des séances utilisant le plus souvent le principe du questionnement\n• éveiller la curiosité des enfants lors des actions proposées par l’association\n• favoriser la prise de parole et l’esprit critique\n\n\n\nInformations pratiques\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nL'association met à votre disposition des outils d'autoformation via son site\nintranet ainsi que des séances de formation en présentiel et à distance. Un\naccompagnement sur le terrain en mode découverte est prévu lorsque vous\nintégrerez l'association.\n\nFréquence : Suivant les actions prévues et vos disponibilités\nDurée : Selon vos disponibilités\n\n\n\nInformations sur l'association Association Prévention Routière - Occitanie\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nCréée en 1949 et reconnue d’utilité publique en 1955, l’association Prévention\nRoutière conduit ses actions préventives dans de multiples domaines : éducation\nroutière des enfants et adolescents, sensibilisation et information du grand\npublic et formation continue des conducteurs (infractionnistes, salariés des\nentreprises, seniors). Elle intervient régulièrement auprès des pouvoirs publics\npour faire des propositions visant à améliorer la sécurité routière.\n\n\nFormation des bénévoles\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nTous les bénévoles intégrant l'association sont accompagnés par des salariés de\nl'association et des bénévoles référents.\n\nDes formations généralistes et techniques sont organisées régulièrement au sein\ndes antennes locales.",
+        "applicationUrl": "http://localhost:4000/r/661e52accd17d7c168601476/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_02.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "661e52accd17d7c168601477",
+        "title": "Je sensibilise les adultes au risque routier",
+        "remote": "no",
+        "schedule": "",
+        "domain": "prevention-protection",
+        "domainOriginal": null,
+        "organizationName": "Association Prévention Routière - Occitanie",
+        "publisherId": "619fab857d373e07aea8be1e",
+        "publisherName": "Prévention routière",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_02.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_02.jpeg",
+          "organizationLogo": null,
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/619fab857d373e07aea8be1e/logo"
+        },
+        "location": {
+          "city": "Toulouse",
+          "closestLat": 43.604462,
+          "closestLon": 1.444247,
+          "closestAddress": "31000 Toulouse, FR",
+          "addressId": "39eb944b-1ab1-4838-a367-b810f7bee43f",
+          "distanceKm": 0.021347443665208077
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/661e52accd17d7c168601477/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "a873183c-0644-48fd-893c-932cc1e97f6d",
+        "totalScore": 0.59963,
+        "taxonomyScore": 0.2,
+        "geoScore": 0.99926,
+        "taxonomyScores": {
+          "tranche_age": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "securite_defense",
+            "taxonomyValueLabel": "Sécurité et défense",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "sensibilisation auprès d’adultes et les incite à être acteur dans la prévention des risques routiers / aider les adultes à comprendre le bien fondé des règles de sécurité routière / faire émerger [...] les connaissances et comportements nécessaires pour la sécurité de tous",
+              "reasoning": "La mission est centrée sur la prévention des risques routiers, un domaine lié à la sécurité et à la défense des usagers de la route."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "securite_service_public",
+            "taxonomyValueLabel": "Sécurité et service public",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "sensibilisation auprès d’adultes et les incite à être acteur dans la prévention des risques routiers / Association Prévention Routière - Occitanie [...] reconnue d’utilité publique [...] conduit ses actions préventives dans de multiples domaines : éducation routière [...] et formation continue des conducteurs",
+              "reasoning": "La mission relève du secteur de la sécurité et du service public, notamment via une association reconnue d'utilité publique dans ce domaine."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "transmission",
+            "taxonomyValueLabel": "Transmission / pédagogie / accompagnement de public",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "animer des séances favorisant les échanges de bonnes pratiques / sensibiliser autour d’ateliers interactifs et de simulation / aider les adultes à comprendre le bien fondé des règles de sécurité routière",
+              "reasoning": "La mission implique explicitement la transmission de connaissances et la sensibilisation des adultes sur les règles de sécurité routière."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "animation",
+            "taxonomyValueLabel": "Animation d'actions ou de collectif",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "animer des séances favorisant les échanges de bonnes pratiques / sensibiliser autour d’ateliers interactifs et de simulation",
+              "reasoning": "La mission inclut l'animation d'ateliers et de séances interactives pour transmettre des messages de prévention."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "animer des séances favorisant les échanges de bonnes pratiques / accompagnement sur le terrain en mode découverte",
+              "reasoning": "La mission nécessite des compétences en animation, échange et adaptation pour travailler avec des groupes d'adultes."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "securite_environnement_action_publique",
+            "taxonomyValueLabel": "Protection des personnes, de la société ou de l'environnement",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "sensibilisation auprès d’adultes et les incite à être acteur dans la prévention des risques routiers / aider les adultes à comprendre le bien fondé des règles de sécurité routière",
+              "reasoning": "La mission implique une action publique de prévention et de sensibilisation aux risques, relevant de la protection des personnes."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "reguliere",
+            "taxonomyValueLabel": "Mission régulière",
+            "enrichmentConfidence": 0.75,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "Fréquence : Selon les actions prévues et vos disponibilités / Durée : Selon vos disponibilités",
+              "reasoning": "La mission est décrite comme régulière, avec une fréquence et une durée dépendant des actions et des disponibilités, ce qui correspond à une mission sur plusieurs semaines ou mois."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "societe_droit_politique",
+            "taxonomyValueLabel": "Société, droit et politique",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "sensibilisation auprès d’adultes et les incite à être acteur dans la prévention des risques routiers / Association Prévention Routière [...] reconnue d’utilité publique [...] intervient régulièrement auprès des pouvoirs publics",
+              "reasoning": "La mission relève de la prévention et de la sécurité routière, un domaine lié aux enjeux de société, au droit et à la politique publique."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "securite_defense_logistique",
+            "taxonomyValueLabel": "Sécurité, défense et logistique",
+            "enrichmentConfidence": 0.8,
+            "scoringScore": 0.6,
+            "evidence": {
+              "extract": "sensibilisation auprès d’adultes et les incite à être acteur dans la prévention des risques routiers / aider les adultes à comprendre le bien fondé des règles de sécurité routière",
+              "reasoning": "La mission est liée à la sécurité routière, un domaine relevant de la sécurité et de la défense des usagers."
+            }
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "benevolat",
+            "taxonomyValueLabel": "Bénévolat",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "661e52accd17d7c168601477",
+        "title": "Je sensibilise les adultes au risque routier",
+        "domain": "prevention-protection",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_02.jpeg",
+        "type": "benevolat",
+        "publisherId": "619fab857d373e07aea8be1e",
+        "publisherName": "Prévention routière",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/619fab857d373e07aea8be1e/logo",
+        "organizationName": "Association Prévention Routière - Occitanie",
+        "organizationLogo": null,
+        "location": {
+          "city": "Toulouse",
+          "address": "31000 Toulouse",
+          "lat": 43.604462,
+          "lon": 1.444247
+        },
+        "startAt": "2025-08-25T19:33:42.280Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "",
+        "compensation": null,
+        "descriptionHtml": "   Toulouse (31)<br>   Dès que possible<br><br><br>Le bénévole réalise des actions de sensibilisation auprès d’adultes et les incite à être acteur dans la prévention des risques routiers. Votre mission consiste à :\n\nanimer des séances favorisant les échanges de bonnes pratiques\nsensibiliser autour d’ateliers interactifs et de simulation\naider les adultes à comprendre le bien fondé des règles de sécurité routière\nfaire émerger, au sein des groupes, les connaissances et comportements nécessaires pour la sécurité de tous<br><br><p><strong>Informations pratiques</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>L'association met à votre disposition des outils pédagogiques et d'autoformation via son site intranet ainsi que des séances de formation en présentiel et à distance. Un accompagnement sur le terrain en mode découverte est prévu lorsque vous intégrerez l'association.<br><br>Fréquence : Selon les actions prévues et vos disponibilités.<br>Durée : Selon vos disponibilités<br><br><p><strong>Informations sur l'association Association Prévention Routière - Occitanie</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Créée en 1949 et reconnue d’utilité publique en 1955, l’association Prévention Routière conduit ses actions préventives dans de multiples domaines : éducation routière des enfants et adolescents, sensibilisation et information du grand public et formation continue des conducteurs (infractionnistes, salariés des entreprises, seniors). Elle intervient régulièrement auprès des pouvoirs publics pour faire des propositions visant à améliorer la sécurité routière.<br><p><strong>Formation des bénévoles</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>Tous les bénévoles intégrant l'association sont accompagnés par des salariés de l'association et des bénévoles référents.\n\nDes formations généralistes et techniques sont organisées régulièrement au sein des antennes locales.",
+        "description": "Toulouse (31)\nDès que possible\n\n\nLe bénévole réalise des actions de sensibilisation auprès d’adultes et les\nincite à être acteur dans la prévention des risques routiers. Votre mission\nconsiste à :\n\nanimer des séances favorisant les échanges de bonnes pratiques\nsensibiliser autour d’ateliers interactifs et de simulation\naider les adultes à comprendre le bien fondé des règles de sécurité routière\nfaire émerger, au sein des groupes, les connaissances et comportements\nnécessaires pour la sécurité de tous\n\n\n\nInformations pratiques\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nL'association met à votre disposition des outils pédagogiques et d'autoformation\nvia son site intranet ainsi que des séances de formation en présentiel et à\ndistance. Un accompagnement sur le terrain en mode découverte est prévu lorsque\nvous intégrerez l'association.\n\nFréquence : Selon les actions prévues et vos disponibilités.\nDurée : Selon vos disponibilités\n\n\n\nInformations sur l'association Association Prévention Routière - Occitanie\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nCréée en 1949 et reconnue d’utilité publique en 1955, l’association Prévention\nRoutière conduit ses actions préventives dans de multiples domaines : éducation\nroutière des enfants et adolescents, sensibilisation et information du grand\npublic et formation continue des conducteurs (infractionnistes, salariés des\nentreprises, seniors). Elle intervient régulièrement auprès des pouvoirs publics\npour faire des propositions visant à améliorer la sécurité routière.\n\n\nFormation des bénévoles\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nTous les bénévoles intégrant l'association sont accompagnés par des salariés de\nl'association et des bénévoles référents.\n\nDes formations généralistes et techniques sont organisées régulièrement au sein\ndes antennes locales.",
+        "applicationUrl": "http://localhost:4000/r/661e52accd17d7c168601477/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/sante_02.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    },
+    {
+      "mission": {
+        "id": "6900a5e5c5967b5e05e5531e",
+        "title": "J'agis en Afrique sur la gestion et la valorisation des déchets",
+        "remote": "no",
+        "schedule": "",
+        "domain": "emploi",
+        "domainOriginal": null,
+        "organizationName": "ECTI Siège / International",
+        "publisherId": "5f592d415655a711feb4460e",
+        "publisherName": "Benevolt",
+        "media": {
+          "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/emploi_01.jpeg",
+          "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/emploi_01.jpeg",
+          "organizationLogo": null,
+          "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo"
+        },
+        "location": {
+          "city": "Toulouse",
+          "closestLat": 43.604462,
+          "closestLon": 1.444247,
+          "closestAddress": "31000 Toulouse, FR",
+          "addressId": "77fd8eac-f212-442c-afb6-6ed8613eb829",
+          "distanceKm": 0.021347443665208077
+        },
+        "compensation": null,
+        "applicationUrl": "http://localhost:4000/r/6900a5e5c5967b5e05e5531e/c4a9ce23692082d70af2b16d"
+      },
+      "match": {
+        "missionScoringId": "0b903853-1008-499e-b822-444094d06e6b",
+        "totalScore": 0.59963,
+        "taxonomyScore": 0.2,
+        "geoScore": 0.99926,
+        "taxonomyScores": {
+          "tranche_age": 1
+        },
+        "values": [
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "gestion_projet",
+            "taxonomyValueLabel": "Gestion de projet",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "conduire des missions d'audit, conseils et gestion de projet auprès des autorités locales",
+              "reasoning": "Les tâches principales consistent en de l'audit, du conseil et de la gestion de projet, ce qui relève clairement de la gestion de projet."
+            }
+          },
+          {
+            "taxonomyKey": "domaine",
+            "taxonomyValueKey": "environnement_nature",
+            "taxonomyValueLabel": "Environnement et nature",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "gestion et la valorisation des déchets urbains / gestion d'un grand centre de tri urbain mais surtout de la valorisation des déchets",
+              "reasoning": "La mission porte sur la gestion et la valorisation des déchets, domaine environnemental."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "gestion_commerce_organisation",
+            "taxonomyValueLabel": "Gestion, commerce et organisation",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "conduire des missions d'audit, conseils et gestion de projet auprès des autorités locales",
+              "reasoning": "Les tâches décrites relèvent de l'organisation, de la gestion et du conseil, typiques du secteur gestion/commerce/organisation."
+            }
+          },
+          {
+            "taxonomyKey": "secteur_activite",
+            "taxonomyValueKey": "environnement_agriculture",
+            "taxonomyValueLabel": "Environnement et agriculture",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "gestion et la valorisation des déchets urbains / gestion d'un grand centre de tri urbain",
+              "reasoning": "La mission est centrée sur la gestion des déchets, secteur lié à l'environnement et à l'agriculture (gestion des ressources)."
+            }
+          },
+          {
+            "taxonomyKey": "type_mission",
+            "taxonomyValueKey": "ponctuelle",
+            "taxonomyValueLabel": "Mission ponctuelle",
+            "enrichmentConfidence": 0.99,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "La durée prévue est de deux semaines / mission consiste à réaliser un audit des installations existantes à Garoua (Nord CAMEROUN)",
+              "reasoning": "La mission est explicitement limitée à deux semaines, ce qui correspond à une mission ponctuelle."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "gestion_pilotage_juridique",
+            "taxonomyValueLabel": "Gestion, pilotage, juridique",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "conduire des missions d'audit, conseils et gestion de projet auprès des autorités locales",
+              "reasoning": "Les tâches incluent de l'audit et de la gestion de projet, compétences relevant de la gestion et du pilotage."
+            }
+          },
+          {
+            "taxonomyKey": "competence_rome",
+            "taxonomyValueKey": "cooperation_organisation_soft_skills",
+            "taxonomyValueLabel": "Coopération, organisation, soft skills",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "conduire des missions d'audit, conseils et gestion de projet auprès des autorités locales / Après avoir constitué une équipe",
+              "reasoning": "La mission implique la constitution d'une équipe et la collaboration avec des autorités locales, relevant des soft skills et de l'organisation."
+            }
+          },
+          {
+            "taxonomyKey": "region_internationale",
+            "taxonomyValueKey": "afrique",
+            "taxonomyValueLabel": "Afrique",
+            "enrichmentConfidence": 0.99,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "Dans le cadre de projets en Afrique, et plus particulièrement au Cameroun / réaliser un audit des installations existantes à Garoua (Nord CAMEROUN)",
+              "reasoning": "La mission se déroule explicitement au Cameroun, en Afrique."
+            }
+          },
+          {
+            "taxonomyKey": "engagement_intent",
+            "taxonomyValueKey": "support_organisation",
+            "taxonomyValueLabel": "Organisation / gestion de projet / communication",
+            "enrichmentConfidence": 0.95,
+            "scoringScore": 1,
+            "evidence": {
+              "extract": "conduire des missions d'audit, conseils et gestion de projet auprès des autorités locales / partager votre expertise dans la gestion et la valorisation des déchets urbains",
+              "reasoning": "La mission consiste à apporter un soutien organisationnel et technique via des missions d'audit et de conseil."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "commerce_gestion_finance",
+            "taxonomyValueLabel": "Commerce, gestion, finance et services",
+            "enrichmentConfidence": 0.9,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "conduire des missions d'audit, conseils et gestion de projet",
+              "reasoning": "Les tâches relèvent de la gestion, de l'audit et du conseil, domaines couverts par la formation en commerce et gestion."
+            }
+          },
+          {
+            "taxonomyKey": "formation_onisep",
+            "taxonomyValueKey": "environnement_nature_sciences",
+            "taxonomyValueLabel": "Environnement, nature et sciences",
+            "enrichmentConfidence": 0.85,
+            "scoringScore": 0.85,
+            "evidence": {
+              "extract": "gestion et la valorisation des déchets urbains / gestion d'un grand centre de tri urbain",
+              "reasoning": "La mission porte sur la gestion des déchets, domaine lié à l'environnement et aux sciences."
+            }
+          },
+          {
+            "taxonomyKey": "dispositif",
+            "taxonomyValueKey": "benevolat",
+            "taxonomyValueLabel": "Bénévolat",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_18_25_ans",
+            "taxonomyValueLabel": "18-25 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_25_30_ans",
+            "taxonomyValueLabel": "25-30 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_30_45_ans",
+            "taxonomyValueLabel": "30-45 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_67_ans",
+            "taxonomyValueLabel": "46-67 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_46_66_ans",
+            "taxonomyValueLabel": "46-66 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "entre_68_72_ans",
+            "taxonomyValueLabel": "68-72 ans",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          },
+          {
+            "taxonomyKey": "tranche_age",
+            "taxonomyValueKey": "plus_72_ans",
+            "taxonomyValueLabel": "72 ans et plus",
+            "enrichmentConfidence": 0,
+            "scoringScore": 1,
+            "evidence": null
+          }
+        ]
+      },
+      "detail": {
+        "id": "6900a5e5c5967b5e05e5531e",
+        "title": "J'agis en Afrique sur la gestion et la valorisation des déchets",
+        "domain": "emploi",
+        "domainLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/emploi_01.jpeg",
+        "type": "benevolat",
+        "publisherId": "5f592d415655a711feb4460e",
+        "publisherName": "Benevolt",
+        "publisherLogo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/5f592d415655a711feb4460e/logo",
+        "organizationName": "ECTI Siège / International",
+        "organizationLogo": null,
+        "location": {
+          "city": "Toulouse",
+          "address": "31000 Toulouse",
+          "lat": 43.604462,
+          "lon": 1.444247
+        },
+        "startAt": "2025-10-28T11:15:31.939Z",
+        "endAt": null,
+        "duration": null,
+        "schedule": "",
+        "compensation": null,
+        "descriptionHtml": "   Toulouse (31)<br>   Dès que possible<br><br><br>Vous voulez partager votre expertise dans la gestion et la valorisation des déchets urbains avec des pays émergents. \n\nDans le cadre de projets en Afrique, et plus particulièrement au Cameroun, nous recherchons des spécialistes de la gestion d'un grand centre de tri urbain mais surtout de la valorisation des déchets.\n\nAprès avoir constitué une équipe, il s'agit de conduire des missions d'audit, conseils et gestion de projet auprès des autorités locales au cours du premier semestre 2023. \n\nDans un premier temps, la mission consiste à réaliser un audit des installations existantes à Garoua (Nord CAMEROUN). La durée prévue est de deux semaines.<br><br><p><strong>Informations pratiques</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>La connaissance de l'Afrique Centrale est souhaitable, mais pas indispensable. \nTous les frais de mission sont à la charge de l'organisation.\nECTI est une association de référence en bénévolat de compétence. Reconnue d'utilité publique, nous avons conduit, en 2022, 81 missions à l'étranger dont 75 % en partenariat avec l'ONUDI.\n\nCette mission s'adresse uniquement à des bénévoles retraités.<br><br><p><strong>Informations sur l'association ECTI Siège / International</strong></p><p>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</p>.",
+        "description": "Toulouse (31)\nDès que possible\n\n\nVous voulez partager votre expertise dans la gestion et la valorisation des\ndéchets urbains avec des pays émergents.\n\nDans le cadre de projets en Afrique, et plus particulièrement au Cameroun, nous\nrecherchons des spécialistes de la gestion d'un grand centre de tri urbain mais\nsurtout de la valorisation des déchets.\n\nAprès avoir constitué une équipe, il s'agit de conduire des missions d'audit,\nconseils et gestion de projet auprès des autorités locales au cours du premier\nsemestre 2023.\n\nDans un premier temps, la mission consiste à réaliser un audit des installations\nexistantes à Garoua (Nord CAMEROUN). La durée prévue est de deux semaines.\n\n\n\nInformations pratiques\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\nLa connaissance de l'Afrique Centrale est souhaitable, mais pas indispensable.\nTous les frais de mission sont à la charge de l'organisation.\nECTI est une association de référence en bénévolat de compétence. Reconnue\nd'utilité publique, nous avons conduit, en 2022, 81 missions à l'étranger dont\n75 % en partenariat avec l'ONUDI.\n\nCette mission s'adresse uniquement à des bénévoles retraités.\n\n\n\nInformations sur l'association ECTI Siège / International\n\n‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\n.",
+        "applicationUrl": "http://localhost:4000/r/6900a5e5c5967b5e05e5531e/c4a9ce23692082d70af2b16d",
+        "photo": "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/emploi_01.jpeg",
+        "remote": "no",
+        "openToMinors": false,
+        "reducedMobilityAccessible": false,
+        "places": 1
+      },
+      "descriptionMissing": false
+    }
+  ],
+  "deterministic": {
+    "geo": 5,
+    "format": 5,
+    "missionsSansTagFormat": [],
+    "gateViolations": []
+  },
+  "judgeRuns": [
+    {
+      "runIndex": 0,
+      "seed": 1499275733,
+      "order": [
+        "661e52accd17d7c168601476",
+        "6537bff6557894a1b7b05331",
+        "6900a5e5c5967b5e05e5531e",
+        "661e52accd17d7c168601474",
+        "661e52accd17d7c168601477"
+      ],
+      "output": {
+        "coherence": {
+          "score": 4,
+          "missionsPertinentes": [
+            1,
+            3,
+            4,
+            5
+          ],
+          "justification": "Le profil de Lucas est un jeune étudiant sans préférence claire, souhaitant explorer les missions disponibles à Toulouse. Les missions 0, 3 et 4 sont liées à la sensibilisation au risque routier, adaptées à un jeune sans compétences spécifiques, avec un accompagnement prévu. La mission 1, accompagnement de porteurs de projets en précarité, est aussi pertinente car elle est locale et accessible, même si elle demande certaines compétences, la formation est assurée. La mission 2 est clairement non pertinente car elle s'adresse à des bénévoles retraités et demande une expertise spécifique, hors profil de Lucas.",
+          "missionIdsPertinents": [
+            "661e52accd17d7c168601476",
+            "6900a5e5c5967b5e05e5531e",
+            "661e52accd17d7c168601474",
+            "661e52accd17d7c168601477"
+          ]
+        },
+        "homogeneite": {
+          "score": 3,
+          "familles": [
+            "Sensibilisation à la sécurité routière",
+            "Accompagnement social/entrepreneuriat",
+            "Gestion de projet international"
+          ],
+          "justification": "Les missions pertinentes se répartissent en trois familles : sensibilisation à la sécurité routière (missions 0,3,4), accompagnement social et création d'activité (mission 1), et une mission hors profil (mission 2). Il y a une majorité dans la famille sécurité routière, mais aussi une autre famille avec une mission importante, ce qui donne une homogénéité moyenne."
+        },
+        "cause": null
+      }
+    },
+    {
+      "runIndex": 1,
+      "seed": 1482498114,
+      "order": [
+        "661e52accd17d7c168601474",
+        "661e52accd17d7c168601476",
+        "661e52accd17d7c168601477",
+        "6900a5e5c5967b5e05e5531e",
+        "6537bff6557894a1b7b05331"
+      ],
+      "output": {
+        "coherence": {
+          "score": 3,
+          "missionsPertinentes": [
+            1,
+            2,
+            4
+          ],
+          "justification": "Parmi les 5 missions proposées, trois sont pertinentes pour Lucas qui souhaite explorer sans préférence claire : les missions 0, 1 et 2 sont centrées sur la sensibilisation et l'éducation routière, adaptées à un jeune étudiant à Toulouse. La mission 4, bien que plus spécifique, reste accessible et intéressante pour un étudiant souhaitant découvrir le secteur social et l'accompagnement de porteurs de projets. La mission 3 est clairement exclue car elle s'adresse uniquement à des bénévoles retraités et demande une expertise spécifique.",
+          "missionIdsPertinents": [
+            "661e52accd17d7c168601474",
+            "661e52accd17d7c168601476",
+            "6900a5e5c5967b5e05e5531e"
+          ]
+        },
+        "homogeneite": {
+          "score": 3,
+          "familles": [
+            "Sensibilisation à la sécurité routière",
+            "Accompagnement social et développement local",
+            "Gestion de projet international"
+          ],
+          "justification": "Les missions proposées appartiennent à trois familles distinctes : la sensibilisation à la sécurité routière (missions 0,1,2), l'accompagnement social et développement local (mission 4), et la gestion de projet international (mission 3). Il y a une majorité dans la famille sécurité routière, mais la présence d'autres familles montre une diversité modérée."
+        },
+        "cause": null
+      }
+    }
+  ],
+  "engineVersion": "m2",
+  "startedAt": "2026-07-10T13:26:53.876Z",
+  "finishedAt": "2026-07-10T13:27:13.294Z",
+  "verdict": 4,
+  "cleanup": {
+    "userScoringDeleted": true
+  }
+}
