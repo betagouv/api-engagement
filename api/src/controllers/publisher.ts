@@ -14,7 +14,7 @@ import { userService } from "@/services/user";
 import { UserRequest } from "@/types/passport";
 import { PublisherMissionType, type PublisherDiffusionInput, type PublisherRoleFilter } from "@/types/publisher";
 import { appendAuditEvent } from "@/utils/audit-log";
-import { readRequiredParam } from "@/utils/publisher-access";
+import { hasAdminOrDirectPublisherAccess, readRequiredParam } from "@/utils/publisher-access";
 
 const upload = multer();
 const router = Router();
@@ -75,7 +75,7 @@ router.post("/search", passport.authenticate(["user", "admin"], { session: false
 
     const { data, total } = await publisherService.findPublishersWithCount(filters);
 
-    return res.status(200).send({ ok: true, data, total });
+    return res.status(200).send({ ok: true, data: data.map((publisher) => publisherService.toPublicPublisher(publisher)), total });
   } catch (error) {
     next(error);
   }
@@ -84,11 +84,12 @@ router.post("/search", passport.authenticate(["user", "admin"], { session: false
 const requirePublisherReadAccess = requirePublisherRelationAccess({ idParam: "id" });
 const requirePublisherWriteAccess = requireDirectPublisherAccess({ idParam: "id" });
 
-router.get("/:id", passport.authenticate("user", { session: false }), requirePublisherReadAccess, async (_req: UserRequest, res: Response, next: NextFunction) => {
+router.get("/:id", passport.authenticate("user", { session: false }), requirePublisherReadAccess, async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
     const publisher = res.locals.publisher;
+    const data = hasAdminOrDirectPublisherAccess(req.user, publisher.id) ? publisher : publisherService.toPublicPublisher(publisher);
 
-    return res.status(200).send({ ok: true, publisher, data: publisher });
+    return res.status(200).send({ ok: true, publisher: data, data });
   } catch (error) {
     next(error);
   }

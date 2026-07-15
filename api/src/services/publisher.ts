@@ -7,6 +7,7 @@ import { publisherDiffusionRuleRepository } from "@/repositories/publisher-diffu
 import { normalizeDemarches, publisherDemarcheSimplifieesService } from "@/services/publisher-demarches-simplifiees";
 import publisherDiffusionRuleService, { DIFFUSION_SCOPE_ROOT_CRITERIA } from "@/services/publisher-diffusion-rule";
 import {
+  PublicPublisherRecord,
   PublisherCreateInput,
   PublisherDemarcheSimplifieeRecord,
   PublisherDiffusionInput,
@@ -122,6 +123,15 @@ export const publisherService = (() => {
   };
 
   const toPublisherRecordWithDiffusions = async (publisher: Publisher): Promise<PublisherRecordWithRelations> => (await toPublisherRecords([publisher]))[0];
+
+  /**
+   * Retire les champs secrets (`apikey`, `feedUsername`, `feedPassword`) d'un record :
+   * à utiliser pour toute réponse accordée via une relation de diffusion (et non un accès direct).
+   */
+  const toPublicPublisher = (publisher: PublisherRecord): PublicPublisherRecord => {
+    const { apikey, feedUsername, feedPassword, ...publicPublisher } = publisher;
+    return publicPublisher;
+  };
 
   /**
    * Normalise la liste de diffusions entrante en ids d'annonceurs dédupliqués.
@@ -529,5 +539,6 @@ export const publisherService = (() => {
     regenerateApiKey,
     softDeletePublisher,
     getPublisherNameMap,
+    toPublicPublisher,
   };
 })();

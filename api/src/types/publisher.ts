@@ -80,6 +80,8 @@ export type PublisherRecordWithRelations = PublisherRecord & {
   diffusionRules?: PublisherDiffusionRuleRecord[] | null;
 };
 
+export type PublicPublisherRecord = Omit<PublisherRecord, "apikey" | "feedUsername" | "feedPassword">;
+
 export interface PublisherSearchParams {
   diffuseurOf?: string;
   moderator?: boolean;

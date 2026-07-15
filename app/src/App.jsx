@@ -268,13 +268,9 @@ const PublisherSyncLayout = () => {
   useEffect(() => {
     const currentId = publisher?.id;
     if (publisherId && publisherId !== currentId) {
-      api.post("/publisher/search", {}).then((res) => {
-        if (!res.ok) {
-          return;
-        }
-        const found = res.data.find((p) => (p.id || p._id) === publisherId);
-        if (found) {
-          setPublisher(found);
+      api.get(`/publisher/${publisherId}`).then((res) => {
+        if (res.ok) {
+          setPublisher(res.data);
         }
       });
     }
