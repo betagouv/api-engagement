@@ -43,10 +43,11 @@ models:
   - name: int_tracking_mission_click
     description: >
       Chaque clic mission enrichi (rang, section, distance, publisher), une ligne par événement `mission.clicked`.
-      Réconcilié avec le backend via `quiz_session_id` = `matching_engine_result.user_scoring_id` et le pont
-      `mission_scoring` (`results[i].missionScoringId` = `mission_scoring.id` -> `mission_id`) : expose le rang
-      attribué par le moteur de matching à la mission cliquée. `mission_score` reste un placeholder (le score
-      total de classement n'est pas persisté dans `results`). Utilisateurs internes exclus.
+      Réconcilié avec le backend via `quiz_session_id` = `user_scoring_id` et le pont `mission_scoring`
+      (`results[i].missionScoringId` = `mission_scoring.id` -> `mission_id`) : expose le rang attribué à la
+      mission cliquée par le run de matching actif au moment du clic (dernier `created_at` <= `clicked_at`).
+      `mission_score` reste un placeholder (le score total de classement n'est pas persisté dans `results`).
+      Utilisateurs internes exclus.
     columns:
       - name: event_uuid
         tests:
@@ -58,8 +59,8 @@ models:
           - not_null
       - name: backend_rank
         description: >
-          Rang de la mission dans le dernier run de matching de la session (position dans `results`).
-          Null si le clic n'a pas pu être rattaché au backend.
+          Rang de la mission dans le run de matching actif au moment du clic (dernier `created_at` <=
+          `clicked_at`), position dans `results`. Null si le clic n'a pas pu être rattaché au backend.
       - name: matching_engine_version
         description: Version du moteur de matching du run rattaché (nullable si non rattaché).
       - name: matched_to_backend
