@@ -47,10 +47,18 @@ const Nav = () => {
     navigate(`/${publisherId}/performance`);
   };
 
-  const handleChangePublisher = (newPublisher) => {
+  const handleChangePublisher = async (newPublisher) => {
     const id = newPublisher.id || newPublisher._id;
-    setPublisher(newPublisher);
-    navigate(`/${id}/performance`);
+    try {
+      const res = await api.get(`/publisher/${id}`);
+      if (!res.ok) {
+        throw res;
+      }
+      setPublisher(res.data);
+      navigate(`/${id}/performance`);
+    } catch (error) {
+      captureError(error, { extra: { publisherId: id } });
+    }
   };
 
   const menuItems = [

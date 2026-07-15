@@ -42,7 +42,7 @@ router.post("/search", passport.authenticate("admin", { session: false }), async
     };
 
     const users = await userService.findUsers(filters);
-    return res.status(200).send({ ok: true, data: users });
+    return res.status(200).send({ ok: true, data: users.map((user) => userService.toPublicUser(user)) });
   } catch (error) {
     next(error);
   }
@@ -70,7 +70,7 @@ router.get("/refresh", passport.authenticate("user", { session: false }), async 
     });
 
     if (user.publishers.length === 0) {
-      return res.send({ ok: true, data: { token, user, publisher: null } });
+      return res.send({ ok: true, data: { token, user: userService.toPublicUser(user), publisher: null } });
     }
 
     let publisher = null;
@@ -81,7 +81,7 @@ router.get("/refresh", passport.authenticate("user", { session: false }), async 
       publisher = await publisherService.findOnePublisherById(user.publishers[0]);
     }
 
-    return res.send({ ok: true, data: { token, user, publisher } });
+    return res.send({ ok: true, data: { token, user: userService.toPublicUser(user), publisher } });
   } catch (error) {
     next(error);
   }
@@ -104,7 +104,7 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
     }
 
     const data = await userService.findUserById(params.data.id, { includeDeleted: true });
-    return res.status(200).send({ ok: true, data });
+    return res.status(200).send({ ok: true, data: data ? userService.toPublicUser(data) : null });
   } catch (error) {
     next(error);
   }
@@ -143,7 +143,7 @@ router.get("/loginas/:id", passport.authenticate("admin", { session: false }), a
         publisherId: publisher.id,
       },
     });
-    return res.status(200).send({ ok: true, data: { user, publisher, token } });
+    return res.status(200).send({ ok: true, data: { user: userService.toPublicUser(user), publisher, token } });
   } catch (error) {
     next(error);
   }
@@ -191,7 +191,7 @@ router.post("/invite", passport.authenticate("admin", { session: false }), async
       },
     });
 
-    return res.status(200).send({ ok: true, data: user });
+    return res.status(200).send({ ok: true, data: userService.toPublicUser(user) });
   } catch (error) {
     next(error);
   }
@@ -218,7 +218,7 @@ router.post("/verify-token", async (req: UserRequest, res: Response, next: NextF
       return res.status(403).send({ ok: false, code: REQUEST_EXPIRED, message: `Token expired` });
     }
 
-    return res.status(200).send({ ok: true, data: user });
+    return res.status(200).send({ ok: true, data: userService.toPublicUser(user) });
   } catch (error) {
     next(error);
   }
@@ -246,7 +246,7 @@ router.post("/verify-reset-password-token", async (req: UserRequest, res: Respon
       return res.status(403).send({ ok: false, code: REQUEST_EXPIRED, message: `Token expired` });
     }
 
-    return res.status(200).send({ ok: true, data: user });
+    return res.status(200).send({ ok: true, data: userService.toPublicUser(user) });
   } catch (error) {
     next(error);
   }
@@ -327,7 +327,7 @@ router.post("/login", async (req: UserRequest, res: Response, next: NextFunction
         await loginHistoryService.recordLogin(user.id, now);
 
         const token = jwt.sign({ _id: updatedUser.id }, SECRET, { expiresIn: AUTH_TOKEN_EXPIRATION });
-        return res.status(200).send({ ok: true, data: { user: updatedUser, publisher, token } });
+        return res.status(200).send({ ok: true, data: { user: userService.toPublicUser(updatedUser), publisher, token } });
       },
       delay > 0 ? delay : 0
     );
@@ -388,7 +388,7 @@ router.put("/", passport.authenticate("user", { session: false }), async (req: U
       lastname: body.data.lastname ?? null,
     });
 
-    res.status(200).send({ ok: true, data: updated });
+    res.status(200).send({ ok: true, data: userService.toPublicUser(updated) });
   } catch (error) {
     next(error);
   }
@@ -577,7 +577,7 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
 
     const updated = Object.keys(patch).length ? await userService.updateUser(user.id, patch) : user;
 
-    res.status(200).send({ ok: true, data: updated });
+    res.status(200).send({ ok: true, data: userService.toPublicUser(updated) });
   } catch (error) {
     next(error);
   }

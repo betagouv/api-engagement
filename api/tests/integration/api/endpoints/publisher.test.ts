@@ -99,6 +99,58 @@ describe("Dashboard publisher controller", () => {
     expect(res.body.data.id).toBe(annonceur.id);
   });
 
+  it("strips secret fields from GET /publisher/:id when accessed via a diffusion relation", async () => {
+    const annonceur = await createTestPublisher({ name: "Annonceur with secrets", feedUsername: "feed-user", feedPassword: "feed-pass" });
+    const diffuseur = await createTestPublisher({ name: "Diffuseur with secrets relation", publishers: [{ publisherId: annonceur.id }] });
+    const { token: userToken } = await createTestUser({ role: "user", publishers: [diffuseur.id] });
+
+    const res = await request(app)
+      .get(`/publisher/${annonceur.id}`)
+      .set({ Authorization: `jwt ${userToken}` });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe(annonceur.id);
+    expect(res.body.data).not.toHaveProperty("apikey");
+    expect(res.body.data).not.toHaveProperty("feedUsername");
+    expect(res.body.data).not.toHaveProperty("feedPassword");
+    expect(res.body.publisher).not.toHaveProperty("apikey");
+  });
+
+  it("returns secret fields on GET /publisher/:id for a direct publisher", async () => {
+    const res = await request(app).get(`/publisher/${publisherId}`).set(authHeader());
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.apikey).toBeTruthy();
+  });
+
+  it("strips secret fields from POST /publisher/search results", async () => {
+    const res = await request(app).post("/publisher/search").set(authHeader()).send({});
+
+    expect(res.status).toBe(200);
+    const ownPublisher = res.body.data.find((publisher: { id: string }) => publisher.id === publisherId);
+    expect(ownPublisher).toBeDefined();
+    expect(ownPublisher).not.toHaveProperty("apikey");
+    expect(ownPublisher).not.toHaveProperty("feedUsername");
+    expect(ownPublisher).not.toHaveProperty("feedPassword");
+  });
+
+  it("strips secret fields from POST /publisher/search results for an admin", async () => {
+    const { token: adminToken } = await createTestUser({ role: "admin" });
+
+    const res = await request(app)
+      .post("/publisher/search")
+      .set({ Authorization: `jwt ${adminToken}` })
+      .send({});
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.length).toBeGreaterThan(0);
+    for (const publisher of res.body.data) {
+      expect(publisher).not.toHaveProperty("apikey");
+      expect(publisher).not.toHaveProperty("feedUsername");
+      expect(publisher).not.toHaveProperty("feedPassword");
+    }
+  });
+
   it("rejects POST /publisher/:id/apikey for another publisher", async () => {
     const otherPublisher = await createTestPublisher();
 

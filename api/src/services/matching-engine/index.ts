@@ -90,8 +90,10 @@ const buildRanking = (params: {
 }) => {
   // Missions remote=full/local : proximité naturelle (score géo forcé), uniquement si la version l'active.
   const forcedRemoteActive = params.remoteFullGeoScore != null || params.remoteLocalGeoScore != null;
-  const remoteFullGeoScoreSql = params.remoteFullGeoScore == null ? Prisma.empty : Prisma.sql`WHEN m."remote"::text = 'full' THEN CAST(${params.remoteFullGeoScore} AS double precision)`;
-  const remoteLocalGeoScoreSql = params.remoteLocalGeoScore == null ? Prisma.empty : Prisma.sql`WHEN m."remote"::text = 'local' THEN CAST(${params.remoteLocalGeoScore} AS double precision)`;
+  const remoteFullGeoScoreSql =
+    params.remoteFullGeoScore == null ? Prisma.empty : Prisma.sql`WHEN m."remote"::text = 'full' THEN CAST(${params.remoteFullGeoScore} AS double precision)`;
+  const remoteLocalGeoScoreSql =
+    params.remoteLocalGeoScore == null ? Prisma.empty : Prisma.sql`WHEN m."remote"::text = 'local' THEN CAST(${params.remoteLocalGeoScore} AS double precision)`;
 
   // Quand le boost remote est actif et que l'utilisateur est géolocalisé, les missions remote=full/local éligibles
   // doivent entrer dans le pool candidat même sans match taxonomie ni adresse proche : elles sont "partout".
@@ -99,17 +101,41 @@ const buildRanking = (params: {
     ? Prisma.empty
     : Prisma.sql`
   forced_remote_candidates AS (
+    -- On priorise les missions remote par score taxonomie (comme l'ordre d'origine) mais sans le
+    -- nested loop O(remote × taxonomy) : le join est piloté DEPUIS taxonomy_scores (→ hash join,
+    -- comme taxonomy_candidates) au lieu d'un LEFT JOIN depuis le côté remote.
     SELECT
-      ems."mission_id",
-      ems."mission_scoring_id"
-    FROM eligible_mission_scorings ems
-    JOIN "mission" m
-      ON m."id" = ems."mission_id"
-     AND m."remote"::text IN ('full', 'local')
-    LEFT JOIN taxonomy_scores ts
-      ON ts."mission_scoring_id" = ems."mission_scoring_id"
-    WHERE EXISTS (SELECT 1 FROM user_geo)
-    ORDER BY COALESCE(ts."weighted_sum", 0) DESC, ems."mission_id" ASC
+      rc."mission_id",
+      rc."mission_scoring_id"
+    FROM (
+      -- (1) missions remote AVEC score taxonomie, triées par pertinence
+      SELECT
+        ems."mission_id",
+        ems."mission_scoring_id",
+        ts."weighted_sum" AS "weighted_sum"
+      FROM taxonomy_scores ts
+      JOIN eligible_mission_scorings ems
+        ON ems."mission_scoring_id" = ts."mission_scoring_id"
+      JOIN "mission" m
+        ON m."id" = ems."mission_id"
+       AND m."remote"::text IN ('full', 'local')
+      WHERE EXISTS (SELECT 1 FROM user_geo)
+      UNION ALL
+      -- (2) missions remote SANS score taxonomie (score 0), en complément du pool
+      SELECT
+        ems."mission_id",
+        ems."mission_scoring_id",
+        CAST(0 AS double precision) AS "weighted_sum"
+      FROM eligible_mission_scorings ems
+      JOIN "mission" m
+        ON m."id" = ems."mission_id"
+       AND m."remote"::text IN ('full', 'local')
+      WHERE EXISTS (SELECT 1 FROM user_geo)
+        AND NOT EXISTS (
+          SELECT 1 FROM taxonomy_scores ts WHERE ts."mission_scoring_id" = ems."mission_scoring_id"
+        )
+    ) rc
+    ORDER BY rc."weighted_sum" DESC, rc."mission_id" ASC
     LIMIT ${params.geoCandidateLimit}
   ),`;
   const forcedRemoteCandidatesUnionSql = !forcedRemoteActive
@@ -585,46 +611,64 @@ const buildMissionMatchingResultItems = (params: {
     taxonomyScores: params.taxonomyScoresByMissionScoringId[row.mission_scoring_id] ?? {},
   }));
 
+// Dérive les paramètres de ranking depuis l'input (defaults par version). Partagé entre l'exécution
+// et le debug (explainRanking) pour garantir un SQL identique.
+const resolveRankingParams = (input: RankMissionsByUserScoringInput) => {
+  const version = input.version ?? CURRENT_MATCHING_ENGINE_VERSION;
+  const versionConfig = MATCHING_ENGINE_VERSIONS[version];
+  const limit = Math.max(1, Math.min(500, input.limit ?? 20));
+  const offset = Math.max(0, input.offset ?? 0);
+  // The persisted snapshot is defined as the first page of the ranking.
+  const shouldPersistTopResults = offset === 0;
+  const rankingLimit = shouldPersistTopResults ? Math.max(limit, MATCHING_ENGINE_TOP_RESULTS_LIMIT) : limit;
+
+  return {
+    version,
+    limit,
+    offset,
+    shouldPersistTopResults,
+    rankingLimit,
+    taxonomyWeights: versionConfig.taxonomyWeights,
+    taxonomyWeight: input.taxonomyWeight ?? 0.3,
+    geoWeight: input.geoWeight ?? versionConfig.geoWeight,
+    geoHalfDecayKm: input.geoHalfDecayKm ?? 20,
+    missingGeoScore: input.missingGeoScore ?? 0.1,
+    remoteFullGeoScore: input.remoteFullGeoScore !== undefined ? input.remoteFullGeoScore : versionConfig.remoteFullGeoScore,
+    remoteLocalGeoScore: input.remoteLocalGeoScore !== undefined ? input.remoteLocalGeoScore : versionConfig.remoteLocalGeoScore,
+    taxonomyCandidateLimit: getTaxonomyCandidateLimit({ limit: rankingLimit, offset }),
+    geoCandidateLimit: getGeoCandidateLimit({ limit: rankingLimit, offset }),
+  };
+};
+
+const buildRankingSqlForInput = async (input: RankMissionsByUserScoringInput): Promise<Prisma.Sql> => {
+  const params = resolveRankingParams(input);
+  const publisherRuleSql = await buildPublisherRuleSql(input.publisherId);
+
+  return buildRanking({
+    userScoringId: input.userScoringId,
+    publisherRuleSql,
+    taxonomyWeights: params.taxonomyWeights,
+    taxonomyWeight: params.taxonomyWeight,
+    geoWeight: params.geoWeight,
+    geoHalfDecayKm: params.geoHalfDecayKm,
+    missingGeoScore: params.missingGeoScore,
+    remoteFullGeoScore: params.remoteFullGeoScore,
+    remoteLocalGeoScore: params.remoteLocalGeoScore,
+    taxonomyCandidateLimit: params.taxonomyCandidateLimit,
+    geoCandidateLimit: params.geoCandidateLimit,
+    limit: params.rankingLimit,
+    offset: params.offset,
+  });
+};
+
 export const matchingEngineService = {
   async rankMissionsByUserScoring(input: RankMissionsByUserScoringInput): Promise<RankMissionsByUserScoringResult> {
     const startedAt = Date.now();
-    const version = input.version ?? CURRENT_MATCHING_ENGINE_VERSION;
-    const versionConfig = MATCHING_ENGINE_VERSIONS[version];
-    const taxonomyWeights = versionConfig.taxonomyWeights;
-    const limit = Math.max(1, Math.min(500, input.limit ?? 20));
-    const offset = Math.max(0, input.offset ?? 0);
-    // The persisted snapshot is defined as the first page of the ranking.
-    const shouldPersistTopResults = offset === 0;
-    const rankingLimit = shouldPersistTopResults ? Math.max(limit, MATCHING_ENGINE_TOP_RESULTS_LIMIT) : limit;
-    const taxonomyWeight = input.taxonomyWeight ?? 0.3;
-    const geoWeight = input.geoWeight ?? versionConfig.geoWeight;
-    const geoHalfDecayKm = input.geoHalfDecayKm ?? 20;
-    const missingGeoScore = input.missingGeoScore ?? 0.1;
-    const remoteFullGeoScore = input.remoteFullGeoScore !== undefined ? input.remoteFullGeoScore : versionConfig.remoteFullGeoScore;
-    const remoteLocalGeoScore = input.remoteLocalGeoScore !== undefined ? input.remoteLocalGeoScore : versionConfig.remoteLocalGeoScore;
-    const taxonomyCandidateLimit = getTaxonomyCandidateLimit({ limit: rankingLimit, offset });
-    const geoCandidateLimit = getGeoCandidateLimit({ limit: rankingLimit, offset });
+    const { version, limit, offset, shouldPersistTopResults } = resolveRankingParams(input);
 
     await assertUserScoringExists(input.userScoringId);
-    const publisherRuleSql = await buildPublisherRuleSql(input.publisherId);
 
-    const rows = await prisma.$queryRaw<DbRankRow[]>(
-      buildRanking({
-        userScoringId: input.userScoringId,
-        publisherRuleSql,
-        taxonomyWeights,
-        taxonomyWeight,
-        geoWeight,
-        geoHalfDecayKm,
-        missingGeoScore,
-        remoteFullGeoScore,
-        remoteLocalGeoScore,
-        taxonomyCandidateLimit,
-        geoCandidateLimit,
-        limit: rankingLimit,
-        offset,
-      })
-    );
+    const rows = await prisma.$queryRaw<DbRankRow[]>(await buildRankingSqlForInput(input));
     const missionScoringIdsForDetails = rows.slice(0, MATCHING_ENGINE_TOP_RESULTS_LIMIT).map((row) => row.mission_scoring_id);
     const taxonomyScoresRows =
       missionScoringIdsForDetails.length > 0
@@ -682,6 +726,16 @@ export const matchingEngineService = {
       total,
       avgDistanceKmTop5,
     };
+  },
+
+  // Debug/diagnostic : renvoie le plan `EXPLAIN (ANALYZE, BUFFERS)` du SQL de ranking pour un input
+  // donné (mêmes paramètres que rankMissionsByUserScoring). Utilisé par scripts/explain-matching-ranking.ts.
+  async explainRanking(input: RankMissionsByUserScoringInput): Promise<string> {
+    await assertUserScoringExists(input.userScoringId);
+    const sql = await buildRankingSqlForInput(input);
+    const rows = await prisma.$queryRaw<Array<Record<string, string>>>(Prisma.sql`EXPLAIN (ANALYZE, BUFFERS) ${sql}`);
+
+    return rows.map((row) => row["QUERY PLAN"]).join("\n");
   },
 };
 
