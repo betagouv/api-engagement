@@ -15,6 +15,7 @@
  *   --geo-weight N             Poids geo (defaut : moteur)
  *   --geo-half-decay-km N      Demi-vie geo en km (defaut : moteur)
  *   --json                     Sortie JSON au lieu du tableau console
+ *   --explain                  Affiche EXPLAIN (ANALYZE, BUFFERS) du SQL de ranking au lieu de mesurer
  */
 
 import dotenv from "dotenv";
@@ -45,6 +46,7 @@ type BenchmarkOptions = {
   geoWeight?: number;
   geoHalfDecayKm?: number;
   json: boolean;
+  explain: boolean;
 };
 
 type UserScoringCandidate = {
@@ -174,6 +176,7 @@ const parseOptions = (): BenchmarkOptions => ({
   geoWeight: parseNumber("--geo-weight"),
   geoHalfDecayKm: parseNumber("--geo-half-decay-km"),
   json: args.includes("--json"),
+  explain: args.includes("--explain"),
 });
 
 const roundMs = (value: number): number => Number(value.toFixed(2));
@@ -412,6 +415,20 @@ const run = async () => {
     const missingIds = options.userScoringIds.filter((id) => !userScorings.some((userScoring) => userScoring.id === id));
     if (missingIds.length > 0) {
       throw new Error(`user_scoring introuvable ou expire: ${missingIds.join(", ")}`);
+    }
+
+    // Mode diagnostic : affiche le plan EXPLAIN (ANALYZE, BUFFERS) du SQL de ranking par scenario.
+    if (options.explain) {
+      for (const userScoring of userScorings) {
+        for (const limit of options.limits) {
+          for (const offset of options.offsets) {
+            console.log(`\n[${SCRIPT_LABEL}] EXPLAIN userScoringId=${userScoring.id} version=${options.version} limit=${limit} offset=${offset}`);
+            const plan = await matchingEngineService.explainRanking(buildRankingInput(options, userScoring.id, limit, offset));
+            console.log(plan);
+          }
+        }
+      }
+      return;
     }
 
     const results: ScenarioResult[] = [];
