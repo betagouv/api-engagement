@@ -185,10 +185,10 @@ const resolveRemoteFilter = (remoteValues?: string[], widgetType?: string): Arra
     return ["full", "possible"];
   }
   if (remoteValues?.includes("no") && !remoteValues.includes("yes")) {
-    return ["no"];
+    return ["no", "local"];
   }
   if (!remoteValues && widgetType === "volontariat") {
-    return ["no"];
+    return ["no", "local"];
   }
 };
 

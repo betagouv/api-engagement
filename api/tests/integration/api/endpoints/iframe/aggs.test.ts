@@ -162,6 +162,13 @@ describe("GET /iframe/:id/aggs", () => {
     });
 
     it("should aggregate by remote with correct counts", async () => {
+      await createTestMission({
+        publisherId: publisher.id,
+        title: "Mission Locale",
+        domain: "Environnement",
+        remote: "local",
+      });
+
       const response = await request(app).get(`/iframe/${widget.id}/aggs`).expect(200);
 
       const remote = response.body.data.remote;
@@ -174,6 +181,10 @@ describe("GET /iframe/:id/aggs", () => {
       const fullRemote = remote.find((r: any) => r.key === "full");
       expect(fullRemote).toBeDefined();
       expect(fullRemote.doc_count).toBe(1);
+
+      const localRemote = remote.find((r: any) => r.key === "local");
+      expect(localRemote).toBeDefined();
+      expect(localRemote.doc_count).toBe(1);
     });
 
     it("should aggregate by country with correct counts", async () => {

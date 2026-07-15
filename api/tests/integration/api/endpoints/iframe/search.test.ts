@@ -290,18 +290,34 @@ describe("GET /iframe/:id/search", () => {
 
   describe("Boolean filters", () => {
     it("should filter by remote=yes (full or possible)", async () => {
+      await createTestMission({
+        publisherId: publisher.id,
+        title: "Mission Locale",
+        domain: "Environnement",
+        remote: "local",
+      });
+
       const response = await request(app).get(`/iframe/${widget.id}/search`).query({ remote: "yes" }).expect(200);
 
       expect(response.body.total).toBe(2);
       const remoteValues = response.body.data.map((m: any) => m.remote);
       expect(remoteValues).toEqual(expect.arrayContaining(["full", "possible"]));
+      expect(remoteValues).not.toContain("local");
     });
 
-    it("should filter by remote=no", async () => {
+    it("should filter by remote=no (presentiel or local)", async () => {
+      await createTestMission({
+        publisherId: publisher.id,
+        title: "Mission Locale",
+        domain: "Environnement",
+        remote: "local",
+      });
+
       const response = await request(app).get(`/iframe/${widget.id}/search`).query({ remote: "no" }).expect(200);
 
-      expect(response.body.total).toBe(1);
-      expect(response.body.data[0].remote).toBe("no");
+      expect(response.body.total).toBe(2);
+      const remoteValues = response.body.data.map((m: any) => m.remote);
+      expect(remoteValues).toEqual(expect.arrayContaining(["no", "local"]));
     });
 
     it("should filter by minor=yes (open to minors)", async () => {

@@ -48,7 +48,7 @@ const FiltersBenevolat = ({ widget, apiUrl, values, total, onChange, show, onSho
         }
 
         const remote = data.remote.filter((b) => b.key === "full" || b.key === "possible");
-        const presentiel = data.remote.filter((b) => b.key === "no");
+        const presentiel = data.remote.filter((b) => b.key === "no" || b.key === "local");
         const newOptions: FilterOptions = {
           organizations: data.organization.map((b) => ({ value: b.key, count: b.doc_count, label: b.label || b.key })),
           domains: data.domain.map((b) => ({ value: b.key, count: b.doc_count, label: DOMAINS[b.key] ? DOMAINS[b.key].label : b.key })),
