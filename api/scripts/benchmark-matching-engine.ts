@@ -25,9 +25,13 @@ import { prisma } from "@/db/postgres";
 import { matchingEngineService } from "@/services/matching-engine";
 import { CURRENT_MATCHING_ENGINE_VERSION } from "@/services/matching-engine/config";
 import type { MatchingEngineVersion, RankMissionsByUserScoringInput } from "@/services/matching-engine/types";
+import { GATE_TAXONOMIES } from "@engagement/taxonomy";
 
 const args = process.argv.slice(2);
 const SCRIPT_LABEL = "benchmark-matching-engine";
+
+// Les taxonomies gate ne vivent plus dans une table SQL : elles proviennent de @engagement/taxonomy.
+const gateTaxonomyKeysSql = Prisma.join(GATE_TAXONOMIES.map((key) => Prisma.sql`${key}`));
 
 type BenchmarkOptions = {
   userScoringIds: string[];
@@ -253,7 +257,7 @@ const getExplicitUserScorings = async (userScoringIds: string[]): Promise<UserSc
       us."id",
       COUNT(usv."id")::int AS "value_count",
       COUNT(DISTINCT usv."taxonomy_key")::int AS "taxonomy_count",
-      COUNT(usv."id") FILTER (WHERE t."type" = 'gate')::int AS "gate_value_count",
+      COUNT(usv."id") FILTER (WHERE usv."taxonomy_key" IN (${gateTaxonomyKeysSql}))::int AS "gate_value_count",
       EXISTS (
         SELECT 1
         FROM "user_scoring_geo" usg
@@ -262,8 +266,6 @@ const getExplicitUserScorings = async (userScoringIds: string[]): Promise<UserSc
     FROM "user_scoring" us
     LEFT JOIN "user_scoring_value" usv
       ON usv."user_scoring_id" = us."id"
-    LEFT JOIN "taxonomy" t
-      ON t."key"::text = usv."taxonomy_key"
     WHERE us."id" IN (${Prisma.join(userScoringIds)})
     GROUP BY us."id"
     ORDER BY us."id" ASC
@@ -277,7 +279,7 @@ const getSampledUserScorings = async (sampleSize: number): Promise<UserScoringCa
         us."id",
         COUNT(usv."id")::int AS "value_count",
         COUNT(DISTINCT usv."taxonomy_key")::int AS "taxonomy_count",
-        COUNT(usv."id") FILTER (WHERE t."type" = 'gate')::int AS "gate_value_count",
+        COUNT(usv."id") FILTER (WHERE usv."taxonomy_key" IN (${gateTaxonomyKeysSql}))::int AS "gate_value_count",
         EXISTS (
           SELECT 1
           FROM "user_scoring_geo" usg
@@ -286,8 +288,6 @@ const getSampledUserScorings = async (sampleSize: number): Promise<UserScoringCa
       FROM "user_scoring" us
       LEFT JOIN "user_scoring_value" usv
         ON usv."user_scoring_id" = us."id"
-      LEFT JOIN "taxonomy" t
-        ON t."key"::text = usv."taxonomy_key"
       GROUP BY us."id"
     ),
     ranked AS (
