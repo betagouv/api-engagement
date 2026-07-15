@@ -4,6 +4,7 @@ import { BaseHandler } from "@/jobs/base/handler";
 import { JobResult } from "@/jobs/types";
 import { missionEnrichmentService } from "@/services/mission-enrichment";
 import { JOB_ENRICH_SLEEP_MS } from "@/services/mission-enrichment/config";
+import { MissionEnrichmentRateLimitError } from "@/services/mission-enrichment/errors";
 import { CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/prompts";
 import { setTimeout as sleep } from "timers/promises";
 
@@ -76,9 +77,10 @@ export class UpdateMissionEnrichmentHandler implements BaseHandler<UpdateMission
           console.log(`${LOG_PREFIX} [${processed}/${missions.length}] enriched ${mission.id}`);
         } catch (error) {
           failed++;
-          console.error(`${LOG_PREFIX} failed to enrich ${mission.id}`, error);
+          const rateLimitDetails = error instanceof MissionEnrichmentRateLimitError ? error.details : undefined;
+          console.error(`${LOG_PREFIX} failed to enrich ${mission.id}`, error, rateLimitDetails ?? {});
           if ((error as { name?: string })?.name !== "AI_NoObjectGeneratedError") {
-            captureException(error, { extra: { missionId: mission.id } });
+            captureException(error, { extra: { missionId: mission.id, ...(rateLimitDetails ? { rateLimit: rateLimitDetails } : {}) } });
           }
         }
 

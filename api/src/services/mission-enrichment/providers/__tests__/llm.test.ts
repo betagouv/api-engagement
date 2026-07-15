@@ -20,7 +20,7 @@ const generateObjectMock = generateObject as ReturnType<typeof vi.fn>;
 const promptVersion = { MODEL: {}, ENRICHMENT_SCHEMA: {}, TEMPERATURE: 0, buildSystemPrompt: () => "", buildUserMessage: () => "" };
 const input = { systemPrompt: "sys", userMessage: "usr", promptVersion } as any;
 
-const makeApiCallError = (statusCode: number) => Object.assign(new Error("api error"), { name: "AI_APICallError", statusCode });
+const makeApiCallError = (statusCode: number, extra: Record<string, unknown> = {}) => Object.assign(new Error("api error"), { name: "AI_APICallError", statusCode, ...extra });
 const makeRetryError = (lastError: unknown) => Object.assign(new Error("retry error"), { name: "AI_RetryError", lastError });
 
 describe("llmMissionEnrichmentProvider — rate limit detection", () => {
@@ -46,5 +46,56 @@ describe("llmMissionEnrichmentProvider — rate limit detection", () => {
     generateObjectMock.mockRejectedValue(makeRetryError(makeApiCallError(503)));
 
     await expect(llmMissionEnrichmentProvider.generate(input)).rejects.toSatisfy((e: unknown) => (e as { name?: string }).name === "AI_RetryError");
+  });
+
+  it("surfaces rate-limit details (provider, retry-after, rate-limit headers, body) on the thrown error", async () => {
+    generateObjectMock.mockRejectedValue(
+      makeApiCallError(429, {
+        responseHeaders: {
+          "Retry-After": "12",
+          "X-RateLimit-Remaining-Requests": "0",
+          "content-type": "application/json",
+        },
+        responseBody: "Rate limit exceeded: 60 requests per minute",
+      })
+    );
+    const inputWithProvider = { ...input, promptVersion: { ...promptVersion, MODEL: { provider: "albert" } } };
+
+    const error = await llmMissionEnrichmentProvider.generate(inputWithProvider).catch((e: unknown) => e);
+
+    expect(error).toBeInstanceOf(MissionEnrichmentRateLimitError);
+    const { details, message } = error as MissionEnrichmentRateLimitError;
+    expect(details).toMatchObject({
+      provider: "albert",
+      statusCode: 429,
+      retryAfter: "12",
+      rateLimitHeaders: { "retry-after": "12", "x-ratelimit-remaining-requests": "0" },
+      responseBody: "Rate limit exceeded: 60 requests per minute",
+    });
+    // le content-type est conservé dans responseHeaders mais exclu du sous-ensemble rate-limit
+    expect(details?.rateLimitHeaders).not.toHaveProperty("content-type");
+    expect(details?.responseHeaders).toHaveProperty("content-type", "application/json");
+    expect(message).toContain("provider=albert");
+    expect(message).toContain("retry-after=12");
+    expect(message).toContain("x-ratelimit-remaining-requests=0");
+  });
+
+  it("surfaces the provider-parsed limit detail (APICallError.data.detail) when no rate-limit header is present", async () => {
+    generateObjectMock.mockRejectedValue(
+      makeApiCallError(429, {
+        responseHeaders: { "content-type": "application/json", server: "nginx/1.29.3" },
+        data: { detail: "2460000 input tokens per day exceeded (remaining: 0)." },
+      })
+    );
+    const inputWithProvider = { ...input, promptVersion: { ...promptVersion, MODEL: { provider: "albert" } } };
+
+    const error = await llmMissionEnrichmentProvider.generate(inputWithProvider).catch((e: unknown) => e);
+
+    expect(error).toBeInstanceOf(MissionEnrichmentRateLimitError);
+    const { details, message } = error as MissionEnrichmentRateLimitError;
+    expect(details?.detail).toBe("2460000 input tokens per day exceeded (remaining: 0).");
+    expect(details?.rateLimitHeaders).toBeUndefined();
+    expect(message).toContain("provider=albert");
+    expect(message).toContain("2460000 input tokens per day exceeded (remaining: 0).");
   });
 });
