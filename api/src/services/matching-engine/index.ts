@@ -97,18 +97,41 @@ const buildRanking = (params: {
     ? Prisma.empty
     : Prisma.sql`
   remote_full_candidates AS (
+    -- On priorise les missions remote par score taxonomie (comme l'ordre d'origine) mais sans le
+    -- nested loop O(remote × taxonomy) : le join est piloté DEPUIS taxonomy_scores (→ hash join,
+    -- comme taxonomy_candidates) au lieu d'un LEFT JOIN depuis le côté remote.
     SELECT
-      ems."mission_id",
-      ems."mission_scoring_id"
-    FROM eligible_mission_scorings ems
-    JOIN "mission" m
-      ON m."id" = ems."mission_id"
-     AND m."remote"::text = 'full'
-    WHERE EXISTS (SELECT 1 FROM user_geo)
-    -- Tri déterministe (pas par taxonomie) : joindre taxonomy_scores ici forçait un nested loop
-    -- O(remote × taxonomy) très coûteux. Le classement final (ranked) réordonne de toute façon ces
-    -- candidats par total_score ; ce LIMIT ne sert qu'à borner le pool.
-    ORDER BY ems."mission_id" ASC
+      rc."mission_id",
+      rc."mission_scoring_id"
+    FROM (
+      -- (1) missions remote AVEC score taxonomie, triées par pertinence
+      SELECT
+        ems."mission_id",
+        ems."mission_scoring_id",
+        ts."weighted_sum" AS "weighted_sum"
+      FROM taxonomy_scores ts
+      JOIN eligible_mission_scorings ems
+        ON ems."mission_scoring_id" = ts."mission_scoring_id"
+      JOIN "mission" m
+        ON m."id" = ems."mission_id"
+       AND m."remote"::text = 'full'
+      WHERE EXISTS (SELECT 1 FROM user_geo)
+      UNION ALL
+      -- (2) missions remote SANS score taxonomie (score 0), en complément du pool
+      SELECT
+        ems."mission_id",
+        ems."mission_scoring_id",
+        CAST(0 AS double precision) AS "weighted_sum"
+      FROM eligible_mission_scorings ems
+      JOIN "mission" m
+        ON m."id" = ems."mission_id"
+       AND m."remote"::text = 'full'
+      WHERE EXISTS (SELECT 1 FROM user_geo)
+        AND NOT EXISTS (
+          SELECT 1 FROM taxonomy_scores ts WHERE ts."mission_scoring_id" = ems."mission_scoring_id"
+        )
+    ) rc
+    ORDER BY rc."weighted_sum" DESC, rc."mission_id" ASC
     LIMIT ${params.geoCandidateLimit}
   ),`;
   const remoteFullCandidatesUnionSql = !remoteFullActive
