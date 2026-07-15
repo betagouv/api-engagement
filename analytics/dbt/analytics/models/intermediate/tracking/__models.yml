@@ -1,0 +1,84 @@
+version: 2
+
+models:
+  - name: int_tracking_quiz_session
+    description: >
+      Colonne vertébrale du tracking : une ligne par `quiz_attempt_id`. Agrège tout le tunnel (started, steps,
+      completed), résout `quiz_session_id` et porte les flags de complétion. Les utilisateurs internes sont exclus.
+    columns:
+      - name: quiz_attempt_id
+        description: UUID de la tentative de quiz.
+        tests:
+          - not_null
+          - unique
+      - name: quiz_session_id
+        description: Identifiant backend (`userScoringId`), présent si le quiz a été complété.
+      - name: is_completed
+        description: Vrai si un événement `quiz.completed` a été observé pour la tentative.
+
+  - name: int_tracking_quiz_funnel_step
+    description: >
+      Séquence des étapes validées, une ligne par (`quiz_attempt_id`, étape). Base du taux d'abandon
+      étape N / N-1. Utilisateurs internes exclus.
+    columns:
+      - name: quiz_attempt_id
+        tests:
+          - not_null
+      - name: step_name
+        tests:
+          - not_null
+
+  - name: int_tracking_results_session
+    description: >
+      Vue « résultats + aval » par `quiz_session_id` : combine `results.viewed` avec les clics mission de la
+      session (taux de clic, clic pinned, clic externe, zéro-clic). Utilisateurs internes exclus.
+    columns:
+      - name: quiz_session_id
+        tests:
+          - not_null
+          - unique
+      - name: is_zero_click
+        description: Vrai si la session a vu des résultats sans aucun clic mission.
+
+  - name: int_tracking_mission_click
+    description: >
+      Chaque clic mission enrichi (rang, section, distance, publisher), une ligne par événement `mission.clicked`.
+      `mission_score` reste à alimenter depuis le backend. Utilisateurs internes exclus.
+    columns:
+      - name: event_uuid
+        tests:
+          - not_null
+          - unique
+      - name: mission_id
+        tests:
+          - not_null
+
+  - name: int_tracking_quiz_backend
+    description: >
+      Réconciliation d'une session quiz avec le backend via `quiz_session_id` = `user_scoring_id`.
+      `score_top5` est la moyenne des `taxonomyScores` des 5 premiers résultats du dernier run de
+      matching (`matching_engine_result` le plus récent par `user_scoring_id`, plusieurs runs possibles).
+      Les métriques de candidature (`has_apply`, `apply_count`, `first_apply_at`) restent des
+      placeholders à figer (clé d'attribution des candidatures). Utilisateurs internes exclus.
+    columns:
+      - name: quiz_session_id
+        tests:
+          - not_null
+          - unique
+      - name: score_top5
+        description: >
+          Moyenne des `taxonomyScores` sur le top 5 des résultats du dernier run de matching de la
+          session. Null si aucun `matching_engine_result` exploitable.
+
+  - name: int_tracking_page_view
+    description: >
+      Visites de pages filtrées (internes exclus), une ligne par événement `page.viewed`. Alimente le trafic
+      quotidien agrégé (`page_view_daily`).
+    columns:
+      - name: event_uuid
+        tests:
+          - not_null
+          - unique
+      - name: page_name
+        tests:
+          - not_null

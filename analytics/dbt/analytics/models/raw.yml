@@ -837,3 +837,29 @@ sources:
             description: Timestamp de création de la valeur de scoring.
           - name: updated_at
             description: Timestamp de dernière mise à jour, utilisé comme curseur d'export.
+      - name: tracking_event
+        description: >-
+          Événements de tracking front de la plateforme d'engagement, synchronisés depuis PostHog par le job
+          `export-tracking-raw`. Chaque ligne correspond à un événement (quiz, résultats, missions, pages…), avec
+          les propriétés métier et système dans la colonne `properties` (JSONB).
+        columns:
+          - name: uuid
+            description: Identifiant unique de l'événement (PostHog). Clé primaire.
+          - name: event
+            description: Nom de l'événement, ex. `quiz.started`, `mission.clicked`, `page.viewed`.
+          - name: timestamp
+            description: Horodatage d'émission de l'événement.
+          - name: distinct_id
+            description: Identifiant PostHog du navigateur (persisté en localStorage).
+          - name: person_id
+            description: Identifiant PostHog de la personne.
+          - name: session_id
+            description: Identifiant de session PostHog.
+          - name: current_url
+            description: URL complète au moment de l'événement.
+          - name: pathname
+            description: Chemin de la page au moment de l'événement.
+          - name: properties
+            description: Propriétés métier et système de l'événement au format JSON.
+          - name: ingested_at
+            description: Horodatage d'ingestion dans l'entrepôt analytics.
