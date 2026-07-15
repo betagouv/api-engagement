@@ -193,6 +193,8 @@ describe("DiffusionRule API Integration Tests", () => {
    * POST /v0/diffusion-rule
    * - should return 401 if not authenticated
    * - should return 400 for invalid body
+   * - should return 400 for an unsupported operator on the field
+   * - should return 400 for an unsupported fieldType
    * - should return 403 when none of the publisherIds match the user's diffuseurs
    * - should create rules for allowed diffuseurs only
    * - should default fieldType to "string" when missing
@@ -216,6 +218,28 @@ describe("DiffusionRule API Integration Tests", () => {
 
     it("should return 400 for invalid body", async () => {
       const response = await request(app).post("/v0/diffusion-rule").set("x-api-key", apiKey).send({ publisherIds: [], field: "", operator: "", value: "" });
+      expect(response.status).toBe(400);
+      expect(response.body.ok).toBe(false);
+      expect(response.body.code).toBe("INVALID_BODY");
+    });
+
+    it("should return 400 for an unsupported operator on the field", async () => {
+      const response = await request(app)
+        .post("/v0/diffusion-rule")
+        .set("x-api-key", apiKey)
+        .send({ publisherIds: [diffuseur1.id], field: "publisherOrganization.parentOrganizations", operator: "starts_with", value: "Marine nationale" });
+
+      expect(response.status).toBe(400);
+      expect(response.body.ok).toBe(false);
+      expect(response.body.code).toBe("INVALID_BODY");
+    });
+
+    it("should return 400 for an unsupported fieldType", async () => {
+      const response = await request(app)
+        .post("/v0/diffusion-rule")
+        .set("x-api-key", apiKey)
+        .send({ ...validRule, fieldType: "array", publisherIds: [diffuseur1.id] });
+
       expect(response.status).toBe(400);
       expect(response.body.ok).toBe(false);
       expect(response.body.code).toBe("INVALID_BODY");
