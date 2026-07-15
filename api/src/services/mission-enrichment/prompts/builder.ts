@@ -58,7 +58,8 @@ export const buildTaxonomyBlock = (taxonomy: TaxonomyForPrompt): string =>
 export const buildMissionBlock = (mission: MissionForPrompt): string => {
   const lines: string[] = [];
 
-  const remoteLabel = mission.remote === "full" ? "Entièrement à distance" : mission.remote === "possible" ? "Présentiel avec option à distance" : "Présentiel";
+  const remoteLabel =
+    mission.remote === "full" ? "Entièrement à distance" : mission.remote === "possible" ? "Présentiel avec option à distance" : mission.remote === "local" ? "Sur site, à proximité" : "Présentiel";
 
   const durationStr = mission.duration ? `${mission.duration} heures` : "non précisée";
   const cleanSchedule = clean(mission.schedule, PROMPT_FIELD_MAX_LENGTH.short);

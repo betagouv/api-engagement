@@ -72,7 +72,7 @@ export function missionToLinkedinJob(mission: MissionRecord, defaultCompany: str
     postalCode: (mission.addresses?.length ?? 0) === 0 ? mission.postalCode : undefined,
     listDate: new Date(mission.createdAt).toISOString(),
     industryCodes: LINKEDIN_INDUSTRY_CODE[mission.domain ?? ""] ? [{ industryCode: LINKEDIN_INDUSTRY_CODE[mission.domain ?? ""] }] : undefined,
-    workplaceTypes: mission.remote === "no" ? "On-site" : mission.remote === "full" ? "Remote" : "Hybrid",
+    workplaceTypes: mission.remote === "full" ? "Remote" : mission.remote === "possible" ? "Hybrid" : "On-site",
   } as LinkedInJob;
   if (mission.endAt) {
     job.expirationDate = new Date(mission.endAt).toISOString();

@@ -63,6 +63,7 @@ enum MissionRemote {
   no
   possible
   full
+  local
 }
 
 enum MissionPlacesStatus {

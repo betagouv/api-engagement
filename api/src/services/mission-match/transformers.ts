@@ -4,6 +4,7 @@ import { TAXONOMY } from "@engagement/taxonomy";
 import type { Prisma } from "@/db/core";
 import type { MatchMissionItem } from "@/services/matching-engine/types";
 import { getMissionTrackedApplicationUrl } from "@/utils/mission";
+import { isAddressNeutralizedRemote } from "@/utils/mission-remote";
 
 export const missionMatchMissionSelect = {
   id: true,
@@ -132,13 +133,13 @@ export const toMissionMatchItem = (
   missionIndex: Record<string, MissionIndexEntry>,
   valuesIndex: Record<string, MissionMatchValue[]>,
   publisherId: string,
-  // Quand le moteur ignore l'adresse des missions remote=full, on neutralise aussi le fallback ville.
+  // Quand le moteur ignore l'adresse des missions remote=full/local, on neutralise aussi le fallback ville.
   ignoreRemoteAddress = false
 ): MissionMatchItem => {
   const mission = missionIndex[item.missionId];
   const photo = mission?.domainLogo ?? mission?.organizationLogo ?? mission?.publisherDefaultMissionLogo ?? mission?.publisherLogo ?? null;
   const hasCompensation = mission?.compensationAmount != null || mission?.compensationAmountMax != null;
-  const isFullRemoteAddressIgnored = ignoreRemoteAddress && mission?.remote === "full";
+  const isRemoteAddressIgnored = ignoreRemoteAddress && isAddressNeutralizedRemote(mission?.remote);
 
   return {
     mission: {
@@ -158,7 +159,7 @@ export const toMissionMatchItem = (
         publisherLogo: mission?.publisherLogo ?? null,
       },
       location: {
-        city: item.closestCity ?? (isFullRemoteAddressIgnored ? null : mission?.city) ?? null,
+        city: item.closestCity ?? (isRemoteAddressIgnored ? null : mission?.city) ?? null,
         closestLat: item.closestLat,
         closestLon: item.closestLon,
         closestAddress: item.closestAddress,

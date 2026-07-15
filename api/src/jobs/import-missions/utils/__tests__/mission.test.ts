@@ -42,6 +42,10 @@ describe("parseRemote", () => {
     expect(parseRemote("remote")).toBe("full");
   });
 
+  it("returns 'local' for 'local'", () => {
+    expect(parseRemote("local")).toBe("local");
+  });
+
   it("returns 'possible' for 'partiel', 'partielle', 'hybride'", () => {
     expect(parseRemote("partiel")).toBe("possible");
     expect(parseRemote("partielle")).toBe("possible");
@@ -54,6 +58,7 @@ describe("parseRemote", () => {
 
   it("is case-insensitive", () => {
     expect(parseRemote("FULL")).toBe("full");
+    expect(parseRemote("LOCAL")).toBe("local");
     expect(parseRemote("Oui")).toBe("possible");
   });
 });

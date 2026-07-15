@@ -24,6 +24,8 @@ const activeIcon = L.divIcon({
 });
 
 const getAddressLabel = (item: MissionMatchItem): string | null => item.mission.location.closestAddress ?? item.mission.location.city;
+const hasNeutralizedAddress = (item: MissionMatchItem): boolean => item.mission.remote === "full" || item.mission.remote === "local";
+const getFallbackAddressLabel = (item: MissionMatchItem): string => (item.mission.remote === "full" ? "Mission à distance" : "Mission sans adresse précise");
 
 function spreadOverlappingPositions(missions: MapMission[]): MapMission[] {
   const positionCounts = new Map<string, number>();
@@ -74,8 +76,9 @@ export default function MissionMap({ items, center, onMarkerClick, selectionPadd
   const missions = useMemo<MapMission[]>(
     () => {
       const positionedMissions = items.map((item, index) => {
-        const hasPreciseCoordinates = item.mission.remote !== "full" && typeof item.mission.location.closestLat === "number" && typeof item.mission.location.closestLon === "number";
-        const addressLabel = item.mission.remote !== "full" ? getAddressLabel(item) : null;
+        const addressNeutralized = hasNeutralizedAddress(item);
+        const hasPreciseCoordinates = !addressNeutralized && typeof item.mission.location.closestLat === "number" && typeof item.mission.location.closestLon === "number";
+        const addressLabel = !addressNeutralized ? getAddressLabel(item) : null;
         const position: GeoPosition = hasPreciseCoordinates
           ? [item.mission.location.closestLat!, item.mission.location.closestLon!]
           : getNearbyPosition(center, item.mission.id, index);
@@ -84,7 +87,7 @@ export default function MissionMap({ items, center, onMarkerClick, selectionPadd
           item,
           addressLabel,
           position,
-          usesRemoteIcon: item.mission.remote === "full" || (!hasPreciseCoordinates && !addressLabel),
+          usesRemoteIcon: item.mission.remote === "full" || (!hasPreciseCoordinates && !addressLabel && item.mission.remote !== "local"),
         };
       });
 
@@ -122,7 +125,7 @@ export default function MissionMap({ items, center, onMarkerClick, selectionPadd
               {onMissionHover && (
                 <Tooltip direction="top" offset={[0, -8]} opacity={1} className="mission-map__tooltip">
                   <strong className="mission-map__tooltip-title">{item.mission.title}</strong>
-                  <span className="mission-map__tooltip-address">{addressLabel ?? "Mission à distance ou sans adresse précise"}</span>
+                  <span className="mission-map__tooltip-address">{addressLabel ?? getFallbackAddressLabel(item)}</span>
                 </Tooltip>
               )}
               {!onMarkerClick && (
@@ -137,7 +140,7 @@ export default function MissionMap({ items, center, onMarkerClick, selectionPadd
                   {!addressLabel && (
                     <>
                       <br />
-                      Mission à distance ou sans adresse précise
+                      {getFallbackAddressLabel(item)}
                     </>
                   )}
                 </Popup>
