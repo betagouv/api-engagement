@@ -197,6 +197,48 @@ describe("GET /iframe/:id/aggs", () => {
       expect(france).toBeDefined();
       expect(france.doc_count).toBe(4);
     });
+
+    it("should aggregate local missions without address when filtering on-site missions around a widget location", async () => {
+      const geoWidget = await createTestWidget({
+        fromPublisher: publisher,
+        publishers: [publisher.id],
+        location: { lat: 48.8566, lon: 2.3522 },
+        distance: "25km",
+      });
+      await createTestMission({
+        publisherId: publisher.id,
+        title: "Mission Présentiel Paris",
+        domain: "Environnement",
+        remote: "no",
+        addresses: [
+          {
+            city: "Paris",
+            postalCode: "75001",
+            departmentCode: "75",
+            departmentName: "Paris",
+            country: "FR",
+            location: { lat: 48.8566, lon: 2.3522 },
+          },
+        ],
+      });
+      await createTestMission({
+        publisherId: publisher.id,
+        title: "Mission Locale sans adresse",
+        domain: "Environnement",
+        remote: "local",
+        addresses: [],
+      });
+
+      const response = await request(app).get(`/iframe/${geoWidget.id}/aggs`).query({ remote: "no" }).expect(200);
+
+      const remote = response.body.data.remote;
+      const noRemote = remote.find((r: any) => r.key === "no");
+      const localRemote = remote.find((r: any) => r.key === "local");
+      expect(noRemote).toBeDefined();
+      expect(noRemote.doc_count).toBe(1);
+      expect(localRemote).toBeDefined();
+      expect(localRemote.doc_count).toBe(1);
+    });
   });
 
   describe("Error cases", () => {
