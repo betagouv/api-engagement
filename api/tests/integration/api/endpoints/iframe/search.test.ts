@@ -284,6 +284,28 @@ describe("GET /iframe/:id/search", () => {
       const titles = response.body.data.map((mission: MissionRecord) => mission.title);
       expect(titles).toEqual(expect.arrayContaining(["Mission Environnement Paris", "Mission Locale sans adresse"]));
     });
+
+    it("should include local missions without address around a widget location without remote filter", async () => {
+      const geoWidget = await createTestWidget({
+        fromPublisher: publisher,
+        publishers: [publisher.id],
+        location: { lat: 48.8566, lon: 2.3522 },
+        distance: "25km",
+      });
+      await createTestMission({
+        publisherId: publisher.id,
+        title: "Mission Locale sans adresse",
+        domain: "Environnement",
+        remote: "local",
+        addresses: [],
+      });
+
+      const response = await request(app).get(`/iframe/${geoWidget.id}/search`).expect(200);
+
+      expect(response.body.total).toBe(2);
+      const titles = response.body.data.map((mission: MissionRecord) => mission.title);
+      expect(titles).toEqual(expect.arrayContaining(["Mission Environnement Paris", "Mission Locale sans adresse"]));
+    });
   });
 
   describe("Category filters", () => {

@@ -349,7 +349,7 @@ export const buildWhere = async (filters: MissionSearchFilters): Promise<Prisma.
     const addressWhere: Prisma.MissionWhereInput = {
       addresses: clauses.length === 1 ? { some: clauses[0] } : { some: { OR: clauses } },
     };
-    if (hasGeoFilters(filters) && filters.remote?.includes("local")) {
+    if (hasGeoFilters(filters) && (!filters.remote?.length || filters.remote.includes("local"))) {
       andConditions.push({ OR: [addressWhere, { remote: "local" }] });
     } else {
       Object.assign(where, addressWhere);
