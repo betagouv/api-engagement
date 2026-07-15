@@ -10,7 +10,7 @@ import { getModeration } from "@/jobs/import-missions/utils/moderation";
 import { activityService } from "@/services/activity";
 import type { MissionRecord } from "@/types/mission";
 import type { PublisherRecord } from "@/types/publisher";
-import { parseBool, parseDate, parseLowercase, parseNumber, parseString, parseStringArray } from "@/utils";
+import { parseBool, parseDate, parseLowercase, parseNumber, parseString, parseStringArray, sanitizeHtml } from "@/utils";
 
 const getImageDomain = (domain: string) => {
   const number = Number(new Date().getTime().toString().slice(-1)) % 3;
@@ -115,7 +115,7 @@ export const parseMission = (publisher: PublisherRecord, missionXML: MissionXML,
         preserveNewlines: true,
         selectors: [{ selector: "ul", options: { itemPrefix: " • " } }],
       }),
-      descriptionHtml: parseString(missionXML.description) || "",
+      descriptionHtml: sanitizeHtml(parseString(missionXML.description) || ""),
       clientId: parseString(missionXML.clientId),
       applicationUrl: missionXML.applicationUrl || "",
       postedAt: parseDate(missionXML.postedAt) || parseDate(missionDB?.postedAt ?? undefined) || startTime,

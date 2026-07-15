@@ -1,7 +1,43 @@
-import { capitalizeFirstLetter, fuzzyMatchKey, hasLetter, hasNumber, hasSpecialChar, jaccardSimilarity, slugify } from "@/utils/string";
+import { capitalizeFirstLetter, fuzzyMatchKey, hasLetter, hasNumber, hasSpecialChar, jaccardSimilarity, sanitizeHtml, slugify } from "@/utils/string";
 import { describe, expect, it } from "vitest";
 
 describe("String Utils", () => {
+  describe("sanitizeHtml", () => {
+    it("should keep standard formatting tags", () => {
+      const html = "<h2>Presentation</h2><p>Une <strong>mission</strong> utile.</p><ul><li>Accueillir</li><li>Orienter</li></ul>";
+      expect(sanitizeHtml(html)).toBe(html);
+    });
+
+    it("should keep links with http(s) href", () => {
+      const html = '<p>Voir <a href="https://example.com" target="_blank">le site</a></p>';
+      expect(sanitizeHtml(html)).toBe(html);
+    });
+
+    it("should remove script tags and their content", () => {
+      expect(sanitizeHtml("<p>Hello</p><script>alert(1)</script>")).toBe("<p>Hello</p>");
+    });
+
+    it("should remove img tags with event handlers", () => {
+      expect(sanitizeHtml('<p>Hello</p><img src="x" onerror="alert(1)" />')).toBe("<p>Hello</p>");
+    });
+
+    it("should remove event handler attributes on allowed tags", () => {
+      expect(sanitizeHtml('<p onclick="alert(1)">Hello</p>')).toBe("<p>Hello</p>");
+    });
+
+    it("should remove javascript: URLs in links", () => {
+      expect(sanitizeHtml('<a href="javascript:alert(1)">Hello</a>')).toBe("<a>Hello</a>");
+    });
+
+    it("should remove iframe and style tags", () => {
+      expect(sanitizeHtml('<iframe src="https://evil.com"></iframe><style>body{display:none}</style><p>Hello</p>')).toBe("<p>Hello</p>");
+    });
+
+    it("should escape special characters in plain text", () => {
+      expect(sanitizeHtml("Théâtre & musique")).toBe("Théâtre &amp; musique");
+    });
+  });
+
   describe("slugify", () => {
     it("should convert basic strings", () => {
       expect(slugify("hello world")).toBe("hello-world");

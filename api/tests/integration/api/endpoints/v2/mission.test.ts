@@ -93,6 +93,19 @@ describe("Mission V2 Write API Integration Tests", () => {
       expect(mission?.description).not.toContain("<h2>");
     });
 
+    it("should sanitize malicious HTML in descriptions", async () => {
+      const htmlDescription = '<p>Une mission utile.</p><script>alert(1)</script><img src="x" onerror="alert(1)" />';
+
+      const response = await request(app)
+        .post("/v2/mission")
+        .set("x-api-key", apiKey)
+        .send({ clientId: "test-xss-description", title: "Mission XSS", description: htmlDescription, applicationUrl: "https://example.com/apply" });
+
+      expect(response.status).toBe(201);
+      const mission = await missionService.findMissionByClientAndPublisher("test-xss-description", publisher.id);
+      expect(mission?.descriptionHtml).toBe("<p>Une mission utile.</p>");
+    });
+
     it("should store plain text descriptions as rich content fallback", async () => {
       const description = "Une description texte simple.";
 
