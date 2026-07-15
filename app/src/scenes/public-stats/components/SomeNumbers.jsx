@@ -182,6 +182,8 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
               chartTitle={`Évolution mensuelle des organisations actives en ${filters.year}`}
               chartDescription="Nombre d'organisations actives par mois sur l'année sélectionnée."
               chartDescriptionMode="sr-only"
+              chartNameLabel="Mois"
+              chartValueLabel="Nombre d'organisations actives"
               adapterOptions={{ labelColumn: "month_start", valueColumn: "organizations" }}
               chartProps={{
                 dataKey: "value",
@@ -217,6 +219,8 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
               chartTitle={`Évolution mensuelle des missions partagées en ${filters.year}`}
               chartDescription="Nombre de missions partagées par mois sur l'année sélectionnée."
               chartDescriptionMode="sr-only"
+              chartNameLabel="Mois"
+              chartValueLabel="Nombre de missions partagées"
               adapterOptions={{ labelColumn: "month_start", valueColumn: "missions" }}
               chartProps={{
                 dataKey: "value",
@@ -242,6 +246,8 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
               chartTitle={`Évolution mensuelle des redirections en ${filters.year}`}
               chartDescription="Nombre de redirections par mois sur l'année sélectionnée."
               chartDescriptionMode="sr-only"
+              chartNameLabel="Mois"
+              chartValueLabel="Nombre de redirections"
               adapterOptions={{ labelColumn: "month_start", valueColumn: "redirection_count" }}
               chartProps={{
                 dataKey: "value",
@@ -266,6 +272,8 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
               chartTitle={`Évolution mensuelle des candidatures en ${filters.year}`}
               chartDescription="Nombre de candidatures par mois sur l'année sélectionnée."
               chartDescriptionMode="sr-only"
+              chartNameLabel="Mois"
+              chartValueLabel="Nombre de candidatures"
               adapterOptions={{ labelColumn: "month_start", valueColumn: "candidature_count" }}
               chartProps={{
                 dataKey: "value",
