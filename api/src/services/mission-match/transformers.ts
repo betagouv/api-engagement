@@ -131,11 +131,14 @@ export const toMissionMatchItem = (
   item: MatchMissionItem,
   missionIndex: Record<string, MissionIndexEntry>,
   valuesIndex: Record<string, MissionMatchValue[]>,
-  publisherId: string
+  publisherId: string,
+  // Quand le moteur ignore l'adresse des missions remote=full, on neutralise aussi le fallback ville.
+  ignoreRemoteAddress = false
 ): MissionMatchItem => {
   const mission = missionIndex[item.missionId];
   const photo = mission?.domainLogo ?? mission?.organizationLogo ?? mission?.publisherDefaultMissionLogo ?? mission?.publisherLogo ?? null;
   const hasCompensation = mission?.compensationAmount != null || mission?.compensationAmountMax != null;
+  const isFullRemoteAddressIgnored = ignoreRemoteAddress && mission?.remote === "full";
 
   return {
     mission: {
@@ -155,7 +158,7 @@ export const toMissionMatchItem = (
         publisherLogo: mission?.publisherLogo ?? null,
       },
       location: {
-        city: item.closestCity ?? mission?.city ?? null,
+        city: item.closestCity ?? (isFullRemoteAddressIgnored ? null : mission?.city) ?? null,
         closestLat: item.closestLat,
         closestLon: item.closestLon,
         closestAddress: item.closestAddress,

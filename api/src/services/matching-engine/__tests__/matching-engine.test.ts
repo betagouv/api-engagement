@@ -469,5 +469,94 @@ describe("matchingEngineService", () => {
       ]);
       expect(missionMatchingResultRepositoryMock.createForUserScoringVersion).not.toHaveBeenCalled();
     });
+
+    it("injects the remote=full geo score branch and value for the m3 version", async () => {
+      prismaMock.$queryRaw
+        .mockResolvedValueOnce([
+          {
+            id: "user-scoring-m3",
+          },
+        ])
+        .mockResolvedValueOnce([]);
+      missionMatchingResultRepositoryMock.createForUserScoringVersion.mockResolvedValue({
+        id: "mission-matching-result-m3",
+      });
+
+      const result = await matchingEngineService.rankMissionsByUserScoring({
+        userScoringId: "user-scoring-m3",
+        version: "m3",
+      });
+
+      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[1][0]);
+      const rankingValues = getSqlValues(prismaMock.$queryRaw.mock.calls[1][0]);
+      expect(result.version).toBe("m3");
+      expect(rankingSql).toContain("WHEN m.\"remote\"::text = 'full' THEN CAST(");
+      expect(rankingSql).toContain('JOIN "mission" m');
+      expect(rankingSql).toContain("remote_full_candidates AS (");
+      expect(rankingSql).toContain("FROM remote_full_candidates rfc");
+      expect(rankingSql).toContain('WHEN m."remote"::text = \'full\' THEN NULL ELSE gs."distance_km" END');
+      expect(rankingValues).toContain(0.9);
+    });
+
+    it("does not inject the remote=full branch for the m2 version (non-regression)", async () => {
+      prismaMock.$queryRaw
+        .mockResolvedValueOnce([
+          {
+            id: "user-scoring-m2",
+          },
+        ])
+        .mockResolvedValueOnce([]);
+      missionMatchingResultRepositoryMock.createForUserScoringVersion.mockResolvedValue({
+        id: "mission-matching-result-m2",
+      });
+
+      const result = await matchingEngineService.rankMissionsByUserScoring({
+        userScoringId: "user-scoring-m2",
+        version: "m2",
+      });
+
+      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[1][0]);
+      expect(result.version).toBe("m2");
+      expect(rankingSql).not.toContain('m."remote"::text');
+      expect(rankingSql).not.toContain("remote_full_candidates");
+    });
+
+    it("returns a geo score of 1 for a remote=full mission ranked with m3", async () => {
+      prismaMock.$queryRaw
+        .mockResolvedValueOnce([
+          {
+            id: "user-scoring-m3-remote",
+          },
+        ])
+        .mockResolvedValueOnce([
+          {
+            mission_id: "mission-remote-full",
+            mission_scoring_id: "mission-scoring-remote-full",
+            total_score: 0.9,
+            taxonomy_score: 0.8,
+            geo_score: 1,
+            distance_km: null,
+            closest_address_id: null,
+          },
+        ])
+        .mockResolvedValueOnce([
+          {
+            mission_scoring_id: "mission-scoring-remote-full",
+            taxonomy_key: "domaine",
+            taxonomy_score: 0.8,
+          },
+        ]);
+      missionMatchingResultRepositoryMock.createForUserScoringVersion.mockResolvedValue({
+        id: "mission-matching-result-m3-remote",
+      });
+
+      const result = await matchingEngineService.rankMissionsByUserScoring({
+        userScoringId: "user-scoring-m3-remote",
+        version: "m3",
+      });
+
+      expect(result.items[0].geoScore).toBe(1);
+      expect(result.items[0].distanceKm).toBeNull();
+    });
   });
 });

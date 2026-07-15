@@ -81,11 +81,64 @@ const buildRanking = (params: {
   geoWeight: number;
   geoHalfDecayKm: number;
   missingGeoScore: number;
+  remoteFullGeoScore: number | null;
   taxonomyCandidateLimit: number;
   geoCandidateLimit: number;
   limit: number;
   offset: number;
-}) => Prisma.sql`
+}) => {
+  // Missions remote=full : proximité naturelle (score géo forcé), uniquement si la version l'active.
+  const remoteFullActive = params.remoteFullGeoScore != null;
+  const remoteFullGeoScoreSql = !remoteFullActive ? Prisma.empty : Prisma.sql`WHEN m."remote"::text = 'full' THEN CAST(${params.remoteFullGeoScore} AS double precision)`;
+
+  // Quand le boost remote est actif et que l'utilisateur est géolocalisé, les missions remote=full éligibles
+  // doivent entrer dans le pool candidat même sans match taxonomie ni adresse proche : elles sont "partout".
+  const remoteFullCandidatesCteSql = !remoteFullActive
+    ? Prisma.empty
+    : Prisma.sql`
+  remote_full_candidates AS (
+    SELECT
+      ems."mission_id",
+      ems."mission_scoring_id"
+    FROM eligible_mission_scorings ems
+    JOIN "mission" m
+      ON m."id" = ems."mission_id"
+     AND m."remote"::text = 'full'
+    LEFT JOIN taxonomy_scores ts
+      ON ts."mission_scoring_id" = ems."mission_scoring_id"
+    WHERE EXISTS (SELECT 1 FROM user_geo)
+    ORDER BY COALESCE(ts."weighted_sum", 0) DESC, ems."mission_id" ASC
+    LIMIT ${params.geoCandidateLimit}
+  ),`;
+  const remoteFullCandidatesUnionSql = !remoteFullActive
+    ? Prisma.empty
+    : Prisma.sql`
+    UNION ALL
+    SELECT
+      rfc."mission_id",
+      rfc."mission_scoring_id",
+      CAST(NULL AS double precision) AS "distance_km"
+    FROM remote_full_candidates rfc`;
+
+  // Une mission remote=full ignore toute adresse : on nullifie distance/closest_* pour ne pas polluer
+  // l'affichage ni avgDistanceKmTop5, y compris quand elle a une adresse géocodée.
+  const rankedGeoColumnsSql = !remoteFullActive
+    ? Prisma.sql`
+      gs."distance_km",
+      gs."closest_lat",
+      gs."closest_lon",
+      gs."closest_address_id",
+      gs."closest_city",
+      gs."closest_address"`
+    : Prisma.sql`
+      CASE WHEN m."remote"::text = 'full' THEN NULL ELSE gs."distance_km" END AS "distance_km",
+      CASE WHEN m."remote"::text = 'full' THEN NULL ELSE gs."closest_lat" END AS "closest_lat",
+      CASE WHEN m."remote"::text = 'full' THEN NULL ELSE gs."closest_lon" END AS "closest_lon",
+      CASE WHEN m."remote"::text = 'full' THEN NULL ELSE gs."closest_address_id" END AS "closest_address_id",
+      CASE WHEN m."remote"::text = 'full' THEN NULL ELSE gs."closest_city" END AS "closest_city",
+      CASE WHEN m."remote"::text = 'full' THEN NULL ELSE gs."closest_address" END AS "closest_address"`;
+
+  return Prisma.sql`
   WITH taxonomy_weights ("taxonomy_key", "taxonomy_weight") AS (
     VALUES ${buildTaxonomyWeightsValuesSql(params.taxonomyWeights)}
   ),
@@ -316,7 +369,7 @@ const buildRanking = (params: {
       AND NOT EXISTS (SELECT 1 FROM user_geo)
     ORDER BY ems."mission_id" ASC
     LIMIT ${params.offset + params.limit}
-  ),
+  ),${remoteFullCandidatesCteSql}
   candidate_mission_rows AS (
     SELECT
       tc."mission_id",
@@ -340,7 +393,7 @@ const buildRanking = (params: {
       fc."mission_id",
       fc."mission_scoring_id",
       CAST(NULL AS double precision) AS "distance_km"
-    FROM fallback_candidates fc
+    FROM fallback_candidates fc${remoteFullCandidatesUnionSql}
   ),
   candidate_missions AS (
     SELECT
@@ -402,19 +455,16 @@ const buildRanking = (params: {
       CASE
         WHEN EXISTS (SELECT 1 FROM user_geo) THEN
           CASE
+            ${remoteFullGeoScoreSql}
             WHEN gs."distance_km" IS NULL THEN CAST(${params.missingGeoScore} AS double precision)
             ELSE EXP(-LN(2) * gs."distance_km" / NULLIF(CAST(${params.geoHalfDecayKm} AS double precision), 0.0))
           END
         ELSE NULL
-      END AS "geo_score",
-      gs."distance_km",
-      gs."closest_lat",
-      gs."closest_lon",
-      gs."closest_address_id",
-      gs."closest_city",
-      gs."closest_address"
+      END AS "geo_score",${rankedGeoColumnsSql}
     FROM candidate_missions cm
     CROSS JOIN weighted_user_totals ut
+    JOIN "mission" m
+      ON m."id" = cm."mission_id"
     LEFT JOIN taxonomy_scores ts
       ON ts."mission_scoring_id" = cm."mission_scoring_id"
     LEFT JOIN geo_scores gs
@@ -448,6 +498,7 @@ const buildRanking = (params: {
   LIMIT ${params.limit}
   OFFSET ${params.offset}
 `;
+};
 
 const buildPublisherRuleSql = async (publisherId?: string): Promise<Prisma.Sql> => {
   if (!publisherId) {
@@ -546,6 +597,7 @@ export const matchingEngineService = {
     const geoWeight = input.geoWeight ?? versionConfig.geoWeight;
     const geoHalfDecayKm = input.geoHalfDecayKm ?? 20;
     const missingGeoScore = input.missingGeoScore ?? 0.1;
+    const remoteFullGeoScore = input.remoteFullGeoScore !== undefined ? input.remoteFullGeoScore : versionConfig.remoteFullGeoScore;
     const taxonomyCandidateLimit = getTaxonomyCandidateLimit({ limit: rankingLimit, offset });
     const geoCandidateLimit = getGeoCandidateLimit({ limit: rankingLimit, offset });
 
@@ -561,6 +613,7 @@ export const matchingEngineService = {
         geoWeight,
         geoHalfDecayKm,
         missingGeoScore,
+        remoteFullGeoScore,
         taxonomyCandidateLimit,
         geoCandidateLimit,
         limit: rankingLimit,
