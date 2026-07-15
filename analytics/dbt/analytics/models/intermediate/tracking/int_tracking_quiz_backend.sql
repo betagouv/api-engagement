@@ -16,7 +16,7 @@ latest_result as (
     results
   from {{ ref('matching_engine_result') }}
   where results is not null
-  order by user_scoring_id, created_at desc
+  order by user_scoring_id asc, created_at desc
 ),
 
 backend_scoring as (
