@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "skills": {
+    "datagouv-apis": {
+      "source": "etalab-ia/skills",
+      "sourceType": "github",
+      "skillPath": "skills/datagouv-apis/SKILL.md",
+      "computedHash": "edae2c7077b70b3c879f060ebf9ee59eec14f83414074451e78aadb9836ae339"
+    },
+    "react-dsfr": {
+      "source": "etalab-ia/skills",
+      "sourceType": "github",
+      "skillPath": "skills/react-dsfr/SKILL.md",
+      "computedHash": "669e991a046b82305112ce4bcc6444e877e288023e2287a6c1b2614b4106ed30"
+    },
+    "rgaa": {
+      "source": "etalab-ia/skills",
+      "sourceType": "github",
+      "skillPath": "skills/rgaa/SKILL.md",
+      "computedHash": "8995375b549154e6bb7fb6b42a7996c470cb10998d3ffa08e9e2af8f6254f7f3"
+    },
+    "securite-developpement": {
+      "source": "etalab-ia/skills",
+      "sourceType": "github",
+      "skillPath": "skills/securite-developpement/SKILL.md",
+      "computedHash": "ef475652969c38417325e8db9765c96a508660e7736c0b8266eca5a8ed377b0a"
+    }
+  }
+}
