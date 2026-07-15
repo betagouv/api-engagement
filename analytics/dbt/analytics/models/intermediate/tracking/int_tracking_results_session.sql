@@ -22,7 +22,7 @@ clicks as (
     bool_or(section = 'pinned') as has_click_pinned,
     bool_or(entry_page = 'results') as has_click_results,
     bool_or(opens_external) as has_click_external
-  from {{ ref('stg_tracking__mission_clicked') }}
+  from {{ ref('int_tracking_mission_click') }}
   where quiz_session_id is not null
   group by quiz_session_id
 )

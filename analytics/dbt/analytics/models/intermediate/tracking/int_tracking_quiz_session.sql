@@ -76,9 +76,10 @@ joined as (
     c.completed_at is not null as is_completed,
     coalesce(c.steps_completed_count, st.step_events_count)
       as steps_completed_count,
-    coalesce(
-      s.is_internal_user, st.is_internal_user, c.is_internal_user, false
-    ) as is_internal_user
+    coalesce(s.is_internal_user, false)
+    or coalesce(st.is_internal_user, false)
+    or coalesce(c.is_internal_user, false)
+      as is_internal_user
   from started as s
   full outer join steps as st on s.quiz_attempt_id = st.quiz_attempt_id
   full outer join completed as c

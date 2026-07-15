@@ -56,13 +56,19 @@ models:
   - name: int_tracking_quiz_backend
     description: >
       Réconciliation d'une session quiz avec le backend via `quiz_session_id` = `user_scoring_id`.
-      `score_top5` et les métriques de candidature sont des placeholders à figer (chemin JSON
-      `matching_engine_result.results` et clé d'attribution des candidatures). Utilisateurs internes exclus.
+      `score_top5` est la moyenne des `taxonomyScores` des 5 premiers résultats du dernier run de
+      matching (`matching_engine_result` le plus récent par `user_scoring_id`, plusieurs runs possibles).
+      Les métriques de candidature (`has_apply`, `apply_count`, `first_apply_at`) restent des
+      placeholders à figer (clé d'attribution des candidatures). Utilisateurs internes exclus.
     columns:
       - name: quiz_session_id
         tests:
           - not_null
           - unique
+      - name: score_top5
+        description: >
+          Moyenne des `taxonomyScores` sur le top 5 des résultats du dernier run de matching de la
+          session. Null si aucun `matching_engine_result` exploitable.
 
   - name: int_tracking_page_view
     description: >

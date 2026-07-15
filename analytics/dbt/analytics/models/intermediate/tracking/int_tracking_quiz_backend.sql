@@ -9,24 +9,32 @@ with sessions as (
   group by quiz_session_id
 ),
 
+latest_result as (
+  select distinct on (user_scoring_id)
+    user_scoring_id,
+    matching_engine_version,
+    results
+  from {{ ref('matching_engine_result') }}
+  where results is not null
+  order by user_scoring_id, created_at desc
+),
+
 backend_scoring as (
   select
-    r.user_scoring_id as quiz_session_id,
+    lr.user_scoring_id as quiz_session_id,
     avg(
       (
         select avg(jt.value::numeric)
         from jsonb_each_text(t.elem -> 'taxonomyScores') as jt
       )
     ) as score_top5,
-    max(r.matching_engine_version) as matching_engine_version
-  from {{ ref('matching_engine_result') }} as r
+    max(lr.matching_engine_version) as matching_engine_version
+  from latest_result as lr
   cross join
-    lateral jsonb_array_elements(r.results)
+    lateral jsonb_array_elements(lr.results)
     with ordinality as t (elem, ord)
-  where
-    t.ord <= 5
-    and r.results is not null
-  group by r.user_scoring_id
+  where t.ord <= 5
+  group by lr.user_scoring_id
 )
 
 select
