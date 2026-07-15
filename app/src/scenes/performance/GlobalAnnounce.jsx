@@ -301,14 +301,14 @@ const Evolution = ({ filters }) => {
             </div>
           ) : (
             <figure>
-              <div className="h-[424px] w-full" role="img" aria-label={`Évolution des ${TYPE[type].toLowerCase()} reçues`} aria-describedby="announce-evolution-description">
+              <div className="h-[424px] w-full" role="img" aria-label={`Évolution des ${TYPE[type].toLowerCase()} reçues - description détaillée ci-dessous`}>
                 <StackedBarchart data={histogram} dataKey={keys} />
               </div>
               <ChartDetailsTable
                 id="announce-evolution-description"
                 title={`Évolution des ${TYPE[type].toLowerCase()} reçues`}
                 description="Trafic reçu grâce aux partenaires diffuseurs sur la période sélectionnée."
-                mode="sr-only"
+                mode="visible"
                 type="stacked"
                 data={histogram}
                 stackedKeys={keys}

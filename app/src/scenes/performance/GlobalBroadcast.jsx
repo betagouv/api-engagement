@@ -430,14 +430,14 @@ const Evolution = ({ filters }) => {
             </div>
           ) : (
             <figure>
-              <div className="h-[420px] w-full" role="img" aria-label={`Évolution des ${accessibleTypeLabel} générées`} aria-describedby="broadcast-evolution-description">
+              <div className="h-[420px] w-full" role="img" aria-label={`Évolution des ${accessibleTypeLabel} générées - description détaillée ci-dessous`}>
                 <StackedBarchart data={histogram} dataKey={keys} />
               </div>
               <ChartDetailsTable
                 id="broadcast-evolution-description"
                 title={`Évolution des ${accessibleTypeLabel} générées`}
                 description="Trafic généré pour les partenaires annonceurs sur la période sélectionnée."
-                mode="sr-only"
+                mode="visible"
                 type="stacked"
                 data={histogram}
                 stackedKeys={keys}

@@ -60,6 +60,8 @@ const AnalyticsViz = ({
         "aria-describedby": describedById,
       }
     : {};
+  // RGAA 1.6 : la description détaillée d'un histogramme doit être visible et annoncée dans l'aria-label, sans aria-describedby
+  const histogramAriaProps = chartTitle && chartDescriptionMode === "visible" ? { role: "img", "aria-label": `${chartTitle} - description détaillée ci-dessous` } : chartAriaProps;
 
   useEffect(() => {
     if (!cardId) {
@@ -311,7 +313,7 @@ const AnalyticsViz = ({
   if (type === "bar") {
     return (
       <figure className={className}>
-        <div style={{ height: loaderHeight }} {...chartAriaProps}>
+        <div style={{ height: loaderHeight }} {...histogramAriaProps}>
           <SimpleBarChart data={data} {...chartProps} />
         </div>
         <ChartDetailsTable
@@ -334,7 +336,7 @@ const AnalyticsViz = ({
     const { dataKey: _ignored, ...restChartProps } = chartProps || {};
     return (
       <figure className={className}>
-        <div style={{ height: loaderHeight }} {...chartAriaProps}>
+        <div style={{ height: loaderHeight }} {...histogramAriaProps}>
           <StackedBarchart data={data} dataKey={stackedKeys} {...restChartProps} />
         </div>
         <ChartDetailsTable
