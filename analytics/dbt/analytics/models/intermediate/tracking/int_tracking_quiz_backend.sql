@@ -14,7 +14,7 @@ latest_result as (
     user_scoring_id,
     matching_engine_version,
     results
-  from {{ ref('matching_engine_result') }}
+  from {{ ref('stg_matching_engine_result') }}
   where results is not null
   order by user_scoring_id asc, created_at desc
 ),
