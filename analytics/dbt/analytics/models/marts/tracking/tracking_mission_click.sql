@@ -31,7 +31,10 @@ select
   c.opens_external,
   c.distance_km,
   c.entry_page,
+  c.backend_rank,
+  c.matching_engine_version,
   c.mission_score,
+  c.matched_to_backend,
   s.statut,
   s.age_bracket
 from clicks as c

@@ -15,8 +15,10 @@ models:
 
   - name: tracking_mission_click
     description: >
-      Fait clic mission (grain événement) pour les breakdowns rang / score / distance / section / publisher,
-      enrichi du statut et de la tranche d'âge de la session.
+      Fait clic mission (grain événement) pour les breakdowns rang / distance / section / publisher,
+      enrichi du statut et de la tranche d'âge de la session. Réconcilié avec le moteur de matching :
+      `backend_rank`, `matching_engine_version` et `matched_to_backend` permettent d'analyser le CTR par rang.
+      `mission_score` reste un placeholder (non alimenté).
     columns:
       - name: event_uuid
         tests:
