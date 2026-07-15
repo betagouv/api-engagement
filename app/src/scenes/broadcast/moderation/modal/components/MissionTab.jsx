@@ -67,10 +67,11 @@ const MissionTab = ({ data, onChange }) => {
         <div className="border-grey-border border-t" />
         <div className="flex flex-col space-y-2">
           <h3 className="mb-2 text-sm">Description</h3>
-          <div
-            className="text-text-mention border-grey-border overflow-hidden rounded-t border bg-gray-950 p-6 text-sm"
-            dangerouslySetInnerHTML={{ __html: `<p>${data.missionDescription.replace(/\n/g, "</p><p>")}</p>` }}
-          />
+          <div className="text-text-mention border-grey-border overflow-hidden rounded-t border bg-gray-950 p-6 text-sm">
+            {data.missionDescription.split("\n").map((paragraph, index) => (
+              <p key={index}>{paragraph}</p>
+            ))}
+          </div>
         </div>
         <div className="border-grey-border border-t" />
         <div className="flex flex-col space-y-2 py-2">
