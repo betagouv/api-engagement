@@ -661,6 +661,29 @@ const buildRankingSqlForInput = async (input: RankMissionsByUserScoringInput): P
   });
 };
 
+/**
+ * Exécute la requête de ranking avec le JIT PostgreSQL désactivé pour cette requête uniquement.
+ *
+ * Pourquoi : le filtre de diffusion d'un publisher (voir `buildPublisherRuleSql`) peut se déployer en
+ * un très grand `OR` (allowlist de plusieurs centaines de publishers d'un réseau) ; combiné aux
+ * grosses expressions `CASE` de scoring géo, le coût estimé du plan dépasse largement les seuils JIT
+ * de Postgres (`jit_optimize_above_cost` / `jit_inline_above_cost`, défaut 500k). Postgres active
+ * alors le JIT avec inlining + optimization et compile des centaines de fonctions : mesuré à ~4,4 s de
+ * compilation pour une requête qui s'EXÉCUTE en ~0,9 s (staging, publisher à ~150 diffuseurs). Le JIT
+ * est donc nettement perdant ici → on le coupe.
+ *
+ * `SET LOCAL` est borné à la transaction courante (d'où le `$transaction`) : aucun impact serveur,
+ * aucune fuite via le pool de connexions, aucune autre requête/appli affectée, pas de config infra.
+ * Compatible PG ≥ 11 (le paramètre `jit` existe même sans build LLVM, où il est un no-op inoffensif).
+ * Ne touche que cette requête ; la 2e requête (détails taxonomie sur 20 ids) reste hors périmètre car
+ * son coût est trop faible pour déclencher le JIT.
+ */
+const runRankingQuery = async (sql: Prisma.Sql): Promise<DbRankRow[]> =>
+  prisma.$transaction(async (tx) => {
+    await tx.$executeRawUnsafe("SET LOCAL jit = off");
+    return tx.$queryRaw<DbRankRow[]>(sql);
+  });
+
 export const matchingEngineService = {
   async rankMissionsByUserScoring(input: RankMissionsByUserScoringInput): Promise<RankMissionsByUserScoringResult> {
     const startedAt = Date.now();
@@ -668,7 +691,7 @@ export const matchingEngineService = {
 
     await assertUserScoringExists(input.userScoringId);
 
-    const rows = await prisma.$queryRaw<DbRankRow[]>(await buildRankingSqlForInput(input));
+    const rows = await runRankingQuery(await buildRankingSqlForInput(input));
     const missionScoringIdsForDetails = rows.slice(0, MATCHING_ENGINE_TOP_RESULTS_LIMIT).map((row) => row.mission_scoring_id);
     const taxonomyScoresRows =
       missionScoringIdsForDetails.length > 0
