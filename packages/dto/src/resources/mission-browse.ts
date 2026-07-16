@@ -18,6 +18,7 @@ export type MissionBrowse = {
   id: string;
   title: string;
   description: string | null;
+  remote: "no" | "possible" | "full" | "local" | null;
   city: string | null;
   departmentCode: string | null;
   departmentName: string | null;
@@ -78,7 +79,7 @@ export type MissionDetailResponse = {
   description: string | null;
   applicationUrl: string;
   photo: string | null;
-  remote: "no" | "possible" | "full" | null;
+  remote: "no" | "possible" | "full" | "local" | null;
   openToMinors: boolean | null;
   reducedMobilityAccessible: boolean | null;
   places: number | null;

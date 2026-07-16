@@ -53,50 +53,56 @@ const Distribution = ({ filters, onFiltersChange }) => {
         </div>
 
         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <label htmlFor="distribution-year" className="sr-only">
-              Année
-            </label>
-            <select
-              id="distribution-year"
-              className="input w-full sm:w-48"
-              value={filters.year}
-              onChange={(e) => onFiltersChange({ ...filters, year: parseInt(e.target.value, 10) })}
-            >
-              <option value={2020}>2020</option>
-              <option value={2021}>2021</option>
-              <option value={2022}>2022</option>
-              <option value={2023}>2023</option>
-              <option value={2024}>2024</option>
-              <option value={2025}>2025</option>
-              <option value={2026}>2026</option>
-            </select>
-            <label htmlFor="distribution-department" className="sr-only">
-              Département
-            </label>
-            <select
-              id="distribution-department"
-              className="input w-full sm:w-48"
-              value={departmentCode}
-              onChange={(e) => onFiltersChange({ ...filters, department: e.target.value })}
-            >
-              <option value="">Départements</option>
-              {Object.entries(DEPARTMENT_NAMES)
-                .sort((a, b) => a[0].localeCompare(b[0], "fr", { numeric: true }))
-                .map(([code, value]) => (
-                  <option key={value[0]} value={code}>
-                    {code} - {value[0]}
-                  </option>
-                ))}
-            </select>
-            <label htmlFor="distribution-mission-type" className="sr-only">
-              Type de mission
-            </label>
-            <select id="distribution-mission-type" className="input w-48" value={filters.type} onChange={(e) => onFiltersChange({ ...filters, type: e.target.value })}>
-              <option value="">Type de mission</option>
-              <option value="benevolat">Bénévolat</option>
-              <option value="volontariat">Volontariat</option>
-            </select>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
+            <div className="flex flex-col gap-1">
+              <label htmlFor="distribution-year" className="text-sm">
+                Année
+              </label>
+              <select
+                id="distribution-year"
+                className="input w-full sm:w-48"
+                value={filters.year}
+                onChange={(e) => onFiltersChange({ ...filters, year: parseInt(e.target.value, 10) })}
+              >
+                <option value={2020}>2020</option>
+                <option value={2021}>2021</option>
+                <option value={2022}>2022</option>
+                <option value={2023}>2023</option>
+                <option value={2024}>2024</option>
+                <option value={2025}>2025</option>
+                <option value={2026}>2026</option>
+              </select>
+            </div>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="distribution-department" className="text-sm">
+                Département
+              </label>
+              <select
+                id="distribution-department"
+                className="input w-full sm:w-48"
+                value={departmentCode}
+                onChange={(e) => onFiltersChange({ ...filters, department: e.target.value })}
+              >
+                <option value="">Tous les départements</option>
+                {Object.entries(DEPARTMENT_NAMES)
+                  .sort((a, b) => a[0].localeCompare(b[0], "fr", { numeric: true }))
+                  .map(([code, value]) => (
+                    <option key={value[0]} value={code}>
+                      {code} - {value[0]}
+                    </option>
+                  ))}
+              </select>
+            </div>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="distribution-mission-type" className="text-sm">
+                Type de mission
+              </label>
+              <select id="distribution-mission-type" className="input w-48" value={filters.type} onChange={(e) => onFiltersChange({ ...filters, type: e.target.value })}>
+                <option value="">Tous les types</option>
+                <option value="benevolat">Bénévolat</option>
+                <option value="volontariat">Volontariat</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>

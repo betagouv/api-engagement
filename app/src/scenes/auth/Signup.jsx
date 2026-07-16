@@ -141,12 +141,14 @@ const SignupForm = ({ user, token }) => {
           name="firstname"
           value={values.firstname}
           onChange={handleChange}
+          aria-invalid={submitted && errors.firstname ? true : undefined}
+          aria-describedby={submitted && errors.firstname ? "firstname-error" : undefined}
         />
         {submitted && errors.firstname && (
-          <div className="text-error flex items-center text-sm">
+          <p id="firstname-error" className="text-error flex items-center text-sm" aria-live="polite">
             <RiErrorWarningFill className="mr-2" aria-hidden="true" />
             {errors.firstname}
-          </div>
+          </p>
         )}
       </div>
       <div className="flex flex-col">
@@ -159,12 +161,14 @@ const SignupForm = ({ user, token }) => {
           name="lastname"
           value={values.lastname}
           onChange={handleChange}
+          aria-invalid={submitted && errors.lastname ? true : undefined}
+          aria-describedby={submitted && errors.lastname ? "lastname-error" : undefined}
         />
         {submitted && errors.lastname && (
-          <div className="text-error flex items-center text-sm">
+          <p id="lastname-error" className="text-error flex items-center text-sm" aria-live="polite">
             <RiErrorWarningFill className="mr-2" aria-hidden="true" />
             {errors.lastname}
-          </div>
+          </p>
         )}
       </div>
       <div className="flex flex-col">
@@ -184,13 +188,14 @@ const SignupForm = ({ user, token }) => {
           type={show ? "text" : "password"}
           value={values.password}
           onChange={handleChange}
+          aria-invalid={submitted && errors.password ? true : undefined}
           aria-describedby={submitted && errors.password ? "password-error password-criteria" : "password-criteria"}
         />
         {submitted && errors.password && (
-          <div className="text-error flex items-center text-sm">
+          <p id="password-error" className="text-error flex items-center text-sm" aria-live="polite">
             <RiErrorWarningFill className="mr-2" aria-hidden="true" />
             {errors.password}
-          </div>
+          </p>
         )}
       </div>
       <div id="password-criteria" className="mt-1 flex flex-col gap-2">
@@ -237,12 +242,14 @@ const SignupForm = ({ user, token }) => {
           type={showConfirm ? "text" : "password"}
           value={values.confirmPassword}
           onChange={handleChange}
+          aria-invalid={submitted && errors.confirmPassword ? true : undefined}
+          aria-describedby={submitted && errors.confirmPassword ? "confirm-password-error" : undefined}
         />
         {submitted && errors.confirmPassword && (
-          <div className="text-error flex items-center text-sm">
+          <p id="confirm-password-error" className="text-error flex items-center text-sm" aria-live="polite">
             <RiErrorWarningFill className="mr-2" aria-hidden="true" />
             {errors.confirmPassword}
-          </div>
+          </p>
         )}
       </div>
       <button type="submit" className="primary-btn mt-6 w-full" disabled={loading}>

@@ -56,7 +56,7 @@ const Account = () => {
       <title>API Engagement - Mon compte</title>
       <h1 className="text-4xl font-bold">Mon compte</h1>
 
-      <form onSubmit={handleSubmit} className="bg-white p-4 shadow-lg sm:p-12">
+      <form onSubmit={handleSubmit} noValidate className="bg-white p-4 shadow-lg sm:p-12">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <h2 className="text-3xl font-bold">Vos informations</h2>
           <button

@@ -4,11 +4,12 @@ dotenv.config();
 import { Prisma } from "@/db/core";
 import { pgConnected, pgDisconnect, prisma } from "@/db/postgres";
 import { ai } from "@/services/ai";
-import { CURRENT_PROMPT_VERSION, LLM_MAX_RETRIES } from "@/services/mission-enrichment/config";
-import { buildMissionBlock, buildTaxonomyBlock } from "@/services/mission-enrichment/prompts";
+import { LLM_MAX_RETRIES } from "@/services/mission-enrichment/config";
+import { buildMissionBlock, buildTaxonomyBlock, CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/prompts";
 import type { MissionForPrompt, TaxonomyForPrompt } from "@/services/mission-enrichment/prompts/types";
 import { buildTaxonomyGuidanceBlock as buildTaxonomyGuidanceBlockV2 } from "@/services/mission-enrichment/prompts/v2";
 import { buildTaxonomyGuidanceBlock as buildTaxonomyGuidanceBlockV3 } from "@/services/mission-enrichment/prompts/v3";
+import { resolveRomeSkills } from "@/utils/rome";
 import { ENRICHABLE_TAXONOMIES, TAXONOMY } from "@engagement/taxonomy";
 import { generateObject } from "ai";
 import { spawnSync } from "child_process";
@@ -241,6 +242,7 @@ const toMissionForPrompt = (mission: MissionWithRelations): MissionForPrompt => 
     softSkills: mission.softSkills,
     requirements: mission.requirements,
     tags: mission.tags,
+    romeSkillLabels: resolveRomeSkills(mission.romeSkills),
     type: mission.type,
     remote: mission.remote,
     openToMinors: mission.openToMinors,

@@ -162,6 +162,13 @@ describe("GET /iframe/:id/aggs", () => {
     });
 
     it("should aggregate by remote with correct counts", async () => {
+      await createTestMission({
+        publisherId: publisher.id,
+        title: "Mission Locale",
+        domain: "Environnement",
+        remote: "local",
+      });
+
       const response = await request(app).get(`/iframe/${widget.id}/aggs`).expect(200);
 
       const remote = response.body.data.remote;
@@ -174,6 +181,10 @@ describe("GET /iframe/:id/aggs", () => {
       const fullRemote = remote.find((r: any) => r.key === "full");
       expect(fullRemote).toBeDefined();
       expect(fullRemote.doc_count).toBe(1);
+
+      const localRemote = remote.find((r: any) => r.key === "local");
+      expect(localRemote).toBeDefined();
+      expect(localRemote.doc_count).toBe(1);
     });
 
     it("should aggregate by country with correct counts", async () => {
@@ -185,6 +196,90 @@ describe("GET /iframe/:id/aggs", () => {
       const france = countries.find((c: any) => c.key === "FR");
       expect(france).toBeDefined();
       expect(france.doc_count).toBe(4);
+    });
+
+    it("should aggregate local missions without address when filtering on-site missions around a widget location", async () => {
+      const geoWidget = await createTestWidget({
+        fromPublisher: publisher,
+        publishers: [publisher.id],
+        location: { lat: 48.8566, lon: 2.3522 },
+        distance: "25km",
+      });
+      await createTestMission({
+        publisherId: publisher.id,
+        title: "Mission Présentiel Paris",
+        domain: "Environnement",
+        remote: "no",
+        addresses: [
+          {
+            city: "Paris",
+            postalCode: "75001",
+            departmentCode: "75",
+            departmentName: "Paris",
+            country: "FR",
+            location: { lat: 48.8566, lon: 2.3522 },
+          },
+        ],
+      });
+      await createTestMission({
+        publisherId: publisher.id,
+        title: "Mission Locale sans adresse",
+        domain: "Environnement",
+        remote: "local",
+        addresses: [],
+      });
+
+      const response = await request(app).get(`/iframe/${geoWidget.id}/aggs`).query({ remote: "no" }).expect(200);
+
+      const remote = response.body.data.remote;
+      const noRemote = remote.find((r: any) => r.key === "no");
+      const localRemote = remote.find((r: any) => r.key === "local");
+      expect(noRemote).toBeDefined();
+      expect(noRemote.doc_count).toBe(1);
+      expect(localRemote).toBeDefined();
+      expect(localRemote.doc_count).toBe(1);
+    });
+
+    it("should aggregate local missions without address around a widget location without remote filter", async () => {
+      const geoWidget = await createTestWidget({
+        fromPublisher: publisher,
+        publishers: [publisher.id],
+        location: { lat: 48.8566, lon: 2.3522 },
+        distance: "25km",
+      });
+      await createTestMission({
+        publisherId: publisher.id,
+        title: "Mission Présentiel Paris",
+        domain: "Environnement",
+        remote: "no",
+        addresses: [
+          {
+            city: "Paris",
+            postalCode: "75001",
+            departmentCode: "75",
+            departmentName: "Paris",
+            country: "FR",
+            location: { lat: 48.8566, lon: 2.3522 },
+          },
+        ],
+      });
+      await createTestMission({
+        publisherId: publisher.id,
+        title: "Mission Locale sans adresse",
+        domain: "Environnement",
+        remote: "local",
+        addresses: [],
+      });
+
+      const response = await request(app).get(`/iframe/${geoWidget.id}/aggs`).expect(200);
+
+      const remote = response.body.data.remote;
+      const noRemote = remote.find((r: any) => r.key === "no");
+      const localRemote = remote.find((r: any) => r.key === "local");
+      expect(noRemote).toBeDefined();
+      expect(noRemote.doc_count).toBe(1);
+      expect(localRemote).toBeDefined();
+      expect(localRemote.doc_count).toBe(1);
     });
   });
 

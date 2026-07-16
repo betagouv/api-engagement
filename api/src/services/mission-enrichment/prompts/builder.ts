@@ -28,6 +28,7 @@ export const ENRICHMENT_TRIGGER_FIELDS = [
   "domain",
   "activities",
   "tags",
+  "romeSkills",
   "tasks",
   "addresses",
   "audience",
@@ -58,7 +59,8 @@ export const buildTaxonomyBlock = (taxonomy: TaxonomyForPrompt): string =>
 export const buildMissionBlock = (mission: MissionForPrompt): string => {
   const lines: string[] = [];
 
-  const remoteLabel = mission.remote === "full" ? "Entièrement à distance" : mission.remote === "possible" ? "Présentiel avec option à distance" : "Présentiel";
+  const remoteLabel =
+    mission.remote === "full" ? "Entièrement à distance" : mission.remote === "possible" ? "Présentiel avec option à distance" : mission.remote === "local" ? "Sur site, à proximité" : "Présentiel";
 
   const durationStr = mission.duration ? `${mission.duration} heures` : "non précisée";
   const cleanSchedule = clean(mission.schedule, PROMPT_FIELD_MAX_LENGTH.short);
@@ -108,6 +110,13 @@ export const buildMissionBlock = (mission: MissionForPrompt): string => {
   const cleanRequirements = cleanList(mission.requirements, PROMPT_FIELD_MAX_LENGTH.short);
   if (cleanRequirements.length) {
     lines.push("", "**Prérequis :**", cleanRequirements.join("\n"));
+  }
+  // Libellés de macro-compétences ROME 4.0 résolus depuis les codes `romeSkills` (stockés bruts).
+  // La résolution est éphémère : les codes absents du snapshot statique sont ignorés (cf. `resolveRomeSkills`).
+  // Le libellé explicite au modèle qu'il s'agit de compétences attendues pour réaliser la mission.
+  const cleanRomeSkills = cleanList(mission.romeSkillLabels, PROMPT_FIELD_MAX_LENGTH.short);
+  if (cleanRomeSkills.length) {
+    lines.push("", "**Compétences attendues pour la mission (référentiel ROME 4.0) :**", cleanRomeSkills.join(", "));
   }
 
   const cleanOrgName = clean(mission.organizationName, PROMPT_FIELD_MAX_LENGTH.short);

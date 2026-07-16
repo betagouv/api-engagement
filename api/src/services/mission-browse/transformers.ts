@@ -10,6 +10,7 @@ export const toMissionBrowse = (mission: MissionRecord): MissionBrowse => {
     id: mission.id,
     title: mission.title,
     description: mission.description ?? null,
+    remote: mission.remote ?? null,
     city: mission.city ?? null,
     departmentCode: mission.departmentCode ?? null,
     departmentName: mission.departmentName ?? null,

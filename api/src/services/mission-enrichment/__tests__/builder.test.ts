@@ -12,6 +12,7 @@ const baseMission = (overrides: Partial<MissionForPrompt> = {}): MissionForPromp
   softSkills: [],
   requirements: [],
   tags: [],
+  romeSkillLabels: [],
   type: null,
   remote: null,
   openToMinors: null,
@@ -58,6 +59,17 @@ describe("buildMissionBlock", () => {
     const block = buildMissionBlock(baseMission({ tags }));
     expect(block).toContain("tag0");
     expect(block).not.toContain("tag99");
+  });
+
+  it("renders the resolved ROME macro-competences when present", () => {
+    const block = buildMissionBlock(baseMission({ romeSkillLabels: ["Accompagner des personnes", "Animer une réunion"] }));
+    expect(block).toContain("**Compétences attendues pour la mission (référentiel ROME 4.0) :**");
+    expect(block).toContain("Accompagner des personnes, Animer une réunion");
+  });
+
+  it("omits the ROME section when there is no resolved competence", () => {
+    const block = buildMissionBlock(baseMission({ romeSkillLabels: [] }));
+    expect(block).not.toContain("référentiel ROME 4.0");
   });
 });
 

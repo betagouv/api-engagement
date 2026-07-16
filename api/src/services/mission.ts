@@ -209,6 +209,7 @@ export const buildWhere = async (filters: MissionSearchFilters): Promise<Prisma.
   const where: Prisma.MissionWhereInput = filters.directFilters ?? {};
 
   const orConditions: Prisma.MissionWhereInput[] = [];
+  const andConditions: Prisma.MissionWhereInput[] = [];
 
   // Restriction par publisher : les diffusion rules du diffuseur (allowlist `OR` de scopes
   // `publisherId === annonceur AND <critères>`) font autorité. À défaut de rules, on retombe
@@ -345,7 +346,14 @@ export const buildWhere = async (filters: MissionSearchFilters): Promise<Prisma.
     if (addressOr.length) {
       clauses.push(...addressOr);
     }
-    where.addresses = clauses.length === 1 ? { some: clauses[0] } : { some: { OR: clauses } };
+    const addressWhere: Prisma.MissionWhereInput = {
+      addresses: clauses.length === 1 ? { some: clauses[0] } : { some: { OR: clauses } },
+    };
+    if (hasGeoFilters(filters) && (!filters.remote?.length || filters.remote.includes("local"))) {
+      andConditions.push({ OR: [addressWhere, { remote: "local" }] });
+    } else {
+      Object.assign(where, addressWhere);
+    }
   }
 
   if (filters.moderationAcceptedFor) {
@@ -382,6 +390,10 @@ export const buildWhere = async (filters: MissionSearchFilters): Promise<Prisma.
   if (orConditions.length) {
     const existingOr = Array.isArray(where.OR) ? where.OR : where.OR ? [where.OR] : [];
     where.OR = [...existingOr, ...orConditions];
+  }
+  if (andConditions.length) {
+    const existingAnd = Array.isArray(where.AND) ? where.AND : where.AND ? [where.AND] : [];
+    where.AND = [...existingAnd, ...andConditions];
   }
 
   return where;

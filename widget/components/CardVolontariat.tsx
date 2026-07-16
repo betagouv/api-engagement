@@ -1,4 +1,3 @@
-import iso from "i18n-iso-countries";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { RiBuildingFill, RiCalendarEventFill } from "react-icons/ri";
@@ -6,6 +5,7 @@ import { RiBuildingFill, RiCalendarEventFill } from "react-icons/ri";
 import { Mission, Widget } from "@/types";
 import { DOMAINS } from "@/config";
 import LogoSCE from "@/public/images/logo-sce.svg";
+import { getMissionAddressLabel } from "@/utils/missionAddress";
 
 interface CardProps {
   widget: Widget;
@@ -25,13 +25,7 @@ const CardVolontariat = ({ widget, mission, request, focused = false, onKeyDown,
     if (!mission) {
       return;
     }
-    setAddress(
-      mission.remote === "full"
-        ? "À distance"
-        : mission.addresses?.length && mission.addresses.length > 1
-          ? mission.addresses.map((a) => a.city).join(", ")
-          : `${mission.city} ${mission.country !== "FR" ? `- ${iso.getName(mission.country, "fr")}` : ""}`,
-    );
+    setAddress(getMissionAddressLabel(mission));
     setDomain(DOMAINS[mission.domain] || DOMAINS.autre);
   }, [mission]);
 

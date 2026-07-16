@@ -4,7 +4,7 @@ dotenv.config();
 import { getTaxonomyList } from "@engagement/taxonomy";
 
 import { prisma } from "@/db/postgres";
-import { CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/config";
+import { CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/prompts";
 import { fuzzyMatchKey } from "@/utils/string";
 
 import fs from "fs";

@@ -141,14 +141,26 @@ describe("L'Etudiant Transformers", () => {
       expect(result.localisation).toBe("France");
     });
 
-    it("should consider remote job if no address", () => {
+    it("should not consider no-address jobs remote by default", () => {
       const mission: MissionRecord = {
         ...baseMission,
         addresses: [],
       } as MissionRecord;
       const results = missionToPilotyJobs(mission, mockCompanyId, mockMandatoryData);
       const result = results[0].payload;
-      expect(result.remote_policy_id).toBe(mockMandatoryData.remotePolicies.full);
+      expect(result.remote_policy_id).toBeUndefined();
+    });
+
+    it("should not consider local jobs remote without address", () => {
+      const mission: MissionRecord = {
+        ...baseMission,
+        addresses: [],
+        remote: "local",
+      } as MissionRecord;
+      const results = missionToPilotyJobs(mission, mockCompanyId, mockMandatoryData);
+      const result = results[0].payload;
+      expect(result.localisation).toBe("France");
+      expect(result.remote_policy_id).toBeUndefined();
     });
 
     it("should return an array of jobs for each address", () => {

@@ -119,6 +119,9 @@ describe("missionToGrimpioJobJVA", () => {
 
     job = missionToGrimpioJobJVA({ ...baseMission, remote: "no", publisherId: PUBLISHER_IDS.JEVEUXAIDER } as MissionRecord);
     expect(job.remoteJob).toBe("none");
+
+    job = missionToGrimpioJobJVA({ ...baseMission, remote: "local", publisherId: PUBLISHER_IDS.JEVEUXAIDER } as MissionRecord);
+    expect(job.remoteJob).toBe("none");
   });
 
   it("should use JVA logo", () => {
@@ -170,6 +173,9 @@ describe("missionToGrimpioJobASC", () => {
     expect(job.remoteJob).toBe("partial");
 
     job = missionToGrimpioJobASC({ ...baseMission, remote: "no", publisherId: PUBLISHER_IDS.SERVICE_CIVIQUE } as MissionRecord);
+    expect(job.remoteJob).toBe("none");
+
+    job = missionToGrimpioJobASC({ ...baseMission, remote: "local", publisherId: PUBLISHER_IDS.SERVICE_CIVIQUE } as MissionRecord);
     expect(job.remoteJob).toBe("none");
   });
 

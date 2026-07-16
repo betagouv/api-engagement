@@ -252,8 +252,8 @@ components:
         remote:
           type: string
           nullable: true
-          enum: [no, possible, full, null]
-          description: "Disponibilité en distanciel. Valeurs possibles : `no` (présentiel uniquement), `possible` (distanciel possible), `full` (100% distanciel)"
+          enum: [no, possible, full, local, null]
+          description: "Politique de télétravail. Valeurs possibles : `no` (présentiel uniquement), `possible` (distanciel possible), `full` (100% distanciel), `local` (sur site, à proximité)"
           example: "no"
         schedule:
           type: string
@@ -988,8 +988,8 @@ paths:
                   example: ["300412", "300361"]
                 remote:
                   type: string
-                  enum: [no, possible, full]
-                  description: "Disponibilité en distanciel. Valeurs possibles : `no` (présentiel uniquement), `possible` (distanciel possible), `full` (100% distanciel)"
+                  enum: [no, possible, full, local]
+                  description: "Politique de télétravail. Valeurs possibles : `no` (présentiel uniquement), `possible` (distanciel possible), `full` (100% distanciel), `local` (sur site, à proximité)"
                   example: "no"
                 schedule:
                   type: string
@@ -1260,8 +1260,8 @@ paths:
                   example: ["300412", "300361"]
                 remote:
                   type: string
-                  enum: [no, possible, full]
-                  description: "Disponibilité en distanciel. Valeurs possibles : `no` (présentiel uniquement), `possible` (distanciel possible), `full` (100% distanciel)"
+                  enum: [no, possible, full, local]
+                  description: "Politique de télétravail. Valeurs possibles : `no` (présentiel uniquement), `possible` (distanciel possible), `full` (100% distanciel), `local` (sur site, à proximité)"
                   example: "no"
                 schedule:
                   type: string
@@ -1722,7 +1722,7 @@ paths:
               - type: array
                 items:
                   type: string
-          description: "Modalité de télétravail : no, possible, full"
+          description: "Politique de télétravail : no, possible, full, local"
         - name: lat
           in: query
           schema:

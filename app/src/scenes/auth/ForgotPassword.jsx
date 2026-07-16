@@ -15,7 +15,7 @@ const Forgot = () => {
     e.preventDefault();
     const errors = {};
     if (!isValidEmail(values.email)) {
-      errors.email = true;
+      errors.email = "Le format de l'adresse e-mail n'est pas valide. Exemple de format valide : jane.doe@gmail.com.";
     }
     setErrors(errors);
     if (Object.keys(errors).length > 0) return;
@@ -45,15 +45,17 @@ const Forgot = () => {
         id="email"
         value={values.email}
         onChange={(e) => setValues({ ...values, email: e.target.value })}
+        aria-invalid={errors.email ? true : undefined}
+        aria-describedby={errors.email ? "email-error" : undefined}
       />
       {errors.email && (
-        <div className="text-error flex items-center text-sm">
+        <p id="email-error" className="text-error flex items-center text-sm" aria-live="polite">
           <RiErrorWarningFill className="mr-2" aria-hidden="true" />
-          Adresse email invalide
-        </div>
+          {errors.email}
+        </p>
       )}
 
-      <button type="submit" className="primary-btn mt-6 w-full" disabled={errors.email || loading || done}>
+      <button type="submit" className="primary-btn mt-6 w-full" disabled={loading || done}>
         {loading ? "Chargement..." : "Réinitialisez votre mot de passe"}
       </button>
 
