@@ -78,6 +78,9 @@ export const parseRemote = (value: unknown): MissionRecord["remote"] => {
   if (["full", "total", "100", "remote"].includes(normalized)) {
     return "full";
   }
+  if (normalized === "local") {
+    return "local";
+  }
   if (["partiel", "partielle", "hybride"].includes(normalized)) {
     return "possible";
   }

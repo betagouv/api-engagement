@@ -131,6 +131,9 @@ describe("missionToTalentJob", () => {
 
     jobs = missionToTalentJob({ ...baseMission, remote: "no" } as MissionRecord);
     expect(jobs[0].isremote).toBe("no");
+
+    jobs = missionToTalentJob({ ...baseMission, remote: "local" } as MissionRecord);
+    expect(jobs[0].isremote).toBe("no");
   });
 
   it("should not have expirationdate if endAt is not provided", () => {

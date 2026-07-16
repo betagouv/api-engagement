@@ -34,8 +34,8 @@ export const getModeration = (mission: Partial<MissionRecord> & Record<string, a
     statusComment = "URL de candidature manquant";
   } else if (mission.country && !COUNTRIES.includes(mission.country)) {
     statusComment = `Pays non valide : "${mission.country}"`;
-  } else if (mission.remote && !["no", "possible", "full"].includes(mission.remote)) {
-    statusComment = "Valeur remote non valide (no, possible ou full)";
+  } else if (mission.remote && !["no", "possible", "full", "local"].includes(mission.remote)) {
+    statusComment = "Valeur remote non valide (no, possible, full ou local)";
   } else if (typeof mission.places === "number" && mission.places <= 0) {
     statusComment = "Nombre de places invalide (doit être supérieur à 0)";
   } else if (mission.domain && !DOMAINS.includes(mission.domain)) {

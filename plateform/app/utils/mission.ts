@@ -80,6 +80,7 @@ export function matchResultToBrowseMission(item: MissionMatchItem): MissionBrows
     id: item.mission.id,
     title: item.mission.title,
     description: null,
+    remote: item.mission.remote,
     city: item.mission.location.city,
     departmentCode: null,
     departmentName: null,

@@ -245,6 +245,8 @@ describe("missionToLinkedinJob", () => {
     expect(job?.workplaceTypes).toBe("Hybrid");
     job = missionToLinkedinJob({ ...baseMission, remote: "no" } as MissionRecord, defaultCompany);
     expect(job?.workplaceTypes).toBe("On-site");
+    job = missionToLinkedinJob({ ...baseMission, remote: "local" } as MissionRecord, defaultCompany);
+    expect(job?.workplaceTypes).toBe("On-site");
   });
 
   it("should not have expirationDate if endAt is not provided", () => {

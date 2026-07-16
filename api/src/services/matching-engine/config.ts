@@ -21,6 +21,7 @@ export const MATCHING_ENGINE_VERSIONS = {
     } satisfies MatchingEngineTaxonomyWeights,
     geoWeight: 0.7,
     remoteFullGeoScore: null,
+    remoteLocalGeoScore: null,
   },
   m2: {
     taxonomyWeights: {
@@ -35,9 +36,10 @@ export const MATCHING_ENGINE_VERSIONS = {
     } satisfies MatchingEngineTaxonomyWeights,
     geoWeight: 0.3,
     remoteFullGeoScore: null,
+    remoteLocalGeoScore: null,
   },
   m3: {
-    // Identique à m2, mais les missions remote=full sont considérées comme naturellement proches.
+    // Identique à m2, mais les missions remote=full/local sont considérées comme naturellement proches.
     taxonomyWeights: {
       domaine: 1,
       secteur_activite: 1,
@@ -50,6 +52,7 @@ export const MATCHING_ENGINE_VERSIONS = {
     } satisfies MatchingEngineTaxonomyWeights,
     geoWeight: 0.3,
     remoteFullGeoScore: 0.9,
+    remoteLocalGeoScore: 0.7,
   },
 } as const satisfies Record<MatchingEngineVersion, MatchingEngineVersionConfig>;
 

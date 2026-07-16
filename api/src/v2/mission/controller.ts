@@ -66,7 +66,7 @@ const missionBaseFields = {
   requirements: zod.array(zod.string()).optional(),
   softSkills: zod.array(zod.string()).optional(),
   romeSkills: zod.array(zod.string()).optional(),
-  remote: zod.enum(["no", "possible", "full"]).optional(),
+  remote: zod.enum(["no", "possible", "full", "local"]).optional(),
   schedule: zod.string().optional(),
   startAt: zod.coerce.date().optional(),
   endAt: zod.coerce.date().optional(),

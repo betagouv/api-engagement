@@ -21,7 +21,7 @@ export type MissionMatchLocation = {
 export type MissionMatchMission = {
   id: string;
   title: string;
-  remote: "no" | "possible" | "full" | null;
+  remote: "no" | "possible" | "full" | "local" | null;
   schedule: string | null;
   domain: string | null;
   domainOriginal: string | null;

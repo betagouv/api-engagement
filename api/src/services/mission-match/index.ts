@@ -38,8 +38,8 @@ export const missionMatchService = {
 
     const missionIndex = buildMissionIndex(missionRows);
     const valuesIndex = buildValuesIndex(scoringValueRows);
-    // La version active ignore-t-elle l'adresse des missions remote=full ? (aligné sur le moteur)
-    const ignoreRemoteAddress = MATCHING_ENGINE_VERSIONS[result.version].remoteFullGeoScore != null;
+    // La version active ignore-t-elle l'adresse des missions remote=full/local ? (aligné sur le moteur)
+    const ignoreRemoteAddress = MATCHING_ENGINE_VERSIONS[result.version].remoteFullGeoScore != null || MATCHING_ENGINE_VERSIONS[result.version].remoteLocalGeoScore != null;
 
     return {
       tookMs: result.tookMs,

@@ -90,7 +90,7 @@ export function missionToPilotyJobs(mission: MissionRecord, companyId: string, m
     const formatted = formatLocalisation([city, department, country]) || "France";
     return [
       {
-        payload: buildJobPayload(true, formatted),
+        payload: buildJobPayload(mission.remote === "full", formatted),
         missionAddressId: null,
       },
     ];

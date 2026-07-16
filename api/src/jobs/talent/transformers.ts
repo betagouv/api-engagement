@@ -24,7 +24,7 @@ export function missionToTalentJob(mission: MissionRecord): TalentJob[] {
     description: mission.descriptionHtml,
     jobtype: "part-time",
     expirationdate: mission.endAt ? new Date(mission.endAt).toISOString() : undefined,
-    isremote: mission.remote === "no" ? "no" : "yes",
+    isremote: mission.remote === "full" || mission.remote === "possible" ? "yes" : "no",
     category: mission.activities.length ? getActivityCategory(mission.activities[0]) : undefined,
     logo: getImageUrl(mission.organizationLogo || ""),
   } as TalentJob;

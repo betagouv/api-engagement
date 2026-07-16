@@ -30,8 +30,8 @@ export interface Mission {
   domain: string;
   domainLogo?: string;
   organizationName: string;
-  city: string;
-  country: string;
+  city: string | null;
+  country: string | null;
   remote?: string;
   places?: number;
   tags?: string[];
@@ -40,7 +40,7 @@ export interface Mission {
 }
 
 export interface Address {
-  city: string;
+  city: string | null;
   location?: {
     lat: number;
     lon: number;
