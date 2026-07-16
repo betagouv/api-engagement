@@ -9,6 +9,7 @@ import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 import Footer from "~/components/layout/footer";
 import Header from "~/components/layout/header";
 import InternalUserFlagIndicator from "~/components/layout/internal-user-flag-indicator";
+import SkipLinks from "~/components/layout/skip-links";
 import { PUBLISHER_ID } from "~/services/config";
 import { initTracking } from "~/services/tracking";
 import { serializeForInlineScript } from "~/utils/string";
@@ -34,6 +35,7 @@ export function Layout({ children }: { children: ReactNode }) {
         <Links />
       </head>
       <body className="flex flex-col min-h-screen">
+        <SkipLinks />
         {children}
         <ScrollRestoration />
         <Scripts />

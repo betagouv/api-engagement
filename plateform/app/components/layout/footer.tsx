@@ -3,7 +3,7 @@ import { useIsMobile } from "~/hooks/useIsMobile";
 
 export function FooterContent() {
   return (
-    <footer className="fr-footer" role="contentinfo" id="footer">
+    <footer className="fr-footer" role="contentinfo" id="footer" tabIndex={-1}>
       <div className="fr-container">
         <div className="fr-footer__body">
           <div className="fr-footer__brand fr-enlarge-link">

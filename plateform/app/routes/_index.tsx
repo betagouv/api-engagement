@@ -63,7 +63,7 @@ export default function Landing() {
   };
 
   return (
-    <main>
+    <main id="contenu" tabIndex={-1}>
       <GradientBg className="bg-size-[100%_640px]">
         <div className="relative lg:min-h-[640px] lg:overflow-hidden">
           <Hero onStartQuiz={handleStartQuiz} />

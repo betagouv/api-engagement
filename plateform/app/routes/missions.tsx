@@ -209,7 +209,7 @@ export default function MissionsPage() {
 
   return (
     <>
-      <main>
+      <main id="contenu" tabIndex={-1}>
         <GradientBg>
           <div className="fr-container pt-4 md:pt-16">
             <div className="flex items-center justify-between gap-4">

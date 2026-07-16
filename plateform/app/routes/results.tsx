@@ -123,7 +123,7 @@ export default function ResultsPage() {
 
   if (isMobile) {
     return (
-      <main className="flex-1 relative overflow-hidden">
+      <main id="contenu" tabIndex={-1} className="flex-1 relative overflow-hidden">
         {showMap && (
           <div className="absolute inset-0 z-0" onClickCapture={handleCollapseSheet}>
             <LazyMissionMap items={pinnedItems} center={mapCenter} onMarkerClick={handleMarkerClick} activeMissionId={activeMissionId} />
@@ -238,7 +238,7 @@ export default function ResultsPage() {
 
   return (
     <>
-      <main>
+      <main id="contenu" tabIndex={-1}>
         <GradientBg fixed className="px-12">
           <section className="flex flex-row max-w-7xl mx-auto">
             <div className="flex flex-col flex-1 py-12">
