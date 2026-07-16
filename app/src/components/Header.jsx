@@ -5,6 +5,7 @@ import { Link, useLocation } from "react-router-dom";
 
 import LogoSvg from "@/assets/svg/logo.svg?react";
 
+import Nav from "@/components/Nav";
 import { WARNINGS } from "@/constants";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
@@ -17,45 +18,48 @@ import marianneBanner from "@/assets/svg/marianne-banner.svg";
 const Header = () => {
   const { user } = useStore();
   return (
-    <header role="banner" className="border-b-grey-border flex w-full justify-center border-b bg-white">
-      <div className="flex w-full max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-1 sm:py-3">
-        <Link className="hover:bg-gray-975 flex items-center gap-4 p-2 sm:p-4" to={user ? "/" : "/login"}>
-          <div className="flex h-24 items-center justify-center">
-            <div className="flex flex-col items-start">
-              <img src={marianneBanner} alt="" aria-hidden="true" className="mb-1 w-10" />
-              <p className="text-xs leading-3 font-bold text-black uppercase">
-                République
-                <br />
-                française
-              </p>
-              <img src={deviseSrc} alt="" aria-hidden="true" className="mt-1 h-7" />
+    <header role="banner" className="w-full bg-white">
+      <div className="border-b-grey-border flex w-full justify-center border-b">
+        <div className="flex w-full max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-1 sm:py-3">
+          <Link className="hover:bg-gray-975 flex items-center gap-4 p-2 sm:p-4" to={user ? "/" : "/login"}>
+            <div className="flex h-24 items-center justify-center">
+              <div className="flex flex-col items-start">
+                <img src={marianneBanner} alt="" aria-hidden="true" className="mb-1 w-10" />
+                <p className="text-xs leading-3 font-bold text-black uppercase">
+                  République
+                  <br />
+                  française
+                </p>
+                <img src={deviseSrc} alt="" aria-hidden="true" className="mt-1 h-7" />
+              </div>
             </div>
-          </div>
-          <LogoSvg alt="" className="hidden w-8 sm:block" aria-hidden="true" />
-          <div className="hidden sm:block">
-            <p className="text-xl font-bold">API Engagement</p>
-            <p className="text-sm">Plateforme de partage de missions de bénévolat et de volontariat</p>
-          </div>
-        </Link>
-        <nav role="navigation" aria-label="Navigation d'en-tête" className="text-blue-france relative flex items-center gap-3 text-sm">
-          <a href="https://doc.api-engagement.beta.gouv.fr/" target="_blank" className="text-blue-france flex items-center" aria-label="Documentation">
-            <RiBookletLine className="mr-2" aria-hidden="true" />
-            <span className="hidden sm:block">Documentation</span>
-          </a>
+            <LogoSvg alt="" className="hidden w-8 sm:block" aria-hidden="true" />
+            <div className="hidden sm:block">
+              <p className="text-xl font-bold">API Engagement</p>
+              <p className="text-sm">Plateforme de partage de missions de bénévolat et de volontariat</p>
+            </div>
+          </Link>
+          <nav role="navigation" aria-label="Navigation d'en-tête" className="text-blue-france relative flex items-center gap-3 text-sm">
+            <a href="https://doc.api-engagement.beta.gouv.fr/" target="_blank" className="text-blue-france flex items-center" aria-label="Documentation">
+              <RiBookletLine className="mr-2" aria-hidden="true" />
+              <span className="hidden sm:block">Documentation</span>
+            </a>
 
-          {!user ? (
-            <Link to="/login" className="tertiary-btn flex items-center">
-              <RiUserLine className="mr-2" aria-hidden="true" />
-              Connexion
-            </Link>
-          ) : (
-            <>
-              {user.role === "admin" ? <AdminNotificationMenu /> : <NotificationMenu />}
-              <AccountMenu />
-            </>
-          )}
-        </nav>
+            {!user ? (
+              <Link to="/login" className="tertiary-btn flex items-center">
+                <RiUserLine className="mr-2" aria-hidden="true" />
+                Connexion
+              </Link>
+            ) : (
+              <>
+                {user.role === "admin" ? <AdminNotificationMenu /> : <NotificationMenu />}
+                <AccountMenu />
+              </>
+            )}
+          </nav>
+        </div>
       </div>
+      {user ? <Nav /> : null}
     </header>
   );
 };

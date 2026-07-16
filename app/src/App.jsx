@@ -5,7 +5,6 @@ import { ToastContainer } from "react-toastify";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import Loader from "@/components/Loader";
-import Nav from "@/components/Nav";
 import Account from "@/scenes/account";
 import AdminAccounts from "@/scenes/admin-account";
 import AdminMissions from "@/scenes/admin-mission";
@@ -236,7 +235,6 @@ const ProtectedLayout = () => {
         </div>
       )}
       <Header />
-      <Nav />
 
       <main id="main-content" role="main" tabIndex={-1} className="mx-auto mb-14 w-full max-w-[1200px] flex-1 px-0 pt-14 sm:w-4/5 sm:px-4">
         <Outlet />
@@ -280,7 +278,6 @@ const PublisherSyncLayout = () => {
 };
 
 const PublicLayout = () => {
-  const { user } = useStore();
   const location = useLocation();
 
   useEffect(() => {
@@ -292,7 +289,6 @@ const PublicLayout = () => {
   return (
     <div className="bg-global-background flex min-h-screen w-full flex-col">
       <Header />
-      {user ? <Nav /> : ""}
       <main id="main-content" role="main" tabIndex={-1}>
         <Outlet />
       </main>
