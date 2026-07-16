@@ -2,7 +2,7 @@ import { toast } from "@/services/toast";
 import { Menu, Transition } from "@headlessui/react";
 import { Fragment, useEffect, useId, useState } from "react";
 import { BsDot } from "react-icons/bs";
-import { RiCalendarEventFill, RiCheckboxCircleFill, RiCloseCircleFill, RiMapPin2Fill, RiMoreFill, RiPencilFill, RiTimeLine } from "react-icons/ri";
+import { RiCalendarEventFill, RiCheckboxCircleFill, RiCloseCircleFill, RiErrorWarningFill, RiMapPin2Fill, RiMoreFill, RiPencilFill, RiTimeLine } from "react-icons/ri";
 import { useSearchParams } from "react-router-dom";
 
 import Modal from "@/components/Modal";
@@ -250,13 +250,19 @@ const UpdateNoteModal = ({ open, onChange, onClose, data }) => {
   const { publisher } = useStore();
   const noteId = useId();
   const [note, setNote] = useState(data.note || "");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     setNote(data.note || "");
+    setError("");
   }, [data]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (note.trim() === "") {
+      setError("Le champ Note est obligatoire.");
+      return;
+    }
     try {
       const res = await api.put(`/moderation/${data.id}`, { note, moderatorId: publisher.id });
       if (!res.ok) {
@@ -272,16 +278,36 @@ const UpdateNoteModal = ({ open, onChange, onClose, data }) => {
 
   return (
     <Modal open={open} onClose={onClose} title="Modifier la note" className="w-[90vw] max-w-3xl">
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} noValidate>
         <div className="flex items-center justify-center">
           <div className="flex w-full flex-col justify-center gap-4">
             <div className="flex flex-col gap-1">
               <label htmlFor={noteId} className="text-sm">
-                Note
+                Note<span className="text-error ml-1">*</span>
               </label>
-              <textarea id={noteId} className="input" rows={4} name="note" value={note} onChange={(e) => setNote(e.target.value)} required />
+              <textarea
+                id={noteId}
+                className="input"
+                rows={4}
+                name="note"
+                value={note}
+                onChange={(e) => {
+                  setNote(e.target.value);
+                  setError("");
+                }}
+                required
+                aria-required="true"
+                aria-invalid={error ? true : undefined}
+                aria-describedby={error ? `${noteId}-error` : undefined}
+              />
+              {error && (
+                <p id={`${noteId}-error`} className="text-error flex items-center text-sm" aria-live="polite">
+                  <RiErrorWarningFill className="mr-2" aria-hidden="true" />
+                  {error}
+                </p>
+              )}
               <div className="mt-6 flex justify-end">
-                <button className="primary-btn w-full" type="submit">
+                <button className="primary-btn w-full" type="submit" disabled={!note.trim() || error}>
                   Enregistrer
                 </button>
               </div>
