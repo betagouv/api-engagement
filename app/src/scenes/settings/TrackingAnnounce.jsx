@@ -27,7 +27,7 @@ const TrackingAnnounce = () => {
     <div className="space-y-12 p-4 sm:p-12">
       <title>API Engagement - Tracking des événements - Paramètres</title>
       <div className="border-grey-border space-y-8 border p-4 sm:p-8">
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-wrap items-start justify-between gap-4">
           <h2 className="text-2xl font-bold">Tracking des événements</h2>
           <a
             href="https://doc.api-engagement.beta.gouv.fr/annoncer-des-missions/tracking-des-candidatures/rajout-de-la-balise-et-des-commandes-de-tracking-par-le-tag"
