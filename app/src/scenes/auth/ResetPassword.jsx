@@ -141,12 +141,14 @@ const ResetPasswordForm = ({ user, token }) => {
             setErrors({ ...errors, password: null });
           }}
           autoComplete="new-password"
+          aria-invalid={errors.password ? true : undefined}
+          aria-describedby={errors.password ? "password-error" : undefined}
         />
         {errors.password && (
-          <div className="text-error flex items-center text-sm">
+          <p id="password-error" className="text-error flex items-center text-sm" aria-live="polite">
             <RiErrorWarningFill className="mr-2" aria-hidden="true" />
             {errors.password}
-          </div>
+          </p>
         )}
       </div>
       <div className="mt-2 flex flex-col gap-2">
@@ -196,22 +198,24 @@ const ResetPasswordForm = ({ user, token }) => {
             setValues({ ...values, confirmPassword: e.target.value });
             setErrors({ ...errors, confirmPassword: null });
           }}
+          aria-invalid={errors.confirmPassword ? true : undefined}
+          aria-describedby={errors.confirmPassword ? "confirm-password-error" : undefined}
         />
         {errors.confirmPassword && (
-          <div className="text-error flex items-center text-sm">
+          <p id="confirm-password-error" className="text-error flex items-center text-sm" aria-live="polite">
             <RiErrorWarningFill className="mr-2" aria-hidden="true" />
             {errors.confirmPassword}
-          </div>
+          </p>
         )}
       </div>
 
       {errors.expired && (
-        <div className="text-error flex items-center text-sm">
+        <p className="text-error flex items-center text-sm" aria-live="polite">
           <RiErrorWarningFill className="mr-2" aria-hidden="true" />
           <Link to="/forgot-password" className="underline">
             Réinitialisation expirée
           </Link>
-        </div>
+        </p>
       )}
 
       {!success ? (
