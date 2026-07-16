@@ -189,7 +189,7 @@ const SignupForm = ({ user, token }) => {
           value={values.password}
           onChange={handleChange}
           aria-invalid={submitted && errors.password ? true : undefined}
-          aria-describedby={submitted && errors.password ? "password-error" : undefined}
+          aria-describedby={submitted && errors.password ? "password-error password-criteria" : "password-criteria"}
         />
         {submitted && errors.password && (
           <p id="password-error" className="text-error flex items-center text-sm" aria-live="polite">
@@ -198,7 +198,7 @@ const SignupForm = ({ user, token }) => {
           </p>
         )}
       </div>
-      <div className="mt-1 flex flex-col gap-2">
+      <div id="password-criteria" className="mt-1 flex flex-col gap-2">
         <div className="flex items-center gap-2">
           {values.password.length >= 12 ? (
             <AiFillCloseCircle className="text-success" aria-hidden="true" />

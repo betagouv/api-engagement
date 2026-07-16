@@ -316,8 +316,11 @@ const Settings = ({ widget, values, onChange, loading }) => {
                   label="Catalogue"
                   checked={values.style === "page"}
                   onChange={(e) => onChange({ ...values, style: e.target.value })}
+                  ariaDescribedby="style-page-hint"
                 />
-                <p className="text-text-mention text-xs">Grille de 6 missions par page</p>
+                <p id="style-page-hint" className="text-text-mention text-xs">
+                  Grille de 6 missions par page
+                </p>
               </div>
 
               <div>
@@ -328,8 +331,11 @@ const Settings = ({ widget, values, onChange, loading }) => {
                   label="Carrousel"
                   checked={values.style === "carousel"}
                   onChange={(e) => onChange({ ...values, style: e.target.value })}
+                  ariaDescribedby="style-carousel-hint"
                 />
-                <p className="text-text-mention text-xs">Fait défiler les missions 3 par 3</p>
+                <p id="style-carousel-hint" className="text-text-mention text-xs">
+                  Fait défiler les missions 3 par 3
+                </p>
               </div>
             </div>
           </fieldset>
