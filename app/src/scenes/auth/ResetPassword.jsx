@@ -141,6 +141,7 @@ const ResetPasswordForm = ({ user, token }) => {
             setErrors({ ...errors, password: null });
           }}
           autoComplete="new-password"
+          aria-describedby={errors.password ? "password-error password-criteria" : "password-criteria"}
         />
         {errors.password && (
           <div className="text-error flex items-center text-sm">
@@ -149,7 +150,7 @@ const ResetPasswordForm = ({ user, token }) => {
           </div>
         )}
       </div>
-      <div className="mt-2 flex flex-col gap-2">
+      <div id="password-criteria" className="mt-2 flex flex-col gap-2">
         <div className="flex items-center gap-2">
           {(values.password || "").length >= 12 ? (
             <AiFillCloseCircle className="text-success" aria-hidden="true" />
