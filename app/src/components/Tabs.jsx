@@ -1,4 +1,5 @@
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { RiArrowLeftSLine, RiArrowRightSLine } from "react-icons/ri";
 import { Link, useNavigate } from "react-router-dom";
 
 const TAB_VARIANTS = {
@@ -46,12 +47,28 @@ export const Tab = ({ tab, panelId, isFocusable, onKeyDown, setRef, variant = "p
 const Tabs = ({ tabs, ariaLabel, panelId, className = "", variant = "primary", tabClassName = "" }) => {
   const navigate = useNavigate();
   const tabRefs = useRef([]);
+  const listRef = useRef(null);
+  const [isOverflowing, setIsOverflowing] = useState(false);
   const activeTabIndex = tabs.findIndex((tab) => tab.isActive);
   const focusableTabIndex = activeTabIndex === -1 ? 0 : activeTabIndex;
+
+  useEffect(() => {
+    const checkOverflow = () => {
+      const list = listRef.current;
+      setIsOverflowing(list ? list.scrollWidth > list.clientWidth + 1 : false);
+    };
+    checkOverflow();
+    window.addEventListener("resize", checkOverflow);
+    return () => window.removeEventListener("resize", checkOverflow);
+  }, [tabs]);
 
   if (!tabs?.length) {
     return null;
   }
+
+  const handleScroll = (direction) => {
+    listRef.current?.scrollBy({ left: direction * 150, behavior: "smooth" });
+  };
 
   const focusTab = (index) => {
     const tab = tabRefs.current[index];
@@ -104,21 +121,34 @@ const Tabs = ({ tabs, ariaLabel, panelId, className = "", variant = "primary", t
   };
 
   return (
-    <div role="tablist" aria-label={ariaLabel} className={`flex flex-nowrap overflow-x-auto overflow-y-hidden ${className}`}>
-      {tabs.map((tab, index) => (
-        <Tab
-          key={tab.key}
-          tab={tab}
-          panelId={panelId}
-          isFocusable={index === focusableTabIndex}
-          setRef={(node) => {
-            tabRefs.current[index] = node;
-          }}
-          onKeyDown={(event) => handleTabKeyDown(event, index, tab)}
-          variant={variant}
-          className={tabClassName}
-        />
-      ))}
+    <div className="flex items-center">
+      {/* RGAA 13.10 : alternative au swipe quand les onglets débordent */}
+      {isOverflowing && (
+        <button type="button" className="focus shrink-0 p-1 hover:bg-gray-100" aria-label="Faire défiler les onglets vers la gauche" onClick={() => handleScroll(-1)}>
+          <RiArrowLeftSLine className="text-xl" aria-hidden="true" />
+        </button>
+      )}
+      <div role="tablist" aria-label={ariaLabel} ref={listRef} className={`flex flex-nowrap overflow-x-auto overflow-y-hidden ${className}`}>
+        {tabs.map((tab, index) => (
+          <Tab
+            key={tab.key}
+            tab={tab}
+            panelId={panelId}
+            isFocusable={index === focusableTabIndex}
+            setRef={(node) => {
+              tabRefs.current[index] = node;
+            }}
+            onKeyDown={(event) => handleTabKeyDown(event, index, tab)}
+            variant={variant}
+            className={tabClassName}
+          />
+        ))}
+      </div>
+      {isOverflowing && (
+        <button type="button" className="focus shrink-0 p-1 hover:bg-gray-100" aria-label="Faire défiler les onglets vers la droite" onClick={() => handleScroll(1)}>
+          <RiArrowRightSLine className="text-xl" aria-hidden="true" />
+        </button>
+      )}
     </div>
   );
 };
