@@ -5,14 +5,15 @@ import faviconSvg from "@gouvfr/dsfr/dist/favicon/favicon.svg?url";
 import webmanifest from "@gouvfr/dsfr/dist/favicon/manifest.webmanifest?url";
 import "@gouvfr/dsfr/dist/utility/utility.min.css";
 import { type ReactNode, useEffect } from "react";
-import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
-import Footer from "~/components/layout/footer";
+import { Link, Links, Meta, Outlet, Scripts, ScrollRestoration, isRouteErrorResponse } from "react-router";
+import Footer, { FooterContent } from "~/components/layout/footer";
 import Header from "~/components/layout/header";
 import InternalUserFlagIndicator from "~/components/layout/internal-user-flag-indicator";
 import SkipLinks from "~/components/layout/skip-links";
 import { PUBLISHER_ID } from "~/services/config";
 import { initTracking } from "~/services/tracking";
 import { serializeForInlineScript } from "~/utils/string";
+import type { Route } from "./+types/root";
 import "./main.css";
 
 // Tag de tracking API Engagement (jstag.js) — doit être chargé en tête du <head>, avant tout autre script.
@@ -56,6 +57,29 @@ export default function Root() {
       <Outlet />
       <Footer />
       <InternalUserFlagIndicator />
+    </>
+  );
+}
+
+// Rendu à la place de l'Outlet quand une route échoue (avant rendu) ou pour une URL inconnue
+// (404). On fournit ici les cibles des liens d'évitement (`#contenu`, `#footer`), absentes de
+// l'UI d'erreur par défaut de React Router, pour que le SkipLinks du layout reste fonctionnel.
+export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
+  const isNotFound = isRouteErrorResponse(error) && error.status === 404;
+  const title = isNotFound ? "Page introuvable" : "Une erreur est survenue";
+  const description = isNotFound ? "La page que tu cherches n'existe pas ou a été déplacée." : "Une erreur inattendue s'est produite. Réessaie plus tard.";
+
+  return (
+    <>
+      <Header />
+      <main id="contenu" tabIndex={-1} className="fr-container flex-1 py-16">
+        <h1>{title}</h1>
+        <p className="fr-text--lead">{description}</p>
+        <Link to="/" className="fr-btn">
+          Retour à l'accueil
+        </Link>
+      </main>
+      <FooterContent />
     </>
   );
 }
