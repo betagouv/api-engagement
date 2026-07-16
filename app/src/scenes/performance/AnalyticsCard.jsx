@@ -21,6 +21,8 @@ const AnalyticsCard = ({
   chartDescription,
   chartDescriptionMode,
   chartDescriptionId,
+  chartNameLabel,
+  chartValueLabel,
 }) => {
   if (!cardId) {
     return null;
@@ -58,6 +60,8 @@ const AnalyticsCard = ({
       chartDescription={chartDescription}
       chartDescriptionMode={chartDescriptionMode}
       chartDescriptionId={chartDescriptionId}
+      chartNameLabel={chartNameLabel}
+      chartValueLabel={chartValueLabel}
     />
   );
 

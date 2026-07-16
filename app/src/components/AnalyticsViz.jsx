@@ -33,6 +33,8 @@ const AnalyticsViz = ({
   chartDescription,
   chartDescriptionMode = "none",
   chartDescriptionId,
+  chartNameLabel,
+  chartValueLabel,
 }) => {
   const generatedId = useId();
   const analyticsProvider = useAnalyticsProvider();
@@ -264,7 +266,7 @@ const AnalyticsViz = ({
                 <thead className="text-text-mention text-left text-[10px] uppercase">
                   <tr>
                     <th className="px-2">Légende</th>
-                    <th className="px-2 text-right">Valeur</th>
+                    <th className="px-2 text-right">{chartValueLabel || "Valeur"}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -302,6 +304,8 @@ const AnalyticsViz = ({
             nameKey={chartNameKey}
             nameFormatter={chartNameFormatter}
             valueFormatter={chartValueFormatter}
+            nameLabel={chartNameLabel}
+            valueLabel={chartValueLabel}
           />
         )}
       </figure>
@@ -325,6 +329,8 @@ const AnalyticsViz = ({
           nameKey={chartNameKey}
           nameFormatter={chartNameFormatter}
           valueFormatter={chartValueFormatter}
+          nameLabel={chartNameLabel}
+          valueLabel={chartValueLabel}
         />
       </figure>
     );
@@ -348,6 +354,7 @@ const AnalyticsViz = ({
           stackedKeys={stackedKeys}
           seriesLabelMap={chartProps?.seriesLabelMap}
           nameFormatter={chartNameFormatter}
+          nameLabel={chartNameLabel}
         />
       </figure>
     );
