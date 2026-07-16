@@ -170,7 +170,7 @@ export default function QuizLayout() {
             </div>
           )}
           {scoringError && !loadingResults && (
-            <div className="fr-alert fr-alert--error">
+            <div className="fr-alert fr-alert--error" role="alert">
               <p>{scoringError}</p>
             </div>
           )}

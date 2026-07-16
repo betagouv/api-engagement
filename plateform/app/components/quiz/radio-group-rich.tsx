@@ -18,7 +18,7 @@ export default function RadioGroupRich({ title, subtitle, onChange, options, sel
       className={`fr-fieldset block! ${error ? "fr-fieldset--error" : ""}`}
       id="radio-group-rich"
       role="group"
-      aria-describedby={`radio-group-rich-legend ${error && "radio-group-rich-messages"}`}
+      aria-describedby={error ? "radio-group-rich-legend radio-group-rich-messages" : "radio-group-rich-legend"}
     >
       <legend className="fr-h1 mb-10! ml-2!" id="radio-group-rich-legend">
         {title}
@@ -36,6 +36,7 @@ export default function RadioGroupRich({ title, subtitle, onChange, options, sel
                 onChange={() => onChange(o.value)}
                 checked={!o.disabled && selected === o.value}
                 disabled={o.disabled}
+                aria-invalid={error ? true : undefined}
               />
               <label className={`fr-label text-base ${o.disabled ? "cursor-not-allowed!" : ""}`} htmlFor={`radio-group-rich-${o.value}`}>
                 {o.label}

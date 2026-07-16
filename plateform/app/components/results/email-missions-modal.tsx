@@ -86,17 +86,30 @@ export default function EmailMissionsModal({ userScoringId, open: controlledOpen
             <p className="fr-text--lead fr-mb-2w">On t'envoie ta sélection de 5 missions pour que tu puisses les retrouver facilement.</p>
 
             <form onSubmit={handleSubmit}>
-              {error && (
-                <div className="fr-alert fr-alert--error fr-mb-2w">
-                  <p>{error}</p>
-                </div>
-              )}
+              <p className="fr-hint-text fr-mb-2w">
+                Les champs marqués d'un <span aria-hidden="true">*</span> sont obligatoires.
+              </p>
 
-              <div className="fr-input-group fr-mb-2w">
+              <div className={`fr-input-group fr-mb-2w ${error ? "fr-input-group--error" : ""}`}>
                 <label className="fr-label" htmlFor={emailId}>
-                  Adresse email
+                  Adresse email <span aria-hidden="true">*</span>
                 </label>
-                <input id={emailId} name="email" type="email" required className="fr-input" placeholder="nom@email.fr" />
+                <input
+                  id={emailId}
+                  name="email"
+                  type="email"
+                  required
+                  aria-required="true"
+                  aria-invalid={error ? true : undefined}
+                  aria-describedby={error ? `${emailId}-error` : undefined}
+                  className="fr-input"
+                  placeholder="nom@email.fr"
+                />
+                {error && (
+                  <div className="fr-messages-group" id={`${emailId}-error`} aria-live="assertive">
+                    <p className="fr-message fr-message--error">{error}</p>
+                  </div>
+                )}
               </div>
 
               <div className="fr-checkbox-group fr-mb-2w">
