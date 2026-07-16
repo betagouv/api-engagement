@@ -195,9 +195,7 @@ const Flux = ({ moderated }) => {
       <div className="flex flex-col gap-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="min-w-0 flex-1 space-y-2">
-            <h2 role="status" aria-live="polite" aria-atomic="true" className="text-2xl font-bold">
-              {total.toLocaleString("fr")} missions partagées
-            </h2>
+            <h2 className="text-2xl font-bold">{total.toLocaleString("fr")} missions partagées</h2>
             <div className="flex flex-wrap items-center gap-2">
               <p className="text-text-mention text-base">Dernière synchronisation le {lastImport ? new Date(lastImport.startedAt).toLocaleDateString("fr") : "N/A"}</p>
               {lastImport && new Date(lastImport.startedAt) > new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - 1) ? (
