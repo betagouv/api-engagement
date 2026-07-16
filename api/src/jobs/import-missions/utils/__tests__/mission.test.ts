@@ -312,13 +312,13 @@ describe("parseMission", () => {
       expect(result?.tags).toEqual([]);
     });
 
-    it("should parse romeSkills", () => {
+    it("should parse romeSkills without altering the raw codes", () => {
       const publisher = buildPublisher();
-      const missionXML = buildMissionXML({ romeSkills: "Skill A, Skill B" });
+      const missionXML = buildMissionXML({ romeSkills: "300412, Skill B" });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
-      expect(result?.romeSkills).toEqual(["Skill A", "Skill B"]);
+      expect(result?.romeSkills).toEqual(["300412", "Skill B"]);
     });
 
     it("should parse requirements", () => {

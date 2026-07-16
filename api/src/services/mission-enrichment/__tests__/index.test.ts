@@ -55,6 +55,7 @@ const baseMission = {
   softSkills: [],
   requirements: [],
   tags: [],
+  romeSkillLabels: [],
   type: null,
   remote: null,
   openToMinors: null,

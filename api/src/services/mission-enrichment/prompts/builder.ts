@@ -28,6 +28,7 @@ export const ENRICHMENT_TRIGGER_FIELDS = [
   "domain",
   "activities",
   "tags",
+  "romeSkills",
   "tasks",
   "addresses",
   "audience",
@@ -108,6 +109,13 @@ export const buildMissionBlock = (mission: MissionForPrompt): string => {
   const cleanRequirements = cleanList(mission.requirements, PROMPT_FIELD_MAX_LENGTH.short);
   if (cleanRequirements.length) {
     lines.push("", "**Prérequis :**", cleanRequirements.join("\n"));
+  }
+  // Libellés de macro-compétences ROME 4.0 résolus depuis les codes `romeSkills` (stockés bruts).
+  // La résolution est éphémère : les codes absents du snapshot statique sont ignorés (cf. `resolveRomeSkills`).
+  // Le libellé explicite au modèle qu'il s'agit de compétences attendues pour réaliser la mission.
+  const cleanRomeSkills = cleanList(mission.romeSkillLabels, PROMPT_FIELD_MAX_LENGTH.short);
+  if (cleanRomeSkills.length) {
+    lines.push("", "**Compétences attendues pour la mission (référentiel ROME 4.0) :**", cleanRomeSkills.join(", "));
   }
 
   const cleanOrgName = clean(mission.organizationName, PROMPT_FIELD_MAX_LENGTH.short);
