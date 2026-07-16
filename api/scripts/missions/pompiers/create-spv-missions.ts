@@ -2,7 +2,7 @@
  * Crée (ou met à jour) 1 mission SPV par département SDIS.
  *
  * Usage :
- *   npx ts-node -r tsconfig-paths/register scripts/missions-sdis/create-spv-missions.ts --env <prod|staging|local> [--dry-run]
+ *   npx ts-node -r tsconfig-paths/register scripts/missions/pompiers/create-spv-missions.ts --env <prod|staging|local> [--dry-run]
  */
 
 import dotenv from "dotenv";
@@ -42,7 +42,9 @@ function loadAddresses(): Map<string, Address[]> {
   for (const line of lines) {
     const cols = parseCsvLine(line);
     const [dept, , street, postalCode, city] = cols.map((v) => v.trim());
-    if (!dept || !city || !postalCode) continue;
+    if (!dept || !city || !postalCode) {
+      continue;
+    }
     const list = map.get(dept) ?? [];
     list.push({ street, postalCode, city, departmentCode: dept });
     map.set(dept, list);
