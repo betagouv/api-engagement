@@ -48,6 +48,22 @@ export default function ResultsPage() {
     if (userScoringId) setQuizSessionId(userScoringId);
   }, [userScoringId]);
 
+  // RGAA 12.7 : le lien d'évitement « Pied de page » cible #footer, rendu ici dans le
+  // panneau dépliable (masqué quand il est replié). Quand la cible est activée, on déplie
+  // le panneau et on place le focus sur le footer pour qu'il soit réellement atteignable.
+  useEffect(() => {
+    if (!isMobile) return;
+    const revealFooter = () => {
+      if (window.location.hash !== "#footer") return;
+      setExpanded(true);
+      // Laisser React retirer `hidden` du conteneur de défilement avant de déplacer le focus.
+      setTimeout(() => document.getElementById("footer")?.focus(), 0);
+    };
+    revealFooter();
+    window.addEventListener("hashchange", revealFooter);
+    return () => window.removeEventListener("hashchange", revealFooter);
+  }, [isMobile]);
+
   // results.viewed : une fois le chargement terminé (succès), on émet l'évènement une seule fois.
   useEffect(() => {
     if (loading || error || resultsViewedFired.current) return;

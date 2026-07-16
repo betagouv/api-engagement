@@ -1,15 +1,13 @@
 import { useLocation } from "react-router";
-import { useIsMobile } from "~/hooks/useIsMobile";
-import { isFooterVisible } from "~/utils/layout";
+import { hasFooterTarget } from "~/utils/layout";
 
 // Liens d'évitement DSFR (RGAA 12.7). Doit rester le premier élément focusable du <body>.
 // Pas de lien « Menu » : le site n'a pas de menu de navigation à cibler.
-// Le lien « Pied de page » n'est rendu que si le footer est présent sur la route courante
-// (masqué sur le quiz et sur /results en mobile), pour ne pas annoncer une cible inexistante.
+// Le lien « Pied de page » n'est rendu que si la route comporte une cible #footer
+// (cf. hasFooterTarget), pour ne pas annoncer une cible inexistante (masquée sur le quiz).
 export default function SkipLinks() {
   const location = useLocation();
-  const isMobile = useIsMobile();
-  const footerVisible = isFooterVisible(location.pathname, isMobile);
+  const footerTarget = hasFooterTarget(location.pathname);
 
   return (
     <div className="fr-skiplinks">
@@ -20,7 +18,7 @@ export default function SkipLinks() {
               Contenu
             </a>
           </li>
-          {footerVisible && (
+          {footerTarget && (
             <li>
               <a className="fr-link" href="#footer">
                 Pied de page

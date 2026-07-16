@@ -1,6 +1,6 @@
 import { useLocation } from "react-router";
 import { useIsMobile } from "~/hooks/useIsMobile";
-import { isFooterVisible } from "~/utils/layout";
+import { isGlobalFooterVisible } from "~/utils/layout";
 
 export function FooterContent() {
   return (
@@ -81,7 +81,7 @@ export default function Footer() {
   const location = useLocation();
   const isMobile = useIsMobile();
 
-  if (!isFooterVisible(location.pathname, isMobile)) {
+  if (!isGlobalFooterVisible(location.pathname, isMobile)) {
     return null;
   }
 
