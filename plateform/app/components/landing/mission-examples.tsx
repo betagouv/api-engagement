@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 
 import { trackMissionClickedFromBrowse } from "~/services/tracking/events";
+import { getScrollBehavior } from "~/utils/motion";
 
 type Props = {
   missions: MissionBrowse[];
@@ -28,7 +29,7 @@ export default function MissionExamples({ missions, className }: Props) {
   const handleScroll = (direction: "left" | "right") => {
     if (!scrollRef.current) return;
     const offset = direction === "left" ? -380 : 380;
-    scrollRef.current.scrollBy({ left: offset, behavior: "smooth" });
+    scrollRef.current.scrollBy({ left: offset, behavior: getScrollBehavior() });
   };
 
   if (!missions?.length) return null;
