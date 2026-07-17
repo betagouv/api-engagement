@@ -17,6 +17,7 @@ export type MissionDiffusionRebuildDistributionPublisherResult = {
   added: number;
   removed: number;
   durationMs: number;
+  dryRun?: boolean;
 };
 
 export type MissionDiffusionRebuildResult = {
@@ -27,6 +28,7 @@ export type MissionDiffusionRebuildResult = {
   durationMs: number;
   perDistributionPublisher: MissionDiffusionRebuildDistributionPublisherResult[];
   skippedBecauseAlreadyRunning?: boolean;
+  dryRun?: boolean;
 };
 
 const chunk = <T>(items: T[], size: number): T[][] => {
@@ -77,7 +79,7 @@ export const missionDiffusionService = {
    * règles, le compare à l'existant en table, applique le delta dans une transaction. Idempotent :
    * un second appel sans changement écrit 0 ligne (et n'ouvre pas de transaction).
    */
-  async rebuildForDistributionPublisher(distributionPublisherId: string): Promise<MissionDiffusionRebuildDistributionPublisherResult> {
+  async rebuildForDistributionPublisher(distributionPublisherId: string, options: { dryRun?: boolean } = {}): Promise<MissionDiffusionRebuildDistributionPublisherResult> {
     const start = Date.now();
 
     const [desiredIds, existingIds] = await Promise.all([
@@ -92,6 +94,17 @@ export const missionDiffusionService = {
 
     let added = 0;
     let removed = 0;
+
+    if (options.dryRun) {
+      return {
+        distributionPublisherId,
+        desired: desiredIds.length,
+        added: toAdd.length,
+        removed: toRemove.length,
+        durationMs: Date.now() - start,
+        dryRun: true,
+      };
+    }
 
     if (toAdd.length > 0 || toRemove.length > 0) {
       // La table est une allowlist de lecture : le delta d'un publisher de diffusion est appliqué dans une seule
@@ -117,7 +130,7 @@ export const missionDiffusionService = {
    * (la table reste lisible en permanence). Un advisory lock PostgreSQL empêche deux rebuilds
    * complets de tourner en parallèle.
    */
-  async rebuildAll(): Promise<MissionDiffusionRebuildResult> {
+  async rebuildAll(options: { dryRun?: boolean } = {}): Promise<MissionDiffusionRebuildResult> {
     const start = Date.now();
 
     const result = await withRebuildLock(async () => {
@@ -125,10 +138,12 @@ export const missionDiffusionService = {
 
       const perDistributionPublisher: MissionDiffusionRebuildDistributionPublisherResult[] = [];
       for (const distributionPublisherId of distributionPublisherIds) {
-        perDistributionPublisher.push(await this.rebuildForDistributionPublisher(distributionPublisherId));
+        perDistributionPublisher.push(await this.rebuildForDistributionPublisher(distributionPublisherId, options));
       }
 
-      const prunedDistributionPublishers = await missionDiffusionRepository.deleteRowsForDistributionPublishersNotIn(distributionPublisherIds);
+      const prunedDistributionPublishers = options.dryRun
+        ? await missionDiffusionRepository.countRowsForDistributionPublishersNotIn(distributionPublisherIds)
+        : await missionDiffusionRepository.deleteRowsForDistributionPublishersNotIn(distributionPublisherIds);
 
       return {
         distributionPublishers: perDistributionPublisher.length,
@@ -137,6 +152,7 @@ export const missionDiffusionService = {
         prunedDistributionPublishers,
         durationMs: Date.now() - start,
         perDistributionPublisher,
+        dryRun: options.dryRun || undefined,
       };
     });
 
@@ -149,6 +165,7 @@ export const missionDiffusionService = {
         durationMs: Date.now() - start,
         perDistributionPublisher: [],
         skippedBecauseAlreadyRunning: true,
+        dryRun: options.dryRun || undefined,
       }
     );
   },

@@ -44,6 +44,12 @@ export const missionDiffusionRepository = {
     return result.count;
   },
 
+  async countRowsForDistributionPublishersNotIn(distributionPublisherIds: string[], tx?: Prisma.TransactionClient): Promise<number> {
+    return client(tx).missionDiffusion.count({
+      where: distributionPublisherIds.length ? { distributionPublisherId: { notIn: distributionPublisherIds } } : {},
+    });
+  },
+
   async countByDistributionPublisher(distributionPublisherId: string, tx?: Prisma.TransactionClient): Promise<number> {
     return client(tx).missionDiffusion.count({ where: { distributionPublisherId } });
   },

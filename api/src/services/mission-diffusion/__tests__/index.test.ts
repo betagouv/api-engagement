@@ -22,6 +22,7 @@ vi.mock("@/repositories/mission-diffusion", () => ({
     createManyForDistributionPublisher: vi.fn(),
     deleteManyForDistributionPublisher: vi.fn(),
     deleteRowsForDistributionPublishersNotIn: vi.fn(),
+    countRowsForDistributionPublishersNotIn: vi.fn(),
   },
 }));
 
@@ -46,6 +47,7 @@ const missionDiffusionRepositoryMock = missionDiffusionRepository as unknown as 
   createManyForDistributionPublisher: ReturnType<typeof vi.fn>;
   deleteManyForDistributionPublisher: ReturnType<typeof vi.fn>;
   deleteRowsForDistributionPublishersNotIn: ReturnType<typeof vi.fn>;
+  countRowsForDistributionPublishersNotIn: ReturnType<typeof vi.fn>;
 };
 const ruleServiceMock = publisherDiffusionRuleService as unknown as {
   buildMissionDiffuseurAllowlistWhere: ReturnType<typeof vi.fn>;
@@ -71,6 +73,7 @@ beforeEach(() => {
   missionDiffusionRepositoryMock.createManyForDistributionPublisher.mockImplementation(async (_distributionPublisherId: string, ids: string[]) => ids.length);
   missionDiffusionRepositoryMock.deleteManyForDistributionPublisher.mockImplementation(async (_distributionPublisherId: string, ids: string[]) => ids.length);
   missionDiffusionRepositoryMock.deleteRowsForDistributionPublishersNotIn.mockResolvedValue(0);
+  missionDiffusionRepositoryMock.countRowsForDistributionPublishersNotIn.mockResolvedValue(0);
 });
 
 describe("missionDiffusionService.rebuildForDistributionPublisher", () => {
@@ -161,6 +164,19 @@ describe("missionDiffusionService.rebuildForDistributionPublisher", () => {
     expect(missionDiffusionRepositoryMock.createManyForDistributionPublisher).toHaveBeenCalledTimes(2);
     expect(result.added).toBe(5001);
   });
+
+  it("calcule le delta sans écrire en dry-run", async () => {
+    ruleServiceMock.buildMissionDiffuseurAllowlistWhere.mockResolvedValue({ publisherId: "annonceur-1" });
+    missionRepositoryMock.findIds.mockResolvedValue(["m1", "m2", "m3"]);
+    missionDiffusionRepositoryMock.findMissionIdsByDistributionPublisher.mockResolvedValue(["m2", "m4"]);
+
+    const result = await missionDiffusionService.rebuildForDistributionPublisher("publisher-1", { dryRun: true });
+
+    expect(result).toMatchObject({ distributionPublisherId: "publisher-1", desired: 3, added: 2, removed: 1, dryRun: true });
+    expect(prismaMock.$transaction).not.toHaveBeenCalled();
+    expect(missionDiffusionRepositoryMock.createManyForDistributionPublisher).not.toHaveBeenCalled();
+    expect(missionDiffusionRepositoryMock.deleteManyForDistributionPublisher).not.toHaveBeenCalled();
+  });
 });
 
 describe("missionDiffusionService.rebuildAll", () => {
@@ -191,6 +207,27 @@ describe("missionDiffusionService.rebuildAll", () => {
     expect(pgClientMock.query).toHaveBeenCalledWith("SELECT pg_try_advisory_lock($1, $2) AS locked", expect.any(Array));
     expect(pgClientMock.query).toHaveBeenCalledWith("SELECT pg_advisory_unlock($1, $2)", expect.any(Array));
     expect(pgClientMock.end).toHaveBeenCalledTimes(1);
+  });
+
+  it("compte la purge globale sans supprimer en dry-run", async () => {
+    ruleServiceMock.findDistributionPublisherIdsWithAllowlist.mockResolvedValue(["d1"]);
+    ruleServiceMock.buildMissionDiffuseurAllowlistWhere.mockResolvedValue({ publisherId: "annonceur" });
+    missionRepositoryMock.findIds.mockResolvedValue(["m1"]);
+    missionDiffusionRepositoryMock.findMissionIdsByDistributionPublisher.mockResolvedValue([]);
+    missionDiffusionRepositoryMock.countRowsForDistributionPublishersNotIn.mockResolvedValue(4);
+
+    const result = await missionDiffusionService.rebuildAll({ dryRun: true });
+
+    expect(result).toMatchObject({
+      distributionPublishers: 1,
+      added: 1,
+      removed: 4,
+      prunedDistributionPublishers: 4,
+      dryRun: true,
+    });
+    expect(missionDiffusionRepositoryMock.countRowsForDistributionPublishersNotIn).toHaveBeenCalledWith(["d1"]);
+    expect(missionDiffusionRepositoryMock.deleteRowsForDistributionPublishersNotIn).not.toHaveBeenCalled();
+    expect(missionDiffusionRepositoryMock.createManyForDistributionPublisher).not.toHaveBeenCalled();
   });
 
   it("ignore le rebuild complet quand un autre rebuild détient déjà le lock", async () => {
