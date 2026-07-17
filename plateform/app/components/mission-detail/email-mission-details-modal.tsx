@@ -82,7 +82,7 @@ export default function EmailMissionModal({ missionId, publisherId, userScoringI
 
       <Modal open={open} onClose={handleClose} title="Reçois ta mission par email" titleIcon="fr-icon-mail-line">
         {success ? (
-          <div className="fr-alert fr-alert--success">
+          <div role="status" className="fr-alert fr-alert--success">
             <p>La mission a bien été envoyée ! Vérifie ta boîte mail.</p>
           </div>
         ) : (
@@ -109,7 +109,7 @@ export default function EmailMissionModal({ missionId, publisherId, userScoringI
                 placeholder="nom@email.fr"
               />
               {error && (
-                <div className="fr-messages-group" id={`${emailId}-error`} aria-live="assertive">
+                <div className="fr-messages-group" id={`${emailId}-error`} role="alert">
                   <p className="fr-message fr-message--error">{error}</p>
                 </div>
               )}

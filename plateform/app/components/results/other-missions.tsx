@@ -32,7 +32,9 @@ export default function OtherMissions({
       <h2 className="fr-h5 mb-4!">Il y a d'autres missions qui peuvent te plaire</h2>
 
       {pageLoading ? (
-        <p className="text-mention-grey py-8 text-sm">Chargement…</p>
+        <p role="status" className="text-mention-grey py-8 text-sm">
+          Chargement…
+        </p>
       ) : (
         <div className={gridClassName}>
           {items.map((item, index) => {

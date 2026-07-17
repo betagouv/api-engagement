@@ -70,7 +70,9 @@ export default function MissionDetailPage() {
           <Link to={backPath} className="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-left-line fr-btn--icon-left mb-8">
             {backLabel}
           </Link>
-          <p className="text-mention-grey text-sm">Chargement…</p>
+          <p role="status" className="text-mention-grey text-sm">
+            Chargement…
+          </p>
         </main>
       </GradientBg>
     );
@@ -83,7 +85,7 @@ export default function MissionDetailPage() {
           <Link to={backPath} className="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-left-line fr-btn--icon-left mb-8">
             {backLabel}
           </Link>
-          <div className="fr-alert fr-alert--error">
+          <div role="alert" className="fr-alert fr-alert--error">
             <p>{error ?? "Mission introuvable."}</p>
           </div>
         </main>
