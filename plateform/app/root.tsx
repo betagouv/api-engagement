@@ -21,6 +21,14 @@ const apiEngagementTag = PUBLISHER_ID
   ? `(function(i,s,o,g,r,a,m){i["ApiEngagementObject"]=r;(i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments);}),(i[r].l=1*new Date());(a=s.createElement(o)),(m=s.getElementsByTagName(o)[0]);a.async=1;a.src=g;m.parentNode.insertBefore(a,m);})(window,document,"script","https://app.api-engagement.beta.gouv.fr/jstag.js","apieng");apieng("config",${serializeForInlineScript(PUBLISHER_ID)});`
   : null;
 
+// RGAA 8.5 : sert de titre aux pages d'erreur (404 notamment, où seule la route racine matche
+// et où aucun autre meta() ne fournit de <title>) et de secours pour toute route sans meta().
+export function meta({ error }: Route.MetaArgs): Route.MetaDescriptors {
+  if (!error) return [{ title: "API Engagement" }];
+  const isNotFound = isRouteErrorResponse(error) && error.status === 404;
+  return [{ title: isNotFound ? "Page introuvable — API Engagement" : "Une erreur est survenue — API Engagement" }];
+}
+
 export function Layout({ children }: { children: ReactNode }) {
   return (
     <html lang="fr" data-fr-scheme="system" suppressHydrationWarning>

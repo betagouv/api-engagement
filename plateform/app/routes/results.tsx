@@ -20,6 +20,11 @@ import { setQuizSessionId } from "~/services/tracking";
 import { trackResultsViewed } from "~/services/tracking/events";
 import { useQuizStore } from "~/stores/quiz";
 import { evalCondition } from "~/utils/conditions";
+import type { Route } from "./+types/results";
+
+export function meta(): Route.MetaDescriptors {
+  return [{ title: "Tes missions recommandées — API Engagement" }];
+}
 
 export async function clientLoader() {
   return { backHref: null };
