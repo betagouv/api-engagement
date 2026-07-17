@@ -1,9 +1,10 @@
 import { useLocation } from "react-router";
 import { useIsMobile } from "~/hooks/useIsMobile";
+import { isGlobalFooterVisible } from "~/utils/layout";
 
 export function FooterContent() {
   return (
-    <footer className="fr-footer" role="contentinfo" id="footer">
+    <footer className="fr-footer" role="contentinfo" id="footer" tabIndex={-1}>
       <div className="fr-container">
         <div className="fr-footer__body">
           <div className="fr-footer__brand fr-enlarge-link">
@@ -79,10 +80,8 @@ export function FooterContent() {
 export default function Footer() {
   const location = useLocation();
   const isMobile = useIsMobile();
-  const isQuiz = location.pathname.startsWith("/quiz");
-  const isMobileResults = isMobile && location.pathname.startsWith("/results");
 
-  if (isQuiz || isMobileResults) {
+  if (!isGlobalFooterVisible(location.pathname, isMobile)) {
     return null;
   }
 

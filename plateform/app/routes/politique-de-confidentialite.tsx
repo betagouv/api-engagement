@@ -6,7 +6,7 @@ export function meta(): Route.MetaDescriptors {
 
 export default function PolitiqueDeConfidentialite() {
   return (
-    <main>
+    <main id="contenu" tabIndex={-1}>
       <div className="fr-container max-w-3xl py-8 md:py-16">
         <h1>Politique de confidentialité de la Plateforme de l'Engagement</h1>
 

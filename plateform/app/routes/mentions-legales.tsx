@@ -6,7 +6,7 @@ export function meta(): Route.MetaDescriptors {
 
 export default function MentionsLegales() {
   return (
-    <main>
+    <main id="contenu" tabIndex={-1}>
       <div className="fr-container max-w-3xl py-8 md:py-16">
         <h1>Mentions légales</h1>
 

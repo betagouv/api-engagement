@@ -162,7 +162,7 @@ export default function QuizLayout() {
         backHref={!transitioning && !loadingResults ? (currentIndex > 0 ? steps[currentIndex - 1].route : "/") : undefined}
         onBack={handleBackNavigated}
       />
-      <main className="flex-1 bg-gradient-to-l from-blue-france-950/40 md:from-blue-france-950 to-transparent pt-10 pb-24 md:pb-10">
+      <main id="contenu" tabIndex={-1} className="flex-1 bg-gradient-to-l from-blue-france-950/40 md:from-blue-france-950 to-transparent pt-10 pb-24 md:pb-10">
         <div className="fr-container flex flex-col gap-10">
           {!transitioning && !loadingResults && (
             <div className="hidden lg:block">

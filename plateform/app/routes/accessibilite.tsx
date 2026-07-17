@@ -6,7 +6,7 @@ export function meta(): Route.MetaDescriptors {
 
 export default function Accessibilite() {
   return (
-    <main>
+    <main id="contenu" tabIndex={-1}>
       <div className="fr-container py-8 md:py-16">
         <h1>Accessibilité</h1>
       </div>

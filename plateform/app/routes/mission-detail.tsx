@@ -66,7 +66,7 @@ export default function MissionDetailPage() {
   if (loading) {
     return (
       <GradientBg>
-        <main className="mx-auto max-w-[1200px] px-5 py-10 md:px-6">
+        <main id="contenu" tabIndex={-1} className="mx-auto max-w-[1200px] px-5 py-10 md:px-6">
           <Link to={backPath} className="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-left-line fr-btn--icon-left mb-8">
             {backLabel}
           </Link>
@@ -79,7 +79,7 @@ export default function MissionDetailPage() {
   if (error || !mission) {
     return (
       <GradientBg>
-        <main className="mx-auto max-w-[1200px] px-5 py-10 md:px-6">
+        <main id="contenu" tabIndex={-1} className="mx-auto max-w-[1200px] px-5 py-10 md:px-6">
           <Link to={backPath} className="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-left-line fr-btn--icon-left mb-8">
             {backLabel}
           </Link>
@@ -94,7 +94,7 @@ export default function MissionDetailPage() {
   return (
     <>
       <GradientBg>
-        <main className="min-h-screen">
+        <main id="contenu" tabIndex={-1} className="min-h-screen">
           {mission.photo && (
             <div className="h-[216px] w-full overflow-hidden md:hidden">
               <img src={mission.photo} alt="" className="h-full w-full object-cover" />
