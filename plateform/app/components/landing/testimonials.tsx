@@ -6,6 +6,8 @@ import SpvLogo from "~/assets/images/spv-logo.png";
 
 import Highlight from "../ui/highlight";
 
+import { getScrollBehavior } from "~/utils/motion";
+
 type Testimonial = {
   id: string;
   image: string;
@@ -79,7 +81,7 @@ export default function Testimonials({ onStartQuiz }: { onStartQuiz: () => void 
   const handleScroll = (direction: "left" | "right") => {
     if (!scrollRef.current) return;
     const offset = direction === "left" ? -352 : 352;
-    scrollRef.current.scrollBy({ left: offset, behavior: "smooth" });
+    scrollRef.current.scrollBy({ left: offset, behavior: getScrollBehavior() });
   };
 
   return (
