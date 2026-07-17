@@ -23,6 +23,7 @@ import { PublisherOrganizationWithRelations } from "@/types/publisher-organizati
 import { calculateBoundingBox } from "@/utils";
 import { buildJobBoardMap, computeAddressHash, deriveMissionLocation, EVENT_TYPES, getMissionChanges, normalizeMissionAddresses } from "@/utils/mission";
 import { normalizeOptionalString, normalizeStringList } from "@/utils/normalize";
+import { optimizeMissionDiffusionRuleWhere } from "@/utils/publisher-diffusion-rule-query";
 import { publisherService } from "./publisher";
 import publisherOrganizationService from "./publisher-organization";
 
@@ -583,13 +584,15 @@ const baseInclude: MissionInclude = {
 };
 
 const MAX_SPLIT_DIFFUSION_SCOPES = 8;
-const MAX_SPLIT_PAGE_WINDOW = 10_000;
+// Une page peut être très loin dans le feed historique d'un partenaire. On lit les
+// scopes par lots pour ne pas reconstruire en mémoire `skip + limit` résultats à
+// chaque appel, tout en évitant le tri disque de la requête monolithique.
+const SPLIT_DIFFUSION_PAGE_BATCH_SIZE = 5_000;
 
 type MissionPageIndexRow = {
   id: string;
   startAt: Date | null;
   scopeIndex: number;
-  rowIndex: number;
 };
 
 const compareMissionPageIndexRows = (a: MissionPageIndexRow, b: MissionPageIndexRow) => {
@@ -605,7 +608,106 @@ const compareMissionPageIndexRows = (a: MissionPageIndexRow, b: MissionPageIndex
       return dateDiff;
     }
   }
-  return a.scopeIndex - b.scopeIndex || a.rowIndex - b.rowIndex;
+  return a.scopeIndex - b.scopeIndex;
+};
+
+type MissionPageCursor = Pick<MissionPageIndexRow, "id" | "startAt">;
+
+type MissionPageScopeStream = {
+  where: Prisma.MissionWhereInput;
+  scopeIndex: number;
+  rows: MissionPageIndexRow[];
+  rowIndex: number;
+  cursor: MissionPageCursor | null;
+  exhausted: boolean;
+};
+
+const buildMissionPageCursorWhere = (cursor: MissionPageCursor): Prisma.MissionWhereInput => {
+  // PostgreSQL trie les NULL avant les dates avec `DESC`. Une fois les NULL
+  // parcourus, il faut donc reprendre sur toutes les dates renseignées.
+  if (cursor.startAt === null) {
+    return {
+      OR: [{ startAt: null, id: { lt: cursor.id } }, { startAt: { not: null } }],
+    };
+  }
+
+  return {
+    AND: [
+      { startAt: { not: null } },
+      {
+        OR: [{ startAt: { lt: cursor.startAt } }, { startAt: cursor.startAt, id: { lt: cursor.id } }],
+      },
+    ],
+  };
+};
+
+const fetchMissionPageScopeBatch = async (stream: MissionPageScopeStream): Promise<void> => {
+  if (stream.exhausted) {
+    return;
+  }
+
+  const where = stream.cursor ? ({ AND: [stream.where, buildMissionPageCursorWhere(stream.cursor)] } satisfies Prisma.MissionWhereInput) : stream.where;
+  const rows = await prisma.mission.findMany({
+    where,
+    select: { id: true, startAt: true },
+    orderBy: [{ startAt: Prisma.SortOrder.desc }, { id: Prisma.SortOrder.desc }],
+    take: SPLIT_DIFFUSION_PAGE_BATCH_SIZE,
+  });
+
+  stream.rows = rows.map((row) => ({ ...row, scopeIndex: stream.scopeIndex }));
+  stream.rowIndex = 0;
+  stream.cursor = rows.length ? rows[rows.length - 1] : stream.cursor;
+  stream.exhausted = rows.length < SPLIT_DIFFUSION_PAGE_BATCH_SIZE;
+};
+
+const findMissionPageIdsByScopeStreams = async (scopeWheres: Prisma.MissionWhereInput[], skip: number, limit: number): Promise<string[]> => {
+  if (limit === 0) {
+    return [];
+  }
+
+  const streams: MissionPageScopeStream[] = scopeWheres.map((where, scopeIndex) => ({
+    where,
+    scopeIndex,
+    rows: [],
+    rowIndex: 0,
+    cursor: null,
+    exhausted: false,
+  }));
+
+  await Promise.all(streams.map(fetchMissionPageScopeBatch));
+
+  const pageIds: string[] = [];
+  let remainingToSkip = skip;
+
+  while (pageIds.length < limit) {
+    const stream = streams.reduce<MissionPageScopeStream | null>((best, candidate) => {
+      if (candidate.rowIndex === candidate.rows.length) {
+        return best;
+      }
+      if (!best || compareMissionPageIndexRows(candidate.rows[candidate.rowIndex], best.rows[best.rowIndex]) < 0) {
+        return candidate;
+      }
+      return best;
+    }, null);
+
+    if (!stream) {
+      break;
+    }
+
+    const row = stream.rows[stream.rowIndex];
+    stream.rowIndex += 1;
+    if (remainingToSkip > 0) {
+      remainingToSkip -= 1;
+    } else {
+      pageIds.push(row.id);
+    }
+
+    if (stream.rowIndex === stream.rows.length) {
+      await fetchMissionPageScopeBatch(stream);
+    }
+  }
+
+  return pageIds;
 };
 
 const hydrateMissionPage = async (ids: string[], select: MissionSelect | null, moderatedBy: string | null = null): Promise<MissionRecord[]> => {
@@ -634,11 +736,6 @@ const tryFindMissionsBySplitDiffusionScopes = async (
     return null;
   }
 
-  const pageWindow = filters.skip + filters.limit;
-  if (pageWindow > MAX_SPLIT_PAGE_WINDOW) {
-    return null;
-  }
-
   const diffusionFilter = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateFilter(filters.diffuseurPublisherId, filters.publisherIds);
   const hasDistinctScopes = diffusionFilter.scopes.length > 1 && new Set(diffusionFilter.scopePublisherIds).size === diffusionFilter.scopePublisherIds.length;
   if (!hasDistinctScopes || diffusionFilter.scopes.length > MAX_SPLIT_DIFFUSION_SCOPES) {
@@ -646,26 +743,18 @@ const tryFindMissionsBySplitDiffusionScopes = async (
   }
 
   const baseWhere = await buildWhere({ ...filters, diffuseurPublisherId: undefined, publisherIds: [] });
-  const scopeWheres = diffusionFilter.scopes.map((scope) => ({ AND: [baseWhere, scope] }) satisfies Prisma.MissionWhereInput);
+  // `scopes` est conservé non optimisé pour la construction de l'allowlist. Il
+  // faut fusionner ici les exclusions d'organisation soeurs : sans cela Prisma
+  // génère une jointure `publisher_organization` par règle `is_not`.
+  const scopeWheres = diffusionFilter.scopes.map(
+    (scope) =>
+      ({ AND: [baseWhere, optimizeMissionDiffusionRuleWhere(scope)] }) satisfies Prisma.MissionWhereInput
+  );
 
-  const [scopeRows, scopeCounts] = await Promise.all([
-    filters.limit === 0
-      ? Promise.resolve(scopeWheres.map(() => [] as Array<{ id: string; startAt: Date | null }>))
-      : Promise.all(
-          scopeWheres.map((where) =>
-            prisma.mission.findMany({
-              where,
-              select: { id: true, startAt: true },
-              orderBy: { startAt: Prisma.SortOrder.desc },
-              take: pageWindow,
-            })
-          )
-        ),
+  const [pageIds, scopeCounts] = await Promise.all([
+    findMissionPageIdsByScopeStreams(scopeWheres, filters.skip, filters.limit),
     Promise.all(scopeWheres.map((where) => missionRepository.count(where))),
   ]);
-
-  const orderedRows = scopeRows.flatMap((rows, scopeIndex) => rows.map((row, rowIndex) => ({ ...row, scopeIndex, rowIndex }))).sort(compareMissionPageIndexRows);
-  const pageIds = orderedRows.slice(filters.skip, filters.skip + filters.limit).map((row) => row.id);
 
   return {
     data: await hydrateMissionPage(pageIds, select, filters.moderationAcceptedFor ?? null),
