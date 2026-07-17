@@ -200,12 +200,22 @@ export default function ResultsPage() {
             {!loading && error && <p className="fr-error-text m-0! text-center!">{error}</p>}
             {!loading && !error && (
               <h2 className={`m-0! ${expanded ? "text-center!" : ""}`}>
-                <Highlight>
-                  <span className="text-blue-france-sun">
-                    {pinnedItems.length} mission{pinnedItems.length > 1 ? "s" : ""}
-                  </span>
-                </Highlight>
-                pour toi
+                <button
+                  type="button"
+                  aria-expanded={expanded}
+                  aria-controls="results-sheet-content"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleToggleSheet();
+                  }}
+                >
+                  <Highlight>
+                    <span className="text-blue-france-sun">
+                      {pinnedItems.length} mission{pinnedItems.length > 1 ? "s" : ""}
+                    </span>
+                  </Highlight>
+                  pour toi
+                </button>
               </h2>
             )}
 
@@ -217,7 +227,7 @@ export default function ResultsPage() {
             )}
           </div>
 
-          <div ref={scrollRef} className={`flex-1 overflow-y-auto overscroll-contain ${expanded ? "" : "hidden"}`}>
+          <div ref={scrollRef} id="results-sheet-content" className={`flex-1 overflow-y-auto overscroll-contain ${expanded ? "" : "hidden"}`}>
             <PinnedMissions items={pinnedItems} loading={loading} error={error} userScoringId={userScoringId} showDebug={showDebug} highlightedMissionId={activeMissionId} />
 
             {showOther && (
@@ -258,7 +268,7 @@ export default function ResultsPage() {
         <GradientBg fixed className="px-12">
           <section className="flex flex-row max-w-7xl mx-auto">
             <div className="flex flex-col flex-1 py-12">
-              <div className="flex gap-2 mb-6 flex-row items-center justify-between gap-4 px-6" onClick={handleToggleSheet}>
+              <div className="flex gap-2 mb-6 flex-row items-center justify-between gap-4 px-6">
                 {!loading && !error && (
                   <h2 className="m-0!">
                     <Highlight>
