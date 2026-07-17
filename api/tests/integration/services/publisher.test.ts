@@ -69,6 +69,22 @@ describe("publisherService diffusion sync", () => {
     expect(updated.publishers[0].publisherId).toBe(diffuseur.id);
   });
 
+  it("keeps existing partner scope roots when API rights are enabled without explicit publishers", async () => {
+    const annonceur = await createTestPublisher({ name: "Existing annonceur" });
+    const diffuseur = await createTestPublisher({
+      name: "Widget diffuseur promoted to API",
+      hasApiRights: false,
+      hasWidgetRights: true,
+      hasCampaignRights: true,
+      publishers: [{ publisherId: annonceur.id }],
+    });
+
+    const updated = await publisherService.updatePublisher(diffuseur.id, { hasApiRights: true });
+
+    expect(updated.publishers.map((publisher) => publisher.publisherId)).toEqual([annonceur.id]);
+    expect((await publisherDiffusionRuleService.findRules({ publisherId: diffuseur.id, ...DIFFUSION_SCOPE_ROOT_CRITERIA })).map((root) => root.value)).toEqual([annonceur.id]);
+  });
+
   it("rolls back publisher update when scope root synchronization fails", async () => {
     const diffuseur = await createTestPublisher({ name: "Diffuseur before rollback" });
     const initialRoots = await publisherDiffusionRuleService.findRules({ publisherId: diffuseur.id, ...DIFFUSION_SCOPE_ROOT_CRITERIA });

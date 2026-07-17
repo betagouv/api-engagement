@@ -497,7 +497,8 @@ export const publisherService = (() => {
       data.deletedAt = patch.deletedAt ?? null;
     }
 
-    const shouldSyncDiffusions = !rightsEnabled || patch.publishers !== undefined || (!existing.hasApiRights && effectiveRights.hasApiRights);
+    const shouldSyncExplicitDiffusions = !rightsEnabled || patch.publishers !== undefined;
+    const shouldBootstrapApiDiffusionRoots = !existing.hasApiRights && effectiveRights.hasApiRights && patch.publishers === undefined;
 
     const updated = await prisma.$transaction(async (tx) => {
       const publisher = await tx.publisher.update({
@@ -505,8 +506,13 @@ export const publisherService = (() => {
         data,
       });
 
-      if (shouldSyncDiffusions) {
+      if (shouldSyncExplicitDiffusions) {
         await syncDiffusionScopeRoots(tx, id, resolveExplicitDiffusionPartnerIds(id, effectiveRights.hasApiRights, normalizedPartnerIds ?? []));
+      } else if (shouldBootstrapApiDiffusionRoots) {
+        const existingRoots = await publisherDiffusionRuleService.findRules({ publisherId: id, ...DIFFUSION_SCOPE_ROOT_CRITERIA }, tx);
+        if (existingRoots.length === 0) {
+          await syncDiffusionScopeRoots(tx, id, [id]);
+        }
       }
 
       return publisher;
