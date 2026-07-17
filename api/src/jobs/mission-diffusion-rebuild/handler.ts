@@ -10,14 +10,15 @@ export interface MissionDiffusionRebuildJobResult extends JobResult {
   removed?: number;
   prunedDistributionPublishers?: number;
   durationMs?: number;
+  skippedBecauseAlreadyRunning?: boolean;
 }
 
 /*
 Reconstruit périodiquement la table `mission_diffusion` (snapshot batch du résultat d'évaluation des
 diffusion rules). Recompute complet par diff (par publisher de diffusion), idempotent et relançable ; les
 compteurs added/removed servent de métrique de drift. Aucune fraîcheur temps réel : la fenêtre de
-staleness (6h+) fait partie du contrat produit. À ordonnancer en singleton (pas de rebuilds
-concurrents) ; le diff idempotent absorbe un chevauchement éventuel sans corruption.
+staleness (6h+) fait partie du contrat produit. Un advisory lock PostgreSQL empêche les rebuilds
+concurrents ; un second run est ignoré si un rebuild est déjà en cours.
 */
 export class MissionDiffusionRebuildHandler implements BaseHandler<MissionDiffusionRebuildJobPayload, MissionDiffusionRebuildJobResult> {
   name = "Rebuild table de diffusion (mission_diffusion)";
@@ -27,6 +28,22 @@ export class MissionDiffusionRebuildHandler implements BaseHandler<MissionDiffus
     console.log(`[MissionDiffusionRebuild] Starting at ${start.toISOString()}`);
 
     const result = await missionDiffusionService.rebuildAll();
+
+    if (result.skippedBecauseAlreadyRunning) {
+      const message = "Rebuild ignoré : un autre rebuild mission_diffusion est déjà en cours";
+      console.log(`[MissionDiffusionRebuild] ${message}`);
+      return {
+        success: true,
+        timestamp: new Date(),
+        distributionPublishers: 0,
+        added: 0,
+        removed: 0,
+        prunedDistributionPublishers: 0,
+        durationMs: result.durationMs,
+        skippedBecauseAlreadyRunning: true,
+        message,
+      };
+    }
 
     for (const distributionPublisher of result.perDistributionPublisher) {
       console.log(

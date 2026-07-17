@@ -1,5 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+const pgClientMock = vi.hoisted(() => ({
+  connect: vi.fn(),
+  query: vi.fn(),
+  end: vi.fn(),
+}));
+
+vi.mock("pg", () => ({
+  Client: vi.fn(() => pgClientMock),
+}));
+
 vi.mock("@/repositories/mission", () => ({
   missionRepository: {
     findIds: vi.fn(),
@@ -44,6 +54,17 @@ const ruleServiceMock = publisherDiffusionRuleService as unknown as {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  pgClientMock.connect.mockResolvedValue(undefined);
+  pgClientMock.end.mockResolvedValue(undefined);
+  pgClientMock.query.mockImplementation(async (sql: string) => {
+    if (sql.includes("pg_try_advisory_lock")) {
+      return { rows: [{ locked: true }] };
+    }
+    if (sql.includes("pg_advisory_unlock")) {
+      return { rows: [{ unlocked: true }] };
+    }
+    return { rows: [] };
+  });
   // Exécute le callback de transaction avec un client factice (repos mockés → sa valeur importe peu).
   prismaMock.$transaction.mockImplementation(async (fn: (tx: unknown) => unknown) => fn({}));
   // Par défaut, les compteurs des écritures reflètent le nombre d'ids passés.
@@ -158,5 +179,36 @@ describe("missionDiffusionService.rebuildAll", () => {
     expect(result.prunedDistributionPublishers).toBe(3);
     expect(result.removed).toBe(3); // 0 diff par publisher + 3 purgées
     expect(result.perDistributionPublisher).toHaveLength(2);
+  });
+
+  it("acquiert et libère un advisory lock autour du rebuild complet", async () => {
+    ruleServiceMock.findDistributionPublisherIdsWithAllowlist.mockResolvedValue([]);
+    missionDiffusionRepositoryMock.deleteRowsForDistributionPublishersNotIn.mockResolvedValue(0);
+
+    await missionDiffusionService.rebuildAll();
+
+    expect(pgClientMock.connect).toHaveBeenCalledTimes(1);
+    expect(pgClientMock.query).toHaveBeenCalledWith("SELECT pg_try_advisory_lock($1, $2) AS locked", expect.any(Array));
+    expect(pgClientMock.query).toHaveBeenCalledWith("SELECT pg_advisory_unlock($1, $2)", expect.any(Array));
+    expect(pgClientMock.end).toHaveBeenCalledTimes(1);
+  });
+
+  it("ignore le rebuild complet quand un autre rebuild détient déjà le lock", async () => {
+    pgClientMock.query.mockImplementationOnce(async () => ({ rows: [{ locked: false }] }));
+
+    const result = await missionDiffusionService.rebuildAll();
+
+    expect(result).toMatchObject({
+      distributionPublishers: 0,
+      added: 0,
+      removed: 0,
+      prunedDistributionPublishers: 0,
+      perDistributionPublisher: [],
+      skippedBecauseAlreadyRunning: true,
+    });
+    expect(ruleServiceMock.findDistributionPublisherIdsWithAllowlist).not.toHaveBeenCalled();
+    expect(missionDiffusionRepositoryMock.deleteRowsForDistributionPublishersNotIn).not.toHaveBeenCalled();
+    expect(pgClientMock.query).not.toHaveBeenCalledWith("SELECT pg_advisory_unlock($1, $2)", expect.any(Array));
+    expect(pgClientMock.end).toHaveBeenCalledTimes(1);
   });
 });
