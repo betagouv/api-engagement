@@ -1,5 +1,6 @@
 import * as Sentry from "@sentry/node";
 import { Request } from "express";
+import type { Algorithm } from "jsonwebtoken";
 import passport from "passport";
 import { HeaderAPIKeyStrategy } from "passport-headerapikey";
 import { ExtractJwt, Strategy as JwtStrategy } from "passport-jwt";
@@ -12,6 +13,7 @@ import { userService } from "@/services/user";
 const userOptions = {
   jwtFromRequest: (req: Request) => ExtractJwt.fromAuthHeaderWithScheme("jwt")(req),
   secretOrKey: SECRET,
+  algorithms: ["HS256"] as Algorithm[],
 };
 
 passport.use(
