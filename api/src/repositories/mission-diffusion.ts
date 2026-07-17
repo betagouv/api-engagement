@@ -14,6 +14,34 @@ export const missionDiffusionRepository = {
     return rows.map((row) => row.missionId);
   },
 
+  async findMissionIdsPageByDistributionPublisher(
+    distributionPublisherId: string,
+    { afterMissionId, take }: { afterMissionId?: string; take: number },
+    tx?: Prisma.TransactionClient
+  ): Promise<string[]> {
+    const rows = await client(tx).missionDiffusion.findMany({
+      where: {
+        distributionPublisherId,
+        ...(afterMissionId ? { missionId: { gt: afterMissionId } } : {}),
+      },
+      orderBy: { missionId: "asc" },
+      take,
+      select: { missionId: true },
+    });
+    return rows.map((row) => row.missionId);
+  },
+
+  async findExistingMissionIdsForDistributionPublisher(distributionPublisherId: string, missionIds: string[], tx?: Prisma.TransactionClient): Promise<string[]> {
+    if (missionIds.length === 0) {
+      return [];
+    }
+    const rows = await client(tx).missionDiffusion.findMany({
+      where: { distributionPublisherId, missionId: { in: missionIds } },
+      select: { missionId: true },
+    });
+    return rows.map((row) => row.missionId);
+  },
+
   async createManyForDistributionPublisher(distributionPublisherId: string, missionIds: string[], tx?: Prisma.TransactionClient): Promise<number> {
     if (missionIds.length === 0) {
       return 0;

@@ -15,12 +15,15 @@ vi.mock("pg", () => ({
 vi.mock("@/repositories/mission", () => ({
   missionRepository: {
     findIds: vi.fn(),
+    findIdsPage: vi.fn(),
   },
 }));
 
 vi.mock("@/repositories/mission-diffusion", () => ({
   missionDiffusionRepository: {
     findMissionIdsByDistributionPublisher: vi.fn(),
+    findMissionIdsPageByDistributionPublisher: vi.fn(),
+    findExistingMissionIdsForDistributionPublisher: vi.fn(),
     createManyForDistributionPublisher: vi.fn(),
     deleteManyForDistributionPublisher: vi.fn(),
     deleteRowsForDistributionPublishersNotIn: vi.fn(),
@@ -36,16 +39,19 @@ vi.mock("@/services/publisher-diffusion-rule", () => {
   return { default: service, publisherDiffusionRuleService: service };
 });
 
-import { prisma } from "@/db/postgres";
 import { missionRepository } from "@/repositories/mission";
 import { missionDiffusionRepository } from "@/repositories/mission-diffusion";
 import { missionDiffusionService } from "@/services/mission-diffusion";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 
-const prismaMock = prisma as unknown as { $transaction: ReturnType<typeof vi.fn> };
-const missionRepositoryMock = missionRepository as unknown as { findIds: ReturnType<typeof vi.fn> };
+const missionRepositoryMock = missionRepository as unknown as {
+  findIds: ReturnType<typeof vi.fn>;
+  findIdsPage: ReturnType<typeof vi.fn>;
+};
 const missionDiffusionRepositoryMock = missionDiffusionRepository as unknown as {
   findMissionIdsByDistributionPublisher: ReturnType<typeof vi.fn>;
+  findMissionIdsPageByDistributionPublisher: ReturnType<typeof vi.fn>;
+  findExistingMissionIdsForDistributionPublisher: ReturnType<typeof vi.fn>;
   createManyForDistributionPublisher: ReturnType<typeof vi.fn>;
   deleteManyForDistributionPublisher: ReturnType<typeof vi.fn>;
   deleteRowsForDistributionPublishersNotIn: ReturnType<typeof vi.fn>;
@@ -69,9 +75,11 @@ beforeEach(() => {
     }
     return { rows: [] };
   });
-  // Exécute le callback de transaction avec un client factice (repos mockés → sa valeur importe peu).
-  prismaMock.$transaction.mockImplementation(async (fn: (tx: unknown) => unknown) => fn({}));
   // Par défaut, les compteurs des écritures reflètent le nombre d'ids passés.
+  missionRepositoryMock.findIds.mockResolvedValue([]);
+  missionRepositoryMock.findIdsPage.mockResolvedValue([]);
+  missionDiffusionRepositoryMock.findMissionIdsPageByDistributionPublisher.mockResolvedValue([]);
+  missionDiffusionRepositoryMock.findExistingMissionIdsForDistributionPublisher.mockResolvedValue([]);
   missionDiffusionRepositoryMock.createManyForDistributionPublisher.mockImplementation(async (_distributionPublisherId: string, ids: string[]) => ids.length);
   missionDiffusionRepositoryMock.deleteManyForDistributionPublisher.mockImplementation(async (_distributionPublisherId: string, ids: string[]) => ids.length);
   missionDiffusionRepositoryMock.deleteRowsForDistributionPublishersNotIn.mockResolvedValue(0);
@@ -81,20 +89,24 @@ beforeEach(() => {
 describe("missionDiffusionService.rebuildForDistributionPublisher", () => {
   it("insère uniquement les ids voulus absents et supprime les ids en trop (diff)", async () => {
     ruleServiceMock.buildMissionDiffuseurAllowlistWhere.mockResolvedValue({ publisherId: "annonceur-1" });
-    missionRepositoryMock.findIds.mockResolvedValue(["m1", "m2", "m3"]);
-    missionDiffusionRepositoryMock.findMissionIdsByDistributionPublisher.mockResolvedValue(["m2", "m4"]);
+    missionDiffusionRepositoryMock.findMissionIdsPageByDistributionPublisher.mockResolvedValue(["m2", "m4"]);
+    missionRepositoryMock.findIds.mockResolvedValue(["m2"]);
+    missionRepositoryMock.findIdsPage.mockResolvedValue(["m1", "m2", "m3"]);
+    missionDiffusionRepositoryMock.findExistingMissionIdsForDistributionPublisher.mockResolvedValue(["m2"]);
 
     const result = await missionDiffusionService.rebuildForDistributionPublisher("publisher-1");
 
-    expect(missionDiffusionRepositoryMock.createManyForDistributionPublisher).toHaveBeenCalledWith("publisher-1", ["m1", "m3"], expect.anything());
-    expect(missionDiffusionRepositoryMock.deleteManyForDistributionPublisher).toHaveBeenCalledWith("publisher-1", ["m4"], expect.anything());
+    expect(missionDiffusionRepositoryMock.createManyForDistributionPublisher).toHaveBeenCalledWith("publisher-1", ["m1", "m3"]);
+    expect(missionDiffusionRepositoryMock.deleteManyForDistributionPublisher).toHaveBeenCalledWith("publisher-1", ["m4"]);
     expect(result).toMatchObject({ distributionPublisherId: "publisher-1", desired: 3, added: 2, removed: 1 });
   });
 
   it("supprime avant d'insérer (allowlist jamais transitoirement plus permissive)", async () => {
     ruleServiceMock.buildMissionDiffuseurAllowlistWhere.mockResolvedValue({ publisherId: "annonceur-1" });
-    missionRepositoryMock.findIds.mockResolvedValue(["b1"]); // nouveau : annonceur B autorisé
-    missionDiffusionRepositoryMock.findMissionIdsByDistributionPublisher.mockResolvedValue(["a1"]); // ancien : annonceur A
+    missionDiffusionRepositoryMock.findMissionIdsPageByDistributionPublisher.mockResolvedValue(["a1"]); // ancien : annonceur A
+    missionRepositoryMock.findIds.mockResolvedValue([]);
+    missionRepositoryMock.findIdsPage.mockResolvedValue(["b1"]); // nouveau : annonceur B autorisé
+    missionDiffusionRepositoryMock.findExistingMissionIdsForDistributionPublisher.mockResolvedValue([]);
 
     await missionDiffusionService.rebuildForDistributionPublisher("publisher-1");
 
@@ -103,30 +115,37 @@ describe("missionDiffusionService.rebuildForDistributionPublisher", () => {
     expect(deleteOrder).toBeLessThan(createOrder);
   });
 
-  it("applique le delta dans une transaction", async () => {
+  it("utilise les lectures paginées plutôt que les ensembles complets", async () => {
     ruleServiceMock.buildMissionDiffuseurAllowlistWhere.mockResolvedValue({ publisherId: "annonceur-1" });
-    missionRepositoryMock.findIds.mockResolvedValue(["m1"]);
-    missionDiffusionRepositoryMock.findMissionIdsByDistributionPublisher.mockResolvedValue([]);
+    missionRepositoryMock.findIdsPage.mockResolvedValue(["m1"]);
+    missionDiffusionRepositoryMock.findMissionIdsPageByDistributionPublisher.mockResolvedValue([]);
 
     await missionDiffusionService.rebuildForDistributionPublisher("publisher-1");
 
-    expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
+    expect(missionDiffusionRepositoryMock.findMissionIdsPageByDistributionPublisher).toHaveBeenCalledWith("publisher-1", { afterMissionId: undefined, take: 5000 });
+    expect(missionRepositoryMock.findIdsPage).toHaveBeenCalledWith({ AND: [{ publisherId: "annonceur-1" }, { deletedAt: null }] }, { afterId: undefined, take: 5000 });
+    expect(missionDiffusionRepositoryMock.findMissionIdsByDistributionPublisher).not.toHaveBeenCalled();
   });
 
-  it("n'ouvre pas de transaction quand il n'y a rien à écrire", async () => {
+  it("n'écrit rien quand il n'y a rien à écrire", async () => {
     ruleServiceMock.buildMissionDiffuseurAllowlistWhere.mockResolvedValue({ publisherId: "annonceur-1" });
+    missionDiffusionRepositoryMock.findMissionIdsPageByDistributionPublisher.mockResolvedValue(["m1"]);
     missionRepositoryMock.findIds.mockResolvedValue(["m1"]);
-    missionDiffusionRepositoryMock.findMissionIdsByDistributionPublisher.mockResolvedValue(["m1"]);
+    missionRepositoryMock.findIdsPage.mockResolvedValue(["m1"]);
+    missionDiffusionRepositoryMock.findExistingMissionIdsForDistributionPublisher.mockResolvedValue(["m1"]);
 
     await missionDiffusionService.rebuildForDistributionPublisher("publisher-1");
 
-    expect(prismaMock.$transaction).not.toHaveBeenCalled();
+    expect(missionDiffusionRepositoryMock.createManyForDistributionPublisher).not.toHaveBeenCalled();
+    expect(missionDiffusionRepositoryMock.deleteManyForDistributionPublisher).not.toHaveBeenCalled();
   });
 
   it("est idempotent : n'écrit rien quand l'ensemble voulu est déjà en table", async () => {
     ruleServiceMock.buildMissionDiffuseurAllowlistWhere.mockResolvedValue({ publisherId: "annonceur-1" });
+    missionDiffusionRepositoryMock.findMissionIdsPageByDistributionPublisher.mockResolvedValue(["m1", "m2"]);
     missionRepositoryMock.findIds.mockResolvedValue(["m1", "m2"]);
-    missionDiffusionRepositoryMock.findMissionIdsByDistributionPublisher.mockResolvedValue(["m1", "m2"]);
+    missionRepositoryMock.findIdsPage.mockResolvedValue(["m1", "m2"]);
+    missionDiffusionRepositoryMock.findExistingMissionIdsForDistributionPublisher.mockResolvedValue(["m1", "m2"]);
 
     const result = await missionDiffusionService.rebuildForDistributionPublisher("publisher-1");
 
@@ -137,45 +156,50 @@ describe("missionDiffusionService.rebuildForDistributionPublisher", () => {
 
   it("ne matérialise rien quand le publisher de diffusion n'a pas d'allowlist (where null), sans interroger les missions", async () => {
     ruleServiceMock.buildMissionDiffuseurAllowlistWhere.mockResolvedValue(null);
-    missionDiffusionRepositoryMock.findMissionIdsByDistributionPublisher.mockResolvedValue([]);
+    missionDiffusionRepositoryMock.findMissionIdsPageByDistributionPublisher.mockResolvedValue([]);
 
     const result = await missionDiffusionService.rebuildForDistributionPublisher("publisher-1");
 
     expect(missionRepositoryMock.findIds).not.toHaveBeenCalled();
+    expect(missionRepositoryMock.findIdsPage).not.toHaveBeenCalled();
     expect(result).toMatchObject({ desired: 0, added: 0, removed: 0 });
   });
 
   it("purge les lignes existantes quand l'allowlist ne renvoie plus aucune mission", async () => {
     ruleServiceMock.buildMissionDiffuseurAllowlistWhere.mockResolvedValue(null);
-    missionDiffusionRepositoryMock.findMissionIdsByDistributionPublisher.mockResolvedValue(["m1", "m2"]);
+    missionDiffusionRepositoryMock.findMissionIdsPageByDistributionPublisher.mockResolvedValue(["m1", "m2"]);
 
     const result = await missionDiffusionService.rebuildForDistributionPublisher("publisher-1");
 
-    expect(missionDiffusionRepositoryMock.deleteManyForDistributionPublisher).toHaveBeenCalledWith("publisher-1", ["m1", "m2"], expect.anything());
+    expect(missionDiffusionRepositoryMock.deleteManyForDistributionPublisher).toHaveBeenCalledWith("publisher-1", ["m1", "m2"]);
     expect(result).toMatchObject({ removed: 2 });
   });
 
   it("découpe les insertions en lots (WRITE_BATCH_SIZE)", async () => {
     const ids = Array.from({ length: 5001 }, (_, index) => `m-${index}`);
     ruleServiceMock.buildMissionDiffuseurAllowlistWhere.mockResolvedValue({ publisherId: "annonceur-1" });
-    missionRepositoryMock.findIds.mockResolvedValue(ids);
-    missionDiffusionRepositoryMock.findMissionIdsByDistributionPublisher.mockResolvedValue([]);
+    missionDiffusionRepositoryMock.findMissionIdsPageByDistributionPublisher.mockResolvedValue([]);
+    missionRepositoryMock.findIdsPage.mockResolvedValueOnce(ids.slice(0, 5000)).mockResolvedValueOnce(ids.slice(5000));
+    missionDiffusionRepositoryMock.findExistingMissionIdsForDistributionPublisher.mockResolvedValue([]);
 
     const result = await missionDiffusionService.rebuildForDistributionPublisher("publisher-1");
 
+    expect(missionRepositoryMock.findIdsPage).toHaveBeenNthCalledWith(1, { AND: [{ publisherId: "annonceur-1" }, { deletedAt: null }] }, { afterId: undefined, take: 5000 });
+    expect(missionRepositoryMock.findIdsPage).toHaveBeenNthCalledWith(2, { AND: [{ publisherId: "annonceur-1" }, { deletedAt: null }] }, { afterId: "m-4999", take: 5000 });
     expect(missionDiffusionRepositoryMock.createManyForDistributionPublisher).toHaveBeenCalledTimes(2);
     expect(result.added).toBe(5001);
   });
 
   it("calcule le delta sans écrire en dry-run", async () => {
     ruleServiceMock.buildMissionDiffuseurAllowlistWhere.mockResolvedValue({ publisherId: "annonceur-1" });
-    missionRepositoryMock.findIds.mockResolvedValue(["m1", "m2", "m3"]);
-    missionDiffusionRepositoryMock.findMissionIdsByDistributionPublisher.mockResolvedValue(["m2", "m4"]);
+    missionDiffusionRepositoryMock.findMissionIdsPageByDistributionPublisher.mockResolvedValue(["m2", "m4"]);
+    missionRepositoryMock.findIds.mockResolvedValue(["m2"]);
+    missionRepositoryMock.findIdsPage.mockResolvedValue(["m1", "m2", "m3"]);
+    missionDiffusionRepositoryMock.findExistingMissionIdsForDistributionPublisher.mockResolvedValue(["m2"]);
 
     const result = await missionDiffusionService.rebuildForDistributionPublisher("publisher-1", { dryRun: true });
 
     expect(result).toMatchObject({ distributionPublisherId: "publisher-1", desired: 3, added: 2, removed: 1, dryRun: true });
-    expect(prismaMock.$transaction).not.toHaveBeenCalled();
     expect(missionDiffusionRepositoryMock.createManyForDistributionPublisher).not.toHaveBeenCalled();
     expect(missionDiffusionRepositoryMock.deleteManyForDistributionPublisher).not.toHaveBeenCalled();
   });
@@ -185,8 +209,9 @@ describe("missionDiffusionService.rebuildAll", () => {
   it("rebuild chaque publisher à allowlist puis purge les publishers retirés, et agrège les compteurs", async () => {
     ruleServiceMock.findDistributionPublisherIdsWithAllowlist.mockResolvedValue(["d1", "d2"]);
     ruleServiceMock.buildMissionDiffuseurAllowlistWhere.mockResolvedValue({ publisherId: "annonceur" });
-    missionRepositoryMock.findIds.mockImplementation(async () => ["m1"]);
-    missionDiffusionRepositoryMock.findMissionIdsByDistributionPublisher.mockResolvedValue([]);
+    missionRepositoryMock.findIdsPage.mockImplementation(async () => ["m1"]);
+    missionDiffusionRepositoryMock.findMissionIdsPageByDistributionPublisher.mockResolvedValue([]);
+    missionDiffusionRepositoryMock.findExistingMissionIdsForDistributionPublisher.mockResolvedValue([]);
     missionDiffusionRepositoryMock.deleteRowsForDistributionPublishersNotIn.mockResolvedValue(3);
 
     const result = await missionDiffusionService.rebuildAll();
@@ -214,8 +239,9 @@ describe("missionDiffusionService.rebuildAll", () => {
   it("compte la purge globale sans supprimer en dry-run", async () => {
     ruleServiceMock.findDistributionPublisherIdsWithAllowlist.mockResolvedValue(["d1"]);
     ruleServiceMock.buildMissionDiffuseurAllowlistWhere.mockResolvedValue({ publisherId: "annonceur" });
-    missionRepositoryMock.findIds.mockResolvedValue(["m1"]);
-    missionDiffusionRepositoryMock.findMissionIdsByDistributionPublisher.mockResolvedValue([]);
+    missionRepositoryMock.findIdsPage.mockResolvedValue(["m1"]);
+    missionDiffusionRepositoryMock.findMissionIdsPageByDistributionPublisher.mockResolvedValue([]);
+    missionDiffusionRepositoryMock.findExistingMissionIdsForDistributionPublisher.mockResolvedValue([]);
     missionDiffusionRepositoryMock.countRowsForDistributionPublishersNotIn.mockResolvedValue(4);
 
     const result = await missionDiffusionService.rebuildAll({ dryRun: true });
