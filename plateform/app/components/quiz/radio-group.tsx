@@ -20,8 +20,8 @@ export default function RadioGroup({ title, subtitle, onChange, options, selecte
       role="group"
       aria-describedby={error ? "radio-group-legend radio-group-messages" : "radio-group-legend"}
     >
-      <legend className="fr-h1 mb-10! ml-2!" id="radio-group-legend">
-        {title}
+      <legend className="mb-10! ml-2!" id="radio-group-legend">
+        <h1 className="fr-h1 mb-0!">{title}</h1>
         {subtitle && <span className="fr-text--lead font-normal block mt-4! mb-0!">{subtitle}</span>}
       </legend>
       <div className="fr-fieldset__content flex flex-col gap-4 max-w-sm! mx-0! ml-2!">
