@@ -435,11 +435,9 @@ model PublisherDiffusionRule {
   @@map("publisher_diffusion_rule")
 }
 
-// Snapshot batch du résultat d'évaluation des diffusion rules : une ligne (publisher de diffusion,
-// mission) = « les règles du publisher de diffusion autorisent cette mission ». Reconstruit
-// périodiquement par le job `mission-diffusion-rebuild`. N'encode QUE l'allowlist : le scope propre
-// du publisher de diffusion, le statut, le soft-delete et la restriction `publisher` restent évalués
-// en lecture (cf. mission-diffusion service).
+// Snapshot batch du périmètre de diffusion complet : une ligne (publisher de diffusion, mission)
+// encode l'allowlist explicite ou le scope propre du publisher. Le statut, le soft-delete et la
+// restriction `publisher` restent évalués en lecture (cf. mission-diffusion service).
 model MissionDiffusion {
   distributionPublisherId String @map("distribution_publisher_id")
   missionId               String @map("mission_id")

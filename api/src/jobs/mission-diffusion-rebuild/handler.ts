@@ -17,8 +17,8 @@ export interface MissionDiffusionRebuildJobResult extends JobResult {
 }
 
 /*
-Reconstruit périodiquement la table `mission_diffusion` (snapshot batch du résultat d'évaluation des
-diffusion rules). Recompute complet par diff (par publisher de diffusion), idempotent et relançable ; les
+Reconstruit périodiquement la table `mission_diffusion` (snapshot batch de l'allowlist explicite et du
+scope propre). Recompute complet par diff (par publisher de diffusion), idempotent et relançable ; les
 compteurs added/removed servent de métrique de drift. `dryRun=true` calcule les deltas sans écrire.
 Aucune fraîcheur temps réel : la fenêtre de
 staleness (6h+) fait partie du contrat produit. Un advisory lock PostgreSQL empêche les rebuilds

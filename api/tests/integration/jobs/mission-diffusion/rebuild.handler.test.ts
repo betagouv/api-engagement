@@ -10,7 +10,7 @@ import { createTestMission, createTestPublisher } from "../../../fixtures";
 /**
  * Tests d'intégration du job de rebuild de `mission_diffusion`.
  *
- * Périmètre : ce qui n'est prouvable que contre une vraie base — l'exécution du `where` d'allowlist
+ * Périmètre : ce qui n'est prouvable que contre une vraie base — l'exécution du `where` du snapshot
  * (jointures d'organisation, soft-delete, scope propre) et la cohérence table ⇄ where de référence.
  * La logique de diff et la construction du `where` sont couvertes en tests unitaires
  * (src/services/mission-diffusion, src/services/publisher-diffusion-rule).
@@ -27,11 +27,11 @@ describe("MissionDiffusionRebuildHandler", () => {
 
   beforeEach(async () => {
     diffuser = await createTestPublisher({ name: "Diffuseur" });
-    annonceur = await createTestPublisher({ name: "Annonceur" });
+    annonceur = await createTestPublisher({ name: "Annonceur", hasApiRights: false });
   });
 
-  it("matérialise l'allowlist et exclut missions propres, soft-deleted et autres publishers", async () => {
-    const autre = await createTestPublisher({ name: "Autre" });
+  it("matérialise l'allowlist et le scope propre, mais exclut soft-deleted et autres publishers", async () => {
+    const autre = await createTestPublisher({ name: "Autre", hasApiRights: false });
     await publisherDiffusionRuleService.findOrCreateScopeRoot(diffuser.id, annonceur.id);
 
     const fromAnnonceur = await createTestMission({ publisherId: annonceur.id, statusCode: "ACCEPTED", clientId: "a-1" });
@@ -43,9 +43,8 @@ describe("MissionDiffusionRebuildHandler", () => {
 
     expect(result.success).toBe(true);
     expect(result.distributionPublishers).toBe(1);
-    expect(await tableMissionIds(diffuser.id)).toEqual(new Set([fromAnnonceur.id]));
-    // Ni le scope propre, ni les missions supprimées, ni les autres publishers.
-    expect((await tableMissionIds(diffuser.id)).has(own.id)).toBe(false);
+    expect(await tableMissionIds(diffuser.id)).toEqual(new Set([fromAnnonceur.id, own.id]));
+    // Ni les missions supprimées, ni les missions des publishers hors périmètre.
     expect((await tableMissionIds(diffuser.id)).has(deleted.id)).toBe(false);
     expect((await tableMissionIds(diffuser.id)).has(other.id)).toBe(false);
   });
@@ -70,8 +69,8 @@ describe("MissionDiffusionRebuildHandler", () => {
     expect(ids.has(excluded.id)).toBe(false);
   });
 
-  it("reproduit le where de référence (buildMissionDiffuseurCandidateWhere) hors scope propre", async () => {
-    const annonceur2 = await createTestPublisher({ name: "Annonceur 2" });
+  it("reproduit le where de référence complet (buildMissionDiffuseurCandidateWhere)", async () => {
+    const annonceur2 = await createTestPublisher({ name: "Annonceur 2", hasApiRights: false });
     await publisherDiffusionRuleService.findOrCreateScopeRoot(diffuser.id, annonceur.id);
     await publisherDiffusionRuleService.createScopedRule({
       diffuseurPublisherId: diffuser.id,
@@ -91,11 +90,20 @@ describe("MissionDiffusionRebuildHandler", () => {
 
     const referenceWhere = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere(diffuser.id);
     const referenceRows = await prisma.mission.findMany({ where: { AND: [referenceWhere, { deletedAt: null }] }, select: { id: true } });
-    const ownRows = await prisma.mission.findMany({ where: { publisherId: diffuser.id, deletedAt: null }, select: { id: true } });
-    const ownIds = new Set(ownRows.map((row) => row.id));
-    const expected = new Set(referenceRows.map((row) => row.id).filter((id) => !ownIds.has(id)));
+    const expected = new Set(referenceRows.map((row) => row.id));
 
     expect(await tableMissionIds(diffuser.id)).toEqual(expected);
+  });
+
+  it("matérialise les missions propres d'un publisher API sans règle", async () => {
+    const own = await createTestMission({ publisherId: diffuser.id, statusCode: "ACCEPTED", clientId: "own-only" });
+    const fromAnotherPublisher = await createTestMission({ publisherId: annonceur.id, statusCode: "ACCEPTED", clientId: "other" });
+
+    const result = await handler.handle({});
+
+    expect(result.distributionPublishers).toBe(1);
+    expect(await tableMissionIds(diffuser.id)).toEqual(new Set([own.id]));
+    expect((await tableMissionIds(diffuser.id)).has(fromAnotherPublisher.id)).toBe(false);
   });
 
   it("est idempotent bout en bout : un second run relit l'état et n'écrit rien", async () => {

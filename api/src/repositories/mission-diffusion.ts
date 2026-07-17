@@ -63,8 +63,8 @@ export const missionDiffusionRepository = {
     return result.count;
   },
 
-  // Purge les lignes des publishers de diffusion qui ne sont plus dans l'ensemble à allowlist
-  // (règles retirées depuis le dernier rebuild). Liste vide ⇒ table vidée.
+  // Purge les lignes des publishers de diffusion sortis de la population du snapshot.
+  // Liste vide ⇒ table vidée.
   async deleteRowsForDistributionPublishersNotIn(distributionPublisherIds: string[], tx?: Prisma.TransactionClient): Promise<number> {
     const result = await client(tx).missionDiffusion.deleteMany({
       where: distributionPublisherIds.length ? { distributionPublisherId: { notIn: distributionPublisherIds } } : {},

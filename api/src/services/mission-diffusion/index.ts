@@ -63,9 +63,9 @@ const withRebuildLock = async <T>(callback: () => Promise<T>): Promise<T | null>
   }
 };
 
-type AllowlistWhere = Awaited<ReturnType<typeof publisherDiffusionRuleService.buildMissionDiffuseurAllowlistWhere>>;
+type SnapshotWhere = Awaited<ReturnType<typeof publisherDiffusionRuleService.buildMissionDiffuseurSnapshotWhere>>;
 
-const deleteStaleRowsByPages = async (distributionPublisherId: string, allowlistWhere: AllowlistWhere, options: { dryRun?: boolean }): Promise<number> => {
+const deleteStaleRowsByPages = async (distributionPublisherId: string, snapshotWhere: SnapshotWhere, options: { dryRun?: boolean }): Promise<number> => {
   let removed = 0;
   let afterMissionId: string | undefined;
 
@@ -76,7 +76,7 @@ const deleteStaleRowsByPages = async (distributionPublisherId: string, allowlist
     }
     afterMissionId = existingIds[existingIds.length - 1];
 
-    const desiredExistingIds = allowlistWhere ? await missionRepository.findIds({ AND: [allowlistWhere, { deletedAt: null }, { id: { in: existingIds } }] }) : [];
+    const desiredExistingIds = await missionRepository.findIds({ AND: [snapshotWhere, { deletedAt: null }, { id: { in: existingIds } }] });
     const desiredExistingSet = new Set(desiredExistingIds);
     const toRemove = existingIds.filter((id) => !desiredExistingSet.has(id));
 
@@ -94,7 +94,7 @@ const deleteStaleRowsByPages = async (distributionPublisherId: string, allowlist
 
 const createMissingRowsByPages = async (
   distributionPublisherId: string,
-  allowlistWhere: NonNullable<AllowlistWhere>,
+  snapshotWhere: SnapshotWhere,
   options: { dryRun?: boolean }
 ): Promise<{ desired: number; added: number }> => {
   let desired = 0;
@@ -102,7 +102,7 @@ const createMissingRowsByPages = async (
   let afterId: string | undefined;
 
   while (true) {
-    const desiredIds = await missionRepository.findIdsPage({ AND: [allowlistWhere, { deletedAt: null }] }, { afterId, take: READ_PAGE_SIZE });
+    const desiredIds = await missionRepository.findIdsPage({ AND: [snapshotWhere, { deletedAt: null }] }, { afterId, take: READ_PAGE_SIZE });
     if (desiredIds.length === 0) {
       break;
     }
@@ -128,21 +128,21 @@ const createMissingRowsByPages = async (
 export const missionDiffusionService = {
   /**
    * Reconstruit le snapshot d'un publisher de diffusion par diff paginé. Les suppressions sont
-   * appliquées avant les insertions pour éviter une allowlist transitoirement plus permissive.
+   * appliquées avant les insertions pour éviter un snapshot transitoirement plus permissif.
    */
   async rebuildForDistributionPublisher(distributionPublisherId: string, options: { dryRun?: boolean } = {}): Promise<MissionDiffusionRebuildDistributionPublisherResult> {
     const start = Date.now();
-    const allowlistWhere = await publisherDiffusionRuleService.buildMissionDiffuseurAllowlistWhere(distributionPublisherId);
+    const snapshotWhere = await publisherDiffusionRuleService.buildMissionDiffuseurSnapshotWhere(distributionPublisherId);
 
-    const removed = await deleteStaleRowsByPages(distributionPublisherId, allowlistWhere, options);
-    const { desired, added } = allowlistWhere ? await createMissingRowsByPages(distributionPublisherId, allowlistWhere, options) : { desired: 0, added: 0 };
+    const removed = await deleteStaleRowsByPages(distributionPublisherId, snapshotWhere, options);
+    const { desired, added } = await createMissingRowsByPages(distributionPublisherId, snapshotWhere, options);
 
     return { distributionPublisherId, desired, added, removed, durationMs: Date.now() - start, dryRun: options.dryRun || undefined };
   },
 
   /**
-   * Reconstruit le snapshot complet : recompute par diff pour chaque publisher à allowlist, puis
-   * purge les lignes des publishers qui n'ont plus d'allowlist. Non transactionnel entre publishers
+   * Reconstruit le snapshot complet : recompute par diff pour chaque publisher de la population, puis
+   * purge les lignes des publishers qui en sont sortis. Non transactionnel entre publishers
    * (la table reste lisible en permanence). Un advisory lock PostgreSQL empêche deux rebuilds
    * complets de tourner en parallèle.
    */
@@ -150,7 +150,7 @@ export const missionDiffusionService = {
     const start = Date.now();
 
     const result = await withRebuildLock(async () => {
-      const distributionPublisherIds = await publisherDiffusionRuleService.findDistributionPublisherIdsWithAllowlist();
+      const distributionPublisherIds = await publisherDiffusionRuleService.findDistributionPublisherIdsForSnapshot();
 
       const perDistributionPublisher: MissionDiffusionRebuildDistributionPublisherResult[] = [];
       for (const distributionPublisherId of distributionPublisherIds) {
