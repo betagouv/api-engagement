@@ -66,7 +66,13 @@ export function FooterContent() {
               </a>
             </li>
             <li className="fr-footer__bottom-item">
-              <a className="fr-footer__bottom-link" href="#">
+              <a
+                className="fr-footer__bottom-link"
+                href="https://app.api-engagement.beta.gouv.fr/public-stats"
+                target="_blank"
+                rel="noopener external"
+                title="Statistiques - nouvelle fenêtre"
+              >
                 Statistiques
               </a>
             </li>
