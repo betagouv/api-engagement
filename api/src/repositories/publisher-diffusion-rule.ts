@@ -36,4 +36,13 @@ export const publisherDiffusionRuleRepository = {
   async deleteMany(params: Prisma.PublisherDiffusionRuleDeleteManyArgs = {}, tx?: Prisma.TransactionClient): Promise<{ count: number }> {
     return client(tx).publisherDiffusionRule.deleteMany(params);
   },
+
+  async findDistinctPublisherIds(where: Prisma.PublisherDiffusionRuleWhereInput = {}, tx?: Prisma.TransactionClient): Promise<string[]> {
+    const rows = await client(tx).publisherDiffusionRule.findMany({
+      where,
+      distinct: ["publisherId"],
+      select: { publisherId: true },
+    });
+    return rows.map((row) => row.publisherId);
+  },
 };

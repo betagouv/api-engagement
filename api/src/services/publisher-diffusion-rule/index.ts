@@ -87,7 +87,13 @@ const buildScopeCondition = (rule: PublisherDiffusionRule, childrenByParentId: M
  * s'il ne figure pas dans sa propre allowlist. `publisherIds` restreint
  * optionnellement aux annonceurs demandés (param `publisher` de la route).
  */
-const buildAllowlistFilter = (rules: PublisherDiffusionRule[], diffuseurPublisherId: string, publisherIds?: string[]): MissionDiffuseurCandidateFilter => {
+const buildAllowlistFilter = (
+  rules: PublisherDiffusionRule[],
+  diffuseurPublisherId: string,
+  publisherIds?: string[],
+  options: { includeDiffuseurSelfScope?: boolean } = {}
+): MissionDiffuseurCandidateFilter => {
+  const { includeDiffuseurSelfScope = true } = options;
   const { roots, childrenByParentId } = groupRulesByParent(rules);
   const allowlistRoots = roots.filter((root) => root.field === "publisherId" && root.operator === "is");
   const diffuseurIsRequested = !publisherIds || publisherIds.includes(diffuseurPublisherId);
@@ -110,7 +116,9 @@ const buildAllowlistFilter = (rules: PublisherDiffusionRule[], diffuseurPublishe
   const candidatePublisherIds = Array.from(new Set(scopeRoots.map((root) => root.value)));
   const scopePublisherIds = scopeRoots.map((root) => root.value);
 
-  if (allowlistRoots.length > 0 && diffuseurIsRequested && !scopePublisherIds.includes(diffuseurPublisherId)) {
+  // Le scope implicite « le diffuseur voit ses propres missions » reste en lecture pour la table
+  // matérialisée (fraîcheur) : `includeDiffuseurSelfScope = false` la produit sans ce scope.
+  if (includeDiffuseurSelfScope && allowlistRoots.length > 0 && diffuseurIsRequested && !scopePublisherIds.includes(diffuseurPublisherId)) {
     scopes.push({ publisherId: diffuseurPublisherId });
     scopePublisherIds.push(diffuseurPublisherId);
   }
@@ -204,6 +212,24 @@ export const publisherDiffusionRuleService = {
     return buildAllowlistFilter(rules, publisherId, publisherIds);
   },
 
+  /**
+   * Where des missions autorisées par l'allowlist du diffuseur, SANS le scope implicite
+   * « le diffuseur voit ses propres missions » ni le bypass « aucune règle ⇒ tout ». Renvoie
+   * `null` quand le diffuseur n'a aucun scope root allowlist : dans le modèle de table matérialisée,
+   * il ne diffuse alors que ses propres missions (résolu en lecture), pas l'ensemble des missions.
+   * C'est le prédicat matérialisé dans `mission_diffusion` (cf. mission-diffusion service).
+   */
+  async buildMissionDiffuseurAllowlistWhere(publisherId: string): Promise<Prisma.MissionWhereInput | null> {
+    const rules = await findOrderedRules(publisherId);
+    const hasAllowlistRoot = rules.some((rule) => rule.combinedWithId === null && rule.field === "publisherId" && rule.operator === "is");
+    if (!hasAllowlistRoot) {
+      return null;
+    }
+
+    const { where } = buildAllowlistFilter(rules, publisherId, undefined, { includeDiffuseurSelfScope: false });
+    return Object.keys(where).length === 0 ? null : where;
+  },
+
   async canPublisherAccessMission({ publisherId, missionId }: { publisherId: string; missionId: string }): Promise<boolean> {
     const rules = await findOrderedRules(publisherId);
     if (rules.length === 0) {
@@ -231,6 +257,15 @@ export const publisherDiffusionRuleService = {
 
   isValueDiffused({ rules, field, value }: { rules: PublisherDiffusionRuleRecord[]; field: string; value: string }): boolean {
     return !rules.some((rule) => rule.field === field && EXCLUSION_OPERATORS.has(rule.operator) && ruleExcludesValue(rule, value));
+  },
+
+  /**
+   * Ids des diffuseurs ayant au moins un scope root allowlist (`publisherId`/`is`) : la population
+   * qui produit des lignes dans `mission_diffusion`. Les autres ne diffusent que leurs propres
+   * missions (résolu en lecture) et sont donc exclus du rebuild.
+   */
+  async findDiffuserPublisherIdsWithAllowlist(): Promise<string[]> {
+    return publisherDiffusionRuleRepository.findDistinctPublisherIds(DIFFUSION_SCOPE_ROOT_CRITERIA);
   },
 
   async findRules(params: PublisherDiffusionRuleFindParams = {}, tx?: Prisma.TransactionClient): Promise<PublisherDiffusionRuleRecord[]> {

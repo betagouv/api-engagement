@@ -42,6 +42,11 @@ export const missionRepository = {
     return prisma.mission.count({ where });
   },
 
+  async findIds(where: Prisma.MissionWhereInput = {}): Promise<string[]> {
+    const rows = await prisma.mission.findMany({ where, select: { id: true } });
+    return rows.map((row) => row.id);
+  },
+
   async findById(id: string): Promise<Mission | null> {
     return prisma.mission.findUnique({ where: { id } });
   },

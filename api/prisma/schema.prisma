@@ -347,6 +347,7 @@ model Publisher {
   updatedAt          DateTime     @updatedAt @map("updated_at")
 
   diffusionRules         PublisherDiffusionRule[]      @relation("PublisherDiffuseurRuleRelation")
+  missionDiffusions      MissionDiffusion[]            @relation("MissionDiffusionDiffuser")
   warnings               Warning[]                     @relation("WarningPublisherRelation")
   warningBots            WarningBot[]                  @relation("WarningBotPublisherRelation")
   imports                Import[]                      @relation("ImportPublisherRelation")
@@ -432,6 +433,22 @@ model PublisherDiffusionRule {
   @@index([publisherId], map: "publisher_diffusion_rule_publisher_id_idx")
   @@index([combinedWithId], map: "publisher_diffusion_rule_combined_with_id_idx")
   @@map("publisher_diffusion_rule")
+}
+
+// Snapshot batch du résultat d'évaluation des diffusion rules : une ligne (diffuseur, mission)
+// = « les règles du diffuseur autorisent cette mission ». Reconstruit périodiquement par le job
+// `mission-diffusion-rebuild`. N'encode QUE l'allowlist : le scope propre du diffuseur, le statut,
+// le soft-delete et la restriction `publisher` restent évalués en lecture (cf. mission-diffusion service).
+model MissionDiffusion {
+  diffuserPublisherId String @map("diffuser_publisher_id")
+  missionId           String @map("mission_id")
+
+  diffuser Publisher @relation("MissionDiffusionDiffuser", fields: [diffuserPublisherId], references: [id], onDelete: Cascade)
+  mission  Mission   @relation("MissionDiffusionMission", fields: [missionId], references: [id], onDelete: Cascade)
+
+  @@id([diffuserPublisherId, missionId], map: "mission_diffusion_pkey")
+  @@index([missionId], map: "mission_diffusion_mission_id_idx")
+  @@map("mission_diffusion")
 }
 
 model Warning {
@@ -634,6 +651,7 @@ model Mission {
   activities            MissionActivity[]
   enrichments           MissionEnrichment[]
   missionScorings       MissionScoring[]
+  missionDiffusions     MissionDiffusion[]        @relation("MissionDiffusionMission")
 
   // TODO: restore relations
   // missionEvents      MissionEvent[]
