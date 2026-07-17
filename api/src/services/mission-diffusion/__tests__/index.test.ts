@@ -7,7 +7,9 @@ const pgClientMock = vi.hoisted(() => ({
 }));
 
 vi.mock("pg", () => ({
-  Client: vi.fn(() => pgClientMock),
+  Client: vi.fn(function Client() {
+    return pgClientMock;
+  }),
 }));
 
 vi.mock("@/repositories/mission", () => ({
