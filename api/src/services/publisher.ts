@@ -143,11 +143,11 @@ export const publisherService = (() => {
       key: (publisherId) => publisherId,
     });
 
-  const resolveExplicitDiffusionPartnerIds = (publisherId: string, rightsEnabled: boolean, partnerIds: string[]): string[] => {
-    if (!rightsEnabled) {
-      return [];
+  const resolveExplicitDiffusionPartnerIds = (publisherId: string, hasApiRights: boolean, partnerIds: string[]): string[] => {
+    if (partnerIds.length) {
+      return partnerIds;
     }
-    return partnerIds.length ? partnerIds : [publisherId];
+    return hasApiRights ? [publisherId] : [];
   };
 
   const ensureDiffusionPartnersExist = async (tx: Prisma.TransactionClient, partnerIds: string[]): Promise<void> => {
@@ -251,6 +251,7 @@ export const publisherService = (() => {
   const createPublisher = async (input: PublisherCreateInput): Promise<PublisherRecord> => {
     const normalizedPartnerIds = normalizeDiffusionPartnerIds(input.publishers);
     const rightsEnabled = Boolean(input.hasApiRights || input.hasWidgetRights || input.hasCampaignRights);
+    const hasApiRights = input.hasApiRights ?? false;
     const id = input.id ?? (await generateUniquePublisherId());
 
     const data: Prisma.PublisherCreateInput = {
@@ -287,8 +288,8 @@ export const publisherService = (() => {
 
     const created = await prisma.$transaction(async (tx) => {
       const publisher = await tx.publisher.create({ data, include: defaultInclude });
-      if (rightsEnabled) {
-        await syncDiffusionScopeRoots(tx, publisher.id, resolveExplicitDiffusionPartnerIds(publisher.id, rightsEnabled, normalizedPartnerIds));
+      if (rightsEnabled && (normalizedPartnerIds.length || hasApiRights)) {
+        await syncDiffusionScopeRoots(tx, publisher.id, resolveExplicitDiffusionPartnerIds(publisher.id, hasApiRights, normalizedPartnerIds));
       }
       return publisher;
     });
@@ -496,8 +497,7 @@ export const publisherService = (() => {
       data.deletedAt = patch.deletedAt ?? null;
     }
 
-    const rightsWereEnabled = existing.hasApiRights || existing.hasWidgetRights || existing.hasCampaignRights;
-    const shouldSyncDiffusions = !rightsEnabled || patch.publishers !== undefined || (!rightsWereEnabled && rightsEnabled);
+    const shouldSyncDiffusions = !rightsEnabled || patch.publishers !== undefined || (!existing.hasApiRights && effectiveRights.hasApiRights);
 
     const updated = await prisma.$transaction(async (tx) => {
       const publisher = await tx.publisher.update({
@@ -506,7 +506,7 @@ export const publisherService = (() => {
       });
 
       if (shouldSyncDiffusions) {
-        await syncDiffusionScopeRoots(tx, id, resolveExplicitDiffusionPartnerIds(id, rightsEnabled, normalizedPartnerIds ?? []));
+        await syncDiffusionScopeRoots(tx, id, resolveExplicitDiffusionPartnerIds(id, effectiveRights.hasApiRights, normalizedPartnerIds ?? []));
       }
 
       return publisher;

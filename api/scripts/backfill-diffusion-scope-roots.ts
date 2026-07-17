@@ -11,7 +11,7 @@ type Options = {
   apiAllowlists: Map<string, string[]>;
 };
 
-type AuditReason = "api_without_roots" | "diffuser_without_roots" | "rules_without_allowlist" | "widget_missing_roots";
+type AuditReason = "api_without_roots";
 
 type AuditRow = {
   diffuserId: string;
@@ -85,10 +85,6 @@ const loadEnvironment = (envPath?: string) => {
   dotenv.config({ path: candidate, override: true, quiet: true });
 };
 
-const addReason = (reasons: Set<AuditReason>, reason: AuditReason) => {
-  reasons.add(reason);
-};
-
 const addDesiredRoots = (map: Map<string, Set<string>>, diffuserId: string, publisherIds: string[]) => {
   const roots = map.get(diffuserId) ?? new Set<string>();
   for (const publisherId of publisherIds) {
@@ -104,58 +100,24 @@ async function main() {
   const { prisma } = await import("@/db/postgres");
   const { publisherDiffusionRuleService, DIFFUSION_SCOPE_ROOT_CRITERIA } = await import("@/services/publisher-diffusion-rule");
 
-  const [diffusers, rules, activeWidgets] = await Promise.all([
+  const [apiDiffusers, rules] = await Promise.all([
     prisma.publisher.findMany({
       where: {
         deletedAt: null,
-        OR: [{ hasApiRights: true }, { hasWidgetRights: true }, { hasCampaignRights: true }],
+        hasApiRights: true,
       },
-      select: { id: true, name: true, hasApiRights: true, hasWidgetRights: true, hasCampaignRights: true },
+      select: { id: true, name: true },
       orderBy: { name: "asc" },
     }),
     prisma.publisherDiffusionRule.findMany({
       select: { publisherId: true, combinedWithId: true, field: true, operator: true, value: true },
     }),
-    prisma.widget.findMany({
-      where: { active: true, deletedAt: null },
-      select: {
-        id: true,
-        name: true,
-        fromPublisherId: true,
-        widgetPublishers: { select: { publisherId: true } },
-      },
-      orderBy: { name: "asc" },
-    }),
   ]);
 
-  const widgetFromPublisherIds = Array.from(new Set(activeWidgets.map((widget) => widget.fromPublisherId)));
-  const widgetFromPublishers = await prisma.publisher.findMany({
-    where: { id: { in: widgetFromPublisherIds } },
-    select: { id: true, name: true, hasApiRights: true, hasWidgetRights: true, hasCampaignRights: true },
-  });
-  const diffusersById = new Map([...diffusers, ...widgetFromPublishers].map((diffuser) => [diffuser.id, diffuser]));
-  const rulesByPublisherId = new Map<string, typeof rules>();
   const rootsByPublisherId = new Map<string, string[]>();
   const desiredRootsByPublisherId = new Map<string, Set<string>>();
-  const reasonsByPublisherId = new Map<string, Set<AuditReason>>();
-  const blockersByPublisherId = new Map<string, string[]>();
-
-  const reasonsFor = (publisherId: string) => {
-    const reasons = reasonsByPublisherId.get(publisherId) ?? new Set<AuditReason>();
-    reasonsByPublisherId.set(publisherId, reasons);
-    return reasons;
-  };
-  const blockersFor = (publisherId: string) => {
-    const blockers = blockersByPublisherId.get(publisherId) ?? [];
-    blockersByPublisherId.set(publisherId, blockers);
-    return blockers;
-  };
 
   for (const rule of rules) {
-    const publisherRules = rulesByPublisherId.get(rule.publisherId) ?? [];
-    publisherRules.push(rule);
-    rulesByPublisherId.set(rule.publisherId, publisherRules);
-
     if (
       rule.combinedWithId === DIFFUSION_SCOPE_ROOT_CRITERIA.combinedWithId &&
       rule.field === DIFFUSION_SCOPE_ROOT_CRITERIA.field &&
@@ -167,59 +129,26 @@ async function main() {
     }
   }
 
-  for (const widget of activeWidgets) {
-    const widgetPublisherIds = widget.widgetPublishers.map((publisher) => publisher.publisherId);
-    if (!widgetPublisherIds.length) {
-      addReason(reasonsFor(widget.fromPublisherId), "widget_missing_roots");
-      blockersFor(widget.fromPublisherId).push(`Widget ${widget.id} (${widget.name}) has no widget_publisher allowlist`);
-      continue;
-    }
-    addReason(reasonsFor(widget.fromPublisherId), "widget_missing_roots");
-    addDesiredRoots(desiredRootsByPublisherId, widget.fromPublisherId, widgetPublisherIds);
-  }
-
   for (const [diffuserId, publisherIds] of options.apiAllowlists) {
     addDesiredRoots(desiredRootsByPublisherId, diffuserId, publisherIds);
   }
 
-  for (const diffuser of diffusers) {
-    const rulesForDiffuser = rulesByPublisherId.get(diffuser.id) ?? [];
-    const rootsForDiffuser = rootsByPublisherId.get(diffuser.id) ?? [];
-    const hasRoots = rootsForDiffuser.length > 0;
-
-    if (rulesForDiffuser.length > 0 && !hasRoots) {
-      addReason(reasonsFor(diffuser.id), "rules_without_allowlist");
-      addDesiredRoots(desiredRootsByPublisherId, diffuser.id, [diffuser.id]);
-    }
-
-    if (!hasRoots) {
-      addReason(reasonsFor(diffuser.id), diffuser.hasApiRights ? "api_without_roots" : "diffuser_without_roots");
-
-      if (diffuser.hasApiRights && !options.apiAllowlists.has(diffuser.id)) {
-        blockersFor(diffuser.id).push("API diffuser without explicit --api-allowlist");
-      }
-
-      if (!diffuser.hasApiRights && !desiredRootsByPublisherId.has(diffuser.id)) {
-        addDesiredRoots(desiredRootsByPublisherId, diffuser.id, [diffuser.id]);
-      }
-    }
-  }
-
-  const auditRows: AuditRow[] = Array.from(reasonsByPublisherId.entries())
-    .map(([diffuserId, reasons]) => {
-      const diffuser = diffusersById.get(diffuserId);
-      const existingRoots = Array.from(new Set(rootsByPublisherId.get(diffuserId) ?? [])).sort();
-      const desiredRoots = Array.from(desiredRootsByPublisherId.get(diffuserId) ?? []).sort();
+  const auditRows: AuditRow[] = apiDiffusers
+    .filter((diffuser) => (rootsByPublisherId.get(diffuser.id) ?? []).length === 0)
+    .map((diffuser) => {
+      const existingRoots = Array.from(new Set(rootsByPublisherId.get(diffuser.id) ?? [])).sort();
+      const desiredRoots = Array.from(desiredRootsByPublisherId.get(diffuser.id) ?? []).sort();
       const existing = new Set(existingRoots);
       const rootsToCreate = desiredRoots.filter((publisherId) => !existing.has(publisherId));
+      const blockers = options.apiAllowlists.has(diffuser.id) ? [] : ["API diffuser without explicit --api-allowlist"];
 
       return {
-        diffuserId,
-        diffuserName: diffuser?.name ?? "Unknown publisher",
-        reasons: Array.from(reasons).sort(),
+        diffuserId: diffuser.id,
+        diffuserName: diffuser.name,
+        reasons: ["api_without_roots"] satisfies AuditReason[],
         existingRoots,
         rootsToCreate,
-        blockers: blockersByPublisherId.get(diffuserId) ?? [],
+        blockers,
       };
     })
     .filter((row) => row.rootsToCreate.length > 0 || row.blockers.length > 0)
