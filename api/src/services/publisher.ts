@@ -143,6 +143,13 @@ export const publisherService = (() => {
       key: (publisherId) => publisherId,
     });
 
+  const resolveExplicitDiffusionPartnerIds = (publisherId: string, rightsEnabled: boolean, partnerIds: string[]): string[] => {
+    if (!rightsEnabled) {
+      return [];
+    }
+    return partnerIds.length ? partnerIds : [publisherId];
+  };
+
   const ensureDiffusionPartnersExist = async (tx: Prisma.TransactionClient, partnerIds: string[]): Promise<void> => {
     const uniqueIds = Array.from(new Set(partnerIds));
     if (!uniqueIds.length) {
@@ -280,8 +287,8 @@ export const publisherService = (() => {
 
     const created = await prisma.$transaction(async (tx) => {
       const publisher = await tx.publisher.create({ data, include: defaultInclude });
-      if (rightsEnabled && normalizedPartnerIds.length) {
-        await syncDiffusionScopeRoots(tx, publisher.id, normalizedPartnerIds);
+      if (rightsEnabled) {
+        await syncDiffusionScopeRoots(tx, publisher.id, resolveExplicitDiffusionPartnerIds(publisher.id, rightsEnabled, normalizedPartnerIds));
       }
       return publisher;
     });
@@ -489,7 +496,8 @@ export const publisherService = (() => {
       data.deletedAt = patch.deletedAt ?? null;
     }
 
-    const shouldClearDiffusions = patch.publishers === null || !rightsEnabled;
+    const rightsWereEnabled = existing.hasApiRights || existing.hasWidgetRights || existing.hasCampaignRights;
+    const shouldSyncDiffusions = !rightsEnabled || patch.publishers !== undefined || (!rightsWereEnabled && rightsEnabled);
 
     const updated = await prisma.$transaction(async (tx) => {
       const publisher = await tx.publisher.update({
@@ -497,10 +505,8 @@ export const publisherService = (() => {
         data,
       });
 
-      if (shouldClearDiffusions) {
-        await syncDiffusionScopeRoots(tx, id, []);
-      } else if (normalizedPartnerIds) {
-        await syncDiffusionScopeRoots(tx, id, normalizedPartnerIds);
+      if (shouldSyncDiffusions) {
+        await syncDiffusionScopeRoots(tx, id, resolveExplicitDiffusionPartnerIds(id, rightsEnabled, normalizedPartnerIds ?? []));
       }
 
       return publisher;
