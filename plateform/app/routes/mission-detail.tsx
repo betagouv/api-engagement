@@ -4,7 +4,7 @@ import { Link, useLocation, useParams, useSearchParams } from "react-router";
 import type { Route } from "./+types/mission-detail";
 
 export function meta(): Route.MetaDescriptors {
-  return [{ title: "Détail de la mission — API Engagement" }];
+  return [{ title: "Détail de la mission — Trouve ta mission" }];
 }
 
 export async function clientLoader({ params }: { params: { userScoringId?: string } }) {
