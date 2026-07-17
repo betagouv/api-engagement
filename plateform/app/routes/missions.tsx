@@ -216,7 +216,7 @@ export default function MissionsPage() {
               <h1 className="fr-h1 m-0!">Trouve ta mission</h1>
               <MissionFiltersTrigger filters={filterDefs} onChange={handleFilterChange} />
             </div>
-            <p className="fr-text--lead hidden md:block">
+            <p role="status" className="fr-text--lead hidden md:block">
               {loading && total === 0 ? "Chargement…" : `${total.toLocaleString("fr-FR")} mission${total > 1 ? "s" : ""} disponible${total > 1 ? "s" : ""}`}
             </p>
             <MissionFiltersBar filters={filterDefs} onChange={handleFilterChange} />
@@ -224,15 +224,19 @@ export default function MissionsPage() {
 
           <div className="fr-container my-4 md:my-8">
             {error && (
-              <div className="fr-alert fr-alert--error fr-mb-4w">
+              <div role="alert" className="fr-alert fr-alert--error fr-mb-4w">
                 <p>Erreur lors du chargement des missions : {error}</p>
               </div>
             )}
 
-            {loading && items.length === 0 && <p className="fr-text--sm">Chargement des missions…</p>}
+            {loading && items.length === 0 && (
+              <p role="status" className="fr-text--sm">
+                Chargement des missions…
+              </p>
+            )}
 
             {!loading && !error && items.length === 0 && (
-              <div className="fr-alert fr-alert--info">
+              <div role="status" className="fr-alert fr-alert--info">
                 <p>Aucune mission ne correspond à ces filtres.</p>
               </div>
             )}

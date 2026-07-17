@@ -74,7 +74,7 @@ export default function EmailMissionsModal({ userScoringId, open: controlledOpen
       <Modal open={open} onClose={handleClose} title="Reçois tes missions par email" beforeTitle={<MailIllustration className="mx-auto mb-6 h-[100px]" />} className="">
         {success ? (
           <div className="flex flex-col items-center gap-4 py-4 text-center">
-            <div className="fr-alert fr-alert--success w-full">
+            <div role="status" className="fr-alert fr-alert--success w-full">
               <p>Tes missions ont bien été envoyées ! Vérifie ta boîte mail.</p>
             </div>
             <button type="button" onClick={handleClose} className="fr-btn fr-btn--secondary w-full! justify-center!">
@@ -106,7 +106,7 @@ export default function EmailMissionsModal({ userScoringId, open: controlledOpen
                   placeholder="nom@email.fr"
                 />
                 {error && (
-                  <div className="fr-messages-group" id={`${emailId}-error`} aria-live="assertive">
+                  <div className="fr-messages-group" id={`${emailId}-error`} role="alert">
                     <p className="fr-message fr-message--error">{error}</p>
                   </div>
                 )}

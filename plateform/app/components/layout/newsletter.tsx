@@ -59,7 +59,7 @@ export default function Newsletter({
 
         <div className="flex-1 w-full md:w-auto">
           {success ? (
-            <div className="fr-alert fr-alert--success max-w-md">
+            <div role="status" className="fr-alert fr-alert--success max-w-md">
               <p>Ton inscription est bien prise en compte. À très vite dans ta boîte mail !</p>
             </div>
           ) : (
@@ -81,7 +81,7 @@ export default function Newsletter({
                 />
                 <p className="fr-hint-text fr-mt-1w">Champ obligatoire</p>
                 {error && (
-                  <div className="fr-messages-group" id="newsletter-email-error" aria-live="assertive">
+                  <div className="fr-messages-group" id="newsletter-email-error" role="alert">
                     <p className="fr-message fr-message--error">{error}</p>
                   </div>
                 )}
