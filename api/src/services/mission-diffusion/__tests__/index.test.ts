@@ -23,11 +23,13 @@ vi.mock("@/services/publisher-diffusion-rule", () => {
   return { default: service, publisherDiffusionRuleService: service };
 });
 
+import { prisma } from "@/db/postgres";
 import { missionRepository } from "@/repositories/mission";
 import { missionDiffusionRepository } from "@/repositories/mission-diffusion";
 import { missionDiffusionService } from "@/services/mission-diffusion";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 
+const prismaMock = prisma as unknown as { $transaction: ReturnType<typeof vi.fn> };
 const missionRepositoryMock = missionRepository as unknown as { findIds: ReturnType<typeof vi.fn> };
 const missionDiffusionRepositoryMock = missionDiffusionRepository as unknown as {
   findMissionIdsByDiffuser: ReturnType<typeof vi.fn>;
@@ -42,6 +44,8 @@ const ruleServiceMock = publisherDiffusionRuleService as unknown as {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  // Exécute le callback de transaction avec un client factice (repos mockés → sa valeur importe peu).
+  prismaMock.$transaction.mockImplementation(async (fn: (tx: unknown) => unknown) => fn({}));
   // Par défaut, les compteurs des écritures reflètent le nombre d'ids passés.
   missionDiffusionRepositoryMock.createManyForDiffuser.mockImplementation(async (_diffuserId: string, ids: string[]) => ids.length);
   missionDiffusionRepositoryMock.deleteManyForDiffuser.mockImplementation(async (_diffuserId: string, ids: string[]) => ids.length);
@@ -56,9 +60,41 @@ describe("missionDiffusionService.rebuildForDiffuser", () => {
 
     const result = await missionDiffusionService.rebuildForDiffuser("diffuseur-1");
 
-    expect(missionDiffusionRepositoryMock.createManyForDiffuser).toHaveBeenCalledWith("diffuseur-1", ["m1", "m3"]);
-    expect(missionDiffusionRepositoryMock.deleteManyForDiffuser).toHaveBeenCalledWith("diffuseur-1", ["m4"]);
+    expect(missionDiffusionRepositoryMock.createManyForDiffuser).toHaveBeenCalledWith("diffuseur-1", ["m1", "m3"], expect.anything());
+    expect(missionDiffusionRepositoryMock.deleteManyForDiffuser).toHaveBeenCalledWith("diffuseur-1", ["m4"], expect.anything());
     expect(result).toMatchObject({ diffuserPublisherId: "diffuseur-1", desired: 3, added: 2, removed: 1 });
+  });
+
+  it("supprime avant d'insérer (allowlist jamais transitoirement plus permissive)", async () => {
+    ruleServiceMock.buildMissionDiffuseurAllowlistWhere.mockResolvedValue({ publisherId: "annonceur-1" });
+    missionRepositoryMock.findIds.mockResolvedValue(["b1"]); // nouveau : annonceur B autorisé
+    missionDiffusionRepositoryMock.findMissionIdsByDiffuser.mockResolvedValue(["a1"]); // ancien : annonceur A
+
+    await missionDiffusionService.rebuildForDiffuser("diffuseur-1");
+
+    const deleteOrder = missionDiffusionRepositoryMock.deleteManyForDiffuser.mock.invocationCallOrder[0];
+    const createOrder = missionDiffusionRepositoryMock.createManyForDiffuser.mock.invocationCallOrder[0];
+    expect(deleteOrder).toBeLessThan(createOrder);
+  });
+
+  it("applique le delta dans une transaction", async () => {
+    ruleServiceMock.buildMissionDiffuseurAllowlistWhere.mockResolvedValue({ publisherId: "annonceur-1" });
+    missionRepositoryMock.findIds.mockResolvedValue(["m1"]);
+    missionDiffusionRepositoryMock.findMissionIdsByDiffuser.mockResolvedValue([]);
+
+    await missionDiffusionService.rebuildForDiffuser("diffuseur-1");
+
+    expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
+  });
+
+  it("n'ouvre pas de transaction quand il n'y a rien à écrire", async () => {
+    ruleServiceMock.buildMissionDiffuseurAllowlistWhere.mockResolvedValue({ publisherId: "annonceur-1" });
+    missionRepositoryMock.findIds.mockResolvedValue(["m1"]);
+    missionDiffusionRepositoryMock.findMissionIdsByDiffuser.mockResolvedValue(["m1"]);
+
+    await missionDiffusionService.rebuildForDiffuser("diffuseur-1");
+
+    expect(prismaMock.$transaction).not.toHaveBeenCalled();
   });
 
   it("est idempotent : n'écrit rien quand l'ensemble voulu est déjà en table", async () => {
@@ -89,7 +125,7 @@ describe("missionDiffusionService.rebuildForDiffuser", () => {
 
     const result = await missionDiffusionService.rebuildForDiffuser("diffuseur-1");
 
-    expect(missionDiffusionRepositoryMock.deleteManyForDiffuser).toHaveBeenCalledWith("diffuseur-1", ["m1", "m2"]);
+    expect(missionDiffusionRepositoryMock.deleteManyForDiffuser).toHaveBeenCalledWith("diffuseur-1", ["m1", "m2"], expect.anything());
     expect(result).toMatchObject({ removed: 2 });
   });
 

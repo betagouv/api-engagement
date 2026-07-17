@@ -1,3 +1,4 @@
+import { prisma } from "@/db/postgres";
 import { missionRepository } from "@/repositories/mission";
 import { missionDiffusionRepository } from "@/repositories/mission-diffusion";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
@@ -44,8 +45,8 @@ const listDesiredMissionIds = async (diffuserPublisherId: string): Promise<strin
 export const missionDiffusionService = {
   /**
    * Reconstruit le snapshot d'un diffuseur par diff : calcule l'ensemble d'ids voulu depuis les
-   * règles, le compare à l'existant en table, applique les écritures par lots. Idempotent :
-   * un second appel sans changement écrit 0 ligne.
+   * règles, le compare à l'existant en table, applique le delta dans une transaction. Idempotent :
+   * un second appel sans changement écrit 0 ligne (et n'ouvre pas de transaction).
    */
   async rebuildForDiffuser(diffuserPublisherId: string): Promise<MissionDiffusionRebuildDiffuserResult> {
     const start = Date.now();
@@ -58,13 +59,21 @@ export const missionDiffusionService = {
     const toRemove = existingIds.filter((id) => !desiredSet.has(id));
 
     let added = 0;
-    for (const batch of chunk(toAdd, WRITE_BATCH_SIZE)) {
-      added += await missionDiffusionRepository.createManyForDiffuser(diffuserPublisherId, batch);
-    }
-
     let removed = 0;
-    for (const batch of chunk(toRemove, WRITE_BATCH_SIZE)) {
-      removed += await missionDiffusionRepository.deleteManyForDiffuser(diffuserPublisherId, batch);
+
+    if (toAdd.length > 0 || toRemove.length > 0) {
+      // La table est une allowlist de lecture : le delta d'un diffuseur est appliqué dans une seule
+      // transaction (suppressions avant insertions) pour qu'aucune lecture ne voie un état transitoire
+      // plus permissif que l'ancien ou le nouveau. La transaction ne porte que sur le delta (pas de
+      // réécriture du stock), reste courte et n'impacte pas les autres diffuseurs.
+      await prisma.$transaction(async (tx) => {
+        for (const batch of chunk(toRemove, WRITE_BATCH_SIZE)) {
+          removed += await missionDiffusionRepository.deleteManyForDiffuser(diffuserPublisherId, batch, tx);
+        }
+        for (const batch of chunk(toAdd, WRITE_BATCH_SIZE)) {
+          added += await missionDiffusionRepository.createManyForDiffuser(diffuserPublisherId, batch, tx);
+        }
+      });
     }
 
     return { diffuserPublisherId, desired: desiredIds.length, added, removed, durationMs: Date.now() - start };

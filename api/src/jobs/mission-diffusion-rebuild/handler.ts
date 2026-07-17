@@ -22,7 +22,7 @@ concurrents) ; le diff idempotent absorbe un chevauchement éventuel sans corrup
 export class MissionDiffusionRebuildHandler implements BaseHandler<MissionDiffusionRebuildJobPayload, MissionDiffusionRebuildJobResult> {
   name = "Rebuild table de diffusion (mission_diffusion)";
 
-  async handle(): Promise<MissionDiffusionRebuildJobResult> {
+  async handle(_payload: MissionDiffusionRebuildJobPayload = {}): Promise<MissionDiffusionRebuildJobResult> {
     const start = new Date();
     console.log(`[MissionDiffusionRebuild] Starting at ${start.toISOString()}`);
 
