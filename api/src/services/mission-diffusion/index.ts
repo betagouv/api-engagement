@@ -7,8 +7,8 @@ import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 // paramètres liés, sans transaction longue globale.
 const WRITE_BATCH_SIZE = 5000;
 
-export type MissionDiffusionRebuildDiffuserResult = {
-  diffuserPublisherId: string;
+export type MissionDiffusionRebuildDistributionPublisherResult = {
+  distributionPublisherId: string;
   desired: number;
   added: number;
   removed: number;
@@ -16,12 +16,12 @@ export type MissionDiffusionRebuildDiffuserResult = {
 };
 
 export type MissionDiffusionRebuildResult = {
-  diffusers: number;
+  distributionPublishers: number;
   added: number;
   removed: number;
-  prunedDiffusers: number;
+  prunedDistributionPublishers: number;
   durationMs: number;
-  perDiffuser: MissionDiffusionRebuildDiffuserResult[];
+  perDistributionPublisher: MissionDiffusionRebuildDistributionPublisherResult[];
 };
 
 const chunk = <T>(items: T[], size: number): T[][] => {
@@ -32,10 +32,10 @@ const chunk = <T>(items: T[], size: number): T[][] => {
   return batches;
 };
 
-// Ids des missions non supprimées autorisées par l'allowlist du diffuseur (sans scope propre ni
+// Ids des missions non supprimées autorisées par l'allowlist du publisher de diffusion (sans scope propre ni
 // bypass : cf. buildMissionDiffuseurAllowlistWhere). Sans allowlist ⇒ aucune ligne matérialisée.
-const listDesiredMissionIds = async (diffuserPublisherId: string): Promise<string[]> => {
-  const allowlistWhere = await publisherDiffusionRuleService.buildMissionDiffuseurAllowlistWhere(diffuserPublisherId);
+const listDesiredMissionIds = async (distributionPublisherId: string): Promise<string[]> => {
+  const allowlistWhere = await publisherDiffusionRuleService.buildMissionDiffuseurAllowlistWhere(distributionPublisherId);
   if (!allowlistWhere) {
     return [];
   }
@@ -44,14 +44,17 @@ const listDesiredMissionIds = async (diffuserPublisherId: string): Promise<strin
 
 export const missionDiffusionService = {
   /**
-   * Reconstruit le snapshot d'un diffuseur par diff : calcule l'ensemble d'ids voulu depuis les
+   * Reconstruit le snapshot d'un publisher de diffusion par diff : calcule l'ensemble d'ids voulu depuis les
    * règles, le compare à l'existant en table, applique le delta dans une transaction. Idempotent :
    * un second appel sans changement écrit 0 ligne (et n'ouvre pas de transaction).
    */
-  async rebuildForDiffuser(diffuserPublisherId: string): Promise<MissionDiffusionRebuildDiffuserResult> {
+  async rebuildForDistributionPublisher(distributionPublisherId: string): Promise<MissionDiffusionRebuildDistributionPublisherResult> {
     const start = Date.now();
 
-    const [desiredIds, existingIds] = await Promise.all([listDesiredMissionIds(diffuserPublisherId), missionDiffusionRepository.findMissionIdsByDiffuser(diffuserPublisherId)]);
+    const [desiredIds, existingIds] = await Promise.all([
+      listDesiredMissionIds(distributionPublisherId),
+      missionDiffusionRepository.findMissionIdsByDistributionPublisher(distributionPublisherId),
+    ]);
 
     const desiredSet = new Set(desiredIds);
     const existingSet = new Set(existingIds);
@@ -62,26 +65,26 @@ export const missionDiffusionService = {
     let removed = 0;
 
     if (toAdd.length > 0 || toRemove.length > 0) {
-      // La table est une allowlist de lecture : le delta d'un diffuseur est appliqué dans une seule
+      // La table est une allowlist de lecture : le delta d'un publisher de diffusion est appliqué dans une seule
       // transaction (suppressions avant insertions) pour qu'aucune lecture ne voie un état transitoire
       // plus permissif que l'ancien ou le nouveau. La transaction ne porte que sur le delta (pas de
-      // réécriture du stock), reste courte et n'impacte pas les autres diffuseurs.
+      // réécriture du stock), reste courte et n'impacte pas les autres publishers de diffusion.
       await prisma.$transaction(async (tx) => {
         for (const batch of chunk(toRemove, WRITE_BATCH_SIZE)) {
-          removed += await missionDiffusionRepository.deleteManyForDiffuser(diffuserPublisherId, batch, tx);
+          removed += await missionDiffusionRepository.deleteManyForDistributionPublisher(distributionPublisherId, batch, tx);
         }
         for (const batch of chunk(toAdd, WRITE_BATCH_SIZE)) {
-          added += await missionDiffusionRepository.createManyForDiffuser(diffuserPublisherId, batch, tx);
+          added += await missionDiffusionRepository.createManyForDistributionPublisher(distributionPublisherId, batch, tx);
         }
       });
     }
 
-    return { diffuserPublisherId, desired: desiredIds.length, added, removed, durationMs: Date.now() - start };
+    return { distributionPublisherId, desired: desiredIds.length, added, removed, durationMs: Date.now() - start };
   },
 
   /**
-   * Reconstruit le snapshot complet : recompute par diff pour chaque diffuseur à allowlist, puis
-   * purge les lignes des diffuseurs qui n'ont plus d'allowlist. Non transactionnel entre diffuseurs
+   * Reconstruit le snapshot complet : recompute par diff pour chaque publisher à allowlist, puis
+   * purge les lignes des publishers qui n'ont plus d'allowlist. Non transactionnel entre publishers
    * (la table reste lisible en permanence). Idempotent : la protection contre deux rebuilds
    * concurrents est assurée par l'ordonnancement singleton du job (un chevauchement éventuel
    * converge sans corruption grâce au diff).
@@ -89,22 +92,22 @@ export const missionDiffusionService = {
   async rebuildAll(): Promise<MissionDiffusionRebuildResult> {
     const start = Date.now();
 
-    const diffuserIds = await publisherDiffusionRuleService.findDiffuserPublisherIdsWithAllowlist();
+    const distributionPublisherIds = await publisherDiffusionRuleService.findDistributionPublisherIdsWithAllowlist();
 
-    const perDiffuser: MissionDiffusionRebuildDiffuserResult[] = [];
-    for (const diffuserPublisherId of diffuserIds) {
-      perDiffuser.push(await this.rebuildForDiffuser(diffuserPublisherId));
+    const perDistributionPublisher: MissionDiffusionRebuildDistributionPublisherResult[] = [];
+    for (const distributionPublisherId of distributionPublisherIds) {
+      perDistributionPublisher.push(await this.rebuildForDistributionPublisher(distributionPublisherId));
     }
 
-    const prunedDiffusers = await missionDiffusionRepository.deleteRowsForDiffusersNotIn(diffuserIds);
+    const prunedDistributionPublishers = await missionDiffusionRepository.deleteRowsForDistributionPublishersNotIn(distributionPublisherIds);
 
     return {
-      diffusers: perDiffuser.length,
-      added: perDiffuser.reduce((sum, result) => sum + result.added, 0),
-      removed: perDiffuser.reduce((sum, result) => sum + result.removed, 0) + prunedDiffusers,
-      prunedDiffusers,
+      distributionPublishers: perDistributionPublisher.length,
+      added: perDistributionPublisher.reduce((sum, result) => sum + result.added, 0),
+      removed: perDistributionPublisher.reduce((sum, result) => sum + result.removed, 0) + prunedDistributionPublishers,
+      prunedDistributionPublishers,
       durationMs: Date.now() - start,
-      perDiffuser,
+      perDistributionPublisher,
     };
   },
 };

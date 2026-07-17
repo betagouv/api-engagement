@@ -260,11 +260,11 @@ export const publisherDiffusionRuleService = {
   },
 
   /**
-   * Ids des diffuseurs ayant au moins un scope root allowlist (`publisherId`/`is`) : la population
+   * Ids des publishers de diffusion ayant au moins un scope root allowlist (`publisherId`/`is`) : la population
    * qui produit des lignes dans `mission_diffusion`. Les autres ne diffusent que leurs propres
    * missions (résolu en lecture) et sont donc exclus du rebuild.
    */
-  async findDiffuserPublisherIdsWithAllowlist(): Promise<string[]> {
+  async findDistributionPublisherIdsWithAllowlist(): Promise<string[]> {
     return publisherDiffusionRuleRepository.findDistinctPublisherIds(DIFFUSION_SCOPE_ROOT_CRITERIA);
   },
 

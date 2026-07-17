@@ -18,7 +18,8 @@ import { createTestMission, createTestPublisher } from "../../../fixtures";
 
 const handler = new MissionDiffusionRebuildHandler();
 
-const tableMissionIds = async (diffuserId: string): Promise<Set<string>> => new Set(await missionDiffusionRepository.findMissionIdsByDiffuser(diffuserId));
+const tableMissionIds = async (distributionPublisherId: string): Promise<Set<string>> =>
+  new Set(await missionDiffusionRepository.findMissionIdsByDistributionPublisher(distributionPublisherId));
 
 describe("MissionDiffusionRebuildHandler", () => {
   let diffuser: Awaited<ReturnType<typeof createTestPublisher>>;
@@ -41,7 +42,7 @@ describe("MissionDiffusionRebuildHandler", () => {
     const result = await handler.handle({});
 
     expect(result.success).toBe(true);
-    expect(result.diffusers).toBe(1);
+    expect(result.distributionPublishers).toBe(1);
     expect(await tableMissionIds(diffuser.id)).toEqual(new Set([fromAnnonceur.id]));
     // Ni le scope propre, ni les missions supprimées, ni les autres publishers.
     expect((await tableMissionIds(diffuser.id)).has(own.id)).toBe(false);

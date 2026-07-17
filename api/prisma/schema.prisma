@@ -347,7 +347,7 @@ model Publisher {
   updatedAt          DateTime     @updatedAt @map("updated_at")
 
   diffusionRules         PublisherDiffusionRule[]      @relation("PublisherDiffuseurRuleRelation")
-  missionDiffusions      MissionDiffusion[]            @relation("MissionDiffusionDiffuser")
+  missionDiffusions      MissionDiffusion[]            @relation("MissionDiffusionDistributionPublisher")
   warnings               Warning[]                     @relation("WarningPublisherRelation")
   warningBots            WarningBot[]                  @relation("WarningBotPublisherRelation")
   imports                Import[]                      @relation("ImportPublisherRelation")
@@ -435,18 +435,19 @@ model PublisherDiffusionRule {
   @@map("publisher_diffusion_rule")
 }
 
-// Snapshot batch du résultat d'évaluation des diffusion rules : une ligne (diffuseur, mission)
-// = « les règles du diffuseur autorisent cette mission ». Reconstruit périodiquement par le job
-// `mission-diffusion-rebuild`. N'encode QUE l'allowlist : le scope propre du diffuseur, le statut,
-// le soft-delete et la restriction `publisher` restent évalués en lecture (cf. mission-diffusion service).
+// Snapshot batch du résultat d'évaluation des diffusion rules : une ligne (publisher de diffusion,
+// mission) = « les règles du publisher de diffusion autorisent cette mission ». Reconstruit
+// périodiquement par le job `mission-diffusion-rebuild`. N'encode QUE l'allowlist : le scope propre
+// du publisher de diffusion, le statut, le soft-delete et la restriction `publisher` restent évalués
+// en lecture (cf. mission-diffusion service).
 model MissionDiffusion {
-  diffuserPublisherId String @map("diffuser_publisher_id")
-  missionId           String @map("mission_id")
+  distributionPublisherId String @map("distribution_publisher_id")
+  missionId               String @map("mission_id")
 
-  diffuser Publisher @relation("MissionDiffusionDiffuser", fields: [diffuserPublisherId], references: [id], onDelete: Cascade)
-  mission  Mission   @relation("MissionDiffusionMission", fields: [missionId], references: [id], onDelete: Cascade)
+  distributionPublisher Publisher @relation("MissionDiffusionDistributionPublisher", fields: [distributionPublisherId], references: [id], onDelete: Cascade)
+  mission               Mission   @relation("MissionDiffusionMission", fields: [missionId], references: [id], onDelete: Cascade)
 
-  @@id([diffuserPublisherId, missionId], map: "mission_diffusion_pkey")
+  @@id([distributionPublisherId, missionId], map: "mission_diffusion_pkey")
   @@index([missionId], map: "mission_diffusion_mission_id_idx")
   @@map("mission_diffusion")
 }

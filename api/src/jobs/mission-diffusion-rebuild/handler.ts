@@ -5,16 +5,16 @@ import { missionDiffusionService } from "@/services/mission-diffusion";
 export interface MissionDiffusionRebuildJobPayload {}
 
 export interface MissionDiffusionRebuildJobResult extends JobResult {
-  diffusers?: number;
+  distributionPublishers?: number;
   added?: number;
   removed?: number;
-  prunedDiffusers?: number;
+  prunedDistributionPublishers?: number;
   durationMs?: number;
 }
 
 /*
 Reconstruit périodiquement la table `mission_diffusion` (snapshot batch du résultat d'évaluation des
-diffusion rules). Recompute complet par diff (par diffuseur), idempotent et relançable ; les
+diffusion rules). Recompute complet par diff (par publisher de diffusion), idempotent et relançable ; les
 compteurs added/removed servent de métrique de drift. Aucune fraîcheur temps réel : la fenêtre de
 staleness (6h+) fait partie du contrat produit. À ordonnancer en singleton (pas de rebuilds
 concurrents) ; le diff idempotent absorbe un chevauchement éventuel sans corruption.
@@ -28,25 +28,25 @@ export class MissionDiffusionRebuildHandler implements BaseHandler<MissionDiffus
 
     const result = await missionDiffusionService.rebuildAll();
 
-    for (const diffuser of result.perDiffuser) {
+    for (const distributionPublisher of result.perDistributionPublisher) {
       console.log(
-        `[MissionDiffusionRebuild] diffuser=${diffuser.diffuserPublisherId} desired=${diffuser.desired} added=${diffuser.added} removed=${diffuser.removed} in ${diffuser.durationMs}ms`
+        `[MissionDiffusionRebuild] distributionPublisher=${distributionPublisher.distributionPublisherId} desired=${distributionPublisher.desired} added=${distributionPublisher.added} removed=${distributionPublisher.removed} in ${distributionPublisher.durationMs}ms`
       );
     }
 
     console.log(
-      `[MissionDiffusionRebuild] Done: ${result.diffusers} diffusers, +${result.added} / -${result.removed} lignes (dont ${result.prunedDiffusers} purgées), en ${result.durationMs}ms`
+      `[MissionDiffusionRebuild] Done: ${result.distributionPublishers} distribution publishers, +${result.added} / -${result.removed} lignes (dont ${result.prunedDistributionPublishers} purgées), en ${result.durationMs}ms`
     );
 
     return {
       success: true,
       timestamp: new Date(),
-      diffusers: result.diffusers,
+      distributionPublishers: result.distributionPublishers,
       added: result.added,
       removed: result.removed,
-      prunedDiffusers: result.prunedDiffusers,
+      prunedDistributionPublishers: result.prunedDistributionPublishers,
       durationMs: result.durationMs,
-      message: `${result.diffusers} diffuseurs rebuild : +${result.added} / -${result.removed} lignes en ${result.durationMs}ms`,
+      message: `${result.distributionPublishers} publishers de diffusion rebuild : +${result.added} / -${result.removed} lignes en ${result.durationMs}ms`,
     };
   }
 }
