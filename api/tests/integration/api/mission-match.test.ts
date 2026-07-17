@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { createTestMission, createTestMissionEnrichment, createTestMissionScoring, createTestPublisher } from "../../fixtures";
 import { createTestApp } from "../../testApp";
 
-const app = createTestApp();
+const app = createTestApp({ syncMissionDiffusion: true });
 
 let apiKey: string;
 let publisherId: string;

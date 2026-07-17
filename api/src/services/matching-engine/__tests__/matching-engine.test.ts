@@ -6,18 +6,10 @@ vi.mock("@/repositories/mission-matching-result", () => ({
   },
 }));
 
-vi.mock("@/services/publisher-diffusion-rule", () => ({
-  default: {
-    buildMissionPublisherDiffusionRuleSql: vi.fn(),
-  },
-}));
-
-import { Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
 import { missionMatchingResultRepository } from "@/repositories/mission-matching-result";
 import { matchingEngineService } from "@/services/matching-engine";
 import { CURRENT_MATCHING_ENGINE_VERSION } from "@/services/matching-engine/config";
-import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 
 const prismaMock = prisma as unknown as {
   $queryRaw: ReturnType<typeof vi.fn>;
@@ -25,10 +17,6 @@ const prismaMock = prisma as unknown as {
 
 const missionMatchingResultRepositoryMock = missionMatchingResultRepository as unknown as {
   createForUserScoringVersion: ReturnType<typeof vi.fn>;
-};
-
-const publisherDiffusionRuleServiceMock = publisherDiffusionRuleService as unknown as {
-  buildMissionPublisherDiffusionRuleSql: ReturnType<typeof vi.fn>;
 };
 
 const getSqlText = (query: unknown): string => {
@@ -59,7 +47,6 @@ describe("matchingEngineService", () => {
   beforeEach(() => {
     prismaMock.$queryRaw.mockReset();
     missionMatchingResultRepositoryMock.createForUserScoringVersion.mockReset();
-    publisherDiffusionRuleServiceMock.buildMissionPublisherDiffusionRuleSql.mockReset();
   });
 
   describe("rankMissionsByUserScoring", () => {
@@ -172,28 +159,24 @@ describe("matchingEngineService", () => {
       expect(result.tookMs).toBeGreaterThanOrEqual(0);
     });
 
-    it("injects the SQL filter from the publisher rules into the candidate jobs", async () => {
+    it("joint directement le snapshot complet pour le diffuseur", async () => {
       prismaMock.$queryRaw
-        .mockResolvedValueOnce([
-          {
-            id: "user-scoring-publisher-filter",
-          },
-        ])
+        .mockResolvedValueOnce([{ id: "user-scoring-table-filter" }])
         .mockResolvedValueOnce([]);
-      publisherDiffusionRuleServiceMock.buildMissionPublisherDiffusionRuleSql.mockResolvedValue(Prisma.sql`AND m."publisher_id" = ${"annonceur-1"}`);
       missionMatchingResultRepositoryMock.createForUserScoringVersion.mockResolvedValue({
-        id: "mission-matching-result-publisher-filter",
+        id: "mission-matching-result-table-filter",
       });
 
       await matchingEngineService.rankMissionsByUserScoring({
-        userScoringId: "user-scoring-publisher-filter",
+        userScoringId: "user-scoring-table-filter",
         publisherId: "publisher-diffuseur-1",
       });
 
-      expect(publisherDiffusionRuleServiceMock.buildMissionPublisherDiffusionRuleSql).toHaveBeenCalledWith("publisher-diffuseur-1", { missionAlias: "m" });
-
       const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[1][0]);
-      expect(rankingSql).toContain('AND m."publisher_id" =');
+      expect(rankingSql).toContain('JOIN "mission_diffusion" md');
+      expect(rankingSql).toContain('md."mission_id" = m."id"');
+      expect(rankingSql).toContain('md."distribution_publisher_id" =');
+      expect(rankingSql).not.toContain('FROM "mission_diffusion" md\n      WHERE');
     });
 
     it("does not query taxonomy scores when no mission is ranked", async () => {

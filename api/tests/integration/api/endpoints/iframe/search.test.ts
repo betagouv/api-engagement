@@ -8,7 +8,7 @@ import { createTestMission, createTestPublisher, createTestWidget, createTestWid
 import { createTestApp } from "../../../../testApp";
 
 describe("GET /iframe/:id/search", () => {
-  const app = createTestApp();
+  const app = createTestApp({ syncMissionDiffusion: true });
   let widget: WidgetRecord;
   let publisher: PublisherRecord;
   let mission1: MissionRecord;
