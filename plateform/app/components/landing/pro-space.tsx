@@ -46,7 +46,7 @@ export default function ProSpace() {
           {BENEFITS.map((benefit) => (
             <div key={benefit.title} className="flex flex-col items-center md:items-start gap-2">
               <div className="bg-yellow-tournesol-925 flex size-12 items-center justify-center rounded-full text-2xl">{benefit.icon}</div>
-              <h5 className="fr-h5 fr-mb-0 text-default-grey text-center md:text-left">{benefit.title}</h5>
+              <h3 className="fr-h5 fr-mb-0 text-default-grey text-center md:text-left">{benefit.title}</h3>
               <p className="fr-text--lead text-default-grey fr-mb-0 text-center md:text-left">{benefit.body}</p>
             </div>
           ))}

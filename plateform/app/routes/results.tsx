@@ -199,7 +199,7 @@ export default function ResultsPage() {
           <div className={`flex flex-col gap-2 px-6 py-4 ${expanded ? "items-start!" : "items-center! justify-center! h-full"}`} onClick={handleToggleSheet}>
             {!loading && error && <p className="fr-error-text m-0! text-center!">{error}</p>}
             {!loading && !error && (
-              <h2 className={`m-0! ${expanded ? "text-center!" : ""}`}>
+              <h1 className={`fr-h2 m-0! ${expanded ? "text-center!" : ""}`}>
                 <button
                   type="button"
                   aria-expanded={expanded}
@@ -216,7 +216,7 @@ export default function ResultsPage() {
                   </Highlight>
                   pour toi
                 </button>
-              </h2>
+              </h1>
             )}
 
             {expanded && (
@@ -270,14 +270,14 @@ export default function ResultsPage() {
             <div className="flex flex-col flex-1 py-12">
               <div className="flex gap-2 mb-6 flex-row items-center justify-between gap-4 px-6">
                 {!loading && !error && (
-                  <h2 className="m-0!">
+                  <h1 className="fr-h2 m-0!">
                     <Highlight>
                       <span className="text-blue-france-sun">
                         {pinnedItems.length} mission{pinnedItems.length > 1 ? "s" : ""}
                       </span>
                     </Highlight>
                     pour toi
-                  </h2>
+                  </h1>
                 )}
 
                 <Link to={changeAnswersHref} className="fr-link fr-link--sm shrink-0">
