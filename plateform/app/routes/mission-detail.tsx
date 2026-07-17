@@ -1,6 +1,11 @@
 import type { MissionDetailResponse } from "@engagement/dto";
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useParams, useSearchParams } from "react-router";
+import type { Route } from "./+types/mission-detail";
+
+export function meta(): Route.MetaDescriptors {
+  return [{ title: "Détail de la mission — API Engagement" }];
+}
 
 export async function clientLoader({ params }: { params: { userScoringId?: string } }) {
   return { backHref: params.userScoringId ? `/results/${params.userScoringId}` : "/missions" };
@@ -44,6 +49,12 @@ export default function MissionDetailPage() {
   useEffect(() => {
     if (userScoringId) setQuizSessionId(userScoringId);
   }, [userScoringId]);
+
+  // RGAA 8.5/8.6 : la mission est chargée côté client, meta() ne peut donner qu'un titre générique.
+  // On le remplace par le titre de la mission dès qu'elle est disponible.
+  useEffect(() => {
+    if (mission?.title) document.title = `${mission.title} — API Engagement`;
+  }, [mission]);
 
   // mission_detail.viewed : une fois la fiche chargée, émis une seule fois par mission.
   useEffect(() => {
