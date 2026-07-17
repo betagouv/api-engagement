@@ -67,8 +67,12 @@ export default function EmailMissionModal({ missionId, publisherId, userScoringI
         });
         setSuccess(true);
       }
-    } catch {
-      setError("Une erreur est survenue. Merci de réessayer.");
+    } catch (err) {
+      if (err instanceof Error && err.message === "INVALID_BODY") {
+        setError("Le format de l'adresse email n'est pas valide. Le format attendu est : nom@email.fr");
+      } else {
+        setError("Une erreur est survenue. Merci de réessayer.");
+      }
     } finally {
       setSubmitting(false);
     }
