@@ -20,7 +20,7 @@ export default function MissionCard({ imageSrc, category = "Solidarité", title,
       <div className="flex flex-col gap-2">
         <p className="fr-text font-bold mb-0!">{title}</p>
         <div className="fr-text--xs flex items-center gap-2 m-0!">
-          <img src={AscLogo} className="block w-8" aria-hidden="true" />
+          <img src={AscLogo} alt="" className="block w-8" aria-hidden="true" />
           <span>Service Civique</span>
         </div>
       </div>
