@@ -29,6 +29,19 @@ const formatScore = (value) => (typeof value === "number" ? value.toLocaleString
 
 const formatConfidence = (value) => (typeof value === "number" ? `${(value * 100).toLocaleString("fr", { maximumFractionDigits: 0 })} %` : "N/A");
 
+const buildLink = (applicationUrl) => {
+  if (typeof applicationUrl !== "string" || !applicationUrl.trim()) return null;
+
+  const value = applicationUrl.trim();
+  try {
+    const url = new URL(/^[a-z][a-z\d+.-]*:/i.test(value) ? value : `https://${value}`);
+
+    return ["http:", "https:"].includes(url.protocol) ? url.href : null;
+  } catch {
+    return null;
+  }
+};
+
 const AdminDataTable = ({ caption, emptyMessage, headers, rows, renderRow }) => {
   if (!rows?.length) {
     return <p className="text-text-mention text-sm">{emptyMessage}</p>;
@@ -83,13 +96,6 @@ const View = () => {
     fetchData();
   }, [id]);
 
-  const buildLink = (mission) => {
-    if (mission.applicationUrl.indexOf("http://") === -1 && mission.applicationUrl.indexOf("https://") === -1) {
-      mission.applicationUrl = "https://" + mission.applicationUrl;
-    }
-    return mission.applicationUrl;
-  };
-
   const handleTriggerTask = async (task) => {
     setTriggeringTask(task);
     try {
@@ -110,6 +116,7 @@ const View = () => {
   const isMultiAddress = addresses.length > 1;
   const visibleAddresses = showAllAddresses ? addresses : addresses.slice(0, ADDRESSES_PREVIEW_COUNT);
   const hiddenCount = addresses.length - ADDRESSES_PREVIEW_COUNT;
+  const applicationUrl = buildLink(mission.applicationUrl);
   const isAdmin = user?.role === "admin";
   const rawMission = Object.fromEntries(Object.entries(mission).filter(([key]) => !["adminEnrichment", "adminScoring"].includes(key)));
   const selectedTechnicalTabKey = isAdmin ? activeTechnicalTab : "raw";
@@ -199,10 +206,12 @@ const View = () => {
             <p className="mt-2">Mise à jour le {new Date(mission.lastSyncAt).toLocaleString().replace(" ", " à ")}</p>
           </div>
 
-          <a className="tertiary-bis-btn flex h-fit items-center" href={buildLink(mission)} target="_blank">
-            <RiCursorFill className="mr-2" aria-hidden="true" />
-            <span>Lien vers la mission</span>
-          </a>
+          {applicationUrl && (
+            <a className="tertiary-bis-btn flex h-fit items-center" href={applicationUrl} target="_blank" rel="noopener noreferrer">
+              <RiCursorFill className="mr-2" aria-hidden="true" />
+              <span>Lien vers la mission</span>
+            </a>
+          )}
         </div>
 
         <div className="border-grey-border grid grid-cols-1 gap-4 border p-4 lg:grid-cols-[minmax(0,2fr)_1px_minmax(280px,1fr)] lg:p-6">
