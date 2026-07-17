@@ -24,7 +24,7 @@ export default function CheckboxGroupRich({ title, subtitle, onChange, options, 
       className={`fr-fieldset block! ${error ? "fr-fieldset--error" : ""}`}
       id="checkbox-group-rich"
       role="group"
-      aria-describedby={`checkbox-group-rich-legend ${error && "checkbox-group-rich-messages"}`}
+      aria-describedby={error ? "checkbox-group-rich-legend checkbox-group-rich-messages" : "checkbox-group-rich-legend"}
     >
       <legend className="fr-h1 mb-10! ml-2!" id="checkbox-group-rich-legend">
         {title}
@@ -42,6 +42,7 @@ export default function CheckboxGroupRich({ title, subtitle, onChange, options, 
                 onChange={() => toggle(o.value)}
                 checked={!o.disabled && selected.includes(o.value)}
                 disabled={o.disabled}
+                aria-invalid={error ? true : undefined}
               />
               <label
                 className={`fr-label text-base before:size-4! after:absolute after:inset-0 after:right-[-5.5rem] after:content-[''] ${o.disabled ? "cursor-not-allowed!" : ""}`}

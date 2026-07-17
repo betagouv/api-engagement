@@ -18,7 +18,7 @@ export default function RadioGroup({ title, subtitle, onChange, options, selecte
       className={`fr-fieldset block! ${error ? "fr-fieldset--error" : ""}`}
       id="radio-group"
       role="group"
-      aria-describedby={`radio-group-legend ${error && "radio-group-messages"}`}
+      aria-describedby={error ? "radio-group-legend radio-group-messages" : "radio-group-legend"}
     >
       <legend className="fr-h1 mb-10! ml-2!" id="radio-group-legend">
         {title}
@@ -39,6 +39,7 @@ export default function RadioGroup({ title, subtitle, onChange, options, selecte
                 onChange={() => onChange(o.value)}
                 checked={!o.disabled && selected === o.value}
                 disabled={o.disabled}
+                aria-invalid={error ? true : undefined}
               />
               <label className={`fr-label text-sm w-full ${o.disabled ? "cursor-not-allowed!" : ""}`} htmlFor={`radio-group-${o.value}`}>
                 {o.label}

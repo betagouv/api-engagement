@@ -64,16 +64,27 @@ export default function Newsletter({
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="max-w-md">
-              {error && (
-                <div className="fr-alert fr-alert--error fr-mb-2w">
-                  <p>{error}</p>
-                </div>
-              )}
-              <div className="fr-input-group fr-mb-2w">
+              <div className={`fr-input-group fr-mb-2w ${error ? "fr-input-group--error" : ""}`}>
                 <label className="fr-label sr-only" htmlFor="newsletter-email">
                   Adresse email
                 </label>
-                <input id="newsletter-email" name="email" type="email" required className="fr-input bg-background!" placeholder="nom@email.fr" />
+                <input
+                  id="newsletter-email"
+                  name="email"
+                  type="email"
+                  required
+                  aria-required="true"
+                  aria-invalid={error ? true : undefined}
+                  aria-describedby={error ? "newsletter-email-error" : undefined}
+                  className="fr-input bg-background!"
+                  placeholder="nom@email.fr"
+                />
+                <p className="fr-hint-text fr-mt-1w">Champ obligatoire</p>
+                {error && (
+                  <div className="fr-messages-group" id="newsletter-email-error" aria-live="assertive">
+                    <p className="fr-message fr-message--error">{error}</p>
+                  </div>
+                )}
               </div>
               <button type="submit" disabled={loading} className="fr-btn w-full! md:w-auto! justify-center! md:justify-start!">
                 {loading ? "Inscription en cours…" : ctaText}
