@@ -48,7 +48,7 @@ export default function Partners({ style = "default" }: { style?: "default" | "c
           {PARTNERS.map((partner) => (
             <div key={partner.name} className={`flex items-start gap-2 ${style === "compact" ? "flex-1" : "gap-4"}`}>
               <div className="flex items-center justify-center bg-white rounded-sm p-1">
-                <img src={partner.logo} className="size-10 shrink-0 rounded object-contain" aria-hidden="true" />
+                <img src={partner.logo} alt="" className="size-10 shrink-0 rounded object-contain" aria-hidden="true" />
               </div>
               <div className="flex-1">
                 <p className="fr-mb-0 font-bold">
