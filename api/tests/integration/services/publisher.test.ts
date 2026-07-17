@@ -7,13 +7,20 @@ import { createTestPublisher } from "../../fixtures";
 
 describe("publisherService diffusion sync", () => {
   it("creates a self scope root when an API diffuser is created without explicit publishers", async () => {
-    const diffuseur = await createTestPublisher({ name: "API diffuseur self scope", hasApiRights: true, publishers: [] });
+    const diffuseur = await publisherService.createPublisher({ name: "API diffuseur self scope", hasApiRights: true });
 
     const roots = await publisherDiffusionRuleService.findRules({ publisherId: diffuseur.id, ...DIFFUSION_SCOPE_ROOT_CRITERIA });
 
     expect(diffuseur.publishers).toHaveLength(1);
     expect(diffuseur.publishers[0].publisherId).toBe(diffuseur.id);
     expect(roots.map((root) => root.value)).toEqual([diffuseur.id]);
+  });
+
+  it("does not create a self scope root when an API diffuser is created with an explicit empty publishers list", async () => {
+    const diffuseur = await createTestPublisher({ name: "API diffuseur empty scope", hasApiRights: true, publishers: [] });
+
+    expect(diffuseur.publishers).toHaveLength(0);
+    expect(await publisherDiffusionRuleService.findRules({ publisherId: diffuseur.id, ...DIFFUSION_SCOPE_ROOT_CRITERIA })).toHaveLength(0);
   });
 
   it("does not create a self scope root for a widget-only diffuser without explicit publishers", async () => {
@@ -41,15 +48,14 @@ describe("publisherService diffusion sync", () => {
     await expect(publisherService.findOnePublisherByName("Diffuseur rollback create")).resolves.toBeNull();
   });
 
-  it("keeps an explicit self scope root when publishers is null and API rights stay enabled", async () => {
+  it("clears all scope roots when publishers is null", async () => {
     const annonceur = await createTestPublisher({ name: "Annonceur" });
     const diffuseur = await createTestPublisher({ name: "Diffuseur", publishers: [{ publisherId: annonceur.id }] });
 
     const updated = await publisherService.updatePublisher(diffuseur.id, { publishers: null });
 
-    expect(updated.publishers).toHaveLength(1);
-    expect(updated.publishers[0].publisherId).toBe(diffuseur.id);
-    expect((await publisherDiffusionRuleService.findRules({ publisherId: diffuseur.id, ...DIFFUSION_SCOPE_ROOT_CRITERIA })).map((root) => root.value)).toEqual([diffuseur.id]);
+    expect(updated.publishers).toHaveLength(0);
+    expect(await publisherDiffusionRuleService.findRules({ publisherId: diffuseur.id, combinedWithId: null })).toHaveLength(0);
   });
 
   it("creates a self scope root when API rights are enabled without explicit publishers", async () => {

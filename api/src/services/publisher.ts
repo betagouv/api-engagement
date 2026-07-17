@@ -143,13 +143,6 @@ export const publisherService = (() => {
       key: (publisherId) => publisherId,
     });
 
-  const resolveExplicitDiffusionPartnerIds = (publisherId: string, hasApiRights: boolean, partnerIds: string[]): string[] => {
-    if (partnerIds.length) {
-      return partnerIds;
-    }
-    return hasApiRights ? [publisherId] : [];
-  };
-
   const ensureDiffusionPartnersExist = async (tx: Prisma.TransactionClient, partnerIds: string[]): Promise<void> => {
     const uniqueIds = Array.from(new Set(partnerIds));
     if (!uniqueIds.length) {
@@ -252,6 +245,7 @@ export const publisherService = (() => {
     const normalizedPartnerIds = normalizeDiffusionPartnerIds(input.publishers);
     const rightsEnabled = Boolean(input.hasApiRights || input.hasWidgetRights || input.hasCampaignRights);
     const hasApiRights = input.hasApiRights ?? false;
+    const shouldBootstrapApiDiffusionRoots = hasApiRights && input.publishers === undefined;
     const id = input.id ?? (await generateUniquePublisherId());
 
     const data: Prisma.PublisherCreateInput = {
@@ -288,8 +282,8 @@ export const publisherService = (() => {
 
     const created = await prisma.$transaction(async (tx) => {
       const publisher = await tx.publisher.create({ data, include: defaultInclude });
-      if (rightsEnabled && (normalizedPartnerIds.length || hasApiRights)) {
-        await syncDiffusionScopeRoots(tx, publisher.id, resolveExplicitDiffusionPartnerIds(publisher.id, hasApiRights, normalizedPartnerIds));
+      if (rightsEnabled && (normalizedPartnerIds.length || shouldBootstrapApiDiffusionRoots)) {
+        await syncDiffusionScopeRoots(tx, publisher.id, normalizedPartnerIds.length ? normalizedPartnerIds : [publisher.id]);
       }
       return publisher;
     });
@@ -507,7 +501,7 @@ export const publisherService = (() => {
       });
 
       if (shouldSyncExplicitDiffusions) {
-        await syncDiffusionScopeRoots(tx, id, resolveExplicitDiffusionPartnerIds(id, effectiveRights.hasApiRights, normalizedPartnerIds ?? []));
+        await syncDiffusionScopeRoots(tx, id, normalizedPartnerIds ?? []);
       } else if (shouldBootstrapApiDiffusionRoots) {
         const existingRoots = await publisherDiffusionRuleService.findRules({ publisherId: id, ...DIFFUSION_SCOPE_ROOT_CRITERIA }, tx);
         if (existingRoots.length === 0) {
