@@ -191,7 +191,8 @@ function FilterAccordion({ filter, open, onToggleOpen, onChange }: FilterAccordi
       </button>
 
       {open && (
-        <div className="mt-3 flex flex-col gap-2">
+        <fieldset className="mt-3 flex w-full min-w-0 flex-col gap-2">
+          <legend className="sr-only">{filter.label}</legend>
           {isSingle && (
             <div className="fr-radio-group">
               <input type="radio" id={`${reactId}-all`} name={`${reactId}-group`} checked={filter.selected.length === 0} onChange={() => onChange([])} />
@@ -224,7 +225,7 @@ function FilterAccordion({ filter, open, onToggleOpen, onChange }: FilterAccordi
               </div>
             );
           })}
-        </div>
+        </fieldset>
       )}
     </div>
   );
