@@ -5,10 +5,12 @@ import passport from "passport";
 import { HeaderAPIKeyStrategy } from "passport-headerapikey";
 import { ExtractJwt, Strategy as JwtStrategy } from "passport-jwt";
 
-import { PUBLISHER_IDS, SECRET } from "@/config";
+import { ensureJwtSecretIsConfigured, PUBLISHER_IDS, SECRET } from "@/config";
 import { captureException } from "@/error";
 import { publisherService } from "@/services/publisher";
 import { userService } from "@/services/user";
+
+ensureJwtSecretIsConfigured();
 
 const userOptions = {
   jwtFromRequest: (req: Request) => ExtractJwt.fromAuthHeaderWithScheme("jwt")(req),

@@ -4,7 +4,7 @@ import type { QuizAnswers } from "~/types/quiz";
 import { screenAnswer } from "~/utils/conditions";
 import { buildPayload, refreshSteps } from "../quiz";
 
-const step = (id: StepId, condition?: StepDef["condition"]): StepDef => ({ id, route: `/quiz/${id}`, condition });
+const step = (id: StepId, condition?: StepDef["condition"]): StepDef => ({ id, route: `/quiz/${id}`, title: id, condition });
 
 describe("refreshSteps", () => {
   const flow: StepDef[] = [step("age"), step("handicap", screenAnswer("age", "26_30")), step("statut"), step("localisation")];

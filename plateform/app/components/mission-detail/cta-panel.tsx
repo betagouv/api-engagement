@@ -56,7 +56,7 @@ export default function MissionCtaPanel({ mission, userScoringId, deadlineLabel 
       <hr className="h-px! pb-0! bg-border-default-grey -mx-5! md:mx-0!" />
 
       <div className="flex flex-col gap-3">
-        <a href={mission.applicationUrl} target="_blank" rel="noopener noreferrer" className="fr-btn w-full! justify-center!">
+        <a href={mission.applicationUrl} target="_blank" rel="noopener noreferrer" title="Découvrir la mission - nouvelle fenêtre" className="fr-btn w-full! justify-center!">
           Découvrir la mission
         </a>
 

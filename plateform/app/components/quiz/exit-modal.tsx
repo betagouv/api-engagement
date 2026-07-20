@@ -32,7 +32,7 @@ export default function ExitModal({ className }: ExitModalProps) {
           <Link to="/" className="fr-btn fr-btn--secondary">
             Retourner à l'accueil
           </Link>
-          <Link to="/quiz/results" className="fr-btn">
+          <Link to="/missions" className="fr-btn">
             Voir toutes les missions
           </Link>
         </div>
